@@ -11,7 +11,7 @@ type Props = {
   customers: ICustomer[];
   messengerKinds: any[];
   sentAsChoices: any[];
-  save: (doc: any, closeModal: () => void) => void,
+  save: (doc: any, closeModal: () => void) => void;
 }
 
 class Widget extends Component<Props> {

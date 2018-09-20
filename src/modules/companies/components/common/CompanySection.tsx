@@ -8,9 +8,9 @@ import { Link } from 'react-router-dom';
 import { CompanyChooser } from '../../containers';
 
 type Props = {
-  name: string,
-  companies: ICompany[],
-  onSelect: (companies: ICompany[]) => void,
+  name: string;
+  companies: ICompany[];
+  onSelect: (companies: ICompany[]) => void;
 };
 
 function CompanySection({ name, companies, onSelect }: Props) {

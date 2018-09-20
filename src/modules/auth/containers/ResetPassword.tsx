@@ -8,7 +8,7 @@ import { ResetPassword } from '../components';
 import { mutations } from '../graphql';
 
 interface IProps extends IRouterProps {
-  token: string,
+  token: string;
 };
 
 type MutationResponse = {

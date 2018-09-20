@@ -9,8 +9,8 @@ import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
 
 type Props = {
-  save: (save: { currentPassword: string, newPassword: string, confirmation: string }) => void,
-  closeModal?: () => void,
+  save: (save: { currentPassword: string, newPassword: string, confirmation: string }) => void;
+  closeModal?: () => void;
 };
 
 class ChangePassword extends Component<Props> {

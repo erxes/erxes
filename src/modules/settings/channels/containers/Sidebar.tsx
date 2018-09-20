@@ -7,12 +7,12 @@ import { mutations, queries } from '../graphql';
 import { IChannel } from '../types';
 
 type Props = {
-  channelsQuery: any,
-  usersQuery: any,
-  channelsCountQuery: any,
-  addMutation: (params: { variables: { doc: IChannel } }) => any,
-  editMutation: () => void,
-  removeMutation: (params: { variables: { _id: string } }) => any,
+  channelsQuery: any;
+  usersQuery: any;
+  channelsCountQuery: any;
+  addMutation: (params: { variables: { doc: IChannel } }) => any;
+  editMutation: () => void;
+  removeMutation: (params: { variables: { _id: string } }) => any;
 };
 
 const SidebarContainer = (props: Props) => {

@@ -33,14 +33,14 @@ const SecondLine = styled.div`
 `;
 
 type Props = {
-  user?: any,
-  customer?: any,
-  singleLine?: boolean,
-  firstLine?: React.ReactNode,
-  secondLine?: React.ReactNode,
-  avatarSize?: number,
-  url?: string,
-  isUser?: boolean
+  user?: any;
+  customer?: any;
+  singleLine?: boolean;
+  firstLine?: React.ReactNode;
+  secondLine?: React.ReactNode;
+  avatarSize?: number;
+  url?: string;
+  isUser?: boolean;
 };
 
 class NameCard extends Component<Props> {

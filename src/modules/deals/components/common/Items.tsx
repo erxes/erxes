@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 type Props = {
-  items: any,
-  uppercase?: boolean,
-  color: string
+  items: any;
+  uppercase?: boolean;
+  color: string;
 };
 
 const Item = styledTS<{ uppercase: boolean }>(styled.li)`

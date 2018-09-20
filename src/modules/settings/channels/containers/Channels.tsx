@@ -9,11 +9,11 @@ import { queries } from '../graphql';
 import { IChannel } from '../types';
 
 type Props = {
-  currentChannelId: string,
-  history: any,
-  location: any,
-  integrationsCountQuery: any,
-  channelDetailQuery: any,
+  currentChannelId: string;
+  history: any;
+  location: any;
+  integrationsCountQuery: any;
+  channelDetailQuery: any;
 };
 
 class Channels extends React.Component<Props> {

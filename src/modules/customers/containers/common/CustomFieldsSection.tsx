@@ -10,9 +10,9 @@ import { mutations } from '../../graphql';
 import { ICustomer } from '../../types';
 
 type Props = {
-  customer: ICustomer,
-  customersEdit: (doc: { variables: any }) => Promise<any>,
-  fieldsGroupsQuery: any
+  customer: ICustomer;
+  customersEdit: (doc: { variables: any }) => Promise<any>;
+  fieldsGroupsQuery: any;
 };
 
 const CustomFieldsSection = (props: Props) => {

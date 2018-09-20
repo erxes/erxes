@@ -9,7 +9,7 @@ type Props = {
   queryParams: any;
   notificationsQuery: any;
   notificationCountQuery: any;
-  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => any;
+  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => Promise<any>;
 };
 
 class NotificationListContainer extends React.Component<Props> {

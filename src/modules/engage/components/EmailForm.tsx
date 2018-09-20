@@ -32,20 +32,20 @@ const EmailContent = styled.div`
 `;
 
 type Props = {
-  changeEmail: (name: string, value: any) => void,
-  message?: string,
-  users: IUser[],
-  templates: IEmailTemplate[],
-  defaultValue: any,
-  kind: string
+  changeEmail: (name: string, value: any) => void;
+  message?: string;
+  users: IUser[];
+  templates: IEmailTemplate[];
+  defaultValue: any;
+  kind: string;
 };
 
 type State = {
-  fromUser: string,
-  currentTemplate: string,
-  message: any,
-  email: { subject: string, templateId: string, attachments: any[] },
-  scheduleDate: Date
+  fromUser: string;
+  currentTemplate: string;
+  message: any;
+  email: { subject: string, templateId: string, attachments: any[] };
+  scheduleDate: Date;
 }
 
 class EmailForm extends Component<Props, State> {

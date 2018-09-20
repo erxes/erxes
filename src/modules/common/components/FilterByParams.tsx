@@ -8,17 +8,17 @@ import { IRouterProps } from '../types';
 import Filter from './filterableList/Filter';
 
 interface IProps extends IRouterProps {
-  fields: any[],
-  counts: any,
-  paramKey: string,
-  icon?: string,
-  loading: boolean,
-  searchable?: boolean,
-  update?: () => void
+  fields: any[];
+  counts: any;
+  paramKey: string;
+  icon?: string;
+  loading: boolean;
+  searchable?: boolean;
+  update?: () => void;
 };
 
 type State = {
-  key: string
+  key: string;
 }
 
 const PopoverContent = styled.div`

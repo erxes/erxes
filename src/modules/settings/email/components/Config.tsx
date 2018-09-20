@@ -10,15 +10,15 @@ import React, { Component } from 'react';
 import { IBrand } from '../../brands/types';
 
 type Props = {
-  brand: IBrand,
-  configEmail: (doc: {}, callback: () => void) => void,
-  defaultTemplate: string,
-  closeModal: () => void,
+  brand: IBrand;
+  configEmail: (doc: {}, callback: () => void) => void;
+  defaultTemplate: string;
+  closeModal: () => void;
 };
 
 type State = {
-  type: string,
-  template: string
+  type: string;
+  template: string;
 };
 
 class Config extends Component<Props, State> {

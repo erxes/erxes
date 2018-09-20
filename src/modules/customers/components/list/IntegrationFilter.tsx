@@ -7,10 +7,10 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 
 type Props = {
-  history: any,
-  location: any,
-  match: any,
-  counts: any
+  history: any;
+  location: any;
+  match: any;
+  counts: any;
 };
 
 function IntegrationFilter({ history, counts }: Props) {

@@ -7,8 +7,8 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
 
 type Props = {
-  integration: IIntegration,
-  closeModal?: () => void
+  integration: IIntegration;
+  closeModal?: () => void;
 };
 
 type State = {

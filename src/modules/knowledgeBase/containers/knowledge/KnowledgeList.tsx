@@ -7,14 +7,14 @@ import { KnowledgeList } from '../../components';
 import { mutations, queries } from '../../graphql';
 
 type Props = {
-  queryParams: any,
-  topicsQuery: any,
-  topicsCountQuery: any,
-  addTopicsMutation: (params: { variables: any }) => any,
-  editTopicsMutation: (params: { variables: any }) => any,
-  removeTopicsMutation: (params: { variables: { _id: string } }) => any,
-  currentCategoryId: string,
-  articlesCount: number
+  queryParams: any;
+  topicsQuery: any;
+  topicsCountQuery: any;
+  addTopicsMutation: (params: { variables: any }) => Promise<any>;
+  editTopicsMutation: (params: { variables: any }) => Promise<any>;
+  removeTopicsMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  currentCategoryId: string;
+  articlesCount: number;
 };
 
 const KnowledgeBaseContainer = (props : Props) => {

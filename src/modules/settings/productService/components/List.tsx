@@ -12,11 +12,11 @@ import { IProduct } from '../types';
 import { Form, Row } from './';
 
 type Props = {
-  products: IProduct[],
-  productsCount: number,
-  remove: (_id: string) => void,
-  save: ({ doc }: { doc: any; }, callback: () => void, product?: IProduct) => void,
-  loading: boolean
+  products: IProduct[];
+  productsCount: number;
+  remove: (_id: string) => void;
+  save: ({ doc }: { doc: any; }, callback: () => void, product?: IProduct) => void;
+  loading: boolean;
 };
 
 class List extends Component<Props> {

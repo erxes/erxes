@@ -9,11 +9,11 @@ import { IPipeline } from '../types';
 import { PipelineRow } from './';
 
 type Props = {
-  pipelines: IPipeline[],
-  save: ({ doc }: { doc: any; }, callback: () => void, pipeline?: IPipeline) => void,
-  updateOrder?: any,
-  remove: (_id: string) => void,
-  boardId: string
+  pipelines: IPipeline[];
+  save: ({ doc }: { doc: any; }, callback: () => void, pipeline?: IPipeline) => void;
+  updateOrder?: any;
+  remove: (_id: string) => void;
+  boardId: string;
 };
 
 type State = {

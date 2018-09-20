@@ -7,11 +7,11 @@ import { FlexItem } from '../../styles';
 import { ICompany } from '../../types';
 
 type Props = {
-  company: ICompany,
-  columnsConfig: any[],
-  history: any,
-  isChecked: boolean,
-  toggleBulk: (company: ICompany, isChecked?: boolean) => void,
+  company: ICompany;
+  columnsConfig: any[];
+  history: any;
+  isChecked: boolean;
+  toggleBulk: (company: ICompany, isChecked?: boolean) => void;
 };
 
 function isTimeStamp(value) {

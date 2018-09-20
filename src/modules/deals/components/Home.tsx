@@ -9,12 +9,12 @@ import { IBoard, IPipeline } from '../../settings/deals/types';
 import { Board } from '../containers';
 
 type Props = {
-  currentBoard: IBoard,
-  boards: IBoard[],
-  pipelines?: IPipeline[],
-  onDragEnd?: any,
-  states?: any,
-  loading?: boolean
+  currentBoard: IBoard;
+  boards: IBoard[];
+  pipelines?: IPipeline[];
+  onDragEnd?: any;
+  states?: any;
+  loading?: boolean;
 };
 
 class Home extends React.Component<Props> {

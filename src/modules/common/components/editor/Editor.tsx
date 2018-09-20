@@ -28,11 +28,11 @@ const styleMap = {
 };
 
 type Props = {
-  active: boolean,
-  label?: React.ReactNode,
-  style?: string,
-  title?: string,
-  onToggle: (style?: string) => void
+  active: boolean;
+  label?: React.ReactNode;
+  style?: string;
+  title?: string;
+  onToggle: (style?: string) => void;
 };
 
 class StyleButton extends Component<Props> {

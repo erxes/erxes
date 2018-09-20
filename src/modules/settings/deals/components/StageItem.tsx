@@ -5,10 +5,10 @@ import { StageItemContainer } from '../styles';
 import { IStage } from '../types';
 
 type Props = {
-  stage: IStage,
-  remove: (_id: any) => void,
-  onChange: (_id: any, e: any) => void,
-  onKeyPress: (e: any) => void
+  stage: IStage;
+  remove: (_id: any) => void;
+  onChange: (_id: any, e: any) => void;
+  onKeyPress: (e: any) => void;
 };
 
 class StageItem extends Component<Props, {}> {

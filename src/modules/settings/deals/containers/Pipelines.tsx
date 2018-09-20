@@ -10,10 +10,10 @@ type Props = {
   boardId: string;
   pipelinesQuery: any;
   // TODO replace any
-  addPipelineMutation: (params: { variables: any }) => any;
-  editPipelineMutation: (params: { variables: any }) => any;
-  removePipelineMutation: (params: { variables: { _id: string } }) => any;
-  pipelinesUpdateOrderMutation: (params: { variables: any }) => any;
+  addPipelineMutation: (params: { variables: any }) => Promise<any>;
+  editPipelineMutation: (params: { variables: any }) => Promise<any>;
+  removePipelineMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  pipelinesUpdateOrderMutation: (params: { variables: any }) => Promise<any>;
 };
 
 class PipelinesContainer extends React.Component<Props> {

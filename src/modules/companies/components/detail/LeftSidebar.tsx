@@ -8,8 +8,8 @@ import { Sidebar } from 'modules/layout/components';
 import * as React from 'react';
 
 type Props = {
-  company: ICompany,
-  taggerRefetchQueries?: any[],
+  company: ICompany;
+  taggerRefetchQueries?: any[];
 };
 
 class LeftSidebar extends React.Component<Props> {

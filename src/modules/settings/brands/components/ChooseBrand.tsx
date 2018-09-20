@@ -11,10 +11,10 @@ import { __ } from '../../../common/utils';
 import { IBrand } from '../types';
 
 type Props = {
-  brands: IBrand[],
-  integration: IIntegration,
-  save: (variables: { name: string; brandId: string }) => void,
-  closeModal?: () => void
+  brands: IBrand[];
+  integration: IIntegration;
+  save: (variables: { name: string; brandId: string }) => void;
+  closeModal?: () => void;
 }
 
 class ChooseBrand extends Component<Props> {

@@ -5,16 +5,16 @@ import * as React from 'react';
 import Select from 'react-select-plus';
 
 type Props = {
-  object: any,
-  searchObject: (value: string, callback: (objects: any[]) => void) => void,
-  mergeForm: any,
-  generateOptions: (objects: any[]) => void,
-  onSave: (doc: { ids: string[], data: ICustomer }) => void,
+  object: any;
+  searchObject: (value: string, callback: (objects: any[]) => void) => void;
+  mergeForm: any;
+  generateOptions: (objects: any[]) => void;
+  onSave: (doc: { ids: string[], data: ICustomer }) => void;
 };
 
 type State = {
-  objects: any[],
-  selectedObject: any
+  objects: any[];
+  selectedObject: any;
 }
 
 class TargetMergeModal extends React.Component<Props, State> {

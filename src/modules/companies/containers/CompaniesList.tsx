@@ -10,23 +10,23 @@ import { CompaniesList } from '../components';
 import { mutations, queries } from '../graphql';
 
 interface IProps extends IRouterProps {
-  queryParams?: any,
-  companiesMainQuery?: any,
-  companyCountsQuery?: any,
-  companiesListConfigQuery?: any,
-  companiesRemove: (params: { variables: { companyIds: string[] } }) => Promise<any>,
+  queryParams?: any;
+  companiesMainQuery?: any;
+  companyCountsQuery?: any;
+  companiesListConfigQuery?: any;
+  companiesRemove: (params: { variables: { companyIds: string[] } }) => Promise<any>;
   companiesMerge: (params: {
     variables: {
-      companyIds: string[],
-      companyFields: any
+      companyIds: string[];
+      companyFields: any;
     }
-  }) => Promise<any>,
-  tagsQuery?: any,
-  loading?: boolean,
+  }) => Promise<any>;
+  tagsQuery?: any;
+  loading?: boolean;
 };
 
 type State = {
-  loading: boolean
+  loading: boolean;
 };
 
 class CompanyListContainer extends React.Component<IProps, State> {

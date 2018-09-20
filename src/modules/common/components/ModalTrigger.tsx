@@ -3,18 +3,18 @@ import React, { Component, Fragment } from 'react';
 import { Modal } from 'react-bootstrap';
 
 type Props = {
-  title: string,
-  trigger: any,
-  children?: React.ReactNode,
-  content?: ({ closeModal } : { closeModal: () => void }) => void,
-  contentProps?: any,
-  size?: string,
-  ignoreTrans?: boolean,
-  dialogClassName?: string
+  title: string;
+  trigger: any;
+  children?: React.ReactNode;
+  content?: ({ closeModal } : { closeModal: () => void }) => void;
+  contentProps?: any;
+  size?: string;
+  ignoreTrans?: boolean;
+  dialogClassName?: string;
 };
 
 type State = {
-  isOpen?: boolean
+  isOpen?: boolean;
 }
 
 class ModalTrigger extends Component<Props, State> {

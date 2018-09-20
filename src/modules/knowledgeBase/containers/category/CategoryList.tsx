@@ -6,12 +6,12 @@ import { CategoryList } from '../../components';
 import { mutations, queries } from '../../graphql';
 
 type Props = {
-  categoriesQuery: any
-  categoriesCountQuery: any,
-  articlesCountQuery: any,
-  removeCategoriesMutation: (params: { variables: { _id: string } }) => any,
-  currentCategoryId: string,
-  topicIds: string
+  categoriesQuery: any;
+  categoriesCountQuery: any;
+  articlesCountQuery: any;
+  removeCategoriesMutation: (params: { variables: { _id: string } }) => any;
+  currentCategoryId: string;
+  topicIds: string;
 };
 
 const KnowledgeBaseContainer = (props: Props) => {

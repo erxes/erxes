@@ -5,11 +5,11 @@ import { Navigation } from '../containers';
 import { Layout } from '../styles';
 
 type Props = {
-  history: any,
-  location: any,
-  match: any,
-  currentUser?: IUser,
-  children: React.ReactNode
+  history: any;
+  location: any;
+  match: any;
+  currentUser?: IUser;
+  children: React.ReactNode;
 }
 
 class MainLayout extends React.Component<Props> {

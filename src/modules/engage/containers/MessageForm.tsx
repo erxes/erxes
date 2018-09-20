@@ -5,9 +5,9 @@ import { MessageForm } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  kind: string,
-  engageMessageDetailQuery: any,
-  brandsQuery: any
+  kind: string;
+  engageMessageDetailQuery: any;
+  brandsQuery: any;
 };
 
 const MessageFormContainer = (props : Props) => {

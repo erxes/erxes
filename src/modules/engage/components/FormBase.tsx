@@ -2,13 +2,13 @@ import { __, Alert } from 'modules/common/utils';
 import React, { Component, Fragment } from 'react';
 
 type Props = {
-  save: (params: { isLive: boolean, isDraft: boolean, doc: any }) => void,
-  kind?: string,
+  save: (params: { isLive: boolean, isDraft: boolean, doc: any }) => void;
+  kind?: string;
   content: (params: {
-    renderTitle: () => void,
-    changeState: (name: string, value: string) => void,
-    validateAndSaveForm: (type: string, doc: any) => void,
-   }) => any
+    renderTitle: () => void;
+    changeState: (name: string, value: string) => void;
+    validateAndSaveForm: (type: string, doc: any) => void;
+   }) => any;
 };
 
 class FormBase extends Component<Props> {

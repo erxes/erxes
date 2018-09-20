@@ -6,9 +6,9 @@ import { IBrand } from '../../settings/brands/types';
 import { BrandFilter } from '../components';
 
 type Props = {
-  brands: IBrand[],
-  loading: boolean,
-  counts: any,
+  brands: IBrand[];
+  loading: boolean;
+  counts: any;
 };
 
 class BrandFilterContainer extends React.Component<Props> {

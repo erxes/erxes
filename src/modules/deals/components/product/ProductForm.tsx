@@ -7,11 +7,11 @@ import { ProductItemForm } from '../../containers';
 import { Add, Footer, FooterInfo, FormContainer } from '../../styles/product';
 
 type Props = {
-  onChangeProductsData: (productsData: any) => void,
-  saveProductsData: () => void,
-  productsData: any,
-  products: IProduct[],
-  closeModal: () => void
+  onChangeProductsData: (productsData: any) => void;
+  saveProductsData: () => void;
+  productsData: any;
+  products: IProduct[];
+  closeModal: () => void;
 };
 
 type State = {

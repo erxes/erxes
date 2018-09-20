@@ -4,11 +4,11 @@ import { CategoryRow } from './';
 import { Categories } from './styles';
 
 type Props = {
-  currentCategoryId: string,
-  topicIds: string,
-  categories: ICategory[],
-  articlesCount: number,
-  remove: ( _id: string ) => void
+  currentCategoryId: string;
+  topicIds: string;
+  categories: ICategory[];
+  articlesCount: number;
+  remove: ( _id: string ) => void;
 };
 
 class CategoryList extends Component<Props> {

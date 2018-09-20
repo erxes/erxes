@@ -24,11 +24,11 @@ const Item = styled.li`
 `;
 
 type Props = {
-  children: React.ReactNode,
-  active?: boolean,
-  to: string,
-  title?: string,
-  target?: string
+  children: React.ReactNode;
+  active?: boolean;
+  to: string;
+  title?: string;
+  target?: string;
 };
 
 function BreadcrumbItem({ active, to, title, target, children, ...props }: Props) {

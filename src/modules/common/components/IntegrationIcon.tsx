@@ -31,10 +31,10 @@ const RoundedBackground = styledTS<{ type: string }>(styled.span)`
 `;
 
 type Props = {
-  customer: any,
-  integration: any,
-  facebookData?: any,
-  twitterData?: any
+  customer: any;
+  integration: any;
+  facebookData?: any;
+  twitterData?: any;
 };
 
 class IntegrationIcon extends Component<Props> {

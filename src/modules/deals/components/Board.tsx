@@ -6,11 +6,11 @@ import { Pipeline } from '../containers';
 import { IBoard, IPipeline } from '../types';
 
 type Props = {
-  currentBoard?: IBoard,
-  pipelines: IPipeline[],
-  states: any,
-  onDragEnd: any,
-  loading: boolean
+  currentBoard?: IBoard;
+  pipelines: IPipeline[];
+  states: any;
+  onDragEnd: any;
+  loading: boolean;
 };
 
 class Board extends React.Component<Props> {

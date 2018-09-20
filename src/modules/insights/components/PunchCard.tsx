@@ -3,8 +3,8 @@ import * as React from 'react';
 import { ChartWrapper } from '../styles';
 
 type Props = {
-  data: any,
-  width: number
+  data: any;
+  width: number;
 };
 
 class PunchCard extends React.Component<Props> {

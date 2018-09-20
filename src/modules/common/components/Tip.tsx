@@ -2,9 +2,9 @@ import * as React from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 type Props = {
-  text?: string | React.ReactNode,
-  children: React.ReactNode,
-  placement?: string
+  text?: string | React.ReactNode;
+  children: React.ReactNode;
+  placement?: string;
 };
 
 function Tip({ text, children, placement }: Props) {

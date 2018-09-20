@@ -5,11 +5,11 @@ import { DragHandler, SortableWrapper, SortItem } from '../styles/sort';
 import { reorder } from '../utils';
 
 type Props = {
-  fields: any[],
-  child: (field: any) => void,
-  onChangeFields: (reorderedFields: any ) => void,
-  isModal?: boolean,
-  showDragHandler?: boolean | true
+  fields: any[];
+  child: (field: any) => void;
+  onChangeFields: (reorderedFields: any ) => void;
+  isModal?: boolean;
+  showDragHandler?: boolean | true;
 };
 
 class SortableList extends Component<Props> {

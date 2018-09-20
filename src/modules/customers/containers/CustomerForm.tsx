@@ -7,10 +7,10 @@ import { CustomerForm } from '../components';
 import { mutations } from '../graphql';
 
 type Props = {
-  customer: ICustomer,
-  closeModal: () => void,
-  customersEdit: (params: { variables: ICustomer }) => Promise<any>,
-  customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>
+  customer: ICustomer;
+  closeModal: () => void;
+  customersEdit: (params: { variables: ICustomer }) => Promise<any>;
+  customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>;
 };
 
 const CustomerFormContainer = (props: Props) => {

@@ -11,12 +11,12 @@ import Datetime from 'react-datetime';
 import { DateTimePicker, SelectMonth } from '../styles';
 
 type Props = {
-  scheduleDate: any,
-  onChange: (name: string, value: any) => void
+  scheduleDate: any;
+  onChange: (name: string, value: any) => void;
 };
 
 type State = {
-  scheduleDate: any
+  scheduleDate: any;
 }
 
 class Scheduler extends Component<Props, State> {

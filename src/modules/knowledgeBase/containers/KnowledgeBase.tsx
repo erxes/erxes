@@ -8,11 +8,11 @@ import { KnowledgeBase as KnowledgeBaseComponent } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  currentCategoryId: string,
-  articlesCountQuery: any,
-  categoryDetailQuery: any,
-  history: any,
-  location: any,
+  currentCategoryId: string;
+  articlesCountQuery: any;
+  categoryDetailQuery: any;
+  history: any;
+  location: any;
 };
 
 class KnowledgeBase extends React.Component<Props> {

@@ -8,6 +8,17 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 
+type Props = {
+  usersQuery: any;
+  brandsQuery: any;
+  integrationId: string;
+  integrationDetailQuery: any;
+  saveConfigsMutation: (params: { variables: { _id: string, messengerData: IMessengerData } }) => any;
+  saveAppearanceMutation: (params: { variables: { _id: string, uiOptions: IUiOptions } }) => void;
+  editMessengerMutation: (params: { variables: { _id: string, name: string, brandId: string, languageCode: string } }) => any;
+  history: any;
+};
+
 const EditMessenger = (props: Props) => {
   const {
     history,
@@ -71,17 +82,6 @@ const EditMessenger = (props: Props) => {
   };
 
   return <Form {...updatedProps} />;
-};
-
-type Props = {
-  usersQuery: any,
-  brandsQuery: any,
-  integrationId: string,
-  integrationDetailQuery: any,
-  saveConfigsMutation: (params: { variables: { _id: string, messengerData: IMessengerData } }) => any,
-  saveAppearanceMutation: (params: { variables: { _id: string, uiOptions: IUiOptions } }) => void,
-  editMessengerMutation: (params: { variables: { _id: string, name: string, brandId: string, languageCode: string } }) => any,
-  history: any
 };
 
 const commonOptions = ({ queryParams, integrationId }) => {

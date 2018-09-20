@@ -10,9 +10,9 @@ import { LEAD_STATUS_TYPES } from '../../constants';
 import { leadStatusChoices } from '../../utils';
 
 interface IProps extends IRouterProps {
-  counts: any,
-  loading: boolean,
-  searchable?: boolean 
+  counts: any;
+  loading: boolean;
+  searchable?: boolean;
 };
 
 class LeadStatusFilter extends Component<IProps> {

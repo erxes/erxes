@@ -10,9 +10,9 @@ import { LIFECYCLE_STATE_TYPES } from '../../constants';
 import { lifecycleStateChoices } from '../../utils';
 
 interface IProps extends IRouterProps {
-  counts: any,
-  loading: boolean,
-  searchable?: boolean
+  counts: any;
+  loading: boolean;
+  searchable?: boolean;
 };
 
 class LifecycleStateFilter extends Component<IProps> {

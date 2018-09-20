@@ -9,8 +9,8 @@ import { SignIn } from '../components';
 import { mutations } from '../graphql';
 
 type Props = {
-  loginMutation: (params: { variables: any }) => any
-  history: any
+  loginMutation: (params: { variables: any }) => any;
+  history: any;
 };
 
 const SignInContainer = (props: Props) => {

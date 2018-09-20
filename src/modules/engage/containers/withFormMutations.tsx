@@ -7,13 +7,13 @@ import { mutations, queries } from '../graphql';
 import { crudMutationsOptions } from '../utils';
 
 type Props = {
-  messageId: string,
-  history: any,
-  kind: string,
-  engageMessageDetailQuery: any,
-  usersQuery: any,
-  addMutation: (params: { vairables: any }) => any
-  editMutation: (params: { vairables: any }) => any
+  messageId: string;
+  history: any;
+  kind: string;
+  engageMessageDetailQuery: any;
+  usersQuery: any;
+  addMutation: (params: { vairables: any }) => Promise<any>;
+  editMutation: (params: { vairables: any }) => Promise<any>;
 };
 
 const withSaveAndEdit = Component => {

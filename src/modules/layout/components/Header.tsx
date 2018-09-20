@@ -4,8 +4,8 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 type Props = {
-  breadcrumb: any,
-  queryParams?: any
+  breadcrumb: any;
+  queryParams?: any;
 };
 
 const PageHeader = styled.div`

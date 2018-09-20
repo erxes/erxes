@@ -19,9 +19,9 @@ import { CompanyForm } from '../../containers';
 import { ICompany } from '../../types';
 
 type Props = {
-  company: ICompany,
-  remove: () => void,
-  merge: (params: { ids: string[], data: any }) => void,
+  company: ICompany;
+  remove: () => void;
+  merge: (params: { ids: string[], data: any }) => void;
 };
 
 class BasicInfo extends React.Component<Props> {

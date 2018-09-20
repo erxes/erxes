@@ -6,10 +6,10 @@ import { ChartWrapper, LoaderWrapper } from '../styles';
 import { IChartParams } from '../types'
 
 interface IProps {
-  data: IChartParams[],
-  loading?: boolean,
-  width?: number,
-  height: number
+  data: IChartParams[];
+  loading?: boolean;
+  width?: number;
+  height: number;
 };
 
 class Chart extends React.Component<IProps> {

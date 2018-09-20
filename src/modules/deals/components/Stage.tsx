@@ -17,13 +17,13 @@ import {
 import { IDeal } from '../types';
 
 type Props = {
-  stage: any,
-  deals: IDeal[],
-  index?: number,
-  length?: number,
-  saveDeal: (doc: IDeal, callback: any, deal: IDeal) => void,
-  removeDeal: (_id: string) => void,
-  stageId: string
+  stage: any;
+  deals: IDeal[];
+  index?: number;
+  length?: number;
+  saveDeal: (doc: IDeal, callback: any, deal: IDeal) => void;
+  removeDeal: (_id: string) => void;
+  stageId: string;
 };
 
 class Stage extends React.Component<Props> {

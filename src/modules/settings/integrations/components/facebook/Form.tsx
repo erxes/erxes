@@ -12,11 +12,11 @@ import { IBrand } from '../../../brands/types';
 import { IApps, IPages } from '../../types';
 
 type Props = {
-  save: (params: {name: string, brandId: string, appId: string, pageIds: string[]}) => void,
-  onAppSelect: (appId: string) => void,
-  brands: IBrand[],
-  apps: IApps[],
-  pages: IPages[]
+  save: (params: {name: string, brandId: string, appId: string, pageIds: string[]}) => void;
+  onAppSelect: (appId: string) => void;
+  brands: IBrand[];
+  apps: IApps[];
+  pages: IPages[];
 };
 
 class Facebook extends Component<Props> {

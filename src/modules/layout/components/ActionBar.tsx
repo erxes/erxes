@@ -2,9 +2,9 @@ import * as React from 'react';
 import { ContentHeader, HeaderItems } from '../styles';
 
 type Props = {
-  left?: React.ReactNode,
-  right?: React.ReactNode,
-  background?: string
+  left?: React.ReactNode;
+  right?: React.ReactNode;
+  background?: string;
 }
 
 function ActionBar({ left, right, background }: Props) {

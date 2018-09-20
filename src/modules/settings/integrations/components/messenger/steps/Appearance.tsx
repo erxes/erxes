@@ -14,15 +14,15 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
 
 type Props = {
-  onChange: (name: string, value: string) => void,
-  color: string,
-  logoPreviewUrl?: string,
-  wallpaper: string
+  onChange: (name: string, value: string) => void;
+  color: string;
+  logoPreviewUrl?: string;
+  wallpaper: string;
 };
 
 type State = {
-  color: string
-  wallpaper: string
+  color: string;
+  wallpaper: string;
 };
 
 class Appearance extends Component<Props, State> {

@@ -6,13 +6,13 @@ import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 
 type Props = {
-  history: any,
-  location: any,
-  match: any,
-  tags: any[],
-  counts: any,
-  manageUrl: string,
-  loading: boolean,
+  history: any;
+  location: any;
+  match: any;
+  tags: any[];
+  counts: any;
+  manageUrl: string;
+  loading: boolean;
 };
 
 function CountsByTag({ history, tags, counts, manageUrl, loading }: Props) {

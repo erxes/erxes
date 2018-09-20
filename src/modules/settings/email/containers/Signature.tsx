@@ -6,9 +6,9 @@ import { compose, graphql } from 'react-apollo';
 import { Signature } from '../components';
 
 type Props = {
-  brandsQuery: any,
-  closeModal: () => void,
-  saveMutation: (params: { variables: { signatures: any } }) => any
+  brandsQuery: any;
+  closeModal: () => void;
+  saveMutation: (params: { variables: { signatures: any } }) => Promise<any>;
 };
 
 const SignatureContainer = (props: Props, { currentUser }) => {

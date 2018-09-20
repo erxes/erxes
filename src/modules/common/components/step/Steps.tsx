@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { StepContainer } from './styles';
 
 type Props = {
-  children: any,
-  active: number,
-  maxStep?: number
+  children: any;
+  active: number;
+  maxStep?: number;
 };
 
 type State = {
-  activeStep: number,
-  maxStep: number
+  activeStep: number;
+  maxStep: number;
 }
 
 class Steps extends Component<Props, State> {

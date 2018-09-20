@@ -12,9 +12,9 @@ import { BrandFilter } from 'modules/customers/containers';
 import Segments from 'modules/segments/containers/Filter';
 
 type Props = {
-  counts: any,
-  tags: any[],
-  loading: boolean
+  counts: any;
+  tags: any[];
+  loading: boolean;
 };
 
 function Sidebar({ counts, tags, loading }: Props) {

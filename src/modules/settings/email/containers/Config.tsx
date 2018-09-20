@@ -48,10 +48,10 @@ const defaultTemplate = `<p>Dear {{fullName}},</p>
 </style>`;
 
 type ConfigProps = {
-  brandQuery: any,
-  refetch: () => void,
-  closeModal: () => void,
-  configEmailMutation: (params: { variables: any }) => any
+  brandQuery: any;
+  refetch: () => void;
+  closeModal: () => void;
+  configEmailMutation: (params: { variables: any }) => any;
 };
 
 const ConfigContainer = (props: ConfigProps) => {

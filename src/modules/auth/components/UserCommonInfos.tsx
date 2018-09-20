@@ -15,8 +15,8 @@ import React, { Component, Fragment } from 'react';
 import { IUser } from '../types';
 
 type Props = {
-  user: IUser,
-  onAvatarUpload: (url: string) => void
+  user: IUser;
+  onAvatarUpload: (url: string) => void;
 };
 
 class UserCommonInfos extends Component<Props> {

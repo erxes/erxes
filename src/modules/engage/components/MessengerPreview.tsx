@@ -8,13 +8,13 @@ import { LogoContainer } from 'modules/settings/styles';
 import { Messenger, PreviewContent, WebPreview } from '../styles';
 
 type Props = {
-  content?: string,
-  user: IUser,
-  sentAs?: string
+  content?: string;
+  user: IUser;
+  sentAs?: string;
 };
 
 type State = {
-  fromUser: string
+  fromUser: string;
 }
 
 class MessengerPreview extends Component<Props, State> {

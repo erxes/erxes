@@ -10,15 +10,15 @@ import { mutations, queries } from '../graphql';
 import { companyBasicInfos, customerBasicInfos } from '../utils';
 
 type Props = {
-  queryParams: any,
-  fieldsGroupsQuery: any,
-  history: any,
-  location: any,
-  match: any,
-  fieldsGroupsRemove: (params: { variables: { _id: string } }) => any,
-  fieldsRemove: (params: { variables: { _id: string } }) => any,
-  fieldsGroupsUpdateVisible: (params: { variables: { _id: string, isVisible: boolean } }) => any,
-  fieldsUpdateVisible: (params: { variables: { _id: string, isVisible: boolean } }) => any
+  queryParams: any;
+  fieldsGroupsQuery: any;
+  history: any;
+  location: any;
+  match: any;
+  fieldsGroupsRemove: (params: { variables: { _id: string } }) => Promise<any>;
+  fieldsRemove: (params: { variables: { _id: string } }) => Promise<any>;
+  fieldsGroupsUpdateVisible: (params: { variables: { _id: string, isVisible: boolean } }) =>Promise<any>;
+  fieldsUpdateVisible: (params: { variables: { _id: string, isVisible: boolean } }) => Promise<any>;
 };
 
 const PropertiesContainer = (props: Props) => {

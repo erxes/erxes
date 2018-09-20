@@ -13,17 +13,17 @@ import { IChartParams, InsightParams, IQueryParams } from '../types';
 import { Chart, Filter, PunchCard, Sidebar } from './';
 
 type Props = {
-  brands: IBrand[],
-  trend: IChartParams[],
-  queryParams: IQueryParams,
-  history: any,
-  teamMembers?: IChartParams[],
-  time?: number,
-  isLoading?: boolean
-  punch?: any,
-  summary?: any,
-  loading?: any,
-  insights?: InsightParams[]
+  brands: IBrand[];
+  trend: IChartParams[];
+  queryParams: IQueryParams;
+  history: any;
+  teamMembers?: IChartParams[];
+  time?: number;
+  isLoading?: boolean;
+  punch?: any;
+  summary?: any;
+  loading?: any;
+  insights?: InsightParams[];
 };
 
 class CommonReport extends Component<Props, { width: number }> {

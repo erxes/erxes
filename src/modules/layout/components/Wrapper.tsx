@@ -6,13 +6,13 @@ import PageContent from './PageContent';
 import Sidebar from './Sidebar';
 
 type Props = {
-  header?: React.ReactNode,
-  leftSidebar?: React.ReactNode,
-  rightSidebar?: React.ReactNode,
-  actionBar?: React.ReactNode,
-  content: React.ReactNode,
-  footer?: React.ReactNode,
-  transparent?: boolean
+  header?: React.ReactNode;
+  leftSidebar?: React.ReactNode;
+  rightSidebar?: React.ReactNode;
+  actionBar?: React.ReactNode;
+  content: React.ReactNode;
+  footer?: React.ReactNode;
+  transparent?: boolean;
 };
 
 class Wrapper extends React.Component<Props> {

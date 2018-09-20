@@ -12,12 +12,12 @@ import React, { Component } from 'react';
 import { FlexPad, InlineForm } from './styles';
 
 type Props = {
-  rules: any[],
-  changeRules: (name: string, rules: any[]) => void
+  rules: any[];
+  changeRules: (name: string, rules: any[]) => void;
 };
 
 type State = {
-  rules: any[]
+  rules: any[];
 }
 
 class ConditionStep extends Component<Props, State> {

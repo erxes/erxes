@@ -11,10 +11,10 @@ import { ArticleForm, ArticleList, KnowledgeList } from '../containers';
 import { ICategory } from '../types';
 
 type Props = {
-  queryParams: any,
-  articlesCount: number,
-  loading: boolean,
-  currentCategory: ICategory
+  queryParams: any;
+  articlesCount: number;
+  loading: boolean;
+  currentCategory: ICategory;
 };
 
 class KnowledgeBase extends Component<Props> {

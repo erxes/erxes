@@ -20,20 +20,20 @@ const SegmentWrapper = styled.div`
 `;
 
 type Props = {
-  fields: ISegmentField[],
-  create: (params: any) => void,
-  headSegments: ISegment[],
-  count: (segment: any) => void,
-  createSegment: (value: boolean) => void
+  fields: ISegmentField[];
+  create: (params: any) => void;
+  headSegments: ISegment[];
+  count: (segment: any) => void;
+  createSegment: (value: boolean) => void;
 };
 
 type State = {
-  name: string,
-  description: string,
-  subOf: string,
-  color: string,
-  conditions: any[],
-  connector: string
+  name: string;
+  description: string;
+  subOf: string;
+  color: string;
+  conditions: any[];
+  connector: string;
 }
 
 class SegmentsForm extends Component<Props, State> {

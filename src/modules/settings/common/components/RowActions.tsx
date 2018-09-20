@@ -10,10 +10,10 @@ import * as React from 'react';
 
 type Props = {
   size?: string;
-  object: any,
-  renderForm: (doc: { object: any, closeModal: () => void, save: () => void }) => void,
-  remove: (_id: string) => void,
-  save: () => void,
+  object: any;
+  renderForm: (doc: { object: any, closeModal: () => void, save: () => void }) => void;
+  remove: (_id: string) => void;
+  save: () => void;
 };
 
 export default class RowActions extends React.Component<Props, {}> {

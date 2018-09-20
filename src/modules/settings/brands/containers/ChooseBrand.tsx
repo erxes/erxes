@@ -8,12 +8,12 @@ import { ChooseBrand } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  integration: IIntegration,
-  brandsQuery: any,
-  addMutation: () => void,
-  editMutation: () => void,
-  onSave: () => void,
-  refetch: () => void,
+  integration: IIntegration;
+  brandsQuery: any;
+  addMutation: () => void;
+  editMutation: () => void;
+  onSave: () => void;
+  refetch: () => void;
 };
 
 const ChooseBrandContainer = (props: Props) => {

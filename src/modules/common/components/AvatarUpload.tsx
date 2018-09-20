@@ -9,14 +9,14 @@ import { Avatar } from '../styles/main';
 import { Alert, uploadHandler } from '../utils';
 
 type Props = {
-  avatar?: string,
-  defaultAvatar?: string,
-  onAvatarUpload: (response: any) => void
+  avatar?: string;
+  defaultAvatar?: string;
+  onAvatarUpload: (response: any) => void;
 };
 
 type State = {
-  avatarPreviewStyle: any,
-  avatarPreviewUrl: string,
+  avatarPreviewStyle: any;
+  avatarPreviewUrl: string;
 }
 
 class AvatarUpload extends Component<Props, State> {

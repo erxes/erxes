@@ -5,7 +5,7 @@ import { DealEditForm } from '../../components';
 import { queries } from '../../graphql';
 import { IDeal } from '../../types';
 
-type Props = { usersQuery: any, deal: IDeal };
+type Props = { usersQuery: any; deal: IDeal; };
 
 class DealEditFormContainer extends React.Component<Props> {
   render() {

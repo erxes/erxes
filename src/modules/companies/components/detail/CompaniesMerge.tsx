@@ -6,13 +6,13 @@ import { Info, InfoDetail, InfoTitle } from 'modules/customers/styles';
 import * as React from 'react';
 
 type Props = {
-  objects: any[],
+  objects: any[];
   save: (doc: {
-    ids: string[],
-    data: any,
-    callback: () => void
-  }) => void,
-  closeModal: () => void,
+    ids: string[];
+    data: any;
+    callback: () => void;
+  }) => void;
+  closeModal: () => void;
 };
 
 type State = {

@@ -6,10 +6,10 @@ import { Body, Container, Header } from '../styles/pipeline';
 import { IPipeline, IStage } from '../types';
 
 type Props = {
-  pipeline: IPipeline,
-  onToggle: (isExpanded: boolean) => void,
-  stages: IStage[],
-  isExpanded: boolean
+  pipeline: IPipeline;
+  onToggle: (isExpanded: boolean) => void;
+  stages: IStage[];
+  isExpanded: boolean;
 };
 
 class Pipeline extends React.Component<Props, { isExpanded: boolean }> {

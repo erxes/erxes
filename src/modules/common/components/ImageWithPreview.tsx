@@ -48,13 +48,13 @@ const KEYCODES = {
 };
 
 type Props = {
-  src?: string,
-  alt?: string,
-  onLoad?: () => void
+  src?: string;
+  alt?: string;
+  onLoad?: () => void;
 };
 
 type State = {
-  visible: boolean
+  visible: boolean;
 }
 
 class ImageWithPreview extends Component<Props, State> {

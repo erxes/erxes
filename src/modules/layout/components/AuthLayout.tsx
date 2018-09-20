@@ -4,7 +4,7 @@ import { Col, Grid } from 'react-bootstrap';
 import { AuthContent, AuthDescription, Authlayout } from '../styles';
 
 type Props = {
-  content: React.ReactNode,
+  content: React.ReactNode;
 }
 
 class AuthLayout extends React.Component<Props, {}> {

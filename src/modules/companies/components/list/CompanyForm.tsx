@@ -27,20 +27,20 @@ import {
 import { ICompany, ICompanyDoc } from '../../types';
 
 type Props = {
-  action: (params: { doc: ICompanyDoc }) => void,
-  company: ICompany,
-  closeModal: () => void,
+  action: (params: { doc: ICompanyDoc }) => void;
+  company: ICompany;
+  closeModal: () => void;
 };
 
 type State = {
-  parentCompanyId: string,
-  ownerId: string,
-  companies: ICompany[],
-  doNotDisturb: string,
-  users: IUser[]
-  avatar: string,
-  names: string[],
-  primaryName: string,
+  parentCompanyId: string;
+  ownerId: string;
+  companies: ICompany[];
+  doNotDisturb: string;
+  users: IUser[];
+  avatar: string;
+  names: string[];
+  primaryName: string;
 };
 
 class CompanyForm extends React.Component<Props, State> {

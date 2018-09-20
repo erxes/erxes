@@ -6,9 +6,9 @@ import { withRouter } from 'react-router';
 import { Option, PerPageButton } from './styles';
 
 type Props= {
-  history: any,
-  location: any,
-  match: any,
+  history: any;
+  location: any;
+  match: any;
 };
 
 // per page chooser component

@@ -10,12 +10,12 @@ import { mutations, queries } from '../graphql';
 import { crudMutationsOptions } from '../utils';
 
 type Props = {
-  currentUser: any,
-  emailTemplatesQuery: any,
-  brandsQuery: any,
-  messagesAddMutation: (params: { variables: any }) => any
+  currentUser: any;
+  emailTemplatesQuery: any;
+  brandsQuery: any;
+  messagesAddMutation: (params: { variables: any }) => any;
   customers: ICustomer[];
-  emptyBulk: () => void
+  emptyBulk: () => void;
 };
 
 const WidgetContainer = (props : Props) => {

@@ -6,13 +6,13 @@ import { queries } from '../graphql';
 import { IParams, IParamsWithType } from '../types'
 
 interface IProps {
-  history: any,
-  type: string,
-  volumePieChartQuery: any,
-  brandsQuery: any,
-  punchCardQuery: any,
-  mainQuery: any,
-  queryParams: any
+  history: any;
+  type: string;
+  volumePieChartQuery: any;
+  brandsQuery: any;
+  punchCardQuery: any;
+  mainQuery: any;
+  queryParams: any;
 }
 
 const VolumenAndResponseReportContainer = (props: IProps) => {

@@ -5,8 +5,8 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ISegmentCondition } from '../types';
 
 type Props = {
-  fields: any[],
-  addCondition: (condition: ISegmentCondition) => void
+  fields: any[];
+  addCondition: (condition: ISegmentCondition) => void;
 };
 
 class AddConditionButton extends Component<Props> {

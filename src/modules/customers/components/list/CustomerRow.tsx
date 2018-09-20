@@ -6,11 +6,11 @@ import moment from 'moment';
 import * as React from 'react';
 
 type Props = {
-  customer: ICustomer,
-  columnsConfig: any[],
-  history: any 
-  isChecked?: boolean,
-  toggleBulk: (target: any, toAdd: boolean) => void,
+  customer: ICustomer;
+  columnsConfig: any[];
+  history: any;
+  isChecked?: boolean;
+  toggleBulk: (target: any, toAdd: boolean) => void;
 };
 
 function isTimeStamp(value) {

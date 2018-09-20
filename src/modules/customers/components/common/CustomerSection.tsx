@@ -8,9 +8,9 @@ import { Link } from 'react-router-dom';
 import { CustomerChooser } from '../../containers';
 
 type Props = {
-  name: string,
-  customers: ICustomer[],
-  onSelect: (customers: ICustomer[]) => void,
+  name: string;
+  customers: ICustomer[];
+  onSelect: (customers: ICustomer[]) => void;
 };
 
 function CustomerSection({ name, customers, onSelect }: Props) {

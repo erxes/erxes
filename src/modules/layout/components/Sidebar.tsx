@@ -21,17 +21,17 @@ function QuickButtons({ children }: { children: React.ReactNode }) {
 }
 
 type Props = {
-  children: any,
-  collapsible?: boolean,
-  className?: string,
-  noShadow?: boolean,
-  noBackground?: boolean,
-  full?: boolean
+  children: any;
+  collapsible?: boolean;
+  className?: string;
+  noShadow?: boolean;
+  noBackground?: boolean;
+  full?: boolean;
 };
 
 type State = {
-  collapse: boolean, 
-  maxHeight: number
+  collapse: boolean;
+  maxHeight: number;
 };
 
 class Section extends React.Component<Props, State> {

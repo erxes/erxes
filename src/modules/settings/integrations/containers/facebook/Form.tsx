@@ -8,7 +8,7 @@ import { withRouter } from 'react-router';
 import { IPages } from '../../types';
 
 type State = {
-  pages: IPages[]
+  pages: IPages[];
 };
 
 class FacebookContainer extends Component<Props, State> {

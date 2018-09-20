@@ -8,8 +8,8 @@ import { ModalFooter } from 'modules/common/styles/main';
 import React, { Component } from 'react';
 
 type Props = {
-  onSuccess: (password: string) => void,
-  closeModal: () => void
+  onSuccess: (password: string) => void;
+  closeModal: () => void;
 };
 
 class PasswordConfirmation extends Component<Props> {

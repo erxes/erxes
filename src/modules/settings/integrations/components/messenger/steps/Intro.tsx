@@ -11,17 +11,17 @@ import React, { Component } from 'react';
 import Select from 'react-select-plus';
 
 type Props= {
-  onChange: (name: string, value: string) => void,
-  teamMembers: IUser[],
-  supporterIds?: string[],
-  welcomeMessage?: string,
-  awayMessage?: string,
-  thankYouMessage?: string
+  onChange: (name: string, value: string) => void;
+  teamMembers: IUser[];
+  supporterIds?: string[];
+  welcomeMessage?: string;
+  awayMessage?: string;
+  thankYouMessage?: string;
 };
 
 type State = {
-  supporters?: any,
-  supporterIds: string[]
+  supporters?: any;
+  supporterIds: string[];
 }
 
 class Intro extends Component<Props, State> {

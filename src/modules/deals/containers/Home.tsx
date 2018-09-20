@@ -8,11 +8,11 @@ import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
 
 type Props = {
-  history: any,
-  queryParams: any,
-  boardsQuery: any,
-  boardGetLastQuery: any,
-  boardDetailQuery: any
+  history: any;
+  queryParams: any;
+  boardsQuery: any;
+  boardGetLastQuery: any;
+  boardDetailQuery: any;
 };
 
 /*

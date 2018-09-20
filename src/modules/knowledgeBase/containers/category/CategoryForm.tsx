@@ -7,11 +7,11 @@ import { mutations, queries } from '../../graphql';
 import { ICategory } from '../../types';
 
 type Props = {
-  category: ICategory,
-  addCategoriesMutation: (params: { variables: any }) => any,
-  editCategoriesMutation: (params: { variables: any }) => any,
-  topicIds: string,
-  closeModal: () => void
+  category: ICategory;
+  addCategoriesMutation: (params: { variables: any }) => Promise<any>;
+  editCategoriesMutation: (params: { variables: any }) => Promise<any>;
+  topicIds: string;
+  closeModal: () => void;
 };
 
 const KnowledgeBaseContainer = (props: Props) => {

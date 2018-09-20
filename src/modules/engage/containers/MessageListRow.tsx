@@ -9,10 +9,10 @@ import { IEngageMessage } from '../types';
 import { crudMutationsOptions } from '../utils';
 
 type Props = {
-  removeMutation: (_id: string) => void,
-  setPauseMutation: () => void,
-  setLiveMutation: () => void,
-  setLiveManualMutation: () => void,
+  removeMutation: (_id: string) => Promise<void>;
+  setPauseMutation: () => Promise<void>;
+  setLiveMutation: () => Promise<void>;
+  setLiveManualMutation: () => Promise<void>;
 };
       
 type RouterProps = {

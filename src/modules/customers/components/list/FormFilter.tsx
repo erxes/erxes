@@ -7,12 +7,12 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 
 type Props = {
-  history: any,
-  location: any,
-  match: any,
-  counts: any,
-  integrations: IIntegration[],
-  loading: boolean
+  history: any;
+  location: any;
+  match: any;
+  counts: any;
+  integrations: IIntegration[];
+  loading: boolean;
 };
 
 function Forms({ history, counts, integrations, loading }: Props) {

@@ -17,15 +17,15 @@ import { MessageListRow, Sidebar } from '../containers';
 import { IEngageMessage } from '../types';
 
 type Props = {
-  messages: IEngageMessage[],
-  totalCount: number,
-  bulk: any[],
-  isAllSelected: boolean,
-  emptyBulk: () => void,
-  toggleBulk: (target: IEngageMessage, toAdd: boolean) => void,
-  toggleAll: (targets: IEngageMessage[], name: string) => void,
-  loading: boolean
-  queryParams: any
+  messages: IEngageMessage[];
+  totalCount: number;
+  bulk: any[];
+  isAllSelected: boolean;
+  emptyBulk: () => void;
+  toggleBulk: (target: IEngageMessage, toAdd: boolean) => void;
+  toggleAll: (targets: IEngageMessage[], name: string) => void;
+  loading: boolean;
+  queryParams: any;
 };
 
 class List extends React.Component<Props> {

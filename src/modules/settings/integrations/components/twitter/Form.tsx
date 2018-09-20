@@ -8,8 +8,8 @@ import { ContentBox } from 'modules/settings/styles';
 import React, { Component } from 'react';
 
 type Props = {
-  brands: IBrand[],
-  save: (brand: string) => void
+  brands: IBrand[];
+  save: (brand: string) => void;
 };
 
 class Twitter extends Component<Props> {

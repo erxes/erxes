@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { TextArea } from './styles';
 
 type Props = {
-  onChange?: (e: React.FormEvent<HTMLTextAreaElement>) => void,
-  maxHeight?: number
+  onChange?: (e: React.FormEvent<HTMLTextAreaElement>) => void;
+  maxHeight?: number;
 };
 
 class Textarea extends Component<Props> {
