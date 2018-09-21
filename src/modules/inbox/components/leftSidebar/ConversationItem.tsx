@@ -114,7 +114,6 @@ class ConversationItem extends React.Component<Props> {
     const assignedUser = conversation.assignedUser;
     const isExistingCustomer = customer && customer._id;
     const isChecked = selectedIds.includes(conversation._id);
-
     const isRead =
       conversation.readUserIds &&
       conversation.readUserIds.indexOf(currentUser._id) > -1;

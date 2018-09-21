@@ -344,7 +344,7 @@ export default class Editor extends React.Component<EditorProps, State> {
       if (findResult && findResult.length > 0) {
         finalMentions.push(m);
       }
-
+      
       content = content.replace(
         re,
         `<b data-user-id='${m._id}'>@${m.name}</b>`

@@ -161,14 +161,13 @@ class RespondBox extends React.Component<Props, State> {
       },
 
       afterRead: ({ result, fileInfo }) => {
-        setAttachmentPreview && setAttachmentPreview(
-          Object.assign({ data: result }, fileInfo)
-        );
+        setAttachmentPreview &&
+          setAttachmentPreview(Object.assign({ data: result }, fileInfo));
       }
     });
   }
 
-  cleanText(text) {
+  cleanText(text: string) {
     return text.replace(/&nbsp;/g, " ");
   }
 

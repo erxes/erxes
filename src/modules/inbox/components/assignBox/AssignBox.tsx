@@ -5,6 +5,13 @@ import * as React from "react";
 import { IUser } from "../../../auth/types";
 import { IConversation } from "../../types";
 
+interface IAssignee {
+  _id: string;
+  title?: string;
+  avatar?: string;
+  selectedBy: string;
+}
+
 type Props = {
   targets: IConversation[];
   event?: string;
@@ -20,7 +27,7 @@ type Props = {
 };
 
 type State = {
-  assigneesForList?: IUser[];
+  assigneesForList?: IAssignee[];
 };
 
 class AssignBox extends React.Component<Props, State> {
@@ -80,7 +87,7 @@ class AssignBox extends React.Component<Props, State> {
     });
   }
 
-  assign(id: string) {
+  assign(items: IAssignee[], id: string) {
     const { assign, targets, afterSave } = this.props;
 
     assign(
@@ -102,6 +109,7 @@ class AssignBox extends React.Component<Props, State> {
 
   removeAssignee() {
     const { clear, targets } = this.props;
+
     clear(targets.map(t => t._id), error => {
       if (error) {
         Alert.error(`Error: ${error.reason}`);

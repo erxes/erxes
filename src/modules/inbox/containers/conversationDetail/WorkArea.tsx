@@ -162,8 +162,8 @@ class WorkArea extends React.Component<Props, State> {
     }
 
     addMessageMutation({ variables, optimisticResponse, update })
-      .then(({ data }) => {
-        callback && callback(data);
+      .then(() => {
+        callback && callback();
       })
       .catch(e => {
         callback && callback(e);
@@ -245,7 +245,7 @@ const WithQuery = compose(
 
       // 330 - height of above and below sections of detail area
       // 45 -  min height of per message
-      limit = (windowHeight - 330) / 45 + 1;
+      limit = Math.round((windowHeight - 330) / 45 + 1);
       skip = null;
 
       return {

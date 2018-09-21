@@ -1,15 +1,17 @@
-import { AppConsumer } from 'appContext';
-import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
-import { ConversationDetail } from 'modules/inbox/components/conversationDetail';
-import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { AppConsumer } from "appContext";
+import gql from "graphql-tag";
+import { Alert } from "modules/common/utils";
+import { ConversationDetail } from "modules/inbox/components/conversationDetail";
+import { mutations, queries, subscriptions } from "modules/inbox/graphql";
+import * as React from "react";
+import { compose, graphql } from "react-apollo";
+import { IUser } from "../../../auth/types";
 
 type Props = {
-  detailQuery: any,
-  currentId: string,
-  markAsReadMutation: (doc: { variables: { _id: string } }) => Promise<any>
+  detailQuery: any;
+  currentId: string;
+  markAsReadMutation: (doc: { variables: { _id: string } }) => Promise<any>;
+  currentUser: IUser;
 };
 
 class DetailContainer extends React.Component<Props> {
@@ -61,7 +63,7 @@ class DetailContainer extends React.Component<Props> {
     // listen for customer connection
     const conversation = detailQuery.conversationDetail;
 
-    if (conversation.integration.kind === 'messenger') {
+    if (conversation.integration.kind === "messenger") {
       const customerId = conversation.customer._id;
 
       this.prevSubscriptions.customerHandler = detailQuery.subscribeToMore({
@@ -80,8 +82,12 @@ class DetailContainer extends React.Component<Props> {
   }
 
   render() {
-    const { currentId, detailQuery = {}, markAsReadMutation } = this.props;
-    const { currentUser } = this.context;
+    const {
+      currentId,
+      detailQuery = {},
+      markAsReadMutation,
+      currentUser
+    } = this.props;
 
     const loading = detailQuery.loading;
     const conversation = detailQuery.conversationDetail;
@@ -112,14 +118,14 @@ class DetailContainer extends React.Component<Props> {
 
 const WithQuery = compose(
   graphql(gql(queries.conversationDetail), {
-    name: 'detailQuery',
+    name: "detailQuery",
     options: ({ currentId }: { currentId: string }) => ({
       variables: { _id: currentId },
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only"
     })
   }),
   graphql(gql(mutations.markAsRead), {
-    name: 'markAsReadMutation',
+    name: "markAsReadMutation",
     options: ({ currentId }: { currentId: string }) => {
       return {
         refetchQueries: [
@@ -134,7 +140,7 @@ const WithQuery = compose(
   })
 )(DetailContainer);
 
-const WithConsumer = (props) => {
+const WithConsumer = props => {
   return (
     <AppConsumer>
       {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}

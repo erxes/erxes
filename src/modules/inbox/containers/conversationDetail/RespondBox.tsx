@@ -59,6 +59,7 @@ const RespondBoxContainer = (props: Props) => {
           customerId: Math.random(),
           userId: currentUser._id,
           createdAt: new Date(),
+          messengerAppData: null,
           isCustomerRead: false,
           formWidgetData: null,
           twitterData: null,

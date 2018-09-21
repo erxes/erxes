@@ -1,9 +1,6 @@
-<<<<<<< HEAD
+import { IForm } from "modules/forms/types";
 import { IBrand } from "../brands/types";
 import { IChannel } from "../channels/types";
-=======
-import { IForm } from "modules/forms/types";
->>>>>>> 7a18106c634fd45823fc113966c63bfc29a10257
 
 export interface IApps {
   id: string;
@@ -17,7 +14,7 @@ export interface IPages {
 }
 
 export interface IOnlineHours {
-  _id: string
+  _id: string;
   day: string;
   from: string;
   to: string;
@@ -39,7 +36,7 @@ export interface IUiOptions {
   color?: string;
   wallpaper?: string;
   logo?: string;
-  logoPreviewUrl? : string
+  logoPreviewUrl?: string;
 }
 
 export interface IFormData {
