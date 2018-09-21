@@ -90,12 +90,7 @@ class ConversationItem extends React.Component<Props> {
     if (customer.visitorContactInfo) {
       const visitor = customer.visitorContactInfo;
 
-      return (
-        this.renderFullName(visitor) ||
-        visitor.lastName ||
-        visitor.email ||
-        visitor.phone
-      );
+      return this.renderFullName(visitor) || visitor.email || visitor.phone;
     }
 
     return null;

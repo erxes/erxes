@@ -64,8 +64,10 @@ class ModalAction extends React.Component<Props, State> {
     this.onTweetContentChange = this.onTweetContentChange.bind(this);
   }
 
-  getCharacterCount(character: string) {
+  getCharacterCount(character?: string) {
     const maxChar = 280;
+
+    if(!character) return maxChar;
 
     return maxChar - character.length;
   }
