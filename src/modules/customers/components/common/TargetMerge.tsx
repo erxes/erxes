@@ -39,7 +39,7 @@ class TargetMergeModal extends React.Component<Props, State> {
     this.setState({ selectedObject: JSON.parse(option.value) });
   }
 
-  renderMerger() {
+  renderMerger({ closeModal }) {
     const { object, onSave, mergeForm } = this.props;
     const { selectedObject } = this.state;
 
@@ -48,7 +48,7 @@ class TargetMergeModal extends React.Component<Props, State> {
 
     const MergeForm = mergeForm;
 
-    return <MergeForm objects={[object, selectedObject]} save={onSave} />;
+    return <MergeForm objects={[object, selectedObject]} save={onSave} closeModal={closeModal} />;
   }
 
   renderSelect() {
@@ -72,12 +72,12 @@ class TargetMergeModal extends React.Component<Props, State> {
         title={__('Merge')}
         trigger={<a>{__('Merge')}</a>}
         size="lg"
-        content={() => {
+        content={(props) => {
           return (
             <Fragment>
               {this.renderSelect()}
               <br />
-              {this.renderMerger()}
+              {this.renderMerger(props)}
             </Fragment>
           )
         }}
