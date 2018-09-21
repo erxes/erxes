@@ -37,13 +37,13 @@ export interface ICompanyDoc {
 };
 
 export interface IActivityLogYearMonthDoc {
-    year: number
-    month: number
+    year: number;
+    month: number;
 }
 
 export interface ICompanyActivityLog {
-    date: IActivityLogYearMonthDoc
-    list: IActivityLog[]
+    date: IActivityLogYearMonthDoc;
+    list: IActivityLog[];
 }
 
 export interface ICompany extends ICompanyDoc {

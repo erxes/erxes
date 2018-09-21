@@ -3,11 +3,11 @@ export interface ISegmentField {
 }
 
 export interface ISegmentCondition {
-  field: string,
-  value: string,
-  operator: string,
-  dateUnit: string,
-  type: string
+  field: string;
+  value: string;
+  operator: string;
+  dateUnit: string;
+  type: string;
 }
 
 export interface ISegmentDoc {

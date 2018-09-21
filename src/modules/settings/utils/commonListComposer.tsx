@@ -37,7 +37,7 @@ const commonListComposer = options => {
 
     // remove action
     const remove = _id => {
-      confirm('Are you sure?').then(() => {
+      confirm().then(() => {
         removeMutation({
           variables: { _id }
         })

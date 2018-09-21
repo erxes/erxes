@@ -70,7 +70,7 @@ class PropertyRow extends React.Component<Props, State> {
           btnStyle="link"
           icon="cancel-1"
           onClick={() =>
-            confirm('Are you sure').then(() => {
+            confirm().then(() => {
               remove({ _id: data._id });
             })
           }

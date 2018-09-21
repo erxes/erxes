@@ -1,30 +1,30 @@
 export interface IActivityLogYearMonthDoc {
-    year: React.ReactNode
-    month: React.ReactNode 
+    year: React.ReactNode;
+    month: React.ReactNode;
 }
 
 export interface IActivityLogPerformerDetails {
-    avatar: string
-    fullName: string
-    position: string
+    avatar: string;
+    fullName: string;
+    position: string;
 }
 
 export interface IActivityLogActionPerformer {
-    _id: string
-    type: string
-    details: IActivityLogPerformerDetails
+    _id: string;
+    type: string;
+    details: IActivityLogPerformerDetails;
 }
 
 export interface IActivityLog {
-    _id: string
-    action: string
-    id: string
-    createdAt: Date
-    content: string
-    by: IActivityLogActionPerformer
+    _id: string;
+    action: string;
+    id: string;
+    createdAt: Date;
+    content: string;
+    by: IActivityLogActionPerformer;
 }
 
 export interface IActivityLogsUser {
-    date: IActivityLogYearMonthDoc
-    list: IActivityLog
+    date: IActivityLogYearMonthDoc;
+    list: IActivityLog;
 }
