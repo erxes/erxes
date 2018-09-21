@@ -76,7 +76,7 @@ class LeftSidebar extends React.Component<Props, {}> {
           countQuery={queries.totalConversationsCount}
           countQueryParam="conversationsTotalCount"
         />
-        <StatusFilterPopover queryParams={queryParams} />
+        <StatusFilterPopover queryParams={queryParams} history={history} />
       </Sidebar.Header>
     );
   }

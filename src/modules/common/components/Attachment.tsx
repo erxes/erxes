@@ -109,7 +109,11 @@ class Attachment extends Component<Props> {
   }
 
   onLoadImage() {
-    this.props.scrollBottom();
+    const { scrollBottom } = this.props;
+
+    if (scrollBottom) {
+      scrollBottom();
+    }
   }
 
   renderAtachment({ attachment }) {

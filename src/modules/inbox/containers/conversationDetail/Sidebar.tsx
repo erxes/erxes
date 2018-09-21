@@ -1,26 +1,28 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import { Sidebar as DumbSidebar } from 'modules/inbox/components/conversationDetail';
-import { queries } from 'modules/inbox/graphql';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { ICustomer } from '../../../customers/types';
-import { IConversation } from '../../types';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import { Sidebar as DumbSidebar } from "modules/inbox/components/conversationDetail";
+import { queries } from "modules/inbox/graphql";
+import * as React from "react";
+import { compose, graphql } from "react-apollo";
+import { ICustomer } from "../../../customers/types";
+import { IConversation } from "../../types";
 
 type Props = {
-  conversation: IConversation,
-  customerDetailQuery: any,
+  conversation: IConversation;
+  customerDetailQuery: any;
 };
 
 type State = {
-  customer: ICustomer,
-  loading: boolean,
+  customer: ICustomer;
+  loading: boolean;
 };
 
 const STORAGE_KEY = `erxes_sidebar_section_config`;
 
 const getConfig = () => {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY));
+  const sidebarConfig = localStorage.getItem(STORAGE_KEY);
+
+  if (sidebarConfig) return JSON.parse(sidebarConfig);
 };
 
 const setConfig = params => {
@@ -59,7 +61,7 @@ class Sidebar extends React.Component<Props, State> {
     client
       .query({
         query: gql(queries.generateCustomerDetailQuery(sectionParams)),
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         variables: { _id: customerId }
       })
       .then(({ data }: { data: any }) => {
@@ -121,7 +123,7 @@ class Sidebar extends React.Component<Props, State> {
 
 export default compose(
   graphql(gql(queries.generateCustomerDetailQuery(getConfig())), {
-    name: 'customerDetailQuery',
+    name: "customerDetailQuery",
     options: ({ conversation }: { conversation: IConversation }) => ({
       variables: {
         _id: conversation.customerId

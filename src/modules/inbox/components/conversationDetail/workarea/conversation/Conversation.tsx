@@ -30,7 +30,7 @@ class Conversation extends React.Component<Props, {}> {
     messages: IMessageDocument[],
     conversationFirstMessage: IMessageDocument
   ) {
-    const rows = [];
+    const rows: JSX.Element[] = [];
 
     let tempId;
 
@@ -97,7 +97,7 @@ class Conversation extends React.Component<Props, {}> {
     }
 
     const messages = (conversationMessages || []).slice();
-    const firstMessage = messages.length && messages[0];
+    const firstMessage = messages[0];
 
     return this.renderMessages(messages, firstMessage);
   }

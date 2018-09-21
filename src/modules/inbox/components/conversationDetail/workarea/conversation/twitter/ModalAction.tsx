@@ -20,7 +20,7 @@ const TweetInfo = styled.div`
 `;
 
 const Char = styledTS<{ count?: number }>(styled.b)`
-  color: ${props => props.count < 0 && colors.colorCoreRed};
+  color: ${props => props.count && props.count < 0 && colors.colorCoreRed};
 `;
 
 type Props = {
@@ -82,7 +82,8 @@ class ModalAction extends React.Component<Props, State> {
   }
 
   getScreenName(parentMessage: IMessageDocument, raw?: boolean) {
-    const twitterData = parentMessage.customer.twitterData;
+    const twitterData =
+      parentMessage.customer && parentMessage.customer.twitterData;
     const screenName = twitterData && twitterData.screen_name;
 
     if (raw) {
@@ -102,7 +103,10 @@ class ModalAction extends React.Component<Props, State> {
       retweet,
       integrationId
     } = this.props;
-    const twitterData = parentMessage.twitterData || {};
+    const twitterData = parentMessage.twitterData;
+
+    if (!twitterData) return null;
+
     const id = twitterData.id_str;
 
     if (replyTweet) {
@@ -136,9 +140,12 @@ class ModalAction extends React.Component<Props, State> {
       id
     };
 
-    return retweet(tweetData, () => {
-      this.context.closeModal();
-    });
+    return (
+      retweet &&
+      retweet(tweetData, () => {
+        this.context.closeModal();
+      })
+    );
   }
 
   render() {

@@ -5,7 +5,7 @@ import { mutations, queries, subscriptions } from "modules/inbox/graphql";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
 import { IUser } from "../../../auth/types";
-import { IConversation, IMessage } from "../../types";
+import { IConversation, IMessage, IMessageDocument } from "../../types";
 
 // messages limit
 let limit = 10;
@@ -163,10 +163,10 @@ class WorkArea extends React.Component<Props, State> {
 
     addMessageMutation({ variables, optimisticResponse, update })
       .then(({ data }) => {
-        callback();
+        callback && callback(data);
       })
       .catch(e => {
-        callback(e);
+        callback && callback(e);
       });
   }
 
@@ -200,7 +200,7 @@ class WorkArea extends React.Component<Props, State> {
             m => m._id
           );
 
-          const fetchedMessages = [];
+          const fetchedMessages: IMessageDocument[] = [];
 
           for (const message of fetchMoreResult.conversationMessages) {
             if (!prevMessageIds.includes(message._id)) {

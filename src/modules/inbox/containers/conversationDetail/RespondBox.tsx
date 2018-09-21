@@ -1,21 +1,35 @@
-import { AppConsumer } from 'appContext';
-import gql from 'graphql-tag';
-import { fromJS } from 'immutable';
-import { RespondBox } from 'modules/inbox/components/conversationDetail';
-import { queries } from 'modules/inbox/graphql';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
-import { IConversation, IMessage } from '../../types';
+import { AppConsumer } from "appContext";
+import gql from "graphql-tag";
+import { fromJS } from "immutable";
+import { RespondBox } from "modules/inbox/components/conversationDetail";
+import { queries } from "modules/inbox/graphql";
+import * as React from "react";
+import { compose, graphql } from "react-apollo";
+import { IUser } from "../../../auth/types";
+import { IConversation, IMessage } from "../../types";
 
 type Props = {
-  conversation: IConversation,
-  object: any,
-  responseTemplatesQuery: any,
-  usersQuery: any,
-  addMessage: (doc: { variables: IMessage, optimisticResponse: any, kind: string, callback: () => void }) => void,
-  currentUser: IUser
+  conversation: IConversation;
+  object: any;
+  responseTemplatesQuery: any;
+  usersQuery: any;
+  addMessage: (
+    doc: {
+      variables: IMessage;
+      optimisticResponse: any;
+      kind: string;
+      callback: () => void;
+    }
+  ) => void;
+  currentUser: IUser;
 };
+
+interface ITeamMembers {
+  _id: string;
+  name: string;
+  title: string;
+  avatar: string;
+}
 
 const RespondBoxContainer = (props: Props) => {
   const {
@@ -23,7 +37,7 @@ const RespondBoxContainer = (props: Props) => {
     usersQuery,
     addMessage,
     responseTemplatesQuery,
-    currentUser,
+    currentUser
   } = props;
 
   const sendMessage = (variables, callback) => {
@@ -31,11 +45,11 @@ const RespondBoxContainer = (props: Props) => {
 
     let optimisticResponse;
 
-    if (conversation.integration.kind === 'messenger') {
+    if (conversation.integration.kind === "messenger") {
       optimisticResponse = {
-        __typename: 'Mutation',
+        __typename: "Mutation",
         conversationMessageAdd: {
-          __typename: 'ConversationMessage',
+          __typename: "ConversationMessage",
           _id: Math.round(Math.random() * -1000000),
           content,
           attachments,
@@ -63,7 +77,7 @@ const RespondBoxContainer = (props: Props) => {
     });
   };
 
-  const teamMembers = [];
+  const teamMembers: ITeamMembers[] = [];
 
   for (const user of usersQuery.users || []) {
     teamMembers.push({
@@ -85,13 +99,13 @@ const RespondBoxContainer = (props: Props) => {
 };
 
 const WithQuery = compose(
-  graphql(gql(queries.userList), { name: 'usersQuery' }),
+  graphql(gql(queries.userList), { name: "usersQuery" }),
   graphql(gql(queries.responseTemplateList), {
-    name: 'responseTemplatesQuery'
+    name: "responseTemplatesQuery"
   })
 )(RespondBoxContainer);
 
-const WithConsumer = (props) => {
+const WithConsumer = props => {
   return (
     <AppConsumer>
       {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}

@@ -25,7 +25,11 @@ export default class FacebookPost extends Component<Props, {}> {
   render() {
     const { message, scrollBottom } = this.props;
     const customer = message.customer;
-    const data = message.facebookData || {};
+    const data = message.facebookData;
+
+    if (!data) {
+      return null;
+    }
 
     return (
       <PostContainer>

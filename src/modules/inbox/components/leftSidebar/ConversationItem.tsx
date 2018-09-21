@@ -2,6 +2,7 @@ import moment from "moment";
 import * as React from "react";
 import strip from "strip";
 
+import { withCurrentUser } from "modules/auth/containers";
 import {
   FormControl,
   IntegrationIcon,
@@ -34,8 +35,8 @@ type Props = {
   isActive: boolean;
   onClick: (conversation: IConversation) => void;
   toggleCheckbox: (conversation: IConversation, checked: boolean) => void;
-  selectedIds: any[];
-  currentUser?: IUser;
+  selectedIds?: string[];
+  currentUser: IUser;
 };
 
 class ConversationItem extends React.Component<Props> {
@@ -47,10 +48,10 @@ class ConversationItem extends React.Component<Props> {
     this.toggleCheckbox = this.toggleCheckbox.bind(this);
   }
 
-  toggleCheckbox(e: React.FormEvent<HTMLInputElement>) {
+  toggleCheckbox(e: React.FormEvent<HTMLElement>) {
     const { toggleCheckbox, conversation } = this.props;
 
-    toggleCheckbox(conversation, e.currentTarget.checked);
+    toggleCheckbox(conversation, (e.currentTarget as HTMLInputElement).checked);
   }
 
   onClick(e: React.MouseEvent) {
@@ -77,9 +78,9 @@ class ConversationItem extends React.Component<Props> {
     e.stopPropagation();
   }
 
-  renderFullName(customer: ICustomer) {
-    if (customer.firstName || customer.lastName) {
-      return (customer.firstName || "") + " " + (customer.lastName || "");
+  renderFullName(visitor: { [key: string]: any }) {
+    if (visitor.firstName || visitor.lastName) {
+      return (visitor.firstName || "") + " " + (visitor.lastName || "");
     }
 
     return null;
@@ -112,7 +113,7 @@ class ConversationItem extends React.Component<Props> {
     const tags = conversation.tags || [];
     const assignedUser = conversation.assignedUser;
     const isExistingCustomer = customer && customer._id;
-    const isChecked = selectedIds.map(e => e._id).includes(conversation._id);
+    const isChecked = selectedIds.includes(conversation._id);
 
     const isRead =
       conversation.readUserIds &&
@@ -166,7 +167,9 @@ class ConversationItem extends React.Component<Props> {
             <AssigneeWrapper>
               <AssigneeImg
                 src={
-                  assignedUser.details.avatar || "/images/avatar-colored.svg"
+                  assignedUser.details
+                    ? assignedUser.details.avatar
+                    : "/images/avatar-colored.svg"
                 }
               />
             </AssigneeWrapper>
@@ -177,4 +180,4 @@ class ConversationItem extends React.Component<Props> {
   }
 }
 
-export default ConversationItem;
+export default withCurrentUser(ConversationItem);

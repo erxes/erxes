@@ -23,7 +23,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
 
     const user = message.user;
     const customer = message.customer;
-    const props = user._id ? { user } : { customer };
+    const props = user ? { user } : { customer };
 
     return <NameCard.Avatar {...props} />;
   }

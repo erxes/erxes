@@ -1,3 +1,4 @@
+import client from "apolloClient";
 import gql from "graphql-tag";
 import { Icon, Spinner } from "modules/common/components";
 import { __, router } from "modules/common/utils";
@@ -6,13 +7,10 @@ import { PopoverButton } from "modules/inbox/styles";
 import { generateParams } from "modules/inbox/utils";
 import { SidebarCounter, SidebarList } from "modules/layout/styles";
 import * as React from "react";
-import { withApollo } from "react-apollo";
 import { OverlayTrigger, Popover } from "react-bootstrap";
-import { withRouter } from "react-router";
 
 type Props = {
   history: any;
-  client: any;
   queryParams: any;
 };
 
@@ -21,7 +19,7 @@ type State = {
   loading: boolean;
 };
 
-class StatusFilterPopover extends React.Component<Props, State> {
+export default class StatusFilterPopover extends React.Component<Props, State> {
   private overlayTrigger;
 
   constructor(props) {
@@ -41,14 +39,14 @@ class StatusFilterPopover extends React.Component<Props, State> {
   }
 
   onClick() {
-    const { client, queryParams } = this.props;
+    const { queryParams } = this.props;
 
     client
       .query({
         query: gql(queries.conversationCounts),
         variables: generateParams(queryParams)
       })
-      .then(({ data, loading }) => {
+      .then(({ data, loading }: { data: any; loading: boolean }) => {
         this.setState({ counts: data.conversationCounts, loading });
       });
   }
@@ -151,5 +149,3 @@ class StatusFilterPopover extends React.Component<Props, State> {
     );
   }
 }
-
-export default withRouter(withApollo(StatusFilterPopover));

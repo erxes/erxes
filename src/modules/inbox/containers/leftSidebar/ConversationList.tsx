@@ -9,6 +9,8 @@ import { compose, graphql } from "react-apollo";
 type Props = {
   history: any;
   conversationsQuery: any;
+  currentConversationId: string;
+  totalCount: number;
 };
 
 class ConversationListContainer extends React.Component<Props> {

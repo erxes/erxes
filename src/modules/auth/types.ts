@@ -21,14 +21,14 @@ export interface IUserConversation {
 }
 
 export interface IUserDoc {
-    username: string,
-    email: string,
-    details?: IUserDetails,
-    links?: IUserLinks,
-    getNotificationByEmail?: boolean,
-    participatedConversations? : IUserConversation[]
+  username?: string;
+  email?: string;
+  details?: IUserDetails;
+  links?: IUserLinks;
+  getNotificationByEmail?: boolean;
+  participatedConversations?: IUserConversation[];
 }
 
 export interface IUser extends IUserDoc {
-    _id: string,
+  _id: string;
 }

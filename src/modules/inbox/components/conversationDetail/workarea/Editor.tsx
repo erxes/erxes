@@ -266,7 +266,7 @@ export default class Editor extends React.Component<EditorProps, State> {
 
     editorState = EditorState.moveFocusToEnd(es);
 
-    this.setState({ editorState, templatesState: null });
+    return this.setState({ editorState, templatesState: null });
   }
 
   onArrow(e, nudgeAmount) {
@@ -331,7 +331,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     let content = toHTML(editorState);
 
     // some mentioned people may have been deleted
-    const finalMentions = [];
+    const finalMentions: any = [];
 
     // replace mention content
     this.state.collectedMentions.forEach(m => {

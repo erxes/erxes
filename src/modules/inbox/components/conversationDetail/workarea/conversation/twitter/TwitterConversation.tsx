@@ -26,7 +26,7 @@ class TwitterConversation extends Component<Props, {}> {
   }
 
   formatMessages(messages, parent) {
-    const array = [];
+    const array: IMessageDocument[] = [];
 
     messages.forEach(msg => {
       if (!msg.twitterData) {
@@ -44,6 +44,8 @@ class TwitterConversation extends Component<Props, {}> {
 
         array.push(child);
       }
+
+      return null;
     });
 
     return array;

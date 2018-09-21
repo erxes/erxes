@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 
 type Props = {
-  username: string;
-  userId: string;
+  username?: string;
+  userId?: string;
 };
 
 class UserName extends Component<Props, {}> {

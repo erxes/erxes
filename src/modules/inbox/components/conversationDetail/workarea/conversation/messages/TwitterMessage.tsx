@@ -10,6 +10,14 @@ type Props = {
 const TwitterMessage = (props: Props) => {
   const { conversationFirstMessage, message } = props;
 
+  if (
+    !message.customer ||
+    !message.customer.twitterData ||
+    (!conversationFirstMessage.customer ||
+      !conversationFirstMessage.customer.twitterData)
+  )
+    return null;
+
   const firstTwitterData = conversationFirstMessage.customer.twitterData;
   const currentTwitterData = message.customer.twitterData;
 

@@ -7,7 +7,7 @@ type Props = {
   currentConversationId: string;
   toggleCheckbox: any;
   onClick: (conversation: IConversation) => void;
-  selectedIds: string[];
+  selectedIds?: string[];
 };
 
 export default class ConversationItemContainer extends React.Component<Props> {

@@ -1,3 +1,4 @@
+import client from "apolloClient";
 import gql from "graphql-tag";
 import { FilterByParams, Icon, Spinner } from "modules/common/components";
 import { __ } from "modules/common/utils";
@@ -5,21 +6,18 @@ import { queries } from "modules/inbox/graphql";
 import { PopoverButton } from "modules/inbox/styles";
 import { generateParams } from "modules/inbox/utils";
 import * as React from "react";
-import { withApollo } from "react-apollo";
 import { OverlayTrigger, Popover } from "react-bootstrap";
-import { withRouter } from "react-router";
 
 type Props = {
-  query?: { queryName: string; dataName: string; variables: any };
+  query?: { queryName: string; dataName: string; variables?: any };
   fields?: any[];
-  popoverTitle?: string;
-  buttonText?: string;
-  counts?: string;
-  paramKey?: string;
+  popoverTitle: string;
+  buttonText: string;
+  counts: string;
+  paramKey: string;
   placement?: string;
   icon?: string;
   searchable?: boolean;
-  client?: any;
   queryParams?: any;
 };
 
@@ -29,13 +27,10 @@ type State = {
   loading: boolean;
 };
 
-class FilterPopover extends React.Component<Props, State> {
-  public static defaultProps: Props = {
-    placement: "bottom"
-  };
+export default class FilterPopover extends React.Component<Props, State> {
   private overlayTrigger;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     let loading = true;
@@ -67,7 +62,7 @@ class FilterPopover extends React.Component<Props, State> {
   }
 
   onClick() {
-    const { client, query, counts, queryParams } = this.props;
+    const { query, counts, queryParams } = this.props;
 
     // Fetching filter lists channels, brands, tags etc
     if (query) {
@@ -89,7 +84,7 @@ class FilterPopover extends React.Component<Props, State> {
         query: gql(queries.conversationCounts),
         variables: { ...generateParams({ ...queryParams }), only: counts }
       })
-      .then(({ data, loading }) => {
+      .then(({ data, loading }: { data: any; loading: boolean }) => {
         this.setState({ counts: data.conversationCounts[counts], loading });
       });
   }
@@ -123,7 +118,7 @@ class FilterPopover extends React.Component<Props, State> {
   }
 
   render() {
-    const { buttonText, placement } = this.props;
+    const { buttonText, placement = "bottom" } = this.props;
 
     return (
       <OverlayTrigger
@@ -143,5 +138,3 @@ class FilterPopover extends React.Component<Props, State> {
     );
   }
 }
-
-export default withRouter(withApollo(FilterPopover));

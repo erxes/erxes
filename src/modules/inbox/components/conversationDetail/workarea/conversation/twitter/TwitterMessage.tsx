@@ -29,19 +29,21 @@ class TwitterMessage extends Component<Props, {}> {
 
   favoriteTweet() {
     const { message, favoriteTweet, integrationId } = this.props;
-    const twitterData = message.twitterData || {};
+    const twitterData = message.twitterData;
+
+    if (!twitterData) return null;
 
     const tweet = {
       integrationId,
       id: twitterData.id_str
     };
 
-    favoriteTweet(tweet);
+    return favoriteTweet(tweet);
   }
 
   renderUserLink(username?: string, fullName?: string, customer?: ICustomer) {
     if (!username) {
-      return <div>{customer.firstName}</div>;
+      return <div>{customer && customer.firstName}</div>;
     }
 
     return (
@@ -53,6 +55,11 @@ class TwitterMessage extends Component<Props, {}> {
 
   renderTweetLink() {
     const { message } = this.props;
+
+    if (!message.twitterData) {
+      return null;
+    }
+
     const messageDate = message.twitterData.created_at;
     const idStr = message.twitterData.id_str;
 
@@ -165,13 +172,16 @@ class TwitterMessage extends Component<Props, {}> {
     const { message, scrollBottom } = this.props;
 
     // customer
-    const customer = message.customer || {};
-    const twitterCustomer = customer.twitterData;
-    const twitterName = twitterCustomer.name;
-    const twitterUsername = twitterCustomer.screen_name;
+    const customer = message.customer;
+    const twitterCustomer = customer && customer.twitterData;
+    const twitterName = twitterCustomer && twitterCustomer.name;
+    const twitterUsername = twitterCustomer && twitterCustomer.screen_name;
 
     // twitter data
     const twitterData = message.twitterData;
+
+    if (!twitterData) return null;
+
     const extendedTweet = twitterData.extended_tweet;
     const tweetContent = this.getTweetContent(extendedTweet, message);
     const entities = this.getEntities(extendedTweet, twitterData);

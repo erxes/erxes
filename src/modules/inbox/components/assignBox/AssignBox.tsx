@@ -13,7 +13,7 @@ type Props = {
   // from containers
   assignees: IUser[];
   assign: (
-    doc: { conversationIds: string[]; assignedUserId: string },
+    doc: { conversationIds?: string[]; assignedUserId: string },
     callback: (error: any) => void
   ) => void;
   clear: (userIds: string[], callback: (error: any) => void) => void;
@@ -71,8 +71,10 @@ class AssignBox extends React.Component<Props, State> {
 
       return {
         _id: assignee._id,
-        title: assignee.details.fullName || assignee.email,
-        avatar: assignee.details.avatar || "/images/avatar-colored.svg",
+        title: assignee.details ? assignee.details.fullName : assignee.email,
+        avatar: assignee.details
+          ? assignee.details.avatar
+          : "/images/avatar-colored.svg",
         selectedBy: state
       };
     });
@@ -83,7 +85,7 @@ class AssignBox extends React.Component<Props, State> {
 
     assign(
       {
-        conversationIds: targets.map(t => t._id),
+        conversationIds: targets.map(a => a._id),
         assignedUserId: id
       },
       error => {
@@ -122,9 +124,12 @@ class AssignBox extends React.Component<Props, State> {
       className,
       links,
       selectable: true,
-      items: this.state.assigneesForList,
-      [event]: this.assign
+      items: this.state.assigneesForList
     };
+
+    if (event) {
+      props[event] = this.assign;
+    }
 
     return <FilterableList {...props} />;
   }

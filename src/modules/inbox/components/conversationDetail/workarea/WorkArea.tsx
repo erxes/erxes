@@ -27,8 +27,19 @@ type Props = {
   conversationMessages: IMessageDocument[];
   loading: boolean;
   loadMoreMessages: () => void;
-  addMessage: ({ variables, optimisticResponse, callback, kind }:
-     { variables: any, optimisticResponse: any, callback?: (e?) => void, kind: string }) => void;
+  addMessage: (
+    {
+      variables,
+      optimisticResponse,
+      callback,
+      kind
+    }: {
+      variables: any;
+      optimisticResponse: any;
+      callback?: (e?) => void;
+      kind: string;
+    }
+  ) => void;
 };
 
 type State = {
@@ -88,6 +99,8 @@ export default class WorkArea extends Component<Props, State> {
     if (prevMessageCount + 1 === messageCount) {
       this.scrollBottom();
     }
+
+    return;
   }
 
   onScroll() {
@@ -134,7 +147,11 @@ export default class WorkArea extends Component<Props, State> {
       <AssignTrigger>
         {assignedUser && assignedUser._id ? (
           <AvatarImg
-            src={assignedUser.details.avatar || "/images/avatar-colored.svg"}
+            src={
+              assignedUser.details
+                ? assignedUser.details.avatar
+                : "/images/avatar-colored.svg"
+            }
           />
         ) : (
           <Button btnStyle="simple" size="small">

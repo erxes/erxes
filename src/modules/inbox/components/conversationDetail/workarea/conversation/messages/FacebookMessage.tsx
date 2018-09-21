@@ -55,6 +55,10 @@ export default class FacebookMessage extends React.Component<Props, {}> {
     const { message } = this.props;
     const fbData = message.facebookData;
 
+    if (!fbData) {
+      return null;
+    }
+
     const isPhotoPost = fbData.item === "photo";
     const isVideoPost = fbData.item === "video" && fbData.video;
     const hasAttachment = message.attachments && message.attachments.length > 0;

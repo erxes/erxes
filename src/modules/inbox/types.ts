@@ -4,8 +4,8 @@ import { IIntegration } from "../settings/integrations/types";
 import { ITag } from "../tags/types";
 
 export interface ITwitterResponse {
-  id?: number;
-  id_str?: string;
+  id: number;
+  id_str: string;
   created_at?: string;
   isDirectMessage?: boolean;
 
@@ -35,10 +35,10 @@ export interface ITwitterResponse {
   favorite_count?: number;
 }
 
-export interface IFacebook {
+export interface IConversationFacebook {
   kind?: string;
-  senderName?: string;
-  senderId?: string;
+  senderName: string;
+  senderId: string;
   recipientId?: string;
 
   // when wall post
@@ -48,7 +48,7 @@ export interface IFacebook {
 }
 
 export interface IConversation {
-  _id?: string;
+  _id: string;
   content?: string;
   integrationId: string;
   customerId?: string;
@@ -68,7 +68,7 @@ export interface IConversation {
   // number of total conversations
   number?: number;
   twitterData?: ITwitterResponse;
-  facebookData?: IFacebook;
+  facebookData?: IConversationFacebook;
 
   integration: IIntegration;
   customer: ICustomer;
@@ -106,8 +106,8 @@ export interface IFacebook {
   video?: string;
   photos?: string[];
   link?: string;
-  senderId?: string;
-  senderName?: string;
+  senderId: string;
+  senderName: string;
 }
 
 interface IEngageDataRules {
@@ -128,7 +128,7 @@ export interface IEngageData {
 }
 
 export interface IMessage {
-  content?: string;
+  content: string;
   attachments?: any;
   mentionedUserIds?: string[];
   conversationId: string;

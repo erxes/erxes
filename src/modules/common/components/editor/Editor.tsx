@@ -28,19 +28,11 @@ const styleMap = {
 };
 
 type Props = {
-<<<<<<< HEAD
   active: boolean;
   label?: React.ReactNode;
   style?: string;
   title?: string;
-  onToggle: (style: string) => void;
-=======
-  active: boolean,
-  label?: React.ReactNode,
-  style?: string,
-  title?: string,
-  onToggle: (style?: string) => void
->>>>>>> 7a18106c634fd45823fc113966c63bfc29a10257
+  onToggle: (style?: string) => void;
 };
 
 class StyleButton extends Component<Props> {
@@ -103,13 +95,8 @@ const BLOCK_TYPES = [
 ];
 
 type BlockStyleProps = {
-<<<<<<< HEAD
-  onToggle: (style: string) => void;
+  onToggle: (style?: string) => void;
   editorState: EditorState;
-=======
-  onToggle: (style?: string) => void
-  editorState: EditorState
->>>>>>> 7a18106c634fd45823fc113966c63bfc29a10257
 };
 
 const BlockStyleControls = (props: BlockStyleProps) => {
@@ -148,15 +135,9 @@ const INLINE_STYLES = [
 ];
 
 type InlineStyleProps = {
-<<<<<<< HEAD
-  onToggle: (inlineStyle: string) => void;
+  onToggle: (inlineStyle?: string) => void;
   editorState: EditorState;
 };
-=======
-  onToggle: (inlineStyle?: string) => void,
-  editorState: EditorState
-}
->>>>>>> 7a18106c634fd45823fc113966c63bfc29a10257
 
 const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
   const currentStyle = editorState.getCurrentInlineStyle();
@@ -275,7 +256,7 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
     }
 
     return (
-      <RichEditorRoot bordered={bordered}>
+      <RichEditorRoot bordered={bordered || false}>
         <RichEditorControlsRoot>
           <BlockStyleControls
             editorState={editorState}

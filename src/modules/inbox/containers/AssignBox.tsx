@@ -4,13 +4,14 @@ import * as React from "react";
 import { compose, graphql } from "react-apollo";
 import AssignBox from "../components/assignBox/AssignBox";
 import { mutations, queries } from "../graphql";
+import { IConversation } from "../types";
 import { refetchSidebarConversationsOptions } from "../utils";
 
 type Props = {
-  targets: any[];
+  targets: IConversation[];
   usersQuery: any;
   assignMutation: (
-    doc: { variables: { conversationIds: string[]; assignedUserId: string } }
+    doc: { variables: { conversationIds?: string[]; assignedUserId: string } }
   ) => Promise<any>;
   conversationsUnassign: (doc: { variables: { _ids: any[] } }) => Promise<any>;
 };
@@ -26,7 +27,7 @@ const AssignBoxContainer = (props: Props) => {
     {
       conversationIds,
       assignedUserId
-    }: { conversationIds: string[]; assignedUserId: string },
+    }: { conversationIds?: string[]; assignedUserId: string },
     callback: (e) => void
   ) => {
     assignMutation({

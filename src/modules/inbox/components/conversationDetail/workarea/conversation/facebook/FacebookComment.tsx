@@ -27,7 +27,7 @@ export default class FacebookComment extends React.Component<Props, {}> {
   renderReactionCount() {
     const data = this.props.message.facebookData;
 
-    if (data === null) {
+    if (!data) {
       return null;
     }
 
@@ -45,7 +45,12 @@ export default class FacebookComment extends React.Component<Props, {}> {
 
   render() {
     const { message, replyPost, scrollBottom } = this.props;
-    const data = message.facebookData || {};
+    const data = message.facebookData;
+
+    if (!data) {
+      return null;
+    }
+
     const size = data && data.parentId ? 20 : 32;
     let commentVideo = "";
 

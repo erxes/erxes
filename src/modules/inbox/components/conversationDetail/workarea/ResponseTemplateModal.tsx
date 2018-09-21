@@ -14,7 +14,7 @@ type Props = {
   onSave: (brandId, name) => void;
   brands: IBrand[];
   trigger: JSX.Element;
-  brandId: string;
+  brandId?: string;
 };
 
 class ResponseTemplateModal extends React.Component<Props, {}> {

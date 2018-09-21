@@ -5,12 +5,14 @@ import * as React from "react";
 import { compose, graphql } from "react-apollo";
 import { Resolver } from "../components";
 import { mutations } from "../graphql";
+import { IConversation } from "../types";
 import { refetchSidebarConversationsOptions } from "../utils";
 
 type Props = {
   changeStatusMutation: (
     doc: { variables: { _ids: any[]; status: boolean } }
   ) => Promise<any>;
+  conversations: IConversation[];
 };
 
 const ResolverContainer = (props: Props) => {

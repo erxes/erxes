@@ -67,16 +67,20 @@ export default class FacebookConversation extends Component<Props, {}> {
       return null;
     }
 
-    const post = conversationMessages.find(
-      message => message.facebookData.isPost
-    );
+    const post = conversationMessages.find(message => {
+      if (message.facebookData && message.facebookData.isPost) {
+        return true;
+      }
+
+      return false;
+    });
 
     if (!post) {
       return null;
     }
 
-    const comments = [];
-    const internalMessages = [];
+    const comments: IMessageDocument[] = [];
+    const internalMessages: IMessageDocument[] = [];
 
     for (const message of conversationMessages) {
       if (message.internal) {

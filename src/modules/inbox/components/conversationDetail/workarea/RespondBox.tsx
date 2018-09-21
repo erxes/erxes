@@ -141,6 +141,7 @@ class RespondBox extends React.Component<Props, State> {
 
   handleFileInput(e: any) {
     const files = e.target.files;
+    const { setAttachmentPreview } = this.props;
 
     uploadHandler({
       files,
@@ -156,11 +157,11 @@ class RespondBox extends React.Component<Props, State> {
           ]
         });
         // remove preview
-        this.props.setAttachmentPreview(null);
+        setAttachmentPreview && setAttachmentPreview(null);
       },
 
       afterRead: ({ result, fileInfo }) => {
-        this.props.setAttachmentPreview(
+        setAttachmentPreview && setAttachmentPreview(
           Object.assign({ data: result }, fileInfo)
         );
       }

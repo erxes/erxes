@@ -5,7 +5,7 @@ import { Footer } from "./styles";
 type Props = {
   replyPost: (data, callback) => void;
   conversationId: string;
-  commentId: string;
+  commentId?: string;
   currentUserName: string;
   closeModal: () => void;
 };

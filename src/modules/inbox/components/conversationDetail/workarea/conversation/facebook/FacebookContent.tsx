@@ -4,8 +4,8 @@ import { ImageContainer } from "./styles";
 
 type Props = {
   content: string;
-  image: string;
-  link: string;
+  image?: string;
+  link?: string;
   images?: string[];
   commentVideo?: string;
   scrollBottom: () => void;

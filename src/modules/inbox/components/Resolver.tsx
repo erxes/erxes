@@ -5,7 +5,7 @@ import * as React from "react";
 import { IConversation } from "../types";
 
 type Props = {
-  conversations?: IConversation[];
+  conversations: IConversation[];
   changeStatus: (conversationIds: any[], status: string) => void;
 };
 

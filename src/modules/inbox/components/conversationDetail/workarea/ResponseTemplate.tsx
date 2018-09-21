@@ -36,8 +36,8 @@ type Props = {
 };
 
 type State = {
-  key: string;
-  brandId: string;
+  key?: string;
+  brandId?: string;
   options: IResponseTemplate[];
 };
 
@@ -63,11 +63,18 @@ class ResponseTemplate extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps) {
+    const { brandId } = this.props;
+
     if (prevProps.brandId !== this.props.brandId) {
-      this.setState({
-        brandId: this.props.brandId,
+      const newState: State = {
         options: this.filterByBrand(this.props.brandId)
-      });
+      };
+
+      if (brandId) {
+        newState.brandId = brandId;
+      }
+
+      this.setState(newState);
     }
   }
 
@@ -91,7 +98,7 @@ class ResponseTemplate extends React.Component<Props, State> {
   }
 
   onSelect(eventKey) {
-    const responseTemplates = this.props.responseTemplates;
+    const { responseTemplates, onSelect } = this.props;
 
     // find response template using event key
     const responseTemplate = responseTemplates.find(t => t._id === eventKey);
@@ -99,7 +106,7 @@ class ResponseTemplate extends React.Component<Props, State> {
     // hide selector
     this.overlayRef.hide();
 
-    return this.props.onSelect(responseTemplate);
+    return onSelect && onSelect(responseTemplate);
   }
 
   onFilter(e) {
