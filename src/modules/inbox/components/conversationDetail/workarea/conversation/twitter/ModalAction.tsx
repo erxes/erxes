@@ -67,7 +67,7 @@ class ModalAction extends React.Component<Props, State> {
   getCharacterCount(character?: string) {
     const maxChar = 280;
 
-    if(!character) return maxChar;
+    if (!character) return maxChar;
 
     return maxChar - character.length;
   }
@@ -136,7 +136,7 @@ class ModalAction extends React.Component<Props, State> {
       };
 
       return replyTweet(replyData, () => {
-        this.context.closeModal();
+        this.props.closeModal();
       });
     }
 
@@ -146,7 +146,7 @@ class ModalAction extends React.Component<Props, State> {
         text: this.state.tweet
       };
       return tweet(tweetData, () => {
-        this.context.closeModal();
+        this.props.closeModal();
       });
     }
 
@@ -158,7 +158,7 @@ class ModalAction extends React.Component<Props, State> {
     return (
       retweet &&
       retweet(tweetData, () => {
-        this.context.closeModal();
+        this.props.closeModal();
       })
     );
   }
@@ -190,7 +190,7 @@ class ModalAction extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             onClick={() => {
-              this.context.closeModal();
+              this.props.closeModal();
             }}
             icon="cancel-1"
           >

@@ -22,6 +22,7 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
     super(props);
 
     this.onSave = this.onSave.bind(this);
+    this.renderForm = this.renderForm.bind(this);
   }
 
   onSave() {
@@ -35,11 +36,11 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
     this.props.onSave(doc.brandId, doc.name);
   }
 
-  render() {
-    const { brands, trigger, brandId } = this.props;
+  renderForm() {
+    const { brands, brandId } = this.props;
 
     return (
-      <ModalTrigger title="Create response template" trigger={trigger}>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel>Brand</ControlLabel>
 
@@ -67,7 +68,19 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
             Save
           </Button>
         </ModalFooter>
-      </ModalTrigger>
+      </React.Fragment>
+    );
+  }
+
+  render() {
+    const { trigger } = this.props;
+
+    return (
+      <ModalTrigger
+        title="Create response template"
+        trigger={trigger}
+        content={this.renderForm}
+      />
     );
   }
 }

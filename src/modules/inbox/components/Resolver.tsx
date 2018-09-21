@@ -6,7 +6,7 @@ import { IConversation } from "../types";
 
 type Props = {
   conversations: IConversation[];
-  changeStatus: (conversationIds: any[], status: string) => void;
+  changeStatus: (conversationIds: string[], status: string) => void;
 };
 
 class Resolver extends React.Component<Props> {
