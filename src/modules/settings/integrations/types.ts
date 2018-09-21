@@ -1,4 +1,6 @@
 import { IForm } from "modules/forms/types";
+import { IBrand } from "../brands/types";
+import { IChannel } from "../channels/types";
 
 export interface IApps {
   id: string;
@@ -12,7 +14,7 @@ export interface IPages {
 }
 
 export interface IOnlineHours {
-  _id: string
+  _id: string;
   day: string;
   from: string;
   to: string;
@@ -34,7 +36,7 @@ export interface IUiOptions {
   color?: string;
   wallpaper?: string;
   logo?: string;
-  logoPreviewUrl? : string
+  logoPreviewUrl?: string;
 }
 
 export interface IFormData {
@@ -75,8 +77,9 @@ export interface IIntegration {
   createUrl: string;
   createModal: string;
   messengerData?: IMessengerData;
-  twitterData?: ITwitterData;
   facebookData?: IFacebookData;
-  formData?: IFormData;
   uiOptions?: IUiOptions;
+  formData?: IFormData;
+  brand: IBrand;
+  channels: IChannel[];
 }

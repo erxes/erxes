@@ -145,6 +145,7 @@ type ButtonProps = {
   block?: boolean;
   icon?: string;
   style?: any;
+  id?: string;
 };
 
 export default class Button extends Component<ButtonProps> {
