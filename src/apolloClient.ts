@@ -1,11 +1,11 @@
-import { ApolloClient } from 'apollo-client';
-import { createHttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { setContext } from 'apollo-link-context';
-import { WebSocketLink } from 'apollo-link-ws';
+import { ApolloClient } from 'apollo-client';
 import { ApolloLink, split } from 'apollo-link';
-import { getMainDefinition } from 'apollo-utilities';
+import { setContext } from 'apollo-link-context';
 import { onError } from 'apollo-link-error';
+import { createHttpLink } from 'apollo-link-http';
+import { WebSocketLink } from 'apollo-link-ws';
+import { getMainDefinition } from 'apollo-utilities';
 import { Alert } from 'modules/common/utils';
 
 const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = process.env;
@@ -24,6 +24,10 @@ const middlewareLink = setContext(() => ({
 }));
 
 const afterwareLink = new ApolloLink((operation, forward) => {
+  if (!forward) {
+    return null;
+  }
+
   return forward(operation).map(response => {
     const context = operation.getContext();
     const { response: { headers } } = context;
@@ -58,20 +62,25 @@ const httpLinkWithMiddleware = errorLink.concat(
 );
 
 // Subscription config
-const wsLink = new WebSocketLink({
+export const wsLink = new WebSocketLink({
+  uri: REACT_APP_API_SUBSCRIPTION_URL || '',
   options: {
     reconnect: true,
     timeout: 30000
-  },
-  uri: REACT_APP_API_SUBSCRIPTION_URL
+  }
 });
+
+type Definintion = {
+  kind: string;
+  operation?: string;
+};
 
 // Setting up subscription with link
 const link = split(
   // split based on operation type
   ({ query }) => {
-    const { kind, operation } = getMainDefinition(query);
-    return kind === 'OperationDefinition' && operation === 'subscription';
+    const { kind, operation }: Definintion = getMainDefinition(query);
+    return kind === "OperationDefinition" && operation === "subscription";
   },
   wsLink,
   httpLinkWithMiddleware
