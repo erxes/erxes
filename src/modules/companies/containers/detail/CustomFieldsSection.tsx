@@ -28,9 +28,9 @@ const CustomFieldsSection = (props: Props) => {
 
   const { _id } = company;
 
-  const save = (variables, callback) => {
+  const save = (data, callback) => {
     companiesEdit({
-      variables: { _id, ...variables }
+      variables: { _id, ...data }
     })
       .then(() => {
         callback();

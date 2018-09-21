@@ -9,7 +9,7 @@ import GenerateField from './GenerateField';
 type Props = {
   fieldGroup: IFieldGroup;
   data: any;
-  save: (error: any, success: any) => void;
+  save: (data: any, callback: (error: Error) => void) => void;
 };
 
 type State = {

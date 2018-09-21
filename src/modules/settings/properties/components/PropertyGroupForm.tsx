@@ -9,10 +9,15 @@ import * as React from 'react';
 import Toggle from 'react-toggle';
 import { IFieldGroup } from '../types';
 
+type Doc = {
+  name: string;
+  description: string;
+  isVisible: boolean;
+}
+
 type Props = {
-  // TODO: replace any
-  add: ({ doc }: { doc: any; }) => void;
-  edit: ({ _id, doc }: { _id: string, doc: any; }) => void;
+  add: ({ doc }: { doc: Doc }) => void;
+  edit: ({ _id, doc }: { _id: string; doc: Doc }) => void;
 
   group?: IFieldGroup;
   closeModal: () => void;

@@ -5,6 +5,7 @@ import AuthRoutes from './modules/auth/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import CustomersRoutes from './modules/customers/routes';
 import CompaniesRoutes from './modules/companies/routes';
+import InsightsRoutes from './modules/insights/routes';
 import EngageRoutes from './modules/engage/routes';
 import FormRoutes from './modules/forms/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
@@ -28,6 +29,7 @@ const renderRoutes = currentUser => {
         <SegmentsRoutes />
         <CustomersRoutes />
         <CompaniesRoutes />
+        <InsightsRoutes />
         <EngageRoutes />
         <KnowledgeBaseRoutes />
         <FormRoutes />
