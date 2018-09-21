@@ -28,8 +28,8 @@ type EditorProps = {
   onShifEnter: () => void;
   showMentions: boolean;
   responseTemplate: string;
-  responseTemplates: any;
-  handleFileInput: (e: any) => void;
+  responseTemplates: IResponseTemplate[];
+  handleFileInput: (e: React.FormEvent<HTMLInputElement>) => void;
   mentions: any;
   placeholder?: string | React.ReactNode;
 };
@@ -90,7 +90,7 @@ const extractEntries = mention => {
 
 // response templates
 class TemplateList extends React.Component<TemplateListProps, {}> {
-  normalizeIndex(selectedIndex, max) {
+  normalizeIndex(selectedIndex: number, max: number) {
     let index = selectedIndex % max;
 
     if (index < 0) {
@@ -210,7 +210,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     this.setState({ templatesState });
   }
 
-  getTemplatesState(invalidate = true) {
+  getTemplatesState(invalidate: boolean = true) {
     if (!invalidate) {
       return this.state.templatesState;
     }
@@ -274,7 +274,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     return this.setState({ editorState, templatesState: null });
   }
 
-  onArrow(e, nudgeAmount) {
+  onArrow(e: KeyboardEvent, nudgeAmount: number) {
     const templatesState = this.getTemplatesState(false);
 
     if (!templatesState) {
@@ -288,11 +288,11 @@ export default class Editor extends React.Component<EditorProps, State> {
     this.onTemplatesStateChange(templatesState);
   }
 
-  onUpArrow(e: any) {
+  onUpArrow(e: KeyboardEvent) {
     this.onArrow(e, -1);
   }
 
-  onDownArrow(e: any) {
+  onDownArrow(e: KeyboardEvent) {
     this.onArrow(e, 1);
   }
 
@@ -362,7 +362,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     return content;
   }
 
-  keyBindingFn(e: any) {
+  keyBindingFn(e) {
     // handle new line
     if (e.key === "Enter" && e.shiftKey) {
       return getDefaultKeyBinding(e);

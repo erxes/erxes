@@ -21,6 +21,7 @@ import {
 
 import { IUser } from "../../../../auth/types";
 import { IIntegration } from "../../../../settings/integrations/types";
+import { IResponseTemplate } from "../../../../settings/responseTemplates/types";
 import { IConversation, IMessage } from "../../../types";
 import Editor from "./Editor";
 
@@ -28,7 +29,7 @@ type Props = {
   conversation: IConversation;
   sendMessage: (message: IMessage, callback: (error: any) => void) => void;
   setAttachmentPreview?: (any) => void;
-  responseTemplates: string[];
+  responseTemplates: IResponseTemplate[];
   teamMembers: IUser[];
 };
 
@@ -139,8 +140,8 @@ class RespondBox extends React.Component<Props, State> {
     this.addMessage();
   }
 
-  handleFileInput(e: any) {
-    const files = e.target.files;
+  handleFileInput(e: React.FormEvent<HTMLInputElement>) {
+    const files = e.currentTarget.files;
     const { setAttachmentPreview } = this.props;
 
     uploadHandler({

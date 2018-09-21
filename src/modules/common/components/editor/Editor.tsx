@@ -167,9 +167,9 @@ type ErxesEditorProps = {
   pluginContent?: any;
   plugins?: any[];
   keyBindingFn?: (e: any) => any;
-  onUpArrow?: (e: any) => void;
-  onDownArrow?: (e: any) => void;
-  handleFileInput?: (e: any) => void;
+  onUpArrow?: (e: KeyboardEvent) => void;
+  onDownArrow?: (e: KeyboardEvent) => void;
+  handleFileInput?: (e: React.FormEvent<HTMLInputElement>) => void;
   placeholder?: string | React.ReactNode;
 };
 
@@ -199,7 +199,7 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
     onChange(RichUtils.onTab(e, editorState, maxDepth));
   }
 
-  handleKeyCommand(command) {
+  handleKeyCommand(command: string) {
     const { onChange, editorState } = this.props;
     const newState = RichUtils.handleKeyCommand(editorState, command);
 
@@ -212,7 +212,7 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
     return false;
   }
 
-  toggleBlockType(blockType) {
+  toggleBlockType(blockType: string = "unstyled") {
     const { onChange, editorState } = this.props;
 
     onChange(RichUtils.toggleBlockType(editorState, blockType));
