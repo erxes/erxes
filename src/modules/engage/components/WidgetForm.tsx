@@ -11,6 +11,7 @@ import { ICustomer } from 'modules/customers/types';
 import { METHODS } from 'modules/engage/constants';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React, { Component } from 'react';
+import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
 import { Recipient, Recipients } from '../styles';
 import Editor from './Editor';
@@ -46,7 +47,7 @@ type Props = {
 type State = {
   content: string;
   channel: string;
-  attachments: string[];
+  attachments: IAttachment[];
 }
 
 class WidgetForm extends Component<Props, State> {

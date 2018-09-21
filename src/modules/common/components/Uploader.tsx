@@ -2,6 +2,7 @@ import { Spinner } from 'modules/common/components';
 import { uploadHandler } from 'modules/common/utils';
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { IAttachment } from '../types';
 
 const Attachment = styled.div`
   margin: 10px 0;
@@ -15,12 +16,12 @@ const Attachment = styled.div`
 `;
 
 type Props = {
-  defaultFileList: any[];
-  onChange: (attachments: any[]) => void;
+  defaultFileList: IAttachment[];
+  onChange: (attachments: IAttachment[]) => void;
 };
 
 type State = {
-  attachments: any[];
+  attachments: IAttachment[];
   loading: boolean;
   attachmentPreviewStyle: any;
 }
