@@ -9,11 +9,12 @@ import { __ } from '../../../common/utils';
 import { Wrapper } from '../../../layout/components';
 import { IntegrationList } from '../../integrations/containers/common';
 import { ManageIntegrations, Sidebar } from '../containers';
+import { IBrand } from '../types';
 
 type Props = {
   integrationsCount: number;
   queryParams: any;
-  currentBrand: any;
+  currentBrand: IBrand;
   loading: boolean;
 }
 

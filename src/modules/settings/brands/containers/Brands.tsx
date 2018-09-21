@@ -8,15 +8,13 @@ import { IRouterProps } from '../../../common/types';
 import { Brands as DumbBrands, Empty } from '../components';
 import { queries } from '../graphql';
 
-type Props = {
+interface IProps extends IRouterProps {
   currentBrandId: string;
-  history: any;
-  location: any;
   integrationsCountQuery: any;
   brandDetailQuery: any;
 };
 
-class Brands extends React.Component<Props> {
+class Brands extends React.Component<IProps> {
   render() {
     const {
       brandDetailQuery,

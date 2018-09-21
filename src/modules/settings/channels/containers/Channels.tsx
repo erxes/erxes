@@ -59,8 +59,13 @@ const ChannelsContainer = compose(
   })
 )(Channels);
 
+interface IWithCurrentIdProps extends IRouterProps {
+  lastChannelQuery: IChannel,
+  queryParams: any
+};
+
 // tslint:disable-next-line:max-classes-per-file
-class WithCurrentId extends React.Component<WithCurrentIdProps> {
+class WithCurrentId extends React.Component<IWithCurrentIdProps> {
   componentWillReceiveProps(nextProps) {
     const { lastChannelQuery = {}, history, queryParams: { _id } } = nextProps;
 
@@ -86,12 +91,6 @@ class WithCurrentId extends React.Component<WithCurrentIdProps> {
     return <ChannelsContainer {...updatedProps} />;
   }
 }
-
-type WithCurrentIdProps = {
-  lastChannelQuery: IChannel,
-  history: any,
-  queryParams: any
-};
 
 const WithLastChannel = compose(
   graphql(gql(queries.channelsGetLast), {

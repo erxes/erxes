@@ -11,6 +11,7 @@ import { ICurrencies } from '../types';
 
 type Props = {
   save: (name: string, object: any ) => void;
+  // TODO: check currencies type
   currencies: ICurrencies;
   uom: ICurrencies;
 };

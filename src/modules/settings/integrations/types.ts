@@ -13,7 +13,7 @@ export interface IPages {
   checked?: boolean;
 }
 
-export interface IOnlineHours {
+export interface IOnlineHour {
   _id: string;
   day: string;
   from: string;
@@ -29,7 +29,7 @@ export interface IMessengerData {
   availabilityMethod?: string;
   isOnline?: boolean;
   timezone?: string;
-  onlineHours?: IOnlineHours[];
+  onlineHours?: IOnlineHour[];
 }
 
 export interface IUiOptions {

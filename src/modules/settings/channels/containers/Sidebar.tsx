@@ -15,11 +15,13 @@ type Props = {
     description: string;
     memberIds:  string[]
   } }) => Promise<any>;
+
   editMutation: (params: { variables: { 
     name:  string;
     description: string;
     memberIds:  string[]
   }}) => Promise<any>;
+
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 

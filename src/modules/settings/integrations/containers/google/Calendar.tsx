@@ -11,7 +11,7 @@ type Props = {
   queryParams: any;
   googleAuthUrlQuery: any;
   googleAccessTokenQuery: any;
-  saveMutation: (params: {variables: { callback: any, kind: string, credentials: any }}) => any;
+  saveMutation: (params: {variables: { kind: string, credentials: object }}) => any;
 };
 
 const Calendar = (props: Props) => {

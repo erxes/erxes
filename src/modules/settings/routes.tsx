@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Route } from 'react-router-dom';
 import BrandsRoutes from './brands/routes';
 import ChannelsRoutes from './channels/routes';
@@ -14,21 +14,23 @@ import PropertiesRoutes from './properties/routes';
 import ResponseTemplatesRoutes from './responseTemplates/routes';
 import TeamRoutes from './team/routes';
 
-const routes = () => [
-  <MainRoutes key="MainRoutes" />,
-  <ChannelsRoutes key="ChannelsRoutes" />,
-  <BrandsRoutes key="BrandsRoutes" />,
-  <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />,
-  <TeamRoutes key="team" />,
-  <EmailTemplatesRoutes key="EmailTemplatesRoutes" />,
-  <EmailRoutes key="EmailRoutes" />,
-  <IntegrationsRoutes key="IntegrationsRoutes" />,
-  <DealRoutes key="DealRoutes" />,
-  <ProductService key="ProductService" />,
-  <General key="General" />,
-  <PropertiesRoutes key="PropertiesRoutes" />,
-  <ImportHistory key="ImportHistory" />
-];
+const routes = () => (
+  <React.Fragment>
+    <MainRoutes key="MainRoutes" />
+    <ChannelsRoutes key="ChannelsRoutes" />
+    <BrandsRoutes key="BrandsRoutes" />
+    <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />
+    <TeamRoutes key="team" />
+    <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
+    <EmailRoutes key="EmailRoutes" />
+    <IntegrationsRoutes key="IntegrationsRoutes" />
+    <DealRoutes key="DealRoutes" />
+    <ProductService key="ProductService" />
+    <General key="General" />
+    <PropertiesRoutes key="PropertiesRoutes" />
+    <ImportHistory key="ImportHistory" />
+  </React.Fragment>
+);
 
 const settingsRoute = () => <Route component={routes} />;
 

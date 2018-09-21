@@ -13,7 +13,7 @@ type Props = {
 
 type State = {
   isContentVisible: boolean,
-  kind: null
+  kind: string | null
 };
 
 class Row extends Component<Props, State> {
