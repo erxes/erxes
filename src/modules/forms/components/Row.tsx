@@ -18,7 +18,7 @@ type Props = {
   integration: IFormIntegration;
 
   toggleBulk: (integration: IFormIntegration, checked: boolean) => void;
-  remove: (_id: string, callback: (error?: any) => void) => void;
+  remove: (_id: string, callback: (error: Error) => void) => void;
 
   isChecked: boolean;
 };
@@ -36,7 +36,7 @@ class Row extends Component<Props, {}> {
 
       remove(integration._id, error => {
         if (error) {
-          return Alert.error(error.reason);
+          return Alert.error(error.message);
         }
 
         return Alert.success("Congrats");

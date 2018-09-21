@@ -33,8 +33,7 @@ type Props = {
     languageCode?: string;
     formData: IFormData;
     form: any;
-    fields: any;
-    // fields?: IFormField[];
+    fields?: IField[];
    }) => void;
 };
 

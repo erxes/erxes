@@ -25,18 +25,23 @@ interface IProps extends IRouterProps {
     languageCode: string;
     formId: string;
   } }) => Promise<void>;
+
   editFormMutation: (params: { variables: {
     _id: string;
     formId: string;
     form: IForm;
   } }) => Promise<any>;
+
   addFieldMutation: (params: { variables: {
     createFieldsData: IField[]
   } }) => Promise<void>;
+
   editFieldMutation: (params: { variables: {
     updateFieldsData: IField[]
   } }) => Promise<void>;
+
   removeFieldMutation: (params: { variable: { removeFieldsData: IField[] } }) => Promise<void>;
+
   queryParams: any;
 };
 
