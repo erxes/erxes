@@ -18,7 +18,7 @@ type Props = {
 };
 
 class ConversationDetails extends React.Component<Props> {
-  renderVisitorContactInfo(customer: ICustomer, __: (string) => void) {
+  renderVisitorContactInfo(customer: ICustomer) {
     const { visitorContactInfo } = customer;
 
     if (!visitorContactInfo) {
@@ -49,7 +49,7 @@ class ConversationDetails extends React.Component<Props> {
 
         <SectionBody>
           <SidebarList className="no-link">
-            {this.renderVisitorContactInfo(customer, __)}
+            {this.renderVisitorContactInfo(customer)}
             <li>
               {__("Opened")}
               <SidebarCounter>

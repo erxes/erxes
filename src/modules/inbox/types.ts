@@ -3,7 +3,7 @@ import { ICustomer } from "../customers/types";
 import { IIntegration } from "../settings/integrations/types";
 import { ITag } from "../tags/types";
 
-export interface ITwitterResponse {
+export interface ITwitterData {
   id: number;
   id_str: string;
   created_at?: string;
@@ -35,7 +35,7 @@ export interface ITwitterResponse {
   favorite_count?: number;
 }
 
-export interface IConversationFacebook {
+export interface IConversationFacebookData {
   kind?: string;
   senderName: string;
   senderId: string;
@@ -67,8 +67,8 @@ export interface IConversation {
 
   // number of total conversations
   number?: number;
-  twitterData?: ITwitterResponse;
-  facebookData?: IConversationFacebook;
+  twitterData?: ITwitterData;
+  facebookData?: IConversationFacebookData;
 
   integration: IIntegration;
   customer: ICustomer;
@@ -92,7 +92,7 @@ export interface IReactions {
   angry?: IFbUser[];
 }
 
-export interface IMessageFacebook {
+export interface IMessageFacebookData {
   postId?: string;
   commentId?: string;
   parentId?: string;
@@ -139,8 +139,8 @@ export interface IMessage {
   formWidgetData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
-  facebookData?: IMessageFacebook;
-  twitterData?: ITwitterResponse;
+  facebookData?: IMessageFacebookData;
+  twitterData?: ITwitterData;
 
   _id: string;
   user?: IUser;

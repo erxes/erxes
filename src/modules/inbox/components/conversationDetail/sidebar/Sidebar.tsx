@@ -92,14 +92,14 @@ type IndexProps = {
   conversation: IConversation;
   customer: ICustomer;
   toggleSection: (params: { name: string; isOpen: boolean }) => void;
-  config: any;
+  config: { [key: string]: boolean };
   taggerRefetchQueries: any;
 };
 
 interface IRenderData {
   customer: ICustomer;
   kind: string;
-  config: any;
+  config: { [key: string]: boolean };
   toggleSection: (params: { name: string; isOpen: boolean }) => void;
 }
 

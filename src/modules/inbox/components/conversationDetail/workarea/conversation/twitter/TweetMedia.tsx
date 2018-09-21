@@ -1,7 +1,7 @@
 import { ImageWithPreview } from "modules/common/components";
 import React, { Component } from "react";
 import styled from "styled-components";
-import { ITwitterResponse } from "../../../../../types";
+import { ITwitterData } from "../../../../../types";
 import { TwitterVideoEmbed } from "./";
 
 const Gif = styled.a`
@@ -32,12 +32,12 @@ const GifIcon = styled.span`
 `;
 
 type Props = {
-  data: ITwitterResponse;
+  data: ITwitterData;
   scrollBottom: () => void;
 };
 
 class TweetMedia extends Component<Props, {}> {
-  getEntities(data: ITwitterResponse) {
+  getEntities(data: ITwitterData) {
     if (data.extended_entities) {
       return data.extended_entities;
     }

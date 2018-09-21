@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { Attachment } from "modules/common/components";
 import React, { Fragment } from "react";
-import { IMessage, IMessageFacebook } from "../../../../../types";
+import { IMessage, IMessageFacebookData } from "../../../../../types";
 import { SimpleMessage } from "./";
 
 type Props = {
@@ -44,7 +44,7 @@ export default class FacebookMessage extends React.Component<Props, {}> {
     return null;
   }
 
-  renderVideoIframe(fbData: IMessageFacebook, isVideoPost: boolean) {
+  renderVideoIframe(fbData: IMessageFacebookData, isVideoPost: boolean) {
     if (!isVideoPost) {
       return null;
     }

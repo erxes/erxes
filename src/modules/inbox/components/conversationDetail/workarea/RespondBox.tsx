@@ -75,7 +75,7 @@ class RespondBox extends React.Component<Props, State> {
     this.onSelectTemplate = this.onSelectTemplate.bind(this);
   }
 
-  componentDidUpdate(_prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {
     const { sending, content } = this.state;
 
     if (sending && content !== prevState.content) {

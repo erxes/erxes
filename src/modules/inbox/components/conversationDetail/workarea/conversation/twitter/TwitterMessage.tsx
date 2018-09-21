@@ -3,7 +3,7 @@ import moment from "moment";
 import React, { Component } from "react";
 import { ICustomer } from "../../../../../../customers/types";
 import { IAddMessage } from "../../../../../containers/conversationDetail/WorkArea";
-import { IMessage, ITwitterResponse } from "../../../../../types";
+import { IMessage, ITwitterData } from "../../../../../types";
 import { ModalAction, TweetContent, TweetMedia } from "./";
 import { Count, Counts, Reply, Time, Tweet, User } from "./styles";
 
@@ -88,7 +88,7 @@ class TwitterMessage extends Component<Props, {}> {
     );
   }
 
-  renderCounts(twitterData: ITwitterResponse) {
+  renderCounts(twitterData: ITwitterData) {
     const inReplyStatus = twitterData.in_reply_to_status_id ? false : true;
     const { favorited, retweeted } = twitterData;
     const { integrationId, retweet, replyTweet, tweet, message } = this.props;
@@ -156,7 +156,7 @@ class TwitterMessage extends Component<Props, {}> {
     );
   }
 
-  renderReply(twitterData: ITwitterResponse, inReplyStatus: boolean) {
+  renderReply(twitterData: ITwitterData, inReplyStatus: boolean) {
     if (inReplyStatus) {
       return null;
     }
@@ -176,7 +176,7 @@ class TwitterMessage extends Component<Props, {}> {
     return message.content;
   }
 
-  getEntities(extendedTweet: any, twitterData: ITwitterResponse) {
+  getEntities(extendedTweet: any, twitterData: ITwitterData) {
     if (extendedTweet) {
       return extendedTweet.entities;
     }
