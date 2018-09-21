@@ -6,8 +6,8 @@ import { IConversation } from "../../types";
 
 type Props = {
   targets: IConversation[];
-  trigger: JSX.Element;
-  container?: JSX.Element;
+  trigger: React.ReactNode;
+  container?: React.ReactNode;
   afterSave?: () => void;
 };
 

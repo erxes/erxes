@@ -1,11 +1,11 @@
 import { Table } from "modules/common/components";
 import moment from "moment";
 import * as React from "react";
-import { IMessageDocument } from "../../../../../types";
+import { IMessage } from "../../../../../types";
 import { FormTable } from "../styles";
 
 type Props = {
-  message: IMessageDocument;
+  message: IMessage;
 };
 
 export default class FormMessage extends React.Component<Props, {}> {

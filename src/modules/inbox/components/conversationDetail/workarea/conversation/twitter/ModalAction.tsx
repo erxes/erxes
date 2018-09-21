@@ -8,7 +8,7 @@ import { colors } from "modules/common/styles";
 import * as React from "react";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
-import { IMessageDocument } from "../../../../../types";
+import { IMessage } from "../../../../../types";
 
 const Footer = styled.div`
   text-align: right;
@@ -31,23 +31,23 @@ type Props = {
       tweetReplyToId: string;
       tweetReplyToScreenName: string;
     },
-    callback
+    callback: () => void
   ) => void;
   tweet?: (
     data: {
       integrationId: string;
       text: string;
     },
-    callback
+    callback: () => void
   ) => void;
   retweet?: (
     data: {
       integrationId: string;
       id: string;
     },
-    callback
+    callback: () => void
   ) => void;
-  parentMessage: IMessageDocument;
+  parentMessage: IMessage;
   integrationId: string;
   type: string;
   closeModal: () => void;
@@ -101,7 +101,7 @@ class ModalAction extends React.Component<Props, State> {
     return parentMessage.content;
   }
 
-  getScreenName(parentMessage: IMessageDocument, raw?: boolean) {
+  getScreenName(parentMessage: IMessage, raw?: boolean) {
     const twitterData =
       parentMessage.customer && parentMessage.customer.twitterData;
     const screenName = twitterData && twitterData.screen_name;

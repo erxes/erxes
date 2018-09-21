@@ -15,7 +15,7 @@ import { Wrapper } from "modules/layout/components";
 import { ContenFooter, ContentBox } from "modules/layout/styles";
 import { BarItems } from "modules/layout/styles";
 import React, { Component, Fragment } from "react";
-import { IConversation, IMessageDocument } from "../../../types";
+import { IConversation, IMessage } from "../../../types";
 import Conversation from "./conversation/Conversation";
 import Participators from "./Participators";
 
@@ -24,7 +24,7 @@ type Props = {
   title?: string;
   currentConversationId?: string;
   currentConversation: IConversation;
-  conversationMessages: IMessageDocument[];
+  conversationMessages: IMessage[];
   loading: boolean;
   loadMoreMessages: () => void;
   addMessage: (

@@ -2,17 +2,17 @@ import { TwitterMessage } from "modules/inbox/containers/conversationDetail";
 import React, { Component, Fragment } from "react";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
-import { IConversation, IMessageDocument } from "../../../../../types";
+import { IConversation, IMessage } from "../../../../../types";
 import { SimpleMessage } from "../messages";
 
 type Props = {
   conversation: IConversation;
-  conversationMessages: IMessageDocument[];
+  conversationMessages: IMessage[];
   scrollBottom: () => void;
 };
 
-interface INestedMessages extends IMessageDocument {
-  children: any;
+interface INestedMessages extends IMessage {
+  childMessages: any;
 }
 
 const List = styledTS<{ isRoot?: boolean }>(styled.ul)`
@@ -29,7 +29,7 @@ class TwitterConversation extends Component<Props, {}> {
     this.renderTweets = this.renderTweets.bind(this);
   }
 
-  formatMessages(messages: IMessageDocument[], parent: string | null) {
+  formatMessages(messages: IMessage[], parent: string | null) {
     const array: INestedMessages[] = [];
 
     messages.forEach(msg => {
@@ -38,15 +38,14 @@ class TwitterConversation extends Component<Props, {}> {
       }
 
       if (msg.twitterData.in_reply_to_status_id_str === parent) {
-        const children = this.formatMessages(messages, msg.twitterData.id_str);
+        const childMessages = this.formatMessages(
+          messages,
+          msg.twitterData.id_str
+        );
 
-        let child = msg;
+        const child = msg;
 
-        if (children.length) {
-          child = Object.assign({ children }, msg);
-        }
-
-        array.push(child);
+        array.push({ ...child, childMessages });
       }
 
       return null;
@@ -75,13 +74,13 @@ class TwitterConversation extends Component<Props, {}> {
             integrationId={integrationId}
             scrollBottom={scrollBottom}
           />
-          {this.renderChildren(message.children, integrationId)}
+          {this.renderChildren(message.childMessages, integrationId)}
         </li>
       );
     });
   }
 
-  renderInternals(messages: IMessageDocument[]) {
+  renderInternals(messages: IMessage[]) {
     return messages.filter(message => !message.twitterData).map(message => {
       return (
         <SimpleMessage

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IMessageDocument } from "../../../../../types";
+import { IMessage } from "../../../../../types";
 import {
   AppMessage,
   FacebookMessage,
@@ -9,9 +9,9 @@ import {
 } from "./";
 
 type Props = {
-  message: IMessageDocument;
+  message: IMessage;
   isSameUser: boolean;
-  conversationFirstMessage: IMessageDocument;
+  conversationFirstMessage: IMessage;
 };
 
 function Message(props: Props) {

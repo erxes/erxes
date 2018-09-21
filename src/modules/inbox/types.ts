@@ -92,7 +92,7 @@ export interface IReactions {
   angry?: IFbUser[];
 }
 
-export interface IFacebook {
+export interface IMessageFacebook {
   postId?: string;
   commentId?: string;
   parentId?: string;
@@ -139,15 +139,10 @@ export interface IMessage {
   formWidgetData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
-  facebookData?: IFacebook;
+  facebookData?: IMessageFacebook;
   twitterData?: ITwitterResponse;
-}
 
-export interface IMessageDocument extends IMessage, Document {
   _id: string;
-  engageData?: IEngageData;
-  facebookData?: IFacebook;
-  twitterData?: ITwitterResponse;
   user?: IUser;
   customer?: ICustomer;
   createdAt: Date;

@@ -1,7 +1,7 @@
 import { Spinner } from "modules/common/components";
 import * as React from "react";
 import styled from "styled-components";
-import { IConversation, IMessageDocument } from "../../../../types";
+import { IConversation, IMessage } from "../../../../types";
 import AttachmentPreview from "./AttachmentPreview";
 import { FacebookConversation } from "./facebook";
 import { Message } from "./messages";
@@ -9,7 +9,7 @@ import { TwitterConversation } from "./twitter";
 
 type Props = {
   conversation: IConversation;
-  conversationMessages: IMessageDocument[];
+  conversationMessages: IMessage[];
   attachmentPreview: any;
   scrollBottom: () => void;
   loading: boolean;
@@ -26,11 +26,8 @@ const Wrapper = styled.div`
 `;
 
 class Conversation extends React.Component<Props, {}> {
-  renderMessages(
-    messages: IMessageDocument[],
-    conversationFirstMessage: IMessageDocument
-  ) {
-    const rows: JSX.Element[] = [];
+  renderMessages(messages: IMessage[], conversationFirstMessage: IMessage) {
+    const rows: React.ReactNode[] = [];
 
     let tempId;
 

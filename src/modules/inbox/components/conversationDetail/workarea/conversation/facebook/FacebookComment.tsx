@@ -1,6 +1,6 @@
 import { ModalTrigger, NameCard } from "modules/common/components";
 import * as React from "react";
-import { IMessageDocument } from "../../../../../types";
+import { IMessage } from "../../../../../types";
 import {
   Date,
   FacebookContent,
@@ -18,7 +18,7 @@ import {
 } from "./styles";
 
 type Props = {
-  message: IMessageDocument;
+  message: IMessage;
   replyPost: (data, callback) => void;
   scrollBottom: () => void;
 };

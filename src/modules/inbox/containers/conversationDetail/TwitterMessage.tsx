@@ -4,7 +4,7 @@ import { TwitterMessage } from "modules/inbox/components/conversationDetail";
 import { mutations, queries } from "modules/inbox/graphql";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
-import { IMessageDocument, ITwitterResponse } from "../../types";
+import { IMessage, ITwitterResponse } from "../../types";
 
 type Props = {
   replyTweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>;
@@ -13,7 +13,7 @@ type Props = {
   retweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>;
   tweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>;
   scrollBottom: () => void;
-  message: IMessageDocument;
+  message: IMessage;
   integrationId: string;
 };
 

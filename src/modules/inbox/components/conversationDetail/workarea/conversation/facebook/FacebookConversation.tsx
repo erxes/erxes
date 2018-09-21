@@ -1,16 +1,16 @@
 import { FacebookComment } from "modules/inbox/containers/conversationDetail";
 import React, { Component, Fragment } from "react";
-import { IConversation, IMessageDocument } from "../../../../../types";
+import { IConversation, IMessage } from "../../../../../types";
 import { SimpleMessage } from "../messages";
 import { FacebookPost } from "./";
 
 type Props = {
   conversation: IConversation;
-  conversationMessages: IMessageDocument[];
+  conversationMessages: IMessage[];
   scrollBottom: () => void;
 };
 
-const getAttr = (message: IMessageDocument, attr: string) => {
+const getAttr = (message: IMessage, attr: string) => {
   if (!message.facebookData) {
     return;
   }
@@ -19,7 +19,7 @@ const getAttr = (message: IMessageDocument, attr: string) => {
 };
 
 export default class FacebookConversation extends Component<Props, {}> {
-  renderReplies(comment: IMessageDocument) {
+  renderReplies(comment: IMessage) {
     const { conversationMessages = [] } = this.props;
 
     const replies = conversationMessages.filter(msg => {
@@ -35,7 +35,7 @@ export default class FacebookConversation extends Component<Props, {}> {
     ));
   }
 
-  renderComments(comments: IMessageDocument[]) {
+  renderComments(comments: IMessage[]) {
     return comments.map(comment => (
       <Fragment key={comment._id}>
         <FacebookComment message={comment} />
@@ -44,7 +44,7 @@ export default class FacebookConversation extends Component<Props, {}> {
     ));
   }
 
-  renderInternals(messages: IMessageDocument[]) {
+  renderInternals(messages: IMessage[]) {
     return messages.map(message => {
       return (
         <SimpleMessage
@@ -79,8 +79,8 @@ export default class FacebookConversation extends Component<Props, {}> {
       return null;
     }
 
-    const comments: IMessageDocument[] = [];
-    const internalMessages: IMessageDocument[] = [];
+    const comments: IMessage[] = [];
+    const internalMessages: IMessage[] = [];
 
     for (const message of conversationMessages) {
       if (message.internal) {

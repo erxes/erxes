@@ -2,11 +2,11 @@ import classNames from "classnames";
 import { Attachment, NameCard, Tip } from "modules/common/components";
 import moment from "moment";
 import React, { Fragment } from "react";
-import { IMessageDocument } from "../../../../../types";
+import { IMessage } from "../../../../../types";
 import { MessageBody, MessageContent, MessageItem } from "../styles";
 
 type Props = {
-  message: IMessageDocument;
+  message: IMessage;
   classes?: any;
   isStaff: boolean;
   isSameUser?: boolean;

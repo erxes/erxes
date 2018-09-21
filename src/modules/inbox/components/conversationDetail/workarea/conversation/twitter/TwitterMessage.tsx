@@ -2,24 +2,24 @@ import { Icon, ModalTrigger, NameCard, Tip } from "modules/common/components";
 import moment from "moment";
 import React, { Component } from "react";
 import { ICustomer } from "../../../../../../customers/types";
-import { IMessageDocument, ITwitterResponse } from "../../../../../types";
+import { IMessage, ITwitterResponse } from "../../../../../types";
 import { ModalAction, TweetContent, TweetMedia } from "./";
 import { Count, Counts, Reply, Time, Tweet, User } from "./styles";
 
 type Props = {
-  message: IMessageDocument;
+  message: IMessage;
   staff?: boolean;
   integrationId: string;
   favoriteTweet: (
     data: { integrationId: string; id: string },
-    callback?
+    callback?: () => void
   ) => void;
   retweet: (
     data: {
       integrationId: string;
       id: string;
     },
-    callback
+    callback: () => void
   ) => void;
   replyTweet: (
     data: {
@@ -28,14 +28,14 @@ type Props = {
       tweetReplyToId: string;
       tweetReplyToScreenName: string;
     },
-    callback
+    callback: () => void
   ) => void;
   tweet: (
     data: {
       integrationId: string;
       text: string;
     },
-    callback
+    callback: () => void
   ) => void;
   scrollBottom: () => void;
 };
@@ -175,7 +175,7 @@ class TwitterMessage extends Component<Props, {}> {
     );
   }
 
-  getTweetContent(extendedTweet: any, message: IMessageDocument) {
+  getTweetContent(extendedTweet: any, message: IMessage) {
     if (extendedTweet) {
       return extendedTweet.full_text;
     }

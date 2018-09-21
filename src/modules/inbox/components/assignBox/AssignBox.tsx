@@ -21,9 +21,9 @@ type Props = {
   assignees: IUser[];
   assign: (
     doc: { conversationIds?: string[]; assignedUserId: string },
-    callback: (error: any) => void
+    callback: (error: Error) => void
   ) => void;
-  clear: (userIds: string[], callback: (error: any) => void) => void;
+  clear: (userIds: string[], callback: (error: Error) => void) => void;
 };
 
 type State = {
@@ -97,7 +97,7 @@ class AssignBox extends React.Component<Props, State> {
       },
       error => {
         if (error) {
-          Alert.error(error.reason);
+          Alert.error(error.message);
         }
       }
     );
@@ -112,7 +112,7 @@ class AssignBox extends React.Component<Props, State> {
 
     clear(targets.map(t => t._id), error => {
       if (error) {
-        Alert.error(`Error: ${error.reason}`);
+        Alert.error(`Error: ${error.message}`);
       }
     });
   }

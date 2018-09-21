@@ -1,11 +1,11 @@
 import classNames from "classnames";
 import { Attachment } from "modules/common/components";
 import React, { Fragment } from "react";
-import { IFacebook, IMessageDocument } from "../../../../../types";
+import { IMessage, IMessageFacebook } from "../../../../../types";
 import { SimpleMessage } from "./";
 
 type Props = {
-  message: IMessageDocument;
+  message: IMessage;
 };
 
 export default class FacebookMessage extends React.Component<Props, {}> {
@@ -23,7 +23,7 @@ export default class FacebookMessage extends React.Component<Props, {}> {
   }
 
   renderAttachment(
-    message: IMessageDocument,
+    message: IMessage,
     hasAttachment: boolean,
     isPhotoPost: boolean
   ) {
@@ -44,7 +44,7 @@ export default class FacebookMessage extends React.Component<Props, {}> {
     return null;
   }
 
-  renderVideoIframe(fbData: IFacebook, isVideoPost: boolean) {
+  renderVideoIframe(fbData: IMessageFacebook, isVideoPost: boolean) {
     if (!isVideoPost) {
       return null;
     }

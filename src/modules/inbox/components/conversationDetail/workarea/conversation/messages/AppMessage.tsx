@@ -1,10 +1,10 @@
 import { Button, NameCard } from "modules/common/components";
 import * as React from "react";
-import { IMessageDocument } from "../../../../../types";
+import { IMessage } from "../../../../../types";
 import { AppMessageBox, CallButton, FlexItem, UserInfo } from "../styles";
 
 type Props = {
-  message: IMessageDocument;
+  message: IMessage;
 };
 
 export default class AppMessage extends React.Component<Props, {}> {

@@ -3,7 +3,14 @@ import * as React from "react";
 import { Footer } from "./styles";
 
 type Props = {
-  replyPost: (data, callback) => void;
+  replyPost: (
+    data: {
+      conversationId: string;
+      content: string;
+      commentReplyToId?: string;
+    },
+    callback: () => void
+  ) => void;
   conversationId: string;
   commentId?: string;
   currentUserName: string;

@@ -24,7 +24,7 @@ import ConversationDetails from "./ConversationDetails";
 type BoxProps = {
   title: string;
   name: string;
-  children: JSX.Element;
+  children: React.ReactNode;
   isOpen: boolean;
   toggle: (params: { name: string; isOpen: boolean }) => void;
 };
@@ -99,19 +99,12 @@ type IndexProps = {
 interface IRenderData {
   customer: ICustomer;
   kind: string;
-  __: (string) => React.ReactNode;
   config: any;
   toggleSection: (params: { name: string; isOpen: boolean }) => void;
 }
 
 class Index extends React.Component<IndexProps> {
-  renderMessengerData({
-    customer,
-    kind,
-    __,
-    config,
-    toggleSection
-  }: IRenderData) {
+  renderMessengerData({ customer, kind, config, toggleSection }: IRenderData) {
     if (kind !== "messenger") {
       return null;
     }
@@ -131,7 +124,6 @@ class Index extends React.Component<IndexProps> {
   renderDeviceProperties({
     customer,
     kind,
-    __,
     config,
     toggleSection
   }: IRenderData) {
@@ -165,7 +157,7 @@ class Index extends React.Component<IndexProps> {
     return (
       <Sidebar>
         <Box
-          title={__("Profile").toString()}
+          title={__("Profile")}
           name="showProfile"
           isOpen={config.showProfile || false}
           toggle={toggleSection}
@@ -174,7 +166,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__("Conversation details").toString()}
+          title={__("Conversation details")}
           name="showConversationDetails"
           isOpen={config.showConversationDetails || false}
           toggle={toggleSection}
@@ -185,20 +177,18 @@ class Index extends React.Component<IndexProps> {
         {this.renderMessengerData({
           customer,
           kind,
-          __,
           config,
           toggleSection
         })}
         {this.renderDeviceProperties({
           customer,
           kind,
-          __,
           config,
           toggleSection
         })}
 
         <Box
-          title={__("Contact information").toString()}
+          title={__("Contact information")}
           name="showCustomFields"
           isOpen={config.showCustomFields || false}
           toggle={toggleSection}
@@ -207,7 +197,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__("Tags").toString()}
+          title={__("Tags")}
           name="showTags"
           isOpen={config.showTags || false}
           toggle={toggleSection}
@@ -220,7 +210,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__("Companies").toString()}
+          title={__("Companies")}
           name="showCompanies"
           isOpen={config.showCompanies || false}
           toggle={toggleSection}
@@ -229,7 +219,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__("Deals").toString()}
+          title={__("Deals")}
           name="showDeals"
           isOpen={config.showDeals || false}
           toggle={toggleSection}

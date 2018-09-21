@@ -1,10 +1,10 @@
 import { Tip } from "modules/common/components";
 import moment from "moment";
 import * as React from "react";
-import { IMessageDocument } from "../../../../../types";
+import { IMessage } from "../../../../../types";
 
 type Props = {
-  message: IMessageDocument;
+  message: IMessage;
 };
 
 export default class Date extends React.Component<Props, {}> {

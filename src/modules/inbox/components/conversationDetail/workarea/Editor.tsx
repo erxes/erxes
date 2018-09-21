@@ -23,7 +23,7 @@ import {
 import { IResponseTemplate } from "../../../../settings/responseTemplates/types";
 
 type EditorProps = {
-  onChange: (editorState: any) => void;
+  onChange: (content: string) => void;
   onAddMention: (mentions: any) => void;
   onShifEnter: () => void;
   showMentions: boolean;
@@ -35,7 +35,7 @@ type EditorProps = {
 };
 
 type State = {
-  editorState: any;
+  editorState: EditorState;
   collectedMentions: any;
   suggestions: any;
   templatesState: any;
@@ -332,7 +332,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     this.setState({ collectedMentions });
   }
 
-  getContent(editorState) {
+  getContent(editorState: EditorState) {
     let content = toHTML(editorState);
 
     // some mentioned people may have been deleted

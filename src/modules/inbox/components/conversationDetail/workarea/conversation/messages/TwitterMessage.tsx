@@ -1,10 +1,10 @@
 import * as React from "react";
-import { IMessageDocument } from "../../../../../types";
+import { IMessage } from "../../../../../types";
 import { SimpleMessage } from "./";
 
 type Props = {
-  message: IMessageDocument;
-  conversationFirstMessage: IMessageDocument;
+  message: IMessage;
+  conversationFirstMessage: IMessage;
 };
 
 const TwitterMessage = (props: Props) => {
