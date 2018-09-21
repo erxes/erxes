@@ -12,6 +12,7 @@ export interface IEngageScheduleDate {
 
 export interface IEngageRule {
     _id: string;
+    kind: string;
     text: string;
     condition: string;
     value: string;

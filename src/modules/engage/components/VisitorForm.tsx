@@ -1,6 +1,5 @@
 import { IUser } from 'modules/auth/types';
 import {
-  ConditionStep,
   FormControl,
   Step,
   Steps
@@ -10,7 +9,9 @@ import {
   TitleContainer
 } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import ConditionStep from 'modules/engage/components/step/ConditionStep';
 import { MESSAGE_KINDS, METHODS } from 'modules/engage/constants';
+import { IEngageRule } from 'modules/engage/types';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
@@ -32,7 +33,7 @@ type State = {
   title: string;
   message: string;
   fromUser: string;
-  rules: string[];
+  rules: IEngageRule[];
   messenger: any;
   scheduleDate: Date;
 }

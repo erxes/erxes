@@ -4,20 +4,21 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import { FlexPad, InlineForm } from 'modules/common/components/step/styles';
 import {
   RULE_CONDITIONS,
   VISITOR_AUDIENCE_RULES
 } from 'modules/engage/constants';
 import React, { Component } from 'react';
-import { FlexPad, InlineForm } from './styles';
+import { IEngageRule } from '../../types';
 
 type Props = {
-  rules: any[];
+  rules: IEngageRule[];
   changeRules: (name: string, rules: any[]) => void;
 };
 
 type State = {
-  rules: any[];
+  rules: IEngageRule[];
 }
 
 class ConditionStep extends Component<Props, State> {
@@ -65,7 +66,9 @@ class ConditionStep extends Component<Props, State> {
       const currentRule = rules.find(r => r._id === rule._id);
 
       // set new value
-      currentRule[name] = value;
+      if (currentRule) {
+        currentRule[name] = value;
+      }
 
       this.setState({ rules });
       this.props.changeRules('rules', rules);
