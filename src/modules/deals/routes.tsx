@@ -3,23 +3,26 @@ import * as React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { Home } from './containers';
 
-const routes = () => [
-  <Route
-    key="deals"
-    exact
-    path="/deals"
-    render={() => <Redirect to="/deals/board" />}
-  />,
-  <Route
-    key="deals/board"
-    exact
-    path="/deals/board"
-    component={({ history, location }) => {
-      const queryParams = queryString.parse(location.search);
+const routes = () => (
+  <React.Fragment>
+    <Route
+      key="deals"
+      exact
+      path="/deals"
+      render={() => <Redirect to="/deals/board" />}
+    />
 
-      return <Home queryParams={queryParams} history={history} />;
-    }}
-  />
-];
+    <Route
+      key="deals/board"
+      exact
+      path="/deals/board"
+      component={({ history, location }) => {
+        const queryParams = queryString.parse(location.search);
+
+        return <Home queryParams={queryParams} history={history} />;
+      }}
+    />
+  </React.Fragment>
+);
 
 export default routes;
