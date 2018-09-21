@@ -6,6 +6,7 @@ import {
 import { Alert } from "modules/common/utils";
 import { __ } from "modules/common/utils";
 import { Wrapper } from "modules/layout/components";
+import { IFormData } from "modules/settings/integrations/types";
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { IBrand } from "../../settings/brands/types";
@@ -25,8 +26,15 @@ type Props = {
   fields: IFormField[];
   loading?: boolean;
 
-  // TODO: add type
-  save: (params) => void;
+  save: (params: {
+    name: string;
+    brandId: string;
+    languageCode?: string;
+    formData: IFormData;
+    form: any;
+    fields: any;
+    // fields?: IFormField[];
+   }) => void;
 };
 
 type State = {

@@ -10,16 +10,20 @@ import { KnowledgeRow } from './';
 type Props = {
   queryParams: any;
   currentCategoryId: string;
-
-  // TODO: replace any
-  save: ({ doc }: { doc: any }, callback: () => void, object: any) => void;
-
-  remove: ( _id: string ) => void;
   count?: number;
   loading: boolean;
   topics: ITopic[];
   articlesCount: number;
   topicsCount: number;
+  
+  save: (params: { doc: {doc: {
+    title: string;
+    description: string;
+    brandId: string;
+    languageCode: string;
+    color: string
+  }} }, callback: () => void, object: any) => void;
+  remove: ( _id: string ) => void;
 };
 
 class KnowledgeList extends Component<Props> {
