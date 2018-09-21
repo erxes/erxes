@@ -6,10 +6,10 @@ import { PropertyGroupForm } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  queryParams: any,
-  fieldsGroupsAdd: (fieldsAdd: { variables: { contentType: string } }) => any,
-  fieldsGroupsEdit: (fieldsEdit: { variables: { contentType: string } }) => any,
-  closeModal: () => void,
+  queryParams: any;
+  fieldsGroupsAdd: (fieldsAdd: { variables: { contentType: string } }) => Promise<any>;
+  fieldsGroupsEdit: (fieldsEdit: { variables: { contentType: string } }) => Promise<any>;
+  closeModal: () => void;
 };
 
 const PropertyGroupFormContainer = (props: Props) => {

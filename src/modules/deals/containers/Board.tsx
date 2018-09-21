@@ -6,7 +6,7 @@ import { queries } from '../graphql';
 import { IBoard } from '../types';
 
 type Props = {
-  pipelinesQuery: any
+  pipelinesQuery: any;
 }
 
 class BoardContainer extends React.Component<Props> {

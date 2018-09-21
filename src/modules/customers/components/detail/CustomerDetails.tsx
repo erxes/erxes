@@ -18,15 +18,15 @@ import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 
 type Props = {
-  customer: ICustomer,
-  currentUser: IUser,
-  activityLogsCustomer: any[],
-  taggerRefetchQueries?: any[],
-  loadingLogs: boolean
+  customer: ICustomer;
+  currentUser: IUser;
+  activityLogsCustomer: any[];
+  taggerRefetchQueries?: any[];
+  loadingLogs: boolean;
 };
 
 type State = {
-  currentTab: string
+  currentTab: string;
 }
 
 class CustomerDetails extends React.Component<Props, State> {

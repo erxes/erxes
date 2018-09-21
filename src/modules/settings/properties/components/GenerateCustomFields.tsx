@@ -7,9 +7,9 @@ import { IFieldGroup } from '../types';
 import GenerateField from './GenerateField';
 
 type Props = {
-  fieldGroup: IFieldGroup,
-  data: any,
-  save: (error: any, success: any) => void
+  fieldGroup: IFieldGroup;
+  data: any;
+  save: (error: any, success: any) => void;
 };
 
 type State = {

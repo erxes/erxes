@@ -36,7 +36,7 @@ class Widget extends Component<{ unreadCount: number }, { activeFirst: boolean }
       return (
         <PopoverContent>
           <EmptyState
-            text={__('Coming soon').toString()}
+            text={__('Coming soon')}
             image="/images/robots/robot-05.svg"
           />
         </PopoverContent>

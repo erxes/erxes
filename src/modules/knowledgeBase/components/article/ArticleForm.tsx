@@ -18,13 +18,16 @@ import { IArticle } from '../../types';
 type Props = {
   article: IArticle;
   currentCategoryId: string;
+
+  // TODO: replace any
   save: ({ doc }: { doc: any }, callback: () => void, IArticle) => void;
+
   closeModal: () => void;
 };
 
 type State = {
-  status: string,
-  editorState: any
+  status: string;
+  editorState: EditorState;
 }
 
 class ArticleForm extends Component<Props, State> {
@@ -125,7 +128,7 @@ class ArticleForm extends Component<Props, State> {
           <FormControl
             id="knowledgebase-article-status"
             componentClass="select"
-            placeholder={__('select').toString()}
+            placeholder={__('select')}
             onChange={e => {
               this.setState({ status: (e.target as HTMLInputElement).value });
             }}

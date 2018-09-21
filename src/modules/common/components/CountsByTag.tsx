@@ -4,18 +4,16 @@ import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
+import { IRouterProps } from '../../common/types';
 
-type Props = {
-  history: any,
-  location: any,
-  match: any,
-  tags: any[],
-  counts: any,
-  manageUrl: string,
-  loading: boolean,
+interface IProps extends IRouterProps {
+  tags: any[];
+  counts: any;
+  manageUrl: string;
+  loading: boolean;
 };
 
-function CountsByTag({ history, tags, counts, manageUrl, loading }: Props) {
+function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
   const { Section } = Wrapper.Sidebar;
 
   return (
@@ -50,4 +48,4 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }: Props) {
   );
 }
 
-export default withRouter<Props>(CountsByTag);
+export default withRouter<IProps>(CountsByTag);

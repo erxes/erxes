@@ -4,9 +4,9 @@ import React, { Component } from 'react';
 import { AutoAndManualForm, VisitorForm } from '../containers';
 
 type Props = {
-  kind: string,
-  brands: IBrand[],
-  scheduleDate: any
+  kind: string;
+  brands: IBrand[];
+  scheduleDate: any;
 };
 
 class MessageForm extends Component<Props> {

@@ -5,12 +5,12 @@ import { Link } from 'react-router-dom';
 import { AuthBox, Links } from '../styles';
 
 type Props = {
-  login: (doc: { email: string, password: string }) => void
+  login: (doc: { email: string, password: string }) => void;
 };
 
 type State = {
-  email: string,
-  password: string,
+  email: string;
+  password: string;
 }
 
 class SignIn extends Component<Props, State> {
@@ -53,7 +53,7 @@ class SignIn extends Component<Props, State> {
           <FormGroup>
             <FormControl
               type="email"
-              placeholder={__('your@email.com').toString()}
+              placeholder={__('your@email.com')}
               value={this.state.email}
               required
               onChange={this.handleEmailChange}
@@ -62,7 +62,7 @@ class SignIn extends Component<Props, State> {
           <FormGroup>
             <FormControl
               type="password"
-              placeholder={__('password').toString()}
+              placeholder={__('password')}
               value={this.state.password}
               required
               onChange={this.handlePasswordChange}

@@ -11,24 +11,24 @@ import { Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
 
 type Props = {
-  data: any,
-  onSelect: (datas: any[]) => void,
-  search: (value: string, reload?: boolean) => void,
-  datas: any[],
-  title: string,
-  renderName: (data: any) => void,
-  renderForm: (props: { closeModal: () => void }) => any,
-  perPage: number,
-  clearState: () => void,
-  limit?: number,
-  add?: any,
-  closeModal: () => void
+  data: any;
+  onSelect: (datas: any[]) => void;
+  search: (value: string, reload?: boolean) => void;
+  datas: any[];
+  title: string;
+  renderName: (data: any) => void;
+  renderForm: (props: { closeModal: () => void }) => any;
+  perPage: number;
+  clearState: () => void;
+  limit?: number;
+  add?: any;
+  closeModal: () => void;
 };
 
 type State = {
-  datas: any[],
-  loadmore: boolean,
-  searchValue: string
+  datas: any[];
+  loadmore: boolean;
+  searchValue: string;
 }
 
 class CommonChooser extends Component<Props, State> {
@@ -138,7 +138,7 @@ class CommonChooser extends Component<Props, State> {
         <Columns>
           <Column>
             <FormControl
-              placeholder={__('Type to search').toString()}
+              placeholder={__('Type to search')}
               onChange={e => this.search(e)}
             />
             <ul>

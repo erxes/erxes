@@ -6,11 +6,11 @@ import { ArticleList } from '../../components';
 import { mutations, queries } from '../../graphql';
 
 type Props = {
-  queryParams: any,
-  articlesQuery: any,
-  removeArticlesMutation: (params: { variables: { _id: string } }) => any,
-  currentCategoryId: string,
-  topicIds: string
+  queryParams: any;
+  articlesQuery: any;
+  removeArticlesMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  currentCategoryId: string;
+  topicIds: string;
 };
 
 const ArticleContainer = (props: Props) => {

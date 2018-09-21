@@ -11,7 +11,7 @@ import { ContentBox } from 'modules/settings/styles';
 import React, { Component } from 'react';
 
 type Props = {
-  save: (params: { name: string }) => void
+  save: (params: { name: string }) => void;
 };
 
 class Calendar extends Component<Props> {

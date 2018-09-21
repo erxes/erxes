@@ -5,6 +5,15 @@ import DumbCalendar from 'modules/settings/integrations/components/google/Calend
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 
+type Props = {
+  type: string;
+  history: any;
+  queryParams: any;
+  googleAuthUrlQuery: any;
+  googleAccessTokenQuery: any;
+  saveMutation: (params: {variables: { callback: any, kind: string, credentials: any }}) => any;
+};
+
 const Calendar = (props: Props) => {
   const {
     history,
@@ -50,15 +59,6 @@ const Calendar = (props: Props) => {
   };
 
   return <DumbCalendar save={save} />;
-};
-
-type Props = {
-  type: string,
-  history: any,
-  queryParams: any,
-  googleAuthUrlQuery: any,
-  googleAccessTokenQuery: any,
-  saveMutation: (params: {variables: { callback: any, kind: string, credentials: any }}) => any
 };
 
 export default compose(

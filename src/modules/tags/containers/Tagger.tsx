@@ -6,10 +6,14 @@ import { Tagger } from '../components';
 import { ITagTypes } from '../types';
 
 type Props = {
+  // targets can be conversation, customer, company etc ...
   targets: any[];
   type: ITagTypes;
   tagsQuery: any;
+
+  // TODO: add types
   tagMutation: (params: { variables: any }) => Promise<any>;
+
   successCallback: () => void;
 };
 

@@ -3,15 +3,15 @@ import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import React, { Component } from 'react';
 import Sidebar from '../../properties/components/Sidebar';
-import { IHistories } from '../types';
+import { IImportHistory } from '../types';
 import HistoryRow from './Row';
 
 type Props = {
-  queryParams: any,
-  currentType: string,
-  histories: IHistories[],
-  removeHistory: (_id: string) => void,
-  loading: boolean
+  queryParams: any;
+  currentType: string;
+  histories: IImportHistory[];
+  removeHistory: (_id: string) => void;
+  loading: boolean;
 };
 
 class Histories extends Component<Props> {

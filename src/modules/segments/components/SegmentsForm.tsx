@@ -10,7 +10,7 @@ import { Wrapper } from 'modules/layout/components';
 import { ContentSpace, FlexContent, FlexItem } from 'modules/layout/styles';
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { ISegment, ISegmentCondition } from '../types';
+import { ISegment, ISegmentCondition, ISegmentDoc } from '../types';
 import { AddConditionButton, Conditions } from './';
 import {
   ConditionWrapper,
@@ -22,32 +22,32 @@ import {
 } from './styles';
 
 type SegmentDoc = {
-  name: string,
-  description: string,
-  subOf: string,
-  color: string,
-  connector: string,
-  conditions: ISegmentCondition[],
+  name: string;
+  description: string;
+  subOf: string;
+  color: string;
+  connector: string;
+  conditions: ISegmentCondition[];
 }
 
 type Props = {
-  contentType: string,
-  fields: any[],
-  create: (params: { doc: SegmentDoc }) => void,
-  edit: (params: { _id: string, doc: SegmentDoc }) => void,
-  segment: ISegment,
-  headSegments: ISegment[],
-  count: (segment: any) => void,
-  total: any
+  contentType: string;
+  fields: any[];
+  create: (params: { doc: SegmentDoc }) => void;
+  edit: (params: { _id: string, doc: SegmentDoc }) => void;
+  segment: ISegment;
+  headSegments: ISegment[];
+  count: (segment: ISegmentDoc) => void;
+  total: any;
 };
 
 type State = {
-  name: string,
-  description: string,
-  subOf: string,
-  color: string,
-  conditions: ISegmentCondition[],
-  connector: string,
+  name: string;
+  description: string;
+  subOf: string;
+  color: string;
+  conditions: ISegmentCondition[];
+  connector: string;
 }
 
 class SegmentsForm extends Component<Props, State> {
@@ -87,6 +87,8 @@ class SegmentsForm extends Component<Props, State> {
       )
     });
 
+    const { contentType } = this.props;
+
     const {
       name,
       description,
@@ -98,6 +100,7 @@ class SegmentsForm extends Component<Props, State> {
 
     const segment = {
       name,
+      contentType,
       description,
       subOf,
       color,

@@ -8,11 +8,11 @@ import { CompanySection } from '../components';
 type Props = {
   customersEditCompanies: (params: {
     variables: {
-      _id: string,
-      companyIds: string[],
+      _id: string;
+      companyIds: string[];
     }
-  }) => Promise<any>,
-  data: any
+  }) => Promise<any>;
+  data: any;
 };
 
 const CompanyAssociate = (props: Props) => {

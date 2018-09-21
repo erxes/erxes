@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
 import React, { Component } from 'react';
@@ -7,12 +8,22 @@ import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IPages } from '../../types';
 
-type State = {
-  pages: IPages[]
+interface IProps extends IRouterProps {
+  client: any;
+  type?: string;
+  integrationFacebookAppsListQuery: any;
+  saveMutation: (params: {variables: {
+    name: string, brandId: string, appId: string, pageIds: string[]
+  }}) => Promise<any>;
+  brandsQuery: any;
 };
 
-class FacebookContainer extends Component<Props, State> {
-  constructor(props: Props) {
+type State = {
+  pages: IPages[];
+};
+
+class FacebookContainer extends Component<IProps, State> {
+  constructor(props: IProps) {
     super(props);
 
     this.onAppSelect = this.onAppSelect.bind(this);
@@ -81,16 +92,7 @@ class FacebookContainer extends Component<Props, State> {
   }
 }
 
-type Props = {
-  client: any,
-  history: any,
-  type?: string,
-  integrationFacebookAppsListQuery: any,
-  saveMutation: (variables: any) => any,
-  brandsQuery: any
-};
-
-export default withRouter(
+export default withRouter<IRouterProps>(
   compose(
     graphql(
       gql`

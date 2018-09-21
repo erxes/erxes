@@ -6,9 +6,9 @@ import { CustomerDetails } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  id: string,
-  customerDetailQuery: any,
-  customerActivityLogQuery: any,
+  id: string;
+  customerDetailQuery: any;
+  customerActivityLogQuery: any;
 };
 
 const CustomerDetailsContainer = (props: Props, context) => {

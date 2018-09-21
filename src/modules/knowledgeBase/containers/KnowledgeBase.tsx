@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils } from 'modules/common/utils';
 import queryString from 'query-string';
 import * as React from 'react';
@@ -7,15 +8,13 @@ import { withRouter } from 'react-router';
 import { KnowledgeBase as KnowledgeBaseComponent } from '../components';
 import { queries } from '../graphql';
 
-type Props = {
-  currentCategoryId: string,
-  articlesCountQuery: any,
-  categoryDetailQuery: any,
-  history: any,
-  location: any,
+interface IProps extends IRouterProps {
+  currentCategoryId: string;
+  articlesCountQuery: any;
+  categoryDetailQuery: any;
 };
 
-class KnowledgeBase extends React.Component<Props> {
+class KnowledgeBase extends React.Component<IProps> {
   componentWillReceiveProps() {
     const { history, currentCategoryId } = this.props;
 
@@ -78,13 +77,7 @@ const KnowledgeBaseLastContainer = compose(
   })
 )(KnowledgeBaseLast);
 
-type MainContainerProps = {
-  history: any,
-  location: any,
-  match: any
-};
-
-const MainContainer = (props : MainContainerProps) => {
+const MainContainer = (props : IRouterProps) => {
   const { history } = props;
   const currentCategoryId = routerUtils.getParam(history, 'id');
 
@@ -97,4 +90,4 @@ const MainContainer = (props : MainContainerProps) => {
   return <KnowledgeBaseLastContainer {...props} />;
 };
 
-export default withRouter<MainContainerProps>(MainContainer);
+export default withRouter<IRouterProps>(MainContainer);

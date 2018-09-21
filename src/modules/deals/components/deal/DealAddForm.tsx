@@ -11,25 +11,25 @@ import {
 } from '../../styles/deal';
 
 type Props = {
-  saveDeal: any,
-  customerId?: string,
-  companyId?: string,
-  boardsQuery?: any,
-  pipelinesQuery?: any,
-  stagesQuery?: any,
-  boardId?: string,
-  pipelineId?: string,
-  stageId?: string,
-  showSelect?: boolean,
-  closeModal?: () => void
+  saveDeal: any;
+  customerId?: string;
+  companyId?: string;
+  boardsQuery?: any;
+  pipelinesQuery?: any;
+  stagesQuery?: any;
+  boardId?: string;
+  pipelineId?: string;
+  stageId?: string;
+  showSelect?: boolean;
+  closeModal?: () => void;
 };
 
 type Stage = {
-  stageId: string,
-  name: string
-  disabled: boolean,
-  boardId: string,
-  pipelineId: string,
+  stageId: string;
+  name: string;
+  disabled: boolean;
+  boardId: string;
+  pipelineId: string;
 }
 
 class DealAddForm extends React.Component<Props, Stage> {

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import { __, Alert, router } from 'modules/common/utils';
 import React, { Component } from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -6,12 +7,18 @@ import { withRouter } from 'react-router';
 import { Histories } from '../components';
 import { mutations, queries } from '../graphql';
 
+interface IProps extends IRouterProps {
+  queryParams: any;
+  historiesQuery: any;
+  importHistoriesRemove: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
 type State = {
-  loading: boolean
+  loading: boolean;
 }
 
-class HistoriesContainer extends Component<Props, State> {
-  constructor(props: Props) {
+class HistoriesContainer extends Component<IProps, State> {
+  constructor(props: IProps) {
     super(props);
 
     this.state = {
@@ -55,15 +62,6 @@ class HistoriesContainer extends Component<Props, State> {
   }
 }
 
-type Props = {
-  queryParams: any,
-  historiesQuery: any,
-  history: any,
-  location: any,
-  match: any,
-  importHistoriesRemove: (params: { variables: { _id: string } }) => any
-};
-
 export default compose(
   graphql(gql(queries.histories), {
     name: 'historiesQuery',
@@ -80,4 +78,4 @@ export default compose(
       refetchQueries: ['importHistories']
     }
   })
-)(withRouter<Props>(HistoriesContainer));
+)(withRouter<IProps>(HistoriesContainer));

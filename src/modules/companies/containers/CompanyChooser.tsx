@@ -8,12 +8,12 @@ import { mutations, queries } from '../graphql';
 import { ICompanyDoc } from '../types';
 
 type Props = {
-  data: any,
-  companiesQuery: any,
-  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>,
-  search: (value?: string) => void,
-  perPage: number,
-  closeModal: () => void
+  data: any;
+  companiesQuery: any;
+  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>;
+  search: (value?: string) => void;
+  perPage: number;
+  closeModal: () => void;
 };
 
 const CompanyChooser = (props: WrapperProps & Props) => {

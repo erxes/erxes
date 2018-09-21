@@ -8,9 +8,9 @@ import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
 
 type Props = {
-  brands: IBrand[],
-  onChange: () => void,
-  defaultValue: string
+  brands: IBrand[];
+  onChange: () => void;
+  defaultValue: string;
 };
 
 const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (
@@ -20,7 +20,7 @@ const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (
     <FormControl
       id="selectBrand"
       componentClass="select"
-      placeholder={__('Select Brand').toString()}
+      placeholder={__('Select Brand')}
       defaultValue={defaultValue}
       onChange={onChange}
     >

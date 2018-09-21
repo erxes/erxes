@@ -1,4 +1,5 @@
 import { DataWithLoader } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
@@ -6,16 +7,13 @@ import { IBrand } from 'modules/settings/brands/types';
 import React from 'react';
 import { withRouter } from 'react-router';
 
-type Props = {
-  history: any,
-  location: any,
-  match: any,
-  counts: any,
-  brands: IBrand[],
-  loading: boolean
+interface IProps extends IRouterProps {
+  counts: any;
+  brands: IBrand[];
+  loading: boolean;
 };
 
-function Brands({ history, counts, brands, loading }: Props) {
+function Brands({ history, counts, brands, loading }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;
 
   const data = (
@@ -56,4 +54,4 @@ function Brands({ history, counts, brands, loading }: Props) {
   );
 }
 
-export default withRouter<Props>(Brands);
+export default withRouter<IProps>(Brands);

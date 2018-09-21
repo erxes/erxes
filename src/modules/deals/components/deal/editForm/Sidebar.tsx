@@ -10,14 +10,14 @@ import { Right } from '../../../styles/deal';
 import { IDeal } from '../../../types';
 
 type Props = {
-  deal: IDeal,
-  customers: ICustomer[],
-  companies: ICompany[],
-  products: IProduct[],
-  productsData: any,
-  onChangeField?: (name: string, value: any) => void,
-  removeDeal: any,
-  saveProductsData: any
+  deal: IDeal;
+  customers: ICustomer[];
+  companies: ICompany[];
+  products: IProduct[];
+  productsData: any;
+  onChangeField?: (name: string, value: any) => void;
+  removeDeal: any;
+  saveProductsData: any;
 };
 
 class Sidebar extends React.Component<Props> {

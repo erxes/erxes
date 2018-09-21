@@ -4,8 +4,14 @@ import { queries } from 'modules/settings/integrations/graphql';
 import React, { Component } from 'react';
 import { compose, graphql } from 'react-apollo';
 
+type Props = {
+  current: any;
+  allIntegrationsQuery: any;
+  save: (ids: string[]) => Promise<any>; 
+};
+
 type State = {
-  perPage: number
+  perPage: number;
 };
 
 class ManageIntegrationsContainer extends Component<Props, State> {
@@ -47,12 +53,6 @@ class ManageIntegrationsContainer extends Component<Props, State> {
     return <ManageIntegrations {...updatedProps} />;
   }
 }
-
-type Props = {
-  current: any,
-  allIntegrationsQuery: any,
-  save: () => void
-};
 
 export default compose(
   graphql(gql(queries.integrations), {

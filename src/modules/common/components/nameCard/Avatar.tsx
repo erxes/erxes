@@ -7,7 +7,7 @@ import styledTS from 'styled-components-ts';
 import { IUser } from '../../../auth/types';
 import { ICompany } from '../../../companies/types';
 
-const AvatarStyled = styledTS<{ isUser?: boolean, messenger?: boolean, twitter?: boolean, facebook?: boolean }>(styled.span)`
+const AvatarStyled = styledTS<{ isUser?: boolean; messenger?: boolean; twitter?: boolean; facebook?: boolean; }>(styled.span)`
   display: block;
   max-width: 80px;
   border-radius: 40px;
@@ -50,11 +50,11 @@ const AvatarImage = styledTS<{ image?: string }>(styled.div)`
 `;
 
 type Props = {
-  user?: IUser,
-  customer?: ICustomer,
-  company?: ICompany,
-  size?: number,
-  icon?: React.ReactNode
+  user?: IUser;
+  customer?: ICustomer;
+  company?: ICompany;
+  size?: number;
+  icon?: React.ReactNode;
 };
 
 class Avatar extends Component<Props> {

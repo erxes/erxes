@@ -6,6 +6,12 @@ import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
 
+type Props = {
+  currencyConfigQuery: any;
+  uomConfigQuery: any;
+  insertConfig: (params: {variables: { code: string, value: string }}) => Promise<any>;
+};
+
 class ListContainer extends React.Component<Props> {
   render() {
     const { insertConfig, currencyConfigQuery, uomConfigQuery } = this.props;
@@ -43,12 +49,6 @@ class ListContainer extends React.Component<Props> {
     return <List {...updatedProps} />;
   }
 }
-
-type Props = {
-  currencyConfigQuery: any,
-  uomConfigQuery: any,
-  insertConfig: (params: {variables: { code: string, value: string }}) => any,
-};
 
 export default compose(
   graphql(gql(queries.configsDetail), {

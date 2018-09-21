@@ -5,6 +5,10 @@ import { queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 
+type Props = {
+  totalCountQuery: any;
+};
+
 const Store = (props: Props) => {
   const { totalCountQuery } = props;
 
@@ -20,10 +24,6 @@ const Store = (props: Props) => {
   };
 
   return <Home {...updatedProps} />;
-};
-
-type Props = {
-  totalCountQuery: any
 };
 
 export default compose(

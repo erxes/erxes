@@ -15,7 +15,7 @@ import { ICommonFormProps } from '../../common/types';
 import { IEmailTemplate } from '../types';
 
 type Props = {
-  object?: IEmailTemplate,
+  object?: IEmailTemplate;
 }
 
 type State = {

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -6,18 +7,17 @@ import { withRouter } from 'react-router';
 import { mutations, queries } from '../graphql';
 import { crudMutationsOptions } from '../utils';
 
-type Props = {
-  messageId: string,
-  history: any,
-  kind: string,
-  engageMessageDetailQuery: any,
-  usersQuery: any,
-  addMutation: (params: { vairables: any }) => any
-  editMutation: (params: { vairables: any }) => any
+interface IProps extends IRouterProps {
+  messageId: string;
+  kind: string;
+  engageMessageDetailQuery: any;
+  usersQuery: any;
+  addMutation: (params: { vairables: any }) => Promise<any>;
+  editMutation: (params: { vairables: any }) => Promise<any>;
 };
 
 const withSaveAndEdit = Component => {
-  const Container = (props : Props) => {
+  const Container = (props : IProps) => {
     const {
       history,
       kind,
@@ -88,7 +88,7 @@ const withSaveAndEdit = Component => {
     return <Component {...updatedProps} />;
   };
 
-  return withRouter(
+  return withRouter<IRouterProps>(
     compose(
       graphql(gql(queries.engageMessageDetail), {
         name: 'engageMessageDetailQuery',

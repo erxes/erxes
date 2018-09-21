@@ -33,19 +33,19 @@ const Show = styledTS<{ show: boolean }>(styled.div)`
 `;
 
 type Props = {
-  changeSegment: (name: string, value: string) => void,
-  segments: ISegment[],
-  headSegments: ISegment[],
-  segmentFields: ISegmentField[],
-  segmentAdd: ({ doc }: { doc: any; }) => void,
-  counts: any,
-  count: (segment: ISegment) => void
-  segment: string
+  changeSegment: (name: string, value: string) => void;
+  segments: ISegment[];
+  headSegments: ISegment[];
+  segmentFields: ISegmentField[];
+  segmentAdd: ({ doc }: { doc: any; }) => void;
+  counts: any;
+  count: (segment: ISegment) => void;
+  segment: string;
 };
 
 type State = {
-  segment: string,
-  createSegment: boolean
+  segment: string;
+  createSegment: boolean;
 }
 
 class SegmentStep extends Component<Props, State> {

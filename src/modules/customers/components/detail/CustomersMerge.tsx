@@ -8,13 +8,13 @@ import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../../constants';
 import { Info, InfoDetail, InfoTitle } from '../../styles';
 
 type Props = {
-  objects: any[],
+  objects: any[];
   save: (doc: {
-    ids: string[],
-    data: any,
-    callback: () => void
-  }) => void,
-  closeModal: () => void,
+    ids: string[];
+    data: any;
+    callback: () => void;
+  }) => void;
+  closeModal: () => void;
 };
 
 type State = {

@@ -11,17 +11,17 @@ import React, { Component } from 'react';
 import Select from 'react-select-plus';
 
 type Props= {
-  onChange: (name: string, value: string) => void,
-  teamMembers: IUser[],
-  supporterIds?: string[],
-  welcomeMessage?: string,
-  awayMessage?: string,
-  thankYouMessage?: string
+  onChange: (name: string, value: string) => void;
+  teamMembers: IUser[];
+  supporterIds?: string[];
+  welcomeMessage?: string;
+  awayMessage?: string;
+  thankYouMessage?: string;
 };
 
 type State = {
-  supporters?: any,
-  supporterIds: string[]
+  supporters?: any;
+  supporterIds: string[];
 }
 
 class Intro extends Component<Props, State> {
@@ -81,7 +81,7 @@ class Intro extends Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__('Write here Welcome message.').toString()}
+              placeholder={__('Write here Welcome message.')}
               rows={3}
               name="welcomeMessage"
               value={this.props.welcomeMessage}
@@ -96,7 +96,7 @@ class Intro extends Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__('Write here Away message.').toString()}
+              placeholder={__('Write here Away message.')}
               rows={3}
               name="awayMessage"
               value={this.props.awayMessage}
@@ -109,7 +109,7 @@ class Intro extends Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__('Write here Thank you message.').toString()}
+              placeholder={__('Write here Thank you message.')}
               rows={3}
               name="thankYouMessage"
               value={this.props.thankYouMessage}

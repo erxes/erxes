@@ -13,7 +13,7 @@ import {
 
 type Props = {
   notifications: INotification[];
-  markAsRead: (params: any) => void;
+  markAsRead: (_ids?: string[]) => void;
   update?: () => void;
 };
 
@@ -51,7 +51,7 @@ class NotificationsLatest extends Component<Props> {
     const emptyContent = (
       <PopoverContent>
         <EmptyState
-          text={__('No notifications').toString()}
+          text={__('No notifications')}
           image="/images/robots/robot-05.svg"
         />
       </PopoverContent>

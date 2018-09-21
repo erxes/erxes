@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -9,11 +10,11 @@ import { queries } from '../graphql';
 import { generateListQueryVariables } from '../utils';
 
 type Props = {
-  type: string,
-  queryParams: any,
-  engageMessagesQuery: any,
-  engageMessagesTotalCountQuery: any,
-  loading: boolean
+  type: string;
+  queryParams: any;
+  engageMessagesQuery: any;
+  engageMessagesTotalCountQuery: any;
+  loading: boolean;
 };
 
 type State = {
@@ -75,13 +76,7 @@ const MessageListContainerWithData = compose(
   })
 )(MessageListContainer);
 
-type EngageListProps = {
-  location: any,
-  match: any,
-  history: any
-};
-
-const EngageListContainer = (props : EngageListProps) => {
+const EngageListContainer = (props : IRouterProps) => {
   const queryParams = queryString.parse(props.location.search);
 
   const extendedProps = { ...props, queryParams };
@@ -89,4 +84,4 @@ const EngageListContainer = (props : EngageListProps) => {
   return <MessageListContainerWithData {...extendedProps} />;
 };
 
-export default withRouter<EngageListProps>(EngageListContainer);
+export default withRouter<IRouterProps>(EngageListContainer);

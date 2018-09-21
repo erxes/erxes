@@ -5,14 +5,14 @@ import { InlineItems, ModuleBox, SubHeading, SubItem } from '../../styles';
 import { IConfig, IModules } from '../types';
 
 type Props = {
-  modules: IModules[],
-  configs: IConfig[],
+  modules: IModules[];
+  configs: IConfig[];
   // save notification configurations
-  saveNotificationConfigurations: (notify: { notifType: string, isAllowed: boolean }) => void,
+  saveNotificationConfigurations: (notify: { notifType: string, isAllowed: boolean }) => void;
   // save get notification by email action
-  configGetNotificationByEmail: (byEmail: { isAllowed: boolean }) => void,
+  configGetNotificationByEmail: (byEmail: { isAllowed: boolean }) => void;
   // previously configured value
-  getNotificationByEmail: boolean
+  getNotificationByEmail: boolean;
 };
 
 class NotificationSettings extends Component<Props> {

@@ -7,16 +7,16 @@ import { IBoard, IPipeline, IStage } from '../../types';
 import { selectOptions } from '../../utils';
 
 type Props = {
-  boards: IBoard[],
-  pipelines: IPipeline[],
-  stages: IStage[],
-  boardId?: string,
-  pipelineId?: string,
-  stageId?: string,
-  onChangeBoard: (value: string) => any,
-  onChangePipeline: (value: string) => any,
-  onChangeStage: (value: string, callback: any) => any,
-  callback?: any
+  boards: IBoard[];
+  pipelines: IPipeline[];
+  stages: IStage[];
+  boardId?: string;
+  pipelineId?: string;
+  stageId?: string;
+  onChangeBoard: (value: string) => any;
+  onChangePipeline: (value: string) => any;
+  onChangeStage: (value: string, callback: any) => any;
+  callback?: any;
 };
 
 class DealSelect extends React.Component<Props> {

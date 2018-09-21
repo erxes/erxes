@@ -6,7 +6,7 @@ import * as React from 'react';
 import parse from 'ua-parser-js';
 
 type Props = {
-  customer: ICustomer
+  customer: ICustomer;
 };
 
 class DevicePropertiesSection extends React.Component<Props> {

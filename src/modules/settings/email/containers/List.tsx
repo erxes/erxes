@@ -3,6 +3,10 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 
+type Props = {
+  listQuery: any;
+};
+
 const ListContainer = (props: Props) => {
   const { listQuery } = props;
 
@@ -15,10 +19,6 @@ const ListContainer = (props: Props) => {
   };
 
   return <List {...updatedProps} />;
-};
-
-type Props = {
-  listQuery: any
 };
 
 export default compose(

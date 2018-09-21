@@ -12,8 +12,8 @@ import { convertTime } from '../utils';
 import Chart from './Chart';
 
 type Props = {
-  datas: IChartParams[],
-  loading: boolean
+  datas: IChartParams[];
+  loading: boolean;
 };
 
 class TeamMembers extends React.Component<Props> {

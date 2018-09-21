@@ -8,7 +8,7 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   notificationsQuery: any;
-  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => any;
+  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => Promise<any>;
   update?: () => void;
 };
 

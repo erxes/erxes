@@ -5,13 +5,13 @@ import React, { Component } from 'react';
 import { EmailForm, MessengerForm } from '../';
 
 type Props = {
-  brands: IBrand[],
-  changeState: (name: string, value: string) => void,
-  users: IUser[],
-  method: string,
-  templates: IEmailTemplate[],
-  defaultValue: any,
-  kind: string
+  brands: IBrand[];
+  changeState: (name: string, value: string) => void;
+  users: IUser[];
+  method: string;
+  templates: IEmailTemplate[];
+  defaultValue: any;
+  kind: string;
 };
 
 class MessageStep extends Component<Props> {

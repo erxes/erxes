@@ -5,8 +5,8 @@ import { ChartWrapper, LoaderWrapper } from '../styles';
 import { InsightParams } from '../types';
 
 type Props = {
-  data: InsightParams[],
-  loading: boolean
+  data: InsightParams[];
+  loading: boolean;
 };
 
 class Insights extends React.Component<Props> {

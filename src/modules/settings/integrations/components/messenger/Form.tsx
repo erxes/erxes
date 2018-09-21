@@ -16,31 +16,31 @@ import { Appearance, Availability, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 
 type Props = {
-  teamMembers: IUser[],
-  integration?: IIntegration,
-  brands: IBrand[],
-  save: (params: { name: string, brandId: string, languageCode: string, messengerData: any, uiOptions: any }) => void
+  teamMembers: IUser[];
+  integration?: IIntegration;
+  brands: IBrand[];
+  save: (params: { name: string, brandId: string, languageCode: string, messengerData: any, uiOptions: any }) => void;
 };
 
 type State = {
-  title: string,
-  brandId: string,
-  languageCode: string,
-  activeStep: number,
-  color: string,
-  wallpaper: string,
-  welcomeMessage: string,
-  awayMessage: string,
-  thankYouMessage: string,
-  notifyCustomer: boolean,
-  supporterIds: string[],
-  availabilityMethod: string,
-  isOnline: boolean,
-  timezone: string,
-  onlineHours: any,
-  logo: string,
-  logoPreviewStyle: any,
-  logoPreviewUrl: string
+  title: string;
+  brandId: string;
+  languageCode: string;
+  activeStep: number;
+  color: string;
+  wallpaper: string;
+  welcomeMessage: string;
+  awayMessage: string;
+  thankYouMessage: string;
+  notifyCustomer: boolean;
+  supporterIds: string[];
+  availabilityMethod: string;
+  isOnline: boolean;
+  timezone: string;
+  onlineHours: any;
+  logo: string;
+  logoPreviewStyle: any;
+  logoPreviewUrl: string;
 };
 
 class CreateMessenger extends Component<Props, State> {

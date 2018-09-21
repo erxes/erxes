@@ -12,16 +12,16 @@ import { IPipeline } from '../types';
 import { collectOrders } from '../utils';
 
 type Props = {
-  pipeline: IPipeline,
-  state: any,
-  index: number,
-  stages: IStage[],
-  stagesUpdateOrder: any,
-  stagesChange: any,
-  stagesUpdateOrderMutation: (params: { variables: { orders } }) => Promise<any>
+  pipeline: IPipeline;
+  state: any;
+  index: number;
+  stages: IStage[];
+  stagesUpdateOrder: any;
+  stagesChange: any;
+  stagesUpdateOrderMutation: (params: { variables: { orders } }) => Promise<any>;
   stagesChangeMutation: (params: {
-    variables: { _id: string, pipelineId: string }
-  }) => Promise<any>
+    variables: { _id: string; pipelineId: string }
+  }) => Promise<any>;
 };
 
 class PipelineContainer extends React.Component<Props, { stages: any }> {

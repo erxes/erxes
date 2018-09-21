@@ -33,10 +33,10 @@ const Child = styled.div`
 `;
 
 type Props = {
-  fields: IContentTypeFields[],
-  config: IConfigColumn[],
-  save: (columnsConfig: IConfigColumn[]) => void,
-  closeModal: () => void
+  fields: IContentTypeFields[];
+  config: IConfigColumn[];
+  save: (columnsConfig: IConfigColumn[]) => void;
+  closeModal: () => void;
 };
 
 type State = {

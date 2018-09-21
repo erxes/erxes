@@ -5,8 +5,8 @@ import { IStage } from '../types';
 import StageItem from './StageItem';
 
 type Props = {
-  onChangeStages: (stages: IStage[]) => void,
-  stages: any
+  onChangeStages: (stages: IStage[]) => void;
+  stages: any;
 };
 
 class Stages extends Component<Props, {}> {

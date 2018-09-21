@@ -3,19 +3,19 @@ import { toggleCheckBoxes } from '../utils';
 
 type Props = {
   content: (props: {
-    isAllSelected: boolean,
-    bulk: any[],
-    emptyBulk: () => void,
-    toggleBulk: (target: any, toAdd: boolean) => void,
-    toggleAll: (targets: any[], containerId: string) => void
-  }) => React.ReactNode,
+    isAllSelected: boolean;
+    bulk: any[];
+    emptyBulk: () => void;
+    toggleBulk: (target: any, toAdd: boolean) => void;
+    toggleAll: (targets: any[], containerId: string) => void;
+  }) => React.ReactNode;
 
-  refetch?: () => void,
+  refetch?: () => void;
 }
 
 type State = {
-  bulk: string[],
-  isAllSelected: boolean,
+  bulk: string[];
+  isAllSelected: boolean;
 }
 
 export default abstract class Bulk extends React.Component<Props, State> {

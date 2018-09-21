@@ -4,15 +4,16 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { COMPANY_DATAS, COMPANY_INFO } from 'modules/companies/constants';
 import { Info, InfoDetail, InfoTitle } from 'modules/customers/styles';
 import * as React from 'react';
+import { ICompany } from '../../types';
 
 type Props = {
-  objects: any[],
+  objects: ICompany[];
   save: (doc: {
-    ids: string[],
-    data: any,
-    callback: () => void
-  }) => void,
-  closeModal: () => void,
+    ids: string[];
+    data: any;
+    callback: () => void;
+  }) => void;
+  closeModal: () => void;
 };
 
 type State = {

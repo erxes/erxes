@@ -8,15 +8,15 @@ import { days, hours } from 'modules/settings/integrations/constants';
 import { FlexRow } from 'modules/settings/integrations/styles';
 import React, { Component } from 'react';
 import Select from 'react-select-plus';
+import { IOnlineHours } from '../../../types';
 
 type Props = {
-  prevOptions: any[],
-  onChange: (onlineHours: any[]) => void
+  prevOptions: any[];
+  onChange: (onlineHours: IOnlineHours[]) => void;
 };
 
 type State = {
-  // TODO: fix any
-  onlineHours: any[]
+  onlineHours: IOnlineHours[]
 };
 
 class OnlineHours extends Component<Props, State> {
@@ -33,7 +33,7 @@ class OnlineHours extends Component<Props, State> {
     const onlineHours = this.state.onlineHours;
 
     // find current editing one
-    const onlineHour = onlineHours.find(hour => hour._id === onlineHourId);
+    const onlineHour = onlineHours.find(hour => hour._id === onlineHourId) || [];
 
     // set new value
     onlineHour[name] = value;

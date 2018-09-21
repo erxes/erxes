@@ -7,10 +7,10 @@ import { CompanyDetails } from '../../components';
 import { queries } from '../../graphql';
 
 type Props = {
-  id: string,
-  companyDetailQuery?: any
-  companyActivityLogQuery?: any,
-  currentUser: IUser,
+  id: string;
+  companyDetailQuery?: any;
+  companyActivityLogQuery?: any;
+  currentUser: IUser;
 };
 
 const CompanyDetailsContainer = (props: Props) => {

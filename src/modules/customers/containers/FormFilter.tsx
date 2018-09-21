@@ -4,8 +4,8 @@ import { compose, graphql } from 'react-apollo';
 import { FormFilter } from '../components';
 
 type Props = {
-  integrationsQuery: any,
-  counts: any 
+  integrationsQuery: any;
+  counts: any;
 };
 
 const FormFilterContainer = (props: Props) => {

@@ -21,9 +21,11 @@ import {
 
 type Props = {
   integration?: IFormIntegration;
-  brands?: IBrand[];
-  fields?: IFormField[];
+  brands: IBrand[];
+  fields: IFormField[];
   loading?: boolean;
+
+  // TODO: add type
   save: (params) => void;
 };
 
@@ -62,6 +64,10 @@ class Form extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    this.onChange = this.onChange.bind(this);
+    this.renderSaveButton = this.renderSaveButton.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+
     const integration = props.integration;
 
     if (!integration) {
@@ -92,10 +98,6 @@ class Form extends Component<Props, State> {
       fields: fields || [],
       isSkip: callout.skip && true
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.renderSaveButton = this.renderSaveButton.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleSubmit(e: React.FormEvent) {

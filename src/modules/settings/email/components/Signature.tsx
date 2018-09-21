@@ -10,14 +10,14 @@ import * as React from 'react';
 import { ISignature } from '../types';
 
 type Props = {
-  signatures: ISignature[],
-  save: (signatures: ISignature[]) => void,
-  closeModal: () => void
+  signatures: ISignature[];
+  save: (signatures: ISignature[]) => void;
+  closeModal: () => void;
 };
 
 type State = {
-  signatures: ISignature[],
-  currentId: null | string,
+  signatures: ISignature[];
+  currentId?: string;
 };
 
 class Signature extends React.Component<Props, State> {
@@ -30,7 +30,7 @@ class Signature extends React.Component<Props, State> {
 
     this.state = {
       signatures: props.signatures,
-      currentId: null
+      currentId: undefined
     };
   }
 
@@ -42,7 +42,7 @@ class Signature extends React.Component<Props, State> {
     }
 
     return this.state.signatures.find(
-      signature => signature.brandId.toString() === currentId.toString()
+      signature => signature.brandId.toString() === currentId
     );
   }
 

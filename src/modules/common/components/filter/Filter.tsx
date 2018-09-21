@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { IRouterProps } from '../../types';
 import createChipText from './createChipText';
 
-type Props = {
+interface IProps extends IRouterProps {
   queryParams?: any;
 };
 
@@ -15,7 +15,7 @@ const Filters = styled.div`
   font-size: 0.9em;
 `;
 
-function Filter({ queryParams = {}, history }: Props & IRouterProps) {
+function Filter({ queryParams = {}, history }: IProps) {
   const onClickClose = paramKey => {
     for (const key of paramKey) {
       router.setParams(history, { [key]: null });

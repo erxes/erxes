@@ -3,8 +3,14 @@ import { router as routerUtils } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { IRouterProps } from '../../../common/types';
 import { Home } from '../components';
 import { queries } from '../graphql';
+
+type HomeContainerProps = {
+  history?: any;
+  boardId: string;
+};
 
 class HomeContainer extends React.Component<HomeContainerProps> {
   componentWillReceiveProps() {
@@ -20,9 +26,8 @@ class HomeContainer extends React.Component<HomeContainerProps> {
   }
 }
 
-type HomeContainerProps = {
-  history?: any,
-  boardId: string
+type LastBoardProps = {
+  boardGetLastQuery: any
 };
 
 // Getting lastBoard id to currentBoard
@@ -36,10 +41,6 @@ const LastBoard = (props: LastBoardProps) => {
   return <HomeContainer {...extendedProps} />;
 };
 
-type LastBoardProps = {
-  boardGetLastQuery: any
-};
-
 const LastBoardContainer = compose(
   graphql(gql(queries.boardGetLast), {
     name: 'boardGetLastQuery'
@@ -47,7 +48,7 @@ const LastBoardContainer = compose(
 )(LastBoard);
 
 // Main home component
-const MainContainer = (props: MainContainerProps) => {
+const MainContainer = (props: IRouterProps) => {
   const { history } = props;
   const boardId = routerUtils.getParam(history, 'boardId');
 
@@ -60,8 +61,4 @@ const MainContainer = (props: MainContainerProps) => {
   return <LastBoardContainer {...props} />;
 };
 
-type MainContainerProps = {
-  history: any
-};
-
-export default withRouter(MainContainer);
+export default withRouter<IRouterProps>(MainContainer);

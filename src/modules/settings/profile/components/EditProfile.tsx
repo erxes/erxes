@@ -28,24 +28,28 @@ class EditProfile extends Component<Props, State> {
     this.state = { avatar: details ? details.avatar || '' : '' };
   }
 
+  getInputElementValue(id) {
+    return (document.getElementById(id) as HTMLInputElement).value;
+  }
+
   handleSubmit(password) {
     this.props.save({
-      username: (document.getElementById('username') as HTMLInputElement).value,
-      email: (document.getElementById('email') as HTMLInputElement).value,
+      username: this.getInputElementValue('username'),
+      email: this.getInputElementValue('email'),
       details: {
         avatar: this.state.avatar,
-        fullName: (document.getElementById('fullName') as HTMLInputElement).value,
-        position:(document.getElementById('position') as HTMLInputElement).value,
-        location: (document.getElementById('user-location') as HTMLInputElement).value,
-        description: (document.getElementById('description') as HTMLInputElement).value
+        fullName: this.getInputElementValue('fullName'),
+        position:this.getInputElementValue('position'),
+        location: this.getInputElementValue('user-location'),
+        description: this.getInputElementValue('description')
       },
       links: {
-        linkedIn: (document.getElementById('linkedin') as HTMLInputElement).value,
-        twitter: (document.getElementById('twitter') as HTMLInputElement).value,
-        facebook: (document.getElementById('facebook') as HTMLInputElement).value,
-        youtube: (document.getElementById('youtube') as HTMLInputElement).value,
-        github: (document.getElementById('github') as HTMLInputElement).value,
-        website: (document.getElementById('website') as HTMLInputElement).value
+        linkedIn: this.getInputElementValue('linkedin'),
+        twitter: this.getInputElementValue('twitter'),
+        facebook: this.getInputElementValue('facebook'),
+        youtube: this.getInputElementValue('youtube'),
+        github: this.getInputElementValue('github'),
+        website: this.getInputElementValue('website')
       },
       password
     });

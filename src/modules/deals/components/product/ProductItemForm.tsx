@@ -14,13 +14,13 @@ import { ItemText } from '../../styles/product';
 import { selectConfigOptions } from '../../utils';
 
 type Props = {
-  uom: any,
-  currencies: any,
-  productsData?: any,
-  productData: any,
-  removeProductItem?: (_id: string) => void,
-  onChangeProductsData?: (productsData: any) => void,
-  updateTotal?: () => void
+  uom: any;
+  currencies: any;
+  productsData?: any;
+  productData: any;
+  removeProductItem?: (_id: string) => void;
+  onChangeProductsData?: (productsData: any) => void;
+  updateTotal?: () => void;
 };
 
 class ProductItemForm extends React.Component<Props> {

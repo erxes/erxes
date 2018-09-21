@@ -4,8 +4,8 @@ import moment from 'moment';
 import * as React from 'react';
 
 type Props = {
-  history?: any,
-  removeHistory: (_id: string) => void
+  history?: any;
+  removeHistory: (_id: string) => void;
 };
 
 function HistoryRow({ history, removeHistory }: Props) {

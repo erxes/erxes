@@ -10,16 +10,16 @@ import { CURRENCIES, LANGUAGES, MEASUREMENTS } from '../constants';
 import { ICurrencies } from '../types';
 
 type Props = {
-  save: (name: string, object: any ) => void,
-  currencies: ICurrencies,
-  uom: ICurrencies
+  save: (name: string, object: any ) => void;
+  currencies: ICurrencies;
+  uom: ICurrencies;
 };
 
 type State = {
-  currencies: ICurrencies,
-  uom: ICurrencies,
-  language: string,
-  removeSelected: string
+  currencies: ICurrencies;
+  uom: ICurrencies;
+  language: string;
+  removeSelected: string;
 };
 
 class List extends Component<Props, State> {
@@ -62,6 +62,7 @@ class List extends Component<Props, State> {
 
   onLanguageChange(language) {
     this.setState({ language });
+    // TODO: check context
     this.context.changeLanguage(language.value);
   }
 

@@ -6,8 +6,8 @@ import { Link } from 'react-router-dom';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 
 type Props = {
-  currentType: string,
-  title: string
+  currentType: string;
+  title: string;
 };
 
 class Sidebar extends Component<Props> {

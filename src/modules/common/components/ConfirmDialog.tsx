@@ -27,14 +27,14 @@ const IconWrapper = styled.div`
 `;
 
 type Props = {
-  options: any,
-  confirmation?: string,
-  proceed: (value: string) => void,
-  dismiss: () => void
+  options: any;
+  confirmation?: string;
+  proceed: (value: string) => void;
+  dismiss: () => void;
 };
 
 type State = {
-  show: boolean,
+  show: boolean;
 }
 
 class ConfirmDialog extends React.Component<Props, State> {

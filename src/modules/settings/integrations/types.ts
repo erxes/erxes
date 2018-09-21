@@ -16,6 +16,13 @@ export interface IPages {
   checked?: boolean;
 }
 
+export interface IOnlineHours {
+  _id: string
+  day: string;
+  from: string;
+  to: string;
+}
+
 export interface IMessengerData {
   welcomeMessage?: string;
   awayMessage?: string;
@@ -25,7 +32,7 @@ export interface IMessengerData {
   availabilityMethod?: string;
   isOnline?: boolean;
   timezone?: string;
-  onlineHours?: any;
+  onlineHours?: IOnlineHours[];
 }
 
 export interface IUiOptions {

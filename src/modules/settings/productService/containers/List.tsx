@@ -6,11 +6,26 @@ import { List } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  productsQuery: any,
-  productsCountQuery: any,
-  addMutation: (mutation: { variables: { doc: any } }) => any,
-  editMutation: (mutation: { variables: { doc: any } }) => any,
-  removeMutation: (mutation: { variables: { _id: string } }) => any,
+  productsQuery: any;
+  productsCountQuery: any;
+
+  addMutation: (mutation: { variables: { 
+    type: string;
+    _id?: string;
+    name?: string;
+    description?: string;
+    sku?: string;
+    createdAt?: Date;
+  } }) => any;
+  editMutation: (mutation: { variables: { 
+    type: string;
+    _id?: string;
+    name?: string;
+    description?: string;
+    sku?: string;
+    createdAt?: Date;
+  } }) => any;
+  removeMutation: (mutation: { variables: { _id: string } }) => any;
 };
 
 class ProductListContainer extends React.Component<Props> {

@@ -16,10 +16,10 @@ import { Left } from '../../../styles/deal';
 import { IDeal } from '../../../types';
 
 type Props = {
-  deal?: IDeal,
-  dealActivityLog: any,
-  loadingLogs: boolean,
-  currentUser?: IUser
+  deal?: IDeal;
+  dealActivityLog: any;
+  loadingLogs: boolean;
+  currentUser?: IUser;
 };
 
 class Tab extends React.Component<Props, { currentTab: string }> {

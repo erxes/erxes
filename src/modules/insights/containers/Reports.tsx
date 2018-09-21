@@ -4,12 +4,12 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 
 type Props = {
-  history: any,
-  location: any,
-  component: any,
-  match: any,
-  currentUser: IUser,
-  children: React.ReactNode
+  history: any;
+  location: any;
+  component: any;
+  match: any;
+  currentUser: IUser;
+  children: React.ReactNode;
 };
 
 const Reports = (props: Props) => {

@@ -9,8 +9,8 @@ import { __ } from 'modules/common/utils';
 import React, { Component } from 'react';
 
 type Props = {
-  save: (save: { currentPassword: string, newPassword: string, confirmation: string }) => void,
-  closeModal?: () => void,
+  save: (save: { currentPassword: string, newPassword: string, confirmation: string }) => void;
+  closeModal: () => void;
 };
 
 class ChangePassword extends Component<Props> {
@@ -39,7 +39,7 @@ class ChangePassword extends Component<Props> {
           <ControlLabel>Current Password</ControlLabel>
           <FormControl
             type="password"
-            placeholder={__('Current password').toString()}
+            placeholder={__('Current password')}
             id="current-password"
           />
         </FormGroup>
@@ -50,7 +50,7 @@ class ChangePassword extends Component<Props> {
           <ControlLabel>New Password</ControlLabel>
           <FormControl
             type="password"
-            placeholder={__('Enter new password').toString()}
+            placeholder={__('Enter new password')}
             id="new-password"
           />
         </FormGroup>
@@ -59,7 +59,7 @@ class ChangePassword extends Component<Props> {
           <ControlLabel>Re-type Password to confirm</ControlLabel>
           <FormControl
             type="password"
-            placeholder={__('Re-type password').toString()}
+            placeholder={__('Re-type password')}
             id="new-password-confirmation"
           />
         </FormGroup>

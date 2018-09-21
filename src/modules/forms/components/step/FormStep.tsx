@@ -36,7 +36,7 @@ class FormStep extends Component<Props, State> {
     this.state = {
       fields: props.fields,
       chosenFieldType: "",
-      editingField: {}
+      editingField: {} as IFormField
     };
 
     this.onFieldAttrChange = this.onFieldAttrChange.bind(this);
@@ -125,6 +125,7 @@ class FormStep extends Component<Props, State> {
         const fields = (this.state.fields || []).filter(field => field._id !== _id);
 
         this.setState({ fields });
+
         reset();
 
         this.props.onChange("fields", fields);

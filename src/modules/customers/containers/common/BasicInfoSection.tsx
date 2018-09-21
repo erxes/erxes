@@ -11,17 +11,15 @@ import { IRouterProps } from '../../../common/types';
 type Props = {
   customersRemove: (doc: {
     variables: {
-      customerIds: string[]
+      customerIds: string[];
     }
-  }) => Promise<any>,
+  }) => Promise<any>;
   customersMerge: (doc: {
     variables: {
-      customerIds: string[]
-      customerFields: ICustomer
+      customerIds: string[];
+      customerFields: ICustomer;
     }
-  }) => Promise<any>,
-  history: any,
-  location: any
+  }) => Promise<any>;
 };
 
 const BasicInfoContainer = (props: IBaseProps & Props) => {

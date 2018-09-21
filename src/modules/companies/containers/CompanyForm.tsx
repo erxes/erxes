@@ -8,12 +8,12 @@ import { mutations } from '../graphql';
 import { ICompany, ICompanyDoc } from '../types';
 
 type Props = {
-  company: ICompany,
-  closeModal: () => void,
-  companiesEdit: (params: { variables: ICompany }) => Promise<any>,
-  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>,
-  usersQuery: any,
-  currentUser: IUser
+  company: ICompany;
+  closeModal: () => void;
+  companiesEdit: (params: { variables: ICompany }) => Promise<any>;
+  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>;
+  usersQuery: any;
+  currentUser: IUser;
 };
 
 const CompanyFromContainer = (props: Props) => {

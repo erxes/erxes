@@ -11,10 +11,10 @@ import { __ } from '../../../common/utils';
 import { IBrand } from '../types';
 
 type Props = {
-  brands: IBrand[],
-  integration: IIntegration,
-  save: (variables: { name: string; brandId: string }) => void,
-  closeModal?: () => void
+  brands: IBrand[];
+  integration: IIntegration;
+  save: (variables: { name: string; brandId: string }) => void;
+  closeModal?: () => void;
 }
 
 class ChooseBrand extends Component<Props> {
@@ -64,7 +64,7 @@ class ChooseBrand extends Component<Props> {
           <ControlLabel>Brand</ControlLabel>
           <FormControl
             componentClass="select"
-            placeholder={__('Select Brand').toString()}
+            placeholder={__('Select Brand')}
             defaultValue={integration.brandId}
             onChange={this.handleBrandChange}
             id="selectBrand"

@@ -9,7 +9,7 @@ type Props = {
   queryParams: any;
   notificationsQuery: any;
   notificationCountQuery: any;
-  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => any;
+  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => Promise<any>;
 };
 
 class NotificationListContainer extends React.Component<Props> {
@@ -20,8 +20,8 @@ class NotificationListContainer extends React.Component<Props> {
       notificationsMarkAsReadMutation
     } = this.props;
 
-    const markAsRead = _ids => {
-      notificationsMarkAsReadMutation({ variables: { _ids } })
+    const markAsRead = (_ids?: string[]) => {
+      notificationsMarkAsReadMutation({ variables: { _ids: _ids || [] } })
         .then(() => {
           notificationsQuery.refetch();
           Alert.success('Notification have been seen');

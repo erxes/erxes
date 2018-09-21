@@ -78,20 +78,20 @@ const DateFilters = styled.div`
 `;
 
 type Props = {
-  queryParams?: any,
-  history: any,
-  countQuery?: string,
-  countQueryParam?: string
+  queryParams?: any;
+  history: any;
+  countQuery?: string;
+  countQueryParam?: string;
 };
 
 type ApolloClientProps = {
-  client: any,
+  client: any;
 };
 
 type State = {
-  startDate: Date,
-  endDate: Date,
-  totalCount: number,
+  startDate: Date;
+  endDate: Date;
+  totalCount: number;
 }
 
 const format = 'YYYY-MM-DD HH:mm';
@@ -195,7 +195,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
 
   renderPopover() {
     const props = {
-      inputProps: { placeholder: __('Select a date').toString() },
+      inputProps: { placeholder: __('Select a date') },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD',
       closeOnSelect: true

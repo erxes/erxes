@@ -9,11 +9,11 @@ import { MemberImg, Members, More } from '../styles';
 import { IChannel } from "../types";
 
 type Props = {
-  channel: IChannel,
-  members: IUser[],
-  remove: (id: string) => void,
-  save: ({ doc }: { doc: any; }, callback: () => void, channel?: IChannel) => void,
-  isActive: boolean
+  channel: IChannel;
+  members: IUser[];
+  remove: (id: string) => void;
+  save: ({ doc }: { doc: any; }, callback: () => void, channel?: IChannel) => void;
+  isActive: boolean;
 };
 
 class ChannelRow extends Component<Props, {}> {
@@ -35,7 +35,7 @@ class ChannelRow extends Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit').toString()}>
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>

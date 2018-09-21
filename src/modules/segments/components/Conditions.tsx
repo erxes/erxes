@@ -6,12 +6,12 @@ import { ISegmentCondition } from '../types';
 import Condition from './Condition';
 
 type Props = {
-  fields: any[],
-  conditions: ISegmentCondition[],
-  changeCondition: (condition: ISegmentCondition) => void,
-  removeCondition: (field: string) => void,
-  parentSegmentId?: string,
-  contentType?: string
+  fields: any[];
+  conditions: ISegmentCondition[];
+  changeCondition: (condition: ISegmentCondition) => void;
+  removeCondition: (field: string) => void;
+  parentSegmentId?: string;
+  contentType?: string;
 };
 
 class Conditions extends Component<Props> {

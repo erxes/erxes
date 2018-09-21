@@ -9,8 +9,8 @@ import {
 } from '../styles';
 
 type Props = {
-  data: any,
-  loading: boolean
+  data: any;
+  loading: boolean;
 };
 
 class Summary extends React.Component<Props> {

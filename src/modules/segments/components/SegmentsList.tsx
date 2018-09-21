@@ -12,9 +12,9 @@ import { Link } from 'react-router-dom';
 import { ISegment } from '../types';
 
 type Props = {
-  contentType?: string,
-  segments: ISegment[],
-  removeSegment: (_id: string) => void
+  contentType?: string;
+  segments: ISegment[];
+  removeSegment: (_id: string) => void;
 };
 
 class SegmentsList extends Component<Props> {
@@ -23,12 +23,12 @@ class SegmentsList extends Component<Props> {
 
     return (
       <ActionButtons>
-        <Tip text={__('Edit').toString()}>
+        <Tip text={__('Edit')}>
           <Link to={`/segments/edit/${contentType}/${segment._id}`}>
             <Button btnStyle="link" icon="edit" />
           </Link>
         </Tip>
-        <Tip text={__('Delete').toString()}>
+        <Tip text={__('Delete')}>
           <Button
             btnStyle="link"
             onClick={() => {

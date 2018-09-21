@@ -12,17 +12,17 @@ import { IQueryParams } from '../types';
 import { integrationOptions, selectOptions } from '../utils';
 
 type Props = {
-  brands: IBrand[],
-  queryParams: IQueryParams,
-  history: any
+  brands: IBrand[];
+  queryParams: IQueryParams;
+  history: any;
 };
 
 type States = {
-  isChange: boolean,
-  integrationType: string,
-  brandId: string,
-  startDate: Date,
-  endDate: Date
+  isChange: boolean;
+  integrationType: string;
+  brandId: string;
+  startDate: Date;
+  endDate: Date;
 }
 
 class Filter extends React.Component<Props, States> {

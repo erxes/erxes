@@ -8,11 +8,11 @@ import { Deal } from '../containers';
 import { IDeal } from '../types';
 
 type Props = {
-  deals: IDeal[],
-  customerId?: string,
-  companyId?: string,
-  saveDeal: (doc: IDeal, callback: any, deal: IDeal) => void,
-  removeDeal: (_id: string, callback: any) => void
+  deals: IDeal[];
+  customerId?: string;
+  companyId?: string;
+  saveDeal: (doc: IDeal, callback: any, deal: IDeal) => void;
+  removeDeal: (_id: string, callback: any) => void;
 };
 
 class PortableDeals extends React.Component<Props> {

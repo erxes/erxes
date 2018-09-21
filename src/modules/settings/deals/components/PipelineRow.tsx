@@ -4,9 +4,9 @@ import { PipelineRowContainer } from '../styles';
 import { IPipeline } from '../types';
 
 type Props = {
-  pipeline: IPipeline,
-  edit: () => void,
-  remove: (_id: string) => void,
+  pipeline: IPipeline;
+  edit: () => void;
+  remove: (_id: string) => void;
 };
 
 class PipelineRow extends Component<Props> {

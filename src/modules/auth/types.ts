@@ -21,8 +21,9 @@ export interface IUserConversation {
 }
 
 export interface IUserDoc {
-  username?: string;
-  email?: string;
+  username: string;
+  email: string;
+  role?: string;
   details?: IUserDetails;
   links?: IUserLinks;
   getNotificationByEmail?: boolean;
@@ -31,4 +32,5 @@ export interface IUserDoc {
 
 export interface IUser extends IUserDoc {
   _id: string;
+  role: string;
 }

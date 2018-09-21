@@ -2,14 +2,14 @@ import { EmptyState, Spinner } from 'modules/common/components';
 import React, { Component } from 'react';
 
 type Props = {
-  data: any,
-  count: any, 
-  loading: boolean,
-  emptyText?: string,
-  emptyIcon?: string,
-  emptyImage?: string,
-  size?: string,
-  objective?: boolean
+  data: any;
+  count: any;
+  loading: boolean;
+  emptyText?: string;
+  emptyIcon?: string;
+  emptyImage?: string;
+  size?: string;
+  objective?: boolean;
 };
 
 class DataWithLoader extends Component<Props> {

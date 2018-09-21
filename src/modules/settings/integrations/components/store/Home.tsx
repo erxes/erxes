@@ -7,7 +7,7 @@ import Row from './Row';
 import { IntegrationWrapper } from './styles';
 
 type Props = {
-  totalCount: any;
+  totalCount: number;
 };
 
 class Home extends Component<Props> {

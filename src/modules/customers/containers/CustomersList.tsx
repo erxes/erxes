@@ -27,7 +27,6 @@ interface IProps extends IRouterProps {
   tagsQuery: any;
   brandsQuery: any;
   queryParams: any;
-  history: any;
 };
 
 type State = {

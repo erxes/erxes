@@ -12,13 +12,13 @@ import { Link } from 'react-router-dom';
 import { ISegment } from '../types';
 
 type Props = {
-  currentSegment?: string,
-  setSegment: (_id: string) => void,
-  removeSegment: () => void,
-  contentType?: string,
-  counts?: any,
-  segments: any[],
-  loading: boolean
+  currentSegment?: string;
+  setSegment: (_id: string) => void;
+  removeSegment: () => void;
+  contentType?: string;
+  counts?: any;
+  segments: ISegment[];
+  loading: boolean;
 };
 
 class Segments extends React.Component<Props> {

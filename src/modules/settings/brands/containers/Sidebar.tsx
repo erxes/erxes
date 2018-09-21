@@ -6,11 +6,12 @@ import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
 
 type QueryResponse = {
-  brandsQuery: any,
-  brandsCountQuery: any,
-  addMutation:(params: {variables: any}) => any,
-  editMutation: (params: {variables: any}) => any,
-  removeMutation: (params: {variables: {_id: string; }}) => any,
+  brandsQuery: any;
+  brandsCountQuery: any;
+
+  addMutation:(params: {variables: { name: string, description: string }}) => Promise<any>;
+  editMutation: (params: {variables: { name: string, description: string }}) => Promise<any>;
+  removeMutation: (params: {variables: { _id: string; }}) => Promise<any>;
 };
 
 const SidebarContainer = (props: ChildProps<QueryResponse>) => {

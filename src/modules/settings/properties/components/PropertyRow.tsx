@@ -14,11 +14,11 @@ import { CollapseRow, DropIcon, FieldType } from '../styles';
 import { IFieldGroup } from '../types';
 
 type Props = {
-  group: IFieldGroup,
-  queryParams: any,
-  removePropertyGroup: (data: { _id: string }) => any,
-  removeProperty: (data: { _id: string }) => void,
-  updatePropertyVisible: (params: { _id: string, isVisible: boolean }) => void,
+  group: IFieldGroup;
+  queryParams: any;
+  removePropertyGroup: (data: { _id: string }) => any;
+  removeProperty: (data: { _id: string }) => void;
+  updatePropertyVisible: (params: { _id: string, isVisible: boolean }) => void;
 };
 
 type State = {

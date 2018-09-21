@@ -13,18 +13,18 @@ import Editor from './Editor';
 import Scheduler from './Scheduler';
 
 type Props = {
-  brands: IBrand[],
-  changeMessenger: (name: string, value: any) => void,
-  users: IUser[],
-  hasKind: boolean,
-  defaultValue: any,
-  kind?: string
+  brands: IBrand[];
+  changeMessenger: (name: string, value: any) => void;
+  users: IUser[];
+  hasKind: boolean;
+  defaultValue: any;
+  kind?: string;
 };
 
 type State = {
-  fromUser: string,
-  messenger: { brandId: string, kind: string, sentAs: string },
-  scheduleDate: Date  
+  fromUser: string;
+  messenger: { brandId: string, kind: string, sentAs: string };
+  scheduleDate: Date;  
 }
 
 class MessengerForm extends Component<Props, State> {

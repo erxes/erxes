@@ -3,12 +3,13 @@ import { Wrapper } from 'modules/layout/components';
 import Segments from 'modules/segments/containers/Filter';
 import * as React from 'react';
 import { IntegrationFilter, LeadStatusFilter, LifecycleStateFilter } from '../';
+import { ITag } from '../../../tags/types';
 import { BrandFilter, FormFilter } from '../../containers';
 
 type Props = {
-  counts: any,
-  tags: any[],
-  loading: boolean,
+  counts: any;
+  tags: ITag[];
+  loading: boolean;
 };
 
 function Sidebar({ counts, tags, loading }: Props) {

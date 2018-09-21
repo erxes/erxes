@@ -7,11 +7,14 @@ import { mutations, queries } from '../../graphql';
 import { IArticle } from '../../types';
 
 type Props = {
-  article: IArticle,
-  addArticlesMutation: (params: { variables: any }) => any,
-  editArticlesMutation: (params: { variables: any }) => any,
-  currentCategoryId: string,
-  closeModal: () => void
+  article: IArticle;
+
+  // TODO: replace any
+  addArticlesMutation: (params: { variables: any }) => Promise<any>;
+  editArticlesMutation: (params: { variables: any }) => Promise<any>;
+
+  currentCategoryId: string;
+  closeModal: () => void;
 };
 
 const ArticleContainer = (props: Props) => {

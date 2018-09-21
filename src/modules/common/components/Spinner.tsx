@@ -26,6 +26,10 @@ const MainLoader = styled.div`
   border-radius: 100%;
 `;
 
+type Props = {
+  objective?: boolean;
+};
+
 function Spinner({ objective = false }: Props) {
   return (
     <Spin objective={objective}>
@@ -33,9 +37,5 @@ function Spinner({ objective = false }: Props) {
     </Spin>
   );
 }
-
-type Props = {
-  objective?: boolean
-};
 
 export default Spinner;

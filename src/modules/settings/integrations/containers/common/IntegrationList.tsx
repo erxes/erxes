@@ -8,8 +8,8 @@ import { compose, graphql } from 'react-apollo';
 import { integrationsListParams } from '../utils';
 
 type Props = {
-  integrationsQuery: any,
-  removeMutation: any
+  integrationsQuery: any;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 const IntegrationListContainer = (props: Props) => {

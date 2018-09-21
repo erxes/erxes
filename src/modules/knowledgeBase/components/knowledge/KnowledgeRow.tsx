@@ -13,12 +13,14 @@ import {
 } from './styles';
 
 type Props = {
-  queryParams: any,
-  currentCategoryId: string,
-  topic: ITopic,
-  articlesCount: number
-  remove: ( _id: string ) => void,
-  save: ({ doc }: { doc: any }, callback: () => void, object: any) => void
+  queryParams: any;
+  currentCategoryId: string;
+  topic: ITopic;
+  articlesCount: number;
+  remove: ( _id: string ) => void;
+
+  // TODO: replace any
+  save: ({ doc }: { doc: any }, callback: () => void, object: any) => void;
 };
 
 type State = {

@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { Form } from 'modules/settings/integrations/components/messenger';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
@@ -10,7 +11,15 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 
-const CreateMessenger = (props: Props) => {
+interface IProps extends IRouterProps {
+  usersQuery: any;
+  brandsQuery: any;
+  saveMessengerMutation: (params: { variables: { name: string, brandId: string, languageCode: string } }) => any;
+  saveConfigsMutation: (params: { variables: { _id: string, messengerData: IMessengerData } }) => any;
+  saveAppearanceMutation: (params: { variables: { _id: string, uiOptions: IUiOptions } }) => void;
+};
+
+const CreateMessenger = (props: IProps) => {
   const {
     history,
     usersQuery,
@@ -67,15 +76,6 @@ const CreateMessenger = (props: Props) => {
   return <Form {...updatedProps} />;
 };
 
-type Props = {
-  usersQuery: any,
-  brandsQuery: any,
-  saveMessengerMutation: (params: { variables: { name: string, brandId: string, languageCode: string } }) => any,
-  saveConfigsMutation: (params: { variables: { _id: string, messengerData: IMessengerData } }) => any,
-  saveAppearanceMutation: (params: { variables: { _id: string, uiOptions: IUiOptions } }) => void,
-  history: any
-};
-
 const commonOptions = ({ queryParams, integrationId }) => {
   return {
     refetchQueries: [
@@ -121,4 +121,4 @@ const CreateMessengerWithData = compose(
   })
 )(CreateMessenger);
 
-export default withRouter(CreateMessengerWithData);
+export default withRouter<IProps>(CreateMessengerWithData);

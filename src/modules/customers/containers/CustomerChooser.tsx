@@ -8,11 +8,11 @@ import { mutations, queries } from '../graphql';
 import { ICustomerDoc } from '../types';
 
 type Props = {
-  customersQuery: any,
-  customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>,
-  search: (value?: string) => void,
-  perPage: number,
-  closeModal: () => void
+  customersQuery: any;
+  customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>;
+  search: (value?: string) => void;
+  perPage: number;
+  closeModal: () => void;
 };
 
 const CustomerChooser = (props: WrapperProps & Props) => {

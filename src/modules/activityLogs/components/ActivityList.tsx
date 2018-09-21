@@ -6,10 +6,10 @@ import ActivityLogProcessor from '../utils';
 import ActivityItem from './ActivityItem';
 
 type Props = {
-  activities: any[],
-  user: IUser,
-  target?: string,
-  type: string
+  activities: any[];
+  user: IUser;
+  target?: string;
+  type: string;
 };
 
 class ActivityList extends React.Component<Props> {

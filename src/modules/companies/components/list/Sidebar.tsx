@@ -10,11 +10,12 @@ import { Wrapper } from 'modules/layout/components';
 import { BrandFilter } from 'modules/customers/containers';
 
 import Segments from 'modules/segments/containers/Filter';
+import { ITag } from 'modules/tags/types';
 
 type Props = {
-  counts: any,
-  tags: any[],
-  loading: boolean
+  counts: any;
+  tags: ITag[];
+  loading: boolean;
 };
 
 function Sidebar({ counts, tags, loading }: Props) {

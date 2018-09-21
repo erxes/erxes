@@ -11,28 +11,28 @@ import { IDeal } from '../../types';
 import { Sidebar, Top } from './editForm';
 
 type Props = {
-  deal: IDeal,
-  saveDeal?: (doc: any, callback: any, deal?: IDeal) => Promise<any>,
-  removeDeal?: (_id: string, callback: any) => Promise<any>,
-  users: IUser[],
-  dealActivityLog?: any,
-  index?: number,
-  closeModal?: () => void,
-  move?: (doc: any) => void
+  deal: IDeal;
+  saveDeal?: (doc: any, callback: any, deal?: IDeal) => Promise<any>;
+  removeDeal?: (_id: string, callback: any) => Promise<any>;
+  users: IUser[];
+  dealActivityLog?: any;
+  index?: number;
+  closeModal?: () => void;
+  move?: (doc: any) => void;
 };
 
 type State = {
-  name: string,
-  stageId: string,
-  description: string,
-  closeDate: Date,
-  amount: any,
-  assignedUserIds: string[],
-  customers: ICustomer[],
-  companies: ICompany[],
-  products: any,
-  productsData: any,
-  disabled: boolean
+  name: string;
+  stageId: string;
+  description: string;
+  closeDate: Date;
+  amount: any;
+  assignedUserIds: string[];
+  customers: ICustomer[];
+  companies: ICompany[];
+  products: any;
+  productsData: any;
+  disabled: boolean;
 }
 
 class DealEditForm extends React.Component<Props, State> {

@@ -1,18 +1,13 @@
 import { DropdownToggle, Icon } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { Option, PerPageButton } from './styles';
 
-type Props= {
-  history: any,
-  location: any,
-  match: any,
-};
-
 // per page chooser component
-const PerPageChooser = ({ history }: Props) => {
+const PerPageChooser = ({ history }: IRouterProps) => {
   const currentPerPage = Number(router.getParam(history, 'perPage')) || 20;
 
   const onClick = perPage => {
@@ -45,4 +40,4 @@ const PerPageChooser = ({ history }: Props) => {
 };
 
 
-export default withRouter<Props>(PerPageChooser);
+export default withRouter<IRouterProps>(PerPageChooser);

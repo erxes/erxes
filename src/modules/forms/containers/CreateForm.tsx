@@ -32,7 +32,7 @@ class CreateFormContainer extends React.Component<IProps, {}> {
     const brands = brandsQuery.brands || [];
 
     const save = doc => {
-      let formId = "";
+      let formId;
 
       const { form, brandId, name, languageCode, formData, fields } = doc;
 
@@ -78,6 +78,7 @@ class CreateFormContainer extends React.Component<IProps, {}> {
     const updatedProps = {
       ...this.props,
       brands,
+      fields: [],
       save
     };
 

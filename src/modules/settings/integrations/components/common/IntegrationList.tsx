@@ -15,8 +15,8 @@ import { Link } from 'react-router-dom';
 import { IIntegration } from '../../types';
 
 type Props = {
-  integrations: IIntegration[],
-  removeIntegration: (integration: IIntegration, callback?: any) => void,
+  integrations: IIntegration[];
+  removeIntegration: (integration: IIntegration, callback?: any) => void;
 };
 
 class IntegrationList extends Component<Props> {
@@ -52,7 +52,7 @@ class IntegrationList extends Component<Props> {
 
       return (
         <ActionButtons>
-          <Tip text={__('Edit messenger integration').toString()}>
+          <Tip text={__('Edit messenger integration')}>
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
             >
@@ -80,7 +80,7 @@ class IntegrationList extends Component<Props> {
     }
 
     return (
-      <Tip text={__('Delete').toString()}>
+      <Tip text={__('Delete')}>
         <Button
           btnStyle="link"
           onClick={() => removeIntegration(integration)}

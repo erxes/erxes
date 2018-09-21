@@ -12,10 +12,13 @@ import { icons } from '../../icons.constant';
 import { ICategory } from '../../types';
 
 type Props = {
-  currentTopicId: string,
-  category: ICategory,
-  save: ({ doc }: { doc: any; }, callback: () => void, category: ICategory) => void,
-  closeModal: () => void
+  currentTopicId: string;
+  category: ICategory;
+
+  // TODO: replace any
+  save: ({ doc }: { doc: any; }, callback: () => void, category: ICategory) => void;
+
+  closeModal: () => void;
 };
 
 type State = {

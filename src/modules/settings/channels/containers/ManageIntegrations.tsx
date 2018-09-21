@@ -9,14 +9,14 @@ import { mutations, queries } from '../graphql';
 import { IChannel } from '../types';
 
 type Props = {
-  currentChannel: IChannel,
+  currentChannel: IChannel;
   editMutation: (params: { variables: {
-    _id: string,
-    name: string,
-    integrationIds: string[],
-    memberIds: string[]
-  } }) => any,
-  queryParams: any
+    _id: string;
+    name: string;
+    integrationIds: string[];
+    memberIds: string[];
+  } }) => Promise<any>;
+  queryParams: any;
 };
 
 class ManageIntegrationsContainer extends Component<Props, {}> {

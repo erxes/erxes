@@ -1,18 +1,16 @@
 import { IUser } from 'modules/auth/types';
+import { IRouterProps } from 'modules/common/types';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { Navigation } from '../containers';
 import { Layout } from '../styles';
 
-type Props = {
-  history: any,
-  location: any,
-  match: any,
-  currentUser?: IUser,
-  children: React.ReactNode
+interface IProps extends IRouterProps {
+  currentUser?: IUser;
+  children: React.ReactNode;
 }
 
-class MainLayout extends React.Component<Props> {
+class MainLayout extends React.Component<IProps> {
   componentDidMount() {
     const { history, currentUser } = this.props;
 
@@ -47,4 +45,4 @@ class MainLayout extends React.Component<Props> {
   }
 }
 
-export default withRouter<Props>(MainLayout);
+export default withRouter<IProps>(MainLayout);

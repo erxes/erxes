@@ -12,7 +12,7 @@ import { IChannel } from '../../channels/types';
 import { ICommonFormProps } from '../../common/types';
 
 type Props = {
-  channels: IChannel;
+  channels: IChannel[];
 };
 
 type State = {
@@ -74,34 +74,39 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     );
   }
 
+  getInputElementValue(id) {
+    return (document.getElementById(id) as HTMLInputElement).value;
+  }
+
   generateDoc() {
      return {
-      username: (document.getElementById('username') as HTMLInputElement).value,
-      email: (document.getElementById('email') as HTMLInputElement).value,
-      role: (document.getElementById('role') as HTMLInputElement).value,
+      username: this.getInputElementValue('username'),
+      email: this.getInputElementValue('email'),
+      role: this.getInputElementValue('role'),
       details: {
         avatar: this.state.avatar,
-        position: (document.getElementById('position') as HTMLInputElement).value,
-        fullName: (document.getElementById('fullName') as HTMLInputElement).value,
-        location: (document.getElementById('user-location') as HTMLInputElement).value,
-        description: (document.getElementById('description') as HTMLInputElement).value,
+        position: this.getInputElementValue('position'),
+        fullName: this.getInputElementValue('fullName'),
+        location: this.getInputElementValue('user-location'),
+        description: this.getInputElementValue('description'),
       },
       channelIds: this.collectValues(this.state.selectedChannels),
-      password: (document.getElementById('password') as HTMLInputElement).value,
-      passwordConfirmation: (document.getElementById('password-confirmation') as HTMLInputElement).value,
+      password: this.getInputElementValue('password'),
+      passwordConfirmation: this.getInputElementValue('password-confirmation'),
       links: {
-        linkedIn: (document.getElementById('linkedin') as HTMLInputElement).value,
-        twitter: (document.getElementById('twitter') as HTMLInputElement).value,
-        facebook: (document.getElementById('facebook') as HTMLInputElement).value,
-        youtube: (document.getElementById('youtube') as HTMLInputElement).value,
-        github: (document.getElementById('github') as HTMLInputElement).value,
-        website: (document.getElementById('website') as HTMLInputElement).value
+        linkedIn: this.getInputElementValue('linkedin'),
+        twitter: this.getInputElementValue('twitter'),
+        facebook: this.getInputElementValue('facebook'),
+        youtube: this.getInputElementValue('youtube'),
+        github: this.getInputElementValue('github'),
+        website: this.getInputElementValue('website')
       }
      }
   }
 
-  renderContent(object) {
-    const user = object._id ? object : { details: {} };
+  render() {
+    const { object } = this.props;
+    const user = object || { details: {} };
 
     return (
       <div>

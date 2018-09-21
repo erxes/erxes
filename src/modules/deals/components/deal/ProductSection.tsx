@@ -8,11 +8,11 @@ import { ProductForm } from '..';
 import { IProduct } from '../../../settings/productService/types';
 
 type Props = {
-  productsData: any,
-  products: IProduct[],
-  onChangeProductsData: (productsData: any) => void,
-  onChangeProducts: (prs: any) => void,
-  saveProductsData: () => void,
+  productsData: any;
+  products: IProduct[];
+  onChangeProductsData: (productsData: any) => void;
+  onChangeProducts: (prs: any) => void;
+  saveProductsData: () => void;
 };
 
 function ProductSection(

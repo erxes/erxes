@@ -10,17 +10,17 @@ import { TYPES } from '../constants';
 import { IProduct } from '../types';
 
 type Props = {
-  product?: IProduct,
-  save: (doc: any, callback: () => void, product?: IProduct) => void,
-  closeModal: () => void,
+  product?: IProduct;
+  save: (doc: any, callback: () => void, product?: IProduct) => void;
+  closeModal: () => void;
 };
 
 type State = {
-  _id?: string,
-  type: string,
-  name?: string,
-  description?: string,
-  sku?: string,
+  _id?: string;
+  type: string;
+  name?: string;
+  description?: string;
+  sku?: string;
   createdAt?: Date;
 }
 

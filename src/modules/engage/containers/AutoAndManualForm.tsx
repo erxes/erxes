@@ -10,18 +10,18 @@ import { mutations, queries } from '../graphql';
 import withFormMutations from './withFormMutations';
 
 type Props = {
-  segmentsQuery: any,
-  emailTemplatesQuery: any,
-  customerCountsQuery: any,
-  headSegmentsQuery: any,
-  combinedFieldsQuery: any,
-  segmentsAddQuery: (params: { variables: any }) => any,
-  kind: string,
-  brands: IBrand[],
-  users: IUser[],
-  scheduleDate: any,
-  save: () => any,
-  changeState: (name: string, value: string) => void,
+  segmentsQuery: any;
+  emailTemplatesQuery: any;
+  customerCountsQuery: any;
+  headSegmentsQuery: any;
+  combinedFieldsQuery: any;
+  segmentsAddQuery: (params: { variables: any }) => Promise<any>;
+  kind: string;
+  brands: IBrand[];
+  users: IUser[];
+  scheduleDate: any;
+  save: () => any;
+  changeState: (name: string, value: string) => void;
 };
 
 const AutoAndManualFormContainer = (props : Props) => {

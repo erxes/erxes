@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Boards, Pipelines } from '../containers';
 
 type Props = {
-  boardId: string
+  boardId: string;
 };
 
 class Home extends React.Component<Props, {}> {
