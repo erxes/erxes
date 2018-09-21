@@ -216,7 +216,9 @@ class ResponseTemplate extends React.Component<Props, State> {
           placement="top"
           overlay={popover}
           rootClose
-          ref={this.overlayRef}
+          ref={overlayTrigger => {
+            this.overlayRef = overlayTrigger;
+          }}
         >
           <Button btnStyle="link">
             <Tip text={__("Response template")}>

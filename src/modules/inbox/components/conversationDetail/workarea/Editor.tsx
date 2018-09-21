@@ -20,6 +20,7 @@ import {
   ResponseSuggestionItem,
   ResponseSuggestions
 } from "modules/inbox/styles";
+import { IResponseTemplate } from "../../../../settings/responseTemplates/types";
 
 type EditorProps = {
   onChange: (editorState: any) => void;
@@ -41,8 +42,12 @@ type State = {
 };
 
 type TemplateListProps = {
-  suggestionsState: any;
-  onSelect: (name: string) => void;
+  suggestionsState: {
+    selectedIndex: number;
+    searchText: string;
+    templates: IResponseTemplate[];
+  };
+  onSelect: (index: number) => void;
 };
 
 const MentionEntry = props => {
@@ -240,7 +245,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     return null;
   }
 
-  onSelectTemplate(index?: string) {
+  onSelectTemplate(index?: number) {
     const { templatesState } = this.state;
     const { templates, selectedIndex } = templatesState;
     const selectedTemplate = templates[index || selectedIndex];
@@ -344,7 +349,7 @@ export default class Editor extends React.Component<EditorProps, State> {
       if (findResult && findResult.length > 0) {
         finalMentions.push(m);
       }
-      
+
       content = content.replace(
         re,
         `<b data-user-id='${m._id}'>@${m.name}</b>`
