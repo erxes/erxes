@@ -3,6 +3,7 @@ import { ResponseTemplate } from "modules/inbox/components/conversationDetail";
 import { mutations, queries } from "modules/inbox/graphql";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
+import { IResponseTemplate } from "../../../settings/responseTemplates/types";
 
 export interface ISaveResponseTemplate {
   brandId: string;
@@ -19,6 +20,7 @@ type Props = {
       variables: ISaveResponseTemplate;
     }
   ) => Promise<any>;
+  onSelect: (responseTemplate?: IResponseTemplate) => void;
 };
 
 const ResponseTemplateContainer = (props: Props) => {

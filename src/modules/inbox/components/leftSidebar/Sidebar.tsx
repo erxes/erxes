@@ -7,6 +7,7 @@ import { PopoverButton } from "modules/inbox/styles";
 import { Sidebar } from "modules/layout/components";
 import { TAG_TYPES } from "modules/tags/constants";
 import * as React from "react";
+import { IConversation } from "../../types";
 import AssignBoxPopover from "../assignBox/AssignBoxPopover";
 import FilterPopover from "./FilterPopover";
 import StatusFilterPopover from "./StatusFilterPopover";
@@ -24,8 +25,8 @@ type Props = {
   history: any;
   totalCount: any;
 
-  bulk: any;
-  toggleBulk: (target: any, toggleAdd: boolean) => void;
+  bulk: IConversation[];
+  toggleBulk: (target: IConversation[], toggleAdd: boolean) => void;
 };
 
 class LeftSidebar extends React.Component<Props, {}> {

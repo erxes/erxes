@@ -56,11 +56,7 @@ const WithLastConversation = compose(
   })
 )(WithCurrentId);
 
-type QueryProps = {
-  location: any;
-};
-
-const WithQueryParams = (props: QueryProps) => {
+const WithQueryParams = (props: IRouterProps) => {
   const { location } = props;
   const queryParams = queryString.parse(location.search);
 
@@ -69,4 +65,4 @@ const WithQueryParams = (props: QueryProps) => {
   return <WithLastConversation {...extendedProps} />;
 };
 
-export default withRouter<IProps>(WithQueryParams);
+export default withRouter<IRouterProps>(WithQueryParams);

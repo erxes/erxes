@@ -11,7 +11,7 @@ import { OverlayTrigger, Popover } from "react-bootstrap";
 
 type Props = {
   messengerApps: any;
-  onSelect: (eventKey: string) => void;
+  onSelect: (mesengerAppId: string) => void;
 };
 
 class MessengerApp extends React.Component<Props> {
@@ -23,11 +23,11 @@ class MessengerApp extends React.Component<Props> {
     this.onSelect = this.onSelect.bind(this);
   }
 
-  onSelect(eventKey: React.MouseEvent<HTMLElement>) {
+  onSelect(mesengerAppId: React.MouseEvent<HTMLElement>) {
     const messengerApps = this.props.messengerApps;
 
     // find response template using event key
-    const messengerApp = messengerApps.find(t => t._id === eventKey);
+    const messengerApp = messengerApps.find(t => t._id === mesengerAppId);
 
     // hide selector
     this.overlayRef.hide();

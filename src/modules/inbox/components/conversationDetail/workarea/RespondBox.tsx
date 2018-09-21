@@ -29,7 +29,7 @@ import Editor from "./Editor";
 type Props = {
   conversation: IConversation;
   sendMessage: (message: IAddMessage, callback: (error: Error) => void) => void;
-  setAttachmentPreview?: (any) => void;
+  setAttachmentPreview?: (data: string | null) => void;
   responseTemplates: IResponseTemplate[];
   teamMembers: IUser[];
 };
@@ -127,8 +127,10 @@ class RespondBox extends React.Component<Props, State> {
     this.setState({ editorKey: `${this.state.editorKey}Key` });
   }
 
-  onSelectTemplate(responseTemplate: IResponseTemplate) {
-    this.setState({
+  onSelectTemplate(responseTemplate?: IResponseTemplate) {
+    if (!responseTemplate) return null;
+
+    return this.setState({
       responseTemplate: responseTemplate.content,
 
       // set attachment from response template files

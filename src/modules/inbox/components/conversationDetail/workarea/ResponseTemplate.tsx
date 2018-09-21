@@ -23,13 +23,17 @@ import { Link } from "react-router-dom";
 import strip from "strip";
 import { IBrand } from "../../../../settings/brands/types";
 import { IResponseTemplate } from "../../../../settings/responseTemplates/types";
+import { ISaveResponseTemplate } from "../../../containers/conversationDetail/ResponseTemplate";
 import ResponseTemplateModal from "./ResponseTemplateModal";
 
 type Props = {
   brandId?: string;
   responseTemplates: IResponseTemplate[];
-  onSelect?: (responseTemplate) => void;
-  saveResponseTemplate: (doc, callback) => void;
+  onSelect: (responseTemplate?: IResponseTemplate) => void;
+  saveResponseTemplate: (
+    doc: ISaveResponseTemplate,
+    callback: (error?: Error) => void
+  ) => void;
   attachments?: any;
   brands: IBrand[];
   content?: string;
@@ -95,11 +99,13 @@ class ResponseTemplate extends React.Component<Props, State> {
     });
   }
 
-  onSelect(eventKey: string) {
+  onSelect(responseTemplateId: string) {
     const { responseTemplates, onSelect } = this.props;
 
     // find response template using event key
-    const responseTemplate = responseTemplates.find(t => t._id === eventKey);
+    const responseTemplate = responseTemplates.find(
+      t => t._id === responseTemplateId
+    );
 
     // hide selector
     this.overlayRef.hide();

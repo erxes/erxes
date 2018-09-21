@@ -15,6 +15,7 @@ import { Wrapper } from "modules/layout/components";
 import { ContenFooter, ContentBox } from "modules/layout/styles";
 import { BarItems } from "modules/layout/styles";
 import React, { Component, Fragment } from "react";
+import { IAddMessage } from "../../../containers/conversationDetail/WorkArea";
 import { IConversation, IMessage } from "../../../types";
 import Conversation from "./conversation/Conversation";
 import Participators from "./Participators";
@@ -34,7 +35,7 @@ type Props = {
       callback,
       kind
     }: {
-      variables: any;
+      variables: IAddMessage;
       optimisticResponse: any;
       callback?: (e?) => void;
       kind: string;
