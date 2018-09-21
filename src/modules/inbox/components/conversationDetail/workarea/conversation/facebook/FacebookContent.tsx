@@ -12,7 +12,7 @@ type Props = {
 };
 
 export default class FacebookContent extends React.Component<Props, {}> {
-  renderImage(image) {
+  renderImage(image?: string) {
     if (!image) {
       return null;
     }
@@ -26,7 +26,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
     );
   }
 
-  renderImages(images) {
+  renderImages(images?: string[]) {
     if (!images) {
       return null;
     }
@@ -48,7 +48,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
     );
   }
 
-  renderFiles(link) {
+  renderFiles(link?: string) {
     if (!link) {
       return null;
     }

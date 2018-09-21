@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { IReactions } from "../../../../../types";
+import { IFbUser, IReactions } from "../../../../../types";
 import { LeftAlign, Reaction } from "./styles";
 
 type Props = {
@@ -9,13 +9,13 @@ type Props = {
 };
 
 class Reactions extends Component<Props, {}> {
-  renderUsers(users) {
+  renderUsers(users: IFbUser[]) {
     return users.map((user, index) => (
       <LeftAlign key={index}>{user.name}</LeftAlign>
     ));
   }
 
-  renderReaction(key, users) {
+  renderReaction(key: string, users: IFbUser[]) {
     const tooltip = (
       <Tooltip id="tooltip">
         <LeftAlign>

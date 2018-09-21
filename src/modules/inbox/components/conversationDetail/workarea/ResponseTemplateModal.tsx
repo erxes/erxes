@@ -11,7 +11,7 @@ import * as React from "react";
 import { IBrand } from "../../../../settings/brands/types";
 
 type Props = {
-  onSave: (brandId, name) => void;
+  onSave: (brandId: string, name: string) => void;
   brands: IBrand[];
   trigger: JSX.Element;
   brandId?: string;

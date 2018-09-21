@@ -91,16 +91,16 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   // save editor current content to state
-  onEditorContentChange(content) {
+  onEditorContentChange(content: string) {
     this.setState({ content });
   }
 
   // save mentioned user to state
-  onAddMention(mentionedUserIds) {
+  onAddMention(mentionedUserIds: string[]) {
     this.setState({ mentionedUserIds });
   }
 
-  checkIsActive(conversation) {
+  checkIsActive(conversation: IConversation) {
     return (
       conversation.integration.kind !== "messenger" ||
       (conversation.customer &&
@@ -117,7 +117,7 @@ class RespondBox extends React.Component<Props, State> {
     element.click();
   }
 
-  onSend(e) {
+  onSend(e: React.FormEvent) {
     e.preventDefault();
 
     this.addMessage();
@@ -126,7 +126,7 @@ class RespondBox extends React.Component<Props, State> {
     this.setState({ editorKey: `${this.state.editorKey}Key` });
   }
 
-  onSelectTemplate(responseTemplate) {
+  onSelectTemplate(responseTemplate: IResponseTemplate) {
     this.setState({
       responseTemplate: responseTemplate.content,
 

@@ -27,8 +27,8 @@ class ReplyingMessage extends React.Component<Props, State> {
     this.getContent = this.getContent.bind(this);
   }
 
-  onContentChange(e) {
-    const postContent = e.target.value;
+  onContentChange(e: React.FormEvent<HTMLElement>) {
+    const postContent = (e.target as HTMLInputElement).value;
 
     this.setState({
       post: postContent
@@ -41,7 +41,7 @@ class ReplyingMessage extends React.Component<Props, State> {
     return `@${currentUserName} `;
   }
 
-  doAction(e) {
+  doAction(e: React.FormEvent) {
     e.preventDefault();
 
     const { replyPost, conversationId, commentId } = this.props;

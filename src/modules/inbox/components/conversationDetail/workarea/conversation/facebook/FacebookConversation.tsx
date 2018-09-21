@@ -10,7 +10,7 @@ type Props = {
   scrollBottom: () => void;
 };
 
-const getAttr = (message, attr) => {
+const getAttr = (message: IMessageDocument, attr: string) => {
   if (!message.facebookData) {
     return;
   }
@@ -19,7 +19,7 @@ const getAttr = (message, attr) => {
 };
 
 export default class FacebookConversation extends Component<Props, {}> {
-  renderReplies(comment) {
+  renderReplies(comment: IMessageDocument) {
     const { conversationMessages = [] } = this.props;
 
     const replies = conversationMessages.filter(msg => {
@@ -35,7 +35,7 @@ export default class FacebookConversation extends Component<Props, {}> {
     ));
   }
 
-  renderComments(post, comments) {
+  renderComments(comments: IMessageDocument[]) {
     return comments.map(comment => (
       <Fragment key={comment._id}>
         <FacebookComment message={comment} />
@@ -44,7 +44,7 @@ export default class FacebookConversation extends Component<Props, {}> {
     ));
   }
 
-  renderInternals(messages) {
+  renderInternals(messages: IMessageDocument[]) {
     return messages.map(message => {
       return (
         <SimpleMessage
@@ -93,7 +93,7 @@ export default class FacebookConversation extends Component<Props, {}> {
     return (
       <Fragment>
         <FacebookPost message={post} scrollBottom={scrollBottom} />
-        {this.renderComments(post, comments)}
+        {this.renderComments(comments)}
         {this.renderInternals(internalMessages)}
       </Fragment>
     );

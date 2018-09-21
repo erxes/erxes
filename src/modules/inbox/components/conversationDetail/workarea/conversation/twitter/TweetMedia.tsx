@@ -37,7 +37,7 @@ type Props = {
 };
 
 class TweetMedia extends Component<Props, {}> {
-  getEntities(data) {
+  getEntities(data: ITwitterResponse) {
     if (data.extended_entities) {
       return data.extended_entities;
     }

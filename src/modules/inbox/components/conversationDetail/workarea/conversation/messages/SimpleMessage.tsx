@@ -28,7 +28,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     return <NameCard.Avatar {...props} />;
   }
 
-  renderAttachment(hasAttachment) {
+  renderAttachment(hasAttachment: boolean) {
     const { message } = this.props;
 
     if (!hasAttachment) {
@@ -38,7 +38,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     return <Attachment attachment={message.attachments[0]} />;
   }
 
-  renderContent(hasAttachment) {
+  renderContent(hasAttachment: boolean) {
     const { message, renderContent } = this.props;
 
     if (renderContent) {

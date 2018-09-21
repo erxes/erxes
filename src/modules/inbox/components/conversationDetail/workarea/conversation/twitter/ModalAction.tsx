@@ -24,9 +24,29 @@ const Char = styledTS<{ count?: number }>(styled.b)`
 `;
 
 type Props = {
-  replyTweet?: (data, callback) => void;
-  tweet?: (data, callback) => void;
-  retweet?: (data, callback) => void;
+  replyTweet?: (
+    data: {
+      conversationId: string;
+      content: string;
+      tweetReplyToId: string;
+      tweetReplyToScreenName: string;
+    },
+    callback
+  ) => void;
+  tweet?: (
+    data: {
+      integrationId: string;
+      text: string;
+    },
+    callback
+  ) => void;
+  retweet?: (
+    data: {
+      integrationId: string;
+      id: string;
+    },
+    callback
+  ) => void;
   parentMessage: IMessageDocument;
   integrationId: string;
   type: string;
@@ -51,14 +71,14 @@ class ModalAction extends React.Component<Props, State> {
     this.onTweetContentChange = this.onTweetContentChange.bind(this);
   }
 
-  getCharacterCount(character) {
+  getCharacterCount(character: string) {
     const maxChar = 280;
 
     return maxChar - character.length;
   }
 
-  onTweetContentChange(e) {
-    const tweetContent = e.target.value;
+  onTweetContentChange(e: React.FormEvent<HTMLElement>) {
+    const tweetContent = (e.target as HTMLInputElement).value;
     this.setState({
       tweet: tweetContent,
       characterCount: this.getCharacterCount(tweetContent)
@@ -93,7 +113,7 @@ class ModalAction extends React.Component<Props, State> {
     return `@${screenName} `;
   }
 
-  doAction(e) {
+  doAction(e: React.FormEvent) {
     e.preventDefault();
 
     const {

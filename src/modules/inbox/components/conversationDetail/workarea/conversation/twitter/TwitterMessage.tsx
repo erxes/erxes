@@ -2,7 +2,7 @@ import { Icon, ModalTrigger, NameCard, Tip } from "modules/common/components";
 import moment from "moment";
 import React, { Component } from "react";
 import { ICustomer } from "../../../../../../customers/types";
-import { IMessageDocument } from "../../../../../types";
+import { IMessageDocument, ITwitterResponse } from "../../../../../types";
 import { ModalAction, TweetContent, TweetMedia } from "./";
 import { Count, Counts, Reply, Time, Tweet, User } from "./styles";
 
@@ -10,10 +10,33 @@ type Props = {
   message: IMessageDocument;
   staff?: boolean;
   integrationId: string;
-  favoriteTweet: (data, callback?) => void;
-  retweet: (data, callback) => void;
-  replyTweet: (data, callback) => void;
-  tweet: (data, callback) => void;
+  favoriteTweet: (
+    data: { integrationId: string; id: string },
+    callback?
+  ) => void;
+  retweet: (
+    data: {
+      integrationId: string;
+      id: string;
+    },
+    callback
+  ) => void;
+  replyTweet: (
+    data: {
+      conversationId: string;
+      content: string;
+      tweetReplyToId: string;
+      tweetReplyToScreenName: string;
+    },
+    callback
+  ) => void;
+  tweet: (
+    data: {
+      integrationId: string;
+      text: string;
+    },
+    callback
+  ) => void;
   scrollBottom: () => void;
 };
 
@@ -72,7 +95,7 @@ class TwitterMessage extends Component<Props, {}> {
     );
   }
 
-  renderCounts(twitterData) {
+  renderCounts(twitterData: ITwitterResponse) {
     const inReplyStatus = twitterData.in_reply_to_status_id ? false : true;
     const { favorited, retweeted } = twitterData;
     const { integrationId, retweet, replyTweet, tweet, message } = this.props;
@@ -140,7 +163,7 @@ class TwitterMessage extends Component<Props, {}> {
     );
   }
 
-  renderReply(twitterData, inReplyStatus) {
+  renderReply(twitterData: ITwitterResponse, inReplyStatus: boolean) {
     if (inReplyStatus) {
       return null;
     }
@@ -152,7 +175,7 @@ class TwitterMessage extends Component<Props, {}> {
     );
   }
 
-  getTweetContent(extendedTweet, message) {
+  getTweetContent(extendedTweet: any, message: IMessageDocument) {
     if (extendedTweet) {
       return extendedTweet.full_text;
     }
@@ -160,7 +183,7 @@ class TwitterMessage extends Component<Props, {}> {
     return message.content;
   }
 
-  getEntities(extendedTweet, twitterData) {
+  getEntities(extendedTweet: any, twitterData: ITwitterResponse) {
     if (extendedTweet) {
       return extendedTweet.entities;
     }

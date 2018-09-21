@@ -1,7 +1,7 @@
 import { NameCard } from "modules/common/components";
 import React, { Component } from "react";
 import { Date, FacebookContent, Reactions, UserName } from ".";
-import { IMessageDocument } from "../../../../../types";
+import { IFacebook, IMessageDocument } from "../../../../../types";
 import { Counts, FlexItem, PostContainer, User } from "./styles";
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default class FacebookPost extends Component<Props, {}> {
-  renderCounts(data) {
+  renderCounts(data: IFacebook) {
     return (
       <Counts>
         <FlexItem>

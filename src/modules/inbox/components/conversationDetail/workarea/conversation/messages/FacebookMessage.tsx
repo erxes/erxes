@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { Attachment } from "modules/common/components";
 import React, { Fragment } from "react";
-import { IMessageDocument } from "../../../../../types";
+import { IFacebook, IMessageDocument } from "../../../../../types";
 import { SimpleMessage } from "./";
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default class FacebookMessage extends React.Component<Props, {}> {
-  renderIframe(src) {
+  renderIframe(src: string) {
     return (
       <iframe
         title="erxesIframe"
@@ -22,7 +22,11 @@ export default class FacebookMessage extends React.Component<Props, {}> {
     );
   }
 
-  renderAttachment(message, hasAttachment, isPhotoPost) {
+  renderAttachment(
+    message: IMessageDocument,
+    hasAttachment: boolean,
+    isPhotoPost: boolean
+  ) {
     const { facebookData } = message;
 
     if (hasAttachment) {
@@ -32,22 +36,21 @@ export default class FacebookMessage extends React.Component<Props, {}> {
     if (isPhotoPost) {
       return this.renderIframe(
         `https://www.facebook.com/plugins/post.php?
-        href=https://www.facebook.com/photo.php?fbid=${facebookData.photoId}`
+        href=https://www.facebook.com/photo.php?fbid=${facebookData &&
+          facebookData.photo}`
       );
     }
 
     return null;
   }
 
-  renderVideoIframe(fbData, isVideoPost) {
+  renderVideoIframe(fbData: IFacebook, isVideoPost: boolean) {
     if (!isVideoPost) {
       return null;
     }
 
     return this.renderIframe(
-      `https://www.facebook.com/video/embed?video_id=${
-        fbData.videoId
-      }&width=500`
+      `https://www.facebook.com/video/embed?video_id=${fbData.video}&width=500`
     );
   }
 
@@ -60,7 +63,7 @@ export default class FacebookMessage extends React.Component<Props, {}> {
     }
 
     const isPhotoPost = fbData.item === "photo";
-    const isVideoPost = fbData.item === "video" && fbData.video;
+    const isVideoPost = fbData.item === "video" ? true : false;
     const hasAttachment = message.attachments && message.attachments.length > 0;
 
     const classes = classNames({

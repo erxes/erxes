@@ -23,7 +23,7 @@ class MessengerApp extends React.Component<Props> {
     this.onSelect = this.onSelect.bind(this);
   }
 
-  onSelect(eventKey) {
+  onSelect(eventKey: React.MouseEvent<HTMLElement>) {
     const messengerApps = this.props.messengerApps;
 
     // find response template using event key

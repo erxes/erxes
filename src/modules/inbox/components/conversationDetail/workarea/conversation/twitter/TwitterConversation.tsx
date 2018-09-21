@@ -11,6 +11,10 @@ type Props = {
   scrollBottom: () => void;
 };
 
+interface INestedMessages extends IMessageDocument {
+  children: any;
+}
+
 const List = styledTS<{ isRoot?: boolean }>(styled.ul)`
   list-style: none;
   padding-left: ${props => (props.isRoot ? "0" : "40px")};
@@ -25,8 +29,8 @@ class TwitterConversation extends Component<Props, {}> {
     this.renderTweets = this.renderTweets.bind(this);
   }
 
-  formatMessages(messages, parent) {
-    const array: IMessageDocument[] = [];
+  formatMessages(messages: IMessageDocument[], parent: string | null) {
+    const array: INestedMessages[] = [];
 
     messages.forEach(msg => {
       if (!msg.twitterData) {
@@ -51,7 +55,7 @@ class TwitterConversation extends Component<Props, {}> {
     return array;
   }
 
-  renderChildren(children, integrationId) {
+  renderChildren(children: INestedMessages[], integrationId: string) {
     if (!children) {
       return null;
     }
@@ -59,7 +63,7 @@ class TwitterConversation extends Component<Props, {}> {
     return <List>{this.renderTweets(children, integrationId)}</List>;
   }
 
-  renderTweets(messages, integrationId) {
+  renderTweets(messages: INestedMessages[], integrationId: string) {
     const { scrollBottom } = this.props;
 
     return messages.map(message => {
@@ -77,7 +81,7 @@ class TwitterConversation extends Component<Props, {}> {
     });
   }
 
-  renderInternals(messages) {
+  renderInternals(messages: IMessageDocument[]) {
     return messages.filter(message => !message.twitterData).map(message => {
       return (
         <SimpleMessage
@@ -99,7 +103,10 @@ class TwitterConversation extends Component<Props, {}> {
     }
 
     const messages = conversationMessages || [];
-    const nestedMessages = this.formatMessages(messages, null);
+    const nestedMessages: INestedMessages[] = this.formatMessages(
+      messages,
+      null
+    );
 
     return (
       <Fragment>

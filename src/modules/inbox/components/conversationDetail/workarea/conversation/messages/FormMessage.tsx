@@ -17,7 +17,7 @@ export default class FormMessage extends React.Component<Props, {}> {
     return data.value;
   }
 
-  renderRow(data, index) {
+  renderRow(data, index: string) {
     return (
       <tr key={index}>
         <td style={{ width: "40%" }}>
