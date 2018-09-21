@@ -28,8 +28,6 @@ type State = {
 };
 
 export default class FilterPopover extends React.Component<Props, State> {
-  private overlayTrigger;
-
   constructor(props: Props) {
     super(props);
 
@@ -44,8 +42,6 @@ export default class FilterPopover extends React.Component<Props, State> {
       counts: {},
       loading
     };
-
-    this.overlayTrigger = React.createRef();
 
     this.renderPopover = this.renderPopover.bind(this);
     this.onClick = this.onClick.bind(this);
@@ -122,7 +118,6 @@ export default class FilterPopover extends React.Component<Props, State> {
 
     return (
       <OverlayTrigger
-        ref={this.overlayTrigger}
         trigger="click"
         placement={placement}
         overlay={this.renderPopover()}

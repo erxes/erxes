@@ -20,8 +20,6 @@ class MessengerApp extends React.Component<Props> {
   constructor(props) {
     super(props);
 
-    this.overlayRef = React.createRef();
-
     this.onSelect = this.onSelect.bind(this);
   }
 
@@ -71,7 +69,9 @@ class MessengerApp extends React.Component<Props> {
           placement="top"
           overlay={popover}
           rootClose
-          ref={this.overlayRef}
+          ref={overlayTrigger => {
+            this.overlayRef = overlayTrigger;
+          }}
         >
           <Button btnStyle="link">
             <Tip text={__("Messenger apps")}>

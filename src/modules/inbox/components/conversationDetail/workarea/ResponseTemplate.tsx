@@ -53,8 +53,6 @@ class ResponseTemplate extends React.Component<Props, State> {
       options: this.filterByBrand(props.brandId)
     };
 
-    this.overlayRef = React.createRef();
-
     this.onSelect = this.onSelect.bind(this);
     this.onSave = this.onSave.bind(this);
     this.filterItems = this.filterItems.bind(this);
