@@ -9,6 +9,7 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { IChannel } from '../../channels/types';
+import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
 
 type Props = {
@@ -104,7 +105,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
      }
   }
 
-  render() {
+  renderContent() {
     const { object } = this.props;
     const user = object || { details: {} };
 
@@ -140,6 +141,16 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
       </div>
     );
+  }
+
+  render() {
+    return (
+      <CommonForm
+        {...this.props}
+        renderContent={this.renderContent}
+        generateDoc={this.generateDoc}
+      />
+    )
   }
 }
 
