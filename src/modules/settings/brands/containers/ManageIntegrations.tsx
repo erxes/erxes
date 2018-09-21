@@ -14,7 +14,7 @@ import { ChooseBrand } from './';
 type Props = {
   currentBrand: IBrand;
   queryParams: any;
-  saveMutation: (params: { variables: { _id: string; integrationIds: any } }) => any;
+  saveMutation: (params: { variables: { _id: string; integrationIds: string[] } }) => any;
 };
 
 class ManageIntegrationsContainer extends Component<Props> {

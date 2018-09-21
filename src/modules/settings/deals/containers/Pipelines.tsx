@@ -43,7 +43,7 @@ class PipelinesContainer extends React.Component<Props> {
 
     // remove action
     const remove = _id => {
-      confirm('Are you sure ?').then(() => {
+      confirm().then(() => {
         removePipelineMutation({
           variables: { _id }
         })

@@ -4,9 +4,10 @@ import * as React from "react";
 import { compose, graphql } from "react-apollo";
 import { withRouter } from "react-router";
 import { IRouterProps } from "../../common/types";
+import { IFormData } from "../../settings/integrations/types";
 import { Form } from "../components";
 import { mutations, queries } from "../graphql";
-import { IFormField } from "../types";
+import { IForm, IFormField } from "../types";
 
 interface IProps extends IRouterProps {
   contentTypeId: string;
@@ -15,12 +16,26 @@ interface IProps extends IRouterProps {
   brandsQuery: any;
   integrationDetailQuery: any;
 
-  // TODO: add types
-  editIntegrationMutation: ({ variables }) => Promise<void>;
-  editFormMutation: ({ variables }) => Promise<void>;
-  addFieldMutation: ({ variables }) => Promise<void>;
-  editFieldMutation: ({ variables }) => Promise<void>;
-  removeFieldMutation: ({ variables }) => Promise<void>;
+  editIntegrationMutation: (params: { variables : {
+    _id: string;
+    formData: IFormData;
+    brandId: string;
+    name: string;
+    languageCode: string;
+    formId: string;
+  } }) => Promise<void>;
+  editFormMutation: (params: { variables: {
+    _id: string;
+    formId: string;
+    form: IForm;
+  } }) => Promise<any>;
+  addFieldMutation: (params: { variables: {
+    createFieldsData: IFormField[]
+  } }) => Promise<void>;
+  editFieldMutation: (params: { variables: {
+    updateFieldsData: IFormField[]
+  } }) => Promise<void>;
+  removeFieldMutation: (params: { variable: { removeFieldsData: IFormField[] } }) => Promise<void>;
   queryParams: any;
 };
 

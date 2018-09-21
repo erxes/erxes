@@ -1,17 +1,32 @@
 import gql from "graphql-tag";
 import { Alert } from "modules/common/utils";
+import { IFormData } from "modules/settings/integrations/types";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
 import { withRouter } from "react-router";
 import { IRouterProps } from "../../common/types";
 import { Form } from "../components";
 import { mutations, queries } from "../graphql";
-import { IFormField } from "../types";
+import { ICallout, IFormField } from "../types";
+
+type Doc = {
+  title: string;
+  description: string;
+  buttonText: string;
+  themeColor: string;
+  callout: ICallout
+}
 
 interface IProps extends IRouterProps {
   brandsQuery: any;
-  addIntegrationMutation: ({ variables }) => Promise<void>;
-  addFormMutation: ({ variables }) => Promise<any>;
+  addIntegrationMutation: (params: { variables: {
+    formData: IFormData;
+    brandId: string;
+    name: string;
+    languageCode: string;
+    formId: string;
+  }}) => Promise<void>;
+  addFormMutation: (params: { variables : Doc }) => Promise<any>;
   addFieldsMutation: (params: { variables: { contentType: string, contentTypeId: string, field: IFormField } }) => void;
 };
 

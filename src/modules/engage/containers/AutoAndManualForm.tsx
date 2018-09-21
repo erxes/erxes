@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { Alert } from 'modules/common/utils';
+import { ISegmentCondition } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -15,7 +16,14 @@ type Props = {
   customerCountsQuery: any;
   headSegmentsQuery: any;
   combinedFieldsQuery: any;
-  segmentsAddQuery: (params: { variables: any }) => Promise<any>;
+  segmentsAddQuery: (params: { variables: {
+    name: string; 
+    description: string; 
+    subOf: string;  
+    color: string; 
+    connector: string;  
+    conditions: ISegmentCondition[];
+  } }) => Promise<any>;
   kind: string;
   brands: IBrand[];
   users: IUser[];

@@ -30,7 +30,7 @@ import Pagination from './pagination/Pagination';
 import SortableList from './SortableList';
 import SortHandler from './SortHandler';
 import Spinner from './Spinner';
-import { ConditionStep, Step, Steps } from './step';
+import { Step, Steps } from './step';
 import Table from './table';
 import { Tabs, TabTitle } from './tabs';
 import Tags from './Tags';
@@ -72,7 +72,6 @@ export {
   FormGroup,
   Step,
   Steps,
-  ConditionStep,
   TextDivider,
   Table,
   Editor,

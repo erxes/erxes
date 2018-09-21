@@ -17,9 +17,9 @@ const commonListComposer = options => {
   type Props = {
     totalCountQuery: any;
     listQuery: any;
-    addMutation: ({ variables: any }) => any;
-    editMutation: ({ variables: any }) => any;
-    removeMutation: ({ variables: { _id: string } }) => any;
+    addMutation: ({ variables: any }) => Promise<any>;
+    editMutation: ({ variables: any }) => Promise<any>;
+    removeMutation: ({ variables: { _id: string } }) => Promise<any>;
   };
 
   const ListContainer = (props: Props) => {
@@ -37,7 +37,7 @@ const commonListComposer = options => {
 
     // remove action
     const remove = _id => {
-      confirm('Are you sure?').then(() => {
+      confirm().then(() => {
         removeMutation({
           variables: { _id }
         })

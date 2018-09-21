@@ -9,14 +9,15 @@ import { SCHEDULE_TYPES } from 'modules/engage/constants';
 import React, { Component, Fragment } from 'react';
 import Datetime from 'react-datetime';
 import { DateTimePicker, SelectMonth } from '../styles';
+import { IEngageScheduleDate } from '../types';
 
 type Props = {
-  scheduleDate: any;
-  onChange: (name: string, value: any) => void;
+  scheduleDate: IEngageScheduleDate;
+  onChange: (name: string, value: IEngageScheduleDate) => void;
 };
 
 type State = {
-  scheduleDate: any;
+  scheduleDate: IEngageScheduleDate;
 }
 
 class Scheduler extends Component<Props, State> {

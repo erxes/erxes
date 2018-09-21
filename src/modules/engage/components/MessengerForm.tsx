@@ -9,6 +9,7 @@ import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import React, { Component } from 'react';
 import { IBrand } from '../../settings/brands/types';
 import { MessengerPreview } from '../containers';
+import { IEngageScheduleDate } from '../types';
 import Editor from './Editor';
 import Scheduler from './Scheduler';
 
@@ -24,7 +25,7 @@ type Props = {
 type State = {
   fromUser: string;
   messenger: { brandId: string, kind: string, sentAs: string };
-  scheduleDate: Date;  
+  scheduleDate: IEngageScheduleDate;  
 }
 
 class MessengerForm extends Component<Props, State> {

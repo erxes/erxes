@@ -17,6 +17,7 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 import { CompaniesMerge } from '..';
 import { IRouterProps } from '../../../common/types';
+import { ITag } from '../../../tags/types';
 import { CompanyForm } from '../../containers';
 import { ICompany } from '../../types';
 import CompanyRow from './CompanyRow';
@@ -34,7 +35,7 @@ interface IProps extends IRouterProps {
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
-  tags: any[];
+  tags: ITag[];
   removeCompanies: (doc: { companyIds: string[] }) => void;
   loadingTags: boolean;
   mergeCompanies: () => void;

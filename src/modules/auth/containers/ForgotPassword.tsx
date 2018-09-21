@@ -6,8 +6,9 @@ import { ForgotPassword } from '../components';
 import { mutations } from '../graphql';
 
 type Props = {
-  // TODO: replace any
-  forgotPasswordMutation: (params: { variables: any }) => any;
+  forgotPasswordMutation: (params: { variables: {
+    email: string , callback: (e: Error) => void
+  } }) => Promise<any>;
   history: any;
 };
 

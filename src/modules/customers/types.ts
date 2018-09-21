@@ -2,6 +2,31 @@ import { ITag } from "modules/tags/types";
 import { IUser } from "../auth/types";
 import { IIntegration } from "../settings/integrations/types";
 
+export interface IMessengerData {
+  lastSeenAt?: number;
+  sessionCount?: number;
+  isActive?: boolean;
+  customData?: any;
+}
+
+export interface ITwitterData {
+  id?: number;
+  id_str?: string;
+  name?: string;
+  screen_name?: string;
+  profile_image_url?: string;
+}
+
+export interface IFacebookData {
+  id: string;
+  profilePic?: string;
+}
+
+export interface IVisitorContact {
+  email?: string;
+  phone?: string;
+}
+
 export interface ICustomerDoc {
   firstName: string;
   lastName: string;
@@ -34,11 +59,11 @@ export interface ICustomerDoc {
     youtube?: string;
     github?: string;
   };
-  twitterData?: { [key: string]: any };
-  facebookData?: { [key: string]: any };
-  messengerData?: { [key: string]: any };
+  twitterData?: ITwitterData;
+  facebookData?: IFacebookData;
+  messengerData?: IMessengerData;
   customFieldsData?: { [key: string]: any };
-  visitorContactInfo?: { [key: string]: any };
+  visitorContactInfo?: IVisitorContact;
 }
 
 export interface ICustomer extends ICustomerDoc {

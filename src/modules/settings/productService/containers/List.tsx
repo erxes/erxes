@@ -5,27 +5,22 @@ import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
 
+type Doc = {
+  type: string;
+  _id?: string;
+  name?: string;
+  description?: string;
+  sku?: string;
+  createdAt?: Date;
+}
+
 type Props = {
   productsQuery: any;
   productsCountQuery: any;
 
-  addMutation: (mutation: { variables: { 
-    type: string;
-    _id?: string;
-    name?: string;
-    description?: string;
-    sku?: string;
-    createdAt?: Date;
-  } }) => any;
-  editMutation: (mutation: { variables: { 
-    type: string;
-    _id?: string;
-    name?: string;
-    description?: string;
-    sku?: string;
-    createdAt?: Date;
-  } }) => any;
-  removeMutation: (mutation: { variables: { _id: string } }) => any;
+  addMutation: (mutation: { variables: Doc }) => Promise<any>;
+  editMutation: (mutation: { variables: Doc }) => Promise<any>;
+  removeMutation: (mutation: { variables: { _id: string } }) => Promise<any>;
 };
 
 class ProductListContainer extends React.Component<Props> {
@@ -42,7 +37,7 @@ class ProductListContainer extends React.Component<Props> {
 
     // remove action
     const remove = _id => {
-      confirm('Are you sure ?').then(() => {
+      confirm().then(() => {
         removeMutation({
           variables: { _id }
         })

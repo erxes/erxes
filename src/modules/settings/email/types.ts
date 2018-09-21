@@ -1,5 +1,5 @@
 export interface ISignature {
-    signature: string,
-    brandId: string,
-    brandName?: string
+    signature: string;
+    brandId: string;
+    brandName?: string;
 }

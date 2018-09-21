@@ -11,9 +11,11 @@ type Props = {
   type: ITagTypes;
   tagsQuery: any;
 
-  // TODO: add types
-  tagMutation: (params: { variables: any }) => Promise<any>;
-
+  tagMutation: (params: { variables: {
+    type: string;
+    targetIds: string[];
+    tagIds: string[];
+  } }) => Promise<any>;
   successCallback: () => void;
 };
 

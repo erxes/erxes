@@ -19,8 +19,13 @@ type Props = {
   articlesCount: number;
   remove: ( _id: string ) => void;
 
-  // TODO: replace any
-  save: ({ doc }: { doc: any }, callback: () => void, object: any) => void;
+  save: (params: { doc: {doc: {
+    title: string;
+    description: string;
+    brandId: string;
+    languageCode: string;
+    color: string
+  }} }, callback: () => void, object: any) => void;
 };
 
 type State = {

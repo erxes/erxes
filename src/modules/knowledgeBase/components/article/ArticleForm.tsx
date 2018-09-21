@@ -19,8 +19,13 @@ type Props = {
   article: IArticle;
   currentCategoryId: string;
 
-  // TODO: replace any
-  save: ({ doc }: { doc: any }, callback: () => void, IArticle) => void;
+  save: (params: { doc: { doc: {
+    title: string;
+    summary: string;
+    content: string
+    status: string;
+    categoryIds: string[];
+  }} }, callback: () => void, IArticle) => void;
 
   closeModal: () => void;
 };

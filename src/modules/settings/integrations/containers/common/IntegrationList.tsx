@@ -22,7 +22,7 @@ const IntegrationListContainer = (props: Props) => {
   const integrations = integrationsQuery.integrations || [];
 
   const removeIntegration = (integration, callback) => {
-    confirm('Are you sure ?').then(() => {
+    confirm().then(() => {
       removeMutation({ variables: { _id: integration._id } })
         .then(() => {
           Alert.success('Congrats');

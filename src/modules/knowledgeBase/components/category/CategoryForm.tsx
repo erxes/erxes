@@ -14,15 +14,18 @@ import { ICategory } from '../../types';
 type Props = {
   currentTopicId: string;
   category: ICategory;
-
-  // TODO: replace any
-  save: ({ doc }: { doc: any; }, callback: () => void, category: ICategory) => void;
+  save: (params: { doc: { doc: {
+    title: string;
+    description: string;
+    icon: string;
+    topicIds: string[];
+  }} }, callback: () => void, category: ICategory) => void;
 
   closeModal: () => void;
 };
 
 type State = {
-  selectedIcon: string
+  selectedIcon: string;
 }
 
 class CategoryForm extends Component<Props, State> {

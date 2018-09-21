@@ -8,8 +8,15 @@ import { ITopic } from '../../types';
 
 type Props = {
   getBrandListQuery: any;
-  save: () => void;
   topic: ITopic;
+  
+  save: (params: { doc: {doc: {
+    title: string;
+    description: string;
+    brandId: string;
+    languageCode: string;
+    color: string
+  }} }, callback: () => void, object: any) => void;
   closeModal: () => void;
 };
 

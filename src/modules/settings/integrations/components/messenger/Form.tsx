@@ -9,7 +9,7 @@ import { __, Alert } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
-import { IIntegration } from 'modules/settings/integrations/types';
+import { IIntegration, IMessengerData, IUiOptions } from 'modules/settings/integrations/types';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Appearance, Availability, Intro, Options } from './steps';
@@ -19,7 +19,7 @@ type Props = {
   teamMembers: IUser[];
   integration?: IIntegration;
   brands: IBrand[];
-  save: (params: { name: string, brandId: string, languageCode: string, messengerData: any, uiOptions: any }) => void;
+  save: (params: { name: string, brandId: string, languageCode: string, messengerData: IMessengerData, uiOptions: IUiOptions }) => void;
 };
 
 type State = {
