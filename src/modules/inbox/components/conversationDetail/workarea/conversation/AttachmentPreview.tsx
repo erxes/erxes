@@ -35,7 +35,7 @@ const File = styled.span`
 `;
 
 type Props = {
-  attachmentPreview: any;
+  attachmentPreview: { name: string; data: string; type: string };
   onLoad: () => void;
 };
 

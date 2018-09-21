@@ -10,7 +10,7 @@ import { TwitterConversation } from "./twitter";
 type Props = {
   conversation: IConversation;
   conversationMessages: IMessage[];
-  attachmentPreview: any;
+  attachmentPreview: { name: string; data: string; type: string };
   scrollBottom: () => void;
   loading: boolean;
 };

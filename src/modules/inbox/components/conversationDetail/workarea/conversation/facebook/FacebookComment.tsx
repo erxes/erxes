@@ -19,7 +19,14 @@ import {
 
 type Props = {
   message: IMessage;
-  replyPost: (data, callback) => void;
+  replyPost: (
+    data: {
+      conversationId: string;
+      content: string;
+      commentReplyToId?: string;
+    },
+    callback: () => void
+  ) => void;
   scrollBottom: () => void;
 };
 
