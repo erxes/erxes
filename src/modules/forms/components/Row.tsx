@@ -17,9 +17,8 @@ import { Manage } from "./";
 type Props = {
   integration: IFormIntegration;
 
-  // TODO: add types
-  toggleBulk: (bulk, checked) => void;
-  remove: (integrationId, callback) => void;
+  toggleBulk: (integration: IFormIntegration, checked: boolean) => void;
+  remove: (_id: string, callback: (error?: any) => void) => void;
 
   isChecked: boolean;
 };
@@ -78,7 +77,7 @@ class Row extends Component<Props, {}> {
   render() {
     const { integration, isChecked, toggleBulk } = this.props;
     const form = integration.form;
-    const createdUser = form.createdUser;
+    const createdUser = form.createdUser || { _id: '', details: { fullName: '' } };
     const tags = integration.tags;
 
     let percentage: string | number = "0.00";

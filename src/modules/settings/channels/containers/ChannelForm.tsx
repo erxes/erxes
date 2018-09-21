@@ -6,7 +6,9 @@ import { IChannel } from '../types';
 type Props = {
   channel?: IChannel;
   members: IUser[];
-  save: ({ doc }: { doc: any }, callback: () => void, channel?: IChannel) => void;
+  save: (params: { doc: {
+    name: string; description: string; memberIds: string[];
+  } }, callback: () => void, channel?: IChannel) => void;
   closeModal: () => void;
   loading?: boolean;
 };

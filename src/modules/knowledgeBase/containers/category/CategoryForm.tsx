@@ -6,12 +6,18 @@ import { CategoryForm } from '../../components';
 import { mutations, queries } from '../../graphql';
 import { ICategory } from '../../types';
 
+type Variables = {
+  title: string;
+  description: string;
+  icon: string;
+  topicIds: string[];
+}
+
 type Props = {
   category: ICategory;
 
-  // TODO: replace any
-  addCategoriesMutation: (params: { variables: any }) => Promise<any>;
-  editCategoriesMutation: (params: { variables: any }) => Promise<any>;
+  addCategoriesMutation: (params: { variables: Variables }) => Promise<any>;
+  editCategoriesMutation: (params: { variables: Variables }) => Promise<any>;
 
   topicIds: string;
   closeModal: () => void;

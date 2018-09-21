@@ -1,13 +1,14 @@
 import { Button, Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
+import { INotification } from 'modules/notifications/types';
 import Sidebar from 'modules/settings/Sidebar';
 import React, { Component } from 'react';
 import { NotificationRow } from './';
 import { NotifList } from './styles';
 
 type Props = {
-  notifications: any[];
+  notifications: INotification[];
   markAsRead: (_ids?: string[]) => void;
   count: number;
 };

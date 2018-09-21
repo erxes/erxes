@@ -12,7 +12,7 @@ interface IProps extends IRouterProps {
 };
 
 type MutationResponse = {
-  resetPasswordMutation: (params: { variables: { newPassword: string, token: string } }) => any,
+  resetPasswordMutation: (params: { variables: { newPassword: string, token: string } }) => Promise<any>,
 }
 
 const ResetPasswordContainer = (props: IProps & MutationResponse) => {

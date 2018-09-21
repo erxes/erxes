@@ -24,7 +24,7 @@ function HistoryRow({ history, removeHistory }: Props) {
           btnStyle="link"
           icon="cancel-1"
           onClick={() =>
-            confirm('Are you sure ?').then(() => {
+            confirm().then(() => {
               removeHistory(history._id);
             })
           }

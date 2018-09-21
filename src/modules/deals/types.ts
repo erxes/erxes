@@ -7,28 +7,28 @@ export interface IBoard {
 }
 
 export interface IPipeline {
-	_id: string,
-	name: string
+	_id: string;
+	name: string;
 }
 
 export interface IStage {
-	_id: string,
-	name: string
-	type: string,
-	index: number,
-	itemId: string
+	_id: string;
+	name: string;
+	type: string;
+	index: number;
+	itemId: string;
 }
 
 export interface IDeal {
-	_id: string,
-	name: string,
-	stageId: string,
-	assignedUsers: IUser[],
-	companies: ICompany[],
-	customers: ICustomer[],
-	pipeline: IPipeline,
-	closeDate: Date,
-	amount: number,
-	modifiedAt: Date,
-	products: any
+	_id: string;
+	name: string;
+	stageId: string;
+	assignedUsers: IUser[];
+	companies: ICompany[];
+	customers: ICustomer[];
+	pipeline: IPipeline;
+	closeDate: Date;
+	amount: number;
+	modifiedAt: Date;
+	products: any;
 }

@@ -295,7 +295,7 @@ class CustomersList extends React.Component<IProps, State> {
             size="small"
             icon="cancel-1"
             onClick={() =>
-              confirm('Are you sure ?').then(() => {
+              confirm().then(() => {
                 this.removeCustomers(bulk);
               })
             }

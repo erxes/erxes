@@ -9,8 +9,8 @@ type Props = {
   integrationsTotalCountQuery: any;
   integrationsQuery: any;
   tagsQuery: any;
-  // TODO: add type
-  removeMutation: ({ variables }) => Promise<void>;
+
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
   queryParams: any;
 };
 
@@ -33,7 +33,7 @@ class ListContainer extends React.Component<Props, {}> {
 
     const integrations = integrationsQuery.integrations || [];
 
-    const remove = (_id, callback) => {
+    const remove = (_id: string, callback: (error?: any) => void) => {
       removeMutation({
         variables: { _id }
       }).then(() => {

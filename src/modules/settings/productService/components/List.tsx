@@ -11,11 +11,20 @@ import React, { Component } from 'react';
 import { IProduct } from '../types';
 import { Form, Row } from './';
 
+type Doc = {
+  type: string;
+  _id?: string;
+  name?: string;
+  description?: string;
+  sku?: string;
+  createdAt?: Date;
+}
+
 type Props = {
   products: IProduct[];
   productsCount: number;
   remove: (_id: string) => void;
-  save: ({ doc }: { doc: any; }, callback: () => void, product?: IProduct) => void;
+  save: (doc: Doc , callback: () => void, product?: IProduct) => void;
   loading: boolean;
 };
 

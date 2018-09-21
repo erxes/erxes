@@ -16,7 +16,9 @@ type Props = {
   members: IUser[];
   selectedMembers: IUser[];
   closeModal: () => void;
-  save: ({ doc }: { doc: any; }, callback: () => void, channel?: IChannel) => void;
+  save: (params: { doc: {
+    name: string; description: string; memberIds: string[];
+  } }, callback: () => void, channel?: IChannel) => void;
 };
 
 type State = {

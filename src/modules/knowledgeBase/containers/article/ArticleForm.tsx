@@ -6,14 +6,20 @@ import { ArticleForm } from '../../components';
 import { mutations, queries } from '../../graphql';
 import { IArticle } from '../../types';
 
+type Variables = {
+  title: string;
+  summary: string;
+  content: string
+  status: string;
+  categoryIds: string[];
+}
+
 type Props = {
   article: IArticle;
-
-  // TODO: replace any
-  addArticlesMutation: (params: { variables: any }) => Promise<any>;
-  editArticlesMutation: (params: { variables: any }) => Promise<any>;
-
   currentCategoryId: string;
+  
+  addArticlesMutation: (params: { variables: Variables }) => Promise<any>;
+  editArticlesMutation: (params: { variables: Variables }) => Promise<any>;
   closeModal: () => void;
 };
 

@@ -7,13 +7,17 @@ import { save } from '../../integrations/containers/utils';
 import { ChooseBrand } from '../components';
 import { mutations, queries } from '../graphql';
 
+type Variables = {
+  name: string; 
+  brandId: string 
+};
+
 type Props = {
   integration: IIntegration;
   brandsQuery: any;
 
-  // TODO: Add types
-  addMutation: () => Promise<any>;
-  editMutation: () => Promise<any>;
+  addMutation: (params: { variables: Variables }) => Promise<any>;
+  editMutation: (params: { variables: Variables }) => Promise<any>;
   onSave: () => void;
   refetch: () => void;
 };

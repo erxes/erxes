@@ -6,18 +6,24 @@ import { compose, graphql } from 'react-apollo';
 import { KnowledgeList } from '../../components';
 import { mutations, queries } from '../../graphql';
 
+type Variables = {
+  title: string;
+  description: string;
+  brandId: string;
+  languageCode: string;
+  color: string;
+};
+
 type Props = {
   queryParams: any;
   topicsQuery: any;
   topicsCountQuery: any;
-
-  // TODO: replace any
-  addTopicsMutation: (params: { variables: any }) => Promise<any>;
-  editTopicsMutation: (params: { variables: any }) => Promise<any>;
-
-  removeTopicsMutation: (params: { variables: { _id: string } }) => Promise<any>;
   currentCategoryId: string;
   articlesCount: number;
+
+  addTopicsMutation: (params: { variables: Variables }) => Promise<any>;
+  editTopicsMutation: (params: { variables: Variables }) => Promise<any>;
+  removeTopicsMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 const KnowledgeBaseContainer = (props : Props) => {

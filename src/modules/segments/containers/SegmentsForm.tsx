@@ -5,6 +5,16 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { SegmentsForm } from '../components';
 import { mutations, queries } from '../graphql';
+import { ISegmentCondition } from '../types';
+
+type Variables = {
+  name: string;
+  description: string;
+  subOf: string;
+  color: string;
+  connector: string;
+  conditions: ISegmentCondition[];
+}
 
 type Props = {
   contentType: string;
@@ -13,9 +23,8 @@ type Props = {
   headSegmentsQuery: any;
   combinedFieldsQuery: any;
 
-  // TODO: add types
-  segmentsAdd: (params: { variables: { contentType: string, doc: any } }) => Promise<any>;
-  segmentsEdit: (params: { variables: { _id: string, doc: any } }) => Promise<any>;
+  segmentsAdd: (params: { variables: { contentType: string, doc: Variables } }) => Promise<any>;
+  segmentsEdit: (params: { variables: { _id: string, doc: Variables } }) => Promise<any>;
 
   customerCounts: any;
 };

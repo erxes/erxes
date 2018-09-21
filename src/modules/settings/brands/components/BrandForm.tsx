@@ -10,7 +10,9 @@ import { IBrand } from "../types";
 
 type Props = {
   brand?: IBrand;
-  save: ({ doc }: { doc: any; }, callback: () => void, brand?: IBrand) => void;
+  save: (params: { doc: {
+    name: string; description: string;
+  } }, callback: () => void, brand?: IBrand) => void;
   closeModal: () => void;
 }
 

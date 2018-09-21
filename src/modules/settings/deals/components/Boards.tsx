@@ -9,7 +9,7 @@ import { BoardForm, BoardRow } from './';
 type Props = {
   boards: IBoard[];
   remove: (_id: string) => void;
-  save: ({ doc }: { doc: any; }, callback: () => void, board: IBoard) => void;
+  save: (params: { doc: { name: string; }}, callback: () => void, brand: IBoard) => void;
   loading: boolean;
 };
 

@@ -1,4 +1,5 @@
 import { ITag } from "modules/tags/types";
+import { IActivityLog } from "../activityLogs/types";
 import { IUser } from "../auth/types";
 import { ICustomer } from "../customers/types";
 
@@ -34,6 +35,16 @@ export interface ICompanyDoc {
     tagIds?: string[];
     customFieldsData?: any;
 };
+
+export interface IActivityLogYearMonthDoc {
+    year: number;
+    month: number;
+}
+
+export interface ICompanyActivityLog {
+    date: IActivityLogYearMonthDoc;
+    list: IActivityLog[];
+}
 
 export interface ICompany extends ICompanyDoc {
     _id: string;

@@ -6,13 +6,19 @@ import { List } from '../components';
 import { mutations, queries } from '../graphql';
 import { ITagSaveParams } from '../types';
 
+type Variables = {
+  _id?: string;
+  name: string;
+  type: string;
+  colorCode: string;
+}
+
 type Props = {
   type: string;
   tagsQuery: any;
 
-  // TODO: add types
-  addMutation: (varaibles: any) => Promise<any>;
-  editMutation: (varaibles: any) => Promise<any>;
+  addMutation: (params: { variables: Variables}) => Promise<any>;
+  editMutation: (params: { variables: Variables}) => Promise<any>;
 
   removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
 };

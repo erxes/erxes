@@ -5,12 +5,12 @@ import { Wrapper } from 'modules/layout/components';
 import React, { Component, Fragment } from 'react';
 import { PipelineForm } from '../containers';
 import { PipelineContainer } from '../styles';
-import { IPipeline } from '../types';
+import { IPipeline, IStage } from '../types';
 import { PipelineRow } from './';
 
 type Props = {
   pipelines: IPipeline[];
-  save: ({ doc }: { doc: any; }, callback: () => void, pipeline?: IPipeline) => void;
+  save: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline?: IPipeline) => void;
   updateOrder?: any;
   remove: (_id: string) => void;
   boardId: string;

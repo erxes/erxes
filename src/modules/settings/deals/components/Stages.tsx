@@ -39,7 +39,7 @@ class Stages extends Component<Props, {}> {
     const { stages, onChangeStages } = this.props;
 
     stages.push({
-      _id: Math.random(),
+      _id: Math.random().toString(),
       name: ''
     });
 

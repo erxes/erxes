@@ -12,7 +12,9 @@ type Props = {
   channel: IChannel;
   members: IUser[];
   remove: (id: string) => void;
-  save: ({ doc }: { doc: any; }, callback: () => void, channel?: IChannel) => void;
+  save: (params: { doc: {
+    name: string; description: string; memberIds: string[];
+  } }, callback: () => void, channel?: IChannel) => void;
   isActive: boolean;
 };
 

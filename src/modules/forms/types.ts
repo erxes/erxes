@@ -18,14 +18,14 @@ export interface IForm {
   description?: string;
   buttonText?: string;
   themeColor?: string;
-  callout: ICallout;
-  createdUserId: string;
-  createdUser: IUser;
-  createdDate: Date;
-  viewCount: number;
-  contactsGathered: number;
-  tagIds: string[]
-  getTags: ITag[]
+  callout?: ICallout;
+  createdUserId?: string;
+  createdUser?: IUser;
+  createdDate?: Date;
+  viewCount?: number;
+  contactsGathered?: number;
+  tagIds?: string[]
+  getTags?: ITag[]
 }
 
 export interface IFormIntegration extends IIntegration {

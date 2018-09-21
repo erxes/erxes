@@ -25,7 +25,7 @@ type Props = {
 
 type State = {
   isVisible: boolean,
-  action: (params: {_id?: string, doc: any}) => void
+  action: (params: {_id?: string, doc: Doc}) => void
 }
 
 class PropertyGroupForm extends React.Component<Props, State> {

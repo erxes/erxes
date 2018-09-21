@@ -45,7 +45,7 @@ class EditPipelineFormContainer extends React.Component<IEditProps> {
 const EditPipelineForm = compose(
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
-    options: ({ pipeline } : { pipeline: any }) => ({
+    options: ({ pipeline } : { pipeline: IPipeline }) => ({
       variables: { pipelineId: pipeline._id || '' },
       fetchPolicy: 'network-only'
     })

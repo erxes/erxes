@@ -2,7 +2,7 @@ import { FormControl, Icon } from 'modules/common/components';
 import { FlexItem } from 'modules/common/components/step/styles';
 import { colors, dimensions } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import { ISegment, ISegmentField } from 'modules/segments/types';
+import { ISegment, ISegmentCondition, ISegmentField } from 'modules/segments/types';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -32,14 +32,23 @@ const Show = styledTS<{ show: boolean }>(styled.div)`
   display: ${props => (props.show ? 'block' : 'none')};
 `;
 
+type Doc = {
+  name: string; 
+  description: string; 
+  subOf: string;  
+  color: string; 
+  connector: string;  
+  conditions: ISegmentCondition[];
+}
+
 type Props = {
   changeSegment: (name: string, value: string) => void;
   segments: ISegment[];
   headSegments: ISegment[];
   segmentFields: ISegmentField[];
-  segmentAdd: ({ doc }: { doc: any; }) => void;
+  segmentAdd: (params: { doc: Doc}) => void;
   counts: any;
-  count: (segment: ISegment) => void;
+  count: (segment: Doc) => void;
   segment: string;
 };
 
