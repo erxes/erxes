@@ -80,7 +80,7 @@ type Props = {
   bodyValue?: string;
   type?: string;
   btnStyle?: string;
-  children?: JSX.Element;
+  children?: React.ReactNode;
 };
 
 class CommonPreview extends Component<Props, {}> {

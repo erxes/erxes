@@ -1,15 +1,15 @@
 import { ControlLabel, FormGroup, Icon } from "modules/common/components";
 import { LeftItem, Preview } from "modules/common/components/step/styles";
 import { __ } from "modules/common/utils";
+import { IField } from "modules/settings/properties/types";
 import React, { Component } from "react";
-import { IFormField } from "../../types";
 import { CalloutPreview } from "./preview";
 import { Box, BoxRow, FlexItem } from "./style";
 
 type Props = {
   type: string;
   // TODO: check value's type
-  onChange: (name: string, value: IFormField[] | string | boolean) => void;
+  onChange: (name: string, value: IField[] | string | boolean) => void;
   calloutTitle?: string;
   calloutBtnText?: string;
   bodyValue?: string;

@@ -1,13 +1,14 @@
 import gql from "graphql-tag";
 import { Alert } from "modules/common/utils";
 import { IFormData } from "modules/settings/integrations/types";
+import { IField } from "modules/settings/properties/types";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
 import { withRouter } from "react-router";
 import { IRouterProps } from "../../common/types";
 import { Form } from "../components";
 import { mutations, queries } from "../graphql";
-import { ICallout, IFormField } from "../types";
+import { ICallout } from "../types";
 
 type Doc = {
   title: string;
@@ -27,7 +28,7 @@ interface IProps extends IRouterProps {
     formId: string;
   }}) => Promise<void>;
   addFormMutation: (params: { variables : Doc }) => Promise<any>;
-  addFieldsMutation: (params: { variables: { contentType: string, contentTypeId: string, field: IFormField } }) => void;
+  addFieldsMutation: (params: { variables: { contentType: string, contentTypeId: string, field: IField } }) => void;
 };
 
 class CreateFormContainer extends React.Component<IProps, {}> {

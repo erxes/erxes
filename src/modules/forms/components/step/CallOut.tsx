@@ -8,8 +8,8 @@ import { LeftItem, Preview } from "modules/common/components/step/styles";
 import { __ } from "modules/common/utils";
 import { uploadHandler } from "modules/common/utils";
 import { ActionBar } from "modules/layout/components";
+import { IField } from "modules/settings/properties/types";
 import React, { Component, Fragment } from "react";
-import { IFormField } from "../../types";
 import { CalloutPreview } from "./preview";
 import { FlexColumn, FlexItem, ImageContent } from "./style";
 
@@ -19,7 +19,7 @@ const defaultValue = {
 
 type Props = {
   type: string;
-  onChange: (name: string, value: IFormField[] | string | boolean) => void;
+  onChange: (name: string, value: IField[] | string | boolean) => void;
   calloutTitle?: string;
   calloutBtnText?: string;
   bodyValue?: string;

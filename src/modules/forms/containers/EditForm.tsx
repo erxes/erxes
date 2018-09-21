@@ -1,5 +1,6 @@
 import gql from "graphql-tag";
 import { Alert } from "modules/common/utils";
+import { IField } from "modules/settings/properties/types";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
 import { withRouter } from "react-router";
@@ -7,7 +8,7 @@ import { IRouterProps } from "../../common/types";
 import { IFormData } from "../../settings/integrations/types";
 import { Form } from "../components";
 import { mutations, queries } from "../graphql";
-import { IForm, IFormField } from "../types";
+import { IForm } from "../types";
 
 interface IProps extends IRouterProps {
   contentTypeId: string;
@@ -30,12 +31,12 @@ interface IProps extends IRouterProps {
     form: IForm;
   } }) => Promise<any>;
   addFieldMutation: (params: { variables: {
-    createFieldsData: IFormField[]
+    createFieldsData: IField[]
   } }) => Promise<void>;
   editFieldMutation: (params: { variables: {
-    updateFieldsData: IFormField[]
+    updateFieldsData: IField[]
   } }) => Promise<void>;
-  removeFieldMutation: (params: { variable: { removeFieldsData: IFormField[] } }) => Promise<void>;
+  removeFieldMutation: (params: { variable: { removeFieldsData: IField[] } }) => Promise<void>;
   queryParams: any;
 };
 
@@ -88,9 +89,9 @@ class EditFormContainer extends React.Component<IProps, {}> {
         .then(() => {
           const dbFieldIds = dbFields.map(field => field._id);
           const existingIds: string[] = [];
-          const createFieldsData: IFormField[] = [];
-          const updateFieldsData: IFormField[] = [];
-          const removeFieldsData: IFormField[] = [];
+          const createFieldsData: IField[] = [];
+          const updateFieldsData: IField[] = [];
+          const removeFieldsData: Array<{ _id: string }> = [];
 
           // collect fields ================
           for (const field of fields) {

@@ -1,6 +1,6 @@
 import { __ } from "modules/common/utils";
+import { IField } from "modules/settings/properties/types";
 import React, { Component } from "react";
-import { IFormField } from "../../types";
 import { CalloutPreview, FormPreview, SuccessPreview } from "./preview";
 import {
   CarouselInner,
@@ -25,8 +25,8 @@ type Props = {
   theme: string;
   image?: string;
   preview: string;
-  onChange: (name: string, value: IFormField[] | string | boolean) => void;
-  fields?: IFormField[];
+  onChange: (name: string, value: IField[] | string | boolean) => void;
+  fields?: IField[];
   carousel: string;
   thankContent?: string;
   skip?: boolean;

@@ -1,11 +1,11 @@
 import { GenerateField } from "modules/settings/properties/components";
 import React, { Component } from "react";
-import { IFormField } from "../../../types";
+import { IField } from "../../../../settings/properties/types";
 import { FieldItem } from "./styles";
 
 type Props = {
-  field: any;
-  onEdit?: (field: IFormField) => void;
+  field: IField;
+  onEdit?: (field: IField) => void;
 };
 
 class FieldPreview extends Component<Props, {}> {

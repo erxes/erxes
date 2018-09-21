@@ -7,8 +7,8 @@ import {
 import { LeftItem, Preview } from "modules/common/components/step/styles";
 import { __ } from "modules/common/utils";
 import { ActionBar } from "modules/layout/components";
+import { IField } from "modules/settings/properties/types";
 import React, { Component, Fragment } from "react";
-import { IFormField } from "../../types";
 import { FormPreview } from "./preview";
 import { FlexColumn, FlexItem } from "./style";
 
@@ -19,14 +19,14 @@ type Props = {
   formDesc?: string;
   color: string;
   theme: string;
-  onChange: (name: string, fields: IFormField[] | string | boolean) => void;
-  fields?: IFormField[];
+  onChange: (name: string, fields: IField[] | string | boolean) => void;
+  fields?: IField[];
 };
 
 type State = {
-  fields?: IFormField[];
+  fields?: IField[];
   chosenFieldType?: string;
-  editingField?: IFormField;
+  editingField?: IField;
 };
 
 class FormStep extends Component<Props, State> {
@@ -36,7 +36,7 @@ class FormStep extends Component<Props, State> {
     this.state = {
       fields: props.fields,
       chosenFieldType: "",
-      editingField: {} as IFormField
+      editingField: undefined
     };
 
     this.onFieldAttrChange = this.onFieldAttrChange.bind(this);
@@ -57,7 +57,7 @@ class FormStep extends Component<Props, State> {
     this.setFieldAttrChanges("type", (e.currentTarget as HTMLInputElement).value);
   }
 
-  onFieldEdit(field: IFormField) {
+  onFieldEdit(field: IField) {
     this.setState({ editingField: field });
   }
 
@@ -73,9 +73,10 @@ class FormStep extends Component<Props, State> {
   onSubmit(e) {
     e.preventDefault();
 
-    const editingField = this.state.editingField || {};
+    const editingField = this.state.editingField || {} as IField;
 
     const doc = {
+      contentType: 'form',
       type: editingField.type,
       validation: editingField.validation,
       text: editingField.text,
@@ -91,7 +92,7 @@ class FormStep extends Component<Props, State> {
       ...doc
     });
 
-    this.setState({ fields: this.state.fields, editingField: {} });
+    this.setState({ fields: this.state.fields, editingField: undefined });
 
     this.props.onChange("fields", (this.state.fields || []));
   }
@@ -100,9 +101,11 @@ class FormStep extends Component<Props, State> {
     attributeName: string,
     value: string | boolean | string[]
   ) {
-    const { editingField = {}, fields = [] } = this.state;
+    const { editingField, fields = [] } = this.state;
 
-    editingField[attributeName] = value;
+    if (editingField) {
+      editingField[attributeName] = value;
+    }
 
     this.setState({ editingField });
 
@@ -110,12 +113,14 @@ class FormStep extends Component<Props, State> {
   }
 
   renderButtons() {
-    const _id = (this.state.editingField || {})._id;
+    const { editingField } = this.state;
 
-    if (_id) {
+    if (editingField) {
+      const _id = editingField._id;
+
       // reset editing field state
       const reset = () => {
-        this.setState({ editingField: {} });
+        this.setState({ editingField: undefined });
       };
 
       const onDelete = e => {
@@ -161,12 +166,18 @@ class FormStep extends Component<Props, State> {
   }
 
   footerActions() {
+    const { editingField } = this.state;
+
+    if (!editingField) {
+      return null;
+    }
+
     return (
       <ActionBar
         right={
           <Fragment>
             <FormControl
-              checked={(this.state.editingField || {}).isRequired || false}
+              checked={editingField.isRequired || false}
               id="isRequired"
               componentClass="checkbox"
               onChange={(e: React.FormEvent<HTMLElement>) =>
@@ -183,7 +194,11 @@ class FormStep extends Component<Props, State> {
   }
 
   renderOptionsTextArea() {
-    const { editingField = {}, chosenFieldType = '' } = this.state;
+    const { editingField, chosenFieldType = '' } = this.state;
+
+    if (!editingField) {
+      return null;
+    }
 
     if (
       !["select", "check", "radio"].includes(
@@ -210,7 +225,11 @@ class FormStep extends Component<Props, State> {
   }
 
   renderOptions() {
-    const editingField = this.state.editingField || {};
+    const { editingField } = this.state;
+
+    if (!editingField) {
+      return null;
+    }
 
     return (
       <Fragment>

@@ -34,16 +34,3 @@ export interface IFormIntegration extends IIntegration {
   tags: ITag[];
   createdUser: IUser;
 }
-
-export interface IFormField {
-  _id?: string;
-  type?: string;
-  name?: string;
-  text?: string;
-  description?: string;
-  isRequired?: boolean;
-  formId?: string;
-  order?: number;
-  options?: string[];
-  validation?: string;
-}

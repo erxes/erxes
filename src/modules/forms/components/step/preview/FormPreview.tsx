@@ -1,5 +1,5 @@
+import { IField } from "modules/settings/properties/types";
 import React, { Component } from "react";
-import { IFormField } from "../../../types";
 import { FormFieldPreview } from "./";
 import CommonPreview from "./CommonPreview";
 
@@ -9,9 +9,9 @@ type Props = {
   formBtnText?: string;
   color: string;
   theme: string;
-  fields?: IFormField[];
-  onFieldEdit?: (field: IFormField) => void;
-  onChange: (name: string, fields: IFormField[] | string) => void;
+  fields?: IField[];
+  onFieldEdit?: (field: IField) => void;
+  onChange: (name: string, fields: IField[] | string) => void;
   type: string;
 };
 

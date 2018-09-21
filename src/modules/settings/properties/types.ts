@@ -13,7 +13,7 @@ export interface IField {
     order: React.ReactNode;
     isVisible?: boolean;
     isDefinedByErxes?: boolean;
-    groupId: string;
+    groupId?: string;
     lastUpdatedUser?: IUser;
     lastUpdatedUserId?: string;
 }

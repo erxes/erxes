@@ -7,10 +7,11 @@ import { Alert } from "modules/common/utils";
 import { __ } from "modules/common/utils";
 import { Wrapper } from "modules/layout/components";
 import { IFormData } from "modules/settings/integrations/types";
+import { IField } from "modules/settings/properties/types";
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { IBrand } from "../../settings/brands/types";
-import { IFormField, IFormIntegration } from "../types";
+import { IFormIntegration } from "../types";
 import {
   CallOut,
   ChooseType,
@@ -23,7 +24,7 @@ import {
 type Props = {
   integration?: IFormIntegration;
   brands: IBrand[];
-  fields: IFormField[];
+  fields: IField[];
   loading?: boolean;
 
   save: (params: {
@@ -52,7 +53,7 @@ type State = {
   calloutBtnText?: string;
   theme: string;
   logoPreviewUrl?: string;
-  fields?: IFormField[];
+  fields?: IField[];
   isSkip?: boolean;
   color: string;
 
@@ -178,7 +179,7 @@ class Form extends Component<Props, State> {
     );
   }
 
-  onChange(key: any, value: IFormField[] | string | boolean) {
+  onChange(key: any, value: IField[] | string | boolean) {
     this.setState({ [key]: value });
   }
 
