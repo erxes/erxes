@@ -73,9 +73,8 @@ const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentU
                   <a>{__('Change Password')}</a>
                 </li>
               }
-            >
-              <ChangePassword />
-            </ModalTrigger>
+              content={(props) => <ChangePassword {...props} />}
+            />
 
             <ModalTrigger
               title="Email signatures"
@@ -84,9 +83,8 @@ const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentU
                   <a>{__('Email signatures')}</a>
                 </li>
               }
-            >
-              <Signature />
-            </ModalTrigger>
+              content={(props) => <Signature {...props} />}
+            />
 
             <ModalTrigger
               title="Notification settings"
@@ -95,9 +93,8 @@ const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentU
                   <a>{__('Notification settings')}</a>
                 </li>
               }
-            >
-              <NotificationSettings currentUser={currentUser} />
-            </ModalTrigger>
+              content={(props) => <NotificationSettings currentUser={currentUser} {...props} />}
+            />
 
             <MenuItem divider />
             <MenuItem onClick={logout}>{__('Sign out')}</MenuItem>
