@@ -8,8 +8,8 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   boardsQuery: any;
-  addMutation: (params: { variables: any}) => Promise<any>;
-  editMutation: (params: { variables: any}) => Promise<any>;
+  addMutation: (params: { variables: { name: string; }}) => Promise<any>;
+  editMutation: (params: { variables: { name: string; }}) => Promise<any>;
   removeMutation: (params: { variables: { _id: string }}) => Promise<any>;
 };
 
@@ -26,7 +26,7 @@ class BoardsContainer extends React.Component<Props, {}> {
 
     // remove action
     const remove = _id => {
-      confirm('Are you sure ?').then(() => {
+      confirm().then(() => {
         removeMutation({
           variables: { _id }
         })

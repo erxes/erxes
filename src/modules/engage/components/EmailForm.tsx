@@ -11,6 +11,7 @@ import ReactDom from 'react-dom';
 import styled from 'styled-components';
 import { IUser } from '../../auth/types';
 import { IEmailTemplate } from '../../settings/emailTemplates/types';
+import { IEngageScheduleDate } from '../types';
 import Editor from './Editor';
 import Scheduler from './Scheduler';
 
@@ -43,9 +44,9 @@ type Props = {
 type State = {
   fromUser: string;
   currentTemplate: string;
-  message: any;
+  message: string;
   email: { subject: string, templateId: string, attachments: any[] };
-  scheduleDate: Date;
+  scheduleDate: IEngageScheduleDate;
 }
 
 class EmailForm extends Component<Props, State> {

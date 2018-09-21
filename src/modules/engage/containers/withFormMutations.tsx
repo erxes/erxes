@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
+import { ISegmentCondition } from 'modules/segments/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -12,8 +13,22 @@ interface IProps extends IRouterProps {
   kind: string;
   engageMessageDetailQuery: any;
   usersQuery: any;
-  addMutation: (params: { vairables: any }) => Promise<any>;
-  editMutation: (params: { vairables: any }) => Promise<any>;
+  addMutation: (params: { vairables: {
+    name: string; 
+    description: string; 
+    subOf: string;  
+    color: string; 
+    connector: string;  
+    conditions: ISegmentCondition[];
+  } }) => Promise<any>;
+  editMutation: (params: { vairables: {
+    name: string; 
+    description: string; 
+    subOf: string;  
+    color: string; 
+    connector: string;  
+    conditions: ISegmentCondition[];
+  } }) => Promise<any>;
 };
 
 const withSaveAndEdit = Component => {

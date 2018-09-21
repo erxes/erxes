@@ -2,11 +2,12 @@ import { MESSAGE_KINDS } from 'modules/engage/constants';
 import { IBrand } from 'modules/settings/brands/types';
 import React, { Component } from 'react';
 import { AutoAndManualForm, VisitorForm } from '../containers';
+import { IEngageScheduleDate } from '../types';
 
 type Props = {
   kind: string;
   brands: IBrand[];
-  scheduleDate: any;
+  scheduleDate: IEngageScheduleDate;
 };
 
 class MessageForm extends Component<Props> {

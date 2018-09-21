@@ -10,10 +10,10 @@ import { IEngageMessage } from '../types';
 import { crudMutationsOptions } from '../utils';
 
 type Props = {
-  removeMutation: (_id: string) => Promise<void>;
-  setPauseMutation: () => Promise<void>;
-  setLiveMutation: () => Promise<void>;
-  setLiveManualMutation: () => Promise<void>;
+  removeMutation: ( _id: string ) => Promise<void>;
+  setPauseMutation: (params: {vairables: { _id: string  }}) => Promise<void>;
+  setLiveMutation: (params: {vairables: { _id: string  }}) => Promise<void>;
+  setLiveManualMutation: (params: {vairables: { _id: string  }}) => Promise<void>;
 };
       
 interface IRouteProps extends IRouterProps {

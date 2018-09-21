@@ -6,12 +6,21 @@ import {
 } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { ISegment } from 'modules/segments/types';
+import { ISegment, ISegmentCondition } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import * as React from 'react';
 import { IEngageMessage } from '../types';
 import { ChannelStep, MessageStep, SegmentStep } from './step';
+
+type Doc = {
+  name: string; 
+  description: string; 
+  subOf: string;  
+  color: string; 
+  connector: string;  
+  conditions: ISegmentCondition[];
+}
 
 type Props = {
   message?: IEngageMessage;
@@ -21,9 +30,9 @@ type Props = {
   headSegments: ISegment[];
   segmentFields: ISegment[];
   templates: IEmailTemplate[];
-  segmentAdd: ({ doc }: { doc: any; }) => void;
+  segmentAdd: (params: { doc: Doc}) => void;
   customerCounts?: any;
-  count: (segment: ISegment) => void;
+  count: (segment: Doc) => void;
   kind: string;
   validateAndSaveForm: (type: string, doc: any) => void;
   renderTitle: () => void;

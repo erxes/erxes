@@ -15,13 +15,31 @@ import { IBrand } from '../../settings/brands/types';
 import { Recipient, Recipients } from '../styles';
 import Editor from './Editor';
 
+type Doc = {
+  title: string;
+  customerIds: string[];
+  method: string;
+  email: object | {
+    templateId: string;
+    subject: string;
+    attachments: string[];
+    content: string;
+  }, 
+  messenger: object | {
+    brandId: string;
+    kind: string;
+    sentAs: string;
+    content: string;
+  }
+}
+
 type Props = {
   customers: ICustomer[];
   emailTemplates: IEmailTemplate[];
   brands: IBrand[];
   messengerKinds: any[];
   sentAsChoices: any[];
-  save: (doc: any, closeModal: () => void) => void;
+  save: (doc: Doc, closeModal: () => void) => void;
   closeModal: () => void;
 };
 

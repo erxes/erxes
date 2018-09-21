@@ -8,7 +8,7 @@ import {
 } from 'modules/common/components';
 import { ActivityContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { ICompany } from 'modules/companies/types';
+import { ICompany, ICompanyActivityLog } from 'modules/companies/types';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { Wrapper } from 'modules/layout/components';
@@ -22,7 +22,7 @@ import RightSidebar from './RightSidebar';
 interface IProps extends IRouterProps {
   company: ICompany;
   currentUser: IUser;
-  companyActivityLog: any[];
+  companyActivityLog: ICompanyActivityLog[];
   taggerRefetchQueries?: any[];
   loadingLogs: boolean;
 };
