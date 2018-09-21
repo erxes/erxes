@@ -45,7 +45,7 @@ const AssignBoxContainer = (props: Props) => {
       });
   };
 
-  const clear = conversationIds => {
+  const clear = (conversationIds: string[]) => {
     conversationsUnassign({
       variables: {
         _ids: [conversationIds]

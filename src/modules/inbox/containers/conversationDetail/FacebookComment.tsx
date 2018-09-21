@@ -5,9 +5,14 @@ import { mutations } from "modules/inbox/graphql";
 import { IMessage } from "modules/inbox/types";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
+import { IAddMessage } from "./WorkArea";
 
 type Props = {
-  replyMutation: (doc: { variables: any }) => Promise<any>;
+  replyMutation: (
+    doc: {
+      variables: IAddMessage;
+    }
+  ) => Promise<any>;
   message: IMessage;
   scrollBottom: () => void;
 };
@@ -15,7 +20,7 @@ type Props = {
 const FacebookCommentContainer = (props: Props) => {
   const { replyMutation, message, scrollBottom } = props;
 
-  const replyPost = (variables: any, callback: () => void) => {
+  const replyPost = (variables: IAddMessage, callback: () => void) => {
     replyMutation({ variables })
       .then(() => {
         callback();

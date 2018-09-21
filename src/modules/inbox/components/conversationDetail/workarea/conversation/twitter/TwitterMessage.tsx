@@ -2,6 +2,7 @@ import { Icon, ModalTrigger, NameCard, Tip } from "modules/common/components";
 import moment from "moment";
 import React, { Component } from "react";
 import { ICustomer } from "../../../../../../customers/types";
+import { IAddMessage } from "../../../../../containers/conversationDetail/WorkArea";
 import { IMessage, ITwitterResponse } from "../../../../../types";
 import { ModalAction, TweetContent, TweetMedia } from "./";
 import { Count, Counts, Reply, Time, Tweet, User } from "./styles";
@@ -21,15 +22,7 @@ type Props = {
     },
     callback: () => void
   ) => void;
-  replyTweet: (
-    data: {
-      conversationId: string;
-      content: string;
-      tweetReplyToId: string;
-      tweetReplyToScreenName: string;
-    },
-    callback: () => void
-  ) => void;
+  replyTweet: (data: IAddMessage, callback: () => void) => void;
   tweet: (
     data: {
       integrationId: string;

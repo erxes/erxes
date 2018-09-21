@@ -17,8 +17,8 @@ type Props = {
 class DetailContainer extends React.Component<Props> {
   private prevSubscriptions;
 
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
 
     this.prevSubscriptions = null;
   }

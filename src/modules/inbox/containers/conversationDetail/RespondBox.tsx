@@ -6,19 +6,19 @@ import { queries } from "modules/inbox/graphql";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
 import { IUser } from "../../../auth/types";
-import { IConversation, IMessage } from "../../types";
+import { IConversation } from "../../types";
+import { IAddMessage } from "./WorkArea";
 
 type Props = {
   conversation: IConversation;
-  object: any;
   responseTemplatesQuery: any;
   usersQuery: any;
   addMessage: (
     doc: {
-      variables: IMessage;
+      variables: IAddMessage;
       optimisticResponse: any;
       kind: string;
-      callback: () => void;
+      callback: (error: Error) => void;
     }
   ) => void;
   currentUser: IUser;
@@ -40,7 +40,10 @@ const RespondBoxContainer = (props: Props) => {
     currentUser
   } = props;
 
-  const sendMessage = (variables, callback) => {
+  const sendMessage = (
+    variables: IAddMessage,
+    callback: (error: Error) => void
+  ) => {
     const { conversationId, content, attachments, internal } = variables;
 
     let optimisticResponse;

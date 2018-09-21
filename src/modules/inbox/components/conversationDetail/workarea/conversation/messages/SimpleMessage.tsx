@@ -7,7 +7,7 @@ import { MessageBody, MessageContent, MessageItem } from "../styles";
 
 type Props = {
   message: IMessage;
-  classes?: any;
+  classes?: string[];
   isStaff: boolean;
   isSameUser?: boolean;
   renderContent?: () => React.ReactNode;

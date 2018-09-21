@@ -4,14 +4,39 @@ import { TwitterMessage } from "modules/inbox/components/conversationDetail";
 import { mutations, queries } from "modules/inbox/graphql";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
-import { IMessage, ITwitterResponse } from "../../types";
+import { IMessage } from "../../types";
+import { IAddMessage } from "./WorkArea";
 
 type Props = {
-  replyTweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>;
-  favoriteTweetMutation: (variables: any) => Promise<any>;
+  replyTweetMutation: (
+    doc: {
+      variables: IAddMessage;
+    }
+  ) => Promise<any>;
+
+  favoriteTweetMutation: (
+    doc: { variables: { integrationId: string; id: string } }
+  ) => Promise<any>;
+
   currentConversationId: string;
-  retweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>;
-  tweetMutation: (doc: { variables: ITwitterResponse }) => Promise<any>;
+
+  retweetMutation: (
+    doc: {
+      variables: {
+        integrationId: string;
+        id: string;
+      };
+    }
+  ) => Promise<any>;
+
+  tweetMutation: (
+    doc: {
+      variables: {
+        integrationId: string;
+        text: string;
+      };
+    }
+  ) => Promise<any>;
   scrollBottom: () => void;
   message: IMessage;
   integrationId: string;
@@ -26,7 +51,7 @@ const TwitterMessageContainer = (props: Props) => {
     currentConversationId
   } = props;
 
-  const replyTweet = (variables, callback) => {
+  const replyTweet = (variables: IAddMessage, callback) => {
     replyTweetMutation({ variables })
       .then(() => {
         callback();
@@ -36,7 +61,13 @@ const TwitterMessageContainer = (props: Props) => {
       });
   };
 
-  const retweet = (variables, callback) => {
+  const retweet = (
+    variables: {
+      integrationId: string;
+      id: string;
+    },
+    callback
+  ) => {
     retweetMutation({ variables })
       .then(() => {
         callback();
@@ -47,7 +78,13 @@ const TwitterMessageContainer = (props: Props) => {
       });
   };
 
-  const tweet = (variables, callback) => {
+  const tweet = (
+    variables: {
+      integrationId: string;
+      text: string;
+    },
+    callback
+  ) => {
     tweetMutation({ variables })
       .then(() => {
         callback();
@@ -58,7 +95,7 @@ const TwitterMessageContainer = (props: Props) => {
       });
   };
 
-  const favoriteTweet = variables => {
+  const favoriteTweet = (variables: { integrationId: string; id: string }) => {
     favoriteTweetMutation({ variables }).catch(e => {
       Alert.error(e.message);
     });

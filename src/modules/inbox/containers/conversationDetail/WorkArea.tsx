@@ -11,6 +11,17 @@ import { IConversation, IMessage } from "../../types";
 let limit = 10;
 let skip;
 
+export interface IAddMessage {
+  conversationId: string;
+  content: string;
+  mentionedUserIds?: string[];
+  internal?: boolean;
+  attachments?: any;
+  tweetReplyToId?: string;
+  tweetReplyToScreenName?: string;
+  commentReplyToId?: string;
+}
+
 type Props = {
   currentUser: IUser;
   messagesQuery: any;
@@ -19,7 +30,7 @@ type Props = {
   currentId: string;
   addMessageMutation: (
     doc: {
-      variables: IMessage;
+      variables: IAddMessage;
       optimisticResponse: any;
       update: any;
     }

@@ -22,21 +22,13 @@ import {
 import { IUser } from "../../../../auth/types";
 import { IIntegration } from "../../../../settings/integrations/types";
 import { IResponseTemplate } from "../../../../settings/responseTemplates/types";
+import { IAddMessage } from "../../../containers/conversationDetail/WorkArea";
 import { IConversation } from "../../../types";
 import Editor from "./Editor";
 
 type Props = {
   conversation: IConversation;
-  sendMessage: (
-    message: {
-      conversationId: string;
-      content: string;
-      internal: boolean;
-      attachments: any;
-      mentionedUserIds: string[];
-    },
-    callback: (error: Error) => void
-  ) => void;
+  sendMessage: (message: IAddMessage, callback: (error: Error) => void) => void;
   setAttachmentPreview?: (any) => void;
   responseTemplates: IResponseTemplate[];
   teamMembers: IUser[];

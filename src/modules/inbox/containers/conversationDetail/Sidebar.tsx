@@ -53,7 +53,9 @@ class Sidebar extends React.Component<Props, State> {
     }
   }
 
-  getCustomerDetail(customerId) {
+  getCustomerDetail(customerId?: string) {
+    if (!customerId) return null;
+
     const sectionParams = getConfig();
 
     this.setState({ loading: true });
@@ -72,9 +74,11 @@ class Sidebar extends React.Component<Props, State> {
       .catch(error => {
         console.log(error.message); // eslint-disable-line
       });
+
+    return;
   }
 
-  toggleSection({ name, isOpen }) {
+  toggleSection({ name, isOpen }: { name: string; isOpen: boolean }) {
     const customerId = this.props.conversation.customerId;
     const config = getConfig();
 

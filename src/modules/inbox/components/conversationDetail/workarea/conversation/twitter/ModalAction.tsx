@@ -8,6 +8,7 @@ import { colors } from "modules/common/styles";
 import * as React from "react";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
+import { IAddMessage } from "../../../../../containers/conversationDetail/WorkArea";
 import { IMessage } from "../../../../../types";
 
 const Footer = styled.div`
@@ -24,15 +25,7 @@ const Char = styledTS<{ count?: number }>(styled.b)`
 `;
 
 type Props = {
-  replyTweet?: (
-    data: {
-      conversationId: string;
-      content: string;
-      tweetReplyToId: string;
-      tweetReplyToScreenName: string;
-    },
-    callback: () => void
-  ) => void;
+  replyTweet?: (data: IAddMessage, callback: () => void) => void;
   tweet?: (
     data: {
       integrationId: string;
