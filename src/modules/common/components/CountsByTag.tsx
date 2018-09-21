@@ -5,9 +5,10 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
+import { ITag } from '../../tags/types';
 
 interface IProps extends IRouterProps {
-  tags: any[];
+  tags: ITag[];
   counts: any;
   manageUrl: string;
   loading: boolean;

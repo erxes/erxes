@@ -27,7 +27,11 @@ const IconWrapper = styled.div`
 `;
 
 type Props = {
-  options: any;
+  options?: {
+    okLabel?: string;
+    cancelLabel?: string;
+    enableEscape?: boolean;
+  };
   confirmation?: string;
   proceed: (value: string) => void;
   dismiss: () => void;
@@ -66,7 +70,7 @@ class ConfirmDialog extends React.Component<Props, State> {
       okLabel = 'Yes, I am',
       cancelLabel = 'No, Cancel',
       enableEscape = true
-    } = this.props.options;
+    } = this.props.options || {};
 
     return (
       <Modal

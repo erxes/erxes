@@ -2,6 +2,7 @@ import { EmptyState, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
+import { Fragment } from 'react';
 import Select from 'react-select-plus';
 
 type Props = {
@@ -71,11 +72,16 @@ class TargetMergeModal extends React.Component<Props, State> {
         title={__('Merge')}
         trigger={<a>{__('Merge')}</a>}
         size="lg"
-      >
-        {this.renderSelect()}
-        <br />
-        {this.renderMerger()}
-      </ModalTrigger>
+        content={() => {
+          return (
+            <Fragment>
+              {this.renderSelect()}
+              <br />
+              {this.renderMerger()}
+            </Fragment>
+          )
+        }}
+      />
     );
   }
 }

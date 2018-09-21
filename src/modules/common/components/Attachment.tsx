@@ -1,6 +1,7 @@
 import { Icon, ImageWithPreview } from "modules/common/components";
 import React, { Component, Fragment } from "react";
 import styled from "styled-components";
+import { IAttachment } from "../types";
 
 const sizing = 30;
 
@@ -80,7 +81,7 @@ const FileWrapper = styled.div`
 `;
 
 type Props = {
-  attachment: any;
+  attachment: IAttachment;
   scrollBottom?: () => void;
 };
 

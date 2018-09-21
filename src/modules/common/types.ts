@@ -3,3 +3,9 @@ export interface IRouterProps {
     location: any;
     match: any;
 }
+
+export interface IAttachment {
+    name: string;
+    type: string;
+    url: string;
+}

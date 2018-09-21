@@ -4,10 +4,8 @@ import { Modal } from 'react-bootstrap';
 
 type Props = {
   title: string;
-  trigger: any;
-  children?: React.ReactNode;
-  content?: ({ closeModal } : { closeModal: () => void }) => void;
-  contentProps?: any;
+  trigger: React.ReactNode;
+  content: ({ closeModal } : { closeModal: () => void }) => void;
   size?: string;
   ignoreTrans?: boolean;
   dialogClassName?: string;
@@ -42,12 +40,11 @@ class ModalTrigger extends Component<Props, State> {
       size,
       ignoreTrans,
       dialogClassName,
-      children,
       content,
     } = this.props;
 
     // add onclick event to the trigger component
-    const triggerComponent = React.cloneElement(trigger, {
+    const triggerComponent = React.cloneElement(trigger as React.ReactElement<any>, {
       onClick: this.openModal
     });
 
@@ -65,7 +62,7 @@ class ModalTrigger extends Component<Props, State> {
             <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {content ? content({ closeModal: this.closeModal }) : children }
+            {content({ closeModal: this.closeModal })}
           </Modal.Body>
         </Modal>
       </Fragment>

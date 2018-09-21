@@ -3,6 +3,9 @@ import { colors } from 'modules/common/styles';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { ICustomer } from '../../customers/types';
+import { IConversationFacebookData, ITwitterData } from '../../inbox/types';
+import { IIntegration } from '../../settings/integrations/types';
 
 const RoundedBackground = styledTS<{ type: string }>(styled.span)`
   width: 20px;
@@ -31,10 +34,10 @@ const RoundedBackground = styledTS<{ type: string }>(styled.span)`
 `;
 
 type Props = {
-  customer: any;
-  integration: any;
-  facebookData?: any;
-  twitterData?: any;
+  customer: ICustomer;
+  integration: IIntegration;
+  facebookData?: IConversationFacebookData;
+  twitterData?: ITwitterData;
 };
 
 class IntegrationIcon extends Component<Props> {
