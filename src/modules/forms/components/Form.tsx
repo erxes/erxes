@@ -76,13 +76,9 @@ class Form extends Component<Props, State> {
     this.renderSaveButton = this.renderSaveButton.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
 
-    const integration = props.integration;
+    const integration = props.integration || {} as IFormIntegration;
 
-    if (!integration) {
-      return;
-    }
-
-    const formData = integration.formData || {};
+    const formData = integration.formData || {} as IFormData;
     const form = integration.form || {};
     const callout = form.callout || {};
     const fields = props.fields;

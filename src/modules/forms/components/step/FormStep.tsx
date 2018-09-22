@@ -101,11 +101,11 @@ class FormStep extends Component<Props, State> {
     attributeName: string,
     value: string | boolean | string[]
   ) {
-    const { editingField, fields = [] } = this.state;
+    const { fields = [] } = this.state;
 
-    if (editingField) {
-      editingField[attributeName] = value;
-    }
+    const editingField = this.state.editingField || {} as IField;
+
+    editingField[attributeName] = value;
 
     this.setState({ editingField });
 
@@ -115,7 +115,7 @@ class FormStep extends Component<Props, State> {
   renderButtons() {
     const { editingField } = this.state;
 
-    if (editingField) {
+    if (editingField && editingField._id) {
       const _id = editingField._id;
 
       // reset editing field state
@@ -166,11 +166,7 @@ class FormStep extends Component<Props, State> {
   }
 
   footerActions() {
-    const { editingField } = this.state;
-
-    if (!editingField) {
-      return null;
-    }
+    const editingField = this.state.editingField || {} as IField;
 
     return (
       <ActionBar
@@ -194,11 +190,8 @@ class FormStep extends Component<Props, State> {
   }
 
   renderOptionsTextArea() {
-    const { editingField, chosenFieldType = '' } = this.state;
-
-    if (!editingField) {
-      return null;
-    }
+    const { chosenFieldType = '' } = this.state;
+    const editingField = this.state.editingField || {} as IField;
 
     if (
       !["select", "check", "radio"].includes(
@@ -225,11 +218,7 @@ class FormStep extends Component<Props, State> {
   }
 
   renderOptions() {
-    const { editingField } = this.state;
-
-    if (!editingField) {
-      return null;
-    }
+    const editingField = this.state.editingField || {} as IField;
 
     return (
       <Fragment>
