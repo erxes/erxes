@@ -1,16 +1,16 @@
-import { UserCommonInfos } from 'modules/auth/components';
+import { UserCommonInfos } from "modules/auth/components";
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from 'modules/common/components';
-import { ColumnTitle } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import Select from 'react-select-plus';
-import { IChannel } from '../../channels/types';
-import { Form as CommonForm } from '../../common/components';
-import { ICommonFormProps } from '../../common/types';
+} from "modules/common/components";
+import { ColumnTitle } from "modules/common/styles/main";
+import { __ } from "modules/common/utils";
+import * as React from "react";
+import Select from "react-select-plus";
+import { IChannel } from "../../channels/types";
+import { Form as CommonForm } from "../../common/components";
+import { ICommonFormProps } from "../../common/types";
 
 type Props = {
   channels: IChannel[];
@@ -28,9 +28,11 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     this.onAvatarUpload = this.onAvatarUpload.bind(this);
     this.generateChannelsParams = this.generateChannelsParams.bind(this);
     this.collectValues = this.collectValues.bind(this);
+    this.renderContent = this.renderContent.bind(this);
+    this.generateDoc = this.generateDoc.bind(this);
 
     const user = props.object || { details: {} };
-    const defaultAvatar = '/images/avatar-colored.svg';
+    const defaultAvatar = "/images/avatar-colored.svg";
 
     this.state = {
       avatar: user.details.avatar || defaultAvatar,
@@ -63,7 +65,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         <br />
 
         <Select
-          placeholder={__('Choose channels')}
+          placeholder={__("Choose channels")}
           value={self.state.selectedChannels}
           options={self.generateChannelsParams(channels)}
           onChange={items => {
@@ -80,29 +82,31 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
   }
 
   generateDoc() {
-     return {
-      username: this.getInputElementValue('username'),
-      email: this.getInputElementValue('email'),
-      role: this.getInputElementValue('role'),
+    const doc = {
+      username: this.getInputElementValue("username"),
+      email: this.getInputElementValue("email"),
+      role: this.getInputElementValue("role"),
       details: {
         avatar: this.state.avatar,
-        position: this.getInputElementValue('position'),
-        fullName: this.getInputElementValue('fullName'),
-        location: this.getInputElementValue('user-location'),
-        description: this.getInputElementValue('description'),
+        position: this.getInputElementValue("position"),
+        fullName: this.getInputElementValue("fullName"),
+        location: this.getInputElementValue("user-location"),
+        description: this.getInputElementValue("description")
       },
       channelIds: this.collectValues(this.state.selectedChannels),
-      password: this.getInputElementValue('password'),
-      passwordConfirmation: this.getInputElementValue('password-confirmation'),
+      password: this.getInputElementValue("password"),
+      passwordConfirmation: this.getInputElementValue("password-confirmation"),
       links: {
-        linkedIn: this.getInputElementValue('linkedin'),
-        twitter: this.getInputElementValue('twitter'),
-        facebook: this.getInputElementValue('facebook'),
-        youtube: this.getInputElementValue('youtube'),
-        github: this.getInputElementValue('github'),
-        website: this.getInputElementValue('website')
+        linkedIn: this.getInputElementValue("linkedin"),
+        twitter: this.getInputElementValue("twitter"),
+        facebook: this.getInputElementValue("facebook"),
+        youtube: this.getInputElementValue("youtube"),
+        github: this.getInputElementValue("github"),
+        website: this.getInputElementValue("website")
       }
-     }
+    };
+
+    return { doc };
   }
 
   renderContent() {
@@ -112,7 +116,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     return (
       <div>
         <UserCommonInfos user={user} onAvatarUpload={this.onAvatarUpload} />
-        <ColumnTitle>{__('Other')}</ColumnTitle>
+        <ColumnTitle>{__("Other")}</ColumnTitle>
         <FormGroup>
           <ControlLabel>Role</ControlLabel>
 
@@ -121,8 +125,8 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
             defaultValue={user.role}
             id="role"
           >
-            <option value="admin">{__('Admin')}</option>
-            <option value="contributor">{__('Contributor')}</option>
+            <option value="admin">{__("Admin")}</option>
+            <option value="contributor">{__("Contributor")}</option>
           </FormControl>
         </FormGroup>
 
@@ -150,7 +154,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
       />
-    )
+    );
   }
 }
 
