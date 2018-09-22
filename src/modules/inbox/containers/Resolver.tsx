@@ -9,9 +9,8 @@ import { IConversation } from "../types";
 import { refetchSidebarConversationsOptions } from "../utils";
 
 type Props = {
-  // TODO: replace any
   changeStatusMutation: (
-    doc: { variables: { _ids: any[]; status: boolean } }
+    doc: { variables: { _ids: string[]; status: boolean } }
   ) => Promise<any>;
 
   conversations: IConversation[];

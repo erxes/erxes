@@ -21,6 +21,7 @@ import * as React from "react";
 import { OverlayTrigger, Popover } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import strip from "strip";
+import { IAttachment } from "../../../../common/types";
 import { IBrand } from "../../../../settings/brands/types";
 import { IResponseTemplate } from "../../../../settings/responseTemplates/types";
 import { ISaveResponseTemplate } from "../../../containers/conversationDetail/ResponseTemplate";
@@ -35,8 +36,7 @@ type Props = {
     callback: (error?: Error) => void
   ) => void;
 
-  // TODO: use IAttachment
-  attachments?: any;
+  attachments?: IAttachment[];
   brands: IBrand[];
   content?: string;
 };

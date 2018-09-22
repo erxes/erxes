@@ -5,10 +5,7 @@ import { IConversation } from "../../types";
 type Props = {
   conversation: IConversation;
   currentConversationId: string;
-
-  // TODO: replace any
-  toggleCheckbox: any;
-
+  toggleCheckbox: (conversation: IConversation, checked: boolean) => void;
   onClick: (conversation: IConversation) => void;
   selectedIds?: string[];
 };

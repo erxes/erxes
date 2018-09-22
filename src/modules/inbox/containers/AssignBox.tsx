@@ -14,8 +14,9 @@ type Props = {
     doc: { variables: { conversationIds?: string[]; assignedUserId: string } }
   ) => Promise<any>;
 
-  // TODO: replace any
-  conversationsUnassign: (doc: { variables: { _ids: any[] } }) => Promise<any>;
+  conversationsUnassign: (
+    doc: { variables: { _ids: string[] } }
+  ) => Promise<any>;
 };
 
 const AssignBoxContainer = (props: Props) => {
@@ -50,7 +51,7 @@ const AssignBoxContainer = (props: Props) => {
   const clear = (conversationIds: string[]) => {
     conversationsUnassign({
       variables: {
-        _ids: [conversationIds]
+        _ids: conversationIds
       }
     })
       .then(() => {

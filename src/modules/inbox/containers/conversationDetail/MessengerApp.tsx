@@ -4,6 +4,7 @@ import { MessengerApp } from "modules/inbox/components/conversationDetail";
 import { mutations, queries } from "modules/inbox/graphql";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
+import { IMessengerApp } from "../../components/conversationDetail/workarea/MessengerApp";
 import { IConversation } from "../../types";
 
 type Props = {
@@ -21,13 +22,15 @@ const MessengerAppContainer = (props: Props) => {
     return null;
   }
 
-  const onSelect = app => {
+  const onSelect = (app?: IMessengerApp) => {
+    if (!app) return null;
+
     const variables = {
       _id: app._id,
       conversationId: conversation._id
     };
 
-    executeAppMutation({ variables }).then(() => {
+    return executeAppMutation({ variables }).then(() => {
       Alert.success("Success");
     });
   };

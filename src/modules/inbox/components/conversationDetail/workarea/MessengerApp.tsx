@@ -9,10 +9,14 @@ import {
 import * as React from "react";
 import { OverlayTrigger, Popover } from "react-bootstrap";
 
+export interface IMessengerApp {
+  _id: string;
+  name: string;
+}
+
 type Props = {
-  // TODO: add messenger app type
-  messengerApps: any;
-  onSelect: (mesengerAppId: string) => void;
+  messengerApps: IMessengerApp[];
+  onSelect: (mesengerAppId?: IMessengerApp) => void;
 };
 
 class MessengerApp extends React.Component<Props> {
@@ -24,7 +28,7 @@ class MessengerApp extends React.Component<Props> {
     this.onSelect = this.onSelect.bind(this);
   }
 
-  onSelect(mesengerAppId: React.MouseEvent<HTMLElement>) {
+  onSelect(mesengerAppId: string) {
     const messengerApps = this.props.messengerApps;
 
     // find response template using event key
