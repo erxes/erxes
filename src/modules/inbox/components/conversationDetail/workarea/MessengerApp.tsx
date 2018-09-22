@@ -8,11 +8,7 @@ import {
 } from "modules/inbox/styles";
 import * as React from "react";
 import { OverlayTrigger, Popover } from "react-bootstrap";
-
-export interface IMessengerApp {
-  _id: string;
-  name: string;
-}
+import { IMessengerApp } from "../../../../settings/integrations/types";
 
 type Props = {
   messengerApps: IMessengerApp[];

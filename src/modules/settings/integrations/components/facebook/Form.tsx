@@ -9,13 +9,13 @@ import {
 import { ModalFooter } from '../../../../common/styles/main';
 import { __ } from '../../../../common/utils';
 import { IBrand } from '../../../brands/types';
-import { IApps, IPages } from '../../types';
+import { IFacebookApp, IPages } from '../../types';
 
 type Props = {
   save: (params: {name: string, brandId: string, appId: string, pageIds: string[]}) => void;
   onAppSelect: (appId: string) => void;
   brands: IBrand[];
-  apps: IApps[];
+  apps: IFacebookApp[];
   pages: IPages[];
 };
 
