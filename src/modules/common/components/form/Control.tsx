@@ -34,6 +34,15 @@ type Props = {
   rows?: number;
   inline?: boolean;
   className?: string;
+} & Partial<DefaultProps>;
+
+type DefaultProps = Readonly<typeof defaultProps>;
+
+const defaultProps = {
+  componentClass: "input",
+  required: false,
+  defaultChecked: false,
+  disabled: false
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -49,13 +58,7 @@ const renderElement = (Element, attributes, type, child) => {
 };
 
 class FormControl extends React.Component<Props> {
-  // TODO: check default props
-  static defaultProps = {
-    componentClass: "input",
-    required: false,
-    defaultChecked: false,
-    disabled: false
-  };
+  static defaultProps = defaultProps;
 
   render() {
     const props = this.props;

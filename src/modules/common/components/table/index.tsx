@@ -1,5 +1,5 @@
-import * as React from 'react';
-import StyledTable from './styles';
+import * as React from "react";
+import StyledTable from "./styles";
 
 type Props = {
   children: React.ReactNode;
@@ -10,21 +10,25 @@ type Props = {
   responsive?: boolean;
   whiteSpace?: string;
   alignTop?: boolean;
+} & Partial<DefaultProps>;
+
+type DefaultProps = Readonly<typeof defaultProps>;
+
+const defaultProps = {
+  required: false,
+  striped: false,
+  bordered: false,
+  condensed: false,
+  hover: false,
+  responsive: false,
+  alignTop: false
 };
 
 class Table extends React.Component<Props> {
-  static defaultProps = {
-    required: false,
-    striped: false,
-    bordered: false,
-    condensed: false,
-    hover: false,
-    responsive: false,
-    alignTop: false
-  }
+  static defaultProps = defaultProps;
 
   render() {
-    return <StyledTable {...this.props}  />
+    return <StyledTable {...this.props} />;
   }
 }
 
