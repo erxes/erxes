@@ -14,15 +14,19 @@ type Props = {
 };
 
 function Messenger({ activeRoute, supporters, loading }: Props) {
+  const WithSupporters = (Component: any) => {
+    return <Component supporters={supporters} loading={loading} />;
+  };
+
   switch (activeRoute) {
     case "conversationDetail":
-      return <ConversationDetail supporters={supporters} loading={loading} />;
+      return WithSupporters(ConversationDetail);
 
     case "conversationCreate":
-      return <ConversationCreate supporters={supporters} loading={loading} />;
+      return WithSupporters(ConversationCreate);
 
     case "conversationList":
-      return <Home supporters={supporters} />;
+      return WithSupporters(Home);
 
     // get user's contact information
     case "accquireInformation":

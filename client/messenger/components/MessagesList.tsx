@@ -1,5 +1,6 @@
 import * as classNames from "classnames";
 import * as React from "react";
+import * as ReactTransitionGroup from "react-transition-group";
 import { IIntegrationMessengerData, IIntegrationUiOptions } from "../../types";
 import { IMessage } from "../types";
 import { Message } from "./";
@@ -99,9 +100,18 @@ class MessagesList extends React.Component<Props> {
         ref={node => (this.node = node)}
       >
         {this.renderWelcomeMessage(messengerData)}
-        {messages.map(message => (
-          <Message key={message._id} color={color} {...message} />
-        ))}
+        <ReactTransitionGroup.TransitionGroup>
+          {messages.map(message => (
+            <ReactTransitionGroup.CSSTransition
+              key={message._id}
+              timeout={500}
+              classNames="slide-in"
+            >
+              <Message color={color} {...message} />
+            </ReactTransitionGroup.CSSTransition>
+          ))}
+        </ReactTransitionGroup.TransitionGroup>
+
         {this.renderAwayMessage(messengerData)}
       </ul>
     );

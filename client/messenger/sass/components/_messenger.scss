@@ -13,6 +13,21 @@
   width: calc(100% - 36px);
   z-index: $z-index-above + 1;
 
+  > div {
+
+    &.visible {
+      visibility: visible;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    &.hide {
+      visibility: hidden;
+      display: none;
+    }
+  }
+
   @media screen and (max-width: $break-small) {
     border: none !important;
     bottom: 0;

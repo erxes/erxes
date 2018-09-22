@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as ReactTransitionGroup from "react-transition-group";
 import { iconPlus } from "../../icons/Icons";
 import { IUser } from "../../types";
 import { __ } from "../../utils";
@@ -40,15 +41,23 @@ class Home extends React.Component<Props, State> {
     const { supporters, loading } = this.props;
 
     return (
-      <div
-        className="erxes-welcome appear-slide-in"
-        ref={node => {
-          this.node = node;
-        }}
+      <ReactTransitionGroup.CSSTransition
+        in={true}
+        appear={true}
+        timeout={500}
+        classNames="slide-in"
+        unmountOnExit
       >
-        <BrandInfo />
-        <Supporters users={supporters} isExpanded={false} loading={loading} />
-      </div>
+        <div
+          className="erxes-welcome"
+          ref={node => {
+            this.node = node;
+          }}
+        >
+          <BrandInfo />
+          <Supporters users={supporters} isExpanded={false} loading={loading} />
+        </div>
+      </ReactTransitionGroup.CSSTransition>
     );
   }
 
