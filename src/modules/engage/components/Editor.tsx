@@ -21,7 +21,7 @@ const DynamicContent = ({ onEditorStateChange, editorState } : Props) => {
     const contentState = Modifier.insertText(currentContent, selection, value);
 
     // update editor state
-    onEditorStateChange(EditorState.push(editorState, contentState, 'adjust-depth'));
+    onEditorStateChange(EditorState.push(editorState, contentState, 'insert-fragment'));
   };
 
   // render options
