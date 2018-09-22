@@ -13,6 +13,8 @@ type Props = {
   assignMutation: (
     doc: { variables: { conversationIds?: string[]; assignedUserId: string } }
   ) => Promise<any>;
+
+  // TODO: replace any
   conversationsUnassign: (doc: { variables: { _ids: any[] } }) => Promise<any>;
 };
 

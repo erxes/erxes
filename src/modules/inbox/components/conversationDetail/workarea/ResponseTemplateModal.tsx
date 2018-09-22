@@ -27,9 +27,7 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
 
   onSave() {
     const doc = {
-      brandId: (document.getElementById(
-        "template-brand-id"
-      ) as HTMLInputElement).value,
+      brandId: (document.getElementById("template-brand-id") as HTMLInputElement).value,
       name: (document.getElementById("template-name") as HTMLInputElement).value
     };
 

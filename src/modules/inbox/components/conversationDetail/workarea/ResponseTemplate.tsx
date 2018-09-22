@@ -34,6 +34,8 @@ type Props = {
     doc: ISaveResponseTemplate,
     callback: (error?: Error) => void
   ) => void;
+
+  // TODO: use IAttachment
   attachments?: any;
   brands: IBrand[];
   content?: string;

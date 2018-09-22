@@ -10,6 +10,7 @@ import * as React from "react";
 import { OverlayTrigger, Popover } from "react-bootstrap";
 
 type Props = {
+  // TODO: add messenger app type
   messengerApps: any;
   onSelect: (mesengerAppId: string) => void;
 };
