@@ -16,7 +16,7 @@ export interface IMessengerApp {
 
 type Props = {
   messengerApps: IMessengerApp[];
-  onSelect: (mesengerAppId?: IMessengerApp) => void;
+  onSelect: (messengerApp?: IMessengerApp) => void;
 };
 
 class MessengerApp extends React.Component<Props> {
