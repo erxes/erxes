@@ -1,9 +1,9 @@
-import { Table } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import { List, RowActions } from '../../common/components';
-import { ICommonListProps } from '../../common/types';
-import { Form } from '../containers';
+import { Table } from "modules/common/components";
+import { __ } from "modules/common/utils";
+import * as React from "react";
+import { List, RowActions } from "../../common/components";
+import { ICommonListProps } from "../../common/types";
+import { Form } from "../containers";
 
 class ResponseTemplateList extends React.Component<ICommonListProps> {
   constructor(props) {
@@ -15,13 +15,12 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
   renderRows({ objects }) {
     return objects.map((object, index) => (
       <tr key={index}>
+        <td>{object.brand.name}</td>
         <td>{object.name}</td>
         <RowActions
           {...this.props}
           object={object}
-          renderForm={(props) =>
-            <Form {...props} />
-          }
+          renderForm={props => <Form {...props} />}
         />
       </tr>
     ));
@@ -32,9 +31,9 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
       <Table>
         <thead>
           <tr>
-            <th>{__('Brand')}</th>
-            <th>{__('Name')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Brand")}</th>
+            <th>{__("Name")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
@@ -47,14 +46,14 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
       <List
         title="New response template"
         breadcrumb={[
-          { title: __('Settings'), link: '/settings' },
-          { title: __('Response templates') }
+          { title: __("Settings"), link: "/settings" },
+          { title: __("Response templates") }
         ]}
-        renderForm={(props) => <Form {...props} />}
+        renderForm={props => <Form {...props} />}
         renderContent={this.renderContent}
         {...this.props}
       />
-    )
+    );
   }
 }
 
