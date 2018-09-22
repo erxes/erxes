@@ -298,7 +298,11 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
 
 export const toHTML = (state: EditorState) => stateToHTML(state.getCurrentContent());
 
-export const createStateFromHTML = (editorState: EditorState, html: string) => {
+export const createStateFromHTML = (editorState: EditorState, html: string): EditorState => {
+  if (!html) {
+    return editorState;
+  }
+
   const { contentBlocks, entityMap } = Draft.convertFromHTML(html);
   const content = ContentState.createFromBlockArray(contentBlocks, entityMap);
 
