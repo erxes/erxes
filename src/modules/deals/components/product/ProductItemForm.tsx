@@ -14,6 +14,7 @@ import { ItemText } from '../../styles/product';
 import { selectConfigOptions } from '../../utils';
 
 type Props = {
+  // TODO: replace any
   uom: any;
   currencies: any;
   productsData?: any;

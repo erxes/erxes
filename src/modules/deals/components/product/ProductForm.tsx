@@ -15,6 +15,7 @@ type Props = {
 };
 
 type State = {
+  // TODO: replace any with [key: string]: value: string | number
   total: any,
   tax: any,
   discount: any

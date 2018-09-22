@@ -12,6 +12,7 @@ import { IDeal } from '../../types';
 
 type Props = {
   deal?: IDeal;
+  // TODO: replace any
   stages: any;
   stageId?: string;
   onChangeStage?: (stageId: string) => void;
@@ -21,6 +22,8 @@ type State = {
   boardId: string;
   pipelineId: string;
   show: boolean;
+
+  // TODO: replace any
   stages: any;
 };
 

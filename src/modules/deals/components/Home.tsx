@@ -12,9 +12,11 @@ type Props = {
   currentBoard: IBoard;
   boards: IBoard[];
   pipelines?: IPipeline[];
+  loading?: boolean;
+
+  // TODO: replace any
   onDragEnd?: any;
   states?: any;
-  loading?: boolean;
 };
 
 class Home extends React.Component<Props> {

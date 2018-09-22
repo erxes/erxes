@@ -11,7 +11,6 @@ import {
 } from '../../styles/deal';
 
 type Props = {
-  saveDeal: any;
   customerId?: string;
   companyId?: string;
   boardsQuery?: any;
@@ -20,7 +19,12 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
+
+  // TODO: replace any
+  saveDeal: any;
   showSelect?: boolean;
+
+  // TODO: check optional
   closeModal?: () => void;
 };
 

@@ -8,10 +8,12 @@ import { IDeal } from '../../types';
 
 type Props = {
   deal: IDeal;
-  saveDeal?: (doc: IDeal, callback: any, deal: IDeal) => Promise<any>;
   index?: number;
-  removeDeal?: (_id: string, callback: any) => Promise<any>;
   draggable?: boolean;
+
+  // TODO: replace any
+  saveDeal?: (doc: IDeal, callback: any, deal: IDeal) => Promise<any>;
+  removeDeal?: (_id: string, callback: any) => Promise<any>;
 };
 
 class Deal extends React.Component<Props> {

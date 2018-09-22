@@ -8,8 +8,11 @@ import { IBoard, IPipeline } from '../types';
 type Props = {
   currentBoard?: IBoard;
   pipelines: IPipeline[];
+
+  // TODO: replace any
   states: any;
   onDragEnd: any;
+
   loading: boolean;
 };
 

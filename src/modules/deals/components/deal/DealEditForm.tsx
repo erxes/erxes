@@ -12,13 +12,16 @@ import { Sidebar, Top } from './editForm';
 
 type Props = {
   deal: IDeal;
-  saveDeal?: (doc: any, callback: any, deal?: IDeal) => Promise<any>;
-  removeDeal?: (_id: string, callback: any) => Promise<any>;
   users: IUser[];
   dealActivityLog?: any;
   index?: number;
-  closeModal?: () => void;
+  // TODO: replace any
+  saveDeal?: (doc: any, callback: any, deal?: IDeal) => Promise<any>;
+  removeDeal?: (_id: string, callback: any) => Promise<any>;
   move?: (doc: any) => void;
+
+  // TODO: check optional
+  closeModal?: () => void;
 };
 
 type State = {

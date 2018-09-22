@@ -16,6 +16,8 @@ type Props = {
   products: IProduct[];
   productsData: any;
   onChangeField?: (name: string, value: any) => void;
+
+  // TODO: replace any
   removeDeal: any;
   saveProductsData: any;
 };

@@ -10,6 +10,8 @@ import { IProduct } from '../../../settings/productService/types';
 type Props = {
   productsData: any;
   products: IProduct[];
+
+  // TODO: check any
   onChangeProductsData: (productsData: any) => void;
   onChangeProducts: (prs: any) => void;
   saveProductsData: () => void;

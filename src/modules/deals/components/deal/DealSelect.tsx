@@ -15,6 +15,8 @@ type Props = {
   stageId?: string;
   onChangeBoard: (value: string) => any;
   onChangePipeline: (value: string) => any;
+
+  // TODO: replace any
   onChangeStage: (value: string, callback: any) => any;
   callback?: any;
 };

@@ -9,9 +9,12 @@ import { removeDeal as remove, saveDeal as save } from '../utils';
 
 type Props = {
   deals: IDeal[];
+
+  // TODO: replace any
   addMutation: (params: { variables: { doc: any } }) => Promise<any>;
   editMutation: (params: { variables: { doc: any } }) => Promise<any>;
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+
   dealsQuery: any;
 };
 

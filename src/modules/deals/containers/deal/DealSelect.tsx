@@ -9,6 +9,8 @@ type Props = {
   boardsQuery: any;
   pipelinesQuery: any;
   stagesQuery: any;
+
+  // TODO: replace any
   onChangeStage: (stageId: string, callback?: any) => Promise<void>;
   onChangePipeline: (pipelineId: string) => Promise<void>;
   onChangeBoard: (boardId: string) => Promise<void>;

@@ -17,7 +17,10 @@ type Props = {
   index: number;
   stages: IStage[];
   stagesUpdateOrder: any;
+
+  // TODO: check. are we using this ?
   stagesChange: any;
+
   stagesUpdateOrderMutation: (params: { variables: { orders } }) => Promise<any>;
   stagesChangeMutation: (params: {
     variables: { _id: string; pipelineId: string }

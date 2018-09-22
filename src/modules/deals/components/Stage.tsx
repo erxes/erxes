@@ -21,8 +21,11 @@ type Props = {
   deals: IDeal[];
   index?: number;
   length?: number;
+
+  // TODO: replace any
   saveDeal: (doc: IDeal, callback: any, deal: IDeal) => void;
   removeDeal: (_id: string) => void;
+
   stageId: string;
 };
 

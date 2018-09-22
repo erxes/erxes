@@ -11,6 +11,8 @@ type Props = {
   deals: IDeal[];
   customerId?: string;
   companyId?: string;
+
+  // TODO: replace any
   saveDeal: (doc: IDeal, callback: any, deal: IDeal) => void;
   removeDeal: (_id: string, callback: any) => void;
 };

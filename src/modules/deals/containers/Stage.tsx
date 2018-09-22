@@ -16,14 +16,17 @@ type Props = {
   state: any;
   stageId: string;
   deals: IDeal[];
+
+  // TODO: replace any
   addMutation: (params: { variables: { doc: any } }) => Promise<any>;
   editMutation: (params: { variables: { doc: any } }) => Promise<any>;
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  dealsUpdateOrderMutation: (params: { variables: { orders: any } }) => Promise<any>;
+
   dealsChangeMutation: (params: { variables: { _id: string, stageId: string } }) => Promise<any>;
   dealsUpdateOrder: any;
   stageDetailQuery: any;
   dealsQuery: any;
-  dealsUpdateOrderMutation: (params: { variables: { orders: any } }) => Promise<any>;
 };
 
 class StageContainer extends React.Component<Props, any> {
