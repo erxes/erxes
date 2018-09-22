@@ -167,7 +167,7 @@ class CommonChooser extends Component<Props, State> {
         </Columns>
         <ModalFooter>
           <Footer>
-            <ModalTrigger title={`New ${title}`} trigger={addTrigger} size="lg" content={renderForm} />}/>
+            <ModalTrigger title={`New ${title}`} trigger={addTrigger} size="lg" content={renderForm} />
             <div>
               <Button
                 btnStyle="simple"
