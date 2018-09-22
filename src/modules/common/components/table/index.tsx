@@ -10,22 +10,18 @@ type Props = {
   responsive?: boolean;
   whiteSpace?: string;
   alignTop?: boolean;
-} & Partial<DefaultProps>;
-
-type DefaultProps = Readonly<typeof defaultProps>;
-
-const defaultProps = {
-  required: false,
-  striped: false,
-  bordered: false,
-  condensed: false,
-  hover: false,
-  responsive: false,
-  alignTop: false
 };
 
 class Table extends React.Component<Props> {
-  static defaultProps = defaultProps;
+  static defaultProps = {
+    required: false,
+    striped: false,
+    bordered: false,
+    condensed: false,
+    hover: false,
+    responsive: false,
+    alignTop: false
+  };
 
   render() {
     return <StyledTable {...this.props} />;

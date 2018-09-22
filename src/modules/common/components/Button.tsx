@@ -146,21 +146,17 @@ type ButtonProps = {
   icon?: string;
   style?: any;
   id?: string;
-} & Partial<DefaultProps>;
-
-type DefaultProps = Readonly<typeof defaultProps>;
-
-const defaultProps = {
-  btnStyle: "default",
-  size: "medium",
-  block: false,
-  type: "button"
 };
 
 export default class Button extends Component<ButtonProps> {
   static Group = Group;
 
-  static defaultProps = defaultProps;
+  static defaultProps = {
+    btnStyle: "default",
+    size: "medium",
+    block: false,
+    type: "button"
+  };
 
   render() {
     const { size, ...sizeExcluded } = this.props;

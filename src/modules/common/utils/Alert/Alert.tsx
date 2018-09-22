@@ -53,20 +53,16 @@ const AlertItem = styledTS<{ type: string }>(styled.div)`
 type Props = {
   type: string;
   children: React.ReactNode;
-} & Partial<DefaultProps>;
+};
 
 type State = {
   visible: boolean;
 };
 
-type DefaultProps = Readonly<typeof defaultProps>;
-
-const defaultProps = {
-  type: "information"
-};
-
 export default class AlertStyled extends React.Component<Props, State> {
-  static defaultProps = defaultProps;
+  static defaultProps = {
+    type: "information"
+  };
   private timeout?: NodeJS.Timer = undefined;
 
   constructor(props: Props) {

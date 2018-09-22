@@ -10,20 +10,16 @@ type Props = {
   emptyImage?: string;
   size?: string;
   objective?: boolean;
-} & Partial<DefaultProps>;
-
-type DefaultProps = Readonly<typeof defaultProps>;
-
-const defaultProps = {
-  emptyText: "There is no data",
-  emptyIcon: "",
-  emptyImage: "",
-  size: "full",
-  objective: false
 };
 
 class DataWithLoader extends Component<Props> {
-  static defaultProps = defaultProps;
+  static defaultProps = {
+    emptyText: "There is no data",
+    emptyIcon: "",
+    emptyImage: "",
+    size: "full",
+    objective: false
+  };
 
   showData() {
     const {
