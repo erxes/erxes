@@ -6,8 +6,8 @@ import React, { Component } from 'react';
 const { ErxesEditor, toHTML, createStateFromHTML } = CommonEditor;
 
 type Props = {
-  editorState: any;
-  onEditorStateChange: any;
+  editorState: EditorState;
+  onEditorStateChange: (state: EditorState) => void;
 };
 
 const DynamicContent = ({ onEditorStateChange, editorState } : Props) => {
@@ -65,7 +65,7 @@ type EditorProps = {
 };
 
 type State = {
-  editorState: any;
+  editorState: EditorState;
 }
 
 export default class Editor extends Component<EditorProps, State> {
