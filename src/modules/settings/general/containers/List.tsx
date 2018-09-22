@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { __, Alert } from 'modules/common/utils';
@@ -46,7 +47,13 @@ class ListContainer extends React.Component<Props> {
       save
     };
 
-    return <List {...updatedProps} />;
+    return (
+      <AppConsumer>
+        {({ currentLanguage, changeLanguage }) =>
+          <List {...updatedProps} currentLanguage={currentLanguage} changeLanguage={changeLanguage} />
+        }
+      </AppConsumer>
+    );
   }
 }
 

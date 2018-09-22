@@ -48,7 +48,8 @@ interface IState {
 }
 
 interface IStore extends IState {
-  currentUser?: IUser
+  currentUser?: IUser;
+  changeLanguage: (languageCode: string) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -96,6 +97,7 @@ export class AppProvider extends React.Component<{ currentUser?: IUser }, IState
         value={{
           currentUser,
           currentLanguage,
+          changeLanguage: this.changeLanguage,
         }}
       >
         {this.props.children}

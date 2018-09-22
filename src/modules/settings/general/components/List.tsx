@@ -1,7 +1,6 @@
 import { Button, ControlLabel, FormGroup } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ActionBar, Wrapper } from 'modules/layout/components';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
@@ -10,6 +9,8 @@ import { CURRENCIES, LANGUAGES, MEASUREMENTS } from '../constants';
 import { ICurrencies } from '../types';
 
 type Props = {
+  currentLanguage: string;
+  changeLanguage: (language: string) => void;
   save: (name: string, object: any ) => void;
   // TODO: check currencies type
   currencies: ICurrencies;
@@ -20,23 +21,18 @@ type State = {
   currencies: ICurrencies;
   uom: ICurrencies;
   language: string;
-  removeSelected: string;
+  removeSelected: boolean;
 };
 
 class List extends Component<Props, State> {
-  static contextTypes =  {
-    changeLanguage: PropTypes.func,
-    currentLanguage: PropTypes.string,
-  }
-
-  constructor(props: Props, context) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       currencies: props.currencies,
       uom: props.uom,
-      language: context.currentLanguage || 'en',
-      removeSelected: ''
+      language: props.currentLanguage,
+      removeSelected: false
     };
 
     this.onCurrenciesChange = this.onCurrenciesChange.bind(this);
@@ -63,8 +59,7 @@ class List extends Component<Props, State> {
 
   onLanguageChange(language) {
     this.setState({ language });
-    // TODO: check context
-    this.context.changeLanguage(language.value);
+    this.props.changeLanguage(language.value);
   }
 
   render() {
