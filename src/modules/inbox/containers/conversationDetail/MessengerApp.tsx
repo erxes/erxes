@@ -2,9 +2,9 @@ import gql from "graphql-tag";
 import { Alert } from "modules/common/utils";
 import { MessengerApp } from "modules/inbox/components/conversationDetail";
 import { mutations, queries } from "modules/inbox/graphql";
+import { IMessengerApp } from "modules/settings/integrations/types";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
-import { IMessengerApp } from "../../components/conversationDetail/workarea/MessengerApp";
 import { IConversation } from "../../types";
 
 type Props = {

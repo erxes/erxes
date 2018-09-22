@@ -2,9 +2,14 @@ import { IForm } from "modules/forms/types";
 import { IBrand } from "../brands/types";
 import { IChannel } from "../channels/types";
 
-export interface IApps {
+export interface IMessengerApp {
+  _id: string;
+  name: string;
+}
+
+export interface IFacebookApp {
   id: string;
-  name?: string;
+  name: string;
 }
 
 export interface IPages {

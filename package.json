@@ -50,6 +50,7 @@
     "react-apollo": "^2.1.11",
     "react-beautiful-dnd": "^7.1.2",
     "react-bootstrap": "^0.31.3",
+    "react-color": "^2.14.1",
     "react-copy-to-clipboard": "^5.0.1",
     "react-datetime": "^2.11.1",
     "react-dom": "^16.3.2",
