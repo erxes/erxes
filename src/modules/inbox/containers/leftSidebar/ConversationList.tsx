@@ -5,11 +5,13 @@ import { queries, subscriptions } from "modules/inbox/graphql";
 import { generateParams } from "modules/inbox/utils";
 import * as React from "react";
 import { compose, graphql } from "react-apollo";
+import { IConversation } from "../../types";
 
 type Props = {
   history: any;
   conversationsQuery: any;
   currentConversationId: string;
+  toggleRowCheckbox: (conversation: IConversation, checked: boolean) => void;
   totalCount: number;
 };
 

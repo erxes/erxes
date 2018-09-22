@@ -9,7 +9,7 @@ type Props = {
   currentConversationId: string;
   selectedIds?: string[];
   onChangeConversation: (conversation: IConversation) => void;
-  toggleRowCheckbox?: (conversation: IConversation, checked: boolean) => void;
+  toggleRowCheckbox: (conversation: IConversation, checked: boolean) => void;
   loading: boolean;
   totalCount: number;
 };

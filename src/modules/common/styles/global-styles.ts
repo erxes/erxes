@@ -1,7 +1,7 @@
-import { injectGlobal } from 'styled-components';
-import { colors, typography } from './';
+import { injectGlobal } from "styled-components";
+import { colors, typography } from "./";
 
-const style: any = `
+injectGlobal`
   html {
     height: 100%;
   }
@@ -718,6 +718,3 @@ const style: any = `
     background: rgba(215, 215, 215, .4);
   }
 `;
-
-
-injectGlobal(style);
