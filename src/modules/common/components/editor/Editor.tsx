@@ -296,7 +296,7 @@ export class ErxesEditor extends Component<ErxesEditorProps> {
   }
 }
 
-export const toHTML = state => stateToHTML(state.getCurrentContent());
+export const toHTML = (state: EditorState) => stateToHTML(state.getCurrentContent());
 
 export const createStateFromHTML = (editorState: EditorState, html: string) => {
   const { contentBlocks, entityMap } = Draft.convertFromHTML(html);
