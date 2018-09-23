@@ -7,7 +7,7 @@ import {
 import { ModalFooter } from 'modules/common/styles/main';
 import { generateRandomColorCode } from 'modules/common/utils';
 import { ITag, ITagSaveParams } from 'modules/tags/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 
 type Props = {
   tag?: ITag;
@@ -21,7 +21,7 @@ type State = {
   colorCode: string
 }
 
-class Form extends Component<Props, State> {
+class Form extends React.Component<Props, State> {
   constructor(props, context) {
     super(props, context);
 

@@ -8,7 +8,7 @@ import ReactMarkdown from "react-markdown";
 
 type Props = {
   integration: IIntegration;
-  closeModal?: () => void;
+  closeModal: () => void;
 };
 
 type State = {

@@ -1,7 +1,7 @@
 import { FilterableList, Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ITag, ITagTypes } from 'modules/tags/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 
 type Props = {
   type: ITagTypes;
@@ -16,7 +16,7 @@ type Props = {
   tag: (tags: ITag[]) => void
 };
 
-class Tagger extends Component<Props, { tagsForList: any[] }> {
+class Tagger extends React.Component<Props, { tagsForList: any[] }> {
   constructor(props) {
     super(props);
 

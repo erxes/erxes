@@ -16,9 +16,12 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "keyofStringsOnly": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true
+    "strict": true,
+    "skipLibCheck": true
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
     "node_modules",
     "build",

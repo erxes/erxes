@@ -9,7 +9,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { Icon, NameCard, Tip } from 'modules/common/components';
 import moment from 'moment';
-import React, { Fragment } from 'react';
+import * as React from 'react';
 
 type Props = {
   data: any;
@@ -23,7 +23,7 @@ const ActivityItem = (props: Props) => {
       <ActivityIcon color={data.color}>
         <Icon icon={data.icon || ''} />
       </ActivityIcon>
-      <Fragment>
+      <React.Fragment>
         <FlexContent>
           <AvatarWrapper>
             <NameCard.Avatar user={data.by} size={40} />
@@ -36,7 +36,7 @@ const ActivityItem = (props: Props) => {
           </Tip>
         </FlexContent>
         {data.content && <ActivityContent>{data.content}</ActivityContent>}
-      </Fragment>
+      </React.Fragment>
     </ActivityRow>
   );
 };

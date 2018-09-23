@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { ICommonFormProps } from 'modules/settings/common/types';
-import React from 'react';
+import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import { UserForm } from '../components';
