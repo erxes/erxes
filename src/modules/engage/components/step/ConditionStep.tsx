@@ -14,7 +14,7 @@ import { IEngageRule } from '../../types';
 
 type Props = {
   rules: IEngageRule[];
-  changeRules: (name: string, rules: any[]) => void;
+  onChange: (name: 'rules', rules: IEngageRule[]) => void;
 };
 
 type State = {
@@ -56,7 +56,7 @@ class ConditionStep extends Component<Props, State> {
       rules = rules.filter(r => r._id !== rule._id);
 
       this.setState({ rules });
-      this.props.changeRules('rules', rules);
+      this.props.onChange('rules', rules);
     };
 
     const changeProp = (name, value) => {
@@ -71,7 +71,7 @@ class ConditionStep extends Component<Props, State> {
       }
 
       this.setState({ rules });
-      this.props.changeRules('rules', rules);
+      this.props.onChange('rules', rules);
     };
 
     const onChangeValue = e => {

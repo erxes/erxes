@@ -10,7 +10,7 @@ import {
   FlexItemCentered,
   IconContainer
 } from '../styles';
-import { IEngageMessage } from '../types';
+import { IEngageMessage, IEngageStats } from '../types';
 
 type Props = {
   message: IEngageMessage;
@@ -35,7 +35,7 @@ class EmailStatistics extends React.Component<Props> {
   }
 
   render() {
-    const { stats } = this.props.message;
+    const stats = this.props.message.stats || {} as IEngageStats;
 
     const deliveryReports = Object.values(
       this.props.message.deliveryReports || {}

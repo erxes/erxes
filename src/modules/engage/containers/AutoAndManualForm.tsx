@@ -8,6 +8,7 @@ import { compose, graphql } from 'react-apollo';
 import { AutoAndManualForm } from '../components';
 import FormBase from '../components/FormBase';
 import { mutations, queries } from '../graphql';
+import { IEngageMessageDoc, IEngageScheduleDate } from '../types';
 import withFormMutations from './withFormMutations';
 
 type Props = {
@@ -27,9 +28,8 @@ type Props = {
   kind: string;
   brands: IBrand[];
   users: IUser[];
-  scheduleDate: any;
-  save: () => any;
-  changeState: (name: string, value: string) => void;
+  scheduleDate: IEngageScheduleDate;
+  save: (doc: IEngageMessageDoc) => Promise<any>;
 };
 
 const AutoAndManualFormContainer = (props : Props) => {
@@ -40,7 +40,6 @@ const AutoAndManualFormContainer = (props : Props) => {
     segmentsAddQuery,
     emailTemplatesQuery,
     customerCountsQuery,
-    changeState
   } = props;
 
   const customerCounts = customerCountsQuery.customerCounts || {
@@ -88,12 +87,10 @@ const AutoAndManualFormContainer = (props : Props) => {
     templates: emailTemplatesQuery.emailTemplates || [],
     customerCounts: customerCounts.bySegment || {},
     count,
-    changeState,
   };
 
   return (
     <FormBase
-      save={props.save}
       kind={props.kind}
       content={(props) =>
         <AutoAndManualForm {...updatedProps} {...props} />

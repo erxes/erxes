@@ -6,7 +6,7 @@ import { queries } from '../graphql';
 
 type Props = {
   userDetailQuery: any;
-  fromUser: string;
+  fromUserId: string;
 };
 
 const MessengerPreviewContainer = (props : Props) => {
@@ -28,9 +28,9 @@ const MessengerPreviewContainer = (props : Props) => {
 export default compose(
   graphql(gql(queries.userDetail), {
     name: 'userDetailQuery',
-    options: ({ fromUser } : { fromUser: string }) => ({
+    options: ({ fromUserId } : { fromUserId: string }) => ({
       variables: {
-        _id: fromUser
+        _id: fromUserId
       }
     })
   })

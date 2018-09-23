@@ -2,7 +2,7 @@ import { FormControl, Icon } from 'modules/common/components';
 import { FlexItem } from 'modules/common/components/step/styles';
 import { colors, dimensions } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import { ISegment, ISegmentCondition, ISegmentField } from 'modules/segments/types';
+import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -32,28 +32,19 @@ const Show = styledTS<{ show: boolean }>(styled.div)`
   display: ${props => (props.show ? 'block' : 'none')};
 `;
 
-type Doc = {
-  name: string; 
-  description: string; 
-  subOf: string;  
-  color: string; 
-  connector: string;  
-  conditions: ISegmentCondition[];
-}
-
 type Props = {
-  changeSegment: (name: string, value: string) => void;
+  onChange: (name: 'segmentId', value: string) => void;
   segments: ISegment[];
   headSegments: ISegment[];
   segmentFields: ISegmentField[];
-  segmentAdd: (params: { doc: Doc}) => void;
+  segmentAdd: (params: { doc: ISegmentDoc }) => void;
   counts: any;
-  count: (segment: Doc) => void;
-  segment: string;
+  count: (segment: ISegmentDoc) => void;
+  segmentId: string;
 };
 
 type State = {
-  segment: string;
+  segmentId: string;
   createSegment: boolean;
 }
 
@@ -62,7 +53,7 @@ class SegmentStep extends Component<Props, State> {
     super(props);
 
     this.state = {
-      segment: props.segment || '',
+      segmentId: props.segmentId || '',
       createSegment: false
     };
 
@@ -78,9 +69,9 @@ class SegmentStep extends Component<Props, State> {
     }
   }
 
-  changeSegment(segment) {
-    this.setState({ segment });
-    this.props.changeSegment('segment', segment);
+  changeSegment(segmentId) {
+    this.setState({ segmentId });
+    this.props.onChange('segmentId', segmentId);
   }
 
   renderSegments(show) {
@@ -91,7 +82,7 @@ class SegmentStep extends Component<Props, State> {
             segments={this.props.segments}
             changeSegments={this.changeSegment}
             counts={this.props.counts}
-            defaultValue={this.state.segment}
+            defaultValue={this.state.segmentId}
           />
         </SegmentContainer>
       );
@@ -145,7 +136,7 @@ class SegmentStep extends Component<Props, State> {
           <CustomerCounts>
             <Icon icon="users" size={50} />
             <p>
-              {this.props.counts[this.state.segment] || 0} {__('customers')}
+              {this.props.counts[this.state.segmentId] || 0} {__('customers')}
             </p>
           </CustomerCounts>
         </FlexItem>

@@ -11,7 +11,7 @@ import {
   ConditionWrapper,
   SegmentTitle
 } from 'modules/segments/components/styles';
-import { ISegment, ISegmentCondition, ISegmentField } from 'modules/segments/types';
+import { ISegment, ISegmentCondition, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 
@@ -19,20 +19,11 @@ const SegmentWrapper = styled.div`
   padding: 20px;
 `;
 
-type Doc = {
-  name: string; 
-  description: string; 
-  subOf: string;  
-  color: string; 
-  connector: string;  
-  conditions: ISegmentCondition[];
-}
-
 type Props = {
   fields: ISegmentField[];
-  create: (params: { doc: Doc}) => void;
+  create: (params: { doc: ISegmentDoc }) => void;
   headSegments: ISegment[];
-  count: (segment: Doc) => void;
+  count: (segment: ISegmentDoc) => void;
   createSegment: (value: boolean) => void;
 };
 
@@ -92,6 +83,7 @@ class SegmentsForm extends Component<Props, State> {
       conditions: this.state.conditions,
       connector: this.state.connector
     };
+
     this.props.count(segment);
   }
 

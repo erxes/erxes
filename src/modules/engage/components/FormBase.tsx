@@ -1,79 +1,86 @@
 import { __, Alert } from 'modules/common/utils';
 import React, { Component, Fragment } from 'react';
+import { IEngageMessageDoc } from '../types';
 
 type Props = {
-  save: (params: { isLive: boolean, isDraft: boolean, doc: any }) => void;
-  kind?: string;
+  kind: string;
   content: (params: {
-    renderTitle: () => void;
-    changeState: (name: string, value: string) => void;
-    validateAndSaveForm: (type: string, doc: any) => void;
-   }) => any;
+    renderTitle: () => React.ReactNode;
+    validateDoc: (type: string, doc: IEngageMessageDoc) => { status: string, doc?: IEngageMessageDoc };
+  }) => any;
 };
 
 class FormBase extends Component<Props> {
   constructor(props) {
     super(props);
 
-    this.changeState = this.changeState.bind(this);
+    this.validateDoc = this.validateDoc.bind(this);
   }
 
-  validateAndSaveForm(type, doc) {
+  sendError(message: string): { status: string } {
+    Alert.error(message);
+
+    return { status: 'error' };
+  }
+
+  validateDoc(type, doc): { status: string, doc?: IEngageMessageDoc } {
     if (!doc.title) {
-      return Alert.error(__('Write title'));
+      return this.sendError(__('Write title'));
     }
 
     if (!doc.fromUserId) {
-      return Alert.error(__('Choose from who'));
+      return this.sendError(__('Choose from who'));
     }
 
     if (doc.messenger && !doc.messenger.brandId) {
-      return Alert.error(__('Choose brand'));
+      return this.sendError(__('Choose brand'));
     }
 
     if (doc.messenger && !doc.messenger.sentAs) {
-      return Alert.error(__('Choose from sent as'));
+      return this.sendError(__('Choose from sent as'));
     }
 
     if (doc.scheduleDate) {
       const { time, type, day, month } = doc.scheduleDate;
 
       if (!type && time) {
-        return Alert.error(__('Choose schedule type'));
+        return this.sendError(__('Choose schedule type'));
       }
 
       if (type && (!time || time.length === 0)) {
-        return Alert.error(__('Choose schedule time'));
+        return this.sendError(__('Choose schedule time'));
       }
 
       if ((type === 'year' || type === 'month') && !day) {
-        return Alert.error(__('Choose schedule day'));
+        return this.sendError(__('Choose schedule day'));
       }
 
       if (type === 'year' && !month) {
-        return Alert.error(__('Choose schedule month'));
+        return this.sendError(__('Choose schedule month'));
       }
     }
 
     if (type === 'live') {
-      return this.props.save({ isLive: true, isDraft: false, ...doc });
+      return {
+        status: 'ok',
+        doc: { isLive: true, isDraft: false, ...doc },
+      }
     }
 
     if (type === 'draft ') {
-      return this.props.save({ isLive: false, isDraft: true, ...doc });
+      return {
+        status: 'ok',
+        doc: { isLive: false, isDraft: true, ...doc },
+      }
     }
 
-    this.props.save(doc);
-  }
-
-  changeState(key: string, value: string) {
-    this.setState({ [key]: value });
+    return { status: 'ok', doc };
   }
 
   renderTitle() {
     const { kind } = this.props;
 
-    let title = __('Engage');
+    let title = __('Show statistics');
 
     if (kind === 'auto') {
       title = __('Auto message');
@@ -95,8 +102,7 @@ class FormBase extends Component<Props> {
       <Fragment>
         {this.props.content({
           renderTitle: () => this.renderTitle(),
-          changeState: this.changeState,
-          validateAndSaveForm: this.validateAndSaveForm
+          validateDoc: this.validateDoc
         })}
       </Fragment>
     )

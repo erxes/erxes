@@ -1,4 +1,5 @@
-import Draft, { ContentState, EditorState, RichUtils } from "draft-js";
+import * as Draft from "draft-js";
+import { ContentState, EditorState, RichUtils } from "draft-js";
 import { stateToHTML } from "draft-js-export-html";
 import Editor from "draft-js-plugins-editor";
 import React, { Component } from "react";
@@ -304,6 +305,11 @@ export const createStateFromHTML = (editorState: EditorState, html: string): Edi
   }
 
   const { contentBlocks, entityMap } = Draft.convertFromHTML(html);
+
+  if (!contentBlocks) {
+    return editorState;
+  }
+
   const content = ContentState.createFromBlockArray(contentBlocks, entityMap);
 
   // TODO: Check insert-fragment

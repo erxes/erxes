@@ -3,37 +3,49 @@ import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React, { Component } from 'react';
 import { EmailForm, MessengerForm } from '../';
+import { IEngageEmail, IEngageMessenger, IEngageScheduleDate } from '../../types';
 
 type Props = {
   brands: IBrand[];
-  changeState: (name: string, value: string) => void;
+  onChange: (name: 'messenger' | 'email' | 'content' | 'scheduleDate' | 'fromUserId', value: IEngageEmail | IEngageMessenger | IEngageScheduleDate | string) => void;
   users: IUser[];
   method: string;
   templates: IEmailTemplate[];
-  defaultValue: any;
   kind: string;
+  messenger?: IEngageMessenger;
+  email?: IEngageEmail;
+  fromUserId: string;
+  content: string;
+  scheduleDate: IEngageScheduleDate;
 };
 
 class MessageStep extends Component<Props> {
   render() {
     const {
       brands,
-      changeState,
+      onChange,
       users,
       method,
       templates,
-      defaultValue,
-      kind
+      kind,
+      messenger,
+      email,
+      fromUserId,
+      content,
+      scheduleDate,
     } = this.props;
 
     if (method === 'email') {
       return (
         <EmailForm
-          changeEmail={changeState}
-          defaultValue={defaultValue}
+          onChange={onChange}
           users={users}
           templates={templates}
           kind={kind}
+          email={email || {} as IEngageEmail}
+          fromUserId={fromUserId}
+          content={content}
+          scheduleDate={scheduleDate}
         />
       );
     }
@@ -41,11 +53,14 @@ class MessageStep extends Component<Props> {
     return (
       <MessengerForm
         brands={brands}
-        changeMessenger={changeState}
-        defaultValue={defaultValue}
+        onChange={onChange}
         users={users}
         hasKind={true}
         kind={kind}
+        messenger={messenger || {} as IEngageMessenger}
+        fromUserId={fromUserId}
+        content={content}
+        scheduleDate={scheduleDate}
       />
     );
   }

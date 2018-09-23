@@ -13,7 +13,7 @@ import { MESSAGE_KINDS } from 'modules/engage/constants';
 import moment from 'moment';
 import * as React from 'react';
 import { EngageTitle, HelperText } from '../styles';
-import { IEngageMessage } from '../types';
+import { IEngageMessage, IEngageMessenger } from '../types';
 
 type Props = {
   message: IEngageMessage;
@@ -105,7 +105,7 @@ class Row extends React.Component<Props> {
       );
     }
 
-    const messenger = message.messenger || { rules: [] };
+    const messenger = message.messenger || {} as IEngageMessenger;
     const rules = messenger.rules || [];
 
     return rules.map(rule => (

@@ -21,7 +21,7 @@ const AlertWrapper = styled.div.attrs({
 let alertcount = 0;
 let timeout;
 
-const createAlert = (type: any, text: string) => {
+const createAlert = (type: string, text: string) => {
   alertcount++;
 
   if (timeout) {
@@ -58,21 +58,10 @@ const createAlert = (type: any, text: string) => {
   );
 };
 
-const success = (text: any) => {
-  createAlert('success', text);
-};
-
-const error = (text: any) => {
-  createAlert('error', text.replace('GraphQL error:', ''));
-};
-
-const warning = (text: any) => {
-  createAlert('warning', text);
-};
-
-const info = (text: any) => {
-  createAlert('info', text);
-};
+const success = (text: string) => createAlert('success', text);
+const error = (text: string) => createAlert('error', text.replace('GraphQL error:', ''));
+const warning = (text: string) => createAlert('warning', text);
+const info = (text: string) => createAlert('info', text);
 
 const Alert = {
   success,

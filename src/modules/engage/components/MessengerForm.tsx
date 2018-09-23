@@ -9,22 +9,25 @@ import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
 import React, { Component } from 'react';
 import { IBrand } from '../../settings/brands/types';
 import { MessengerPreview } from '../containers';
-import { IEngageScheduleDate } from '../types';
+import { IEngageMessenger, IEngageScheduleDate } from '../types';
 import Editor from './Editor';
 import Scheduler from './Scheduler';
 
 type Props = {
   brands: IBrand[];
-  changeMessenger: (name: string, value: any) => void;
+  onChange: (name: 'messenger' | 'content' | 'scheduleDate' | 'fromUserId', value: IEngageMessenger | IEngageScheduleDate | string) => void;
   users: IUser[];
   hasKind: boolean;
-  defaultValue: any;
   kind?: string;
+  messenger: IEngageMessenger;
+  fromUserId: string;
+  content: string;
+  scheduleDate: IEngageScheduleDate;
 };
 
 type State = {
-  fromUser: string;
-  messenger: { brandId: string, kind: string, sentAs: string };
+  fromUserId: string;
+  messenger: IEngageMessenger;
   scheduleDate: IEngageScheduleDate;  
 }
 
@@ -32,17 +35,10 @@ class MessengerForm extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const message = props.defaultValue || {};
-    const scheduleDate = message.scheduleDate || {};
-
     this.state = {
-      fromUser: message.fromUser || '',
-      messenger: {
-        brandId: message.messenger.brandId || '',
-        kind: message.messenger.kind || '',
-        sentAs: message.messenger.sentAs || ''
-      },
-      scheduleDate
+      fromUserId: props.fromUserId,
+      messenger: props.messenger,
+      scheduleDate: props.scheduleDate,
     };
   }
 
@@ -52,13 +48,15 @@ class MessengerForm extends Component<Props, State> {
     };
 
     messenger[key] = value;
+
     this.setState({ messenger });
-    this.props.changeMessenger('messenger', messenger);
+
+    this.props.onChange('messenger', messenger);
   }
 
-  changeUser(fromUser) {
-    this.setState({ fromUser });
-    this.props.changeMessenger('fromUser', fromUser);
+  changeFromUserId(fromUserId) {
+    this.setState({ fromUserId });
+    this.props.onChange('fromUserId', fromUserId);
   }
 
   renderKind(hasKind) {
@@ -87,14 +85,16 @@ class MessengerForm extends Component<Props, State> {
   }
 
   renderScheduler() {
-    if (this.props.kind === 'manual') {
+    const { kind, onChange } = this.props;
+
+    if (kind === 'manual') {
       return null;
     }
 
     return (
       <Scheduler
         scheduleDate={this.state.scheduleDate}
-        onChange={this.props.changeMessenger}
+        onChange={onChange}
       />
     );
   }
@@ -106,8 +106,8 @@ class MessengerForm extends Component<Props, State> {
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
             <Editor
-              onChange={this.props.changeMessenger}
-              defaultValue={this.props.defaultValue.message}
+              onChange={this.props.onChange}
+              defaultValue={this.props.content}
             />
           </FormGroup>
 
@@ -115,8 +115,8 @@ class MessengerForm extends Component<Props, State> {
             <ControlLabel>From:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e => this.changeUser((e.target as HTMLInputElement).value)}
-              value={this.state.fromUser}
+              onChange={e => this.changeFromUserId((e.target as HTMLInputElement).value)}
+              value={this.state.fromUserId}
             >
               <option />{' '}
 
@@ -168,8 +168,8 @@ class MessengerForm extends Component<Props, State> {
         <FlexPad overflow="auto">
           <MessengerPreview
             sentAs={this.state.messenger.sentAs}
-            content={this.props.defaultValue.message}
-            fromUser={this.state.fromUser}
+            content={this.props.content}
+            fromUserId={this.state.fromUserId}
           />
         </FlexPad>
       </FlexItem>

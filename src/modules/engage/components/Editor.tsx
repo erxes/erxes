@@ -59,7 +59,7 @@ const DynamicContent = ({ onEditorStateChange, editorState } : Props) => {
 };
 
 type EditorProps = {
-  onChange: (name: string, getContent: string) => void,
+  onChange: (name: 'content', getContent: string) => void,
   defaultValue?: string,
   onShifEnter?: () => void,
 };
@@ -89,7 +89,7 @@ export default class Editor extends Component<EditorProps, State> {
 
   onChange(editorState) {
     this.setState({ editorState });
-    this.props.onChange('message', this.getContent(editorState));
+    this.props.onChange('content', this.getContent(editorState));
   }
 
   render() {

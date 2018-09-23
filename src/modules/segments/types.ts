@@ -12,7 +12,7 @@ export interface ISegmentCondition {
 
 export interface ISegmentDoc {
   name: string;
-  contentType: string;
+  contentType?: string;
   description: string;
   color: string;
   connector: string;
@@ -22,6 +22,7 @@ export interface ISegmentDoc {
 
 export interface ISegment extends ISegmentDoc {
   _id: string;
+  contentType: string;
   getSubSegments: ISegment[];
   getParentSegment: ISegment;
 }

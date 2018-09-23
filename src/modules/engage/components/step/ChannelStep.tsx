@@ -35,7 +35,7 @@ const Box = styledTS<{ selected: boolean }>(BoxRoot.extend)`
 `;
 
 type Props = {
-  changeMethod: (name: string, value: string) => void;
+  onChange: (name: 'method', value: string) => void;
   method: string;
 };
 
@@ -44,7 +44,7 @@ class ChannelStep extends Component<Props> {
     return (
       <Box
         selected={this.props.method === name}
-        onClick={() => this.props.changeMethod('method', name)}
+        onClick={() => this.props.onChange('method', name)}
       >
         <Icon icon={icon} />
         <span>{__(name)}</span>

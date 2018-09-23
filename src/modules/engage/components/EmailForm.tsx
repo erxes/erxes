@@ -11,7 +11,7 @@ import ReactDom from 'react-dom';
 import styled from 'styled-components';
 import { IUser } from '../../auth/types';
 import { IEmailTemplate } from '../../settings/emailTemplates/types';
-import { IEngageScheduleDate } from '../types';
+import { IEngageEmail, IEngageScheduleDate } from '../types';
 import Editor from './Editor';
 import Scheduler from './Scheduler';
 
@@ -33,49 +33,47 @@ const EmailContent = styled.div`
 `;
 
 type Props = {
-  changeEmail: (name: string, value: any) => void;
+  onChange: (name: 'email' | 'content' | 'fromUserId' | 'scheduleDate', value: IEngageEmail | IEngageScheduleDate | string) => void;
   message?: string;
   users: IUser[];
   templates: IEmailTemplate[];
-  defaultValue: any;
   kind: string;
+  email: IEngageEmail;
+  fromUserId: string;
+  content: string;
+  scheduleDate: IEngageScheduleDate;
 };
 
 type State = {
-  fromUser: string;
+  fromUserId: string;
   currentTemplate: string;
-  message: string;
-  email: { subject: string, templateId: string, attachments: any[] };
-  scheduleDate: IEngageScheduleDate;
+  content: string;
+  email: IEngageEmail;
+  scheduleDate?: IEngageScheduleDate;
 }
 
 class EmailForm extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const message = this.props.defaultValue || {};
-    const scheduleDate = message.scheduleDate || {};
-
     this.state = {
-      fromUser: message.fromUser || '',
+      fromUserId: props.fromUserId, 
       currentTemplate: '',
-      message: message.message,
-      email: {
-        subject: message.email.subject || '',
-        templateId: message.email.templateId || '',
-        attachments: message.email.attachments || []
-      },
-      scheduleDate
+      content: props.content,
+      email: props.email,
+      scheduleDate: props.scheduleDate,
     };
   }
 
   componentDidMount() {
-    this.templateChange(this.props.defaultValue.email.templateId);
+    if (this.props.email) {
+      this.templateChange(this.props.email.templateId);
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (
-      this.props.defaultValue.message !== prevProps.defaultValue.message ||
+      this.props.content !== prevProps.content ||
       this.state.currentTemplate !== prevState.currentTemplate
     ) {
       this.renderBuilder();
@@ -83,17 +81,18 @@ class EmailForm extends Component<Props, State> {
   }
 
   changeContent(key, value) {
-    const email = { ...this.state.email };
+    const email = { ...this.state.email } as IEngageEmail;
 
     email[key] = value;
 
     this.setState({ email });
-    this.props.changeEmail('email', email);
+
+    this.props.onChange('email', email);
   }
 
-  changeUser(fromUser) {
-    this.setState({ fromUser });
-    this.props.changeEmail('fromUser', fromUser);
+  changeUser(fromUserId) {
+    this.setState({ fromUserId });
+    this.props.onChange('fromUserId', fromUserId);
   }
 
   templateChange(value) {
@@ -122,7 +121,7 @@ class EmailForm extends Component<Props, State> {
       ReactDom.render(
         <EmailContent
           dangerouslySetInnerHTML={{
-            __html: this.props.defaultValue.message
+            __html: this.props.content || ''
           }}
         />,
         contentContainer[0]
@@ -151,8 +150,8 @@ class EmailForm extends Component<Props, State> {
 
     return (
       <Scheduler
-        scheduleDate={this.state.scheduleDate}
-        onChange={this.props.changeEmail}
+        scheduleDate={this.state.scheduleDate || {} as IEngageScheduleDate}
+        onChange={this.props.onChange}
       />
     );
   }
@@ -166,8 +165,8 @@ class EmailForm extends Component<Props, State> {
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
             <Editor
-              onChange={this.props.changeEmail}
-              defaultValue={this.state.message}
+              onChange={this.props.onChange}
+              defaultValue={this.state.content}
             />
           </FormGroup>
 
@@ -176,7 +175,7 @@ class EmailForm extends Component<Props, State> {
             <FormControl
               componentClass="select"
               onChange={e => this.changeUser((e.target as HTMLInputElement).value)}
-              value={this.state.fromUser}
+              value={this.state.fromUserId}
             >
               <option />{' '}
 
@@ -214,7 +213,7 @@ class EmailForm extends Component<Props, State> {
           <FormGroup>
             <ControlLabel>Attachments: </ControlLabel>
             <Uploader
-              defaultFileList={attachments}
+              defaultFileList={attachments || []}
               onChange={attachments =>
                 this.changeContent('attachments', attachments)
               }

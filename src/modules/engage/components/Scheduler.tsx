@@ -13,7 +13,7 @@ import { IEngageScheduleDate } from '../types';
 
 type Props = {
   scheduleDate: IEngageScheduleDate;
-  onChange: (name: string, value: IEngageScheduleDate) => void;
+  onChange: (name: 'scheduleDate', value: IEngageScheduleDate) => void;
 };
 
 type State = {
@@ -28,13 +28,12 @@ class Scheduler extends Component<Props, State> {
   }
 
   changeSchedule(key, value) {
-    const scheduleDate = {
-      ...this.state.scheduleDate
-    };
+    const scheduleDate = { ...this.state.scheduleDate };
 
     scheduleDate[key] = value;
 
     this.setState({ scheduleDate });
+
     this.props.onChange('scheduleDate', scheduleDate);
   }
 

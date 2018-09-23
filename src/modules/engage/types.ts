@@ -1,4 +1,5 @@
 import { IUser } from "../auth/types";
+import { IAttachment } from "../common/types";
 import { ISegment } from "../segments/types";
 import { IBrand } from "../settings/brands/types";
 import { ITag } from "../tags/types";
@@ -12,14 +13,25 @@ export interface IEngageScheduleDate {
 
 export interface IEngageRule {
     _id: string;
-    kind: string;
+    kind?: string;
     text: string;
     condition: string;
     value: string;
 }
 
 export interface IEngageMessenger {
-    rules: IEngageRule[];
+    brandId: string;
+    kind?: string;
+    sentAs: string;
+    content: string;
+    rules?: IEngageRule[];
+}
+
+export interface IEngageEmail {
+    templateId?: string;
+    subject: string;
+    content: string;
+    attachments?: IAttachment[];
 }
 
 export interface IEngageStats {
@@ -33,28 +45,31 @@ export interface IEngageStats {
     reject: number;
 }
 
-export interface IEngageMessage {
-    _id: string;
-    kind: string;
-    segmentId: string;
-    customerIds: string[];
+export interface IEngageMessageDoc {
+    kind?: string;
+    type?: string;
+    segmentId?: string;
+    customerIds?: string[];
     title: string;
-    fromUserId: string;
+    fromUserId?: string;
     method: string;
-    isDraft: boolean;
-    isLive: boolean;
+    isDraft?: boolean;
+    isLive?: boolean;
+    email?: IEngageEmail;
+    messenger?: IEngageMessenger;
+    scheduleDate?: IEngageScheduleDate;
+}
+
+export interface IEngageMessage extends IEngageMessageDoc {
+    _id: string;
     stopDate: Date;
     createdDate: Date;
-    type: string;
-    messengerReceivedCustomerIds: string[];
-    tagIds: string[];
-    stats: IEngageStats;
+    messengerReceivedCustomerIds?: string[];
+    deliveryReports?: JSON;
+    stats?: IEngageStats;
     brand: IBrand;
-    email: JSON;
-    messenger: IEngageMessenger;
-    deliveryReports: JSON;
-    scheduleDate: IEngageScheduleDate;
     segment: ISegment;
     fromUser: IUser;
+    tagIds: string[];
     getTags: ITag[];
 }
