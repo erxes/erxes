@@ -1,10 +1,17 @@
 import { IUser } from 'modules/auth/types';
-import { Table } from 'modules/common/components';
+import { NameCard, Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
+import styled from 'styled-components';
 import { List, RowActions } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
+
+const UserAvatar = styled.td`
+  &:hover {
+    cursor: pointer;
+  }
+`;
 
 class UserList extends React.Component<ICommonListProps> {
   constructor(props) {
@@ -15,11 +22,16 @@ class UserList extends React.Component<ICommonListProps> {
 
   renderRows({ objects }: { objects: IUser[] }) {
     return objects.map((object, index) => {
-      const details = object.details || {};
 
       return (
         <tr key={index}>
-          <td>{details.fullName}</td>
+          <UserAvatar
+            onClick={() => {
+              this.props.history.push(`team/details/${object._id}`);
+            }}
+          >
+            <NameCard user={object} avatarSize={30} singleLine />
+          </UserAvatar>
           <td>{object.email}</td>
           <td>{object.role}</td>
 

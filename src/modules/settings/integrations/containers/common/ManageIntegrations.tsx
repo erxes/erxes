@@ -7,7 +7,8 @@ import { compose, graphql } from 'react-apollo';
 type Props = {
   current: any;
   allIntegrationsQuery: any;
-  save: (ids: string[]) => Promise<any>; 
+  save: (ids: string[]) => Promise<any>;
+  closeModal: () => void; 
 };
 
 type State = {

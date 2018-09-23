@@ -9,8 +9,8 @@ type QueryResponse = {
   brandsQuery: any;
   brandsCountQuery: any;
 
-  addMutation:(params: {variables: { name: string, description: string }}) => Promise<any>;
-  editMutation: (params: {variables: { name: string, description: string }}) => Promise<any>;
+  addMutation:(params: {variables: { name: string; description: string }}) => Promise<any>;
+  editMutation: (params: {variables: { name: string; description: string }}) => Promise<any>;
   removeMutation: (params: {variables: { _id: string; }}) => Promise<any>;
 };
 

@@ -10,9 +10,9 @@ const routes = () => (
       path="/settings/team/"
       exact
       key="/settings/team/"
-      component={({ location }) => {
+      component={({ history, location }) => {
         const queryParams = queryString.parse(location.search);
-        return <UserList queryParams={queryParams} />;
+        return <UserList queryParams={queryParams} history={history} />;
       }}
     />
 

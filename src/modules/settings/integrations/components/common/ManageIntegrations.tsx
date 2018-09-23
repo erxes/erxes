@@ -20,7 +20,7 @@ type Props = {
   allIntegrations: IIntegration[];
   perPage: number;
   clearState: () => void;
-  closeModal?: () => void;
+  closeModal: () => void;
   renderConfirm?: (
     integration: IIntegration,
     actionTrigger: React.ReactNode,
@@ -64,7 +64,7 @@ class ManageIntegrations extends Component<Props, State> {
     });
 
     this.props.save(ids);
-    this.props.closeModal;
+    this.props.closeModal();
   }
 
   componentWillUnmount() {

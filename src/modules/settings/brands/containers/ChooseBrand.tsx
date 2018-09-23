@@ -9,7 +9,7 @@ import { mutations, queries } from '../graphql';
 
 type Variables = {
   name: string; 
-  brandId: string 
+  brandId: string ;
 };
 
 type Props = {
