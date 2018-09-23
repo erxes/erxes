@@ -37,7 +37,9 @@ class SortableList extends Component<Props> {
   }
 
   renderDragHandler() {
-    if (!this.props.showDragHandler) return null;
+    const { showDragHandler = true } = this.props;
+
+    if (!showDragHandler) return null;
 
     return (
       <DragHandler>
