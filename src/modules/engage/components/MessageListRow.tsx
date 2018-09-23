@@ -17,12 +17,15 @@ import { IEngageMessage, IEngageMessenger } from '../types';
 
 type Props = {
   message: IEngageMessage;
+
+  // TODO: add types
   edit: () => void;
   show: () => void;
   remove: () => void;
   setLive: () => void;
   setLiveManual: () => void;
   setPause: () => void;
+
   isChecked: boolean;
   toggleBulk: (value: IEngageMessage, isChecked: boolean) => void;
 };

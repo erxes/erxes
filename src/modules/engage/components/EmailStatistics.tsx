@@ -14,7 +14,6 @@ import { IEngageMessage, IEngageStats } from '../types';
 
 type Props = {
   message: IEngageMessage;
-  renderTitle?: () => void;
 };
 
 class EmailStatistics extends React.Component<Props> {

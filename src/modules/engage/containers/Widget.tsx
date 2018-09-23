@@ -3,6 +3,7 @@ import { withCurrentUser } from 'modules/auth/containers';
 import { IUser } from 'modules/auth/types';
 import { Alert } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
+import { IEngageMessageDoc } from 'modules/engage/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Widget } from '../components';
@@ -10,29 +11,11 @@ import { MESSAGE_KINDS, MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
 import { mutations, queries } from '../graphql';
 import { crudMutationsOptions } from '../utils';
 
-type Doc = {
-  title: string;
-  customerIds: string[];
-  method: string;
-  email: object | {
-    templateId: string;
-    subject: string;
-    attachments: string[];
-    content: string;
-  }, 
-  messenger: object | {
-    brandId: string;
-    kind: string;
-    sentAs: string;
-    content: string;
-  }
-}
-
 type Props = {
   currentUser: IUser;
   emailTemplatesQuery: any;
   brandsQuery: any;
-  messagesAddMutation: (params: { variables: Doc }) => Promise<any>;
+  messagesAddMutation: (params: { variables: IEngageMessageDoc }) => Promise<any>;
   customers: ICustomer[];
   emptyBulk: () => void;
 };
