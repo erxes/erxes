@@ -1,5 +1,6 @@
 export interface ICommonListProps {
   objects: any;
+  history: any;
   remove: (_id: string) => void;
   save: () => void;
   refetch: () => void;

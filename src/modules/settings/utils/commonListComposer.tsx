@@ -17,6 +17,7 @@ const commonListComposer = options => {
   type Props = {
     totalCountQuery: any;
     listQuery: any;
+    history: any;
     addMutation: ({ variables: any }) => Promise<any>;
     editMutation: ({ variables: any }) => Promise<any>;
     removeMutation: ({ variables: { _id: string } }) => Promise<any>;
@@ -28,7 +29,8 @@ const commonListComposer = options => {
       totalCountQuery,
       addMutation,
       editMutation,
-      removeMutation
+      removeMutation,
+      history
     } = props;
 
     const totalCount = totalCountQuery[`${name}TotalCount`] || 0;
@@ -87,6 +89,7 @@ const commonListComposer = options => {
       totalCount,
       save,
       remove,
+      history,
       loading: listQuery.loading
     };
 
