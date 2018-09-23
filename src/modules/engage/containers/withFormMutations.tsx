@@ -85,7 +85,8 @@ const withSaveAndEdit = Component => {
           brandId: messenger.brandId || '',
           kind: messenger.kind || '',
           content: messenger.content || '',
-          sentAs: messenger.sentAs || ''
+          sentAs: messenger.sentAs || '',
+          rules: messenger.rules || []
         },
         email: {
           templateId: email.templateId || '',

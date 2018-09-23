@@ -2,9 +2,10 @@ import { BreadCrumb, Filter } from 'modules/common/components';
 import { dimensions } from 'modules/common/styles';
 import * as React from 'react';
 import styled from 'styled-components';
+import { IBreadCrumbItem } from '../../common/types';
 
 type Props = {
-  breadcrumb: any;
+  breadcrumb: IBreadCrumbItem[];
   queryParams?: any;
 };
 

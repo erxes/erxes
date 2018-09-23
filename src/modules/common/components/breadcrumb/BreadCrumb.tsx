@@ -1,3 +1,4 @@
+import { IBreadCrumbItem } from 'modules/common/types';
 import { __, setTitle } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -12,12 +13,7 @@ const Items = styled.ol`
   font-size: 14px;
 `;
 
-type BreadCrumbItem = {
-  title: string;
-  link: string;
-}
-
-class BreadCrumb extends React.Component<{ breadcrumbs: BreadCrumbItem[] }> {
+class BreadCrumb extends React.Component<{ breadcrumbs: IBreadCrumbItem[] }> {
   setTabTitle() {
     const { breadcrumbs } = this.props;
     const page = breadcrumbs.pop();
@@ -42,7 +38,7 @@ class BreadCrumb extends React.Component<{ breadcrumbs: BreadCrumbItem[] }> {
     return (
       <Items role="navigation" aria-label="breadcrumbs">
         {this.props.breadcrumbs.map(b => (
-          <BreadCrumbItem to={b.link} active={!b.link} key={b.title}>
+          <BreadCrumbItem to={b.link || ''} active={!b.link} key={b.title}>
             {b.title}
           </BreadCrumbItem>
         ))}

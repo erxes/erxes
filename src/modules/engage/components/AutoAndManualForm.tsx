@@ -10,6 +10,7 @@ import { ISegment, ISegmentDoc } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import * as React from 'react';
+import { IBreadCrumbItem } from '../../common/types';
 import { IEngageEmail, IEngageMessage, IEngageMessageDoc, IEngageMessenger, IEngageScheduleDate } from '../types';
 import { ChannelStep, MessageStep, SegmentStep } from './step';
 
@@ -27,7 +28,7 @@ type Props = {
   kind: string;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (type: string, doc: IEngageMessageDoc) => { status: string, doc?: IEngageMessageDoc };
-  renderTitle: () => React.ReactNode;
+  renderTitle: () => IBreadCrumbItem[];
 };
 
 type State = {
