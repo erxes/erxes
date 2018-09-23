@@ -1,5 +1,5 @@
-import moment from 'moment';
-import React, { Fragment } from 'react';
+import * as moment from 'moment';
+import * as React from 'react';
 
 import { Tip } from 'modules/common/components';
 import { Items, UserCounter } from '..';
@@ -49,7 +49,7 @@ class CommonDeal extends React.Component<Props> {
     const products = (deal.products || []).map(p => p.product);
 
     return (
-      <Fragment>
+      <React.Fragment>
         <SpaceContent>
           <h4>{deal.name}</h4>
           {this.renderDate(deal.closeDate)}
@@ -71,7 +71,7 @@ class CommonDeal extends React.Component<Props> {
           <span>{__('Last updated')}:</span>
           {this.renderDate(deal.modifiedAt, 'lll')}
         </ActionInfo>
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

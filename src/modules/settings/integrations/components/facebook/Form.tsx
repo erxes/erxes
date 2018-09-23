@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { SelectBrand } from '..';
 import {
   Button,
@@ -19,7 +19,7 @@ type Props = {
   pages: IPages[];
 };
 
-class Facebook extends Component<Props> {
+class Facebook extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

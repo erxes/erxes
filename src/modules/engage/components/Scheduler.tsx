@@ -6,8 +6,8 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { SCHEDULE_TYPES } from 'modules/engage/constants';
-import React, { Component, Fragment } from 'react';
-import Datetime from 'react-datetime';
+import * as React from 'react';
+import * as Datetime from 'react-datetime';
 import { DateTimePicker, SelectMonth } from '../styles';
 import { IEngageScheduleDate } from '../types';
 
@@ -20,7 +20,7 @@ type State = {
   scheduleDate: IEngageScheduleDate;
 }
 
-class Scheduler extends Component<Props, State> {
+class Scheduler extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -59,7 +59,7 @@ class Scheduler extends Component<Props, State> {
     }
 
     return (
-      <Fragment>
+      <React.Fragment>
         <ControlLabel>Choose month:</ControlLabel>
         <FormControl
           componentClass="select"
@@ -68,7 +68,7 @@ class Scheduler extends Component<Props, State> {
         >
           <option /> {this.generateOptions(12)}
         </FormControl>
-      </Fragment>
+      </React.Fragment>
     );
   }
 
@@ -80,7 +80,7 @@ class Scheduler extends Component<Props, State> {
     }
 
     return (
-      <Fragment>
+      <React.Fragment>
         <ControlLabel>Choose day:</ControlLabel>
         <FormControl
           componentClass="select"
@@ -89,7 +89,7 @@ class Scheduler extends Component<Props, State> {
         >
           <option /> {this.generateOptions(31)}
         </FormControl>
-      </Fragment>
+      </React.Fragment>
     );
   }
 

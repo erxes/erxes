@@ -2,7 +2,7 @@ import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons } from 'modules/layout/styles';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { KnowledgeForm } from '../../containers';
 import { ITopic } from '../../types';
 import { KnowledgeRow } from './';
@@ -26,7 +26,7 @@ type Props = {
   remove: ( _id: string ) => void;
 };
 
-class KnowledgeList extends Component<Props> {
+class KnowledgeList extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 
@@ -44,7 +44,7 @@ class KnowledgeList extends Component<Props> {
     } = this.props;
 
     return (
-      <Fragment>
+      <React.Fragment>
         {topics.map(topic => (
           <KnowledgeRow
             currentCategoryId={currentCategoryId}
@@ -56,7 +56,7 @@ class KnowledgeList extends Component<Props> {
             save={save}
           />
         ))}
-      </Fragment>
+      </React.Fragment>
     );
   }
 

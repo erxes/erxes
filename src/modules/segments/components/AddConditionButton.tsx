@@ -1,6 +1,6 @@
 import { Button, FilterableList } from 'modules/common/components';
 import { dateUnits, operators, types } from 'modules/customers/constants';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ISegmentCondition } from '../types';
 
@@ -9,7 +9,7 @@ type Props = {
   addCondition: (condition: ISegmentCondition) => void;
 };
 
-class AddConditionButton extends Component<Props> {
+class AddConditionButton extends React.Component<Props> {
   private overlayTrigger;
 
   constructor(props) {

@@ -9,7 +9,7 @@ import {
   ErxesEditor,
   toHTML
 } from 'modules/common/components/editor/Editor';
-import React, { Fragment } from 'react';
+import * as React from 'react';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
 import { IEmailTemplate } from '../types';
@@ -68,7 +68,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     };
 
     return (
-      <Fragment>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -84,7 +84,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <ControlLabel>Content</ControlLabel>
           <ErxesEditor bordered {...props} />
         </FormGroup>
-      </Fragment>
+      </React.Fragment>
     );
   }
 

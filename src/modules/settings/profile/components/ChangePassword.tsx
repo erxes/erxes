@@ -6,14 +6,14 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 
 type Props = {
   save: (save: { currentPassword: string, newPassword: string, confirmation: string }) => void;
   closeModal: () => void;
 };
 
-class ChangePassword extends Component<Props> {
+class ChangePassword extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

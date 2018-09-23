@@ -1,5 +1,5 @@
 import { EmptyState, Spinner } from "modules/common/components";
-import React, { Component } from "react";
+import * as React from 'react';
 
 type Props = {
   data: any;
@@ -12,7 +12,7 @@ type Props = {
   objective?: boolean;
 };
 
-class DataWithLoader extends Component<Props> {
+class DataWithLoader extends React.Component<Props> {
   static defaultProps = {
     emptyText: "There is no data",
     emptyIcon: "",

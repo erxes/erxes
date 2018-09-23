@@ -5,7 +5,7 @@ import {
 } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { IBrand } from 'modules/settings/brands/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import Toggle from 'react-toggle';
 import { SelectBrand } from '../..';
 
@@ -17,7 +17,7 @@ type Props = {
   notifyCustomer?: boolean;
 };
 
-class Options extends Component<Props> {
+class Options extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

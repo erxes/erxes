@@ -1,6 +1,6 @@
 import { Button, Icon } from "modules/common/components";
 import { __ } from "modules/common/utils";
-import React, { Component } from "react";
+import * as React from "react";
 import {
   FullStep,
   ShortStep,
@@ -24,7 +24,7 @@ type Props = {
   message?: any;
 };
 
-class Step extends Component<Props> {
+class Step extends React.Component<Props> {
   renderButton() {
     const { save, next, message } = this.props;
 

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import { mutations as companyMutations } from 'modules/companies/graphql';
-import React from 'react';
+import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ICompany } from '../../companies/types';
 import { CustomerSection } from '../components/common';

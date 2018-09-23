@@ -9,7 +9,7 @@ import {
   RULE_CONDITIONS,
   VISITOR_AUDIENCE_RULES
 } from 'modules/engage/constants';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { IEngageRule } from '../../types';
 
 type Props = {
@@ -21,7 +21,7 @@ type State = {
   rules: IEngageRule[];
 }
 
-class ConditionStep extends Component<Props, State> {
+class ConditionStep extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

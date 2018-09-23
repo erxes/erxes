@@ -1,6 +1,6 @@
 import { IBreadCrumbItem } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { IEngageMessageDoc } from '../types';
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
   }) => any;
 };
 
-class FormBase extends Component<Props> {
+class FormBase extends React.Component<Props> {
   constructor(props) {
     super(props);
 
@@ -96,12 +96,12 @@ class FormBase extends Component<Props> {
   
   render() {
     return (
-      <Fragment>
+      <React.Fragment>
         {this.props.content({
           renderTitle: () => this.renderTitle(),
           validateDoc: this.validateDoc
         })}
-      </Fragment>
+      </React.Fragment>
     )
   }
 }

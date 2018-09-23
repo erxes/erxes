@@ -1,6 +1,6 @@
 import { fadeIn, slideDown } from "modules/common/utils/animations";
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 import styled from "styled-components";
 
 const PreviewWrapper = styled.div`
@@ -58,7 +58,7 @@ type State = {
   visible: boolean;
 };
 
-class ImageWithPreview extends Component<Props, State> {
+class ImageWithPreview extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -102,7 +102,7 @@ class ImageWithPreview extends Component<Props, State> {
   }
 }
 
-class PreviewPortal extends Component<{ children: React.ReactNode }> {
+class PreviewPortal extends React.Component<{ children: React.ReactNode }> {
   private el;
 
   constructor(props) {

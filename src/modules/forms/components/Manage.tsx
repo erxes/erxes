@@ -1,9 +1,9 @@
 import { Button, EmptyState } from "modules/common/components";
 import { ModalFooter } from "modules/common/styles/main";
 import { MarkdownWrapper } from "modules/settings/styles";
-import React, { Component, Fragment } from "react";
+import * as React from 'react';
 import CopyToClipboard from "react-copy-to-clipboard";
-import ReactMarkdown from "react-markdown";
+import * as ReactMarkdown from "react-markdown";
 import { IFormIntegration } from "../types";
 
 type Props = {
@@ -45,7 +45,7 @@ const getInstallCode = (brandCode: string, formCode: string) => {
   `;
 };
 
-class Manage extends Component<Props, State> {
+class Manage extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -68,7 +68,7 @@ class Manage extends Component<Props, State> {
 
   render() {
     return (
-      <Fragment>
+      <React.Fragment>
         <MarkdownWrapper>
           <ReactMarkdown source={this.state.code || ''} />
           {this.state.code ? (
@@ -94,7 +94,7 @@ class Manage extends Component<Props, State> {
             Cancel
           </Button>
         </ModalFooter>
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

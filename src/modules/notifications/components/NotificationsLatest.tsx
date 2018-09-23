@@ -1,6 +1,6 @@
 import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { INotification } from '../types';
 import { NotificationRow } from './';
@@ -17,7 +17,7 @@ type Props = {
   update?: () => void;
 };
 
-class NotificationsLatest extends Component<Props> {
+class NotificationsLatest extends React.Component<Props> {
   componentDidMount() {
     // update popover position
     const { update } = this.props;
@@ -32,7 +32,7 @@ class NotificationsLatest extends Component<Props> {
     const notifCount = notifications.length;
 
     const mainContent = (
-      <Fragment>
+      <React.Fragment>
         <NotificationList>
           {notifications.map((notif, key) => (
             <NotificationRow
@@ -45,7 +45,7 @@ class NotificationsLatest extends Component<Props> {
         <NotificationSeeAll>
           <Link to="/notifications">{__('See all')}</Link>
         </NotificationSeeAll>
-      </Fragment>
+      </React.Fragment>
     );
 
     const emptyContent = (

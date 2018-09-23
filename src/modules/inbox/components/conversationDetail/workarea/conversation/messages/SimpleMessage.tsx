@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { Attachment, NameCard, Tip } from "modules/common/components";
-import moment from "moment";
-import React, { Fragment } from "react";
+import * as moment from "moment";
+import * as React from 'react';
 import { IMessage } from "../../../../../types";
 import { MessageBody, MessageContent, MessageItem } from "../styles";
 
@@ -46,10 +46,10 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     }
 
     return (
-      <Fragment>
+      <React.Fragment>
         <span dangerouslySetInnerHTML={{ __html: message.content }} />
         {this.renderAttachment(hasAttachment)}
-      </Fragment>
+      </React.Fragment>
     );
   }
 

@@ -1,7 +1,7 @@
 import { Button, ModalTrigger } from 'modules/common/components';
 import { ICustomer } from 'modules/customers/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import { IEngageMessageDoc } from '../types';
 import WidgetForm from './WidgetForm';
@@ -15,7 +15,7 @@ type Props = {
   save: (doc: IEngageMessageDoc, closeModal: () => void) => void;
 }
 
-class Widget extends Component<Props> {
+class Widget extends React.Component<Props> {
   render() {
     const trigger = (
       <Button btnStyle="success" size="small" icon="email">

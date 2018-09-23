@@ -1,6 +1,6 @@
 import { colors } from 'modules/common/styles';
 import { ICustomer } from 'modules/customers/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -57,7 +57,7 @@ type Props = {
   icon?: React.ReactNode;
 };
 
-class Avatar extends Component<Props> {
+class Avatar extends React.Component<Props> {
   generateStyle(size = 40) {
     return {
       width: size,

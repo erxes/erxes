@@ -11,7 +11,7 @@ import {
 } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { timezones } from 'modules/settings/integrations/constants';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { IUser } from '../types';
 
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
   onAvatarUpload: (url: string) => void;
 };
 
-class UserCommonInfos extends Component<Props> {
+class UserCommonInfos extends React.Component<Props> {
   render() {
     const { user, onAvatarUpload } = this.props;
 
@@ -27,7 +27,7 @@ class UserCommonInfos extends Component<Props> {
     const links = user.links || {};
 
     return (
-      <Fragment>
+      <React.Fragment>
         <AvatarUpload
           avatar={details.avatar}
           onAvatarUpload={onAvatarUpload}
@@ -139,7 +139,7 @@ class UserCommonInfos extends Component<Props> {
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

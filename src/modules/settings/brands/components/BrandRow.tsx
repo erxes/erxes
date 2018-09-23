@@ -1,5 +1,5 @@
 import BrandForm from 'modules/settings/brands/components/BrandForm';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Icon, ModalTrigger, Tip } from '../../../common/components';
 import { __ } from '../../../common/utils';
@@ -15,7 +15,7 @@ type Props = {
   isActive: boolean;
 }
 
-class BrandRow extends Component<Props> {
+class BrandRow extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { ISegment } from '../types';
 
@@ -17,7 +17,7 @@ type Props = {
   removeSegment: (_id: string) => void;
 };
 
-class SegmentsList extends Component<Props> {
+class SegmentsList extends React.Component<Props> {
   renderActionButtons(segment) {
     const { contentType, removeSegment } = this.props;
 

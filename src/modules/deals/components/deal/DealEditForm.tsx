@@ -2,7 +2,7 @@ import { IUser } from 'modules/auth/types';
 import { Button } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import React, { Fragment } from 'react';
+import * as React from 'react';
 import { ICompany } from '../../../companies/types';
 import { ICustomer } from '../../../customers/types';
 import { Tab } from '../../containers';
@@ -192,7 +192,7 @@ class DealEditForm extends React.Component<Props, State> {
     } = this.state;
 
     return (
-      <Fragment>
+      <React.Fragment>
         <Top
           name={name}
           description={description}
@@ -218,13 +218,13 @@ class DealEditForm extends React.Component<Props, State> {
             saveProductsData={this.saveProductsData}
           />
         </FlexContent>
-      </Fragment>
+      </React.Fragment>
     );
   }
 
   render() {
     return (
-      <Fragment>
+      <React.Fragment>
         {this.renderFormContent()}
 
         <FormFooter>
@@ -245,7 +245,7 @@ class DealEditForm extends React.Component<Props, State> {
             Save
           </Button>
         </FormFooter>
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

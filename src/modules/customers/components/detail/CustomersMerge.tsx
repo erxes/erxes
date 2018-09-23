@@ -2,7 +2,7 @@ import { Button, Icon } from 'modules/common/components';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import moment from 'moment';
+import * as moment from 'moment';
 import * as React from 'react';
 import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../../constants';
 import { Info, InfoDetail, InfoTitle } from '../../styles';

@@ -7,7 +7,7 @@ import {
   Tip
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { IProduct } from '../types';
 import { Form } from './';
 
@@ -26,7 +26,7 @@ type Props = {
   save: (doc: Doc , callback: () => void, product?: IProduct) => void;
 };
 
-class Row extends Component<Props> {
+class Row extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

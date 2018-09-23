@@ -9,7 +9,7 @@ import {
   SubItem,
   WidgetBackgrounds
 } from 'modules/settings/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
 
@@ -25,7 +25,7 @@ type State = {
   wallpaper: string;
 };
 
-class Appearance extends Component<Props, State> {
+class Appearance extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

@@ -1,7 +1,7 @@
 import { DataWithLoader, EmptyState, Icon } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { withRouter } from 'react-router';
 import styled from 'styled-components';
 import { IRouterProps } from '../types';
@@ -27,7 +27,7 @@ const PopoverContent = styled.div`
   }
 `;
 
-class FilterByParams extends Component<IProps, State> {
+class FilterByParams extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
 

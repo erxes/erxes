@@ -1,7 +1,7 @@
 import { Icon, ModalTrigger, Tip } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Box, IntegrationItem } from './styles';
 
@@ -12,7 +12,7 @@ type Props= {
   totalCount: number;
 };
 
-class Entry extends Component<Props> {
+class Entry extends React.Component<Props> {
   getCount(kind) {
     const { totalCount } = this.props;
     const countByKind = totalCount[kind];

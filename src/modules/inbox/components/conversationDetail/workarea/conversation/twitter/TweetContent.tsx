@@ -1,5 +1,5 @@
 import Autolinker from "autolinker";
-import React, { Component } from "react";
+import * as React from "react";
 import styled from "styled-components";
 
 type Props = {
@@ -15,7 +15,7 @@ const MessageContent = styled.div`
   }
 `;
 
-class TweetContent extends Component<Props, {}> {
+class TweetContent extends React.Component<Props, {}> {
   renderContent() {
     const { entities } = this.props;
     let { content } = this.props;

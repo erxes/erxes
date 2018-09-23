@@ -1,7 +1,7 @@
 import { Button, FormControl, SortableList } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import { IConfigColumn, IContentTypeFields } from '../types';
 
@@ -43,7 +43,7 @@ type State = {
   fields: IContentTypeFields[]
 }
 
-class ManageColumns extends Component<Props, State> {
+class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

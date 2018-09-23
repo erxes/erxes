@@ -6,7 +6,7 @@ import {
   SidebarCounter,
   SidebarList
 } from "modules/layout/styles";
-import moment from "moment";
+import * as moment from "moment";
 import * as React from "react";
 import { ICustomer } from "../../../../customers/types";
 import { IBrand } from "../../../../settings/brands/types";

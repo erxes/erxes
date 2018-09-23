@@ -8,7 +8,7 @@ import {
 import { __, generateRandomColorCode } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { ContentSpace, FlexContent, FlexItem } from 'modules/layout/styles';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { ISegment, ISegmentCondition, ISegmentDoc } from '../types';
 import { AddConditionButton, Conditions } from './';
@@ -50,7 +50,7 @@ type State = {
   connector: string;
 }
 
-class SegmentsForm extends Component<Props, State> {
+class SegmentsForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -160,7 +160,7 @@ class SegmentsForm extends Component<Props, State> {
     );
 
     return (
-      <Fragment>
+      <React.Fragment>
         <ConditionWrapper>
           <FormGroup>
             {__('Users who match')}
@@ -190,7 +190,7 @@ class SegmentsForm extends Component<Props, State> {
           fields={changedFields}
           addCondition={this.addCondition}
         />
-      </Fragment>
+      </React.Fragment>
     );
   }
 

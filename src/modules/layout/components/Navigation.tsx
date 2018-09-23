@@ -2,7 +2,7 @@ import { Label, Tip } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, setBadge } from 'modules/common/utils';
 import { Widget } from 'modules/notifications/containers';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -113,7 +113,7 @@ const NavIcon = styled.i`
   color: ${colors.colorWhite};
 `;
 
-class Navigation extends Component<{ unreadConversationsCount?: number }> {
+class Navigation extends React.Component<{ unreadConversationsCount?: number }> {
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
 

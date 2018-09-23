@@ -1,5 +1,5 @@
 import { ModalTrigger } from 'modules/common/components';
-import React, { Fragment } from 'react';
+import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { CommonDeal } from '..';
 import { DealEditForm } from '../../containers';
@@ -46,7 +46,7 @@ class Deal extends React.Component<Props> {
         <div>
           <Draggable draggableId={deal._id} index={index}>
             {(provided, snapshot) => (
-              <Fragment>
+              <React.Fragment>
                 <Container
                   innerRef={provided.innerRef}
                   {...provided.draggableProps}
@@ -56,7 +56,7 @@ class Deal extends React.Component<Props> {
                   <CommonDeal deal={deal} />
                 </Container>
                 {provided.placeholder}
-              </Fragment>
+              </React.Fragment>
             )}
           </Draggable>
         </div>

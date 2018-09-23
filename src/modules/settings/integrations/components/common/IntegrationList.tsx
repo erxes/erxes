@@ -10,7 +10,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { InstallCode } from 'modules/settings/integrations/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { IIntegration } from '../../types';
 
@@ -19,7 +19,7 @@ type Props = {
   removeIntegration: (integration: IIntegration, callback?: any) => void;
 };
 
-class IntegrationList extends Component<Props> {
+class IntegrationList extends React.Component<Props> {
   getTypeName(integration) {
     const kind = integration.kind;
 
@@ -120,7 +120,7 @@ class IntegrationList extends Component<Props> {
     const { integrations } = this.props;
 
     return (
-      <Fragment>
+      <React.Fragment>
         <Table>
           <thead>
             <tr>
@@ -132,7 +132,7 @@ class IntegrationList extends Component<Props> {
           </thead>
           <tbody>{integrations.map(i => this.renderRow(i))}</tbody>
         </Table>
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

@@ -1,6 +1,6 @@
 import { Icon } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { ICustomer } from '../../customers/types';
@@ -40,7 +40,7 @@ type Props = {
   twitterData?: ITwitterData;
 };
 
-class IntegrationIcon extends Component<Props> {
+class IntegrationIcon extends React.Component<Props> {
   getIcon() {
     const { integration, customer, facebookData, twitterData } = this.props;
 

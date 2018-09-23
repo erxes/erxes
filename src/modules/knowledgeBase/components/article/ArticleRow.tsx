@@ -6,8 +6,8 @@ import {
   Tip
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import moment from 'moment';
-import React, { Component } from 'react';
+import * as moment from 'moment';
+import * as React from 'react';
 import { ArticleForm } from '../../containers';
 import { IArticle } from '../../types';
 import {
@@ -27,7 +27,7 @@ type Props = {
   remove: (_id: string) => void;
 };
 
-class ArticleRow extends Component<Props> {
+class ArticleRow extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

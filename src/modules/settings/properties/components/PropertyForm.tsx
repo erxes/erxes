@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Actions, TypeList } from '../styles';
 import { IField, IFieldGroup } from '../types';
 
@@ -36,7 +36,7 @@ type State = {
   add: boolean;
 }
 
-class PropertyForm extends Component<Props, State> {
+class PropertyForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -148,7 +148,7 @@ class PropertyForm extends Component<Props, State> {
   renderButtonOrElement() {
     if (this.state.add) {
       return (
-        <Fragment>
+        <React.Fragment>
           <FormControl
             id="optionValue"
             autoFocus
@@ -176,7 +176,7 @@ class PropertyForm extends Component<Props, State> {
               Save
             </Button>
           </Actions>
-        </Fragment>
+        </React.Fragment>
       );
     }
 

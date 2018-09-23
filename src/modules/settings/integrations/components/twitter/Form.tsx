@@ -5,14 +5,14 @@ import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
 import { SelectBrand } from 'modules/settings/integrations/components';
 import { ContentBox } from 'modules/settings/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 
 type Props = {
   brands: IBrand[];
   save: (brand: string) => void;
 };
 
-class Twitter extends Component<Props> {
+class Twitter extends React.Component<Props> {
   constructor(props) {
     super(props);
 

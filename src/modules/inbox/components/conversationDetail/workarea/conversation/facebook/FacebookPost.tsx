@@ -1,5 +1,5 @@
 import { NameCard } from "modules/common/components";
-import React, { Component } from "react";
+import * as React from "react";
 import { Date, FacebookContent, Reactions, UserName } from ".";
 import { IMessage, IMessageFacebookData } from "../../../../../types";
 import { Counts, FlexItem, PostContainer, User } from "./styles";
@@ -9,7 +9,7 @@ type Props = {
   scrollBottom: () => void;
 };
 
-export default class FacebookPost extends Component<Props, {}> {
+export default class FacebookPost extends React.Component<Props, {}> {
   renderCounts(data: IMessageFacebookData) {
     return (
       <Counts>

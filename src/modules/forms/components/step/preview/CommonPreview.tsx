@@ -7,7 +7,7 @@ import {
 import { Messenger, MessengerPreview } from "modules/engage/styles";
 import { WidgetPreviewStyled } from "modules/settings/integrations/components/messenger/widgetPreview/styles";
 import { LogoContainer } from "modules/settings/styles";
-import React, { Component } from "react";
+import * as React from "react";
 import {
   BodyContent,
   CenterContainer,
@@ -83,7 +83,7 @@ type Props = {
   children?: React.ReactNode;
 };
 
-class CommonPreview extends Component<Props, {}> {
+class CommonPreview extends React.Component<Props, {}> {
   renderContent() {
     const {
       title,

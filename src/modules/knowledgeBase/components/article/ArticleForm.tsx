@@ -12,7 +12,7 @@ import {
 } from 'modules/common/components/editor/Editor';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { IArticle } from '../../types';
 
 type Props = {
@@ -35,7 +35,7 @@ type State = {
   editorState: EditorState;
 }
 
-class ArticleForm extends Component<Props, State> {
+class ArticleForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -103,7 +103,7 @@ class ArticleForm extends Component<Props, State> {
     };
 
     return (
-      <Fragment>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -146,7 +146,7 @@ class ArticleForm extends Component<Props, State> {
             ))}
           </FormControl>
         </FormGroup>
-      </Fragment>
+      </React.Fragment>
     );
   }
 

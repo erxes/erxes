@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { INotification } from 'modules/notifications/types';
 import Sidebar from 'modules/settings/Sidebar';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { NotificationRow } from './';
 import { NotifList } from './styles';
 
@@ -13,7 +13,7 @@ type Props = {
   count: number;
 };
 
-class NotificationList extends Component<Props, { bulk: string[] }> {
+class NotificationList extends React.Component<Props, { bulk: string[] }> {
   constructor(props) {
     super(props);
 

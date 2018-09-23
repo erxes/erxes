@@ -1,5 +1,5 @@
 import { Button, SortableList } from 'modules/common/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { StageList } from '../styles';
 import { IStage } from '../types';
 import StageItem from './StageItem';
@@ -9,7 +9,7 @@ type Props = {
   stages: any;
 };
 
-class Stages extends Component<Props, {}> {
+class Stages extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 

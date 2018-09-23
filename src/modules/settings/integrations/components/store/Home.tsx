@@ -2,7 +2,7 @@ import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/integrations/components/Sidebar';
 import { INTEGRATIONS } from 'modules/settings/integrations/constants';
-import React, { Component } from 'react';
+import * as React from 'react';
 import Row from './Row';
 import { IntegrationWrapper } from './styles';
 
@@ -10,7 +10,7 @@ type Props = {
   totalCount: number;
 };
 
-class Home extends Component<Props> {
+class Home extends React.Component<Props> {
   renderContent() {
     const { totalCount } = this.props;
 

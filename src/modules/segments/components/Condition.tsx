@@ -3,7 +3,7 @@ import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { dateUnits, operators, types } from 'modules/customers/constants';
 import { FlexContent, FlexItem, FlexRightItem } from 'modules/layout/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { ISegmentCondition } from '../types';
 import { ConditionItem } from './styles';
 
@@ -22,7 +22,7 @@ type State = {
   dateUnit: string;
 }
 
-class Condition extends Component<Props, State> {
+class Condition extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 

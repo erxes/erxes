@@ -10,7 +10,7 @@ import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
 import { IIntegration, IMessengerData, IUiOptions } from 'modules/settings/integrations/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Appearance, Availability, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
@@ -43,7 +43,7 @@ type State = {
   logoPreviewUrl: string;
 };
 
-class CreateMessenger extends Component<Props, State> {
+class CreateMessenger extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

@@ -1,7 +1,7 @@
 import { Button, ControlLabel, FormGroup } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ActionBar, Wrapper } from 'modules/layout/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
@@ -24,7 +24,7 @@ type State = {
   removeSelected: boolean;
 };
 
-class List extends Component<Props, State> {
+class List extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

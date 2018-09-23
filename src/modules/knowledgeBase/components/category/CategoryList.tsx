@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { ICategory } from '../../types';
 import { CategoryRow } from './';
 import { Categories } from './styles';
@@ -11,7 +11,7 @@ type Props = {
   remove: ( _id: string ) => void;
 };
 
-class CategoryList extends Component<Props> {
+class CategoryList extends React.Component<Props> {
   render() {
     const {
       categories,

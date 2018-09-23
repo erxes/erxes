@@ -1,6 +1,6 @@
 import { __, colorParser } from "modules/common/utils";
 import { shake } from "modules/common/utils/animations";
-import React, { Component } from "react";
+import * as React from "react";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 import { colors } from "../styles";
@@ -91,7 +91,7 @@ const defaultProps = {
   shake: false
 };
 
-class Label extends Component<Props> {
+class Label extends React.Component<Props> {
   render() {
     const { ignoreTrans, children, style } = this.props;
 

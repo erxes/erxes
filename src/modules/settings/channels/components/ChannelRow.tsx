@@ -2,7 +2,7 @@ import { IUser } from 'modules/auth/types';
 import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { ChannelForm } from '../containers';
 import { MemberImg, Members, More } from '../styles';
@@ -18,7 +18,7 @@ type Props = {
   isActive: boolean;
 };
 
-class ChannelRow extends Component<Props, {}> {
+class ChannelRow extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 

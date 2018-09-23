@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import Select from 'react-select-plus';
 import { Button, FormControl, FormGroup, Icon } from '.';
 import { __, Alert } from '../utils';
@@ -8,7 +8,7 @@ type OptionProps = {
   onSelect: (option: any[] , e: any ) => void;
 };
 
-class Option extends Component<OptionProps> {
+class Option extends React.Component<OptionProps> {
   render() {
     const { option, onSelect } = this.props;
     const { onRemove } = option;
@@ -45,7 +45,7 @@ type State = {
   selectedOption: string;
 };
 
-class ModifiableSelect extends Component<Props, State> {
+class ModifiableSelect extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -137,7 +137,7 @@ class ModifiableSelect extends Component<Props, State> {
 
     if (this.state.adding) {
       return (
-        <Fragment>
+        <React.Fragment>
           <FormGroup>
             <FormControl
               id="removableSelect-value"
@@ -165,7 +165,7 @@ class ModifiableSelect extends Component<Props, State> {
           >
             Save
           </Button>
-        </Fragment>
+        </React.Fragment>
       );
     }
 
@@ -181,7 +181,7 @@ class ModifiableSelect extends Component<Props, State> {
     const { selectedOption } = this.state;
 
     return (
-      <Fragment>
+      <React.Fragment>
         <FormGroup>
           <Select
             placeholder={__(placeholder || '')}
@@ -195,7 +195,7 @@ class ModifiableSelect extends Component<Props, State> {
         </FormGroup>
 
         {this.renderInput()}
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

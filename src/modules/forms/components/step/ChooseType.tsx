@@ -2,7 +2,7 @@ import { ControlLabel, FormGroup, Icon } from "modules/common/components";
 import { LeftItem, Preview } from "modules/common/components/step/styles";
 import { __ } from "modules/common/utils";
 import { IField } from "modules/settings/properties/types";
-import React, { Component } from "react";
+import * as React from "react";
 import { CalloutPreview } from "./preview";
 import { Box, BoxRow, FlexItem } from "./style";
 
@@ -17,7 +17,7 @@ type Props = {
   theme: string;
 };
 
-class ChooseType extends Component<Props, {}> {
+class ChooseType extends React.Component<Props, {}> {
   renderBox(name: string, icon: string, value: string) {
     return (
       <Box

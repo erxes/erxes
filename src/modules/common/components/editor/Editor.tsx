@@ -2,7 +2,7 @@ import * as Draft from "draft-js";
 import { ContentState, EditorState, RichUtils } from "draft-js";
 import { stateToHTML } from "draft-js-export-html";
 import Editor from "draft-js-plugins-editor";
-import React, { Component } from "react";
+import * as React from 'react';
 import {
   RichEditorControls,
   RichEditorControlsRoot,
@@ -36,7 +36,7 @@ type Props = {
   onToggle: (style?: string) => void;
 };
 
-class StyleButton extends Component<Props> {
+class StyleButton extends React.Component<Props> {
   onToggle: (e: React.MouseEvent) => void;
 
   constructor(props: Props) {
@@ -174,7 +174,7 @@ type ErxesEditorProps = {
   placeholder?: string | React.ReactNode;
 };
 
-export class ErxesEditor extends Component<ErxesEditorProps> {
+export class ErxesEditor extends React.Component<ErxesEditorProps> {
   constructor(props: ErxesEditorProps) {
     super(props);
 

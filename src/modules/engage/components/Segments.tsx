@@ -1,7 +1,7 @@
 import { EmptyState, Icon } from 'modules/common/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { ISegment } from 'modules/segments/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Segmentli } from '../styles';
 
 type Props = {
@@ -15,7 +15,7 @@ type State = {
   chosenSegment: string
 }
 
-class Segments extends Component<Props, State> {
+class Segments extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

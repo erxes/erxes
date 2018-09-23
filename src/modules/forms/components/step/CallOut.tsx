@@ -9,7 +9,7 @@ import { __ } from "modules/common/utils";
 import { uploadHandler } from "modules/common/utils";
 import { ActionBar } from "modules/layout/components";
 import { IField } from "modules/settings/properties/types";
-import React, { Component, Fragment } from "react";
+import * as React from 'react';
 import { CalloutPreview } from "./preview";
 import { FlexColumn, FlexItem, ImageContent } from "./style";
 
@@ -36,7 +36,7 @@ type State = {
   logoPreviewUrl?: string;
 };
 
-class CallOut extends Component<Props, State> {
+class CallOut extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -112,14 +112,14 @@ class CallOut extends Component<Props, State> {
     }
 
     return (
-      <Fragment>
+      <React.Fragment>
         <img src={image} alt="previewImage" />
         <Icon
           icon="cancel-1"
           size={15}
           onClick={(e: React.MouseEvent<HTMLElement>) => this.removeImage((e.currentTarget as HTMLInputElement).value)}
         />
-      </Fragment>
+      </React.Fragment>
     );
   }
 

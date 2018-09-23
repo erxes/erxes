@@ -7,7 +7,7 @@ import {
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { SubHeading } from 'modules/settings/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 import Select from 'react-select-plus';
 
 type Props= {
@@ -24,7 +24,7 @@ type State = {
   supporterIds: string[];
 }
 
-class Intro extends Component<Props, State> {
+class Intro extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

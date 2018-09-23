@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import {
   Button,
   DataWithLoader,
@@ -18,7 +18,7 @@ type Props = {
   loading: boolean;
 }
 
-class Brands extends Component<Props, {}> {
+class Brands extends React.Component<Props, {}> {
   render() {
     const {
       integrationsCount,

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import Filter from './Filter';
 import {
   AvatarImg,
@@ -25,7 +25,7 @@ type State = {
   items: any[];
 }
 
-class FilterableList extends Component<Props, State> {
+class FilterableList extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 

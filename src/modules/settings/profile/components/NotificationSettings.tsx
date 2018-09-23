@@ -1,5 +1,5 @@
 import { __ } from 'modules/common/utils';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import Toggle from 'react-toggle';
 import { InlineItems, ModuleBox, SubHeading, SubItem } from '../../styles';
 import { IConfig, IModules } from '../types';
@@ -15,7 +15,7 @@ type Props = {
   getNotificationByEmail: boolean;
 };
 
-class NotificationSettings extends Component<Props> {
+class NotificationSettings extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 
@@ -81,7 +81,7 @@ class NotificationSettings extends Component<Props> {
 
   render() {
     const content = (
-      <Fragment>
+      <React.Fragment>
         <SubHeading>{__('Notifications')}</SubHeading>
         <InlineItems>
           {__('Get notification by email')}
@@ -99,7 +99,7 @@ class NotificationSettings extends Component<Props> {
             this.renderModule(module, index)
           )}
         </ModuleBox>
-      </Fragment>
+      </React.Fragment>
     );
 
     return content;

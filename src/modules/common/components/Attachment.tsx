@@ -1,5 +1,5 @@
 import { Icon, ImageWithPreview } from "modules/common/components";
-import React, { Component, Fragment } from "react";
+import * as React from 'react';
 import styled from "styled-components";
 import { IAttachment } from "../types";
 
@@ -85,7 +85,7 @@ type Props = {
   scrollBottom?: () => void;
 };
 
-class Attachment extends Component<Props> {
+class Attachment extends React.Component<Props> {
   constructor(props) {
     super(props);
 
@@ -96,7 +96,7 @@ class Attachment extends Component<Props> {
 
   renderOtherFile(name, icon) {
     return (
-      <Fragment>
+      <React.Fragment>
         <FileWrapper key="wrapper">
           <Icon icon={icon} /> <span>{name}</span>
         </FileWrapper>
@@ -105,7 +105,7 @@ class Attachment extends Component<Props> {
             <Icon icon="download" />
           </div>
         </Overlay>
-      </Fragment>
+      </React.Fragment>
     );
   }
 

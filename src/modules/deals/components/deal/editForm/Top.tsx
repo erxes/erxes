@@ -4,7 +4,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import React, { Fragment } from 'react';
+import * as React from 'react';
 import * as Datetime from 'react-datetime';
 import Select from 'react-select-plus';
 import { IUser } from '../../../../auth/types';
@@ -75,10 +75,10 @@ class Top extends React.Component<Props> {
     } = this.props;
 
     const content = option => (
-      <Fragment>
+      <React.Fragment>
         <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
         {option.label}
-      </Fragment>
+      </React.Fragment>
     );
 
     const userValue = option => <SelectValue>{content(option)}</SelectValue>;
@@ -88,7 +88,7 @@ class Top extends React.Component<Props> {
     );
 
     return (
-      <Fragment>
+      <React.Fragment>
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
@@ -149,7 +149,7 @@ class Top extends React.Component<Props> {
             </FormGroup>
           </Right>
         </FlexContent>
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

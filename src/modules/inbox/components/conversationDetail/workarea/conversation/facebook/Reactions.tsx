@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import * as React from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { IFbUser, IReactions } from "../../../../../types";
 import { LeftAlign, Reaction } from "./styles";
@@ -8,7 +8,7 @@ type Props = {
   comment?: boolean;
 };
 
-class Reactions extends Component<Props, {}> {
+class Reactions extends React.Component<Props, {}> {
   renderUsers(users: IFbUser[]) {
     return users.map((user, index) => (
       <LeftAlign key={index}>{user.name}</LeftAlign>

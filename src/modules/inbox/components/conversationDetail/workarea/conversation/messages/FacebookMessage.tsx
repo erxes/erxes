@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { Attachment } from "modules/common/components";
-import React, { Fragment } from "react";
+import * as React from 'react';
 import { IMessage, IMessageFacebookData } from "../../../../../types";
 import { SimpleMessage } from "./";
 
@@ -73,11 +73,11 @@ export default class FacebookMessage extends React.Component<Props, {}> {
 
     const renderContent = () => {
       return (
-        <Fragment>
+        <React.Fragment>
           <span dangerouslySetInnerHTML={{ __html: message.content }} />
           {this.renderVideoIframe(fbData, isVideoPost)}
           {this.renderAttachment(message, hasAttachment, isPhotoPost)}
-        </Fragment>
+        </React.Fragment>
       );
     };
 

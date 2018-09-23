@@ -9,7 +9,7 @@ import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { CenterContent, ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { BrandName, IntegrationName } from '../../styles';
 import { IIntegration } from '../../types';
 
@@ -35,7 +35,7 @@ type State = {
   searchValue: string
 }
 
-class ManageIntegrations extends Component<Props, State> {
+class ManageIntegrations extends React.Component<Props, State> {
   private timer?: NodeJS.Timer
 
   constructor(props: Props) {

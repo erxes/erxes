@@ -8,7 +8,7 @@ import { __ } from "modules/common/utils";
 import { Wrapper } from "modules/layout/components";
 import { IFormData } from "modules/settings/integrations/types";
 import { IField } from "modules/settings/properties/types";
-import React, { Component } from "react";
+import * as React from "react";
 import { Link } from "react-router-dom";
 import { IBrand } from "../../settings/brands/types";
 import { IFormIntegration } from "../types";
@@ -68,7 +68,7 @@ type State = {
   carousel?: string;
 };
 
-class Form extends Component<Props, State> {
+class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

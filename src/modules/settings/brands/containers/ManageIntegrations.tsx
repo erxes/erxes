@@ -5,7 +5,7 @@ import { ManageIntegrations } from 'modules/settings/integrations/containers/com
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
 import { IIntegration } from 'modules/settings/integrations/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
 import { IBrand } from '../types';
@@ -17,7 +17,7 @@ type Props = {
   saveMutation: (params: { variables: { _id: string; integrationIds: string[] } }) => any;
 };
 
-class ManageIntegrationsContainer extends Component<Props> {
+class ManageIntegrationsContainer extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

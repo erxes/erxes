@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import * as React from "react";
 import styled from "styled-components";
 import { IUser } from "../../../auth/types";
 import { ICustomer } from "../../../customers/types";
@@ -45,7 +45,7 @@ type Props = {
   isUser?: boolean;
 };
 
-class NameCard extends Component<Props> {
+class NameCard extends React.Component<Props> {
   static Avatar = Avatar;
 
   renderUserName() {

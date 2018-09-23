@@ -8,7 +8,7 @@ import { LeftItem, Preview } from "modules/common/components/step/styles";
 import { __ } from "modules/common/utils";
 import { ActionBar } from "modules/layout/components";
 import { IField } from "modules/settings/properties/types";
-import React, { Component, Fragment } from "react";
+import * as React from 'react';
 import { FormPreview } from "./preview";
 import { FlexColumn, FlexItem } from "./style";
 
@@ -29,7 +29,7 @@ type State = {
   editingField?: IField;
 };
 
-class FormStep extends Component<Props, State> {
+class FormStep extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -171,7 +171,7 @@ class FormStep extends Component<Props, State> {
     return (
       <ActionBar
         right={
-          <Fragment>
+          <React.Fragment>
             <FormControl
               checked={editingField.isRequired || false}
               id="isRequired"
@@ -183,7 +183,7 @@ class FormStep extends Component<Props, State> {
               {__("This item is required")}
             </FormControl>
             &emsp; {this.renderButtons()}
-          </Fragment>
+          </React.Fragment>
         }
       />
     );
@@ -221,7 +221,7 @@ class FormStep extends Component<Props, State> {
     const editingField = this.state.editingField || {} as IField;
 
     return (
-      <Fragment>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel>{__("Form title")}</ControlLabel>
           <FormControl
@@ -321,7 +321,7 @@ class FormStep extends Component<Props, State> {
             }
           />
         </FormGroup>
-      </Fragment>
+      </React.Fragment>
     );
   }
 

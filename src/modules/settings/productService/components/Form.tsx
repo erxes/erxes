@@ -4,7 +4,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import { TYPES } from '../constants';
 import { IProduct } from '../types';
@@ -33,7 +33,7 @@ type State = {
   createdAt?: Date;
 }
 
-class Form extends Component<Props, State> {
+class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -64,7 +64,7 @@ class Form extends Component<Props, State> {
     const types = TYPES.ALL;
 
     return (
-      <Fragment>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -116,7 +116,7 @@ class Form extends Component<Props, State> {
             onChange={this.onChangeInput}
           />
         </FormGroup>
-      </Fragment>
+      </React.Fragment>
     );
   }
 

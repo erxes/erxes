@@ -8,8 +8,8 @@ import {
   Tip
 } from "modules/common/components";
 import { __, Alert, confirm } from "modules/common/utils";
-import moment from "moment";
-import React, { Component } from "react";
+import * as moment from "moment";
+import * as React from "react";
 import { Link } from "react-router-dom";
 import { IFormIntegration } from "../types";
 import { Manage } from "./";
@@ -23,7 +23,7 @@ type Props = {
   isChecked: boolean;
 };
 
-class Row extends Component<Props, {}> {
+class Row extends React.Component<Props, {}> {
   constructor(props) {
     super(props);
 

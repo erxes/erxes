@@ -1,7 +1,7 @@
 import { EditorState, Modifier } from 'draft-js';
 import { Editor as CommonEditor } from 'modules/common/components';
 import { EMAIL_CONTENT_KEYS_FOR_SELECT } from 'modules/engage/constants';
-import React, { Component } from 'react';
+import * as React from 'react';
 
 const { ErxesEditor, toHTML, createStateFromHTML } = CommonEditor;
 
@@ -68,7 +68,7 @@ type State = {
   editorState: EditorState;
 }
 
-export default class Editor extends Component<EditorProps, State> {
+export default class Editor extends React.Component<EditorProps, State> {
   constructor(props) {
     super(props);
 

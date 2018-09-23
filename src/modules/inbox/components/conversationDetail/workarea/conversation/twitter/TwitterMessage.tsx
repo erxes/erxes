@@ -1,6 +1,6 @@
 import { Icon, ModalTrigger, NameCard, Tip } from "modules/common/components";
-import moment from "moment";
-import React, { Component } from "react";
+import * as moment from "moment";
+import * as React from "react";
 import { ICustomer } from "../../../../../../customers/types";
 import { IAddMessage } from "../../../../../containers/conversationDetail/WorkArea";
 import { IMessage, ITwitterData } from "../../../../../types";
@@ -33,7 +33,7 @@ type Props = {
   scrollBottom: () => void;
 };
 
-class TwitterMessage extends Component<Props, {}> {
+class TwitterMessage extends React.Component<Props, {}> {
   constructor(props) {
     super(props);
 

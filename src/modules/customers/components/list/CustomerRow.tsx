@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { FormControl, NameCard, Tags } from 'modules/common/components';
 import { FlexItem } from 'modules/companies/styles';
 import { ICustomer } from 'modules/customers/types';
-import moment from 'moment';
+import * as moment from 'moment';
 import * as React from 'react';
 
 type Props = {

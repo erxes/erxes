@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import strip from 'strip';
 
 import { IUser } from 'modules/auth/types';
@@ -17,7 +17,7 @@ type State = {
   fromUser: string;
 }
 
-class MessengerPreview extends Component<Props, State> {
+class MessengerPreview extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { fromUser: '' };

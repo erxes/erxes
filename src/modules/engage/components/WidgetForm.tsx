@@ -10,7 +10,7 @@ import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { METHODS } from 'modules/engage/constants';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
 import { Recipient, Recipients } from '../styles';
@@ -33,7 +33,7 @@ type State = {
   attachments: IAttachment[];
 }
 
-class WidgetForm extends Component<Props, State> {
+class WidgetForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

@@ -4,7 +4,7 @@ import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IBrand } from 'modules/settings/brands/types';
-import React from 'react';
+import * as React from 'react';
 import { withRouter } from 'react-router';
 
 interface IProps extends IRouterProps {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { TextArea } from './styles';
 
 type Props = {
@@ -6,7 +6,7 @@ type Props = {
   maxHeight?: number;
 };
 
-class Textarea extends Component<Props> {
+class Textarea extends React.Component<Props> {
   private area;
 
   constructor(props, context) {

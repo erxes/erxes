@@ -1,11 +1,11 @@
-import React, { Component } from "react";
+import * as React from "react";
 
 type Props = {
   username?: string;
   userId?: string;
 };
 
-class UserName extends Component<Props, {}> {
+class UserName extends React.Component<Props, {}> {
   render() {
     const { username, userId } = this.props;
 

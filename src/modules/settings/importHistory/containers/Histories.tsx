@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { __, Alert, router } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Histories } from '../components';
@@ -17,7 +17,7 @@ type State = {
   loading: boolean;
 }
 
-class HistoriesContainer extends Component<IProps, State> {
+class HistoriesContainer extends React.Component<IProps, State> {
   constructor(props: IProps) {
     super(props);
 

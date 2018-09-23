@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import {
   ControlLabel,
   FormControl,
@@ -19,7 +19,7 @@ type State = {
   avatarPreviewUrl: string;
 }
 
-class AvatarUpload extends Component<Props, State> {
+class AvatarUpload extends React.Component<Props, State> {
   constructor(props, context) {
     super(props, context);
 

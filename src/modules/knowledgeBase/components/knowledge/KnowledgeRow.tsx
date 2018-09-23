@@ -1,7 +1,7 @@
 import { DropdownToggle, Icon, ModalTrigger } from 'modules/common/components';
 import { DropIcon } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { CategoryForm, CategoryList, KnowledgeForm } from '../../containers';
 import { ITopic } from '../../types';
@@ -32,7 +32,7 @@ type State = {
   detailed: boolean
 }
 
-class KnowledgeRow extends Component<Props, State> {
+class KnowledgeRow extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

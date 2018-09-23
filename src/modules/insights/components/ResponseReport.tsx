@@ -1,7 +1,7 @@
 import { Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import {
   InsightContent,
@@ -24,7 +24,7 @@ type Props = {
   loading?: any;
 }
 
-class ResponseReport extends Component<Props, { width: number }> {
+class ResponseReport extends React.Component<Props, { width: number }> {
   private wrapper;
 
   constructor(props) {

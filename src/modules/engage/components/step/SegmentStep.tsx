@@ -3,7 +3,7 @@ import { FlexItem } from 'modules/common/components/step/styles';
 import { colors, dimensions } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { Segments, SegmentsForm } from '..';
@@ -48,7 +48,7 @@ type State = {
   createSegment: boolean;
 }
 
-class SegmentStep extends Component<Props, State> {
+class SegmentStep extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

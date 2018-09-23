@@ -1,5 +1,5 @@
 import { ImageWithPreview } from "modules/common/components";
-import React, { Fragment } from "react";
+import * as React from 'react';
 import { ImageContainer } from "./styles";
 
 type Props = {
@@ -108,7 +108,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
     const { content, image, images, link } = this.props;
 
     return (
-      <Fragment>
+      <React.Fragment>
         {this.renderImage(image) || this.renderImages(images)}
         {this.renderFiles(link)}
         <p
@@ -116,7 +116,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
             __html: content
           }}
         />
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

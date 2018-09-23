@@ -6,7 +6,7 @@ import {
 } from 'modules/common/components';
 import { days, hours } from 'modules/settings/integrations/constants';
 import { FlexRow } from 'modules/settings/integrations/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 import Select from 'react-select-plus';
 import { IOnlineHour } from '../../../types';
 
@@ -19,7 +19,7 @@ type State = {
   onlineHours: IOnlineHour[]
 };
 
-class OnlineHours extends Component<Props, State> {
+class OnlineHours extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { StepContainer } from './styles';
 
 type Props = {
@@ -12,7 +12,7 @@ type State = {
   maxStep: number;
 }
 
-class Steps extends Component<Props, State> {
+class Steps extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

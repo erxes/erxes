@@ -2,7 +2,7 @@ import { ControlLabel } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
-import moment from 'moment';
+import * as moment from 'moment';
 import * as React from 'react';
 import * as Datetime from 'react-datetime';
 import Select from 'react-select-plus';

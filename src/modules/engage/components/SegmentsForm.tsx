@@ -12,7 +12,7 @@ import {
   SegmentTitle
 } from 'modules/segments/components/styles';
 import { ISegment, ISegmentCondition, ISegmentDoc, ISegmentField } from 'modules/segments/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 
 const SegmentWrapper = styled.div`
@@ -36,7 +36,7 @@ type State = {
   connector: string;
 }
 
-class SegmentsForm extends Component<Props, State> {
+class SegmentsForm extends React.Component<Props, State> {
   static generateRandomColorCode() {
     return `#${Math.random()
       .toString(16)

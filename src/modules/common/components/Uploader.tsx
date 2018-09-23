@@ -1,6 +1,6 @@
 import { Spinner } from 'modules/common/components';
 import { uploadHandler } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import { IAttachment } from '../types';
 
@@ -26,7 +26,7 @@ type State = {
   attachmentPreviewStyle: any;
 }
 
-class Uploader extends Component<Props, State> {
+class Uploader extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

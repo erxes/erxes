@@ -2,7 +2,7 @@ import { UserCommonInfos } from 'modules/auth/components';
 import { IUser, IUserDoc } from 'modules/auth/types';
 import { Button, ModalTrigger } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { PasswordConfirmation } from '.';
 
 type Props = {
@@ -15,7 +15,7 @@ type State = {
   avatar: string;
 }
 
-class EditProfile extends Component<Props, State> {
+class EditProfile extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -69,7 +69,7 @@ class EditProfile extends Component<Props, State> {
     );
 
     return (
-      <Fragment>
+      <React.Fragment>
         <UserCommonInfos
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
@@ -91,7 +91,7 @@ class EditProfile extends Component<Props, State> {
             content={(props) => <PasswordConfirmation {...props} onSuccess={password => this.handleSubmit(password)} /> }
           />
         </ModalFooter>
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

@@ -1,5 +1,5 @@
 import { GenerateField } from "modules/settings/properties/components";
-import React, { Component } from "react";
+import * as React from "react";
 import { IField } from "../../../../settings/properties/types";
 import { FieldItem } from "./styles";
 
@@ -8,7 +8,7 @@ type Props = {
   onEdit?: (field: IField) => void;
 };
 
-class FieldPreview extends Component<Props, {}> {
+class FieldPreview extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 

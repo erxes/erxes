@@ -14,7 +14,7 @@ import {
 import { Wrapper } from "modules/layout/components";
 import { ContenFooter, ContentBox } from "modules/layout/styles";
 import { BarItems } from "modules/layout/styles";
-import React, { Component, Fragment } from "react";
+import * as React from 'react';
 import { IAddMessage } from "../../../containers/conversationDetail/WorkArea";
 import { IConversation, IMessage } from "../../../types";
 import Conversation from "./conversation/Conversation";
@@ -47,7 +47,7 @@ type State = {
   attachmentPreview: any;
 };
 
-export default class WorkArea extends Component<Props, State> {
+export default class WorkArea extends React.Component<Props, State> {
   private node;
 
   constructor(props: Props) {
@@ -205,7 +205,7 @@ export default class WorkArea extends Component<Props, State> {
     );
 
     return (
-      <Fragment>
+      <React.Fragment>
         {actionBar}
         <ContentBox>{content}</ContentBox>
         {currentConversation._id && (
@@ -217,7 +217,7 @@ export default class WorkArea extends Component<Props, State> {
             />
           </ContenFooter>
         )}
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

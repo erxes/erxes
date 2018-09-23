@@ -7,7 +7,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { ManageIntegrations, Sidebar } from '../containers';
 import { IChannel } from '../types';
 
@@ -18,7 +18,7 @@ type Props = {
   loading: boolean;
 };
 
-class Channels extends Component<Props, {}> {
+class Channels extends React.Component<Props, {}> {
   render() {
     const {
       integrationsCount,

@@ -3,8 +3,8 @@ import {
   FormControl,
   FormGroup
 } from "modules/common/components";
-import moment from "moment";
-import React, { Component } from "react";
+import * as moment from "moment";
+import * as React from "react";
 import { IField } from "../types";
 
 type Props = {
@@ -18,7 +18,7 @@ type State = {
   checkBoxValues: any[];
 };
 
-export default class GenerateField extends Component<Props, State> {
+export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

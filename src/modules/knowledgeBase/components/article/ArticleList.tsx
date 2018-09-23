@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { IArticle } from '../../types';
 import { ArticleRow } from './';
 
@@ -10,7 +10,7 @@ type Props= {
   remove: (_id: string) => void;
 };
 
-class ArticleList extends Component<Props> {
+class ArticleList extends React.Component<Props> {
   render() {
     const {
       articles,
@@ -21,7 +21,7 @@ class ArticleList extends Component<Props> {
     } = this.props;
 
     return (
-      <Fragment>
+      <React.Fragment>
         {articles.map(article => (
           <ArticleRow
             key={article._id}
@@ -32,7 +32,7 @@ class ArticleList extends Component<Props> {
             remove={remove}
           />
         ))}
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

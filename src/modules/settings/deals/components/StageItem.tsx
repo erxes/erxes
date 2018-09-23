@@ -1,5 +1,5 @@
 import { Button, FormControl } from 'modules/common/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { PROBABILITY } from '../constants';
 import { StageItemContainer } from '../styles';
 import { IStage } from '../types';
@@ -11,7 +11,7 @@ type Props = {
   onKeyPress: (e: any) => void;
 };
 
-class StageItem extends Component<Props, {}> {
+class StageItem extends React.Component<Props, {}> {
   render() {
     const { stage, onChange, onKeyPress, remove } = this.props;
     const probabilties = PROBABILITY.ALL;

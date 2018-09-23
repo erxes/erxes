@@ -1,6 +1,6 @@
 import { Button, FormControl, FormGroup } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { AuthBox, Links } from '../styles';
 
@@ -8,7 +8,7 @@ type Props = {
   forgotPassword: (doc: { email: string }, callback: (e: Error) => void ) => void;
 }
 
-class ForgotPassword extends Component<Props, { email: string }> {
+class ForgotPassword extends React.Component<Props, { email: string }> {
   constructor(props) {
     super(props);
 

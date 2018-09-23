@@ -1,6 +1,6 @@
 import { Button } from 'modules/common/components';
 import { confirm } from 'modules/common/utils';
-import moment from 'moment';
+import * as moment from 'moment';
 import * as React from 'react';
 
 type Props = {

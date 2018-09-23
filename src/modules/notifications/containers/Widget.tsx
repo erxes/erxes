@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Widget } from '../components';
@@ -10,7 +10,7 @@ interface IProps extends IRouterProps {
   notificationCountQuery: any;
 };
 
-class WidgetContainer extends Component<IProps> {
+class WidgetContainer extends React.Component<IProps> {
   render() {
     const { notificationCountQuery } = this.props;
 

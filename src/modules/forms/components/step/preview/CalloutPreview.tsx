@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import * as React from "react";
 import CommonPreview from "./CommonPreview";
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
   type?: string;
 };
 
-class CalloutPreview extends Component<Props, {}> {
+class CalloutPreview extends React.Component<Props, {}> {
   render() {
     const {
       calloutTitle,

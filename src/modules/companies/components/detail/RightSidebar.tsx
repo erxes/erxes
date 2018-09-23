@@ -3,7 +3,7 @@ import { ICompany } from 'modules/companies/types';
 import { CustomerAssociate } from 'modules/customers/containers';
 import { PortableDeals } from 'modules/deals/containers';
 import { Sidebar } from 'modules/layout/components';
-import moment from 'moment';
+import * as moment from 'moment';
 import * as React from 'react';
 import { List } from '../../styles';
 

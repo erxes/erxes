@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import { Button, Icon } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
-import moment from 'moment';
+import * as moment from 'moment';
 import * as React from 'react';
 import { withApollo } from 'react-apollo';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import Datetime from 'react-datetime';
+import * as Datetime from 'react-datetime';
 import styled from 'styled-components';
 import { colors, dimensions, typography } from '../styles';
 

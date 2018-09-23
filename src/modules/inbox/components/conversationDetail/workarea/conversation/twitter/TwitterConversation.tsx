@@ -1,5 +1,5 @@
 import { TwitterMessage } from "modules/inbox/containers/conversationDetail";
-import React, { Component, Fragment } from "react";
+import * as React from 'react';
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 import { IConversation, IMessage } from "../../../../../types";
@@ -21,7 +21,7 @@ const List = styledTS<{ isRoot?: boolean }>(styled.ul)`
   max-width: 700px;
 `;
 
-class TwitterConversation extends Component<Props, {}> {
+class TwitterConversation extends React.Component<Props, {}> {
   constructor(props) {
     super(props);
 
@@ -108,10 +108,10 @@ class TwitterConversation extends Component<Props, {}> {
     );
 
     return (
-      <Fragment>
+      <React.Fragment>
         <List isRoot>{this.renderTweets(nestedMessages, integrationId)}</List>
         {this.renderInternals(messages)}
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

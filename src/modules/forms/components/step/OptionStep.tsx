@@ -6,7 +6,7 @@ import {
 import { LeftItem, Preview } from "modules/common/components/step/styles";
 import { __ } from "modules/common/utils";
 import { IField } from "modules/settings/properties/types";
-import React, { Component, Fragment } from "react";
+import * as React from 'react';
 import { OverlayTrigger, Popover } from "react-bootstrap";
 import { ChromePicker } from "react-color";
 import { IBrand } from "../../../settings/brands/types";
@@ -28,7 +28,7 @@ type Props = {
   onFieldEdit?: () => void;
 };
 
-class OptionStep extends Component<Props, {}> {
+class OptionStep extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 
@@ -111,7 +111,7 @@ class OptionStep extends Component<Props, {}> {
             <p>{__("Try some of these colors:")}</p>
           </FormGroup>
 
-          <Fragment>
+          <React.Fragment>
             {this.renderThemeColor("#04A9F5")}
             {this.renderThemeColor("#392a6f")}
             {this.renderThemeColor("#fd3259")}
@@ -128,7 +128,7 @@ class OptionStep extends Component<Props, {}> {
                 <Picker style={{ backgroundColor: this.props.theme }} />
               </ColorPicker>
             </OverlayTrigger>
-          </Fragment>
+          </React.Fragment>
         </LeftItem>
 
         <Preview>

@@ -5,7 +5,7 @@ import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Bulk } from '../../common/components';
@@ -33,7 +33,7 @@ type State = {
   loading: boolean;
 }
 
-class CustomerListContainer extends Component<IProps, State> {
+class CustomerListContainer extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
 

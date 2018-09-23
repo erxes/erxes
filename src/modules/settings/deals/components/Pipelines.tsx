@@ -2,7 +2,7 @@ import { Button, EmptyState, SortableList } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { collectOrders } from 'modules/deals/utils';
 import { Wrapper } from 'modules/layout/components';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { PipelineForm } from '../containers';
 import { PipelineContainer } from '../styles';
 import { IPipeline, IStage } from '../types';
@@ -22,7 +22,7 @@ type State = {
   pipelines: IPipeline[]
 };
 
-class Pipelines extends Component<Props, State> {
+class Pipelines extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -124,7 +124,7 @@ class Pipelines extends Component<Props, State> {
     );
 
     return (
-      <Fragment>
+      <React.Fragment>
         <Wrapper.ActionBar right={rightActionBar} />
         {this.renderContent()}
 
@@ -135,7 +135,7 @@ class Pipelines extends Component<Props, State> {
           show={showModal}
           closeModal={this.closeModal}
         />
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

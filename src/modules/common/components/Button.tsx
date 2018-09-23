@@ -1,5 +1,5 @@
 import { __ } from "modules/common/utils";
-import React, { Component } from "react";
+import * as React from 'react';
 import styled, { css } from "styled-components";
 import styledTS from "styled-components-ts";
 import { colors } from "../styles";
@@ -148,7 +148,7 @@ type ButtonProps = {
   id?: string;
 };
 
-export default class Button extends Component<ButtonProps> {
+export default class Button extends React.Component<ButtonProps> {
   static Group = Group;
 
   static defaultProps = {

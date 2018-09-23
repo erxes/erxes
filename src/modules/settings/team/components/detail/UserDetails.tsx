@@ -23,8 +23,8 @@ import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { Wrapper } from 'modules/layout/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import { IChannel } from 'modules/settings/channels/types';
-import moment from 'moment';
-import React, { Fragment } from 'react';
+import * as moment from 'moment';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { IActivityLogsUser } from '../../../../activityLogs/types';
 import LeftSidebar from './LeftSidebar';
@@ -63,7 +63,7 @@ class UserDetails extends React.Component<Props, State> {
 
     return (
       <ActivityRow key={conversation._id}>
-        <Fragment>
+        <React.Fragment>
           <FlexContent>
             <AvatarWrapper>
               <NameCard.Avatar user={user} size={50} />
@@ -88,7 +88,7 @@ class UserDetails extends React.Component<Props, State> {
               </ActivityDate>
             </Tip>
           </FlexContent>
-        </Fragment>
+        </React.Fragment>
       </ActivityRow>
     );
   }

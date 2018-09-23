@@ -9,7 +9,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { ChannelForm } from '../containers';
 import { IChannel } from '../types';
 import { ChannelRow } from './';
@@ -26,7 +26,7 @@ type Props = {
   channelsTotalCount: number;
 };
 
-class Sidebar extends Component<Props, {}> {
+class Sidebar extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 

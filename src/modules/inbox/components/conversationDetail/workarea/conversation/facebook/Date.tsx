@@ -1,5 +1,5 @@
 import { Tip } from "modules/common/components";
-import moment from "moment";
+import * as moment from "moment";
 import * as React from "react";
 import { IMessage } from "../../../../../types";
 

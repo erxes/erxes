@@ -1,14 +1,14 @@
 import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Sidebar } from '../containers';
 
 type Props = {
   queryParams: any;
 }
 
-class Empty extends Component<Props, {}> {
+class Empty extends React.Component<Props, {}> {
   render() {
     const { queryParams } = this.props;
 

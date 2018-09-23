@@ -1,5 +1,5 @@
 import { ImageWithPreview } from "modules/common/components";
-import React, { Component } from "react";
+import * as React from "react";
 import styled from "styled-components";
 import { ITwitterData } from "../../../../../types";
 import { TwitterVideoEmbed } from "./";
@@ -36,7 +36,7 @@ type Props = {
   scrollBottom: () => void;
 };
 
-class TweetMedia extends Component<Props, {}> {
+class TweetMedia extends React.Component<Props, {}> {
   getEntities(data: ITwitterData) {
     if (data.extended_entities) {
       return data.extended_entities;

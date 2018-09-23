@@ -1,5 +1,5 @@
 import { Icon } from 'modules/common/components';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { DragHandler, SortableWrapper, SortItem } from '../styles/sort';
 import { reorder } from '../utils';
@@ -12,7 +12,7 @@ type Props = {
   showDragHandler?: boolean | true;
 };
 
-class SortableList extends Component<Props> {
+class SortableList extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 
@@ -54,7 +54,7 @@ class SortableList extends Component<Props> {
     return (
       <Draggable draggableId={field._id} index={index} key={index}>
         {(provided, snapshot) => (
-          <Fragment>
+          <React.Fragment>
             <SortItem
               innerRef={provided.innerRef}
               {...provided.draggableProps}
@@ -67,7 +67,7 @@ class SortableList extends Component<Props> {
               {child(field)}
             </SortItem>
             {provided.placeholder}
-          </Fragment>
+          </React.Fragment>
         )}
       </Draggable>
     );

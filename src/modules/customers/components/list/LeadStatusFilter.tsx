@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { withRouter } from 'react-router';
 
 import { DataWithLoader, Icon } from 'modules/common/components';
@@ -15,7 +15,7 @@ interface IProps extends IRouterProps {
   searchable?: boolean;
 };
 
-class LeadStatusFilter extends Component<IProps> {
+class LeadStatusFilter extends React.Component<IProps> {
   constructor(props, context) {
     super(props, context);
 

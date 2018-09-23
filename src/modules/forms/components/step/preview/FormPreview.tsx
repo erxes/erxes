@@ -1,5 +1,5 @@
 import { IField } from "modules/settings/properties/types";
-import React, { Component } from "react";
+import * as React from "react";
 import { FormFieldPreview } from "./";
 import CommonPreview from "./CommonPreview";
 
@@ -15,7 +15,7 @@ type Props = {
   type: string;
 };
 
-class FormPreview extends Component<Props, {}> {
+class FormPreview extends React.Component<Props, {}> {
   render() {
     const {
       formTitle,

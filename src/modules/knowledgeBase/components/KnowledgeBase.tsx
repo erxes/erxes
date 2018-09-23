@@ -6,7 +6,7 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { ArticleForm, ArticleList, KnowledgeList } from '../containers';
 import { ICategory } from '../types';
 
@@ -17,7 +17,7 @@ type Props = {
   currentCategory: ICategory;
 };
 
-class KnowledgeBase extends Component<Props> {
+class KnowledgeBase extends React.Component<Props> {
   breadcrumb() {
     const currentCategory = this.props.currentCategory || { title: '', firstTopic: { title: '' } };
     const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };

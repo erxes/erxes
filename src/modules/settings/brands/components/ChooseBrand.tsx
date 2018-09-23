@@ -1,5 +1,5 @@
 import { IIntegration } from 'modules/settings/integrations/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import {
   Button,
   ControlLabel,
@@ -17,7 +17,7 @@ type Props = {
   closeModal?: () => void;
 }
 
-class ChooseBrand extends Component<Props> {
+class ChooseBrand extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

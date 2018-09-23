@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { withRouter } from 'react-router';
 
 import { DataWithLoader, Icon } from 'modules/common/components';
@@ -15,7 +15,7 @@ interface IProps extends IRouterProps {
   searchable?: boolean;
 };
 
-class LifecycleStateFilter extends Component<IProps> {
+class LifecycleStateFilter extends React.Component<IProps> {
   constructor(props, context) {
     super(props, context);
 

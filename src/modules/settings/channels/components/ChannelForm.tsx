@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import Select from 'react-select-plus';
 import { IChannel } from "../types";
 
@@ -25,7 +25,7 @@ type State = {
   selectedMembers: IUser[],
 };
 
-class ChannelForm extends Component<Props, State> {
+class ChannelForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -75,7 +75,7 @@ class ChannelForm extends Component<Props, State> {
     const self = this;
 
     return (
-      <Fragment>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -111,7 +111,7 @@ class ChannelForm extends Component<Props, State> {
             multi
           />
         </FormGroup>
-      </Fragment>
+      </React.Fragment>
     );
   }
 

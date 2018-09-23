@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { SidebarList as List } from 'modules/layout/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 
@@ -10,7 +10,7 @@ type Props = {
   title: string;
 };
 
-class Sidebar extends Component<Props> {
+class Sidebar extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

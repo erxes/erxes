@@ -3,7 +3,7 @@ import { Alert } from 'modules/common/utils';
 import { ManageIntegrations } from 'modules/settings/integrations/containers/common';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
 import { IChannel } from '../types';
@@ -19,7 +19,7 @@ type Props = {
   queryParams: any;
 };
 
-class ManageIntegrationsContainer extends Component<Props, {}> {
+class ManageIntegrationsContainer extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 

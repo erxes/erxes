@@ -1,7 +1,7 @@
 import { Button, FormControl } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 
 const EditorActions = styled.div`
@@ -23,7 +23,7 @@ const EditorWrapper = styled.div`
   }
 `;
 
-class Form extends Component<{create: (content: string) => void}, { content: string, editing: boolean }> {
+class Form extends React.Component<{create: (content: string) => void}, { content: string, editing: boolean }> {
   constructor(props) {
     super(props);
 

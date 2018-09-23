@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { IProduct } from '../types';
 import { Form, Row } from './';
 
@@ -28,7 +28,7 @@ type Props = {
   loading: boolean;
 };
 
-class List extends Component<Props> {
+class List extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

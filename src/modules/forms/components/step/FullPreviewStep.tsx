@@ -1,6 +1,6 @@
 import { __ } from "modules/common/utils";
 import { IField } from "modules/settings/properties/types";
-import React, { Component } from "react";
+import * as React from "react";
 import { CalloutPreview, FormPreview, SuccessPreview } from "./preview";
 import {
   CarouselInner,
@@ -32,7 +32,7 @@ type Props = {
   skip?: boolean;
 };
 
-class FullPreviewStep extends Component<Props, {}> {
+class FullPreviewStep extends React.Component<Props, {}> {
   renderTabs(name: string, value: string) {
     return (
       <Tabs

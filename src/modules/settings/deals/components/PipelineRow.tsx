@@ -1,5 +1,5 @@
 import { ActionButtons, Button, Tip } from 'modules/common/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { PipelineRowContainer } from '../styles';
 import { IPipeline } from '../types';
 
@@ -9,7 +9,7 @@ type Props = {
   remove: (_id: string) => void;
 };
 
-class PipelineRow extends Component<Props> {
+class PipelineRow extends React.Component<Props> {
   renderExtraLinks() {
     const { edit, remove, pipeline } = this.props;
 

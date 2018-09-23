@@ -4,7 +4,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import { IPipeline, IStage } from '../types';
 import { Stages } from './';
@@ -22,7 +22,7 @@ type State = {
   stages: IStage[],
 };
 
-class PipelineForm extends Component<Props, State> {
+class PipelineForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -62,7 +62,7 @@ class PipelineForm extends Component<Props, State> {
     const { stages } = this.state;
 
     return (
-      <Fragment>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -76,7 +76,7 @@ class PipelineForm extends Component<Props, State> {
         </FormGroup>
 
         <Stages stages={stages} onChangeStages={this.onChangeStages} />
-      </Fragment>
+      </React.Fragment>
     );
   }
 

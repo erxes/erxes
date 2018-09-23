@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 
 export default function asyncComponent(importComponent: any) {
-  class AsyncComponent extends Component<any, { component: any }> {
+  class AsyncComponent extends React.Component<any, { component: any }> {
     constructor(props) {
       super(props);
 

@@ -6,7 +6,7 @@ import {
 } from 'modules/common/components';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import { MessengerPreview } from '../containers';
 import { IEngageMessenger, IEngageScheduleDate } from '../types';
@@ -31,7 +31,7 @@ type State = {
   scheduleDate: IEngageScheduleDate;  
 }
 
-class MessengerForm extends Component<Props, State> {
+class MessengerForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

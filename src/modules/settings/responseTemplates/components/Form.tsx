@@ -10,7 +10,7 @@ import {
   toHTML
 } from 'modules/common/components/editor/Editor';
 import { __ } from 'modules/common/utils';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { IBrand } from '../../brands/types';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
@@ -25,7 +25,7 @@ type State = {
   editorState: EditorState;
 }
 
-class Form extends Component<Props & ICommonFormProps, State> {
+class Form extends React.Component<Props & ICommonFormProps, State> {
   constructor(props) {
     super(props);
 
@@ -73,7 +73,7 @@ class Form extends Component<Props & ICommonFormProps, State> {
     };
 
     return (
-      <Fragment>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel>Brand</ControlLabel>
 
@@ -105,7 +105,7 @@ class Form extends Component<Props & ICommonFormProps, State> {
           <ControlLabel>Content</ControlLabel>
           <ErxesEditor bordered {...props} />
         </FormGroup>
-      </Fragment>
+      </React.Fragment>
     );
   }
 

@@ -8,13 +8,13 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { ContentBox } from 'modules/settings/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 
 type Props = {
   save: (params: { name: string }) => void;
 };
 
-class Calendar extends Component<Props> {
+class Calendar extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

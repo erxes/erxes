@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import { IUser } from 'modules/auth/types';
 import { NameCard } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
-import moment from 'moment';
-import React, { Component } from 'react';
+import * as moment from 'moment';
+import * as React from 'react';
 import { withRouter } from 'react-router';
 import { INotification } from '../types';
 
@@ -13,7 +13,7 @@ interface IProps extends IRouterProps {
   createdUser?: IUser;
 };
 
-class NotificationRow extends Component<IProps> {
+class NotificationRow extends React.Component<IProps> {
   constructor(props) {
     super(props);
 

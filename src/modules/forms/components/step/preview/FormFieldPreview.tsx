@@ -1,6 +1,6 @@
 import { SortableList } from "modules/common/components";
 import { IField } from "modules/settings/properties/types";
-import React, { Component } from "react";
+import * as React from "react";
 import { FieldPreview } from "./";
 
 type Props = {
@@ -13,7 +13,7 @@ type State = {
   fields?: IField[];
 };
 
-class FormFieldPreview extends Component<Props, State> {
+class FormFieldPreview extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

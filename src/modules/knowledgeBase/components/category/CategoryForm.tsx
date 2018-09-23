@@ -6,7 +6,7 @@ import {
   Icon
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import Select from 'react-select-plus';
 import { icons } from '../../icons.constant';
 import { ICategory } from '../../types';
@@ -28,7 +28,7 @@ type State = {
   selectedIcon: string;
 }
 
-class CategoryForm extends Component<Props, State> {
+class CategoryForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -91,7 +91,7 @@ class CategoryForm extends Component<Props, State> {
 
   renderContent(category = { title: '', description: '' }) {
     return (
-      <Fragment>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -122,7 +122,7 @@ class CategoryForm extends Component<Props, State> {
             valueRenderer={this.renderOption}
           />
         </FormGroup>
-      </Fragment>
+      </React.Fragment>
     );
   }
 

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 
 type Props = {
   children: React.ReactNode;
@@ -6,7 +6,7 @@ type Props = {
   bsRole: string;
 };
 
-class DropdownToggle extends Component<Props> {
+class DropdownToggle extends React.Component<Props> {
   constructor(props, context) {
     super(props, context);
 

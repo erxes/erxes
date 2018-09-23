@@ -1,5 +1,5 @@
 import { __ } from 'modules/common/utils';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 
 type Props = {
@@ -15,7 +15,7 @@ type State = {
   isOpen?: boolean;
 }
 
-class ModalTrigger extends Component<Props, State> {
+class ModalTrigger extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -49,7 +49,7 @@ class ModalTrigger extends Component<Props, State> {
     });
 
     return (
-      <Fragment>
+      <React.Fragment>
         {triggerComponent}
 
         <Modal
@@ -65,7 +65,7 @@ class ModalTrigger extends Component<Props, State> {
             {content({ closeModal: this.closeModal })}
           </Modal.Body>
         </Modal>
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

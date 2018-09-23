@@ -1,6 +1,6 @@
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import {
   InsightContent,
@@ -22,7 +22,7 @@ type Props = {
   isLoading?: boolean;
 };
 
-class ResponseCloseReport extends Component<Props> {
+class ResponseCloseReport extends React.Component<Props> {
 
   renderTitle(title: string, time?: string) {
     return (

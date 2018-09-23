@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { ManageIntegrations } from 'modules/settings/integrations/components/common';
 import { queries } from 'modules/settings/integrations/graphql';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 
 type Props = {
@@ -15,7 +15,7 @@ type State = {
   perPage: number;
 };
 
-class ManageIntegrationsContainer extends Component<Props, State> {
+class ManageIntegrationsContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

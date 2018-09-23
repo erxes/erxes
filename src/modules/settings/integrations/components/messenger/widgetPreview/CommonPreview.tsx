@@ -1,7 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { Messenger, MessengerPreview } from 'modules/engage/styles';
 import { LogoContainer } from 'modules/settings/styles';
-import React, { Component } from 'react';
+import * as React from 'react';
 import WidgetPreview from './WidgetPreview';
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
   logoPreviewUrl?: string;
 };
 
-class CommonPreview extends Component<Props> {
+class CommonPreview extends React.Component<Props> {
   render() {
     const {
       logoPreviewStyle,

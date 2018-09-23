@@ -1,6 +1,6 @@
 import { colors } from 'modules/common/styles';
 import { renderFullName } from 'modules/common/utils';
-import React, { Fragment } from 'react';
+import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -50,7 +50,7 @@ class Items extends React.Component<Props> {
 
     if (length === 0) return null;
 
-    return <Fragment>{this.renderItems(items)}</Fragment>;
+    return <React.Fragment>{this.renderItems(items)}</React.Fragment>;
   }
 }
 

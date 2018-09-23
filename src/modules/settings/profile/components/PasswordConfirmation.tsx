@@ -5,14 +5,14 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import React, { Component } from 'react';
+import * as React from 'react';
 
 type Props = {
   onSuccess: (password: string) => void;
   closeModal: () => void;
 };
 
-class PasswordConfirmation extends Component<Props> {
+class PasswordConfirmation extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

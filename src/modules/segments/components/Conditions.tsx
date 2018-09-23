@@ -1,6 +1,6 @@
 import { Button } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { ISegmentCondition } from '../types';
 import Condition from './Condition';
@@ -14,14 +14,14 @@ type Props = {
   contentType?: string;
 };
 
-class Conditions extends Component<Props> {
+class Conditions extends React.Component<Props> {
   renderParent() {
     const { contentType, parentSegmentId } = this.props;
 
     if (!parentSegmentId) return null;
 
     return (
-      <Fragment>
+      <React.Fragment>
         <Link
           to={`/segments/edit/${contentType}/${parentSegmentId}`}
           target="_blank"
@@ -31,7 +31,7 @@ class Conditions extends Component<Props> {
           </Button>
         </Link>
         <hr />
-      </Fragment>
+      </React.Fragment>
     );
   }
 
@@ -39,7 +39,7 @@ class Conditions extends Component<Props> {
     const { fields, conditions, changeCondition, removeCondition } = this.props;
 
     return (
-      <Fragment>
+      <React.Fragment>
         {this.renderParent()}
         {conditions.map(condition => (
           <Condition
@@ -50,7 +50,7 @@ class Conditions extends Component<Props> {
             key={condition.field}
           />
         ))}
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

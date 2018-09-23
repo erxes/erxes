@@ -1,10 +1,10 @@
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Box, BoxName, Divider, Row, RowTitle } from '../styles';
 
-class Settings extends Component {
+class Settings extends React.Component {
   renderBox(name: string, image: string, to: string) {
     return (
       <Box>

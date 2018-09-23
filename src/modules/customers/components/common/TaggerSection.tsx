@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
 import { Tagger } from 'modules/tags/containers';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
 
 type Props = {
@@ -16,7 +16,7 @@ type State = {
   isTaggerVisible: boolean,
 }
 
-class TaggerSection extends Component<Props, State> {
+class TaggerSection extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 

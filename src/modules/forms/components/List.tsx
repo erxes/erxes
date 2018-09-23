@@ -10,7 +10,7 @@ import { __ } from "modules/common/utils";
 import { Wrapper } from "modules/layout/components";
 import { BarItems } from "modules/layout/styles";
 import { TaggerPopover } from "modules/tags/components";
-import React, { Component } from "react";
+import * as React from "react";
 import { Link } from "react-router-dom";
 import { ITag } from "../../tags/types";
 import { IFormIntegration } from "../types";
@@ -30,7 +30,7 @@ type Props = {
   remove: (_id: string, callback: (error: Error) => void) => void;
 };
 
-class List extends Component<Props, {}> {
+class List extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 

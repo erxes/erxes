@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import {
   Button,
   ControlLabel,
@@ -16,7 +16,7 @@ type Props = {
   closeModal: () => void;
 }
 
-class BrandForm extends Component<Props, {}> {
+class BrandForm extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 

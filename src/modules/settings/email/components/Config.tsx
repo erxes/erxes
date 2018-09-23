@@ -6,7 +6,7 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { IBrand } from '../../brands/types';
 
 type Props = {
@@ -21,7 +21,7 @@ type State = {
   template: string;
 };
 
-class Config extends Component<Props, State> {
+class Config extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

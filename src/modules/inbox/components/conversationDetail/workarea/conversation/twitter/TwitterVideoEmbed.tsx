@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import * as React from "react";
 import script from "scriptjs";
 
 script("https://platform.twitter.com/widgets.js", "twitter-embed");
@@ -7,7 +7,7 @@ type Props = {
   id: string;
 };
 
-class TwitterVideoEmbed extends Component<Props, {}> {
+class TwitterVideoEmbed extends React.Component<Props, {}> {
   private embedContainer;
 
   constructor(props) {

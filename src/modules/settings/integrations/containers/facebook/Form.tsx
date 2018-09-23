@@ -3,7 +3,7 @@ import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IPages } from '../../types';
@@ -22,7 +22,7 @@ type State = {
   pages: IPages[];
 };
 
-class FacebookContainer extends Component<IProps, State> {
+class FacebookContainer extends React.Component<IProps, State> {
   constructor(props: IProps) {
     super(props);
 

@@ -1,12 +1,12 @@
 import { Button, FormControl, FormGroup } from 'modules/common/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { AuthBox } from '../styles';
 
 type Props = {
   resetPassword: (newPassword: string) => void;
 };
 
-class ResetPassword extends Component<Props, { newPassword: string }> {
+class ResetPassword extends React.Component<Props, { newPassword: string }> {
   constructor(props) {
     super(props);
 

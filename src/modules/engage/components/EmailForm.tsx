@@ -6,8 +6,8 @@ import {
 } from 'modules/common/components';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
-import React, { Component } from 'react';
-import ReactDom from 'react-dom';
+import * as React from 'react';
+import * as ReactDom from 'react-dom';
 import styled from 'styled-components';
 import { IUser } from '../../auth/types';
 import { IEmailTemplate } from '../../settings/emailTemplates/types';
@@ -52,7 +52,7 @@ type State = {
   scheduleDate?: IEngageScheduleDate;
 }
 
-class EmailForm extends Component<Props, State> {
+class EmailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

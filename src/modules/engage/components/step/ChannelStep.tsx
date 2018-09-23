@@ -5,7 +5,7 @@ import { __ } from 'modules/common/utils';
 import { METHODS } from 'modules/engage/constants';
 import styledTS from 'styled-components-ts';
 
-import React, { Component } from 'react';
+import * as React from 'react';
 
 const Box = styledTS<{ selected: boolean }>(BoxRoot.extend)`
   width: 320px;
@@ -39,7 +39,7 @@ type Props = {
   method: string;
 };
 
-class ChannelStep extends Component<Props> {
+class ChannelStep extends React.Component<Props> {
   renderBox(name, icon, desc) {
     return (
       <Box

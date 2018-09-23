@@ -1,5 +1,5 @@
 import { FacebookComment } from "modules/inbox/containers/conversationDetail";
-import React, { Component, Fragment } from "react";
+import * as React from 'react';
 import { IConversation, IMessage } from "../../../../../types";
 import { SimpleMessage } from "../messages";
 import { FacebookPost } from "./";
@@ -18,7 +18,7 @@ const getAttr = (message: IMessage, attr: string) => {
   return message.facebookData[attr];
 };
 
-export default class FacebookConversation extends Component<Props, {}> {
+export default class FacebookConversation extends React.Component<Props, {}> {
   renderReplies(comment: IMessage) {
     const { conversationMessages = [] } = this.props;
 
@@ -29,18 +29,18 @@ export default class FacebookConversation extends Component<Props, {}> {
     });
 
     return replies.map(reply => (
-      <Fragment key={reply._id}>
+      <React.Fragment key={reply._id}>
         <FacebookComment message={reply} />
-      </Fragment>
+      </React.Fragment>
     ));
   }
 
   renderComments(comments: IMessage[]) {
     return comments.map(comment => (
-      <Fragment key={comment._id}>
+      <React.Fragment key={comment._id}>
         <FacebookComment message={comment} />
         {this.renderReplies(comment)}
-      </Fragment>
+      </React.Fragment>
     ));
   }
 
@@ -91,11 +91,11 @@ export default class FacebookConversation extends Component<Props, {}> {
     }
 
     return (
-      <Fragment>
+      <React.Fragment>
         <FacebookPost message={post} scrollBottom={scrollBottom} />
         {this.renderComments(comments)}
         {this.renderInternals(internalMessages)}
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

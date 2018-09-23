@@ -1,7 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { EmailForm, MessengerForm } from '../';
 import { IEngageEmail, IEngageMessenger, IEngageScheduleDate } from '../../types';
 
@@ -19,7 +19,7 @@ type Props = {
   scheduleDate: IEngageScheduleDate;
 };
 
-class MessageStep extends Component<Props> {
+class MessageStep extends React.Component<Props> {
   render() {
     const {
       brands,

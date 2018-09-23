@@ -1,6 +1,6 @@
 import { __ } from 'modules/common/utils';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
 import Entry from './Entry';
 import { CollapsibleContent, IntegrationRow } from './styles';
@@ -16,7 +16,7 @@ type State = {
   kind: string | null
 };
 
-class Row extends Component<Props, State> {
+class Row extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -79,7 +79,7 @@ class Row extends Component<Props, State> {
     const { integrations, title, totalCount } = this.props;
 
     return (
-      <Fragment>
+      <React.Fragment>
         {title && <h3>{__(title)}</h3>}
         <IntegrationRow>
           {integrations.map(integration => (
@@ -95,7 +95,7 @@ class Row extends Component<Props, State> {
         <Collapse in={this.state.isContentVisible}>
           <CollapsibleContent>{this.renderIntegrations()}</CollapsibleContent>
         </Collapse>
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

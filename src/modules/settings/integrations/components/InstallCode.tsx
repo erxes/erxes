@@ -2,9 +2,9 @@ import { Button, EmptyState } from "modules/common/components";
 import { ModalFooter } from "modules/common/styles/main";
 import { IIntegration } from "modules/settings/integrations/types";
 import { MarkdownWrapper } from "modules/settings/styles";
-import React, { Component, Fragment } from "react";
+import * as React from 'react';
 import CopyToClipboard from "react-copy-to-clipboard";
-import ReactMarkdown from "react-markdown";
+import * as ReactMarkdown from "react-markdown";
 
 type Props = {
   integration: IIntegration;
@@ -44,7 +44,7 @@ const getInstallCode = brandCode => {
   `;
 };
 
-class InstallCode extends Component<Props, State> {
+class InstallCode extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -66,7 +66,7 @@ class InstallCode extends Component<Props, State> {
 
   render() {
     return (
-      <Fragment>
+      <React.Fragment>
         <MarkdownWrapper>
           <ReactMarkdown source={this.state.code} />
           {this.state.code ? (
@@ -92,7 +92,7 @@ class InstallCode extends Component<Props, State> {
             Cancel
           </Button>
         </ModalFooter>
-      </Fragment>
+      </React.Fragment>
     );
   }
 }

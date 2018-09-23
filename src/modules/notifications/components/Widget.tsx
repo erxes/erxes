@@ -1,6 +1,6 @@
 import { EmptyState, Icon, Label } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { NotificationsLatest } from '../containers';
 import {
@@ -12,7 +12,7 @@ import {
   Toggler
 } from './styles';
 
-class Widget extends Component<{ unreadCount: number }, { activeFirst: boolean }> {
+class Widget extends React.Component<{ unreadCount: number }, { activeFirst: boolean }> {
   constructor(props) {
     super(props);
 

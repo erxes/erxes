@@ -14,7 +14,7 @@ import { Action } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 
 type Props = {
@@ -23,7 +23,7 @@ type Props = {
   merge: (doc: { ids: string[], data: ICustomer }) => void;
 };
 
-class BasicInfo extends Component<Props> {
+class BasicInfo extends React.Component<Props> {
   renderLink(link, icon) {
     if (link) {
       return (
@@ -105,7 +105,7 @@ class BasicInfo extends Component<Props> {
     const { links = {}, isUser } = customer;
 
     return (
-      <Fragment>
+      <React.Fragment>
         <InfoWrapper>
           <AvatarWrapper isUser={isUser}>
             <NameCard.Avatar customer={customer} size={50} />
@@ -144,7 +144,7 @@ class BasicInfo extends Component<Props> {
           {this.renderRow('Description', customer.description)}
           {this.renderRow('Do not disturb', customer.doNotDisturb)}
         </SidebarList>
-      </Fragment>
+      </React.Fragment>
     );
   }
 

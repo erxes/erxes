@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { FormControl, NameCard, Tags } from 'modules/common/components';
 import { urlParser } from 'modules/common/utils';
-import moment from 'moment';
+import * as moment from 'moment';
 import * as React from 'react';
 import { FlexItem } from '../../styles';
 import { ICompany } from '../../types';

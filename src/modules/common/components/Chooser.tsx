@@ -6,7 +6,7 @@ import {
   ModalTrigger
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
 
@@ -31,7 +31,7 @@ type State = {
   searchValue: string;
 }
 
-class CommonChooser extends Component<Props, State> {
+class CommonChooser extends React.Component<Props, State> {
   private timer?: NodeJS.Timer;
 
   constructor(props) {

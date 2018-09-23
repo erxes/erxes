@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import * as React from "react";
 import CommonPreview from "./CommonPreview";
 import { ThankContent } from "./styles";
 
@@ -10,7 +10,7 @@ type Props = {
   theme: string;
 };
 
-class SuccessPreview extends Component<Props, {}> {
+class SuccessPreview extends React.Component<Props, {}> {
   render() {
     const { theme, color, thankContent, type } = this.props;
 

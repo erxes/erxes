@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import { BrandForm, BrandRow } from '.';
 import {
   EmptyState,
@@ -23,7 +23,7 @@ type Props = {
   brandsTotalCount: number;
 };
 
-class Sidebar extends Component<Props, {}>  {
+class Sidebar extends React.Component<Props, {}>  {
   constructor(props) {
     super(props);
 

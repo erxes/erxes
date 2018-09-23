@@ -12,11 +12,11 @@ import {
   ColorPicker,
   MarkdownWrapper
 } from 'modules/settings/styles';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import ReactMarkdown from 'react-markdown';
+import * as ReactMarkdown from 'react-markdown';
 import { ITopic } from '../../types';
 import SelectBrand from '../SelectBrand';
 
@@ -41,7 +41,7 @@ type State = {
   color: string;
 }
 
-class KnowledgeForm extends Component<Props, State> {
+class KnowledgeForm extends React.Component<Props, State> {
   static installCodeIncludeScript() {
     return `
       (function() {
@@ -180,7 +180,7 @@ class KnowledgeForm extends Component<Props, State> {
     );
 
     return (
-      <Fragment>
+      <React.Fragment>
         <FormGroup>
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -242,7 +242,7 @@ class KnowledgeForm extends Component<Props, State> {
         </FormGroup>
 
         {this.renderInstallCode()}
-      </Fragment>
+      </React.Fragment>
     );
   }
 

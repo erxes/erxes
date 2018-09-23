@@ -5,7 +5,7 @@ import {
 } from "modules/common/components";
 import { LeftItem, Preview } from "modules/common/components/step/styles";
 import { IField } from "modules/settings/properties/types";
-import React, { Component } from "react";
+import * as React from "react";
 import { IFormData } from "../../../settings/integrations/types";
 import { SuccessPreview } from "./preview";
 import { FlexItem } from "./style";
@@ -24,7 +24,7 @@ type State = {
   successAction?: string;
 };
 
-class SuccessStep extends Component<Props, State> {
+class SuccessStep extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 

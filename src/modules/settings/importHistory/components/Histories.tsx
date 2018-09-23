@@ -1,7 +1,7 @@
 import { DataWithLoader, Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import React, { Component } from 'react';
+import * as React from 'react';
 import Sidebar from '../../properties/components/Sidebar';
 import { IImportHistory } from '../types';
 import HistoryRow from './Row';
@@ -14,7 +14,7 @@ type Props = {
   loading: boolean;
 };
 
-class Histories extends Component<Props> {
+class Histories extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 

@@ -1,6 +1,6 @@
 import { Button, FormControl, FormGroup } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import React, { Component } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { AuthBox, Links } from '../styles';
 
@@ -13,7 +13,7 @@ type State = {
   password: string;
 }
 
-class SignIn extends Component<Props, State> {
+class SignIn extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
