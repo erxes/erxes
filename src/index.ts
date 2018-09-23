@@ -31,7 +31,9 @@ app.use(cors());
 
 app.use(userMiddleware);
 
-app.use('/graphql', graphqlExpress((req: any) => ({ schema, context: { user: req.user } })));
+app.use('/graphql', graphqlExpress((req: any) =>
+  ({ schema, context: { user: req.user } }) as any)
+);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
