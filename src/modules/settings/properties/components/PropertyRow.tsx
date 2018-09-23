@@ -54,7 +54,7 @@ class PropertyRow extends React.Component<Props, State> {
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
   }
 
-  renderActionButtons(data, remove, form) {
+  renderActionButtons(data, remove, content) {
     if (data.isDefinedByErxes) return null;
 
     return (
@@ -62,9 +62,7 @@ class PropertyRow extends React.Component<Props, State> {
         <ModalTrigger
           title="Edit Property"
           trigger={<Button btnStyle="link" icon="edit" />}
-          content={(props => { 
-            return  form
-          })}
+          content={content}
         />
         <Button
           btnStyle="link"
@@ -107,7 +105,7 @@ class PropertyRow extends React.Component<Props, State> {
           {this.renderActionButtons(
             field,
             removeProperty,
-            <PropertyForm field={field} queryParams={queryParams} />
+            (props) => <PropertyForm {...props} field={field} queryParams={queryParams} />
           )}
         </td>
       </tr>
@@ -153,7 +151,7 @@ class PropertyRow extends React.Component<Props, State> {
           {this.renderActionButtons(
             group,
             removePropertyGroup,
-            <PropertyGroupForm group={group} queryParams={queryParams} />
+            (props) => <PropertyGroupForm {...props} group={group} queryParams={queryParams} />
           )}
         </CollapseRow>
         <Collapse in={this.state.collapse}>
