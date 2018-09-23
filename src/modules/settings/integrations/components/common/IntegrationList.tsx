@@ -63,7 +63,7 @@ class IntegrationList extends Component<Props> {
           <ModalTrigger 
             title="Install code" 
             trigger={editTrigger}
-            content={(props) => <InstallCode integration={integration} />}
+            content={(props) => <InstallCode {...props} integration={integration} />}
           />
         </ActionButtons>
       );
