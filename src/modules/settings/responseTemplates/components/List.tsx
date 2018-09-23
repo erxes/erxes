@@ -13,18 +13,23 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
   }
 
   renderRows({ objects }) {
-    return objects.map((object, index) => (
-      <tr key={index}>
-        <td>{object.name}</td>
-        <RowActions
-          {...this.props}
-          object={object}
-          renderForm={(props) =>
-            <Form {...props} />
-          }
-        />
-      </tr>
-    ));
+    return objects.map((object, index) => {
+      const brand = object.brand || {};
+
+      return (
+        <tr key={index}>
+          <td>{brand.name}</td>
+          <td>{object.name}</td>
+          <RowActions
+            {...this.props}
+            object={object}
+            renderForm={(props) =>
+              <Form {...props} />
+            }
+          />
+        </tr>
+      );
+    });
   }
 
   renderContent(props) {
