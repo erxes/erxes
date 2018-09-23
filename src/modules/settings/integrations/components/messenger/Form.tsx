@@ -50,12 +50,8 @@ class CreateMessenger extends Component<Props, State> {
     this.onChange = this.onChange.bind(this);
     this.save = this.save.bind(this);
 
-    const integration = props.integration;
+    const integration = props.integration || {} as IIntegration;
 
-    if (!integration) {
-      return;
-    }
-    
     const configData = integration.messengerData || {};
     const uiOptions = integration.uiOptions || {};
 
