@@ -14,25 +14,8 @@ import React, { Component } from 'react';
 import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
 import { Recipient, Recipients } from '../styles';
+import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '../types';
 import Editor from './Editor';
-
-type Doc = {
-  title: string;
-  customerIds: string[];
-  method: string;
-  email: object | {
-    templateId: string;
-    subject: string;
-    attachments: string[];
-    content: string;
-  }, 
-  messenger: object | {
-    brandId: string;
-    kind: string;
-    sentAs: string;
-    content: string;
-  }
-}
 
 type Props = {
   customers: ICustomer[];
@@ -40,7 +23,7 @@ type Props = {
   brands: IBrand[];
   messengerKinds: any[];
   sentAsChoices: any[];
-  save: (doc: Doc, closeModal: () => void) => void;
+  save: (doc: IEngageMessageDoc, closeModal: () => void) => void;
   closeModal: () => void;
 };
 
@@ -70,8 +53,7 @@ class WidgetForm extends Component<Props, State> {
       title: (document.getElementById('title') as HTMLInputElement).value,
       customerIds: customers.map(customer => customer._id),
       method: '',
-      email: {}, messenger: {}
-    };
+    } as IEngageMessageDoc;
 
     if (this.state.channel === 'email') {
       doc.method = METHODS.EMAIL;
@@ -80,7 +62,7 @@ class WidgetForm extends Component<Props, State> {
         subject: (document.getElementById('emailSubject') as HTMLInputElement).value,
         attachments: this.state.attachments,
         content: this.state.content
-      };
+      } as IEngageEmail;
     }
 
     if (this.state.channel === 'messenger') {
@@ -90,7 +72,7 @@ class WidgetForm extends Component<Props, State> {
         kind: (document.getElementById('messengerKind') as HTMLInputElement).value,
         sentAs: (document.getElementById('sentAs') as HTMLInputElement).value,
         content: this.state.content
-      };
+      } as IEngageMessenger;
     }
 
     return save(doc, () => this.props.closeModal());
