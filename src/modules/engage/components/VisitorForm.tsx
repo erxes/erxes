@@ -15,6 +15,7 @@ import { IEngageMessage, IEngageMessageDoc, IEngageMessenger, IEngageRule, IEnga
 import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
+import { IBreadCrumbItem } from '../../common/types';
 import MessengerForm from './MessengerForm';
 
 type Props = {
@@ -23,7 +24,7 @@ type Props = {
   users: IUser[];
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (type: string, doc: IEngageMessageDoc) => { status: string, doc?: IEngageMessageDoc };
-  renderTitle: () => React.ReactNode;
+  renderTitle: () => IBreadCrumbItem[];
 };
 
 type State = {

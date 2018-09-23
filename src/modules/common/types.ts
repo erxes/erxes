@@ -9,3 +9,8 @@ export interface IAttachment {
     type: string;
     url: string;
 }
+
+export interface IBreadCrumbItem {
+  title: string;
+  link?: string;
+}

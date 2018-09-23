@@ -7,6 +7,7 @@ import {
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/Sidebar';
 import * as React from 'react';
+import { IBreadCrumbItem } from '../../../common/types';
 import { ICommonListProps } from '../types';
 
 type Props = {
@@ -14,7 +15,7 @@ type Props = {
   size?: string;
   renderForm: (doc: { save: () => void , closeModal: () => void }) => any;
   renderContent: (params: any) => any;
-  breadcrumb?: any[];
+  breadcrumb?: IBreadCrumbItem[];
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -52,7 +53,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header breadcrumb={breadcrumb || []} />}
         leftSidebar={<Sidebar />}
         actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
         footer={<Pagination count={totalCount} />}

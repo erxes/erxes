@@ -1,3 +1,4 @@
+import { IBreadCrumbItem } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import React, { Component, Fragment } from 'react';
 import { IEngageMessageDoc } from '../types';
@@ -5,7 +6,7 @@ import { IEngageMessageDoc } from '../types';
 type Props = {
   kind: string;
   content: (params: {
-    renderTitle: () => React.ReactNode;
+    renderTitle: () => IBreadCrumbItem[];
     validateDoc: (type: string, doc: IEngageMessageDoc) => { status: string, doc?: IEngageMessageDoc };
   }) => any;
 };
@@ -80,11 +81,7 @@ class FormBase extends Component<Props> {
   renderTitle() {
     const { kind } = this.props;
 
-    let title = __('Show statistics');
-
-    if (kind === 'auto') {
-      title = __('Auto message');
-    }
+    let title = __('Auto message');
 
     if (kind === 'manual') {
       title = __('Manual message');
