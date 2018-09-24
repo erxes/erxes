@@ -22,21 +22,23 @@ import TagsRoutes from './modules/tags/routes';
 const renderRoutes = currentUser => {
   if (currentUser) {
     return (
-      <MainWrapper>
-        <MainBar />
-        <InboxRoutes />
-        <SegmentsRoutes />
-        <CustomersRoutes />
-        <CompaniesRoutes />
-        <InsightsRoutes />
-        <EngageRoutes />
-        <KnowledgeBaseRoutes />
-        <FormRoutes />
-        <SettingsRoutes />
-        <TagsRoutes />
-        <NotificationRoutes />
-        <DealsRoutes />
-      </MainWrapper>
+      <MainLayout currentUser={currentUser}>
+        <MainWrapper>
+          <MainBar />
+          <InboxRoutes />
+          <SegmentsRoutes />
+          <CustomersRoutes />
+          <CompaniesRoutes />
+          <InsightsRoutes />
+          <EngageRoutes />
+          <KnowledgeBaseRoutes />
+          <FormRoutes />
+          <SettingsRoutes />
+          <TagsRoutes />
+          <NotificationRoutes />
+          <DealsRoutes />
+        </MainWrapper>
+      </MainLayout>
     );
   }
 
@@ -45,9 +47,7 @@ const renderRoutes = currentUser => {
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => (
   <Router>
-    <MainLayout currentUser={currentUser}>
-      {renderRoutes(currentUser)}
-    </MainLayout>
+     {renderRoutes(currentUser)}
   </Router>
 );
 

@@ -116,7 +116,7 @@ class ConditionStep extends React.Component<Props, State> {
 
   render() {
     return (
-      <FlexPad>
+      <FlexPad overflow="auto" direction="column">
         <FormGroup>
           <ControlLabel>Add rule</ControlLabel>
           <FormControl componentClass="select" onChange={this.addRule}>
