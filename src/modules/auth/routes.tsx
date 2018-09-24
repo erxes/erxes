@@ -7,8 +7,14 @@ import { ForgotPassword, ResetPassword, SignIn } from './containers';
 const routes = () => (
   <React.Fragment>
     <Route
+      path="/"
+      component={() => {
+        return <AuthLayout content={<SignIn />} />;
+      }}
+    />
+
+    <Route
       path="/sign-in"
-      key="signIn"
       component={() => {
         return <AuthLayout content={<SignIn />} />;
       }}
@@ -16,7 +22,6 @@ const routes = () => (
 
     <Route
       path="/forgot-password"
-      key="forgotPassword"
       component={() => {
         return <AuthLayout content={<ForgotPassword />} />;
       }}
@@ -24,7 +29,6 @@ const routes = () => (
 
     <Route
       path="/reset-password"
-      key="resetPassword"
       component={({ location }) => {
         const parsed = queryString.parse(location.search);
         return <AuthLayout content={<ResetPassword token={parsed.token || ''} />} />;
