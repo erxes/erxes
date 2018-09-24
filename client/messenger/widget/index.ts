@@ -150,9 +150,11 @@ window.addEventListener("message", async (event: MessageEvent) => {
     }
 
     if (message === "notifier") {
-      erxesContainer.className += ` erxes-notifier-${
-        isVisible ? "shown" : "hidden"
-      }`;
+      hideDelayTimer = setTimeout(() => {
+        erxesContainer.className += ` erxes-notifier-${
+          isVisible ? "shown" : "hidden"
+        }`;
+      }, 300);
     }
 
     if (message === "notifierFull") {
