@@ -23,6 +23,7 @@ const isMobile =
 
 let viewportContent = "";
 let generatedContent = "";
+let hideDelayTimer: any;
 
 if (isMobile) {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
@@ -132,9 +133,18 @@ window.addEventListener("message", async (event: MessageEvent) => {
     }
 
     if (message === "messenger") {
-      erxesContainer.className = `erxes-messenger-${
-        isVisible ? "shown" : "hidden"
-      }`;
+      if (hideDelayTimer) {
+        clearTimeout(hideDelayTimer);
+      }
+
+      if (isVisible) {
+        erxesContainer.className = "erxes-messenger-shown";
+      } else {
+        hideDelayTimer = setTimeout(() => {
+          erxesContainer.className = "erxes-messenger-hidden";
+        }, 300);
+      }
+
       erxesContainer.classList.toggle("small", isSmallContainer);
       document.body.classList.toggle("messenger-widget-shown", isVisible);
     }

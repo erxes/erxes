@@ -61,20 +61,6 @@
   }
 }
 
-@include keyframe(scaleIn) {
-  0% {
-    opacity: 0;
-    transform: scale(.4);
-    transform-origin: 100% 100%;
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    transform-origin: 100% 100%;
-  }
-}
-
 @include keyframe(slideIn) {
   from {
     opacity: 0;

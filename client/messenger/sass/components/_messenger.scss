@@ -6,12 +6,27 @@
   display: flex;
   flex-direction: column;
   height: calc(100% - 95px);
-  max-height: 620px;
+  max-height: 680px;
   overflow: hidden;
   position: absolute;
   right: 8px;
   width: calc(100% - 36px);
-  z-index: $z-index-above + 1;
+  z-index: $z-index-above;
+
+  > div {
+
+    &.visible {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      visibility: visible;
+    }
+
+    &.hide {
+      display: none;
+      visibility: hidden;
+    }
+  }
 
   @media screen and (max-width: $break-small) {
     border: none !important;

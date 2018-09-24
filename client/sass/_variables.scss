@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400&subset=cyrillic-ext');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500&subset=cyrillic-ext');
 
 // Colors
 $main-color: #673fbd;
@@ -32,7 +32,7 @@ $message-shadow: 0 1px 1px 0 rgba($black, .2);
 $tooltip-shadow: 0 7px 25px 5px rgba($black, .1);
 
 // z index
-$z-index-above: 2147483646;
+$z-index-above: 2147483647;
 
 // timing
 $timing-slide: cubic-bezier(.35, .35, .35, .98);

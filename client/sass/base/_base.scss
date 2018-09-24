@@ -5,10 +5,6 @@ body {
   margin: 0;
 }
 
-.appear-scale-in {
-  animation: scaleIn .2s $timing-scale 1;
-}
-
 .appear-slide-in {
   animation-delay: .2s;
   animation-duration: .2s;
@@ -57,9 +53,9 @@ body {
 
 .loader {
   @include animation(0, 1s, animationSpin, linear, infinite);
-  border: 2px solid $grey;
+  border: 2px solid rgba($black, .3);
   border-radius: 50%;
-  border-top: 2px solid darken($grey, 20%);
+  border-top: 2px solid rgba($black, .2);
   height: 20px;
   margin-right: -10px;
   margin-top: -10px;
@@ -137,6 +133,53 @@ body {
     cursor: pointer;
     text-decoration: none;
   }
+}
+
+// transitions
+// slide in
+.slide-in-enter,
+.slide-in-appear {
+  opacity: .2;
+  transform: translateY(10px);
+}
+
+.slide-in-enter-active,
+.slide-in-appear-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms $timing-slide;
+}
+
+.slide-in-exit,
+.slide-in-exit-active {
+  display: none;
+}
+
+// scale in
+.scale-in-enter {
+  opacity: 0;
+  transform: scale(.4);
+  transform-origin: 100% 100%;
+}
+
+.scale-in-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: 100% 100%;
+  transition: all .3s $timing-scale;
+}
+
+.scale-in-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scale-in-exit-active {
+  opacity: 0;
+  transform: scale(.4);
+  transform-origin: 100% 100%;
+  transition: all .3s $timing-scale;
+  transition-property: transform, opacity;
 }
 
 // scrollbar

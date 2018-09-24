@@ -16,9 +16,9 @@
   position: fixed;
   right: 8px;
   text-align: center;
-  transition: box-shadow .3s ease-in-out, background .3s ease-in;
+  transition: position, box-shadow .3s ease-in-out, background .3s ease-in;
   width: 56px;
-  z-index: $z-index-above;
+  z-index: $z-index-above - 1;
 
   span {
     background: $red;
