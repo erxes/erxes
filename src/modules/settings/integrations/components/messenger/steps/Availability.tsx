@@ -13,7 +13,7 @@ import { OnlineHours } from '.';
 import { IOnlineHour } from '../../../types';
 
 type Props = {
-  onChange: (name: string, value: string) => void;
+  onChange: (name: 'onlineHours' | 'isOnline' | 'availabilityMethod' | 'timezone', value: string) => void;
   isOnline: boolean;
   availabilityMethod?: string;
   timezone?: string;

@@ -80,8 +80,8 @@ class CreateMessenger extends React.Component<Props, State> {
     };
   }
 
-  onChange(key, value) {
-    this.setState({ [key]: value });
+  onChange<T extends keyof State>(key: T, value: State[T]) {
+    this.setState({ [key]: value } as Pick<State, keyof State>);
   }
 
   save(e) {

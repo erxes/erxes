@@ -25,7 +25,7 @@ type Props = {
   theme: string;
   image?: string;
   preview: string;
-  onChange: (name: string, value: IField[] | string | boolean) => void;
+  onChange: (name: 'preview' | 'carousel' , value: string) => void;
   fields?: IField[];
   carousel: string;
   thankContent?: string;

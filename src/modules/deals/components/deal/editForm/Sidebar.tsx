@@ -15,7 +15,7 @@ type Props = {
   companies: ICompany[];
   products: IProduct[];
   productsData: any;
-  onChangeField?: (name: string, value: any) => void;
+  onChangeField?: (name: 'productsData' | 'products' | 'companies' | 'customers', value: any) => void;
 
   // TODO: replace any
   removeDeal: any;

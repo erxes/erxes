@@ -49,8 +49,8 @@ class DealMove extends React.Component<Props, State> {
     }
   }
 
-  onChangeField(name, value) {
-    this.setState({ [name]: value });
+  onChangeField<T extends keyof State>(name: T, value: State[T]) {
+    this.setState({ [name]: value } as Pick<State, keyof State>);
   }
 
   toggleForm() {

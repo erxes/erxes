@@ -13,9 +13,6 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": false, //temporal
-    "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true,
-    "keyofStringsOnly": true,
     "strict": true,
     "skipLibCheck": true
   },

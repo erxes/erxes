@@ -4,7 +4,7 @@ import { ThankContent } from "./styles";
 
 type Props = {
   thankContent?: string;
-  onChange: (name: string, value: string) => void;
+  onChange: (name: any, value: string) => void;
   type?: string;
   color: string;
   theme: string;

@@ -4,7 +4,6 @@ import {
   FormGroup
 } from "modules/common/components";
 import { LeftItem, Preview } from "modules/common/components/step/styles";
-import { IField } from "modules/settings/properties/types";
 import * as React from "react";
 import { IFormData } from "../../../settings/integrations/types";
 import { SuccessPreview } from "./preview";
@@ -16,7 +15,7 @@ type Props = {
   theme: string;
   thankContent?: string;
   successAction?: string;
-  onChange: (name: string, value: IField[] | string | boolean) => void;
+  onChange: (name: 'successAction' | 'fromEmail' | 'userEmailTitle' | 'userEmailContent' | 'adminEmails' | 'adminEmailTitle' | 'redirectUrl' | 'thankContent', value: string) => void;
   formData?: IFormData;
 };
 
@@ -46,7 +45,7 @@ class SuccessStep extends React.Component<Props, State> {
     this.props.onChange("successAction", value);
   }
 
-  onChangeFunction(name: string, value: string) {
+  onChangeFunction(name: any, value: string) {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
   }

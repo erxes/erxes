@@ -55,6 +55,9 @@ type State = {
   fields?: IField[];
   isSkip?: boolean;
   color: string;
+  logoPreviewStyle?: { opacity?: string };
+  defaultValue: { [key: string]: boolean };
+  logo?: string;
 
   successAction?: string;
   fromEmail?: string;
@@ -97,6 +100,9 @@ class Form extends React.Component<Props, State> {
       formBtnText: form.buttonText || 'Send',
       calloutBtnText: callout.buttonText || 'Start',
       color: '',
+      logoPreviewStyle: {},
+      defaultValue: {},
+      logo: '',
       theme: form.themeColor || '#6569DF',
       logoPreviewUrl: callout.featuredImage,
       fields: fields || [],
@@ -174,8 +180,8 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  onChange(key: any, value: IField[] | string | boolean) {
-    this.setState({ [key]: value });
+  onChange<T extends keyof State>(key: T, value: State[T]) {
+    this.setState({ [key]: value } as Pick<State, keyof State>);
   }
 
   render() {

@@ -28,7 +28,7 @@ type Props = {
   closeModal?: () => void;
 };
 
-type Stage = {
+type State = {
   stageId: string;
   name: string;
   disabled: boolean;
@@ -36,7 +36,7 @@ type Stage = {
   pipelineId: string;
 }
 
-class DealAddForm extends React.Component<Props, Stage> {
+class DealAddForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -51,8 +51,8 @@ class DealAddForm extends React.Component<Props, Stage> {
     };
   }
 
-  onChangeField(name, value) {
-    this.setState({ [name]: value });
+  onChangeField<T extends keyof State>(name: T, value: State[T]) {
+    this.setState({ [name]: value } as Pick<State, keyof State>);
   }
 
   save(e) {

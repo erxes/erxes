@@ -117,8 +117,8 @@ class SegmentsForm extends React.Component<Props, State> {
     });
   }
 
-  handleChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
+  handleChange<T extends keyof State>(name: T, value: State[T]) {
+    this.setState({ [name]: value } as Pick<State, keyof State>);
   }
 
   save(e) {
@@ -165,10 +165,11 @@ class SegmentsForm extends React.Component<Props, State> {
           <FormGroup>
             {__('Users who match')}
             <FormControl
-              name="connector"
               componentClass="select"
               value={connector}
-              onChange={this.handleChange}
+              onChange={(e: React.FormEvent<HTMLElement>) =>
+                this.handleChange("connector", (e.currentTarget as HTMLInputElement).value)
+              }
             >
               <option value="any">{__('any')}</option>
               <option value="all">{__('all')}</option>
@@ -199,10 +200,11 @@ class SegmentsForm extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>Sub segment of</ControlLabel>
         <FormControl
-          name="subOf"
           componentClass="select"
           value={this.state.subOf || ''}
-          onChange={this.handleChange}
+          onChange={(e: React.FormEvent<HTMLElement>) =>
+            this.handleChange("subOf", (e.currentTarget as HTMLInputElement).value)
+          }
         >
           <option value="">[not selected]</option>
           {this.props.headSegments.map(segment => (
@@ -225,28 +227,31 @@ class SegmentsForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Name</ControlLabel>
               <FormControl
-                name="name"
                 required
                 value={name}
-                onChange={this.handleChange}
+                onChange={(e: React.FormEvent<HTMLElement>) =>
+                  this.handleChange("name", (e.currentTarget as HTMLInputElement).value)
+                }
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
-                name="description"
                 value={description}
-                onChange={this.handleChange}
+                onChange={(e: React.FormEvent<HTMLElement>) =>
+                  this.handleChange("description", (e.currentTarget as HTMLInputElement).value)
+                }
               />
             </FormGroup>
             {this.renderSubOf()}
             <FormGroup>
               <ControlLabel>Color</ControlLabel>
               <FormControl
-                name="color"
                 type="color"
                 value={color}
-                onChange={this.handleChange}
+                onChange={(e: React.FormEvent<HTMLElement>) =>
+                  this.handleChange("color", (e.currentTarget as HTMLInputElement).value)
+                }
               />
             </FormGroup>
           </form>

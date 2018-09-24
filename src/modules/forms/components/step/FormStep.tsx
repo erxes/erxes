@@ -19,7 +19,7 @@ type Props = {
   formDesc?: string;
   color: string;
   theme: string;
-  onChange: (name: string, fields: IField[] | string | boolean) => void;
+  onChange: (name: 'fields' | 'formTitle' | 'formDesc' | 'formBtnText' | 'type', fields: IField[] | string) => void;
   fields?: IField[];
 };
 
@@ -65,7 +65,7 @@ class FormStep extends React.Component<Props, State> {
     this.setFieldAttrChanges(name, value);
   }
 
-  onChangeState(name: string, value: string) {
+  onChangeState(name: any, value: string) {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
   }

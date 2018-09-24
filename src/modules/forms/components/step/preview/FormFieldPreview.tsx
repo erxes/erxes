@@ -6,7 +6,7 @@ import { FieldPreview } from "./";
 type Props = {
   fields?: IField[];
   onFieldEdit?: (field: IField) => void;
-  onChange: (name: string, fields: IField[]) => void;
+  onChange: (name: string, fields: any) => void;
 };
 
 type State = {

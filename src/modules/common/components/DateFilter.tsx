@@ -135,8 +135,8 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
   }
 
-  onDateChange(type, date) {
-    this.setState({ [type]: date });
+  onDateChange<T extends keyof State>(type: T, date: State[T]) {
+    this.setState({ [type]: date } as Pick<State, keyof State>);
   }
 
   refetchCountQuery() {
@@ -209,7 +209,11 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
               <Datetime
                 {...props}
                 value={this.state.startDate}
-                onChange={date => this.onDateChange('startDate', date)}
+                onChange={date => {
+                  if (typeof(date) !== "string") {
+                    this.onDateChange('startDate', date.toDate())
+                  }
+                }}
               />
             </FlexItem>
 
@@ -217,7 +221,11 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
               <Datetime
                 {...props}
                 value={this.state.endDate}
-                onChange={date => this.onDateChange('endDate', date)}
+                onChange={date => {
+                  if (typeof(date) !== "string") {
+                    this.onDateChange('endDate', date.toDate())
+                  }
+                }}
               />
             </FlexItem>
           </FlexRow>
