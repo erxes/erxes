@@ -4,7 +4,7 @@
   position: relative;
   min-height: 60px;
   border-top: 1px solid lighten($grey-light, 1%);
-  box-shadow:  0px 5px 25px 0px rgba(0, 0, 0, 0.05);
+  box-shadow:  0px 5px 25px 0px rgba($black, .05);
 
   textarea.reply {
     @include prefix((

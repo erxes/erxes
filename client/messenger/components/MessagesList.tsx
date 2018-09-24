@@ -14,7 +14,7 @@ type Props = {
 };
 
 class MessagesList extends React.Component<Props> {
-  private node: HTMLUListElement | null = null;
+  private node: HTMLDivElement | null = null;
   private shouldScrollBottom: boolean = false;
 
   componentDidMount() {
@@ -84,36 +84,24 @@ class MessagesList extends React.Component<Props> {
   render() {
     const { uiOptions, messengerData, messages, inputFocus } = this.props;
     const { color, wallpaper } = uiOptions;
-    const messagesClasses = classNames(
-      "erxes-messages-list",
-      "appear-slide-in",
-      {
-        [`bg-${wallpaper}`]: wallpaper
-      }
-    );
+    const backgroundClass = classNames("erxes-messages-background", {
+      [`bg-${wallpaper}`]: wallpaper
+    });
 
     return (
-      <ul
-        id="erxes-messages"
-        className={messagesClasses}
-        onClick={inputFocus}
+      <div
+        className={backgroundClass}
         ref={node => (this.node = node)}
+        onClick={inputFocus}
       >
-        {this.renderWelcomeMessage(messengerData)}
-        <ReactTransitionGroup.TransitionGroup>
+        <ul id="erxes-messages" className="erxes-messages-list appear-slide-in">
+          {this.renderWelcomeMessage(messengerData)}
           {messages.map(message => (
-            <ReactTransitionGroup.CSSTransition
-              key={message._id}
-              timeout={500}
-              classNames="slide-in"
-            >
-              <Message color={color} {...message} />
-            </ReactTransitionGroup.CSSTransition>
+            <Message key={message._id} color={color} {...message} />
           ))}
-        </ReactTransitionGroup.TransitionGroup>
-
-        {this.renderAwayMessage(messengerData)}
-      </ul>
+          {this.renderAwayMessage(messengerData)}
+        </ul>
+      </div>
     );
   }
 }

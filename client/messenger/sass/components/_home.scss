@@ -19,6 +19,7 @@ $shadow-black: rgba(0, 0, 0, .1);
 
     h4 {
       margin: 0 20px 15px;
+      font-weight: 500;
     }
 
     .empty-list {
@@ -74,6 +75,10 @@ $shadow-black: rgba(0, 0, 0, .1);
 
   .erxes-tooltip::before {
     top: -100%;
+  }
+
+  .loader-wrapper {
+    margin-left: -50px;
   }
 }
 

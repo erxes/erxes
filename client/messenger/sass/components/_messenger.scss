@@ -6,25 +6,25 @@
   display: flex;
   flex-direction: column;
   height: calc(100% - 95px);
-  max-height: 620px;
+  max-height: 680px;
   overflow: hidden;
   position: absolute;
   right: 8px;
   width: calc(100% - 36px);
-  z-index: $z-index-above + 1;
+  z-index: $z-index-above;
 
   > div {
 
     &.visible {
-      visibility: visible;
-      height: 100%;
       display: flex;
       flex-direction: column;
+      height: 100%;
+      visibility: visible;
     }
 
     &.hide {
-      visibility: hidden;
       display: none;
+      visibility: hidden;
     }
   }
 

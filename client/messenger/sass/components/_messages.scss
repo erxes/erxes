@@ -4,13 +4,8 @@
 }
 
 .erxes-messages-list {
-  background-color: $bg-color;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
   list-style: none;
   margin: 0;
-  overflow: auto;
   padding: 20px;
 
   li {
@@ -31,6 +26,14 @@
       margin-left: 50px;
     }
   }
+}
+
+.erxes-messages-background {
+  background-color: $bg-color;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: auto;
 
   &.bg-1 {
     @include bg-option;
