@@ -593,7 +593,6 @@ export const knowledgeBaseArticleFactory = async (params: IKnowledgeBaseArticleC
     summary: faker.lorem.sentence,
     content: faker.lorem.sentence,
     icon: faker.random.word(),
-    categoryIds: params.categoryIds || [],
   };
 
   return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, params.userId || faker.random.word());
