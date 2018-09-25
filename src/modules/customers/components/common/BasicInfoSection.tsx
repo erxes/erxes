@@ -16,6 +16,7 @@ import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
+import { SidebarFlexRow } from '../../styles';
 
 type Props = {
   customer: ICustomer;
@@ -49,10 +50,16 @@ class BasicInfo extends React.Component<Props> {
   }
 
   renderRow(label, value) {
+    let fullLength = false;
+
+    if(label === 'Description') {
+      fullLength = true;
+    }
+
     return (
       <li>
         {__(`${label}`)}:
-        <SidebarCounter>{value || '-'}</SidebarCounter>
+        <SidebarCounter fullLength={fullLength}>{value || '-'}</SidebarCounter>
       </li>
     );
   }
@@ -141,8 +148,11 @@ class BasicInfo extends React.Component<Props> {
           {this.renderRow('Lead Status', customer.leadStatus)}
           {this.renderRow('Lifecycle State', customer.lifecycleState)}
           {this.renderRow('Has Authority', customer.hasAuthority)}
-          {this.renderRow('Description', customer.description)}
           {this.renderRow('Do not disturb', customer.doNotDisturb)}
+          <SidebarFlexRow>
+            {__(`Description`)}:
+            <span>{customer.description || '-'}</span>
+          </SidebarFlexRow>
         </SidebarList>
       </React.Fragment>
     );

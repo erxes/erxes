@@ -243,11 +243,17 @@ class CustomerForm extends React.Component<Props, State> {
               options: lifecycleStateChoices(__)
             })}
 
-            {this.renderFormGroup('Description', {
-              id: 'customer-description',
-              defaultValue: customer.description || ''
-            })}
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <FormControl
+                type="text"
+                id="customer-description"
+                componentClass="textarea"
+                defaultValue= {customer.description || ''}
+              />
+            </FormGroup>
           </FormColumn>
+
           <FormColumn>
             {this.renderFormGroup('Last Name', {
               id: 'customer-lastname',

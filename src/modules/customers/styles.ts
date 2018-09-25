@@ -50,4 +50,18 @@ const List = SidebarList.extend`
   }
 `;
 
-export { InfoTitle, InfoDetail, Info, Action, List };
+const SidebarFlexRow = styled.li`
+  white-space: inherit !important;
+  display: flex !important;
+  justify-content: space-between;
+
+  span {
+    color: ${colors.colorCoreGray};
+    overflow: hidden;
+    max-height: 140px;
+    padding-left: ${dimensions.coreSpacing}px;
+    text-align: right;
+  }
+`;
+
+export { InfoTitle, InfoDetail, Info, Action, List, SidebarFlexRow };

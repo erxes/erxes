@@ -269,7 +269,7 @@ const SidebarList = styled.ul`
   }
 `;
 
-const SidebarCounter = styledTS<{ nowrap?: boolean }>(styled.span)`
+const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean; }>(styled.span)`
   font-size: ${typography.fontSizeHeading8}px;
   text-align: ${props => (props.nowrap ? 'left' : 'right')};
   color: ${colors.colorCoreGray};
@@ -278,7 +278,7 @@ const SidebarCounter = styledTS<{ nowrap?: boolean }>(styled.span)`
   right: ${dimensions.coreSpacing}px;
   max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ${props => (!props.fullLength && 'ellipsis')};
   padding-left: ${props => (props.nowrap ? '0' : '10px')};
 
   a {
@@ -289,6 +289,10 @@ const SidebarCounter = styledTS<{ nowrap?: boolean }>(styled.span)`
   span {
     float: right;
     margin-left: 5px;
+  }
+
+  &:first-letter {
+    text-transform: uppercase;
   }
 
   ${props =>
