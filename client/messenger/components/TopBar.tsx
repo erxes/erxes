@@ -16,7 +16,7 @@ type Props = {
   endConversation: () => void;
 };
 
-class TopBar extends React.Component<Props, State> {
+class TopBar extends React.Component<Props, {}> {
   constructor(props: Props) {
     super(props);
 
