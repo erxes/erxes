@@ -37,7 +37,11 @@ export default {
       return new Date(value); // value from the client
     },
     serialize(value) {
-      return value.getTime(); // value sent to the client
+      if (value.getTime) {
+        return value.getTime(); // value sent to the client
+      }
+
+      return new Date(value).getTime();
     },
     parseLiteral(ast) {
       if (ast.kind === Kind.INT) {
