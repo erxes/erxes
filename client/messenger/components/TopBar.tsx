@@ -16,28 +16,16 @@ type Props = {
   endConversation: () => void;
 };
 
-function TopBar({
-  middle,
-  buttonIcon,
-  onButtonClick,
-  color,
-  isChat,
-  endConversation,
-  isExpanded,
-  isBig,
-  onToggle,
-  toggleLauncher
-}: Props) {
-  const topBarClassNames = classNames("erxes-topbar", {
-    expanded: isExpanded,
-    big: isBig
-  });
+class TopBar extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
-  const middleClass = classNames("erxes-middle", {
-    expandable: onToggle ? true : false
-  });
+    this.onEndConversation = this.onEndConversation.bind(this);
+  }
 
-  const onEndConversation = () => {
+  onEndConversation() {
+    const { isChat, toggleLauncher, endConversation } = this.props;
+
     if (
       isChat &&
       confirm((__("Do you want to end this conversation ?") || {}).toString())
@@ -46,42 +34,58 @@ function TopBar({
     } else {
       toggleLauncher();
     }
-  };
+  }
 
-  const renderRightButton = () => {
+  renderRightButton() {
+    const { isChat, toggleLauncher } = this.props;
+
     return (
       <a
         href="#"
         className="topbar-button right"
-        onClick={isChat ? onEndConversation : toggleLauncher}
+        onClick={isChat ? this.onEndConversation : toggleLauncher}
         title="End conversation"
       >
         {iconClose}
       </a>
     );
-  };
+  }
 
-  const renderLeftButton = () => {
+  renderLeftButton() {
+    const { onButtonClick } = this.props;
+
     if (!onButtonClick) {
       return null;
     }
 
     return (
       <button className="topbar-button left" onClick={onButtonClick}>
-        {buttonIcon}
+        {this.props.buttonIcon}
       </button>
     );
-  };
+  }
 
-  return (
-    <div className={topBarClassNames} style={{ backgroundColor: color }}>
-      {renderLeftButton()}
-      <div onClick={onToggle} className={middleClass}>
-        {middle}
+  render() {
+    const { middle, color, isExpanded, isBig, onToggle } = this.props;
+
+    const topBarClassNames = classNames("erxes-topbar", {
+      expanded: isExpanded,
+      big: isBig
+    });
+
+    const middleClass = classNames("erxes-middle", {
+      expandable: onToggle ? true : false
+    });
+
+    return (
+      <div className={topBarClassNames} style={{ backgroundColor: color }}>
+        {this.renderLeftButton()}
+        <div onClick={onToggle} className={middleClass}>
+          {middle}
+        </div>
+        {this.renderRightButton()}
       </div>
-      {renderRightButton()}
-    </div>
-  );
+    );
+  }
 }
-
 export default TopBar;

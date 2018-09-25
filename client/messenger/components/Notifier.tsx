@@ -1,4 +1,6 @@
+import * as classNames from "classnames";
 import * as React from "react";
+import * as ReactTransitionGroup from "react-transition-group";
 import * as striptags from "striptags";
 import { EngageMessage, User } from "../components";
 import { IMessage } from "../types";
@@ -43,26 +45,27 @@ class Notifier extends React.Component<Props> {
     );
   }
 
-  renderClass() {
-    const { message } = this.props;
-
-    if (message.engageData) {
-      return `erxes-notification appear-scale-in ${message.engageData.sentAs}`;
-    }
-
-    return "erxes-notification appear-scale-in";
-  }
-
   render() {
     const { message, readConversation } = this.props;
+    const classes = classNames("erxes-notification", {
+      "full-message": message.engageData.sentAs === "fullMessage"
+    });
 
     return (
-      <div
-        className={this.renderClass()}
-        onClick={() => readConversation(message.conversationId)}
+      <ReactTransitionGroup.CSSTransition
+        in={true}
+        appear={true}
+        timeout={300}
+        classNames="scale-in"
+        unmountOnExit
       >
-        {this.renderNotificationBody()}
-      </div>
+        <div
+          className={classes}
+          onClick={() => readConversation(message.conversationId)}
+        >
+          {this.renderNotificationBody()}
+        </div>
+      </ReactTransitionGroup.CSSTransition>
     );
   }
 }
