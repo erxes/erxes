@@ -9,11 +9,11 @@ import { CompanyChooser } from '../../containers';
 
 type Props = {
   name: string;
-  companies: ICompany[];
+  companies?: ICompany[];
   onSelect: (companies: ICompany[]) => void;
 };
 
-function CompanySection({ name, companies, onSelect }: Props) {
+function CompanySection({ name, companies=[], onSelect }: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
@@ -29,7 +29,7 @@ function CompanySection({ name, companies, onSelect }: Props) {
       trigger={companyTrigger} 
       size="lg"
       content={(props) => (
-        <CompanyChooser {...props} data={{ name, companies: companies || [] }} onSelect={onSelect} />
+        <CompanyChooser {...props} data={{ name, companies }} onSelect={onSelect} />
       )}
      />
   );
