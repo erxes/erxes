@@ -24,7 +24,6 @@ export default class App extends React.Component<Props> {
       <div className={widgetClasses}>
         <ReactTransitionGroup.CSSTransition
           in={isMessengerVisible}
-          appear={true}
           timeout={300}
           classNames="scale-in"
           unmountOnExit
