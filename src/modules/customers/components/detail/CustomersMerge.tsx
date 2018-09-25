@@ -5,7 +5,7 @@ import { __ } from 'modules/common/utils';
 import * as moment from 'moment';
 import * as React from 'react';
 import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../../constants';
-import { Info, InfoDetail, InfoTitle } from '../../styles';
+import { CustomerInfoAvatar, Info, InfoDetail, InfoTitle } from '../../styles';
 
 type Props = {
   objects: any[];
@@ -128,8 +128,16 @@ class CustomersMerge extends React.Component<Props, State> {
         return this.renderOwner(value);
 
       default:
-        return <InfoDetail>{value}</InfoDetail>;
+        return this.renderDefaultValue(value);
     }
+  }
+
+  renderDefaultValue(data) {
+    if(data.includes('amazonaws')) {
+      return <CustomerInfoAvatar src={data} alt="avatar" />
+    }
+
+    return <InfoDetail>{data}</InfoDetail>;
   }
 
   renderFacebookData(data) {

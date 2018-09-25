@@ -49,6 +49,7 @@ export const dateUnits = {
 };
 
 export const CUSTOMER_BASIC_INFO = {
+  avatar: 'Avatar',
   firstName: 'First Name',
   lastName: 'Last Name',
   primaryEmail: 'Primary E-mail',
@@ -62,6 +63,7 @@ export const CUSTOMER_BASIC_INFO = {
   doNotDisturb: 'Do not disturb',
 
   ALL: [
+    { field: 'avatar', label: 'Avatar' },
     { field: 'firstName', label: 'First Name' },
     { field: 'lastName', label: 'Last Name' },
     { field: 'primaryEmail', label: 'Primary E-mail' },

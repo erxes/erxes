@@ -64,4 +64,9 @@ const SidebarFlexRow = styled.li`
   }
 `;
 
-export { InfoTitle, InfoDetail, Info, Action, List, SidebarFlexRow };
+const CustomerInfoAvatar = styled.img`
+  width: 40px;
+  border-radius: 40px;
+`;
+
+export { InfoTitle, InfoDetail, Info, Action, List, SidebarFlexRow, CustomerInfoAvatar };
