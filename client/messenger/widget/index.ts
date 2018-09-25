@@ -24,6 +24,7 @@ const isMobile =
 let viewportContent = "";
 let generatedContent = "";
 let hideDelayTimer: any;
+const delay = 300;
 
 if (isMobile) {
   const viewportMeta = document.querySelector('meta[name="viewport"]');
@@ -77,6 +78,24 @@ function uniqueString(str: string) {
     }
   }
   return result.join(", ");
+}
+
+function delaydAddClass(str: string) {
+  hideDelayTimer = setTimeout(() => {
+    erxesContainer.className += str;
+  }, delay);
+}
+
+function delaydSetClass(str: string) {
+  hideDelayTimer = setTimeout(() => {
+    erxesContainer.className = str;
+  }, delay);
+}
+
+function clearTimer() {
+  if (hideDelayTimer) {
+    clearTimeout(hideDelayTimer);
+  }
 }
 
 const iframeId = "erxes-messenger-iframe";
@@ -133,16 +152,12 @@ window.addEventListener("message", async (event: MessageEvent) => {
     }
 
     if (message === "messenger") {
-      if (hideDelayTimer) {
-        clearTimeout(hideDelayTimer);
-      }
+      clearTimer();
 
       if (isVisible) {
         erxesContainer.className = "erxes-messenger-shown";
       } else {
-        hideDelayTimer = setTimeout(() => {
-          erxesContainer.className = "erxes-messenger-hidden";
-        }, 300);
+        delaydSetClass("erxes-messenger-hidden");
       }
 
       erxesContainer.classList.toggle("small", isSmallContainer);
@@ -150,11 +165,8 @@ window.addEventListener("message", async (event: MessageEvent) => {
     }
 
     if (message === "notifier") {
-      hideDelayTimer = setTimeout(() => {
-        erxesContainer.className += ` erxes-notifier-${
-          isVisible ? "shown" : "hidden"
-        }`;
-      }, 300);
+      clearTimer();
+      delaydAddClass(` erxes-notifier-${isVisible ? "shown" : "hidden"}`);
     }
 
     if (message === "notifierFull") {

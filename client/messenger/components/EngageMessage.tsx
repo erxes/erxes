@@ -1,3 +1,4 @@
+import * as classNames from "classnames";
 import * as React from "react";
 import * as striptags from "striptags";
 import { iconClose } from "../../icons/Icons";
@@ -35,11 +36,14 @@ class EngageMessage extends Component<Props> {
 
   renderNotificationContent() {
     const { content, sentAs, fromUser } = this.props.engageData;
-    const bodyClass = `notification-body ${sentAs}`;
 
     if (sentAs === "badge") {
       return null;
     }
+
+    const classes = classNames("notification-body", {
+      "full-message": sentAs === "fullMessage"
+    });
 
     return (
       <Fragment>
@@ -48,7 +52,7 @@ class EngageMessage extends Component<Props> {
             <User user={fromUser} />
             {this.renderUserFullName(fromUser)}
           </div>
-          <div className={bodyClass}>
+          <div className={classes}>
             {sentAs === "fullMessage" ? (
               <span dangerouslySetInnerHTML={{ __html: content }} />
             ) : (

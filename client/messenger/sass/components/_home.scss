@@ -37,6 +37,10 @@ $shadow-black: rgba(0, 0, 0, .1);
     position: absolute;
     right: 0;
     top: 0;
+
+    .erxes-middle {
+      justify-content: flex-start;
+    }
   }
 }
 
