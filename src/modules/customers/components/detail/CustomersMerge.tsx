@@ -126,6 +126,8 @@ class CustomersMerge extends React.Component<Props, State> {
         return this.renderVisitorContactInfo(value);
       case 'owner':
         return this.renderOwner(value);
+      case 'links':
+        return this.renderLinks(value);
 
       default:
         return this.renderDefaultValue(value);
@@ -153,6 +155,25 @@ class CustomersMerge extends React.Component<Props, State> {
           </a>
         </InfoDetail>
       </div>
+    );
+  }
+
+  renderLinks(data) {
+    return (
+      <Info>
+        <InfoTitle><Icon icon="facebook" />:</InfoTitle>
+        <InfoDetail>{data.facebook}</InfoDetail>
+        <InfoTitle><Icon icon="github" />:</InfoTitle>
+        <InfoDetail>{data.github}</InfoDetail>
+        <InfoTitle><Icon icon="linkedin-logo" />:</InfoTitle>
+        <InfoDetail>{data.linkedIn}</InfoDetail>
+        <InfoTitle><Icon icon="twitter" />:</InfoTitle>
+        <InfoDetail>{data.twitter}</InfoDetail>
+        <InfoTitle><Icon icon="earthgrid" />:</InfoTitle>
+        <InfoDetail>{data.website}</InfoDetail>
+        <InfoTitle><Icon icon="youtube" />:</InfoTitle>
+        <InfoDetail>{data.youtube}</InfoDetail>
+      </Info>
     );
   }
 
