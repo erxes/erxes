@@ -69,7 +69,7 @@ class Form extends React.Component<Props, State> {
           <FormControl
             defaultValue={name}
             type="text"
-            onChange={(e: React.FormEvent<HTMLElement>) => 
+            onChange={(e) => 
               this.onChangeInput('name', (e.target as HTMLInputElement).value)}
             required
           />
@@ -81,7 +81,7 @@ class Form extends React.Component<Props, State> {
           <FormControl
             componentClass="select"
             defaultValue={type}
-            onChange={(e: React.FormEvent<HTMLElement>) => 
+            onChange={(e) => 
               this.onChangeInput('type', (e.target as HTMLInputElement).value)}
           >
             {types.map((type, index) => (
@@ -100,7 +100,7 @@ class Form extends React.Component<Props, State> {
             componentClass="textarea"
             rows={5}
             defaultValue={description}
-            onChange={(e: React.FormEvent<HTMLElement>) => 
+            onChange={(e) => 
               this.onChangeInput('description', (e.target as HTMLInputElement).value)}
           />
         </FormGroup>
@@ -112,7 +112,7 @@ class Form extends React.Component<Props, State> {
             name="sku"
             type="text"
             defaultValue={sku}
-            onChange={(e: React.FormEvent<HTMLElement>) => 
+            onChange={(e) => 
               this.onChangeInput('sku', (e.target as HTMLInputElement).value)}
           />
         </FormGroup>

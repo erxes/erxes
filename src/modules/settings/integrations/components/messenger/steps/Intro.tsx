@@ -90,7 +90,7 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Welcome message.')}
               rows={3}
               value={this.props.welcomeMessage}
-              onChange={(e: React.FormEvent<HTMLElement>) => 
+              onChange={(e) => 
                 this.onInputChange('welcomeMessage', (e.target as HTMLInputElement).value)}
             />
           </FormGroup>
@@ -105,7 +105,7 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Away message.')}
               rows={3}
               value={this.props.awayMessage}
-              onChange={(e: React.FormEvent<HTMLElement>) => 
+              onChange={(e) => 
                 this.onInputChange('awayMessage', (e.target as HTMLInputElement).value)}
             />
           </FormGroup>
@@ -118,7 +118,7 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Thank you message.')}
               rows={3}
               value={this.props.thankYouMessage}
-              onChange={(e: React.FormEvent<HTMLElement>) => 
+              onChange={(e) => 
                 this.onInputChange('thankYouMessage', (e.target as HTMLInputElement).value)}
             />
           </FormGroup>
