@@ -28,19 +28,19 @@ class BasicInfo extends React.Component<Props> {
   renderLink(value, icon) {
     let link = value;
 
-    if (value) {
-      if(!value.includes('http')) {
-        link = ('https://').concat(value);
-      }
-
-      return (
-        <a href={link} target="_blank">
-          <Icon icon={icon} />
-        </a>
-      );
+    if (!value) {
+      return null;
     }
 
-    return null;
+    if(!value.includes('http')) {
+      link = ('https://').concat(value);
+    }
+
+    return (
+      <a href={link} target="_blank">
+        <Icon icon={icon} />
+      </a>
+    );
   }
 
   renderLinks(links) {
@@ -57,16 +57,10 @@ class BasicInfo extends React.Component<Props> {
   }
 
   renderRow(label, value) {
-    let fullLength = false;
-
-    if(label === 'Description') {
-      fullLength = true;
-    }
-
     return (
       <li>
         {__(`${label}`)}:
-        <SidebarCounter fullLength={fullLength}>{value || '-'}</SidebarCounter>
+        <SidebarCounter fullLength={label === 'Description'}>{value || '-'}</SidebarCounter>
       </li>
     );
   }

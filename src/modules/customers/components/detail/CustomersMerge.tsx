@@ -126,18 +126,12 @@ class CustomersMerge extends React.Component<Props, State> {
         return this.renderVisitorContactInfo(value);
       case 'owner':
         return this.renderOwner(value);
+      case 'avatar':
+        return <InfoAvatar src={value} alt="avatar" />
 
       default:
-        return this.renderDefaultValue(value);
+        return <InfoDetail>{value}</InfoDetail>;
     }
-  }
-
-  renderDefaultValue(data) {
-    if(data.includes('amazonaws')) {
-      return <InfoAvatar src={data} alt="avatar" />
-    }
-
-    return <InfoDetail>{data}</InfoDetail>;
   }
 
   renderFacebookData(data) {

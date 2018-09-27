@@ -35,19 +35,19 @@ class BasicInfo extends React.Component<Props> {
   renderLink(value, icon) {
     let link = value;
 
-    if (value) {
-      if(!value.includes('http')) {
-        link = ('https://').concat(value);
-      }
-
-      return (
-        <a href={link} target="_blank">
-          <Icon icon={icon} />
-        </a>
-      );
+    if (!value) {
+      return null;
     }
-    
-    return null;
+
+    if(!value.includes('http')) {
+      link = ('http://').concat(value);
+    }
+
+    return (
+      <a href={link} target="_blank">
+        <Icon icon={icon} />
+      </a>
+    );
   }
 
   renderLinks(links) {
