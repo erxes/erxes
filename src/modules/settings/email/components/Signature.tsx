@@ -7,16 +7,16 @@ import {
 import { ModalFooter, Well } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { ISignature } from '../types';
+import { IEmailSignature } from '../types';
 
 type Props = {
-  signatures: ISignature[];
-  save: (signatures: ISignature[]) => void;
+  signatures: IEmailSignature[];
+  save: (signatures: IEmailSignature[]) => void;
   closeModal: () => void;
 };
 
 type State = {
-  signatures: ISignature[];
+  signatures: IEmailSignature[];
   currentId?: string;
 };
 
@@ -42,7 +42,7 @@ class Signature extends React.Component<Props, State> {
     }
 
     return this.state.signatures.find(
-      signature => signature.brandId.toString() === currentId
+      signature => (signature.brandId || '').toString() === currentId
     );
   }
 
@@ -88,7 +88,7 @@ class Signature extends React.Component<Props, State> {
 
               {this.props.signatures.map(signature => (
                 <option key={signature.brandId} value={signature.brandId}>
-                  {signature.brandName}
+                  {/* {signature.brandName || ''} */}
                 </option>
               ))}
             </FormControl>

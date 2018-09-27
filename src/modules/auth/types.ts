@@ -1,3 +1,5 @@
+import { IEmailSignature } from "modules/settings/email/types";
+
 export interface IUserDetails {
   avatar?: string;
   fullName?: string;
@@ -33,4 +35,5 @@ export interface IUserDoc {
 export interface IUser extends IUserDoc {
   _id: string;
   role: string;
+  emailSignatures?: IEmailSignature[];
 }

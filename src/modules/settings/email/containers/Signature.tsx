@@ -1,22 +1,24 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Signature } from '../components';
-import { ISignature } from '../types';
+import { IEmailSignature } from '../types';
 
 type Props = {
+  currentUser: IUser;
   brandsQuery: any;
   closeModal: () => void;
 
   saveMutation: (params: { variables: { 
-    signatures: ISignature[];
+    signatures: IEmailSignature[];
   } }) => Promise<any>;
 };
 
-const SignatureContainer = (props: Props, { currentUser }) => {
-  const { brandsQuery, saveMutation } = props;
+const SignatureContainer = (props: Props) => {
+  const { brandsQuery, saveMutation, currentUser } = props;
 
   // save email configs action
   const save = signatures => {
@@ -42,7 +44,7 @@ const SignatureContainer = (props: Props, { currentUser }) => {
   };
 
   const emailSignatures = currentUser.emailSignatures || [];
-  const signatures: Array<{ brandId: string, brandName: string, signature: string }> = [];
+  const signatures: Array<{ brandId?: string, brandName: string, signature?: string }> = [];
   const brands = brandsQuery.brands || [];
 
   brands.forEach(brand => {
@@ -53,7 +55,7 @@ const SignatureContainer = (props: Props, { currentUser }) => {
 
     signatures.push({
       brandId: brand._id,
-      brandName: brand.name,
+      brandName: brand.name || '',
       signature: oldEntry ? oldEntry.signature : ''
     });
   });
