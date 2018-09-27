@@ -87,7 +87,7 @@ class CustomerListContainer extends React.Component<IProps, State> {
         .then(({ data }: any)=> {
           callback();
           Alert.success('Success');
-          history.push(`/customers/details/${data.data.customersMerge._id}`);
+          history.push(`/customers/details/${data.customersMerge._id}`);
         })
         .catch(e => {
           Alert.error(e.message);

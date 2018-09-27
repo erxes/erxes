@@ -5,7 +5,7 @@ import { __ } from 'modules/common/utils';
 import * as moment from 'moment';
 import * as React from 'react';
 import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../../constants';
-import { CustomerInfoAvatar, Info, InfoDetail, InfoTitle } from '../../styles';
+import { Info, InfoAvatar, InfoDetail, InfoTitle } from '../../styles';
 
 type Props = {
   objects: any[];
@@ -126,8 +126,6 @@ class CustomersMerge extends React.Component<Props, State> {
         return this.renderVisitorContactInfo(value);
       case 'owner':
         return this.renderOwner(value);
-      case 'links':
-        return this.renderLinks(value);
 
       default:
         return this.renderDefaultValue(value);
@@ -136,7 +134,7 @@ class CustomersMerge extends React.Component<Props, State> {
 
   renderDefaultValue(data) {
     if(data.includes('amazonaws')) {
-      return <CustomerInfoAvatar src={data} alt="avatar" />
+      return <InfoAvatar src={data} alt="avatar" />
     }
 
     return <InfoDetail>{data}</InfoDetail>;
@@ -155,25 +153,6 @@ class CustomersMerge extends React.Component<Props, State> {
           </a>
         </InfoDetail>
       </div>
-    );
-  }
-
-  renderLinks(data) {
-    return (
-      <Info>
-        <InfoTitle><Icon icon="facebook" />:</InfoTitle>
-        <InfoDetail>{data.facebook}</InfoDetail>
-        <InfoTitle><Icon icon="github" />:</InfoTitle>
-        <InfoDetail>{data.github}</InfoDetail>
-        <InfoTitle><Icon icon="linkedin-logo" />:</InfoTitle>
-        <InfoDetail>{data.linkedIn}</InfoDetail>
-        <InfoTitle><Icon icon="twitter" />:</InfoTitle>
-        <InfoDetail>{data.twitter}</InfoDetail>
-        <InfoTitle><Icon icon="earthgrid" />:</InfoTitle>
-        <InfoDetail>{data.website}</InfoDetail>
-        <InfoTitle><Icon icon="youtube" />:</InfoTitle>
-        <InfoDetail>{data.youtube}</InfoDetail>
-      </Info>
     );
   }
 

@@ -1,4 +1,5 @@
 export const COMPANY_INFO = {
+  avatar: 'Logo',
   primaryName: 'Primary Name',
   size: 'Size',
   industry: 'Industry',
@@ -12,6 +13,7 @@ export const COMPANY_INFO = {
   doNotDisturb: 'Do not disturb',
 
   ALL: [
+    { field: 'avatar', label: 'Logo' },
     { field: 'primaryName', label: 'Primary Name' },
     { field: 'size', label: 'Size' },
     { field: 'industry', label: 'Industry' },

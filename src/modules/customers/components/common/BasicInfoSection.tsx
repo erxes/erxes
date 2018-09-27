@@ -9,6 +9,7 @@ import {
 import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __, confirm, renderFullName, searchCustomer } from 'modules/common/utils';
 import { CustomersMerge, TargetMerge } from 'modules/customers/components';
+import { LEAD_STATUS_TYPES, LIFECYCLE_STATE_TYPES } from 'modules/customers/constants';
 import { CustomerForm } from 'modules/customers/containers';
 import { Action } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
@@ -38,7 +39,7 @@ class BasicInfo extends React.Component<Props> {
         </a>
       );
     }
-    
+
     return null;
   }
 
@@ -151,8 +152,8 @@ class BasicInfo extends React.Component<Props> {
 
           {this.renderRow('Position', customer.position)}
           {this.renderRow('Department', customer.department)}
-          {this.renderRow('Lead Status', customer.leadStatus)}
-          {this.renderRow('Lifecycle State', customer.lifecycleState)}
+          {this.renderRow('Lead Status', LEAD_STATUS_TYPES[customer.leadStatus || ''])}
+          {this.renderRow('Lifecycle State', LIFECYCLE_STATE_TYPES[customer.lifecycleState || ''])}
           {this.renderRow('Has Authority', customer.hasAuthority)}
           {this.renderRow('Do not disturb', customer.doNotDisturb)}
           <SidebarFlexRow>

@@ -213,6 +213,18 @@ class CustomerForm extends React.Component<Props, State> {
                 onChange={obj => this.onEmailChange(obj)}
               />
             </FormGroup>
+            
+            {this.renderFormGroup('Position', {
+              id: 'customer-position',
+              defaultValue: customer.position || ''
+            })}
+
+            {this.renderFormGroup('Lead Status', {
+              id: 'customer-leadStatus',
+              componentClass: 'select',
+              defaultValue: customer.leadStatus || '',
+              options: leadStatusChoices(__)
+            })}
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
@@ -231,22 +243,11 @@ class CustomerForm extends React.Component<Props, State> {
               />
             </FormGroup>
 
-            {this.renderFormGroup('Department', {
-              id: 'customer-department',
-              defaultValue: customer.department || ''
-            })}
-
-            {this.renderFormGroup('Lifecycle State', {
-              id: 'customer-lifecycleState',
-              componentClass: 'select',
-              defaultValue: customer.lifecycleState || '',
-              options: lifecycleStateChoices(__)
-            })}
-
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
                 type="text"
+                max={140}
                 id="customer-description"
                 componentClass="textarea"
                 defaultValue= {customer.description || ''}
@@ -270,17 +271,17 @@ class CustomerForm extends React.Component<Props, State> {
                 onChange={obj => this.onPhoneChange(obj)}
               />
             </FormGroup>
-
-            {this.renderFormGroup('Position', {
-              id: 'customer-position',
-              defaultValue: customer.position || ''
+            
+            {this.renderFormGroup('Department', {
+              id: 'customer-department',
+              defaultValue: customer.department || ''
             })}
 
-            {this.renderFormGroup('Lead Status', {
-              id: 'customer-leadStatus',
+            {this.renderFormGroup('Lifecycle State', {
+              id: 'customer-lifecycleState',
               componentClass: 'select',
-              defaultValue: customer.leadStatus || '',
-              options: leadStatusChoices(__)
+              defaultValue: customer.lifecycleState || '',
+              options: lifecycleStateChoices(__)
             })}
 
             {this.renderFormGroup('Has Authority', {

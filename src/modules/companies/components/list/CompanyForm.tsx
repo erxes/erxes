@@ -39,8 +39,8 @@ type State = {
   doNotDisturb: string;
   users: IUser[];
   avatar: string;
-  names: string[];
-  primaryName: string;
+  names?: string[];
+  primaryName?: string;
 };
 
 class CompanyForm extends React.Component<Props, State> {
@@ -61,8 +61,6 @@ class CompanyForm extends React.Component<Props, State> {
       doNotDisturb: company.doNotDisturb || 'No',
       users: [],
       avatar: company.avatar,
-      names: [],
-      primaryName: '',
     };
 
     this.action = this.action.bind(this);
@@ -120,7 +118,7 @@ class CompanyForm extends React.Component<Props, State> {
     this.props.closeModal();
   }
 
-  onAvatarUpload(url) {
+  onAvatarUpload(url: string) {
     this.setState({ avatar: url });
   }
 
@@ -210,6 +208,43 @@ class CompanyForm extends React.Component<Props, State> {
               defaultValue: company.industry || '',
               options: this.generateConstantParams(COMPANY_INDUSTRY_TYPES)
             })}
+
+            <FormGroup>
+              <ControlLabel>Owner</ControlLabel>
+              <Select
+                placeholder="Search"
+                onFocus={() => this.handleUserSearch(' ')}
+                onInputChange={this.handleUserSearch}
+                filterOptions={options => options}
+                onChange={option => this.handleSelect(option, 'ownerId')}
+                value={ownerId}
+                options={this.generateUserParams(users)}
+              />
+            </FormGroup>
+
+            {this.renderFormGroup('Email', {
+              id: 'company-email',
+              defaultValue: company.email || ''
+            })}
+            {this.renderFormGroup('Lead Status', {
+              id: 'company-leadStatus',
+              componentClass: 'select',
+              defaultValue: company.leadStatus || '',
+              options: leadStatusChoices(__)
+            })}
+
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <FormControl
+                type="text"
+                max={140}
+                id="company-description"
+                componentClass="textarea"
+                defaultValue= {company.description || ''}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
             <FormGroup>
               <ControlLabel>Parent Company</ControlLabel>
               <Select
@@ -224,40 +259,16 @@ class CompanyForm extends React.Component<Props, State> {
                 options={this.generateCompanyParams(companies)}
               />
             </FormGroup>
-            {this.renderFormGroup('Lead Status', {
-              id: 'company-leadStatus',
-              componentClass: 'select',
-              defaultValue: company.leadStatus || '',
-              options: leadStatusChoices(__)
-            })}
             {this.renderFormGroup('Business Type', {
               id: 'company-businessType',
               componentClass: 'select',
               defaultValue: company.businessType || '',
               options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
             })}
-          </FormColumn>
-          <FormColumn>
-            {this.renderFormGroup('Email', {
-              id: 'company-email',
-              defaultValue: company.email || ''
-            })}
             {this.renderFormGroup('Size', {
               id: 'company-size',
               defaultValue: company.size || 0
             })}
-            <FormGroup>
-              <ControlLabel>Owner</ControlLabel>
-              <Select
-                placeholder="Search"
-                onFocus={() => this.handleUserSearch(' ')}
-                onInputChange={this.handleUserSearch}
-                filterOptions={options => options}
-                onChange={option => this.handleSelect(option, 'ownerId')}
-                value={ownerId}
-                options={this.generateUserParams(users)}
-              />
-            </FormGroup>
             {this.renderFormGroup('Phone', {
               id: 'company-phone',
               defaultValue: company.phone || ''
@@ -267,10 +278,6 @@ class CompanyForm extends React.Component<Props, State> {
               componentClass: 'select',
               defaultValue: company.lifecycleState || '',
               options: lifecycleStateChoices(__)
-            })}
-            {this.renderFormGroup('Description', {
-              id: 'company-description',
-              defaultValue: company.description || ''
             })}
             {this.renderFormGroup('Do not disturb', {
               componentClass: 'radio',

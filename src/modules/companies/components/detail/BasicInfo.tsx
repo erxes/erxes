@@ -9,6 +9,7 @@ import {
 import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __, confirm, searchCompany } from 'modules/common/utils';
 import { TargetMerge } from 'modules/customers/components';
+import { LEAD_STATUS_TYPES, LIFECYCLE_STATE_TYPES } from 'modules/customers/constants';
 import { Action } from 'modules/customers/styles';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarFlexRow, SidebarList } from 'modules/layout/styles';
@@ -149,8 +150,8 @@ class BasicInfo extends React.Component<Props> {
             company.owner && company.owner.details ? company.owner.details.fullName : '-'
           )}
           {this.renderRow('Phone', company.phone)}
-          {this.renderRow('Lead Status', company.leadStatus)}
-          {this.renderRow('Lifecycle State', company.lifecycleState)}
+          {this.renderRow('Lead Status', LEAD_STATUS_TYPES[company.leadStatus || ''])}
+          {this.renderRow('Lifecycle State', LIFECYCLE_STATE_TYPES[company.lifecycleState || ''])}
           {this.renderRow('Business Type', company.businessType)}
           {this.renderRow('Do not disturb', company.doNotDisturb)}
           <SidebarFlexRow>

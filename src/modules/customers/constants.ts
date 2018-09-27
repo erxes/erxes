@@ -84,15 +84,13 @@ export const CUSTOMER_DATAS = {
   facebookData: 'Facebook Data',
   visitorContactInfo: 'Visitor contact info',
   owner: 'Owner',
-  links: 'Links',
 
   ALL: [
     { field: 'messengerData', label: 'Messenger Data' },
     { field: 'twitterData', label: 'Twitter Data' },
     { field: 'facebookData', label: 'Facebook Data' },
     { field: 'visitorContactInfo', label: 'Visitor contact info' },
-    { field: 'owner', label: 'Owner' },
-    { field: 'links', label: 'Links' }
+    { field: 'owner', label: 'Owner' }
   ]
 };
 

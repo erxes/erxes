@@ -19,7 +19,7 @@ const InfoTitle = styled.span`
 
 const InfoDetail = styled.p`
   margin: 0;
-  display: inline-block;
+  display: block;
   font-size: 12px;
   font-weight: normal;
   color: ${colors.colorCoreGray};
@@ -50,23 +50,9 @@ const List = SidebarList.extend`
   }
 `;
 
-const SidebarFlexRow = styled.li`
-  white-space: inherit !important;
-  display: flex !important;
-  justify-content: space-between;
-
-  span {
-    color: ${colors.colorCoreGray};
-    overflow: hidden;
-    max-height: 140px;
-    padding-left: ${dimensions.coreSpacing}px;
-    text-align: right;
-  }
-`;
-
-const CustomerInfoAvatar = styled.img`
+const InfoAvatar = styled.img`
   width: 40px;
   border-radius: 40px;
 `;
 
-export { InfoTitle, InfoDetail, Info, Action, List, SidebarFlexRow, CustomerInfoAvatar };
+export { InfoTitle, InfoDetail, Info, Action, List, InfoAvatar };

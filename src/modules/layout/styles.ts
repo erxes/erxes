@@ -291,16 +291,26 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean; }>(sty
     margin-left: 5px;
   }
 
-  &:first-letter {
-    text-transform: uppercase;
-  }
-
   ${props =>
     props.nowrap &&
     css`
       display: block;
       white-space: normal;
     `};
+`;
+
+const SidebarFlexRow = styled.li`
+  white-space: inherit !important;
+  display: flex !important;
+  justify-content: space-between;
+
+  span {
+    color: ${colors.colorCoreGray};
+    overflow: hidden;
+    max-height: 140px;
+    padding-left: ${dimensions.coreSpacing}px;
+    text-align: right;
+  }
 `;
 
 const FlexContent = styled.div`
@@ -447,6 +457,7 @@ export {
   BoxContent,
   SidebarToggle,
   SidebarCounter,
+  SidebarFlexRow,
   HelperButtons,
   SidebarTitle,
   UserHelper,
