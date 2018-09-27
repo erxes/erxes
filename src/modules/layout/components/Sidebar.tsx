@@ -95,7 +95,7 @@ class Section extends React.Component<Props, State> {
 }
 
 type HeaderProps = {
-  children: any;
+  children: React.ReactNode;
   uppercase?: boolean;
   bold?: boolean;
   spaceBottom?: boolean;
@@ -114,9 +114,9 @@ function Footer({ children }: { children: React.ReactNode }) {
 }
 
 type SidebarProps = {
-  children: any;
-  header?: any;
-  footer?: any;
+  children: React.ReactNode;
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
   wide?: boolean;
   full?: boolean;
   half?: boolean;

@@ -142,10 +142,10 @@ class SegmentsForm extends React.Component<Props, State> {
     }
 
     if (segment) {
-      edit({ _id: segment._id, doc })
-    } else {
-      create({ doc });
+      return edit({ _id: segment._id, doc })
     }
+
+    return create({ doc });
   }
 
   renderConditions() {
@@ -167,7 +167,7 @@ class SegmentsForm extends React.Component<Props, State> {
             <FormControl
               componentClass="select"
               value={connector}
-              onChange={(e: React.FormEvent<HTMLElement>) =>
+              onChange={(e) =>
                 this.handleChange("connector", (e.currentTarget as HTMLInputElement).value)
               }
             >
@@ -202,7 +202,7 @@ class SegmentsForm extends React.Component<Props, State> {
         <FormControl
           componentClass="select"
           value={this.state.subOf || ''}
-          onChange={(e: React.FormEvent<HTMLElement>) =>
+          onChange={(e) =>
             this.handleChange("subOf", (e.currentTarget as HTMLInputElement).value)
           }
         >
@@ -229,7 +229,7 @@ class SegmentsForm extends React.Component<Props, State> {
               <FormControl
                 required
                 value={name}
-                onChange={(e: React.FormEvent<HTMLElement>) =>
+                onChange={(e) =>
                   this.handleChange("name", (e.currentTarget as HTMLInputElement).value)
                 }
               />
@@ -238,7 +238,7 @@ class SegmentsForm extends React.Component<Props, State> {
               <ControlLabel>Description</ControlLabel>
               <FormControl
                 value={description}
-                onChange={(e: React.FormEvent<HTMLElement>) =>
+                onChange={(e) =>
                   this.handleChange("description", (e.currentTarget as HTMLInputElement).value)
                 }
               />
@@ -249,7 +249,7 @@ class SegmentsForm extends React.Component<Props, State> {
               <FormControl
                 type="color"
                 value={color}
-                onChange={(e: React.FormEvent<HTMLElement>) =>
+                onChange={(e) =>
                   this.handleChange("color", (e.currentTarget as HTMLInputElement).value)
                 }
               />
