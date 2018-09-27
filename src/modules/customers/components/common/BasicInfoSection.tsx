@@ -13,10 +13,9 @@ import { CustomerForm } from 'modules/customers/containers';
 import { Action } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { SidebarCounter, SidebarFlexRow, SidebarList } from 'modules/layout/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
-import { SidebarFlexRow } from '../../styles';
 
 type Props = {
   customer: ICustomer;
@@ -25,14 +24,21 @@ type Props = {
 };
 
 class BasicInfo extends React.Component<Props> {
-  renderLink(link, icon) {
-    if (link) {
+  renderLink(value, icon) {
+    let link = value;
+
+    if (value) {
+      if(!value.includes('http')) {
+        link = ('https://').concat(value);
+      }
+
       return (
         <a href={link} target="_blank">
           <Icon icon={icon} />
         </a>
       );
     }
+    
     return null;
   }
 

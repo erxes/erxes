@@ -11,7 +11,7 @@ import { __, confirm, searchCompany } from 'modules/common/utils';
 import { TargetMerge } from 'modules/customers/components';
 import { Action } from 'modules/customers/styles';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { SidebarCounter, SidebarFlexRow, SidebarList } from 'modules/layout/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { CompaniesMerge } from '..';
@@ -31,14 +31,21 @@ class BasicInfo extends React.Component<Props> {
     this.renderRow = this.renderRow.bind(this);
   }
 
-  renderLink(link, icon) {
-    if (link) {
+  renderLink(value, icon) {
+    let link = value;
+
+    if (value) {
+      if(!value.includes('http')) {
+        link = ('https://').concat(value);
+      }
+
       return (
-        <a target="_blank" href={link}>
+        <a href={link} target="_blank">
           <Icon icon={icon} />
         </a>
       );
     }
+    
     return null;
   }
 
@@ -145,8 +152,11 @@ class BasicInfo extends React.Component<Props> {
           {this.renderRow('Lead Status', company.leadStatus)}
           {this.renderRow('Lifecycle State', company.lifecycleState)}
           {this.renderRow('Business Type', company.businessType)}
-          {this.renderRow('Description', company.description)}
           {this.renderRow('Do not disturb', company.doNotDisturb)}
+          <SidebarFlexRow>
+            {__(`Description`)}:
+            <span>{company.description || '-'}</span>
+          </SidebarFlexRow>
         </SidebarList>
       </Sidebar.Section>
     );
