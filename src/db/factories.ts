@@ -664,6 +664,8 @@ export const dealStageFactory = (params: IDealStageFactoryInput = {}) => {
 interface IDealFactoryInput {
   stageId?: string;
   productsData?: any;
+  customerIds?: string[];
+  companyIds?: string[];
 }
 
 export const dealFactory = (params: IDealFactoryInput = {}) => {
@@ -671,8 +673,8 @@ export const dealFactory = (params: IDealFactoryInput = {}) => {
     ...params,
     name: faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    companyIds: [faker.random.word()],
-    customerIds: [faker.random.word()],
+    companyIds: params.companyIds || [faker.random.word()],
+    customerIds: params.customerIds || [faker.random.word()],
     amount: faker.random.objectElement(),
     closeDate: new Date(),
     description: faker.random.word(),
