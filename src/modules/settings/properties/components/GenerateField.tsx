@@ -14,7 +14,7 @@ type Props = {
 };
 
 type State = {
-  value: string;
+  value?: any;
   checkBoxValues: any[];
 };
 
@@ -22,14 +22,17 @@ export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const defaultValue = props.defaultValue;
+    const { field, defaultValue } = props;
 
     this.onChange = this.onChange.bind(this);
 
-    this.state = {
-      value: defaultValue || "",
-      checkBoxValues: defaultValue ? [...defaultValue] : []
-    };
+    const state = { value: defaultValue, checkBoxValues: [] };
+
+    if (defaultValue && field.type === 'check') {
+      state.checkBoxValues =  defaultValue;
+    }
+
+    this.state = state;
   }
 
   componentWillReceiveProps(nextProps) {
