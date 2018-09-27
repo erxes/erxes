@@ -21,6 +21,8 @@ const userDetail = `
         youtube
         website
       }
+      emailSignatures
+      getNotificationByEmail
     }
   }
 `;

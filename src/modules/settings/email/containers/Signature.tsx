@@ -2,13 +2,17 @@ import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { Alert } from 'modules/common/utils';
+import { queries as teamQueries } from 'modules/settings/team/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { Spinner } from '../../../common/components';
+import { queries as brandQueries } from '../../brands/graphql';
 import { Signature } from '../components';
-import { IEmailSignature } from '../types';
+import { IEmailSignature, IEmailSignatureWithBrand } from '../types';
 
 type Props = {
   currentUser: IUser;
+  userDetailQuery: any;
   brandsQuery: any;
   closeModal: () => void;
 
@@ -18,18 +22,22 @@ type Props = {
 };
 
 const SignatureContainer = (props: Props) => {
-  const { brandsQuery, saveMutation, currentUser } = props;
+  const { userDetailQuery, brandsQuery, saveMutation } = props;
+
+  if (userDetailQuery.loading || brandsQuery.loading) {
+    return <Spinner />
+  }
 
   // save email configs action
-  const save = signatures => {
-    const doc: Array<{ brandId: string, signature: string }> = [];
+  const save = (signatures: IEmailSignatureWithBrand[]) => {
+    const doc: IEmailSignature[] = [];
 
     // remove brandName from list
-    signatures.forEach(signature => {
-      if (signature.content) {
+    signatures.forEach(item => {
+      if (item.signature) {
         doc.push({
-          brandId: signature.brandId,
-          signature: signature.content
+          brandId: item.brandId,
+          signature: item.signature
         });
       }
     });
@@ -37,14 +45,16 @@ const SignatureContainer = (props: Props) => {
     saveMutation({ variables: { signatures: doc } })
       .then(() => {
         Alert.success('Congrats');
+        userDetailQuery.refetch();
       })
       .catch(error => {
         Alert.success(error.message);
       });
   };
 
-  const emailSignatures = currentUser.emailSignatures || [];
-  const signatures: Array<{ brandId?: string, brandName: string, signature?: string }> = [];
+  const user = userDetailQuery.userDetail;
+  const emailSignatures = user.emailSignatures || [];
+  const signatures: IEmailSignatureWithBrand[] = [];
   const brands = brandsQuery.brands || [];
 
   brands.forEach(brand => {
@@ -70,17 +80,14 @@ const SignatureContainer = (props: Props) => {
 };
 
 const WithQuery = compose(
+  graphql(gql(brandQueries.brands), { name: 'brandsQuery' }),
   graphql(
-    gql`
-      query brands {
-        brands {
-          _id
-          name
-        }
-      }
-    `,
+    gql(teamQueries.userDetail),
     {
-      name: 'brandsQuery'
+      name: 'userDetailQuery',
+      options: ({ currentUser }: { currentUser: IUser }) => ({
+        variables: { _id: currentUser._id }
+      })
     }
   ),
   graphql(
@@ -92,7 +99,7 @@ const WithQuery = compose(
       }
     `,
     {
-      name: 'saveMutation'
+      name: 'saveMutation',
     }
   )
 )(SignatureContainer);
