@@ -32,7 +32,7 @@ type Props = {
   stageId: string;
   assignedUserIds: string[];
   users: IUser[];
-  onChangeField: (name: string, value: any) => void;
+  onChangeField: (name: 'stageId' | 'name' | 'closeDate' | 'description' | 'assignedUserIds', value: any) => void;
 };
 
 class Top extends React.Component<Props> {

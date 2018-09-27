@@ -93,9 +93,8 @@ class SegmentsForm extends React.Component<Props, State> {
     });
   }
 
-  handleChange(e) {
-    e.preventDefault();
-    this.setState({ [e.target.name]: e.target.value });
+  handleChange<T extends keyof State>(name: T, value: State[T]) {
+    this.setState({ [name]: value } as Pick<State, keyof State>);
   }
 
   save(e) {
@@ -134,10 +133,10 @@ class SegmentsForm extends React.Component<Props, State> {
         <FormGroup>
           Users who match
           <FormControl
-            name="connector"
             componentClass="select"
             value={this.state.connector}
-            onChange={this.handleChange}
+            onChange={(e) => 
+              this.handleChange('connector', (e.target as HTMLInputElement).value)}
           >
             <option value="any">any</option>
             <option value="all">all</option>
@@ -170,31 +169,31 @@ class SegmentsForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Name</ControlLabel>
               <FormControl
-                name="name"
                 type="text"
                 required
                 value={this.state.name}
-                onChange={this.handleChange}
+                onChange={(e) => 
+                  this.handleChange('name', (e.target as HTMLInputElement).value)}
               />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
-                name="description"
                 type="text"
                 value={this.state.description || ''}
-                onChange={this.handleChange}
+                onChange={(e) => 
+                  this.handleChange('description', (e.target as HTMLInputElement).value)}
               />
             </FormGroup>
 
             <FormGroup>
               <ControlLabel>Sub segment of</ControlLabel>
               <FormControl
-                name="subOf"
                 componentClass="select"
                 value={this.state.subOf || ''}
-                onChange={this.handleChange}
+                onChange={(e) => 
+                  this.handleChange('subOf', (e.target as HTMLInputElement).value)}
               >
                 <option value="">[not selected]</option>
                 {this.props.headSegments.map(segment => (
@@ -208,10 +207,10 @@ class SegmentsForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Color</ControlLabel>
               <FormControl
-                name="color"
                 type="color"
                 value={this.state.color}
-                onChange={this.handleChange}
+                onChange={(e: React.FormEvent<HTMLElement>) => 
+                  this.handleChange('color', (e.target as HTMLInputElement).value)}
               />
             </FormGroup>
 

@@ -95,10 +95,10 @@ class Section extends React.Component<Props, State> {
 }
 
 type HeaderProps = {
-  children: any,
-  uppercase?: boolean,
-  bold?: boolean,
-  spaceBottom?: boolean
+  children: React.ReactNode;
+  uppercase?: boolean;
+  bold?: boolean;
+  spaceBottom?: boolean;
 };
 
 function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
@@ -114,12 +114,12 @@ function Footer({ children }: { children: React.ReactNode }) {
 }
 
 type SidebarProps = {
-  children: any,
-  header?: any,
-  footer?: any,
-  wide?: boolean,
-  full?: boolean,
-  half?: boolean
+  children: React.ReactNode;
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
+  wide?: boolean;
+  full?: boolean;
+  half?: boolean;
 };
 
 export default class Sidebar extends React.Component<SidebarProps> {

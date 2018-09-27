@@ -8,7 +8,6 @@ import { LeftItem, Preview } from "modules/common/components/step/styles";
 import { __ } from "modules/common/utils";
 import { uploadHandler } from "modules/common/utils";
 import { ActionBar } from "modules/layout/components";
-import { IField } from "modules/settings/properties/types";
 import * as React from 'react';
 import { CalloutPreview } from "./preview";
 import { FlexColumn, FlexItem, ImageContent } from "./style";
@@ -19,7 +18,7 @@ const defaultValue = {
 
 type Props = {
   type: string;
-  onChange: (name: string, value: IField[] | string | boolean) => void;
+  onChange: (name: 'calloutBtnText' | 'bodyValue' | 'calloutTitle' | 'isSkip' | 'logoPreviewUrl' | 'logo' | 'logoPreviewStyle' | 'defaultValue', value: string | boolean | object | any) => void;
   calloutTitle?: string;
   calloutBtnText?: string;
   bodyValue?: string;
@@ -34,6 +33,10 @@ type State = {
   logoPreviewStyle?: { opacity?: string };
   defaultValue: { [key: string]: boolean };
   logoPreviewUrl?: string;
+  calloutBtnText?: string;
+  bodyValue?: string;
+  calloutTitle?: string;
+  isSkip?: boolean;
 };
 
 class CallOut extends React.Component<Props, State> {
@@ -53,12 +56,12 @@ class CallOut extends React.Component<Props, State> {
     this.removeImage = this.removeImage.bind(this);
   }
 
-  onChangeFunction(name: any, value: string) {
-    this.setState({ [name]: value });
+  onChangeFunction<T extends keyof State>(name: T, value: State[T]) {
+    this.setState({ [name]: value } as Pick<State, keyof State>);
     this.props.onChange(name, value);
   }
 
-  onChangeState(name: string, value: boolean) {
+  onChangeState<T extends keyof State>(name: T, value: boolean) {
     const { defaultValue } = this.state;
 
     defaultValue[name] = value;
@@ -156,7 +159,7 @@ class CallOut extends React.Component<Props, State> {
                 type="text"
                 value={this.props.calloutTitle}
                 disabled={skip}
-                onChange={e =>
+                onChange={(e: React.FormEvent<HTMLElement>) =>
                   this.onChangeFunction("calloutTitle", (e.currentTarget as HTMLInputElement).value)
                 }
               />

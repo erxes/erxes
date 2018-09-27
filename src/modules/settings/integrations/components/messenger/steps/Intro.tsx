@@ -11,7 +11,7 @@ import * as React from 'react';
 import Select from 'react-select-plus';
 
 type Props= {
-  onChange: (name: string, value: string) => void;
+  onChange: (name: 'supporterIds' | 'welcomeMessage' | 'awayMessage' | 'thankYouMessage', value: string | string[]) => void;
   teamMembers: IUser[];
   supporterIds?: string[];
   welcomeMessage?: string;
@@ -22,6 +22,9 @@ type Props= {
 type State = {
   supporters?: any;
   supporterIds: string[];
+  welcomeMessage: string;
+  awayMessage: string;
+  thankYouMessage: string;
 }
 
 class Intro extends React.Component<Props, State> {
@@ -36,16 +39,19 @@ class Intro extends React.Component<Props, State> {
 
     this.state = {
       supporters: this.generateSupporterOptions(selectedMembers),
-      supporterIds: []
+      supporterIds: [],
+      welcomeMessage: '',
+      awayMessage: '',
+      thankYouMessage: ''
     };
 
     this.onInputChange = this.onInputChange.bind(this);
     this.onTeamMembersChange = this.onTeamMembersChange.bind(this);
   }
 
-  onInputChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
-    this.props.onChange(e.target.name, e.target.value);
+  onInputChange<T extends keyof State>(name: any, value: State[T]) {
+    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.props.onChange(name, value);
   }
 
   onTeamMembersChange(options) {
@@ -83,9 +89,9 @@ class Intro extends React.Component<Props, State> {
               componentClass="textarea"
               placeholder={__('Write here Welcome message.')}
               rows={3}
-              name="welcomeMessage"
               value={this.props.welcomeMessage}
-              onChange={this.onInputChange}
+              onChange={(e) => 
+                this.onInputChange('welcomeMessage', (e.target as HTMLInputElement).value)}
             />
           </FormGroup>
 
@@ -98,9 +104,9 @@ class Intro extends React.Component<Props, State> {
               componentClass="textarea"
               placeholder={__('Write here Away message.')}
               rows={3}
-              name="awayMessage"
               value={this.props.awayMessage}
-              onChange={this.onInputChange}
+              onChange={(e) => 
+                this.onInputChange('awayMessage', (e.target as HTMLInputElement).value)}
             />
           </FormGroup>
 
@@ -111,9 +117,9 @@ class Intro extends React.Component<Props, State> {
               componentClass="textarea"
               placeholder={__('Write here Thank you message.')}
               rows={3}
-              name="thankYouMessage"
               value={this.props.thankYouMessage}
-              onChange={this.onInputChange}
+              onChange={(e) => 
+                this.onInputChange('thankYouMessage', (e.target as HTMLInputElement).value)}
             />
           </FormGroup>
 

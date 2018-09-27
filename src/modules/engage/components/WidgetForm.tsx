@@ -78,8 +78,8 @@ class WidgetForm extends React.Component<Props, State> {
     return save(doc, () => this.props.closeModal());
   }
 
-  onChangeCommon(name, value) {
-    this.setState({ [name]: value });
+  onChangeCommon<T extends keyof State>(name: T, value: State[T]) {
+    this.setState({ [name]: value } as Pick<State, keyof State>);
   }
 
   onChannelChange(e) {

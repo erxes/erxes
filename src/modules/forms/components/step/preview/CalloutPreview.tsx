@@ -8,7 +8,6 @@ type Props = {
   color?: string;
   theme?: string;
   image?: string;
-  onChange?: (name: string, value: string) => void;
   type?: string;
 };
 

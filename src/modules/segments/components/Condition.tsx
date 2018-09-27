@@ -39,14 +39,12 @@ class Condition extends React.Component<Props, State> {
   changeCondition (condition: ISegmentCondition) {
   }
 
-  handleInputValue(e) {
-    e.preventDefault();
-
-    const states = { [e.target.name]: e.target.value, operator: '' };
+  handleInputValue<T extends keyof State>(name: T, value: any) {
+    const states = { [name]: value , operator: '' } as Pick<State, keyof State>;
 
     // Changing current operator when the type is changed
-    if (e.target.name === 'type') {
-      states.operator = operators[e.target.value][0].value;
+    if (name === 'type') {
+      states.operator = operators[value][0].value;
     }
 
     this.setState(states, () => {
@@ -89,11 +87,12 @@ class Condition extends React.Component<Props, State> {
   renderSelect(name, value, obj) {
     return (
       <FormControl
-        name={name}
         componentClass="select"
         placeholder={__('select')}
         value={value}
-        onChange={this.handleInputValue}
+        onChange={(e) =>
+          this.handleInputValue(name, (e.currentTarget as HTMLInputElement).value)
+        }
       >
         {Object.keys(obj).map(key => (
           <option value={key} key={key}>
@@ -133,11 +132,12 @@ class Condition extends React.Component<Props, State> {
   renderOperator() {
     return (
       <FormControl
-        name="operator"
         componentClass="select"
         placeholder={__('select')}
         value={this.state.operator}
-        onChange={this.handleInputValue}
+        onChange={(e) =>
+          this.handleInputValue('operator', (e.currentTarget as HTMLInputElement).value)
+        }
       >
         {operators[this.state.type].map(c => (
           <option value={c.value} key={c.value}>

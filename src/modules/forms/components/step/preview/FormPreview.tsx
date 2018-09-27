@@ -11,7 +11,7 @@ type Props = {
   theme: string;
   fields?: IField[];
   onFieldEdit?: (field: IField) => void;
-  onChange: (name: string, fields: IField[] | string) => void;
+  onChange: (name: any, fields: string) => void;
   type: string;
 };
 

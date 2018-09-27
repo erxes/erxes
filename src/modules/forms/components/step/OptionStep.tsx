@@ -21,7 +21,7 @@ type Props = {
   color: string;
   theme: string;
   language?: string;
-  onChange: (name: string, value: IField[] | string | boolean) => void;
+  onChange: (name: 'brand' | 'color' | 'theme' | 'language' , value: string) => void;
   fields?: IField[];
   brand?: IBrand;
   brands?: IBrand[];
@@ -36,7 +36,7 @@ class OptionStep extends React.Component<Props, {}> {
     this.onChangeFunction = this.onChangeFunction.bind(this);
   }
 
-  onChangeFunction(name: string, value: string) {
+  onChangeFunction(name: any, value: string) {
     this.props.onChange(name, value);
   }
 
