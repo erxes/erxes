@@ -79,7 +79,7 @@ server.listen(PORT, () => {
   init(app);
 
   // Set up the WebSocket for handling GraphQL subscriptions
-  const subscriptionServer = new SubscriptionServer(
+  SubscriptionServer.create(
     {
       execute,
       subscribe,
@@ -128,14 +128,12 @@ server.listen(PORT, () => {
           });
         }
       },
-    },
+    } as any,
     {
       server,
       path: '/subscriptions',
     },
   );
-
-  return subscriptionServer;
 });
 
 if (process.env.NODE_ENV === 'development') {
@@ -149,3 +147,12 @@ if (process.env.NODE_ENV === 'development') {
     }),
   );
 }
+
+// TODO: check
+process
+  .on('unhandledRejection', (reason, p) => {
+    console.error(reason, 'Unhandled Rejection at Promise', p);
+  })
+  .on('uncaughtException', err => {
+    console.error(err, 'Uncaught Exception thrown');
+  });

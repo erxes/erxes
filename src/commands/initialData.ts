@@ -1,4 +1,4 @@
-import { connect, disconnect } from '../db/connection';
+import { connect, disconnect } from "../db/connection";
 import {
   companyFactory,
   conversationFactory,
@@ -10,35 +10,35 @@ import {
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
   responseTemplateFactory,
-  segmentFactory,
-} from '../db/factories';
-import { Brands, Channels, Forms, Integrations, Users } from '../db/models';
+  segmentFactory
+} from "../db/factories";
+import { Brands, Channels, Forms, Integrations, Users } from "../db/models";
 
 export const importData = async () => {
   connect();
 
   // create admin user
   const user = await Users.createUser({
-    username: 'admin',
-    password: 'p4$$w0rd',
-    email: 'admin@erxes.io',
+    username: "admin",
+    password: "p4$$w0rd",
+    email: "admin@erxes.io",
     isOwner: true,
-    role: 'admin',
+    role: "admin",
     details: {
-      fullName: 'Admin',
-    },
+      fullName: "Admin"
+    }
   });
 
   // messenger integration =================
   const brand = await Brands.createBrand({
-    name: 'Local publisher',
-    code: 'YDEdKj',
+    name: "Local publisher",
+    code: "YDEdKj"
   });
 
   const messengerIntegration = await Integrations.createIntegration({
-    name: 'Messenger for Local publisher',
-    kind: 'messenger',
-    brandId: brand._id,
+    name: "Messenger for Local publisher",
+    kind: "messenger",
+    brandId: brand._id
   });
 
   // create customers & companies & conversations ================
@@ -49,7 +49,7 @@ export const importData = async () => {
 
     const conversation = await conversationFactory({
       customerId: customer._id,
-      integrationId: messengerIntegration._id,
+      integrationId: messengerIntegration._id
     });
 
     await conversationMessageFactory({ conversationId: conversation._id });
@@ -61,33 +61,33 @@ export const importData = async () => {
 
   // create form integration ====================
   const form = await formFactory({
-    createdUserId: user._id,
+    createdUserId: user._id
   });
 
-  await Forms.update({ _id: form._id }, { $set: { code: 'mRgzZw' } });
+  await Forms.update({ _id: form._id }, { $set: { code: "mRgzZw" } });
 
-  await fieldFactory({ contentType: 'form', contentTypeId: form._id });
-  await fieldFactory({ contentType: 'form', contentTypeId: form._id });
-  await fieldFactory({ contentType: 'form', contentTypeId: form._id });
+  await fieldFactory({ contentType: "form", contentTypeId: form._id });
+  await fieldFactory({ contentType: "form", contentTypeId: form._id });
+  await fieldFactory({ contentType: "form", contentTypeId: form._id });
 
   const formIntegration = await Integrations.createIntegration({
-    name: 'Form',
-    kind: 'form',
+    name: "Form",
+    kind: "form",
     brandId: brand._id,
     formId: form._id,
     formData: {
-      loadType: 'embedded',
-      thankContent: 'thankContent',
-    },
+      loadType: "embedded",
+      thankContent: "thankContent"
+    }
   });
 
   await Channels.createChannel(
     {
-      name: 'Sales',
+      name: "Sales",
       integrationIds: [messengerIntegration._id, formIntegration._id],
-      memberIds: [user._id],
+      memberIds: [user._id]
     },
-    user._id,
+    user._id
   );
 
   // knowledgebase =========
@@ -95,12 +95,11 @@ export const importData = async () => {
 
   await knowledgeBaseTopicFactory({
     categoryIds: [kbCategory._id],
-    userId: user._id,
+    userId: user._id
   });
 
   await knowledgeBaseArticleFactory({
-    categoryIds: [kbCategory._id],
-    userId: user._id,
+    userId: user._id
   });
 
   disconnect();
