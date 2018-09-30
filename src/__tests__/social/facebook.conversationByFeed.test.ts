@@ -1,13 +1,9 @@
 import * as sinon from 'sinon';
 import { CONVERSATION_STATUSES } from '../../data/constants';
-import { connect, disconnect } from '../../db/connection';
 import { conversationMessageFactory, integrationFactory } from '../../db/factories';
 import { ActivityLogs, ConversationMessages, Conversations, Customers } from '../../db/models';
 import { SaveWebhookResponse } from '../../trackers/facebook';
 import { graphRequest } from '../../trackers/facebookTracker';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('facebook integration: get or create conversation by feed info', () => {
   afterEach(async () => {

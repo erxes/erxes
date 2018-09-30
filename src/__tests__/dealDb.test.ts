@@ -1,10 +1,5 @@
-import { connect, disconnect } from '../db/connection';
 import { dealBoardFactory, dealFactory, dealPipelineFactory, dealStageFactory, userFactory } from '../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Test deals model', () => {
   let board;

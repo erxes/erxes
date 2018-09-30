@@ -1,9 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { dealBoardFactory, dealFactory, dealPipelineFactory, dealStageFactory } from '../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('dealQueries', () => {
   const commonBoardTypes = `

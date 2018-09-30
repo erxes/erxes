@@ -1,10 +1,5 @@
-import { connect, disconnect } from '../db/connection';
 import { responseTemplateFactory } from '../db/factories';
 import { ResponseTemplates } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Response template db', () => {
   let _responseTemplate;

@@ -1,9 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { tagsFactory } from '../db/factories';
 import { Tags } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('tagQueries', () => {
   afterEach(async () => {

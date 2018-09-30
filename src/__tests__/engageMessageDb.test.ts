@@ -1,10 +1,6 @@
 import * as Random from 'meteor-random';
-import { connect, disconnect } from '../db/connection';
 import { customerFactory, engageMessageFactory, segmentFactory, userFactory } from '../db/factories';
 import { Customers, EngageMessages, Segments, Users } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('engage messages model tests', () => {
   let _user;

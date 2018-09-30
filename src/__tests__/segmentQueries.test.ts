@@ -1,10 +1,7 @@
 import * as faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { segmentFactory } from '../db/factories';
 import { Segments } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('segmentQueries', () => {
   afterEach(async () => {

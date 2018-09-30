@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import * as sinon from 'sinon';
 import utils from '../data/utils';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import {
   conversationFactory,
   conversationMessageFactory,
@@ -12,10 +12,6 @@ import {
 import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
 import { TwitMap } from '../trackers/twitter';
 import { twitRequest } from '../trackers/twitterTracker';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 const toJSON = value => {
   return JSON.stringify(value);

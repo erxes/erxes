@@ -1,9 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { brandFactory } from '../db/factories';
 import { Brands } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('brandQueries', () => {
   afterEach(async () => {

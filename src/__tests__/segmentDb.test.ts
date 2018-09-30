@@ -1,10 +1,5 @@
-import { connect, disconnect } from '../db/connection';
 import { segmentFactory } from '../db/factories';
 import { Segments, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 /*
  * Generate test data
