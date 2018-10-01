@@ -1,6 +1,5 @@
 import * as toBeType from 'jest-tobetype';
 import { PUBLISH_STATUSES } from '../data/constants';
-import { connect, disconnect } from '../db/connection';
 import {
   brandFactory,
   knowledgeBaseArticleFactory,
@@ -11,9 +10,6 @@ import {
 import { Brands, KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, Users } from '../db/models';
 
 expect.extend(toBeType);
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('test knowledge base models', () => {
   let _user;

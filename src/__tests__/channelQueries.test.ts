@@ -1,9 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { channelFactory, userFactory } from '../db/factories';
 import { Channels, Users } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('channelQueries', () => {
   afterEach(async () => {

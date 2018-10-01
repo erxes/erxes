@@ -1,13 +1,9 @@
 import * as bcrypt from 'bcrypt';
 import * as faker from 'faker';
 import utils from '../data/utils';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, userFactory } from '../db/factories';
 import { Brands, Channels, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 /*
  * Generated test data

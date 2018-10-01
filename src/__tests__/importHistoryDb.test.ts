@@ -1,10 +1,5 @@
-import { connect, disconnect } from '../db/connection';
 import { customerFactory, userFactory } from '../db/factories';
 import { Customers, ImportHistory, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Import history model test', () => {
   afterEach(async () => {

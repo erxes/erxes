@@ -1,10 +1,5 @@
-import { connect, disconnect } from '../db/connection';
 import { emailTemplateFactory } from '../db/factories';
 import { EmailTemplates } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Email template db', () => {
   let _emailTemplate;

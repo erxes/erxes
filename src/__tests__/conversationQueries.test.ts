@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   channelFactory,
@@ -10,9 +10,6 @@ import {
   userFactory,
 } from '../db/factories';
 import { Brands, Channels, Conversations, Integrations, Tags, Users } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('conversationQueries', () => {
   let user;

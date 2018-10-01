@@ -1,10 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { companyFactory, conversationFactory, customerFactory, dealFactory } from '../db/factories';
 import { ActivityLogs, Companies, Conversations, Customers, Deals } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('ActivityLog creation on Customer creation', () => {
   let _customer;

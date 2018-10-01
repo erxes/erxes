@@ -1,10 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { engageMessageFactory, tagsFactory, userFactory } from '../db/factories';
 import { EngageMessages, Tags, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Test tags mutations', () => {
   let _tag;

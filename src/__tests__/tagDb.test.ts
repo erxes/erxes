@@ -1,11 +1,6 @@
-import { connect, disconnect } from '../db/connection';
 import { engageMessageFactory, tagsFactory } from '../db/factories';
 import { EngageMessages, Tags } from '../db/models';
 import { tagObject, validateUniqueness } from '../db/models/Tags';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Test tags model', () => {
   let _tag;

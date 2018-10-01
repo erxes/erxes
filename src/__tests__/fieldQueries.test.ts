@@ -1,10 +1,7 @@
 import * as faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { fieldFactory, fieldGroupFactory } from '../db/factories';
 import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('fieldQueries', () => {
   afterEach(async () => {

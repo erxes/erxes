@@ -1,11 +1,6 @@
-import { connect, disconnect } from '../db/connection';
 import { conversationFactory, conversationMessageFactory, customerFactory, userFactory } from '../db/factories';
 import { ConversationMessages, Conversations, Users } from '../db/models';
 import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Conversation db', () => {
   let _conversation;

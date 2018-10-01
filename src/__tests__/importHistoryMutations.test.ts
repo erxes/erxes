@@ -1,10 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { customerFactory, importHistoryFactory, userFactory } from '../db/factories';
 import { Customers, ImportHistory, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Import history mutations', () => {
   let _user;

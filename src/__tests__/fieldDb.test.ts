@@ -1,11 +1,6 @@
-import { connect, disconnect } from '../db/connection';
 import { customerFactory, fieldFactory, fieldGroupFactory, formFactory, userFactory } from '../db/factories';
 import { Customers, Fields, FieldsGroups, Forms } from '../db/models';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../db/models/definitions/constants';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 /**
  * Field related tests
