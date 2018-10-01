@@ -13,6 +13,7 @@ export default {
   channels(integration: IIntegrationDocument) {
     return Channels.find({ integrationIds: { $in: [integration._id] } });
   },
+
   tags(integration: IIntegrationDocument) {
     return Tags.find({ _id: { $in: integration.tagIds || [] } });
   },
