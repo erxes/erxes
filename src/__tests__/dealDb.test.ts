@@ -5,7 +5,7 @@ import {
   dealFactory,
   dealPipelineFactory,
   dealStageFactory,
-  userFactory
+  userFactory,
 } from '../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
 
@@ -37,7 +37,7 @@ describe('Test deals model', () => {
   test('Create board', async () => {
     const createdBoard = await DealBoards.createBoard({
       name: board.name,
-      userId: user._id
+      userId: user._id,
     });
 
     expect(createdBoard).toBeDefined();
@@ -50,7 +50,7 @@ describe('Test deals model', () => {
     const boardName = 'Update board name';
     const updatedBoard = await DealBoards.updateBoard(board._id, {
       name: boardName,
-      userId: user._id
+      userId: user._id,
     });
 
     expect(updatedBoard).toBeDefined();
@@ -96,9 +96,9 @@ describe('Test deals model', () => {
       {
         name: pipeline.name,
         boardId: pipeline.boardId,
-        userId: user._id
+        userId: user._id,
       },
-      [stage]
+      [stage],
     );
 
     const stageToPipeline = await DealStages.findOne({ _id: stage._id });
@@ -125,9 +125,9 @@ describe('Test deals model', () => {
       pipelineObj._id,
       {
         name: pipelineName,
-        userId: user._id
+        userId: user._id,
       },
-      [stageObj]
+      [stageObj],
     );
 
     const stages = await DealStages.find({ _id: testStage._id });
@@ -140,12 +140,9 @@ describe('Test deals model', () => {
   test('Update pipeline orders', async () => {
     const pipelineToOrder = await dealPipelineFactory({});
 
-    const [
-      updatedPipeline,
-      updatedPipelineToOrder
-    ] = await DealPipelines.updateOrder([
+    const [updatedPipeline, updatedPipelineToOrder] = await DealPipelines.updateOrder([
       { _id: pipeline._id, order: 5 },
-      { _id: pipelineToOrder._id, order: 4 }
+      { _id: pipelineToOrder._id, order: 4 },
     ]);
 
     expect(updatedPipeline.order).toBe(4);
@@ -188,7 +185,7 @@ describe('Test deals model', () => {
     const createdStage = await DealStages.createStage({
       name: stage.name,
       pipelineId: stage.pipelineId,
-      userId: user._id
+      userId: user._id,
     });
 
     expect(createdStage).toBeDefined();
@@ -202,7 +199,7 @@ describe('Test deals model', () => {
     const stageName = 'Update stage name';
     const updatedStage = await DealStages.updateStage(stage._id, {
       name: stageName,
-      userId: user._id
+      userId: user._id,
     });
 
     expect(updatedStage).toBeDefined();
@@ -211,10 +208,7 @@ describe('Test deals model', () => {
 
   test('Change stage', async () => {
     const pipelineToUpdate = await dealPipelineFactory({});
-    const changedStage = await DealStages.changeStage(
-      stage._id,
-      pipelineToUpdate._id
-    );
+    const changedStage = await DealStages.changeStage(stage._id, pipelineToUpdate._id);
 
     expect(changedStage).toBeDefined();
     expect(changedStage.pipelineId).toEqual(pipelineToUpdate._id);
@@ -225,7 +219,7 @@ describe('Test deals model', () => {
 
     const [updatedStage, updatedStageToOrder] = await DealStages.updateOrder([
       { _id: stage._id, order: 9 },
-      { _id: stageToOrder._id, order: 5 }
+      { _id: stageToOrder._id, order: 5 },
     ]);
 
     expect(updatedStage.order).toBe(5);
@@ -266,7 +260,7 @@ describe('Test deals model', () => {
   test('Create deal', async () => {
     const createdDeal = await Deals.createDeal({
       stageId: deal.stageId,
-      userId: user._id
+      userId: user._id,
     });
 
     expect(createdDeal).toBeDefined();
@@ -278,7 +272,7 @@ describe('Test deals model', () => {
   test('Update deal', async () => {
     const dealStageId = 'fakeId';
     const updatedDeal = await Deals.updateDeal(deal._id, {
-      stageId: dealStageId
+      stageId: dealStageId,
     });
 
     expect(updatedDeal).toBeDefined();
@@ -291,7 +285,7 @@ describe('Test deals model', () => {
 
     const [updatedDeal, updatedDealToOrder] = await Deals.updateOrder([
       { _id: deal._id, order: 9 },
-      { _id: dealToOrder._id, order: 3 }
+      { _id: dealToOrder._id, order: 3 },
     ]);
 
     expect(updatedDeal.order).toBe(3);
@@ -322,7 +316,7 @@ describe('Test deals model', () => {
     const customer1 = await customerFactory({});
     const customer2 = await customerFactory({});
     const dealObj = await dealFactory({
-      customerIds: [customer2._id, customer1._id]
+      customerIds: [customer2._id, customer1._id],
     });
 
     await Deals.changeCustomer(newCustomer._id, [customer2._id, customer1._id]);
@@ -344,7 +338,7 @@ describe('Test deals model', () => {
     const company1 = await companyFactory({});
     const company2 = await companyFactory({});
     const dealObj = await dealFactory({
-      companyIds: [company1._id, company2._id]
+      companyIds: [company1._id, company2._id],
     });
 
     await Deals.changeCompany(newCompany._id, [company1._id, company2._id]);

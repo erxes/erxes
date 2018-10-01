@@ -194,12 +194,14 @@ describe('companyQueries', () => {
 
     const args = {
       contentType: 'company',
-      conditions: [{
-        field: 'primaryName',
-        operator: 'c',
-        value: name,
-        type: 'string',
-      }],
+      conditions: [
+        {
+          field: 'primaryName',
+          operator: 'c',
+          value: name,
+          type: 'string',
+        },
+      ],
     };
 
     const segment = await segmentFactory(args);

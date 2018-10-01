@@ -5,7 +5,10 @@ mongoose.Promise = global.Promise;
 beforeAll(() => {
   const DB_URI = `mongodb://localhost/test`;
 
-  return mongoose.connect(DB_URI, { useMongoClient: true })
+  return mongoose.connect(
+    DB_URI,
+    { useMongoClient: true },
+  );
 });
 
 afterAll(() => {

@@ -17,7 +17,7 @@ class Channel {
     return Channels.create({
       ...doc,
       createdAt: new Date(),
-      userId
+      userId,
     });
   }
 

@@ -1,20 +1,7 @@
 import { Model, model } from 'mongoose';
-import {
-  ActivityLogs,
-  Conversations,
-  Deals,
-  EngageMessages,
-  Fields,
-  InternalNotes
-} from './';
+import { ActivityLogs, Conversations, Deals, EngageMessages, Fields, InternalNotes } from './';
 import { CUSTOMER_BASIC_INFOS } from './definitions/constants';
-import {
-  customerSchema,
-  ICustomer,
-  ICustomerDocument,
-  IFacebookData,
-  ITwitterData
-} from './definitions/customers';
+import { customerSchema, ICustomer, ICustomerDocument, IFacebookData, ITwitterData } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
 import { bulkInsert } from './utils';
 
@@ -26,63 +13,41 @@ interface ICustomerFieldsInput {
 }
 
 interface ICustomerModel extends Model<ICustomerDocument> {
-  checkDuplication(
-    customerFields: ICustomerFieldsInput,
-    idsToExclude?: string[] | string
-  ): never;
+  checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string): never;
 
-  createCustomer(
-    doc: ICustomer,
-    user?: IUserDocument
-  ): Promise<ICustomerDocument>;
+  createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
 
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
 
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
 
-  updateCompanies(
-    _id: string,
-    companyIds: string[]
-  ): Promise<ICustomerDocument>;
+  updateCompanies(_id: string, companyIds: string[]): Promise<ICustomerDocument>;
   removeCustomer(customerId: string): void;
 
-  mergeCustomers(
-    customerIds: string[],
-    customerFields: ICustomer
-  ): Promise<ICustomerDocument>;
+  mergeCustomers(customerIds: string[], customerFields: ICustomer): Promise<ICustomerDocument>;
 
-  bulkInsert(
-    fieldNames: string[],
-    fieldValues: string[][],
-    user: IUserDocument
-  ): Promise<string[]>;
+  bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
 }
 
 class Customer {
   /**
    * Checking if customer has duplicated unique properties
    */
-  public static async checkDuplication(
-    customerFields: ICustomerFieldsInput,
-    idsToExclude?: string[] | string
-  ) {
+  public static async checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string) {
     const query: { [key: string]: any } = {};
     let previousEntry;
 
     // Adding exclude operator to the query
     if (idsToExclude) {
-      query._id =
-        idsToExclude instanceof Array
-          ? { $nin: idsToExclude }
-          : { $ne: idsToExclude };
+      query._id = idsToExclude instanceof Array ? { $nin: idsToExclude } : { $ne: idsToExclude };
     }
 
     // Checking if customer has twitter data
     if (customerFields.twitterData) {
       previousEntry = await Customers.find({
         ...query,
-        ['twitterData.id']: customerFields.twitterData.id
+        ['twitterData.id']: customerFields.twitterData.id,
       });
 
       if (previousEntry.length > 0) {
@@ -94,7 +59,7 @@ class Customer {
     if (customerFields.facebookData) {
       previousEntry = await Customers.find({
         ...query,
-        ['facebookData.id']: customerFields.facebookData.id
+        ['facebookData.id']: customerFields.facebookData.id,
       });
 
       if (previousEntry.length > 0) {
@@ -106,7 +71,7 @@ class Customer {
       // check duplication from primaryEmail
       previousEntry = await Customers.find({
         ...query,
-        primaryEmail: customerFields.primaryEmail
+        primaryEmail: customerFields.primaryEmail,
       });
 
       if (previousEntry.length > 0) {
@@ -116,7 +81,7 @@ class Customer {
       // check duplication from emails
       previousEntry = await Customers.find({
         ...query,
-        emails: { $in: [customerFields.primaryEmail] }
+        emails: { $in: [customerFields.primaryEmail] },
       });
 
       if (previousEntry.length > 0) {
@@ -128,7 +93,7 @@ class Customer {
       // check duplication from primaryPhone
       previousEntry = await Customers.find({
         ...query,
-        primaryPhone: customerFields.primaryPhone
+        primaryPhone: customerFields.primaryPhone,
       });
 
       if (previousEntry.length > 0) {
@@ -138,7 +103,7 @@ class Customer {
       // Check duplication from phones
       previousEntry = await Customers.find({
         ...query,
-        phones: { $in: [customerFields.primaryPhone] }
+        phones: { $in: [customerFields.primaryPhone] },
       });
 
       if (previousEntry.length > 0) {
@@ -164,7 +129,7 @@ class Customer {
     return Customers.create({
       createdAt: new Date(),
       modifiedAt: new Date(),
-      ...doc
+      ...doc,
     });
   }
 
@@ -177,15 +142,10 @@ class Customer {
 
     if (doc.customFieldsData) {
       // clean custom field values
-      doc.customFieldsData = await Fields.cleanMulti(
-        doc.customFieldsData || {}
-      );
+      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
     }
 
-    await Customers.update(
-      { _id },
-      { $set: { ...doc, modifiedAt: new Date() } }
-    );
+    await Customers.update({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
 
     return Customers.findOne({ _id });
   }
@@ -194,10 +154,7 @@ class Customer {
    * Mark customer as active
    */
   public static async markCustomerAsActive(customerId: string) {
-    await Customers.update(
-      { _id: customerId },
-      { $set: { 'messengerData.isActive': true } }
-    );
+    await Customers.update({ _id: customerId }, { $set: { 'messengerData.isActive': true } });
 
     return Customers.findOne({ _id: customerId });
   }
@@ -211,10 +168,10 @@ class Customer {
       {
         $set: {
           'messengerData.isActive': false,
-          'messengerData.lastSeenAt': new Date()
-        }
+          'messengerData.lastSeenAt': new Date(),
+        },
       },
-      { new: true }
+      { new: true },
     );
 
     return Customers.findOne({ _id });
@@ -246,10 +203,7 @@ class Customer {
   /**
    * Merge customers
    */
-  public static async mergeCustomers(
-    customerIds: string[],
-    customerFields: ICustomer
-  ) {
+  public static async mergeCustomers(customerIds: string[], customerFields: ICustomer) {
     // Checking duplicated fields of customer
     await Customers.checkDuplication(customerFields, customerIds);
 
@@ -309,7 +263,7 @@ class Customer {
       tagIds,
       companyIds,
       emails,
-      phones
+      phones,
     });
 
     // Updating every modules associated with customers
@@ -325,18 +279,14 @@ class Customer {
   /**
    * Imports customers with basic fields and custom properties
    */
-  public static async bulkInsert(
-    fieldNames: string[],
-    fieldValues: string[][],
-    user: IUserDocument
-  ) {
+  public static async bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument) {
     const params = {
       fieldNames,
       fieldValues,
       user,
       basicInfos: CUSTOMER_BASIC_INFOS,
       contentType: 'customer',
-      create: this.createCustomer
+      create: this.createCustomer,
     };
 
     return bulkInsert(params);
@@ -345,9 +295,6 @@ class Customer {
 
 customerSchema.loadClass(Customer);
 
-const Customers = model<ICustomerDocument, ICustomerModel>(
-  'customers',
-  customerSchema
-);
+const Customers = model<ICustomerDocument, ICustomerModel>('customers', customerSchema);
 
 export default Customers;

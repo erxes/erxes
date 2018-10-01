@@ -4,15 +4,9 @@ import {
   customerFactory,
   dealFactory,
   fieldFactory,
-  internalNoteFactory
+  internalNoteFactory,
 } from '../db/factories';
-import {
-  ActivityLogs,
-  Companies,
-  Customers,
-  Deals,
-  InternalNotes
-} from '../db/models';
+import { ActivityLogs, Companies, Customers, Deals, InternalNotes } from '../db/models';
 import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
 
 const check = (companyObj, doc) => {
@@ -30,7 +24,7 @@ const generateDoc = () => ({
   names: ['name'],
   size: 1,
   industry: 'Airlines',
-  plan: 'pro'
+  plan: 'pro',
 });
 
 describe('Companies model tests', () => {
@@ -39,7 +33,7 @@ describe('Companies model tests', () => {
   beforeEach(async () => {
     _company = await companyFactory({
       primaryName: 'companyname',
-      names: ['companyname', 'companyname1']
+      names: ['companyname', 'companyname1'],
     });
   });
 
@@ -83,7 +77,7 @@ describe('Companies model tests', () => {
     try {
       await Companies.createCompany({
         primaryName: 'name',
-        customFieldsData: { [field._id]: 'invalid number' }
+        customFieldsData: { [field._id]: 'invalid number' },
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
@@ -124,7 +118,7 @@ describe('Companies model tests', () => {
     try {
       await Companies.updateCompany(_company._id, {
         primaryName: 'name',
-        customFieldsData: { [field._id]: 'invalid number' }
+        customFieldsData: { [field._id]: 'invalid number' },
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
@@ -153,25 +147,25 @@ describe('Companies model tests', () => {
 
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id
+      contentTypeId: company._id,
     });
 
     await Companies.removeCompany(company._id);
 
     const internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id
+      contentTypeId: company._id,
     });
 
     const activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
-        id: company._id
-      }
+        id: company._id,
+      },
     });
 
     const customers = await Customers.find({
-      companyIds: { $in: [company._id] }
+      companyIds: { $in: [company._id] },
     });
 
     expect(customers).toHaveLength(0);
@@ -184,20 +178,20 @@ describe('Companies model tests', () => {
 
     const company1 = await companyFactory({
       tagIds: ['123', '456', '1234'],
-      names: ['company1']
+      names: ['company1'],
     });
 
     const company2 = await companyFactory({
       tagIds: ['1231', '123', 'asd12'],
-      names: ['company2']
+      names: ['company2'],
     });
 
     const customer1 = await customerFactory({
-      companyIds: [company1._id]
+      companyIds: [company1._id],
     });
 
     const customer2 = await customerFactory({
-      companyIds: [company2._id]
+      companyIds: [company2._id],
     });
 
     const companyIds = [company1._id, company2._id];
@@ -206,7 +200,7 @@ describe('Companies model tests', () => {
     // test duplication =================
     try {
       await Companies.mergeCompanies(companyIds, {
-        primaryName: 'companyname'
+        primaryName: 'companyname',
       });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
@@ -215,18 +209,18 @@ describe('Companies model tests', () => {
     // Merge without any errors ===========
     await internalNoteFactory({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: companyIds[0]
+      contentTypeId: companyIds[0],
     });
 
     await activityLogFactory({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
-        id: companyIds[0]
-      }
+        id: companyIds[0],
+      },
     });
 
     await dealFactory({
-      companyIds
+      companyIds,
     });
 
     const doc = {
@@ -235,7 +229,7 @@ describe('Companies model tests', () => {
       industry: 'Airlines',
       plan: 'Test plan',
       ownerId: '789',
-      parentCompanyId: '123'
+      parentCompanyId: '123',
     };
 
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
@@ -244,9 +238,7 @@ describe('Companies model tests', () => {
     expect(updatedCompany.size).toBe(doc.size);
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);
-    expect(updatedCompany.names).toEqual(
-      expect.arrayContaining(['company1', 'company2'])
-    );
+    expect(updatedCompany.names).toEqual(expect.arrayContaining(['company1', 'company2']));
     expect(updatedCompany.ownerId).toBe('789');
     expect(updatedCompany.parentCompanyId).toBe('123');
 
@@ -272,14 +264,14 @@ describe('Companies model tests', () => {
 
     let internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: companyIds[0]
+      contentTypeId: companyIds[0],
     });
 
     let activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
-        id: companyIds[0]
-      }
+        id: companyIds[0],
+      },
     });
 
     expect(internalNote).toHaveLength(0);
@@ -293,27 +285,27 @@ describe('Companies model tests', () => {
 
     internalNote = await InternalNotes.find({
       contentType: COC_CONTENT_TYPES.COMPANY,
-      contentTypeId: updatedCompany._id
+      contentTypeId: updatedCompany._id,
     });
 
     activityLog = await ActivityLogs.find({
       coc: {
         type: COC_CONTENT_TYPES.COMPANY,
-        id: updatedCompany._id
-      }
+        id: updatedCompany._id,
+      },
     });
 
     expect(internalNote).not.toHaveLength(0);
     expect(activityLog).not.toHaveLength(0);
 
     const deals = await Deals.find({
-      companyIds: { $in: companyIds }
+      companyIds: { $in: companyIds },
     });
 
     expect(deals.length).toBe(0);
 
     const deal = await Deals.findOne({
-      companyIds: { $in: [updatedCompany._id] }
+      companyIds: { $in: [updatedCompany._id] },
     });
     if (!deal) {
       throw new Error('Deal not found');
