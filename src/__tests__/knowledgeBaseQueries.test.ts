@@ -1,9 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { knowledgeBaseArticleFactory, knowledgeBaseCategoryFactory, knowledgeBaseTopicFactory } from '../db/factories';
 import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('knowledgeBaseQueries', () => {
   afterEach(async () => {

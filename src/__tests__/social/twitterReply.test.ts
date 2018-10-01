@@ -1,13 +1,9 @@
 import * as sinon from 'sinon';
 import * as Twit from 'twit';
-import { connect, disconnect } from '../../db/connection';
 import { conversationFactory, customerFactory, integrationFactory } from '../../db/factories';
 import { ConversationMessages, Conversations, Customers, Integrations } from '../../db/models';
 import { tweetReply, TwitMap } from '../../trackers/twitter';
 import { twitRequest } from '../../trackers/twitterTracker';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('twitter integration', () => {
   let _integration;

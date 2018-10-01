@@ -1,12 +1,7 @@
 import * as faker from 'faker';
-import { connect, disconnect } from '../db/connection';
 import { companyFactory, customerFactory, internalNoteFactory, userFactory } from '../db/factories';
 import { InternalNotes, Users } from '../db/models';
 import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 /*
  * Generate test data

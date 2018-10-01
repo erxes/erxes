@@ -1,10 +1,6 @@
 import { NOTIFICATION_TYPES } from '../data/constants';
-import { connect, disconnect } from '../db/connection';
 import { notificationConfigurationFactory, userFactory } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('Notification model tests', () => {
   let _user;

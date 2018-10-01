@@ -1,12 +1,8 @@
 import { NOTIFICATION_TYPES } from '../data/constants';
 import { sendChannelNotifications } from '../data/resolvers/mutations/channels';
 import utils from '../data/utils';
-import { connect, disconnect } from '../db/connection';
 import { channelFactory, notificationConfigurationFactory, userFactory } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('testings helper methods', () => {
   let _user;

@@ -1,12 +1,8 @@
 import * as faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { brandFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Integrations, Users } from '../db/models';
 import { socUtils } from '../trackers/twitterTracker';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('mutations', () => {
   let _integration;

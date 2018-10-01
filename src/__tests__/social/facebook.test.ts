@@ -1,12 +1,8 @@
 import * as sinon from 'sinon';
-import { connect, disconnect } from '../../db/connection';
 import { integrationFactory } from '../../db/factories';
 import { Integrations } from '../../db/models';
 import { getPageList, receiveWebhookResponse } from '../../trackers/facebook';
 import { graphRequest } from '../../trackers/facebookTracker';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('facebook integration common tests', () => {
   const pages = [{ id: '1', name: 'page1' }];

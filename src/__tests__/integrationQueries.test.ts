@@ -1,12 +1,9 @@
 import * as faker from 'faker';
 import { TAG_TYPES } from '../data/constants';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, integrationFactory, tagsFactory } from '../db/factories';
 import { Brands, Channels, Integrations } from '../db/models';
 import { socUtils } from '../trackers/twitterTracker';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('integrationQueries', () => {
   const qryIntegrations = `

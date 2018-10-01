@@ -1,9 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { responseTemplateFactory } from '../db/factories';
 import { ResponseTemplates } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('responseTemplateQueries', () => {
   afterEach(async () => {

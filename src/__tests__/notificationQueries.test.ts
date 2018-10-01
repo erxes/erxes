@@ -1,9 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { notificationConfigurationFactory, notificationFactory, userFactory } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('notificationsQueries', () => {
   const commonParamDefs = `

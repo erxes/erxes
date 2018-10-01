@@ -2,7 +2,7 @@ import * as faker from 'faker';
 import * as moment from 'moment';
 import * as sinon from 'sinon';
 import * as engageUtils from '../data/resolvers/mutations/engageUtils';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -28,10 +28,6 @@ import {
   Users,
 } from '../db/models';
 import { awsRequests } from '../trackers/engageTracker';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 const toJSON = value => {
   return JSON.stringify(value);

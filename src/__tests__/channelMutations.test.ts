@@ -1,10 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { channelFactory, integrationFactory, userFactory } from '../db/factories';
 import { Channels, Integrations, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('mutations', () => {
   let _channel;

@@ -1,10 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { internalNoteFactory, userFactory } from '../db/factories';
 import { InternalNotes, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('InternalNotes mutations', () => {
   let _user;

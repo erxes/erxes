@@ -1,4 +1,3 @@
-import { connect, disconnect } from '../db/connection';
 import {
   activityLogFactory,
   companyFactory,
@@ -8,10 +7,6 @@ import {
 } from '../db/factories';
 import { ActivityLogs, Companies, Customers, InternalNotes } from '../db/models';
 import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 const check = (companyObj, doc) => {
   expect(companyObj.createdAt).toBeDefined();

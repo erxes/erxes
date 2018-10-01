@@ -2,14 +2,10 @@ import cronJobs from '../cronJobs';
 import schema from '../data';
 import { COC_CONTENT_TYPES } from '../data/constants';
 import mutations from '../data/resolvers/mutations';
-import { connect, disconnect } from '../db/connection';
 import { conversationFactory, customerFactory, segmentFactory, userFactory } from '../db/factories';
 import { ActivityLogs, Customers, Segments } from '../db/models';
 
 import { graphql } from 'graphql';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('activityLogs', () => {
   let _user;

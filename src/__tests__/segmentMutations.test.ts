@@ -1,11 +1,7 @@
 import * as faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { segmentFactory, userFactory } from '../db/factories';
 import { Segments, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 const toJSON = value => {
   return JSON.stringify(value);

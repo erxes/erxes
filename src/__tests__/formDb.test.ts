@@ -1,12 +1,8 @@
 import * as toBeType from 'jest-tobetype';
-import { connect, disconnect } from '../db/connection';
 import { customerFactory, fieldFactory, formFactory, userFactory } from '../db/factories';
 import { Customers, Fields, Forms, Users } from '../db/models';
 
 expect.extend(toBeType);
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('form creation', () => {
   let _user;

@@ -1,4 +1,3 @@
-import { connect, disconnect } from '../db/connection';
 import {
   activityLogFactory,
   conversationFactory,
@@ -18,10 +17,6 @@ import {
   InternalNotes,
 } from '../db/models';
 import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Customers model tests', () => {
   let _customer;

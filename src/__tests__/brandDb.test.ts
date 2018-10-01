@@ -1,10 +1,5 @@
-import { connect, disconnect } from '../db/connection';
 import { brandFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Integrations, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Brands db', () => {
   let _brand;

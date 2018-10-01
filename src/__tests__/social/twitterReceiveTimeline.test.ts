@@ -1,5 +1,4 @@
 import { CONVERSATION_STATUSES } from '../../data/constants';
-import { connect, disconnect } from '../../db/connection';
 import { conversationFactory, integrationFactory } from '../../db/factories';
 import { ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../../db/models';
 
@@ -8,9 +7,6 @@ import {
   createOrUpdateTimelineMessage,
   receiveTimelineInformation,
 } from '../../trackers/twitter';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('createOrUpdateTimelineConversation', () => {
   let _integration;
