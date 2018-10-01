@@ -3,6 +3,8 @@ import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/def
 import { IMessengerIntegration } from '../../../db/models/Integrations';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { requireAdmin, requireLogin } from '../../permissions';
+import { getAccessToken } from '../../../trackers/googleTracker';
+import { getUserProfile, sendGmail } from '../../../trackers/gmail';
 
 interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
@@ -100,6 +102,27 @@ const integrationMutations = {
   integrationsRemove(_root, { _id }: { _id: string }) {
     return Integrations.removeIntegration(_id);
   },
+
+  /**
+   * Create gmail integration
+   */
+  async integrationsCreateGmailIntegration(_root, { code }) {
+    const credentials = await getAccessToken(code);
+    // get permission granted email address
+    const userProfile: any = await getUserProfile(credentials);
+
+    return Integrations.createGmailIntegration({
+      name: userProfile.emailAddress,
+      gmailData:{
+        email: userProfile.emailAddress,
+        credentials: credentials
+      }
+    });
+  },
+
+  integrationsSendGmail(_root, args, { user }) {
+    return sendGmail(args, user._id);
+  },
 };
 
 requireLogin(integrationMutations, 'integrationsCreateMessengerIntegration');
@@ -110,6 +133,8 @@ requireLogin(integrationMutations, 'integrationsCreateFormIntegration');
 requireLogin(integrationMutations, 'integrationsEditFormIntegration');
 requireLogin(integrationMutations, 'integrationsCreateTwitterIntegration');
 requireLogin(integrationMutations, 'integrationsCreateFacebookIntegration');
+requireLogin(integrationMutations, 'integrationsCreateGmailIntegration');
+requireLogin(integrationMutations, 'integrationsSendGmail');
 requireAdmin(integrationMutations, 'integrationsRemove');
 
 export default integrationMutations;

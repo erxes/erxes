@@ -1,19 +1,31 @@
 import { google } from 'googleapis';
 
-const SCOPES = ['https://www.googleapis.com/auth/calendar'];
+const SCOPES_CALENDAR = ['https://www.googleapis.com/auth/calendar'];
+const SCOPES_GMAIL = [
+  'https://mail.google.com/',
+  'https://www.googleapis.com/auth/gmail.modify',
+  'https://www.googleapis.com/auth/gmail.compose',
+  'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/gmail.metadata'
+];
 
-const getOauthClient = () => {
+export const getOauthClient = () => {
   const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } = process.env;
 
   return new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
 };
 
-export const getAuthorizeUrl = () => {
+export const getAuthorizeUrl = (service) => {
   const oauthClient = getOauthClient();
+  let scopes = SCOPES_CALENDAR;
 
+  if (service == 'gmail')
+    scopes = SCOPES_GMAIL;
+  
   return oauthClient.generateAuthUrl({
     access_type: 'offline',
-    scope: SCOPES,
+    scope: scopes,
   });
 };
 

@@ -7,6 +7,7 @@ import {
   internalNoteFactory,
   segmentFactory,
   userFactory,
+  integrationFactory
 } from '../db/factories';
 import { ActivityLogs, Conversations } from '../db/models';
 import {
@@ -379,5 +380,36 @@ describe('ActivityLogs model methods', () => {
     });
 
     expect(activityLog).toHaveLength(0);
+  });
+
+  test(`Create gmail activity log`, async () => {
+    const company = await companyFactory({});
+    const user = await userFactory({});
+    const integration = await integrationFactory({});
+    const cocType = 'company';
+    const cocId = company._id;
+    const subject = 'gmail subject';
+
+    const gmailLog = await ActivityLogs.createGmailLog(subject, cocType, cocId, user._id, integration.id);
+
+    if (!gmailLog.activity) {
+      throw new Error('Activity is empty');
+    }
+
+    expect(gmailLog.activity.toJSON()).toEqual({
+      type: 'email',
+      action: 'send',
+      content: subject,
+      id: integration._id
+    });
+
+    if (!gmailLog.coc) {
+      throw new Error('Coc is empty');
+    }
+
+    expect(gmailLog.coc.toJSON()).toEqual({
+      type: 'company',
+      id: company._id,
+    });
   });
 });

@@ -11,6 +11,7 @@ import {
   integrationSchema,
   ITwitterData,
   IUiOptions,
+  IGmailData,
 } from './definitions/integrations';
 
 export interface IMessengerIntegration {
@@ -42,6 +43,14 @@ interface IIntegrationModel extends Model<IIntegrationDocument> {
     name: string;
     brandId: string;
     facebookData: IFacebookData;
+  }): Promise<IIntegrationDocument>;
+
+  createGmailIntegration({
+    name,
+    gmailData,
+  }: {
+    name: string;
+    gmailData: IGmailData;
   }): Promise<IIntegrationDocument>;
 
   updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
@@ -221,6 +230,31 @@ class Integration {
     }
 
     return Integrations.remove({ _id });
+  }
+
+  public static async createGmailIntegration({
+    name,
+    gmailData,
+  }: {
+    name: string;
+    gmailData: IGmailData;
+  }) {
+
+    const { email } = gmailData;
+    const prevEntry = await Integrations.findOne({
+      gmailData: { $exists: true },
+      'gmailData.email': email
+    });
+
+    if (prevEntry){
+      return prevEntry;
+    }
+
+    return this.createIntegration({
+      name,
+      kind: KIND_CHOICES.GMAIL,
+      gmailData,
+    });
   }
 }
 

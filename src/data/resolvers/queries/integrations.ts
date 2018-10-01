@@ -129,8 +129,8 @@ const integrationQueries = {
    * Generate google integration auth url using credentials in .env
    * @return {Promise} - Generated url
    */
-  integrationGetGoogleAuthUrl() {
-    return getAuthorizeUrl();
+  integrationGetGoogleAuthUrl(_root, { service }) {
+    return getAuthorizeUrl(service);
   },
 
   /*
