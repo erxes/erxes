@@ -1,15 +1,11 @@
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { connect, disconnect } from '../db/connection';
 import { userFactory } from '../db/factories';
 import { Users } from '../db/models';
 
 beforeAll(() => {
-  connect();
   Users.collection.ensureIndex({ email: 1 }, { unique: true });
 });
-
-afterAll(() => disconnect());
 
 describe('User db utils', () => {
   let _user;

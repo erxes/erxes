@@ -1,10 +1,13 @@
-import { connect, disconnect } from '../db/connection';
-import { dealBoardFactory, dealFactory, dealPipelineFactory, dealStageFactory, userFactory } from '../db/factories';
+import {
+  companyFactory,
+  customerFactory,
+  dealBoardFactory,
+  dealFactory,
+  dealPipelineFactory,
+  dealStageFactory,
+  userFactory,
+} from '../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Test deals model', () => {
   let board;
@@ -305,5 +308,49 @@ describe('Test deals model', () => {
     } catch (e) {
       expect(e.message).toEqual('Deal not found');
     }
+  });
+
+  test('Deal change customer', async () => {
+    const newCustomer = await customerFactory({});
+
+    const customer1 = await customerFactory({});
+    const customer2 = await customerFactory({});
+    const dealObj = await dealFactory({
+      customerIds: [customer2._id, customer1._id],
+    });
+
+    await Deals.changeCustomer(newCustomer._id, [customer2._id, customer1._id]);
+
+    const result = await Deals.findOne({ _id: dealObj._id });
+
+    if (!result) {
+      throw new Error('Deal not found');
+    }
+
+    expect(result.customerIds).toContain(newCustomer._id);
+    expect(result.customerIds).not.toContain(customer1._id);
+    expect(result.customerIds).not.toContain(customer2._id);
+  });
+
+  test('Deal change company', async () => {
+    const newCompany = await companyFactory({});
+
+    const company1 = await companyFactory({});
+    const company2 = await companyFactory({});
+    const dealObj = await dealFactory({
+      companyIds: [company1._id, company2._id],
+    });
+
+    await Deals.changeCompany(newCompany._id, [company1._id, company2._id]);
+
+    const result = await Deals.findOne({ _id: dealObj._id });
+
+    if (!result) {
+      throw new Error('Deal not found');
+    }
+
+    expect(result.companyIds).toContain(newCompany._id);
+    expect(result.companyIds).not.toContain(company1._id);
+    expect(result.companyIds).not.toContain(company2._id);
   });
 });

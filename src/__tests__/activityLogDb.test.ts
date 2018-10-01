@@ -1,4 +1,3 @@
-import { connect, disconnect } from '../db/connection';
 import {
   companyFactory,
   conversationFactory,
@@ -16,9 +15,6 @@ import {
   ACTIVITY_TYPES,
   COC_CONTENT_TYPES,
 } from '../db/models/definitions/constants';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('ActivityLogs model methods', () => {
   afterEach(async () => {

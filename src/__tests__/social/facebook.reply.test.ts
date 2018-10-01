@@ -1,13 +1,9 @@
 import * as sinon from 'sinon';
 import { FACEBOOK_DATA_KINDS } from '../../data/constants';
-import { connect, disconnect } from '../../db/connection';
 import { conversationFactory, conversationMessageFactory, integrationFactory } from '../../db/factories';
 import { ConversationMessages, Conversations, Integrations } from '../../db/models';
 import { facebookReply } from '../../trackers/facebook';
 import { graphRequest } from '../../trackers/facebookTracker';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('facebook integration: reply', () => {
   const senderId = 2242424244;

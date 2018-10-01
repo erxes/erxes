@@ -1,9 +1,5 @@
-import { connect, disconnect } from '../db/connection';
 import { channelFactory, integrationFactory, userFactory } from '../db/factories';
 import { Channels, Integrations, Users } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('test channel creation error', () => {
   test(`check if Error('userId must be supplied') is being thrown as intended`, async () => {

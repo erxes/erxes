@@ -1,6 +1,5 @@
 import * as faker from 'faker';
 import { FORM_LOAD_TYPES, KIND_CHOICES, MESSENGER_DATA_AVAILABILITY } from '../data/constants';
-import { connect, disconnect } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -11,9 +10,6 @@ import {
   userFactory,
 } from '../db/factories';
 import { Brands, ConversationMessages, Fields, Forms, Integrations, Users } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('messenger integration model add method', () => {
   let _brand;

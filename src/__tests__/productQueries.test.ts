@@ -1,10 +1,7 @@
 import { PRODUCT_TYPES } from '../data/constants';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { productFactory } from '../db/factories';
 import { Products } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('productQueries', () => {
   afterEach(async () => {

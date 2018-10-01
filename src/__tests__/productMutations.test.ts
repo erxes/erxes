@@ -1,10 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { productFactory, userFactory } from '../db/factories';
 import { Products } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Test products mutations', () => {
   let product;

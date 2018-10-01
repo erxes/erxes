@@ -234,6 +234,8 @@ interface IDealModel extends Model<IDealDocument> {
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
   updateOrder(orders: IOrderInput[]): any[];
   removeDeal(_id: string): void;
+  changeCustomer(newCustomerId: string, oldCustomerIds: string[]): Promise<IDealDocument>;
+  changeCompany(newCompanyId: string, oldCompanyIds: string[]): Promise<IDealDocument>;
 }
 
 class Deal {
@@ -271,6 +273,32 @@ class Deal {
     }
 
     return deal.remove();
+  }
+
+  /**
+   * Change customer
+   */
+  public static async changeCustomer(newCustomerId: string, oldCustomerIds: string[]) {
+    for (const customerId of oldCustomerIds) {
+      await Deals.updateMany({ customerIds: { $in: [customerId] } }, { $addToSet: { customerIds: newCustomerId } });
+
+      await Deals.updateMany({ customerIds: { $in: [customerId] } }, { $pull: { customerIds: customerId } });
+    }
+
+    return Deals.find({ customerIds: { $in: oldCustomerIds } });
+  }
+
+  /**
+   * Change company
+   */
+  public static async changeCompany(newCompanyId: string, oldCompanyIds: string[]) {
+    for (const companyId of oldCompanyIds) {
+      await Deals.updateMany({ companyIds: { $in: [companyId] } }, { $addToSet: { companyIds: newCompanyId } });
+
+      await Deals.updateMany({ companyIds: { $in: [companyId] } }, { $pull: { companyIds: companyId } });
+    }
+
+    return Deals.find({ customerIds: { $in: oldCompanyIds } });
   }
 }
 

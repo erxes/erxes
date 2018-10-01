@@ -11,4 +11,5 @@ module.exports = {
       tsConfigFile: 'tsconfig.json',
     },
   },
+  setupTestFrameworkScriptFile: './src/setupTests.ts',
 };

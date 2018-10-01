@@ -1,10 +1,7 @@
 import * as faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { internalNoteFactory } from '../db/factories';
 import { InternalNotes } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('internalNoteQueries', () => {
   afterEach(async () => {

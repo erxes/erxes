@@ -1,11 +1,8 @@
 import * as faker from 'faker';
 import * as moment from 'moment';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { customerFactory, formFactory, integrationFactory, segmentFactory, tagsFactory } from '../db/factories';
 import { Customers, Segments, Tags } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 const count = response => {
   return Object.keys(response).length;

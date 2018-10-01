@@ -1,17 +1,13 @@
-import { connect, disconnect } from '../db/connection';
 import {
   activityLogFactory,
   companyFactory,
   customerFactory,
+  dealFactory,
   fieldFactory,
   internalNoteFactory,
 } from '../db/factories';
-import { ActivityLogs, Companies, Customers, InternalNotes } from '../db/models';
+import { ActivityLogs, Companies, Customers, Deals, InternalNotes } from '../db/models';
 import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 const check = (companyObj, doc) => {
   expect(companyObj.createdAt).toBeDefined();
@@ -178,7 +174,7 @@ describe('Companies model tests', () => {
   });
 
   test('mergeCompanies', async () => {
-    expect.assertions(19);
+    expect.assertions(21);
 
     const company1 = await companyFactory({
       tagIds: ['123', '456', '1234'],
@@ -221,6 +217,10 @@ describe('Companies model tests', () => {
         type: COC_CONTENT_TYPES.COMPANY,
         id: companyIds[0],
       },
+    });
+
+    await dealFactory({
+      companyIds,
     });
 
     const doc = {
@@ -297,5 +297,19 @@ describe('Companies model tests', () => {
 
     expect(internalNote).not.toHaveLength(0);
     expect(activityLog).not.toHaveLength(0);
+
+    const deals = await Deals.find({
+      companyIds: { $in: companyIds },
+    });
+
+    expect(deals.length).toBe(0);
+
+    const deal = await Deals.findOne({
+      companyIds: { $in: [updatedCompany._id] },
+    });
+    if (!deal) {
+      throw new Error('Deal not found');
+    }
+    expect(deal.companyIds).toContain(updatedCompany._id);
   });
 });

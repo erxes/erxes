@@ -1,11 +1,7 @@
 import * as faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { formFactory, userFactory } from '../db/factories';
 import { Forms, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 /*
  * Generate test data

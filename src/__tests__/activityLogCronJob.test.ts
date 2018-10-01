@@ -1,11 +1,7 @@
 import cronJobs from '../cronJobs';
 import { ACTIVITY_ACTIONS, ACTIVITY_PERFORMER_TYPES, ACTIVITY_TYPES, COC_CONTENT_TYPES } from '../data/constants';
-import { connect, disconnect } from '../db/connection';
 import { customerFactory, segmentFactory } from '../db/factories';
 import { ActivityLogs } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('test activityLogsCronJob', () => {
   test('test if it is working as intended', async () => {

@@ -1,7 +1,6 @@
 import * as moment from 'moment';
 import { sendMessageEmail } from '../cronJobs/conversations';
 import utils from '../data/utils';
-import { connect, disconnect } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -11,10 +10,6 @@ import {
   userFactory,
 } from '../db/factories';
 import { Brands, ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Cronjob conversation send email', () => {
   let _conversation;

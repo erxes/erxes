@@ -1,5 +1,5 @@
 import * as faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   companyFactory,
@@ -9,9 +9,6 @@ import {
   tagsFactory,
 } from '../db/factories';
 import { Companies, Segments, Tags } from '../db/models';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 const count = response => {
   return Object.keys(response).length;
@@ -197,12 +194,14 @@ describe('companyQueries', () => {
 
     const args = {
       contentType: 'company',
-      conditions: [{
-        field: 'primaryName',
-        operator: 'c',
-        value: name,
-        type: 'string',
-      }],
+      conditions: [
+        {
+          field: 'primaryName',
+          operator: 'c',
+          value: name,
+          type: 'string',
+        },
+      ],
     };
 
     const segment = await segmentFactory(args);
