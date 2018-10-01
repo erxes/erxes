@@ -3,6 +3,7 @@ import {
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
+  dealFactory,
   fieldFactory,
   integrationFactory,
   internalNoteFactory,
@@ -13,6 +14,7 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
+  Deals,
   ImportHistory,
   InternalNotes,
 } from '../db/models';
@@ -235,7 +237,7 @@ describe('Customers model tests', () => {
   });
 
   test('Merge customers', async () => {
-    expect.assertions(23);
+    expect.assertions(25);
 
     const integration = await integrationFactory({});
 
@@ -302,6 +304,10 @@ describe('Customers model tests', () => {
         type: COC_CONTENT_TYPES.CUSTOMER,
         id: customerIds[0],
       },
+    });
+
+    await dealFactory({
+      customerIds,
     });
 
     const doc = {
@@ -388,6 +394,20 @@ describe('Customers model tests', () => {
 
     expect(internalNote).not.toHaveLength(0);
     expect(activityLog).not.toHaveLength(0);
+
+    const deals = await Deals.find({
+      customerIds: { $in: customerIds },
+    });
+
+    expect(deals.length).toBe(0);
+
+    const deal = await Deals.findOne({
+      customerIds: { $in: [mergedCustomer._id] },
+    });
+    if (!deal) {
+      throw new Error('Deal not found');
+    }
+    expect(deal.customerIds).toContain(mergedCustomer._id);
   });
 
   test('bulkInsert', async () => {

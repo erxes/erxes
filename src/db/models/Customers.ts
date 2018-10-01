@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs, Conversations, EngageMessages, Fields, InternalNotes } from './';
+import { ActivityLogs, Conversations, Deals, EngageMessages, Fields, InternalNotes } from './';
 import { CUSTOMER_BASIC_INFOS } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument, IFacebookData, ITwitterData } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
@@ -271,6 +271,7 @@ class Customer {
     await Conversations.changeCustomer(customer._id, customerIds);
     await EngageMessages.changeCustomer(customer._id, customerIds);
     await InternalNotes.changeCustomer(customer._id, customerIds);
+    await Deals.changeCustomer(customer._id, customerIds);
 
     return customer;
   }

@@ -67,7 +67,7 @@ const engageMutations = {
   /**
    * Engage message set live
    */
-  async engageMessageSetLive(_root, { _id } : { _id: string }) {
+  async engageMessageSetLive(_root, { _id }: { _id: string }) {
     const engageMessage = await EngageMessages.engageMessageSetLive(_id);
 
     const { kind } = engageMessage;
@@ -82,7 +82,7 @@ const engageMutations = {
   /**
    * Engage message set pause
    */
-  engageMessageSetPause(_root, { _id } : { _id: string }) {
+  engageMessageSetPause(_root, { _id }: { _id: string }) {
     return EngageMessages.engageMessageSetPause(_id);
   },
 

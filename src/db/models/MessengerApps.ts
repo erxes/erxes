@@ -13,9 +13,6 @@ class MessengerApp {
 
 messengerAppSchema.loadClass(MessengerApp);
 
-const MessengerApps = model<IMessengerAppDocument, IMessengerAppModel>(
-  'messenger_apps',
-  messengerAppSchema,
-);
+const MessengerApps = model<IMessengerAppDocument, IMessengerAppModel>('messenger_apps', messengerAppSchema);
 
 export default MessengerApps;

@@ -19,7 +19,10 @@ mongoose.connection
   });
 
 export function connect() {
-  return mongoose.connect(MONGO_URL, { useMongoClient: true });
+  return mongoose.connect(
+    MONGO_URL,
+    { useMongoClient: true },
+  );
 }
 
 export function disconnect() {

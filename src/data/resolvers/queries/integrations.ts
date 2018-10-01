@@ -125,7 +125,7 @@ const integrationQueries = {
     return socUtils.getTwitterAuthorizeUrl();
   },
 
-   /*
+  /*
    * Generate google integration auth url using credentials in .env
    * @return {Promise} - Generated url
    */
