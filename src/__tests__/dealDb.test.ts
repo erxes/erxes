@@ -6,10 +6,10 @@ import {
   dealPipelineFactory,
   dealStageFactory,
   userFactory
-} from "../db/factories";
-import { DealBoards, DealPipelines, Deals, DealStages } from "../db/models";
+} from '../db/factories';
+import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
 
-describe("Test deals model", () => {
+describe('Test deals model', () => {
   let board;
   let pipeline;
   let stage;
@@ -34,7 +34,7 @@ describe("Test deals model", () => {
   });
 
   // Test deal board
-  test("Create board", async () => {
+  test('Create board', async () => {
     const createdBoard = await DealBoards.createBoard({
       name: board.name,
       userId: user._id
@@ -46,8 +46,8 @@ describe("Test deals model", () => {
     expect(createdBoard.userId).toEqual(user._id);
   });
 
-  test("Update board", async () => {
-    const boardName = "Update board name";
+  test('Update board', async () => {
+    const boardName = 'Update board name';
     const updatedBoard = await DealBoards.updateBoard(board._id, {
       name: boardName,
       userId: user._id
@@ -58,8 +58,8 @@ describe("Test deals model", () => {
     expect(updatedBoard.userId).toEqual(user._id);
   });
 
-  test("Remove board", async () => {
-    const doc = { boardId: "boardId" };
+  test('Remove board', async () => {
+    const doc = { boardId: 'boardId' };
 
     await DealPipelines.update({}, { $set: doc });
 
@@ -68,15 +68,15 @@ describe("Test deals model", () => {
     expect(isDeleted).toBeTruthy();
   });
 
-  test("Remove board not found", async () => {
+  test('Remove board not found', async () => {
     expect.assertions(1);
 
-    const fakeBoardId = "fakeBoardId";
+    const fakeBoardId = 'fakeBoardId';
 
     try {
       await DealBoards.removeBoard(fakeBoardId);
     } catch (e) {
-      expect(e.message).toEqual("Board not found");
+      expect(e.message).toEqual('Board not found');
     }
   });
 
@@ -91,7 +91,7 @@ describe("Test deals model", () => {
   });
 
   // Test deal pipeline
-  test("Create pipeline", async () => {
+  test('Create pipeline', async () => {
     const createdPipeline = await DealPipelines.createPipeline(
       {
         name: pipeline.name,
@@ -104,7 +104,7 @@ describe("Test deals model", () => {
     const stageToPipeline = await DealStages.findOne({ _id: stage._id });
 
     if (!stageToPipeline) {
-      throw new Error("Stage not found");
+      throw new Error('Stage not found');
     }
 
     expect(createdPipeline).toBeDefined();
@@ -115,8 +115,8 @@ describe("Test deals model", () => {
     expect(createdPipeline.userId).toEqual(user._id);
   });
 
-  test("Update pipeline", async () => {
-    const pipelineName = "Update pipeline name";
+  test('Update pipeline', async () => {
+    const pipelineName = 'Update pipeline name';
     const pipelineObj = await dealPipelineFactory({});
     const stageObj = await dealStageFactory({ pipelineId: pipelineObj._id });
     const testStage = await dealStageFactory({ pipelineId: pipelineObj._id });
@@ -137,7 +137,7 @@ describe("Test deals model", () => {
     expect(stages.length).toEqual(0);
   });
 
-  test("Update pipeline orders", async () => {
+  test('Update pipeline orders', async () => {
     const pipelineToOrder = await dealPipelineFactory({});
 
     const [
@@ -152,8 +152,8 @@ describe("Test deals model", () => {
     expect(updatedPipelineToOrder.order).toBe(5);
   });
 
-  test("Remove pipeline", async () => {
-    const doc = { pipelineId: "pipelineId" };
+  test('Remove pipeline', async () => {
+    const doc = { pipelineId: 'pipelineId' };
 
     await DealStages.update({}, { $set: doc });
 
@@ -161,15 +161,15 @@ describe("Test deals model", () => {
     expect(isDeleted).toBeTruthy();
   });
 
-  test("Remove pipeline not found", async () => {
+  test('Remove pipeline not found', async () => {
     expect.assertions(1);
 
-    const fakePipelineId = "fakePipelineId";
+    const fakePipelineId = 'fakePipelineId';
 
     try {
       await DealPipelines.removePipeline(fakePipelineId);
     } catch (e) {
-      expect(e.message).toEqual("Pipeline not found");
+      expect(e.message).toEqual('Pipeline not found');
     }
   });
 
@@ -184,7 +184,7 @@ describe("Test deals model", () => {
   });
 
   // Test deal stage
-  test("Create stage", async () => {
+  test('Create stage', async () => {
     const createdStage = await DealStages.createStage({
       name: stage.name,
       pipelineId: stage.pipelineId,
@@ -198,8 +198,8 @@ describe("Test deals model", () => {
     expect(createdStage.userId).toEqual(user._id);
   });
 
-  test("Update stage", async () => {
-    const stageName = "Update stage name";
+  test('Update stage', async () => {
+    const stageName = 'Update stage name';
     const updatedStage = await DealStages.updateStage(stage._id, {
       name: stageName,
       userId: user._id
@@ -209,7 +209,7 @@ describe("Test deals model", () => {
     expect(updatedStage.name).toEqual(stageName);
   });
 
-  test("Change stage", async () => {
+  test('Change stage', async () => {
     const pipelineToUpdate = await dealPipelineFactory({});
     const changedStage = await DealStages.changeStage(
       stage._id,
@@ -220,7 +220,7 @@ describe("Test deals model", () => {
     expect(changedStage.pipelineId).toEqual(pipelineToUpdate._id);
   });
 
-  test("Update stage orders", async () => {
+  test('Update stage orders', async () => {
     const stageToOrder = await dealStageFactory({});
 
     const [updatedStage, updatedStageToOrder] = await DealStages.updateOrder([
@@ -232,23 +232,23 @@ describe("Test deals model", () => {
     expect(updatedStageToOrder.order).toBe(9);
   });
 
-  test("Remove stage", async () => {
-    await Deals.update({}, { $set: { stageId: "stageId" } });
+  test('Remove stage', async () => {
+    await Deals.update({}, { $set: { stageId: 'stageId' } });
 
     const isDeleted = await DealStages.removeStage(stage.id);
 
     expect(isDeleted).toBeTruthy();
   });
 
-  test("Remove stage not found", async () => {
+  test('Remove stage not found', async () => {
     expect.assertions(1);
 
-    const fakeStageId = "fakeStageId";
+    const fakeStageId = 'fakeStageId';
 
     try {
       await DealStages.removeStage(fakeStageId);
     } catch (e) {
-      expect(e.message).toEqual("Stage not found");
+      expect(e.message).toEqual('Stage not found');
     }
   });
 
@@ -263,7 +263,7 @@ describe("Test deals model", () => {
   });
 
   // Test deal
-  test("Create deal", async () => {
+  test('Create deal', async () => {
     const createdDeal = await Deals.createDeal({
       stageId: deal.stageId,
       userId: user._id
@@ -275,8 +275,8 @@ describe("Test deals model", () => {
     expect(createdDeal.userId).toEqual(user._id);
   });
 
-  test("Update deal", async () => {
-    const dealStageId = "fakeId";
+  test('Update deal', async () => {
+    const dealStageId = 'fakeId';
     const updatedDeal = await Deals.updateDeal(deal._id, {
       stageId: dealStageId
     });
@@ -286,7 +286,7 @@ describe("Test deals model", () => {
     expect(updatedDeal.closeDate).toEqual(deal.closeDate);
   });
 
-  test("Update deal orders", async () => {
+  test('Update deal orders', async () => {
     const dealToOrder = await dealFactory({});
 
     const [updatedDeal, updatedDealToOrder] = await Deals.updateOrder([
@@ -298,25 +298,25 @@ describe("Test deals model", () => {
     expect(updatedDealToOrder.order).toBe(9);
   });
 
-  test("Remove deal", async () => {
+  test('Remove deal', async () => {
     const isDeleted = await Deals.removeDeal(deal.id);
 
     expect(isDeleted).toBeTruthy();
   });
 
-  test("Remove deal not found", async () => {
+  test('Remove deal not found', async () => {
     expect.assertions(1);
 
-    const fakeDealId = "fakeDealId";
+    const fakeDealId = 'fakeDealId';
 
     try {
       await Deals.removeDeal(fakeDealId);
     } catch (e) {
-      expect(e.message).toEqual("Deal not found");
+      expect(e.message).toEqual('Deal not found');
     }
   });
 
-  test("Deal change customer", async () => {
+  test('Deal change customer', async () => {
     const newCustomer = await customerFactory({});
 
     const customer1 = await customerFactory({});
@@ -330,7 +330,7 @@ describe("Test deals model", () => {
     const result = await Deals.findOne({ _id: dealObj._id });
 
     if (!result) {
-      throw new Error("Deal not found");
+      throw new Error('Deal not found');
     }
 
     expect(result.customerIds).toContain(newCustomer._id);
@@ -338,7 +338,7 @@ describe("Test deals model", () => {
     expect(result.customerIds).not.toContain(customer2._id);
   });
 
-  test("Deal change company", async () => {
+  test('Deal change company', async () => {
     const newCompany = await companyFactory({});
 
     const company1 = await companyFactory({});
@@ -352,7 +352,7 @@ describe("Test deals model", () => {
     const result = await Deals.findOne({ _id: dealObj._id });
 
     if (!result) {
-      throw new Error("Deal not found");
+      throw new Error('Deal not found');
     }
 
     expect(result.companyIds).toContain(newCompany._id);

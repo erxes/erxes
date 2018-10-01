@@ -1,4 +1,4 @@
-import { Model, model } from "mongoose";
+import { Model, model } from 'mongoose';
 import {
   ActivityLogs,
   Conversations,
@@ -6,17 +6,17 @@ import {
   EngageMessages,
   Fields,
   InternalNotes
-} from "./";
-import { CUSTOMER_BASIC_INFOS } from "./definitions/constants";
+} from './';
+import { CUSTOMER_BASIC_INFOS } from './definitions/constants';
 import {
   customerSchema,
   ICustomer,
   ICustomerDocument,
   IFacebookData,
   ITwitterData
-} from "./definitions/customers";
-import { IUserDocument } from "./definitions/users";
-import { bulkInsert } from "./utils";
+} from './definitions/customers';
+import { IUserDocument } from './definitions/users';
+import { bulkInsert } from './utils';
 
 interface ICustomerFieldsInput {
   twitterData?: ITwitterData;
@@ -82,11 +82,11 @@ class Customer {
     if (customerFields.twitterData) {
       previousEntry = await Customers.find({
         ...query,
-        ["twitterData.id"]: customerFields.twitterData.id
+        ['twitterData.id']: customerFields.twitterData.id
       });
 
       if (previousEntry.length > 0) {
-        throw new Error("Duplicated twitter");
+        throw new Error('Duplicated twitter');
       }
     }
 
@@ -94,11 +94,11 @@ class Customer {
     if (customerFields.facebookData) {
       previousEntry = await Customers.find({
         ...query,
-        ["facebookData.id"]: customerFields.facebookData.id
+        ['facebookData.id']: customerFields.facebookData.id
       });
 
       if (previousEntry.length > 0) {
-        throw new Error("Duplicated facebook");
+        throw new Error('Duplicated facebook');
       }
     }
 
@@ -110,7 +110,7 @@ class Customer {
       });
 
       if (previousEntry.length > 0) {
-        throw new Error("Duplicated email");
+        throw new Error('Duplicated email');
       }
 
       // check duplication from emails
@@ -120,7 +120,7 @@ class Customer {
       });
 
       if (previousEntry.length > 0) {
-        throw new Error("Duplicated email");
+        throw new Error('Duplicated email');
       }
     }
 
@@ -132,7 +132,7 @@ class Customer {
       });
 
       if (previousEntry.length > 0) {
-        throw new Error("Duplicated phone");
+        throw new Error('Duplicated phone');
       }
 
       // Check duplication from phones
@@ -142,7 +142,7 @@ class Customer {
       });
 
       if (previousEntry.length > 0) {
-        throw new Error("Duplicated phone");
+        throw new Error('Duplicated phone');
       }
     }
   }
@@ -196,7 +196,7 @@ class Customer {
   public static async markCustomerAsActive(customerId: string) {
     await Customers.update(
       { _id: customerId },
-      { $set: { "messengerData.isActive": true } }
+      { $set: { 'messengerData.isActive': true } }
     );
 
     return Customers.findOne({ _id: customerId });
@@ -210,8 +210,8 @@ class Customer {
       _id,
       {
         $set: {
-          "messengerData.isActive": false,
-          "messengerData.lastSeenAt": new Date()
+          'messengerData.isActive': false,
+          'messengerData.lastSeenAt': new Date()
         }
       },
       { new: true }
@@ -335,7 +335,7 @@ class Customer {
       fieldValues,
       user,
       basicInfos: CUSTOMER_BASIC_INFOS,
-      contentType: "customer",
+      contentType: 'customer',
       create: this.createCustomer
     };
 
@@ -346,7 +346,7 @@ class Customer {
 customerSchema.loadClass(Customer);
 
 const Customers = model<ICustomerDocument, ICustomerModel>(
-  "customers",
+  'customers',
   customerSchema
 );
 

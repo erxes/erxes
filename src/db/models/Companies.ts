@@ -1,13 +1,13 @@
-import { Model, model } from "mongoose";
-import { ActivityLogs, Customers, Deals, Fields, InternalNotes } from "./";
+import { Model, model } from 'mongoose';
+import { ActivityLogs, Customers, Deals, Fields, InternalNotes } from './';
 import {
   companySchema,
   ICompany,
   ICompanyDocument
-} from "./definitions/companies";
-import { COMPANY_BASIC_INFOS } from "./definitions/constants";
-import { IUserDocument } from "./definitions/users";
-import { bulkInsert } from "./utils";
+} from './definitions/companies';
+import { COMPANY_BASIC_INFOS } from './definitions/constants';
+import { IUserDocument } from './definitions/users';
+import { bulkInsert } from './utils';
 
 interface ICompanyModel extends Model<ICompanyDocument> {
   checkDuplication(
@@ -68,7 +68,7 @@ class Company {
       });
 
       if (previousEntry.length > 0) {
-        throw new Error("Duplicated name");
+        throw new Error('Duplicated name');
       }
 
       // check duplication from names
@@ -78,7 +78,7 @@ class Company {
       });
 
       if (previousEntry.length > 0) {
-        throw new Error("Duplicated name");
+        throw new Error('Duplicated name');
       }
     }
   }
@@ -243,7 +243,7 @@ class Company {
       fieldValues,
       user,
       basicInfos: COMPANY_BASIC_INFOS,
-      contentType: "company",
+      contentType: 'company',
       create: (doc, userObj) => this.createCompany(doc, userObj)
     };
 
@@ -254,7 +254,7 @@ class Company {
 companySchema.loadClass(Company);
 
 const Companies = model<ICompanyDocument, ICompanyModel>(
-  "companies",
+  'companies',
   companySchema
 );
 

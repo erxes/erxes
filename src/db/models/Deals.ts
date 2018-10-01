@@ -1,4 +1,4 @@
-import { Model, model } from "mongoose";
+import { Model, model } from 'mongoose';
 import {
   boardSchema,
   dealSchema,
@@ -12,7 +12,7 @@ import {
   IStageDocument,
   pipelineSchema,
   stageSchema
-} from "./definitions/deals";
+} from './definitions/deals';
 
 export interface IOrderInput {
   _id: string;
@@ -94,7 +94,7 @@ class Board {
     const board = await DealBoards.findOne({ _id });
 
     if (!board) {
-      throw new Error("Board not found");
+      throw new Error('Board not found');
     }
 
     const count = await DealPipelines.find({ boardId: _id }).count();
@@ -168,7 +168,7 @@ class Pipeline {
     const pipeline = await DealPipelines.findOne({ _id });
 
     if (!pipeline) {
-      throw new Error("Pipeline not found");
+      throw new Error('Pipeline not found');
     }
 
     const count = await DealStages.find({ pipelineId: _id }).count();
@@ -230,7 +230,7 @@ class Stage {
     const stage = await DealStages.findOne({ _id });
 
     if (!stage) {
-      throw new Error("Stage not found");
+      throw new Error('Stage not found');
     }
 
     const count = await Deals.find({ stageId: _id }).count();
@@ -289,7 +289,7 @@ class Deal {
     const deal = await Deals.findOne({ _id });
 
     if (!deal) {
-      throw new Error("Deal not found");
+      throw new Error('Deal not found');
     }
 
     return deal.remove();
@@ -346,20 +346,20 @@ stageSchema.loadClass(Stage);
 dealSchema.loadClass(Deal);
 
 const DealBoards = model<IBoardDocument, IBoardModel>(
-  "deal_boards",
+  'deal_boards',
   boardSchema
 );
 
 const DealPipelines = model<IPipelineDocument, IPipelineModel>(
-  "deal_pipelines",
+  'deal_pipelines',
   pipelineSchema
 );
 
 const DealStages = model<IStageDocument, IStageModel>(
-  "deal_stages",
+  'deal_stages',
   stageSchema
 );
 
-const Deals = model<IDealDocument, IDealModel>("deals", dealSchema);
+const Deals = model<IDealDocument, IDealModel>('deals', dealSchema);
 
 export { DealBoards, DealPipelines, DealStages, Deals };

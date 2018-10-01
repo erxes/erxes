@@ -8,7 +8,7 @@ import {
   integrationFactory,
   internalNoteFactory,
   userFactory
-} from "../db/factories";
+} from '../db/factories';
 import {
   ActivityLogs,
   ConversationMessages,
@@ -17,18 +17,18 @@ import {
   Deals,
   ImportHistory,
   InternalNotes
-} from "../db/models";
-import { COC_CONTENT_TYPES } from "../db/models/definitions/constants";
+} from '../db/models';
+import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
 
 describe('Customers model tests', () => {
   let _customer;
 
   beforeEach(async () => {
     _customer = await customerFactory({
-      primaryEmail: "email@gmail.com",
-      emails: ["email@gmail.com", "otheremail@gmail.com"],
-      primaryPhone: "99922210",
-      phones: ["99922210", "99922211"]
+      primaryEmail: 'email@gmail.com',
+      emails: ['email@gmail.com', 'otheremail@gmail.com'],
+      primaryPhone: '99922210',
+      phones: ['99922210', '99922211']
     });
   });
 
@@ -38,48 +38,48 @@ describe('Customers model tests', () => {
     await ImportHistory.remove({});
   });
 
-  test("Create customer", async () => {
+  test('Create customer', async () => {
     expect.assertions(13);
 
     // check duplication ===============
     try {
-      await Customers.createCustomer({ primaryEmail: "email@gmail.com" });
+      await Customers.createCustomer({ primaryEmail: 'email@gmail.com' });
     } catch (e) {
-      expect(e.message).toBe("Duplicated email");
+      expect(e.message).toBe('Duplicated email');
     }
 
     try {
-      await Customers.createCustomer({ primaryEmail: "otheremail@gmail.com" });
+      await Customers.createCustomer({ primaryEmail: 'otheremail@gmail.com' });
     } catch (e) {
-      expect(e.message).toBe("Duplicated email");
+      expect(e.message).toBe('Duplicated email');
     }
 
     try {
-      await Customers.createCustomer({ primaryPhone: "99922210" });
+      await Customers.createCustomer({ primaryPhone: '99922210' });
     } catch (e) {
-      expect(e.message).toBe("Duplicated phone");
+      expect(e.message).toBe('Duplicated phone');
     }
 
     try {
-      await Customers.createCustomer({ primaryPhone: "99922211" });
+      await Customers.createCustomer({ primaryPhone: '99922211' });
     } catch (e) {
-      expect(e.message).toBe("Duplicated phone");
+      expect(e.message).toBe('Duplicated phone');
     }
 
     try {
       await Customers.createCustomer({ twitterData: _customer.twitterData });
     } catch (e) {
-      expect(e.message).toBe("Duplicated twitter");
+      expect(e.message).toBe('Duplicated twitter');
     }
 
     // Create without any error
     const doc = {
-      primaryEmail: "dombo@yahoo.com",
-      emails: ["dombo@yahoo.com"],
-      firstName: "firstName",
-      lastName: "lastName",
-      primaryPhone: "12312132",
-      phones: ["12312132"]
+      primaryEmail: 'dombo@yahoo.com',
+      emails: ['dombo@yahoo.com'],
+      firstName: 'firstName',
+      lastName: 'lastName',
+      primaryPhone: '12312132',
+      phones: ['12312132']
     };
 
     const customerObj = await Customers.createCustomer(doc);
@@ -94,47 +94,47 @@ describe('Customers model tests', () => {
     expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones));
   });
 
-  test("Create customer: with customer fields validation error", async () => {
+  test('Create customer: with customer fields validation error', async () => {
     expect.assertions(1);
 
-    const field = await fieldFactory({ validation: "number" });
+    const field = await fieldFactory({ validation: 'number' });
 
     if (!field) {
-      throw new Error("Field not found");
+      throw new Error('Field not found');
     }
 
     try {
       await Customers.createCustomer({
-        primaryEmail: "email",
-        emails: ["dombo@yahoo.com"],
-        customFieldsData: { [field._id]: "invalid number" }
+        primaryEmail: 'email',
+        emails: ['dombo@yahoo.com'],
+        customFieldsData: { [field._id]: 'invalid number' }
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
     }
   });
 
-  test("Update customer", async () => {
+  test('Update customer', async () => {
     expect.assertions(5);
 
     const previousCustomer = await customerFactory({
-      primaryEmail: "dombo@yahoo.com",
-      emails: ["dombo@yahoo.com"]
+      primaryEmail: 'dombo@yahoo.com',
+      emails: ['dombo@yahoo.com']
     });
 
     const doc = {
-      firstName: "Dombo",
-      primaryEmail: "dombo@yahoo.com",
-      emails: ["dombo@yahoo.com"],
-      primaryPhone: "242442200",
-      phones: ["242442200"]
+      firstName: 'Dombo',
+      primaryEmail: 'dombo@yahoo.com',
+      emails: ['dombo@yahoo.com'],
+      primaryPhone: '242442200',
+      phones: ['242442200']
     };
 
     // test duplication
     try {
       await Customers.updateCustomer(_customer._id, doc);
     } catch (e) {
-      expect(e.message).toBe("Duplicated email");
+      expect(e.message).toBe('Duplicated email');
     }
 
     // remove previous duplicated entry
@@ -148,7 +148,7 @@ describe('Customers model tests', () => {
     expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
   });
 
-  test("Mark customer as inactive", async () => {
+  test('Mark customer as inactive', async () => {
     const customer = await customerFactory({
       messengerData: { isActive: true, lastSeenAt: null }
     });
@@ -156,35 +156,35 @@ describe('Customers model tests', () => {
     const customerObj = await Customers.markCustomerAsNotActive(customer._id);
 
     if (!customerObj || !customerObj.messengerData) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     expect(customerObj.messengerData.isActive).toBe(false);
     expect(customerObj.messengerData.lastSeenAt).toBeDefined();
   });
 
-  test("Update customer: with customer fields validation error", async () => {
+  test('Update customer: with customer fields validation error', async () => {
     expect.assertions(1);
 
-    const field = await fieldFactory({ validation: "number" });
+    const field = await fieldFactory({ validation: 'number' });
 
     if (!field) {
-      throw new Error("Field not found");
+      throw new Error('Field not found');
     }
 
     try {
       await Customers.updateCustomer(_customer._id, {
-        primaryEmail: "email",
-        emails: ["dombo@yahoo.com"],
-        customFieldsData: { [field._id]: "invalid number" }
+        primaryEmail: 'email',
+        emails: ['dombo@yahoo.com'],
+        customFieldsData: { [field._id]: 'invalid number' }
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
     }
   });
 
-  test("Update customer companies", async () => {
-    const companyIds = ["12313qwrqwe", "123", "11234"];
+  test('Update customer companies', async () => {
+    const companyIds = ['12313qwrqwe', '123', '11234'];
 
     const customerObj = await Customers.updateCompanies(
       _customer._id,
@@ -194,7 +194,7 @@ describe('Customers model tests', () => {
     expect(customerObj.companyIds).toEqual(expect.arrayContaining(companyIds));
   });
 
-  test("removeCustomer", async () => {
+  test('removeCustomer', async () => {
     const customer = await customerFactory({});
 
     await internalNoteFactory({
@@ -228,44 +228,44 @@ describe('Customers model tests', () => {
     ).toHaveLength(0);
   });
 
-  test("Merge customers: without emails or phones", async () => {
+  test('Merge customers: without emails or phones', async () => {
     const visitor1 = await customerFactory({});
     const visitor2 = await customerFactory({});
 
     const customerIds = [visitor1._id, visitor2._id];
 
     const merged = await Customers.mergeCustomers(customerIds, {
-      primaryEmail: "merged@gmail.com",
-      primaryPhone: "2555225"
+      primaryEmail: 'merged@gmail.com',
+      primaryPhone: '2555225'
     });
 
-    expect(merged.emails).toContain("merged@gmail.com");
-    expect(merged.phones).toContain("2555225");
+    expect(merged.emails).toContain('merged@gmail.com');
+    expect(merged.phones).toContain('2555225');
   });
 
-  test("Merge customers", async () => {
+  test('Merge customers', async () => {
     expect.assertions(25);
 
     const integration = await integrationFactory({});
 
     const customer1 = await customerFactory({
-      companyIds: ["123", "1234", "12345"],
-      tagIds: ["2343", "234", "234"],
+      companyIds: ['123', '1234', '12345'],
+      tagIds: ['2343', '234', '234'],
       integrationId: integration._id
     });
 
     const customer2 = await customerFactory({
-      companyIds: ["123", "456", "45678"],
-      tagIds: ["qwe", "2343", "123"],
+      companyIds: ['123', '456', '45678'],
+      tagIds: ['qwe', '2343', '123'],
       integrationId: integration._id
     });
 
     if (!customer1 || !customer1.companyIds || !customer1.tagIds) {
-      throw new Error("Customer1 not found");
+      throw new Error('Customer1 not found');
     }
 
     if (!customer2 || !customer2.companyIds || !customer2.tagIds) {
-      throw new Error("Customer2 not found");
+      throw new Error('Customer2 not found');
     }
 
     const customerIds = [customer1._id, customer2._id];
@@ -285,15 +285,15 @@ describe('Customers model tests', () => {
         twitterData: _customer.twitterData
       });
     } catch (e) {
-      expect(e.message).toBe("Duplicated twitter");
+      expect(e.message).toBe('Duplicated twitter');
     }
 
     try {
       await Customers.mergeCustomers(customerIds, {
-        primaryEmail: "email@gmail.com"
+        primaryEmail: 'email@gmail.com'
       });
     } catch (e) {
-      expect(e.message).toBe("Duplicated email");
+      expect(e.message).toBe('Duplicated email');
     }
 
     // Merge without any errors ===========
@@ -322,12 +322,12 @@ describe('Customers model tests', () => {
     });
 
     const doc = {
-      firstName: "Test first name",
-      lastName: "Test last name",
-      primaryEmail: "Test email",
-      primaryPhone: "Test phone",
+      firstName: 'Test first name',
+      lastName: 'Test last name',
+      primaryEmail: 'Test email',
+      primaryPhone: 'Test phone',
       facebookData: {
-        id: "1231312asd"
+        id: '1231312asd'
       },
       twitterData: {
         id: 1234123
@@ -336,10 +336,10 @@ describe('Customers model tests', () => {
         sessionCount: 6
       },
       visitorContactInfo: {
-        email: "test123@gmail.com",
-        phone: "1213312132"
+        email: 'test123@gmail.com',
+        phone: '1213312132'
       },
-      ownerId: "456"
+      ownerId: '456'
     };
 
     const mergedCustomer = await Customers.mergeCustomers(customerIds, doc);
@@ -351,7 +351,7 @@ describe('Customers model tests', () => {
       !mergedCustomer.messengerData ||
       !mergedCustomer.visitorContactInfo
     ) {
-      throw new Error("Merged customer not found");
+      throw new Error('Merged customer not found');
     }
 
     expect(mergedCustomer.integrationId).toBeDefined();
@@ -369,7 +369,7 @@ describe('Customers model tests', () => {
     expect(mergedCustomer.visitorContactInfo.toJSON()).toEqual(
       doc.visitorContactInfo
     );
-    expect(mergedCustomer.ownerId).toBe("456");
+    expect(mergedCustomer.ownerId).toBe('456');
 
     // Checking old customers datas to be deleted
     expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);
@@ -428,44 +428,44 @@ describe('Customers model tests', () => {
       customerIds: { $in: [mergedCustomer._id] }
     });
     if (!deal) {
-      throw new Error("Deal not found");
+      throw new Error('Deal not found');
     }
     expect(deal.customerIds).toContain(mergedCustomer._id);
   });
 
-  test("bulkInsert", async () => {
+  test('bulkInsert', async () => {
     await fieldFactory({
-      contentType: "customer",
-      text: "First referred site",
-      validation: ""
+      contentType: 'customer',
+      text: 'First referred site',
+      validation: ''
     });
 
     await fieldFactory({
-      contentType: "customer",
-      text: "Fax number",
-      validation: ""
+      contentType: 'customer',
+      text: 'Fax number',
+      validation: ''
     });
     const user = await userFactory({});
 
     const fieldNames = [
-      "primaryEmail",
-      "primaryPhone",
-      "First referred site",
-      "Fax number"
+      'primaryEmail',
+      'primaryPhone',
+      'First referred site',
+      'Fax number'
     ];
 
     const fieldValues = [
       [
-        "customer1email@yahoo.com",
-        "customer1phone",
-        "customer1property1",
-        "customer1property2"
+        'customer1email@yahoo.com',
+        'customer1phone',
+        'customer1property1',
+        'customer1property2'
       ],
       [
-        "customer2email@yahoo.com",
-        "customer2phone",
-        "customer2property1",
-        "customer2property2"
+        'customer2email@yahoo.com',
+        'customer2phone',
+        'customer2property1',
+        'customer2property2'
       ]
     ];
 
@@ -475,7 +475,7 @@ describe('Customers model tests', () => {
     const history = await ImportHistory.findOne({ userId: user._id });
 
     if (!history || !history.ids) {
-      throw new Error("History not found");
+      throw new Error('History not found');
     }
 
     // Before each test we create 1 customer so it should be 3 total
@@ -487,43 +487,43 @@ describe('Customers model tests', () => {
     expect(history.failed).toBe(0);
   });
 
-  test("bulkInsert with errors", async () => {
+  test('bulkInsert with errors', async () => {
     const user = await userFactory({});
-    const badFieldNames = ["badColumn name1"];
+    const badFieldNames = ['badColumn name1'];
 
     let response = await Customers.bulkInsert(badFieldNames, [], user);
     // We sent bad column name
     expect(response.length).toBe(1);
-    expect(response[0]).toBe("Bad column name badColumn name1");
+    expect(response[0]).toBe('Bad column name badColumn name1');
 
     await fieldFactory({
-      contentType: "customer",
-      text: "Fax number",
-      validation: ""
+      contentType: 'customer',
+      text: 'Fax number',
+      validation: ''
     });
     const customer = await customerFactory({
-      emails: ["testCustomerEmail@gmail.com"],
-      primaryEmail: "testCustomerEmail@gmail.com"
+      emails: ['testCustomerEmail@gmail.com'],
+      primaryEmail: 'testCustomerEmail@gmail.com'
     });
 
-    const fieldNames = ["primaryEmail", "firstName", "Fax number"];
+    const fieldNames = ['primaryEmail', 'firstName', 'Fax number'];
 
     const fieldValues: any = [
-      [customer.primaryEmail, "Heyy", "12313"], // this one has duplicated email
-      ["newEmail@gmail.com", "Ayyy", "12313"], // this one should be inserted
-      [customer.primaryEmail, "", ""] // this one has duplicated email too
+      [customer.primaryEmail, 'Heyy', '12313'], // this one has duplicated email
+      ['newEmail@gmail.com', 'Ayyy', '12313'], // this one should be inserted
+      [customer.primaryEmail, '', ''] // this one has duplicated email too
     ];
 
     response = await Customers.bulkInsert(fieldNames, fieldValues, user);
 
     expect(response.length).toBe(2);
-    expect(response[0]).toBe("Duplicated email at the row 1");
-    expect(response[1]).toBe("Duplicated email at the row 3");
+    expect(response[0]).toBe('Duplicated email at the row 1');
+    expect(response[1]).toBe('Duplicated email at the row 3');
 
     const history = await ImportHistory.findOne({ userId: user._id });
 
     if (!history || !history.ids) {
-      throw new Error("History not found");
+      throw new Error('History not found');
     }
 
     expect(history.total).toBe(3);
@@ -531,7 +531,7 @@ describe('Customers model tests', () => {
     expect(history.failed).toBe(2);
     expect(history.ids.length).toBe(1);
 
-    process.env.MAX_IMPORT_SIZE = "2";
+    process.env.MAX_IMPORT_SIZE = '2';
 
     // Max import size error
     response = await Customers.bulkInsert(fieldNames, fieldValues, user);
