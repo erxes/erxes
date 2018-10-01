@@ -14,7 +14,7 @@ const routes = () => (
         return <List queryParams={queryParams} />;
       }}
     />
-    ,
+
     <Route
       key="/forms/create"
       exact
@@ -24,7 +24,7 @@ const routes = () => (
         return <CreateForm queryParams={queryParams} />;
       }}
     />
-    ,
+
     <Route
       key="/forms/edit/:contentTypeId?/:formId?"
       exact
