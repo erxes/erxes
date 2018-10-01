@@ -26,15 +26,11 @@ export interface IListArgs {
   integrationType?: string;
   integration?: string;
 }
-interface IDefaultFilters {
-  $nor: [{ [index: string]: IIn | any }];
-}
+
 interface IIntegrationIds {
   integrationId: IIn;
 }
-interface ITagFilter {
-  tagIds: IIn;
-}
+
 interface IIdsFilter {
   _id: IIn;
 }
@@ -49,7 +45,7 @@ export default class Builder {
     // this.user = user;
   }
 
-  public defaultFilters(): IDefaultFilters {
+  public defaultFilters(): { $nor: [{ [index: string]: IIn | any }] } {
     const emptySelector = { $in: [null, ''] };
 
     return {
@@ -103,7 +99,7 @@ export default class Builder {
   }
 
   // filter by tagId
-  public tagFilter(tagId: string): ITagFilter {
+  public tagFilter(tagId: string): { tagIds: IIn } {
     return { tagIds: { $in: [tagId] } };
   }
 

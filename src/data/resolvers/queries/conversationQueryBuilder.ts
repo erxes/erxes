@@ -6,9 +6,11 @@ import { fixDate } from './insightUtils';
 interface IIn {
   $in: string[];
 }
+
 interface IExists {
   $exists: boolean;
 }
+
 export interface IListArgs {
   limit?: number;
   channelId?: string;
@@ -24,40 +26,20 @@ export interface IListArgs {
   endDate?: string;
   only?: string;
 }
+
 interface IUserArgs {
   _id: string;
   starredConversationIds?: string[];
 }
-interface IDefaultFilters {
-  [index: string]: {};
-}
+
 interface IIntersectIntegrationIds {
   integrationId: IIn;
 }
-interface IChannelFilter {
-  integrationId: IIn;
-}
-interface IBrandFilter {
-  integrationId: IIn;
-}
+
 interface IUnassignedFilter {
   assignedUserId: IExists;
 }
-interface IParticipatingFilter {
-  participatedUserIds: IIn;
-}
-interface IStarredFilter {
-  _id: IIn | { $in: any[] };
-}
-interface IStatusFilter {
-  status: IIn;
-}
-interface IIntegrationTypeFilter {
-  $and: IIntersectIntegrationIds[];
-}
-interface ITagFilter {
-  tagIds: string[];
-}
+
 interface IDateFilter {
   createdAt: {
     $gte: Date;
@@ -76,7 +58,7 @@ export default class Builder {
     this.user = user;
   }
 
-  public defaultFilters(): IDefaultFilters {
+  public defaultFilters(): { [index: string]: {} } {
     let statusFilter = this.statusFilter([CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]);
 
     if (this.params.status === 'closed') {
@@ -98,7 +80,7 @@ export default class Builder {
     };
   }
 
-  public intersectIntegrationIds(...queries: any[]): IIntersectIntegrationIds {
+  public intersectIntegrationIds(...queries: any[]): { integrationId: IIn } {
     // filter only queries with $in field
     const withIn = queries.filter(q => q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0);
 
@@ -151,7 +133,7 @@ export default class Builder {
   }
 
   // filter by channel
-  public async channelFilter(channelId: string): Promise<IChannelFilter> {
+  public async channelFilter(channelId: string): Promise<{ integrationId: IIn }> {
     const channel = await Channels.findOne({ _id: channelId });
     if (channel && channel.integrationIds) {
       return {
@@ -163,7 +145,7 @@ export default class Builder {
   }
 
   // filter by brand
-  public async brandFilter(brandId: string): Promise<IBrandFilter> {
+  public async brandFilter(brandId: string): Promise<{ integrationId: IIn }> {
     const integrations = await Integrations.find({ brandId });
     const integrationIds = _.pluck(integrations, '_id');
 
@@ -182,14 +164,14 @@ export default class Builder {
   }
 
   // filter by participating
-  public participatingFilter(): IParticipatingFilter {
+  public participatingFilter(): { participatedUserIds: IIn } {
     return {
       participatedUserIds: { $in: [this.user._id] },
     };
   }
 
   // filter by starred
-  public starredFilter(): IStarredFilter {
+  public starredFilter(): { _id: IIn | { $in: any[] } } {
     let ids: any = [];
 
     if (this.user) {
@@ -201,14 +183,14 @@ export default class Builder {
     };
   }
 
-  public statusFilter(statusChoices: string[]): IStatusFilter {
+  public statusFilter(statusChoices: string[]): { status: IIn } {
     return {
       status: { $in: statusChoices },
     };
   }
 
   // filter by integration type
-  public async integrationTypeFilter(integrationType: string): Promise<IIntegrationTypeFilter> {
+  public async integrationTypeFilter(integrationType: string): Promise<{ $and: IIntersectIntegrationIds[] }> {
     const integrations = await Integrations.find({ kind: integrationType });
 
     return {
@@ -223,7 +205,7 @@ export default class Builder {
   }
 
   // filter by tag
-  public tagFilter(tagId: string): ITagFilter {
+  public tagFilter(tagId: string): { tagIds: string[] } {
     return {
       tagIds: [tagId],
     };
