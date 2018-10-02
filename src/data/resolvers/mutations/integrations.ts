@@ -1,10 +1,10 @@
 import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
+import { getUserProfile, sendGmail } from '../../../trackers/gmail';
+import { getAccessToken } from '../../../trackers/googleTracker';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { requireAdmin, requireLogin } from '../../permissions';
-import { getAccessToken } from '../../../trackers/googleTracker';
-import { getUserProfile, sendGmail } from '../../../trackers/gmail';
 
 interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
@@ -108,15 +108,16 @@ const integrationMutations = {
    */
   async integrationsCreateGmailIntegration(_root, { code }) {
     const credentials = await getAccessToken(code);
+
     // get permission granted email address
     const userProfile: any = await getUserProfile(credentials);
 
     return Integrations.createGmailIntegration({
       name: userProfile.emailAddress,
-      gmailData:{
+      gmailData: {
         email: userProfile.emailAddress,
-        credentials: credentials
-      }
+        credentials,
+      },
     });
   },
 

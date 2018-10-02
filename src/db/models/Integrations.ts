@@ -5,19 +5,24 @@ import { KIND_CHOICES } from '../../data/constants';
 import {
   IFacebookData,
   IFormData,
+  IGmailData,
   IIntegration,
   IIntegrationDocument,
   IMessengerData,
   integrationSchema,
   ITwitterData,
   IUiOptions,
-  IGmailData,
 } from './definitions/integrations';
 
 export interface IMessengerIntegration {
   name: string;
   brandId: string;
   languageCode: string;
+}
+
+interface IGmailParams {
+  name: string;
+  gmailData: IGmailData;
 }
 
 interface IIntegrationModel extends Model<IIntegrationDocument> {
@@ -45,13 +50,7 @@ interface IIntegrationModel extends Model<IIntegrationDocument> {
     facebookData: IFacebookData;
   }): Promise<IIntegrationDocument>;
 
-  createGmailIntegration({
-    name,
-    gmailData,
-  }: {
-    name: string;
-    gmailData: IGmailData;
-  }): Promise<IIntegrationDocument>;
+  createGmailIntegration(params: IGmailParams): Promise<IIntegrationDocument>;
 
   updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
 
@@ -232,21 +231,15 @@ class Integration {
     return Integrations.remove({ _id });
   }
 
-  public static async createGmailIntegration({
-    name,
-    gmailData,
-  }: {
-    name: string;
-    gmailData: IGmailData;
-  }) {
-
+  public static async createGmailIntegration({ name, gmailData }: IGmailParams) {
     const { email } = gmailData;
+
     const prevEntry = await Integrations.findOne({
       gmailData: { $exists: true },
-      'gmailData.email': email
+      'gmailData.email': email,
     });
 
-    if (prevEntry){
+    if (prevEntry) {
       return prevEntry;
     }
 
