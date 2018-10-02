@@ -1,7 +1,7 @@
 import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
-import { getUserProfile, sendGmail } from '../../../trackers/gmail';
+import { getAuthEmail, sendGmail } from '../../../trackers/gmail';
 import { getAccessToken } from '../../../trackers/googleTracker';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { requireAdmin, requireLogin } from '../../permissions';
@@ -107,20 +107,27 @@ const integrationMutations = {
    * Create gmail integration
    */
   async integrationsCreateGmailIntegration(_root, { code }) {
-    const credentials = await getAccessToken(code);
+    const credentials = await getAccessToken(code, 'gmail');
 
     // get permission granted email address
-    const userProfile: any = await getUserProfile(credentials);
+    const data = await getAuthEmail(credentials);
+
+    if (!data.emailAddress) {
+      throw new Error('Email not found');
+    }
 
     return Integrations.createGmailIntegration({
-      name: userProfile.emailAddress,
+      name: data.emailAddress,
       gmailData: {
-        email: userProfile.emailAddress,
+        email: data.emailAddress,
         credentials,
       },
     });
   },
 
+  /**
+   * Send mail by gmail api
+   */
   integrationsSendGmail(_root, args, { user }) {
     return sendGmail(args, user._id);
   },

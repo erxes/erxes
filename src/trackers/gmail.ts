@@ -15,7 +15,10 @@ interface IMailParams {
   attachments: string[];
 }
 
-const getInBufferAttachFile = url =>
+/**
+ * Get file by url into fileStream buffer
+ */
+const getInBufferAttachFile = (url: string) =>
   new Promise((resolve, reject) =>
     request.get({ url, encoding: null }, (error, response, body) => {
       if (error) {
@@ -81,6 +84,9 @@ const encodeEmail = async (toEmail, fromEmail, subject, body, attachments, ccEma
     .replace(/=+$/, '');
 };
 
+/**
+ * Send email & create activiy log with gmail kind
+ */
 export const sendGmail = async (mailParams: IMailParams, userId: string) => {
   const { integrationId, subject, body, toEmails, cc, bcc, attachments, cocType, cocId } = mailParams;
 
@@ -92,7 +98,7 @@ export const sendGmail = async (mailParams: IMailParams, userId: string) => {
 
   const fromEmail = integration.gmailData.email;
 
-  const auth = getOauthClient();
+  const auth = getOauthClient('gmail');
 
   auth.setCredentials(integration.gmailData.credentials);
 
@@ -114,6 +120,7 @@ export const sendGmail = async (mailParams: IMailParams, userId: string) => {
         reject(err);
       }
 
+      // Create activity log for send gmail
       ActivityLogs.createGmailLog(subject, cocType, cocId, userId, integrationId);
 
       resolve(response);
@@ -121,8 +128,11 @@ export const sendGmail = async (mailParams: IMailParams, userId: string) => {
   });
 };
 
-export const getUserProfile = async credentials => {
-  const auth = getOauthClient();
+/**
+ * Get permission granted email
+ */
+export const getAuthEmail = async (credentials): Promise<{ emailAddress?: string }> => {
+  const auth = getOauthClient('gmail');
 
   auth.setCredentials(credentials);
 
