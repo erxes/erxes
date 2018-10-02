@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 import * as request from 'request';
 import { ActivityLogs, Integrations } from '../db/models';
 import { getOauthClient } from './googleTracker';
+import { Credentials } from 'google-auth-library/build/src/auth/credentials';
 
 interface IMailParams {
   integrationId: string;
@@ -131,7 +132,7 @@ export const sendGmail = async (mailParams: IMailParams, userId: string) => {
 /**
  * Get permission granted email
  */
-export const getAuthEmail = async (credentials): Promise<{ emailAddress?: string }> => {
+export const getAuthEmail = async (credentials: Credentials): Promise<{ emailAddress?: string }> => {
   const auth = getOauthClient('gmail');
 
   auth.setCredentials(credentials);
