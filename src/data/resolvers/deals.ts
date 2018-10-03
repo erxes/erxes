@@ -82,4 +82,8 @@ export default {
 
     return board._id;
   },
+
+  async stage(deal: IDealDocument) {
+    return DealStages.findOne({ _id: deal.stageId });
+  }
 };
