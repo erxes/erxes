@@ -6,14 +6,13 @@ import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import * as React from 'react';
 import { ProductForm } from '..';
 import { IProduct } from '../../../settings/productService/types';
+import { IProductData } from '../../types';
 
 type Props = {
-  productsData: any;
+  productsData: IProductData[];
   products: IProduct[];
-
-  // TODO: check any
-  onChangeProductsData: (productsData: any) => void;
-  onChangeProducts: (prs: any) => void;
+  onChangeProductsData: (productsData: IProductData[]) => void;
+  onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
 };
 

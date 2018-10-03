@@ -11,16 +11,16 @@ import Select from 'react-select-plus';
 import { ProductChooser } from '../../containers';
 import { Button as DealButton } from '../../styles/deal';
 import { ItemText } from '../../styles/product';
+import { IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 
 type Props = {
-  // TODO: replace any
-  uom: any;
-  currencies: any;
-  productsData?: any;
-  productData: any;
+  uom: string[];
+  currencies: string[];
+  productsData?: IProductData[];
+  productData: IProductData;
   removeProductItem?: (_id: string) => void;
-  onChangeProductsData?: (productsData: any) => void;
+  onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
 };
 
@@ -71,14 +71,16 @@ class ProductItemForm extends React.Component<Props> {
   onChangeField(type, value, _id) {
     const { productsData, onChangeProductsData } = this.props;
 
-    const productData = productsData.find(p => p._id === _id);
-    productData[type] = value;
-
-    if (type !== 'product' && type !== 'uom') {
-      this.calculateAmount(type, productData);
+    if(productsData) {
+      const productData = productsData.find(p => p._id === _id);
+      if(productData) productData[type] = value;
+      
+      if (type !== 'product' && type !== 'uom') {
+        this.calculateAmount(type, productData);
+      }
+      
+      onChangeProductsData && onChangeProductsData(productsData);
     }
-
-    onChangeProductsData && onChangeProductsData(productsData);
   }
 
   renderProductServiceTrigger(product) {
@@ -175,8 +177,12 @@ class ProductItemForm extends React.Component<Props> {
             min={1}
             placeholder="0"
             name="quantity"
-            onChange={(e: any) =>
-              this.onChangeField(e.target.name, e.target.value, productData._id)
+            onChange={(e) =>
+              this.onChangeField(
+                (e.target as HTMLInputElement).name,
+                (e.target as HTMLInputElement).value,
+                productData._id
+              )
             }
           />
 
@@ -190,8 +196,12 @@ class ProductItemForm extends React.Component<Props> {
             type="number"
             placeholder="0"
             name="unitPrice"
-            onChange={(e: any) =>
-              this.onChangeField(e.target.name, e.target.value, productData._id)
+            onChange={(e) =>
+              this.onChangeField(
+                (e.target as HTMLInputElement).name,
+                (e.target as HTMLInputElement).value,
+                productData._id
+              )
             }
           />
 
@@ -202,8 +212,12 @@ class ProductItemForm extends React.Component<Props> {
             max={100}
             placeholder="0"
             name="discountPercent"
-            onChange={(e: any) =>
-              this.onChangeField(e.target.name, e.target.value, productData._id)
+            onChange={(e) =>
+              this.onChangeField(
+                (e.target as HTMLInputElement).name,
+                (e.target as HTMLInputElement).value,
+                productData._id
+              )
             }
           />
 
@@ -214,8 +228,12 @@ class ProductItemForm extends React.Component<Props> {
             max={100}
             placeholder="0"
             name="taxPercent"
-            onChange={(e: any) =>
-              this.onChangeField(e.target.name, e.target.value, productData._id)
+            onChange={(e) =>
+              this.onChangeField(
+                (e.target as HTMLInputElement).name,
+                (e.target as HTMLInputElement).value,
+                productData._id
+              )
             }
           />
 
@@ -232,8 +250,12 @@ class ProductItemForm extends React.Component<Props> {
             type="number"
             placeholder="0"
             name="discount"
-            onChange={(e: any) =>
-              this.onChangeField(e.target.name, e.target.value, productData._id)
+            onChange={(e) =>
+              this.onChangeField(
+                (e.target as HTMLInputElement).name,
+                (e.target as HTMLInputElement).value,
+                productData._id
+              )
             }
           />
 

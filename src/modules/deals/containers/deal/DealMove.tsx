@@ -3,6 +3,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DealMove } from '../../components';
 import { queries } from '../../graphql';
+import { IPipeline } from '../../types';
 
 class DealMoveContainer extends React.Component<{ stagesQuery: any }> {
   render() {
@@ -22,7 +23,7 @@ class DealMoveContainer extends React.Component<{ stagesQuery: any }> {
 export default compose(
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
-    options: ({ deal: { pipeline } }: { deal: { pipeline: any } }) => ({
+    options: ({ deal: { pipeline } }: { deal: { pipeline: IPipeline } }) => ({
       variables: {
         pipelineId: pipeline._id
       }

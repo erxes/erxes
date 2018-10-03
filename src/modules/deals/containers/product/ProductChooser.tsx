@@ -9,15 +9,14 @@ import {
 } from 'modules/settings/productService/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { IProduct } from '../../../settings/productService/types';
 
 type Props = {
-  data: any;
+  data: { name: string, products: IProduct[] };
   productsQuery: any;
-
-  // TODO: replace any
-  productAdd: (params: { variables: any }) => Promise<any>;
+  productAdd: (params: { variables: IProduct }) => Promise<void>;
   closeModal: () => void;
-  onSelect: (products: any[]) => void;
+  onSelect: (products: IProduct[]) => void;
 };
 
 class ProductChooser extends React.Component<Props, any> {

@@ -3,12 +3,13 @@ import { queries as generalQueries } from 'modules/settings/general/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ProductItemForm } from '../../components';
+import { IProductData } from '../../types';
 
 type Props = {
   getUomQuery: any;
   getCurrenciesQuery: any;
   productDetailQuery: any;
-  productData: any;
+  productData: IProductData;
 };
 
 class ProductItemFormContainer extends React.Component<Props> {

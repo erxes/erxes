@@ -3,9 +3,14 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DealEditForm } from '../../components';
 import { queries } from '../../graphql';
-import { IDeal } from '../../types';
+import { IDeal, IDealParams } from '../../types';
 
-type Props = { usersQuery: any; deal: IDeal; };
+type Props = {
+  usersQuery: any;
+  deal: IDeal;
+  saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
+  removeDeal: (_id: string, callback?: () => void) => void;
+};
 
 class DealEditFormContainer extends React.Component<Props> {
   render() {

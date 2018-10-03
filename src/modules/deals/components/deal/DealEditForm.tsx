@@ -5,22 +5,19 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { ICompany } from '../../../companies/types';
 import { ICustomer } from '../../../customers/types';
+import { IProduct } from '../../../settings/productService/types';
 import { Tab } from '../../containers';
 import { FlexContent, FormFooter } from '../../styles/deal';
-import { IDeal } from '../../types';
+import { IDeal, IDealParams, IDragResult } from '../../types';
 import { Sidebar, Top } from './editForm';
 
 type Props = {
   deal: IDeal;
   users: IUser[];
-  dealActivityLog?: any;
   index?: number;
-  // TODO: replace any
-  saveDeal?: (doc: any, callback: any, deal?: IDeal) => Promise<any>;
-  removeDeal?: (_id: string, callback: any) => Promise<any>;
-  move?: (doc: any) => void;
-
-  // TODO: check optional
+  saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
+  removeDeal: (_id: string, callback?: () => void) => void;
+  move?: (doc: IDragResult) => void;
   closeModal?: () => void;
 };
 
@@ -33,7 +30,7 @@ type State = {
   assignedUserIds: string[];
   customers: ICustomer[];
   companies: ICompany[];
-  products: any;
+  products: IProduct[];
   productsData: any;
   disabled: boolean;
 }
@@ -110,7 +107,7 @@ class DealEditForm extends React.Component<Props, State> {
       assignedUserIds
     } = this.state;
 
-    const { deal, index, closeModal, saveDeal, move } = this.props;
+    const { deal, index = 0, closeModal, saveDeal, move } = this.props;
 
     if (!name) return Alert.error(__('Enter name'));
 
@@ -121,7 +118,7 @@ class DealEditForm extends React.Component<Props, State> {
       name,
       companyIds: companies.map(company => company._id),
       customerIds: customers.map(customer => customer._id),
-      closeDate: closeDate ? new Date(closeDate) : null,
+      closeDate: closeDate && new Date(closeDate),
       description,
       productsData,
       stageId,

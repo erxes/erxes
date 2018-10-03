@@ -5,31 +5,33 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../components';
 import { mutations, queries } from '../graphql';
-import { IDeal } from '../types';
+import { ICommonParams, IDeal, IDealParams } from '../types';
 import {
   collectOrders,
   removeDeal as remove,
   saveDeal as save
 } from '../utils';
 
+type Order = {
+  _id: string,
+  order: number
+}
+
 type Props = {
-  state: any;
+  state: { deals: ICommonParams[] };
   stageId: string;
   deals: IDeal[];
-
-  // TODO: replace any
-  addMutation: (params: { variables: { doc: any } }) => Promise<any>;
-  editMutation: (params: { variables: { doc: any } }) => Promise<any>;
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
-  dealsUpdateOrderMutation: (params: { variables: { orders: any } }) => Promise<any>;
-
-  dealsChangeMutation: (params: { variables: { _id: string, stageId: string } }) => Promise<any>;
+  addMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
+  editMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<void>;
+  dealsUpdateOrderMutation: (params: { variables: { orders: Order[] } }) => Promise<void>;
+  dealsChangeMutation: (params: { variables: { _id: string, stageId: string } }) => Promise<void>;
   dealsUpdateOrder: any;
   stageDetailQuery: any;
   dealsQuery: any;
 };
 
-class StageContainer extends React.Component<Props, any> {
+class StageContainer extends React.Component<Props, { deals: ICommonParams[] }> {
   constructor(props) {
     super(props);
 
@@ -38,7 +40,7 @@ class StageContainer extends React.Component<Props, any> {
 
     const { deals } = props;
 
-    this.state = { deals: [...deals] };
+    this.state = { deals };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -87,7 +89,7 @@ class StageContainer extends React.Component<Props, any> {
   }
 
   // create or update deal
-  saveDeal(doc: IDeal, callback: any, deal: IDeal) {
+  saveDeal(doc: IDealParams, callback: () => void, deal?: IDeal) {
     const {
       stageDetailQuery,
       addMutation,
@@ -100,7 +102,6 @@ class StageContainer extends React.Component<Props, any> {
     save(
       doc,
       { addMutation, editMutation, dealsQuery },
-      { __ },
       data => {
         // if edit mode
         if (deal) {
@@ -126,7 +127,7 @@ class StageContainer extends React.Component<Props, any> {
     const { stageDetailQuery, removeMutation, dealsQuery } = this.props;
     const { deals } = this.state;
 
-    remove(_id, { removeMutation, dealsQuery }, { __ }, dealsRemove => {
+    remove(_id, { removeMutation, dealsQuery }, dealsRemove => {
       this.setState({
         deals: deals.filter(el => el._id !== dealsRemove._id)
       });

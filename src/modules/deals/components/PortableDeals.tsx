@@ -5,16 +5,14 @@ import { SectionContainer } from 'modules/layout/styles';
 import * as React from 'react';
 import { DealAddForm } from '.';
 import { Deal } from '../containers';
-import { IDeal } from '../types';
+import { IDeal, IDealParams } from '../types';
 
 type Props = {
   deals: IDeal[];
   customerId?: string;
   companyId?: string;
-
-  // TODO: replace any
-  saveDeal: (doc: IDeal, callback: any, deal: IDeal) => void;
-  removeDeal: (_id: string, callback: any) => void;
+  saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
+  removeDeal: (_id: string, callback: () => void) => void;
 };
 
 class PortableDeals extends React.Component<Props> {
