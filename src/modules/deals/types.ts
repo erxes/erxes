@@ -2,9 +2,9 @@ import { IUser } from "../auth/types";
 import { ICompany } from "../companies/types";
 import { ICustomer } from "../customers/types";
 
-// TODO: check
 export interface IBoard {
 	_id: string;
+	name: string;
 }
 
 export interface IPipeline {
@@ -14,11 +14,11 @@ export interface IPipeline {
 
 export interface IStage {
 	_id: string;
-	name: string;
-	type: string;
-	index: number;
-	itemId: string;
-	amount: any;
+	name?: string;
+	type?: string;
+	index?: number;
+	itemId?: string;
+	amount?: any;
 }
 
 export interface IDeal {
@@ -49,8 +49,7 @@ export interface IProductData {
 	amount: number,
 }
 
-// rename to Position
-type position = {
+type Position = {
 	_id?: string,
 	droppableId?: string,
 	index: number
@@ -58,8 +57,8 @@ type position = {
 
 export interface IDragResult {
 	type: string,
-	destination: position,
-	source: position,
+	destination: Position,
+	source: Position,
 	draggableId?: string,
 	itemId?: string
 }
@@ -75,4 +74,8 @@ export interface IDealParams {
   description?: string,
   order?: number,
   productsData?: IProductData[]
+}
+
+export interface ICommonParams {
+	_id: string;
 }

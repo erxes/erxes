@@ -14,11 +14,11 @@ import {
   Indicator,
   IndicatorItem
 } from '../styles/stage';
-import { IDeal, IDealParams, IStage } from '../types';
+import { ICommonParams, IDeal, IDealParams, IStage } from '../types';
 
 type Props = {
   stage: IStage;
-  deals: IDeal[];
+  deals: ICommonParams[];
   index?: number;
   length?: number;
   saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;

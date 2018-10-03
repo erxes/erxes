@@ -14,12 +14,6 @@ import {
 type Props = {
   customerId?: string;
   companyId?: string;
-
-  // TODO: remove
-  boardsQuery?: any;
-  pipelinesQuery?: any;
-  stagesQuery?: any;
-
   boardId?: string;
   pipelineId?: string;
   stageId?: string;

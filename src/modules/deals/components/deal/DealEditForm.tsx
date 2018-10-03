@@ -14,10 +14,6 @@ import { Sidebar, Top } from './editForm';
 type Props = {
   deal: IDeal;
   users: IUser[];
-
-  // TODO: check
-  dealActivityLog?: any;
-
   index?: number;
   saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
   removeDeal: (_id: string, callback?: () => void) => void;
@@ -128,8 +124,6 @@ class DealEditForm extends React.Component<Props, State> {
       stageId,
       assignedUserIds
     };
-
-    // if(closeDate) doc.closeDate = new Date(closeDate);
 
     // before save, disable save button
     this.setState({ disabled: true });

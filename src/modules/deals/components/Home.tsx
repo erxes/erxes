@@ -5,8 +5,8 @@ import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { IBoard, IPipeline } from '../../settings/deals/types';
 import { Board } from '../containers';
+import { IBoard, IPipeline } from '../types';
 import { IDragResult } from '../types';
 
 type Props = {

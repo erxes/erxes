@@ -1,14 +1,14 @@
 import gql from 'graphql-tag';
+import _ from 'lodash';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { IStage } from '../../settings/deals/types';
 import { Pipeline } from '../components';
 import { STORAGE_PIPELINE_KEY } from '../constants';
 import { mutations, queries } from '../graphql';
-import { IPipeline } from '../types';
+import { ICommonParams, IPipeline, IStage } from '../types';
 import { collectOrders } from '../utils';
 
 type Props = {
@@ -22,8 +22,7 @@ type Props = {
   }) => Promise<void>;
 };
 
-// TODO: check any
-class PipelineContainer extends React.Component<Props, { stages: any }> {
+class PipelineContainer extends React.Component<Props, { stages: ICommonParams[] }> {
   constructor(props) {
     super(props);
 
@@ -74,7 +73,7 @@ class PipelineContainer extends React.Component<Props, { stages: any }> {
         });
       }
 
-      const orders = collectOrders(stages);
+      const orders = collectOrders(_.map(stages, '_id'));
 
       stagesUpdateOrderMutation({
         variables: { orders }

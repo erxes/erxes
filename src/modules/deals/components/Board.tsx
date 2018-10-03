@@ -5,10 +5,12 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import { Pipeline } from '../containers';
 import { IBoard, IDragResult, IPipeline } from '../types';
 
+type StateType = { [key: string]: number };
+
 type Props = {
   currentBoard?: IBoard;
   pipelines: IPipeline[];
-  states: any;
+  states: StateType;
   onDragEnd: (result: IDragResult) => void;
   loading: boolean;
 };
