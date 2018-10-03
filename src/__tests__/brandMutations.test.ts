@@ -1,10 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { brandFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Integrations, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Brands mutations', () => {
   let _brand;

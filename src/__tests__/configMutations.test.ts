@@ -1,9 +1,5 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { userFactory } from '../db/factories';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Test configs mutations', () => {
   test('Insert config', async () => {

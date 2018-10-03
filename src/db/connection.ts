@@ -6,39 +6,23 @@ import { userFactory } from './factories';
 
 dotenv.config();
 
-const { NODE_ENV, TEST_MONGO_URL = '', MONGO_URL = '' } = process.env;
-const isTest = NODE_ENV === 'test';
-const DB_URI = (isTest ? TEST_MONGO_URL : MONGO_URL) || '';
+const { MONGO_URL = '' } = process.env;
 
 mongoose.Promise = global.Promise;
 
-if (!isTest) {
-  mongoose.connection
-    .on('connected', () => {
-      console.log(`Connected to the database: ${DB_URI}`);
-    })
-    .on('disconnected', () => {
-      console.log(`Disconnected from the database: ${DB_URI}`);
-    })
-    .on('error', error => {
-      console.log(`Database connection error: ${DB_URI}`, error);
-    });
-}
+mongoose.connection
+  .on('disconnected', () => {
+    console.log(`Disconnected from the database: ${MONGO_URL}`);
+  })
+  .on('error', error => {
+    console.log(`Database connection error: ${MONGO_URL}`, error);
+  });
 
 export function connect() {
-  return mongoose
-    .connect(
-      DB_URI,
-      {
-        useMongoClient: true,
-      },
-    )
-    .then(() => {
-      // empty (drop) database before running tests
-      if (isTest) {
-        return mongoose.connection.db.dropDatabase();
-      }
-    });
+  return mongoose.connect(
+    MONGO_URL,
+    { useMongoClient: true },
+  );
 }
 
 export function disconnect() {

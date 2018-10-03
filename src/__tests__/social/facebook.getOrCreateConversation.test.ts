@@ -1,6 +1,5 @@
 import * as sinon from 'sinon';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
-import { connect, disconnect } from '../../db/connection';
 import {
   conversationFactory,
   conversationMessageFactory,
@@ -10,9 +9,6 @@ import {
 import { ConversationMessages, Conversations } from '../../db/models';
 import { SaveWebhookResponse } from '../../trackers/facebook';
 import * as facebookTracker from '../../trackers/facebookTracker';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('facebook integration: get or create conversation', () => {
   const senderId = '2242424244';

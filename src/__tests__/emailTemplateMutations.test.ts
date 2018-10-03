@@ -1,10 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { emailTemplateFactory, userFactory } from '../db/factories';
 import { EmailTemplates, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Email template mutations', () => {
   let _emailTemplate;

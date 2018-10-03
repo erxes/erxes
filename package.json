@@ -27,8 +27,8 @@
     "engageSubscriptions": "ts-node ./src/commands/engageSubscriptions.ts"
   },
   "lint-staged": {
-    "*.js": [
-      "prettier --write --print-width 100 --single-quote --trailing-comma all",
+    "*.ts": [
+      "prettier --write --print-width 120 --single-quote --trailing-comma all",
       "git add"
     ]
   },

@@ -1,8 +1,5 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { configFactory } from '../db/factories';
-
-beforeAll(() => connect());
-afterAll(() => disconnect());
 
 describe('configQueries', () => {
   test('config detail', async () => {

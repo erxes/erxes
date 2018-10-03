@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs, Customers, Fields, InternalNotes } from './';
+import { ActivityLogs, Customers, Deals, Fields, InternalNotes } from './';
 import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
 import { COMPANY_BASIC_INFOS } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
@@ -184,6 +184,7 @@ class Company {
     // Removing modules associated with current companies
     await ActivityLogs.changeCompany(company._id, companyIds);
     await InternalNotes.changeCompany(company._id, companyIds);
+    await Deals.changeCompany(company._id, companyIds);
 
     return company;
   }

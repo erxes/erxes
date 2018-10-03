@@ -1,10 +1,6 @@
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { responseTemplateFactory, userFactory } from '../db/factories';
 import { ResponseTemplates, Users } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Response template mutations', () => {
   let _responseTemplate;

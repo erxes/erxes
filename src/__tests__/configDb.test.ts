@@ -1,9 +1,4 @@
-import { connect, disconnect } from '../db/connection';
 import { Configs } from '../db/models';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 describe('Test configs model', () => {
   afterEach(async () => {

@@ -18,23 +18,23 @@ const messengerAppMutations = {
     return MessengerApps.createApp(doc);
   },
 
-  async messengerAppsExecute(_root, { _id, conversationId }: { _id: string, conversationId: string }) {
+  async messengerAppsExecute(_root, { _id, conversationId }: { _id: string; conversationId: string }) {
     const conversation = await Conversations.findOne({ _id: conversationId });
 
     if (!conversation) {
-      throw new Error("Conversation not found");
+      throw new Error('Conversation not found');
     }
 
     const customer = await Customers.findOne({ _id: conversation.customerId });
 
     if (!customer) {
-      throw new Error("Customer not found");
+      throw new Error('Customer not found');
     }
 
     const app = await MessengerApps.findOne({ _id });
 
     if (!app) {
-      throw new Error("App not found");
+      throw new Error('App not found');
     }
 
     // get customer email

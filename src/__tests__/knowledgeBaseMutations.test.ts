@@ -1,5 +1,5 @@
 import * as faker from 'faker';
-import { connect, disconnect, graphqlRequest } from '../db/connection';
+import { graphqlRequest } from '../db/connection';
 import { Brands, KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, Users } from '../db/models';
 
 import {
@@ -9,10 +9,6 @@ import {
   knowledgeBaseTopicFactory,
   userFactory,
 } from '../db/factories';
-
-beforeAll(() => connect());
-
-afterAll(() => disconnect());
 
 /*
  * Generated test data
