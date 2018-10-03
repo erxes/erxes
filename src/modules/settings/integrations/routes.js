@@ -85,6 +85,22 @@ const routes = () => (
         const queryParams = queryString.parse(location.search);
 
         return (
+          <GoogleCalendar
+            type="form"
+            history={history}
+            queryParams={queryParams}
+          />
+        );
+      }}
+    />
+
+    <Route
+      key="/service/oauth/gmail_callback"
+      path="/service/oauth/gmail_callback"
+      component={({ history, location }) => {
+        const queryParams = queryString.parse(location.search);
+
+        return (
           <Gmail type="form" history={history} queryParams={queryParams} />
         );
       }}
