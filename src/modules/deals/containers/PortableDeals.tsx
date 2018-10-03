@@ -30,7 +30,6 @@ class PortableDealsContainer extends React.Component<Props> {
     save(
       doc,
       { addMutation, editMutation, dealsQuery },
-      { __ },
       () => {
         callback();
       },
@@ -42,7 +41,7 @@ class PortableDealsContainer extends React.Component<Props> {
   removeDeal(_id: string, callback: () => void) {
     const { removeMutation, dealsQuery } = this.props;
 
-    remove(_id, { removeMutation, dealsQuery }, { __ }, callback);
+    remove(_id, { removeMutation, dealsQuery }, callback);
   }
 
   render() {

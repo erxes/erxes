@@ -102,7 +102,6 @@ class StageContainer extends React.Component<Props, { deals: ICommonParams[] }> 
     save(
       doc,
       { addMutation, editMutation, dealsQuery },
-      { __ },
       data => {
         // if edit mode
         if (deal) {
@@ -128,7 +127,7 @@ class StageContainer extends React.Component<Props, { deals: ICommonParams[] }> 
     const { stageDetailQuery, removeMutation, dealsQuery } = this.props;
     const { deals } = this.state;
 
-    remove(_id, { removeMutation, dealsQuery }, { __ }, dealsRemove => {
+    remove(_id, { removeMutation, dealsQuery }, dealsRemove => {
       this.setState({
         deals: deals.filter(el => el._id !== dealsRemove._id)
       });

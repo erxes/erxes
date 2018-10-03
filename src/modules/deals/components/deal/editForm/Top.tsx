@@ -95,7 +95,7 @@ class Top extends React.Component<Props> {
             <FormControl
               defaultValue={name}
               required
-              onChange={(e: any) => onChangeField('name', e.target.value)}
+              onChange={(e) => onChangeField('name', (e.target as HTMLInputElement).value)}
             />
           </HeaderContent>
 
@@ -127,7 +127,7 @@ class Top extends React.Component<Props> {
               <FormControl
                 componentClass="textarea"
                 defaultValue={description}
-                onChange={(e: any) => onChangeField('description', e.target.value)}
+                onChange={(e) => onChangeField('description', (e.target as HTMLInputElement).value)}
               />
             </FormGroup>
           </Left>
