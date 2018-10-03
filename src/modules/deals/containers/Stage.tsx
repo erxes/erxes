@@ -13,12 +13,14 @@ import {
 } from '../utils';
 
 type Props = {
+  // TODO: add common ICommonState interface
   state: any;
   stageId: string;
   deals: IDeal[];
   addMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
   editMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
   removeMutation: (params: { variables: { _id: string } }) => Promise<void>;
+  // TODO: check any
   dealsUpdateOrderMutation: (params: { variables: { orders: any } }) => Promise<void>;
   dealsChangeMutation: (params: { variables: { _id: string, stageId: string } }) => Promise<void>;
   dealsUpdateOrder: any;
@@ -26,6 +28,7 @@ type Props = {
   dealsQuery: any;
 };
 
+// TODO: check any
 class StageContainer extends React.Component<Props, any> {
   constructor(props) {
     super(props);

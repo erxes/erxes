@@ -23,7 +23,6 @@ type Props = {
   length?: number;
   saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
   removeDeal: (_id: string) => void;
-
   stageId: string;
 };
 

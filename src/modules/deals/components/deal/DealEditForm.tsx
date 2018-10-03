@@ -14,7 +14,10 @@ import { Sidebar, Top } from './editForm';
 type Props = {
   deal: IDeal;
   users: IUser[];
+
+  // TODO: check
   dealActivityLog?: any;
+
   index?: number;
   saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
   removeDeal: (_id: string, callback?: () => void) => void;

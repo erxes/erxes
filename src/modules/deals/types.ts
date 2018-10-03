@@ -1,8 +1,8 @@
 import { IUser } from "../auth/types";
 import { ICompany } from "../companies/types";
 import { ICustomer } from "../customers/types";
-import { IProduct } from "../settings/productService/types";
 
+// TODO: check
 export interface IBoard {
 	_id: string;
 }
@@ -21,7 +21,7 @@ export interface IStage {
 	amount: any;
 }
 
-export interface IDeal{
+export interface IDeal {
 	_id: string;
 	name: string;
 	stageId: string;
@@ -49,6 +49,7 @@ export interface IProductData {
 	amount: number,
 }
 
+// rename to Position
 type position = {
 	_id?: string,
 	droppableId?: string,

@@ -22,6 +22,7 @@ type Props = {
   }) => Promise<void>;
 };
 
+// TODO: check any
 class PipelineContainer extends React.Component<Props, { stages: any }> {
   constructor(props) {
     super(props);

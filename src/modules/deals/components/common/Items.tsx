@@ -5,7 +5,9 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 type Props = {
+  // TODO: check
   items: any;
+
   uppercase?: boolean;
   color: string;
 };

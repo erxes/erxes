@@ -28,6 +28,7 @@ type Props = {
   name: string;
   description: string;
   closeDate: Date;
+  // TODO: check any
   amount: any;
   stageId: string;
   assignedUserIds: string[];
