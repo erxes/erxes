@@ -9,9 +9,6 @@ yarn install
 echo 'Create `.env.sample` from default settings file and configure it on your own:'
 cp .env.sample .env
 
-echo 'Creating admin user';
-yarn initProject
-
 CURRENT_FOLDER=${PWD##*/}
 if [ $CURRENT_FOLDER = 'erxes-api' ]; then
   cd ..
