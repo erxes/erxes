@@ -27,6 +27,15 @@ export interface IVisitorContact {
   phone?: string;
 }
 
+export interface ICustomerLinks {
+  website?: string;
+  facebook?: string;
+  twitter?: string;
+  linkedIn?: string;
+  youtube?: string;
+  github?: string;
+}
+
 export interface ICustomerDoc {
   firstName: string;
   lastName: string;
@@ -51,14 +60,7 @@ export interface ICustomerDoc {
   hasAuthority?: string;
   description?: string;
   doNotDisturb?: string;
-  links?: {
-    website?: string;
-    facebook?: string;
-    twitter?: string;
-    linkedIn?: string;
-    youtube?: string;
-    github?: string;
-  };
+  links?: ICustomerLinks;
   twitterData?: ITwitterData;
   facebookData?: IFacebookData;
   messengerData?: IMessengerData;
