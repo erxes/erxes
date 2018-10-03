@@ -5,20 +5,20 @@ import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { ProductItemForm } from '../../containers';
 import { Add, Footer, FooterInfo, FormContainer } from '../../styles/product';
+import { IProductData } from '../../types';
 
 type Props = {
-  onChangeProductsData: (productsData: any) => void;
+  onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
-  productsData: any;
+  productsData: IProductData[];
   products: IProduct[];
   closeModal: () => void;
 };
 
 type State = {
-  // TODO: replace any with [key: string]: value: string | number
-  total: any,
-  tax: any,
-  discount: any
+  total: { currency?: string, amount?: number },
+  tax: { currency?: string, tax?: number },
+  discount: { currency?: string, discount?: number },
 }
 
 class ProductForm extends React.Component<Props, State> {
@@ -51,12 +51,12 @@ class ProductForm extends React.Component<Props, State> {
     productsData.push({
       _id: Math.random().toString(),
       quantity: 1,
-      unitPrice: '',
-      tax: '',
-      taxPercent: '',
-      discount: '',
-      discountPercent: '',
-      amount: ''
+      unitPrice: 0,
+      tax: 0,
+      taxPercent: 0,
+      discount: 0,
+      discountPercent: 0,
+      amount: 0
     });
 
     onChangeProductsData(productsData);

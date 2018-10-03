@@ -13,12 +13,10 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
-  onChangeBoard: (value: string) => any;
-  onChangePipeline: (value: string) => any;
-
-  // TODO: replace any
-  onChangeStage: (value: string, callback: any) => any;
-  callback?: any;
+  onChangeBoard: (value: string) => void;
+  onChangePipeline: (value: string) => void;
+  onChangeStage: (value: string, callback?: () => void) => void;
+  callback?: () => void;
 };
 
 class DealSelect extends React.Component<Props> {

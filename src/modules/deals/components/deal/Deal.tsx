@@ -4,16 +4,14 @@ import { Draggable } from 'react-beautiful-dnd';
 import { CommonDeal } from '..';
 import { DealEditForm } from '../../containers';
 import { Container } from '../../styles/deal';
-import { IDeal } from '../../types';
+import { IDeal, IDealParams } from '../../types';
 
 type Props = {
   deal: IDeal;
   index?: number;
   draggable?: boolean;
-
-  // TODO: replace any
-  saveDeal?: (doc: IDeal, callback: any, deal: IDeal) => Promise<any>;
-  removeDeal?: (_id: string, callback: any) => Promise<any>;
+  saveDeal?: (doc: IDealParams, callback: () => void, deal: IDeal) => Promise<void>;
+  removeDeal?: (_id: string, callback: () => void) => Promise<void>;
 };
 
 class Deal extends React.Component<Props> {

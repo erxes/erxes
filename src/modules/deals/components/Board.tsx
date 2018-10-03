@@ -3,16 +3,13 @@ import * as React from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import { Pipeline } from '../containers';
-import { IBoard, IPipeline } from '../types';
+import { IBoard, IDragResult, IPipeline } from '../types';
 
 type Props = {
   currentBoard?: IBoard;
   pipelines: IPipeline[];
-
-  // TODO: replace any
   states: any;
-  onDragEnd: any;
-
+  onDragEnd: (result: IDragResult) => void;
   loading: boolean;
 };
 

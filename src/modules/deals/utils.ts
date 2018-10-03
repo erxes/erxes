@@ -45,7 +45,7 @@ export function collectOrders(array: Options[] = []) {
 }
 
 // create or update deal
-export function saveDeal(doc: any, props: any, context: any, callback: any, deal: IDeal) {
+export function saveDeal(doc: any, props: any, context: any, callback: any, deal?: IDeal) {
   const { addMutation, editMutation, dealsQuery } = props;
 
   let mutation = addMutation;
@@ -72,7 +72,7 @@ export function saveDeal(doc: any, props: any, context: any, callback: any, deal
 }
 
 // remove deal
-export function removeDeal(_id: string, props, context: any, callback: any) {
+export function removeDeal(_id: string, props: any, context: any, callback: any) {
   const { removeMutation, dealsQuery } = props;
 
   confirm().then(() => {

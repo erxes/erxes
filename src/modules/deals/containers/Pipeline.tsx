@@ -16,15 +16,10 @@ type Props = {
   state: any;
   index: number;
   stages: IStage[];
-  stagesUpdateOrder: any;
-
-  // TODO: check. are we using this ?
-  stagesChange: any;
-
   stagesUpdateOrderMutation: (params: { variables: { orders } }) => Promise<any>;
   stagesChangeMutation: (params: {
     variables: { _id: string; pipelineId: string }
-  }) => Promise<any>;
+  }) => Promise<void>;
 };
 
 class PipelineContainer extends React.Component<Props, { stages: any }> {
@@ -33,7 +28,7 @@ class PipelineContainer extends React.Component<Props, { stages: any }> {
 
     const { stages } = props;
 
-    this.state = { stages: [...stages] };
+    this.state = { stages };
   }
 
   getConfig() {

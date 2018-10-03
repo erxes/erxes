@@ -14,16 +14,14 @@ import {
   Indicator,
   IndicatorItem
 } from '../styles/stage';
-import { IDeal } from '../types';
+import { IDeal, IDealParams, IStage } from '../types';
 
 type Props = {
-  stage: any;
+  stage: IStage;
   deals: IDeal[];
   index?: number;
   length?: number;
-
-  // TODO: replace any
-  saveDeal: (doc: IDeal, callback: any, deal: IDeal) => void;
+  saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
   removeDeal: (_id: string) => void;
 
   stageId: string;

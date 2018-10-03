@@ -11,16 +11,16 @@ import Select from 'react-select-plus';
 import { ProductChooser } from '../../containers';
 import { Button as DealButton } from '../../styles/deal';
 import { ItemText } from '../../styles/product';
+import { IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 
 type Props = {
-  // TODO: replace any
-  uom: any;
-  currencies: any;
-  productsData?: any;
-  productData: any;
+  uom: string[];
+  currencies: string[];
+  productsData?: IProductData[];
+  productData: IProductData;
   removeProductItem?: (_id: string) => void;
-  onChangeProductsData?: (productsData: any) => void;
+  onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
 };
 
@@ -71,14 +71,16 @@ class ProductItemForm extends React.Component<Props> {
   onChangeField(type, value, _id) {
     const { productsData, onChangeProductsData } = this.props;
 
-    const productData = productsData.find(p => p._id === _id);
-    productData[type] = value;
-
-    if (type !== 'product' && type !== 'uom') {
-      this.calculateAmount(type, productData);
+    if(productsData) {
+      const productData = productsData.find(p => p._id === _id);
+      if(productData) productData[type] = value;
+      
+      if (type !== 'product' && type !== 'uom') {
+        this.calculateAmount(type, productData);
+      }
+      
+      onChangeProductsData && onChangeProductsData(productsData);
     }
-
-    onChangeProductsData && onChangeProductsData(productsData);
   }
 
   renderProductServiceTrigger(product) {

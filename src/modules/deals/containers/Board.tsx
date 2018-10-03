@@ -3,7 +3,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Board } from '../components';
 import { queries } from '../graphql';
-import { IBoard } from '../types';
+import { IBoard, IDragResult } from '../types';
 
 type Props = {
   pipelinesQuery: any;
@@ -19,7 +19,7 @@ class BoardContainer extends React.Component<Props> {
     this.state = {};
   }
 
-  move({ source, destination, itemId, type }) {
+  move({ source, destination, itemId, type }: IDragResult) {
     this.setState({
       // remove from list
       [`${type}State${source._id}`]: {
@@ -38,7 +38,7 @@ class BoardContainer extends React.Component<Props> {
     });
   }
 
-  onDragEnd(result) {
+  onDragEnd(result: IDragResult) {
     const { type, destination, source, draggableId } = result;
 
     // dropped outside the list

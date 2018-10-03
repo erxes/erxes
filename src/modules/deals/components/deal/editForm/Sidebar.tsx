@@ -7,19 +7,17 @@ import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { ProductSection } from '../..';
 import { Right } from '../../../styles/deal';
-import { IDeal } from '../../../types';
+import { IDeal, IProductData } from '../../../types';
 
 type Props = {
   deal: IDeal;
   customers: ICustomer[];
   companies: ICompany[];
   products: IProduct[];
-  productsData: any;
+  productsData: IProductData[];
   onChangeField?: (name: 'productsData' | 'products' | 'companies' | 'customers', value: any) => void;
-
-  // TODO: replace any
-  removeDeal: any;
-  saveProductsData: any;
+  removeDeal: (_id: string) => void;
+  saveProductsData: () => void;
 };
 
 class Sidebar extends React.Component<Props> {

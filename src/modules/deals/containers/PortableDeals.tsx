@@ -4,17 +4,14 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PortableDeals } from '../components';
 import { mutations, queries } from '../graphql';
-import { IDeal } from '../types';
+import { IDeal, IDealParams } from '../types';
 import { removeDeal as remove, saveDeal as save } from '../utils';
 
 type Props = {
   deals: IDeal[];
-
-  // TODO: replace any
-  addMutation: (params: { variables: { doc: any } }) => Promise<any>;
-  editMutation: (params: { variables: { doc: any } }) => Promise<any>;
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
-
+  addMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
+  editMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<void>;
   dealsQuery: any;
 };
 
@@ -27,7 +24,7 @@ class PortableDealsContainer extends React.Component<Props> {
   }
 
   // create or update deal
-  saveDeal(doc: IDeal, callback: any, deal: IDeal) {
+  saveDeal(doc: IDealParams, callback: () => void, deal?: IDeal) {
     const { addMutation, editMutation, dealsQuery } = this.props;
 
     save(
@@ -42,7 +39,7 @@ class PortableDealsContainer extends React.Component<Props> {
   }
 
   // remove deal
-  removeDeal(_id: string, callback: any) {
+  removeDeal(_id: string, callback: () => void) {
     const { removeMutation, dealsQuery } = this.props;
 
     remove(_id, { removeMutation, dealsQuery }, { __ }, callback);
