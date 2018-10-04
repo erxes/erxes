@@ -1,17 +1,15 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import { Button } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
+import { IBrand } from 'modules/settings/brands/types';
 import { ContentBox } from 'modules/settings/styles';
 import * as React from 'react';
+import { SelectBrand } from '..';
 
 type Props = {
-  save: (params: { name: string }) => void;
+  save: (params: { brandId: string }) => void;
+  brands: IBrand[];
 };
 
 class Gmail extends React.Component<Props> {
@@ -25,7 +23,7 @@ class Gmail extends React.Component<Props> {
     e.preventDefault();
 
     this.props.save({
-      name: (document.getElementById('name') as HTMLInputElement).value
+      brandId: (document.getElementById('selectBrand') as HTMLInputElement).value
     });
   }
 
@@ -33,12 +31,8 @@ class Gmail extends React.Component<Props> {
     const content = (
       <ContentBox>
         <form onSubmit={this.handleSubmit}>
-          <FormGroup>
-            <ControlLabel>Name</ControlLabel>
-
-            <FormControl id="name" type="text" required />
-          </FormGroup>
-
+          <SelectBrand brands={this.props.brands} />
+          
           <ModalFooter>
             <Button btnStyle="success" type="submit" icon="checked-1">
               Save

@@ -1,6 +1,7 @@
 import BasicInfoSection from './BasicInfoSection';
 import CustomerSection from './CustomerSection';
 import DevicePropertiesSection from './DevicePropertiesSection';
+import MailForm from './MailForm';
 import MessengerSection from './MessengerSection';
 import TaggerSection from './TaggerSection';
 
@@ -9,5 +10,6 @@ export {
   CustomerSection,
   DevicePropertiesSection,
   MessengerSection,
-  TaggerSection
+  TaggerSection,
+  MailForm
 };

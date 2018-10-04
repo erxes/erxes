@@ -1,6 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { SidebarList } from 'modules/layout/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const Info = styled.div`
   margin-top: 5px;
@@ -32,6 +33,46 @@ const Action = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
+const MailEditorWrapper = styled.div`
+  position: relative;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+`;
+
+const ControlWrapper = styled.div`
+  display: flex;
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  span {
+    border-bottom: 1px solid ${colors.colorShadowGray};
+    padding: 5px 10px 0 0;
+    font-weight: 500;
+  }
+
+  input {
+    padding-left: 0;
+
+    &:hover, &:focus {
+      border-color: ${colors.colorShadowGray};
+    }
+  }
+`;
+
+const LeftSection = styled.div`
+  border-bottom: 1px solid ${colors.colorShadowGray};
+  padding: 5px 10px 0 0;
+`;
+
+const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
+  padding-left: 10px;
+  font-weight: 500;
+  display: ${props => props.isActive && 'none'};
+
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`;
+
 const List = SidebarList.extend`
   li {
     border-bottom: 1px solid ${colors.borderPrimary};
@@ -55,4 +96,4 @@ const InfoAvatar = styled.img`
   border-radius: 40px;
 `;
 
-export { InfoTitle, InfoDetail, Info, Action, List, InfoAvatar };
+export { InfoTitle, InfoDetail, Info, Action, List, InfoAvatar, MailEditorWrapper, ControlWrapper, LeftSection, Resipients };

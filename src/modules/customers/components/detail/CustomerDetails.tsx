@@ -12,6 +12,7 @@ import { Wrapper } from 'modules/layout/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import * as React from 'react';
 import { IUser } from '../../../auth/types';
+import { MailForm } from '../../containers/common';
 import { ICustomer } from '../../types';
 import { hasAnyActivity } from '../../utils';
 import LeftSidebar from './LeftSidebar';
@@ -27,24 +28,30 @@ type Props = {
 
 type State = {
   currentTab: string;
+  currentNoteTab: string;
 }
 
 class CustomerDetails extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentTab: 'activity' };
+    this.state = { currentTab: 'activity', currentNoteTab: 'newNote' };
 
     this.onTabClick = this.onTabClick.bind(this);
+    this.onChangeTab = this.onChangeTab.bind(this);
   }
 
   onTabClick(currentTab) {
     this.setState({ currentTab });
   }
 
+  onChangeTab(currentNoteTab) {
+    this.setState({ currentNoteTab });
+  }
+
   renderTabContent() {
     const { currentTab } = this.state;
-
+ 
     const {
       currentUser,
       activityLogsCustomer,
@@ -74,8 +81,27 @@ class CustomerDetails extends React.Component<Props, State> {
     );
   }
 
+  renderHeaderTabContent() {
+    const { customer } = this.props;
+    const { currentNoteTab } = this.state;
+
+    if(currentNoteTab === 'newNote') {
+      return (
+        <NoteForm contentType="customer" contentTypeId={customer._id} />
+      );
+    }
+
+    return (
+      <MailForm 
+        contentType="customer" 
+        contentTypeId={customer._id}
+        customerEmail={customer.primaryEmail}
+      />
+    );
+  }
+
   render() {
-    const { currentTab } = this.state;
+    const { currentTab, currentNoteTab } = this.state;
     const { customer, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
@@ -87,12 +113,21 @@ class CustomerDetails extends React.Component<Props, State> {
       <div>
         <WhiteBoxRoot>
           <Tabs>
-            <TabTitle className="active">
+            <TabTitle 
+              className={currentNoteTab === 'newNote' ? 'active' : ''}
+              onClick={() => this.onChangeTab('newNote')}
+            >
               <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
+            <TabTitle
+              className={currentNoteTab === 'email' ? 'active' : ''}
+              onClick={() => this.onChangeTab('email')}
+            >
+              <Icon icon="email" /> {__('Email')}
+            </TabTitle>
           </Tabs>
-
-          <NoteForm contentType="customer" contentTypeId={customer._id} />
+          
+          {this.renderHeaderTabContent()}
         </WhiteBoxRoot>
 
         <Tabs grayBorder>

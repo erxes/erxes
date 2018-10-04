@@ -11,6 +11,7 @@ type Props = {
   queryParams: any;
   googleAuthUrlQuery: any;
   saveMutation: (params: {variables: { code: string }}) => Promise<any>;
+  brandsQuery: any;
 };
 
 const GmailContainer = (props: Props) => {
@@ -19,20 +20,26 @@ const GmailContainer = (props: Props) => {
     type,
     saveMutation,
     googleAuthUrlQuery,
+    brandsQuery,
     queryParams
   } = props;
 
-  const authUrl =
-    googleAuthUrlQuery && googleAuthUrlQuery.integrationGetGoogleAuthUrl;
+  if(brandsQuery.loading) {
+    return <Spinner objective />;
+  }
+
+  const authUrl = googleAuthUrlQuery && googleAuthUrlQuery.integrationGetGoogleAuthUrl;
+  const brands = brandsQuery.brands || [];
 
   if (type === 'link' && authUrl) {
     window.location.href = authUrl;
     return <Spinner />;
   }
 
-  const save = () => {
+  const save = variables => {
     saveMutation({
       variables: {
+        ...variables,
         code: queryParams.code
       }
     })
@@ -45,10 +52,26 @@ const GmailContainer = (props: Props) => {
       });
   };
 
-  return <Gmail save={save} />;
+  return <Gmail save={save} brands={brands} />;
 };
 
 export default compose(
+  graphql(
+    gql`
+      query brands {
+        brands {
+          _id
+          name
+        }
+      }
+    `,
+    {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }
+  ),
   graphql(
     gql`
       query integrationGetGoogleAuthUrl($service: String) {
@@ -66,8 +89,9 @@ export default compose(
     gql`
       mutation integrationsCreateGmailIntegration(
         $code: String!
+        $brandId: String!
       ) {
-        integrationsCreateGmailIntegration(code: $code) {
+        integrationsCreateGmailIntegration(code: $code, brandId: $brandId) {
           _id
         }
       }
