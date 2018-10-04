@@ -12,6 +12,10 @@ describe('Companies mutations', () => {
   const commonParamDefs = `
     $primaryName: String
     $names: [String]
+    $primaryPhone: String
+    $phones: [String]
+    $primaryEmail: String
+    $emails: [String]
     $size: Int
     $industry: String
     $tagIds: [String]
@@ -21,6 +25,10 @@ describe('Companies mutations', () => {
   const commonParams = `
     primaryName: $primaryName
     names: $names
+    primaryPhone: $primaryPhone
+    phones: $phones
+    primaryEmail: $primaryEmail
+    emails: $emails
     size: $size
     industry: $industry
     tagIds: $tagIds
@@ -47,6 +55,10 @@ describe('Companies mutations', () => {
     const args = {
       primaryName: faker.company.companyName(),
       names: [faker.company.companyName()],
+      primaryPhone: faker.random.number().toString(),
+      phones: [faker.random.number().toString()],
+      primaryEmail: faker.internet.email(),
+      emails: [faker.internet.email()],
       size: faker.random.number(),
       industry: 'Airlines',
       tagIds: _company.tagIds,
@@ -58,6 +70,10 @@ describe('Companies mutations', () => {
         companiesAdd(${commonParams}) {
           primaryName
           names
+          primaryPhone
+          phones
+          primaryEmail
+          emails
           size
           industry
           tagIds
@@ -69,7 +85,11 @@ describe('Companies mutations', () => {
     const company = await graphqlRequest(mutation, 'companiesAdd', args, context);
 
     expect(company.primaryName).toBe(args.primaryName);
+    expect(company.primaryPhone).toBe(args.primaryPhone);
+    expect(company.primaryEmail).toBe(args.primaryEmail);
     expect(company.names).toEqual(expect.arrayContaining(args.names));
+    expect(company.phones).toEqual(expect.arrayContaining(args.phones));
+    expect(company.emails).toEqual(expect.arrayContaining(args.emails));
     expect(company.size).toBe(args.size);
     expect(company.industry).toBe(args.industry);
     expect(expect.arrayContaining(company.tagIds)).toEqual(args.tagIds);
@@ -81,6 +101,10 @@ describe('Companies mutations', () => {
       _id: _company._id,
       primaryName: faker.company.companyName(),
       names: [faker.company.companyName()],
+      primaryPhone: faker.random.number().toString(),
+      phones: [faker.random.number().toString()],
+      primaryEmail: faker.internet.email(),
+      emails: [faker.internet.email()],
       size: faker.random.number(),
       industry: faker.random.word(),
       tagIds: _company.tagIds,
@@ -93,6 +117,10 @@ describe('Companies mutations', () => {
           _id
           primaryName
           names
+          primaryPhone
+          phones
+          primaryEmail
+          emails
           size
           industry
           tagIds
@@ -105,7 +133,11 @@ describe('Companies mutations', () => {
 
     expect(company._id).toBe(args._id);
     expect(company.primaryName).toBe(args.primaryName);
+    expect(company.primaryPhone).toBe(args.primaryPhone);
+    expect(company.primaryEmail).toBe(args.primaryEmail);
     expect(company.names).toEqual(expect.arrayContaining(args.names));
+    expect(company.phones).toEqual(expect.arrayContaining(args.phones));
+    expect(company.emails).toEqual(expect.arrayContaining(args.emails));
     expect(company.size).toBe(args.size);
     expect(company.industry).toBe(args.industry);
     expect(expect.arrayContaining(company.tagIds)).toEqual(args.tagIds);

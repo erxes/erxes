@@ -14,6 +14,11 @@ const check = (companyObj: ICompanyDocument, doc: ICompany) => {
   expect(companyObj.createdAt).toBeDefined();
   expect(companyObj.modifiedAt).toBeDefined();
   expect(companyObj.primaryName).toBe(doc.primaryName);
+  expect(companyObj.names).toEqual(expect.arrayContaining(doc.names || []));
+  expect(companyObj.primaryEmail).toBe(doc.primaryEmail);
+  expect(companyObj.emails).toEqual(expect.arrayContaining(doc.emails || []));
+  expect(companyObj.primaryPhone).toBe(doc.primaryPhone);
+  expect(companyObj.phones).toEqual(expect.arrayContaining(doc.phones || []));
   expect(companyObj.primaryEmail).toBe(doc.primaryEmail);
   expect(companyObj.primaryPhone).toBe(doc.primaryPhone);
   expect(companyObj.size).toBe(doc.size);
@@ -24,6 +29,10 @@ const check = (companyObj: ICompanyDocument, doc: ICompany) => {
 const generateDoc = () => ({
   primaryName: 'name',
   names: ['name'],
+  primaryPhone: 'phone',
+  phones: ['phone'],
+  primaryEmail: 'email',
+  emails: ['email'],
   size: 1,
   industry: 'Airlines',
   plan: 'pro',
@@ -45,7 +54,7 @@ describe('Companies model tests', () => {
   });
 
   test('Create company', async () => {
-    expect.assertions(9);
+    expect.assertions(15);
 
     // check duplication ==============
     try {
@@ -87,7 +96,7 @@ describe('Companies model tests', () => {
   });
 
   test('Update company', async () => {
-    expect.assertions(8);
+    expect.assertions(14);
 
     const doc = generateDoc();
 

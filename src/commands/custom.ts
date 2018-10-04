@@ -5,8 +5,10 @@ export const customCommand = async () => {
   connect();
 
   const companies = await Companies.find({
-    $or: [{ $email: { $exists: true } }, { $phone: { $exists: true } }],
+    $or: [{ email: { $exists: true } }, { phone: { $exists: true } }],
   });
+
+  console.log(companies.length);
 
   for (const company of companies) {
     const { phone, email } = company;
