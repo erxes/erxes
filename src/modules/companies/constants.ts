@@ -5,7 +5,7 @@ export const COMPANY_INFO = {
   industry: 'Industry',
   plan: 'Plan',
   primaryEmail: 'Primary Email',
-  primaryPhone: 'Phone',
+  primaryPhone: 'Primary Phone',
   leadStatus: 'Lead Status',
   lifecycleState: 'Lifecycle State',
   businessType: 'Business Type',
@@ -28,13 +28,33 @@ export const COMPANY_INFO = {
   ]
 };
 
+export const COMPANY_LINKS = {
+  linkedIn: 'LinkedIn',
+  twitter: 'Twitter',
+  facebook: 'Facebook',
+  youtube: 'Youtube',
+  github: 'Github',
+  website: 'Website',
+
+  ALL: [
+    { field: 'linkedIn', label: 'LinkedIn' },
+    { field: 'twitter', label: 'Twitter' },
+    { field: 'facebook', label: 'Facebook' },
+    { field: 'youtube', label: 'Youtube' },
+    { field: 'github', label: 'Github' },
+    { field: 'website', label: 'Website' }
+  ]
+};
+
 export const COMPANY_DATAS = {
   owner: 'Owner',
   parentCompany: 'Parent Company',
+  links: 'Links',
 
   ALL: [
     { field: 'owner', label: 'Owner' },
-    { field: 'parentCompany', label: 'Parent Company' }
+    { field: 'parentCompany', label: 'Parent Company' },
+    { field: 'links', label: 'Links' }
   ]
 };
 

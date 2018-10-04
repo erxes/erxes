@@ -3,6 +3,15 @@ import { IActivityLog } from '../activityLogs/types';
 import { IUser } from '../auth/types';
 import { ICustomer } from '../customers/types';
 
+export interface ICompanyLinks {
+  linkedIn?: string;
+  twitter?: string;
+  facebook?: string;
+  github?: string;
+  youtube?: string;
+  website?: string;
+}
+
 export interface ICompanyDoc {
   createdAt?: Date;
   modifiedAt?: Date;
@@ -29,14 +38,7 @@ export interface ICompanyDoc {
   description?: string;
   employees?: number;
   doNotDisturb?: string;
-  links?: {
-    linkedIn?: string;
-    twitter?: string;
-    facebook?: string;
-    github?: string;
-    youtube?: string;
-    website?: string;
-  };
+  links?: ICompanyLinks;
   tagIds?: string[];
   customFieldsData?: any;
 }
