@@ -99,6 +99,9 @@ const dealDetail = `
           avatar
         }
       }
+      stage {
+        probability
+      }
       modifiedAt
       modifiedBy
     }

@@ -1,6 +1,6 @@
-import { IUser } from "../auth/types";
-import { ICompany } from "../companies/types";
-import { ICustomer } from "../customers/types";
+import { IUser } from '../auth/types';
+import { ICompany } from '../companies/types';
+import { ICustomer } from '../customers/types';
 
 export interface ICommonState {
   [key: string]: {
@@ -39,6 +39,7 @@ export interface IDeal {
   closeDate: Date;
   amount: number;
   modifiedAt: Date;
+  stage?: IStage;
   products: any;
 }
 

@@ -1,25 +1,41 @@
 import { Button, Icon } from 'modules/common/components';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, renderFullName } from 'modules/common/utils';
 import * as moment from 'moment';
 import * as React from 'react';
-import { CUSTOMER_BASIC_INFO, CUSTOMER_DATAS } from '../../constants';
+import { IUser } from '../../../auth/types';
+import {
+  CUSTOMER_BASIC_INFO,
+  CUSTOMER_DATAS,
+  CUSTOMER_LINKS
+} from '../../constants';
 import { Info, InfoAvatar, InfoDetail, InfoTitle } from '../../styles';
+import {
+  ICustomer,
+  ICustomerDoc,
+  ICustomerLinks,
+  IFacebookData,
+  IMessengerData,
+  ITwitterData,
+  IVisitorContact
+} from '../../types';
 
 type Props = {
-  objects: any[];
-  save: (doc: {
-    ids: string[];
-    data: any;
-    callback: () => void;
-  }) => void;
+  objects: ICustomer[];
+  save: (
+    doc: {
+      ids: string[];
+      data: ICustomerDoc;
+      callback: () => void;
+    }
+  ) => void;
   closeModal: () => void;
 };
 
 type State = {
   selectedValues: any;
-}
+};
 
 class CustomersMerge extends React.Component<Props, State> {
   constructor(props) {
@@ -30,11 +46,12 @@ class CustomersMerge extends React.Component<Props, State> {
     };
 
     this.renderCustomer = this.renderCustomer.bind(this);
+    this.renderLinks = this.renderLinks.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.save = this.save.bind(this);
   }
 
-  save(e) {
+  save(e: React.FormEvent) {
     e.preventDefault();
     const { objects } = this.props;
     const selectedValues = { ...this.state.selectedValues };
@@ -55,7 +72,7 @@ class CustomersMerge extends React.Component<Props, State> {
     });
   }
 
-  handleChange(type, key, value) {
+  handleChange(type: string, key: string, value: string | ICustomerLinks) {
     const selectedValues = { ...this.state.selectedValues };
 
     if (type === 'add') {
@@ -67,23 +84,20 @@ class CustomersMerge extends React.Component<Props, State> {
     this.setState({ selectedValues });
   }
 
-  renderCustomer(customer, icon) {
+  renderCustomer(customer: ICustomerDoc, icon: string) {
     const properties = CUSTOMER_BASIC_INFO.ALL.concat(CUSTOMER_DATAS.ALL);
 
     return (
       <React.Fragment>
-        <Title>
-          {customer.firstName ||
-            customer.lastName ||
-            customer.primaryEmail ||
-            customer.primaryPhone ||
-            'N/A'}
-        </Title>
+        <Title>{renderFullName(customer)}</Title>
         <ul>
           {properties.map(info => {
             const key = info.field;
 
             if (!customer[key]) return null;
+
+            if (info.field === 'links')
+              return this.renderLinks(customer[key], icon);
 
             return this.renderCustomerProperties(key, customer[key], icon);
           })}
@@ -92,7 +106,7 @@ class CustomersMerge extends React.Component<Props, State> {
     );
   }
 
-  renderCustomerProperties(key, value, icon) {
+  renderCustomerProperties(key: string, value: string, icon: string) {
     return (
       <li
         key={key}
@@ -108,13 +122,13 @@ class CustomersMerge extends React.Component<Props, State> {
     );
   }
 
-  renderTitle(key) {
+  renderTitle(key: string) {
     const title = CUSTOMER_BASIC_INFO[key] || CUSTOMER_DATAS[key];
 
     return <InfoTitle>{title}:</InfoTitle>;
   }
 
-  renderValue(field, value) {
+  renderValue(field: string, value: any) {
     switch (field) {
       case 'facebookData':
         return this.renderFacebookData(value);
@@ -127,14 +141,14 @@ class CustomersMerge extends React.Component<Props, State> {
       case 'owner':
         return this.renderOwner(value);
       case 'avatar':
-        return <InfoAvatar src={value} alt="avatar" />
+        return <InfoAvatar src={value} alt="avatar" />;
 
       default:
         return <InfoDetail>{value}</InfoDetail>;
     }
   }
 
-  renderFacebookData(data) {
+  renderFacebookData(data: IFacebookData) {
     return (
       <div>
         <InfoDetail>
@@ -150,7 +164,7 @@ class CustomersMerge extends React.Component<Props, State> {
     );
   }
 
-  renderMessengerData(data) {
+  renderMessengerData(data: IMessengerData) {
     return (
       <Info>
         <InfoTitle>{__('Last seen at')}:</InfoTitle>
@@ -161,18 +175,18 @@ class CustomersMerge extends React.Component<Props, State> {
     );
   }
 
-  renderTwitterData(data) {
+  renderTwitterData(data: ITwitterData) {
     return (
       <Info>
         <InfoTitle>{__('Name')}: </InfoTitle>
         <InfoDetail>{data.name}</InfoDetail>
         <InfoTitle>{__('Screen name')}: </InfoTitle>
-        <InfoDetail>{data.screenName}</InfoDetail>
+        <InfoDetail>{data.screen_name}</InfoDetail>
       </Info>
     );
   }
 
-  renderVisitorContactInfo(data) {
+  renderVisitorContactInfo(data: IVisitorContact) {
     return (
       <Info>
         <InfoTitle>{__('E-mail')}: </InfoTitle>
@@ -183,13 +197,39 @@ class CustomersMerge extends React.Component<Props, State> {
     );
   }
 
-  renderOwner(data) {
+  renderOwner(data: IUser) {
     return (
       <Info>
         <InfoTitle>Name: </InfoTitle>
-        <InfoDetail>{data.details.fullName}</InfoDetail>
+        <InfoDetail>{data.details && data.details.fullName}</InfoDetail>
       </Info>
     );
+  }
+
+  renderLinks(data: ICustomerLinks, icon: string) {
+    const { selectedValues } = this.state;
+
+    return CUSTOMER_LINKS.ALL.map(info => {
+      const field = info.field;
+      const value = data[field];
+
+      if (!data[field]) return null;
+
+      return (
+        <li
+          key={field}
+          onClick={() => {
+            const links = { ...selectedValues.links, [field]: value };
+
+            return this.handleChange(icon, `links`, links);
+          }}
+        >
+          <InfoTitle>{info.label}:</InfoTitle>
+          <InfoDetail>{value}</InfoDetail>
+          <Icon icon={icon} />
+        </li>
+      );
+    });
   }
 
   render() {

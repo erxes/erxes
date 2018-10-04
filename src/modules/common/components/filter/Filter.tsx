@@ -9,7 +9,7 @@ import createChipText from './createChipText';
 
 interface IProps extends IRouterProps {
   queryParams?: any;
-};
+}
 
 const Filters = styled.div`
   font-size: 0.9em;
@@ -34,7 +34,11 @@ function Filter({ queryParams = {}, history }: IProps) {
     );
   };
 
-  const renderFilterWithData = (paramKey: string, type: any, fields = '_id name') => {
+  const renderFilterWithData = (
+    paramKey: string,
+    type: string,
+    fields = '_id name'
+  ) => {
     if (queryParams[paramKey]) {
       const id = queryParams[paramKey];
 
@@ -92,4 +96,4 @@ function Filter({ queryParams = {}, history }: IProps) {
   );
 }
 
-export default withRouter<IRouterProps>(Filter);
+export default withRouter<IProps>(Filter);
