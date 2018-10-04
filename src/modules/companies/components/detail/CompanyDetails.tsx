@@ -25,10 +25,10 @@ interface IProps extends IRouterProps {
   companyActivityLog: ICompanyActivityLog[];
   taggerRefetchQueries?: any[];
   loadingLogs: boolean;
-};
+}
 
 type State = {
-  currentTab: string
+  currentTab: string;
 };
 
 class CompanyDetails extends React.Component<IProps, State> {
@@ -82,7 +82,7 @@ class CompanyDetails extends React.Component<IProps, State> {
 
     const breadcrumb = [
       { title: __('Companies'), link: '/companies' },
-      { title: company.primaryName || company.email || 'N/A' }
+      { title: company.primaryName || 'N/A' }
     ];
 
     const content = (

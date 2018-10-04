@@ -5,7 +5,7 @@ import { __, Alert } from '../utils';
 
 type OptionProps = {
   option: any;
-  onSelect: (option: any[] , e: any ) => void;
+  onSelect: (option: any[], e: any) => void;
 };
 
 class Option extends React.Component<OptionProps> {
@@ -33,7 +33,7 @@ class Option extends React.Component<OptionProps> {
 
 type Props = {
   options: any[];
-  onChange: (params: {options: any[] , selectedOption: any}) => void;
+  onChange: (params: { options: any[]; selectedOption: any }) => void;
   value?: string;
   placeholder?: string;
   buttonText?: string;
@@ -83,15 +83,25 @@ class ModifiableSelect extends React.Component<Props, State> {
   handleSave() {
     const { options, selectedOption } = this.state;
     const { onChange } = this.props;
-    const value = (document.getElementById('removableSelect-value') as HTMLInputElement).value;
+    const value = (document.getElementById(
+      'removableSelect-value'
+    ) as HTMLInputElement).value;
 
-    this.setState({ adding: false, options: [...options, value] }, () => {
+    const state: State = {
+      adding: false,
+      options: [...options, value],
+      selectedOption: options.length === 0 ? value : selectedOption
+    };
+
+    this.setState({ ...state }, () => {
       onChange({ options: this.state.options, selectedOption });
     });
 
     Alert.success('Successfully added');
 
-    (document.getElementById('removableSelect-value') as HTMLInputElement).value = '';
+    (document.getElementById(
+      'removableSelect-value'
+    ) as HTMLInputElement).value = '';
   }
 
   handleAdding() {
@@ -112,7 +122,10 @@ class ModifiableSelect extends React.Component<Props, State> {
         selectedOption: ''
       },
       () => {
-        onChange({ options: this.state.options, selectedOption: null });
+        onChange({
+          options: this.state.options,
+          selectedOption: null
+        });
       }
     );
 
