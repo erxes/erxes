@@ -4,12 +4,14 @@ import { compose, graphql } from 'react-apollo';
 import { DealEditForm } from '../../components';
 import { queries } from '../../graphql';
 import { IDeal, IDealParams } from '../../types';
+import { DealConsumer } from '../DealContext';
 
 type Props = {
   usersQuery: any;
   deal: IDeal;
   saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
   removeDeal: (_id: string, callback?: () => void) => void;
+  closeModal: () => void;
 };
 
 class DealEditFormContainer extends React.Component<Props> {
@@ -22,7 +24,11 @@ class DealEditFormContainer extends React.Component<Props> {
       users: usersQuery.users || []
     };
 
-    return <DealEditForm { ...extendedProps} />;
+    return (
+      <DealConsumer>
+        {({ move }) => <DealEditForm { ...extendedProps} move={move} />}
+      </DealConsumer>
+    )
   }
 }
 

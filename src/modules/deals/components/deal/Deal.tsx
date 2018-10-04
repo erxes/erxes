@@ -15,7 +15,7 @@ type Props = {
 };
 
 class Deal extends React.Component<Props> {
-  showEditForm(trigger: any) {
+  showEditForm(trigger: React.ReactNode) {
     const { deal, index, saveDeal, removeDeal } = this.props;
 
     return (
@@ -39,32 +39,32 @@ class Deal extends React.Component<Props> {
   renderContent() {
     const { draggable, index, deal } = this.props;
 
-    if (draggable) {
+    if (!draggable) {
       return (
-        <div>
-          <Draggable draggableId={deal._id} index={index}>
-            {(provided, snapshot) => (
-              <React.Fragment>
-                <Container
-                  innerRef={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  isDragging={snapshot.isDragging}
-                >
-                  <CommonDeal deal={deal} />
-                </Container>
-                {provided.placeholder}
-              </React.Fragment>
-            )}
-          </Draggable>
-        </div>
+        <Container>
+          <CommonDeal deal={deal} />
+        </Container>
       );
     }
 
     return (
-      <Container>
-        <CommonDeal deal={deal} />
-      </Container>
+      <div>
+        <Draggable draggableId={deal._id} index={index}>
+          {(provided, snapshot) => (
+            <React.Fragment>
+              <Container
+                innerRef={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                isDragging={snapshot.isDragging}
+              >
+                <CommonDeal deal={deal} />
+              </Container>
+              {provided.placeholder}
+            </React.Fragment>
+          )}
+        </Draggable>
+      </div>
     );
   }
 
