@@ -22,6 +22,7 @@ export interface IMessengerIntegration {
 
 interface IGmailParams {
   name: string;
+  brandId: string;
   gmailData: IGmailData;
 }
 
@@ -231,7 +232,7 @@ class Integration {
     return Integrations.remove({ _id });
   }
 
-  public static async createGmailIntegration({ name, gmailData }: IGmailParams) {
+  public static async createGmailIntegration({ name, brandId, gmailData }: IGmailParams) {
     const { email } = gmailData;
 
     const prevEntry = await Integrations.findOne({
@@ -245,6 +246,7 @@ class Integration {
 
     return this.createIntegration({
       name,
+      brandId,
       kind: KIND_CHOICES.GMAIL,
       gmailData,
     });

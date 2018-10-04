@@ -106,7 +106,7 @@ const integrationMutations = {
   /**
    * Create gmail integration
    */
-  async integrationsCreateGmailIntegration(_root, { code }) {
+  async integrationsCreateGmailIntegration(_root, { code, brandId }: { code: string; brandId: string }) {
     const credentials = await getAccessToken(code, 'gmail');
 
     // get permission granted email address
@@ -118,6 +118,7 @@ const integrationMutations = {
 
     return Integrations.createGmailIntegration({
       name: data.emailAddress,
+      brandId,
       gmailData: {
         email: data.emailAddress,
         historyId: data.historyId,
