@@ -10,7 +10,7 @@ interface ICountBy {
 }
 
 interface IConversationRes {
-  [index: string]: number | ICountBy[];
+  [index: string]: number | ICountBy;
 }
 
 // count helper
@@ -20,8 +20,8 @@ const count = async (query: any): Promise<number> => {
   return Number(result);
 };
 
-const countByChannels = async (qb: any): Promise<ICountBy[]> => {
-  const byChannels: ICountBy[] = [];
+const countByChannels = async (qb: any): Promise<ICountBy> => {
+  const byChannels: ICountBy = {};
   const channels = await Channels.find();
 
   for (const channel of channels) {
@@ -34,8 +34,8 @@ const countByChannels = async (qb: any): Promise<ICountBy[]> => {
   return byChannels;
 };
 
-const countByIntegrationTypes = async (qb: any): Promise<ICountBy[]> => {
-  const byIntegrationTypes: ICountBy[] = [];
+const countByIntegrationTypes = async (qb: any): Promise<ICountBy> => {
+  const byIntegrationTypes: ICountBy = {};
 
   for (const intT of INTEGRATION_KIND_CHOICES.ALL) {
     byIntegrationTypes[intT] = await count({
@@ -47,8 +47,8 @@ const countByIntegrationTypes = async (qb: any): Promise<ICountBy[]> => {
   return byIntegrationTypes;
 };
 
-const countByTags = async (qb: any): Promise<ICountBy[]> => {
-  const byTags: ICountBy[] = [];
+const countByTags = async (qb: any): Promise<ICountBy> => {
+  const byTags: ICountBy = {};
   const queries = qb.queries;
   const tags = await Tags.find();
 
@@ -64,8 +64,8 @@ const countByTags = async (qb: any): Promise<ICountBy[]> => {
   return byTags;
 };
 
-const countByBrands = async (qb: any): Promise<ICountBy[]> => {
-  const byBrands: ICountBy[] = [];
+const countByBrands = async (qb: any): Promise<ICountBy> => {
+  const byBrands: ICountBy = {};
   const brands = await Brands.find();
 
   for (const brand of brands) {
