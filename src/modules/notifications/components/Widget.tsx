@@ -1,49 +1,20 @@
-import { EmptyState, Icon, Label } from 'modules/common/components';
+import { Icon, Label } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { NotificationsLatest } from '../containers';
-import {
-  NotifButton,
-  NotifCount,
-  PopoverContent,
-  PopoverHeader,
-  Toggle,
-  Toggler
-} from './styles';
+import {  NotifButton, PopoverHeader } from './styles';
 
 class Widget extends React.Component<{ unreadCount: number }, { activeFirst: boolean }> {
   constructor(props) {
     super(props);
 
-    this.state = { activeFirst: false };
-
     this.update = this.update.bind(this);
-    this.toggle = this.toggle.bind(this);
   }
 
   update() {
     // rerender component
     this.forceUpdate();
-  }
-
-  toggle() {
-    this.setState({ activeFirst: !this.state.activeFirst });
-  }
-
-  renderPopoverContent() {
-    if (this.state.activeFirst) {
-      return (
-        <PopoverContent>
-          <EmptyState
-            text={__('Coming soon')}
-            image="/images/robots/robot-05.svg"
-          />
-        </PopoverContent>
-      );
-    }
-
-    return <NotificationsLatest update={this.update} />;
   }
 
   renderUnreadCount() {
@@ -61,25 +32,12 @@ class Widget extends React.Component<{ unreadCount: number }, { activeFirst: boo
   }
 
   render() {
-    const isActive = this.state.activeFirst;
-
     const popoverNotification = (
       <Popover id="npopover" className="notification-popover">
         <PopoverHeader>
-          <Toggler onClick={this.toggle} activeFirst={isActive}>
-            <Toggle isActive={isActive}>
-              <Icon icon="head-1" /> {__('AI')}
-            </Toggle>
-            <Toggle isActive={!isActive}>
-              <NotifCount>
-                <Icon icon="alarm" />
-                {this.renderUnreadCount()}
-              </NotifCount>
-              {__('Notifications')}
-            </Toggle>
-          </Toggler>
+          {__('Notifications')}
         </PopoverHeader>
-        {this.renderPopoverContent()}
+        <NotificationsLatest update={this.update} />
       </Popover>
     );
 
@@ -87,10 +45,9 @@ class Widget extends React.Component<{ unreadCount: number }, { activeFirst: boo
       <OverlayTrigger
         trigger="click"
         rootClose
-        placement="top"
-        containerPadding={25}
+        placement="bottom"
+        containerPadding={20}
         overlay={popoverNotification}
-        shouldUpdatePosition
       >
         <NotifButton>
           <Icon icon="alarm-2" />

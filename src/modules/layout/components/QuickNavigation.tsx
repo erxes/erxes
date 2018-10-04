@@ -5,6 +5,7 @@ import {
   ModalTrigger,
   NameCard
 } from 'modules/common/components';
+import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import { Widget } from 'modules/notifications/containers';
 import { Signature } from 'modules/settings/email/containers';
@@ -14,7 +15,7 @@ import {
 } from 'modules/settings/profile/containers';
 import * as React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import { UserHelper } from '../styles';
 
@@ -37,15 +38,26 @@ const NavItem = styled.div`
   padding-left: 20px;
   display: table-cell;
   vertical-align: middle;
+
+  > a {
+    color: ${colors.colorCoreDarkGray};
+
+    &.active {
+      color: ${colors.colorSecondary};
+    }
+  }
 `;
 
 const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentUser: IUser }) => {
-  const details = currentUser.details || {};
-
   return (
     <nav>
       <NavItem>
         <Widget />
+      </NavItem>
+      <NavItem>
+        <NavLink to="/settings" activeClassName="active">
+          <Icon icon="settings" size={18} />
+        </NavLink>
       </NavItem>
       <NavItem>
         <Dropdown id="dropdown-user" pullRight>

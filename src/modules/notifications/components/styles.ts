@@ -1,7 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 
 const NotificationWrapper = styled.div`
   position: relative;
@@ -65,7 +63,7 @@ const NotifButton = styled.div`
   transition: all 0.3s ease;
 
   &[aria-describedby] {
-    background: rgba(0, 0, 0, 0.13);
+    color: ${colors.colorSecondary};
   }
 
   i {
@@ -82,72 +80,13 @@ const NotifButton = styled.div`
   }
 `;
 
-const toggleSize = 32;
-
 const PopoverHeader = styled.div`
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing / 2}px ${dimensions.coreSpacing}px;
 `;
 
 const PopoverContent = styled.div`
   padding-bottom: 40px;
-  height: 450px;
-`;
-
-const Toggler = styledTS<{ activeFirst: boolean }>(styled.div)`
-  display: flex;
-  height: ${toggleSize}px;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: ${toggleSize / 2}px;
-  position: relative;
-  color: ${colors.colorCoreGray};
-  z-index: 1;
-  cursor: pointer;
-
-  &:before {
-    content: '';
-    position: absolute;
-    top: -1px;
-    height: ${toggleSize}px;
-    width: 50%;
-    z-index: 3;
-    border-radius: ${toggleSize / 2}px;
-    transition: all 0.3s ease;
-    background: ${colors.colorPrimary};
-    left: ${props => (props.activeFirst ? '-1px' : 'calc(50% + 1px)')};
-    box-shadow: 0 0 20px 2px ${rgba(colors.colorPrimary, 0.4)};
-  }
-`;
-
-const Toggle = styledTS<{ isActive: boolean }>(styled.div)`
-  flex: 1;
-  text-align: center;
-  line-height: ${toggleSize - 2}px;
-  display: flex;
-  justify-content: center;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  font-size: 10px;
-  z-index: 4;
-  color: ${props => (props.isActive ? colors.colorWhite : 'inherit')};
-
-  i {
-    font-size: 14px;
-    margin-right: 10px;
-  }
-`;
-
-const NotifCount = styled.div`
-  position: relative;
-
-  span {
-    position: absolute;
-    top: 3px;
-    right: 2px;
-    padding: 2px 3px;
-    min-width: 12px;
-    min-height: 12px;
-    font-size: 7px;
-  }
+  height: 420px;
 `;
 
 export {
@@ -158,7 +97,4 @@ export {
   NotifButton,
   PopoverHeader,
   PopoverContent,
-  Toggler,
-  Toggle,
-  NotifCount
 };

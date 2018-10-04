@@ -170,16 +170,6 @@ class Navigation extends React.Component<{ unreadConversationsCount?: number }> 
               <NavIcon className="icon-clipboard" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Insights').toString()}>
-            <NavLink to="/insights" activeClassName="active">
-              <NavIcon className="icon-pie-chart" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Settings').toString()}>
-            <NavLink to="/settings" activeClassName="active">
-              <NavIcon className="icon-settings" />
-            </NavLink>
-          </Tip>
         </Nav>
       </LeftNavigation>
     );
