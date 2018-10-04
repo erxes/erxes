@@ -319,6 +319,19 @@ const ActionInfo = SpaceContent.extend`
   }
 `;
 
+const Status = styled.div`
+  margin-bottom: 4px;
+  overflow: hidden;
+
+  > span {
+    border-radius: 2px;
+    padding: 1px 4px;
+    font-size: 10px;
+    color: #fff; 
+    float: left;
+  }
+`;
+
 export {
   AddNew,
   Container,
@@ -344,5 +357,6 @@ export {
   SelectValue,
   Avatar,
   AddContainer,
-  ActionInfo
+  ActionInfo,
+  Status
 };

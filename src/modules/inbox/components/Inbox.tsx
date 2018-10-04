@@ -16,9 +16,11 @@ export default class Inbox extends React.Component<Props> {
 
     const breadcrumb = [{ title: __("Inbox") }];
 
+    const submenu = [{ title: __("Inbox"), link: "/inbox" }, { title: __("Insights"), link: "/insights" }];
+
     return (
       <Contents>
-        <Header queryParams={queryParams} breadcrumb={breadcrumb} />
+        <Header queryParams={queryParams} breadcrumb={breadcrumb} submenu={submenu} />
         <Sidebar
           queryParams={queryParams}
           currentConversationId={currentConversationId}

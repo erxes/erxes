@@ -1,4 +1,4 @@
-import { Label, Tip } from 'modules/common/components';
+import { Tip } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import * as moment from 'moment';
 import * as React from 'react';
@@ -8,7 +8,8 @@ import {
   DealDate,
   FooterContent,
   ItemList,
-  SpaceContent
+  SpaceContent,
+  Status
 } from '../../styles/deal';
 
 import { __ } from '../../../common/utils';
@@ -46,9 +47,9 @@ class CommonDeal extends React.Component<Props> {
 
   renderStatusLabel(text, color) {
     return (
-      <Label style={{ backgroundColor: color }} ignoreTrans>
-        <span>{__(text)}</span>
-      </Label>
+      <Status>
+        <span style={{ backgroundColor: color }}>{__(text)}</span>
+      </Status>
     );
   }
 
@@ -58,10 +59,10 @@ class CommonDeal extends React.Component<Props> {
     }
 
     if (stage.probability === 'Won') {
-      return this.renderStatusLabel('Won', colors.colorCoreBlue);
+      return this.renderStatusLabel('Won', colors.colorCoreGreen);
     }
 
-    return this.renderStatusLabel('In Progress', colors.colorCoreGreen);
+    return this.renderStatusLabel('In Progress', colors.colorCoreBlue);
   }
 
   render() {
@@ -70,11 +71,11 @@ class CommonDeal extends React.Component<Props> {
 
     return (
       <React.Fragment>
+        {this.renderDealStatus(deal.stage)}
         <SpaceContent>
           <h4>{deal.name}</h4>
           {this.renderDate(deal.closeDate)}
         </SpaceContent>
-        {this.renderDealStatus(deal.stage)}
         <SpaceContent>
           <FooterContent>
             <ItemList>
