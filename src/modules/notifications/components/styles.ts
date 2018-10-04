@@ -58,29 +58,27 @@ const NotificationList = NotifList.extend`
 `;
 
 const NotifButton = styled.div`
-  position: absolute;
-  padding: 15px ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
-  bottom: 0;
   cursor: pointer;
   text-align: center;
   width: 100%;
+  position: relative;
   transition: all 0.3s ease;
 
   &[aria-describedby] {
     background: rgba(0, 0, 0, 0.13);
   }
 
-  img {
-    width: ${dimensions.coreSpacing}px;
+  i {
+    font-size: 18px;
   }
 
   span {
     position: absolute;
-    top: 6px;
-    right: 11px;
+    top: -4px;
+    right: -10px;
     padding: 4px;
-    min-width: 19px;
-    min-height: 19px;
+    min-width: 18px;
+    min-height: 18px;
   }
 `;
 

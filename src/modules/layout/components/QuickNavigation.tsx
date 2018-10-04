@@ -6,6 +6,7 @@ import {
   NameCard
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { Widget } from 'modules/notifications/containers';
 import { Signature } from 'modules/settings/email/containers';
 import {
   ChangePassword,
@@ -44,11 +45,13 @@ const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentU
   return (
     <nav>
       <NavItem>
+        <Widget />
+      </NavItem>
+      <NavItem>
         <Dropdown id="dropdown-user" pullRight>
           <DropdownToggle bsRole="toggle">
             <UserHelper>
               <UserInfo>
-                {details.fullName}
                 <NameCard.Avatar user={currentUser} size={30} />
                 <Icon icon="downarrow" size={10} />
               </UserInfo>

@@ -93,7 +93,7 @@ class Widget extends React.Component<{ unreadCount: number }, { activeFirst: boo
         shouldUpdatePosition
       >
         <NotifButton>
-          <img src="/images/robots/robot-head.svg" alt="ai robot" />
+          <Icon icon="alarm-2" />
           {this.renderUnreadCount()}
         </NotifButton>
       </OverlayTrigger>

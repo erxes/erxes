@@ -1,7 +1,6 @@
 import { Label, Tip } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, setBadge } from 'modules/common/utils';
-import { Widget } from 'modules/notifications/containers';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
@@ -182,7 +181,6 @@ class Navigation extends React.Component<{ unreadConversationsCount?: number }> 
             </NavLink>
           </Tip>
         </Nav>
-        <Widget />
       </LeftNavigation>
     );
   }
