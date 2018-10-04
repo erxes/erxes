@@ -7,13 +7,15 @@ import {
   internalNoteFactory,
 } from '../db/factories';
 import { ActivityLogs, Companies, Customers, Deals, InternalNotes } from '../db/models';
+import { ICompany, ICompanyDocument } from '../db/models/definitions/companies';
 import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
 
-const check = (companyObj, doc) => {
+const check = (companyObj: ICompanyDocument, doc: ICompany) => {
   expect(companyObj.createdAt).toBeDefined();
   expect(companyObj.modifiedAt).toBeDefined();
-  expect(companyObj.name).toBe(doc.name);
-  expect(companyObj.email).toBe(doc.email);
+  expect(companyObj.primaryName).toBe(doc.primaryName);
+  expect(companyObj.primaryEmail).toBe(doc.primaryEmail);
+  expect(companyObj.primaryPhone).toBe(doc.primaryPhone);
   expect(companyObj.size).toBe(doc.size);
   expect(companyObj.industry).toBe(doc.industry);
   expect(companyObj.plan).toBe(doc.plan);
