@@ -197,7 +197,6 @@ class CompanyForm extends React.Component<Props, State> {
     optionsName: string,
     optionName: string
   ) {
-    console.log(optionName, optionsName);
     this.setState({ [optionsName]: options, [optionName]: selectedOption });
   }
 

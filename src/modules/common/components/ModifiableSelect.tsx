@@ -87,14 +87,16 @@ class ModifiableSelect extends React.Component<Props, State> {
       'removableSelect-value'
     ) as HTMLInputElement).value;
 
+    const updatedOption = options.length === 0 ? value : selectedOption;
+
     const state: State = {
       adding: false,
       options: [...options, value],
-      selectedOption: options.length === 0 ? value : selectedOption
+      selectedOption: updatedOption
     };
 
     this.setState({ ...state }, () => {
-      onChange({ options: this.state.options, selectedOption });
+      onChange({ options: this.state.options, selectedOption: updatedOption });
     });
 
     Alert.success('Successfully added');
