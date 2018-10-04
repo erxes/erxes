@@ -10,8 +10,7 @@ const ChipItem = styledTS<{ normal?: boolean }>(styled.span)`
   color: ${colors.colorWhite};
   background: ${colors.colorSecondary};
   padding: 2px ${horizontalSpace};
-  margin-right: 5px;
-  margin-bottom: 1px;
+  margin: 2px 5px 2px 0;
   text-transform: ${props => (props.normal ? 'none' : 'capitalize')};
   display: inline-block;
   border-radius: ${horizontalSpace};

@@ -38,7 +38,7 @@ class LeftSidebar extends React.Component<Props, {}> {
     );
   }
 
-  renderSidebarHeader() {
+  renderSidebarActions() {
     const { queryParams, history, bulk } = this.props;
 
     if (bulk.length > 0) {
@@ -79,6 +79,14 @@ class LeftSidebar extends React.Component<Props, {}> {
         />
         <StatusFilterPopover queryParams={queryParams} history={history} />
       </Sidebar.Header>
+    );
+  }
+
+  renderSidebarHeader() {
+    return (
+      <React.Fragment>
+        {this.renderSidebarActions()}  
+      </React.Fragment>
     );
   }
 
