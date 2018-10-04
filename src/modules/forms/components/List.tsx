@@ -107,7 +107,7 @@ class List extends React.Component<Props, {}> {
           manageUrl={"tags/integration"}
           counts={tagsCount}
           loading={false}
-        />;
+        />
       </Wrapper.Sidebar>
     );
 
