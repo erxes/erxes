@@ -18,7 +18,7 @@ type Props = {
   saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
   removeDeal: (_id: string, callback?: () => void) => void;
   move?: (doc: IDragResult) => void;
-  closeModal?: () => void;
+  closeModal: () => void;
 };
 
 type State = {
@@ -69,7 +69,7 @@ class DealEditForm extends React.Component<Props, State> {
 
   saveProductsData() {
     const { productsData } = this.state;
-    const products: any = [];
+    const products: IProduct[] = [];
     const amount: any = {};
 
     const filteredProductsData: any = [];
@@ -128,13 +128,13 @@ class DealEditForm extends React.Component<Props, State> {
     // before save, disable save button
     this.setState({ disabled: true });
 
-    saveDeal && saveDeal(
+    saveDeal(
       doc,
       () => {
         // after save, enable save button
         this.setState({ disabled: false });
 
-        closeModal && closeModal();
+        closeModal();
       },
       deal
     );
@@ -155,7 +155,7 @@ class DealEditForm extends React.Component<Props, State> {
   remove(id) {
     const { removeDeal, closeModal } = this.props;
 
-    removeDeal && removeDeal(id, () => closeModal && closeModal());
+    removeDeal(id, () => closeModal());
   }
 
   copy() {
@@ -169,7 +169,7 @@ class DealEditForm extends React.Component<Props, State> {
       customerIds: deal.customers.map(customer => customer._id)
     };
 
-    saveDeal && saveDeal(doc, () => closeModal && closeModal());
+    saveDeal(doc, () => closeModal && closeModal());
   }
 
   renderFormContent() {

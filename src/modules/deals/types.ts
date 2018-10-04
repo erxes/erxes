@@ -2,6 +2,13 @@ import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
 
+export interface ICommonState {
+  [key: string]: {
+    type: string;
+    index: number;
+  };
+}
+
 export interface IBoard {
   _id: string;
   name: string;
