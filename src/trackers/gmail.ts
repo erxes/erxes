@@ -117,6 +117,15 @@ export const sendGmail = async (mailParams: IMailParams, userId: string) => {
 
   const raw = await encodeEmail(toEmails, fromEmail, subject, body, attachments, cc, bcc);
 
+  const activityLogContent = JSON.stringify({
+    toEmails,
+    subject,
+    body,
+    attachments,
+    cc,
+    bcc,
+  });
+
   return new Promise((resolve, reject) => {
     const data = {
       auth,
@@ -132,7 +141,7 @@ export const sendGmail = async (mailParams: IMailParams, userId: string) => {
       }
 
       // Create activity log for send gmail
-      ActivityLogs.createGmailLog(subject, cocType, cocId, userId, integrationId);
+      ActivityLogs.createGmailLog(activityLogContent, cocType, cocId, userId);
 
       resolve(response);
     });

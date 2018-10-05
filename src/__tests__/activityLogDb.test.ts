@@ -6,7 +6,7 @@ import {
   internalNoteFactory,
   segmentFactory,
   userFactory,
-  integrationFactory
+  integrationFactory,
 } from '../db/factories';
 import { ActivityLogs, Conversations } from '../db/models';
 import {
@@ -386,7 +386,7 @@ describe('ActivityLogs model methods', () => {
     const cocId = company._id;
     const subject = 'gmail subject';
 
-    const gmailLog = await ActivityLogs.createGmailLog(subject, cocType, cocId, user._id, integration.id);
+    const gmailLog = await ActivityLogs.createGmailLog(subject, cocType, cocId, user._id);
 
     if (!gmailLog.activity) {
       throw new Error('Activity is empty');
@@ -396,7 +396,6 @@ describe('ActivityLogs model methods', () => {
       type: 'email',
       action: 'send',
       content: subject,
-      id: integration._id
     });
 
     if (!gmailLog.coc) {
