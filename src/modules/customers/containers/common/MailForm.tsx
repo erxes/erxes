@@ -47,7 +47,7 @@ const MailFormContainer = (props: Props) => {
       });
   };
 
-  return <MailForm save={save} integrations={integrations} customerEmail={customerEmail || ''} />;
+  return <MailForm save={save} integrations={integrations} customerEmail={customerEmail || ''} {...props} />;
 };
 
 export default compose(

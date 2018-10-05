@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { Attachment } from 'modules/inbox/styles';
 import { SidebarList } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -91,9 +92,20 @@ const List = SidebarList.extend`
   }
 `;
 
+const AttachmentContainer = Attachment.extend`
+  i {
+    cursor: pointer;
+    transition: all ease 0.3s;
+
+    &:hover {
+      color: ${colors.colorPrimaryDark};
+    }
+  }
+`;
+
 const InfoAvatar = styled.img`
   width: 40px;
   border-radius: 40px;
 `;
 
-export { InfoTitle, InfoDetail, Info, Action, List, InfoAvatar, MailEditorWrapper, ControlWrapper, LeftSection, Resipients };
+export { InfoTitle, InfoDetail, Info, Action, List, InfoAvatar, MailEditorWrapper, ControlWrapper, LeftSection, Resipients, AttachmentContainer };

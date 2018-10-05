@@ -29,16 +29,18 @@ type Props = {
 type State = {
   currentTab: string;
   currentNoteTab: string;
+  attachmentPreview: any;
 }
 
 class CustomerDetails extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentTab: 'activity', currentNoteTab: 'newNote' };
+    this.state = { currentTab: 'activity', currentNoteTab: 'newNote', attachmentPreview: {} };
 
     this.onTabClick = this.onTabClick.bind(this);
     this.onChangeTab = this.onChangeTab.bind(this);
+    this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
   }
 
   onTabClick(currentTab) {
@@ -47,6 +49,10 @@ class CustomerDetails extends React.Component<Props, State> {
 
   onChangeTab(currentNoteTab) {
     this.setState({ currentNoteTab });
+  }
+
+  setAttachmentPreview(attachmentPreview) {
+    this.setState({ attachmentPreview });
   }
 
   renderTabContent() {
@@ -96,6 +102,7 @@ class CustomerDetails extends React.Component<Props, State> {
         contentType="customer" 
         contentTypeId={customer._id}
         customerEmail={customer.primaryEmail}
+        setAttachmentPreview={this.setAttachmentPreview}
       />
     );
   }

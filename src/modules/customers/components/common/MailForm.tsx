@@ -2,14 +2,15 @@ import { EditorState } from 'draft-js';
 import { Button, FormControl, Icon, Tip } from 'modules/common/components';
 import { createStateFromHTML, ErxesEditor, toHTML } from 'modules/common/components/editor/Editor';
 import { __, uploadHandler } from 'modules/common/utils';
-import { EditorActions } from 'modules/inbox/styles';
+import { AttachmentIndicator, AttachmentThumb, EditorActions, FileName, PreviewImg } from 'modules/inbox/styles';
 import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
-import { ControlWrapper, LeftSection, MailEditorWrapper, Resipients } from '../../styles';
+import { AttachmentContainer, ControlWrapper, LeftSection, MailEditorWrapper, Resipients } from '../../styles';
 
 type Props = {
   integrations: IIntegration[];
   customerEmail?: string;
+  setAttachmentPreview?: (data: string | null) => void;
   save: (params: {
     cc?: string;
     bcc?: string;
@@ -17,6 +18,7 @@ type Props = {
     subject?: string;
     body: string;
     integrationId?: string;
+    attachments: string[];
   }) => any;
 };
 
@@ -32,7 +34,6 @@ type State = {
   content: string;
   editorState: EditorState;
   integrations: IIntegration[];
-  attachmentPreview: any;
   attachments: any[];
 }
 
@@ -50,7 +51,6 @@ class MailForm extends React.Component<Props, State> {
         toEmails: props.customerEmail || '',
         from: '',
         subject: '',
-        attachmentPreview: {},
         attachments: [],
         integrations: props.integrations,
         editorState: createStateFromHTML(
@@ -58,14 +58,15 @@ class MailForm extends React.Component<Props, State> {
             ''
         )
     };
- 
+
     this.onChange = this.onChange.bind(this);
     this.changeContent = this.changeContent.bind(this);
     this.onClick = this.onClick.bind(this);
     this.onSend = this.onSend.bind(this);
     this.getContent = this.getContent.bind(this);
-    this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
     this.cancelEditing = this.cancelEditing.bind(this);
+    this.handleFileInput = this.handleFileInput.bind(this);
+    this.removeImage = this.removeImage.bind(this);
   }
 
   getContent(editorState) {
@@ -84,13 +85,16 @@ class MailForm extends React.Component<Props, State> {
     this.onChange(name, !this.state[name]);
   }
 
-  setAttachmentPreview(attachmentPreview) {
-    this.setState({ attachmentPreview });
+  removeImage(value: string) {
+    const { attachments } = this.state;
+
+    this.setState({ attachments: attachments.filter(item => item !== value) });
   }
 
   handleFileInput(e: React.FormEvent<HTMLInputElement>) {
     const files = e.currentTarget.files;
-
+    const { setAttachmentPreview } = this.props;
+ 
     uploadHandler({
       files,
 
@@ -101,21 +105,22 @@ class MailForm extends React.Component<Props, State> {
         this.setState({
           attachments: [
             ...this.state.attachments,
-            Object.assign({ url: response }, fileInfo)
+            response
           ]
         });
         // remove preview
-        this.setAttachmentPreview(null);
+        setAttachmentPreview && setAttachmentPreview(null);
       },
 
       afterRead: ({ result, fileInfo }) => {
-        this.setAttachmentPreview(Object.assign({ data: result }, fileInfo));
+        setAttachmentPreview &&
+          setAttachmentPreview(Object.assign({ data: result }, fileInfo));
       }
     });
   }
 
   onSend() {
-    const { subject, cc, bcc, toEmails, from } = this.state;
+    const { subject, cc, bcc, toEmails, from, attachments } = this.state;
 
     const body = this.getContent(this.state.editorState);
     const integrationId = from;
@@ -126,14 +131,25 @@ class MailForm extends React.Component<Props, State> {
       cc,
       bcc,
       body,
-      integrationId
+      integrationId,
+      attachments
     });
 
     this.cancelEditing();
   }
 
   cancelEditing() {
-    this.setState({ isCc: false, isBcc: false, editorState: EditorState.createEmpty(), cc: '', bcc: '', toEmails: '', from: '', subject: '' });
+    this.setState({ 
+      isCc: false, 
+      isBcc: false, 
+      editorState: EditorState.createEmpty(), 
+      cc: '', 
+      bcc: '', 
+      toEmails: '', 
+      from: '', 
+      subject: '',
+      attachments: [] 
+    });
   }
 
   renderFromOption() {
@@ -178,6 +194,29 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
+  renderAttachments() {
+    const { attachments } = this.state;
+
+    if (attachments.length === 0) {
+      return null;
+    }
+
+    return (
+      <AttachmentIndicator>
+        {attachments.map((attachment, index)=> (
+          <AttachmentContainer key={index}>
+            <FileName>{attachment}</FileName>
+            <Icon 
+              icon="cancel-1" 
+              size={18}
+              onClick={(e: React.MouseEvent<HTMLElement>) => this.removeImage(attachment)} 
+            />
+          </AttachmentContainer>
+        ))}
+      </AttachmentIndicator>
+    );
+  }
+
   renderButtons() {
     return (
       <EditorActions>
@@ -217,42 +256,43 @@ class MailForm extends React.Component<Props, State> {
     return (
       <MailEditorWrapper>
         <ControlWrapper>
-            <span>To</span>
-            <FormControl
-              type="text"
-              onChange={e => this.onChange('toEmails', (e.target as HTMLInputElement).value)}
-              value={this.state.toEmails}
-            />
-            <LeftSection>
-              <Resipients onClick={() => this.onClick('isCc')} isActive={this.state.isCc}>Cc</Resipients>
-              <Resipients onClick={() => this.onClick('isBcc')} isActive={this.state.isBcc}>Bcc</Resipients>
-            </LeftSection>
+          <span>To</span>
+          <FormControl
+            type="text"
+            onChange={e => this.onChange('toEmails', (e.target as HTMLInputElement).value)}
+            value={this.state.toEmails}
+          />
+          <LeftSection>
+            <Resipients onClick={() => this.onClick('isCc')} isActive={this.state.isCc}>Cc</Resipients>
+            <Resipients onClick={() => this.onClick('isBcc')} isActive={this.state.isBcc}>Bcc</Resipients>
+          </LeftSection>
         </ControlWrapper>
         {this.renderCC()}
         {this.renderBCC()}
 
         <ControlWrapper>
-            <span>From</span>
-            <FormControl
-              componentClass="select"
-              onChange={e => this.onChange('from', (e.target as HTMLInputElement).value)}
-              value={this.state.from}
-            > 
-              <option />
-              {this.renderFromOption()} 
-            </FormControl>
+          <span>From</span>
+          <FormControl
+            componentClass="select"
+            onChange={e => this.onChange('from', (e.target as HTMLInputElement).value)}
+            value={this.state.from}
+          > 
+            <option />
+            {this.renderFromOption()} 
+          </FormControl>
         </ControlWrapper>
 
         <ControlWrapper>
-            <FormControl
-              type="text"
-              onChange={e => this.onChange('subject', (e.target as HTMLInputElement).value)}
-              placeholder="Subject"
-              value={this.state.subject}
-            />
+          <FormControl
+            type="text"
+            onChange={e => this.onChange('subject', (e.target as HTMLInputElement).value)}
+            placeholder="Subject"
+            value={this.state.subject}
+          />
         </ControlWrapper>
 
         <ErxesEditor {...props} />
+        {this.renderAttachments()}
         {this.renderButtons()}
       </MailEditorWrapper>
     );
