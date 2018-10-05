@@ -23,7 +23,7 @@ const CustomerAssociate = (props: Props) => {
     companiesEditCustomers({
       variables: {
         _id: data._id,
-        customerIds: customers.map(customer => customer['_id'])
+        customerIds: customers.map(customer => customer._id)
       }
     })
       .then(() => {
