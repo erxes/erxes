@@ -39,6 +39,10 @@ const trackIntegration = (integration: IIntegrationDocument) => {
   stream.on('direct_message', data => {
     receiveDirectMessageInformation(data.direct_message, integration);
   });
+
+  stream.on('error', e => {
+    console.log(e);
+  });
 };
 
 // twitter oauth ===============

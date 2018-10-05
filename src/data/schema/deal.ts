@@ -45,6 +45,7 @@ export const types = `
     assignedUsers: [User]
     modifiedAt: Date
     modifiedBy: String
+    stage: DealStage
     ${commonTypes}
   }
 `;

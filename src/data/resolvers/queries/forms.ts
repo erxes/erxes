@@ -1,5 +1,6 @@
 import { Forms } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+
 const formQueries = {
   /**
    * Forms list
