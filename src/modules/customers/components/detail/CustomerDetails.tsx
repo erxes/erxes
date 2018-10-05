@@ -66,7 +66,7 @@ class CustomerDetails extends React.Component<Props, State> {
     } = this.props;
 
     const hasActivity = hasAnyActivity(activityLogsCustomer);
-
+   
     return (
       <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader

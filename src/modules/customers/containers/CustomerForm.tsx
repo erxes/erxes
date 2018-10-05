@@ -52,7 +52,8 @@ const options = () => {
       'customersMain',
       // customers for company detail associate customers
       'customers',
-      'customerCounts'
+      'customerCounts',
+      'activityLogsCustomer'
     ]
   };
 };
