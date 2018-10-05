@@ -20,7 +20,6 @@ class KnowledgeBase extends React.Component {
 
   render() {
     const { categoryDetailQuery, location, articlesCountQuery } = this.props;
-    console.log(this.props);
     if (categoryDetailQuery.loading) {
       return <Spinner />;
     }
