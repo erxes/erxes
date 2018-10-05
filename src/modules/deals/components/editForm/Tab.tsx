@@ -1,4 +1,5 @@
 import { ActivityList } from 'modules/activityLogs/components';
+import { IUser } from 'modules/auth/types';
 import {
   DataWithLoader,
   Icon,
@@ -11,9 +12,8 @@ import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { WhiteBox } from 'modules/layout/styles';
 import * as React from 'react';
-import { IUser } from '../../../../auth/types';
-import { Left } from '../../../styles/deal';
-import { IDeal } from '../../../types';
+import { Left } from '../../styles/deal';
+import { IDeal } from '../../types';
 
 type Props = {
   deal?: IDeal;

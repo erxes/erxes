@@ -3,9 +3,9 @@ import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SectionContainer } from 'modules/layout/styles';
 import * as React from 'react';
-import { DealAddForm } from '.';
 import { Deal } from '../containers';
 import { IDeal, IDealParams } from '../types';
+import PortableAddDeal from './PortableAddDeal';
 
 type Props = {
   deals: IDeal[];
@@ -50,7 +50,7 @@ class PortableDeals extends React.Component<Props> {
         title="Add a deal" 
         trigger={trigger}
         content={(props) => (
-          <DealAddForm
+          <PortableAddDeal
             {...props}
             saveDeal={saveDeal}
             customerId={customerId}

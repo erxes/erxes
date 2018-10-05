@@ -2,10 +2,15 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Deal } from '../../components';
-import { queries } from '../../graphql';
+import { Deal } from '../components';
+import { queries } from '../graphql';
 
-class DealContainer extends React.Component<{ dealDetailQuery: any }> {
+type Props = {
+  dealId: string;
+  dealDetailQuery: any;
+}
+
+class DealContainer extends React.Component<Props> {
   render() {
     const { dealDetailQuery } = this.props;
 

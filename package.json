@@ -48,7 +48,7 @@
     "query-string": "^5.0.0",
     "react": "^16.3.2",
     "react-apollo": "^2.1.11",
-    "react-beautiful-dnd": "^7.1.2",
+    "react-beautiful-dnd": "^9.0.2",
     "react-bootstrap": "^0.31.3",
     "react-color": "^2.14.1",
     "react-copy-to-clipboard": "^5.0.1",

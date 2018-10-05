@@ -1,42 +1,30 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../components';
 import { mutations, queries } from '../graphql';
 import { ICommonParams, IDeal, IDealParams } from '../types';
-import {
-  collectOrders,
-  removeDeal as remove,
-  saveDeal as save
-} from '../utils';
+import { collectOrders, saveDeal as save } from '../utils';
 
 type Order = {
-  _id: string,
-  order: number
+  _id: string;
+  order: number;
 }
 
-type Props = {
-  state: { deals: ICommonParams[] };
-  stageId: string;
+interface IProps {
   deals: IDeal[];
-  addMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
-  editMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
-  removeMutation: (params: { variables: { _id: string } }) => Promise<void>;
-  dealsUpdateOrderMutation: (params: { variables: { orders: Order[] } }) => Promise<void>;
-  dealsChangeMutation: (params: { variables: { _id: string, stageId: string } }) => Promise<void>;
+  addMutation: (params: { variables: IDealParams }) => Promise<any>;
+  dealsUpdateOrderMutation: (params: { variables: { orders: Order[] } }) => Promise<any>;
+  dealsChangeMutation: (params: { variables: { _id: string, stageId: string } }) => Promise<any>;
   dealsUpdateOrder: any;
   stageDetailQuery: any;
   dealsQuery: any;
 };
 
-class StageContainer extends React.Component<Props, { deals: ICommonParams[] }> {
+class StageContainer extends React.Component<IProps & IWrapperProps, { deals: ICommonParams[] }> {
   constructor(props) {
     super(props);
-
-    this.saveDeal = this.saveDeal.bind(this);
-    this.removeDeal = this.removeDeal.bind(this);
 
     const { deals } = props;
 
@@ -88,62 +76,26 @@ class StageContainer extends React.Component<Props, { deals: ICommonParams[] }> 
     }
   }
 
-  // create or update deal
-  saveDeal(doc: IDealParams, callback: () => void, deal?: IDeal) {
-    const {
-      stageDetailQuery,
-      addMutation,
-      editMutation,
-      dealsQuery
-    } = this.props;
-
-    const { deals } = this.state;
-
-    save(
-      doc,
-      { addMutation, editMutation, dealsQuery },
-      data => {
-        // if edit mode
-        if (deal) {
-          const index = deals.findIndex(d => d._id === data.dealsEdit._id);
-
-          deals[index] = data.dealsEdit;
-        } else {
-          deals.push(data.dealsAdd);
-        }
-
-        this.setState({ deals });
-
-        stageDetailQuery.refetch();
-
-        callback();
-      },
-      deal
-    );
-  }
-
-  // remove deal
-  removeDeal(_id: string) {
-    const { stageDetailQuery, removeMutation, dealsQuery } = this.props;
-    const { deals } = this.state;
-
-    remove(_id, { removeMutation, dealsQuery }, dealsRemove => {
-      this.setState({
-        deals: deals.filter(el => el._id !== dealsRemove._id)
-      });
-
-      stageDetailQuery.refetch();
-    });
-  }
-
   render() {
-    const { stageDetailQuery } = this.props;
+    const { stageId, stageDetailQuery, addMutation } = this.props;
+
+    // create deal
+    const addDeal = (name: string, callback) => {
+      addMutation({ variables: { name, stageId } })
+        .then(() => {
+          Alert.success(__('Successfully saved.'));
+
+          callback();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    }
 
     const extendedProps = {
       ...this.props,
       deals: this.state.deals,
-      saveDeal: this.saveDeal,
-      removeDeal: this.removeDeal,
+      addDeal,
       stage: stageDetailQuery.dealStageDetail || {}
     };
 
@@ -154,13 +106,13 @@ class StageContainer extends React.Component<Props, { deals: ICommonParams[] }> 
 const StageContainerWithData = compose(
   // mutation
   graphql(gql(mutations.dealsAdd), {
-    name: 'addMutation'
-  }),
-  graphql(gql(mutations.dealsEdit), {
-    name: 'editMutation'
-  }),
-  graphql(gql(mutations.dealsRemove), {
-    name: 'removeMutation'
+    name: 'addMutation',
+    options: ({ stageId }: { stageId: string}) => ({
+      refetchQueries: [{
+        query: gql(queries.deals),
+        variables: { stageId }
+      }]
+    }),
   }),
   graphql(gql(queries.stageDetail), {
     name: 'stageDetailQuery',
@@ -178,7 +130,7 @@ const StageContainerWithData = compose(
   })
 )(StageContainer);
 
-class StageWithDeals extends React.Component<{ dealsQuery: any }> {
+class StageWithDeals extends React.Component<{ dealsQuery: any } & IWrapperProps> {
   render() {
     const { dealsQuery } = this.props;
 
@@ -196,6 +148,12 @@ class StageWithDeals extends React.Component<{ dealsQuery: any }> {
     return <StageContainerWithData {...extendedProps} />;
   }
 }
+
+interface IWrapperProps {
+  state: { deals: ICommonParams[] };
+  stageId: string;
+  index: number;
+};
 
 export default compose(
   graphql(gql(queries.deals), {

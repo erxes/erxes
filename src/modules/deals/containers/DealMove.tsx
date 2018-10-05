@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { DealMove } from '../../components';
-import { queries } from '../../graphql';
-import { IPipeline } from '../../types';
+import { DealMove } from '../components';
+import { queries } from '../graphql';
+import { IPipeline } from '../types';
 
 class DealMoveContainer extends React.Component<{ stagesQuery: any }> {
   render() {

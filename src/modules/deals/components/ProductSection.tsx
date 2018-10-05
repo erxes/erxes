@@ -3,10 +3,10 @@ import { renderFullName } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
-import { ProductForm } from '..';
-import { IProduct } from '../../../settings/productService/types';
-import { IProductData } from '../../types';
+import { IProductData } from '../types';
+import ProductForm from './product/ProductForm';
 
 type Props = {
   productsData: IProductData[];

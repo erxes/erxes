@@ -5,9 +5,9 @@ import { CustomerSection } from 'modules/customers/components/common';
 import { ICustomer } from 'modules/customers/types';
 import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
-import { ProductSection } from '../..';
-import { Right } from '../../../styles/deal';
-import { IDeal, IProductData } from '../../../types';
+import { ProductSection } from '../';
+import { Right } from '../../styles/deal';
+import { IDeal, IProductData } from '../../types';
 
 type Props = {
   deal: IDeal;

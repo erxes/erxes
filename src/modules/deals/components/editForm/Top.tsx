@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import {
   ControlLabel,
   FormControl,
@@ -7,8 +8,7 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import * as Datetime from 'react-datetime';
 import Select from 'react-select-plus';
-import { IUser } from '../../../../auth/types';
-import { DealMove } from '../../../containers';
+import { DealMove } from '../../containers';
 import {
   Avatar,
   FlexContent,
@@ -19,9 +19,9 @@ import {
   Right,
   SelectOption,
   SelectValue
-} from '../../../styles/deal';
-import { IDeal } from '../../../types';
-import { selectUserOptions } from '../../../utils';
+} from '../../styles/deal';
+import { IDeal } from '../../types';
+import { selectUserOptions } from '../../utils';
 
 type Props = {
   deal: IDeal;

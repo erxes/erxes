@@ -14,15 +14,14 @@ import {
   Indicator,
   IndicatorItem
 } from '../styles/stage';
-import { ICommonParams, IDeal, IDealParams, IStage } from '../types';
+import { ICommonParams, IStage } from '../types';
 
 type Props = {
   stage: IStage;
   deals: ICommonParams[];
   index?: number;
   length?: number;
-  saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
-  removeDeal: (_id: string) => void;
+  addDeal: (name: string, callback: () => void) => void;
   stageId: string;
 };
 
@@ -38,7 +37,7 @@ class Stage extends React.Component<Props> {
   }
 
   showDealForm() {
-    const { stage, saveDeal } = this.props;
+    const { addDeal } = this.props;
 
     const trigger = (
       <AddNew>
@@ -50,7 +49,7 @@ class Stage extends React.Component<Props> {
       <ModalTrigger 
         title="Add a deal" 
         trigger={trigger}
-        content={(props) => <DealAddForm {...props} stageId={stage._id} saveDeal={saveDeal} />}
+        content={(props) => <DealAddForm {...props} add={addDeal} />}
        />
     );
   }
@@ -68,7 +67,7 @@ class Stage extends React.Component<Props> {
   }
 
   renderDeals(provided) {
-    const { deals, saveDeal, removeDeal } = this.props;
+    const { deals } = this.props;
 
     return (
       <DropZone innerRef={provided.innerRef}>
@@ -78,8 +77,6 @@ class Stage extends React.Component<Props> {
               key={deal._id}
               index={index}
               dealId={deal._id}
-              saveDeal={saveDeal}
-              removeDeal={removeDeal}
               draggable
             />
           ))}

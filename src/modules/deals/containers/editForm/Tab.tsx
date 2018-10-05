@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Tab } from '../../../components/deal/editForm';
-import { queries } from '../../../graphql';
-import { IDeal } from '../../../types';
+import { Tab } from '../../components/editForm';
+import { queries } from '../../graphql';
+import { IDeal } from '../../types';
 
 class TabContainer extends React.Component<{ dealActivityLogQuery: any }> {
   render() {

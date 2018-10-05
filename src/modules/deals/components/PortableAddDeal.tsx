@@ -3,13 +3,13 @@ import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { IDeal, IDealParams } from 'modules/deals/types';
 import * as React from 'react';
-import { DealSelect } from '../../containers';
+import { DealSelect } from '../containers';
 import {
   AddContainer,
   FormFooter,
   HeaderContent,
   HeaderRow
-} from '../../styles/deal';
+} from '../styles/deal';
 
 type Props = {
   customerId?: string;

@@ -1,10 +1,10 @@
 import { ModalTrigger } from 'modules/common/components';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { CommonDeal } from '..';
-import { DealEditForm } from '../../containers';
-import { Container } from '../../styles/deal';
-import { IDeal, IDealParams } from '../../types';
+import { CommonDeal } from '.';
+import { EditForm } from '../containers/editForm';
+import { Container } from '../styles/deal';
+import { IDeal, IDealParams } from '../types';
 
 type Props = {
   deal: IDeal;
@@ -24,7 +24,7 @@ class Deal extends React.Component<Props> {
         trigger={trigger} 
         size="lg"
         content={(props) => (
-          <DealEditForm
+          <EditForm
             {...props}
             deal={deal}
             saveDeal={saveDeal}

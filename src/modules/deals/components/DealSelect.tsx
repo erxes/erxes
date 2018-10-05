@@ -2,9 +2,9 @@ import { ControlLabel, FormGroup } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Select from 'react-select-plus';
-import { SelectContainer } from '../../styles/deal';
-import { IBoard, IPipeline, IStage } from '../../types';
-import { selectOptions } from '../../utils';
+import { SelectContainer } from '../styles/deal';
+import { IBoard, IPipeline, IStage } from '../types';
+import { selectOptions } from '../utils';
 
 type Props = {
   boards: IBoard[];

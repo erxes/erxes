@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { DealSelect } from '../../components';
-import { queries } from '../../graphql';
-import { IStage } from '../../types';
+import { DealSelect } from '../components';
+import { queries } from '../graphql';
+import { IStage } from '../types';
 
 type Props = {
   boardsQuery: any;

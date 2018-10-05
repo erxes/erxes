@@ -9,14 +9,15 @@ import { IProduct } from '../../../settings/productService/types';
 import { Tab } from '../../containers';
 import { FlexContent, FormFooter } from '../../styles/deal';
 import { IDeal, IDealParams, IDragResult } from '../../types';
-import { Sidebar, Top } from './editForm';
+import { Sidebar, Top } from './';
 
 type Props = {
   deal: IDeal;
   users: IUser[];
   index?: number;
-  saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
-  removeDeal: (_id: string, callback?: () => void) => void;
+  addDeal: (doc: IDealParams, callback: () => void) => void;
+  saveDeal: (doc: IDealParams, callback: () => void) => void;
+  removeDeal: (_id: string, callback: () => void) => void;
   move?: (doc: IDragResult) => void;
   closeModal: () => void;
 };
@@ -43,6 +44,7 @@ class DealEditForm extends React.Component<Props, State> {
     this.saveProductsData = this.saveProductsData.bind(this);
     this.save = this.save.bind(this);
     this.copy = this.copy.bind(this);
+    this.remove = this.remove.bind(this);
 
     const deal = props.deal;
 
@@ -136,7 +138,6 @@ class DealEditForm extends React.Component<Props, State> {
 
         closeModal();
       },
-      deal
     );
 
     // if changed stageId, update ui
@@ -159,7 +160,7 @@ class DealEditForm extends React.Component<Props, State> {
   }
 
   copy() {
-    const { deal, closeModal, saveDeal } = this.props;
+    const { deal, closeModal, addDeal } = this.props;
 
     // copied doc
     const doc = {
@@ -169,11 +170,11 @@ class DealEditForm extends React.Component<Props, State> {
       customerIds: deal.customers.map(customer => customer._id)
     };
 
-    saveDeal(doc, () => closeModal && closeModal());
+    addDeal(doc, () => closeModal && closeModal());
   }
 
   renderFormContent() {
-    const { deal, users, removeDeal } = this.props;
+    const { deal, users } = this.props;
 
     const {
       name,
@@ -211,7 +212,7 @@ class DealEditForm extends React.Component<Props, State> {
             productsData={productsData}
             deal={deal}
             onChangeField={this.onChangeField}
-            removeDeal={removeDeal}
+            removeDeal={this.remove}
             saveProductsData={this.saveProductsData}
           />
         </FlexContent>
