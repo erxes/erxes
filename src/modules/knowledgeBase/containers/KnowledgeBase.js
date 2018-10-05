@@ -4,6 +4,7 @@ import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import { compose, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import { router as routerUtils } from 'modules/common/utils';
 import { queries } from '../graphql';
 import { KnowledgeBase as KnowledgeBaseComponent } from '../components';
@@ -19,9 +20,9 @@ class KnowledgeBase extends React.Component {
 
   render() {
     const { categoryDetailQuery, location, articlesCountQuery } = this.props;
-
+    console.log(this.props);
     if (categoryDetailQuery.loading) {
-      return false;
+      return <Spinner />;
     }
 
     const extendedProps = {
