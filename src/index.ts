@@ -15,7 +15,6 @@ import { importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Customers } from './db/models';
 import { init } from './startup';
-import { googlePushNotifiction } from './trackers/gmail';
 
 // load environment variables
 dotenv.config();
@@ -157,5 +156,3 @@ process
   .on('uncaughtException', err => {
     console.error(err, 'Uncaught Exception thrown');
   });
-
-googlePushNotifiction();

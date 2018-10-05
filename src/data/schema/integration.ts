@@ -33,10 +33,6 @@ export const types = `
     statusText: String
   }
 
-  type GmailHistoryResponse {
-    emailAddress: String
-  }
-
   input IntegrationFormData {
     loadType: String
     successAction: String
@@ -100,9 +96,6 @@ export const queries = `
   integrationGetGoogleAccessToken(code: String): JSON
   integrationFacebookAppsList: [JSON]
   integrationFacebookPagesList(appId: String): [JSON]
-  integrationGetGmailMessages(
-    integrationId: String!
-  ): JSON
 `;
 
 export const mutations = `

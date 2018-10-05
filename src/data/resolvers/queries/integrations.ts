@@ -1,11 +1,10 @@
 import { Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { getConfig, getPageList } from '../../../trackers/facebook';
 import { getAccessToken, getAuthorizeUrl } from '../../../trackers/googleTracker';
-import { getGmailHistoryList } from '../../../trackers/gmail';
 
 import { socUtils } from '../../../trackers/twitterTracker';
 import { KIND_CHOICES, TAG_TYPES } from '../../constants';
-// import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 /**
@@ -168,16 +167,8 @@ const integrationQueries = {
 
     return getPageList(app.accessToken);
   },
-
-  /**
-   * Get inbox messages since connected to gmail
-   */
-  async integrationGetGmailMessages(_root, { integrationId }: { integrationId: string }) {
-    // get new messages
-    return getGmailHistoryList(integrationId);
-  },
 };
 
-// moduleRequireLogin(integrationQueries);
+moduleRequireLogin(integrationQueries);
 
 export default integrationQueries;
