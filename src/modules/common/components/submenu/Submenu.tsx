@@ -13,25 +13,20 @@ const Items = styled.ul`
   font-size: 14px;
 `;
 
-class Submenu extends React.Component<{ items?: ISubMenuItem[] }> {
-  
-  render() {
-    const { items } = this.props;
-
-    if(items) {
-      return (
-        <Items>
-          {items.map(b => (
-            <MenuItem to={b.link || ''} key={b.title}>
-              {b.title}
-            </MenuItem>
-          ))}
-        </Items>
-      );
-    }
-
-    return null;
+function Submenu({ items }: {items?: ISubMenuItem[]}) {
+  if(items) {
+    return (
+      <Items>
+        {items.map(b => (
+          <MenuItem to={b.link || ''} key={b.title}>
+            {b.title}
+          </MenuItem>
+        ))}
+      </Items>
+    );
   }
+  
+  return null;
 }
 
 export default Submenu;

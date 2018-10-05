@@ -93,7 +93,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
 
   renderBreadCrumnb() {
     return [
-      { title: __('Insights'), link: '/insight' },
+      { title: __('Insights'), link: '/insights' },
       { title: __('Response Report') }
     ];
   }

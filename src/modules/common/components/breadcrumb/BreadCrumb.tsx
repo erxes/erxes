@@ -39,6 +39,7 @@ class BreadCrumb extends React.Component<{ breadcrumbs: IBreadCrumbItem[], isVis
 
   render() {
     const { isVisible, breadcrumbs } = this.props;
+    
     return (
       <Items role="navigation" aria-label="breadcrumbs" visible={isVisible}>
         {breadcrumbs.map(b => (

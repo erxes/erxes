@@ -69,7 +69,7 @@ class FirstResponse extends React.Component<Props> {
 
   renderBreadCrumnb() {
     return [
-      { title: __('Insights'), link: '/insight' },
+      { title: __('Insights'), link: '/insights' },
       { title: __('First Response Report') }
     ];
   }

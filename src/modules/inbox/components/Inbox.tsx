@@ -10,23 +10,20 @@ type Props = {
   currentConversationId: string;
 };
 
-export default class Inbox extends React.Component<Props> {
-  render() {
-    const { currentConversationId, queryParams } = this.props;
-
-    const breadcrumb = [{ title: __("Inbox") }];
-
-    const submenu = [{ title: __("Inbox"), link: "/inbox" }, { title: __("Insights"), link: "/insights" }];
-
-    return (
-      <Contents>
-        <Header queryParams={queryParams} breadcrumb={breadcrumb} submenu={submenu} />
-        <Sidebar
-          queryParams={queryParams}
-          currentConversationId={currentConversationId}
-        />
-        <ConversationDetail currentId={currentConversationId} />
-      </Contents>
-    );
-  }
+function Inbox({ currentConversationId, queryParams }: Props) {
+  const breadcrumb = [{ title: __("Inbox") }];
+  const submenu = [{ title: __("Inbox"), link: "/inbox" }, { title: __("Insights"), link: "/insights" }];
+  
+  return (
+    <Contents>
+      <Header queryParams={queryParams} breadcrumb={breadcrumb} submenu={submenu} />
+      <Sidebar
+        queryParams={queryParams}
+        currentConversationId={currentConversationId}
+      />
+      <ConversationDetail currentId={currentConversationId} />
+    </Contents>
+  );
 }
+
+export default Inbox;

@@ -8,30 +8,26 @@ type Props = {
   queryParams?: any;
 };
 
-class Empty extends React.Component<Props> {
-  render() {
-    const { queryParams } = this.props;
+function Empty({ queryParams }: Props) {
+  const breadcrumb = [{ title: __("Inbox") }];
+  const submenu = [{ title: __("Inbox"), link: "/inbox" }, { title: __("Insights"), link: "/insights" }];
+  const content = (
+    <EmptyState
+      text="There is no message."
+      size="full"
+      image="/images/robots/robot-02.svg"
+    />
+  );
 
-    const content = (
-      <EmptyState
-        text="There is no message."
-        size="full"
-        image="/images/robots/robot-02.svg"
-      />
-    );
-
-    const breadcrumb = [{ title: __("Inbox") }];
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header queryParams={queryParams} breadcrumb={breadcrumb} />
-        }
-        content={content}
-        leftSidebar={<Sidebar queryParams={queryParams} />}
-      />
-    );
-  }
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header queryParams={queryParams} breadcrumb={breadcrumb} submenu={submenu} />
+      }
+      content={content}
+      leftSidebar={<Sidebar queryParams={queryParams} />}
+    />
+  );
 }
 
 export default Empty;

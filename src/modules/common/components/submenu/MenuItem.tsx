@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
-import { colors, dimensions } from '../../styles';
+import { colors } from '../../styles';
 import { rgba } from '../../styles/color';
 
 const Item = styled.li`
