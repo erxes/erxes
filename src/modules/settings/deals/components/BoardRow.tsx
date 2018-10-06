@@ -9,7 +9,11 @@ import { BoardForm } from './';
 type Props = {
   board: IBoard;
   remove: (_id: string) => void;
-  save: (params: { doc: { name: string; }}, callback: () => void, brand: IBoard) => void;
+  save: (
+    params: { doc: { name: string } },
+    callback: () => void,
+    brand: IBoard
+  ) => void;
 };
 
 class BoardRow extends React.Component<Props, {}> {
@@ -39,11 +43,11 @@ class BoardRow extends React.Component<Props, {}> {
     );
 
     return (
-      <ModalTrigger 
-        size={this.size} 
-        title="Edit" 
+      <ModalTrigger
+        size={this.size}
+        title="Edit"
         trigger={editTrigger}
-        content={(props) => <BoardForm {...props} board={board} save={save} />}
+        content={props => <BoardForm {...props} board={board} save={save} />}
       />
     );
   }

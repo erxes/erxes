@@ -109,7 +109,9 @@ const Select = Input.withComponent('select').extend`
   -webkit-appearance: none;
 `;
 
-const TextArea = styledTS<{ maxHeight?: number }>(Input.withComponent('textarea').extend)`
+const TextArea = styledTS<{ maxHeight?: number }>(
+  Input.withComponent('textarea').extend
+)`
   ${formInvalid}
   transition: none;
   max-height: ${props => props.maxHeight && `${props.maxHeight}px`};

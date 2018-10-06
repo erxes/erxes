@@ -60,7 +60,7 @@ export class DealProvider extends React.Component<{}, any> {
         value={{
           move: this.move,
           onDragEnd: this.onDragEnd,
-          states: this.state,
+          states: this.state
         }}
       >
         {this.props.children}

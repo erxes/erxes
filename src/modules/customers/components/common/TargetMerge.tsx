@@ -9,13 +9,13 @@ type Props = {
   searchObject: (value: string, callback: (objects: any[]) => void) => void;
   mergeForm: any;
   generateOptions: (objects: any[]) => void;
-  onSave: (doc: { ids: string[], data: ICustomer }) => void;
+  onSave: (doc: { ids: string[]; data: ICustomer }) => void;
 };
 
 type State = {
   objects: any[];
   selectedObject: any;
-}
+};
 
 class TargetMergeModal extends React.Component<Props, State> {
   constructor(props, context) {
@@ -47,7 +47,13 @@ class TargetMergeModal extends React.Component<Props, State> {
 
     const MergeForm = mergeForm;
 
-    return <MergeForm objects={[object, selectedObject]} save={onSave} closeModal={closeModal} />;
+    return (
+      <MergeForm
+        objects={[object, selectedObject]}
+        save={onSave}
+        closeModal={closeModal}
+      />
+    );
   }
 
   renderSelect() {
@@ -71,14 +77,14 @@ class TargetMergeModal extends React.Component<Props, State> {
         title={__('Merge')}
         trigger={<a>{__('Merge')}</a>}
         size="lg"
-        content={(props) => {
+        content={props => {
           return (
             <React.Fragment>
               {this.renderSelect()}
               <br />
               {this.renderMerger(props)}
             </React.Fragment>
-          )
+          );
         }}
       />
     );

@@ -30,34 +30,34 @@ type Props = {
   isOnline?: boolean;
 };
 
-function WidgetPreview(
-  {
-    color,
-    wallpaper,
-    users,
-    supporterIds,
-    welcomeMessage,
-    awayMessage,
-    isOnline
-  } : Props
-) {
+function WidgetPreview({
+  color,
+  wallpaper,
+  users,
+  supporterIds,
+  welcomeMessage,
+  awayMessage,
+  isOnline
+}: Props) {
   let avatar = [<img key="1" src="/images/avatar-colored.svg" alt="avatar" />];
   let fullName = 'Support staff';
 
-  const supporters = users.filter(user => (supporterIds || []).includes(user._id || ''));
-  
+  const supporters = users.filter(user =>
+    (supporterIds || []).includes(user._id || '')
+  );
+
   if (supporters.length > 0) {
     avatar = supporters.map(u => {
       const details = u.details || {};
-      
-      return (
-        <img key={u._id} src={details.avatar} alt={details.fullName} />
-      );
+
+      return <img key={u._id} src={details.avatar} alt={details.fullName} />;
     });
   }
 
   if ((supporterIds || []).length > 0) {
-    fullName = supporters.map(user => user.details && user.details.fullName).join(', ');
+    fullName = supporters
+      .map(user => user.details && user.details.fullName)
+      .join(', ');
   }
 
   const renderMessage = message => {

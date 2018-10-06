@@ -1,10 +1,10 @@
-import { __ } from "modules/common/utils";
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import styled, { css } from "styled-components";
-import styledTS from "styled-components-ts";
-import { colors } from "../styles";
-import { darken, lighten } from "../styles/color";
-import Icon from "./Icon";
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { colors } from '../styles';
+import { darken, lighten } from '../styles/color';
+import Icon from './Icon';
 
 const types = {
   default: {
@@ -28,23 +28,23 @@ const types = {
     color: colors.colorCoreGray
   },
   link: {
-    background: "transparent",
+    background: 'transparent',
     color: colors.colorCoreGray
   }
 };
 
 const sizes = {
   large: {
-    padding: "10px 30px",
-    fontSize: "13px"
+    padding: '10px 30px',
+    fontSize: '13px'
   },
   medium: {
-    padding: "7px 20px",
-    fontSize: "12px"
+    padding: '7px 20px',
+    fontSize: '12px'
   },
   small: {
-    padding: "5px 15px",
-    fontSize: "10px"
+    padding: '5px 15px',
+    fontSize: '10px'
   }
 };
 
@@ -66,11 +66,11 @@ const ButtonStyled = styledTS<{
     color: ${types[props.btnStyle].color
       ? types[props.btnStyle].color
       : colors.colorWhite};
-    border: ${props.btnStyle === "simple"
+    border: ${props.btnStyle === 'simple'
       ? `1px solid ${colors.borderDarker}`
-      : "none"};
-    display: ${props.block && "block"};
-    width: ${props.block && "100%"};
+      : 'none'};
+    display: ${props.block && 'block'};
+    width: ${props.block && '100%'};
     box-shadow: 0 2px 16px 0 ${lighten(types[props.btnStyle].background, 45)};
 
     &:hover {
@@ -79,7 +79,7 @@ const ButtonStyled = styledTS<{
       color: ${types[props.btnStyle].color
         ? darken(colors.colorCoreGray, 24)
         : colors.colorWhite};
-      box-shadow: ${props.btnStyle !== "link" &&
+      box-shadow: ${props.btnStyle !== 'link' &&
         `0 2px 22px 0 ${lighten(types[props.btnStyle].background, 25)}`};
     }
 
@@ -108,7 +108,7 @@ const ButtonStyled = styledTS<{
 `;
 
 const ButtonLink = styledTS<{ disabled?: boolean }>(
-  ButtonStyled.withComponent("a").extend
+  ButtonStyled.withComponent('a').extend
 )`
   text-decoration: inherit;
   text-align: center;
@@ -152,10 +152,10 @@ export default class Button extends React.Component<ButtonProps> {
   static Group = Group;
 
   static defaultProps = {
-    btnStyle: "default",
-    size: "medium",
+    btnStyle: 'default',
+    size: 'medium',
     block: false,
-    type: "button"
+    type: 'button'
   };
 
   render() {
@@ -167,7 +167,7 @@ export default class Button extends React.Component<ButtonProps> {
 
     let content = children;
 
-    if (!ignoreTrans && typeof content === "string" && __) {
+    if (!ignoreTrans && typeof content === 'string' && __) {
       content = __(content);
     }
 

@@ -13,9 +13,9 @@ type Props = {
 };
 
 type State = {
-  editing: boolean,
-  data: any
-}
+  editing: boolean;
+  data: any;
+};
 
 class GenerateGroup extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -126,9 +126,9 @@ class GenerateGroup extends React.Component<Props, State> {
 }
 
 type GroupsProps = {
-  fieldsGroups: IFieldGroup[],
-  customFieldsData: any,
-  save: (data: { customFieldsData: any }, callback: () => any) => void
+  fieldsGroups: IFieldGroup[];
+  customFieldsData: any;
+  save: (data: { customFieldsData: any }, callback: () => any) => void;
 };
 
 class GenerateGroups extends React.Component<GroupsProps> {

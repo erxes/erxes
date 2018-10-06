@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import Alert from "modules/common/utils/Alert";
-import * as React from "react";
-import { compose, graphql } from "react-apollo";
-import AssignBox from "../components/assignBox/AssignBox";
-import { mutations, queries } from "../graphql";
-import { IConversation } from "../types";
-import { refetchSidebarConversationsOptions } from "../utils";
+import gql from 'graphql-tag';
+import Alert from 'modules/common/utils/Alert';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import AssignBox from '../components/assignBox/AssignBox';
+import { mutations, queries } from '../graphql';
+import { IConversation } from '../types';
+import { refetchSidebarConversationsOptions } from '../utils';
 
 type Props = {
   targets: IConversation[];
@@ -40,7 +40,7 @@ const AssignBoxContainer = (props: Props) => {
       }
     })
       .then(() => {
-        Alert.success("The conversation Assignee has been renewed.");
+        Alert.success('The conversation Assignee has been renewed.');
       })
       .catch(e => {
         callback(e);
@@ -55,7 +55,7 @@ const AssignBoxContainer = (props: Props) => {
       }
     })
       .then(() => {
-        Alert.success("The conversation Assignee removed");
+        Alert.success('The conversation Assignee removed');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -73,13 +73,13 @@ const AssignBoxContainer = (props: Props) => {
 };
 
 export default compose(
-  graphql(gql(queries.userList), { name: "usersQuery" }),
+  graphql(gql(queries.userList), { name: 'usersQuery' }),
   graphql(gql(mutations.conversationsAssign), {
-    name: "assignMutation",
+    name: 'assignMutation',
     options: () => refetchSidebarConversationsOptions()
   }),
   graphql(gql(mutations.conversationsUnassign), {
-    name: "conversationsUnassign",
+    name: 'conversationsUnassign',
     options: () => refetchSidebarConversationsOptions()
   })
 )(AssignBoxContainer);

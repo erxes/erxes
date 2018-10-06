@@ -20,7 +20,8 @@ class Board extends React.Component<Props> {
     if (pipelines && pipelines.length === 0 && !loading) {
       return (
         <EmptyState
-          linkUrl={`/settings/deals?boardId=${currentBoard && currentBoard._id}`}
+          linkUrl={`/settings/deals?boardId=${currentBoard &&
+            currentBoard._id}`}
           linkText="Create one"
           size="full"
           text="There is no pipeline in this board."

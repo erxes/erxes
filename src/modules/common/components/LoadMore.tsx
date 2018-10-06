@@ -9,7 +9,7 @@ interface IProps extends IRouterProps {
   all: number;
   paramName?: string;
   loading?: boolean;
-};
+}
 
 function LoadMore({
   history,

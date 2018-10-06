@@ -13,9 +13,9 @@ import {
 } from '../utils';
 
 type Order = {
-  _id: string,
-  order: number
-}
+  _id: string;
+  order: number;
+};
 
 type Props = {
   state: { deals: ICommonParams[] };
@@ -24,14 +24,21 @@ type Props = {
   addMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
   editMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
   removeMutation: (params: { variables: { _id: string } }) => Promise<void>;
-  dealsUpdateOrderMutation: (params: { variables: { orders: Order[] } }) => Promise<void>;
-  dealsChangeMutation: (params: { variables: { _id: string, stageId: string } }) => Promise<void>;
+  dealsUpdateOrderMutation: (
+    params: { variables: { orders: Order[] } }
+  ) => Promise<void>;
+  dealsChangeMutation: (
+    params: { variables: { _id: string; stageId: string } }
+  ) => Promise<void>;
   dealsUpdateOrder: any;
   stageDetailQuery: any;
   dealsQuery: any;
 };
 
-class StageContainer extends React.Component<Props, { deals: ICommonParams[] }> {
+class StageContainer extends React.Component<
+  Props,
+  { deals: ICommonParams[] }
+> {
   constructor(props) {
     super(props);
 

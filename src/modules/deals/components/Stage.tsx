@@ -47,11 +47,13 @@ class Stage extends React.Component<Props> {
     );
 
     return (
-      <ModalTrigger 
-        title="Add a deal" 
+      <ModalTrigger
+        title="Add a deal"
         trigger={trigger}
-        content={(props) => <DealAddForm {...props} stageId={stage._id} saveDeal={saveDeal} />}
-       />
+        content={props => (
+          <DealAddForm {...props} stageId={stage._id} saveDeal={saveDeal} />
+        )}
+      />
     );
   }
 
@@ -59,9 +61,9 @@ class Stage extends React.Component<Props> {
     const index = this.props.index || 0;
     const length = this.props.length || 0;
     const data: any = [];
-    
-    for(let i = 0; i <= length; i++) {
-      data.push(<IndicatorItem isPass={index >= i} key={i} />)
+
+    for (let i = 0; i <= length; i++) {
+      data.push(<IndicatorItem isPass={index >= i} key={i} />);
     }
 
     return data;

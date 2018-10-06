@@ -10,17 +10,25 @@ type Props = {
   usersQuery: any;
   channelsCountQuery: any;
 
-  addMutation: (params: { variables: { 
-    name:  string;
-    description: string;
-    memberIds:  string[]
-  } }) => Promise<any>;
+  addMutation: (
+    params: {
+      variables: {
+        name: string;
+        description: string;
+        memberIds: string[];
+      };
+    }
+  ) => Promise<any>;
 
-  editMutation: (params: { variables: { 
-    name:  string;
-    description: string;
-    memberIds:  string[]
-  }}) => Promise<any>;
+  editMutation: (
+    params: {
+      variables: {
+        name: string;
+        description: string;
+        memberIds: string[];
+      };
+    }
+  ) => Promise<any>;
 
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
@@ -114,7 +122,7 @@ const commonOptions = ({ queryParams, currentChannelId }) => {
 export default compose(
   graphql(gql(queries.channels), {
     name: 'channelsQuery',
-    options: ({ queryParams } : { queryParams: any }) => ({
+    options: ({ queryParams }: { queryParams: any }) => ({
       variables: {
         perPage: queryParams.limit || 20
       },

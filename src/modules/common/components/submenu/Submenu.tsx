@@ -13,8 +13,8 @@ const Items = styled.ul`
   font-size: 14px;
 `;
 
-function Submenu({ items }: {items?: ISubMenuItem[]}) {
-  if(items) {
+function Submenu({ items }: { items?: ISubMenuItem[] }) {
+  if (items) {
     return (
       <Items>
         {items.map(b => (
@@ -25,7 +25,7 @@ function Submenu({ items }: {items?: ISubMenuItem[]}) {
       </Items>
     );
   }
-  
+
   return null;
 }
 

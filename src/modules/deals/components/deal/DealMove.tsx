@@ -30,7 +30,9 @@ class DealMove extends React.Component<Props, State> {
 
     this.toggleForm = this.toggleForm.bind(this);
 
-    const { deal: { pipeline, boardId } } = props;
+    const {
+      deal: { pipeline, boardId }
+    } = props;
 
     this.state = {
       show: false,
@@ -102,7 +104,7 @@ class DealMove extends React.Component<Props, State> {
   }
 
   render() {
-    const deal = this.props.deal || {} as IDeal;
+    const deal = this.props.deal || ({} as IDeal);
     const { pipeline } = deal;
 
     return (

@@ -2,10 +2,10 @@ import {
   ControlLabel,
   FormControl,
   FormGroup
-} from "modules/common/components";
-import * as moment from "moment";
-import * as React from "react";
-import { IField } from "../types";
+} from 'modules/common/components';
+import * as moment from 'moment';
+import * as React from 'react';
+import { IField } from '../types';
 
 type Props = {
   field: IField;
@@ -29,7 +29,7 @@ export default class GenerateField extends React.Component<Props, State> {
     const state = { value: defaultValue, checkBoxValues: [] };
 
     if (defaultValue && field.type === 'check') {
-      state.checkBoxValues =  defaultValue;
+      state.checkBoxValues = defaultValue;
     }
 
     this.state = state;
@@ -62,35 +62,35 @@ export default class GenerateField extends React.Component<Props, State> {
     const { value, checkBoxValues } = this.state;
     const { validation, type } = this.props.field;
 
-    attrs.type = "text";
+    attrs.type = 'text';
 
     attrs.onChange = e => {
       this.setState({ value: e.target.value });
       this.onChange(e, attrs.option);
     };
 
-    if (type === "radio") {
-      attrs.type = "radio";
-      attrs.componentClass = "radio";
+    if (type === 'radio') {
+      attrs.type = 'radio';
+      attrs.componentClass = 'radio';
       attrs.checked = value === attrs.option;
     }
 
-    if (type === "check") {
-      attrs.type = "checkbox";
-      attrs.componentClass = "checkbox";
+    if (type === 'check') {
+      attrs.type = 'checkbox';
+      attrs.componentClass = 'checkbox';
       attrs.checked = checkBoxValues.includes(attrs.option);
     }
 
-    if (validation === "date") {
-      attrs.type = "date";
+    if (validation === 'date') {
+      attrs.type = 'date';
 
       if (value) {
-        attrs.value = moment(value).format("YYYY-MM-DD");
+        attrs.value = moment(value).format('YYYY-MM-DD');
       }
     }
 
-    if (validation === "number") {
-      attrs.type = "number";
+    if (validation === 'number') {
+      attrs.type = 'number';
     }
 
     return <FormControl {...attrs} />;
@@ -124,11 +124,11 @@ export default class GenerateField extends React.Component<Props, State> {
 
     let value = optionValue || e.target.value;
 
-    if (validation === "number") {
+    if (validation === 'number') {
       value = Number(value);
     }
 
-    if (type === "check") {
+    if (type === 'check') {
       let checkBoxValues = this.state.checkBoxValues;
       const isChecked = e.target.checked;
 
@@ -163,21 +163,21 @@ export default class GenerateField extends React.Component<Props, State> {
       id: field._id,
       value: this.state.value,
       onChange: this.onChange,
-      name: ""
+      name: ''
     };
 
     switch (type) {
-      case "select":
+      case 'select':
         return this.renderSelect(options, attrs);
 
-      case "check":
+      case 'check':
         return this.renderRadioOrCheckInputs(options, attrs);
 
-      case "radio":
+      case 'radio':
         attrs.name = Math.random().toString();
         return this.renderRadioOrCheckInputs(options, attrs);
 
-      case "textarea":
+      case 'textarea':
         return this.renderTextarea(attrs);
 
       default:

@@ -60,7 +60,7 @@ class CompanyForm extends React.Component<Props, State> {
       companies,
       doNotDisturb: company.doNotDisturb || 'No',
       users: [],
-      avatar: company.avatar,
+      avatar: company.avatar
     };
 
     this.action = this.action.bind(this);
@@ -73,11 +73,11 @@ class CompanyForm extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const company = this.props.company || {} as ICompany;
+    const company = this.props.company || ({} as ICompany);
 
     if (company.owner && company.owner.details) {
-      this.handleUserSearch(company.owner.details.fullName)
-    };
+      this.handleUserSearch(company.owner.details.fullName);
+    }
   }
 
   getInputElementValue(id) {
@@ -110,7 +110,7 @@ class CompanyForm extends React.Component<Props, State> {
           facebook: this.getInputElementValue('company-facebook'),
           github: this.getInputElementValue('company-github'),
           youtube: this.getInputElementValue('company-youtube'),
-          website: this.getInputElementValue('company-website'),
+          website: this.getInputElementValue('company-website')
         }
       }
     });
@@ -143,8 +143,13 @@ class CompanyForm extends React.Component<Props, State> {
     }));
   }
 
-  handleSelect<T extends keyof State>(selectedOption: { value: State[T] }, name: T) {
-    this.setState({ [name]: selectedOption ? selectedOption.value : null } as Pick<State, keyof State>);
+  handleSelect<T extends keyof State>(
+    selectedOption: { value: State[T] },
+    name: T
+  ) {
+    this.setState({
+      [name]: selectedOption ? selectedOption.value : null
+    } as Pick<State, keyof State>);
   }
 
   /*
@@ -177,7 +182,7 @@ class CompanyForm extends React.Component<Props, State> {
   }
 
   render() {
-    const company = this.props.company || {} as ICompany;
+    const company = this.props.company || ({} as ICompany);
 
     const { links = {}, primaryName, names } = company;
     const { parentCompanyId, ownerId, companies, users } = this.state;
@@ -240,7 +245,7 @@ class CompanyForm extends React.Component<Props, State> {
                 max={140}
                 id="company-description"
                 componentClass="textarea"
-                defaultValue= {company.description || ''}
+                defaultValue={company.description || ''}
               />
             </FormGroup>
           </FormColumn>

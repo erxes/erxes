@@ -1,4 +1,4 @@
-import { IBrand } from "../brands/types";
+import { IBrand } from '../brands/types';
 
 export interface IResponseTemplate {
   _id: string;

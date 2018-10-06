@@ -9,7 +9,7 @@ import { withRouter } from 'react-router';
 
 interface IProps extends IRouterProps {
   counts: any;
-};
+}
 
 function IntegrationFilter({ history, counts }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;

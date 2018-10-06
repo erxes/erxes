@@ -1,6 +1,6 @@
-import { colors, dimensions } from "modules/common/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
   styled.div
@@ -17,7 +17,7 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
   text-align: left;
 
   ${props => {
-    if (!props.staff) return "";
+    if (!props.staff) return '';
 
     return `
         border-bottom-right-radius: 2px;
@@ -72,12 +72,12 @@ const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean }>(styled.div)`
 
   > span {
     position: absolute;
-    right: ${props => props.staff && "0"};
+    right: ${props => props.staff && '0'};
     bottom: 0;
   }
 
   ${props => {
-    if (!props.staff) return "";
+    if (!props.staff) return '';
 
     return `
         padding-right: 0;
@@ -89,14 +89,14 @@ const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean }>(styled.div)`
 
   &.same {
     ${MessageContent} {
-      border-top-left-radius: ${props => !props.staff && "2px"};
-      border-top-right-radius: ${props => props.staff && "2px"};
+      border-top-left-radius: ${props => !props.staff && '2px'};
+      border-top-right-radius: ${props => props.staff && '2px'};
     }
 
     &:last-of-type {
       ${MessageContent} {
-        border-bottom-right-radius: ${props => props.staff && "20px"};
-        border-bottom-left-radius: ${props => !props.staff && "20px"};
+        border-bottom-right-radius: ${props => props.staff && '20px'};
+        border-bottom-left-radius: ${props => !props.staff && '20px'};
       }
     }
   }
@@ -125,9 +125,9 @@ const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean }>(styled.div)`
 `;
 
 const MessageBody = styledTS<{ staff?: boolean }>(styled.div)`
-  margin: ${props => (props.staff ? "0 55px 0 0" : "0 0 0 55px")};
+  margin: ${props => (props.staff ? '0 55px 0 0' : '0 0 0 55px')};
   display: flex;
-  flex-direction: ${props => (props.staff ? "row-reverse" : "row")};
+  flex-direction: ${props => (props.staff ? 'row-reverse' : 'row')};
   align-items: center;
 
   footer {

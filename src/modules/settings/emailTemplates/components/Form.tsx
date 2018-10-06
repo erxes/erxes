@@ -16,11 +16,11 @@ import { IEmailTemplate } from '../types';
 
 type Props = {
   object?: IEmailTemplate;
-}
+};
 
 type State = {
   editorState: EditorState;
-}
+};
 
 class Form extends React.Component<Props & ICommonFormProps, State> {
   constructor(props) {
@@ -52,14 +52,15 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   generateDoc() {
     return {
       doc: {
-        name: (document.getElementById('template-name') as HTMLInputElement).value,
+        name: (document.getElementById('template-name') as HTMLInputElement)
+          .value,
         content: this.getContent(this.state.editorState)
       }
     };
   }
 
   renderContent() {
-    const object = this.props.object || {} as IEmailTemplate;
+    const object = this.props.object || ({} as IEmailTemplate);
 
     const props = {
       editorState: this.state.editorState,
@@ -95,7 +96,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
       />
-    )
+    );
   }
 }
 

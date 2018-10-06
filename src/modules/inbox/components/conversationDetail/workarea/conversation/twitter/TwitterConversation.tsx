@@ -1,9 +1,9 @@
-import { TwitterMessage } from "modules/inbox/containers/conversationDetail";
+import { TwitterMessage } from 'modules/inbox/containers/conversationDetail';
 import * as React from 'react';
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { IConversation, IMessage } from "../../../../../types";
-import { SimpleMessage } from "../messages";
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { IConversation, IMessage } from '../../../../../types';
+import { SimpleMessage } from '../messages';
 
 type Props = {
   conversation: IConversation;
@@ -17,7 +17,7 @@ interface INestedMessage extends IMessage {
 
 const List = styledTS<{ isRoot?: boolean }>(styled.ul)`
   list-style: none;
-  padding-left: ${props => (props.isRoot ? "0" : "40px")};
+  padding-left: ${props => (props.isRoot ? '0' : '40px')};
   max-width: 700px;
 `;
 

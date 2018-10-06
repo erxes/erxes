@@ -13,26 +13,34 @@ interface IProps extends IRouterProps {
   kind: string;
   engageMessageDetailQuery: any;
   usersQuery: any;
-  addMutation: (params: { vairables: {
-    name: string; 
-    description: string; 
-    subOf: string;  
-    color: string; 
-    connector: string;  
-    conditions: ISegmentCondition[];
-  } }) => Promise<any>;
-  editMutation: (params: { vairables: {
-    name: string; 
-    description: string; 
-    subOf: string;  
-    color: string; 
-    connector: string;  
-    conditions: ISegmentCondition[];
-  } }) => Promise<any>;
-};
+  addMutation: (
+    params: {
+      vairables: {
+        name: string;
+        description: string;
+        subOf: string;
+        color: string;
+        connector: string;
+        conditions: ISegmentCondition[];
+      };
+    }
+  ) => Promise<any>;
+  editMutation: (
+    params: {
+      vairables: {
+        name: string;
+        description: string;
+        subOf: string;
+        color: string;
+        connector: string;
+        conditions: ISegmentCondition[];
+      };
+    }
+  ) => Promise<any>;
+}
 
 const withSaveAndEdit = Component => {
-  const Container = (props : IProps) => {
+  const Container = (props: IProps) => {
     const {
       history,
       kind,
@@ -109,7 +117,7 @@ const withSaveAndEdit = Component => {
     compose(
       graphql(gql(queries.engageMessageDetail), {
         name: 'engageMessageDetailQuery',
-        options: ({ messageId } : { messageId: string }) => ({
+        options: ({ messageId }: { messageId: string }) => ({
           variables: {
             _id: messageId
           }

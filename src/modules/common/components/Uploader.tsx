@@ -24,7 +24,7 @@ type State = {
   attachments: IAttachment[];
   loading: boolean;
   attachmentPreviewStyle: any;
-}
+};
 
 class Uploader extends React.Component<Props, State> {
   constructor(props: Props) {

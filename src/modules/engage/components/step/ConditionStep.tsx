@@ -19,7 +19,7 @@ type Props = {
 
 type State = {
   rules: IEngageRule[];
-}
+};
 
 class ConditionStep extends React.Component<Props, State> {
   constructor(props: Props) {

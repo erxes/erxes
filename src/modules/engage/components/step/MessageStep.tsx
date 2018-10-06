@@ -3,11 +3,18 @@ import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import * as React from 'react';
 import { EmailForm, MessengerForm } from '../';
-import { IEngageEmail, IEngageMessenger, IEngageScheduleDate } from '../../types';
+import {
+  IEngageEmail,
+  IEngageMessenger,
+  IEngageScheduleDate
+} from '../../types';
 
 type Props = {
   brands: IBrand[];
-  onChange: (name: 'messenger' | 'email' | 'content' | 'scheduleDate' | 'fromUserId', value: IEngageEmail | IEngageMessenger | IEngageScheduleDate | string) => void;
+  onChange: (
+    name: 'messenger' | 'email' | 'content' | 'scheduleDate' | 'fromUserId',
+    value: IEngageEmail | IEngageMessenger | IEngageScheduleDate | string
+  ) => void;
   users: IUser[];
   method: string;
   templates: IEmailTemplate[];
@@ -32,7 +39,7 @@ class MessageStep extends React.Component<Props> {
       email,
       fromUserId,
       content,
-      scheduleDate,
+      scheduleDate
     } = this.props;
 
     if (method === 'email') {
@@ -42,7 +49,7 @@ class MessageStep extends React.Component<Props> {
           users={users}
           templates={templates}
           kind={kind}
-          email={email || {} as IEngageEmail}
+          email={email || ({} as IEngageEmail)}
           fromUserId={fromUserId}
           content={content}
           scheduleDate={scheduleDate}
@@ -57,7 +64,7 @@ class MessageStep extends React.Component<Props> {
         users={users}
         hasKind={true}
         kind={kind}
-        messenger={messenger || {} as IEngageMessenger}
+        messenger={messenger || ({} as IEngageMessenger)}
         fromUserId={fromUserId}
         content={content}
         scheduleDate={scheduleDate}

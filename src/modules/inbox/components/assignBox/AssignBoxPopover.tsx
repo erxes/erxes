@@ -1,8 +1,8 @@
-import { __ } from "modules/common/utils";
-import { AssignBox } from "modules/inbox/containers";
-import * as React from "react";
-import { OverlayTrigger, Popover } from "react-bootstrap";
-import { IConversation } from "../../types";
+import { __ } from 'modules/common/utils';
+import { AssignBox } from 'modules/inbox/containers';
+import * as React from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { IConversation } from '../../types';
 
 type Props = {
   targets: IConversation[];
@@ -33,7 +33,7 @@ class AssignBoxPopover extends React.Component<Props> {
   render() {
     const { targets, trigger, container } = this.props;
     const popover = (
-      <Popover id="assign-popover" title={__("Choose person")}>
+      <Popover id="assign-popover" title={__('Choose person')}>
         <AssignBox
           targets={targets}
           event="onClick"

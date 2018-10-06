@@ -26,9 +26,9 @@ class DealEditFormContainer extends React.Component<Props> {
 
     return (
       <DealConsumer>
-        {({ move }) => <DealEditForm { ...extendedProps} move={move} />}
+        {({ move }) => <DealEditForm {...extendedProps} move={move} />}
       </DealConsumer>
-    )
+    );
   }
 }
 

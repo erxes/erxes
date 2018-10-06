@@ -1,6 +1,6 @@
-import * as React from "react";
-import { IMessage } from "../../../../../types";
-import { SimpleMessage } from "./";
+import * as React from 'react';
+import { IMessage } from '../../../../../types';
+import { SimpleMessage } from './';
 
 type Props = {
   message: IMessage;

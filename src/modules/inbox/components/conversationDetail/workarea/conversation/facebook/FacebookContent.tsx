@@ -1,6 +1,6 @@
-import { ImageWithPreview } from "modules/common/components";
+import { ImageWithPreview } from 'modules/common/components';
 import * as React from 'react';
-import { ImageContainer } from "./styles";
+import { ImageContainer } from './styles';
 
 type Props = {
   content: string;
@@ -55,8 +55,8 @@ export default class FacebookContent extends React.Component<Props, {}> {
 
     const { scrollBottom } = this.props;
 
-    if (link.includes("youtube.com")) {
-      const iframeSrc = link.split("v=")[1].substring(0, 11);
+    if (link.includes('youtube.com')) {
+      const iframeSrc = link.split('v=')[1].substring(0, 11);
 
       return (
         <iframe
@@ -72,9 +72,9 @@ export default class FacebookContent extends React.Component<Props, {}> {
     }
 
     if (
-      link.endsWith(".png") ||
-      link.endsWith(".jpg") ||
-      link.endsWith(".jpeg")
+      link.endsWith('.png') ||
+      link.endsWith('.jpg') ||
+      link.endsWith('.jpeg')
     ) {
       return (
         <ImageContainer isComment>
@@ -83,7 +83,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
       );
     }
 
-    if (link.includes("xx.fbcdn.net")) {
+    if (link.includes('xx.fbcdn.net')) {
       return (
         <iframe
           title="erxesIframeVideo"

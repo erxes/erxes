@@ -1,7 +1,7 @@
-import { Spinner } from "modules/common/components";
-import { colors } from "modules/common/styles";
-import * as React from "react";
-import styled from "styled-components";
+import { Spinner } from 'modules/common/components';
+import { colors } from 'modules/common/styles';
+import * as React from 'react';
+import styled from 'styled-components';
 
 const Preview = styled.div`
   max-width: 360px;
@@ -43,7 +43,7 @@ class AttachmentPreview extends React.Component<Props, {}> {
   renderContent() {
     const { attachmentPreview, onLoad } = this.props;
 
-    if (attachmentPreview.type.startsWith("image")) {
+    if (attachmentPreview.type.startsWith('image')) {
       return (
         <img
           onLoad={onLoad}

@@ -2,16 +2,16 @@ import {
   ControlLabel,
   FormControl,
   FormGroup
-} from "modules/common/components";
-import { LeftItem, Preview } from "modules/common/components/step/styles";
-import { __ } from "modules/common/utils";
-import { IField } from "modules/settings/properties/types";
+} from 'modules/common/components';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { __ } from 'modules/common/utils';
+import { IField } from 'modules/settings/properties/types';
 import * as React from 'react';
-import { OverlayTrigger, Popover } from "react-bootstrap";
-import { ChromePicker } from "react-color";
-import { IBrand } from "../../../settings/brands/types";
-import { FormPreview } from "./preview";
-import { BackgroundSelector, ColorPicker, FlexItem, Picker } from "./style";
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { ChromePicker } from 'react-color';
+import { IBrand } from '../../../settings/brands/types';
+import { FormPreview } from './preview';
+import { BackgroundSelector, ColorPicker, FlexItem, Picker } from './style';
 
 type Props = {
   type: string;
@@ -21,7 +21,10 @@ type Props = {
   color: string;
   theme: string;
   language?: string;
-  onChange: (name: 'brand' | 'color' | 'theme' | 'language' , value: string) => void;
+  onChange: (
+    name: 'brand' | 'color' | 'theme' | 'language',
+    value: string
+  ) => void;
   fields?: IField[];
   brand?: IBrand;
   brands?: IBrand[];
@@ -41,9 +44,9 @@ class OptionStep extends React.Component<Props, {}> {
   }
 
   onColorChange(e) {
-    this.setState({ color: e.hex, theme: "#000" }, () => {
-      this.props.onChange("color", e.hex);
-      this.props.onChange("theme", "");
+    this.setState({ color: e.hex, theme: '#000' }, () => {
+      this.props.onChange('color', e.hex);
+      this.props.onChange('theme', '');
     });
   }
 
@@ -51,7 +54,7 @@ class OptionStep extends React.Component<Props, {}> {
     return (
       <BackgroundSelector
         selected={this.props.theme === value}
-        onClick={() => this.onChangeFunction("theme", value)}
+        onClick={() => this.onChangeFunction('theme', value)}
       >
         <div style={{ backgroundColor: value }} />
       </BackgroundSelector>
@@ -77,7 +80,10 @@ class OptionStep extends React.Component<Props, {}> {
               defaultValue={brand ? brand._id : ''}
               id="selectBrand"
               onChange={(e: React.FormEvent<HTMLElement>) =>
-                this.onChangeFunction("brand", (e.currentTarget as HTMLInputElement).value)
+                this.onChangeFunction(
+                  'brand',
+                  (e.currentTarget as HTMLInputElement).value
+                )
               }
             >
               <option />
@@ -97,7 +103,10 @@ class OptionStep extends React.Component<Props, {}> {
               defaultValue={language}
               id="languageCode"
               onChange={(e: React.FormEvent<HTMLElement>) =>
-                this.onChangeFunction("language", (e.currentTarget as HTMLInputElement).value)
+                this.onChangeFunction(
+                  'language',
+                  (e.currentTarget as HTMLInputElement).value
+                )
               }
             >
               <option />
@@ -108,16 +117,16 @@ class OptionStep extends React.Component<Props, {}> {
 
           <FormGroup>
             <ControlLabel>Theme color</ControlLabel>
-            <p>{__("Try some of these colors:")}</p>
+            <p>{__('Try some of these colors:')}</p>
           </FormGroup>
 
           <React.Fragment>
-            {this.renderThemeColor("#04A9F5")}
-            {this.renderThemeColor("#392a6f")}
-            {this.renderThemeColor("#fd3259")}
-            {this.renderThemeColor("#67C682")}
-            {this.renderThemeColor("#F5C22B")}
-            {this.renderThemeColor("#2d2d32")}
+            {this.renderThemeColor('#04A9F5')}
+            {this.renderThemeColor('#392a6f')}
+            {this.renderThemeColor('#fd3259')}
+            {this.renderThemeColor('#67C682')}
+            {this.renderThemeColor('#F5C22B')}
+            {this.renderThemeColor('#2d2d32')}
             <OverlayTrigger
               trigger="click"
               rootClose

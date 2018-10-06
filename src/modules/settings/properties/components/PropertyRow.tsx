@@ -4,14 +4,14 @@ import {
   EmptyState,
   ModalTrigger,
   Table
-} from "modules/common/components";
-import { __, Alert, confirm } from "modules/common/utils";
-import * as React from "react";
-import { Collapse } from "react-bootstrap";
-import Toggle from "react-toggle";
-import { PropertyForm, PropertyGroupForm } from "../containers";
-import { CollapseRow, DropIcon, FieldType } from "../styles";
-import { IFieldGroup } from "../types";
+} from 'modules/common/components';
+import { __, Alert, confirm } from 'modules/common/utils';
+import * as React from 'react';
+import { Collapse } from 'react-bootstrap';
+import Toggle from 'react-toggle';
+import { PropertyForm, PropertyGroupForm } from '../containers';
+import { CollapseRow, DropIcon, FieldType } from '../styles';
+import { IFieldGroup } from '../types';
 
 type Props = {
   group: IFieldGroup;
@@ -46,7 +46,7 @@ class PropertyRow extends React.Component<Props, State> {
 
   visibleHandler(e, property) {
     if (property.isDefinedByErxes) {
-      return Alert.error(__("You cannot update this property"));
+      return Alert.error(__('You cannot update this property'));
     }
 
     const isVisible = e.target.checked;
@@ -89,7 +89,7 @@ class PropertyRow extends React.Component<Props, State> {
         <td>
           {field.lastUpdatedUser
             ? field.lastUpdatedUser.details.fullName
-            : "Unknown"}
+            : 'Unknown'}
         </td>
         <td>
           <Toggle
@@ -102,11 +102,9 @@ class PropertyRow extends React.Component<Props, State> {
           />
         </td>
         <td>
-          {this.renderActionButtons(
-            field,
-            removeProperty,
-            (props) => <PropertyForm {...props} field={field} queryParams={queryParams} />
-          )}
+          {this.renderActionButtons(field, removeProperty, props => (
+            <PropertyForm {...props} field={field} queryParams={queryParams} />
+          ))}
         </td>
       </tr>
     );
@@ -126,9 +124,9 @@ class PropertyRow extends React.Component<Props, State> {
       <Table hover>
         <thead>
           <tr>
-            <th>{__("Name")}</th>
-            <th>{__("Last Updated By")}</th>
-            <th>{__("Visible")}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Last Updated By')}</th>
+            <th>{__('Visible')}</th>
             <th />
           </tr>
         </thead>
@@ -148,11 +146,13 @@ class PropertyRow extends React.Component<Props, State> {
             <DropIcon isOpen={this.state.collapse} />
             {group.name} <span>{group.description}</span>
           </div>
-          {this.renderActionButtons(
-            group,
-            removePropertyGroup,
-            (props) => <PropertyGroupForm {...props} group={group} queryParams={queryParams} />
-          )}
+          {this.renderActionButtons(group, removePropertyGroup, props => (
+            <PropertyGroupForm
+              {...props}
+              group={group}
+              queryParams={queryParams}
+            />
+          ))}
         </CollapseRow>
         <Collapse in={this.state.collapse}>
           <div>{this.renderTable(fields)}</div>

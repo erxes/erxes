@@ -74,7 +74,13 @@ export default compose(
   graphql(gql(queries.deals), {
     name: 'dealsQuery',
     skip: ({ customerId, companyId }) => !customerId && !companyId,
-    options: ({ customerId, companyId }: { customerId: string, companyId: string }) => ({
+    options: ({
+      customerId,
+      companyId
+    }: {
+      customerId: string;
+      companyId: string;
+    }) => ({
       variables: {
         customerId,
         companyId

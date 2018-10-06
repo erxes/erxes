@@ -6,7 +6,10 @@ import { Form } from 'modules/settings/integrations/components/messenger';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
-import { IMessengerData, IUiOptions } from 'modules/settings/integrations/types';
+import {
+  IMessengerData,
+  IUiOptions
+} from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -14,10 +17,18 @@ import { withRouter } from 'react-router';
 interface IProps extends IRouterProps {
   usersQuery: any;
   brandsQuery: any;
-  saveMessengerMutation: (params: { variables: { name: string, brandId: string, languageCode: string } }) => any;
-  saveConfigsMutation: (params: { variables: { _id: string, messengerData: IMessengerData } }) => any;
-  saveAppearanceMutation: (params: { variables: { _id: string, uiOptions: IUiOptions } }) => void;
-};
+  saveMessengerMutation: (
+    params: {
+      variables: { name: string; brandId: string; languageCode: string };
+    }
+  ) => any;
+  saveConfigsMutation: (
+    params: { variables: { _id: string; messengerData: IMessengerData } }
+  ) => any;
+  saveAppearanceMutation: (
+    params: { variables: { _id: string; uiOptions: IUiOptions } }
+  ) => void;
+}
 
 const CreateMessenger = (props: IProps) => {
   const {
@@ -100,7 +111,7 @@ const CreateMessengerWithData = compose(
   }),
   graphql(gql(mutations.integrationsCreateMessenger), {
     name: 'saveMessengerMutation',
-    options: ({ queryParams } : { queryParams: any }) => {
+    options: ({ queryParams }: { queryParams: any }) => {
       return {
         refetchQueries: [
           {

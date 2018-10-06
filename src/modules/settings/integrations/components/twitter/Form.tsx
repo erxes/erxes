@@ -22,7 +22,9 @@ class Twitter extends React.Component<Props> {
   handleSubmit(e) {
     e.preventDefault();
 
-    this.props.save((document.getElementById('selectBrand') as HTMLInputElement).value);
+    this.props.save(
+      (document.getElementById('selectBrand') as HTMLInputElement).value
+    );
   }
 
   render() {

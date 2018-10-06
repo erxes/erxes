@@ -7,7 +7,9 @@ import * as moment from 'moment';
 import * as React from 'react';
 import { List } from '../../styles';
 
-export default class RightSidebar extends React.Component<{ company: ICompany }> {
+export default class RightSidebar extends React.Component<{
+  company: ICompany;
+}> {
   renderPlan(company) {
     if (!company.plan) {
       return null;

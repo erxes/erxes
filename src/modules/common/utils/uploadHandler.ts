@@ -38,7 +38,8 @@ const uploadHandler = params => {
         body: formData,
         headers: {
           'x-token': localStorage.getItem('erxesLoginToken') || '',
-          'x-refresh-token': localStorage.getItem('erxesLoginRefreshToken') || ''
+          'x-refresh-token':
+            localStorage.getItem('erxesLoginRefreshToken') || ''
         }
       })
         .then(response => {

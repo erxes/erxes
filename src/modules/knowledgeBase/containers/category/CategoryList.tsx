@@ -59,7 +59,7 @@ const KnowledgeBaseContainer = (props: Props) => {
 export default compose(
   graphql(gql(queries.knowledgeBaseCategories), {
     name: 'categoriesQuery',
-    options: ({ topicIds } : { topicIds: string[] }) => {
+    options: ({ topicIds }: { topicIds: string[] }) => {
       return {
         variables: {
           topicIds: [topicIds]
@@ -69,7 +69,7 @@ export default compose(
   }),
   graphql(gql(queries.knowledgeBaseArticlesTotalCount), {
     name: 'articlesCountQuery',
-    options: ({ currentCategoryId } : { currentCategoryId: string }) => ({
+    options: ({ currentCategoryId }: { currentCategoryId: string }) => ({
       variables: { categoryIds: [currentCategoryId] || '' }
     })
   }),
@@ -78,7 +78,7 @@ export default compose(
   }),
   graphql(gql(mutations.knowledgeBaseCategoriesRemove), {
     name: 'removeCategoriesMutation',
-    options: ({ currentCategoryId } : { currentCategoryId: string }) => {
+    options: ({ currentCategoryId }: { currentCategoryId: string }) => {
       return {
         refetchQueries: [
           {

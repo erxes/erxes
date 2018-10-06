@@ -32,7 +32,7 @@ import LeftSidebar from './LeftSidebar';
 type Props = {
   user: IUser;
   currentUser: IUser;
-  saveUser: (_id: string, doc: IUserDoc, callback: (e: string) => void ) => void;
+  saveUser: (_id: string, doc: IUserDoc, callback: (e: string) => void) => void;
   saveProfile: (variables: IUserDoc) => void;
   channels: IChannel[];
   loadingLogs: boolean;
@@ -41,7 +41,7 @@ type Props = {
 };
 
 type State = {
-  currentTab: string,
+  currentTab: string;
 };
 
 class UserDetails extends React.Component<Props, State> {

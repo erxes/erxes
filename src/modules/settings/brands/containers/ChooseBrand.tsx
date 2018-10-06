@@ -8,8 +8,8 @@ import { ChooseBrand } from '../components';
 import { mutations, queries } from '../graphql';
 
 type Variables = {
-  name: string; 
-  brandId: string ;
+  name: string;
+  brandId: string;
 };
 
 type Props = {
@@ -56,21 +56,18 @@ const ChooseBrandContainer = (props: Props) => {
 };
 
 export default compose(
-  graphql(
-    gql(queries.brands), {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+  graphql(gql(queries.brands), {
+    name: 'brandsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
   }),
 
-  graphql(
-    gql(mutations.integrationsCreateMessenger), {
-      name: 'addMutation'
+  graphql(gql(mutations.integrationsCreateMessenger), {
+    name: 'addMutation'
   }),
 
-  graphql(
-    gql(mutations.integrationsEditMessenger), {
-      name: 'editMutation'
+  graphql(gql(mutations.integrationsEditMessenger), {
+    name: 'editMutation'
   })
 )(ChooseBrandContainer);

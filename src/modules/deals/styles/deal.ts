@@ -327,7 +327,7 @@ const Status = styled.div`
     border-radius: 2px;
     padding: 1px 4px;
     font-size: 10px;
-    color: #fff; 
+    color: #fff;
     float: left;
   }
 `;

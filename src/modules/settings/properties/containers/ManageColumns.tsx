@@ -59,7 +59,7 @@ const ManageColumnsContainer = (props: Props) => {
 export default compose(
   graphql(gql(queries.fieldsCombinedByContentType), {
     name: 'fieldsQuery',
-    options: ({ contentType } : { contentType: string }) => {
+    options: ({ contentType }: { contentType: string }) => {
       return {
         variables: {
           contentType
@@ -69,7 +69,7 @@ export default compose(
   }),
   graphql(gql(queries.fieldsDefaultColumnsConfig), {
     name: 'fieldsDefaultColumnsConfigQuery',
-    options: ({ contentType } : { contentType: string }) => {
+    options: ({ contentType }: { contentType: string }) => {
       return {
         variables: {
           contentType

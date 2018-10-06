@@ -1,11 +1,11 @@
-import { colors } from "modules/common/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const mainSize = "20px";
-const coreSize = "10px";
-const borderRadius = "4px";
-const textColor = "#1D212A";
+const mainSize = '20px';
+const coreSize = '10px';
+const borderRadius = '4px';
+const textColor = '#1D212A';
 
 const FlexItem = styled.div`
   display: flex;
@@ -44,8 +44,8 @@ const PostContainer = styled.div`
 const User = styledTS<{ isPost?: boolean; isReply?: string }>(styled.div)`
   color: ${colors.colorCoreGray};
   padding-right: ${mainSize};
-  padding-left: ${props => (props.isPost ? "50px" : "40px")};
-  padding-left: ${props => props.isReply && "30px"};
+  padding-left: ${props => (props.isPost ? '50px' : '40px')};
+  padding-left: ${props => props.isReply && '30px'};
 
   > a {
     display: block;
@@ -62,7 +62,7 @@ const User = styledTS<{ isPost?: boolean; isReply?: string }>(styled.div)`
 
   span {
     color: #616770;
-    font-size: ${props => (props.isPost ? "12px" : "11px")};
+    font-size: ${props => (props.isPost ? '12px' : '11px')};
     cursor: pointer;
   }
 
@@ -94,10 +94,10 @@ const ChildPost = styledTS<{ isReply?: string }>(styled.div)`
   overflow: hidden;
   position: relative;
   margin-bottom: 15px;
-  margin-left: ${props => props.isReply && "45px"};
+  margin-left: ${props => props.isReply && '45px'};
 
   > span {
-    margin-top: ${props => props.isReply && "7px"};
+    margin-top: ${props => props.isReply && '7px'};
   }
 `;
 
@@ -116,11 +116,11 @@ const Counts = styled.div`
 `;
 
 const Comment = styledTS<{ isInternal?: boolean }>(styled.div)`
-  background: ${props => (props.isInternal ? colors.bgInternal : "#eff1f3")};
+  background: ${props => (props.isInternal ? colors.bgInternal : '#eff1f3')};
   box-shadow: ${props =>
     props.isInternal && `0 1px 1px 0 ${colors.darkShadow}`};
   border: 1px solid
-    ${props => (props.isInternal ? colors.bgInternal : "#ebebeb")};
+    ${props => (props.isInternal ? colors.bgInternal : '#ebebeb')};
   padding: 8px ${coreSize};
   border-radius: 18px;
   line-height: 16px;
@@ -178,7 +178,7 @@ const Reaction = styledTS<{ comment?: boolean }>(styled.div)`
   width: 18px;
   height: 18px;
   display: inline-block;
-  margin-right: ${props => (props.comment ? "-5px" : "3px")};
+  margin-right: ${props => (props.comment ? '-5px' : '3px')};
   background-image: url("/images/reactions.png");
   border: 1px solid ${colors.colorWhite};
   border-radius: ${coreSize};
@@ -211,12 +211,12 @@ const ImageContainer = styledTS<{ full?: boolean; isComment?: boolean }>(
   padding: ${coreSize};
 
   img {
-    width: ${props => props.full && "70px"};
-    height: ${props => props.full && "70px"};
+    width: ${props => props.full && '70px'};
+    height: ${props => props.full && '70px'};
     border: 1px solid ${colors.borderPrimary};
     margin-right: 5px;
     padding: ${coreSize};
-    max-width: ${props => props.isComment && "400px"};
+    max-width: ${props => props.isComment && '400px'};
   }
 
   > div {

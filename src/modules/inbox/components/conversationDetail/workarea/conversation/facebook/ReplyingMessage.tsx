@@ -1,6 +1,6 @@
-import { Button, FormControl, FormGroup } from "modules/common/components";
-import * as React from "react";
-import { Footer } from "./styles";
+import { Button, FormControl, FormGroup } from 'modules/common/components';
+import * as React from 'react';
+import { Footer } from './styles';
 
 type Props = {
   replyPost: (
@@ -26,7 +26,7 @@ class ReplyingMessage extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      post: ""
+      post: ''
     };
 
     this.doAction = this.doAction.bind(this);

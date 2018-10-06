@@ -12,8 +12,8 @@ type Props = {
 };
 
 type State = {
-  chosenSegment: string
-}
+  chosenSegment: string;
+};
 
 class Segments extends React.Component<Props, State> {
   constructor(props: Props) {

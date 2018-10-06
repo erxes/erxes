@@ -1,14 +1,14 @@
-import { Button, Icon, Tip } from "modules/common/components";
-import { __ } from "modules/common/utils";
+import { Button, Icon, Tip } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import {
   MessengerApps,
   PopoverBody,
   PopoverList,
   ResponseTemplateStyled
-} from "modules/inbox/styles";
-import * as React from "react";
-import { OverlayTrigger, Popover } from "react-bootstrap";
-import { IMessengerApp } from "../../../../settings/integrations/types";
+} from 'modules/inbox/styles';
+import * as React from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { IMessengerApp } from '../../../../settings/integrations/types';
 
 type Props = {
   messengerApps: IMessengerApp[];
@@ -55,7 +55,7 @@ class MessengerApp extends React.Component<Props> {
       <Popover
         className="popover-template"
         id="templates-popover"
-        title={__("Messenger apps")}
+        title={__('Messenger apps')}
       >
         <PopoverBody>
           <PopoverList>{this.renderItems()}</PopoverList>
@@ -75,7 +75,7 @@ class MessengerApp extends React.Component<Props> {
           }}
         >
           <Button btnStyle="link">
-            <Tip text={__("Messenger apps")}>
+            <Tip text={__('Messenger apps')}>
               <Icon icon="menu" />
             </Tip>
           </Button>

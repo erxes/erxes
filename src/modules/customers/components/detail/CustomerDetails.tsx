@@ -27,7 +27,7 @@ type Props = {
 
 type State = {
   currentTab: string;
-}
+};
 
 class CustomerDetails extends React.Component<Props, State> {
   constructor(props) {

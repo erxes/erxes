@@ -15,11 +15,11 @@ interface IProps extends IRouterProps {
   loading: boolean;
   searchable?: boolean;
   update?: () => void;
-};
+}
 
 type State = {
   key: string;
-}
+};
 
 const PopoverContent = styled.div`
   > input {
@@ -43,7 +43,7 @@ class FilterByParams extends React.Component<IProps, State> {
 
     const { update } = this.props;
 
-    if(update) {
+    if (update) {
       update();
     }
   }
@@ -80,7 +80,7 @@ class FilterByParams extends React.Component<IProps, State> {
                   }}
                 >
                   {icon ? (
-                    <Icon icon={icon} style={{ color: field.colorCode }}  />
+                    <Icon icon={icon} style={{ color: field.colorCode }} />
                   ) : null}{' '}
                   {field.name}
                   <SidebarCounter>{counts[field._id]}</SidebarCounter>

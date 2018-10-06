@@ -17,14 +17,18 @@ type Props = {
   customerCountsQuery: any;
   headSegmentsQuery: any;
   combinedFieldsQuery: any;
-  segmentsAddQuery: (params: { variables: {
-    name: string; 
-    description: string; 
-    subOf: string;  
-    color: string; 
-    connector: string;  
-    conditions: ISegmentCondition[];
-  } }) => Promise<any>;
+  segmentsAddQuery: (
+    params: {
+      variables: {
+        name: string;
+        description: string;
+        subOf: string;
+        color: string;
+        connector: string;
+        conditions: ISegmentCondition[];
+      };
+    }
+  ) => Promise<any>;
   kind: string;
   brands: IBrand[];
   users: IUser[];
@@ -32,14 +36,14 @@ type Props = {
   save: (doc: IEngageMessageDoc) => Promise<any>;
 };
 
-const AutoAndManualFormContainer = (props : Props) => {
+const AutoAndManualFormContainer = (props: Props) => {
   const {
     segmentsQuery,
     headSegmentsQuery,
     combinedFieldsQuery,
     segmentsAddQuery,
     emailTemplatesQuery,
-    customerCountsQuery,
+    customerCountsQuery
   } = props;
 
   const customerCounts = customerCountsQuery.customerCounts || {
@@ -86,17 +90,15 @@ const AutoAndManualFormContainer = (props : Props) => {
     segments: segmentsQuery.segments || [],
     templates: emailTemplatesQuery.emailTemplates || [],
     customerCounts: customerCounts.bySegment || {},
-    count,
+    count
   };
 
   return (
     <FormBase
       kind={props.kind}
-      content={(props) =>
-        <AutoAndManualForm {...updatedProps} {...props} />
-      }
+      content={props => <AutoAndManualForm {...updatedProps} {...props} />}
     />
-  )
+  );
 };
 
 export default withFormMutations(

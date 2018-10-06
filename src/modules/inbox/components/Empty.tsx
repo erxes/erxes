@@ -1,16 +1,19 @@
-import { EmptyState } from "modules/common/components";
-import { __ } from "modules/common/utils";
-import { Sidebar } from "modules/inbox/containers/leftSidebar";
-import { Wrapper } from "modules/layout/components";
-import * as React from "react";
+import { EmptyState } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import { Sidebar } from 'modules/inbox/containers/leftSidebar';
+import { Wrapper } from 'modules/layout/components';
+import * as React from 'react';
 
 type Props = {
   queryParams?: any;
 };
 
 function Empty({ queryParams }: Props) {
-  const breadcrumb = [{ title: __("Inbox") }];
-  const submenu = [{ title: __("Inbox"), link: "/inbox" }, { title: __("Insights"), link: "/insights" }];
+  const breadcrumb = [{ title: __('Inbox') }];
+  const submenu = [
+    { title: __('Inbox'), link: '/inbox' },
+    { title: __('Insights'), link: '/insights' }
+  ];
   const content = (
     <EmptyState
       text="There is no message."
@@ -22,7 +25,11 @@ function Empty({ queryParams }: Props) {
   return (
     <Wrapper
       header={
-        <Wrapper.Header queryParams={queryParams} breadcrumb={breadcrumb} submenu={submenu} />
+        <Wrapper.Header
+          queryParams={queryParams}
+          breadcrumb={breadcrumb}
+          submenu={submenu}
+        />
       }
       content={content}
       leftSidebar={<Sidebar queryParams={queryParams} />}

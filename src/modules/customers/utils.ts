@@ -13,7 +13,7 @@ export const hasAnyActivity = log => {
 };
 
 export const leadStatusChoices = __ => {
-  const options:Array<{ value: string, label: string }> = [];
+  const options: Array<{ value: string; label: string }> = [];
 
   for (const key of Object.keys(LEAD_STATUS_TYPES)) {
     options.push({
@@ -26,7 +26,7 @@ export const leadStatusChoices = __ => {
 };
 
 export const lifecycleStateChoices = __ => {
-  const options: Array<{value: string, label: string }> = [];
+  const options: Array<{ value: string; label: string }> = [];
 
   for (const key of Object.keys(LIFECYCLE_STATE_TYPES)) {
     options.push({

@@ -97,7 +97,11 @@ const HeaderItems = styledTS<{ rightAligned?: boolean }>(styled.div)`
   margin-left: ${props => props.rightAligned && 'auto'};
 `;
 
-const SideContent = styledTS<{ wide?: boolean, half?: boolean, full?: boolean }>(styled.section)`
+const SideContent = styledTS<{
+  wide?: boolean;
+  half?: boolean;
+  full?: boolean;
+}>(styled.section)`
   box-sizing: border-box;
   display: flex;
   position: relative;
@@ -111,7 +115,11 @@ const SideContent = styledTS<{ wide?: boolean, half?: boolean, full?: boolean }>
     props.full ? `0 0 8px 1px ${colors.shadowPrimary}` : 'none'};
 `;
 
-const SidebarHeader = styledTS<{ spaceBottom?: boolean, uppercase?: boolean, bold?: boolean }>(styled.div)`
+const SidebarHeader = styledTS<{
+  spaceBottom?: boolean;
+  uppercase?: boolean;
+  bold?: boolean;
+}>(styled.div)`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
   margin-bottom: ${props => props.spaceBottom && '10px'};
@@ -126,7 +134,9 @@ const SidebarHeader = styledTS<{ spaceBottom?: boolean, uppercase?: boolean, bol
   justify-content: space-between;
 `;
 
-const SidebarTitle = styledTS<{ children: any }>(SidebarHeader.withComponent('h3').extend)`
+const SidebarTitle = styledTS<{ children: any }>(
+  SidebarHeader.withComponent('h3').extend
+)`
   padding: 0 ${dimensions.coreSpacing}px;
   margin: 0 0 -1px 0;
   text-transform: uppercase;
@@ -143,7 +153,12 @@ const SidebarFooter = styledTS<{ children: any }>(SidebarHeader.extend)`
   border-bottom: none;
 `;
 
-const SidebarBox = styledTS<{ noBackground?: boolean, noShadow?: boolean, collapsible?: boolean, full?: boolean }>(styled.div)`
+const SidebarBox = styledTS<{
+  noBackground?: boolean;
+  noShadow?: boolean;
+  collapsible?: boolean;
+  full?: boolean;
+}>(styled.div)`
   background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: ${props =>
@@ -269,7 +284,9 @@ const SidebarList = styled.ul`
   }
 `;
 
-const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean; }>(styled.span)`
+const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
+  styled.span
+)`
   font-size: ${typography.fontSizeHeading8}px;
   text-align: ${props => (props.nowrap ? 'left' : 'right')};
   color: ${colors.colorCoreGray};
@@ -278,7 +295,7 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean; }>(sty
   right: ${dimensions.coreSpacing}px;
   max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
-  text-overflow: ${props => (!props.fullLength && 'ellipsis')};
+  text-overflow: ${props => !props.fullLength && 'ellipsis'};
   padding-left: ${props => (props.nowrap ? '0' : '10px')};
 
   a {

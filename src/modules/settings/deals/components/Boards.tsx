@@ -9,7 +9,11 @@ import { BoardForm, BoardRow } from './';
 type Props = {
   boards: IBoard[];
   remove: (_id: string) => void;
-  save: (params: { doc: { name: string; }}, callback: () => void, brand: IBoard) => void;
+  save: (
+    params: { doc: { name: string } },
+    callback: () => void,
+    brand: IBoard
+  ) => void;
   loading: boolean;
 };
 
@@ -48,11 +52,11 @@ class Boards extends React.Component<Props, {}> {
       <Header uppercase>
         {__('Board')}
 
-        <ModalTrigger 
-          title="New Board" 
+        <ModalTrigger
+          title="New Board"
           trigger={addBoard}
-          content={(props) => {
-            return this.renderBoardForm({ ...props, save })
+          content={props => {
+            return this.renderBoardForm({ ...props, save });
           }}
         />
       </Header>

@@ -9,10 +9,17 @@ import {
 import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __, confirm, searchCompany } from 'modules/common/utils';
 import { TargetMerge } from 'modules/customers/components';
-import { LEAD_STATUS_TYPES, LIFECYCLE_STATE_TYPES } from 'modules/customers/constants';
+import {
+  LEAD_STATUS_TYPES,
+  LIFECYCLE_STATE_TYPES
+} from 'modules/customers/constants';
 import { Action } from 'modules/customers/styles';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarCounter, SidebarFlexRow, SidebarList } from 'modules/layout/styles';
+import {
+  SidebarCounter,
+  SidebarFlexRow,
+  SidebarList
+} from 'modules/layout/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { CompaniesMerge } from '..';
@@ -22,7 +29,7 @@ import { ICompany } from '../../types';
 type Props = {
   company: ICompany;
   remove: () => void;
-  merge: (params: { ids: string[], data: any }) => void;
+  merge: (params: { ids: string[]; data: any }) => void;
 };
 
 class BasicInfo extends React.Component<Props> {
@@ -39,8 +46,8 @@ class BasicInfo extends React.Component<Props> {
       return null;
     }
 
-    if(!value.includes('http')) {
-      link = ('http://').concat(value);
+    if (!value.includes('http')) {
+      link = 'http://'.concat(value);
     }
 
     return (
@@ -66,8 +73,7 @@ class BasicInfo extends React.Component<Props> {
   renderRow(label, value) {
     return (
       <li>
-        {__(`${label}`)}:
-        <SidebarCounter>{value || '-'}</SidebarCounter>
+        {__(`${label}`)}:<SidebarCounter>{value || '-'}</SidebarCounter>
       </li>
     );
   }
@@ -129,9 +135,7 @@ class BasicInfo extends React.Component<Props> {
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
             size="lg"
-            content={(props) => (
-              <CompanyForm {...props} company={company} />
-            )}
+            content={props => <CompanyForm {...props} company={company} />}
           />
         </InfoWrapper>
 
@@ -147,16 +151,23 @@ class BasicInfo extends React.Component<Props> {
           {this.renderRow('Email', company.email)}
           {this.renderRow(
             'Owner',
-            company.owner && company.owner.details ? company.owner.details.fullName : '-'
+            company.owner && company.owner.details
+              ? company.owner.details.fullName
+              : '-'
           )}
           {this.renderRow('Phone', company.phone)}
-          {this.renderRow('Lead Status', LEAD_STATUS_TYPES[company.leadStatus || ''])}
-          {this.renderRow('Lifecycle State', LIFECYCLE_STATE_TYPES[company.lifecycleState || ''])}
+          {this.renderRow(
+            'Lead Status',
+            LEAD_STATUS_TYPES[company.leadStatus || '']
+          )}
+          {this.renderRow(
+            'Lifecycle State',
+            LIFECYCLE_STATE_TYPES[company.lifecycleState || '']
+          )}
           {this.renderRow('Business Type', company.businessType)}
           {this.renderRow('Do not disturb', company.doNotDisturb)}
           <SidebarFlexRow>
-            {__(`Description`)}:
-            <span>{company.description || '-'}</span>
+            {__(`Description`)}:<span>{company.description || '-'}</span>
           </SidebarFlexRow>
         </SidebarList>
       </Sidebar.Section>

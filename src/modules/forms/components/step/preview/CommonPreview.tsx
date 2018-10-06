@@ -1,13 +1,13 @@
-import { Button } from "modules/common/components";
+import { Button } from 'modules/common/components';
 import {
   slideDown,
   slideLeft,
   slideRight
-} from "modules/common/utils/animations";
-import { Messenger, MessengerPreview } from "modules/engage/styles";
-import { WidgetPreviewStyled } from "modules/settings/integrations/components/messenger/widgetPreview/styles";
-import { LogoContainer } from "modules/settings/styles";
-import * as React from "react";
+} from 'modules/common/utils/animations';
+import { Messenger, MessengerPreview } from 'modules/engage/styles';
+import { WidgetPreviewStyled } from 'modules/settings/integrations/components/messenger/widgetPreview/styles';
+import { LogoContainer } from 'modules/settings/styles';
+import * as React from 'react';
 import {
   BodyContent,
   CenterContainer,
@@ -19,7 +19,7 @@ import {
   PreviewTitle,
   PreviewWrapper,
   SlideLeftContent
-} from "./styles";
+} from './styles';
 
 export const ShoutBox = MessengerPreview.extend`
   height: 100%;
@@ -129,7 +129,7 @@ class CommonPreview extends React.Component<Props, {}> {
   render() {
     const { type, theme, color } = this.props;
 
-    if (type === "shoutbox") {
+    if (type === 'shoutbox') {
       return (
         <ShoutBox>
           <Widget>
@@ -144,7 +144,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === "popup") {
+    if (type === 'popup') {
       return (
         <CenterContainer>
           <OverlayTrigger />
@@ -153,7 +153,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === "dropdown") {
+    if (type === 'dropdown') {
       return (
         <Container>
           <Dropdown style={{ borderColor: theme ? theme : color }}>
@@ -163,7 +163,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === "slideInLeft") {
+    if (type === 'slideInLeft') {
       return (
         <CenterContainer>
           <SlideLeft>{this.renderContent()}</SlideLeft>
@@ -171,7 +171,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === "slideInRight") {
+    if (type === 'slideInRight') {
       return (
         <CenterContainer>
           <SlideRight>{this.renderContent()}</SlideRight>

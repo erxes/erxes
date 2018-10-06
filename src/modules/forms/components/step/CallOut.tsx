@@ -3,14 +3,14 @@ import {
   FormControl,
   FormGroup,
   Icon
-} from "modules/common/components";
-import { LeftItem, Preview } from "modules/common/components/step/styles";
-import { __ } from "modules/common/utils";
-import { uploadHandler } from "modules/common/utils";
-import { ActionBar } from "modules/layout/components";
+} from 'modules/common/components';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { __ } from 'modules/common/utils';
+import { uploadHandler } from 'modules/common/utils';
+import { ActionBar } from 'modules/layout/components';
 import * as React from 'react';
-import { CalloutPreview } from "./preview";
-import { FlexColumn, FlexItem, ImageContent } from "./style";
+import { CalloutPreview } from './preview';
+import { FlexColumn, FlexItem, ImageContent } from './style';
 
 const defaultValue = {
   isSkip: false
@@ -18,7 +18,18 @@ const defaultValue = {
 
 type Props = {
   type: string;
-  onChange: (name: 'calloutBtnText' | 'bodyValue' | 'calloutTitle' | 'isSkip' | 'logoPreviewUrl' | 'logo' | 'logoPreviewStyle' | 'defaultValue', value: string | boolean | object | any) => void;
+  onChange: (
+    name:
+      | 'calloutBtnText'
+      | 'bodyValue'
+      | 'calloutTitle'
+      | 'isSkip'
+      | 'logoPreviewUrl'
+      | 'logo'
+      | 'logoPreviewStyle'
+      | 'defaultValue',
+    value: string | boolean | object | any
+  ) => void;
   calloutTitle?: string;
   calloutBtnText?: string;
   bodyValue?: string;
@@ -44,7 +55,7 @@ class CallOut extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      logo: "",
+      logo: '',
       logoPreviewStyle: {},
       defaultValue
     };
@@ -71,8 +82,8 @@ class CallOut extends React.Component<Props, State> {
   }
 
   removeImage(value: string) {
-    this.setState({ logoPreviewUrl: "" });
-    this.props.onChange("logoPreviewUrl", value);
+    this.setState({ logoPreviewUrl: '' });
+    this.props.onChange('logoPreviewUrl', value);
   }
 
   handleImage(e: React.FormEvent<HTMLInputElement>) {
@@ -82,19 +93,19 @@ class CallOut extends React.Component<Props, State> {
       files: imageFile,
 
       beforeUpload: () => {
-        this.setState({ logoPreviewStyle: { opacity: "0.9" } });
+        this.setState({ logoPreviewStyle: { opacity: '0.9' } });
       },
 
       afterUpload: ({ response }) => {
         this.setState({
           logo: response,
-          logoPreviewStyle: { opacity: "1" }
+          logoPreviewStyle: { opacity: '1' }
         });
       },
 
       afterRead: ({ result }) => {
         this.setState({ logoPreviewUrl: result });
-        this.props.onChange("logoPreviewUrl", result);
+        this.props.onChange('logoPreviewUrl', result);
       }
     });
   }
@@ -120,7 +131,9 @@ class CallOut extends React.Component<Props, State> {
         <Icon
           icon="cancel-1"
           size={15}
-          onClick={(e: React.MouseEvent<HTMLElement>) => this.removeImage((e.currentTarget as HTMLInputElement).value)}
+          onClick={(e: React.MouseEvent<HTMLElement>) =>
+            this.removeImage((e.currentTarget as HTMLInputElement).value)
+          }
         />
       </React.Fragment>
     );
@@ -135,10 +148,13 @@ class CallOut extends React.Component<Props, State> {
             id="isSkip"
             componentClass="checkbox"
             onChange={e =>
-              this.onChangeState("isSkip",( e.currentTarget as HTMLInputElement).checked)
+              this.onChangeState(
+                'isSkip',
+                (e.currentTarget as HTMLInputElement).checked
+              )
             }
           >
-            {__("Skip callOut")}
+            {__('Skip callOut')}
           </FormControl>
         }
       />
@@ -160,7 +176,10 @@ class CallOut extends React.Component<Props, State> {
                 value={this.props.calloutTitle}
                 disabled={skip}
                 onChange={(e: React.FormEvent<HTMLElement>) =>
-                  this.onChangeFunction("calloutTitle", (e.currentTarget as HTMLInputElement).value)
+                  this.onChangeFunction(
+                    'calloutTitle',
+                    (e.currentTarget as HTMLInputElement).value
+                  )
                 }
               />
             </FormGroup>
@@ -173,7 +192,10 @@ class CallOut extends React.Component<Props, State> {
                 value={this.props.bodyValue}
                 disabled={skip}
                 onChange={e =>
-                  this.onChangeFunction("bodyValue", (e.currentTarget as HTMLInputElement).value)
+                  this.onChangeFunction(
+                    'bodyValue',
+                    (e.currentTarget as HTMLInputElement).value
+                  )
                 }
               />
             </FormGroup>
@@ -185,7 +207,10 @@ class CallOut extends React.Component<Props, State> {
                 value={this.props.calloutBtnText}
                 disabled={skip}
                 onChange={e =>
-                  this.onChangeFunction("calloutBtnText", (e.currentTarget as HTMLInputElement).value)
+                  this.onChangeFunction(
+                    'calloutBtnText',
+                    (e.currentTarget as HTMLInputElement).value
+                  )
                 }
               />
             </FormGroup>

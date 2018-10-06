@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 export interface IWrapperProps {
-  height?: number
+  height?: number;
 }
 
 const InsightWrapper = styled.div`

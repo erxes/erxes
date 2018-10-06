@@ -33,7 +33,7 @@ type State = {
   products: IProduct[];
   productsData: any;
   disabled: boolean;
-}
+};
 
 class DealEditForm extends React.Component<Props, State> {
   constructor(props) {

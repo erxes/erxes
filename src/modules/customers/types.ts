@@ -1,6 +1,6 @@
-import { ITag } from "modules/tags/types";
-import { IUser } from "../auth/types";
-import { IIntegration } from "../settings/integrations/types";
+import { ITag } from 'modules/tags/types';
+import { IUser } from '../auth/types';
+import { IIntegration } from '../settings/integrations/types';
 
 export interface IMessengerData {
   lastSeenAt?: number;

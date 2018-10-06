@@ -10,8 +10,11 @@ import { SubHeading } from 'modules/settings/styles';
 import * as React from 'react';
 import Select from 'react-select-plus';
 
-type Props= {
-  onChange: (name: 'supporterIds' | 'welcomeMessage' | 'awayMessage' | 'thankYouMessage', value: string | string[]) => void;
+type Props = {
+  onChange: (
+    name: 'supporterIds' | 'welcomeMessage' | 'awayMessage' | 'thankYouMessage',
+    value: string | string[]
+  ) => void;
   teamMembers: IUser[];
   supporterIds?: string[];
   welcomeMessage?: string;
@@ -25,13 +28,13 @@ type State = {
   welcomeMessage: string;
   awayMessage: string;
   thankYouMessage: string;
-}
+};
 
 class Intro extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { teamMembers, supporterIds=[] } = props;
+    const { teamMembers, supporterIds = [] } = props;
 
     const selectedMembers: IUser[] = teamMembers.filter(member =>
       supporterIds.includes(member._id)
@@ -72,7 +75,7 @@ class Intro extends React.Component<Props, State> {
         value: member._id,
         label: details.fullName,
         avatar: details.avatar
-      }
+      };
     });
   }
 
@@ -90,8 +93,12 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Welcome message.')}
               rows={3}
               value={this.props.welcomeMessage}
-              onChange={(e) => 
-                this.onInputChange('welcomeMessage', (e.target as HTMLInputElement).value)}
+              onChange={e =>
+                this.onInputChange(
+                  'welcomeMessage',
+                  (e.target as HTMLInputElement).value
+                )
+              }
             />
           </FormGroup>
 
@@ -105,8 +112,12 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Away message.')}
               rows={3}
               value={this.props.awayMessage}
-              onChange={(e) => 
-                this.onInputChange('awayMessage', (e.target as HTMLInputElement).value)}
+              onChange={e =>
+                this.onInputChange(
+                  'awayMessage',
+                  (e.target as HTMLInputElement).value
+                )
+              }
             />
           </FormGroup>
 
@@ -118,8 +129,12 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Thank you message.')}
               rows={3}
               value={this.props.thankYouMessage}
-              onChange={(e) => 
-                this.onInputChange('thankYouMessage', (e.target as HTMLInputElement).value)}
+              onChange={e =>
+                this.onInputChange(
+                  'thankYouMessage',
+                  (e.target as HTMLInputElement).value
+                )
+              }
             />
           </FormGroup>
 

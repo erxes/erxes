@@ -9,15 +9,15 @@ import { IArticle } from '../../types';
 type Variables = {
   title: string;
   summary: string;
-  content: string
+  content: string;
   status: string;
   categoryIds: string[];
-}
+};
 
 type Props = {
   article: IArticle;
   currentCategoryId: string;
-  
+
   addArticlesMutation: (params: { variables: Variables }) => Promise<any>;
   editArticlesMutation: (params: { variables: Variables }) => Promise<any>;
   closeModal: () => void;

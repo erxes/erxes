@@ -12,7 +12,7 @@ interface IProps extends IRouterProps {
   counts: any;
   manageUrl: string;
   loading: boolean;
-};
+}
 
 function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
   const { Section } = Wrapper.Sidebar;

@@ -9,7 +9,7 @@ type Props = {
 
 class PunchCard extends React.Component<Props> {
   private chart;
-  
+
   componentDidMount() {
     this.renderPunchCard('init');
   }
@@ -20,7 +20,7 @@ class PunchCard extends React.Component<Props> {
 
   renderPunchCard(type: string) {
     const { data, width } = this.props;
-    
+
     let chart;
     const color = '#452679';
     if (type === 'init') {

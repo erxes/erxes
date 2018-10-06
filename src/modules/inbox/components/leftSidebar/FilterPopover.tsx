@@ -1,12 +1,12 @@
-import client from "apolloClient";
-import gql from "graphql-tag";
-import { FilterByParams, Icon, Spinner } from "modules/common/components";
-import { __ } from "modules/common/utils";
-import { queries } from "modules/inbox/graphql";
-import { PopoverButton } from "modules/inbox/styles";
-import { generateParams } from "modules/inbox/utils";
-import * as React from "react";
-import { OverlayTrigger, Popover } from "react-bootstrap";
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import { FilterByParams, Icon, Spinner } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import { queries } from 'modules/inbox/graphql';
+import { PopoverButton } from 'modules/inbox/styles';
+import { generateParams } from 'modules/inbox/utils';
+import * as React from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 
 type Props = {
   query?: { queryName: string; dataName: string; variables?: any };
@@ -114,7 +114,7 @@ export default class FilterPopover extends React.Component<Props, State> {
   }
 
   render() {
-    const { buttonText, placement = "bottom" } = this.props;
+    const { buttonText, placement = 'bottom' } = this.props;
 
     return (
       <OverlayTrigger
@@ -127,7 +127,7 @@ export default class FilterPopover extends React.Component<Props, State> {
       >
         <PopoverButton onClick={() => this.onClick()}>
           {__(buttonText)}
-          <Icon icon={placement === "top" ? "uparrow-2" : "downarrow"} />
+          <Icon icon={placement === 'top' ? 'uparrow-2' : 'downarrow'} />
         </PopoverButton>
       </OverlayTrigger>
     );

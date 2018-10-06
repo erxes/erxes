@@ -1,13 +1,13 @@
-import client from "apolloClient";
-import gql from "graphql-tag";
-import { Icon, Spinner } from "modules/common/components";
-import { __, router } from "modules/common/utils";
-import { queries } from "modules/inbox/graphql";
-import { PopoverButton } from "modules/inbox/styles";
-import { generateParams } from "modules/inbox/utils";
-import { SidebarCounter, SidebarList } from "modules/layout/styles";
-import * as React from "react";
-import { OverlayTrigger, Popover } from "react-bootstrap";
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import { Icon, Spinner } from 'modules/common/components';
+import { __, router } from 'modules/common/utils';
+import { queries } from 'modules/inbox/graphql';
+import { PopoverButton } from 'modules/inbox/styles';
+import { generateParams } from 'modules/inbox/utils';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import * as React from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 
 type Props = {
   history: any;
@@ -49,10 +49,10 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
 
   clearStatusFilter() {
     router.setParams(this.props.history, {
-      participating: "",
-      status: "",
-      unassigned: "",
-      starred: ""
+      participating: '',
+      status: '',
+      unassigned: '',
+      starred: ''
     });
   }
 
@@ -75,7 +75,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       <li>
         <a
           className={
-            router.getParam(history, [paramName]) === paramValue ? "active" : ""
+            router.getParam(history, [paramName]) === paramValue ? 'active' : ''
           }
           onClick={onClick}
         >
@@ -91,35 +91,35 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
 
     if (loading) {
       return (
-        <Popover id="filter-popover" title={__("Filter by status")}>
+        <Popover id="filter-popover" title={__('Filter by status')}>
           <Spinner objective />
         </Popover>
       );
     }
 
     return (
-      <Popover id="filter-popover" title={__("Filter by status")}>
+      <Popover id="filter-popover" title={__('Filter by status')}>
         <SidebarList>
           {this.renderSingleFilter(
-            "unassigned",
-            "true",
-            "unassiged",
-            "Unassigned",
+            'unassigned',
+            'true',
+            'unassiged',
+            'Unassigned',
             counts.unassigned
           )}
           {this.renderSingleFilter(
-            "participating",
-            "true",
-            "participating",
-            "Participating",
+            'participating',
+            'true',
+            'participating',
+            'Participating',
             counts.participating
           )}
 
           {this.renderSingleFilter(
-            "status",
-            "closed",
-            "resolved",
-            "Resolved",
+            'status',
+            'closed',
+            'resolved',
+            'Resolved',
             counts.resolved
           )}
         </SidebarList>
@@ -137,7 +137,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
         rootClose
       >
         <PopoverButton onClick={() => this.onClick()}>
-          {__("Status")}
+          {__('Status')}
           <Icon icon="downarrow" />
         </PopoverButton>
       </OverlayTrigger>

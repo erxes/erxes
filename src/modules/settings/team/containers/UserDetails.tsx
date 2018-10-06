@@ -8,17 +8,19 @@ import { UserDetails } from '../components';
 import { mutations, queries } from '../graphql';
 
 type SaveUserProfileArgs = {
-  usersEdit: (params: { variables: { _id: string, doc: IUserDoc } }) => Promise<any>,
-  usersEditProfile: (params: { variables: IUserDoc }) => Promise<any>,
+  usersEdit: (
+    params: { variables: { _id: string; doc: IUserDoc } }
+  ) => Promise<any>;
+  usersEditProfile: (params: { variables: IUserDoc }) => Promise<any>;
 };
 
 type Props = {
-  id?: string,
-  userDetailQuery: any,
-  channelsQuery: any,
-  userActivityLogQuery: any,
-  userConversationsQuery: any,
-  currentUser: IUser,
+  id?: string;
+  userDetailQuery: any;
+  channelsQuery: any;
+  userActivityLogQuery: any;
+  userConversationsQuery: any;
+  currentUser: IUser;
 };
 
 const UserDetailsContainer = (props: Props & SaveUserProfileArgs) => {
@@ -29,16 +31,20 @@ const UserDetailsContainer = (props: Props & SaveUserProfileArgs) => {
     usersEditProfile,
     userActivityLogQuery,
     userConversationsQuery,
-    currentUser,
+    currentUser
   } = props;
 
   const user = userDetailQuery.userDetail || {};
 
-  const saveUser = (_id: string, doc: IUserDoc, callback: (e: string) => void) => {
+  const saveUser = (
+    _id: string,
+    doc: IUserDoc,
+    callback: (e: string) => void
+  ) => {
     usersEdit({
       variables: { _id, doc }
     })
-      .then((e) => {
+      .then(e => {
         Alert.success('Successfully saved');
         callback(e);
       })
@@ -69,7 +75,7 @@ const UserDetailsContainer = (props: Props & SaveUserProfileArgs) => {
     loadingLogs: userActivityLogQuery.loading,
     activityLogsUser: userActivityLogQuery.activityLogsUser || [],
     channels: channelsQuery.channels || [],
-    currentUser,
+    currentUser
   };
 
   return <UserDetails {...updatedProps} />;
@@ -93,7 +99,7 @@ const WithQuery = compose(
   }),
   graphql(gql(queries.userConversations), {
     name: 'userConversationsQuery',
-    options: ({ id, queryParams }: { id: string, queryParams: any }) => ({
+    options: ({ id, queryParams }: { id: string; queryParams: any }) => ({
       variables: {
         _id: id,
         perPage: queryParams.limit || 20
@@ -122,7 +128,7 @@ const WithQuery = compose(
   })
 )(UserDetailsContainer);
 
-const WithConsumer = (props) => {
+const WithConsumer = props => {
   return (
     <AppConsumer>
       {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}

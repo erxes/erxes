@@ -16,13 +16,20 @@ type Props = {
   state: any;
   index: number;
   stages: IStage[];
-  stagesUpdateOrderMutation: (params: { variables: { orders } }) => Promise<any>;
-  stagesChangeMutation: (params: {
-    variables: { _id: string; pipelineId: string }
-  }) => Promise<void>;
+  stagesUpdateOrderMutation: (
+    params: { variables: { orders } }
+  ) => Promise<any>;
+  stagesChangeMutation: (
+    params: {
+      variables: { _id: string; pipelineId: string };
+    }
+  ) => Promise<void>;
 };
 
-class PipelineContainer extends React.Component<Props, { stages: ICommonParams[] }> {
+class PipelineContainer extends React.Component<
+  Props,
+  { stages: ICommonParams[] }
+> {
   constructor(props) {
     super(props);
 

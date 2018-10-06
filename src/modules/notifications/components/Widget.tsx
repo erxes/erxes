@@ -3,9 +3,12 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { NotificationsLatest } from '../containers';
-import {  NotifButton, PopoverHeader } from './styles';
+import { NotifButton, PopoverHeader } from './styles';
 
-class Widget extends React.Component<{ unreadCount: number }, { activeFirst: boolean }> {
+class Widget extends React.Component<
+  { unreadCount: number },
+  { activeFirst: boolean }
+> {
   constructor(props) {
     super(props);
 
@@ -34,9 +37,7 @@ class Widget extends React.Component<{ unreadCount: number }, { activeFirst: boo
   render() {
     const popoverNotification = (
       <Popover id="npopover" className="notification-popover">
-        <PopoverHeader>
-          {__('Notifications')}
-        </PopoverHeader>
+        <PopoverHeader>{__('Notifications')}</PopoverHeader>
         <NotificationsLatest update={this.update} />
       </Popover>
     );

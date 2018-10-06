@@ -9,7 +9,9 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 
 type Props = {
-  save: (save: { currentPassword: string, newPassword: string, confirmation: string }) => void;
+  save: (
+    save: { currentPassword: string; newPassword: string; confirmation: string }
+  ) => void;
   closeModal: () => void;
 };
 
@@ -24,9 +26,14 @@ class ChangePassword extends React.Component<Props> {
     e.preventDefault();
 
     this.props.save({
-      currentPassword: (document.getElementById('current-password') as HTMLInputElement).value,
-      newPassword: (document.getElementById('new-password') as HTMLInputElement).value,
-      confirmation: (document.getElementById('new-password-confirmation') as HTMLInputElement).value
+      currentPassword: (document.getElementById(
+        'current-password'
+      ) as HTMLInputElement).value,
+      newPassword: (document.getElementById('new-password') as HTMLInputElement)
+        .value,
+      confirmation: (document.getElementById(
+        'new-password-confirmation'
+      ) as HTMLInputElement).value
     });
 
     this.props.closeModal;

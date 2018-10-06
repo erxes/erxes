@@ -1,9 +1,9 @@
-import classNames from "classnames";
-import { Attachment, NameCard, Tip } from "modules/common/components";
-import * as moment from "moment";
+import classNames from 'classnames';
+import { Attachment, NameCard, Tip } from 'modules/common/components';
+import * as moment from 'moment';
 import * as React from 'react';
-import { IMessage } from "../../../../../types";
-import { MessageBody, MessageContent, MessageItem } from "../styles";
+import { IMessage } from '../../../../../types';
+import { MessageBody, MessageContent, MessageItem } from '../styles';
 
 type Props = {
   message: IMessage;
@@ -72,8 +72,8 @@ export default class SimpleMessage extends React.Component<Props, {}> {
           <MessageContent staff={isStaff} internal={message.internal}>
             {this.renderContent(hasAttachment)}
           </MessageContent>
-          <Tip text={moment(messageDate).format("lll")}>
-            <footer>{moment(messageDate).format("LT")}</footer>
+          <Tip text={moment(messageDate).format('lll')}>
+            <footer>{moment(messageDate).format('LT')}</footer>
           </Tip>
         </MessageBody>
       </MessageItem>

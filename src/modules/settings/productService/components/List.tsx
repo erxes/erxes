@@ -18,13 +18,13 @@ type Doc = {
   description?: string;
   sku?: string;
   createdAt?: Date;
-}
+};
 
 type Props = {
   products: IProduct[];
   productsCount: number;
   remove: (_id: string) => void;
-  save: (doc: Doc , callback: () => void, product?: IProduct) => void;
+  save: (doc: Doc, callback: () => void, product?: IProduct) => void;
   loading: boolean;
 };
 
@@ -58,10 +58,10 @@ class List extends React.Component<Props> {
     );
 
     const actionBarRight = (
-      <ModalTrigger 
-        title="Add Product / Service" 
+      <ModalTrigger
+        title="Add Product / Service"
         trigger={trigger}
-        content={(props) => <Form {...props} save={save} />}
+        content={props => <Form {...props} save={save} />}
       />
     );
 

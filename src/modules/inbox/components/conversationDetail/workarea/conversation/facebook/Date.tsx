@@ -1,7 +1,7 @@
-import { Tip } from "modules/common/components";
-import * as moment from "moment";
-import * as React from "react";
-import { IMessage } from "../../../../../types";
+import { Tip } from 'modules/common/components';
+import * as moment from 'moment';
+import * as React from 'react';
+import { IMessage } from '../../../../../types';
 
 type Props = {
   message: IMessage;
@@ -12,7 +12,7 @@ export default class Date extends React.Component<Props, {}> {
     const { message } = this.props;
 
     return (
-      <Tip placement="bottom" text={moment(message.createdAt).format("lll")}>
+      <Tip placement="bottom" text={moment(message.createdAt).format('lll')}>
         <a href={`https://facebook.com/statuses/`} target="_blank">
           {moment(message.createdAt).fromNow()}
         </a>

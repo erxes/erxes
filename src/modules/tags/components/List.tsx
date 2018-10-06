@@ -25,7 +25,7 @@ function List({ tags, type, remove, save }: Props) {
     <ModalTrigger
       title="Add tag"
       trigger={trigger}
-      content={(props) => <Form {...props} type={type} save={save} />}
+      content={props => <Form {...props} type={type} save={save} />}
     />
   );
 

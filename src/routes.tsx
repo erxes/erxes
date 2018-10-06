@@ -46,9 +46,7 @@ const renderRoutes = currentUser => {
 };
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => (
-  <Router>
-     {renderRoutes(currentUser)}
-  </Router>
+  <Router>{renderRoutes(currentUser)}</Router>
 );
 
 export default withCurrentUser(Routes);

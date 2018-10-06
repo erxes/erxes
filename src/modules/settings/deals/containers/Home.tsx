@@ -27,7 +27,7 @@ class HomeContainer extends React.Component<HomeContainerProps> {
 }
 
 type LastBoardProps = {
-  boardGetLastQuery: any
+  boardGetLastQuery: any;
 };
 
 // Getting lastBoard id to currentBoard

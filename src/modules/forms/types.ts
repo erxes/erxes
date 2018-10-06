@@ -1,7 +1,7 @@
-import { IUser } from "../auth/types";
-import { IBrand } from "../settings/brands/types";
-import { IIntegration } from "../settings/integrations/types";
-import { ITag } from "../tags/types";
+import { IUser } from '../auth/types';
+import { IBrand } from '../settings/brands/types';
+import { IIntegration } from '../settings/integrations/types';
+import { ITag } from '../tags/types';
 
 export interface ICallout {
   title?: string;
@@ -24,8 +24,8 @@ export interface IForm {
   createdDate?: Date;
   viewCount?: number;
   contactsGathered?: number;
-  tagIds?: string[]
-  getTags?: ITag[]
+  tagIds?: string[];
+  getTags?: ITag[];
 }
 
 export interface IFormIntegration extends IIntegration {

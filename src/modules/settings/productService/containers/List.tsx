@@ -12,7 +12,7 @@ type Doc = {
   description?: string;
   sku?: string;
   createdAt?: Date;
-}
+};
 
 type Props = {
   productsQuery: any;
@@ -95,7 +95,7 @@ class ProductListContainer extends React.Component<Props> {
 export default compose(
   graphql(gql(queries.products), {
     name: 'productsQuery',
-    options: ({ queryParams } : { queryParams: any }) => ({
+    options: ({ queryParams }: { queryParams: any }) => ({
       variables: {
         page: queryParams.page || 1,
         perPage: queryParams.perPage || 20

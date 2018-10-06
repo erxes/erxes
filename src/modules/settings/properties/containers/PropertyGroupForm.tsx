@@ -7,8 +7,12 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   queryParams: any;
-  fieldsGroupsAdd: (fieldsAdd: { variables: { contentType: string } }) => Promise<any>;
-  fieldsGroupsEdit: (fieldsEdit: { variables: { contentType: string } }) => Promise<any>;
+  fieldsGroupsAdd: (
+    fieldsAdd: { variables: { contentType: string } }
+  ) => Promise<any>;
+  fieldsGroupsEdit: (
+    fieldsEdit: { variables: { contentType: string } }
+  ) => Promise<any>;
   closeModal: () => void;
 };
 
@@ -59,7 +63,9 @@ const PropertyGroupFormContainer = (props: Props) => {
 const options = ({ queryParams }) => ({
   refetchQueries: [
     {
-      query: gql`${queries.fieldsGroups}`,
+      query: gql`
+        ${queries.fieldsGroups}
+      `,
       variables: { contentType: queryParams.type }
     }
   ]

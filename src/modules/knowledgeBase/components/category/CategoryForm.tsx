@@ -14,19 +14,27 @@ import { ICategory } from '../../types';
 type Props = {
   currentTopicId: string;
   category: ICategory;
-  save: (params: { doc: { doc: {
-    title: string;
-    description: string;
-    icon: string;
-    topicIds: string[];
-  }} }, callback: () => void, category: ICategory) => void;
+  save: (
+    params: {
+      doc: {
+        doc: {
+          title: string;
+          description: string;
+          icon: string;
+          topicIds: string[];
+        };
+      };
+    },
+    callback: () => void,
+    category: ICategory
+  ) => void;
 
   closeModal: () => void;
 };
 
 type State = {
   selectedIcon: string;
-}
+};
 
 class CategoryForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -78,7 +86,9 @@ class CategoryForm extends React.Component<Props, State> {
       ...category,
       doc: {
         doc: {
-          title: (document.getElementById('knowledgebase-category-title') as HTMLInputElement).value,
+          title: (document.getElementById(
+            'knowledgebase-category-title'
+          ) as HTMLInputElement).value,
           description: (document.getElementById(
             'knowledgebase-category-description'
           ) as HTMLInputElement).value,
@@ -129,7 +139,9 @@ class CategoryForm extends React.Component<Props, State> {
   render() {
     return (
       <form onSubmit={this.save}>
-        {this.renderContent(this.props.category || { title: '', description: ''  })}
+        {this.renderContent(
+          this.props.category || { title: '', description: '' }
+        )}
         <ModalFooter>
           <Button
             btnStyle="simple"

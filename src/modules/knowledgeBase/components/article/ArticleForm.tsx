@@ -19,13 +19,21 @@ type Props = {
   article: IArticle;
   currentCategoryId: string;
 
-  save: (params: { doc: { doc: {
-    title: string;
-    summary: string;
-    content: string
-    status: string;
-    categoryIds: string[];
-  }} }, callback: () => void, IArticle) => void;
+  save: (
+    params: {
+      doc: {
+        doc: {
+          title: string;
+          summary: string;
+          content: string;
+          status: string;
+          categoryIds: string[];
+        };
+      };
+    },
+    callback: () => void,
+    IArticle
+  ) => void;
 
   closeModal: () => void;
 };
@@ -33,7 +41,7 @@ type Props = {
 type State = {
   status: string;
   editorState: EditorState;
-}
+};
 
 class ArticleForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -76,9 +84,12 @@ class ArticleForm extends React.Component<Props, State> {
     return {
       doc: {
         doc: {
-          title: (document.getElementById('knowledgebase-article-title') as HTMLInputElement).value,
-          summary: (document.getElementById('knowledgebase-article-summary') as HTMLInputElement)
-            .value,
+          title: (document.getElementById(
+            'knowledgebase-article-title'
+          ) as HTMLInputElement).value,
+          summary: (document.getElementById(
+            'knowledgebase-article-summary'
+          ) as HTMLInputElement).value,
           content: this.getContent(this.state.editorState),
           status: this.state.status,
           categoryIds: [this.props.currentCategoryId]

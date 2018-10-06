@@ -9,20 +9,28 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Select from 'react-select-plus';
-import { IChannel } from "../types";
+import { IChannel } from '../types';
 
 type Props = {
   channel?: IChannel;
   members: IUser[];
   selectedMembers: IUser[];
   closeModal: () => void;
-  save: (params: { doc: {
-    name: string; description: string; memberIds: string[];
-  } }, callback: () => void, channel?: IChannel) => void;
+  save: (
+    params: {
+      doc: {
+        name: string;
+        description: string;
+        memberIds: string[];
+      };
+    },
+    callback: () => void,
+    channel?: IChannel
+  ) => void;
 };
 
 type State = {
-  selectedMembers: IUser[],
+  selectedMembers: IUser[];
 };
 
 class ChannelForm extends React.Component<Props, State> {
@@ -61,8 +69,11 @@ class ChannelForm extends React.Component<Props, State> {
   generateDoc() {
     return {
       doc: {
-        name: (document.getElementById('channel-name') as HTMLInputElement).value,
-        description: (document.getElementById('channel-description') as HTMLInputElement).value,
+        name: (document.getElementById('channel-name') as HTMLInputElement)
+          .value,
+        description: (document.getElementById(
+          'channel-description'
+        ) as HTMLInputElement).value,
         memberIds: this.collectValues(this.state.selectedMembers)
       }
     };

@@ -1,17 +1,17 @@
-import { DateFilter, Icon } from "modules/common/components";
-import { __ } from "modules/common/utils";
-import { Resolver, Tagger } from "modules/inbox/containers";
-import { ConversationList } from "modules/inbox/containers/leftSidebar";
-import { queries } from "modules/inbox/graphql";
-import { PopoverButton } from "modules/inbox/styles";
-import { Sidebar } from "modules/layout/components";
-import { TAG_TYPES } from "modules/tags/constants";
-import * as React from "react";
-import { IConversation } from "../../types";
-import AssignBoxPopover from "../assignBox/AssignBoxPopover";
-import FilterPopover from "./FilterPopover";
-import StatusFilterPopover from "./StatusFilterPopover";
-import { RightItems } from "./styles";
+import { DateFilter, Icon } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import { Resolver, Tagger } from 'modules/inbox/containers';
+import { ConversationList } from 'modules/inbox/containers/leftSidebar';
+import { queries } from 'modules/inbox/graphql';
+import { PopoverButton } from 'modules/inbox/styles';
+import { Sidebar } from 'modules/layout/components';
+import { TAG_TYPES } from 'modules/tags/constants';
+import * as React from 'react';
+import { IConversation } from '../../types';
+import AssignBoxPopover from '../assignBox/AssignBoxPopover';
+import FilterPopover from './FilterPopover';
+import StatusFilterPopover from './StatusFilterPopover';
+import { RightItems } from './styles';
 
 type Integrations = {
   _id: string;
@@ -47,10 +47,10 @@ class LeftSidebar extends React.Component<Props, {}> {
           <RightItems>
             <AssignBoxPopover
               targets={bulk}
-              trigger={this.renderTrigger("Assign")}
+              trigger={this.renderTrigger('Assign')}
             />
 
-            <Tagger targets={bulk} trigger={this.renderTrigger("Tag")} />
+            <Tagger targets={bulk} trigger={this.renderTrigger('Tag')} />
             <Resolver conversations={bulk} />
           </RightItems>
         </Sidebar.Header>
@@ -63,8 +63,8 @@ class LeftSidebar extends React.Component<Props, {}> {
           buttonText="# Channel"
           popoverTitle="Filter by channel"
           query={{
-            queryName: "channelList",
-            dataName: "channels"
+            queryName: 'channelList',
+            dataName: 'channels'
           }}
           counts="byChannels"
           paramKey="channelId"
@@ -83,11 +83,7 @@ class LeftSidebar extends React.Component<Props, {}> {
   }
 
   renderSidebarHeader() {
-    return (
-      <React.Fragment>
-        {this.renderSidebarActions()}  
-      </React.Fragment>
-    );
+    return <React.Fragment>{this.renderSidebarActions()}</React.Fragment>;
   }
 
   renderSidebarFooter() {
@@ -97,7 +93,7 @@ class LeftSidebar extends React.Component<Props, {}> {
       <Sidebar.Footer>
         <FilterPopover
           buttonText="Brand"
-          query={{ queryName: "brandList", dataName: "brands" }}
+          query={{ queryName: 'brandList', dataName: 'brands' }}
           counts="byBrands"
           popoverTitle="Filter by brand"
           placement="top"
@@ -119,8 +115,8 @@ class LeftSidebar extends React.Component<Props, {}> {
         <FilterPopover
           buttonText="Tag"
           query={{
-            queryName: "tagList",
-            dataName: "tags",
+            queryName: 'tagList',
+            dataName: 'tags',
             variables: {
               type: TAG_TYPES.CONVERSATION
             }

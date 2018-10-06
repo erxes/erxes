@@ -9,7 +9,7 @@ type Props = {
   fromUserId: string;
 };
 
-const MessengerPreviewContainer = (props : Props) => {
+const MessengerPreviewContainer = (props: Props) => {
   const { userDetailQuery } = props;
 
   if (userDetailQuery.loading) {
@@ -28,7 +28,7 @@ const MessengerPreviewContainer = (props : Props) => {
 export default compose(
   graphql(gql(queries.userDetail), {
     name: 'userDetailQuery',
-    options: ({ fromUserId } : { fromUserId: string }) => ({
+    options: ({ fromUserId }: { fromUserId: string }) => ({
       variables: {
         _id: fromUserId
       }
