@@ -1,7 +1,7 @@
-import { IField } from "modules/settings/properties/types";
-import * as React from "react";
-import { FormFieldPreview } from "./";
-import CommonPreview from "./CommonPreview";
+import { IField } from 'modules/settings/properties/types';
+import * as React from 'react';
+import { FormFieldPreview } from './';
+import CommonPreview from './CommonPreview';
 
 type Props = {
   formTitle?: string;

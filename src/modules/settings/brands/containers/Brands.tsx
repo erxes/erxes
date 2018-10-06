@@ -12,7 +12,7 @@ interface IProps extends IRouterProps {
   currentBrandId: string;
   integrationsCountQuery: any;
   brandDetailQuery: any;
-};
+}
 
 class Brands extends React.Component<IProps> {
   render() {
@@ -45,14 +45,14 @@ class Brands extends React.Component<IProps> {
 const BrandsContainer = compose(
   graphql(gql(queries.brandDetail), {
     name: 'brandDetailQuery',
-    options: ({ currentBrandId } : { currentBrandId: string }) => ({
+    options: ({ currentBrandId }: { currentBrandId: string }) => ({
       variables: { _id: currentBrandId },
       fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(queries.integrationsCount), {
     name: 'integrationsCountQuery',
-    options: ({ currentBrandId } : { currentBrandId: string }) => ({
+    options: ({ currentBrandId }: { currentBrandId: string }) => ({
       variables: { brandId: currentBrandId }
     })
   })
@@ -61,7 +61,11 @@ const BrandsContainer = compose(
 // tslint:disable-next-line:max-classes-per-file
 class WithCurrentId extends React.Component<WithCurrentIdProps> {
   componentWillReceiveProps(nextProps: WithCurrentIdProps) {
-    const { lastBrandQuery = {}, history, queryParams: { _id } } = nextProps;
+    const {
+      lastBrandQuery = {},
+      history,
+      queryParams: { _id }
+    } = nextProps;
 
     const { brandsGetLast, loading } = lastBrandQuery;
 
@@ -71,7 +75,9 @@ class WithCurrentId extends React.Component<WithCurrentIdProps> {
   }
 
   render() {
-    const { queryParams: { _id } } = this.props;
+    const {
+      queryParams: { _id }
+    } = this.props;
 
     if (!_id) {
       return <Empty {...this.props} />;
@@ -87,16 +93,16 @@ class WithCurrentId extends React.Component<WithCurrentIdProps> {
 }
 
 type WithCurrentIdProps = {
-  lastBrandQuery: any,
-  history: any,
-  queryParams: any
+  lastBrandQuery: any;
+  history: any;
+  queryParams: any;
 };
 
 const WithLastBrand = compose(
   graphql(gql(queries.brandsGetLast), {
     name: 'lastBrandQuery',
-    skip: ({ queryParams } : { queryParams: any }) => queryParams._id,
-    options: ({ queryParams } : { queryParams: any }) => ({
+    skip: ({ queryParams }: { queryParams: any }) => queryParams._id,
+    options: ({ queryParams }: { queryParams: any }) => ({
       variables: { _id: queryParams._id },
       fetchPolicy: 'network-only'
     })

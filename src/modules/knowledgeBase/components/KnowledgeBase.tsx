@@ -19,7 +19,10 @@ type Props = {
 
 class KnowledgeBase extends React.Component<Props> {
   breadcrumb() {
-    const currentCategory = this.props.currentCategory || { title: '', firstTopic: { title: '' } };
+    const currentCategory = this.props.currentCategory || {
+      title: '',
+      firstTopic: { title: '' }
+    };
     const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };
 
     return [
@@ -39,11 +42,20 @@ class KnowledgeBase extends React.Component<Props> {
     );
 
     const actionBarLeft = currentCategory._id && (
-      <ModalTrigger 
-        title="Add Article" 
-        trigger={trigger} 
+      <ModalTrigger
+        title="Add Article"
+        trigger={trigger}
         size="lg"
-        content={(props) => <ArticleForm {...props} queryParams={queryParams} currentCategoryId={currentCategory._id} topicIds={currentCategory.firstTopic && currentCategory.firstTopic._id} />}
+        content={props => (
+          <ArticleForm
+            {...props}
+            queryParams={queryParams}
+            currentCategoryId={currentCategory._id}
+            topicIds={
+              currentCategory.firstTopic && currentCategory.firstTopic._id
+            }
+          />
+        )}
       />
     );
 

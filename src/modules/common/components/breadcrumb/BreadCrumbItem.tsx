@@ -31,7 +31,14 @@ type Props = {
   target?: string;
 };
 
-function BreadcrumbItem({ active, to, title, target, children, ...props }: Props) {
+function BreadcrumbItem({
+  active,
+  to,
+  title,
+  target,
+  children,
+  ...props
+}: Props) {
   const linkProps = { to, title, target };
 
   return (

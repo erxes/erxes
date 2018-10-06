@@ -15,7 +15,7 @@ type Props = {
 
 type State = {
   fromUser: string;
-}
+};
 
 class MessengerPreview extends React.Component<Props, State> {
   constructor(props: Props) {

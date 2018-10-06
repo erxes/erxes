@@ -35,13 +35,13 @@ type State = {
   emails?: string[];
   primaryPhone?: string;
   primaryEmail?: string;
-}
+};
 
 class CustomerForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const customer = props.customer || {} as ICustomer;
+    const customer = props.customer || ({} as ICustomer);
 
     this.state = {
       ownerId: customer.ownerId || '',
@@ -68,7 +68,7 @@ class CustomerForm extends React.Component<Props, State> {
   }
 
   getInputElementValue(id) {
-    return (document.getElementById(id) as HTMLInputElement).value
+    return (document.getElementById(id) as HTMLInputElement).value;
   }
 
   action(e) {
@@ -100,7 +100,7 @@ class CustomerForm extends React.Component<Props, State> {
           facebook: this.getInputElementValue('customer-facebook'),
           github: this.getInputElementValue('customer-github'),
           youtube: this.getInputElementValue('customer-youtube'),
-          website: this.getInputElementValue('customer-website'),
+          website: this.getInputElementValue('customer-website')
         }
       }
     });
@@ -185,7 +185,7 @@ class CustomerForm extends React.Component<Props, State> {
     const { closeModal } = this.props;
     const { users } = this.state;
 
-    const customer = this.props.customer  || {} as ICustomer;
+    const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
 
     return (
@@ -213,7 +213,7 @@ class CustomerForm extends React.Component<Props, State> {
                 onChange={obj => this.onEmailChange(obj)}
               />
             </FormGroup>
-            
+
             {this.renderFormGroup('Position', {
               id: 'customer-position',
               defaultValue: customer.position || ''
@@ -250,7 +250,7 @@ class CustomerForm extends React.Component<Props, State> {
                 max={140}
                 id="customer-description"
                 componentClass="textarea"
-                defaultValue= {customer.description || ''}
+                defaultValue={customer.description || ''}
               />
             </FormGroup>
           </FormColumn>
@@ -271,7 +271,7 @@ class CustomerForm extends React.Component<Props, State> {
                 onChange={obj => this.onPhoneChange(obj)}
               />
             </FormGroup>
-            
+
             {this.renderFormGroup('Department', {
               id: 'customer-department',
               defaultValue: customer.department || ''

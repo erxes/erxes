@@ -13,7 +13,10 @@ import { OnlineHours } from '.';
 import { IOnlineHour } from '../../../types';
 
 type Props = {
-  onChange: (name: 'onlineHours' | 'isOnline' | 'availabilityMethod' | 'timezone', value: string) => void;
+  onChange: (
+    name: 'onlineHours' | 'isOnline' | 'availabilityMethod' | 'timezone',
+    value: string
+  ) => void;
   isOnline: boolean;
   availabilityMethod?: string;
   timezone?: string;
@@ -97,7 +100,10 @@ class Availability extends React.Component<Props> {
               checked={this.props.availabilityMethod === 'manual'}
               onChange={(e: React.FormEvent<HTMLElement>) => {
                 const target = e.currentTarget as HTMLInputElement;
-                return this.onChangeFunction('availabilityMethod', target.value)
+                return this.onChangeFunction(
+                  'availabilityMethod',
+                  target.value
+                );
               }}
               inline
             >
@@ -110,7 +116,7 @@ class Availability extends React.Component<Props> {
               checked={this.props.availabilityMethod === 'auto'}
               onChange={(e: React.FormEvent<HTMLElement>) => {
                 const target = e.currentTarget as HTMLInputElement;
-                this.onChangeFunction('availabilityMethod', target.value)
+                this.onChangeFunction('availabilityMethod', target.value);
               }}
               inline
             >

@@ -22,7 +22,7 @@ class MainLayout extends React.Component<IProps> {
     document.addEventListener(
       'invalid',
       (() => {
-        return (e) => {
+        return e => {
           // prevent the browser from showing default error hint
           e.preventDefault();
 

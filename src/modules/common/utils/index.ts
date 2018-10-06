@@ -23,7 +23,7 @@ export const setTitle = (title: string, force: boolean) => {
 };
 
 export const setBadge = (count: number, title: string) => {
-  const favicon = (document.getElementById('favicon') as HTMLAnchorElement);
+  const favicon = document.getElementById('favicon') as HTMLAnchorElement;
 
   if (count) {
     if (document.title.includes(title)) {
@@ -37,7 +37,11 @@ export const setBadge = (count: number, title: string) => {
   }
 };
 
-export const reorder = (list: string[], startIndex: number, endIndex: number) => {
+export const reorder = (
+  list: string[],
+  startIndex: number,
+  endIndex: number
+) => {
   const result = Array.from(list);
 
   const [removed] = result.splice(startIndex, 1);
@@ -93,4 +97,4 @@ export const __ = (key: string, options?: any) => {
   }
 
   return translation.toString();
-}
+};

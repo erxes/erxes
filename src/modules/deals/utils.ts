@@ -3,12 +3,12 @@ import { IUser, IUserDetails } from '../auth/types';
 import { IDeal, IDealParams } from './types';
 
 type Options = {
-  _id: string,
-  name?: string
-	type?: string,
-	index?: number,
-	itemId?: string
-}
+  _id: string;
+  name?: string;
+  type?: string;
+  index?: number;
+  itemId?: string;
+};
 
 // get options for react-select-plus
 export function selectOptions(array: Options[] = []) {
@@ -26,14 +26,14 @@ export function selectConfigOptions(array: string[] = [], CONSTANT: any) {
 // get user options for react-select-plus
 export function selectUserOptions(array: IUser[] = []) {
   return array.map(item => {
-    const user =  item || {} as IUser;
-    const details =  item.details || {} as IUserDetails;
-    
+    const user = item || ({} as IUser);
+    const details = item.details || ({} as IUserDetails);
+
     return {
       value: user._id,
       label: details.fullName || user.email,
       avatar: details.avatar
-    }
+    };
   });
 }
 
@@ -47,7 +47,7 @@ export function collectOrders(array: Options[] = []) {
 // create or update deal
 export function saveDeal(
   doc: IDealParams,
-  props: { addMutation: any, editMutation: any, dealsQuery: any },
+  props: { addMutation: any; editMutation: any; dealsQuery: any },
   callback: (data: any) => void,
   deal?: IDeal
 ) {
@@ -79,7 +79,7 @@ export function saveDeal(
 // remove deal
 export function removeDeal(
   _id: string,
-  props: { removeMutation: any, dealsQuery: any },
+  props: { removeMutation: any; dealsQuery: any },
   callback: (dealsRemove: IDeal) => void
 ) {
   const { removeMutation, dealsQuery } = props;

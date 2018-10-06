@@ -11,14 +11,14 @@ type Variables = {
   name: string;
   type: string;
   colorCode: string;
-}
+};
 
 type Props = {
   type: string;
   tagsQuery: any;
 
-  addMutation: (params: { variables: Variables}) => Promise<any>;
-  editMutation: (params: { variables: Variables}) => Promise<any>;
+  addMutation: (params: { variables: Variables }) => Promise<any>;
+  editMutation: (params: { variables: Variables }) => Promise<any>;
 
   removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
 };
@@ -81,7 +81,7 @@ const options = ({ type }) => ({
 export default compose(
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
-    options: ({ type } : { type: string }) => ({
+    options: ({ type }: { type: string }) => ({
       variables: { type },
       fetchPolicy: 'network-only'
     })

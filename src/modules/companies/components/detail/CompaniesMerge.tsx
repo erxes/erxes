@@ -2,17 +2,24 @@ import { Button, Icon } from 'modules/common/components';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
 import { COMPANY_DATAS, COMPANY_INFO } from 'modules/companies/constants';
-import { Info, InfoAvatar, InfoDetail, InfoTitle } from 'modules/customers/styles';
+import {
+  Info,
+  InfoAvatar,
+  InfoDetail,
+  InfoTitle
+} from 'modules/customers/styles';
 import * as React from 'react';
 import { ICompany } from '../../types';
 
 type Props = {
   objects: ICompany[];
-  save: (doc: {
-    ids: string[];
-    data: any;
-    callback: () => void;
-  }) => void;
+  save: (
+    doc: {
+      ids: string[];
+      data: any;
+      callback: () => void;
+    }
+  ) => void;
   closeModal: () => void;
 };
 
@@ -75,7 +82,7 @@ class CompaniesMerge extends React.Component<Props, State> {
 
   renderCompany(company, icon) {
     const properties = COMPANY_INFO.ALL.concat(COMPANY_DATAS.ALL);
-   
+
     return (
       <React.Fragment>
         <Title>{company.primaryName || company.website}</Title>
@@ -121,8 +128,8 @@ class CompaniesMerge extends React.Component<Props, State> {
       case 'parentCompany':
         return this.renderParentCompany(value);
       case 'avatar':
-        return <InfoAvatar src={value} alt="avatar" />
-        
+        return <InfoAvatar src={value} alt="avatar" />;
+
       default:
         return <InfoDetail>{value}</InfoDetail>;
     }

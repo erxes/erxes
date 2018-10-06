@@ -1,5 +1,5 @@
 export interface IEmailTemplate {
-    _id: string;
-    name: string;
-    content: string;
+  _id: string;
+  name: string;
+  content: string;
 }

@@ -1,7 +1,7 @@
-import { fadeIn, slideDown } from "modules/common/utils/animations";
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import styled from "styled-components";
+import { fadeIn, slideDown } from 'modules/common/utils/animations';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import styled from 'styled-components';
 
 const PreviewWrapper = styled.div`
   position: fixed;
@@ -75,7 +75,7 @@ class ImageWithPreview extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    document.addEventListener("keydown", this.handleKeydown);
+    document.addEventListener('keydown', this.handleKeydown);
   }
 
   handleKeydown(e) {
@@ -108,7 +108,7 @@ class PreviewPortal extends React.Component<{ children: React.ReactNode }> {
   constructor(props) {
     super(props);
 
-    this.el = document.createElement("div");
+    this.el = document.createElement('div');
   }
 
   componentDidMount() {

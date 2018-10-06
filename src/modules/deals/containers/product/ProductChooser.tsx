@@ -12,7 +12,7 @@ import { compose, graphql } from 'react-apollo';
 import { IProduct } from '../../../settings/productService/types';
 
 type Props = {
-  data: { name: string, products: IProduct[] };
+  data: { name: string; products: IProduct[] };
   productsQuery: any;
   productAdd: (params: { variables: IProduct }) => Promise<void>;
   closeModal: () => void;
@@ -69,7 +69,7 @@ class ProductChooser extends React.Component<Props, any> {
       search,
       title: 'Product',
       renderName: product => product.name,
-      renderForm: (props) => <ProductForm {...props} action={addProduct} />,
+      renderForm: props => <ProductForm {...props} action={addProduct} />,
       perPage: this.state.perPage,
       add: addProduct,
       clearState,

@@ -16,10 +16,10 @@ type Props = {
 };
 
 type State = {
-  total: { currency?: string, amount?: number },
-  tax: { currency?: string, tax?: number },
-  discount: { currency?: string, discount?: number },
-}
+  total: { currency?: string; amount?: number };
+  tax: { currency?: string; tax?: number };
+  discount: { currency?: string; discount?: number };
+};
 
 class ProductForm extends React.Component<Props, State> {
   constructor(props) {

@@ -14,5 +14,5 @@ export default (containerId: string, checked: boolean) => {
     if (element.type === 'checkbox') {
       element.checked = checked;
     }
-  } 
+  }
 };

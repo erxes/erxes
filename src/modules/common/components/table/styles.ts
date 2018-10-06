@@ -5,7 +5,13 @@ import { FormLabel, Input } from '../form/styles';
 
 const tableHoverColor = '#f5f5f5';
 
-const StyledTable = styledTS<{ whiteSpace?: string, alignTop?: boolean, hover?: boolean, bordered?: boolean, striped?: boolean }>(styled.table)`
+const StyledTable = styledTS<{
+  whiteSpace?: string;
+  alignTop?: boolean;
+  hover?: boolean;
+  bordered?: boolean;
+  striped?: boolean;
+}>(styled.table)`
   ${props => css`
     width: 100%;
     max-width: 100%;
@@ -50,13 +56,19 @@ const StyledTable = styledTS<{ whiteSpace?: string, alignTop?: boolean, hover?: 
       }
     }
 
-    ${props.hover
-      ? `tr:hover td { background-color: ${tableHoverColor}; cursor: pointer; }`
-      : null} ${props.bordered
-        ? `th, td { border: 1px solid ${colors.borderPrimary}; }`
-        : null} ${props.striped
-        ? `tr:nth-of-type(odd) td { background-color: ${colors.bgUnread}; }`
-        : null} th {
+    ${
+      props.hover
+        ? `tr:hover td { background-color: ${tableHoverColor}; cursor: pointer; }`
+        : null
+    } ${
+    props.bordered
+      ? `th, td { border: 1px solid ${colors.borderPrimary}; }`
+      : null
+  } ${
+    props.striped
+      ? `tr:nth-of-type(odd) td { background-color: ${colors.bgUnread}; }`
+      : null
+  } th {
       border-top: none;
     }
 

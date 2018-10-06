@@ -16,15 +16,13 @@ type Props = {
   saveProductsData: () => void;
 };
 
-function ProductSection(
-  {
-    products,
-    productsData,
-    onChangeProductsData,
-    onChangeProducts,
-    saveProductsData
-  }: Props
-) {
+function ProductSection({
+  products,
+  productsData,
+  onChangeProductsData,
+  onChangeProducts,
+  saveProductsData
+}: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
@@ -41,7 +39,7 @@ function ProductSection(
               <Icon icon="add" />
             </a>
           }
-          content={(props) => (
+          content={props => (
             <ProductForm
               {...props}
               onChangeProductsData={onChangeProductsData}

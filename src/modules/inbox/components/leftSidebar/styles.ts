@@ -1,6 +1,6 @@
-import { colors, dimensions } from "modules/common/styles";
-import styled, { css } from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const RightItems = styled.div`
   display: flex;
@@ -39,7 +39,7 @@ const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
   }
 
   ${CheckBox} {
-    width: ${props => (props.isChecked ? "30px" : "0")};
+    width: ${props => (props.isChecked ? '30px' : '0')};
 
     overflow: hidden;
     transition: all ease 0.3s;
@@ -133,7 +133,7 @@ const RowItem = styledTS<{ isActive?: boolean; isRead?: boolean }>(styled.li)`
     `};
   &:hover {
     background: ${props =>
-      !props.isRead || props.isActive ? "" : colors.bgLight};
+      !props.isRead || props.isActive ? '' : colors.bgLight};
     cursor: pointer;
   }
 `;

@@ -18,11 +18,11 @@ type Doc = {
   description: string;
   options: any[];
   groupId: string;
-}
+};
 
 type Props = {
   add: (params: { doc: Doc }) => void;
-  edit: ({ _id, doc }: { _id: string, doc: Doc }) => void;
+  edit: ({ _id, doc }: { _id: string; doc: Doc }) => void;
 
   field?: IField;
   groups: IFieldGroup[];
@@ -30,11 +30,11 @@ type Props = {
 };
 
 type State = {
-  options: any[]; 
+  options: any[];
   type: string;
   hasOptions: boolean;
   add: boolean;
-}
+};
 
 class PropertyForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -83,10 +83,15 @@ class PropertyForm extends React.Component<Props, State> {
 
   onSubmit(e) {
     e.preventDefault();
-    const groupId = (document.getElementById('groupId') as HTMLInputElement).value;
-    const validation = (document.getElementById('validation') as HTMLInputElement).value;
+    const groupId = (document.getElementById('groupId') as HTMLInputElement)
+      .value;
+    const validation = (document.getElementById(
+      'validation'
+    ) as HTMLInputElement).value;
     const text = (document.getElementById('text') as HTMLInputElement).value;
-    const description = (document.getElementById('description') as HTMLInputElement).value;
+    const description = (document.getElementById(
+      'description'
+    ) as HTMLInputElement).value;
 
     const { field, add, edit } = this.props;
     const { type, options } = this.state;
@@ -101,17 +106,17 @@ class PropertyForm extends React.Component<Props, State> {
     };
 
     if (field) {
-      edit({ _id: field._id, doc  })
+      edit({ _id: field._id, doc });
     } else {
       add({ doc });
     }
-    
+
     this.props.closeModal();
   }
 
   onTypeChange(e) {
     const value = e.target.value;
-    
+
     let doc = { hasOptions: false, options: [] };
 
     if (value === 'select' || value === 'check' || value === 'radio') {
@@ -131,7 +136,9 @@ class PropertyForm extends React.Component<Props, State> {
 
   handleSaveOption() {
     const { options } = this.state;
-    const optionValue = (document.getElementById('optionValue') as HTMLInputElement).value;
+    const optionValue = (document.getElementById(
+      'optionValue'
+    ) as HTMLInputElement).value;
 
     this.setState({ options: [...options, optionValue] });
     this.handleCancelAddingOption();
@@ -210,7 +217,10 @@ class PropertyForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { groups, field = { text: '', description: '', groupId: '', validation: '' } } = this.props;
+    const {
+      groups,
+      field = { text: '', description: '', groupId: '', validation: '' }
+    } = this.props;
     const { type } = this.state;
 
     return (

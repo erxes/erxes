@@ -8,7 +8,7 @@ moment.defineLocale('mn', {
   relativeTime: {
     future: '%s дараа',
     past: '%s өмнө',
-    ss: "$d секундын",
+    ss: '$d секундын',
     s: 'саяхан',
     m: 'минутын',
     mm: '%d минутын',
@@ -28,7 +28,7 @@ moment.updateLocale('en', {
     future: 'in %s',
     past: '%s ago',
     s: '%d seconds',
-    ss: "%d s",
+    ss: '%d s',
     m: 'a minute',
     mm: '%d minutes',
     h: 'an hour',
@@ -56,7 +56,10 @@ const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component<{ currentUser?: IUser }, IState> {
+export class AppProvider extends React.Component<
+  { currentUser?: IUser },
+  IState
+> {
   constructor(props) {
     super(props);
 
@@ -65,7 +68,7 @@ export class AppProvider extends React.Component<{ currentUser?: IUser }, IState
 
     this.state = {
       currentUser: props.currentUser,
-      currentLanguage,
+      currentLanguage
     };
 
     this.setLocale = this.setLocale.bind(this);
@@ -97,7 +100,7 @@ export class AppProvider extends React.Component<{ currentUser?: IUser }, IState
         value={{
           currentUser,
           currentLanguage,
-          changeLanguage: this.changeLanguage,
+          changeLanguage: this.changeLanguage
         }}
       >
         {this.props.children}

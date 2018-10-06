@@ -31,7 +31,9 @@ const routes = () => (
       path="/reset-password"
       component={({ location }) => {
         const parsed = queryString.parse(location.search);
-        return <AuthLayout content={<ResetPassword token={parsed.token || ''} />} />;
+        return (
+          <AuthLayout content={<ResetPassword token={parsed.token || ''} />} />
+        );
       }}
     />
   </React.Fragment>

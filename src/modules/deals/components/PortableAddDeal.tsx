@@ -28,7 +28,7 @@ type State = {
   disabled: boolean;
   boardId: string;
   pipelineId: string;
-}
+};
 
 class DealAddForm extends React.Component<Props, State> {
   constructor(props) {
@@ -106,7 +106,9 @@ class DealAddForm extends React.Component<Props, State> {
             <ControlLabel>Name</ControlLabel>
             <FormControl
               autoFocus
-              onChange={(e) => this.onChangeField('name', (e.target as HTMLInputElement).value)}
+              onChange={e =>
+                this.onChangeField('name', (e.target as HTMLInputElement).value)
+              }
             />
           </HeaderContent>
         </HeaderRow>

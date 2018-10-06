@@ -12,7 +12,7 @@ interface IProps extends IRouterProps {
   currentCategoryId: string;
   articlesCountQuery: any;
   categoryDetailQuery: any;
-};
+}
 
 class KnowledgeBase extends React.Component<IProps> {
   componentWillReceiveProps() {
@@ -46,24 +46,24 @@ class KnowledgeBase extends React.Component<IProps> {
 const KnowledgeBaseContainer = compose(
   graphql(gql(queries.knowledgeBaseCategoryDetail), {
     name: 'categoryDetailQuery',
-    options: ({ currentCategoryId } : { currentCategoryId: string }) => ({
+    options: ({ currentCategoryId }: { currentCategoryId: string }) => ({
       variables: { _id: currentCategoryId || '' },
       fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(queries.knowledgeBaseArticlesTotalCount), {
     name: 'articlesCountQuery',
-    options: ({ currentCategoryId } : { currentCategoryId: string }) => ({
+    options: ({ currentCategoryId }: { currentCategoryId: string }) => ({
       variables: { categoryIds: [currentCategoryId] || '' }
     })
   })
 )(KnowledgeBase);
 
 type KnowledgeBaseLastProps = {
-  lastCategoryQuery: any
+  lastCategoryQuery: any;
 };
 
-const KnowledgeBaseLast = (props :  KnowledgeBaseLastProps) => {
+const KnowledgeBaseLast = (props: KnowledgeBaseLastProps) => {
   const { lastCategoryQuery } = props;
   const lastCategory = lastCategoryQuery.knowledgeBaseCategoriesGetLast || {};
   const extendedProps = { ...props, currentCategoryId: lastCategory._id };
@@ -77,7 +77,7 @@ const KnowledgeBaseLastContainer = compose(
   })
 )(KnowledgeBaseLast);
 
-const MainContainer = (props : IRouterProps) => {
+const MainContainer = (props: IRouterProps) => {
   const { history } = props;
   const currentCategoryId = routerUtils.getParam(history, 'id');
 

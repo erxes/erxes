@@ -20,7 +20,7 @@ type State = {
   value: string;
   operator: string;
   dateUnit: string;
-}
+};
 
 class Condition extends React.Component<Props, State> {
   constructor(props) {
@@ -36,11 +36,10 @@ class Condition extends React.Component<Props, State> {
     this.state = this.props.condition;
   }
 
-  changeCondition (condition: ISegmentCondition) {
-  }
+  changeCondition(condition: ISegmentCondition) {}
 
   handleInputValue<T extends keyof State>(name: T, value: any) {
-    const states = { [name]: value , operator: '' } as Pick<State, keyof State>;
+    const states = { [name]: value, operator: '' } as Pick<State, keyof State>;
 
     // Changing current operator when the type is changed
     if (name === 'type') {
@@ -90,8 +89,11 @@ class Condition extends React.Component<Props, State> {
         componentClass="select"
         placeholder={__('select')}
         value={value}
-        onChange={(e) =>
-          this.handleInputValue(name, (e.currentTarget as HTMLInputElement).value)
+        onChange={e =>
+          this.handleInputValue(
+            name,
+            (e.currentTarget as HTMLInputElement).value
+          )
         }
       >
         {Object.keys(obj).map(key => (
@@ -135,8 +137,11 @@ class Condition extends React.Component<Props, State> {
         componentClass="select"
         placeholder={__('select')}
         value={this.state.operator}
-        onChange={(e) =>
-          this.handleInputValue('operator', (e.currentTarget as HTMLInputElement).value)
+        onChange={e =>
+          this.handleInputValue(
+            'operator',
+            (e.currentTarget as HTMLInputElement).value
+          )
         }
       >
         {operators[this.state.type].map(c => (

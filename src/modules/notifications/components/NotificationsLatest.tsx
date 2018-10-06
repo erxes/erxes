@@ -22,7 +22,7 @@ class NotificationsLatest extends React.Component<Props> {
     // update popover position
     const { update } = this.props;
 
-    if(update) {
+    if (update) {
       update();
     }
   }

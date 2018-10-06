@@ -6,7 +6,7 @@ import { withRouter } from 'react-router';
 
 interface IProps extends IRouterProps {
   sortField?: string;
-};
+}
 
 class SortHandler extends React.Component<IProps> {
   sortHandler(field, direction) {

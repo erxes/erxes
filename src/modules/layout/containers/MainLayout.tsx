@@ -6,13 +6,11 @@ import { MainLayout } from '../components';
 type Props = {
   currentUser?: IUser;
   children: React.ReactNode;
-}
+};
 
 const container = (props: Props) => (
   <AppProvider currentUser={props.currentUser}>
-    <AppConsumer>
-      {() => <MainLayout {...props} />}
-    </AppConsumer>
+    <AppConsumer>{() => <MainLayout {...props} />}</AppConsumer>
   </AppProvider>
 );
 

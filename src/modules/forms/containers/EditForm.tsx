@@ -1,14 +1,14 @@
-import gql from "graphql-tag";
-import { Alert } from "modules/common/utils";
-import { IField } from "modules/settings/properties/types";
-import * as React from "react";
-import { compose, graphql } from "react-apollo";
-import { withRouter } from "react-router";
-import { IRouterProps } from "../../common/types";
-import { IFormData } from "../../settings/integrations/types";
-import { Form } from "../components";
-import { mutations, queries } from "../graphql";
-import { IForm } from "../types";
+import gql from 'graphql-tag';
+import { Alert } from 'modules/common/utils';
+import { IField } from 'modules/settings/properties/types';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
+import { IRouterProps } from '../../common/types';
+import { IFormData } from '../../settings/integrations/types';
+import { Form } from '../components';
+import { mutations, queries } from '../graphql';
+import { IForm } from '../types';
 
 interface IProps extends IRouterProps {
   contentTypeId: string;
@@ -17,33 +17,51 @@ interface IProps extends IRouterProps {
   brandsQuery: any;
   integrationDetailQuery: any;
 
-  editIntegrationMutation: (params: { variables : {
-    _id: string;
-    formData: IFormData;
-    brandId: string;
-    name: string;
-    languageCode: string;
-    formId: string;
-  } }) => Promise<void>;
+  editIntegrationMutation: (
+    params: {
+      variables: {
+        _id: string;
+        formData: IFormData;
+        brandId: string;
+        name: string;
+        languageCode: string;
+        formId: string;
+      };
+    }
+  ) => Promise<void>;
 
-  editFormMutation: (params: { variables: {
-    _id: string;
-    formId: string;
-    form: IForm;
-  } }) => Promise<any>;
+  editFormMutation: (
+    params: {
+      variables: {
+        _id: string;
+        formId: string;
+        form: IForm;
+      };
+    }
+  ) => Promise<any>;
 
-  addFieldMutation: (params: { variables: {
-    createFieldsData: IField[]
-  } }) => Promise<void>;
+  addFieldMutation: (
+    params: {
+      variables: {
+        createFieldsData: IField[];
+      };
+    }
+  ) => Promise<void>;
 
-  editFieldMutation: (params: { variables: {
-    updateFieldsData: IField[]
-  } }) => Promise<void>;
+  editFieldMutation: (
+    params: {
+      variables: {
+        updateFieldsData: IField[];
+      };
+    }
+  ) => Promise<void>;
 
-  removeFieldMutation: (params: { variable: { removeFieldsData: IField[] } }) => Promise<void>;
+  removeFieldMutation: (
+    params: { variable: { removeFieldsData: IField[] } }
+  ) => Promise<void>;
 
   queryParams: any;
-};
+}
 
 class EditFormContainer extends React.Component<IProps, {}> {
   render() {
@@ -112,7 +130,7 @@ class EditFormContainer extends React.Component<IProps, {}> {
 
             createFieldsData.push({
               ...field,
-              contentType: "form",
+              contentType: 'form',
               contentTypeId: formId
             });
           }
@@ -144,10 +162,10 @@ class EditFormContainer extends React.Component<IProps, {}> {
         })
 
         .then(() => {
-          Alert.success("Congrats");
+          Alert.success('Congrats');
 
           fieldsQuery.refetch().then(() => {
-            history.push("/forms");
+            history.push('/forms');
           });
         })
 
@@ -170,49 +188,49 @@ class EditFormContainer extends React.Component<IProps, {}> {
 
 const EditFormIntegrationContainer = compose(
   graphql(gql(queries.brands), {
-    name: "brandsQuery",
+    name: 'brandsQuery',
     options: () => ({
-      fetchPolicy: "network-only"
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(queries.fields), {
-    name: "fieldsQuery",
-    options: ({ formId } : { formId: string }) => {
+    name: 'fieldsQuery',
+    options: ({ formId }: { formId: string }) => {
       return {
         variables: {
-          contentType: "form",
+          contentType: 'form',
           contentTypeId: formId
         },
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only'
       };
     }
   }),
   graphql(gql(queries.integrationDetail), {
-    name: "integrationDetailQuery",
-    options: ({ contentTypeId } : { contentTypeId: string }) => ({
+    name: 'integrationDetailQuery',
+    options: ({ contentTypeId }: { contentTypeId: string }) => ({
       variables: {
         _id: contentTypeId
       },
-      fetchPolicy: "network-only"
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(mutations.integrationsEditFormIntegration), {
-    name: "editIntegrationMutation",
+    name: 'editIntegrationMutation',
     options: {
-      refetchQueries: ["formIntegrations", "formIntegrationCounts"]
+      refetchQueries: ['formIntegrations', 'formIntegrationCounts']
     }
   }),
   graphql(gql(mutations.fieldsAdd), {
-    name: "addFieldMutation"
+    name: 'addFieldMutation'
   }),
   graphql(gql(mutations.fieldsEdit), {
-    name: "editFieldMutation"
+    name: 'editFieldMutation'
   }),
   graphql(gql(mutations.fieldsRemove), {
-    name: "removeFieldMutation"
+    name: 'removeFieldMutation'
   }),
   graphql(gql(mutations.editForm), {
-    name: "editFormMutation"
+    name: 'editFormMutation'
   })
 )(EditFormContainer);
 

@@ -15,15 +15,23 @@ type Props = {
   topics: ITopic[];
   articlesCount: number;
   topicsCount: number;
-  
-  save: (params: { doc: {doc: {
-    title: string;
-    description: string;
-    brandId: string;
-    languageCode: string;
-    color: string
-  }} }, callback: () => void, object: any) => void;
-  remove: ( _id: string ) => void;
+
+  save: (
+    params: {
+      doc: {
+        doc: {
+          title: string;
+          description: string;
+          brandId: string;
+          languageCode: string;
+          color: string;
+        };
+      };
+    },
+    callback: () => void,
+    object: any
+  ) => void;
+  remove: (_id: string) => void;
 };
 
 class KnowledgeList extends React.Component<Props> {
@@ -90,10 +98,10 @@ class KnowledgeList extends React.Component<Props> {
     return (
       <Header uppercase>
         {__('Knowledge base')}
-        <ModalTrigger 
-          title="Add Knowledge base" 
+        <ModalTrigger
+          title="Add Knowledge base"
           trigger={trigger}
-          content={(props) => <KnowledgeForm {...props} save={save} />}
+          content={props => <KnowledgeForm {...props} save={save} />}
         />
       </Header>
     );

@@ -1,13 +1,13 @@
-import { ModalTrigger, NameCard } from "modules/common/components";
-import * as React from "react";
-import { IMessage } from "../../../../../types";
+import { ModalTrigger, NameCard } from 'modules/common/components';
+import * as React from 'react';
+import { IMessage } from '../../../../../types';
 import {
   Date,
   FacebookContent,
   Reactions,
   ReplyingMessage,
   UserName
-} from "./";
+} from './';
 import {
   ChildPost,
   Comment,
@@ -15,7 +15,7 @@ import {
   Reply,
   ReplyReaction,
   User
-} from "./styles";
+} from './styles';
 
 type Props = {
   message: IMessage;
@@ -59,9 +59,9 @@ export default class FacebookComment extends React.Component<Props, {}> {
     }
 
     const size = data && data.parentId ? 20 : 32;
-    let commentVideo = "";
+    let commentVideo = '';
 
-    if (message.content.includes("youtube.com")) {
+    if (message.content.includes('youtube.com')) {
       commentVideo = message.content;
     }
 

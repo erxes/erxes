@@ -23,7 +23,7 @@ type States = {
   brandId: string;
   startDate: Date;
   endDate: Date;
-}
+};
 
 class Filter extends React.Component<Props, States> {
   constructor(props) {
@@ -55,7 +55,7 @@ class Filter extends React.Component<Props, States> {
   }
 
   onDateInputChange(type: string, date: Date) {
-    if(type === 'endDate') {
+    if (type === 'endDate') {
       this.setState({ endDate: date, isChange: true });
     } else {
       this.setState({ startDate: date, isChange: true });
@@ -127,16 +127,16 @@ class Filter extends React.Component<Props, States> {
           <FlexItem>
             <ControlLabel>Start date</ControlLabel>
             <Datetime
-              { ...props }
+              {...props}
               value={this.state.startDate}
               onBlur={this.onFilterByDate.bind(this, 'startDate')}
               onChange={this.onDateInputChange.bind(this, 'startDate')}
-              />
+            />
           </FlexItem>
           <FlexItem>
             <ControlLabel>End date</ControlLabel>
             <Datetime
-              { ...props }
+              {...props}
               value={this.state.endDate}
               onBlur={this.onFilterByDate.bind(this, 'endDate')}
               onChange={this.onDateInputChange.bind(this, 'endDate')}

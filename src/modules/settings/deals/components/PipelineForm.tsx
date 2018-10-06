@@ -14,12 +14,16 @@ type Props = {
   boardId: string;
   pipeline?: IPipeline;
   stages?: IStage[];
-  save: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline?: IPipeline) => void;
+  save: (
+    params: { doc: { name: string; boardId: string; stages: IStage[] } },
+    callback: () => void,
+    pipeline?: IPipeline
+  ) => void;
   closeModal: () => void;
 };
 
 type State = {
-  stages: IStage[],
+  stages: IStage[];
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -50,7 +54,8 @@ class PipelineForm extends React.Component<Props, State> {
 
     return {
       doc: {
-        name: (document.getElementById('pipeline-name') as HTMLInputElement).value,
+        name: (document.getElementById('pipeline-name') as HTMLInputElement)
+          .value,
         boardId: pipeline ? pipeline.boardId : this.props.boardId,
         stages: this.state.stages.filter(el => el.name)
       }

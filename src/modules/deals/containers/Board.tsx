@@ -9,7 +9,7 @@ import { DealConsumer, DealProvider } from './DealContext';
 type Props = {
   currentBoard?: IBoard;
   pipelinesQuery: any;
-}
+};
 
 class BoardContainer extends React.Component<Props> {
   render() {
@@ -26,12 +26,12 @@ class BoardContainer extends React.Component<Props> {
     return (
       <DealProvider>
         <DealConsumer>
-          {({ states, onDragEnd }) =>
+          {({ states, onDragEnd }) => (
             <Board {...extendedProps} states={states} onDragEnd={onDragEnd} />
-          }
+          )}
         </DealConsumer>
       </DealProvider>
-    )
+    );
   }
 }
 

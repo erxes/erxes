@@ -46,7 +46,7 @@ type Props = {
 type State = {
   segmentId: string;
   createSegment: boolean;
-}
+};
 
 class SegmentStep extends React.Component<Props, State> {
   constructor(props: Props) {

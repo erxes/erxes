@@ -1,8 +1,8 @@
-import { ImageWithPreview } from "modules/common/components";
-import * as React from "react";
-import styled from "styled-components";
-import { ITwitterData } from "../../../../../types";
-import { TwitterVideoEmbed } from "./";
+import { ImageWithPreview } from 'modules/common/components';
+import * as React from 'react';
+import styled from 'styled-components';
+import { ITwitterData } from '../../../../../types';
+import { TwitterVideoEmbed } from './';
 
 const Gif = styled.a`
   display: block;
@@ -61,7 +61,7 @@ class TweetMedia extends React.Component<Props, {}> {
       return null;
     }
 
-    if (media.type === "photo") {
+    if (media.type === 'photo') {
       return (
         <ImageWithPreview
           alt={entities.media[0].url}
@@ -71,7 +71,7 @@ class TweetMedia extends React.Component<Props, {}> {
       );
     }
 
-    if (media.type === "animated_gif") {
+    if (media.type === 'animated_gif') {
       const gif =
         media.video_info &&
         media.video_info.variants &&
@@ -94,7 +94,7 @@ class TweetMedia extends React.Component<Props, {}> {
       );
     }
 
-    if (media.type === "video") {
+    if (media.type === 'video') {
       return <TwitterVideoEmbed id={data.id_str} />;
     }
 

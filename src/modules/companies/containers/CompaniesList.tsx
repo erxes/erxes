@@ -14,16 +14,20 @@ interface IProps extends IRouterProps {
   companiesMainQuery?: any;
   companyCountsQuery?: any;
   companiesListConfigQuery?: any;
-  companiesRemove: (params: { variables: { companyIds: string[] } }) => Promise<any>;
-  companiesMerge: (params: {
-    variables: {
-      companyIds: string[];
-      companyFields: any;
+  companiesRemove: (
+    params: { variables: { companyIds: string[] } }
+  ) => Promise<any>;
+  companiesMerge: (
+    params: {
+      variables: {
+        companyIds: string[];
+        companyFields: any;
+      };
     }
-  }) => Promise<any>;
+  ) => Promise<any>;
   tagsQuery?: any;
   loading?: boolean;
-};
+}
 
 type State = {
   loading: boolean;
@@ -34,7 +38,7 @@ class CompanyListContainer extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      loading: false,
+      loading: false
     };
   }
 
@@ -123,7 +127,7 @@ class CompanyListContainer extends React.Component<IProps, State> {
     return (
       <Bulk
         content={props => {
-          return <CompaniesList {...updatedProps} {...props} />
+          return <CompaniesList {...updatedProps} {...props} />;
         }}
         refetch={() => {
           this.props.companiesMainQuery.refetch();

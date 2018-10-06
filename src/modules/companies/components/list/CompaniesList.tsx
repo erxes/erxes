@@ -40,14 +40,14 @@ interface IProps extends IRouterProps {
   loadingTags: boolean;
   mergeCompanies: () => void;
   queryParams: any;
-};
+}
 
 type State = {
   searchValue?: string;
 };
 
 class CompaniesList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer = undefined
+  private timer?: NodeJS.Timer = undefined;
 
   constructor(props) {
     super(props);
@@ -190,7 +190,13 @@ class CompaniesList extends React.Component<IProps, State> {
               title="Merge Companies"
               size="lg"
               trigger={mergeButton}
-              content={(props) => <CompaniesMerge {...props} objects={bulk} save={mergeCompanies} />}
+              content={props => (
+                <CompaniesMerge
+                  {...props}
+                  objects={bulk}
+                  save={mergeCompanies}
+                />
+              )}
             />
           )}
 
@@ -220,24 +226,26 @@ class CompaniesList extends React.Component<IProps, State> {
           autoFocus
           onFocus={e => this.moveCursorAtTheEnd(e)}
         />
-        <ModalTrigger 
-          title="Choose which column you see" 
+        <ModalTrigger
+          title="Choose which column you see"
           trigger={editColumns}
-          content={(props) => (
+          content={props => (
             <ManageColumns
               {...props}
               location={location}
               history={history}
               contentType="company"
-              />
-            )}
-          />
-        <ModalTrigger 
-          title="New company" 
-          trigger={addTrigger} 
+            />
+          )}
+        />
+        <ModalTrigger
+          title="New company"
+          trigger={addTrigger}
           size="lg"
-          content={(props) => <CompanyForm  {...props} queryParams={queryParams} />}
-         />
+          content={props => (
+            <CompanyForm {...props} queryParams={queryParams} />
+          )}
+        />
       </BarItems>
     );
 

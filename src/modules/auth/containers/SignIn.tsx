@@ -10,10 +10,15 @@ import { SignIn } from '../components';
 import { mutations } from '../graphql';
 
 interface IProps extends IRouterProps {
-  loginMutation: (params: { variables: {
-    email: string, password: string
-  } }) => Promise<any>;
-};
+  loginMutation: (
+    params: {
+      variables: {
+        email: string;
+        password: string;
+      };
+    }
+  ) => Promise<any>;
+}
 
 const SignInContainer = (props: IProps) => {
   const { loginMutation, history } = props;

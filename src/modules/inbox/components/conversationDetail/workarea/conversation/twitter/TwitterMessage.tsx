@@ -1,11 +1,11 @@
-import { Icon, ModalTrigger, NameCard, Tip } from "modules/common/components";
-import * as moment from "moment";
-import * as React from "react";
-import { ICustomer } from "../../../../../../customers/types";
-import { IAddMessage } from "../../../../../containers/conversationDetail/WorkArea";
-import { IMessage, ITwitterData } from "../../../../../types";
-import { ModalAction, TweetContent, TweetMedia } from "./";
-import { Count, Counts, Reply, Time, Tweet, User } from "./styles";
+import { Icon, ModalTrigger, NameCard, Tip } from 'modules/common/components';
+import * as moment from 'moment';
+import * as React from 'react';
+import { ICustomer } from '../../../../../../customers/types';
+import { IAddMessage } from '../../../../../containers/conversationDetail/WorkArea';
+import { IMessage, ITwitterData } from '../../../../../types';
+import { ModalAction, TweetContent, TweetMedia } from './';
+import { Count, Counts, Reply, Time, Tweet, User } from './styles';
 
 type Props = {
   message: IMessage;
@@ -80,7 +80,7 @@ class TwitterMessage extends React.Component<Props, {}> {
     const idStr = message.twitterData.id_str;
 
     return (
-      <Tip text={moment(messageDate).format("lll")}>
+      <Tip text={moment(messageDate).format('lll')}>
         <Time href={`https://twitter.com/statuses/${idStr}`} target="_blank">
           {moment(messageDate).fromNow()}
         </Time>

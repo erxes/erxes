@@ -17,9 +17,9 @@ type Props = {
 };
 
 type State = {
-  name: string,
-  colorCode: string
-}
+  name: string;
+  colorCode: string;
+};
 
 class Form extends React.Component<Props, State> {
   constructor(props, context) {
@@ -46,7 +46,9 @@ class Form extends React.Component<Props, State> {
     save({
       tag,
       doc: { name, type, colorCode },
-      callback: () => { closeModal() }
+      callback: () => {
+        closeModal();
+      }
     });
   }
 
@@ -85,7 +87,11 @@ class Form extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={this.props.closeModal} icon="cancel-1">
+          <Button
+            btnStyle="simple"
+            onClick={this.props.closeModal}
+            icon="cancel-1"
+          >
             Cancel
           </Button>
 

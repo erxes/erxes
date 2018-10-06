@@ -11,7 +11,7 @@ interface IProps extends IRouterProps {
   counts: any;
   brands: IBrand[];
   loading: boolean;
-};
+}
 
 function Brands({ history, counts, brands, loading }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;

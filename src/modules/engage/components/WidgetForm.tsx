@@ -31,7 +31,7 @@ type State = {
   content: string;
   channel: string;
   attachments: IAttachment[];
-}
+};
 
 class WidgetForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -52,14 +52,17 @@ class WidgetForm extends React.Component<Props, State> {
     const doc = {
       title: (document.getElementById('title') as HTMLInputElement).value,
       customerIds: customers.map(customer => customer._id),
-      method: '',
+      method: ''
     } as IEngageMessageDoc;
 
     if (this.state.channel === 'email') {
       doc.method = METHODS.EMAIL;
       doc.email = {
-        templateId: (document.getElementById('emailTemplateId') as HTMLInputElement).value,
-        subject: (document.getElementById('emailSubject') as HTMLInputElement).value,
+        templateId: (document.getElementById(
+          'emailTemplateId'
+        ) as HTMLInputElement).value,
+        subject: (document.getElementById('emailSubject') as HTMLInputElement)
+          .value,
         attachments: this.state.attachments,
         content: this.state.content
       } as IEngageEmail;
@@ -69,7 +72,8 @@ class WidgetForm extends React.Component<Props, State> {
       doc.method = METHODS.MESSENGER;
       doc.messenger = {
         brandId: (document.getElementById('brandId') as HTMLInputElement).value,
-        kind: (document.getElementById('messengerKind') as HTMLInputElement).value,
+        kind: (document.getElementById('messengerKind') as HTMLInputElement)
+          .value,
         sentAs: (document.getElementById('sentAs') as HTMLInputElement).value,
         content: this.state.content
       } as IEngageMessenger;

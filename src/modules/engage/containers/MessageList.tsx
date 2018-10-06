@@ -18,9 +18,9 @@ type Props = {
 };
 
 type State = {
-  bulk: any[],
-  isAllSelected: boolean,
-}
+  bulk: any[];
+  isAllSelected: boolean;
+};
 
 class MessageListContainer extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -29,7 +29,7 @@ class MessageListContainer extends React.Component<Props, State> {
     this.state = {
       bulk: [],
       isAllSelected: false
-    }
+    };
   }
 
   render() {
@@ -50,11 +50,11 @@ class MessageListContainer extends React.Component<Props, State> {
     };
 
     return (
-      <Bulk 
-        content={(props => {
-          return <MessageList {...updatedProps} {...props} />
-        })}
-      /> 
+      <Bulk
+        content={props => {
+          return <MessageList {...updatedProps} {...props} />;
+        }}
+      />
     );
   }
 }
@@ -76,7 +76,7 @@ const MessageListContainerWithData = compose(
   })
 )(MessageListContainer);
 
-const EngageListContainer = (props : IRouterProps) => {
+const EngageListContainer = (props: IRouterProps) => {
   const queryParams = queryString.parse(props.location.search);
 
   const extendedProps = { ...props, queryParams };

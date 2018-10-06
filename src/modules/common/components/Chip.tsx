@@ -43,7 +43,11 @@ const Remove = styled.span`
   }
 `;
 
-function Chip(props: { normal?: boolean, onClickClose: () => void, children: React.ReactNode }) {
+function Chip(props: {
+  normal?: boolean;
+  onClickClose: () => void;
+  children: React.ReactNode;
+}) {
   const { normal, onClickClose, children } = props;
 
   return (

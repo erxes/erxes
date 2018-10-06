@@ -8,7 +8,7 @@ import { queries } from '../graphql';
 
 interface IProps extends IRouterProps {
   notificationCountQuery: any;
-};
+}
 
 class WidgetContainer extends React.Component<IProps> {
   render() {

@@ -46,11 +46,11 @@ class Stage extends React.Component<Props> {
     );
 
     return (
-      <ModalTrigger 
-        title="Add a deal" 
+      <ModalTrigger
+        title="Add a deal"
         trigger={trigger}
-        content={(props) => <DealAddForm {...props} add={addDeal} />}
-       />
+        content={props => <DealAddForm {...props} add={addDeal} />}
+      />
     );
   }
 
@@ -58,9 +58,9 @@ class Stage extends React.Component<Props> {
     const index = this.props.index || 0;
     const length = this.props.length || 0;
     const data: any = [];
-    
-    for(let i = 0; i <= length; i++) {
-      data.push(<IndicatorItem isPass={index >= i} key={i} />)
+
+    for (let i = 0; i <= length; i++) {
+      data.push(<IndicatorItem isPass={index >= i} key={i} />);
     }
 
     return data;
@@ -73,12 +73,7 @@ class Stage extends React.Component<Props> {
       <DropZone innerRef={provided.innerRef}>
         <div className="deals">
           {deals.map((deal, index) => (
-            <Deal
-              key={deal._id}
-              index={index}
-              dealId={deal._id}
-              draggable
-            />
+            <Deal key={deal._id} index={index} dealId={deal._id} draggable />
           ))}
         </div>
         {provided.placeholder}

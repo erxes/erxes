@@ -11,7 +11,9 @@ import * as React from 'react';
 type Props = {
   size?: string;
   object: any;
-  renderForm: (doc: { object: any, closeModal: () => void, save: () => void }) => void;
+  renderForm: (
+    doc: { object: any; closeModal: () => void; save: () => void }
+  ) => void;
   remove: (_id: string) => void;
   save: () => void;
 };
@@ -53,8 +55,8 @@ export default class RowActions extends React.Component<Props, {}> {
         size={size}
         title="Edit"
         trigger={editTrigger}
-        content={(props) => {
-          return renderForm({ ...props, object, save })
+        content={props => {
+          return renderForm({ ...props, object, save });
         }}
       />
     );

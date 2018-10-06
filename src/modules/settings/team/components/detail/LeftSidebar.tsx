@@ -13,7 +13,7 @@ import { List } from './styles';
 
 type Props = {
   user: IUser;
-  saveUser: (_id: string, doc: IUser, callback: (e: string) => void ) => void;
+  saveUser: (_id: string, doc: IUser, callback: (e: string) => void) => void;
   saveProfile: (variables: IUserDoc) => void;
   channels: IChannel[];
   currentUser: IUser;
@@ -58,13 +58,19 @@ class LeftSidebar extends React.Component<Props> {
               avatarSize={50}
               secondLine={this.renderLinks(links)}
             />
-            <ModalTrigger 
-              title="Edit" 
-              trigger={<Icon icon="edit" />} 
+            <ModalTrigger
+              title="Edit"
+              trigger={<Icon icon="edit" />}
               size="lg"
-              content={(props) => {
+              content={props => {
                 if (currentUser._id === user._id) {
-                  return <EditProfile {...props } save={saveProfile} currentUser={currentUser} />;
+                  return (
+                    <EditProfile
+                      {...props}
+                      save={saveProfile}
+                      currentUser={currentUser}
+                    />
+                  );
                 }
 
                 return <UserForm {...props} object={user} save={saveUser} />;

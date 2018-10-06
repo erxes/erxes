@@ -1,9 +1,9 @@
-import { FilterableList } from "modules/common/components";
-import { __ } from "modules/common/utils";
-import Alert from "modules/common/utils/Alert";
-import * as React from "react";
-import { IUser } from "../../../auth/types";
-import { IConversation } from "../../types";
+import { FilterableList } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import Alert from 'modules/common/utils/Alert';
+import * as React from 'react';
+import { IUser } from '../../../auth/types';
+import { IConversation } from '../../types';
 
 interface IAssignee {
   _id: string;
@@ -69,11 +69,11 @@ class AssignBox extends React.Component<Props, State> {
         return memo + index;
       }, 0);
 
-      let state = "none";
+      let state = 'none';
       if (count === targets.length) {
-        state = "all";
+        state = 'all';
       } else if (count < targets.length && count > 0) {
-        state = "some";
+        state = 'some';
       }
 
       return {
@@ -81,7 +81,7 @@ class AssignBox extends React.Component<Props, State> {
         title: assignee.details ? assignee.details.fullName : assignee.email,
         avatar: assignee.details
           ? assignee.details.avatar
-          : "/images/avatar-colored.svg",
+          : '/images/avatar-colored.svg',
         selectedBy: state
       };
     });
@@ -122,8 +122,8 @@ class AssignBox extends React.Component<Props, State> {
 
     const links = [
       {
-        title: __("Remove assignee"),
-        href: "#",
+        title: __('Remove assignee'),
+        href: '#',
         onClick: this.removeAssignee
       }
     ];

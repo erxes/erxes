@@ -1,18 +1,18 @@
-import * as Draft from "draft-js";
-import { ContentState, EditorState, RichUtils } from "draft-js";
-import { stateToHTML } from "draft-js-export-html";
-import Editor from "draft-js-plugins-editor";
+import * as Draft from 'draft-js';
+import { ContentState, EditorState, RichUtils } from 'draft-js';
+import { stateToHTML } from 'draft-js-export-html';
+import Editor from 'draft-js-plugins-editor';
 import * as React from 'react';
 import {
   RichEditorControls,
   RichEditorControlsRoot,
   RichEditorRoot
-} from "./styles";
+} from './styles';
 
 function getBlockStyle(block) {
   switch (block.getType()) {
-    case "blockquote":
-      return "RichEditor-blockquote";
+    case 'blockquote':
+      return 'RichEditor-blockquote';
     default:
       return null;
   }
@@ -21,7 +21,7 @@ function getBlockStyle(block) {
 // Custom overrides for "code" style.
 const styleMap = {
   CODE: {
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
     fontFamily: '"Inconsolata", "Menlo", "Consolas", monospace',
     fontSize: 16,
     padding: 2
@@ -53,10 +53,10 @@ class StyleButton extends React.Component<Props> {
   render() {
     const { active, label, title } = this.props;
 
-    let className = "RichEditor-styleButton";
+    let className = 'RichEditor-styleButton';
 
     if (active) {
-      className += " RichEditor-activeButton";
+      className += ' RichEditor-activeButton';
     }
 
     return (
@@ -70,28 +70,28 @@ class StyleButton extends React.Component<Props> {
 const BLOCK_TYPES = [
   {
     label: <i className="icon-fontsize" />,
-    style: "header-three",
-    title: "Heading"
+    style: 'header-three',
+    title: 'Heading'
   },
   {
     label: <i className="icon-rightquote" />,
-    style: "blockquote",
-    title: "Blockquote"
+    style: 'blockquote',
+    title: 'Blockquote'
   },
   {
     label: <i className="icon-list-2" />,
-    style: "unordered-list-item",
-    title: "Unordered list"
+    style: 'unordered-list-item',
+    title: 'Unordered list'
   },
   {
     label: <i className="icon-list" />,
-    style: "ordered-list-item",
-    title: "Ordered list"
+    style: 'ordered-list-item',
+    title: 'Ordered list'
   },
   {
     label: <i className="icon-superscript" />,
-    style: "code-block",
-    title: "Code Block"
+    style: 'code-block',
+    title: 'Code Block'
   }
 ];
 
@@ -126,12 +126,12 @@ const BlockStyleControls = (props: BlockStyleProps) => {
 };
 
 const INLINE_STYLES = [
-  { label: <i className="icon-bold" />, style: "BOLD", title: "Bold" },
-  { label: <i className="icon-italic" />, style: "ITALIC", title: "Italic" },
+  { label: <i className="icon-bold" />, style: 'BOLD', title: 'Bold' },
+  { label: <i className="icon-italic" />, style: 'ITALIC', title: 'Italic' },
   {
     label: <i className="icon-underline" />,
-    style: "UNDERLINE",
-    title: "Underline"
+    style: 'UNDERLINE',
+    title: 'Underline'
   }
 ];
 
@@ -213,7 +213,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
     return false;
   }
 
-  toggleBlockType(blockType: string = "unstyled") {
+  toggleBlockType(blockType: string = 'unstyled') {
     const { onChange, editorState } = this.props;
 
     onChange(RichUtils.toggleBlockType(editorState, blockType));
@@ -242,7 +242,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.
-    let className = "RichEditor-editor";
+    let className = 'RichEditor-editor';
     const contentState = editorState.getCurrentContent();
 
     if (!contentState.hasText()) {
@@ -250,9 +250,9 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
         contentState
           .getBlockMap()
           .first()
-          .getType() !== "unstyled"
+          .getType() !== 'unstyled'
       ) {
-        className += " RichEditor-hidePlaceholder";
+        className += ' RichEditor-hidePlaceholder';
       }
     }
 
@@ -297,9 +297,13 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
   }
 }
 
-export const toHTML = (state: EditorState) => stateToHTML(state.getCurrentContent());
+export const toHTML = (state: EditorState) =>
+  stateToHTML(state.getCurrentContent());
 
-export const createStateFromHTML = (editorState: EditorState, html: string): EditorState => {
+export const createStateFromHTML = (
+  editorState: EditorState,
+  html: string
+): EditorState => {
   if (!html) {
     return editorState;
   }
@@ -313,15 +317,15 @@ export const createStateFromHTML = (editorState: EditorState, html: string): Edi
   const content = ContentState.createFromBlockArray(contentBlocks, entityMap);
 
   // TODO: Check insert-fragment
-  return EditorState.push(editorState, content, "insert-fragment");
+  return EditorState.push(editorState, content, 'insert-fragment');
 };
 
 // TODO: Check insert-fragment
 export const clearContent = editorState =>
   EditorState.push(
     editorState,
-    ContentState.createFromText(""),
-    "insert-fragment"
+    ContentState.createFromText(''),
+    'insert-fragment'
   );
 
 export default {

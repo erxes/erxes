@@ -8,13 +8,19 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   notificationsQuery: any;
-  notificationsMarkAsReadMutation: (params: { variables: { _ids: string[] } }) => Promise<any>;
+  notificationsMarkAsReadMutation: (
+    params: { variables: { _ids: string[] } }
+  ) => Promise<any>;
   update?: () => void;
 };
 
 class NotificationsLatestContainer extends React.Component<Props> {
   render() {
-    const { notificationsQuery, notificationsMarkAsReadMutation, update } = this.props;
+    const {
+      notificationsQuery,
+      notificationsMarkAsReadMutation,
+      update
+    } = this.props;
 
     if (notificationsQuery.loading) {
       return <Spinner objective />;

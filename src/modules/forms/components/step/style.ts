@@ -1,10 +1,10 @@
-import { colors, dimensions } from "modules/common/styles";
-import { rgba } from "modules/common/styles/color";
-import { BoxRoot } from "modules/common/styles/main";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { ShoutBox } from "./preview/CommonPreview";
-import { PreviewBody } from "./preview/styles";
+import { colors, dimensions } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
+import { BoxRoot } from 'modules/common/styles/main';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { ShoutBox } from './preview/CommonPreview';
+import { PreviewBody } from './preview/styles';
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
@@ -27,7 +27,7 @@ const Box = styledTS<{ selected?: boolean }>(BoxRoot.extend)`
 const BoxRow = styledTS<{ type?: string }>(styled.div)`
   display: flex;
   flex-direction: row;
-  margin-right: ${props => props.type && "20px"};
+  margin-right: ${props => props.type && '20px'};
 `;
 
 const FlexItem = styled.div`
@@ -49,7 +49,7 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
   margin-left: ${dimensions.unitSpacing}px;
   border-radius: 50%;
   border: 1px solid
-    ${props => (props.selected ? colors.colorPrimary : "transparent")};
+    ${props => (props.selected ? colors.colorPrimary : 'transparent')};
 
   > div {
     height: ${dimensions.headerSpacing - 20}px;
@@ -175,7 +175,7 @@ const MarkdownWrapper = styled.div`
 `;
 
 const DesktopPreview = styled.div`
-  background: url("/images/previews/desktop.png") no-repeat;
+  background: url('/images/previews/desktop.png') no-repeat;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
   flex: 1;
@@ -188,7 +188,7 @@ const DesktopPreview = styled.div`
 `;
 
 const MobilePreview = styled.div`
-  background: url("/images/previews/mobile.png") no-repeat;
+  background: url('/images/previews/mobile.png') no-repeat;
   width: 376px;
   height: 650px;
   margin: 0 auto;
@@ -205,7 +205,7 @@ const MobilePreview = styled.div`
 `;
 
 const TabletPreview = styled.div`
-  background: url("/images/previews/tablet.png") no-repeat center center;
+  background: url('/images/previews/tablet.png') no-repeat center center;
   width: 768px;
   height: 1024px;
   margin: 0 auto;

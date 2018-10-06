@@ -1,6 +1,6 @@
-import { queries as customerQueries } from "modules/customers/graphql";
-import conversationFields from "./conversationFields";
-import messageFields from "./messageFields";
+import { queries as customerQueries } from 'modules/customers/graphql';
+import conversationFields from './conversationFields';
+import messageFields from './messageFields';
 
 const listParamsDef = `
   $limit: Int
@@ -222,8 +222,7 @@ const generateCustomerDetailQuery = params => {
     showCustomFields = false,
     showCompanies = false,
     showTags = false
-  } =
-    params || {};
+  } = params || {};
 
   let fields = `
     _id

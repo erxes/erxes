@@ -1,7 +1,7 @@
-import { SortableList } from "modules/common/components";
-import { IField } from "modules/settings/properties/types";
-import * as React from "react";
-import { FieldPreview } from "./";
+import { SortableList } from 'modules/common/components';
+import { IField } from 'modules/settings/properties/types';
+import * as React from 'react';
+import { FieldPreview } from './';
 
 type Props = {
   fields?: IField[];
@@ -44,11 +44,10 @@ class FormFieldPreview extends React.Component<Props, State> {
 
     this.setState({ fields });
 
-    this.props.onChange("fields", (this.state.fields || []));
+    this.props.onChange('fields', this.state.fields || []);
   }
 
   render() {
-
     const child = field => {
       return (
         <FieldPreview
@@ -62,7 +61,7 @@ class FormFieldPreview extends React.Component<Props, State> {
     return (
       <SortableList
         child={child}
-        fields={(this.state.fields || [])}
+        fields={this.state.fields || []}
         onChangeFields={this.onChangeFields}
       />
     );

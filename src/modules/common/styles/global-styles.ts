@@ -1,5 +1,5 @@
-import { injectGlobal } from "styled-components";
-import { colors, typography } from "./";
+import { injectGlobal } from 'styled-components';
+import { colors, typography } from './';
 
 injectGlobal`
   html {
@@ -7,7 +7,7 @@ injectGlobal`
   }
 
   body {
-		font-family: 'Montserrat', 'PT Sans Caption', 'Arial',  sans-serif;
+		font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
     margin: 0;
     font-size: ${typography.fontSizeBody}px;
     line-height: ${typography.lineHeightBody};
@@ -157,7 +157,7 @@ injectGlobal`
 
   /* tooltip */
   .tooltip {
-    font-family: 'Montserrat', 'PT Sans Caption', 'Arial',  sans-serif;
+    font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
   }
 
   .tooltip-inner {
@@ -200,7 +200,7 @@ injectGlobal`
   /* popover */
 
   .popover {
-    font-family: 'Montserrat', 'PT Sans Caption', 'Arial',  sans-serif;
+    font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
     border: none;
     border-radius: 0;
     font-size: inherit;

@@ -20,16 +20,16 @@ const PageHeader = styled.div`
 `;
 
 function Header({ breadcrumb, queryParams, submenu }: Props) {
-  let isVisible = true;
+  let breadCrumbVisible = true;
 
-  if(submenu) {
-    isVisible = false;
+  if (submenu) {
+    breadCrumbVisible = false;
   }
-  
+
   return (
     <PageHeader>
+      <BreadCrumb breadcrumbs={breadcrumb} isVisible={breadCrumbVisible} />
       <Submenu items={submenu} />
-      <BreadCrumb breadcrumbs={breadcrumb} isVisible={isVisible} />
       {queryParams && <Filter queryParams={queryParams} />}
     </PageHeader>
   );

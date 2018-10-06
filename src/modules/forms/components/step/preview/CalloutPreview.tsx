@@ -1,5 +1,5 @@
-import * as React from "react";
-import CommonPreview from "./CommonPreview";
+import * as React from 'react';
+import CommonPreview from './CommonPreview';
 
 type Props = {
   calloutTitle?: string;

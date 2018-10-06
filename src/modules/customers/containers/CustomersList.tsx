@@ -17,21 +17,25 @@ interface IProps extends IRouterProps {
   customersMainQuery: any;
   customerCountsQuery: any;
   customersListConfigQuery: any;
-  customersRemove: (params: { variables: { customerIds: string[] } }) => Promise<void>;
-  customersMerge: (params: {
-    variables: {
-      customerIds: string[];
-      customerFields: any;
+  customersRemove: (
+    params: { variables: { customerIds: string[] } }
+  ) => Promise<void>;
+  customersMerge: (
+    params: {
+      variables: {
+        customerIds: string[];
+        customerFields: any;
+      };
     }
-  }) => Promise<void>;
+  ) => Promise<void>;
   tagsQuery: any;
   brandsQuery: any;
   queryParams: any;
-};
+}
 
 type State = {
   loading: boolean;
-}
+};
 
 class CustomerListContainer extends React.Component<IProps, State> {
   constructor(props) {
@@ -84,7 +88,7 @@ class CustomerListContainer extends React.Component<IProps, State> {
           customerFields: data
         }
       })
-        .then(({ data }: any)=> {
+        .then(({ data }: any) => {
           callback();
           Alert.success('Success');
           history.push(`/customers/details/${data.customersMerge._id}`);
@@ -93,7 +97,7 @@ class CustomerListContainer extends React.Component<IProps, State> {
           Alert.error(e.message);
         });
 
-    const exportCustomers = (bulk) => {
+    const exportCustomers = bulk => {
       const { queryParams } = this.props;
 
       if (bulk.length > 0) {
@@ -181,7 +185,7 @@ class CustomerListContainer extends React.Component<IProps, State> {
 
     return (
       <Bulk
-        content={(props) => <CustomersList {...updatedProps} {...props} />}
+        content={props => <CustomersList {...updatedProps} {...props} />}
         refetch={() => {
           this.props.customersMainQuery.refetch();
           this.props.customerCountsQuery.refetch();

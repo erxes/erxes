@@ -15,7 +15,6 @@
     "variable-name": false,
     "no-empty": false,
     "one-variable-per-declaration": false,
-    "no-string-literal": false,
     "no-console": false, // allow some console statements for debugging
     "member-access": false, // start without having to write public, private modifiers
     "jsx-no-lambda": false, // lambdas in render are bad for performance but this can be annoying during prototyping

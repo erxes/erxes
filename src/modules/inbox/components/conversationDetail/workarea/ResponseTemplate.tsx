@@ -4,8 +4,8 @@ import {
   FormControl,
   Icon,
   Tip
-} from "modules/common/components";
-import { __, Alert } from "modules/common/utils";
+} from 'modules/common/components';
+import { __, Alert } from 'modules/common/utils';
 import {
   InlineColumn,
   InlineHeader,
@@ -16,16 +16,16 @@ import {
   ResponseTemplateStyled,
   TemplateContent,
   TemplateTitle
-} from "modules/inbox/styles";
-import * as React from "react";
-import { OverlayTrigger, Popover } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import strip from "strip";
-import { IAttachment } from "../../../../common/types";
-import { IBrand } from "../../../../settings/brands/types";
-import { IResponseTemplate } from "../../../../settings/responseTemplates/types";
-import { ISaveResponseTemplate } from "../../../containers/conversationDetail/ResponseTemplate";
-import ResponseTemplateModal from "./ResponseTemplateModal";
+} from 'modules/inbox/styles';
+import * as React from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import strip from 'strip';
+import { IAttachment } from '../../../../common/types';
+import { IBrand } from '../../../../settings/brands/types';
+import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
+import { ISaveResponseTemplate } from '../../../containers/conversationDetail/ResponseTemplate';
+import ResponseTemplateModal from './ResponseTemplateModal';
 
 type Props = {
   brandId?: string;
@@ -54,7 +54,7 @@ class ResponseTemplate extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      key: "",
+      key: '',
       brandId: props.brandId,
       options: this.filterByBrand(props.brandId)
     };
@@ -93,9 +93,9 @@ class ResponseTemplate extends React.Component<Props, State> {
     this.props.saveResponseTemplate(doc, error => {
       if (error) return Alert.error(error.message);
 
-      Alert.success("Congrats");
+      Alert.success('Congrats');
 
-      const element = document.querySelector("button.close") as HTMLElement;
+      const element = document.querySelector('button.close') as HTMLElement;
 
       return element.click();
     });
@@ -161,7 +161,7 @@ class ResponseTemplate extends React.Component<Props, State> {
 
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
-        <Tip text={__("Save as template")}>
+        <Tip text={__('Save as template')}>
           <Icon icon="download-3" />
         </Tip>
       </Button>
@@ -171,14 +171,14 @@ class ResponseTemplate extends React.Component<Props, State> {
       <Popover
         className="popover-template"
         id="templates-popover"
-        title={__("Response Templates")}
+        title={__('Response Templates')}
       >
         <PopoverHeader>
           <InlineHeader>
             <InlineColumn>
               <FormControl
                 type="text"
-                placeholder={__("Search") as string}
+                placeholder={__('Search') as string}
                 onChange={this.filterItems}
                 autoFocus
               />
@@ -186,7 +186,7 @@ class ResponseTemplate extends React.Component<Props, State> {
             <InlineColumn>
               <FormControl
                 componentClass="select"
-                placeholder={__("Select Brand") as string}
+                placeholder={__('Select Brand') as string}
                 onChange={this.onFilter}
                 defaultValue={this.state.brandId}
               >
@@ -207,7 +207,7 @@ class ResponseTemplate extends React.Component<Props, State> {
           <PopoverList center>
             <li>
               <Link to="/settings/response-templates">
-                {__("Manage templates")}
+                {__('Manage templates')}
               </Link>
             </li>
           </PopoverList>
@@ -227,7 +227,7 @@ class ResponseTemplate extends React.Component<Props, State> {
           }}
         >
           <Button btnStyle="link">
-            <Tip text={__("Response template")}>
+            <Tip text={__('Response template')}>
               <Icon icon="clipboard-1" />
             </Tip>
           </Button>

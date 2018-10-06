@@ -1,25 +1,25 @@
-import { Icon } from "modules/common/components";
-import { CompanyAssociate } from "modules/companies/containers";
+import { Icon } from 'modules/common/components';
+import { CompanyAssociate } from 'modules/companies/containers';
 import {
   DevicePropertiesSection,
   MessengerSection,
   TaggerSection
-} from "modules/customers/components/common";
-import { PortableDeals } from "modules/deals/containers";
-import { Sidebar } from "modules/layout/components";
-import { SidebarToggle } from "modules/layout/styles";
-import * as React from "react";
-import { SectionContainer } from "./styles";
+} from 'modules/customers/components/common';
+import { PortableDeals } from 'modules/deals/containers';
+import { Sidebar } from 'modules/layout/components';
+import { SidebarToggle } from 'modules/layout/styles';
+import * as React from 'react';
+import { SectionContainer } from './styles';
 
 import {
   BasicInfoSection,
   CustomFieldsSection
-} from "modules/customers/containers/common";
+} from 'modules/customers/containers/common';
 
-import { __ } from "modules/common/utils";
-import { ICustomer } from "modules/customers/types";
-import { IConversation } from "../../../types";
-import ConversationDetails from "./ConversationDetails";
+import { __ } from 'modules/common/utils';
+import { ICustomer } from 'modules/customers/types';
+import { IConversation } from '../../../types';
+import ConversationDetails from './ConversationDetails';
 
 type BoxProps = {
   title: string;
@@ -54,7 +54,7 @@ class Box extends React.Component<BoxProps, BoxState> {
   }
 
   renderDropBtn() {
-    const icon = this.state.isOpen ? "uparrow-2" : "downarrow";
+    const icon = this.state.isOpen ? 'uparrow-2' : 'downarrow';
 
     return (
       <SidebarToggle inverse={!this.state.isOpen} onClick={this.toggle}>
@@ -105,13 +105,13 @@ interface IRenderData {
 
 class Index extends React.Component<IndexProps> {
   renderMessengerData({ customer, kind, config, toggleSection }: IRenderData) {
-    if (kind !== "messenger") {
+    if (kind !== 'messenger') {
       return null;
     }
 
     return (
       <Box
-        title={__("Messenger data") as string}
+        title={__('Messenger data') as string}
         name="showMessengerData"
         isOpen={config.showMessengerData || false}
         toggle={toggleSection}
@@ -127,13 +127,13 @@ class Index extends React.Component<IndexProps> {
     config,
     toggleSection
   }: IRenderData) {
-    if (!(kind === "messenger" || kind === "form")) {
+    if (!(kind === 'messenger' || kind === 'form')) {
       return null;
     }
 
     return (
       <Box
-        title={__("Device properties") as string}
+        title={__('Device properties') as string}
         name="showDeviceProperties"
         isOpen={config.showDeviceProperties || false}
         toggle={toggleSection}
@@ -152,12 +152,12 @@ class Index extends React.Component<IndexProps> {
       config
     } = this.props;
 
-    const { kind = "" } = customer.integration || {};
+    const { kind = '' } = customer.integration || {};
 
     return (
       <Sidebar>
         <Box
-          title={__("Profile")}
+          title={__('Profile')}
           name="showProfile"
           isOpen={config.showProfile || false}
           toggle={toggleSection}
@@ -166,7 +166,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__("Conversation details")}
+          title={__('Conversation details')}
           name="showConversationDetails"
           isOpen={config.showConversationDetails || false}
           toggle={toggleSection}
@@ -188,7 +188,7 @@ class Index extends React.Component<IndexProps> {
         })}
 
         <Box
-          title={__("Contact information")}
+          title={__('Contact information')}
           name="showCustomFields"
           isOpen={config.showCustomFields || false}
           toggle={toggleSection}
@@ -197,7 +197,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__("Tags")}
+          title={__('Tags')}
           name="showTags"
           isOpen={config.showTags || false}
           toggle={toggleSection}
@@ -210,7 +210,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__("Companies")}
+          title={__('Companies')}
           name="showCompanies"
           isOpen={config.showCompanies || false}
           toggle={toggleSection}
@@ -219,7 +219,7 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         <Box
-          title={__("Deals")}
+          title={__('Deals')}
           name="showDeals"
           isOpen={config.showDeals || false}
           toggle={toggleSection}

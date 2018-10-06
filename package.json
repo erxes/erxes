@@ -68,7 +68,7 @@
     "ua-parser-js": "^0.7.17"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,json,css}": [
+    "src/**/*.{ts,tsx,json,css}": [
       "prettier --single-quote --write",
       "git add"
     ]
@@ -79,6 +79,7 @@
     "logo": "https://opencollective.com/opencollective/logo.txt"
   },
   "scripts": {
+    "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",

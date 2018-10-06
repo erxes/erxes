@@ -1,9 +1,9 @@
-import gql from "graphql-tag";
-import { ResponseTemplate } from "modules/inbox/components/conversationDetail";
-import { mutations, queries } from "modules/inbox/graphql";
-import * as React from "react";
-import { compose, graphql } from "react-apollo";
-import { IResponseTemplate } from "../../../settings/responseTemplates/types";
+import gql from 'graphql-tag';
+import { ResponseTemplate } from 'modules/inbox/components/conversationDetail';
+import { mutations, queries } from 'modules/inbox/graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { IResponseTemplate } from '../../../settings/responseTemplates/types';
 
 export interface ISaveResponseTemplate {
   brandId: string;
@@ -59,19 +59,21 @@ const ResponseTemplateContainer = (props: Props) => {
 };
 
 export default compose(
-  graphql(gql(queries.brandList), { name: "brandsQuery" }),
+  graphql(gql(queries.brandList), { name: 'brandsQuery' }),
   graphql(gql(queries.responseTemplateList), {
-    name: "responseTemplatesQuery",
+    name: 'responseTemplatesQuery',
     options: () => ({
-      fetchPolicy: "network-only"
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(mutations.saveResponseTemplate), {
-    name: "saveResponseTemplateMutation",
+    name: 'saveResponseTemplateMutation',
     options: {
       refetchQueries: [
         {
-          query: gql`${queries.responseTemplateList}`
+          query: gql`
+            ${queries.responseTemplateList}
+          `
         }
       ]
     }

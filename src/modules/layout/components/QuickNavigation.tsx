@@ -48,7 +48,13 @@ const NavItem = styled.div`
   }
 `;
 
-const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentUser: IUser }) => {
+const QuickNavigation = ({
+  logout,
+  currentUser
+}: {
+  logout: () => void;
+  currentUser: IUser;
+}) => {
   return (
     <nav>
       <NavItem>
@@ -88,7 +94,7 @@ const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentU
                   <a>{__('Change Password')}</a>
                 </li>
               }
-              content={(props) => <ChangePassword {...props} />}
+              content={props => <ChangePassword {...props} />}
             />
 
             <ModalTrigger
@@ -98,7 +104,7 @@ const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentU
                   <a>{__('Email signatures')}</a>
                 </li>
               }
-              content={(props) => <Signature {...props} />}
+              content={props => <Signature {...props} />}
             />
 
             <ModalTrigger
@@ -108,7 +114,9 @@ const QuickNavigation = ({ logout, currentUser }: { logout: () => void, currentU
                   <a>{__('Notification settings')}</a>
                 </li>
               }
-              content={(props) => <NotificationSettings currentUser={currentUser} {...props} />}
+              content={props => (
+                <NotificationSettings currentUser={currentUser} {...props} />
+              )}
             />
 
             <MenuItem divider />

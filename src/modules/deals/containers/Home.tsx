@@ -75,12 +75,14 @@ const MainContainer = compose(
   }),
   graphql(gql(queries.boardGetLast), {
     name: 'boardGetLastQuery',
-    skip: () => localStorage.getItem(STORAGE_BOARD_KEY) ? true : false
+    skip: () => (localStorage.getItem(STORAGE_BOARD_KEY) ? true : false)
   }),
   graphql(gql(queries.boardDetail), {
     name: 'boardDetailQuery',
     skip: ({ queryParams }) => !queryParams.id,
-    options: ({ queryParams }: { queryParams: { id: string } }) => ({ variables: { _id: queryParams.id } })
+    options: ({ queryParams }: { queryParams: { id: string } }) => ({
+      variables: { _id: queryParams.id }
+    })
   })
 )(Main);
 

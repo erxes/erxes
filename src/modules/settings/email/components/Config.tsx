@@ -90,7 +90,11 @@ class Config extends React.Component<Props, State> {
         {this.state.type === 'custom' ? templateControl : false}
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={this.props.closeModal} icon="cancel-1">
+          <Button
+            btnStyle="simple"
+            onClick={this.props.closeModal}
+            icon="cancel-1"
+          >
             Cancel
           </Button>
 

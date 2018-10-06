@@ -16,16 +16,20 @@ type Props = {
   brandsQuery: any;
   closeModal: () => void;
 
-  saveMutation: (params: { variables: { 
-    signatures: IEmailSignature[];
-  } }) => Promise<any>;
+  saveMutation: (
+    params: {
+      variables: {
+        signatures: IEmailSignature[];
+      };
+    }
+  ) => Promise<any>;
 };
 
 const SignatureContainer = (props: Props) => {
   const { userDetailQuery, brandsQuery, saveMutation } = props;
 
   if (userDetailQuery.loading || brandsQuery.loading) {
-    return <Spinner />
+    return <Spinner />;
   }
 
   // save email configs action
@@ -81,15 +85,12 @@ const SignatureContainer = (props: Props) => {
 
 const WithQuery = compose(
   graphql(gql(brandQueries.brands), { name: 'brandsQuery' }),
-  graphql(
-    gql(teamQueries.userDetail),
-    {
-      name: 'userDetailQuery',
-      options: ({ currentUser }: { currentUser: IUser }) => ({
-        variables: { _id: currentUser._id }
-      })
-    }
-  ),
+  graphql(gql(teamQueries.userDetail), {
+    name: 'userDetailQuery',
+    options: ({ currentUser }: { currentUser: IUser }) => ({
+      variables: { _id: currentUser._id }
+    })
+  }),
   graphql(
     gql`
       mutation usersConfigEmailSignatures($signatures: [EmailSignature]) {
@@ -99,12 +100,12 @@ const WithQuery = compose(
       }
     `,
     {
-      name: 'saveMutation',
+      name: 'saveMutation'
     }
   )
 )(SignatureContainer);
 
-const WithConsumer = (props) => {
+const WithConsumer = props => {
   return (
     <AppConsumer>
       {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}
@@ -112,4 +113,4 @@ const WithConsumer = (props) => {
   );
 };
 
-export default WithConsumer; 
+export default WithConsumer;

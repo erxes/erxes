@@ -34,7 +34,7 @@ class EmailStatistics extends React.Component<Props> {
   }
 
   render() {
-    const stats = this.props.message.stats || {} as IEngageStats;
+    const stats = this.props.message.stats || ({} as IEngageStats);
 
     const deliveryReports = Object.values(
       this.props.message.deliveryReports || {}
@@ -59,7 +59,9 @@ class EmailStatistics extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: __('Show statistics') }]} />}
+        header={
+          <Wrapper.Header breadcrumb={[{ title: __('Show statistics') }]} />
+        }
         content={content}
       />
     );

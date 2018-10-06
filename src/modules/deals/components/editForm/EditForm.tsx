@@ -34,7 +34,7 @@ type State = {
   products: IProduct[];
   productsData: any;
   disabled: boolean;
-}
+};
 
 class DealEditForm extends React.Component<Props, State> {
   constructor(props) {
@@ -130,15 +130,12 @@ class DealEditForm extends React.Component<Props, State> {
     // before save, disable save button
     this.setState({ disabled: true });
 
-    saveDeal(
-      doc,
-      () => {
-        // after save, enable save button
-        this.setState({ disabled: false });
+    saveDeal(doc, () => {
+      // after save, enable save button
+      this.setState({ disabled: false });
 
-        closeModal();
-      },
-    );
+      closeModal();
+    });
 
     // if changed stageId, update ui
     if (move && deal.stageId !== stageId) {

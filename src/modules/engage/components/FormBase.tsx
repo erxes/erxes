@@ -5,10 +5,15 @@ import { IEngageMessageDoc } from '../types';
 
 type Props = {
   kind: string;
-  content: (params: {
-    renderTitle: () => IBreadCrumbItem[];
-    validateDoc: (type: string, doc: IEngageMessageDoc) => { status: string, doc?: IEngageMessageDoc };
-  }) => any;
+  content: (
+    params: {
+      renderTitle: () => IBreadCrumbItem[];
+      validateDoc: (
+        type: string,
+        doc: IEngageMessageDoc
+      ) => { status: string; doc?: IEngageMessageDoc };
+    }
+  ) => any;
 };
 
 class FormBase extends React.Component<Props> {
@@ -24,7 +29,7 @@ class FormBase extends React.Component<Props> {
     return { status: 'error' };
   }
 
-  validateDoc(type, doc): { status: string, doc?: IEngageMessageDoc } {
+  validateDoc(type, doc): { status: string; doc?: IEngageMessageDoc } {
     if (!doc.title) {
       return this.sendError(__('Write title'));
     }
@@ -64,15 +69,15 @@ class FormBase extends React.Component<Props> {
     if (type === 'live') {
       return {
         status: 'ok',
-        doc: { isLive: true, isDraft: false, ...doc },
-      }
+        doc: { isLive: true, isDraft: false, ...doc }
+      };
     }
 
     if (type === 'draft ') {
       return {
         status: 'ok',
-        doc: { isLive: false, isDraft: true, ...doc },
-      }
+        doc: { isLive: false, isDraft: true, ...doc }
+      };
     }
 
     return { status: 'ok', doc };
@@ -93,7 +98,7 @@ class FormBase extends React.Component<Props> {
 
     return [{ title: __('Engage'), link: '/engage' }, { title }];
   }
-  
+
   render() {
     return (
       <React.Fragment>
@@ -102,7 +107,7 @@ class FormBase extends React.Component<Props> {
           validateDoc: this.validateDoc
         })}
       </React.Fragment>
-    )
+    );
   }
 }
 

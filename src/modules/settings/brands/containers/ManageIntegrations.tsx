@@ -14,7 +14,9 @@ import { ChooseBrand } from './';
 type Props = {
   currentBrand: IBrand;
   queryParams: any;
-  saveMutation: (params: { variables: { _id: string; integrationIds: string[] } }) => any;
+  saveMutation: (
+    params: { variables: { _id: string; integrationIds: string[] } }
+  ) => any;
 };
 
 class ManageIntegrationsContainer extends React.Component<Props> {
@@ -34,7 +36,13 @@ class ManageIntegrationsContainer extends React.Component<Props> {
         key={integration._id}
         title="Choose new brand"
         trigger={actionTrigger}
-        content={(props) => <ChooseBrand {...props} integration={integration} onSave={() => handleChange(icon, integration)} />}
+        content={props => (
+          <ChooseBrand
+            {...props}
+            integration={integration}
+            onSave={() => handleChange(icon, integration)}
+          />
+        )}
       />
     );
   }
@@ -71,10 +79,15 @@ class ManageIntegrationsContainer extends React.Component<Props> {
 }
 
 export default compose(
-  graphql(
-    gql(mutations.brandManageIntegrations), {
+  graphql(gql(mutations.brandManageIntegrations), {
     name: 'saveMutation',
-    options: ({ queryParams, currentBrand } : { queryParams: any, currentBrand: IBrand }) => {
+    options: ({
+      queryParams,
+      currentBrand
+    }: {
+      queryParams: any;
+      currentBrand: IBrand;
+    }) => {
       return {
         refetchQueries: [
           {

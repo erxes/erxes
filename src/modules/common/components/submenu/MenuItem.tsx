@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
-import { colors, dimensions } from '../../styles';
+import { colors } from '../../styles';
 import { rgba } from '../../styles/color';
 
 const Item = styled.li`
@@ -9,13 +9,13 @@ const Item = styled.li`
   color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   text-transform: capitalize;
   padding-right: 40px;
-  
+
   > a {
     text-decoration: none;
     color: ${colors.colorCoreDarkGray};
     padding: 14px 0;
     display: block;
-    
+
     &.active {
       border-bottom: 2px solid ${colors.colorSecondary};
     }

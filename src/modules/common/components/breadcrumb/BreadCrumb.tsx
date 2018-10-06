@@ -12,11 +12,13 @@ const Items = styledTS<{ visible?: boolean }>(styled.ul)`
   margin: 0 ${dimensions.coreSpacing}px 0 0;
   list-style: none;
   font-size: 14px;
-  display: ${props =>
-    !props.visible && `none`};
+  display: ${props => !props.visible && `none`};
 `;
 
-class BreadCrumb extends React.Component<{ breadcrumbs: IBreadCrumbItem[], isVisible: boolean }> {
+class BreadCrumb extends React.Component<{
+  breadcrumbs: IBreadCrumbItem[];
+  isVisible: boolean;
+}> {
   setTabTitle() {
     const { breadcrumbs } = this.props;
     const page = breadcrumbs.pop();
@@ -39,6 +41,7 @@ class BreadCrumb extends React.Component<{ breadcrumbs: IBreadCrumbItem[], isVis
 
   render() {
     const { isVisible, breadcrumbs } = this.props;
+
     return (
       <Items role="navigation" aria-label="breadcrumbs" visible={isVisible}>
         {breadcrumbs.map(b => (

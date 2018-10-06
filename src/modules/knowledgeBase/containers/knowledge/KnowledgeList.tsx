@@ -23,10 +23,12 @@ type Props = {
 
   addTopicsMutation: (params: { variables: Variables }) => Promise<any>;
   editTopicsMutation: (params: { variables: Variables }) => Promise<any>;
-  removeTopicsMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  removeTopicsMutation: (
+    params: { variables: { _id: string } }
+  ) => Promise<any>;
 };
 
-const KnowledgeBaseContainer = (props : Props) => {
+const KnowledgeBaseContainer = (props: Props) => {
   const {
     currentCategoryId,
     topicsQuery,
@@ -121,7 +123,7 @@ export default compose(
   }),
   graphql(gql(mutations.knowledgeBaseTopicsRemove), {
     name: 'removeTopicsMutation',
-    options: ({ currentCategoryId } : { currentCategoryId: string }) => {
+    options: ({ currentCategoryId }: { currentCategoryId: string }) => {
       return {
         refetchQueries: [
           {

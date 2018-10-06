@@ -1,6 +1,6 @@
-import Autolinker from "autolinker";
-import * as React from "react";
-import styled from "styled-components";
+import Autolinker from 'autolinker';
+import * as React from 'react';
+import styled from 'styled-components';
 
 type Props = {
   content: string;
@@ -36,7 +36,7 @@ class TweetContent extends React.Component<Props, {}> {
     }
 
     if (hashtags.length) {
-      options = { hashtag: "twitter" };
+      options = { hashtag: 'twitter' };
     }
 
     if (urls.length) {

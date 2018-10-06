@@ -38,7 +38,7 @@ class Tab extends React.Component<Props, { currentTab: string }> {
   renderTabContent() {
     const { currentTab } = this.state;
     const { dealActivityLog, deal, loadingLogs } = this.props;
-    const currentUser = this.props.currentUser || {} as IUser;
+    const currentUser = this.props.currentUser || ({} as IUser);
     const hasActivity = hasAnyActivity(dealActivityLog);
 
     return (

@@ -39,7 +39,7 @@ type Props = {
 
 type State = {
   show: boolean;
-}
+};
 
 class ConfirmDialog extends React.Component<Props, State> {
   constructor(props) {

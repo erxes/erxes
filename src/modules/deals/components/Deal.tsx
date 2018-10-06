@@ -10,7 +10,11 @@ type Props = {
   deal: IDeal;
   index?: number;
   draggable?: boolean;
-  saveDeal?: (doc: IDealParams, callback: () => void, deal: IDeal) => Promise<void>;
+  saveDeal?: (
+    doc: IDealParams,
+    callback: () => void,
+    deal: IDeal
+  ) => Promise<void>;
   removeDeal?: (_id: string, callback: () => void) => Promise<void>;
 };
 
@@ -19,11 +23,11 @@ class Deal extends React.Component<Props> {
     const { deal, index, saveDeal, removeDeal } = this.props;
 
     return (
-      <ModalTrigger 
-        title="Edit deal" 
-        trigger={trigger} 
+      <ModalTrigger
+        title="Edit deal"
+        trigger={trigger}
         size="lg"
-        content={(props) => (
+        content={props => (
           <EditForm
             {...props}
             deal={deal}
@@ -32,7 +36,7 @@ class Deal extends React.Component<Props> {
             index={index}
           />
         )}
-        />
+      />
     );
   }
 
