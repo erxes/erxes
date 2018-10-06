@@ -48,7 +48,7 @@ class KnowledgeRow extends React.Component<Props, State> {
     const { currentCategoryId, topic } = this.props;
     const categories = topic.categories || [];
 
-    return categories.some(c => c['_id'] === currentCategoryId);
+    return categories.some(c => c._id === currentCategoryId);
   }
 
   renderManage() {
