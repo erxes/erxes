@@ -10,7 +10,6 @@
     "object-literal-sort-keys": false,
     "curly": false,
     "no-unused-expression": [true, "allow-tagged-template"],
-    "no-shadowed-variable": false,
     "interface-over-type-literal": false,
     "variable-name": false,
     "no-empty": false,
