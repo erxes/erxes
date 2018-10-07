@@ -41,6 +41,24 @@ const stages = `
       _id
       name
       order
+      deals {
+        _id
+        name
+        closeDate
+        description
+        amount
+        products
+        assignedUsers {
+          _id
+          email
+          details {
+            fullName
+            avatar
+          }
+        }
+        modifiedAt
+        modifiedBy
+      }
     }
   }
 `;

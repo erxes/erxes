@@ -1,31 +1,15 @@
-import { Icon, ModalTrigger } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { DealAddForm } from '.';
-import { Deal } from '../containers';
-import { AddNew } from '../styles/deal';
-import {
-  Amount,
-  Body,
-  Container,
-  DropZone,
-  Header,
-  Indicator,
-  IndicatorItem
-} from '../styles/stage';
-import { ICommonParams, IStage } from '../types';
+import { Draggable } from 'react-beautiful-dnd';
+import { Amount, Body, Container, Header } from '../styles/stage';
+import { IDeal, IStage } from '../types';
+import DealList from './DealList';
 
 type Props = {
+  deals: IDeal[];
   stage: IStage;
-  deals: ICommonParams[];
-  index?: number;
-  length?: number;
-  addDeal: (name: string, callback: () => void) => void;
-  stageId: string;
 };
 
-class Stage extends React.Component<Props> {
+export default class Stage extends React.Component<Props> {
   renderAmount(amount: number) {
     if (Object.keys(amount).length === 0) return <li>0</li>;
 
@@ -36,57 +20,11 @@ class Stage extends React.Component<Props> {
     ));
   }
 
-  showDealForm() {
-    const { addDeal } = this.props;
-
-    const trigger = (
-      <AddNew>
-        <Icon icon="add" /> {__('Add a deal')}
-      </AddNew>
-    );
-
-    return (
-      <ModalTrigger
-        title="Add a deal"
-        trigger={trigger}
-        content={props => <DealAddForm {...props} add={addDeal} />}
-      />
-    );
-  }
-
-  renderIndicator() {
-    const index = this.props.index || 0;
-    const length = this.props.length || 0;
-    const data: any = [];
-
-    for (let i = 0; i <= length; i++) {
-      data.push(<IndicatorItem isPass={index >= i} key={i} />);
-    }
-
-    return data;
-  }
-
-  renderDeals(provided) {
-    const { deals } = this.props;
-
-    return (
-      <DropZone innerRef={provided.innerRef}>
-        <div className="deals">
-          {deals.map((deal, index) => (
-            <Deal key={deal._id} index={index} dealId={deal._id} draggable />
-          ))}
-        </div>
-        {provided.placeholder}
-        {this.showDealForm()}
-      </DropZone>
-    );
-  }
-
   render() {
-    const { stage, deals, index, stageId } = this.props;
+    const { deals, stage } = this.props;
 
     return (
-      <Draggable draggableId={stageId} index={index}>
+      <Draggable draggableId={stage._id} index={stage._id}>
         {(provided, snapshot) => (
           <Container
             innerRef={provided.innerRef}
@@ -99,13 +37,9 @@ class Stage extends React.Component<Props> {
                 <span>({deals.length})</span>
               </h3>
               <Amount>{this.renderAmount(stage.amount || {})}</Amount>
-              <Indicator>{this.renderIndicator()}</Indicator>
             </Header>
-
-            <Body>
-              <Droppable droppableId={stageId} type="stage">
-                {dropProvided => this.renderDeals(dropProvided)}
-              </Droppable>
+            <Body innerRef={provided.innerRef} {...provided.droppableProps}>
+              <DealList listId={stage._id} listType="DEAL" deals={deals} />
             </Body>
           </Container>
         )}
@@ -113,5 +47,3 @@ class Stage extends React.Component<Props> {
     );
   }
 }
-
-export default Stage;

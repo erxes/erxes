@@ -8,12 +8,10 @@ import Pipeline from './Pipeline';
 import PortableDeals from './PortableDeals';
 import ProductChooser from './product/ProductChooser';
 import ProductItemForm from './product/ProductItemForm';
-import Stage from './Stage';
 
 export {
   Home,
   Board,
-  Stage,
   Pipeline,
   Deal,
   DealMove,
