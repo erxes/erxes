@@ -2,19 +2,11 @@ import { injectGlobal } from 'emotion';
 import * as React from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { colors } from '../constants';
-import { generateQuoteMap } from '../data';
 import reorder, { reorderQuoteMap } from '../reorder';
 import Column from './Column';
 
-const ParentContainer = styledTS<any>(styled.div)`
-  height: ${({ height }) => height};
-  overflow-x: hidden;
-  overflow-y: auto;
-`;
-
-const Container = styled('div')`
+const Container = styled.div`
   min-height: 100vh;
 
   /* like display:flex but will allow bleeding over the window width */
@@ -23,7 +15,7 @@ const Container = styled('div')`
 `;
 
 type Props = {
-  containerHeight?: string;
+  initial;
 };
 
 type State = {
@@ -31,14 +23,12 @@ type State = {
   ordered: string[];
 };
 
-const initial = generateQuoteMap(500);
-
 export default class Board extends React.Component<Props, State> {
   /* eslint-disable react/sort-comp */
 
   state: State = {
-    columns: initial,
-    ordered: Object.keys(initial)
+    columns: this.props.initial,
+    ordered: Object.keys(this.props.initial)
   };
 
   boardRef?: HTMLElement;
@@ -100,37 +90,31 @@ export default class Board extends React.Component<Props, State> {
   render() {
     const columns = this.state.columns;
     const ordered: string[] = this.state.ordered;
-    const { containerHeight } = this.props;
-
-    const board = (
-      <Droppable
-        droppableId="board"
-        type="COLUMN"
-        direction="horizontal"
-        ignoreContainerClipping={Boolean(containerHeight)}
-      >
-        {provided => (
-          <Container innerRef={provided.innerRef} {...provided.droppableProps}>
-            {ordered.map((key: string, index: number) => (
-              <Column
-                key={key}
-                index={index}
-                title={key}
-                quotes={columns[key]}
-              />
-            ))}
-          </Container>
-        )}
-      </Droppable>
-    );
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
-        {this.props.containerHeight ? (
-          <ParentContainer height={containerHeight}>{board}</ParentContainer>
-        ) : (
-          board
-        )}
+        <Droppable
+          droppableId="board"
+          type="COLUMN"
+          direction="horizontal"
+          ignoreContainerClipping={true}
+        >
+          {provided => (
+            <Container
+              innerRef={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              {ordered.map((key: string, index: number) => (
+                <Column
+                  key={key}
+                  index={index}
+                  title={key}
+                  quotes={columns[key]}
+                />
+              ))}
+            </Container>
+          )}
+        </Droppable>
       </DragDropContext>
     );
   }

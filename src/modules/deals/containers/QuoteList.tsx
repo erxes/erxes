@@ -6,7 +6,7 @@ import { colors, grid } from '../constants';
 import QuoteItem from './QuoteItem';
 import Title from './Title';
 
-const Wrapper = styledTS<any>(styled('div'))`
+const Wrapper = styledTS<any>(styled.div)`
   background-color: ${({ isDraggingOver }) =>
     isDraggingOver ? colors.blue.lighter : colors.blue.light};
   display: flex;
@@ -20,7 +20,7 @@ const Wrapper = styledTS<any>(styled('div'))`
   width: 250px;
 `;
 
-const DropZone = styled('div')`
+const DropZone = styled.div`
   /* stop the list collapsing when empty */
   min-height: 250px;
 
@@ -31,14 +31,14 @@ const DropZone = styled('div')`
   margin-bottom: ${grid}px;
 `;
 
-const ScrollContainer = styled('div')`
+const ScrollContainer = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
   max-height: 300px;
 `;
 
 /* stylelint-disable block-no-empty */
-const Container = styled('div')``;
+const Container = styled.div``;
 /* stylelint-enable */
 
 type Props = {

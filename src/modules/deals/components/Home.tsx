@@ -6,6 +6,7 @@ import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { Board } from '../containers';
+import { generateQuoteMap } from '../data';
 import { IBoard, IPipeline } from '../types';
 import { IDragResult } from '../types';
 
@@ -84,7 +85,7 @@ class Home extends React.Component<Props> {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={this.renderActionBar(currentBoard)}
-        content={<Board />}
+        content={<Board initial={generateQuoteMap(500)} />}
         transparent
       />
     );

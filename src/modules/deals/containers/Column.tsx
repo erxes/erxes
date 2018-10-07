@@ -6,13 +6,13 @@ import { borderRadius, colors, grid } from '../constants';
 import QuoteList from './QuoteList';
 import Title from './Title';
 
-const Container = styled('div')`
+const Container = styled.div`
   margin: ${grid}px;
   display: flex;
   flex-direction: column;
 `;
 
-const Header = styledTS<any>(styled('div'))`
+const Header = styledTS<any>(styled.div)`
   display: flex;
   align-items: center;
   justify-content: center;

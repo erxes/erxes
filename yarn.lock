@@ -6850,7 +6850,7 @@ react-toggle@^4.0.2:
   dependencies:
     classnames "^2.2.5"
 
-react@^16.3.2:
+react@^16.4.2:
   version "16.5.2"
   resolved "https://registry.yarnpkg.com/react/-/react-16.5.2.tgz#19f6b444ed139baa45609eee6dc3d318b3895d42"
   dependencies:
