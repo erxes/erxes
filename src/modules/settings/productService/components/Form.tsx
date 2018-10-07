@@ -86,9 +86,9 @@ class Form extends React.Component<Props, State> {
               this.onChangeInput('type', (e.target as HTMLInputElement).value)
             }
           >
-            {types.map((type, index) => (
-              <option key={index} value={type}>
-                {type}
+            {types.map((typeName, index) => (
+              <option key={index} value={typeName}>
+                {typeName}
               </option>
             ))}
           </FormControl>

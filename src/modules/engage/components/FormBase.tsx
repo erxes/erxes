@@ -29,7 +29,7 @@ class FormBase extends React.Component<Props> {
     return { status: 'error' };
   }
 
-  validateDoc(type, doc): { status: string; doc?: IEngageMessageDoc } {
+  validateDoc(docType, doc): { status: string; doc?: IEngageMessageDoc } {
     if (!doc.title) {
       return this.sendError(__('Write title'));
     }
@@ -66,14 +66,14 @@ class FormBase extends React.Component<Props> {
       }
     }
 
-    if (type === 'live') {
+    if (docType === 'live') {
       return {
         status: 'ok',
         doc: { isLive: true, isDraft: false, ...doc }
       };
     }
 
-    if (type === 'draft ') {
+    if (docType === 'draft ') {
       return {
         status: 'ok',
         doc: { isLive: false, isDraft: true, ...doc }

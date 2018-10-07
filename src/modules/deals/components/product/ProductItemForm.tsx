@@ -139,8 +139,12 @@ class ProductItemForm extends React.Component<Props> {
             name="uom"
             placeholder={__('Choose')}
             value={productData.uom}
-            onChange={uom =>
-              this.onChangeField('uom', uom ? uom.value : '', productData._id)
+            onChange={selected =>
+              this.onChangeField(
+                'uom',
+                selected ? selected.value : '',
+                productData._id
+              )
             }
             optionRenderer={option => (
               <div className="simple-option">

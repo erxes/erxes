@@ -46,7 +46,9 @@ const CustomerChooser = (props: WrapperProps & Props) => {
     clearState: () => search(''),
     title: 'Customer',
     renderName: renderFullName,
-    renderForm: props => <CustomerForm {...props} action={addCustomer} />,
+    renderForm: formProps => (
+      <CustomerForm {...formProps} action={addCustomer} />
+    ),
     add: addCustomer,
     datas: customersQuery.customers || []
   };
