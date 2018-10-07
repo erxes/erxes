@@ -11,6 +11,7 @@
     "curly": false,
     "no-unused-expression": false,
     "interface-over-type-literal": false,
+    "no-shadowed-variable": false,
     "variable-name": false,
     "no-empty": false,
     "one-variable-per-declaration": false,
