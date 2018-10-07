@@ -65,7 +65,9 @@ class ProductItemForm extends React.Component<Props> {
 
     const { updateTotal } = this.props;
 
-    updateTotal && updateTotal();
+    if (updateTotal) {
+      updateTotal();
+    }
   }
 
   onChangeField(type, value, _id) {
@@ -79,7 +81,9 @@ class ProductItemForm extends React.Component<Props> {
         this.calculateAmount(type, productData);
       }
 
-      onChangeProductsData && onChangeProductsData(productsData);
+      if (onChangeProductsData) {
+        onChangeProductsData(productsData);
+      }
     }
   }
 
