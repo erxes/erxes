@@ -54,13 +54,12 @@ const StyledTable = styledTS<{
         color: ${colors.colorCoreLightGray};
         font-size: ${typography.fontSizeUppercase}px;
       }
-    }
-
-    thead th {
-      background-color: ${colors.bgLight};
-      position: sticky;
-      z-index: 1;
-      top: 0;
+      th {
+        background-color: ${colors.colorWhite};
+        position: sticky;
+        z-index: 1;
+        top: 0;
+      }
     }
 
     ${
