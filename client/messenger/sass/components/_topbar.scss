@@ -1,31 +1,44 @@
-$name-white: rgba(255, 255, 255, .6);
-$topbar-shadow: rgba(0, 0, 0, 0.1);
+$name-white: rgba(255, 255, 255, .8);
+$topbar-shadow: rgba(0, 0, 0, .1);
+
+.head-wrapper {
+  background-color: $main-color;
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+  box-shadow: 0 4px 6px 0 $topbar-shadow;
+  transition: height .3s ease-in-out;
+  background-image: url('https://s3.amazonaws.com/erxes/pattern.png');
+  background-repeat: repeat;
+  background-size: cover;
+  position: relative;
+
+  &::before {
+    background: url('https://s3.amazonaws.com/erxes/radial.png') left top no-repeat;
+    background-size: cover;
+    bottom: 0;
+    content: '';
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+}
 
 .erxes-topbar {
   align-items: center;
-  box-shadow: 0 4px 6px 0 $topbar-shadow;
+  background: none;
   display: flex;
-  height: 70px;
   justify-content: space-around;
   min-height: 70px;
-  padding: 0 15px;
-  transition: height ease .3s;
+  padding: 0;
   width: auto;
   z-index: 2;
-
-  &.big {
-    height: auto;
-  }
 
   &.expanded {
     height: auto;
 
     .brand-info {
       display: block;
-    }
-
-    .erxes-middle.expandable {
-      margin: 0 0 0 55px;
     }
 
     .erxes-topbar-title {
@@ -38,16 +51,13 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
   }
 
   .erxes-middle {
-    @include prefix((
-      transition: background .3s ease-in-out
-    ), webkit moz ms o);
     align-items: center;
     display: flex;
     flex: 1;
     flex-shrink: 0;
     height: 100%;
     justify-content: center;
-    margin: 0 55px;
+    transition-property: background, opacity;
 
     &.expandable:hover {
       cursor: pointer;
@@ -58,7 +68,7 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
     display: none;
 
     h3 {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
       margin: 0 0 10px;
       padding-right: 50px;
@@ -72,7 +82,7 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
   }
 
   .erxes-head-content {
-    padding: 22px 0;
+    padding: 25px 60px;
     text-align: left;
   }
 }
@@ -98,7 +108,7 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
   }
 
   &.full {
-    padding-top: 20px;
+    padding-top: 10px;
 
     .erxes-supporter {
       margin: 0;
@@ -135,7 +145,6 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
     }
 
     .erxes-state {
-      border: 1px solid $main-color;
       bottom: 2px;
       position: absolute;
       right: 2px;
@@ -145,7 +154,7 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
 
   .supporters-name {
     font-size: 13px;
-    font-weight: 500;
+    font-weight: bold;
     margin-top: 3px;
     max-height: 20px;
     overflow: hidden;

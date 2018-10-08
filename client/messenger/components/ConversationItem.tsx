@@ -18,7 +18,6 @@ function ConversationItem({
   goToConversation
 }: Props) {
   const { _id, content, createdAt } = conversation;
-
   const participatedUsers = conversation.participatedUsers;
   let participatedUser = null;
 

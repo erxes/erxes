@@ -1,19 +1,20 @@
+import * as classNames from "classnames";
+import * as moment from "moment";
 import * as React from "react";
-import * as ReactTransitionGroup from "react-transition-group";
-import { iconPlus } from "../../icons/Icons";
 import { IUser } from "../../types";
 import { __ } from "../../utils";
 import { BrandInfo, ConversationList, TopBar } from "../containers";
 import { IntegrationItem, Supporters } from "./";
 
 type Props = {
-  createConversation: (e: React.FormEvent<HTMLButtonElement>) => void;
   supporters: IUser[];
   loading?: boolean;
+  color?: string;
 };
 
 type State = {
   headHeight: number;
+  activeSupport: boolean;
 };
 
 class Home extends React.Component<Props, State> {
@@ -22,7 +23,9 @@ class Home extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { headHeight: 120 };
+    this.state = { headHeight: 120, activeSupport: true };
+
+    this.toggleTab = this.toggleTab.bind(this);
   }
 
   componentDidUpdate(prevProps: any, prevState: any) {
@@ -37,47 +40,54 @@ class Home extends React.Component<Props, State> {
     }
   }
 
+  toggleTab() {
+    this.setState({ activeSupport: !this.state.activeSupport });
+  }
+
   renderHead() {
-    const { supporters, loading } = this.props;
+    const { supporters, loading, color } = this.props;
+
+    const indicatorClasses = classNames("indicator", {
+      left: this.state.activeSupport
+    });
 
     return (
-      <ReactTransitionGroup.CSSTransition
-        in={true}
-        appear={true}
-        timeout={500}
-        classNames="slide-in"
-        unmountOnExit
+      <div
+        className="erxes-welcome"
+        ref={node => {
+          this.node = node;
+        }}
       >
-        <div
-          className="erxes-welcome"
-          ref={node => {
-            this.node = node;
-          }}
-        >
-          <BrandInfo />
-          <Supporters users={supporters} isExpanded={false} loading={loading} />
+        <time>{moment(new Date()).format("MMMM Do YYYY, h:mm a")}</time>
+        <BrandInfo />
+        <Supporters users={supporters} isExpanded={false} loading={loading} />
+        <div className="erxes-tab" onClick={this.toggleTab}>
+          <div
+            style={{ backgroundColor: color }}
+            className={indicatorClasses}
+          />
+          <span>Support</span>
+          <span>FAQ</span>
         </div>
-      </ReactTransitionGroup.CSSTransition>
+      </div>
     );
   }
 
   render() {
-    const { createConversation } = this.props;
+    const { color } = this.props;
 
     return (
       <div
         className="erxes-home-container"
-        style={{ paddingTop: this.state.headHeight - 30 }}
+        style={{ paddingTop: this.state.headHeight }}
       >
-        <TopBar
-          isBig
-          middle={this.renderHead()}
-          buttonIcon={iconPlus}
-          onButtonClick={createConversation}
-        />
-        <IntegrationItem title="Recent conversations">
-          <ConversationList />
-        </IntegrationItem>
+        <TopBar middle={this.renderHead()} />
+
+        <div className="home-content slide-in">
+          <IntegrationItem title="Recent conversations">
+            <ConversationList />
+          </IntegrationItem>
+        </div>
       </div>
     );
   }

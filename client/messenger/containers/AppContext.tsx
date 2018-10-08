@@ -24,6 +24,7 @@ interface IState {
   activeConversation: string | null;
   isAttachingFile: boolean;
   isBrowserInfoSaved: boolean;
+  headHeight: number;
 }
 
 interface IStore extends IState {
@@ -46,6 +47,7 @@ interface IStore extends IState {
   readMessages: (conversationId: string) => void;
   sendMessage: (message: string, attachments?: IAttachment[]) => void;
   sendFile: (file: File) => void;
+  setHeadHeight: (headHeight: number) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -69,7 +71,8 @@ export class AppProvider extends React.Component<{}, IState> {
       activeRoute,
       activeConversation: null,
       isAttachingFile: false,
-      isBrowserInfoSaved: false
+      isBrowserInfoSaved: false,
+      headHeight: 200
     };
   }
 
@@ -144,6 +147,10 @@ export class AppProvider extends React.Component<{}, IState> {
     if (activeRoute.includes("conversation")) {
       this.openLastConversation();
     }
+  };
+
+  setHeadHeight = (headHeight: number) => {
+    this.setState({ headHeight });
   };
 
   toggleNotifier = (isVisible?: boolean) => {
@@ -434,7 +441,8 @@ export class AppProvider extends React.Component<{}, IState> {
           readConversation: this.readConversation,
           readMessages: this.readMessages,
           sendMessage: this.sendMessage,
-          sendFile: this.sendFile
+          sendFile: this.sendFile,
+          setHeadHeight: this.setHeadHeight
         }}
       >
         {this.props.children}

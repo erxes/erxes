@@ -37,19 +37,19 @@ class Supporters extends React.Component<Props> {
             style={{ borderColor: color }}
             alt={details.fullName}
           />
-          {this.renderOnlineState(isOnline, color)}
+          {this.renderOnlineState(isOnline)}
         </div>
         <span className="erxes-staff-name">{details.fullName}</span>
       </div>
     );
   }
 
-  renderOnlineState(isOnline: boolean, color: string) {
+  renderOnlineState(isOnline: boolean) {
     const stateClasses = classNames("erxes-state", {
       online: isOnline
     });
 
-    return <span className={stateClasses} style={{ borderColor: color }} />;
+    return <span className={stateClasses} />;
   }
 
   renderUsers() {

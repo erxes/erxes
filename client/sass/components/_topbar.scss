@@ -4,7 +4,6 @@
   border-top-right-radius: $border-radius;
   color: $white;
   flex-shrink: 0;
-  height: 70px;
   text-align: center;
   width: 100%;
 
@@ -14,8 +13,17 @@
     }
 
     &.right {
+      display: none;
       right: 15px;
+
+      @media screen and (max-width: $break-small) {
+        display: block;
+      }
     }
+  }
+
+  &.end-chat .topbar-button.right {
+    display: block;
   }
 
   .erxes-middle {
@@ -39,6 +47,7 @@
   text-align: center;
   top: 15px;
   width: $core-spacing * 2;
+  z-index: 100;
 
   &:hover {
     background-color: rgba($black, .2);

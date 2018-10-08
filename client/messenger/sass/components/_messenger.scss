@@ -1,12 +1,13 @@
 .erxes-messenger {
   background: $white;
   border-radius: $border-radius;
+  border-bottom-right-radius: 25px;
   bottom: 76px;
   box-shadow: 0 2px 16px 1px rgba($black, .2);
   display: flex;
   flex-direction: column;
   height: calc(100% - 95px);
-  max-height: 680px;
+  max-height: 720px;
   overflow: hidden;
   position: absolute;
   right: 8px;
@@ -39,11 +40,11 @@
 }
 
 .accquire-information {
-  height: 200px;
-
-  .content {
-    padding: 20px 40px;
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  padding: 20px 30px;
 
   .type {
     margin-top: 0;
@@ -76,13 +77,15 @@
 
     input {
       -webkit-appearance: none;
-      border: 1px solid $main-color;
+      background: $bg-color;
+      border: 1px solid $border-color;
       border-bottom-left-radius: $border-radius;
       border-top-left-radius: $border-radius;
+      box-shadow: inset 0 1px 3px 0 rgba($black, .07);
       box-sizing: border-box;
       flex: 1;
       font-size: $font-size;
-      height: 38px;
+      height: 40px;
       margin-right: 0;
       outline: 0;
       padding: 10px 15px;
@@ -94,11 +97,11 @@
       border-radius: 0;
       border-bottom-right-radius: $border-radius;
       border-top-right-radius: $border-radius;
-      height: 38px;
+      height: 40px;
       margin: 0;
       outline: 0;
       padding: 4px;
-      width: 31px;
+      width: 40px;
 
       svg {
         margin-top: 3px;

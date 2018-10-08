@@ -10,7 +10,7 @@ function IntegrationItem(props: Props) {
   const { children, title } = props;
 
   return (
-    <div className="integration-box appear-slide-in">
+    <div className="integration-box">
       <h4>{__(title)}</h4>
       {children}
     </div>

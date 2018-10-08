@@ -2,6 +2,7 @@ import * as classNames from "classnames";
 import * as React from "react";
 import * as ReactTransitionGroup from "react-transition-group";
 import { IIntegrationMessengerData, IIntegrationUiOptions } from "../../types";
+import { scrollTo } from "../../utils";
 import { IMessage } from "../types";
 import { Message } from "./";
 
@@ -35,7 +36,7 @@ class MessagesList extends React.Component<Props> {
 
   componentDidUpdate() {
     if (this.node && this.shouldScrollBottom) {
-      this.node.scrollTop = this.node.scrollHeight;
+      scrollTo(this.node, this.node.scrollHeight, 500);
     }
 
     this.makeClickableLink();
@@ -94,11 +95,19 @@ class MessagesList extends React.Component<Props> {
         ref={node => (this.node = node)}
         onClick={inputFocus}
       >
-        <ul id="erxes-messages" className="erxes-messages-list appear-slide-in">
+        <ul id="erxes-messages" className="erxes-messages-list">
           {this.renderWelcomeMessage(messengerData)}
-          {messages.map(message => (
-            <Message key={message._id} color={color} {...message} />
-          ))}
+          <ReactTransitionGroup.TransitionGroup component={null}>
+            {messages.map(message => (
+              <ReactTransitionGroup.CSSTransition
+                key={message._id}
+                timeout={500}
+                classNames="slide-in"
+              >
+                <Message color={color} {...message} />
+              </ReactTransitionGroup.CSSTransition>
+            ))}
+          </ReactTransitionGroup.TransitionGroup>
           {this.renderAwayMessage(messengerData)}
         </ul>
       </div>

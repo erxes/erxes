@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, compose, graphql } from "react-apollo";
 import { IUser } from "../../types";
-import { Conversation as DumbConversation } from "../components";
+import { ConversationDetail as DumbComponent } from "../components";
 import { connection } from "../connection";
 import graphqlTypes from "../graphql";
 import { IConversation, IMessage } from "../types";
@@ -96,11 +96,7 @@ class ConversationDetail extends React.Component<
     }
 
     return (
-      <DumbConversation
-        {...this.props}
-        messages={messages}
-        isOnline={isOnline}
-      />
+      <DumbComponent {...this.props} messages={messages} isOnline={isOnline} />
     );
   }
 }

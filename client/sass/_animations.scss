@@ -1,3 +1,85 @@
+// transitions
+
+// slide in
+.slide-in-enter,
+.slide-in-appear {
+  opacity: .2;
+  transform: translateY(10px);
+}
+
+.slide-in-enter-active,
+.slide-in-appear-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms $timing-slide;
+}
+
+.slide-in-exit,
+.slide-in-exit-active {
+  display: none;
+}
+
+// scale in
+.scale-in-enter,
+.scale-in-appear {
+  opacity: 0;
+  transform: scale(.4);
+  transform-origin: 100% 100%;
+}
+
+.scale-in-enter-active,
+.scale-in-appear-active {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: 100% 100%;
+  transition: all .3s $timing-scale;
+  transition-property: transform, opacity;
+}
+
+.scale-in-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scale-in-exit-active {
+  opacity: 0;
+  transform: scale(.4);
+  transform-origin: 100% 100%;
+  transition: all .3s $timing-scale;
+  transition-property: transform, opacity;
+}
+
+.slide-in {
+  animation-delay: .15s;
+  animation-duration: .2s;
+  animation-fill-mode: both;
+  animation-name: slideIn;
+  animation-timing-function: $timing-slide;
+  transform-origin: bottom;
+  will-change: transform, opacity;
+}
+
+.fade-in,
+.fade-in-left,
+.fade-in-right {
+  animation-delay: .15s;
+  animation-duration: .3s;
+  animation-fill-mode: both;
+  animation-timing-function: ease-in;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.fade-in-right {
+  animation-name: fadeInRight;
+}
+
+.fade-in-left {
+  animation-name: fadeInLeft;
+}
+
 @include keyframe(animationPulse) {
   0% {
     box-shadow: 0 0 0 0;
@@ -70,5 +152,40 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+
+@include keyframe(fadeIn) {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@include keyframe(fadeInRight) {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@include keyframe(fadeInLeft) {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

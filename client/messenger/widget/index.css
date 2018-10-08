@@ -3,6 +3,9 @@
   bottom: 0;
   right: 0;
   z-index: 2147483647;
+  background: url('https://s3.amazonaws.com/erxes/radial06.png') right bottom no-repeat;
+  background-size: contain;
+  transition: background .5s ease;
 }
 
 #erxes-messenger-iframe {
@@ -21,7 +24,7 @@
 .erxes-messenger-shown {
   width: 416px;
   height: calc(100% - 20px);
-  max-height: 680px;
+  max-height: 780px;
 }
 
 .erxes-messenger-shown.small {

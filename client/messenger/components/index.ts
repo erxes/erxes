@@ -2,7 +2,7 @@ import AccquireInformation from "./AccquireInformation";
 import App from "./App";
 import Attachment from "./Attachment";
 import BrandInfo from "./BrandInfo";
-import Conversation from "./Conversation";
+import ConversationDetail from "./ConversationDetail";
 import ConversationItem from "./ConversationItem";
 import ConversationList from "./ConversationList";
 import EngageMessage from "./EngageMessage";
@@ -26,7 +26,7 @@ export {
   Messenger,
   ConversationList,
   ConversationItem,
-  Conversation,
+  ConversationDetail,
   Launcher,
   Notifier,
   Message,

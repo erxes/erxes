@@ -1,7 +1,6 @@
 import AccquireInformation from "./AccquireInformation";
 import App from "./App";
 import BrandInfo from "./BrandInfo";
-import ConversationCreate from "./ConversationCreate";
 import ConversationDetail from "./ConversationDetail";
 import ConversationItem from "./ConversationItem";
 import ConversationList from "./ConversationList";
@@ -20,7 +19,6 @@ export {
   Messenger,
   ConversationList,
   ConversationItem,
-  ConversationCreate,
   ConversationDetail,
   Launcher,
   Notifier,

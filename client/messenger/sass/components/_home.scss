@@ -3,7 +3,6 @@ $shadow-black: rgba(0, 0, 0, .1);
 .erxes-home-container {
   flex: 1;
   overflow-y: scroll;
-  padding: 15px 10px 0 15px;
   padding-top: 170px;
 
   .integration-box {
@@ -11,15 +10,15 @@ $shadow-black: rgba(0, 0, 0, .1);
     background: $white;
     border-radius: $border-radius;
     box-shadow: 0 4px 15px 0 $shadow-black, 0 1px 2px 0 $shadow-black;
-    margin-bottom: 15px;
+    margin: 15px;
     min-height: 100px;
     padding-top: 15px;
     position: relative;
     z-index: 3;
 
     h4 {
+      font-weight: bold;
       margin: 0 20px 15px;
-      font-weight: 500;
     }
 
     .empty-list {
@@ -32,7 +31,7 @@ $shadow-black: rgba(0, 0, 0, .1);
     }
   }
 
-  .erxes-topbar {
+  .head-wrapper {
     left: 0;
     position: absolute;
     right: 0;
@@ -48,14 +47,13 @@ $shadow-black: rgba(0, 0, 0, .1);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-right: -50px;
   overflow-wrap: break-word;
-  padding: 22px 0 50px;
+  padding: 25px 40px 60px;
   text-align: left;
   word-wrap: break-word;
 
   .erxes-supporters {
-    padding-top: 20px;
+    padding-top: 10px;
 
     .erxes-supporter {
       display: inline-block;
@@ -83,6 +81,55 @@ $shadow-black: rgba(0, 0, 0, .1);
 
   .loader-wrapper {
     margin-left: -50px;
+  }
+
+  time {
+    color: rgba($white, .7);
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+}
+
+.erxes-tab {
+  border-bottom: 1px solid $border-color;
+  bottom: 0;
+  color: $black;
+  cursor: pointer;
+  display: flex;
+  height: 36px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  z-index: 1;
+
+  .indicator {
+    background: $main-color;
+    bottom: -1px;
+    height: 2px;
+    left: 50%;
+    position: absolute;
+    transition: left .3s ease;
+    width: 50%;
+
+    &.left {
+      left: 0;
+    }
+  }
+
+  > span {
+    align-items: center;
+    background: $white;
+    display: flex;
+    flex: 1;
+    font-size: 11px;
+    justify-content: center;
+    text-align: center;
+    text-transform: uppercase;
+    transition: all .3s ease;
+
+    &:last-of-type {
+      border-left: 1px solid $border-color;
+    }
   }
 }
 

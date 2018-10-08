@@ -1,10 +1,10 @@
 import * as React from "react";
-import { defaultAvatar, iconLeft } from "../../icons/Icons";
+import { Supporters } from ".";
+import { iconLeft } from "../../icons/Icons";
 import { IUser } from "../../types";
 import { __ } from "../../utils";
 import { BrandInfo, MessageSender, MessagesList, TopBar } from "../containers";
 import { IMessage } from "../types";
-import { Supporters } from "./";
 
 type Props = {
   messages: IMessage[];
@@ -12,7 +12,6 @@ type Props = {
   supporters: IUser[];
   isOnline: boolean;
   color?: string;
-  isNew?: boolean;
   loading?: boolean;
 };
 
@@ -21,7 +20,7 @@ type State = {
   expanded: boolean;
 };
 
-class Conversation extends React.Component<Props, State> {
+class ConversationDetail extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -74,19 +73,20 @@ class Conversation extends React.Component<Props, State> {
   }
 
   render() {
-    const { messages, isNew, goToConversationList, isOnline } = this.props;
+    const { messages, goToConversationList, isOnline } = this.props;
 
-    const placeholder = isNew ? __("Send a message") : __("Write a reply");
+    const placeholder = !messages.length
+      ? __("Send a message")
+      : __("Write a reply");
 
     return (
       <React.Fragment>
         <TopBar
           middle={this.renderHead()}
           buttonIcon={iconLeft}
-          onToggle={this.toggle}
-          isBig={false}
+          toggleHead={this.toggle}
           isExpanded={this.state.expanded}
-          onButtonClick={(e: React.FormEvent<HTMLButtonElement>) => {
+          onLeftButtonClick={(e: React.FormEvent<HTMLButtonElement>) => {
             e.preventDefault();
             goToConversationList();
           }}
@@ -109,4 +109,4 @@ class Conversation extends React.Component<Props, State> {
   }
 }
 
-export default Conversation;
+export default ConversationDetail;

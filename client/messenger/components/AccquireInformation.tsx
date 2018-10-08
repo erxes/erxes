@@ -71,15 +71,14 @@ class AccquireInformation extends React.Component<Props, State> {
       </div>
     );
 
-    const style = { border: `1px solid ${color}` };
     const placeholder =
       type === "email" ? __("email@domain.com") : __("phone number");
 
     return (
-      <div className="accquire-information">
-        <TopBar middle={title} isBig={false} />
+      <React.Fragment>
+        <TopBar middle={title} />
 
-        <div className="content">
+        <div className="accquire-information slide-in">
           <p className="type">
             <span
               className={type === "email" ? "current" : ""}
@@ -103,7 +102,7 @@ class AccquireInformation extends React.Component<Props, State> {
               onChange={this.onValueChange}
               placeholder={placeholder ? placeholder.toString() : ""}
               type={type === "email" ? "text" : "tel"}
-              style={style}
+              autoFocus
             />
 
             <button
@@ -115,7 +114,7 @@ class AccquireInformation extends React.Component<Props, State> {
             </button>
           </form>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }
