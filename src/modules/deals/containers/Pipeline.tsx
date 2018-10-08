@@ -8,7 +8,7 @@ import { colors } from '../constants';
 import { generateQuoteMap } from '../data';
 import { queries } from '../graphql';
 import { IDealMap, IPipeline, IStageMap } from '../types';
-import { reorder, reorderQuoteMap } from '../utils';
+import { reorder, reorderDealMap } from '../utils';
 import Column from './Column';
 
 const Container = styled('div')`
@@ -19,10 +19,14 @@ const Container = styled('div')`
   display: inline-flex;
 `;
 
-type Props = {};
+type Props = {
+  pipeline: IPipeline;
+  dealMap: IDealMap;
+  stageMap: IStageMap;
+};
 
 type State = {
-  columns;
+  dealMap: IDealMap;
   ordered: string[];
 };
 
@@ -30,7 +34,7 @@ const initial = generateQuoteMap(500);
 
 class WithStages extends React.Component<Props, State> {
   state: State = {
-    columns: initial,
+    dealMap: initial,
     ordered: Object.keys(initial)
   };
 
@@ -59,8 +63,8 @@ class WithStages extends React.Component<Props, State> {
       return;
     }
 
-    // reordering column
-    if (result.type === 'COLUMN') {
+    // reordering stage
+    if (result.type === 'STAGE') {
       const ordered: string[] = reorder(
         this.state.ordered,
         source.index,
@@ -74,26 +78,25 @@ class WithStages extends React.Component<Props, State> {
       return;
     }
 
-    const data = reorderQuoteMap({
-      quoteMap: this.state.columns,
+    const data = reorderDealMap({
+      dealMap: this.state.dealMap,
       source,
       destination
     });
 
     this.setState({
-      columns: data.quoteMap
+      dealMap: data.dealMap
     });
   };
 
   render() {
-    const columns = this.state.columns;
-    const ordered: string[] = this.state.ordered;
+    const { dealMap, ordered } = this.state;
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <Droppable
-          droppableId="board"
-          type="COLUMN"
+          droppableId="pipeline"
+          type="STAGE"
           direction="horizontal"
           ignoreContainerClipping={true}
         >
@@ -107,7 +110,7 @@ class WithStages extends React.Component<Props, State> {
                   key={key}
                   index={index}
                   title={key}
-                  quotes={columns[key]}
+                  quotes={dealMap[key]}
                 />
               ))}
             </Container>

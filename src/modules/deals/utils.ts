@@ -114,20 +114,20 @@ export const reorder = (
   return result;
 };
 
-export const reorderQuoteMap = ({ quoteMap, source, destination }) => {
-  const current = [...quoteMap[source.droppableId]];
-  const next = [...quoteMap[destination.droppableId]];
+export const reorderDealMap = ({ dealMap, source, destination }) => {
+  const current = [...dealMap[source.droppableId]];
+  const next = [...dealMap[destination.droppableId]];
   const target = current[source.index];
 
   // moving to same list
   if (source.droppableId === destination.droppableId) {
     const reordered = reorder(current, source.index, destination.index);
-    const updatedQuoteMap = {
-      ...quoteMap,
+    const updatedDealMap = {
+      ...dealMap,
       [source.droppableId]: reordered
     };
     return {
-      quoteMap: updatedQuoteMap
+      dealMap: updatedDealMap
     };
   }
 
@@ -139,12 +139,12 @@ export const reorderQuoteMap = ({ quoteMap, source, destination }) => {
   next.splice(destination.index, 0, target);
 
   const result = {
-    ...quoteMap,
+    ...dealMap,
     [source.droppableId]: current,
     [destination.droppableId]: next
   };
 
   return {
-    quoteMap: result
+    dealMap: result
   };
 };
