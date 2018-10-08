@@ -23,7 +23,10 @@ const EditorWrapper = styled.div`
   }
 `;
 
-class Form extends React.Component<{create: (content: string) => void}, { content: string, editing: boolean }> {
+class Form extends React.Component<
+  { create: (content: string) => void },
+  { content: string; editing: boolean }
+> {
   constructor(props) {
     super(props);
 

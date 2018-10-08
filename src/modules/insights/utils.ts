@@ -1,7 +1,7 @@
 type OptionsType = {
-  value: string,
-  label: string
-}
+  value: string;
+  label: string;
+};
 
 export function selectOptions(array) {
   const options: OptionsType[] = [];
@@ -25,10 +25,12 @@ export function convertTime(second?: number) {
   const seconds = second - hours * 3600 - minutes * 60;
 
   const timeFormat = (num: number) => {
-    if(num < 10) return '0' + num.toString();
-    
-    return num.toString();
-  }
+    if (num < 10) return '0' + num.toString();
 
-  return timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds);
+    return num.toString();
+  };
+
+  return (
+    timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds)
+  );
 }

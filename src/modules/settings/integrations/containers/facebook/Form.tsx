@@ -12,11 +12,18 @@ interface IProps extends IRouterProps {
   client: any;
   type?: string;
   integrationFacebookAppsListQuery: any;
-  saveMutation: (params: {variables: {
-    name: string, brandId: string, appId: string, pageIds: string[]
-  }}) => Promise<any>;
+  saveMutation: (
+    params: {
+      variables: {
+        name: string;
+        brandId: string;
+        appId: string;
+        pageIds: string[];
+      };
+    }
+  ) => Promise<any>;
   brandsQuery: any;
-};
+}
 
 type State = {
   pages: IPages[];

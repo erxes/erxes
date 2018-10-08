@@ -15,12 +15,14 @@ type Props = {
   currentUser: IUser;
   emailTemplatesQuery: any;
   brandsQuery: any;
-  messagesAddMutation: (params: { variables: IEngageMessageDoc }) => Promise<any>;
+  messagesAddMutation: (
+    params: { variables: IEngageMessageDoc }
+  ) => Promise<any>;
   customers: ICustomer[];
   emptyBulk: () => void;
 };
 
-const WidgetContainer = (props : Props) => {
+const WidgetContainer = (props: Props) => {
   const {
     currentUser,
     emailTemplatesQuery,

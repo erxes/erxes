@@ -10,12 +10,14 @@ import { mutations, queries } from '../graphql';
 interface IProps extends IRouterProps {
   queryParams: any;
   historiesQuery: any;
-  importHistoriesRemove: (params: { variables: { _id: string } }) => Promise<any>;
-};
+  importHistoriesRemove: (
+    params: { variables: { _id: string } }
+  ) => Promise<any>;
+}
 
 type State = {
   loading: boolean;
-}
+};
 
 class HistoriesContainer extends React.Component<IProps, State> {
   constructor(props: IProps) {
@@ -65,7 +67,7 @@ class HistoriesContainer extends React.Component<IProps, State> {
 export default compose(
   graphql(gql(queries.histories), {
     name: 'historiesQuery',
-    options: ({ queryParams } : { queryParams: any }) => ({
+    options: ({ queryParams }: { queryParams: any }) => ({
       fetchPolicy: 'network-only',
       variables: {
         type: queryParams.type || 'customer'

@@ -22,7 +22,8 @@ class PasswordConfirmation extends React.Component<Props> {
   submit(e) {
     e.preventDefault();
 
-    const password = (document.getElementById('password') as HTMLInputElement).value;
+    const password = (document.getElementById('password') as HTMLInputElement)
+      .value;
 
     this.props.onSuccess(password);
     this.props.closeModal();

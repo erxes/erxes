@@ -1,10 +1,5 @@
 import * as React from 'react';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  Icon
-} from '.';
+import { ControlLabel, FormControl, FormGroup, Icon } from '.';
 import { Avatar } from '../styles/main';
 import { Alert, uploadHandler } from '../utils';
 
@@ -17,7 +12,7 @@ type Props = {
 type State = {
   avatarPreviewStyle: any;
   avatarPreviewUrl: string;
-}
+};
 
 class AvatarUpload extends React.Component<Props, State> {
   constructor(props, context) {

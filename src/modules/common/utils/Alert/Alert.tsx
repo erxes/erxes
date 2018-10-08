@@ -1,29 +1,29 @@
-import Icon from "modules/common/components/Icon";
-import { colors, dimensions, typography } from "modules/common/styles";
-import { slideDown } from "modules/common/utils/animations";
-import * as React from "react";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import Icon from 'modules/common/components/Icon';
+import { colors, dimensions, typography } from 'modules/common/styles';
+import { slideDown } from 'modules/common/utils/animations';
+import * as React from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const types = {
   info: {
     background: colors.colorSecondary,
-    icon: "information"
+    icon: 'information'
   },
 
   warning: {
     background: colors.colorCoreYellow,
-    icon: "clock"
+    icon: 'clock'
   },
 
   error: {
     background: colors.colorCoreRed,
-    icon: "cancel-1"
+    icon: 'cancel-1'
   },
 
   success: {
     background: colors.colorCoreGreen,
-    icon: "checked-1"
+    icon: 'checked-1'
   }
 };
 
@@ -61,7 +61,7 @@ type State = {
 
 export default class AlertStyled extends React.Component<Props, State> {
   static defaultProps = {
-    type: "information"
+    type: 'information'
   };
   private timeout?: NodeJS.Timer = undefined;
 

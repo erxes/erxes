@@ -3,13 +3,13 @@ import {
   ControlLabel,
   FormControl,
   FormGroup
-} from "modules/common/components";
-import { colors } from "modules/common/styles";
-import * as React from "react";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { IAddMessage } from "../../../../../containers/conversationDetail/WorkArea";
-import { IMessage } from "../../../../../types";
+} from 'modules/common/components';
+import { colors } from 'modules/common/styles';
+import * as React from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { IAddMessage } from '../../../../../containers/conversationDetail/WorkArea';
+import { IMessage } from '../../../../../types';
 
 const Footer = styled.div`
   text-align: right;
@@ -56,7 +56,7 @@ class ModalAction extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      tweet: "",
+      tweet: '',
       characterCount: this.getCharacterCount(this.getContent())
     };
 
@@ -83,11 +83,11 @@ class ModalAction extends React.Component<Props, State> {
   getContent() {
     const { type, parentMessage } = this.props;
 
-    if (type === "reply") {
+    if (type === 'reply') {
       return this.getScreenName(parentMessage);
     }
 
-    if (type === "quote") {
+    if (type === 'quote') {
       return `RT ${this.getScreenName(parentMessage)}: ${
         parentMessage.content
       } `;
@@ -126,7 +126,7 @@ class ModalAction extends React.Component<Props, State> {
 
     if (replyTweet) {
       const screenName = this.getScreenName(parentMessage, true);
-      const tweetContent = this.state.tweet.replace(`@${screenName} `, "");
+      const tweetContent = this.state.tweet.replace(`@${screenName} `, '');
 
       const replyData = {
         conversationId: parentMessage.conversationId,
@@ -150,14 +150,14 @@ class ModalAction extends React.Component<Props, State> {
       });
     }
 
-    const tweetData = {
+    const retweetData = {
       integrationId,
       id
     };
 
     return (
       retweet &&
-      retweet(tweetData, () => {
+      retweet(retweetData, () => {
         this.props.closeModal();
       })
     );
@@ -179,7 +179,7 @@ class ModalAction extends React.Component<Props, State> {
           <FormControl
             autoFocus
             componentClass="textarea"
-            disabled={type === "retweet"}
+            disabled={type === 'retweet'}
             onChange={this.onTweetContentChange}
             defaultValue={this.getContent()}
             required

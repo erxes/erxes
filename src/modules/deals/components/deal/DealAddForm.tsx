@@ -1,6 +1,7 @@
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
+import { IDeal, IDealParams } from 'modules/deals/types';
 import * as React from 'react';
 import { DealSelect } from '../../containers';
 import {
@@ -13,19 +14,12 @@ import {
 type Props = {
   customerId?: string;
   companyId?: string;
-  boardsQuery?: any;
-  pipelinesQuery?: any;
-  stagesQuery?: any;
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
-
-  // TODO: replace any
-  saveDeal: any;
+  saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
   showSelect?: boolean;
-
-  // TODO: check optional
-  closeModal?: () => void;
+  closeModal: () => void;
 };
 
 type State = {
@@ -34,7 +28,7 @@ type State = {
   disabled: boolean;
   boardId: string;
   pipelineId: string;
-}
+};
 
 class DealAddForm extends React.Component<Props, State> {
   constructor(props) {
@@ -79,7 +73,7 @@ class DealAddForm extends React.Component<Props, State> {
       // after save, enable save button
       this.setState({ disabled: false });
 
-      closeModal && closeModal();
+      closeModal();
     });
   }
 
@@ -112,7 +106,9 @@ class DealAddForm extends React.Component<Props, State> {
             <ControlLabel>Name</ControlLabel>
             <FormControl
               autoFocus
-              onChange={(e: any) => this.onChangeField('name', e.target.value)}
+              onChange={e =>
+                this.onChangeField('name', (e.target as HTMLInputElement).value)
+              }
             />
           </HeaderContent>
         </HeaderRow>

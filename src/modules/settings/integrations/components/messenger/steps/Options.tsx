@@ -10,7 +10,10 @@ import Toggle from 'react-toggle';
 import { SelectBrand } from '../..';
 
 type Props = {
-  onChange: (name: 'brandId' | 'languageCode' | 'notifyCustomer', value: string) => void;
+  onChange: (
+    name: 'brandId' | 'languageCode' | 'notifyCustomer',
+    value: string
+  ) => void;
   brandId?: string;
   languageCode?: string;
   brands?: IBrand[];
@@ -48,7 +51,7 @@ class Options extends React.Component<Props> {
               defaultValue={this.props.languageCode}
               onChange={(e: React.FormEvent<HTMLElement>) => {
                 const target = e.currentTarget as HTMLInputElement;
-                return this.onChangeFunction('languageCode', target.value)
+                return this.onChangeFunction('languageCode', target.value);
               }}
             >
               <option />

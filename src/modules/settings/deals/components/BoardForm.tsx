@@ -11,7 +11,11 @@ import { IBoard } from '../types';
 type Props = {
   board: IBoard;
   closeModal: () => void;
-  save: (params: { doc: { name: string; }}, callback: () => void, brand: IBoard) => void;
+  save: (
+    params: { doc: { name: string } },
+    callback: () => void,
+    brand: IBoard
+  ) => void;
 };
 
 class BoardForm extends React.Component<Props, {}> {
@@ -35,7 +39,8 @@ class BoardForm extends React.Component<Props, {}> {
   generateDoc() {
     return {
       doc: {
-        name: (document.getElementById('channel-name') as HTMLInputElement).value
+        name: (document.getElementById('channel-name') as HTMLInputElement)
+          .value
       }
     };
   }

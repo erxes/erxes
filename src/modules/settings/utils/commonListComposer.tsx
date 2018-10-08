@@ -20,7 +20,11 @@ const commonListComposer = options => {
     history: any;
     addMutation: ({ variables: any }) => Promise<any>;
     editMutation: ({ variables: any }) => Promise<any>;
-    removeMutation: ({ variables: { _id: string } }) => Promise<any>;
+    removeMutation: (
+      {
+        variables: { _id: string }
+      }
+    ) => Promise<any>;
   };
 
   const ListContainer = (props: Props) => {
@@ -107,7 +111,10 @@ const commonListComposer = options => {
     )(ListContainer);
   }
 
-  return compose(gqlListQuery, gqlTotalCountQuery)(ListContainer);
+  return compose(
+    gqlListQuery,
+    gqlTotalCountQuery
+  )(ListContainer);
 };
 
 export default commonListComposer;

@@ -1,17 +1,17 @@
-import { Button, FormControl, Step, Steps } from "modules/common/components";
+import { Button, FormControl, Step, Steps } from 'modules/common/components';
 import {
   StepWrapper,
   TitleContainer
-} from "modules/common/components/step/styles";
-import { Alert } from "modules/common/utils";
-import { __ } from "modules/common/utils";
-import { Wrapper } from "modules/layout/components";
-import { IFormData } from "modules/settings/integrations/types";
-import { IField } from "modules/settings/properties/types";
-import * as React from "react";
-import { Link } from "react-router-dom";
-import { IBrand } from "../../settings/brands/types";
-import { IFormIntegration } from "../types";
+} from 'modules/common/components/step/styles';
+import { Alert } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import { IFormData } from 'modules/settings/integrations/types';
+import { IField } from 'modules/settings/properties/types';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { IBrand } from '../../settings/brands/types';
+import { IFormIntegration } from '../types';
 import {
   CallOut,
   ChooseType,
@@ -19,7 +19,7 @@ import {
   FullPreviewStep,
   OptionStep,
   SuccessStep
-} from "./step";
+} from './step';
 
 type Props = {
   integration?: IFormIntegration;
@@ -27,14 +27,16 @@ type Props = {
   fields: IField[];
   loading?: boolean;
 
-  save: (params: {
-    name: string;
-    brandId: string;
-    languageCode?: string;
-    formData: IFormData;
-    form: any;
-    fields?: IField[];
-   }) => void;
+  save: (
+    params: {
+      name: string;
+      brandId: string;
+      languageCode?: string;
+      formData: IFormData;
+      form: any;
+      fields?: IField[];
+    }
+  ) => void;
 };
 
 type State = {
@@ -79,9 +81,9 @@ class Form extends React.Component<Props, State> {
     this.renderSaveButton = this.renderSaveButton.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
 
-    const integration = props.integration || {} as IFormIntegration;
+    const integration = props.integration || ({} as IFormIntegration);
 
-    const formData = integration.formData || {} as IFormData;
+    const formData = integration.formData || ({} as IFormData);
     const form = integration.form || {};
     const callout = form.callout || {};
     const fields = props.fields;
@@ -116,11 +118,11 @@ class Form extends React.Component<Props, State> {
     const { brand, calloutTitle, title } = this.state;
 
     if (!title) {
-      return Alert.error(__("Write title"));
+      return Alert.error(__('Write title'));
     }
 
     if (!brand) {
-      return Alert.error(__("Choose brand"));
+      return Alert.error(__('Choose brand'));
     }
 
     this.props.save({
@@ -211,17 +213,22 @@ class Form extends React.Component<Props, State> {
 
     const formData = integration && integration.formData;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __("Leads"), link: "/forms" }];
-    const constant = isSkip ? "form" : "callout";
+    const breadcrumb = [{ title: __('Leads'), link: '/forms' }];
+    const constant = isSkip ? 'form' : 'callout';
 
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
         <TitleContainer>
-          <div>{__("Title")}</div>
+          <div>{__('Title')}</div>
           <FormControl
             required
-            onChange={e => this.onChange("title", (e.currentTarget as HTMLInputElement).value)}
+            onChange={e =>
+              this.onChange(
+                'title',
+                (e.currentTarget as HTMLInputElement).value
+              )
+            }
             defaultValue={title}
           />
         </TitleContainer>
@@ -250,7 +257,7 @@ class Form extends React.Component<Props, State> {
               skip={isSkip}
             />
           </Step>
-          <Step img="/images/icons/erxes-12.svg" title={"Form"}>
+          <Step img="/images/icons/erxes-12.svg" title={'Form'}>
             <FormStep
               onChange={this.onChange}
               formTitle={formTitle}
@@ -306,7 +313,7 @@ class Form extends React.Component<Props, State> {
               theme={theme}
               image={logoPreviewUrl}
               fields={fields}
-              preview={preview || "desktop"}
+              preview={preview || 'desktop'}
               thankContent={thankContent}
               skip={isSkip}
               carousel={carousel || constant}

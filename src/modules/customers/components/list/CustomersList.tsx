@@ -44,23 +44,28 @@ interface IProps extends IRouterProps {
   loading: boolean;
   searchValue: string;
   loadingTags: boolean;
-  removeCustomers: (doc: { customerIds: string[] }, emptyBulk: () => void) => void;
-  mergeCustomers: (doc: {
-    ids: string[];
-    data: any;
-    callback: () => void;
-  }) => Promise<void>;
+  removeCustomers: (
+    doc: { customerIds: string[] },
+    emptyBulk: () => void
+  ) => void;
+  mergeCustomers: (
+    doc: {
+      ids: string[];
+      data: any;
+      callback: () => void;
+    }
+  ) => Promise<void>;
   queryParams: any;
   exportCustomers: (bulk: string[]) => void;
   handleXlsUpload: (e: React.FormEvent<HTMLInputElement>) => void;
-};
+}
 
 type State = {
   searchValue?: string;
-}
+};
 
 class CustomersList extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer
+  private timer?: NodeJS.Timer;
 
   constructor(props) {
     super(props);
@@ -207,10 +212,10 @@ class CustomersList extends React.Component<IProps, State> {
           </DropdownToggle>
           <Dropdown.Menu>
             <li>
-              <ModalTrigger 
-                title="Manage Columns" 
+              <ModalTrigger
+                title="Manage Columns"
                 trigger={editColumns}
-                content={(props) => (
+                content={props => (
                   <ManageColumns
                     {...props}
                     contentType="customer"
@@ -218,7 +223,7 @@ class CustomersList extends React.Component<IProps, State> {
                     history={history}
                   />
                 )}
-                />
+              />
             </li>
             <li>
               <Link to="/settings/properties?type=customer">
@@ -250,10 +255,10 @@ class CustomersList extends React.Component<IProps, State> {
           title="New customer"
           trigger={addTrigger}
           size="lg"
-          content={(props) =>
+          content={props => (
             <CustomerForm {...props} size="lg" queryParams={queryParams} />
-          }
-         />
+          )}
+        />
       </BarItems>
     );
 
@@ -274,7 +279,7 @@ class CustomersList extends React.Component<IProps, State> {
 
       actionBarLeft = (
         <BarItems>
-          <Widget customers={bulk} emptyBulk={emptyBulk}  />
+          <Widget customers={bulk} emptyBulk={emptyBulk} />
 
           <TaggerPopover
             type="customer"
@@ -287,7 +292,13 @@ class CustomersList extends React.Component<IProps, State> {
               title="Merge Customers"
               size="lg"
               trigger={mergeButton}
-              content={(props) => <CustomersMerge {...props} objects={bulk} save={mergeCustomers} />}
+              content={props => (
+                <CustomersMerge
+                  {...props}
+                  objects={bulk}
+                  save={mergeCustomers}
+                />
+              )}
             />
           )}
           <Button

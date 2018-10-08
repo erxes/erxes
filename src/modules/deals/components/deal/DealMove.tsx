@@ -8,12 +8,11 @@ import {
   StageItem,
   Stages
 } from '../../styles/deal';
-import { IDeal } from '../../types';
+import { IDeal, IStage } from '../../types';
 
 type Props = {
   deal?: IDeal;
-  // TODO: replace any
-  stages: any;
+  stages: IStage[];
   stageId?: string;
   onChangeStage?: (stageId: string) => void;
 };
@@ -22,9 +21,7 @@ type State = {
   boardId: string;
   pipelineId: string;
   show: boolean;
-
-  // TODO: replace any
-  stages: any;
+  stages: IStage[];
 };
 
 class DealMove extends React.Component<Props, State> {
@@ -33,7 +30,9 @@ class DealMove extends React.Component<Props, State> {
 
     this.toggleForm = this.toggleForm.bind(this);
 
-    const { deal: { pipeline, boardId } } = props;
+    const {
+      deal: { pipeline, boardId }
+    } = props;
 
     this.state = {
       show: false,
@@ -105,7 +104,7 @@ class DealMove extends React.Component<Props, State> {
   }
 
   render() {
-    const deal = this.props.deal || {} as IDeal;
+    const deal = this.props.deal || ({} as IDeal);
     const { pipeline } = deal;
 
     return (

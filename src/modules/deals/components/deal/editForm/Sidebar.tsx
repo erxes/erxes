@@ -7,19 +7,20 @@ import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { ProductSection } from '../..';
 import { Right } from '../../../styles/deal';
-import { IDeal } from '../../../types';
+import { IDeal, IProductData } from '../../../types';
 
 type Props = {
   deal: IDeal;
   customers: ICustomer[];
   companies: ICompany[];
   products: IProduct[];
-  productsData: any;
-  onChangeField?: (name: 'productsData' | 'products' | 'companies' | 'customers', value: any) => void;
-
-  // TODO: replace any
-  removeDeal: any;
-  saveProductsData: any;
+  productsData: IProductData[];
+  onChangeField?: (
+    name: 'productsData' | 'products' | 'companies' | 'customers',
+    value: any
+  ) => void;
+  removeDeal: (_id: string) => void;
+  saveProductsData: () => void;
 };
 
 class Sidebar extends React.Component<Props> {
@@ -36,8 +37,10 @@ class Sidebar extends React.Component<Props> {
     } = this.props;
 
     const onChange = (type, value) => {
-      onChangeField && onChangeField(type, value);
-    }
+      if (onChangeField) {
+        onChangeField(type, value);
+      }
+    };
 
     return (
       <Right>
@@ -61,9 +64,7 @@ class Sidebar extends React.Component<Props> {
           onSelect={cmrs => onChange('customers', cmrs)}
         />
 
-        <Button icon="checked-1">
-          Copy
-        </Button>
+        <Button icon="checked-1">Copy</Button>
 
         <Button icon="cancel-1" onClick={() => removeDeal(deal._id)}>
           Delete

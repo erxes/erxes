@@ -10,7 +10,9 @@ import { mutations, queries } from '../graphql';
 type Props = {
   currencyConfigQuery: any;
   uomConfigQuery: any;
-  insertConfig: (params: {variables: { code: string, value: string }}) => Promise<any>;
+  insertConfig: (
+    params: { variables: { code: string; value: string } }
+  ) => Promise<any>;
 };
 
 class ListContainer extends React.Component<Props> {
@@ -49,9 +51,13 @@ class ListContainer extends React.Component<Props> {
 
     return (
       <AppConsumer>
-        {({ currentLanguage, changeLanguage }) =>
-          <List {...updatedProps} currentLanguage={currentLanguage} changeLanguage={changeLanguage} />
-        }
+        {({ currentLanguage, changeLanguage }) => (
+          <List
+            {...updatedProps}
+            currentLanguage={currentLanguage}
+            changeLanguage={changeLanguage}
+          />
+        )}
       </AppConsumer>
     );
   }

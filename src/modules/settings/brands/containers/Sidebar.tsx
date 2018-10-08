@@ -9,9 +9,13 @@ type QueryResponse = {
   brandsQuery: any;
   brandsCountQuery: any;
 
-  addMutation:(params: {variables: { name: string; description: string }}) => Promise<any>;
-  editMutation: (params: {variables: { name: string; description: string }}) => Promise<any>;
-  removeMutation: (params: {variables: { _id: string; }}) => Promise<any>;
+  addMutation: (
+    params: { variables: { name: string; description: string } }
+  ) => Promise<any>;
+  editMutation: (
+    params: { variables: { name: string; description: string } }
+  ) => Promise<any>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 const SidebarContainer = (props: ChildProps<QueryResponse>) => {
@@ -100,10 +104,9 @@ const commonOptions = ({ queryParams, currentBrandId }) => {
 };
 
 export default compose(
-  graphql(
-    gql(queries.brands), {
+  graphql(gql(queries.brands), {
     name: 'brandsQuery',
-    options: ({ queryParams } : { queryParams: any }) => ({
+    options: ({ queryParams }: { queryParams: any }) => ({
       variables: {
         perPage: queryParams.limit || 20
       },

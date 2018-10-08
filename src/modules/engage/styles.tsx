@@ -48,7 +48,7 @@ const PreviewContent = styledTS<{ isFullmessage: boolean }>(styled.div)`
         word-wrap: break-word;
       `;
     }
-    return null
+    return null;
   }};
 `;
 

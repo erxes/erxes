@@ -43,12 +43,10 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
         <RowActions
           {...this.props}
           object={object}
-          renderForm={(props) =>
-            <Form {...props} />
-          }
+          renderForm={props => <Form {...props} />}
         />
       </tr>
-    ))
+    ));
   }
 
   renderContent(props) {
@@ -74,7 +72,7 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
           { title: __('Settings'), link: '/settings' },
           { title: __('Email templates') }
         ]}
-        renderForm={(props) => <Form {...props} />}
+        renderForm={props => <Form {...props} />}
         renderContent={this.renderContent}
         {...this.props}
       />

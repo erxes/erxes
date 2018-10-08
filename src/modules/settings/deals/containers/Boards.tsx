@@ -8,9 +8,9 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   boardsQuery: any;
-  addMutation: (params: { variables: { name: string; }}) => Promise<any>;
-  editMutation: (params: { variables: { name: string; }}) => Promise<any>;
-  removeMutation: (params: { variables: { _id: string }}) => Promise<any>;
+  addMutation: (params: { variables: { name: string } }) => Promise<any>;
+  editMutation: (params: { variables: { name: string } }) => Promise<any>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 class BoardsContainer extends React.Component<Props, {}> {

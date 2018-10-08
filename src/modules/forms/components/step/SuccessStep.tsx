@@ -2,12 +2,12 @@ import {
   ControlLabel,
   FormControl,
   FormGroup
-} from "modules/common/components";
-import { LeftItem, Preview } from "modules/common/components/step/styles";
-import * as React from "react";
-import { IFormData } from "../../../settings/integrations/types";
-import { SuccessPreview } from "./preview";
-import { FlexItem } from "./style";
+} from 'modules/common/components';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import * as React from 'react';
+import { IFormData } from '../../../settings/integrations/types';
+import { SuccessPreview } from './preview';
+import { FlexItem } from './style';
 
 type Props = {
   type: string;
@@ -15,7 +15,18 @@ type Props = {
   theme: string;
   thankContent?: string;
   successAction?: string;
-  onChange: (name: 'successAction' | 'fromEmail' | 'userEmailTitle' | 'userEmailContent' | 'adminEmails' | 'adminEmailTitle' | 'redirectUrl' | 'thankContent', value: string) => void;
+  onChange: (
+    name:
+      | 'successAction'
+      | 'fromEmail'
+      | 'userEmailTitle'
+      | 'userEmailContent'
+      | 'adminEmails'
+      | 'adminEmailTitle'
+      | 'redirectUrl'
+      | 'thankContent',
+    value: string
+  ) => void;
   formData?: IFormData;
 };
 
@@ -30,7 +41,7 @@ class SuccessStep extends React.Component<Props, State> {
     const formData = props.formData || {};
 
     this.state = {
-      successAction: formData.successAction || "onPage"
+      successAction: formData.successAction || 'onPage'
     };
 
     this.onChangeFunction = this.onChangeFunction.bind(this);
@@ -38,11 +49,13 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   handleSuccessActionChange() {
-    const element = document.getElementById("successAction") as HTMLInputElement; 
+    const element = document.getElementById(
+      'successAction'
+    ) as HTMLInputElement;
     const value = element.value;
 
     this.setState({ successAction: value });
-    this.props.onChange("successAction", value);
+    this.props.onChange('successAction', value);
   }
 
   onChangeFunction(name: any, value: string) {
@@ -51,7 +64,7 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderEmailFields(formData: IFormData) {
-    if (this.state.successAction !== "email") return null;
+    if (this.state.successAction !== 'email') return null;
 
     return (
       <div>
@@ -62,7 +75,10 @@ class SuccessStep extends React.Component<Props, State> {
             id="fromEmail"
             defaultValue={formData.fromEmail}
             onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction("fromEmail", (e.currentTarget as HTMLInputElement).value)
+              this.onChangeFunction(
+                'fromEmail',
+                (e.currentTarget as HTMLInputElement).value
+              )
             }
           />
         </FormGroup>
@@ -74,7 +90,10 @@ class SuccessStep extends React.Component<Props, State> {
             id="userEmailTitle"
             defaultValue={formData.userEmailTitle}
             onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction("userEmailTitle", (e.currentTarget as HTMLInputElement).value)
+              this.onChangeFunction(
+                'userEmailTitle',
+                (e.currentTarget as HTMLInputElement).value
+              )
             }
           />
         </FormGroup>
@@ -87,7 +106,10 @@ class SuccessStep extends React.Component<Props, State> {
             defaultValue={formData.userEmailContent}
             id="userEmailContent"
             onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction("userEmailContent", (e.currentTarget as HTMLInputElement).value)
+              this.onChangeFunction(
+                'userEmailContent',
+                (e.currentTarget as HTMLInputElement).value
+              )
             }
           />
         </FormGroup>
@@ -97,9 +119,14 @@ class SuccessStep extends React.Component<Props, State> {
           <FormControl
             id="adminEmails"
             type="text"
-            defaultValue={formData.adminEmails ? formData.adminEmails.join(",") : []}
+            defaultValue={
+              formData.adminEmails ? formData.adminEmails.join(',') : []
+            }
             onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction("adminEmails", (e.currentTarget as HTMLInputElement).value)
+              this.onChangeFunction(
+                'adminEmails',
+                (e.currentTarget as HTMLInputElement).value
+              )
             }
           />
         </FormGroup>
@@ -111,7 +138,10 @@ class SuccessStep extends React.Component<Props, State> {
             defaultValue={formData.adminEmailTitle}
             id="adminEmailTitle"
             onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction("adminEmailTitle", (e.currentTarget as HTMLInputElement).value)
+              this.onChangeFunction(
+                'adminEmailTitle',
+                (e.currentTarget as HTMLInputElement).value
+              )
             }
           />
         </FormGroup>
@@ -124,7 +154,10 @@ class SuccessStep extends React.Component<Props, State> {
             defaultValue={formData.adminEmailContent}
             id="adminEmailContent"
             onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction("adminEmailContent", (e.currentTarget as HTMLInputElement).value)
+              this.onChangeFunction(
+                'adminEmailContent',
+                (e.currentTarget as HTMLInputElement).value
+              )
             }
           />
         </FormGroup>
@@ -133,7 +166,7 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderRedirectUrl(formData) {
-    if (this.state.successAction !== "redirect") return null;
+    if (this.state.successAction !== 'redirect') return null;
 
     return (
       <div>
@@ -144,7 +177,10 @@ class SuccessStep extends React.Component<Props, State> {
             defaultValue={formData.redirectUrl}
             id="redirectUrl"
             onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction("redirectUrl", (e.currentTarget as HTMLInputElement).value)
+              this.onChangeFunction(
+                'redirectUrl',
+                (e.currentTarget as HTMLInputElement).value
+              )
             }
           />
         </FormGroup>
@@ -156,7 +192,7 @@ class SuccessStep extends React.Component<Props, State> {
     const { thankContent } = this.props;
     const { successAction } = this.state;
 
-    if (successAction !== "onPage") return null;
+    if (successAction !== 'onPage') return null;
 
     return (
       <FormGroup>
@@ -167,7 +203,10 @@ class SuccessStep extends React.Component<Props, State> {
           componentClass="textarea"
           defaultValue={thankContent}
           onChange={(e: React.FormEvent<HTMLElement>) =>
-            this.onChangeFunction("thankContent", (e.currentTarget as HTMLInputElement).value)
+            this.onChangeFunction(
+              'thankContent',
+              (e.currentTarget as HTMLInputElement).value
+            )
           }
         />
       </FormGroup>

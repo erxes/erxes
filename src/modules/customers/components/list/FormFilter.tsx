@@ -11,7 +11,7 @@ interface IProps extends IRouterProps {
   counts: any;
   integrations: IIntegration[];
   loading: boolean;
-};
+}
 
 function Forms({ history, counts, integrations, loading }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;

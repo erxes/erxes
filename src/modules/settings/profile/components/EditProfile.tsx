@@ -8,12 +8,12 @@ import { PasswordConfirmation } from '.';
 type Props = {
   currentUser: IUser;
   closeModal: () => void;
-  save: (variables: IUserDoc & {  password?: string }) => void;
+  save: (variables: IUserDoc & { password?: string }) => void;
 };
 
 type State = {
   avatar: string;
-}
+};
 
 class EditProfile extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -39,7 +39,7 @@ class EditProfile extends React.Component<Props, State> {
       details: {
         avatar: this.state.avatar,
         fullName: this.getInputElementValue('fullName'),
-        position:this.getInputElementValue('position'),
+        position: this.getInputElementValue('position'),
         location: this.getInputElementValue('user-location'),
         description: this.getInputElementValue('description')
       },
@@ -88,7 +88,12 @@ class EditProfile extends React.Component<Props, State> {
           <ModalTrigger
             title="Enter your password to Confirm"
             trigger={saveButton}
-            content={(props) => <PasswordConfirmation {...props} onSuccess={password => this.handleSubmit(password)} /> }
+            content={props => (
+              <PasswordConfirmation
+                {...props}
+                onSuccess={password => this.handleSubmit(password)}
+              />
+            )}
           />
         </ModalFooter>
       </React.Fragment>

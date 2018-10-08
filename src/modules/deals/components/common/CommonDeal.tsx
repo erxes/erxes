@@ -1,14 +1,15 @@
+import { Tip } from 'modules/common/components';
+import { colors } from 'modules/common/styles';
 import * as moment from 'moment';
 import * as React from 'react';
-
-import { Tip } from 'modules/common/components';
 import { Items, UserCounter } from '..';
 import {
   ActionInfo,
   DealDate,
   FooterContent,
   ItemList,
-  SpaceContent
+  SpaceContent,
+  Status
 } from '../../styles/deal';
 
 import { __ } from '../../../common/utils';
@@ -44,12 +45,33 @@ class CommonDeal extends React.Component<Props> {
     );
   }
 
+  renderStatusLabel(text, color) {
+    return (
+      <Status>
+        <span style={{ backgroundColor: color }}>{__(text)}</span>
+      </Status>
+    );
+  }
+
+  renderDealStatus(stage) {
+    if (stage.probability === 'Lost') {
+      return this.renderStatusLabel('Lost', colors.colorCoreRed);
+    }
+
+    if (stage.probability === 'Won') {
+      return this.renderStatusLabel('Won', colors.colorCoreGreen);
+    }
+
+    return this.renderStatusLabel('In Progress', colors.colorCoreBlue);
+  }
+
   render() {
     const { deal } = this.props;
     const products = (deal.products || []).map(p => p.product);
 
     return (
       <React.Fragment>
+        {this.renderDealStatus(deal.stage)}
         <SpaceContent>
           <h4>{deal.name}</h4>
           {this.renderDate(deal.closeDate)}

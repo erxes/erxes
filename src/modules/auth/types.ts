@@ -1,4 +1,4 @@
-import { IEmailSignature } from "modules/settings/email/types";
+import { IEmailSignature } from 'modules/settings/email/types';
 
 export interface IUserDetails {
   avatar?: string;

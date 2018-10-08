@@ -1,7 +1,7 @@
-import { Icon, ImageWithPreview } from "modules/common/components";
+import { Icon, ImageWithPreview } from 'modules/common/components';
 import * as React from 'react';
-import styled from "styled-components";
-import { IAttachment } from "../types";
+import styled from 'styled-components';
+import { IAttachment } from '../types';
 
 const sizing = 30;
 
@@ -122,7 +122,7 @@ class Attachment extends React.Component<Props> {
       return null;
     }
 
-    if (attachment.type.startsWith("image")) {
+    if (attachment.type.startsWith('image')) {
       return (
         <ImageWithPreview
           onLoad={this.onLoadImage}
@@ -132,42 +132,42 @@ class Attachment extends React.Component<Props> {
       );
     }
 
-    const url = attachment.url || attachment.name || "";
-    const name = attachment.name || attachment.url || "";
-    const fileExtension = url.split(".").pop();
+    const url = attachment.url || attachment.name || '';
+    const name = attachment.name || attachment.url || '';
+    const fileExtension = url.split('.').pop();
 
     let filePreview;
     switch (fileExtension) {
-      case "png":
-      case "jpeg":
-      case "jpg":
+      case 'png':
+      case 'jpeg':
+      case 'jpg':
         filePreview = (
           <ImageWithPreview alt={url} src={url} onLoad={this.onLoadImage} />
         );
         break;
-      case "doc":
-      case "docx":
-      case "txt":
-      case "pdf":
-      case "xls":
-      case "xlsx":
-      case "ppt":
-      case "pptx":
-        filePreview = this.renderOtherFile(name, "file");
+      case 'doc':
+      case 'docx':
+      case 'txt':
+      case 'pdf':
+      case 'xls':
+      case 'xlsx':
+      case 'ppt':
+      case 'pptx':
+        filePreview = this.renderOtherFile(name, 'file');
         break;
-      case "mp4":
-      case "avi":
-        filePreview = this.renderOtherFile(name, "videocamera");
+      case 'mp4':
+      case 'avi':
+        filePreview = this.renderOtherFile(name, 'videocamera');
         break;
-      case "mp3":
-      case "wav":
-        filePreview = this.renderOtherFile(name, "music");
+      case 'mp3':
+      case 'wav':
+        filePreview = this.renderOtherFile(name, 'music');
         break;
-      case "zip":
-        filePreview = this.renderOtherFile(name, "cube");
+      case 'zip':
+        filePreview = this.renderOtherFile(name, 'cube');
         break;
       default:
-        filePreview = this.renderOtherFile(name, "clipboard-1");
+        filePreview = this.renderOtherFile(name, 'clipboard-1');
     }
     return filePreview;
   }

@@ -23,7 +23,6 @@ type Props = {
 };
 
 class ResponseCloseReport extends React.Component<Props> {
-
   renderTitle(title: string, time?: string) {
     return (
       <InsightTitle>
@@ -35,7 +34,7 @@ class ResponseCloseReport extends React.Component<Props> {
 
   renderBreadCrumnb() {
     return [
-      { title: __('Insights'), link: '/insight' },
+      { title: __('Insights'), link: '/insights' },
       { title: __('Response Close Report') }
     ];
   }

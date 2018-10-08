@@ -28,11 +28,14 @@ type Props = {
   name: string;
   description: string;
   closeDate: Date;
-  amount: any;
+  amount: { [key: string]: number };
   stageId: string;
   assignedUserIds: string[];
   users: IUser[];
-  onChangeField: (name: 'stageId' | 'name' | 'closeDate' | 'description' | 'assignedUserIds', value: any) => void;
+  onChangeField: (
+    name: 'stageId' | 'name' | 'closeDate' | 'description' | 'assignedUserIds',
+    value: any
+  ) => void;
 };
 
 class Top extends React.Component<Props> {
@@ -95,7 +98,9 @@ class Top extends React.Component<Props> {
             <FormControl
               defaultValue={name}
               required
-              onChange={(e: any) => onChangeField('name', e.target.value)}
+              onChange={e =>
+                onChangeField('name', (e.target as HTMLInputElement).value)
+              }
             />
           </HeaderContent>
 
@@ -127,7 +132,12 @@ class Top extends React.Component<Props> {
               <FormControl
                 componentClass="textarea"
                 defaultValue={description}
-                onChange={(e: any) => onChangeField('description', e.target.value)}
+                onChange={e =>
+                  onChangeField(
+                    'description',
+                    (e.target as HTMLInputElement).value
+                  )
+                }
               />
             </FormGroup>
           </Left>

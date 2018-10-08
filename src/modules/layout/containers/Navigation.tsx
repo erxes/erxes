@@ -4,7 +4,9 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Navigation } from '../components';
 
-class NavigationContainer extends React.Component<{ unreadConversationsCountQuery: any }> {
+class NavigationContainer extends React.Component<{
+  unreadConversationsCountQuery: any;
+}> {
   componentWillMount() {
     this.props.unreadConversationsCountQuery.subscribeToMore({
       // listen for all conversation changes

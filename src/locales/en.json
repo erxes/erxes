@@ -6,8 +6,7 @@
   "There is no data": "There is no data",
   "There is no data.": "There is no data.",
   "Load more": "Load more",
-  "There aren't any activities at the moment.":
-    "There aren't any activities at the moment.",
+  "There aren't any activities at the moment.": "There aren't any activities at the moment.",
   "Reset your password": "Reset your password",
   "Email me the instruction": "Email me the instruction",
   "Sign in": "Sign in",
@@ -121,8 +120,7 @@
   "Twitter quote": "Twitter quote",
   "Retweet": "Retweet",
   "Screen name": "Screen name",
-  "Don't see the result you're looking for? ":
-    "Don't see the result you're looking for? ",
+  "Don't see the result you're looking for? ": "Don't see the result you're looking for? ",
   "Merged Info": "Merged Info",
   "E-mail": "E-mail",
   "Integrations": "Integrations",
@@ -222,30 +220,22 @@
   "Participating": "Participating",
   "Resolved": "Resolved",
   "View more": "View more",
-  "Customer is offline. Click to hide and send messages and they will receive them the next time they are online.":
-    "Customer is offline. Click to hide and send messages and they will receive them the next time they are online.",
+  "Customer is offline. Click to hide and send messages and they will receive them the next time they are online.": "Customer is offline. Click to hide and send messages and they will receive them the next time they are online.",
   "No templates": "No templates",
   "Save as template": "Save as template",
   "Daily First Response Resolve Rate": "Daily First Response Resolve Rate",
-  "Daily First Response Resolve Rate by Team Members":
-    "Daily First Response Resolve Rate by Team Members",
-  "Daily Response Close Resolve Rate by Team Members":
-    "Daily Response Close Resolve Rate by Team Members",
+  "Daily First Response Resolve Rate by Team Members": "Daily First Response Resolve Rate by Team Members",
+  "Daily Response Close Resolve Rate by Team Members": "Daily Response Close Resolve Rate by Team Members",
   "Volume Report": "Volume Report",
-  "Feedbacks gathered through various customer engagement channels.":
-    "Feedbacks gathered through various customer engagement channels.",
+  "Feedbacks gathered through various customer engagement channels.": "Feedbacks gathered through various customer engagement channels.",
   "Response Report": "Response Report",
-  "Total number of response for customer feedbacks, by each staff.":
-    "Total number of response for customer feedbacks, by each staff.",
+  "Total number of response for customer feedbacks, by each staff.": "Total number of response for customer feedbacks, by each staff.",
   "Response Close Report": "Response Close Report",
-  "Average time of each staff solving problems that based on customer feedbacks.":
-    "Average time of each staff solving problems that based on customer feedbacks.",
+  "Average time of each staff solving problems that based on customer feedbacks.": "Average time of each staff solving problems that based on customer feedbacks.",
   "First Response Report": "First Response Report",
-  "Responding time for a single feedback. Stats will define average response time by each staff.":
-    "Responding time for a single feedback. Stats will define average response time by each staff.",
+  "Responding time for a single feedback. Stats will define average response time by each staff.": "Responding time for a single feedback. Stats will define average response time by each staff.",
   "Daily Response Close Resolve Rate": "Daily Response Close Resolve Rate",
-  "Daily Response Close Resolve rate by Team Members":
-    "Daily Response Close Resolve rate by Team Members",
+  "Daily Response Close Resolve rate by Team Members": "Daily Response Close Resolve rate by Team Members",
   "Response Times summary": "Response Times summary",
   "Response Trend": "Response Trend",
   "Punch card": "Punch card",
@@ -263,11 +253,9 @@
   "Add Article": "Add Article",
   "Customer engagement. REDEFINED.": "Customer engagement. REDEFINED.",
   "Democratizing business": "Democratizing business",
-  "erxes is an AI meets open source messaging platform for sales, marketing and support":
-    "erxes is an AI meets open source messaging platform for sales, marketing and support",
+  "erxes is an AI meets open source messaging platform for sales, marketing and support": "erxes is an AI meets open source messaging platform for sales, marketing and support",
   "404. This page is not found.": "404. This page is not found.",
-  "erxes is an open-source messaging platform for customer success":
-    "erxes is an open-source messaging platform for customer success",
+  "erxes is an open-source messaging platform for customer success": "erxes is an open-source messaging platform for customer success",
   "Notification settings": "Notification settings",
   "Mark Page Read": "Mark Page Read",
   "Mark All Read": "Mark All Read",
@@ -292,13 +280,11 @@
   "Color code": "Color code",
   "Engage Message": "Engage Message",
   "Item counts": "Item counts",
-  "There is no integration in this Brand":
-    "There is no integration in this Brand",
+  "There is no integration in this Brand": "There is no integration in this Brand",
   "Appearance": "Appearance",
   "Hours, Availability & Other configs": "Hours, Availability & Other configs",
   "There is no brand": "There is no brand",
-  "There is no integration in this channel.":
-    "There is no integration in this channel.",
+  "There is no integration in this channel.": "There is no integration in this channel.",
   "Template markup": "Template markup",
   "Use html template here": "Use html template here",
   "Choose your email template type": "Choose your email template type",
@@ -309,8 +295,7 @@
   "Get notification by email": "Get notification by email",
   "Admin": "Admin",
   "Contributor": "Contributor",
-  "We welcome you warmly to erxes and look forward to a long term healthy working association with us.":
-    "We welcome you warmly to erxes and look forward to a long term healthy working association with us.",
+  "We welcome you warmly to erxes and look forward to a long term healthy working association with us.": "We welcome you warmly to erxes and look forward to a long term healthy working association with us.",
   "Hi, any questions?": "Hi, any questions?",
   "1 hour ago": "1 hour ago",
   "We need your help!": "We need your help!",
@@ -331,8 +316,7 @@
   "Choose a custom color": "Choose a custom color",
   "Choose a wallpaper": "Choose a wallpaper",
   "Choose a logo": "Choose a logo",
-  "Visible online to visitor or customer":
-    "Visible online to visitor or customer",
+  "Visible online to visitor or customer": "Visible online to visitor or customer",
   "Online messaging": "Online messaging",
   "Welcome message": "Welcome message",
   "Offline messaging": "Offline messaging",
@@ -371,11 +355,9 @@
   "Code": "Code",
   "Profile settings": "Profile settings",
   "Change Password": "Change Password",
-  "Signatures are only included in response emails.":
-    "Signatures are only included in response emails.",
+  "Signatures are only included in response emails.": "Signatures are only included in response emails.",
   "Signature template": "Signature template",
-  "You can use Markdown to format your signature.":
-    "You can use Markdown to format your signature.",
+  "You can use Markdown to format your signature.": "You can use Markdown to format your signature.",
   "Password": "Password",
   "Password confirmation": "Password confirmation",
   "Choose the channels": "Choose the channels",
@@ -388,8 +370,7 @@
   "Add tag": "Add tag",
   "Company": "Company",
   "New message ": "New message ",
-  "There aren’t any activities at the moment.":
-    "There aren’t any activities at the moment.",
+  "There aren’t any activities at the moment.": "There aren’t any activities at the moment.",
   "This item is required": "This item is required",
   "Manage fields": "Manage fields",
   "Add integrations ": "Add integrations ",
@@ -420,10 +401,8 @@
   "Youtube": "Youtube",
   "Github": "Github",
   "Edit response": "Edit response",
-  "To send your message press Enter and Shift + Enter to add a new line":
-    "To send your message press Enter and Shift + Enter to add a new line",
-  "To send your note press Enter and Shift + Enter to add a new line":
-    "To send your note press Enter and Shift + Enter to add a new line",
+  "To send your message press Enter and Shift + Enter to add a new line": "To send your message press Enter and Shift + Enter to add a new line",
+  "To send your note press Enter and Shift + Enter to add a new line": "To send your note press Enter and Shift + Enter to add a new line",
   "Type to search": "Type to search",
   "Members": "Members",
   "Choose integrations": "Choose integrations",
@@ -461,8 +440,7 @@
   "Add Group": "Add Group",
   "Edit Property": "Edit Property",
   "Group:": "Group:",
-  "There arent't any fields in this group":
-    "There arent't any fields in this group",
+  "There arent't any fields in this group": "There arent't any fields in this group",
   "Customer Properties": "Customer Properties",
   "Company Properties": "Company Properties",
   "Add an option": "Add an option",
@@ -480,10 +458,8 @@
   "Draft": "Draft",
   "Paused": "Paused",
   "Your messages": "Your messages",
-  "Delivered inside your app Reach active users":
-    "Delivered inside your app Reach active users",
-  "Delivered to a user s email inbox Customize with your own templates":
-    "Delivered to a user s email inbox Customize with your own templates",
+  "Delivered inside your app Reach active users": "Delivered inside your app Reach active users",
+  "Delivered to a user s email inbox Customize with your own templates": "Delivered to a user s email inbox Customize with your own templates",
   "email": "email",
   "Create segment": "Create segment",
   "customers": "customers",
@@ -663,8 +639,7 @@
   "All customers imported successfully": "All customers imported successfully",
   "There aren't any imports": "There aren't any imports",
   "Successfully Removed all customers": "Successfully Removed all customers",
-  "You can only import max 600 at a time":
-    "You can only import max 600 at a time",
+  "You can only import max 600 at a time": "You can only import max 600 at a time",
   "Invalid import type": "Invalid import type",
   "Last updated": "Last updated",
   "Filter by lead status": "Filter by lead status",
@@ -683,5 +658,8 @@
   "Choose schedule type": "Choose schedule type",
   "Choose schedule time": "Choose schedule time",
   "Choose schedule day": "Choose schedule day",
-  "Choose schedule month": "Choose schedule month"
+  "Choose schedule month": "Choose schedule month",
+  "Won": "Won",
+  "Lost": "Lost",
+  "In Progress": "In Progress"
 }

@@ -5,7 +5,9 @@ import { compose, graphql } from 'react-apollo';
 import { ChangePassword } from '../components';
 
 type Props = {
-  changePasswordMutation: (params: {variables: { currentPassword: string, newPassword: string }}) => Promise<any>;
+  changePasswordMutation: (
+    params: { variables: { currentPassword: string; newPassword: string } }
+  ) => Promise<any>;
   closeModal: () => void;
 };
 

@@ -41,7 +41,9 @@ class Signature extends React.Component<Props, State> {
       return { signature: '' };
     }
 
-    return this.state.signatures.find(signature => (signature.brandId || '').toString() === currentId);
+    return this.state.signatures.find(
+      signature => (signature.brandId || '').toString() === currentId
+    );
   }
 
   changeCurrent(e) {
@@ -122,6 +124,6 @@ class Signature extends React.Component<Props, State> {
 
     return content;
   }
-};
+}
 
 export default Signature;

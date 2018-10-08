@@ -11,7 +11,13 @@ import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import * as React from 'react';
 import { IBreadCrumbItem } from '../../common/types';
-import { IEngageEmail, IEngageMessage, IEngageMessageDoc, IEngageMessenger, IEngageScheduleDate } from '../types';
+import {
+  IEngageEmail,
+  IEngageMessage,
+  IEngageMessageDoc,
+  IEngageMessenger,
+  IEngageScheduleDate
+} from '../types';
 import { ChannelStep, MessageStep, SegmentStep } from './step';
 
 type Props = {
@@ -22,12 +28,15 @@ type Props = {
   headSegments: ISegment[];
   segmentFields: ISegment[];
   templates: IEmailTemplate[];
-  segmentAdd: (params: { doc: ISegmentDoc}) => void;
+  segmentAdd: (params: { doc: ISegmentDoc }) => void;
   customerCounts?: any;
   count: (segment: ISegmentDoc) => void;
   kind: string;
   save: (doc: IEngageMessageDoc) => Promise<any>;
-  validateDoc: (type: string, doc: IEngageMessageDoc) => { status: string, doc?: IEngageMessageDoc };
+  validateDoc: (
+    type: string,
+    doc: IEngageMessageDoc
+  ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => IBreadCrumbItem[];
 };
 
@@ -42,7 +51,7 @@ type State = {
   messenger?: IEngageMessenger;
   email?: IEngageEmail;
   scheduleDate: IEngageScheduleDate;
-}
+};
 
 class AutoAndManualForm extends React.Component<Props, State> {
   constructor(props) {
@@ -81,7 +90,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       segmentId: this.state.segmentId,
       title: this.state.title,
       fromUserId: this.state.fromUserId,
-      method: this.state.method,
+      method: this.state.method
     } as IEngageMessageDoc;
 
     if (this.props.kind !== 'manual') {
@@ -89,7 +98,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     if (this.state.method === 'email') {
-      const email = this.state.email || {} as IEngageEmail;
+      const email = this.state.email || ({} as IEngageEmail);
 
       doc.email = {
         templateId: email.templateId,
@@ -97,9 +106,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
         content: this.state.content,
         attachments: email.attachments
       };
-
     } else if (this.state.method === 'messenger') {
-      const messenger = this.state.messenger || {} as IEngageMessenger;
+      const messenger = this.state.messenger || ({} as IEngageMessenger);
 
       doc.messenger = {
         brandId: messenger.brandId || '',
@@ -137,17 +145,15 @@ class AutoAndManualForm extends React.Component<Props, State> {
           <div>{__('Title')}</div>
           <FormControl
             required
-            onChange={(e) => 
-              this.changeState('title', (e.target as HTMLInputElement).value)}
+            onChange={e =>
+              this.changeState('title', (e.target as HTMLInputElement).value)
+            }
             defaultValue={this.state.title}
           />
         </TitleContainer>
 
         <Steps maxStep={maxStep} active={activeStep}>
-          <Step
-            img="/images/icons/erxes-05.svg"
-            title="Choose channel"
-          >
+          <Step img="/images/icons/erxes-05.svg" title="Choose channel">
             <ChannelStep
               onChange={this.changeState}
               method={this.state.method}

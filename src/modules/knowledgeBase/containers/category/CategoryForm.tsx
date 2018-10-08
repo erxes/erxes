@@ -11,7 +11,7 @@ type Variables = {
   description: string;
   icon: string;
   topicIds: string[];
-}
+};
 
 type Props = {
   category: ICategory;

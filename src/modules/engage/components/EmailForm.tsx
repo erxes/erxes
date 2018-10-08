@@ -33,7 +33,10 @@ const EmailContent = styled.div`
 `;
 
 type Props = {
-  onChange: (name: 'email' | 'content' | 'fromUserId' | 'scheduleDate', value: IEngageEmail | IEngageScheduleDate | string) => void;
+  onChange: (
+    name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
+    value: IEngageEmail | IEngageScheduleDate | string
+  ) => void;
   message?: string;
   users: IUser[];
   templates: IEmailTemplate[];
@@ -50,18 +53,18 @@ type State = {
   content: string;
   email: IEngageEmail;
   scheduleDate?: IEngageScheduleDate;
-}
+};
 
 class EmailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      fromUserId: props.fromUserId, 
+      fromUserId: props.fromUserId,
       currentTemplate: '',
       content: props.content,
       email: props.email,
-      scheduleDate: props.scheduleDate,
+      scheduleDate: props.scheduleDate
     };
   }
 
@@ -150,7 +153,7 @@ class EmailForm extends React.Component<Props, State> {
 
     return (
       <Scheduler
-        scheduleDate={this.state.scheduleDate || {} as IEngageScheduleDate}
+        scheduleDate={this.state.scheduleDate || ({} as IEngageScheduleDate)}
         onChange={this.props.onChange}
       />
     );
@@ -174,11 +177,12 @@ class EmailForm extends React.Component<Props, State> {
             <ControlLabel>From:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e => this.changeUser((e.target as HTMLInputElement).value)}
+              onChange={e =>
+                this.changeUser((e.target as HTMLInputElement).value)
+              }
               value={this.state.fromUserId}
             >
               <option />{' '}
-
               {this.props.users.map(user => (
                 <option key={user._id} value={user._id}>
                   {user.details ? user.details.fullName : user.username}
@@ -190,7 +194,12 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Email subject:</ControlLabel>
             <FormControl
-              onChange={e => this.changeContent('subject', (e.target as HTMLInputElement).value)}
+              onChange={e =>
+                this.changeContent(
+                  'subject',
+                  (e.target as HTMLInputElement).value
+                )
+              }
               defaultValue={this.state.email.subject}
             />
           </FormGroup>
@@ -199,7 +208,9 @@ class EmailForm extends React.Component<Props, State> {
             <ControlLabel>Email template:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e => this.templateChange((e.target as HTMLInputElement).value)}
+              onChange={e =>
+                this.templateChange((e.target as HTMLInputElement).value)
+              }
               value={this.state.email.templateId}
             >
               <option />{' '}
@@ -214,8 +225,8 @@ class EmailForm extends React.Component<Props, State> {
             <ControlLabel>Attachments: </ControlLabel>
             <Uploader
               defaultFileList={attachments || []}
-              onChange={attachments =>
-                this.changeContent('attachments', attachments)
+              onChange={attachmentsArr =>
+                this.changeContent('attachments', attachmentsArr)
               }
             />
           </FormGroup>

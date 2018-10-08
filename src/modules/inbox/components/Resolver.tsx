@@ -1,8 +1,8 @@
-import _ from "lodash";
-import { Button } from "modules/common/components";
-import { CONVERSATION_STATUSES } from "modules/inbox/constants";
-import * as React from "react";
-import { IConversation } from "../types";
+import _ from 'lodash';
+import { Button } from 'modules/common/components';
+import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
+import * as React from 'react';
+import { IConversation } from '../types';
 
 type Props = {
   conversations: IConversation[];
@@ -36,12 +36,12 @@ class Resolver extends React.Component<Props> {
       true
     );
 
-    const buttonText = allNotClosed ? "Resolve" : "Open";
-    const icon = allNotClosed ? "checked" : "refresh";
+    const buttonText = allNotClosed ? 'Resolve' : 'Open';
+    const icon = allNotClosed ? 'checked' : 'refresh';
 
     const btnAttrs = {
-      size: "small",
-      btnStyle: allNotClosed ? "success" : "warning",
+      size: 'small',
+      btnStyle: allNotClosed ? 'success' : 'warning',
       onClick: allNotClosed
         ? () => {
             this.changeStatus(CONVERSATION_STATUSES.CLOSED);

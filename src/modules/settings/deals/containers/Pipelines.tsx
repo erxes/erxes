@@ -11,18 +11,30 @@ type Props = {
   boardId: string;
   pipelinesQuery: any;
 
-  addPipelineMutation: (params: { variables: {
-    name: string;
-    boardId: string;
-    stages: IStage[];
-  } }) => Promise<any>;
-  editPipelineMutation: (params: { variables: {
-    name: string;
-    boardId: string;
-    stages: IStage[];
-  } }) => Promise<any>;
-  removePipelineMutation: (params: { variables: { _id: string } }) => Promise<any>;
-  pipelinesUpdateOrderMutation: (params: { variables: { orders: IPipeline[] } }) => Promise<any>;
+  addPipelineMutation: (
+    params: {
+      variables: {
+        name: string;
+        boardId: string;
+        stages: IStage[];
+      };
+    }
+  ) => Promise<any>;
+  editPipelineMutation: (
+    params: {
+      variables: {
+        name: string;
+        boardId: string;
+        stages: IStage[];
+      };
+    }
+  ) => Promise<any>;
+  removePipelineMutation: (
+    params: { variables: { _id: string } }
+  ) => Promise<any>;
+  pipelinesUpdateOrderMutation: (
+    params: { variables: { orders: IPipeline[] } }
+  ) => Promise<any>;
 };
 
 class PipelinesContainer extends React.Component<Props> {
@@ -107,7 +119,7 @@ class PipelinesContainer extends React.Component<Props> {
 export default compose(
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
-    options: ({ boardId = '' } : { boardId: string }) => ({
+    options: ({ boardId = '' }: { boardId: string }) => ({
       variables: { boardId },
       fetchPolicy: 'network-only'
     })

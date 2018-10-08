@@ -10,7 +10,7 @@ type Props = {
   onEditorStateChange: (state: EditorState) => void;
 };
 
-const DynamicContent = ({ onEditorStateChange, editorState } : Props) => {
+const DynamicContent = ({ onEditorStateChange, editorState }: Props) => {
   const onChange = e => {
     const value = e.target.value;
 
@@ -21,7 +21,9 @@ const DynamicContent = ({ onEditorStateChange, editorState } : Props) => {
     const contentState = Modifier.insertText(currentContent, selection, value);
 
     // update editor state
-    onEditorStateChange(EditorState.push(editorState, contentState, 'insert-fragment'));
+    onEditorStateChange(
+      EditorState.push(editorState, contentState, 'insert-fragment')
+    );
   };
 
   // render options
@@ -59,14 +61,14 @@ const DynamicContent = ({ onEditorStateChange, editorState } : Props) => {
 };
 
 type EditorProps = {
-  onChange: (name: 'content', getContent: string) => void,
-  defaultValue?: string,
-  onShifEnter?: () => void,
+  onChange: (name: 'content', getContent: string) => void;
+  defaultValue?: string;
+  onShifEnter?: () => void;
 };
 
 type State = {
   editorState: EditorState;
-}
+};
 
 export default class Editor extends React.Component<EditorProps, State> {
   constructor(props) {

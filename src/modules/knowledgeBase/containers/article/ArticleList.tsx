@@ -8,7 +8,9 @@ import { mutations, queries } from '../../graphql';
 type Props = {
   queryParams: any;
   articlesQuery: any;
-  removeArticlesMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  removeArticlesMutation: (
+    params: { variables: { _id: string } }
+  ) => Promise<any>;
   currentCategoryId: string;
   topicIds: string;
 };
@@ -55,7 +57,13 @@ const ArticleContainer = (props: Props) => {
 export default compose(
   graphql(gql(queries.knowledgeBaseArticles), {
     name: 'articlesQuery',
-    options: ({ queryParams, currentCategoryId } : { queryParams: any, currentCategoryId: string }) => ({
+    options: ({
+      queryParams,
+      currentCategoryId
+    }: {
+      queryParams: any;
+      currentCategoryId: string;
+    }) => ({
       variables: {
         categoryIds: [currentCategoryId],
         page: queryParams.page,
@@ -66,7 +74,13 @@ export default compose(
   }),
   graphql(gql(mutations.knowledgeBaseArticlesRemove), {
     name: 'removeArticlesMutation',
-    options: ({ currentCategoryId, topicIds } : { currentCategoryId: string, topicIds: string[] }) => {
+    options: ({
+      currentCategoryId,
+      topicIds
+    }: {
+      currentCategoryId: string;
+      topicIds: string[];
+    }) => {
       return {
         refetchQueries: [
           {

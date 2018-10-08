@@ -1,8 +1,8 @@
-import { FacebookComment } from "modules/inbox/containers/conversationDetail";
+import { FacebookComment } from 'modules/inbox/containers/conversationDetail';
 import * as React from 'react';
-import { IConversation, IMessage } from "../../../../../types";
-import { SimpleMessage } from "../messages";
-import { FacebookPost } from "./";
+import { IConversation, IMessage } from '../../../../../types';
+import { SimpleMessage } from '../messages';
+import { FacebookPost } from './';
 
 type Props = {
   conversation: IConversation;
@@ -23,9 +23,9 @@ export default class FacebookConversation extends React.Component<Props, {}> {
     const { conversationMessages = [] } = this.props;
 
     const replies = conversationMessages.filter(msg => {
-      const parentId = getAttr(msg, "parentId");
+      const parentId = getAttr(msg, 'parentId');
 
-      return parentId && parentId === getAttr(comment, "commentId");
+      return parentId && parentId === getAttr(comment, 'commentId');
     });
 
     return replies.map(reply => (
@@ -85,7 +85,7 @@ export default class FacebookConversation extends React.Component<Props, {}> {
     for (const message of conversationMessages) {
       if (message.internal) {
         internalMessages.push(message);
-      } else if (!getAttr(message, "isPost") && !getAttr(message, "parentId")) {
+      } else if (!getAttr(message, 'isPost') && !getAttr(message, 'parentId')) {
         comments.push(message);
       }
     }

@@ -1,7 +1,7 @@
-import { GenerateField } from "modules/settings/properties/components";
-import * as React from "react";
-import { IField } from "../../../../settings/properties/types";
-import { FieldItem } from "./styles";
+import { GenerateField } from 'modules/settings/properties/components';
+import * as React from 'react';
+import { IField } from '../../../../settings/properties/types';
+import { FieldItem } from './styles';
 
 type Props = {
   field: IField;
@@ -27,7 +27,7 @@ class FieldPreview extends React.Component<Props, {}> {
     const { field } = this.props;
 
     return (
-      <FieldItem onClick={this.onEdit} selectType={field.type === "select"}>
+      <FieldItem onClick={this.onEdit} selectType={field.type === 'select'}>
         <GenerateField field={field} />
       </FieldItem>
     );

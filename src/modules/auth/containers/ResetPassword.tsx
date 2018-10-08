@@ -9,11 +9,13 @@ import { mutations } from '../graphql';
 
 interface IProps extends IRouterProps {
   token: string;
-};
+}
 
 type MutationResponse = {
-  resetPasswordMutation: (params: { variables: { newPassword: string, token: string } }) => Promise<any>,
-}
+  resetPasswordMutation: (
+    params: { variables: { newPassword: string; token: string } }
+  ) => Promise<any>;
+};
 
 const ResetPasswordContainer = (props: IProps & MutationResponse) => {
   const { resetPasswordMutation, history, token } = props;

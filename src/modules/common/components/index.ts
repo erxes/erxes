@@ -31,6 +31,7 @@ import SortableList from './SortableList';
 import SortHandler from './SortHandler';
 import Spinner from './Spinner';
 import { Step, Steps } from './step';
+import Submenu from './submenu/Submenu';
 import Table from './table';
 import { Tabs, TabTitle } from './tabs';
 import Tags from './Tags';
@@ -72,6 +73,7 @@ export {
   FormGroup,
   Step,
   Steps,
+  Submenu,
   TextDivider,
   Table,
   Editor,

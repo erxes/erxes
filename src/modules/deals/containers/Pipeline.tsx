@@ -1,14 +1,14 @@
 import gql from 'graphql-tag';
+import _ from 'lodash';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { IStage } from '../../settings/deals/types';
 import { Pipeline } from '../components';
 import { STORAGE_PIPELINE_KEY } from '../constants';
 import { mutations, queries } from '../graphql';
-import { IPipeline } from '../types';
+import { ICommonParams, IPipeline, IStage } from '../types';
 import { collectOrders } from '../utils';
 
 type Props = {
@@ -16,24 +16,26 @@ type Props = {
   state: any;
   index: number;
   stages: IStage[];
-  stagesUpdateOrder: any;
-
-  // TODO: check. are we using this ?
-  stagesChange: any;
-
-  stagesUpdateOrderMutation: (params: { variables: { orders } }) => Promise<any>;
-  stagesChangeMutation: (params: {
-    variables: { _id: string; pipelineId: string }
-  }) => Promise<any>;
+  stagesUpdateOrderMutation: (
+    params: { variables: { orders } }
+  ) => Promise<any>;
+  stagesChangeMutation: (
+    params: {
+      variables: { _id: string; pipelineId: string };
+    }
+  ) => Promise<void>;
 };
 
-class PipelineContainer extends React.Component<Props, { stages: any }> {
+class PipelineContainer extends React.Component<
+  Props,
+  { stages: ICommonParams[] }
+> {
   constructor(props) {
     super(props);
 
     const { stages } = props;
 
-    this.state = { stages: [...stages] };
+    this.state = { stages };
   }
 
   getConfig() {
@@ -78,7 +80,7 @@ class PipelineContainer extends React.Component<Props, { stages: any }> {
         });
       }
 
-      const orders = collectOrders(stages);
+      const orders = collectOrders(_.map(stages, '_id'));
 
       stagesUpdateOrderMutation({
         variables: { orders }

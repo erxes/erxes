@@ -8,7 +8,7 @@ import {
   PopoverList
 } from './styles';
 
-type Props= {
+type Props = {
   items?: any[];
   links?: any[];
   showCheckmark?: boolean;
@@ -23,7 +23,7 @@ type Props= {
 type State = {
   key: string;
   items: any[];
-}
+};
 
 class FilterableList extends React.Component<Props, State> {
   constructor(props) {

@@ -1,11 +1,14 @@
 import { colors } from 'modules/common/styles';
 import { renderFullName } from 'modules/common/utils';
+import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { ICompany } from '../../../companies/types';
+import { IProduct } from '../../../settings/productService/types';
 
 type Props = {
-  items: any;
+  items: ICompany[] | IProduct[] | ICustomer[];
   uppercase?: boolean;
   color: string;
 };

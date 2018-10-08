@@ -6,26 +6,23 @@ import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import * as React from 'react';
 import { ProductForm } from '..';
 import { IProduct } from '../../../settings/productService/types';
+import { IProductData } from '../../types';
 
 type Props = {
-  productsData: any;
+  productsData: IProductData[];
   products: IProduct[];
-
-  // TODO: check any
-  onChangeProductsData: (productsData: any) => void;
-  onChangeProducts: (prs: any) => void;
+  onChangeProductsData: (productsData: IProductData[]) => void;
+  onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
 };
 
-function ProductSection(
-  {
-    products,
-    productsData,
-    onChangeProductsData,
-    onChangeProducts,
-    saveProductsData
-  }: Props
-) {
+function ProductSection({
+  products,
+  productsData,
+  onChangeProductsData,
+  onChangeProducts,
+  saveProductsData
+}: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
@@ -42,7 +39,7 @@ function ProductSection(
               <Icon icon="add" />
             </a>
           }
-          content={(props) => (
+          content={props => (
             <ProductForm
               {...props}
               onChangeProductsData={onChangeProductsData}

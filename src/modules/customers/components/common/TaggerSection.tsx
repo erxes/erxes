@@ -13,8 +13,8 @@ type Props = {
 };
 
 type State = {
-  isTaggerVisible: boolean,
-}
+  isTaggerVisible: boolean;
+};
 
 class TaggerSection extends React.Component<Props, State> {
   constructor(props) {

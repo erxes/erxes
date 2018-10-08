@@ -14,7 +14,7 @@ type Variables = {
   color: string;
   connector: string;
   conditions: ISegmentCondition[];
-}
+};
 
 type Props = {
   contentType: string;
@@ -23,8 +23,12 @@ type Props = {
   headSegmentsQuery: any;
   combinedFieldsQuery: any;
 
-  segmentsAdd: (params: { variables: { contentType: string, doc: Variables } }) => Promise<any>;
-  segmentsEdit: (params: { variables: { _id: string, doc: Variables } }) => Promise<any>;
+  segmentsAdd: (
+    params: { variables: { contentType: string; doc: Variables } }
+  ) => Promise<any>;
+  segmentsEdit: (
+    params: { variables: { _id: string; doc: Variables } }
+  ) => Promise<any>;
 
   customerCounts: any;
 };
@@ -108,7 +112,7 @@ class SegmentsFormContainer extends React.Component<Props> {
 export default compose(
   graphql(gql(queries.segmentDetail), {
     name: 'segmentDetailQuery',
-    options: ({ id } : { id: string }) => ({
+    options: ({ id }: { id: string }) => ({
       variables: { _id: id }
     })
   }),
@@ -118,7 +122,7 @@ export default compose(
   graphql(gql(queries.headSegments), { name: 'headSegmentsQuery' }),
   graphql(gql(queries.combinedFields), {
     name: 'combinedFieldsQuery',
-    options: ({ contentType } : { contentType: string } ) => ({
+    options: ({ contentType }: { contentType: string }) => ({
       variables: { contentType }
     })
   }),

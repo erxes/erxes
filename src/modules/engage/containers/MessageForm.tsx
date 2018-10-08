@@ -10,7 +10,7 @@ type Props = {
   brandsQuery: any;
 };
 
-const MessageFormContainer = (props : Props) => {
+const MessageFormContainer = (props: Props) => {
   const { engageMessageDetailQuery, brandsQuery, kind } = props;
 
   if (engageMessageDetailQuery.loading || brandsQuery.loading) {
@@ -33,7 +33,7 @@ const MessageFormContainer = (props : Props) => {
 export default compose(
   graphql(gql(queries.engageMessageDetail), {
     name: 'engageMessageDetailQuery',
-    options: ({ messageId } : { messageId: string }) => ({
+    options: ({ messageId }: { messageId: string }) => ({
       variables: {
         _id: messageId
       }

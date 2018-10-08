@@ -46,6 +46,10 @@ class InsightPage extends React.Component {
 
   render() {
     const breadcrumb = [{ title: __('Insights'), link: '/insights' }];
+    const submenu = [
+      { title: __('Inbox'), link: '/inbox' },
+      { title: __('Insights'), link: '/insights' }
+    ];
 
     const content = (
       <FullContent center={true}>
@@ -84,7 +88,7 @@ class InsightPage extends React.Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header breadcrumb={breadcrumb} submenu={submenu} />}
         content={content}
         transparent={true}
       />

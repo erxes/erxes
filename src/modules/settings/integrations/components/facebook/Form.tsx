@@ -12,7 +12,9 @@ import { IBrand } from '../../../brands/types';
 import { IFacebookApp, IPages } from '../../types';
 
 type Props = {
-  save: (params: {name: string, brandId: string, appId: string, pageIds: string[]}) => void;
+  save: (
+    params: { name: string; brandId: string; appId: string; pageIds: string[] }
+  ) => void;
   onAppSelect: (appId: string) => void;
   brands: IBrand[];
   apps: IFacebookApp[];
@@ -37,7 +39,7 @@ class Facebook extends React.Component<Props> {
     const elements = document.getElementsByName(name);
 
     // tslint:disable-next-line
-    for (let i=0; i<elements.length; i++) {
+    for (let i = 0; i < elements.length; i++) {
       const element = elements[i] as HTMLInputElement;
 
       if (element.checked) {
@@ -53,7 +55,8 @@ class Facebook extends React.Component<Props> {
 
     this.props.save({
       name: (document.getElementById('name') as HTMLInputElement).value,
-      brandId: (document.getElementById('selectBrand') as HTMLInputElement).value,
+      brandId: (document.getElementById('selectBrand') as HTMLInputElement)
+        .value,
       appId: (document.getElementById('app') as HTMLInputElement).value,
       pageIds: this.collectCheckboxValues('pages')
     });

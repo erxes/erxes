@@ -9,11 +9,18 @@ import { IBrand } from '../types';
 type Props = {
   brand: IBrand;
   remove: (id: string) => void;
-  save: (params: { doc: {
-    name: string; description: string;
-  } }, callback: () => void, brand?: IBrand) => void;
+  save: (
+    params: {
+      doc: {
+        name: string;
+        description: string;
+      };
+    },
+    callback: () => void,
+    brand?: IBrand
+  ) => void;
   isActive: boolean;
-}
+};
 
 class BrandRow extends React.Component<Props> {
   constructor(props: Props) {
@@ -43,14 +50,14 @@ class BrandRow extends React.Component<Props> {
       <ModalTrigger
         title="Edit"
         trigger={editTrigger}
-        content={(props) => <BrandForm {...props} brand={brand} save={save} />}
+        content={props => <BrandForm {...props} brand={brand} save={save} />}
       />
     );
   }
 
   render() {
     const { brand, isActive } = this.props;
-    
+
     return (
       <SidebarListItem key={brand._id} isActive={isActive}>
         <Link to={`?_id=${brand._id}`}>{brand.name}</Link>

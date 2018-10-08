@@ -15,9 +15,13 @@ interface IProps extends IRouterProps {
   fieldsGroupsQuery: any;
   fieldsGroupsRemove: (params: { variables: { _id: string } }) => Promise<any>;
   fieldsRemove: (params: { variables: { _id: string } }) => Promise<any>;
-  fieldsGroupsUpdateVisible: (params: { variables: { _id: string, isVisible: boolean } }) =>Promise<any>;
-  fieldsUpdateVisible: (params: { variables: { _id: string, isVisible: boolean } }) => Promise<any>;
-};
+  fieldsGroupsUpdateVisible: (
+    params: { variables: { _id: string; isVisible: boolean } }
+  ) => Promise<any>;
+  fieldsUpdateVisible: (
+    params: { variables: { _id: string; isVisible: boolean } }
+  ) => Promise<any>;
+}
 
 const PropertiesContainer = (props: IProps) => {
   const {
@@ -110,7 +114,9 @@ const PropertiesContainer = (props: IProps) => {
 const options = ({ queryParams }) => ({
   refetchQueries: [
     {
-      query: gql`${queries.fieldsGroups}`,
+      query: gql`
+        ${queries.fieldsGroups}
+      `,
       variables: { contentType: queryParams.type }
     }
   ]
@@ -119,7 +125,7 @@ const options = ({ queryParams }) => ({
 export default compose(
   graphql(gql(queries.fieldsGroups), {
     name: 'fieldsGroupsQuery',
-    options: ({ queryParams } : { queryParams: any }) => ({
+    options: ({ queryParams }: { queryParams: any }) => ({
       variables: {
         contentType: queryParams.type || ''
       }

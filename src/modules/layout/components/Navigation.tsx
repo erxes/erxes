@@ -1,7 +1,6 @@
 import { Label, Tip } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, setBadge } from 'modules/common/utils';
-import { Widget } from 'modules/notifications/containers';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
@@ -113,7 +112,9 @@ const NavIcon = styled.i`
   color: ${colors.colorWhite};
 `;
 
-class Navigation extends React.Component<{ unreadConversationsCount?: number }> {
+class Navigation extends React.Component<{
+  unreadConversationsCount?: number;
+}> {
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
 
@@ -171,18 +172,7 @@ class Navigation extends React.Component<{ unreadConversationsCount?: number }> 
               <NavIcon className="icon-clipboard" />
             </NavLink>
           </Tip>
-          <Tip placement="right" text={__('Insights').toString()}>
-            <NavLink to="/insights" activeClassName="active">
-              <NavIcon className="icon-pie-chart" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Settings').toString()}>
-            <NavLink to="/settings" activeClassName="active">
-              <NavIcon className="icon-settings" />
-            </NavLink>
-          </Tip>
         </Nav>
-        <Widget />
       </LeftNavigation>
     );
   }

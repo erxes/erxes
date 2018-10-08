@@ -30,13 +30,17 @@ type State = {
   currentTab: string;
   currentNoteTab: string;
   attachmentPreview: any;
-}
+};
 
 class CustomerDetails extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentTab: 'activity', currentNoteTab: 'newNote', attachmentPreview: {} };
+    this.state = {
+      currentTab: 'activity',
+      currentNoteTab: 'newNote',
+      attachmentPreview: {}
+    };
 
     this.onTabClick = this.onTabClick.bind(this);
     this.onChangeTab = this.onChangeTab.bind(this);
@@ -57,7 +61,7 @@ class CustomerDetails extends React.Component<Props, State> {
 
   renderTabContent() {
     const { currentTab } = this.state;
- 
+
     const {
       currentUser,
       activityLogsCustomer,
@@ -66,7 +70,7 @@ class CustomerDetails extends React.Component<Props, State> {
     } = this.props;
 
     const hasActivity = hasAnyActivity(activityLogsCustomer);
-   
+
     return (
       <ActivityContent isEmpty={!hasActivity}>
         <DataWithLoader
@@ -91,15 +95,13 @@ class CustomerDetails extends React.Component<Props, State> {
     const { customer } = this.props;
     const { currentNoteTab } = this.state;
 
-    if(currentNoteTab === 'newNote') {
-      return (
-        <NoteForm contentType="customer" contentTypeId={customer._id} />
-      );
+    if (currentNoteTab === 'newNote') {
+      return <NoteForm contentType="customer" contentTypeId={customer._id} />;
     }
 
     return (
-      <MailForm 
-        contentType="customer" 
+      <MailForm
+        contentType="customer"
         contentTypeId={customer._id}
         customerEmail={customer.primaryEmail}
         setAttachmentPreview={this.setAttachmentPreview}
@@ -120,7 +122,7 @@ class CustomerDetails extends React.Component<Props, State> {
       <div>
         <WhiteBoxRoot>
           <Tabs>
-            <TabTitle 
+            <TabTitle
               className={currentNoteTab === 'newNote' ? 'active' : ''}
               onClick={() => this.onChangeTab('newNote')}
             >
@@ -133,7 +135,7 @@ class CustomerDetails extends React.Component<Props, State> {
               <Icon icon="email" /> {__('Email')}
             </TabTitle>
           </Tabs>
-          
+
           {this.renderHeaderTabContent()}
         </WhiteBoxRoot>
 

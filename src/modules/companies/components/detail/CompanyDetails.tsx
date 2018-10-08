@@ -25,10 +25,10 @@ interface IProps extends IRouterProps {
   companyActivityLog: ICompanyActivityLog[];
   taggerRefetchQueries?: any[];
   loadingLogs: boolean;
-};
+}
 
 type State = {
-  currentTab: string
+  currentTab: string;
 };
 
 class CompanyDetails extends React.Component<IProps, State> {

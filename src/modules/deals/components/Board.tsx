@@ -3,16 +3,13 @@ import * as React from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import { Pipeline } from '../containers';
-import { IBoard, IPipeline } from '../types';
+import { IBoard, ICommonState, IDragResult, IPipeline } from '../types';
 
 type Props = {
   currentBoard?: IBoard;
   pipelines: IPipeline[];
-
-  // TODO: replace any
-  states: any;
-  onDragEnd: any;
-
+  states: ICommonState;
+  onDragEnd: (result: IDragResult) => void;
   loading: boolean;
 };
 
@@ -23,7 +20,8 @@ class Board extends React.Component<Props> {
     if (pipelines && pipelines.length === 0 && !loading) {
       return (
         <EmptyState
-          linkUrl={`/settings/deals?boardId=${currentBoard && currentBoard._id}`}
+          linkUrl={`/settings/deals?boardId=${currentBoard &&
+            currentBoard._id}`}
           linkText="Create one"
           size="full"
           text="There is no pipeline in this board."

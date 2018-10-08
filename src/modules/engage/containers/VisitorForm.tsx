@@ -1,10 +1,10 @@
-import * as React from "react";
-import { IUser } from "../../auth/types";
-import { IBrand } from "../../settings/brands/types";
-import { VisitorForm } from "../components";
-import FormBase from "../components/FormBase";
-import { IEngageMessage, IEngageMessageDoc } from "../types";
-import withFormMutations from "./withFormMutations";
+import * as React from 'react';
+import { IUser } from '../../auth/types';
+import { IBrand } from '../../settings/brands/types';
+import { VisitorForm } from '../components';
+import FormBase from '../components/FormBase';
+import { IEngageMessage, IEngageMessageDoc } from '../types';
+import withFormMutations from './withFormMutations';
 
 type Props = {
   kind: string;

@@ -6,15 +6,23 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { ChannelForm } from '../containers';
 import { MemberImg, Members, More } from '../styles';
-import { IChannel } from "../types";
+import { IChannel } from '../types';
 
 type Props = {
   channel: IChannel;
   members: IUser[];
   remove: (id: string) => void;
-  save: (params: { doc: {
-    name: string; description: string; memberIds: string[];
-  } }, callback: () => void, channel?: IChannel) => void;
+  save: (
+    params: {
+      doc: {
+        name: string;
+        description: string;
+        memberIds: string[];
+      };
+    },
+    callback: () => void,
+    channel?: IChannel
+  ) => void;
   isActive: boolean;
 };
 
@@ -44,10 +52,17 @@ class ChannelRow extends React.Component<Props, {}> {
     );
 
     return (
-      <ModalTrigger 
-        title="Edit" 
+      <ModalTrigger
+        title="Edit"
         trigger={editTrigger}
-        content={(props) => <ChannelForm {...props} save={save} members={members} channel={channel} />}
+        content={props => (
+          <ChannelForm
+            {...props}
+            save={save}
+            members={members}
+            channel={channel}
+          />
+        )}
       />
     );
   }
@@ -72,7 +87,9 @@ class ChannelRow extends React.Component<Props, {}> {
     let selectedMembers: IUser[] = [];
 
     if (channel) {
-      selectedMembers = members.filter(user => channel.memberIds.includes(user._id));
+      selectedMembers = members.filter(user =>
+        channel.memberIds.includes(user._id)
+      );
     }
 
     const length = selectedMembers.length;

@@ -53,7 +53,7 @@ type Props = {
   user: IUser;
   target?: string;
   type: string;
-}
+};
 
 /**
  * This class is used to process the data received from the query
@@ -76,7 +76,7 @@ export default class {
     this.queryData = activities;
 
     // TODO: checkout without {}
-    this.currentUser = user || {} as IUser;
+    this.currentUser = user || ({} as IUser);
     this.target = target || 'N/A';
   }
 
@@ -186,7 +186,11 @@ export default class {
         break;
 
       default:
-        caption = <span>{source} created {target} </span>;
+        caption = (
+          <span>
+            {source} created {target}{' '}
+          </span>
+        );
         break;
     }
 

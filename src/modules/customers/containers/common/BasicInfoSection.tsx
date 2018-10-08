@@ -9,17 +9,21 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 
 type Props = {
-  customersRemove: (doc: {
-    variables: {
-      customerIds: string[];
+  customersRemove: (
+    doc: {
+      variables: {
+        customerIds: string[];
+      };
     }
-  }) => Promise<any>;
-  customersMerge: (doc: {
-    variables: {
-      customerIds: string[];
-      customerFields: ICustomer;
+  ) => Promise<any>;
+  customersMerge: (
+    doc: {
+      variables: {
+        customerIds: string[];
+        customerFields: ICustomer;
+      };
     }
-  }) => Promise<any>;
+  ) => Promise<any>;
 };
 
 const BasicInfoContainer = (props: IBaseProps & Props) => {
@@ -70,8 +74,8 @@ const generateOptions = () => ({
 });
 
 interface IBaseProps extends IRouterProps {
-  customer: ICustomer,
-};
+  customer: ICustomer;
+}
 
 export default withRouter<IBaseProps>(
   compose(

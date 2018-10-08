@@ -4,11 +4,11 @@ import {
   FormControl,
   FormGroup,
   ModalTrigger
-} from "modules/common/components";
-import { ModalFooter } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import * as React from "react";
-import { IBrand } from "../../../../settings/brands/types";
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import { IBrand } from '../../../../settings/brands/types';
 
 type Props = {
   onSave: (brandId: string, name: string) => void;
@@ -27,8 +27,10 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
 
   onSave() {
     const doc = {
-      brandId: (document.getElementById("template-brand-id") as HTMLInputElement).value,
-      name: (document.getElementById("template-name") as HTMLInputElement).value
+      brandId: (document.getElementById(
+        'template-brand-id'
+      ) as HTMLInputElement).value,
+      name: (document.getElementById('template-name') as HTMLInputElement).value
     };
 
     this.props.onSave(doc.brandId, doc.name);
@@ -45,7 +47,7 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
           <FormControl
             id="template-brand-id"
             componentClass="select"
-            placeholder={__("Select Brand") as string}
+            placeholder={__('Select Brand') as string}
             defaultValue={brandId}
           >
             {brands.map(brand => (

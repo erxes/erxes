@@ -11,7 +11,9 @@ type Props = {
   queryParams: any;
   brandsQuery: any;
   twitterAuthUrlQuery: any;
-  saveMutation: (params: { variables: { brandId: string, queryParams: any } }) => Promise<any>;
+  saveMutation: (
+    params: { variables: { brandId: string; queryParams: any } }
+  ) => Promise<any>;
 };
 
 const TwitterContainer = (props: Props) => {

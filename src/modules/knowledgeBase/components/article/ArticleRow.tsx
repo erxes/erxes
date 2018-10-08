@@ -55,7 +55,15 @@ class ArticleRow extends React.Component<Props> {
         size="large"
         title="Edit"
         trigger={editTrigger ? editTrigger : editButton}
-        content={(props) => <ArticleForm {...props} article={article} queryParams={queryParams} currentCategoryId={currentCategoryId} topicIds={topicIds} />}
+        content={props => (
+          <ArticleForm
+            {...props}
+            article={article}
+            queryParams={queryParams}
+            currentCategoryId={currentCategoryId}
+            topicIds={topicIds}
+          />
+        )}
       />
     );
   }
@@ -80,15 +88,18 @@ class ArticleRow extends React.Component<Props> {
           <p>{article.summary}</p>
           <ArticleMeta>
             <img
-              alt={user.details && user.details.fullName || 'author'}
-              src={ article.createdUser.details &&
-                article.createdUser.details.avatar ||
+              alt={(user.details && user.details.fullName) || 'author'}
+              src={
+                (article.createdUser.details &&
+                  article.createdUser.details.avatar) ||
                 '/images/avatar-colored.svg'
               }
             />
             {__('Written By')}
             <AuthorName>
-              {user.details && user.details.fullName || user.username || user.email}
+              {(user.details && user.details.fullName) ||
+                user.username ||
+                user.email}
             </AuthorName>
             <Icon icon="wallclock" /> {__('Created')}{' '}
             {moment(article.createdDate).format('ll')}

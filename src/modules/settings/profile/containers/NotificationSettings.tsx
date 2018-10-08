@@ -8,12 +8,20 @@ import { NotificationSettings } from '../components';
 type Props = {
   notificationModulesQuery: any;
   notificationConfigurationsQuery: any;
-  configGetNotificationByEmailMutation: (params: { variables: {
-    byEmail: { isAllowed: boolean }
-  } }) => Promise<any>;
-  saveNotificationConfigurationsMutation: (params: { variables: {
-    notify: { notifType: string, isAllowed: boolean }
-  } }) => Promise<any>;
+  configGetNotificationByEmailMutation: (
+    params: {
+      variables: {
+        byEmail: { isAllowed: boolean };
+      };
+    }
+  ) => Promise<any>;
+  saveNotificationConfigurationsMutation: (
+    params: {
+      variables: {
+        notify: { notifType: string; isAllowed: boolean };
+      };
+    }
+  ) => Promise<any>;
 
   currentUser: IUser;
 };

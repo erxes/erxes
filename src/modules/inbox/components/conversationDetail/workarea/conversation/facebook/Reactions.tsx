@@ -1,7 +1,7 @@
-import * as React from "react";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { IFbUser, IReactions } from "../../../../../types";
-import { LeftAlign, Reaction } from "./styles";
+import * as React from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { IFbUser, IReactions } from '../../../../../types';
+import { LeftAlign, Reaction } from './styles';
 
 type Props = {
   reactions: IReactions;

@@ -84,13 +84,15 @@ export const CUSTOMER_DATAS = {
   facebookData: 'Facebook Data',
   visitorContactInfo: 'Visitor contact info',
   owner: 'Owner',
+  links: 'Links',
 
   ALL: [
     { field: 'messengerData', label: 'Messenger Data' },
     { field: 'twitterData', label: 'Twitter Data' },
     { field: 'facebookData', label: 'Facebook Data' },
     { field: 'visitorContactInfo', label: 'Visitor contact info' },
-    { field: 'owner', label: 'Owner' }
+    { field: 'owner', label: 'Owner' },
+    { field: 'links', label: 'Links' }
   ]
 };
 
@@ -116,4 +118,22 @@ export const LIFECYCLE_STATE_TYPES = {
   customer: 'Customer',
   evangelist: 'Evangelist',
   other: 'Other'
+};
+
+export const CUSTOMER_LINKS = {
+  linkedIn: 'LinkedIn',
+  twitter: 'Twitter',
+  facebook: 'Facebook',
+  youtube: 'Youtube',
+  github: 'Github',
+  website: 'Website',
+
+  ALL: [
+    { field: 'linkedIn', label: 'LinkedIn' },
+    { field: 'twitter', label: 'Twitter' },
+    { field: 'facebook', label: 'Facebook' },
+    { field: 'youtube', label: 'Youtube' },
+    { field: 'github', label: 'Github' },
+    { field: 'website', label: 'Website' }
+  ]
 };

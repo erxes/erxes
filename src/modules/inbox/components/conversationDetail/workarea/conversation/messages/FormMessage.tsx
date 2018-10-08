@@ -1,8 +1,8 @@
-import { Table } from "modules/common/components";
-import * as moment from "moment";
-import * as React from "react";
-import { IMessage } from "../../../../../types";
-import { FormTable } from "../styles";
+import { Table } from 'modules/common/components';
+import * as moment from 'moment';
+import * as React from 'react';
+import { IMessage } from '../../../../../types';
+import { FormTable } from '../styles';
 
 type Props = {
   message: IMessage;
@@ -10,8 +10,8 @@ type Props = {
 
 export default class FormMessage extends React.Component<Props, {}> {
   displayValue(data) {
-    if (data.validation === "date") {
-      return moment(data.value).format("YYYY/MM/DD");
+    if (data.validation === 'date') {
+      return moment(data.value).format('YYYY/MM/DD');
     }
 
     return data.value;
@@ -20,10 +20,10 @@ export default class FormMessage extends React.Component<Props, {}> {
   renderRow(data, index: string) {
     return (
       <tr key={index}>
-        <td style={{ width: "40%" }}>
+        <td style={{ width: '40%' }}>
           <b>{data.text}:</b>
         </td>
-        <td style={{ width: "60%" }}>{this.displayValue(data)}</td>
+        <td style={{ width: '60%' }}>{this.displayValue(data)}</td>
       </tr>
     );
   }

@@ -13,7 +13,7 @@ type Props = {
   onSelect: (companies: ICompany[]) => void;
 };
 
-function CompanySection({ name, companies=[], onSelect }: Props) {
+function CompanySection({ name, companies = [], onSelect }: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
@@ -24,14 +24,18 @@ function CompanySection({ name, companies=[], onSelect }: Props) {
   );
 
   const quickButtons = (
-    <ModalTrigger 
-      title="Associate" 
-      trigger={companyTrigger} 
+    <ModalTrigger
+      title="Associate"
+      trigger={companyTrigger}
       size="lg"
-      content={(props) => (
-        <CompanyChooser {...props} data={{ name, companies }} onSelect={onSelect} />
+      content={props => (
+        <CompanyChooser
+          {...props}
+          data={{ name, companies }}
+          onSelect={onSelect}
+        />
       )}
-     />
+    />
   );
 
   const content = (

@@ -60,10 +60,12 @@ class IntegrationList extends React.Component<Props> {
             </Link>
           </Tip>
 
-          <ModalTrigger 
-            title="Install code" 
+          <ModalTrigger
+            title="Install code"
             trigger={editTrigger}
-            content={(props) => <InstallCode {...props} integration={integration} />}
+            content={props => (
+              <InstallCode {...props} integration={integration} />
+            )}
           />
         </ActionButtons>
       );

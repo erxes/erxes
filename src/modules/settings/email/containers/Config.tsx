@@ -52,13 +52,17 @@ type ConfigProps = {
   refetch: () => void;
   closeModal: () => void;
 
-  configEmailMutation: (params: { variables: {
-    _id: string;
-    emailConfig: {
-      type: string;
-      template: string;
+  configEmailMutation: (
+    params: {
+      variables: {
+        _id: string;
+        emailConfig: {
+          type: string;
+          template: string;
+        };
+      };
     }
-  } }) => Promise<any>;
+  ) => Promise<any>;
 };
 
 const ConfigContainer = (props: ConfigProps) => {
@@ -105,7 +109,7 @@ export default compose(
     `,
     {
       name: 'brandQuery',
-      options: ({ brandId } : { brandId: string }) => {
+      options: ({ brandId }: { brandId: string }) => {
         return {
           variables: {
             brandId

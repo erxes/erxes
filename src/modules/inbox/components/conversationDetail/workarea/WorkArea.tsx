@@ -1,24 +1,24 @@
-import { Button, Icon, Label, Tags } from "modules/common/components";
-import { AvatarImg } from "modules/common/components/filterableList/styles";
-import { __ } from "modules/common/utils";
-import { AssignBoxPopover } from "modules/inbox/components";
-import { Resolver, Tagger } from "modules/inbox/containers";
-import { RespondBox } from "modules/inbox/containers/conversationDetail";
+import { Button, Icon, Label, Tags } from 'modules/common/components';
+import { AvatarImg } from 'modules/common/components/filterableList/styles';
+import { __ } from 'modules/common/utils';
+import { AssignBoxPopover } from 'modules/inbox/components';
+import { Resolver, Tagger } from 'modules/inbox/containers';
+import { RespondBox } from 'modules/inbox/containers/conversationDetail';
 import {
   ActionBarLeft,
   AssignText,
   AssignTrigger,
   ConversationWrapper,
   PopoverButton
-} from "modules/inbox/styles";
-import { Wrapper } from "modules/layout/components";
-import { ContenFooter, ContentBox } from "modules/layout/styles";
-import { BarItems } from "modules/layout/styles";
+} from 'modules/inbox/styles';
+import { Wrapper } from 'modules/layout/components';
+import { ContenFooter, ContentBox } from 'modules/layout/styles';
+import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
-import { IAddMessage } from "../../../containers/conversationDetail/WorkArea";
-import { IConversation, IMessage } from "../../../types";
-import Conversation from "./conversation/Conversation";
-import Participators from "./Participators";
+import { IAddMessage } from '../../../containers/conversationDetail/WorkArea';
+import { IConversation, IMessage } from '../../../types';
+import Conversation from './conversation/Conversation';
+import Participators from './Participators';
 
 type Props = {
   queryParams?: any;
@@ -151,7 +151,7 @@ export default class WorkArea extends React.Component<Props, State> {
             src={
               assignedUser.details
                 ? assignedUser.details.avatar
-                : "/images/avatar-colored.svg"
+                : '/images/avatar-colored.svg'
             }
           />
         ) : (
@@ -173,7 +173,7 @@ export default class WorkArea extends React.Component<Props, State> {
 
     const actionBarLeft = (
       <ActionBarLeft>
-        <AssignText>{__("Assign to")}:</AssignText>
+        <AssignText>{__('Assign to')}:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
           trigger={assignTrigger}

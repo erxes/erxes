@@ -22,7 +22,7 @@ type Props = {
   punch?: any;
   summary?: any;
   loading?: any;
-}
+};
 
 class ResponseReport extends React.Component<Props, { width: number }> {
   private wrapper;
@@ -93,7 +93,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
 
   renderBreadCrumnb() {
     return [
-      { title: __('Insights'), link: '/insight' },
+      { title: __('Insights'), link: '/insights' },
       { title: __('Response Report') }
     ];
   }
@@ -116,10 +116,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
 
         <InsightRow>
           {this.renderTitle('Response by team members')}
-          <TeamMembers
-            loading={loading.main}
-            datas={teamMembers || []}
-          />
+          <TeamMembers loading={loading.main} datas={teamMembers || []} />
         </InsightRow>
       </InsightContent>
     );

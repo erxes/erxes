@@ -1,11 +1,11 @@
-import { AppConsumer } from "appContext";
-import gql from "graphql-tag";
-import { WorkArea as DumbWorkArea } from "modules/inbox/components/conversationDetail";
-import { mutations, queries, subscriptions } from "modules/inbox/graphql";
-import * as React from "react";
-import { compose, graphql } from "react-apollo";
-import { IUser } from "../../../auth/types";
-import { IConversation, IMessage } from "../../types";
+import { AppConsumer } from 'appContext';
+import gql from 'graphql-tag';
+import { WorkArea as DumbWorkArea } from 'modules/inbox/components/conversationDetail';
+import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { IUser } from '../../../auth/types';
+import { IConversation, IMessage } from '../../types';
 
 // messages limit
 let limit = 10;
@@ -79,7 +79,7 @@ class WorkArea extends React.Component<Props, State> {
           // mutation. So to prevent from duplication we are ignoring current
           // user's messages from subscription
           const isMessenger =
-            currentConversation.integration.kind === "messenger";
+            currentConversation.integration.kind === 'messenger';
 
           if (isMessenger && message.userId === currentUser._id) {
             return;
@@ -135,15 +135,19 @@ class WorkArea extends React.Component<Props, State> {
       update = (proxy, { data: { conversationMessageAdd } }) => {
         const message = conversationMessageAdd;
 
-        const variables = { conversationId: currentId, limit, skip };
+        const optimisticResponseVariables = {
+          conversationId: currentId,
+          limit,
+          skip
+        };
 
         if (skip) {
-          variables.skip = skip;
+          optimisticResponseVariables.skip = skip;
         }
 
         const selector = {
           query: gql(queries.conversationMessages),
-          variables
+          variables: optimisticResponseVariables
         };
 
         // Read the data from our cache for this query.
@@ -174,10 +178,14 @@ class WorkArea extends React.Component<Props, State> {
 
     addMessageMutation({ variables, optimisticResponse, update })
       .then(() => {
-        callback && callback();
+        if (callback) {
+          callback();
+        }
       })
       .catch(e => {
-        callback && callback(e);
+        if (callback) {
+          callback(e);
+        }
       });
   }
 
@@ -250,7 +258,7 @@ class WorkArea extends React.Component<Props, State> {
 
 const WithQuery = compose(
   graphql(gql(queries.conversationMessages), {
-    name: "messagesQuery",
+    name: 'messagesQuery',
     options: ({ currentId }: { currentId: string }) => {
       const windowHeight = window.innerHeight;
 
@@ -264,21 +272,21 @@ const WithQuery = compose(
           conversationId: currentId,
           limit
         },
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only'
       };
     }
   }),
   graphql(gql(queries.conversationMessagesTotalCount), {
-    name: "messagesTotalCountQuery",
+    name: 'messagesTotalCountQuery',
     options: ({ currentId }: { currentId: string }) => ({
       variables: { conversationId: currentId },
-      fetchPolicy: "network-only"
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(mutations.conversationMessageAdd), {
-    name: "addMessageMutation",
+    name: 'addMessageMutation',
     options: ({ currentId }: { currentId: string }) => ({
-      refetchQueries: ["conversationMessages"]
+      refetchQueries: ['conversationMessages']
     })
   })
 )(WorkArea);

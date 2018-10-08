@@ -5,16 +5,16 @@ import {
   FormControl,
   Pagination,
   Table
-} from "modules/common/components";
-import { __ } from "modules/common/utils";
-import { Wrapper } from "modules/layout/components";
-import { BarItems } from "modules/layout/styles";
-import { TaggerPopover } from "modules/tags/components";
-import * as React from "react";
-import { Link } from "react-router-dom";
-import { ITag } from "../../tags/types";
-import { IFormIntegration } from "../types";
-import { Row } from "./";
+} from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import { Wrapper } from 'modules/layout/components';
+import { BarItems } from 'modules/layout/styles';
+import { TaggerPopover } from 'modules/tags/components';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { ITag } from '../../tags/types';
+import { IFormIntegration } from '../types';
+import { Row } from './';
 
 type Props = {
   integrations: IFormIntegration[];
@@ -39,7 +39,7 @@ class List extends React.Component<Props, {}> {
 
   onChange() {
     const { toggleAll, integrations } = this.props;
-    toggleAll(integrations, "integrations");
+    toggleAll(integrations, 'integrations');
   }
 
   renderRow() {
@@ -91,7 +91,7 @@ class List extends React.Component<Props, {}> {
     const actionBarRight = (
       <Link to="/forms/create">
         <Button btnStyle="success" size="small" icon="add">
-          {__("Create lead")}
+          {__('Create lead')}
         </Button>
       </Link>
     );
@@ -104,7 +104,7 @@ class List extends React.Component<Props, {}> {
       <Wrapper.Sidebar>
         <CountsByTag
           tags={tags}
-          manageUrl={"tags/integration"}
+          manageUrl={'tags/integration'}
           counts={tagsCount}
           loading={false}
         />
@@ -122,15 +122,15 @@ class List extends React.Component<Props, {}> {
                 onChange={this.onChange}
               />
             </th>
-            <th>{__("Name")}</th>
-            <th>{__("Brand")}</th>
-            <th>{__("Views")}</th>
-            <th>{__("Conversion rate")}</th>
-            <th>{__("Contacts gathered")}</th>
-            <th>{__("Created at")}</th>
-            <th>{__("Created by")}</th>
-            <th>{__("Tags")}</th>
-            <th>{__("Actions")}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Brand')}</th>
+            <th>{__('Views')}</th>
+            <th>{__('Conversion rate')}</th>
+            <th>{__('Contacts gathered')}</th>
+            <th>{__('Created at')}</th>
+            <th>{__('Created by')}</th>
+            <th>{__('Tags')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody id="integrations">{this.renderRow()}</tbody>
@@ -139,7 +139,7 @@ class List extends React.Component<Props, {}> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: __("Leads") }]} />}
+        header={<Wrapper.Header breadcrumb={[{ title: __('Leads') }]} />}
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

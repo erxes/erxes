@@ -6,12 +6,14 @@ import { compose, graphql } from 'react-apollo';
 import { CompanySection } from '../components';
 
 type Props = {
-  customersEditCompanies: (params: {
-    variables: {
-      _id: string;
-      companyIds: string[];
+  customersEditCompanies: (
+    params: {
+      variables: {
+        _id: string;
+        companyIds: string[];
+      };
     }
-  }) => Promise<any>;
+  ) => Promise<any>;
   data: any;
 };
 

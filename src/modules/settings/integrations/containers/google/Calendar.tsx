@@ -11,7 +11,9 @@ type Props = {
   queryParams: any;
   googleAuthUrlQuery: any;
   googleAccessTokenQuery: any;
-  saveMutation: (params: {variables: { kind: string, credentials: object }}) => Promise<any>;
+  saveMutation: (
+    params: { variables: { kind: string; credentials: object } }
+  ) => Promise<any>;
 };
 
 const Calendar = (props: Props) => {
@@ -82,7 +84,7 @@ export default compose(
     {
       name: 'googleAccessTokenQuery',
       skip: ({ queryParams }) => !queryParams.code,
-      options: ({ queryParams } : { queryParams: any }) => ({
+      options: ({ queryParams }: { queryParams: any }) => ({
         variables: { code: queryParams.code }
       })
     }

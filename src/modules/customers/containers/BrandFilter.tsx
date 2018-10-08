@@ -30,7 +30,7 @@ export default compose(
     name: 'brandsQuery',
     props: ({ brandsQuery }: any) => ({
       brands: brandsQuery.brands || [],
-      loading: brandsQuery.loading,
+      loading: brandsQuery.loading
     })
   })
 )(BrandFilterContainer);

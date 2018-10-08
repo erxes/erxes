@@ -29,7 +29,7 @@ type State = {
   datas: any[];
   loadmore: boolean;
   searchValue: string;
-}
+};
 
 class CommonChooser extends React.Component<Props, State> {
   private timer?: NodeJS.Timer;
@@ -142,7 +142,7 @@ class CommonChooser extends React.Component<Props, State> {
               onChange={e => this.search(e)}
             />
             <ul>
-              {datas.map(data => this.renderRow(data, 'add'))}
+              {datas.map(dataItem => this.renderRow(dataItem, 'add'))}
               {this.state.loadmore && (
                 <CenterContent>
                   <Button
@@ -159,7 +159,8 @@ class CommonChooser extends React.Component<Props, State> {
           </Column>
           <Column>
             <Title>
-              {data.name}&apos;s {title}
+              {data.name}
+              &apos;s {title}
               <span>({selectedDatas.length})</span>
             </Title>
             {this.renderSelected(selectedDatas)}
@@ -167,7 +168,12 @@ class CommonChooser extends React.Component<Props, State> {
         </Columns>
         <ModalFooter>
           <Footer>
-            <ModalTrigger title={`New ${title}`} trigger={addTrigger} size="lg" content={renderForm} />
+            <ModalTrigger
+              title={`New ${title}`}
+              trigger={addTrigger}
+              size="lg"
+              content={renderForm}
+            />
             <div>
               <Button
                 btnStyle="simple"

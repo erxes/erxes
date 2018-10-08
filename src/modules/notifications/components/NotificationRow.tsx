@@ -11,7 +11,7 @@ interface IProps extends IRouterProps {
   notification: INotification;
   markAsRead: (_ids?: string[]) => void;
   createdUser?: IUser;
-};
+}
 
 class NotificationRow extends React.Component<IProps> {
   constructor(props) {

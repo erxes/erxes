@@ -1,10 +1,10 @@
-import { Button, EmptyState } from "modules/common/components";
-import { ModalFooter } from "modules/common/styles/main";
-import { MarkdownWrapper } from "modules/settings/styles";
+import { Button, EmptyState } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { MarkdownWrapper } from 'modules/settings/styles';
 import * as React from 'react';
-import CopyToClipboard from "react-copy-to-clipboard";
-import * as ReactMarkdown from "react-markdown";
-import { IFormIntegration } from "../types";
+import CopyToClipboard from 'react-copy-to-clipboard';
+import * as ReactMarkdown from 'react-markdown';
+import { IFormIntegration } from '../types';
 
 type Props = {
   integration: IFormIntegration;
@@ -20,9 +20,9 @@ const installCodeIncludeScript = (type: string) => {
   return `
     (function() {
       var script = document.createElement('script');
-      script.src = "${process.env.REACT_APP_CDN_HOST}/build/${
-    type
-  }Widget.bundle.js";
+      script.src = "${
+        process.env.REACT_APP_CDN_HOST
+      }/build/${type}Widget.bundle.js";
       script.async = true;
 
       var entry = document.getElementsByTagName('script')[0];
@@ -40,7 +40,7 @@ const getInstallCode = (brandCode: string, formCode: string) => {
           form_id: "${formCode}",
         }],
       };
-      ${installCodeIncludeScript("form")}
+      ${installCodeIncludeScript('form')}
     </script>
   `;
 };
@@ -57,7 +57,7 @@ class Manage extends React.Component<Props, State> {
       const brand = integration.brand;
       const form = integration.form;
 
-      code = getInstallCode(brand.code, (form.code || ''));
+      code = getInstallCode(brand.code, form.code || '');
     }
 
     this.state = {
@@ -77,7 +77,7 @@ class Manage extends React.Component<Props, State> {
               onCopy={() => this.setState({ copied: true })}
             >
               <Button size="small" btnStyle="primary" icon="copy">
-                {this.state.copied ? "Copied" : "Copy to clipboard"}
+                {this.state.copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
           ) : (
