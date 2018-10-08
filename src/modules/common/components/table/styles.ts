@@ -56,6 +56,13 @@ const StyledTable = styledTS<{
       }
     }
 
+    thead th {
+      background-color: ${colors.bgLight};
+      position: sticky;
+      z-index: 1;
+      top: 0;
+    }
+
     ${
       props.hover
         ? `tr:hover td { background-color: ${tableHoverColor}; cursor: pointer; }`
