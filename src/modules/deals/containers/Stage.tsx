@@ -6,13 +6,13 @@ import { borderRadius, colors, grid } from '../constants';
 import DealList from './DealList';
 import Title from './Title';
 
-const Container = styled('div')`
+const Container = styled.div`
   margin: ${grid}px;
   display: flex;
   flex-direction: column;
 `;
 
-const Header = styledTS<any>(styled('div'))`
+const Header = styledTS<{ isDragging: boolean }>(styled.div)`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,7 +50,7 @@ export default class Column extends React.Component<Props> {
                 {title}
               </Title>
             </Header>
-            <DealList listId={title} listType="QUOTE" deals={deals} />
+            <DealList listId={title} listType="DEAL" deals={deals} />
           </Container>
         )}
       </Draggable>

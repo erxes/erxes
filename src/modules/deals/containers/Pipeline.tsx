@@ -11,7 +11,7 @@ import { IDealMap, IPipeline, IStageMap } from '../types';
 import { reorder, reorderDealMap } from '../utils';
 import Stage from './Stage';
 
-const Container = styled('div')`
+const Container = styled.div`
   min-height: 100vh;
 
   /* like display:flex but will allow bleeding over the window width */

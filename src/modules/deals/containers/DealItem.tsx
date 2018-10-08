@@ -9,7 +9,7 @@ type Props = {
   provided;
 };
 
-const Container = styledTS<any>(styled('a'))`
+const Container = styledTS<{ isDragging: boolean }>(styled.a)`
   border-radius: ${borderRadius}px;
   border: 1px solid grey;
   background-color: ${({ isDragging }) =>
