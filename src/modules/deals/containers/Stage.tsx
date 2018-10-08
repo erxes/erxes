@@ -3,6 +3,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius, colors, grid } from '../constants';
+import { IDeal } from '../types';
 import DealList from './DealList';
 import Title from './Title';
 
@@ -29,7 +30,7 @@ const Header = styledTS<{ isDragging: boolean }>(styled.div)`
 
 type Props = {
   title: string;
-  deals: any[];
+  deals: IDeal[];
   index: number;
 };
 

@@ -32,13 +32,13 @@ export interface IDeal {
   _id: string;
   name: string;
   stageId: string;
+  closeDate: Date;
+  amount: number;
+  modifiedAt: Date;
   assignedUsers: IUser[];
   companies: ICompany[];
   customers: ICustomer[];
   pipeline: IPipeline;
-  closeDate: Date;
-  amount: number;
-  modifiedAt: Date;
   stage?: IStage;
   products: any;
 }

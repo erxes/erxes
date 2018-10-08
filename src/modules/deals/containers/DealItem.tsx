@@ -2,9 +2,10 @@ import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius, colors, grid } from '../constants';
+import { IDeal } from '../types';
 
 type Props = {
-  deal: any;
+  deal: IDeal;
   isDragging: boolean;
   provided;
 };
@@ -110,11 +111,10 @@ export default class DealItem extends React.PureComponent<Props> {
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Avatar src={deal.author.avatarUrl} alt={deal.author.name} />
         <Content>
-          <BlockDeal>{deal.content}</BlockDeal>
+          <BlockDeal>{deal.name}</BlockDeal>
           <Footer>
-            <DealId>({deal.id})</DealId>
+            <DealId>({deal._id})</DealId>
             <Attribution>TEMP</Attribution>
           </Footer>
         </Content>

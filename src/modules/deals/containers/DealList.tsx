@@ -3,6 +3,7 @@ import { Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, grid } from '../constants';
+import { IDeal } from '../types';
 import DealItem from './DealItem';
 import Title from './Title';
 
@@ -46,7 +47,7 @@ const Container = styled.div``;
 type Props = {
   listId: string;
   listType?: string;
-  deals: any[];
+  deals: IDeal[];
   title?: string;
   internalScroll?: boolean;
   isDropDisabled?: boolean;
@@ -56,7 +57,7 @@ type Props = {
 };
 
 type DealListProps = {
-  deals: any[];
+  deals: IDeal[];
 };
 
 class InnerDealList extends React.Component<DealListProps> {
@@ -70,10 +71,10 @@ class InnerDealList extends React.Component<DealListProps> {
 
   render() {
     return this.props.deals.map((deal, index: number) => (
-      <Draggable key={deal.id} draggableId={deal.id} index={index}>
+      <Draggable key={deal._id} draggableId={deal._id} index={index}>
         {(dragProvided, dragSnapshot) => (
           <DealItem
-            key={deal.id}
+            key={deal._id}
             deal={deal}
             isDragging={dragSnapshot.isDragging}
             provided={dragProvided}
