@@ -173,7 +173,7 @@ class MailForm extends React.Component<Props, State> {
           value={this.state.cc}
           onChange={e => this.onChange('cc', (e.target as HTMLInputElement).value)}
         />
-    </ControlWrapper>
+      </ControlWrapper>
     );
   }
 

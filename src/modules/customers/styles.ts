@@ -45,7 +45,7 @@ const ControlWrapper = styled.div`
 
   span {
     border-bottom: 1px solid ${colors.colorShadowGray};
-    padding: 5px 10px 0 0;
+    padding: 6px 10px 0 0;
     font-weight: 500;
   }
 
