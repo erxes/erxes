@@ -2,7 +2,6 @@ import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius, colors, grid } from '../constants';
-import { Amount } from '../styles/stage';
 import { IDeal } from '../types';
 
 type Props = {
@@ -69,13 +68,13 @@ export default class DealItem extends React.PureComponent<Props> {
     if (Object.keys(amount).length === 0) return null;
 
     return (
-      <Amount>
+      <span>
         {Object.keys(amount).map(key => (
           <li key={key}>
             {amount[key].toLocaleString()} <span>{key}</span>
           </li>
         ))}
-      </Amount>
+      </span>
     );
   }
 

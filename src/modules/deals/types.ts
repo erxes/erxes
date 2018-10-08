@@ -84,10 +84,6 @@ export interface IDealParams {
   productsData?: IProductData[];
 }
 
-export interface ICommonParams {
-  _id: string;
-}
-
 export interface IDealMap {
   [key: string]: IDeal[];
 }
@@ -95,3 +91,10 @@ export interface IDealMap {
 export interface IStageMap {
   [key: string]: IStage;
 }
+
+export type SaveDealMutation = ({ variables: IDealParams }) => Promise<any>;
+export type RemoveDealMutation = (
+  {
+    variables: { _id: string }
+  }
+) => Promise<any>;

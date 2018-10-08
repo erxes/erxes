@@ -1,69 +1,88 @@
+import gql from 'graphql-tag';
 import * as React from 'react';
-import { Draggable } from 'react-beautiful-dnd';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { borderRadius, colors, grid } from '../constants';
-import { IDeal, IStage } from '../types';
-import DealList from './DealList';
-import Title from './Title';
-
-const Container = styled.div`
-  margin: ${grid}px;
-  display: flex;
-  flex-direction: column;
-`;
-
-const Header = styledTS<{ isDragging: boolean }>(styled.div)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-top-left-radius: ${borderRadius}px;
-  border-top-right-radius: ${borderRadius}px;
-  background-color: ${({ isDragging }) =>
-    isDragging ? colors.blue.lighter : colors.blue.light};
-  transition: background-color 0.1s ease;
-
-  &:hover {
-    background-color: ${colors.blue.lighter};
-  }
-`;
+import { compose, graphql } from 'react-apollo';
+import { Stage } from '../components';
+import { mutations } from '../graphql';
+import {
+  IDeal,
+  IDealParams,
+  IStage,
+  RemoveDealMutation,
+  SaveDealMutation
+} from '../types';
+import { removeDeal as remove, saveDeal as save } from '../utils';
 
 type Props = {
   stage: IStage;
   deals: IDeal[];
+  addMutation: SaveDealMutation;
+  editMutation: SaveDealMutation;
+  removeMutation: RemoveDealMutation;
+  dealsUpdateOrderMutation: (
+    params: { variables: { orders: Array<{ _id: string; order: number }> } }
+  ) => Promise<any>;
+  dealsChangeMutation: (
+    params: { variables: { _id: string; stageId: string } }
+  ) => Promise<any>;
+  dealsUpdateOrder: any;
 };
 
-export default class Stage extends React.Component<Props> {
-  renderAmount(amount: number) {
-    if (Object.keys(amount).length === 0) return <li>0</li>;
+class StageContainer extends React.Component<Props, {}> {
+  constructor(props) {
+    super(props);
 
-    return Object.keys(amount).map(key => (
-      <li key={key}>
-        {amount[key].toLocaleString()} <span>{key}</span>
-      </li>
-    ));
+    this.saveDeal = this.saveDeal.bind(this);
+    this.removeDeal = this.removeDeal.bind(this);
+  }
+
+  // create or update deal
+  saveDeal(doc: IDealParams, callback: () => void, deal?: IDeal) {
+    const { addMutation, editMutation } = this.props;
+
+    save(
+      doc,
+      addMutation,
+      editMutation,
+      () => {
+        callback();
+      },
+      deal
+    );
+  }
+
+  // remove deal
+  removeDeal(_id: string) {
+    const { removeMutation } = this.props;
+
+    remove(_id, removeMutation, () => {});
   }
 
   render() {
-    const { stage, deals } = this.props;
+    const extendedProps = {
+      ...this.props,
+      saveDeal: this.saveDeal,
+      removeDeal: this.removeDeal
+    };
 
-    return (
-      <Draggable draggableId={stage.name} index={stage._id}>
-        {(provided, snapshot) => (
-          <Container innerRef={provided.innerRef} {...provided.draggableProps}>
-            <Header isDragging={snapshot.isDragging}>
-              <Title
-                isDragging={snapshot.isDragging}
-                {...provided.dragHandleProps}
-              >
-                {stage.name}
-                <span>({deals.length})</span>
-              </Title>
-            </Header>
-            <DealList listId={stage._id} listType="DEAL" deals={deals} />
-          </Container>
-        )}
-      </Draggable>
-    );
+    return <Stage {...extendedProps} />;
   }
 }
+
+export default compose(
+  // mutation
+  graphql(gql(mutations.dealsAdd), {
+    name: 'addMutation'
+  }),
+  graphql(gql(mutations.dealsEdit), {
+    name: 'editMutation'
+  }),
+  graphql(gql(mutations.dealsRemove), {
+    name: 'removeMutation'
+  }),
+  graphql(gql(mutations.dealsUpdateOrder), {
+    name: 'dealsUpdateOrderMutation'
+  }),
+  graphql(gql(mutations.dealsChange), {
+    name: 'dealsChangeMutation'
+  })
+)(StageContainer);

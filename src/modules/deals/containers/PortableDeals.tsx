@@ -1,17 +1,21 @@
 import gql from 'graphql-tag';
-import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PortableDeals } from '../components';
 import { mutations, queries } from '../graphql';
-import { IDeal, IDealParams } from '../types';
+import {
+  IDeal,
+  IDealParams,
+  RemoveDealMutation,
+  SaveDealMutation
+} from '../types';
 import { removeDeal as remove, saveDeal as save } from '../utils';
 
 type Props = {
   deals: IDeal[];
-  addMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
-  editMutation: (params: { variables: { doc: IDealParams } }) => Promise<void>;
-  removeMutation: (params: { variables: { _id: string } }) => Promise<void>;
+  addMutation: SaveDealMutation;
+  editMutation: SaveDealMutation;
+  removeMutation: RemoveDealMutation;
   dealsQuery: any;
 };
 
@@ -29,9 +33,11 @@ class PortableDealsContainer extends React.Component<Props> {
 
     save(
       doc,
-      { addMutation, editMutation, dealsQuery },
+      addMutation,
+      editMutation,
       () => {
         callback();
+        dealsQuery.refetch();
       },
       deal
     );
@@ -41,7 +47,11 @@ class PortableDealsContainer extends React.Component<Props> {
   removeDeal(_id: string, callback: () => void) {
     const { removeMutation, dealsQuery } = this.props;
 
-    remove(_id, { removeMutation, dealsQuery }, callback);
+    remove(_id, removeMutation, () => {
+      callback();
+
+      dealsQuery.refetch();
+    });
   }
 
   render() {

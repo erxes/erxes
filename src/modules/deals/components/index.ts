@@ -10,6 +10,7 @@ import PortableDeals from './PortableDeals';
 import ProductForm from './product/ProductForm';
 import ProductItemForm from './product/ProductItemForm';
 import ProductSection from './ProductSection';
+import Stage from './Stage';
 
 export {
   Home,
@@ -23,5 +24,6 @@ export {
   ProductSection,
   ProductForm,
   ProductItemForm,
+  Stage,
   PortableDeals
 };

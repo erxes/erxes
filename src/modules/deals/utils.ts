@@ -1,6 +1,11 @@
 import { __, Alert, confirm } from 'modules/common/utils';
 import { IUser, IUserDetails } from '../auth/types';
-import { IDeal, IDealParams } from './types';
+import {
+  IDeal,
+  IDealParams,
+  RemoveDealMutation,
+  SaveDealMutation
+} from './types';
 
 type Options = {
   _id: string;
@@ -47,12 +52,11 @@ export function collectOrders(array: Options[] = []) {
 // create or update deal
 export function saveDeal(
   doc: IDealParams,
-  props: { addMutation: any; editMutation: any; dealsQuery: any },
+  addMutation: SaveDealMutation,
+  editMutation: SaveDealMutation,
   callback: (data: any) => void,
   deal?: IDeal
 ) {
-  const { addMutation, editMutation, dealsQuery } = props;
-
   let mutation = addMutation;
 
   // if edit mode
@@ -61,13 +65,9 @@ export function saveDeal(
     doc._id = deal._id;
   }
 
-  mutation({
-    variables: doc
-  })
+  mutation({ variables: doc })
     .then(({ data }) => {
       Alert.success(__('Successfully saved.'));
-
-      dealsQuery.refetch();
 
       callback(data);
     })
@@ -79,11 +79,9 @@ export function saveDeal(
 // remove deal
 export function removeDeal(
   _id: string,
-  props: { removeMutation: any; dealsQuery: any },
+  removeMutation: RemoveDealMutation,
   callback: (dealsRemove: IDeal) => void
 ) {
-  const { removeMutation, dealsQuery } = props;
-
   confirm().then(() => {
     removeMutation({
       variables: { _id }
@@ -92,8 +90,6 @@ export function removeDeal(
         Alert.success(__('Successfully deleted.'));
 
         if (callback) callback(dealsRemove);
-
-        dealsQuery.refetch();
       })
       .catch(error => {
         Alert.error(error.message);
