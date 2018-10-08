@@ -1,4 +1,3 @@
-import Board from './Board';
 import CommonDeal from './common/CommonDeal';
 import Items from './common/Items';
 import UserCounter from './common/UserCounter';
@@ -16,7 +15,6 @@ import Stage from './Stage';
 
 export {
   Home,
-  Board,
   Pipeline,
   Stage,
   Deal,

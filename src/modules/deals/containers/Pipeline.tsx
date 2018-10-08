@@ -1,141 +1,141 @@
+import { injectGlobal } from 'emotion';
 import gql from 'graphql-tag';
-import _ from 'lodash';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import styled from 'styled-components';
+import { colors } from '../constants';
+import { generateQuoteMap } from '../data';
+import { queries } from '../graphql';
+import reorder, { reorderQuoteMap } from '../reorder';
+import { IDealMap, IPipeline, IStageMap } from '../types';
+import Column from './Column';
 
-import { Spinner } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
-import { Pipeline } from '../components';
-import { STORAGE_PIPELINE_KEY } from '../constants';
-import { mutations, queries } from '../graphql';
-import { ICommonParams, IPipeline, IStage } from '../types';
-import { collectOrders } from '../utils';
+const Container = styled('div')`
+  min-height: 100vh;
 
-type Props = {
-  pipeline: IPipeline;
-  state: any;
-  index: number;
-  stages: IStage[];
-  stagesUpdateOrderMutation: (
-    params: { variables: { orders } }
-  ) => Promise<any>;
-  stagesChangeMutation: (
-    params: {
-      variables: { _id: string; pipelineId: string };
-    }
-  ) => Promise<void>;
+  /* like display:flex but will allow bleeding over the window width */
+  min-width: 100vw;
+  display: inline-flex;
+`;
+
+type Props = {};
+
+type State = {
+  columns;
+  ordered: string[];
 };
 
-class PipelineContainer extends React.Component<
-  Props,
-  { stages: ICommonParams[] }
-> {
-  constructor(props) {
-    super(props);
+const initial = generateQuoteMap(500);
 
-    const { stages } = props;
+class WithStages extends React.Component<Props, State> {
+  state: State = {
+    columns: initial,
+    ordered: Object.keys(initial)
+  };
 
-    this.state = { stages };
-  }
-
-  getConfig() {
-    return JSON.parse(localStorage.getItem(STORAGE_PIPELINE_KEY) || '') || {};
-  }
-
-  setConfig(value: string) {
-    const { index } = this.props;
-
-    const expandConfig = this.getConfig();
-
-    expandConfig[index] = value;
-
-    localStorage.setItem(STORAGE_PIPELINE_KEY, JSON.stringify(expandConfig));
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.state !== nextProps.state) {
-      const {
-        state: { type, index, itemId },
-        pipeline,
-        stagesUpdateOrderMutation,
-        stagesChangeMutation
-      } = nextProps;
-
-      const { stages } = this.state;
-
-      if (type === 'removeItem') {
-        // Remove from list
-        stages.splice(index, 1);
+  componentDidMount() {
+    injectGlobal`
+      body {
+        background: ${colors.blue.deep};
       }
+    `;
+  }
 
-      if (type === 'addItem') {
-        // Add to list
-        stages.splice(index, 0, { _id: itemId });
+  onDragEnd = result => {
+    // dropped nowhere
+    if (!result.destination) {
+      return;
+    }
 
-        // if move to other pipeline, will change pipelineId
-        stagesChangeMutation({
-          variables: { _id: itemId, pipelineId: pipeline._id }
-        }).catch(error => {
-          Alert.error(error.message);
-        });
-      }
+    const source = result.source;
+    const destination = result.destination;
 
-      const orders = collectOrders(_.map(stages, '_id'));
+    // did not move anywhere - can bail early
+    if (
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    ) {
+      return;
+    }
 
-      stagesUpdateOrderMutation({
-        variables: { orders }
-      }).catch(error => {
-        Alert.error(error.message);
+    // reordering column
+    if (result.type === 'COLUMN') {
+      const ordered: string[] = reorder(
+        this.state.ordered,
+        source.index,
+        destination.index
+      );
+
+      this.setState({
+        ordered
       });
 
-      this.setState({ stages });
+      return;
     }
-  }
+
+    const data = reorderQuoteMap({
+      quoteMap: this.state.columns,
+      source,
+      destination
+    });
+
+    this.setState({
+      columns: data.quoteMap
+    });
+  };
 
   render() {
-    const { index } = this.props;
+    const columns = this.state.columns;
+    const ordered: string[] = this.state.ordered;
 
-    // get pipeline expanding config from localStorage
-    const expandConfig = this.getConfig();
-
-    const extendedProps = {
-      ...this.props,
-      stages: this.state.stages,
-      isExpanded: expandConfig[index],
-      onToggle: value => this.setConfig(value)
-    };
-
-    return <Pipeline {...extendedProps} />;
+    return (
+      <DragDropContext onDragEnd={this.onDragEnd}>
+        <Droppable
+          droppableId="board"
+          type="COLUMN"
+          direction="horizontal"
+          ignoreContainerClipping={true}
+        >
+          {provided => (
+            <Container
+              innerRef={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              {ordered.map((key: string, index: number) => (
+                <Column
+                  key={key}
+                  index={index}
+                  title={key}
+                  quotes={columns[key]}
+                />
+              ))}
+            </Container>
+          )}
+        </Droppable>
+      </DragDropContext>
+    );
   }
 }
 
-const PipelineContainerWithData = compose(
-  graphql(gql(mutations.stagesUpdateOrder), {
-    name: 'stagesUpdateOrderMutation'
-  }),
-  graphql(gql(mutations.stagesChange), {
-    name: 'stagesChangeMutation'
-  })
-)(PipelineContainer);
+const WithStatesQuery = props => {
+  const { stagesQuery } = props;
 
-class StagesWithPipeline extends React.Component<{ stagesQuery: any }> {
-  render() {
-    const { stagesQuery } = this.props;
-
-    if (stagesQuery.loading) {
-      return <Spinner />;
-    }
-
-    const stages = stagesQuery.dealStages;
-
-    const extendedProps = {
-      ...this.props,
-      stages
-    };
-
-    return <PipelineContainerWithData {...extendedProps} />;
+  if (stagesQuery.loading) {
+    return null;
   }
-}
+
+  const stages = stagesQuery.dealStages;
+  const dealMap: IDealMap = {};
+  const stageMap: IStageMap = {};
+
+  for (const stage of stages) {
+    dealMap[stage._id] = stage.deals;
+    stageMap[stage._id] = stage;
+  }
+
+  return <WithStages {...props} dealMap={dealMap} stageMap={stageMap} />;
+};
 
 export default compose(
   graphql(gql(queries.stages), {
@@ -146,4 +146,4 @@ export default compose(
       }
     })
   })
-)(StagesWithPipeline);
+)(WithStatesQuery);
