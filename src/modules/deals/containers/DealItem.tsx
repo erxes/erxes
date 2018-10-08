@@ -1,3 +1,4 @@
+import { Container } from 'modules/deals/styles/deal';
 import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -10,37 +11,6 @@ type Props = {
   isDragging: boolean;
   provided;
 };
-
-const Container = styledTS<{ isDragging: boolean }>(styled.a)`
-  border-radius: ${borderRadius}px;
-  border: 1px solid grey;
-  background-color: ${({ isDragging }) =>
-    isDragging ? colors.green : colors.white};
-  box-shadow: ${({ isDragging }) =>
-    isDragging ? `2px 2px 1px ${colors.shadow}` : 'none'};
-  padding: ${grid}px;
-  min-height: 40px;
-  margin-bottom: ${grid}px;
-  user-select: none;
-  transition: background-color 0.1s ease;
-
-  /* anchor overrides */
-  color: ${colors.black};
-
-  &:hover {
-    color: ${colors.black};
-    text-decoration: none;
-  }
-
-  &:focus {
-    outline: 2px solid ${colors.purple};
-    box-shadow: none;
-  }
-
-  /* flexbox */
-  display: flex;
-  align-items: center;
-`;
 
 const Content = styled('div')`
   /* flex child */
