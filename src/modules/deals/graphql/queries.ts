@@ -45,11 +45,8 @@ const stages = `
       deals {
         _id
         name
-        products
-        productsData
         amount
         closeDate
-        description
         assignedUsers {
           _id
           email

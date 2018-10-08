@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius, colors, grid } from '../constants';
+import { Amount } from '../styles/stage';
 import { IDeal } from '../types';
 
 type Props = {
@@ -41,15 +42,6 @@ const Container = styledTS<{ isDragging: boolean }>(styled.a)`
   align-items: center;
 `;
 
-const Avatar = styled('img')`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: ${grid}px;
-  flex-shrink: 0;
-  flex-grow: 0;
-`;
-
 const Content = styled('div')`
   /* flex child */
   flex-grow: 1;
@@ -65,33 +57,6 @@ const Content = styled('div')`
   flex-direction: column;
 `;
 
-const BlockDeal = styled('div')`
-  &::before {
-    content: open-deal;
-  }
-
-  &::after {
-    content: close-deal;
-  }
-`;
-
-const Footer = styled('div')`
-  display: flex;
-  margin-top: ${grid}px;
-`;
-
-const DealId = styled('small')`
-  flex-grow: 0;
-  margin: 0;
-`;
-
-const Attribution = styled('small')`
-  margin: 0;
-  margin-left: ${grid}px;
-  text-align: right;
-  flex-grow: 1;
-`;
-
 // Previously this extended React.Component
 // That was a good thing, because using React.PureComponent can hide
 // issues with the selectors. However, moving it over does can considerable
@@ -100,6 +65,20 @@ const Attribution = styled('small')`
 // things we should be doing in the selector as we do not know if consumers
 // will be using PureComponent
 export default class DealItem extends React.PureComponent<Props> {
+  renderAmount(amount) {
+    if (Object.keys(amount).length === 0) return null;
+
+    return (
+      <Amount>
+        {Object.keys(amount).map(key => (
+          <li key={key}>
+            {amount[key].toLocaleString()} <span>{key}</span>
+          </li>
+        ))}
+      </Amount>
+    );
+  }
+
   render() {
     const { deal, isDragging, provided } = this.props;
 
@@ -112,11 +91,12 @@ export default class DealItem extends React.PureComponent<Props> {
         {...provided.dragHandleProps}
       >
         <Content>
-          <BlockDeal>{deal.name}</BlockDeal>
-          <Footer>
-            <DealId>({deal._id})</DealId>
-            <Attribution>TEMP</Attribution>
-          </Footer>
+          <div>{deal.name}</div>
+          {this.renderAmount(deal.amount)}
+          {(deal.assignedUsers || []).map((user, index) => (
+            <span key={index}>{user.email}</span>
+          ))}
+          {deal.modifiedAt}
         </Content>
       </Container>
     );
