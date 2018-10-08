@@ -1,25 +1,43 @@
 import { EditorState } from 'draft-js';
 import { Button, FormControl, Icon, Tip } from 'modules/common/components';
-import { createStateFromHTML, ErxesEditor, toHTML } from 'modules/common/components/editor/Editor';
+import {
+  createStateFromHTML,
+  ErxesEditor,
+  toHTML
+} from 'modules/common/components/editor/Editor';
 import { __, uploadHandler } from 'modules/common/utils';
-import { AttachmentIndicator, AttachmentThumb, EditorActions, FileName, PreviewImg } from 'modules/inbox/styles';
+import {
+  AttachmentIndicator,
+  AttachmentThumb,
+  EditorActions,
+  FileName,
+  PreviewImg
+} from 'modules/inbox/styles';
 import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
-import { AttachmentContainer, ControlWrapper, LeftSection, MailEditorWrapper, Resipients } from '../../styles';
+import {
+  AttachmentContainer,
+  ControlWrapper,
+  LeftSection,
+  MailEditorWrapper,
+  Resipients
+} from '../../styles';
 
 type Props = {
   integrations: IIntegration[];
   customerEmail?: string;
   setAttachmentPreview?: (data: string | null) => void;
-  save: (params: {
-    cc?: string;
-    bcc?: string;
-    toEmails?: string;
-    subject?: string;
-    body: string;
-    integrationId?: string;
-    attachments: string[];
-  }) => any;
+  save: (
+    params: {
+      cc?: string;
+      bcc?: string;
+      toEmails?: string;
+      subject?: string;
+      body: string;
+      integrationId?: string;
+      attachments: string[];
+    }
+  ) => any;
 };
 
 type State = {
@@ -35,28 +53,25 @@ type State = {
   editorState: EditorState;
   integrations: IIntegration[];
   attachments: any[];
-}
+};
 
 class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-        status: 'draft',
-        isCc: false,
-        isBcc: false,
-        content: '',
-        cc: '',
-        bcc: '',
-        toEmails: props.customerEmail || '',
-        from: '',
-        subject: '',
-        attachments: [],
-        integrations: props.integrations,
-        editorState: createStateFromHTML(
-            EditorState.createEmpty(),
-            ''
-        )
+      status: 'draft',
+      isCc: false,
+      isBcc: false,
+      content: '',
+      cc: '',
+      bcc: '',
+      toEmails: props.customerEmail || '',
+      from: '',
+      subject: '',
+      attachments: [],
+      integrations: props.integrations,
+      editorState: createStateFromHTML(EditorState.createEmpty(), '')
     };
 
     this.onChange = this.onChange.bind(this);
@@ -76,7 +91,7 @@ class MailForm extends React.Component<Props, State> {
   changeContent(editorState) {
     this.setState({ editorState });
   }
-  
+
   onChange<T extends keyof State>(name: T, value: State[T]) {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   }
@@ -94,7 +109,7 @@ class MailForm extends React.Component<Props, State> {
   handleFileInput(e: React.FormEvent<HTMLInputElement>) {
     const files = e.currentTarget.files;
     const { setAttachmentPreview } = this.props;
- 
+
     uploadHandler({
       files,
 
@@ -103,10 +118,7 @@ class MailForm extends React.Component<Props, State> {
       afterUpload: ({ response, fileInfo }) => {
         // set attachments
         this.setState({
-          attachments: [
-            ...this.state.attachments,
-            response
-          ]
+          attachments: [...this.state.attachments, response]
         });
         // remove preview
         setAttachmentPreview && setAttachmentPreview(null);
@@ -139,29 +151,29 @@ class MailForm extends React.Component<Props, State> {
   }
 
   cancelEditing() {
-    this.setState({ 
-      isCc: false, 
-      isBcc: false, 
-      editorState: EditorState.createEmpty(), 
-      cc: '', 
-      bcc: '', 
-      toEmails: '', 
-      from: '', 
+    this.setState({
+      isCc: false,
+      isBcc: false,
+      editorState: EditorState.createEmpty(),
+      cc: '',
+      bcc: '',
+      toEmails: '',
+      from: '',
       subject: '',
-      attachments: [] 
+      attachments: []
     });
   }
 
   renderFromOption() {
-    return (
-      this.props.integrations.map(i => (
-        <option key={i._id} value={i._id}>{i.name}</option>
-      ))
-    );
+    return this.props.integrations.map(i => (
+      <option key={i._id} value={i._id}>
+        {i.name}
+      </option>
+    ));
   }
 
   renderCC() {
-    if(!this.state.isCc) {
+    if (!this.state.isCc) {
       return null;
     }
 
@@ -171,14 +183,16 @@ class MailForm extends React.Component<Props, State> {
         <FormControl
           type="text"
           value={this.state.cc}
-          onChange={e => this.onChange('cc', (e.target as HTMLInputElement).value)}
+          onChange={e =>
+            this.onChange('cc', (e.target as HTMLInputElement).value)
+          }
         />
       </ControlWrapper>
     );
   }
 
   renderBCC() {
-    if(!this.state.isBcc) {
+    if (!this.state.isBcc) {
       return null;
     }
 
@@ -187,10 +201,12 @@ class MailForm extends React.Component<Props, State> {
         <span>Bcc</span>
         <FormControl
           type="text"
-          onChange={e => this.onChange('bcc', (e.target as HTMLInputElement).value)}
+          onChange={e =>
+            this.onChange('bcc', (e.target as HTMLInputElement).value)
+          }
           value={this.state.bcc}
         />
-    </ControlWrapper>
+      </ControlWrapper>
     );
   }
 
@@ -203,13 +219,15 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <AttachmentIndicator>
-        {attachments.map((attachment, index)=> (
+        {attachments.map((attachment, index) => (
           <AttachmentContainer key={index}>
             <FileName>{attachment}</FileName>
-            <Icon 
-              icon="cancel-1" 
+            <Icon
+              icon="cancel-1"
               size={18}
-              onClick={(e: React.MouseEvent<HTMLElement>) => this.removeImage(attachment)} 
+              onClick={(e: React.MouseEvent<HTMLElement>) =>
+                this.removeImage(attachment)
+              }
             />
           </AttachmentContainer>
         ))}
@@ -220,13 +238,13 @@ class MailForm extends React.Component<Props, State> {
   renderButtons() {
     return (
       <EditorActions>
-        <Tip text={__("Attach file")}>
+        <Tip text={__('Attach file')}>
           <label>
             <Icon icon="upload-2" />
             <input type="file" onChange={this.handleFileInput} />
           </label>
         </Tip>
-        
+
         <Button
           onClick={this.cancelEditing}
           btnStyle="simple"
@@ -241,7 +259,7 @@ class MailForm extends React.Component<Props, State> {
           size="small"
           icon="send"
         >
-          Save
+          Send
         </Button>
       </EditorActions>
     );
@@ -250,7 +268,7 @@ class MailForm extends React.Component<Props, State> {
   render() {
     const props = {
       editorState: this.state.editorState,
-      onChange: this.changeContent,
+      onChange: this.changeContent
     };
 
     return (
@@ -259,12 +277,24 @@ class MailForm extends React.Component<Props, State> {
           <span>To</span>
           <FormControl
             type="text"
-            onChange={e => this.onChange('toEmails', (e.target as HTMLInputElement).value)}
+            onChange={e =>
+              this.onChange('toEmails', (e.target as HTMLInputElement).value)
+            }
             value={this.state.toEmails}
           />
           <LeftSection>
-            <Resipients onClick={() => this.onClick('isCc')} isActive={this.state.isCc}>Cc</Resipients>
-            <Resipients onClick={() => this.onClick('isBcc')} isActive={this.state.isBcc}>Bcc</Resipients>
+            <Resipients
+              onClick={() => this.onClick('isCc')}
+              isActive={this.state.isCc}
+            >
+              Cc
+            </Resipients>
+            <Resipients
+              onClick={() => this.onClick('isBcc')}
+              isActive={this.state.isBcc}
+            >
+              Bcc
+            </Resipients>
           </LeftSection>
         </ControlWrapper>
         {this.renderCC()}
@@ -274,18 +304,22 @@ class MailForm extends React.Component<Props, State> {
           <span>From</span>
           <FormControl
             componentClass="select"
-            onChange={e => this.onChange('from', (e.target as HTMLInputElement).value)}
+            onChange={e =>
+              this.onChange('from', (e.target as HTMLInputElement).value)
+            }
             value={this.state.from}
-          > 
+          >
             <option />
-            {this.renderFromOption()} 
+            {this.renderFromOption()}
           </FormControl>
         </ControlWrapper>
 
         <ControlWrapper>
           <FormControl
             type="text"
-            onChange={e => this.onChange('subject', (e.target as HTMLInputElement).value)}
+            onChange={e =>
+              this.onChange('subject', (e.target as HTMLInputElement).value)
+            }
             placeholder="Subject"
             value={this.state.subject}
           />

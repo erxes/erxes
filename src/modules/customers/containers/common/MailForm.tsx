@@ -11,19 +11,29 @@ type Props = {
   contentTypeId: string;
   customerEmail?: string;
   gmailIntegrationsQuery: any;
-  integrationsSendGmail: (params: { variables: {
-    cc?: string;
-    bcc?: string;
-    toEmails?: string;
-    subject?: string;
-    body: string;
-    integrationId?: string;
-  };
-  }) => Promise<any>;
+  setAttachmentPreview?: (data: string | null) => void;
+  integrationsSendGmail: (
+    params: {
+      variables: {
+        cc?: string;
+        bcc?: string;
+        toEmails?: string;
+        subject?: string;
+        body: string;
+        integrationId?: string;
+      };
+    }
+  ) => Promise<any>;
 };
 
 const MailFormContainer = (props: Props) => {
-  const { integrationsSendGmail, contentType, contentTypeId, customerEmail, gmailIntegrationsQuery } = props;
+  const {
+    integrationsSendGmail,
+    contentType,
+    contentTypeId,
+    customerEmail,
+    gmailIntegrationsQuery
+  } = props;
 
   if (gmailIntegrationsQuery.loading) {
     return <Spinner objective />;
@@ -31,7 +41,7 @@ const MailFormContainer = (props: Props) => {
 
   const integrations = gmailIntegrationsQuery.integrations || [];
 
-  const save = (variables) => {
+  const save = variables => {
     integrationsSendGmail({
       variables: {
         ...variables,
@@ -47,22 +57,36 @@ const MailFormContainer = (props: Props) => {
       });
   };
 
-  return <MailForm save={save} integrations={integrations} customerEmail={customerEmail || ''} {...props} />;
+  return (
+    <MailForm
+      save={save}
+      integrations={integrations}
+      customerEmail={customerEmail || ''}
+      {...props}
+    />
+  );
+};
+
+const options = () => {
+  return {
+    refetchQueries: ['activityLogsCustomer']
+  };
 };
 
 export default compose(
   graphql(gql(mutations.integrationsSendGmail), {
     name: 'integrationsSendGmail',
+    options
   }),
   graphql(gql(queries.integrations), {
     name: 'gmailIntegrationsQuery',
     options: () => {
       return {
         variables: {
-          kind: "gmail"
+          kind: 'gmail'
         },
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only'
       };
     }
-  })  
+  })
 )(MailFormContainer);
