@@ -54,6 +54,10 @@ class CommonDeal extends React.Component<Props> {
   }
 
   renderDealStatus(stage) {
+    if (!stage) {
+      return null;
+    }
+
     if (stage.probability === 'Lost') {
       return this.renderStatusLabel('Lost', colors.colorCoreRed);
     }
