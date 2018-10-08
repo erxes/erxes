@@ -1,4 +1,4 @@
-import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import { EmptyState, Icon, ModalTrigger, Spinner } from 'modules/common/components';
 import { __, renderFullName } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
@@ -27,6 +27,8 @@ function CustomerSection({ name, customers, onSelect }: Props) {
     }
     return null;
   };
+
+  if(!customers) return <Spinner objective />;
 
   return (
     <Section>
