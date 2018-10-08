@@ -36,7 +36,7 @@ class ChangePassword extends React.Component<Props> {
       ) as HTMLInputElement).value
     });
 
-    this.props.closeModal;
+    this.props.closeModal();
   }
 
   render() {

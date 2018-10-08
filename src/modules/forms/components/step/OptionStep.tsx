@@ -88,9 +88,9 @@ class OptionStep extends React.Component<Props, {}> {
             >
               <option />
               {brands &&
-                brands.map(brand => (
-                  <option key={brand._id} value={brand._id}>
-                    {brand.name}
+                brands.map(brandOption => (
+                  <option key={brandOption._id} value={brandOption._id}>
+                    {brandOption.name}
                   </option>
                 ))}
             </FormControl>

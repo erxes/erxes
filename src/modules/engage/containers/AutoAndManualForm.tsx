@@ -96,7 +96,9 @@ const AutoAndManualFormContainer = (props: Props) => {
   return (
     <FormBase
       kind={props.kind}
-      content={props => <AutoAndManualForm {...updatedProps} {...props} />}
+      content={formProps => (
+        <AutoAndManualForm {...updatedProps} {...formProps} />
+      )}
     />
   );
 };

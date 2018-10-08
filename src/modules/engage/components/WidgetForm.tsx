@@ -135,8 +135,8 @@ class WidgetForm extends React.Component<Props, State> {
           <ControlLabel>Attachments:</ControlLabel>
           <Uploader
             defaultFileList={attachments}
-            onChange={attachments =>
-              this.onChangeCommon('attachments', attachments)
+            onChange={attachmentsAtt =>
+              this.onChangeCommon('attachments', attachmentsAtt)
             }
           />
         </FormGroup>

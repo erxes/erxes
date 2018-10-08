@@ -150,14 +150,14 @@ class ModalAction extends React.Component<Props, State> {
       });
     }
 
-    const tweetData = {
+    const retweetData = {
       integrationId,
       id
     };
 
     return (
       retweet &&
-      retweet(tweetData, () => {
+      retweet(retweetData, () => {
         this.props.closeModal();
       })
     );

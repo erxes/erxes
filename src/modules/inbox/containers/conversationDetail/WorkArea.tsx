@@ -135,15 +135,19 @@ class WorkArea extends React.Component<Props, State> {
       update = (proxy, { data: { conversationMessageAdd } }) => {
         const message = conversationMessageAdd;
 
-        const variables = { conversationId: currentId, limit, skip };
+        const optimisticResponseVariables = {
+          conversationId: currentId,
+          limit,
+          skip
+        };
 
         if (skip) {
-          variables.skip = skip;
+          optimisticResponseVariables.skip = skip;
         }
 
         const selector = {
           query: gql(queries.conversationMessages),
-          variables
+          variables: optimisticResponseVariables
         };
 
         // Read the data from our cache for this query.
@@ -174,10 +178,14 @@ class WorkArea extends React.Component<Props, State> {
 
     addMessageMutation({ variables, optimisticResponse, update })
       .then(() => {
-        callback && callback();
+        if (callback) {
+          callback();
+        }
       })
       .catch(e => {
-        callback && callback(e);
+        if (callback) {
+          callback(e);
+        }
       });
   }
 

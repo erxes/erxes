@@ -30,8 +30,13 @@ class DetailContainer extends React.Component<Props> {
     if (this.prevSubscriptions && this.props.currentId !== currentId) {
       const { detailHandler, customerHandler } = this.prevSubscriptions;
 
-      detailHandler && detailHandler();
-      customerHandler && customerHandler();
+      if (detailHandler) {
+        detailHandler();
+      }
+
+      if (customerHandler) {
+        customerHandler();
+      }
 
       this.prevSubscriptions = null;
     }
