@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
+import { DealList } from '.';
 import { Amount, Body, Container, Header } from '../styles/stage';
 import { IDeal, IStage } from '../types';
-import DealList from './DealList';
 
 type Props = {
   deals: IDeal[];

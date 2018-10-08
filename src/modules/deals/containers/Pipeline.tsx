@@ -3,11 +3,11 @@ import { Icon } from 'modules/common/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { Stage } from '../components';
+import { Stage } from '.';
 import { queries } from '../graphql';
-import reorder, { reorderDealMap } from '../reorder';
 import { Body, Container, Header } from '../styles/pipeline';
 import { IDealMap, IPipeline, IStageMap } from '../types';
+import { reorder, reorderDealMap } from '../utils';
 
 type Props = {
   pipeline: IPipeline;

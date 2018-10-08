@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
-import DealItem from '../components/DealItem';
+import { DealItem } from '.';
 import { DropZone } from '../styles/stage';
 import { IDeal } from '../types';
 

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import CommonDeal from '../components/common/CommonDeal';
 import { borderRadius, colors, grid } from '../constants';
 import { IDeal } from '../types';
-import CommonDeal from './common/CommonDeal';
 
 type Props = {
   deal: IDeal;
