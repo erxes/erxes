@@ -37,9 +37,7 @@ class Sidebar extends React.Component<Props> {
     } = this.props;
 
     const onChange = (type, value) => {
-      if (onChangeField) {
-        onChangeField(type, value);
-      }
+      onChangeField && onChangeField(type, value);
     };
 
     return (

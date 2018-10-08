@@ -65,9 +65,7 @@ class ProductItemForm extends React.Component<Props> {
 
     const { updateTotal } = this.props;
 
-    if (updateTotal) {
-      updateTotal();
-    }
+    updateTotal && updateTotal();
   }
 
   onChangeField(type, value, _id) {
@@ -81,9 +79,7 @@ class ProductItemForm extends React.Component<Props> {
         this.calculateAmount(type, productData);
       }
 
-      if (onChangeProductsData) {
-        onChangeProductsData(productsData);
-      }
+      onChangeProductsData && onChangeProductsData(productsData);
     }
   }
 
@@ -143,12 +139,8 @@ class ProductItemForm extends React.Component<Props> {
             name="uom"
             placeholder={__('Choose')}
             value={productData.uom}
-            onChange={selected =>
-              this.onChangeField(
-                'uom',
-                selected ? selected.value : '',
-                productData._id
-              )
+            onChange={uom =>
+              this.onChangeField('uom', uom ? uom.value : '', productData._id)
             }
             optionRenderer={option => (
               <div className="simple-option">

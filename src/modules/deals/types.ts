@@ -87,11 +87,3 @@ export interface IDealParams {
 export interface ICommonParams {
   _id: string;
 }
-
-export interface IDealMap {
-  [key: string]: IDeal[];
-}
-
-export interface IStageMap {
-  [key: string]: IStage;
-}

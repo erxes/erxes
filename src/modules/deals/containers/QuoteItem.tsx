@@ -1,17 +1,15 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import CommonDeal from '../components/common/CommonDeal';
 import { borderRadius, colors, grid } from '../constants';
-import { IDeal } from '../types';
 
 type Props = {
-  deal: IDeal;
+  quote: any;
   isDragging: boolean;
   provided;
 };
 
-const Container = styledTS<{ isDragging: boolean }>(styled.a)`
+const Container = styledTS<any>(styled('a'))`
   border-radius: ${borderRadius}px;
   border: 1px solid grey;
   background-color: ${({ isDragging }) =>
@@ -42,7 +40,16 @@ const Container = styledTS<{ isDragging: boolean }>(styled.a)`
   align-items: center;
 `;
 
-const Content = styled.div`
+const Avatar = styled('img')`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: ${grid}px;
+  flex-shrink: 0;
+  flex-grow: 0;
+`;
+
+const Content = styled('div')`
   /* flex child */
   flex-grow: 1;
 
@@ -57,6 +64,33 @@ const Content = styled.div`
   flex-direction: column;
 `;
 
+const BlockQuote = styled('div')`
+  &::before {
+    content: open-quote;
+  }
+
+  &::after {
+    content: close-quote;
+  }
+`;
+
+const Footer = styled('div')`
+  display: flex;
+  margin-top: ${grid}px;
+`;
+
+const QuoteId = styled('small')`
+  flex-grow: 0;
+  margin: 0;
+`;
+
+const Attribution = styled('small')`
+  margin: 0;
+  margin-left: ${grid}px;
+  text-align: right;
+  flex-grow: 1;
+`;
+
 // Previously this extended React.Component
 // That was a good thing, because using React.PureComponent can hide
 // issues with the selectors. However, moving it over does can considerable
@@ -64,19 +98,25 @@ const Content = styled.div`
 // Need to be super sure we are not relying on PureComponent here for
 // things we should be doing in the selector as we do not know if consumers
 // will be using PureComponent
-export default class DealItem extends React.PureComponent<Props> {
+export default class QuoteItem extends React.PureComponent<Props> {
   render() {
-    const { deal, isDragging, provided } = this.props;
+    const { quote, isDragging, provided } = this.props;
 
     return (
       <Container
+        href={quote.author.url}
         isDragging={isDragging}
         innerRef={provided.innerRef}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
+        <Avatar src={quote.author.avatarUrl} alt={quote.author.name} />
         <Content>
-          <CommonDeal deal={deal} />
+          <BlockQuote>{quote.content}</BlockQuote>
+          <Footer>
+            <QuoteId>({quote.id})</QuoteId>
+            <Attribution>TEMP</Attribution>
+          </Footer>
         </Content>
       </Container>
     );

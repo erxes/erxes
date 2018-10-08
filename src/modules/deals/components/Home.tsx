@@ -84,7 +84,7 @@ class Home extends React.Component<Props> {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={this.renderActionBar(currentBoard)}
-        content={<Board currentBoard={currentBoard} />}
+        content={<Board />}
         transparent
       />
     );
