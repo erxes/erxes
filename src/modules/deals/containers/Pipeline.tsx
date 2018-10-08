@@ -7,8 +7,8 @@ import styled from 'styled-components';
 import { colors } from '../constants';
 import { generateQuoteMap } from '../data';
 import { queries } from '../graphql';
-import reorder, { reorderQuoteMap } from '../reorder';
 import { IDealMap, IPipeline, IStageMap } from '../types';
+import { reorder, reorderQuoteMap } from '../utils';
 import Column from './Column';
 
 const Container = styled('div')`
