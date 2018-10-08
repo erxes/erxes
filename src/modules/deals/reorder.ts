@@ -17,12 +17,12 @@ export const reorderDealMap = ({ dealMap, source, destination }) => {
   // moving to same list
   if (source.droppableId === destination.droppableId) {
     const reordered = reorder(current, source.index, destination.index);
-    const result = {
+    const updatedDealMap = {
       ...dealMap,
       [source.droppableId]: reordered
     };
     return {
-      dealMap: result
+      dealMap: updatedDealMap
     };
   }
 
