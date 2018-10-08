@@ -41,6 +41,7 @@ const stages = `
       _id
       name
       order
+      amount
 
       deals {
         _id

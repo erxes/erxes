@@ -33,7 +33,17 @@ type Props = {
   deals: IDeal[];
 };
 
-export default class Column extends React.Component<Props> {
+export default class Stage extends React.Component<Props> {
+  renderAmount(amount: number) {
+    if (Object.keys(amount).length === 0) return <li>0</li>;
+
+    return Object.keys(amount).map(key => (
+      <li key={key}>
+        {amount[key].toLocaleString()} <span>{key}</span>
+      </li>
+    ));
+  }
+
   render() {
     const { stage, deals } = this.props;
 
@@ -47,6 +57,7 @@ export default class Column extends React.Component<Props> {
                 {...provided.dragHandleProps}
               >
                 {stage.name}
+                <span>({deals.length})</span>
               </Title>
             </Header>
             <DealList listId={stage._id} listType="DEAL" deals={deals} />
