@@ -161,12 +161,15 @@ class RespondBox extends React.Component<Props, State> {
           ]
         });
         // remove preview
-        setAttachmentPreview && setAttachmentPreview(null);
+        if (setAttachmentPreview) {
+          setAttachmentPreview(null);
+        }
       },
 
       afterRead: ({ result, fileInfo }) => {
-        setAttachmentPreview &&
+        if (setAttachmentPreview) {
           setAttachmentPreview(Object.assign({ data: result }, fileInfo));
+        }
       }
     });
   }

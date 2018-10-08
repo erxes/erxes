@@ -178,10 +178,14 @@ class WorkArea extends React.Component<Props, State> {
 
     addMessageMutation({ variables, optimisticResponse, update })
       .then(() => {
-        callback && callback();
+        if (callback) {
+          callback();
+        }
       })
       .catch(e => {
-        callback && callback(e);
+        if (callback) {
+          callback(e);
+        }
       });
   }
 

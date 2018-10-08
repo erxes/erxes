@@ -11,9 +11,13 @@ const searchCompany = (searchValue: string, callback: (data?: any) => void) => {
       query: gql(companyQueries.companies),
       variables: { searchValue, page: 1, perPage: 10 }
     })
-    .then((response: any) => {
-      callback && callback(response.data.companies);
-    })
+    .then(
+      (response: any): void => {
+        if (typeof callback === 'function') {
+          callback(response.data.companies);
+        }
+      }
+    )
     .catch(error => {
       Alert.error(error.message);
     });
@@ -29,7 +33,9 @@ const searchCustomer = (
       variables: { searchValue, page: 1, perPage: 10 }
     })
     .then((response: any) => {
-      callback && callback(response.data.customers);
+      if (typeof callback === 'function') {
+        callback(response.data.customers);
+      }
     })
     .catch(error => {
       Alert.error(error.message);
@@ -43,7 +49,9 @@ const searchUser = (searchValue: string, callback: (data?: any) => void) => {
       variables: { searchValue, page: 1, perPage: 10 }
     })
     .then((response: any) => {
-      callback && callback(response.data.users);
+      if (typeof callback === 'function') {
+        callback(response.data.users);
+      }
     })
     .catch(error => {
       Alert.error(error.message);
