@@ -47,7 +47,7 @@ class Condition extends React.Component<Props, State> {
     }
 
     this.setState(states, () => {
-      const { field, operator, value, dateUnit, type } = this.state;
+      const { field, operator, dateUnit, type } = this.state;
 
       this.props.changeCondition({ field, operator, value, dateUnit, type });
     });
@@ -156,7 +156,7 @@ class Condition extends React.Component<Props, State> {
   render() {
     const { fields, condition } = this.props;
 
-    const field = fields.find(field => field._id === condition.field);
+    const field = fields.find(fieldItem => fieldItem._id === condition.field);
 
     return (
       <ConditionItem>

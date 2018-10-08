@@ -40,15 +40,16 @@ const ManageColumnsContainer = (props: Props) => {
     }
   };
 
-  let config = fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
+  let columnsConfig =
+    fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
 
   if (storageItem) {
-    config = JSON.parse(storageItem);
+    columnsConfig = JSON.parse(storageItem);
   }
 
   const updatedProps = {
     ...props,
-    config,
+    config: columnsConfig,
     save,
     fields: fieldsQuery.fieldsCombinedByContentType
   };

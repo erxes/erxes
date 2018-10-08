@@ -73,11 +73,12 @@ class CallOut extends React.Component<Props, State> {
   }
 
   onChangeState<T extends keyof State>(name: T, value: boolean) {
-    const { defaultValue } = this.state;
-
-    defaultValue[name] = value;
-
-    this.setState({ defaultValue });
+    this.setState(state => ({
+      defaultValue: {
+        ...state.defaultValue,
+        [name]: value
+      }
+    }));
     this.props.onChange(name, value);
   }
 

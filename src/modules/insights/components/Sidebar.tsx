@@ -5,12 +5,12 @@ import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 
 function Sidebar() {
-  const Sidebar = Wrapper.Sidebar;
-  const { Title } = Sidebar.Section;
+  const WrapperSidebar = Wrapper.Sidebar;
+  const { Title } = WrapperSidebar.Section;
 
   return (
-    <Sidebar>
-      <Sidebar.Section>
+    <WrapperSidebar>
+      <WrapperSidebar.Section>
         <Title>{__('Insights')}</Title>
         <SidebarList>
           <li>
@@ -41,8 +41,8 @@ function Sidebar() {
             </NavLink>
           </li>
         </SidebarList>
-      </Sidebar.Section>
-    </Sidebar>
+      </WrapperSidebar.Section>
+    </WrapperSidebar>
   );
 }
 

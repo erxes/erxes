@@ -80,11 +80,11 @@ class ManageColumns extends React.Component<Props, State> {
   }
 
   render() {
-    const { config } = this.props;
+    const { config: configArr } = this.props;
 
     const configMap = {};
 
-    config.forEach(config => {
+    configArr.forEach(config => {
       configMap[config.name] = true;
     });
 
