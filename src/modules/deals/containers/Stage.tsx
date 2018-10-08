@@ -3,7 +3,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius, colors, grid } from '../constants';
-import { IDeal } from '../types';
+import { IDeal, IStage } from '../types';
 import DealList from './DealList';
 import Title from './Title';
 
@@ -29,18 +29,16 @@ const Header = styledTS<{ isDragging: boolean }>(styled.div)`
 `;
 
 type Props = {
-  title: string;
+  stage: IStage;
   deals: IDeal[];
-  index: number;
 };
 
 export default class Column extends React.Component<Props> {
   render() {
-    const title: string = this.props.title;
-    const deals: any[] = this.props.deals;
-    const index: number = this.props.index;
+    const { stage, deals } = this.props;
+
     return (
-      <Draggable draggableId={title} index={index}>
+      <Draggable draggableId={stage.name} index={stage._id}>
         {(provided, snapshot) => (
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
             <Header isDragging={snapshot.isDragging}>
@@ -48,10 +46,10 @@ export default class Column extends React.Component<Props> {
                 isDragging={snapshot.isDragging}
                 {...provided.dragHandleProps}
               >
-                {title}
+                {stage.name}
               </Title>
             </Header>
-            <DealList listId={title} listType="DEAL" deals={deals} />
+            <DealList listId={stage._id} listType="DEAL" deals={deals} />
           </Container>
         )}
       </Draggable>

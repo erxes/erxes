@@ -8,11 +8,7 @@ import Pipeline from './Pipeline';
 const WithPipelinesQuery = ({ pipelinesQuery }) => {
   const pipelines = pipelinesQuery.dealPipelines || [];
 
-  if (pipelines.length === 0) {
-    return null;
-  }
-
-  return [pipelines[0]].map(pipeline => (
+  return pipelines.map(pipeline => (
     <Pipeline pipeline={pipeline} key={pipeline._id} />
   ));
 };

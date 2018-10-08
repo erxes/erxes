@@ -5,7 +5,6 @@ import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { colors } from '../constants';
-import generateFakeData from '../data';
 import { queries } from '../graphql';
 import { IDealMap, IPipeline, IStageMap } from '../types';
 import { reorder, reorderDealMap } from '../utils';
@@ -94,6 +93,7 @@ class WithStages extends React.Component<Props, State> {
   };
 
   render() {
+    const { stageMap } = this.props;
     const { dealMap, ordered } = this.state;
 
     return (
@@ -110,12 +110,7 @@ class WithStages extends React.Component<Props, State> {
               {...provided.droppableProps}
             >
               {ordered.map((key: string, index: number) => (
-                <Stage
-                  key={key}
-                  index={index}
-                  title={key}
-                  deals={dealMap[key]}
-                />
+                <Stage key={key} stage={stageMap[key]} deals={dealMap[key]} />
               ))}
             </Container>
           )}
@@ -132,7 +127,7 @@ const WithStatesQuery = props => {
     return null;
   }
 
-  const stages = generateFakeData(props.pipeline, 10, 50);
+  const stages = stagesQuery.dealStages;
 
   const dealMap: IDealMap = {};
   const stageMap: IStageMap = {};
