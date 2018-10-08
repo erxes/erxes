@@ -5,11 +5,11 @@ import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { colors } from '../constants';
-import { generateQuoteMap } from '../data';
+import { generateDealMap } from '../data';
 import { queries } from '../graphql';
 import { IDealMap, IPipeline, IStageMap } from '../types';
 import { reorder, reorderDealMap } from '../utils';
-import Column from './Column';
+import Stage from './Stage';
 
 const Container = styled('div')`
   min-height: 100vh;
@@ -30,7 +30,7 @@ type State = {
   ordered: string[];
 };
 
-const initial = generateQuoteMap(500);
+const initial = generateDealMap(500);
 
 class WithStages extends React.Component<Props, State> {
   state: State = {
@@ -106,11 +106,11 @@ class WithStages extends React.Component<Props, State> {
               {...provided.droppableProps}
             >
               {ordered.map((key: string, index: number) => (
-                <Column
+                <Stage
                   key={key}
                   index={index}
                   title={key}
-                  quotes={dealMap[key]}
+                  deals={dealMap[key]}
                 />
               ))}
             </Container>

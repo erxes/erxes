@@ -4,7 +4,7 @@ import styledTS from 'styled-components-ts';
 import { borderRadius, colors, grid } from '../constants';
 
 type Props = {
-  quote: any;
+  deal: any;
   isDragging: boolean;
   provided;
 };
@@ -64,13 +64,13 @@ const Content = styled('div')`
   flex-direction: column;
 `;
 
-const BlockQuote = styled('div')`
+const BlockDeal = styled('div')`
   &::before {
-    content: open-quote;
+    content: open-deal;
   }
 
   &::after {
-    content: close-quote;
+    content: close-deal;
   }
 `;
 
@@ -79,7 +79,7 @@ const Footer = styled('div')`
   margin-top: ${grid}px;
 `;
 
-const QuoteId = styled('small')`
+const DealId = styled('small')`
   flex-grow: 0;
   margin: 0;
 `;
@@ -98,9 +98,9 @@ const Attribution = styled('small')`
 // Need to be super sure we are not relying on PureComponent here for
 // things we should be doing in the selector as we do not know if consumers
 // will be using PureComponent
-export default class QuoteItem extends React.PureComponent<Props> {
+export default class DealItem extends React.PureComponent<Props> {
   render() {
-    const { quote, isDragging, provided } = this.props;
+    const { deal, isDragging, provided } = this.props;
 
     return (
       <Container
@@ -110,11 +110,11 @@ export default class QuoteItem extends React.PureComponent<Props> {
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Avatar src={quote.author.avatarUrl} alt={quote.author.name} />
+        <Avatar src={deal.author.avatarUrl} alt={deal.author.name} />
         <Content>
-          <BlockQuote>{quote.content}</BlockQuote>
+          <BlockDeal>{deal.content}</BlockDeal>
           <Footer>
-            <QuoteId>({quote.id})</QuoteId>
+            <DealId>({deal.id})</DealId>
             <Attribution>TEMP</Attribution>
           </Footer>
         </Content>

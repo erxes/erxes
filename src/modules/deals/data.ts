@@ -28,7 +28,7 @@ const princess = {
 
 export const authors = [jake, BMO, finn, princess];
 
-export const quotes = [
+export const deals = [
   {
     id: '1',
     content: 'Sometimes life is scary and dark',
@@ -94,12 +94,12 @@ export const quotes = [
 
 let idCount: number = 0;
 
-export const getQuotes = (count: number) =>
+export const getDeals = (count: number) =>
   Array.from({ length: count }, (v, k) => k).map(() => {
-    const random = quotes[Math.floor(Math.random() * quotes.length)];
+    const random = deals[Math.floor(Math.random() * deals.length)];
 
     const custom = {
-      id: `quote-${idCount++}`,
+      id: `deal-${idCount++}`,
       content: random.content,
       author: random.author
     };
@@ -122,21 +122,21 @@ export const getAuthors = (count: number) =>
   });
 
 const getByAuthor = (author, items) =>
-  items.filter(quote => quote.author === author);
+  items.filter(deal => deal.author === author);
 
-export const authorQuoteMap = authors.reduce(
+export const authorDealMap = authors.reduce(
   (previous, author) => ({
     ...previous,
-    [author.name]: getByAuthor(author, quotes)
+    [author.name]: getByAuthor(author, deals)
   }),
   {}
 );
 
-export const generateQuoteMap = (quoteCount: number) =>
+export const generateDealMap = (dealCount: number) =>
   authors.reduce(
     (previous, author) => ({
       ...previous,
-      [author.name]: getQuotes(quoteCount / authors.length)
+      [author.name]: getDeals(dealCount / authors.length)
     }),
     {}
   );

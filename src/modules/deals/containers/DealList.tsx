@@ -3,7 +3,7 @@ import { Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, grid } from '../constants';
-import QuoteItem from './QuoteItem';
+import DealItem from './DealItem';
 import Title from './Title';
 
 const Wrapper = styledTS<any>(styled('div'))`
@@ -44,7 +44,7 @@ const Container = styled('div')``;
 type Props = {
   listId: string;
   listType?: string;
-  quotes: any[];
+  deals: any[];
   title?: string;
   internalScroll?: boolean;
   isDropDisabled?: boolean;
@@ -53,13 +53,13 @@ type Props = {
   ignoreContainerClipping?: boolean;
 };
 
-type QuoteListProps = {
-  quotes: any[];
+type DealListProps = {
+  deals: any[];
 };
 
-class InnerQuoteList extends React.Component<QuoteListProps> {
-  shouldComponentUpdate(nextProps: QuoteListProps) {
-    if (nextProps.quotes !== this.props.quotes) {
+class InnerDealList extends React.Component<DealListProps> {
+  shouldComponentUpdate(nextProps: DealListProps) {
+    if (nextProps.deals !== this.props.deals) {
       return true;
     }
 
@@ -67,12 +67,12 @@ class InnerQuoteList extends React.Component<QuoteListProps> {
   }
 
   render() {
-    return this.props.quotes.map((quote, index: number) => (
-      <Draggable key={quote.id} draggableId={quote.id} index={index}>
+    return this.props.deals.map((deal, index: number) => (
+      <Draggable key={deal.id} draggableId={deal.id} index={index}>
         {(dragProvided, dragSnapshot) => (
-          <QuoteItem
-            key={quote.id}
-            quote={quote}
+          <DealItem
+            key={deal.id}
+            deal={deal}
             isDragging={dragSnapshot.isDragging}
             provided={dragProvided}
           />
@@ -84,20 +84,20 @@ class InnerQuoteList extends React.Component<QuoteListProps> {
 
 type InnerListProps = {
   dropProvided;
-  quotes: any[];
+  deals: any[];
   title?: string;
 };
 
 class InnerList extends React.Component<InnerListProps> {
   render() {
-    const { quotes, dropProvided } = this.props;
+    const { deals, dropProvided } = this.props;
     const title = this.props.title ? <Title>{this.props.title}</Title> : null;
 
     return (
       <Container>
         {title}
         <DropZone innerRef={dropProvided.innerRef}>
-          <InnerQuoteList quotes={quotes} />
+          <InnerDealList deals={deals} />
           {dropProvided.placeholder}
         </DropZone>
       </Container>
@@ -105,7 +105,7 @@ class InnerList extends React.Component<InnerListProps> {
   }
 }
 
-export default class QuoteList extends React.Component<Props> {
+export default class DealList extends React.Component<Props> {
   static defaultProps = {
     listId: 'LIST'
   };
@@ -117,7 +117,7 @@ export default class QuoteList extends React.Component<Props> {
       listId,
       listType,
       style,
-      quotes,
+      deals,
       title
     } = this.props;
 
@@ -138,14 +138,14 @@ export default class QuoteList extends React.Component<Props> {
             {internalScroll ? (
               <ScrollContainer>
                 <InnerList
-                  quotes={quotes}
+                  deals={deals}
                   title={title}
                   dropProvided={dropProvided}
                 />
               </ScrollContainer>
             ) : (
               <InnerList
-                quotes={quotes}
+                deals={deals}
                 title={title}
                 dropProvided={dropProvided}
               />
