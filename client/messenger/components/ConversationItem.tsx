@@ -42,7 +42,7 @@ function ConversationItem({
         goToConversation(_id);
       }}
     >
-      <img className="erxes-list-avatar" src={avatar} alt={fullName} />
+      <img className="erxes-left-side" src={avatar} alt={fullName} />
       <div className="erxes-right-side">
         <div
           className="erxes-date erxes-tooltip"

@@ -74,8 +74,6 @@ class Home extends React.Component<Props, State> {
   }
 
   render() {
-    const { color } = this.props;
-
     return (
       <div
         className="erxes-home-container"
@@ -83,7 +81,7 @@ class Home extends React.Component<Props, State> {
       >
         <TopBar middle={this.renderHead()} />
 
-        <div className="home-content slide-in">
+        <div className="erxes-home-content slide-in">
           <IntegrationItem title="Recent conversations">
             <ConversationList />
           </IntegrationItem>

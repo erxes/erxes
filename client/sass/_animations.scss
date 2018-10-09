@@ -1,5 +1,63 @@
 // transitions
 
+
+// fade in
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  opacity: 1;
+  height: auto;
+  transition: opacity 300ms linear;
+}
+
+
+.fade-enter-done {
+  height: auto;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  height: 0;
+  transition: opacity 300ms linear;
+}
+
+.fade-exit-done {
+  opacity: 0;
+}
+
+// fade in
+.fade-slide-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fade-slide-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms $timing-slide;
+}
+
+.fade-slide-exit {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms $timing-slide;
+}
+
+.fade-slide-exit-active {
+  opacity: 0;
+  transition: all 300ms linear;
+}
+
+.fade-slide-exit-done {
+  opacity: 0;
+}
+
 // slide in
 .slide-in-enter,
 .slide-in-appear {

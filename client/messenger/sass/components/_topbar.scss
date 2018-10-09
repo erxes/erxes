@@ -6,11 +6,12 @@ $topbar-shadow: rgba(0, 0, 0, .1);
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;
   box-shadow: 0 4px 6px 0 $topbar-shadow;
-  transition: height .3s ease-in-out;
+  transition: height .25s ease-in-out;
   background-image: url('https://s3.amazonaws.com/erxes/pattern.png');
   background-repeat: repeat;
   background-size: cover;
   position: relative;
+  z-index: 10;
 
   &::before {
     background: url('https://s3.amazonaws.com/erxes/radial.png') left top no-repeat;
@@ -37,10 +38,6 @@ $topbar-shadow: rgba(0, 0, 0, .1);
   &.expanded {
     height: auto;
 
-    .brand-info {
-      display: block;
-    }
-
     .erxes-topbar-title {
       margin-right: 55px;
     }
@@ -65,8 +62,6 @@ $topbar-shadow: rgba(0, 0, 0, .1);
   }
 
   .brand-info {
-    display: none;
-
     h3 {
       font-size: 20px;
       font-weight: bold;
@@ -82,8 +77,24 @@ $topbar-shadow: rgba(0, 0, 0, .1);
   }
 
   .erxes-head-content {
-    padding: 25px 60px;
+    padding: 20px 60px 20px 65px;
     text-align: left;
+
+    &.fade-slide-exit-active {
+      position: absolute;
+      top: 0;
+    }
+  }
+
+  .erxes-small-head {
+    border-radius: $border-radius;
+    padding: 3px 5px;
+    position: absolute;
+    top: 10px;
+
+    &:hover {
+      background: $topbar-shadow;
+    }
   }
 }
 
@@ -150,15 +161,5 @@ $topbar-shadow: rgba(0, 0, 0, .1);
       right: 2px;
       z-index: 2;
     }
-  }
-
-  .supporters-name {
-    font-size: 13px;
-    font-weight: bold;
-    margin-top: 3px;
-    max-height: 20px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    word-break: break-all;
   }
 }

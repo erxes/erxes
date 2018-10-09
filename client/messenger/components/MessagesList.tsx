@@ -30,7 +30,7 @@ class MessagesList extends React.Component<Props> {
 
     if (node) {
       this.shouldScrollBottom =
-        node.scrollHeight - (node.scrollTop + node.offsetHeight) < 30;
+        node.scrollHeight - (node.scrollTop + node.offsetHeight) < 20;
     }
   }
 
@@ -95,7 +95,7 @@ class MessagesList extends React.Component<Props> {
         ref={node => (this.node = node)}
         onClick={inputFocus}
       >
-        <ul id="erxes-messages" className="erxes-messages-list">
+        <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderWelcomeMessage(messengerData)}
           <ReactTransitionGroup.TransitionGroup component={null}>
             {messages.map(message => (

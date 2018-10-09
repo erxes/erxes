@@ -3,7 +3,6 @@ $shadow-black: rgba(0, 0, 0, .1);
 .erxes-home-container {
   flex: 1;
   overflow-y: scroll;
-  padding-top: 170px;
 
   .integration-box {
     animation-delay: .4s;
@@ -17,17 +16,17 @@ $shadow-black: rgba(0, 0, 0, .1);
     z-index: 3;
 
     h4 {
-      font-weight: bold;
+      font-weight: 500;
       margin: 0 20px 15px;
     }
+  }
 
-    .empty-list {
-      padding: 0 20px 20px;
+  .empty-list {
+    padding: 0 20px 20px;
 
-      p {
-        color: $text-color-light;
-        margin-top: 0;
-      }
+    p {
+      color: $text-color-light;
+      margin-top: 0;
     }
   }
 
@@ -37,9 +36,15 @@ $shadow-black: rgba(0, 0, 0, .1);
     right: 0;
     top: 0;
 
+
     .erxes-middle {
       justify-content: flex-start;
     }
+  }
+
+  .erxes-home-content {
+    position: relative;
+    z-index: 11;
   }
 }
 

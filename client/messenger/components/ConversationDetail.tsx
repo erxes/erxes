@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as ReactTransitionGroup from "react-transition-group";
 import { Supporters } from ".";
 import { iconLeft } from "../../icons/Icons";
 import { IUser } from "../../types";
@@ -18,57 +19,96 @@ type Props = {
 type State = {
   isFocused: boolean;
   expanded: boolean;
+  isFullHead: boolean;
 };
 
 class ConversationDetail extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { isFocused: false, expanded: true };
+    this.state = { isFocused: false, expanded: true, isFullHead: true };
 
     this.inputFocus = this.inputFocus.bind(this);
     this.onTextInputBlur = this.onTextInputBlur.bind(this);
     this.toggle = this.toggle.bind(this);
+    this.onWheel = this.onWheel.bind(this);
+  }
+
+  transitionElement(children: any, visible: boolean) {
+    return (
+      <ReactTransitionGroup.CSSTransition
+        in={visible}
+        timeout={300}
+        classNames="fade-slide"
+        unmountOnExit
+        onExit={() => {
+          this.setState({
+            expanded: !this.state.expanded
+          });
+        }}
+      >
+        {children}
+      </ReactTransitionGroup.CSSTransition>
+    );
   }
 
   toggle() {
     const { supporters } = this.props;
 
     if (supporters.length !== 0) {
-      this.setState({ expanded: !this.state.expanded });
+      this.setState({ isFullHead: !this.state.isFullHead });
     }
   }
 
   inputFocus() {
-    this.setState({ isFocused: true, expanded: false });
+    this.setState({ isFocused: true, isFullHead: false });
   }
 
   onTextInputBlur() {
     this.setState({ isFocused: false });
   }
 
+  onWheel(e: any) {
+    if (e.nativeEvent.wheelDelta > 0) {
+      if (!this.state.isFullHead) {
+        this.setState({ isFullHead: true });
+      }
+    } else {
+      if (this.state.isFullHead) {
+        this.setState({ isFullHead: false });
+      }
+    }
+  }
+
   renderHead() {
     const { supporters, isOnline, color, loading } = this.props;
-
-    const supportersContent = (
-      <Supporters
-        users={supporters}
-        loading={loading}
-        isOnline={isOnline}
-        color={color}
-        isExpanded={this.state.expanded}
-      />
-    );
-
-    if (supporters.length === 0) {
-      return supportersContent;
-    }
+    const supportersComponent = (expanded: boolean) => {
+      return (
+        <Supporters
+          users={supporters}
+          loading={loading}
+          isOnline={isOnline}
+          color={color}
+          isExpanded={expanded}
+        />
+      );
+    };
 
     return (
-      <div className="erxes-head-content">
-        <BrandInfo />
-        {supportersContent}
-      </div>
+      <React.Fragment>
+        {this.transitionElement(
+          <div className="erxes-head-content">
+            <BrandInfo />
+            {supportersComponent(true)}
+          </div>,
+          this.state.isFullHead
+        )}
+
+        {this.transitionElement(
+          <div className="erxes-small-head">{supportersComponent(false)}</div>,
+          !this.state.isFullHead
+        )}
+      </React.Fragment>
     );
   }
 
@@ -80,7 +120,7 @@ class ConversationDetail extends React.Component<Props, State> {
       : __("Write a reply");
 
     return (
-      <React.Fragment>
+      <div className="erxes-conversation-detail" onWheel={this.onWheel}>
         <TopBar
           middle={this.renderHead()}
           buttonIcon={iconLeft}
@@ -104,7 +144,7 @@ class ConversationDetail extends React.Component<Props, State> {
           onTextInputBlur={this.onTextInputBlur}
           collapseHead={this.inputFocus}
         />
-      </React.Fragment>
+      </div>
     );
   }
 }

@@ -28,7 +28,6 @@ class TopBar extends React.Component<Props, State> {
     super(props);
 
     this.state = { headHeight: props.prevHeight };
-
     this.onRightButtonClick = this.onRightButtonClick.bind(this);
   }
 
