@@ -94,7 +94,7 @@ class WithStages extends React.Component<Props, State> {
     const { dealMap } = this.state;
 
     this.setState({
-      dealMap: { ...dealMap, stageId: [...dealMap[stageId], deal] }
+      dealMap: { ...dealMap, [stageId]: [...dealMap[stageId], deal] }
     });
   };
 

@@ -50,7 +50,7 @@ export default class Stage extends React.Component<Props> {
   }
 
   renderAddDealTrigger() {
-    const { stage, addDeal } = this.props;
+    const { addDeal } = this.props;
 
     const trigger = (
       <AddNew>

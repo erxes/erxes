@@ -50,12 +50,8 @@ type Props = {
   ignoreContainerClipping?: boolean;
 };
 
-type DealListProps = {
-  deals: IDeal[];
-};
-
-class InnerDealList extends React.Component<DealListProps> {
-  shouldComponentUpdate(nextProps: DealListProps) {
+class InnerDealList extends React.Component<{ deals: IDeal[] }> {
+  shouldComponentUpdate(nextProps) {
     return nextProps.deals !== this.props.deals;
   }
 
