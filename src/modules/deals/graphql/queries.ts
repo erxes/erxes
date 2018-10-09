@@ -48,7 +48,6 @@ const stages = `
         name
         amount
         closeDate
-        stageId
         assignedUsers {
           _id
           email

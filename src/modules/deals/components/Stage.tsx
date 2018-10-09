@@ -84,7 +84,12 @@ export default class Stage extends React.Component<Props> {
               </Title>
             </Header>
 
-            <DealList listId={stage._id} listType="DEAL" deals={deals} />
+            <DealList
+              listId={stage._id}
+              listType="DEAL"
+              stageId={stage._id}
+              deals={deals}
+            />
 
             {this.renderAddDealTrigger()}
           </Container>

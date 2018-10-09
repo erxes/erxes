@@ -4,6 +4,7 @@ import { IDeal } from '../types';
 import { PipelineConsumer } from './PipelineContext';
 
 type Props = {
+  stageId: string;
   deal: IDeal;
   index: number;
   isDragging: boolean;

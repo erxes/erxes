@@ -42,6 +42,7 @@ const ScrollContainer = styled.div`
 type Props = {
   listId: string;
   listType?: string;
+  stageId: string;
   deals: IDeal[];
   internalScroll?: boolean;
   isDropDisabled?: boolean;
@@ -50,18 +51,24 @@ type Props = {
   ignoreContainerClipping?: boolean;
 };
 
-class InnerDealList extends React.Component<{ deals: IDeal[] }> {
+class InnerDealList extends React.Component<{
+  stageId: string;
+  deals: IDeal[];
+}> {
   shouldComponentUpdate(nextProps) {
     return nextProps.deals !== this.props.deals;
   }
 
   render() {
-    return this.props.deals.map((deal, index: number) => (
+    const { stageId, deals } = this.props;
+
+    return deals.map((deal, index: number) => (
       <Draggable key={deal._id} draggableId={deal._id} index={index}>
         {(dragProvided, dragSnapshot) => (
           <DealItem
             key={deal._id}
             index={index}
+            stageId={stageId}
             deal={deal}
             isDragging={dragSnapshot.isDragging}
             provided={dragProvided}
@@ -74,17 +81,18 @@ class InnerDealList extends React.Component<{ deals: IDeal[] }> {
 
 type InnerListProps = {
   dropProvided;
+  stageId: string;
   deals: IDeal[];
 };
 
 class InnerList extends React.Component<InnerListProps> {
   render() {
-    const { deals, dropProvided } = this.props;
+    const { stageId, deals, dropProvided } = this.props;
 
     return (
       <div>
         <DropZone innerRef={dropProvided.innerRef}>
-          <InnerDealList deals={deals} />
+          <InnerDealList stageId={stageId} deals={deals} />
           {dropProvided.placeholder}
         </DropZone>
       </div>
@@ -105,6 +113,7 @@ export default class DealList extends React.Component<Props> {
       listId,
       listType,
       style,
+      stageId,
       deals
     } = this.props;
 
@@ -124,10 +133,18 @@ export default class DealList extends React.Component<Props> {
           >
             {internalScroll ? (
               <ScrollContainer>
-                <InnerList deals={deals} dropProvided={dropProvided} />
+                <InnerList
+                  stageId={stageId}
+                  deals={deals}
+                  dropProvided={dropProvided}
+                />
               </ScrollContainer>
             ) : (
-              <InnerList deals={deals} dropProvided={dropProvided} />
+              <InnerList
+                stageId={stageId}
+                deals={deals}
+                dropProvided={dropProvided}
+              />
             )}
           </Wrapper>
         )}

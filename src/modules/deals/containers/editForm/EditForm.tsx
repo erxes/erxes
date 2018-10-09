@@ -7,8 +7,9 @@ import { mutations, queries } from '../../graphql';
 import { IDeal, IDealParams } from '../../types';
 
 type Props = {
-  usersQuery: any;
   deal: IDeal;
+  stageId: string;
+  usersQuery: any;
   // Using this mutation to copy deal in edit form
   addMutation: (params: { variables: IDealParams }) => Promise<any>;
   editMutation: (params: { variables: IDealParams }) => Promise<any>;
@@ -53,8 +54,7 @@ class EditFormContainer extends React.Component<Props> {
   }
 
   removeDeal(_id: string, callback) {
-    const { removeMutation, onRemove, deal } = this.props;
-    const { stageId } = deal;
+    const { removeMutation, onRemove, stageId } = this.props;
 
     confirm().then(() =>
       removeMutation({ variables: { _id } })

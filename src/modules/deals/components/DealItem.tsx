@@ -8,6 +8,7 @@ import DealEditForm from '../containers/editForm/EditForm';
 import { IDeal } from '../types';
 
 type Props = {
+  stageId: string;
   deal: IDeal;
   index: number;
   isDragging: boolean;
@@ -99,7 +100,7 @@ export default class DealItem extends React.PureComponent<
   };
 
   renderForm = () => {
-    const { deal, onRemove, index } = this.props;
+    const { stageId, deal, onRemove, index } = this.props;
     const { isFormVisible } = this.state;
 
     if (!isFormVisible) {
@@ -113,6 +114,7 @@ export default class DealItem extends React.PureComponent<
         </Modal.Header>
         <Modal.Body>
           <DealEditForm
+            stageId={stageId}
             deal={deal}
             index={index}
             onRemove={onRemove}
