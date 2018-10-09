@@ -5,7 +5,6 @@ import Deal from './Deal';
 import DealAddForm from './DealAddForm';
 import DealItem from './DealItem';
 import DealList from './DealList';
-import DealMove from './DealMove';
 import DealSelect from './DealSelect';
 import Home from './Home';
 import PortableDeals from './PortableDeals';
@@ -21,7 +20,6 @@ export {
   Items,
   CommonDeal,
   UserCounter,
-  DealMove,
   DealSelect,
   ProductSection,
   ProductForm,

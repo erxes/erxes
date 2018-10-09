@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { DealMove } from '../components';
-import { queries } from '../graphql';
-import { IPipeline } from '../types';
+import { Move } from '../../components/editForm';
+import { queries } from '../../graphql';
+import { IPipeline } from '../../types';
 
 class DealMoveContainer extends React.Component<{ stagesQuery: any }> {
   render() {
@@ -16,7 +16,7 @@ class DealMoveContainer extends React.Component<{ stagesQuery: any }> {
       stages
     };
 
-    return <DealMove {...updatedProps} />;
+    return <Move {...updatedProps} />;
   }
 }
 

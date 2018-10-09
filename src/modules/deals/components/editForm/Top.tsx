@@ -8,7 +8,7 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import * as Datetime from 'react-datetime';
 import Select from 'react-select-plus';
-import { DealMove } from '../../containers';
+import { Move } from '../../containers/editForm';
 import {
   Avatar,
   FlexContent,
@@ -58,7 +58,7 @@ class Top extends React.Component<Props> {
     const { deal, stageId, onChangeField } = this.props;
 
     return (
-      <DealMove
+      <Move
         deal={deal}
         stageId={stageId}
         onChangeStage={stgId => onChangeField('stageId', stgId)}

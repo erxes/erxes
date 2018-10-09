@@ -9,7 +9,7 @@ import { IProduct } from '../../../settings/productService/types';
 import { Tab } from '../../containers';
 import { FlexContent, FormFooter } from '../../styles/deal';
 import { IDeal, IDealParams, IDragResult } from '../../types';
-import { Sidebar } from './';
+import { Sidebar, Top } from './';
 
 type Props = {
   deal: IDeal;
@@ -171,12 +171,35 @@ class DealEditForm extends React.Component<Props, State> {
   }
 
   renderFormContent() {
-    const { deal } = this.props;
+    const { deal, users } = this.props;
 
-    const { customers, companies, products, productsData } = this.state;
+    const {
+      name,
+      stageId,
+      description,
+      closeDate,
+      amount,
+      assignedUserIds,
+      customers,
+      companies,
+      products,
+      productsData
+    } = this.state;
 
     return (
       <React.Fragment>
+        <Top
+          name={name}
+          description={description}
+          closeDate={closeDate}
+          amount={amount}
+          assignedUserIds={assignedUserIds}
+          users={users}
+          stageId={stageId}
+          deal={deal}
+          onChangeField={this.onChangeField}
+        />
+
         <FlexContent>
           <Tab deal={deal} />
           <Sidebar

@@ -115,7 +115,7 @@ export default class DealItem extends React.PureComponent<
         <Modal.Body>
           <DealEditForm
             stageId={stageId}
-            deal={deal}
+            dealId={deal._id}
             index={index}
             onRemove={onRemove}
             closeModal={this.toggleForm}

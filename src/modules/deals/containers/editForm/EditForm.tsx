@@ -1,14 +1,16 @@
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import { __, Alert, confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { EditForm } from '../../components/editForm';
 import { mutations, queries } from '../../graphql';
-import { IDeal, IDealParams } from '../../types';
+import { IDealParams } from '../../types';
 
 type Props = {
-  deal: IDeal;
+  dealId: string;
   stageId: string;
+  dealDetailQuery: any;
   usersQuery: any;
   // Using this mutation to copy deal in edit form
   addMutation: (params: { variables: IDealParams }) => Promise<any>;
@@ -41,9 +43,9 @@ class EditFormContainer extends React.Component<Props> {
   }
 
   saveDeal(doc: IDealParams, callback: () => void) {
-    const { deal, editMutation } = this.props;
+    const { dealId, editMutation } = this.props;
 
-    editMutation({ variables: { _id: deal._id, ...doc } })
+    editMutation({ variables: { _id: dealId, ...doc } })
       .then(() => {
         Alert.success(__('Successfully saved.'));
         callback();
@@ -71,7 +73,14 @@ class EditFormContainer extends React.Component<Props> {
   }
 
   render() {
-    const { usersQuery, deal } = this.props;
+    const { usersQuery, dealDetailQuery } = this.props;
+
+    if (usersQuery.loading || dealDetailQuery.loading) {
+      return <Spinner />;
+    }
+
+    const users = usersQuery.users;
+    const deal = dealDetailQuery.dealDetail;
 
     const extendedProps = {
       ...this.props,
@@ -79,7 +88,7 @@ class EditFormContainer extends React.Component<Props> {
       addDeal: this.addDeal,
       removeDeal: this.removeDeal,
       saveDeal: this.saveDeal,
-      users: usersQuery.users || []
+      users
     };
 
     return <EditForm {...extendedProps} />;
@@ -87,6 +96,16 @@ class EditFormContainer extends React.Component<Props> {
 }
 
 export default compose(
+  graphql(gql(queries.dealDetail), {
+    name: 'dealDetailQuery',
+    options: ({ dealId }: { dealId: string }) => {
+      return {
+        variables: {
+          _id: dealId
+        }
+      };
+    }
+  }),
   graphql(gql(queries.users), {
     name: 'usersQuery'
   }),
@@ -98,11 +117,11 @@ export default compose(
   }),
   graphql(gql(mutations.dealsRemove), {
     name: 'removeMutation',
-    options: ({ deal }: { deal: IDeal }) => ({
+    options: ({ stageId }: { stageId: string }) => ({
       refetchQueries: [
         {
           query: gql(queries.deals),
-          variables: { stageId: deal.stageId }
+          variables: { stageId }
         }
       ]
     })

@@ -1,14 +1,14 @@
 import { Icon, Tip } from 'modules/common/components';
 import * as React from 'react';
-import { DealSelect } from '../containers';
+import { DealSelect } from '../../containers';
 import {
   MoveContainer,
   MoveFormContainer,
   PipelineName,
   StageItem,
   Stages
-} from '../styles/deal';
-import { IDeal, IStage } from '../types';
+} from '../../styles/deal';
+import { IDeal, IStage } from '../../types';
 
 type Props = {
   deal?: IDeal;

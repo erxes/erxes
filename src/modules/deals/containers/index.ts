@@ -1,7 +1,6 @@
 import Board from './Board';
 import Deal from './Deal';
 import DealItem from './DealItem';
-import DealMove from './DealMove';
 import DealSelect from './DealSelect';
 import Tab from './editForm/Tab';
 import Home from './Home';
@@ -18,7 +17,6 @@ export {
   DealItem,
   Pipeline,
   Deal,
-  DealMove,
   PortableDeals,
   DealSelect,
   Tab,

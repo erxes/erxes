@@ -1,5 +1,5 @@
-
 import EditForm from './EditForm';
+import Move from './Move';
 import Tab from './Tab';
 
-export { EditForm, Tab };
+export { EditForm, Move, Tab };
