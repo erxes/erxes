@@ -82,6 +82,7 @@ export default class Stage extends React.Component<Props> {
               >
                 {stage.name}
                 <span>({deals.length})</span>
+                {this.renderAmount(stage.amount)}
               </Title>
             </Header>
 

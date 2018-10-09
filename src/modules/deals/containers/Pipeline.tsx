@@ -34,10 +34,10 @@ class WithStages extends React.Component<Props, {}> {
   }
 
   render() {
-    const { initialDealMap, stageMap } = this.props;
+    const { initialDealMap, pipeline, stageMap } = this.props;
 
     return (
-      <PipelineProvider initialDealMap={initialDealMap}>
+      <PipelineProvider pipeline={pipeline} initialDealMap={initialDealMap}>
         <PipelineConsumer>
           {({ dealMap, onDragEnd, stageIds }) => (
             <DragDropContext onDragEnd={onDragEnd}>

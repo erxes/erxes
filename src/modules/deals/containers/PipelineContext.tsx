@@ -1,11 +1,12 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as React from 'react';
-import { mutations } from '../graphql';
-import { IDeal, IDealMap, IDragResult } from '../types';
+import { mutations, queries } from '../graphql';
+import { IDeal, IDealMap, IDragResult, IPipeline } from '../types';
 import { collectOrders, reorder, reorderDealMap } from '../utils';
 
 type Props = {
+  pipeline: IPipeline;
   initialDealMap: IDealMap;
 };
 
@@ -108,7 +109,13 @@ export class PipelineProvider extends React.Component<Props, State> {
         variables: {
           orders,
           stageId
-        }
+        },
+        refetchQueries: [
+          {
+            query: gql(queries.stageDetail),
+            variables: { _id: stageId }
+          }
+        ]
       });
     }
   };
