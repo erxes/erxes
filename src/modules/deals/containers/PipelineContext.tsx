@@ -66,7 +66,8 @@ export class PipelineProvider extends React.Component<Props, State> {
 
       this.setState({ stageIds });
 
-      return;
+      // save orders to database
+      return this.saveStageOrders(stageIds);
     }
 
     const { dealMap } = reorderDealMap({
@@ -80,7 +81,22 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
 
     // save orders to database
-    this.saveDealOrders(dealMap, [source.droppableId, destination.droppableId]);
+    return this.saveDealOrders(dealMap, [
+      source.droppableId,
+      destination.droppableId
+    ]);
+  };
+
+  saveStageOrders = (stageIds: string[]) => {
+    client.mutate({
+      mutation: gql(mutations.stagesUpdateOrder),
+      variables: {
+        orders: stageIds.map((stageId, index) => ({
+          _id: stageId,
+          order: index
+        }))
+      }
+    });
   };
 
   saveDealOrders = (dealMap: IDealMap, stageIds: string[]) => {
