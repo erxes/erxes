@@ -5,7 +5,12 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { EditForm } from '../../components/editForm';
 import { mutations, queries } from '../../graphql';
-import { IDealParams } from '../../types';
+import {
+  IDeal,
+  IDealParams,
+  RemoveDealMutation,
+  SaveDealMutation
+} from '../../types';
 
 type Props = {
   dealId: string;
@@ -13,10 +18,11 @@ type Props = {
   dealDetailQuery: any;
   usersQuery: any;
   // Using this mutation to copy deal in edit form
-  addMutation: (params: { variables: IDealParams }) => Promise<any>;
-  editMutation: (params: { variables: IDealParams }) => Promise<any>;
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  addMutation: SaveDealMutation;
+  editMutation: SaveDealMutation;
+  removeMutation: RemoveDealMutation;
   onRemove: (_id: string, stageId: string) => void;
+  onUpdate: (deal: IDeal) => void;
   closeModal: () => void;
 };
 
@@ -43,12 +49,15 @@ class EditFormContainer extends React.Component<Props> {
   }
 
   saveDeal(doc: IDealParams, callback: () => void) {
-    const { dealId, editMutation } = this.props;
+    const { dealId, editMutation, onUpdate } = this.props;
 
     editMutation({ variables: { _id: dealId, ...doc } })
-      .then(() => {
+      .then(({ data }) => {
         Alert.success(__('Successfully saved.'));
+
         callback();
+
+        onUpdate(data.dealsEdit);
       })
       .catch(error => {
         Alert.error(error.message);
@@ -116,14 +125,6 @@ export default compose(
     name: 'editMutation'
   }),
   graphql(gql(mutations.dealsRemove), {
-    name: 'removeMutation',
-    options: ({ stageId }: { stageId: string }) => ({
-      refetchQueries: [
-        {
-          query: gql(queries.deals),
-          variables: { stageId }
-        }
-      ]
-    })
+    name: 'removeMutation'
   })
 )(EditFormContainer);

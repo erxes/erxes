@@ -18,7 +18,6 @@ type Props = {
   addDeal: (doc: IDealParams, callback: () => void) => void;
   saveDeal: (doc: IDealParams, callback: () => void) => void;
   removeDeal: (_id: string, callback: () => void) => void;
-  move?: (doc: IDragResult) => void;
   closeModal: () => void;
 };
 
@@ -109,7 +108,7 @@ class DealEditForm extends React.Component<Props, State> {
       assignedUserIds
     } = this.state;
 
-    const { deal, index = 0, closeModal, saveDeal, move } = this.props;
+    const { closeModal, saveDeal } = this.props;
 
     if (!name) return Alert.error(__('Enter name'));
 
@@ -136,18 +135,6 @@ class DealEditForm extends React.Component<Props, State> {
 
       closeModal();
     });
-
-    // if changed stageId, update ui
-    if (move && deal.stageId !== stageId) {
-      const moveDoc = {
-        source: { _id: deal.stageId, index },
-        destination: { _id: stageId, index: 0 },
-        itemId: deal._id,
-        type: 'stage'
-      };
-
-      move(moveDoc);
-    }
   }
 
   remove(id) {

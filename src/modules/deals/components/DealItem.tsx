@@ -14,6 +14,7 @@ type Props = {
   isDragging: boolean;
   provided;
   onRemove: (_id: string, stageId: string) => void;
+  onUpdate: (deal: IDeal) => void;
 };
 
 const Container = styledTS<{ isDragging: boolean }>(styled.a)`
@@ -100,7 +101,7 @@ export default class DealItem extends React.PureComponent<
   };
 
   renderForm = () => {
-    const { stageId, deal, onRemove, index } = this.props;
+    const { stageId, deal, onRemove, onUpdate, index } = this.props;
     const { isFormVisible } = this.state;
 
     if (!isFormVisible) {
@@ -118,6 +119,7 @@ export default class DealItem extends React.PureComponent<
             dealId={deal._id}
             index={index}
             onRemove={onRemove}
+            onUpdate={onUpdate}
             closeModal={this.toggleForm}
           />
         </Modal.Body>

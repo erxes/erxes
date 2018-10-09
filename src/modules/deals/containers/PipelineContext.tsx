@@ -17,6 +17,7 @@ interface IStore {
   onDragEnd: (result: IDragResult) => void;
   onAddDeal: (stageId: string, deal: IDeal) => void;
   onRemoveDeal: (_id: string, stageId: string) => void;
+  onUpdateDeal: (deal: IDeal) => void;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -94,6 +95,21 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
   };
 
+  onUpdateDeal = deal => {
+    const { stageId } = deal;
+    const { dealMap } = this.state;
+
+    const deals = [...dealMap[stageId]];
+
+    const index = deals.findIndex(d => d._id === deal._id);
+
+    deals[index] = deal;
+
+    this.setState({
+      dealMap: { ...dealMap, [stageId]: deals }
+    });
+  };
+
   render() {
     return (
       <PipelineContext.Provider
@@ -101,6 +117,7 @@ export class PipelineProvider extends React.Component<Props, State> {
           onDragEnd: this.onDragEnd,
           onAddDeal: this.onAddDeal,
           onRemoveDeal: this.onRemoveDeal,
+          onUpdateDeal: this.onUpdateDeal,
           dealMap: this.state.dealMap,
           stageIds: this.state.stageIds
         }}
