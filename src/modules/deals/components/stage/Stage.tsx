@@ -1,13 +1,13 @@
 import { Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { borderRadius, colors, grid } from 'modules/deals/constants';
+import { AddNew } from 'modules/deals/styles/deal';
+import { IDeal, IStage } from 'modules/deals/types';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { DealAddForm } from '.';
-import { borderRadius, colors, grid } from '../constants';
-import { AddNew } from '../styles/deal';
-import { IDeal, IStage } from '../types';
 import DealList from './DealList';
 import Title from './Title';
 

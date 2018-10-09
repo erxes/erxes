@@ -1,5 +1,5 @@
+import { colors, grid } from 'modules/deals/constants';
 import styled from 'styled-components';
-import { colors, grid } from '../constants';
 
 export default styled('h4')`
   padding: ${grid}px;

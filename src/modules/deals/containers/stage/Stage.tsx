@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
+import { __, Alert } from 'modules/common/utils';
+import { Stage } from 'modules/deals/components/stage';
+import { mutations } from 'modules/deals/graphql';
+import { IDeal, IStage, SaveDealMutation } from 'modules/deals/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { __, Alert } from '../../common/utils';
-import { Stage } from '../components';
-import { mutations } from '../graphql';
-import { IDeal, IStage, SaveDealMutation } from '../types';
-import { PipelineConsumer } from './PipelineContext';
+import { PipelineConsumer } from '../PipelineContext';
 
 type BaseProps = {
   index: number;

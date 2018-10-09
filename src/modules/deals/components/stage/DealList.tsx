@@ -1,10 +1,10 @@
+import { colors, grid } from 'modules/deals/constants';
+import { DealItem } from 'modules/deals/containers/stage';
+import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, grid } from '../constants';
-import { DealItem } from '../containers';
-import { IDeal } from '../types';
 
 const Wrapper = styledTS<{ isDraggingOver: boolean; isDropDisabled: boolean }>(
   styled.div

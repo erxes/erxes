@@ -1,13 +1,13 @@
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
 import {
   AddContainer,
   FormFooter,
   HeaderContent,
   HeaderRow
-} from '../styles/deal';
+} from 'modules/deals/styles/deal';
+import * as React from 'react';
 
 type Props = {
   add: (name: string, callback: () => void) => void;
@@ -17,7 +17,7 @@ type Props = {
 type State = {
   name: string;
   disabled: boolean;
-}
+};
 
 class DealAddForm extends React.Component<Props, State> {
   constructor(props) {
@@ -61,10 +61,7 @@ class DealAddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
-            <FormControl
-              autoFocus
-              onChange={this.onChangeName}
-            />
+            <FormControl autoFocus onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
 

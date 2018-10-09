@@ -1,11 +1,11 @@
 import { __ } from 'modules/common/utils';
+import { borderRadius, colors, grid } from 'modules/deals/constants';
+import { EditForm } from 'modules/deals/containers/editForm';
+import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { borderRadius, colors, grid } from '../constants';
-import DealEditForm from '../containers/editForm/EditForm';
-import { IDeal } from '../types';
 
 type Props = {
   stageId: string;
@@ -115,7 +115,7 @@ export default class DealItem extends React.PureComponent<
           <Modal.Title>{__('Edit deal')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <DealEditForm
+          <EditForm
             stageId={stageId}
             dealId={deal._id}
             index={index}

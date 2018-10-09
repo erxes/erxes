@@ -8,7 +8,7 @@ import { colors } from '../constants';
 import { queries } from '../graphql';
 import { IDealMap, IPipeline, IStageMap } from '../types';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
-import Stage from './Stage';
+import { Stage } from './stage';
 
 const Container = styled.div`
   min-height: 100vh;

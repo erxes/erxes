@@ -1,7 +1,7 @@
+import { DealItem } from 'modules/deals/components/stage';
+import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
-import { DealItem } from '../components';
-import { IDeal } from '../types';
-import { PipelineConsumer } from './PipelineContext';
+import { PipelineConsumer } from '../PipelineContext';
 
 type Props = {
   stageId: string;
