@@ -1,6 +1,9 @@
+import client from 'apolloClient';
+import gql from 'graphql-tag';
 import * as React from 'react';
+import { mutations } from '../graphql';
 import { IDeal, IDealMap, IDragResult } from '../types';
-import { reorder, reorderDealMap } from '../utils';
+import { collectOrders, reorder, reorderDealMap } from '../utils';
 
 type Props = {
   initialDealMap: IDealMap;
@@ -66,22 +69,40 @@ export class PipelineProvider extends React.Component<Props, State> {
       return;
     }
 
-    const data = reorderDealMap({
+    const { dealMap } = reorderDealMap({
       dealMap: this.state.dealMap,
       source,
       destination
     });
 
     this.setState({
-      dealMap: data.dealMap
+      dealMap
     });
+
+    // save orders to database
+    this.saveDealOrders(dealMap, [source.droppableId, destination.droppableId]);
+  };
+
+  saveDealOrders = (dealMap: IDealMap, stageIds: string[]) => {
+    for (const stageId of stageIds) {
+      const orders = collectOrders(dealMap[stageId]);
+
+      client.mutate({
+        mutation: gql(mutations.dealsUpdateOrder),
+        variables: {
+          orders,
+          stageId
+        }
+      });
+    }
   };
 
   onAddDeal = (stageId: string, deal: IDeal) => {
     const { dealMap } = this.state;
+    const deals = dealMap[stageId];
 
     this.setState({
-      dealMap: { ...dealMap, [stageId]: [...dealMap[stageId], deal] }
+      dealMap: { ...dealMap, [stageId]: [...deals, deal] }
     });
   };
 

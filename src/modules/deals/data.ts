@@ -8,6 +8,7 @@ const dealFactory = (pipeline: IPipeline, stage: IStage): IDeal => {
 
   return {
     _id,
+    order: 1,
     stageId: stage._id,
     assignedUsers: [],
     companies: [],

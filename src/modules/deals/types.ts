@@ -31,6 +31,7 @@ export interface IStage {
 export interface IDeal {
   _id: string;
   name: string;
+  order: number;
   stageId: string;
   closeDate: Date;
   amount: number;
