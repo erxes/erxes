@@ -1,4 +1,4 @@
-import { Icon } from 'modules/common/components';
+import { Icon, Tabs, TabTitle } from 'modules/common/components';
 import { CompanyAssociate } from 'modules/companies/containers';
 import {
   DevicePropertiesSection,
@@ -96,6 +96,10 @@ type IndexProps = {
   taggerRefetchQueries: any;
 };
 
+type IndexState = {
+  currentTab: string;
+};
+
 interface IRenderData {
   customer: ICustomer;
   kind: string;
@@ -103,7 +107,19 @@ interface IRenderData {
   toggleSection: (params: { name: string; isOpen: boolean }) => void;
 }
 
-class Index extends React.Component<IndexProps> {
+class Index extends React.Component<IndexProps, IndexState> {
+  constructor(props) {
+    super(props);
+
+    this.state = { currentTab: 'customer' };
+
+    this.onTabClick = this.onTabClick.bind(this);
+  }
+
+  onTabClick(currentTab) {
+    this.setState({ currentTab });
+  }
+
   renderMessengerData({ customer, kind, config, toggleSection }: IRenderData) {
     if (kind !== 'messenger') {
       return null;
@@ -143,6 +159,12 @@ class Index extends React.Component<IndexProps> {
     );
   }
 
+  renderTabContent() {
+    const { currentTab } = this.state;
+
+    return <div>hi {currentTab}</div>;
+  }
+
   render() {
     const {
       taggerRefetchQueries,
@@ -151,11 +173,28 @@ class Index extends React.Component<IndexProps> {
       toggleSection,
       config
     } = this.props;
+    const { currentTab } = this.state;
 
     const { kind = '' } = customer.integration || {};
 
     return (
-      <Sidebar>
+      <Sidebar full>
+        <Tabs>
+          <TabTitle
+            className={currentTab === 'customer' ? 'active' : ''}
+            onClick={() => this.onTabClick('customer')}
+          >
+            {__('Customer')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'company' ? 'active' : ''}
+            onClick={() => this.onTabClick('company')}
+          >
+            {__('Company')}
+          </TabTitle>
+        </Tabs>
+
+        {this.renderTabContent()}
         <Box
           title={__('Profile')}
           name="showProfile"
