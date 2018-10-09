@@ -21,6 +21,7 @@ type Props = {
   addMutation: SaveDealMutation;
   editMutation: SaveDealMutation;
   removeMutation: RemoveDealMutation;
+  onAdd: (stageId: string, deal: IDeal) => void;
   onRemove: (_id: string, stageId: string) => void;
   onUpdate: (deal: IDeal) => void;
   closeModal: () => void;
@@ -36,12 +37,15 @@ class EditFormContainer extends React.Component<Props> {
   }
 
   addDeal(doc: IDealParams, callback: () => void) {
-    const { addMutation } = this.props;
+    const { onAdd, addMutation, stageId } = this.props;
 
     addMutation({ variables: doc })
-      .then(() => {
+      .then(({ data: { dealsAdd } }) => {
         Alert.success(__('Successfully saved.'));
+
         callback();
+
+        onAdd(stageId, dealsAdd);
       })
       .catch(error => {
         Alert.error(error.message);

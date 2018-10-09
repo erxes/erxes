@@ -196,6 +196,7 @@ class DealEditForm extends React.Component<Props, State> {
             productsData={productsData}
             deal={deal}
             onChangeField={this.onChangeField}
+            copyDeal={this.copy}
             removeDeal={this.remove}
             saveProductsData={this.saveProductsData}
           />

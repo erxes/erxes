@@ -13,6 +13,7 @@ type Props = {
   index: number;
   isDragging: boolean;
   provided;
+  onAdd: (stageId: string, deal: IDeal) => void;
   onRemove: (_id: string, stageId: string) => void;
   onUpdate: (deal: IDeal) => void;
 };
@@ -101,7 +102,7 @@ export default class DealItem extends React.PureComponent<
   };
 
   renderForm = () => {
-    const { stageId, deal, onRemove, onUpdate, index } = this.props;
+    const { stageId, deal, onAdd, onRemove, onUpdate, index } = this.props;
     const { isFormVisible } = this.state;
 
     if (!isFormVisible) {
@@ -118,6 +119,7 @@ export default class DealItem extends React.PureComponent<
             stageId={stageId}
             dealId={deal._id}
             index={index}
+            onAdd={onAdd}
             onRemove={onRemove}
             onUpdate={onUpdate}
             closeModal={this.toggleForm}

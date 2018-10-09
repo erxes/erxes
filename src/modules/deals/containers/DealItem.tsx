@@ -14,10 +14,11 @@ type Props = {
 export default (props: Props) => {
   return (
     <PipelineConsumer>
-      {({ onRemoveDeal, onUpdateDeal }) => {
+      {({ onAddDeal, onRemoveDeal, onUpdateDeal }) => {
         return (
           <DealItem
             {...props}
+            onAdd={onAddDeal}
             onRemove={onRemoveDeal}
             onUpdate={onUpdateDeal}
           />
