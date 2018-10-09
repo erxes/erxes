@@ -5,7 +5,6 @@ import { compose, graphql } from 'react-apollo';
 import { EditForm } from '../../components/editForm';
 import { mutations, queries } from '../../graphql';
 import { IDeal, IDealParams } from '../../types';
-import { DealConsumer } from '../DealContext';
 
 type Props = {
   usersQuery: any;
@@ -14,6 +13,7 @@ type Props = {
   addMutation: (params: { variables: IDealParams }) => Promise<any>;
   editMutation: (params: { variables: IDealParams }) => Promise<any>;
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  onRemove: (_id: string, stageId: string) => void;
   closeModal: () => void;
 };
 
@@ -53,15 +53,20 @@ class EditFormContainer extends React.Component<Props> {
   }
 
   removeDeal(_id: string, callback) {
-    const { removeMutation } = this.props;
+    const { removeMutation, onRemove, deal } = this.props;
+    const { stageId } = deal;
 
-    confirm().then(() => removeMutation({ variables: { _id } })
-      .then(() => {
-         callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      })
+    confirm().then(() =>
+      removeMutation({ variables: { _id } })
+        .then(() => {
+          callback();
+
+          onRemove(_id, stageId);
+        })
+
+        .catch(error => {
+          Alert.error(error.message);
+        })
     );
   }
 
@@ -77,11 +82,7 @@ class EditFormContainer extends React.Component<Props> {
       users: usersQuery.users || []
     };
 
-    return (
-      <DealConsumer>
-        {({ move }) => <EditForm { ...extendedProps} move={move} />}
-      </DealConsumer>
-    )
+    return <EditForm {...extendedProps} />;
   }
 }
 
@@ -90,18 +91,20 @@ export default compose(
     name: 'usersQuery'
   }),
   graphql(gql(mutations.dealsAdd), {
-    name: 'addMutation',
+    name: 'addMutation'
   }),
   graphql(gql(mutations.dealsEdit), {
-    name: 'editMutation',
+    name: 'editMutation'
   }),
   graphql(gql(mutations.dealsRemove), {
     name: 'removeMutation',
     options: ({ deal }: { deal: IDeal }) => ({
-      refetchQueries: [{
-        query: gql(queries.deals),
-        variables: { stageId: deal.stageId }
-      }]
-    }),
-  }),
+      refetchQueries: [
+        {
+          query: gql(queries.deals),
+          variables: { stageId: deal.stageId }
+        }
+      ]
+    })
+  })
 )(EditFormContainer);

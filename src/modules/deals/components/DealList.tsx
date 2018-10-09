@@ -3,8 +3,8 @@ import { Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, grid } from '../constants';
+import { DealItem } from '../containers';
 import { IDeal } from '../types';
-import DealItem from './DealItem';
 
 const Wrapper = styledTS<{ isDraggingOver: boolean; isDropDisabled: boolean }>(
   styled.div
@@ -61,6 +61,7 @@ class InnerDealList extends React.Component<{ deals: IDeal[] }> {
         {(dragProvided, dragSnapshot) => (
           <DealItem
             key={deal._id}
+            index={index}
             deal={deal}
             isDragging={dragSnapshot.isDragging}
             provided={dragProvided}

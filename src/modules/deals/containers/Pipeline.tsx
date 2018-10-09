@@ -6,8 +6,8 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { colors } from '../constants';
 import { queries } from '../graphql';
-import { IDeal, IDealMap, IPipeline, IStageMap } from '../types';
-import { reorder, reorderDealMap } from '../utils';
+import { IDealMap, IPipeline, IStageMap } from '../types';
+import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 import Stage from './Stage';
 
 const Container = styled.div`
@@ -20,27 +20,11 @@ const Container = styled.div`
 
 type Props = {
   pipeline: IPipeline;
-  dealMap: IDealMap;
+  initialDealMap: IDealMap;
   stageMap: IStageMap;
 };
 
-type State = {
-  dealMap: IDealMap;
-  stageIds: string[];
-};
-
-class WithStages extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const { dealMap } = props;
-
-    this.state = {
-      dealMap,
-      stageIds: Object.keys(dealMap)
-    };
-  }
-
+class WithStages extends React.Component<Props, {}> {
   componentDidMount() {
     injectGlobal`
       body {
@@ -49,84 +33,39 @@ class WithStages extends React.Component<Props, State> {
     `;
   }
 
-  onDragEnd = result => {
-    // dropped nowhere
-    if (!result.destination) {
-      return;
-    }
-
-    const source = result.source;
-    const destination = result.destination;
-
-    // did not move anywhere - can bail early
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
-      return;
-    }
-
-    // reordering stage
-    if (result.type === 'STAGE') {
-      const stageIds = reorder(
-        this.state.stageIds,
-        source.index,
-        destination.index
-      );
-
-      this.setState({ stageIds });
-
-      return;
-    }
-
-    const data = reorderDealMap({
-      dealMap: this.state.dealMap,
-      source,
-      destination
-    });
-
-    this.setState({
-      dealMap: data.dealMap
-    });
-  };
-
-  onAddDeal = (stageId: string, deal: IDeal) => {
-    const { dealMap } = this.state;
-
-    this.setState({
-      dealMap: { ...dealMap, [stageId]: [...dealMap[stageId], deal] }
-    });
-  };
-
   render() {
-    const { stageMap } = this.props;
-    const { dealMap, stageIds } = this.state;
+    const { initialDealMap, stageMap } = this.props;
 
     return (
-      <DragDropContext onDragEnd={this.onDragEnd}>
-        <Droppable
-          droppableId="pipeline"
-          type="STAGE"
-          direction="horizontal"
-          ignoreContainerClipping={true}
-        >
-          {provided => (
-            <Container
-              innerRef={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              {stageIds.map(stageId => (
-                <Stage
-                  onAddDeal={this.onAddDeal}
-                  key={stageId}
-                  stage={stageMap[stageId]}
-                  deals={dealMap[stageId]}
-                />
-              ))}
-            </Container>
+      <PipelineProvider initialDealMap={initialDealMap}>
+        <PipelineConsumer>
+          {({ dealMap, onDragEnd, stageIds }) => (
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable
+                droppableId="pipeline"
+                type="STAGE"
+                direction="horizontal"
+                ignoreContainerClipping={true}
+              >
+                {provided => (
+                  <Container
+                    innerRef={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    {stageIds.map(stageId => (
+                      <Stage
+                        key={stageId}
+                        stage={stageMap[stageId]}
+                        deals={dealMap[stageId]}
+                      />
+                    ))}
+                  </Container>
+                )}
+              </Droppable>
+            </DragDropContext>
           )}
-        </Droppable>
-      </DragDropContext>
+        </PipelineConsumer>
+      </PipelineProvider>
     );
   }
 }
@@ -148,7 +87,7 @@ const WithStatesQuery = props => {
     stageMap[stage._id] = stage;
   }
 
-  return <WithStages {...props} stageMap={stageMap} dealMap={dealMap} />;
+  return <WithStages {...props} stageMap={stageMap} initialDealMap={dealMap} />;
 };
 
 export default compose(

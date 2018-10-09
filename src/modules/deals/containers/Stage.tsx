@@ -5,15 +5,19 @@ import { __, Alert } from '../../common/utils';
 import { Stage } from '../components';
 import { mutations } from '../graphql';
 import { IDeal, IStage, SaveDealMutation } from '../types';
+import { PipelineConsumer } from './PipelineContext';
 
-type Props = {
+type BaseProps = {
   stage: IStage;
   deals: IDeal[];
+};
+
+type Props = {
   addMutation: SaveDealMutation;
   onAddDeal: (stageId: string, deal: IDeal) => void;
 };
 
-class StageContainer extends React.Component<Props, {}> {
+class StageContainer extends React.Component<Props & BaseProps, {}> {
   render() {
     const { onAddDeal, stage, addMutation } = this.props;
 
@@ -41,9 +45,19 @@ class StageContainer extends React.Component<Props, {}> {
   }
 }
 
-export default compose(
+const WithMutation = compose(
   // mutation
   graphql(gql(mutations.dealsAdd), {
     name: 'addMutation'
   })
 )(StageContainer);
+
+export default (props: BaseProps) => {
+  return (
+    <PipelineConsumer>
+      {({ onAddDeal }) => {
+        return <WithMutation {...props} onAddDeal={onAddDeal} />;
+      }}
+    </PipelineConsumer>
+  );
+};

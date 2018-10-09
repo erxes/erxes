@@ -3,6 +3,8 @@ import Items from './common/Items';
 import UserCounter from './common/UserCounter';
 import Deal from './Deal';
 import DealAddForm from './DealAddForm';
+import DealItem from './DealItem';
+import DealList from './DealList';
 import DealMove from './DealMove';
 import DealSelect from './DealSelect';
 import Home from './Home';
@@ -25,5 +27,7 @@ export {
   ProductForm,
   ProductItemForm,
   Stage,
+  DealItem,
+  DealList,
   PortableDeals
 };

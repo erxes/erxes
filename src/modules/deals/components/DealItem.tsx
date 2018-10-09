@@ -1,13 +1,18 @@
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
+import { Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius, colors, grid } from '../constants';
+import DealEditForm from '../containers/editForm/EditForm';
 import { IDeal } from '../types';
 
 type Props = {
   deal: IDeal;
+  index: number;
   isDragging: boolean;
   provided;
+  onRemove: (_id: string, stageId: string) => void;
 };
 
 const Container = styledTS<{ isDragging: boolean }>(styled.a)`
@@ -63,8 +68,17 @@ const Content = styled('div')`
 // Need to be super sure we are not relying on PureComponent here for
 // things we should be doing in the selector as we do not know if consumers
 // will be using PureComponent
-export default class DealItem extends React.PureComponent<Props> {
-  renderAmount(amount) {
+export default class DealItem extends React.PureComponent<
+  Props,
+  { isFormVisible: boolean }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = { isFormVisible: false };
+  }
+
+  renderAmount = amount => {
     if (Object.keys(amount).length === 0) return null;
 
     return (
@@ -76,20 +90,50 @@ export default class DealItem extends React.PureComponent<Props> {
         ))}
       </span>
     );
-  }
+  };
+
+  toggleForm = () => {
+    const { isFormVisible } = this.state;
+
+    this.setState({ isFormVisible: !isFormVisible });
+  };
+
+  renderForm = () => {
+    const { deal, onRemove, index } = this.props;
+    const { isFormVisible } = this.state;
+
+    if (!isFormVisible) {
+      return null;
+    }
+
+    return (
+      <Modal bsSize="lg" show={true} onHide={this.toggleForm}>
+        <Modal.Header closeButton>
+          <Modal.Title>{__('Edit deal')}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <DealEditForm
+            deal={deal}
+            index={index}
+            onRemove={onRemove}
+            closeModal={this.toggleForm}
+          />
+        </Modal.Body>
+      </Modal>
+    );
+  };
 
   render() {
     const { deal, isDragging, provided } = this.props;
 
     return (
       <Container
-        href="#"
         isDragging={isDragging}
         innerRef={provided.innerRef}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content>
+        <Content onClick={this.toggleForm}>
           <div>{deal.name}</div>
           {this.renderAmount(deal.amount)}
           {(deal.assignedUsers || []).map((user, index) => (
@@ -97,6 +141,8 @@ export default class DealItem extends React.PureComponent<Props> {
           ))}
           {deal.modifiedAt}
         </Content>
+
+        {this.renderForm()}
       </Container>
     );
   }
