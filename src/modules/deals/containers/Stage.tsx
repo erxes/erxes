@@ -8,6 +8,7 @@ import { IDeal, IStage, SaveDealMutation } from '../types';
 import { PipelineConsumer } from './PipelineContext';
 
 type BaseProps = {
+  index: number;
   stage: IStage;
   deals: IDeal[];
 };

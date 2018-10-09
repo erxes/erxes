@@ -33,6 +33,7 @@ const Header = styledTS<{ isDragging: boolean }>(styled.div)`
 `;
 
 type Props = {
+  index: number;
   stage: IStage;
   deals: IDeal[];
   addDeal: (name: string, callback: () => void) => void;
@@ -68,10 +69,10 @@ export default class Stage extends React.Component<Props> {
   }
 
   render() {
-    const { stage, deals } = this.props;
+    const { index, stage, deals } = this.props;
 
     return (
-      <Draggable draggableId={stage.name} index={stage._id}>
+      <Draggable draggableId={stage.name} index={index}>
         {(provided, snapshot) => (
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
             <Header isDragging={snapshot.isDragging}>

@@ -52,9 +52,10 @@ class WithStages extends React.Component<Props, {}> {
                     innerRef={provided.innerRef}
                     {...provided.droppableProps}
                   >
-                    {stageIds.map(stageId => (
+                    {stageIds.map((stageId, index) => (
                       <Stage
                         key={stageId}
+                        index={index}
                         stage={stageMap[stageId]}
                         deals={dealMap[stageId]}
                       />
