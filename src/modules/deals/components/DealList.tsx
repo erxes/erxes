@@ -5,7 +5,6 @@ import styledTS from 'styled-components-ts';
 import { colors, grid } from '../constants';
 import { IDeal } from '../types';
 import DealItem from './DealItem';
-import Title from './Title';
 
 const Wrapper = styledTS<{ isDraggingOver: boolean; isDropDisabled: boolean }>(
   styled.div
@@ -40,15 +39,10 @@ const ScrollContainer = styled.div`
   max-height: 300px;
 `;
 
-/* stylelint-disable block-no-empty */
-const Container = styled.div``;
-/* stylelint-enable */
-
 type Props = {
   listId: string;
   listType?: string;
   deals: IDeal[];
-  title?: string;
   internalScroll?: boolean;
   isDropDisabled?: boolean;
   style?: any;
@@ -62,11 +56,7 @@ type DealListProps = {
 
 class InnerDealList extends React.Component<DealListProps> {
   shouldComponentUpdate(nextProps: DealListProps) {
-    if (nextProps.deals !== this.props.deals) {
-      return true;
-    }
-
-    return false;
+    return nextProps.deals !== this.props.deals;
   }
 
   render() {
@@ -87,23 +77,20 @@ class InnerDealList extends React.Component<DealListProps> {
 
 type InnerListProps = {
   dropProvided;
-  deals: any[];
-  title?: string;
+  deals: IDeal[];
 };
 
 class InnerList extends React.Component<InnerListProps> {
   render() {
     const { deals, dropProvided } = this.props;
-    const title = this.props.title ? <Title>{this.props.title}</Title> : null;
 
     return (
-      <Container>
-        {title}
+      <div>
         <DropZone innerRef={dropProvided.innerRef}>
           <InnerDealList deals={deals} />
           {dropProvided.placeholder}
         </DropZone>
-      </Container>
+      </div>
     );
   }
 }
@@ -112,6 +99,7 @@ export default class DealList extends React.Component<Props> {
   static defaultProps = {
     listId: 'LIST'
   };
+
   render() {
     const {
       ignoreContainerClipping,
@@ -120,8 +108,7 @@ export default class DealList extends React.Component<Props> {
       listId,
       listType,
       style,
-      deals,
-      title
+      deals
     } = this.props;
 
     return (
@@ -140,18 +127,10 @@ export default class DealList extends React.Component<Props> {
           >
             {internalScroll ? (
               <ScrollContainer>
-                <InnerList
-                  deals={deals}
-                  title={title}
-                  dropProvided={dropProvided}
-                />
+                <InnerList deals={deals} dropProvided={dropProvided} />
               </ScrollContainer>
             ) : (
-              <InnerList
-                deals={deals}
-                title={title}
-                dropProvided={dropProvided}
-              />
+              <InnerList deals={deals} dropProvided={dropProvided} />
             )}
           </Wrapper>
         )}

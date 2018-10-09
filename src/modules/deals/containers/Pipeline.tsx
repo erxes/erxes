@@ -6,7 +6,7 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { colors } from '../constants';
 import { queries } from '../graphql';
-import { IDealMap, IPipeline, IStageMap } from '../types';
+import { IDeal, IDealMap, IPipeline, IStageMap } from '../types';
 import { reorder, reorderDealMap } from '../utils';
 import Stage from './Stage';
 
@@ -26,7 +26,7 @@ type Props = {
 
 type State = {
   dealMap: IDealMap;
-  ordered: string[];
+  stageIds: string[];
 };
 
 class WithStages extends React.Component<Props, State> {
@@ -37,7 +37,7 @@ class WithStages extends React.Component<Props, State> {
 
     this.state = {
       dealMap,
-      ordered: Object.keys(dealMap)
+      stageIds: Object.keys(dealMap)
     };
   }
 
@@ -68,15 +68,13 @@ class WithStages extends React.Component<Props, State> {
 
     // reordering stage
     if (result.type === 'STAGE') {
-      const ordered: string[] = reorder(
-        this.state.ordered,
+      const stageIds = reorder(
+        this.state.stageIds,
         source.index,
         destination.index
       );
 
-      this.setState({
-        ordered
-      });
+      this.setState({ stageIds });
 
       return;
     }
@@ -92,9 +90,17 @@ class WithStages extends React.Component<Props, State> {
     });
   };
 
+  onAddDeal = (stageId: string, deal: IDeal) => {
+    const { dealMap } = this.state;
+
+    this.setState({
+      dealMap: { ...dealMap, stageId: [...dealMap[stageId], deal] }
+    });
+  };
+
   render() {
     const { stageMap } = this.props;
-    const { dealMap, ordered } = this.state;
+    const { dealMap, stageIds } = this.state;
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
@@ -109,8 +115,13 @@ class WithStages extends React.Component<Props, State> {
               innerRef={provided.innerRef}
               {...provided.droppableProps}
             >
-              {ordered.map((key: string, index: number) => (
-                <Stage key={key} stage={stageMap[key]} deals={dealMap[key]} />
+              {stageIds.map(stageId => (
+                <Stage
+                  onAddDeal={this.onAddDeal}
+                  key={stageId}
+                  stage={stageMap[stageId]}
+                  deals={dealMap[stageId]}
+                />
               ))}
             </Container>
           )}

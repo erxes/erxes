@@ -1,67 +1,40 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { __, Alert } from '../../common/utils';
 import { Stage } from '../components';
 import { mutations } from '../graphql';
-import {
-  IDeal,
-  IDealParams,
-  IStage,
-  RemoveDealMutation,
-  SaveDealMutation
-} from '../types';
-import { removeDeal as remove, saveDeal as save } from '../utils';
+import { IDeal, IStage, SaveDealMutation } from '../types';
 
 type Props = {
   stage: IStage;
   deals: IDeal[];
   addMutation: SaveDealMutation;
-  editMutation: SaveDealMutation;
-  removeMutation: RemoveDealMutation;
-  dealsUpdateOrderMutation: (
-    params: { variables: { orders: Array<{ _id: string; order: number }> } }
-  ) => Promise<any>;
-  dealsChangeMutation: (
-    params: { variables: { _id: string; stageId: string } }
-  ) => Promise<any>;
-  dealsUpdateOrder: any;
+  onAddDeal: (stageId: string, deal: IDeal) => void;
 };
 
 class StageContainer extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.saveDeal = this.saveDeal.bind(this);
-    this.removeDeal = this.removeDeal.bind(this);
-  }
-
-  // create or update deal
-  saveDeal(doc: IDealParams, callback: () => void, deal?: IDeal) {
-    const { addMutation, editMutation } = this.props;
-
-    save(
-      doc,
-      addMutation,
-      editMutation,
-      () => {
-        callback();
-      },
-      deal
-    );
-  }
-
-  // remove deal
-  removeDeal(_id: string) {
-    const { removeMutation } = this.props;
-
-    remove(_id, removeMutation, () => {});
-  }
-
   render() {
+    const { onAddDeal, stage, addMutation } = this.props;
+
+    // create deal
+    const addDeal = (name: string, callback) => {
+      addMutation({ variables: { name, stageId: stage._id } })
+        .then(({ data: { dealsAdd } }) => {
+          Alert.success(__('Successfully saved.'));
+
+          onAddDeal(stage._id, dealsAdd);
+
+          callback();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
+
     const extendedProps = {
       ...this.props,
-      saveDeal: this.saveDeal,
-      removeDeal: this.removeDeal
+      addDeal
     };
 
     return <Stage {...extendedProps} />;
@@ -72,17 +45,5 @@ export default compose(
   // mutation
   graphql(gql(mutations.dealsAdd), {
     name: 'addMutation'
-  }),
-  graphql(gql(mutations.dealsEdit), {
-    name: 'editMutation'
-  }),
-  graphql(gql(mutations.dealsRemove), {
-    name: 'removeMutation'
-  }),
-  graphql(gql(mutations.dealsUpdateOrder), {
-    name: 'dealsUpdateOrderMutation'
-  }),
-  graphql(gql(mutations.dealsChange), {
-    name: 'dealsChangeMutation'
   })
 )(StageContainer);

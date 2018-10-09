@@ -57,6 +57,11 @@ export interface IProductData {
   amount: number;
 }
 
+export interface IDraggableLocation {
+  droppableId: string;
+  index: number;
+}
+
 type Position = {
   _id?: string;
   droppableId?: string;

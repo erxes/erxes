@@ -2,7 +2,9 @@ import { __, Alert, confirm } from 'modules/common/utils';
 import { IUser, IUserDetails } from '../auth/types';
 import {
   IDeal,
+  IDealMap,
   IDealParams,
+  IDraggableLocation,
   RemoveDealMutation,
   SaveDealMutation
 } from './types';
@@ -105,12 +107,23 @@ export const reorder = (
 ): any[] => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
+
   result.splice(endIndex, 0, removed);
 
   return result;
 };
 
-export const reorderDealMap = ({ dealMap, source, destination }) => {
+type ReorderDealMap = {
+  dealMap: IDealMap;
+  source: IDraggableLocation;
+  destination: IDraggableLocation;
+};
+
+export const reorderDealMap = ({
+  dealMap,
+  source,
+  destination
+}: ReorderDealMap) => {
   const current = [...dealMap[source.droppableId]];
   const next = [...dealMap[destination.droppableId]];
   const target = current[source.index];
@@ -118,10 +131,12 @@ export const reorderDealMap = ({ dealMap, source, destination }) => {
   // moving to same list
   if (source.droppableId === destination.droppableId) {
     const reordered = reorder(current, source.index, destination.index);
+
     const updatedDealMap = {
       ...dealMap,
       [source.droppableId]: reordered
     };
+
     return {
       dealMap: updatedDealMap
     };
@@ -131,6 +146,7 @@ export const reorderDealMap = ({ dealMap, source, destination }) => {
 
   // remove from original
   current.splice(source.index, 1);
+
   // insert into next
   next.splice(destination.index, 0, target);
 

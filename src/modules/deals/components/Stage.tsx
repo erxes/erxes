@@ -1,8 +1,12 @@
+import { Icon, ModalTrigger } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { DealAddForm } from '.';
 import { borderRadius, colors, grid } from '../constants';
+import { AddNew } from '../styles/deal';
 import { IDeal, IStage } from '../types';
 import DealList from './DealList';
 import Title from './Title';
@@ -31,6 +35,7 @@ const Header = styledTS<{ isDragging: boolean }>(styled.div)`
 type Props = {
   stage: IStage;
   deals: IDeal[];
+  addDeal: (name: string, callback: () => void) => void;
 };
 
 export default class Stage extends React.Component<Props> {
@@ -42,6 +47,24 @@ export default class Stage extends React.Component<Props> {
         {amount[key].toLocaleString()} <span>{key}</span>
       </li>
     ));
+  }
+
+  renderAddDealTrigger() {
+    const { stage, addDeal } = this.props;
+
+    const trigger = (
+      <AddNew>
+        <Icon icon="add" /> {__('Add a deal')}
+      </AddNew>
+    );
+
+    return (
+      <ModalTrigger
+        title="Add a deal"
+        trigger={trigger}
+        content={props => <DealAddForm {...props} add={addDeal} />}
+      />
+    );
   }
 
   render() {
@@ -60,7 +83,10 @@ export default class Stage extends React.Component<Props> {
                 <span>({deals.length})</span>
               </Title>
             </Header>
+
             <DealList listId={stage._id} listType="DEAL" deals={deals} />
+
+            {this.renderAddDealTrigger()}
           </Container>
         )}
       </Draggable>
