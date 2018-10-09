@@ -121,10 +121,12 @@ class MailForm extends React.Component<Props, State> {
           attachments: [...this.state.attachments, response]
         });
         // remove preview
+        // tslint:disable-next-line:no-unused-expression
         setAttachmentPreview && setAttachmentPreview(null);
       },
 
       afterRead: ({ result, fileInfo }) => {
+        // tslint:disable-next-line:no-unused-expression
         setAttachmentPreview &&
           setAttachmentPreview(Object.assign({ data: result }, fileInfo));
       }
