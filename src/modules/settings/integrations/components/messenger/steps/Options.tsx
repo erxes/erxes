@@ -70,7 +70,7 @@ class Options extends React.Component<Props> {
               onChange={(e: React.FormEvent<HTMLElement>) => {
                 const target = e.currentTarget as HTMLInputElement;
 
-                return this.onChangeFunction('showFaq', target.value);
+                return this.onChangeFunction('showFaq', target.checked);
               }}
             />
           </FormGroup>

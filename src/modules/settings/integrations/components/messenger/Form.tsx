@@ -56,6 +56,7 @@ type State = {
   logoPreviewUrl: string;
   greetingMessage: string;
   links: ILink;
+  showFaq: boolean;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -93,7 +94,8 @@ class CreateMessenger extends React.Component<Props, State> {
       logoPreviewStyle: {},
       logoPreviewUrl: uiOptions.logo || '',
       greetingMessage: configData.greetingMessage || '',
-      links: configData.links || {}
+      links: configData.links || {},
+      showFaq: configData.showFaq || false
     };
   }
 
@@ -129,7 +131,8 @@ class CreateMessenger extends React.Component<Props, State> {
         thankYouMessage: this.state.thankYouMessage,
         supporterIds: this.state.supporterIds,
         greetingMessage: this.state.greetingMessage,
-        links: this.state.links
+        links: this.state.links,
+        showFaq: this.state.showFaq
       },
       uiOptions: {
         color: this.state.color,
