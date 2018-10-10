@@ -176,26 +176,34 @@ const customerQueries = {
       case 'byForm':
         counts.byForm = await countByForm(qb, mainQuery, params);
         break;
+      case 'byLeadStatus':
+        {
+          for (const status of COC_LEAD_STATUS_TYPES) {
+            counts.byLeadStatus[status] = await count(qb.leadStatusFilter(status), mainQuery);
+          }
+        }
+        break;
+
+      case 'byLifecycleState':
+        {
+          for (const state of COC_LIFECYCLE_STATE_TYPES) {
+            counts.byLifecycleState[state] = await count(qb.lifecycleStateFilter(state), mainQuery);
+          }
+        }
+        break;
+
+      case 'byIntegrationType':
+        {
+          for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
+            counts.byIntegrationType[kind] = await count(await qb.integrationTypeFilter(kind), mainQuery);
+          }
+        }
+        break;
     }
 
     // Count customers by fake segment
     if (params.byFakeSegment) {
       counts.byFakeSegment = await count(QueryBuilder.segments(params.byFakeSegment), mainQuery);
-    }
-
-    // Count customers by integration kind
-    for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
-      counts.byIntegrationType[kind] = await count(await qb.integrationTypeFilter(kind), mainQuery);
-    }
-
-    // Count customers by lead status
-    for (const status of COC_LEAD_STATUS_TYPES) {
-      counts.byLeadStatus[status] = await count(qb.leadStatusFilter(status), mainQuery);
-    }
-
-    // Count customers by life cycle state
-    for (const state of COC_LIFECYCLE_STATE_TYPES) {
-      counts.byLifecycleState[state] = await count(qb.lifecycleStateFilter(state), mainQuery);
     }
 
     return counts;
