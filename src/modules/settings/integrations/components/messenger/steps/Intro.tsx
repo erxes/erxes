@@ -9,6 +9,7 @@ import { __ } from 'modules/common/utils';
 import { SubHeading } from 'modules/settings/styles';
 import * as React from 'react';
 import Select from 'react-select-plus';
+import { ILink } from '../../../types';
 
 type Props = {
   onChange: (
@@ -19,7 +20,9 @@ type Props = {
   supporterIds?: string[];
   welcomeMessage?: string;
   awayMessage?: string;
+  greetingMessage?: string;
   thankYouMessage?: string;
+  links?: ILink;
 };
 
 type State = {
@@ -28,6 +31,8 @@ type State = {
   welcomeMessage: string;
   awayMessage: string;
   thankYouMessage: string;
+  greetingMessage: string;
+  links?: ILink;
 };
 
 class Intro extends React.Component<Props, State> {
@@ -45,7 +50,9 @@ class Intro extends React.Component<Props, State> {
       supporterIds: [],
       welcomeMessage: '',
       awayMessage: '',
-      thankYouMessage: ''
+      thankYouMessage: '',
+      greetingMessage: '',
+      links: {}
     };
 
     this.onInputChange = this.onInputChange.bind(this);
@@ -80,6 +87,8 @@ class Intro extends React.Component<Props, State> {
   }
 
   render() {
+    const { links = {} } = this.props;
+
     return (
       <FlexItem>
         <LeftItem>
@@ -96,6 +105,23 @@ class Intro extends React.Component<Props, State> {
               onChange={e =>
                 this.onInputChange(
                   'welcomeMessage',
+                  (e.target as HTMLInputElement).value
+                )
+              }
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Greeting message</ControlLabel>
+
+            <FormControl
+              componentClass="textarea"
+              placeholder={__('Write here Greeting message.')}
+              rows={3}
+              value={this.props.greetingMessage}
+              onChange={e =>
+                this.onInputChange(
+                  'greetingMessage',
                   (e.target as HTMLInputElement).value
                 )
               }
@@ -148,6 +174,59 @@ class Intro extends React.Component<Props, State> {
               onChange={this.onTeamMembersChange}
               clearable={true}
               multi
+            />
+          </FormGroup>
+
+          <SubHeading>{__('Links')}</SubHeading>
+
+          <FormGroup>
+            <ControlLabel>Facebook</ControlLabel>
+
+            <FormControl
+              rows={3}
+              value={links.facebook || ''}
+              onChange={e => {
+                const fb = {
+                  ...this.state.links,
+                  facebook: (e.target as HTMLInputElement).value
+                };
+
+                return this.onInputChange('links', fb);
+              }}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Twitter</ControlLabel>
+
+            <FormControl
+              rows={3}
+              value={links.twitter || ''}
+              onChange={e => {
+                const fb = {
+                  ...this.state.links,
+                  twitter: (e.target as HTMLInputElement).value
+                };
+
+                return this.onInputChange('links', fb);
+              }}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Youtube</ControlLabel>
+
+            <FormControl
+              rows={3}
+              value={links.youtube || ''}
+              onChange={e => {
+                const fb = {
+                  ...this.state.links,
+                  youtube: (e.target as HTMLInputElement).value
+                };
+
+                return this.onInputChange('links', fb);
+              }}
             />
           </FormGroup>
         </LeftItem>

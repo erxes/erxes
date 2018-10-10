@@ -11,6 +11,7 @@ import { IBrand } from 'modules/settings/brands/types';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
 import {
   IIntegration,
+  ILink,
   IMessengerData,
   IUiOptions
 } from 'modules/settings/integrations/types';
@@ -53,6 +54,8 @@ type State = {
   logo: string;
   logoPreviewStyle: any;
   logoPreviewUrl: string;
+  greetingMessage: string;
+  links: ILink;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -88,7 +91,9 @@ class CreateMessenger extends React.Component<Props, State> {
       })),
       logo: uiOptions.logo || '',
       logoPreviewStyle: {},
-      logoPreviewUrl: uiOptions.logo || ''
+      logoPreviewUrl: uiOptions.logo || '',
+      greetingMessage: configData.greetingMessage || '',
+      links: configData.links || {}
     };
   }
 
@@ -122,7 +127,9 @@ class CreateMessenger extends React.Component<Props, State> {
         welcomeMessage: this.state.welcomeMessage,
         awayMessage: this.state.awayMessage,
         thankYouMessage: this.state.thankYouMessage,
-        supporterIds: this.state.supporterIds
+        supporterIds: this.state.supporterIds,
+        greetingMessage: this.state.greetingMessage,
+        links: this.state.links
       },
       uiOptions: {
         color: this.state.color,
@@ -174,7 +181,9 @@ class CreateMessenger extends React.Component<Props, State> {
       brandId,
       languageCode,
       notifyCustomer,
-      logoPreviewStyle
+      logoPreviewStyle,
+      greetingMessage,
+      links
     } = this.state;
 
     const breadcrumb = [
@@ -211,6 +220,8 @@ class CreateMessenger extends React.Component<Props, State> {
                 welcomeMessage={welcomeMessage}
                 awayMessage={awayMessage}
                 thankYouMessage={thankYouMessage}
+                greetingMessage={greetingMessage}
+                links={links}
               />
             </Step>
 

@@ -7,6 +7,12 @@ export interface IMessengerApp {
   name: string;
 }
 
+export interface ILink {
+  twitter?: string;
+  facebook?: string;
+  youtube?: string;
+}
+
 export interface IFacebookApp {
   id: string;
   name: string;
@@ -35,6 +41,9 @@ export interface IMessengerData {
   isOnline?: boolean;
   timezone?: string;
   onlineHours?: IOnlineHour[];
+  greetingMessage?: string;
+  showFaq?: boolean;
+  links?: ILink;
 }
 
 export interface IUiOptions {

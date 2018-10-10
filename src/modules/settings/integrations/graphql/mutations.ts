@@ -19,9 +19,7 @@ const integrationsCreateMessenger = `
 `;
 
 const integrationsEditMessenger = `
-  mutation integrationsEditMessengerIntegration($_id: String!, ${
-    commonParamsDef
-  }) {
+  mutation integrationsEditMessengerIntegration($_id: String!, ${commonParamsDef}) {
     integrationsEditMessengerIntegration(_id: $_id, ${commonParams}) {
       _id
     }
