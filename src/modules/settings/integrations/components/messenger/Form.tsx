@@ -186,7 +186,8 @@ class CreateMessenger extends React.Component<Props, State> {
       notifyCustomer,
       logoPreviewStyle,
       greetingMessage,
-      links
+      links,
+      showFaq
     } = this.state;
 
     const breadcrumb = [
@@ -258,6 +259,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 brandId={brandId}
                 languageCode={languageCode}
                 notifyCustomer={notifyCustomer}
+                showFaq={showFaq}
               />
             </Step>
           </Steps>

@@ -65,7 +65,7 @@ class Options extends React.Component<Props> {
             <ControlLabel>Show FAQ</ControlLabel>
 
             <FormControl
-              defaultChecked={this.props.showFaq || false}
+              checked={this.props.showFaq || false}
               componentClass="checkbox"
               onChange={(e: React.FormEvent<HTMLElement>) => {
                 const target = e.currentTarget as HTMLInputElement;
