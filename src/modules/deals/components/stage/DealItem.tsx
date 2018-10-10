@@ -1,5 +1,5 @@
+import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
-import { borderRadius, colors, grid } from 'modules/deals/constants';
 import { EditForm } from 'modules/deals/containers/editForm';
 import { ActionInfo, DealFooter, ItemList } from 'modules/deals/styles/deal';
 import { IDeal } from 'modules/deals/types';
@@ -50,9 +50,9 @@ const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
   }
 
   background-color: ${({ isDragging }) =>
-    isDragging ? colors.green : colors.white};
+    isDragging ? colors.colorLightBlue : colors.colorLightBlue};
   box-shadow: ${({ isDragging }) =>
-    isDragging ? `2px 2px 1px ${colors.shadow}` : 'none'};
+    isDragging ? `2px 2px 1px ${colors.colorLightBlue}` : 'none'};
 
 `;
 

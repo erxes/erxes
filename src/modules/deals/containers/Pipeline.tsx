@@ -4,7 +4,6 @@ import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { Spinner } from '../../common/components';
-import { colors } from '../constants';
 import { queries } from '../graphql';
 import { IDealMap, IPipeline, IStageMap } from '../types';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';

@@ -19,9 +19,10 @@ const AddNew = styled.a`
   font-size: 14px;
   transition: all 0.3s ease;
   cursor: pointer;
+  background: ${colors.colorWhite};
 
   &:hover {
-    background: ${colors.colorWhite};
+    background: transparent;
   }
 
   i {

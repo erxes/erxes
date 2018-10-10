@@ -1,6 +1,6 @@
 import { Icon, ModalTrigger } from 'modules/common/components';
+import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
-import { borderRadius, colors, grid } from 'modules/deals/constants';
 import { AddNew } from 'modules/deals/styles/deal';
 import { IDeal, IStage } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
@@ -12,18 +12,18 @@ import { DealAddForm } from '.';
 import DealList from './DealList';
 
 const Container = styled.div`
-  margin: ${grid}px;
+  margin: 8px;
 `;
 
 const Header = styledTS<{ isDragging: boolean }>(styled.div)`
-  border-top-left-radius: ${borderRadius}px;
-  border-top-right-radius: ${borderRadius}px;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
   background-color: ${({ isDragging }) =>
-    isDragging ? colors.blue.lighter : colors.blue.light};
+    isDragging ? colors.colorCoreGray : colors.colorCoreLightGray};
   transition: background-color 0.1s ease;
 
   &:hover {
-    background-color: ${colors.blue.lighter};
+    background-color: ${colors.colorCoreLightGray};
   }
 
   padding: 8px;
@@ -37,9 +37,8 @@ const Title = styled('h4')`
   font-weight: bold;
 
   span {
-    color: ${colors.grey.N30};
+    color: ${colors.bgMain};
     margin-left: 5px;
-    font-size: 90%;
   }
 `;
 

@@ -1,4 +1,4 @@
-import { colors, grid } from 'modules/deals/constants';
+import colors from 'modules/common/styles/colors';
 import { DealItem } from 'modules/deals/containers/stage';
 import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
@@ -10,16 +10,17 @@ const Wrapper = styledTS<{ isDraggingOver: boolean; isDropDisabled: boolean }>(
   styled.div
 )`
   background-color: ${({ isDraggingOver }) =>
-    isDraggingOver ? colors.blue.lighter : colors.blue.light};
+    isDraggingOver ? colors.colorCoreGray : colors.colorCoreLightGray};
   display: flex;
   flex-direction: column;
   opacity: ${({ isDropDisabled }) => (isDropDisabled ? 0.5 : 'inherit')};
-  padding: ${grid}px;
-  border: ${grid}px;
+  padding: 8px;
+  border: 8px;
   padding-bottom: 0;
   transition: background-color 0.1s ease, opacity 0.1s ease;
   user-select: none;
   width: 250px;
+  margin-bottom: 8px;
 `;
 
 const DropZone = styled.div`
@@ -30,7 +31,7 @@ const DropZone = styled.div`
     not relying on the items for a margin-bottom
     as it will collapse when the list is empty
   */
-  margin-bottom: ${grid}px;
+  margin-bottom: 8px;
 `;
 
 const ScrollContainer = styled.div`
