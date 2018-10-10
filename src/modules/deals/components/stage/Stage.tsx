@@ -9,7 +9,6 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { DealAddForm } from '.';
 import DealList from './DealList';
-import Title from './Title';
 
 const Container = styled.div`
   margin: ${grid}px;
@@ -29,6 +28,19 @@ const Header = styledTS<{ isDragging: boolean }>(styled.div)`
 
   &:hover {
     background-color: ${colors.blue.lighter};
+  }
+`;
+
+const Title = styled('h4')`
+  padding: ${grid}px;
+  transition: background-color ease 0.2s;
+  flex-grow: 1;
+  user-select: none;
+  position: relative;
+
+  &:focus {
+    outline: 2px solid ${colors.purple};
+    outline-offset: 2px;
   }
 `;
 
