@@ -1,7 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
-import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -13,7 +12,6 @@ import { mutations, queries } from '../graphql';
 
 interface IProps extends IRouterProps {
   customersMainQuery: any;
-  customerCountsQuery: any;
   customersListConfigQuery: any;
   customersRemove: (
     params: { variables: { customerIds: string[] } }
@@ -26,7 +24,6 @@ interface IProps extends IRouterProps {
       };
     }
   ) => Promise<void>;
-  brandsQuery: any;
   queryParams: any;
 }
 
@@ -46,8 +43,6 @@ class CustomerListContainer extends React.Component<IProps, State> {
   render() {
     const {
       customersMainQuery,
-      brandsQuery,
-      customerCountsQuery,
       customersListConfigQuery,
       customersRemove,
       customersMerge,
@@ -149,27 +144,13 @@ class CustomerListContainer extends React.Component<IProps, State> {
     const { list = [], totalCount = 0 } =
       customersMainQuery.customersMain || {};
 
-    const counts = customerCountsQuery.customerCounts || {
-      byBrand: {},
-      byIntegrationType: {},
-      bySegment: {},
-      byTag: {},
-      byForm: {},
-      byLeadStatus: {},
-      byLifecycleState: {}
-    };
-
     const updatedProps = {
       ...this.props,
       columnsConfig,
       customers: list,
-      counts: {
-        all: totalCount,
-        ...counts
-      },
+      totalCount,
       exportCustomers,
       handleXlsUpload,
-      brands: brandsQuery.brands || [],
       integrations: KIND_CHOICES.ALL_LIST,
       searchValue,
       loading: customersMainQuery.loading || this.state.loading,
@@ -182,7 +163,6 @@ class CustomerListContainer extends React.Component<IProps, State> {
         content={props => <CustomersList {...updatedProps} {...props} />}
         refetch={() => {
           this.props.customersMainQuery.refetch();
-          this.props.customerCountsQuery.refetch();
         }}
       />
     );
@@ -217,21 +197,8 @@ export default compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql(gql(queries.customerCounts), {
-    name: 'customerCountsQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only'
-    })
-  }),
   graphql(gql(queries.customersListConfig), {
     name: 'customersListConfigQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(brandQueries.brands), {
-    name: 'brandsQuery',
     options: () => ({
       fetchPolicy: 'network-only'
     })

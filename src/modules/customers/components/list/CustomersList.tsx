@@ -20,7 +20,6 @@ import { __, confirm, router } from '../../../common/utils';
 import { Widget } from '../../../engage/containers';
 import { Wrapper } from '../../../layout/components';
 import { BarItems } from '../../../layout/styles';
-import { IBrand } from '../../../settings/brands/types';
 import { ManageColumns } from '../../../settings/properties/containers';
 import { TaggerPopover } from '../../../tags/components';
 import { CustomerForm } from '../../containers';
@@ -30,9 +29,8 @@ import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   customers: ICustomer[];
-  counts: any;
+  totalCount: any;
   columnsConfig: any;
-  brands: IBrand[];
   integrations: string[];
   bulk: any[];
   isAllSelected: boolean;
@@ -161,7 +159,7 @@ class CustomersList extends React.Component<IProps, State> {
 
   render() {
     const {
-      counts,
+      totalCount,
       bulk,
       emptyBulk,
       loading,
@@ -316,7 +314,7 @@ class CustomersList extends React.Component<IProps, State> {
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
     );
 
-    const breadcrumb = [{ title: __(`Customers`) + ` (${counts.all})` }];
+    const breadcrumb = [{ title: __(`Customers`) + ` (${totalCount})` }];
 
     return (
       <Wrapper
@@ -324,7 +322,7 @@ class CustomersList extends React.Component<IProps, State> {
           <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
         }
         actionBar={actionBar}
-        footer={<Pagination count={counts.all} />}
+        footer={<Pagination count={totalCount} />}
         leftSidebar={<Sidebar />}
         content={
           <DataWithLoader
