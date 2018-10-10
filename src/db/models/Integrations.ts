@@ -159,8 +159,7 @@ class Integration {
    * Saves messenger data to integration document
    */
   public static async saveMessengerConfigs(_id: string, messengerData: IMessengerData) {
-    await Integrations.update({ _id }, { $set: { messengerData } }, { runValidators: true });
-
+    await Integrations.update({ _id }, { $set: { messengerData } });
     return Integrations.findOne({ _id });
   }
 
