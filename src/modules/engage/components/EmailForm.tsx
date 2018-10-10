@@ -225,8 +225,8 @@ class EmailForm extends React.Component<Props, State> {
             <ControlLabel>Attachments: </ControlLabel>
             <Uploader
               defaultFileList={attachments || []}
-              onChange={attachments =>
-                this.changeContent('attachments', attachments)
+              onChange={attachmentsArr =>
+                this.changeContent('attachments', attachmentsArr)
               }
             />
           </FormGroup>

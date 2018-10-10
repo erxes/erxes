@@ -50,7 +50,7 @@ const CompanyChooser = (props: WrapperProps & Props) => {
       name: renderName(data)
     },
     datas: companiesQuery.companies || [],
-    renderForm: props => <CompanyForm {...props} action={addCompany} />,
+    renderForm: formProps => <CompanyForm {...formProps} action={addCompany} />,
     renderName,
     search,
     title: 'Company'

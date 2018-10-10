@@ -98,9 +98,13 @@ class ManageIntegrations extends React.Component<Props, State> {
     const kind = integration.kind;
     let type = 'messenger';
 
-    kind === KIND_CHOICES.FORM && (type = 'form');
-    kind === KIND_CHOICES.TWITTER && (type = 'twitter');
-    kind === KIND_CHOICES.FACEBOOK && (type = 'facebook');
+    if (kind === KIND_CHOICES.FORM) {
+      type = 'form';
+    } else if (KIND_CHOICES.TWITTER) {
+      type = 'twitter';
+    } else if (KIND_CHOICES.FACEBOOK) {
+      type = 'facebook';
+    }
 
     return type;
   }
@@ -109,9 +113,13 @@ class ManageIntegrations extends React.Component<Props, State> {
     const kind = integration.kind;
     let icon = 'chat';
 
-    kind === KIND_CHOICES.FORM && (icon = 'file');
-    kind === KIND_CHOICES.TWITTER && (icon = 'twitter');
-    kind === KIND_CHOICES.FACEBOOK && (icon = 'facebook');
+    if (kind === KIND_CHOICES.FORM) {
+      icon = 'form';
+    } else if (KIND_CHOICES.TWITTER) {
+      icon = 'twitter';
+    } else if (KIND_CHOICES.FACEBOOK) {
+      icon = 'facebook';
+    }
 
     return icon;
   }
