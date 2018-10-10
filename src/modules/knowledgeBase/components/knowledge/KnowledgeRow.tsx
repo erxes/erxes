@@ -44,7 +44,7 @@ class KnowledgeRow extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { detailed: this.isExpanded() };
+    this.state = { detailed: false };
     this.toggle = this.toggle.bind(this);
   }
 
@@ -52,11 +52,16 @@ class KnowledgeRow extends React.Component<Props, State> {
     this.setState({ detailed: !this.state.detailed });
   }
 
-  isExpanded() {
-    const { currentCategoryId, topic } = this.props;
+  isExpanded(currentCategoryId, topic) {
     const categories = topic.categories || [];
 
     return categories.some(c => c._id === currentCategoryId);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      detailed: this.isExpanded(nextProps.currentCategoryId, nextProps.topic)
+    });
   }
 
   renderManage() {

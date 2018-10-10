@@ -1,7 +1,11 @@
 import { Button, Icon } from 'modules/common/components';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
-import { COMPANY_DATAS, COMPANY_INFO } from 'modules/companies/constants';
+import {
+  COMPANY_DATAS,
+  COMPANY_INFO,
+  COMPANY_LINKS
+} from 'modules/companies/constants';
 import {
   Info,
   InfoAvatar,
@@ -9,7 +13,7 @@ import {
   InfoTitle
 } from 'modules/customers/styles';
 import * as React from 'react';
-import { ICompany } from '../../types';
+import { ICompany, ICompanyLinks } from '../../types';
 
 type Props = {
   objects: ICompany[];
@@ -92,6 +96,9 @@ class CompaniesMerge extends React.Component<Props, State> {
 
             if (!company[key]) return null;
 
+            if (info.field === 'links')
+              return this.renderLinks(company[key], icon);
+
             return this.renderCompanyProperties(key, company[key], icon);
           })}
         </ul>
@@ -151,6 +158,32 @@ class CompaniesMerge extends React.Component<Props, State> {
         <InfoDetail>{data.primaryName}</InfoDetail>
       </Info>
     );
+  }
+
+  renderLinks(data: ICompanyLinks, icon: string) {
+    const { selectedValues } = this.state;
+
+    return COMPANY_LINKS.ALL.map(info => {
+      const field = info.field;
+      const value = data[field];
+
+      if (!data[field]) return null;
+
+      return (
+        <li
+          key={field}
+          onClick={() => {
+            const links = { ...selectedValues.links, [field]: value };
+
+            return this.handleChange(icon, `links`, links);
+          }}
+        >
+          <InfoTitle>{info.label}:</InfoTitle>
+          <InfoDetail>{value}</InfoDetail>
+          <Icon icon={icon} />
+        </li>
+      );
+    });
   }
 
   render() {
