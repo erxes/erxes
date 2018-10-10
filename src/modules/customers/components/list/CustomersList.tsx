@@ -29,7 +29,7 @@ import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   customers: ICustomer[];
-  totalCount: any;
+  totalCount: number;
   columnsConfig: any;
   integrations: string[];
   bulk: any[];
