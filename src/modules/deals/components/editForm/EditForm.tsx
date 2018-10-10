@@ -14,7 +14,6 @@ import { Sidebar, Top } from './';
 type Props = {
   deal: IDeal;
   users: IUser[];
-  index?: number;
   addDeal: (doc: IDealParams, callback: () => void) => void;
   saveDeal: (doc: IDealParams, callback: () => void) => void;
   removeDeal: (_id: string, callback: () => void) => void;

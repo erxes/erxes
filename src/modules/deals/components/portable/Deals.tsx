@@ -1,23 +1,22 @@
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { IDeal, IDealParams } from 'modules/deals/types';
 import { Sidebar } from 'modules/layout/components';
 import { SectionContainer } from 'modules/layout/styles';
 import * as React from 'react';
-import { Deal } from '../containers';
-import { IDeal, IDealParams } from '../types';
-import PortableAddDeal from './PortableAddDeal';
+import { AddDeal, Deal } from '.';
 
 type Props = {
   deals: IDeal[];
   customerId?: string;
   companyId?: string;
   saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
-  removeDeal: (_id: string, callback: () => void) => void;
+  onChangeDeals: () => void;
 };
 
 class PortableDeals extends React.Component<Props> {
-  renderDeals() {
-    const { saveDeal, removeDeal, deals } = this.props;
+  renderDeals = () => {
+    const { onChangeDeals, deals } = this.props;
 
     if (deals.length === 0) {
       return <EmptyState icon="piggy-bank" text="No deal" />;
@@ -26,12 +25,13 @@ class PortableDeals extends React.Component<Props> {
     return deals.map((deal, index) => (
       <Deal
         key={index}
-        dealId={deal._id}
-        saveDeal={saveDeal}
-        removeDeal={removeDeal}
+        deal={deal}
+        onAdd={onChangeDeals}
+        onUpdate={onChangeDeals}
+        onRemove={onChangeDeals}
       />
     ));
-  }
+  };
 
   render() {
     const { Section } = Sidebar;
@@ -50,7 +50,7 @@ class PortableDeals extends React.Component<Props> {
         title="Add a deal"
         trigger={trigger}
         content={props => (
-          <PortableAddDeal
+          <AddDeal
             {...props}
             saveDeal={saveDeal}
             customerId={customerId}

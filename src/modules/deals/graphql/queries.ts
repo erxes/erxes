@@ -74,10 +74,50 @@ const stageDetail = `
   }
 `;
 
+const dealFields = `
+  _id
+  name
+  stageId
+  pipeline {
+    _id
+    name
+  }
+  boardId
+  companies {
+    _id
+    primaryName
+    website
+  }
+  customers {
+    _id
+    firstName
+    primaryEmail
+    primaryPhone
+  }
+  products
+  productsData
+  amount
+  closeDate
+  description
+  assignedUsers {
+    _id
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
+  stage {
+    probability
+  }
+  modifiedAt
+  modifiedBy
+`;
+
 const deals = `
   query deals($stageId: String, $customerId: String, $companyId: String) {
     deals(stageId: $stageId, customerId: $customerId, companyId: $companyId) {
-      _id
+      ${dealFields}
     }
   }
 `;
@@ -85,43 +125,7 @@ const deals = `
 const dealDetail = `
   query dealDetail($_id: String!) {
     dealDetail(_id: $_id) {
-      _id
-      name
-      stageId
-      pipeline {
-        _id
-        name
-      }
-      boardId
-      companies {
-        _id
-        primaryName
-        website
-      }
-      customers {
-        _id
-        firstName
-        primaryEmail
-        primaryPhone
-      }
-      products
-      productsData
-      amount
-      closeDate
-      description
-      assignedUsers {
-        _id
-        email
-        details {
-          fullName
-          avatar
-        }
-      }
-      stage {
-        probability
-      }
-      modifiedAt
-      modifiedBy
+      ${dealFields}
     }
   }
 `;

@@ -2,6 +2,7 @@ import { __ } from 'modules/common/utils';
 import { borderRadius, colors, grid } from 'modules/deals/constants';
 import { EditForm } from 'modules/deals/containers/editForm';
 import { IDeal } from 'modules/deals/types';
+import { renderDealAmount } from 'modules/deals/utils';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -10,7 +11,6 @@ import styledTS from 'styled-components-ts';
 type Props = {
   stageId: string;
   deal: IDeal;
-  index: number;
   isDragging: boolean;
   provided;
   onAdd: (stageId: string, deal: IDeal) => void;
@@ -81,20 +81,6 @@ export default class DealItem extends React.PureComponent<
     this.state = { isFormVisible: false };
   }
 
-  renderAmount = amount => {
-    if (Object.keys(amount).length === 0) return null;
-
-    return (
-      <span>
-        {Object.keys(amount).map(key => (
-          <li key={key}>
-            {amount[key].toLocaleString()} <span>{key}</span>
-          </li>
-        ))}
-      </span>
-    );
-  };
-
   toggleForm = () => {
     const { isFormVisible } = this.state;
 
@@ -102,7 +88,7 @@ export default class DealItem extends React.PureComponent<
   };
 
   renderForm = () => {
-    const { stageId, deal, onAdd, onRemove, onUpdate, index } = this.props;
+    const { stageId, deal, onAdd, onRemove, onUpdate } = this.props;
     const { isFormVisible } = this.state;
 
     if (!isFormVisible) {
@@ -118,7 +104,6 @@ export default class DealItem extends React.PureComponent<
           <EditForm
             stageId={stageId}
             dealId={deal._id}
-            index={index}
             onAdd={onAdd}
             onRemove={onRemove}
             onUpdate={onUpdate}
@@ -141,7 +126,7 @@ export default class DealItem extends React.PureComponent<
       >
         <Content onClick={this.toggleForm}>
           <div>{deal.name}</div>
-          {this.renderAmount(deal.amount)}
+          {renderDealAmount(deal.amount)}
           {(deal.assignedUsers || []).map((user, index) => (
             <span key={index}>{user.email}</span>
           ))}

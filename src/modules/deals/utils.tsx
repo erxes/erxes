@@ -1,4 +1,9 @@
+import { Tip } from 'modules/common/components';
 import { __, Alert, confirm } from 'modules/common/utils';
+import { DealDate } from 'modules/deals/styles/deal';
+import { Amount } from 'modules/deals/styles/stage';
+import * as moment from 'moment';
+import * as React from 'react';
 import { IUser, IUserDetails } from '../auth/types';
 import {
   IDeal,
@@ -159,4 +164,28 @@ export const reorderDealMap = ({
   return {
     dealMap: result
   };
+};
+
+export const renderDealDate = (date, format = 'YYYY-MM-DD') => {
+  if (!date) return null;
+
+  return (
+    <Tip text={moment(date).format(format)}>
+      <DealDate>{moment(date).fromNow()}</DealDate>
+    </Tip>
+  );
+};
+
+export const renderDealAmount = amount => {
+  if (Object.keys(amount).length === 0) return null;
+
+  return (
+    <Amount>
+      {Object.keys(amount).map(key => (
+        <li key={key}>
+          {amount[key].toLocaleString()} <span>{key}</span>
+        </li>
+      ))}
+    </Amount>
+  );
 };

@@ -1,15 +1,15 @@
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import { IDeal, IDealParams } from 'modules/deals/types';
-import * as React from 'react';
-import { DealSelect } from '../containers';
+import { DealSelect } from 'modules/deals/containers';
 import {
   AddContainer,
   FormFooter,
   HeaderContent,
   HeaderRow
-} from '../styles/deal';
+} from 'modules/deals/styles/deal';
+import { IDeal, IDealParams } from 'modules/deals/types';
+import * as React from 'react';
 
 type Props = {
   customerId?: string;
@@ -17,7 +17,7 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
-  saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
+  saveDeal: (doc: IDealParams, callback: () => void) => void;
   showSelect?: boolean;
   closeModal: () => void;
 };

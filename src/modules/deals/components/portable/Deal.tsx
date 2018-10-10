@@ -1,49 +1,50 @@
-import { Tip } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
-import * as moment from 'moment';
 import * as React from 'react';
-import { Items, UserCounter } from '..';
+import { Items, UserCounter } from '.';
 import {
   ActionInfo,
-  DealDate,
+  Container,
   FooterContent,
   ItemList,
   SpaceContent,
   Status
 } from '../../styles/deal';
 
+import { ModalTrigger } from 'modules/common/components';
+import { EditForm } from 'modules/deals/containers/editForm';
+import { renderDealAmount, renderDealDate } from 'modules/deals/utils';
 import { __ } from '../../../common/utils';
-import { Amount } from '../../styles/stage';
 import { IDeal } from '../../types';
 
 type Props = {
   deal: IDeal;
+  onAdd: (stageId: string, deal: IDeal) => void;
+  onRemove: (_id: string, stageId: string) => void;
+  onUpdate: (deal: IDeal) => void;
 };
 
-class CommonDeal extends React.Component<Props> {
-  renderDate(date, format = 'YYYY-MM-DD') {
-    if (!date) return null;
+class Deal extends React.Component<Props, { isFormVisible: boolean }> {
+  renderFormTrigger = (trigger: React.ReactNode) => {
+    const { deal, onAdd, onRemove, onUpdate } = this.props;
 
     return (
-      <Tip text={moment(date).format(format)}>
-        <DealDate>{moment(date).fromNow()}</DealDate>
-      </Tip>
+      <ModalTrigger
+        title="Edit deal"
+        trigger={trigger}
+        size="lg"
+        content={props => (
+          <EditForm
+            {...props}
+            stageId={deal.stageId}
+            dealId={deal._id}
+            onAdd={onAdd}
+            onRemove={onRemove}
+            onUpdate={onUpdate}
+          />
+        )}
+      />
     );
-  }
-
-  renderAmount(amount) {
-    if (Object.keys(amount).length === 0) return null;
-
-    return (
-      <Amount>
-        {Object.keys(amount).map(key => (
-          <li key={key}>
-            {amount[key].toLocaleString()} <span>{key}</span>
-          </li>
-        ))}
-      </Amount>
-    );
-  }
+  };
 
   renderStatusLabel(text, color) {
     return (
@@ -73,12 +74,12 @@ class CommonDeal extends React.Component<Props> {
     const { deal } = this.props;
     const products = (deal.products || []).map(p => p.product);
 
-    return (
-      <React.Fragment>
+    const content = (
+      <Container>
         {this.renderDealStatus(deal.stage)}
         <SpaceContent>
           <h4>{deal.name}</h4>
-          {this.renderDate(deal.closeDate)}
+          {renderDealDate(deal.closeDate)}
         </SpaceContent>
         <SpaceContent>
           <FooterContent>
@@ -89,17 +90,19 @@ class CommonDeal extends React.Component<Props> {
               <Items color="#F7CE53" items={deal.customers || []} />
               <Items color="#F7CE53" uppercase items={deal.companies || []} />
             </ItemList>
-            {this.renderAmount(deal.amount || {})}
+            {renderDealAmount(deal.amount || {})}
           </FooterContent>
           <UserCounter users={deal.assignedUsers || []} />
         </SpaceContent>
         <ActionInfo>
           <span>{__('Last updated')}:</span>
-          {this.renderDate(deal.modifiedAt, 'lll')}
+          {renderDealDate(deal.modifiedAt, 'lll')}
         </ActionInfo>
-      </React.Fragment>
+      </Container>
     );
+
+    return this.renderFormTrigger(content);
   }
 }
 
-export default CommonDeal;
+export default Deal;

@@ -21,9 +21,9 @@ type Props = {
   addMutation: SaveDealMutation;
   editMutation: SaveDealMutation;
   removeMutation: RemoveDealMutation;
-  onAdd: (stageId: string, deal: IDeal) => void;
-  onRemove: (_id: string, stageId: string) => void;
-  onUpdate: (deal: IDeal) => void;
+  onAdd?: (stageId: string, deal: IDeal) => void;
+  onRemove?: (_id: string, stageId: string) => void;
+  onUpdate?: (deal: IDeal) => void;
   closeModal: () => void;
 };
 
@@ -45,7 +45,9 @@ class EditFormContainer extends React.Component<Props> {
 
         callback();
 
-        onAdd(stageId, dealsAdd);
+        if (onAdd) {
+          onAdd(stageId, dealsAdd);
+        }
       })
       .catch(error => {
         Alert.error(error.message);
@@ -61,7 +63,9 @@ class EditFormContainer extends React.Component<Props> {
 
         callback();
 
-        onUpdate(data.dealsEdit);
+        if (onUpdate) {
+          onUpdate(data.dealsEdit);
+        }
       })
       .catch(error => {
         Alert.error(error.message);
@@ -76,7 +80,9 @@ class EditFormContainer extends React.Component<Props> {
         .then(() => {
           callback();
 
-          onRemove(_id, stageId);
+          if (onRemove) {
+            onRemove(_id, stageId);
+          }
         })
 
         .catch(error => {

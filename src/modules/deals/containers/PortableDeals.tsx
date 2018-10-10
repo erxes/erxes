@@ -1,58 +1,39 @@
 import gql from 'graphql-tag';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { PortableDeals } from '../components';
+import { Deals } from '../components/portable';
 import { mutations, queries } from '../graphql';
-import {
-  IDeal,
-  IDealParams,
-  RemoveDealMutation,
-  SaveDealMutation
-} from '../types';
-import { removeDeal as remove, saveDeal as save } from '../utils';
+import { IDeal, IDealParams, SaveDealMutation } from '../types';
 
 type Props = {
   deals: IDeal[];
   addMutation: SaveDealMutation;
-  editMutation: SaveDealMutation;
-  removeMutation: RemoveDealMutation;
   dealsQuery: any;
 };
 
 class PortableDealsContainer extends React.Component<Props> {
-  constructor(props) {
-    super(props);
+  saveDeal = (doc: IDealParams, callback: () => void) => {
+    const { addMutation, dealsQuery } = this.props;
 
-    this.saveDeal = this.saveDeal.bind(this);
-    this.removeDeal = this.removeDeal.bind(this);
-  }
+    addMutation({ variables: doc })
+      .then(() => {
+        Alert.success(__('Successfully saved.'));
 
-  // create or update deal
-  saveDeal(doc: IDealParams, callback: () => void, deal?: IDeal) {
-    const { addMutation, editMutation, dealsQuery } = this.props;
-
-    save(
-      doc,
-      addMutation,
-      editMutation,
-      () => {
         callback();
+
         dealsQuery.refetch();
-      },
-      deal
-    );
-  }
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
 
-  // remove deal
-  removeDeal(_id: string, callback: () => void) {
-    const { removeMutation, dealsQuery } = this.props;
+  onChangeDeals = () => {
+    const { dealsQuery } = this.props;
 
-    remove(_id, removeMutation, () => {
-      callback();
-
-      dealsQuery.refetch();
-    });
-  }
+    dealsQuery.refetch();
+  };
 
   render() {
     const { dealsQuery = {} } = this.props;
@@ -63,10 +44,10 @@ class PortableDealsContainer extends React.Component<Props> {
       ...this.props,
       deals,
       saveDeal: this.saveDeal,
-      removeDeal: this.removeDeal
+      onChangeDeals: this.onChangeDeals
     };
 
-    return <PortableDeals {...extendedProps} />;
+    return <Deals {...extendedProps} />;
   }
 }
 
@@ -74,12 +55,6 @@ export default compose(
   // mutation
   graphql(gql(mutations.dealsAdd), {
     name: 'addMutation'
-  }),
-  graphql(gql(mutations.dealsEdit), {
-    name: 'editMutation'
-  }),
-  graphql(gql(mutations.dealsRemove), {
-    name: 'removeMutation'
   }),
   graphql(gql(queries.deals), {
     name: 'dealsQuery',
