@@ -115,7 +115,6 @@ const dealMutations = {
   async dealsAdd(_root, doc: IDeal, { user }: { user: IUserDocument }) {
     const deal = await Deals.createDeal({
       ...doc,
-      modifiedAt: new Date(),
       modifiedBy: user._id,
     });
 
@@ -149,8 +148,8 @@ const dealMutations = {
   /**
    * Update deal orders
    */
-  dealsUpdateOrder(_root, { orders }: { orders: IOrderInput[] }) {
-    return Deals.updateOrder(orders);
+  dealsUpdateOrder(_root, { stageId, orders }: { stageId: string; orders: IOrderInput[] }) {
+    return Deals.updateOrder(stageId, orders);
   },
 
   /**

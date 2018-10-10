@@ -8,6 +8,7 @@ export const types = `
     _id: String!
     name: String!
     ${commonTypes}
+    pipelines: [DealPipeline]
   }
 
   type DealPipeline {
@@ -23,6 +24,7 @@ export const types = `
     probability: String
     pipelineId: String!
     amount: JSON
+    deals: [Deal]
     ${commonTypes}
   }
 
@@ -98,6 +100,6 @@ export const mutations = `
   dealsAdd(${dealMutationParams}): Deal
   dealsEdit(_id: String!, ${dealMutationParams}): Deal
   dealsChange( _id: String!, stageId: String!): Deal
-  dealsUpdateOrder(orders: [OrderItem]): [Deal]
+  dealsUpdateOrder(stageId: String!, orders: [OrderItem]): [Deal]
   dealsRemove(_id: String!): Deal
 `;
