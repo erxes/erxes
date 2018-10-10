@@ -73,9 +73,11 @@ const Container = styledTS<{ isDragging: boolean }>(styled.div)`
 
 const Amount = styled.ul`
   list-style: none;
-  margin: 5px 0 0;
+  margin: 5px 0px 0px;
   overflow: hidden;
   padding: 0;
+  max-width: 230px;
+  display: inline-block;
 
   li {
     float: left;

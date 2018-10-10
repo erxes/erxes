@@ -58,6 +58,17 @@ const stages = `
         }
         modifiedAt
         modifiedBy
+        products
+        companies {
+          _id
+          primaryName
+        }
+        customers {
+          _id
+          firstName
+          primaryEmail
+          primaryPhone
+        }
       }
     }
   }

@@ -12,8 +12,6 @@ const UserCounterContainer = styled.ul`
   margin-bottom: 0;
   list-style: none;
   padding: 0;
-  flex-shrink: 0;
-  align-self: flex-end;
 
   li {
     float: left;

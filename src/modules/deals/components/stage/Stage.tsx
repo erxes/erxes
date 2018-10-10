@@ -3,6 +3,7 @@ import { __ } from 'modules/common/utils';
 import { borderRadius, colors, grid } from 'modules/deals/constants';
 import { AddNew } from 'modules/deals/styles/deal';
 import { IDeal, IStage } from 'modules/deals/types';
+import { renderDealAmount } from 'modules/deals/utils';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
@@ -12,14 +13,9 @@ import DealList from './DealList';
 
 const Container = styled.div`
   margin: ${grid}px;
-  display: flex;
-  flex-direction: column;
 `;
 
 const Header = styledTS<{ isDragging: boolean }>(styled.div)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-top-left-radius: ${borderRadius}px;
   border-top-right-radius: ${borderRadius}px;
   background-color: ${({ isDragging }) =>
@@ -29,18 +25,21 @@ const Header = styledTS<{ isDragging: boolean }>(styled.div)`
   &:hover {
     background-color: ${colors.blue.lighter};
   }
+
+  padding: 8px;
 `;
 
 const Title = styled('h4')`
-  padding: ${grid}px;
-  transition: background-color ease 0.2s;
-  flex-grow: 1;
-  user-select: none;
-  position: relative;
+  margin: 0;
+  font-size: 11px;
+  line-height: inherit;
+  text-transform: uppercase;
+  font-weight: bold;
 
-  &:focus {
-    outline: 2px solid ${colors.purple};
-    outline-offset: 2px;
+  span {
+    color: ${colors.grey.N30};
+    margin-left: 5px;
+    font-size: 90%;
   }
 `;
 
@@ -52,16 +51,6 @@ type Props = {
 };
 
 export default class Stage extends React.Component<Props> {
-  renderAmount(amount: number) {
-    if (Object.keys(amount).length === 0) return <li>0</li>;
-
-    return Object.keys(amount).map(key => (
-      <li key={key}>
-        {amount[key].toLocaleString()} <span>{key}</span>
-      </li>
-    ));
-  }
-
   renderAddDealTrigger() {
     const { addDeal } = this.props;
 
@@ -94,8 +83,8 @@ export default class Stage extends React.Component<Props> {
               >
                 {stage.name}
                 <span>({deals.length})</span>
-                {this.renderAmount(stage.amount)}
               </Title>
+              {renderDealAmount(stage.amount)}
             </Header>
 
             <DealList

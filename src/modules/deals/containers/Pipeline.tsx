@@ -1,4 +1,3 @@
-import { injectGlobal } from 'emotion';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -26,14 +25,6 @@ type Props = {
 };
 
 class WithStages extends React.Component<Props, {}> {
-  componentDidMount() {
-    injectGlobal`
-      body {
-        background: ${colors.blue.deep};
-      }
-    `;
-  }
-
   render() {
     const { initialDealMap, pipeline, stageMap } = this.props;
 

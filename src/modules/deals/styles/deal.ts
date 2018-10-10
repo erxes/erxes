@@ -251,9 +251,10 @@ const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
 const ItemList = styled.ul`
   list-style: none;
   margin: 0;
-  padding: 0 !important;
+  padding: 0 0 0 12px !important;
   display: block;
   overflow: hidden;
+  position: relative;
 
   > li {
     float: left;
@@ -319,6 +320,16 @@ const ActionInfo = SpaceContent.extend`
   }
 `;
 
+const DealFooter = styled.div`
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed ${colors.colorShadowGray};
+
+  span {
+    font-size: 10px;
+  }
+`;
+
 const Status = styled.div`
   margin-bottom: 4px;
   overflow: hidden;
@@ -358,5 +369,6 @@ export {
   Avatar,
   AddContainer,
   ActionInfo,
-  Status
+  Status,
+  DealFooter
 };

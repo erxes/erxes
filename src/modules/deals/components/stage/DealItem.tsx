@@ -1,12 +1,15 @@
 import { __ } from 'modules/common/utils';
 import { borderRadius, colors, grid } from 'modules/deals/constants';
 import { EditForm } from 'modules/deals/containers/editForm';
+import { ActionInfo, DealFooter, ItemList } from 'modules/deals/styles/deal';
 import { IDeal } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
+import * as moment from 'moment';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { Items, UserCounter } from '../portable';
 
 type Props = {
   stageId: string;
@@ -18,59 +21,58 @@ type Props = {
   onUpdate: (deal: IDeal) => void;
 };
 
-const Container = styledTS<{ isDragging: boolean }>(styled.a)`
-  border-radius: ${borderRadius}px;
-  border: 1px solid grey;
+const Container = styled.div`
+  overflow: auto;
+`;
+
+const Right = styled.div`
+  float: right;
+`;
+
+const InlineBlock = styled.div`
+  display: inline-block;
+`;
+
+const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
+  margin-bottom: 10px;
+  background-color: rgb(255, 255, 255);
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
+  overflow: hidden;
+  padding: 10px;
+  outline: 0px;
+  border-radius: 3px;
+  transition: box-shadow 0.3s ease-in-out 0s;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+
+  &:hover {
+    background-color: #eee;
+  }
+
   background-color: ${({ isDragging }) =>
     isDragging ? colors.green : colors.white};
   box-shadow: ${({ isDragging }) =>
     isDragging ? `2px 2px 1px ${colors.shadow}` : 'none'};
-  padding: ${grid}px;
-  min-height: 40px;
-  margin-bottom: ${grid}px;
-  user-select: none;
-  transition: background-color 0.1s ease;
 
-  /* anchor overrides */
-  color: ${colors.black};
-
-  &:hover {
-    color: ${colors.black};
-    text-decoration: none;
-  }
-
-  &:focus {
-    outline: 2px solid ${colors.purple};
-    box-shadow: none;
-  }
-
-  /* flexbox */
-  display: flex;
-  align-items: center;
 `;
 
-const Content = styled('div')`
-  /* flex child */
-  flex-grow: 1;
-
-  /*
-    Needed to wrap text in ie11
-    https://stackoverflow.com/questions/35111090/why-ie11-doesnt-wrap-the-text-in-flexbox
-  */
-  flex-basis: 100%;
-
-  /* flex parent */
-  display: flex;
-  flex-direction: column;
+const Title = styled.h4`
+  margin-top: 0px;
+  font-weight: normal;
+  font-size: 14px;
+  margin-bottom: 5px;
+  line-height: 1.4;
 `;
 
-// Previously this extended React.Component
-// That was a good thing, because using React.PureComponent can hide
-// issues with the selectors. However, moving it over does can considerable
-// performance improvements when reordering big lists (400ms => 200ms)
-// Need to be super sure we are not relying on PureComponent here for
-// things we should be doing in the selector as we do not know if consumers
-// will be using PureComponent
+const Date = styledTS<{ fontSize?: number }>(styled.span)`
+  color: rgb(136, 136, 136);
+  font-size: ${({ fontSize }) => `${fontSize || 11}px`};
+  z-index: 10;
+  cursor: help;
+  margin-left: 5px;
+  flex-shrink: 0;
+`;
+
 export default class DealItem extends React.PureComponent<
   Props,
   { isFormVisible: boolean }
@@ -79,6 +81,12 @@ export default class DealItem extends React.PureComponent<
     super(props);
 
     this.state = { isFormVisible: false };
+  }
+
+  renderDate(date, format = 'YYYY-MM-DD') {
+    if (!date) return null;
+
+    return <Date>{moment(date).fromNow()}</Date>;
   }
 
   toggleForm = () => {
@@ -116,25 +124,43 @@ export default class DealItem extends React.PureComponent<
 
   render() {
     const { deal, isDragging, provided } = this.props;
+    const products = (deal.products || []).map(p => p.product);
 
     return (
-      <Container
+      <Deal
         isDragging={isDragging}
         innerRef={provided.innerRef}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={this.toggleForm}>
-          <div>{deal.name}</div>
-          {renderDealAmount(deal.amount)}
-          {(deal.assignedUsers || []).map((user, index) => (
-            <span key={index}>{user.email}</span>
-          ))}
-          {deal.modifiedAt}
-        </Content>
-
+        <div onClick={this.toggleForm}>
+          <Title>{deal.name}</Title>
+          <div>
+            <ItemList>
+              <Items color="#63D2D6" items={products} />
+            </ItemList>
+            <ItemList>
+              <Items color="#F7CE53" items={deal.customers || []} />
+            </ItemList>
+            <ItemList>
+              <Items color="#F7CE53" uppercase items={deal.companies || []} />
+            </ItemList>
+          </div>
+          <Container>
+            {renderDealAmount(deal.amount)}
+            <Right>
+              <UserCounter users={deal.assignedUsers || []} />
+            </Right>
+          </Container>
+          <DealFooter>
+            <Container>
+              <span>{__('Last updated')}:</span>
+              <Right>{this.renderDate(deal.modifiedAt, 'lll')}</Right>
+            </Container>
+          </DealFooter>
+        </div>
         {this.renderForm()}
-      </Container>
+      </Deal>
     );
   }
 }

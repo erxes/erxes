@@ -16,18 +16,20 @@ type Props = {
 const Item = styledTS<{ uppercase: boolean }>(styled.li)`
   text-transform: ${props => (props.uppercase ? 'uppercase' : 'normal')};
   font-size: ${props => (props.uppercase ? '10px' : '12px')};
-  display: flex;
   align-items: center;
+  vertical-align: bottom;
 
   &:first-child:before {
     content: '';
     width: 8px;
     height: 8px;
     float: left;
-    margin-right: 5px;
     border-radius: 1px;
     background: ${props =>
       props.color ? `${props.color}` : `${colors.colorShadowGray}`};
+    position: absolute;
+    top: 4px;
+    left: 0;
   }
 `;
 
