@@ -1,23 +1,32 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { Spinner } from '../../common/components';
+import { IPipeline } from '../../settings/deals/types';
 import { queries } from '../graphql';
-import { IBoard } from '../types';
 import Pipeline from './Pipeline';
 
-const WithPipelinesQuery = ({ pipelinesQuery }) => {
-  const pipelines = pipelinesQuery.dealPipelines || [];
+const WithPipelinesQuery = ({ pipelineDetailQuery }) => {
+  if (!pipelineDetailQuery) {
+    return null;
+  }
 
-  return pipelines.map(pipeline => (
-    <Pipeline pipeline={pipeline} key={pipeline._id} />
-  ));
+  if (pipelineDetailQuery.loading) {
+    return <Spinner />;
+  }
+
+  const pipeline = pipelineDetailQuery.dealPipelineDetail;
+
+  return <Pipeline pipeline={pipeline} key={pipeline._id} />;
 };
 
 export default compose(
-  graphql(gql(queries.pipelines), {
-    name: 'pipelinesQuery',
-    options: ({ currentBoard }: { currentBoard: IBoard }) => ({
-      variables: { boardId: currentBoard ? currentBoard._id : '' }
+  graphql(gql(queries.pipelineDetail), {
+    name: 'pipelineDetailQuery',
+    skip: ({ currentPipeline }: { currentPipeline: IPipeline }) =>
+      !currentPipeline,
+    options: ({ currentPipeline }: { currentPipeline: IPipeline }) => ({
+      variables: { _id: currentPipeline._id }
     })
   })
 )(WithPipelinesQuery);

@@ -119,8 +119,8 @@ const customersExport = `
 `;
 
 const customerCounts = `
-  query customerCounts(${listParamsDef}, $byFakeSegment: JSON) {
-    customerCounts(${listParamsValue}, byFakeSegment: $byFakeSegment)
+  query customerCounts(${listParamsDef}, $byFakeSegment: JSON, $only: String) {
+    customerCounts(${listParamsValue}, byFakeSegment: $byFakeSegment, only: $only)
   }
 `;
 

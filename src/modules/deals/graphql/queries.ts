@@ -3,6 +3,11 @@ const boards = `
     dealBoards {
       _id
       name
+
+      pipelines {
+        _id
+        name
+      }
     }
   }
 `;
@@ -12,6 +17,11 @@ const boardGetLast = `
     dealBoardGetLast {
       _id
       name
+
+      pipelines {
+        _id
+        name
+      }
     }
   }
 `;
@@ -21,6 +31,11 @@ const boardDetail = `
     dealBoardDetail(_id: $_id) {
       _id
       name
+
+      pipelines {
+        _id
+        name
+      }
     }
   }
 `;
@@ -31,6 +46,24 @@ const pipelines = `
       _id
       name
       boardId
+    }
+  }
+`;
+
+const pipelineDetail = `
+  query dealPipelineDetail($_id: String!) {
+    dealPipelineDetail(_id: $_id) {
+      _id
+      name
+    }
+  }
+`;
+
+const pipelineGetLast = `
+  query dealPipelineGetLast {
+    dealPipelineGetLast {
+      _id
+      name
     }
   }
 `;
@@ -198,6 +231,8 @@ export default {
   boardGetLast,
   boardDetail,
   pipelines,
+  pipelineGetLast,
+  pipelineDetail,
   stages,
   stageDetail,
   deals,

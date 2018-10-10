@@ -28,40 +28,39 @@ class Main extends React.Component<Props> {
       boardDetailQuery = {}
     } = this.props;
 
+    const lastBoard = boardGetLastQuery.dealBoardGetLast;
     const currentBoard = boardDetailQuery.dealBoardDetail;
-    const storageBoardId = localStorage.getItem(STORAGE_BOARD_KEY);
 
-    if (!queryParams.id) {
-      // set default board from localStorage
-      let boardId = storageBoardId;
+    let currentPipeline;
+    let boardId = queryParams.id || localStorage.getItem(STORAGE_BOARD_KEY);
+    let pipelineId =
+      queryParams.pipelineId || localStorage.getItem(STORAGE_PIPELINE_KEY);
 
-      const lastBoard = boardGetLastQuery.dealBoardGetLast;
+    if (!boardId && lastBoard) {
+      boardId = lastBoard._id;
 
-      // if no default board in localStorage, set last board as default
-      if (!boardId && lastBoard) {
-        boardId = lastBoard._id;
+      if (lastBoard.pipelines && lastBoard.pipelines.length > 0) {
+        pipelineId = lastBoard.pipelines[0]._id;
       }
 
-      if (boardId) {
-        routerUtils.setParams(history, { id: boardId });
-        return null;
-      }
-    } else {
-      // if not change default board
-      if (queryParams.id !== storageBoardId) {
-        localStorage.setItem(STORAGE_BOARD_KEY, queryParams.id);
+      routerUtils.setParams(history, { id: boardId, pipelineId });
 
-        // set default
-        localStorage.setItem(
-          STORAGE_PIPELINE_KEY,
-          JSON.stringify({ 0: true, 1: true })
-        );
-      }
+      return null;
+    }
+
+    if (currentBoard) {
+      currentPipeline = currentBoard.pipelines.find(
+        pipe => pipe._id === pipelineId
+      );
+
+      localStorage.setItem(STORAGE_BOARD_KEY, boardId);
+      localStorage.setItem(STORAGE_PIPELINE_KEY, pipelineId);
     }
 
     const extendedProps = {
       ...this.props,
       currentBoard,
+      currentPipeline,
       boards: boardsQuery.dealBoards || []
     };
 
@@ -74,14 +73,16 @@ const MainContainer = compose(
     name: 'boardsQuery'
   }),
   graphql(gql(queries.boardGetLast), {
-    name: 'boardGetLastQuery',
-    skip: () => (localStorage.getItem(STORAGE_BOARD_KEY) ? true : false)
+    name: 'boardGetLastQuery'
   }),
   graphql(gql(queries.boardDetail), {
     name: 'boardDetailQuery',
-    skip: ({ queryParams }) => !queryParams.id,
+    skip: ({ queryParams }) =>
+      !queryParams.id && !localStorage.getItem(STORAGE_BOARD_KEY),
     options: ({ queryParams }: { queryParams: { id: string } }) => ({
-      variables: { _id: queryParams.id }
+      variables: {
+        _id: queryParams.id || localStorage.getItem(STORAGE_BOARD_KEY)
+      }
     })
   })
 )(Main);

@@ -1,4 +1,4 @@
-import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
+import { Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons } from 'modules/layout/styles';
@@ -14,7 +14,6 @@ type Props = {
   loading: boolean;
   topics: ITopic[];
   articlesCount: number;
-  topicsCount: number;
 
   save: (
     params: {
@@ -35,12 +34,6 @@ type Props = {
 };
 
 class KnowledgeList extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderSidebarList = this.renderSidebarList.bind(this);
-  }
-
   renderTopics() {
     const {
       topics,
@@ -65,21 +58,6 @@ class KnowledgeList extends React.Component<Props> {
           />
         ))}
       </React.Fragment>
-    );
-  }
-
-  renderSidebarList() {
-    const { loading, topicsCount } = this.props;
-
-    return (
-      <DataWithLoader
-        loading={loading}
-        count={topicsCount}
-        data={this.renderTopics()}
-        emptyText="Add knowledge base."
-        emptyImage="/images/robots/robot-03.svg"
-        size="small"
-      />
     );
   }
 
@@ -110,7 +88,7 @@ class KnowledgeList extends React.Component<Props> {
   render() {
     return (
       <Sidebar full wide header={this.renderSidebarHeader()}>
-        {this.renderSidebarList()}
+        {this.renderTopics()}
       </Sidebar>
     );
   }

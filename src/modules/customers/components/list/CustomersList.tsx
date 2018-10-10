@@ -20,10 +20,8 @@ import { __, confirm, router } from '../../../common/utils';
 import { Widget } from '../../../engage/containers';
 import { Wrapper } from '../../../layout/components';
 import { BarItems } from '../../../layout/styles';
-import { IBrand } from '../../../settings/brands/types';
 import { ManageColumns } from '../../../settings/properties/containers';
 import { TaggerPopover } from '../../../tags/components';
-import { ITag } from '../../../tags/types';
 import { CustomerForm } from '../../containers';
 import { ICustomer } from '../../types';
 import CustomerRow from './CustomerRow';
@@ -31,11 +29,9 @@ import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   customers: ICustomer[];
-  counts: any;
+  totalCount: number;
   columnsConfig: any;
-  brands: IBrand[];
   integrations: string[];
-  tags: ITag[];
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
@@ -43,7 +39,6 @@ interface IProps extends IRouterProps {
   toggleAll: (targets: ICustomer[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
-  loadingTags: boolean;
   removeCustomers: (
     doc: { customerIds: string[] },
     emptyBulk: () => void
@@ -164,13 +159,11 @@ class CustomersList extends React.Component<IProps, State> {
 
   render() {
     const {
-      counts,
+      totalCount,
       bulk,
-      tags,
       emptyBulk,
       loading,
       customers,
-      loadingTags,
       mergeCustomers,
       location,
       history,
@@ -321,7 +314,7 @@ class CustomersList extends React.Component<IProps, State> {
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
     );
 
-    const breadcrumb = [{ title: __(`Customers`) + ` (${counts.all})` }];
+    const breadcrumb = [{ title: __(`Customers`) + ` (${totalCount})` }];
 
     return (
       <Wrapper
@@ -329,10 +322,8 @@ class CustomersList extends React.Component<IProps, State> {
           <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
         }
         actionBar={actionBar}
-        footer={<Pagination count={counts.all} />}
-        leftSidebar={
-          <Sidebar counts={counts} tags={tags} loading={loadingTags} />
-        }
+        footer={<Pagination count={totalCount} />}
+        leftSidebar={<Sidebar />}
         content={
           <DataWithLoader
             data={this.renderContent()}

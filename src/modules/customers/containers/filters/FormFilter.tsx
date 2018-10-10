@@ -1,18 +1,23 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { FormFilter } from '../components';
+import { FormFilter } from '../../components';
+import { queries } from '../../graphql';
 
 type Props = {
   integrationsQuery: any;
-  counts: any;
+  customersCountQuery: any;
+  counts: { [key: string]: number };
 };
 
 const FormFilterContainer = (props: Props) => {
-  const { integrationsQuery } = props;
+  const { integrationsQuery, customersCountQuery } = props;
+
+  const counts = customersCountQuery.customerCounts || {};
 
   const updatedProps = {
     ...props,
+    counts: counts.byForm || {},
     integrations: integrationsQuery.integrations || [],
     loading: integrationsQuery.loading
   };
@@ -36,5 +41,11 @@ export default compose(
     {
       name: 'integrationsQuery'
     }
-  )
+  ),
+  graphql(gql(queries.customerCounts), {
+    name: 'customersCountQuery',
+    options: {
+      variables: { only: 'byForm' }
+    }
+  })
 )(FormFilterContainer);
