@@ -5,18 +5,25 @@ export const types = `
     createdAt: Date
     modifiedAt: Date
     avatar: String
-
-    primaryName: String
-    names: [String]
+    
     size: Int
     website: String
     industry: String
     plan: String
-
     parentCompanyId: String
-    email: String
     ownerId: String
-    phone: String
+
+    names: [String]
+    primaryName: String
+
+    emails: [String]
+    primaryEmail: String
+
+
+    phones: [String]
+    primaryPhone: String
+
+
     leadStatus: String
     lifecycleState: String
     businessType: String
@@ -74,8 +81,16 @@ export const queries = `
 
 const commonFields = `
   avatar: String,
+
   primaryName: String,
   names: [String]
+
+  primaryPhone: String,
+  phones: [String],
+
+  primaryEmail: String,
+  emails: [String],
+
   size: Int,
   website: String,
   industry: String,
@@ -83,7 +98,6 @@ const commonFields = `
   parentCompanyId: String,
   email: String,
   ownerId: String,
-  phone: String,
   leadStatus: String,
   lifecycleState: String,
   businessType: String,

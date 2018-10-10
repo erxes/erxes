@@ -7,13 +7,20 @@ import {
   internalNoteFactory,
 } from '../db/factories';
 import { ActivityLogs, Companies, Customers, Deals, InternalNotes } from '../db/models';
+import { ICompany, ICompanyDocument } from '../db/models/definitions/companies';
 import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
 
-const check = (companyObj, doc) => {
+const check = (companyObj: ICompanyDocument, doc: ICompany) => {
   expect(companyObj.createdAt).toBeDefined();
   expect(companyObj.modifiedAt).toBeDefined();
-  expect(companyObj.name).toBe(doc.name);
-  expect(companyObj.email).toBe(doc.email);
+  expect(companyObj.primaryName).toBe(doc.primaryName);
+  expect(companyObj.names).toEqual(expect.arrayContaining(doc.names || []));
+  expect(companyObj.primaryEmail).toBe(doc.primaryEmail);
+  expect(companyObj.emails).toEqual(expect.arrayContaining(doc.emails || []));
+  expect(companyObj.primaryPhone).toBe(doc.primaryPhone);
+  expect(companyObj.phones).toEqual(expect.arrayContaining(doc.phones || []));
+  expect(companyObj.primaryEmail).toBe(doc.primaryEmail);
+  expect(companyObj.primaryPhone).toBe(doc.primaryPhone);
   expect(companyObj.size).toBe(doc.size);
   expect(companyObj.industry).toBe(doc.industry);
   expect(companyObj.plan).toBe(doc.plan);
@@ -22,6 +29,10 @@ const check = (companyObj, doc) => {
 const generateDoc = () => ({
   primaryName: 'name',
   names: ['name'],
+  primaryPhone: 'phone',
+  phones: ['phone'],
+  primaryEmail: 'email',
+  emails: ['email'],
   size: 1,
   industry: 'Airlines',
   plan: 'pro',
@@ -43,7 +54,7 @@ describe('Companies model tests', () => {
   });
 
   test('Create company', async () => {
-    expect.assertions(9);
+    expect.assertions(15);
 
     // check duplication ==============
     try {
@@ -85,7 +96,7 @@ describe('Companies model tests', () => {
   });
 
   test('Update company', async () => {
-    expect.assertions(8);
+    expect.assertions(14);
 
     const doc = generateDoc();
 
@@ -174,16 +185,20 @@ describe('Companies model tests', () => {
   });
 
   test('mergeCompanies', async () => {
-    expect.assertions(21);
+    expect.assertions(23);
 
     const company1 = await companyFactory({
       tagIds: ['123', '456', '1234'],
       names: ['company1'],
+      phones: ['phone1'],
+      emails: ['email1'],
     });
 
     const company2 = await companyFactory({
       tagIds: ['1231', '123', 'asd12'],
       names: ['company2'],
+      phones: ['phone2'],
+      emails: ['email2'],
     });
 
     const customer1 = await customerFactory({
@@ -239,6 +254,8 @@ describe('Companies model tests', () => {
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);
     expect(updatedCompany.names).toEqual(expect.arrayContaining(['company1', 'company2']));
+    expect(updatedCompany.phones).toEqual(expect.arrayContaining(['phone1', 'phone2']));
+    expect(updatedCompany.emails).toEqual(expect.arrayContaining(['email1', 'email2']));
     expect(updatedCompany.ownerId).toBe('789');
     expect(updatedCompany.parentCompanyId).toBe('123');
 
