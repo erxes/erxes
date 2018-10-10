@@ -1,7 +1,6 @@
 import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
 import { EditForm } from 'modules/deals/containers/editForm';
-import { ActionInfo, DealFooter, ItemList } from 'modules/deals/styles/deal';
 import { IDeal } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
 import * as moment from 'moment';
@@ -9,7 +8,6 @@ import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { Items, UserCounter } from '../portable';
 
 type Props = {
   stageId: string;
@@ -29,8 +27,17 @@ const Right = styled.div`
   float: right;
 `;
 
-const InlineBlock = styled.div`
-  display: inline-block;
+const Content = styled('div')`
+  /* flex child */
+  flex-grow: 1;
+  /*
+    Needed to wrap text in ie11
+    https://stackoverflow.com/questions/35111090/why-ie11-doesnt-wrap-the-text-in-flexbox
+  */
+  flex-basis: 100%;
+  /* flex parent */
+  display: flex;
+  flex-direction: column;
 `;
 
 const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
@@ -44,24 +51,6 @@ const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
   transition: box-shadow 0.3s ease-in-out 0s;
   -webkit-box-pack: justify;
   justify-content: space-between;
-
-  &:hover {
-    background-color: #eee;
-  }
-
-  background-color: ${({ isDragging }) =>
-    isDragging ? colors.colorLightBlue : colors.colorLightBlue};
-  box-shadow: ${({ isDragging }) =>
-    isDragging ? `2px 2px 1px ${colors.colorLightBlue}` : 'none'};
-
-`;
-
-const Title = styled.h4`
-  margin-top: 0px;
-  font-weight: normal;
-  font-size: 14px;
-  margin-bottom: 5px;
-  line-height: 1.4;
 `;
 
 const Date = styledTS<{ fontSize?: number }>(styled.span)`
@@ -71,6 +60,20 @@ const Date = styledTS<{ fontSize?: number }>(styled.span)`
   cursor: help;
   margin-left: 5px;
   flex-shrink: 0;
+`;
+
+const Indicator = styledTS<{ color: string }>(styled.span)`
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 8px 8px 0 0;
+  background-color: ${props => props.color}
+`;
+
+const Footer = styled.div`
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px dashed #ccc;
 `;
 
 export default class DealItem extends React.PureComponent<
@@ -125,6 +128,7 @@ export default class DealItem extends React.PureComponent<
   render() {
     const { deal, isDragging, provided } = this.props;
     const products = (deal.products || []).map(p => p.product);
+    const { customers, companies } = deal;
 
     return (
       <Deal
@@ -133,32 +137,56 @@ export default class DealItem extends React.PureComponent<
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <div onClick={this.toggleForm}>
-          <Title>{deal.name}</Title>
-          <div>
-            <ItemList>
-              <Items color="#63D2D6" items={products} />
-            </ItemList>
-            <ItemList>
-              <Items color="#F7CE53" items={deal.customers || []} />
-            </ItemList>
-            <ItemList>
-              <Items color="#F7CE53" uppercase items={deal.companies || []} />
-            </ItemList>
-          </div>
+        <Content onClick={this.toggleForm}>
+          <p>{deal.name}</p>
+
+          {products.map((product, index) => (
+            <div key={index}>
+              <Indicator color="#63D2D6" />
+              {product.name}
+            </div>
+          ))}
+
+          {customers.map((customer, index) => (
+            <div key={index}>
+              <Indicator color="#F7CE53" />
+              {customer.firstName || customer.primaryEmail}
+            </div>
+          ))}
+
+          {companies.map((company, index) => (
+            <div key={index}>
+              <Indicator color="#CEF753" />
+              {company.primaryName}
+            </div>
+          ))}
+
+          <br />
+
           <Container>
             {renderDealAmount(deal.amount)}
+
             <Right>
-              <UserCounter users={deal.assignedUsers || []} />
+              {(deal.assignedUsers || []).map((user, index) => (
+                <img
+                  key={index}
+                  src={user.details && user.details.avatar}
+                  width="24px"
+                  height="24px"
+                  style={{ marginLeft: '2px' }}
+                />
+              ))}
             </Right>
           </Container>
-          <DealFooter>
+
+          <Footer>
             <Container>
-              <span>{__('Last updated')}:</span>
-              <Right>{this.renderDate(deal.modifiedAt, 'lll')}</Right>
+              {__('Last updated')}
+
+              <Right>{this.renderDate(deal.modifiedAt)}</Right>
             </Container>
-          </DealFooter>
-        </div>
+          </Footer>
+        </Content>
         {this.renderForm()}
       </Deal>
     );
