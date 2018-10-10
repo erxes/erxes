@@ -53,6 +53,12 @@ export const types = `
     to: String
   }
 
+  input IntegrationLinks {
+    twitter: String
+    facebook: String
+    youtube: String
+  }
+
   input IntegrationMessengerData {
     _id: String
     notifyCustomer: Boolean
@@ -63,6 +69,9 @@ export const types = `
     welcomeMessage: String
     awayMessage: String
     thankYouMessage: String
+    greetingMessage: String
+    showFaq: Boolean
+    links: IntegrationLinks
     supporterIds: [String]
   }
 
