@@ -7,7 +7,7 @@ import {
 } from 'modules/customers/components';
 import { Wrapper } from 'modules/layout/components';
 
-import { BrandFilter } from 'modules/customers/containers';
+import { BrandFilter } from 'modules/customers/containers/filters';
 
 import Segments from 'modules/segments/containers/Filter';
 import { ITag } from 'modules/tags/types';
