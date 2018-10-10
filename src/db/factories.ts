@@ -253,6 +253,10 @@ interface ICompanyFactoryInput {
   lifecycleState?: string;
   createdAt?: Date;
   modifiedAt?: Date;
+  phones?: string[];
+  emails?: string[];
+  primaryPhone?: string;
+  primaryEmail?: string;
 }
 
 export const companyFactory = (params: ICompanyFactoryInput = {}) => {
@@ -268,6 +272,10 @@ export const companyFactory = (params: ICompanyFactoryInput = {}) => {
     lifecycleState: params.lifecycleState || 'lead',
     createdAt: params.createdAt || new Date(),
     modifiedAt: params.modifiedAt || new Date(),
+    phones: params.phones || [],
+    emails: params.emails || [],
+    primaryPhone: params.primaryPhone || '',
+    primaryEmail: params.primaryEmail || '',
   });
 
   return company.save();

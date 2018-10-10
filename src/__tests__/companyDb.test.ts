@@ -185,16 +185,20 @@ describe('Companies model tests', () => {
   });
 
   test('mergeCompanies', async () => {
-    expect.assertions(21);
+    expect.assertions(23);
 
     const company1 = await companyFactory({
       tagIds: ['123', '456', '1234'],
       names: ['company1'],
+      phones: ['phone1'],
+      emails: ['email1'],
     });
 
     const company2 = await companyFactory({
       tagIds: ['1231', '123', 'asd12'],
       names: ['company2'],
+      phones: ['phone2'],
+      emails: ['email2'],
     });
 
     const customer1 = await customerFactory({
@@ -250,6 +254,8 @@ describe('Companies model tests', () => {
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);
     expect(updatedCompany.names).toEqual(expect.arrayContaining(['company1', 'company2']));
+    expect(updatedCompany.phones).toEqual(expect.arrayContaining(['phone1', 'phone2']));
+    expect(updatedCompany.emails).toEqual(expect.arrayContaining(['email1', 'email2']));
     expect(updatedCompany.ownerId).toBe('789');
     expect(updatedCompany.parentCompanyId).toBe('123');
 
