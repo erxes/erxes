@@ -23,7 +23,6 @@ import { BarItems } from '../../../layout/styles';
 import { IBrand } from '../../../settings/brands/types';
 import { ManageColumns } from '../../../settings/properties/containers';
 import { TaggerPopover } from '../../../tags/components';
-import { ITag } from '../../../tags/types';
 import { CustomerForm } from '../../containers';
 import { ICustomer } from '../../types';
 import CustomerRow from './CustomerRow';
@@ -35,7 +34,6 @@ interface IProps extends IRouterProps {
   columnsConfig: any;
   brands: IBrand[];
   integrations: string[];
-  tags: ITag[];
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
@@ -43,7 +41,6 @@ interface IProps extends IRouterProps {
   toggleAll: (targets: ICustomer[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
-  loadingTags: boolean;
   removeCustomers: (
     doc: { customerIds: string[] },
     emptyBulk: () => void
@@ -166,11 +163,9 @@ class CustomersList extends React.Component<IProps, State> {
     const {
       counts,
       bulk,
-      tags,
       emptyBulk,
       loading,
       customers,
-      loadingTags,
       mergeCustomers,
       location,
       history,
@@ -330,9 +325,7 @@ class CustomersList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={counts.all} />}
-        leftSidebar={
-          <Sidebar counts={counts} tags={tags} loading={loadingTags} />
-        }
+        leftSidebar={<Sidebar />}
         content={
           <DataWithLoader
             data={this.renderContent()}
