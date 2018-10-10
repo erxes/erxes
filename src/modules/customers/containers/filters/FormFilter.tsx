@@ -7,7 +7,7 @@ import { queries } from '../../graphql';
 type Props = {
   integrationsQuery: any;
   customersCountQuery: any;
-  counts: any;
+  counts: { [key: string]: number };
 };
 
 const FormFilterContainer = (props: Props) => {
