@@ -17,6 +17,14 @@ interface ISortParams {
   [index: string]: number;
 }
 
+interface ICountBy {
+  [index: string]: number;
+}
+
+interface ICountParams extends IListArgs {
+  only: string;
+}
+
 const sortBuilder = (params: IListArgs): ISortParams => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
@@ -28,6 +36,67 @@ const sortBuilder = (params: IListArgs): ISortParams => {
   }
 
   return sortParams;
+};
+
+const count = (query, mainQuery) => {
+  const findQuery = { $and: [mainQuery, query] };
+
+  return Customers.find(findQuery).count();
+};
+
+const countBySegment = async (qb: any, mainQuery: any): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  // Count customers by segments
+  const segments = await Segments.find({
+    contentType: COC_CONTENT_TYPES.CUSTOMER,
+  });
+
+  // Count customers by segment
+  for (const s of segments) {
+    counts[s._id] = await count(await qb.segmentFilter(s._id), mainQuery);
+  }
+
+  return counts;
+};
+
+const countByBrand = async (qb: any, mainQuery: any): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  // Count customers by brand
+  const brands = await Brands.find({});
+
+  for (const brand of brands) {
+    counts[brand._id] = await count(await qb.brandFilter(brand._id), mainQuery);
+  }
+
+  return counts;
+};
+
+const countByTag = async (qb: any, mainQuery: any): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  // Count customers by tag
+  const tags = await Tags.find({ type: TAG_TYPES.CUSTOMER });
+
+  for (const tag of tags) {
+    counts[tag._id] = await count(qb.tagFilter(tag._id), mainQuery);
+  }
+
+  return counts;
+};
+
+const countByForm = async (qb: any, mainQuery: any, params: any): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  // Count customers by submitted form
+  const forms = await Forms.find({});
+
+  for (const form of forms) {
+    counts[form._id] = await count(await qb.formFilter(form._id, params.startDate, params.endDate), mainQuery);
+  }
+
+  return counts;
 };
 
 const customerQueries = {
@@ -63,7 +132,8 @@ const customerQueries = {
   /**
    * Group customer counts by brands, segments, integrations, tags
    */
-  async customerCounts(_root, params: IListArgs) {
+  async customerCounts(_root, params: ICountParams) {
+    const { only } = params;
     const counts = {
       bySegment: {},
       byBrand: {},
@@ -90,61 +160,50 @@ const customerQueries = {
       mainQuery = { _id: { $in: customerIds } };
     }
 
-    const count = query => {
-      const findQuery = { $and: [mainQuery, query] };
+    switch (only) {
+      case 'bySegment':
+        counts.bySegment = await countBySegment(qb, mainQuery);
+        break;
 
-      return Customers.find(findQuery).count();
-    };
+      case 'byBrand':
+        counts.byBrand = await countByBrand(qb, mainQuery);
+        break;
 
-    // Count customers by segments
-    const segments = await Segments.find({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
-    });
+      case 'byTag':
+        counts.byTag = await countByTag(qb, mainQuery);
+        break;
 
-    // Count customers by segment
-    for (const s of segments) {
-      counts.bySegment[s._id] = await count(await qb.segmentFilter(s._id));
+      case 'byForm':
+        counts.byForm = await countByForm(qb, mainQuery, params);
+        break;
+      case 'byLeadStatus':
+        {
+          for (const status of COC_LEAD_STATUS_TYPES) {
+            counts.byLeadStatus[status] = await count(qb.leadStatusFilter(status), mainQuery);
+          }
+        }
+        break;
+
+      case 'byLifecycleState':
+        {
+          for (const state of COC_LIFECYCLE_STATE_TYPES) {
+            counts.byLifecycleState[state] = await count(qb.lifecycleStateFilter(state), mainQuery);
+          }
+        }
+        break;
+
+      case 'byIntegrationType':
+        {
+          for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
+            counts.byIntegrationType[kind] = await count(await qb.integrationTypeFilter(kind), mainQuery);
+          }
+        }
+        break;
     }
 
     // Count customers by fake segment
     if (params.byFakeSegment) {
-      counts.byFakeSegment = await count(QueryBuilder.segments(params.byFakeSegment));
-    }
-
-    // Count customers by brand
-    const brands = await Brands.find({});
-
-    for (const brand of brands) {
-      counts.byBrand[brand._id] = await count(await qb.brandFilter(brand._id));
-    }
-
-    // Count customers by integration kind
-    for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
-      counts.byIntegrationType[kind] = await count(await qb.integrationTypeFilter(kind));
-    }
-
-    // Count customers by tag
-    const tags = await Tags.find({ type: TAG_TYPES.CUSTOMER });
-
-    for (const tag of tags) {
-      counts.byTag[tag._id] = await count(qb.tagFilter(tag._id));
-    }
-
-    // Count customers by submitted form
-    const forms = await Forms.find({});
-
-    for (const form of forms) {
-      counts.byForm[form._id] = await count(await qb.formFilter(form._id, params.startDate, params.endDate));
-    }
-
-    // Count customers by lead status
-    for (const status of COC_LEAD_STATUS_TYPES) {
-      counts.byLeadStatus[status] = await count(qb.leadStatusFilter(status));
-    }
-
-    // Count customers by life cycle state
-    for (const state of COC_LIFECYCLE_STATE_TYPES) {
-      counts.byLifecycleState[state] = await count(qb.lifecycleStateFilter(state));
+      counts.byFakeSegment = await count(QueryBuilder.segments(params.byFakeSegment), mainQuery);
     }
 
     return counts;

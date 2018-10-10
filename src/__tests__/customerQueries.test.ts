@@ -104,8 +104,8 @@ describe('customerQueries', () => {
   `;
 
   const qryCount = `
-    query customerCounts(${commonParamDefs} $byFakeSegment: JSON) {
-      customerCounts(${commonParams} byFakeSegment: $byFakeSegment)
+    query customerCounts(${commonParamDefs} $byFakeSegment: JSON, $only: String) {
+      customerCounts(${commonParams} byFakeSegment: $byFakeSegment, only: $only)
     }
   `;
 
@@ -199,12 +199,14 @@ describe('customerQueries', () => {
 
     const args = {
       contentType: 'customer',
-      conditions: {
-        field: 'firstName',
-        operator: 'c',
-        value: firstName,
-        type: 'string',
-      },
+      conditions: [
+        {
+          field: 'firstName',
+          operator: 'c',
+          value: firstName,
+          type: 'string',
+        },
+      ],
     };
 
     const segment = await segmentFactory(args);
@@ -274,12 +276,12 @@ describe('customerQueries', () => {
 
     // Creating test data
     await segmentFactory({ contentType: 'customer' });
-    await tagsFactory({ type: 'customer' });
 
-    const response = await graphqlRequest(qryCount, 'customerCounts');
+    const response = await graphqlRequest(qryCount, 'customerCounts', {
+      only: 'bySegment',
+    });
 
     expect(count(response.bySegment)).toBe(1);
-    expect(count(response.byTag)).toBe(1);
   });
 
   test('Customer count by tag', async () => {
@@ -289,7 +291,9 @@ describe('customerQueries', () => {
     await tagsFactory({ type: 'company' });
     await tagsFactory({ type: 'customer' });
 
-    const response = await graphqlRequest(qryCount, 'customerCounts');
+    const response = await graphqlRequest(qryCount, 'customerCounts', {
+      only: 'byTag',
+    });
 
     expect(count(response.byTag)).toBe(1);
   });
@@ -301,7 +305,9 @@ describe('customerQueries', () => {
     await segmentFactory({ contentType: 'customer' });
     await segmentFactory({ contentType: 'company' });
 
-    const response = await graphqlRequest(qryCount, 'customerCounts');
+    const response = await graphqlRequest(qryCount, 'customerCounts', {
+      only: 'bySegment',
+    });
 
     expect(count(response.bySegment)).toBe(1);
   });
@@ -334,7 +340,9 @@ describe('customerQueries', () => {
     await customerFactory({ leadStatus: 'new' });
     await customerFactory({ leadStatus: 'new' });
 
-    const response = await graphqlRequest(qryCount, 'customerCounts');
+    const response = await graphqlRequest(qryCount, 'customerCounts', {
+      only: 'byLeadStatus',
+    });
 
     expect(response.byLeadStatus.open).toBe(2);
     expect(response.byLeadStatus.new).toBe(2);
@@ -346,7 +354,9 @@ describe('customerQueries', () => {
     await customerFactory({ lifecycleState: 'subscriber' });
     await customerFactory({ lifecycleState: 'subscriber' });
 
-    const response = await graphqlRequest(qryCount, 'customerCounts');
+    const response = await graphqlRequest(qryCount, 'customerCounts', {
+      only: 'byLifecycleState',
+    });
 
     expect(response.byLifecycleState.subscriber).toBe(2);
     expect(response.byLifecycleState.lead).toBe(2);
