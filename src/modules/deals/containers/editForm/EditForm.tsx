@@ -129,12 +129,36 @@ export default compose(
     name: 'usersQuery'
   }),
   graphql(gql(mutations.dealsAdd), {
-    name: 'addMutation'
+    name: 'addMutation',
+    options: ({ stageId }: { stageId: string }) => ({
+      refetchQueries: [
+        {
+          query: gql(queries.stageDetail),
+          variables: { _id: stageId }
+        }
+      ]
+    })
   }),
   graphql(gql(mutations.dealsEdit), {
-    name: 'editMutation'
+    name: 'editMutation',
+    options: ({ dealId }: { dealId: string }) => ({
+      refetchQueries: [
+        {
+          query: gql(queries.dealDetail),
+          variables: { _id: dealId }
+        }
+      ]
+    })
   }),
   graphql(gql(mutations.dealsRemove), {
-    name: 'removeMutation'
+    name: 'removeMutation',
+    options: ({ stageId }: { stageId: string }) => ({
+      refetchQueries: [
+        {
+          query: gql(queries.stageDetail),
+          variables: { _id: stageId }
+        }
+      ]
+    })
   })
 )(EditFormContainer);

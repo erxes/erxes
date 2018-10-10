@@ -70,6 +70,10 @@ const stageDetail = `
       name
       pipelineId
       amount
+
+      deals {
+        _id
+      }
     }
   }
 `;

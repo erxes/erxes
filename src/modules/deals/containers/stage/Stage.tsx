@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { __, Alert } from 'modules/common/utils';
 import { Stage } from 'modules/deals/components/stage';
-import { mutations } from 'modules/deals/graphql';
+import { mutations, queries } from 'modules/deals/graphql';
 import { IDeal, IStage, SaveDealMutation } from 'modules/deals/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -49,7 +49,15 @@ class StageContainer extends React.Component<Props & BaseProps, {}> {
 const WithMutation = compose(
   // mutation
   graphql(gql(mutations.dealsAdd), {
-    name: 'addMutation'
+    name: 'addMutation',
+    options: ({ stage }: { stage: IStage }) => ({
+      refetchQueries: [
+        {
+          query: gql(queries.stageDetail),
+          variables: { _id: stage._id }
+        }
+      ]
+    })
   })
 )(StageContainer);
 
