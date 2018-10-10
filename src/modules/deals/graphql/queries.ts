@@ -3,6 +3,11 @@ const boards = `
     dealBoards {
       _id
       name
+
+      pipelines {
+        _id
+        name
+      }
     }
   }
 `;

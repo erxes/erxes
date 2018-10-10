@@ -1,9 +1,4 @@
-import {
-  Button,
-  DropdownToggle,
-  EmptyState,
-  Icon
-} from 'modules/common/components';
+import { Button, DropdownToggle, Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
@@ -39,9 +34,17 @@ class Home extends React.Component<Props> {
         return null;
       }
 
+      let link = `/deals/board?id=${board._id}`;
+
+      const { pipelines = [] } = board;
+
+      if (pipelines.length > 0) {
+        link = `${link}&pipelineId=${pipelines[0]._id}`;
+      }
+
       return (
         <li key={board._id}>
-          <Link to={`/deals/board?id=${board._id}`}>{board.name}</Link>
+          <Link to={link}>{board.name}</Link>
         </li>
       );
     });
