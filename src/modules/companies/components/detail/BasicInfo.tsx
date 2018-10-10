@@ -148,14 +148,14 @@ class BasicInfo extends React.Component<Props> {
             'Parent Company',
             company.parentCompany ? company.parentCompany.primaryName : '-'
           )}
-          {this.renderRow('Email', company.email)}
+          {this.renderRow('Email', company.primaryEmail)}
           {this.renderRow(
             'Owner',
             company.owner && company.owner.details
               ? company.owner.details.fullName
               : '-'
           )}
-          {this.renderRow('Phone', company.phone)}
+          {this.renderRow('Phone', company.primaryPhone)}
           {this.renderRow(
             'Lead Status',
             LEAD_STATUS_TYPES[company.leadStatus || '']
