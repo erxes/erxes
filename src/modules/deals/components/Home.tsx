@@ -7,14 +7,12 @@ import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { Board } from '../containers';
 import { IBoard, IPipeline } from '../types';
-import { IDragResult } from '../types';
 
 type Props = {
   currentBoard: IBoard;
   boards: IBoard[];
   pipelines?: IPipeline[];
   loading?: boolean;
-  onDragEnd?: (result: IDragResult) => void;
 };
 
 class Home extends React.Component<Props> {

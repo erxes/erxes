@@ -4,6 +4,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
+import { Spinner } from '../../common/components';
 import { colors } from '../constants';
 import { queries } from '../graphql';
 import { IDealMap, IPipeline, IStageMap } from '../types';
@@ -75,7 +76,7 @@ const WithStatesQuery = props => {
   const { stagesQuery } = props;
 
   if (stagesQuery.loading) {
-    return null;
+    return <Spinner />;
   }
 
   const stages = stagesQuery.dealStages;
@@ -95,6 +96,7 @@ export default compose(
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
     options: ({ pipeline }: { pipeline: IPipeline }) => ({
+      fetchPolicy: 'network-only',
       variables: {
         pipelineId: pipeline._id
       }
