@@ -90,7 +90,6 @@ class ConversationDetail extends React.Component<
 
     if (data && data.conversationDetail) {
       const conversationDetail = data.conversationDetail;
-
       messages = conversationDetail.messages;
       isOnline = conversationDetail.isOnline;
     }

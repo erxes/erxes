@@ -23,17 +23,25 @@ function ConversationList(props: Props) {
     return <div className="loader bigger" />;
   }
 
-  return (
-    <ul className="erxes-conversation-list">
+  const createButton = () => {
+    return (
       <li onClick={createConversation} className="erxes-conversation-item">
         <div className="erxes-left-side">
           <span>{iconPlus}</span>
         </div>
         <div className="erxes-right-side">
           <div className="erxes-name">{__("Start new conversation")}</div>
-          <div className="erxes-last-message">Talk with support staff</div>
+          <div className="erxes-last-message">
+            {__("Talk with support staff")}
+          </div>
         </div>
       </li>
+    );
+  };
+
+  return (
+    <ul className="erxes-conversation-list">
+      {createButton()}
       {conversations.map(conversation => (
         <ConversationItem
           key={conversation._id}
