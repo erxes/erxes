@@ -35,10 +35,10 @@ class DealMove extends React.Component<Props, State> {
     } = props;
 
     this.state = {
-      show: false,
-      stages: props.stages || [],
+      boardId,
       pipelineId: pipeline && pipeline._id,
-      boardId
+      show: false,
+      stages: props.stages || []
     };
   }
 

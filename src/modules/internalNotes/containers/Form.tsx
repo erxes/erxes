@@ -26,9 +26,9 @@ const FormContainer = (props: Props) => {
   const create = content => {
     internalNotesAdd({
       variables: {
+        content,
         contentType,
-        contentTypeId,
-        content
+        contentTypeId
       }
     });
   };

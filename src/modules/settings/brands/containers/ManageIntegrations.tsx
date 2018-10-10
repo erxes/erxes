@@ -70,8 +70,8 @@ class ManageIntegrationsContainer extends React.Component<Props> {
     const updatedProps = {
       ...this.props,
       current: currentBrand,
-      save: this.save,
-      renderConfirm: this.renderConfirm
+      renderConfirm: this.renderConfirm,
+      save: this.save
     };
 
     return <ManageIntegrations {...updatedProps} />;

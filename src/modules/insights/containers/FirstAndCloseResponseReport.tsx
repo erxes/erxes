@@ -36,13 +36,13 @@ const FirstAndCloseResponseReportContainer = (props: IProps) => {
   }
 
   const extendedProps = {
-    history,
-    queryParams,
-    trend: data.trend || [],
-    time: data.time,
-    teamMembers: data.teamMembers || [],
     brands: brandsQuery.brands || [],
-    isLoading: brandsQuery.loading || loading
+    history,
+    isLoading: brandsQuery.loading || loading,
+    queryParams,
+    teamMembers: data.teamMembers || [],
+    time: data.time,
+    trend: data.trend || []
   };
 
   if (type === 'close') {
@@ -53,14 +53,14 @@ const FirstAndCloseResponseReportContainer = (props: IProps) => {
 };
 
 const commonOptions = (queryParams, skip) => ({
-  skip,
   fetchPolicy: 'network-only',
   notifyOnNetworkStatusChange: true,
+  skip,
   variables: {
     brandId: queryParams.brandId,
+    endDate: queryParams.endDate,
     integrationType: queryParams.integrationType,
-    startDate: queryParams.startDate,
-    endDate: queryParams.endDate
+    startDate: queryParams.startDate
   }
 });
 

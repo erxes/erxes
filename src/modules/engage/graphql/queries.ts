@@ -231,19 +231,19 @@ const tagCounts = `
 `;
 
 export default {
+  brands,
+  combinedFields,
+  customerCounts,
+  emailTemplates,
+  engageMessageDetail,
   engageMessages,
   engageMessagesTotalCount,
-  engageMessageDetail,
-  users,
-  userDetail,
-  segments,
-  brands,
-  emailTemplates,
-  customerCounts,
-  segmentDetail,
   headSegments,
-  combinedFields,
   kindCounts,
+  segmentDetail,
+  segments,
   statusCounts,
-  tagCounts
+  tagCounts,
+  userDetail,
+  users
 };

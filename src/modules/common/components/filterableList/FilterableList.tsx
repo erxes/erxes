@@ -30,8 +30,8 @@ class FilterableList extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      key: '',
-      items: props.items
+      items: props.items,
+      key: ''
     };
 
     this.filterItems = this.filterItems.bind(this);

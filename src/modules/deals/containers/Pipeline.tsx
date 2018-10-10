@@ -100,9 +100,9 @@ class PipelineContainer extends React.Component<
 
     const extendedProps = {
       ...this.props,
-      stages: this.state.stages,
       isExpanded: expandConfig[index],
-      onToggle: value => this.setConfig(value)
+      onToggle: value => this.setConfig(value),
+      stages: this.state.stages
     };
 
     return <Pipeline {...extendedProps} />;

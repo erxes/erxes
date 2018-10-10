@@ -36,8 +36,8 @@ class ProductChooser extends React.Component<Props, any> {
 
       this.setState({ perPage: this.state.perPage + 20 }, () =>
         productsQuery.refetch({
-          searchValue: value,
-          perPage: this.state.perPage
+          perPage: this.state.perPage,
+          searchValue: value
         })
       );
     };
@@ -65,16 +65,16 @@ class ProductChooser extends React.Component<Props, any> {
 
     const updatedProps = {
       ...this.props,
-      data: { name: data.name, datas: data.products },
-      search,
-      title: 'Product',
-      renderName: product => product.name,
-      renderForm: props => <ProductForm {...props} action={addProduct} />,
-      perPage: this.state.perPage,
       add: addProduct,
       clearState,
+      data: { name: data.name, datas: data.products },
       datas: productsQuery.products || [],
-      onSelect
+      onSelect,
+      perPage: this.state.perPage,
+      renderForm: props => <ProductForm {...props} action={addProduct} />,
+      renderName: product => product.name,
+      search,
+      title: 'Product'
     };
 
     return <Chooser {...updatedProps} />;

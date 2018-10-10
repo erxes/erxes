@@ -26,8 +26,8 @@ class Config extends React.Component<Props, State> {
     super(props);
 
     const { type, template } = props.brand.emailConfig || {
-      type: 'simple',
-      template: ''
+      template: '',
+      type: 'simple'
     };
 
     this.state = { type, template: template || props.defaultTemplate };

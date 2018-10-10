@@ -14,8 +14,8 @@ const ListContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    refetch: listQuery.refetch,
-    brands
+    brands,
+    refetch: listQuery.refetch
   };
 
   return <List {...updatedProps} />;

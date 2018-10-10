@@ -44,11 +44,11 @@ class CustomerForm extends React.Component<Props, State> {
     const customer = props.customer || ({} as ICustomer);
 
     this.state = {
-      ownerId: customer.ownerId || '',
+      avatar: customer.avatar,
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
-      users: [],
-      avatar: customer.avatar
+      ownerId: customer.ownerId || '',
+      users: []
     };
 
     this.renderFormGroup = this.renderFormGroup.bind(this);
@@ -78,29 +78,29 @@ class CustomerForm extends React.Component<Props, State> {
 
     this.props.action({
       doc: {
-        phones,
-        emails,
-        primaryPhone,
-        primaryEmail,
         avatar,
-        ownerId: this.state.ownerId,
-        hasAuthority: this.state.hasAuthority,
-        doNotDisturb: this.state.doNotDisturb,
-        firstName: this.getInputElementValue('customer-firstname'),
-        lastName: this.getInputElementValue('customer-lastname'),
-        position: this.getInputElementValue('customer-position'),
         department: this.getInputElementValue('customer-department'),
+        description: this.getInputElementValue('customer-description'),
+        doNotDisturb: this.state.doNotDisturb,
+        emails,
+        firstName: this.getInputElementValue('customer-firstname'),
+        hasAuthority: this.state.hasAuthority,
+        lastName: this.getInputElementValue('customer-lastname'),
         leadStatus: this.getInputElementValue('customer-leadStatus'),
         lifecycleState: this.getInputElementValue('customer-lifecycleState'),
-        description: this.getInputElementValue('customer-description'),
+        ownerId: this.state.ownerId,
+        phones,
+        position: this.getInputElementValue('customer-position'),
+        primaryEmail,
+        primaryPhone,
 
         links: {
-          linkedIn: this.getInputElementValue('customer-linkedin'),
-          twitter: this.getInputElementValue('customer-twitter'),
           facebook: this.getInputElementValue('customer-facebook'),
           github: this.getInputElementValue('customer-github'),
-          youtube: this.getInputElementValue('customer-youtube'),
-          website: this.getInputElementValue('customer-website')
+          linkedIn: this.getInputElementValue('customer-linkedin'),
+          twitter: this.getInputElementValue('customer-twitter'),
+          website: this.getInputElementValue('customer-website'),
+          youtube: this.getInputElementValue('customer-youtube')
         }
       }
     });
@@ -114,15 +114,15 @@ class CustomerForm extends React.Component<Props, State> {
 
   generateUserParams(users) {
     return users.map(user => ({
-      value: user._id,
-      label: user.details.fullName || ''
+      label: user.details.fullName || '',
+      value: user._id
     }));
   }
 
   generateConstantParams(constants) {
     return constants.map(constant => ({
-      value: constant,
-      label: constant
+      label: constant,
+      value: constant
     }));
   }
 
@@ -197,10 +197,10 @@ class CustomerForm extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('First Name', {
-              defaultValue: customer.firstName || '',
               autoFocus: true,
-              required: true,
-              id: 'customer-firstname'
+              defaultValue: customer.firstName || '',
+              id: 'customer-firstname',
+              required: true
             })}
 
             <FormGroup>
@@ -215,14 +215,14 @@ class CustomerForm extends React.Component<Props, State> {
             </FormGroup>
 
             {this.renderFormGroup('Position', {
-              id: 'customer-position',
-              defaultValue: customer.position || ''
+              defaultValue: customer.position || '',
+              id: 'customer-position'
             })}
 
             {this.renderFormGroup('Lead Status', {
-              id: 'customer-leadStatus',
               componentClass: 'select',
               defaultValue: customer.leadStatus || '',
+              id: 'customer-leadStatus',
               options: leadStatusChoices(__)
             })}
 
@@ -257,8 +257,8 @@ class CustomerForm extends React.Component<Props, State> {
 
           <FormColumn>
             {this.renderFormGroup('Last Name', {
-              id: 'customer-lastname',
-              defaultValue: customer.lastName || ''
+              defaultValue: customer.lastName || '',
+              id: 'customer-lastname'
             })}
 
             <FormGroup>
@@ -273,14 +273,14 @@ class CustomerForm extends React.Component<Props, State> {
             </FormGroup>
 
             {this.renderFormGroup('Department', {
-              id: 'customer-department',
-              defaultValue: customer.department || ''
+              defaultValue: customer.department || '',
+              id: 'customer-department'
             })}
 
             {this.renderFormGroup('Lifecycle State', {
-              id: 'customer-lifecycleState',
               componentClass: 'select',
               defaultValue: customer.lifecycleState || '',
+              id: 'customer-lifecycleState',
               options: lifecycleStateChoices(__)
             })}
 
@@ -288,16 +288,18 @@ class CustomerForm extends React.Component<Props, State> {
               componentClass: 'radio',
               options: [
                 {
-                  childNode: 'Yes',
-                  value: 'Yes',
                   checked: this.state.hasAuthority === 'Yes',
-                  onChange: e => this.setState({ hasAuthority: e.target.value })
+                  childNode: 'Yes',
+                  onChange: e =>
+                    this.setState({ hasAuthority: e.target.value }),
+                  value: 'Yes'
                 },
                 {
-                  childNode: 'No',
-                  value: 'No',
                   checked: this.state.hasAuthority === 'No',
-                  onChange: e => this.setState({ hasAuthority: e.target.value })
+                  childNode: 'No',
+                  onChange: e =>
+                    this.setState({ hasAuthority: e.target.value }),
+                  value: 'No'
                 }
               ]
             })}
@@ -306,16 +308,18 @@ class CustomerForm extends React.Component<Props, State> {
               componentClass: 'radio',
               options: [
                 {
-                  childNode: 'Yes',
-                  value: 'Yes',
                   checked: this.state.doNotDisturb === 'Yes',
-                  onChange: e => this.setState({ doNotDisturb: e.target.value })
+                  childNode: 'Yes',
+                  onChange: e =>
+                    this.setState({ doNotDisturb: e.target.value }),
+                  value: 'Yes'
                 },
                 {
-                  childNode: 'No',
-                  value: 'No',
                   checked: this.state.doNotDisturb === 'No',
-                  onChange: e => this.setState({ doNotDisturb: e.target.value })
+                  childNode: 'No',
+                  onChange: e =>
+                    this.setState({ doNotDisturb: e.target.value }),
+                  value: 'No'
                 }
               ]
             })}
@@ -325,34 +329,34 @@ class CustomerForm extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('LinkedIn', {
-              id: 'customer-linkedin',
-              defaultValue: links.linkedIn || ''
+              defaultValue: links.linkedIn || '',
+              id: 'customer-linkedin'
             })}
 
             {this.renderFormGroup('Twitter', {
-              id: 'customer-twitter',
-              defaultValue: links.twitter || ''
+              defaultValue: links.twitter || '',
+              id: 'customer-twitter'
             })}
 
             {this.renderFormGroup('Facebook', {
-              id: 'customer-facebook',
-              defaultValue: links.facebook || ''
+              defaultValue: links.facebook || '',
+              id: 'customer-facebook'
             })}
           </FormColumn>
           <FormColumn>
             {this.renderFormGroup('Github', {
-              id: 'customer-github',
-              defaultValue: links.github || ''
+              defaultValue: links.github || '',
+              id: 'customer-github'
             })}
 
             {this.renderFormGroup('Youtube', {
-              id: 'customer-youtube',
-              defaultValue: links.youtube || ''
+              defaultValue: links.youtube || '',
+              id: 'customer-youtube'
             })}
 
             {this.renderFormGroup('Website', {
-              id: 'customer-website',
-              defaultValue: links.website || ''
+              defaultValue: links.website || '',
+              id: 'customer-website'
             })}
           </FormColumn>
         </FormWrapper>

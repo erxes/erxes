@@ -100,13 +100,13 @@ class BasicInfo extends React.Component<Props> {
                 generateOptions={customers => {
                   return customers.map((cus, key) => ({
                     key,
-                    value: JSON.stringify(cus),
                     label:
                       cus.firstName ||
                       cus.lastName ||
                       cus.primaryEmail ||
                       cus.primaryPhone ||
-                      'N/A'
+                      'N/A',
+                    value: JSON.stringify(cus)
                   }));
                 }}
               />

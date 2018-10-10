@@ -113,9 +113,9 @@ const customersMerge = `
 
 export default {
   customersAdd,
-  customersEdit,
   customersAddCompany,
+  customersEdit,
   customersEditCompanies,
-  customersRemove,
-  customersMerge
+  customersMerge,
+  customersRemove
 };

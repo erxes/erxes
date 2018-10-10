@@ -22,8 +22,8 @@ const MessageFormContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    kind: message ? message.kind : kind,
     brands,
+    kind: message ? message.kind : kind,
     scheduleDate: message ? message.scheduleDate : {}
   };
 

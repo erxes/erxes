@@ -64,11 +64,11 @@ class CustomersMerge extends React.Component<Props, State> {
     }
 
     this.props.save({
-      ids: objects.map(customer => customer._id),
-      data: { ...selectedValues },
       callback: () => {
         this.props.closeModal();
-      }
+      },
+      data: { ...selectedValues },
+      ids: objects.map(customer => customer._id)
     });
   }
 

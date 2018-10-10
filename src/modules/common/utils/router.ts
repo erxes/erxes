@@ -64,8 +64,8 @@ const refetchIfUpdated = (history: any, query: any) => {
 };
 
 export default {
-  setParams,
   getParam,
+  refetchIfUpdated,
   removeParams,
-  refetchIfUpdated
+  setParams
 };

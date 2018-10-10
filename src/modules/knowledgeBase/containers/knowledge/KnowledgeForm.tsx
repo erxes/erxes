@@ -39,8 +39,8 @@ const TopicAddFormContainer = ({
 
   const updatedProps = {
     ...props,
-    topic,
-    brands: getBrandListQuery.brands || []
+    brands: getBrandListQuery.brands || [],
+    topic
   };
   return <KnowledgeForm {...updatedProps} />;
 };

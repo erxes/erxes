@@ -38,8 +38,8 @@ const CustomerAssociate = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    name: data.primaryName || '',
     customers: data.customers,
+    name: data.primaryName || '',
     onSelect: customers => save(customers)
   };
 

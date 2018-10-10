@@ -47,8 +47,8 @@ const Calendar = (props: Props) => {
     saveMutation({
       variables: {
         ...variables,
-        kind: 'googleCalendar',
-        credentials
+        credentials,
+        kind: 'googleCalendar'
       }
     })
       .then(() => {
@@ -83,10 +83,10 @@ export default compose(
     `,
     {
       name: 'googleAccessTokenQuery',
-      skip: ({ queryParams }) => !queryParams.code,
       options: ({ queryParams }: { queryParams: any }) => ({
         variables: { code: queryParams.code }
-      })
+      }),
+      skip: ({ queryParams }) => !queryParams.code
     }
   ),
   graphql(

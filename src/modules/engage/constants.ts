@@ -2,10 +2,10 @@ export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
 export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
 
 export const MESSAGE_KINDS = {
+  ALL_LIST: ['auto', 'visitorAuto', 'manual'],
   AUTO: 'auto',
-  VISITOR_AUTO: 'visitorAuto',
   MANUAL: 'manual',
-  ALL_LIST: ['auto', 'visitorAuto', 'manual']
+  VISITOR_AUTO: 'visitorAuto'
 };
 
 export const EMAIL_CONTENT_KEYS_FOR_SELECT = [
@@ -40,10 +40,10 @@ export const MESSAGE_KIND_FILTERS = [
 ];
 
 export const MESSENGER_KINDS = {
+  ALL_LIST: ['chat', 'note', 'post'],
   CHAT: 'chat',
   NOTE: 'note',
   POST: 'post',
-  ALL_LIST: ['chat', 'note', 'post'],
   SELECT_OPTIONS: [
     { value: 'chat', text: 'Chat' },
     { value: 'note', text: 'Note' },
@@ -52,21 +52,21 @@ export const MESSENGER_KINDS = {
 };
 
 export const METHODS = {
-  MESSENGER: 'messenger',
+  ALL_LIST: ['messenger', 'email'],
   EMAIL: 'email',
-  ALL_LIST: ['messenger', 'email']
+  MESSENGER: 'messenger'
 };
 
 export const SENT_AS_CHOICES = {
-  BADGE: 'badge',
-  SNIPPET: 'snippet',
-  FULL_MESSAGE: 'fullMessage',
   ALL_LIST: ['badge', 'snippet', 'fullMessage'],
+  BADGE: 'badge',
+  FULL_MESSAGE: 'fullMessage',
   SELECT_OPTIONS: [
     { value: 'badge', text: 'Badge' },
     { value: 'snippet', text: 'Snippet' },
     { value: 'fullMessage', text: 'Show the full message' }
-  ]
+  ],
+  SNIPPET: 'snippet'
 };
 
 export const VISITOR_AUDIENCE_RULES = [
@@ -102,9 +102,9 @@ const numberTypeChoices = [
 
 export const RULE_CONDITIONS = {
   browserLanguage: stringTypeChoices,
-  currentPageUrl: stringTypeChoices,
-  country: stringTypeChoices,
   city: stringTypeChoices,
+  country: stringTypeChoices,
+  currentPageUrl: stringTypeChoices,
   numberOfVisits: numberTypeChoices
 };
 

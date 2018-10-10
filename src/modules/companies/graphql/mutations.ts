@@ -100,6 +100,6 @@ export default {
   companiesAdd,
   companiesEdit,
   companiesEditCustomers,
-  companiesRemove,
-  companiesMerge
+  companiesMerge,
+  companiesRemove
 };

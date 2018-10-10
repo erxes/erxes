@@ -40,7 +40,6 @@ class Resolver extends React.Component<Props> {
     const icon = allNotClosed ? 'checked' : 'refresh';
 
     const btnAttrs = {
-      size: 'small',
       btnStyle: allNotClosed ? 'success' : 'warning',
       onClick: allNotClosed
         ? () => {
@@ -48,7 +47,8 @@ class Resolver extends React.Component<Props> {
           }
         : () => {
             this.changeStatus(CONVERSATION_STATUSES.OPEN);
-          }
+          },
+      size: 'small'
     };
 
     return (

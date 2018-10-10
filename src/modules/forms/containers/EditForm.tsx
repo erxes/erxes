@@ -100,11 +100,11 @@ class EditFormContainer extends React.Component<IProps, {}> {
           editIntegrationMutation({
             variables: {
               _id: integration._id,
-              formData,
               brandId,
-              name,
+              formData,
+              formId,
               languageCode,
-              formId
+              name
             }
           })
         )
@@ -177,8 +177,8 @@ class EditFormContainer extends React.Component<IProps, {}> {
     const updatedProps = {
       ...this.props,
       brands,
-      integration,
       fields: dbFields.map(field => ({ ...field })),
+      integration,
       save
     };
 
@@ -197,21 +197,21 @@ const EditFormIntegrationContainer = compose(
     name: 'fieldsQuery',
     options: ({ formId }: { formId: string }) => {
       return {
+        fetchPolicy: 'network-only',
         variables: {
           contentType: 'form',
           contentTypeId: formId
-        },
-        fetchPolicy: 'network-only'
+        }
       };
     }
   }),
   graphql(gql(queries.integrationDetail), {
     name: 'integrationDetailQuery',
     options: ({ contentTypeId }: { contentTypeId: string }) => ({
+      fetchPolicy: 'network-only',
       variables: {
         _id: contentTypeId
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(gql(mutations.integrationsEditFormIntegration), {

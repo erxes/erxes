@@ -39,9 +39,9 @@ class ConditionStep extends React.Component<Props, State> {
     if (selectedOption.value) {
       rules.push({
         _id: Math.random().toString(),
+        condition: '',
         kind: selectedOption.value,
         text: selectedOption.text,
-        condition: '',
         value: ''
       });
 

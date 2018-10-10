@@ -60,8 +60,8 @@ class Row extends React.Component<Props, State> {
       }
 
       return {
-        kind: selectedKind,
-        isContentVisible: prevState.isContentVisible
+        isContentVisible: prevState.isContentVisible,
+        kind: selectedKind
       };
     });
 

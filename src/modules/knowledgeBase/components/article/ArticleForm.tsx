@@ -50,11 +50,11 @@ class ArticleForm extends React.Component<Props, State> {
     const article = props.article || { content: '' };
 
     this.state = {
-      status: this.getCurrentStatus(),
       editorState: createStateFromHTML(
         EditorState.createEmpty(),
         article.content || ''
-      )
+      ),
+      status: this.getCurrentStatus()
     };
 
     this.onChange = this.onChange.bind(this);
@@ -84,15 +84,16 @@ class ArticleForm extends React.Component<Props, State> {
     return {
       doc: {
         doc: {
-          title: (document.getElementById(
-            'knowledgebase-article-title'
-          ) as HTMLInputElement).value,
           summary: (document.getElementById(
             'knowledgebase-article-summary'
           ) as HTMLInputElement).value,
+          title: (document.getElementById(
+            'knowledgebase-article-title'
+          ) as HTMLInputElement).value,
+
+          categoryIds: [this.props.currentCategoryId],
           content: this.getContent(this.state.editorState),
-          status: this.state.status,
-          categoryIds: [this.props.currentCategoryId]
+          status: this.state.status
         }
       }
     };
@@ -108,9 +109,9 @@ class ArticleForm extends React.Component<Props, State> {
 
   renderContent(article) {
     const props = {
+      defaultValue: article.content,
       editorState: this.state.editorState,
-      onChange: this.onChange,
-      defaultValue: article.content
+      onChange: this.onChange
     };
 
     return (

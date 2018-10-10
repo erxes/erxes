@@ -14,13 +14,13 @@ type Props = {
 
 class Table extends React.Component<Props> {
   static defaultProps = {
-    required: false,
-    striped: false,
+    alignTop: false,
     bordered: false,
     condensed: false,
     hover: false,
+    required: false,
     responsive: false,
-    alignTop: false
+    striped: false
   };
 
   render() {

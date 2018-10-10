@@ -30,8 +30,8 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
 
   const updatedProps = {
     ...props,
-    selectedChannels,
-    channels
+    channels,
+    selectedChannels
   };
 
   return <UserForm {...updatedProps} />;

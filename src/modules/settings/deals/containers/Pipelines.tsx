@@ -104,9 +104,9 @@ class PipelinesContainer extends React.Component<Props> {
 
     const extendedProps = {
       ...this.props,
+      loading: pipelinesQuery.loading,
       pipelines,
       refetch: pipelinesQuery.refetch,
-      loading: pipelinesQuery.loading,
       remove,
       save,
       updateOrder
@@ -120,8 +120,8 @@ export default compose(
   graphql(gql(queries.pipelines), {
     name: 'pipelinesQuery',
     options: ({ boardId = '' }: { boardId: string }) => ({
-      variables: { boardId },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      variables: { boardId }
     })
   }),
   graphql(gql(mutations.pipelineAdd), {

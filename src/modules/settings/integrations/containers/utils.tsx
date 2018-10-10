@@ -35,8 +35,8 @@ export const save = ({
 };
 
 export const integrationsListParams = queryParams => ({
-  searchValue: queryParams.searchValue,
+  kind: queryParams.kind,
   page: queryParams.page,
   perPage: queryParams.perPage || 20,
-  kind: queryParams.kind
+  searchValue: queryParams.searchValue
 });

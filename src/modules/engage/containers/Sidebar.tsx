@@ -30,8 +30,8 @@ const SidebarContainer = (props: Props & IRouteProps) => {
     ...props,
     kindCounts: kindCountsQuery.engageMessageCounts || {},
     statusCounts: statusCountsQuery.engageMessageCounts || {},
-    tags: tagsQuery.tags || [],
-    tagCounts: tagCountsQuery.engageMessageCounts || {}
+    tagCounts: tagCountsQuery.engageMessageCounts || {},
+    tags: tagsQuery.tags || []
   };
 
   return <Sidebar {...updatedProps} />;
@@ -48,10 +48,10 @@ export default withRouter<IRouteProps>(
     graphql(gql(queries.statusCounts), {
       name: 'statusCountsQuery',
       options: ({ queryParams }: { queryParams: any }) => ({
+        fetchPolicy: 'network-only',
         variables: {
           kind: queryParams.kind || ''
-        },
-        fetchPolicy: 'network-only'
+        }
       })
     }),
     graphql(gql(tagQueries.tags), {
@@ -63,11 +63,11 @@ export default withRouter<IRouteProps>(
     graphql(gql(queries.tagCounts), {
       name: 'tagCountsQuery',
       options: ({ queryParams }: { queryParams: any }) => ({
+        fetchPolicy: 'network-only',
         variables: {
           kind: queryParams.kind || '',
           status: queryParams.status || ''
-        },
-        fetchPolicy: 'network-only'
+        }
       })
     })
   )(SidebarContainer)

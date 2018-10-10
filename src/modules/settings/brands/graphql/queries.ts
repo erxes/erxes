@@ -49,9 +49,9 @@ const brandsGetLast = `
 `;
 
 export default {
-  brandsGetLast,
-  brands,
   brandDetail,
+  brands,
   brandsCount,
+  brandsGetLast,
   integrationsCount
 };

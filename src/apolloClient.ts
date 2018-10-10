@@ -65,11 +65,11 @@ const httpLinkWithMiddleware = errorLink.concat(
 
 // Subscription config
 export const wsLink = new WebSocketLink({
-  uri: REACT_APP_API_SUBSCRIPTION_URL || '',
   options: {
     reconnect: true,
     timeout: 30000
-  }
+  },
+  uri: REACT_APP_API_SUBSCRIPTION_URL || ''
 });
 
 type Definintion = {

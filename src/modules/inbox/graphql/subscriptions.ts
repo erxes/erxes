@@ -35,7 +35,7 @@ const customerConnectionChanged = `
 
 export default {
   conversationChanged,
-  conversationMessageInserted,
   conversationClientMessageInserted,
+  conversationMessageInserted,
   customerConnectionChanged
 };

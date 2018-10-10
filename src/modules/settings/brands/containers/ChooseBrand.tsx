@@ -41,12 +41,12 @@ const ChooseBrandContainer = (props: Props) => {
 
     save: variables =>
       save({
-        variables,
         addMutation,
         editMutation,
         integration,
         onSave,
-        refetch
+        refetch,
+        variables
       }),
 
     brands: brandsQuery.brands || []

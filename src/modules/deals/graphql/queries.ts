@@ -157,15 +157,15 @@ const activityLogsDeal = `
 `;
 
 export default {
-  boards,
-  boardGetLast,
+  activityLogsDeal,
   boardDetail,
-  pipelines,
-  stages,
-  stageDetail,
-  deals,
+  boardGetLast,
+  boards,
   dealDetail,
+  deals,
+  pipelines,
   productDetail,
-  users,
-  activityLogsDeal
+  stageDetail,
+  stages,
+  users
 };

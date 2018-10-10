@@ -38,8 +38,8 @@ export default class FilterPopover extends React.Component<Props, State> {
     }
 
     this.state = {
-      fields: props.fields || [],
       counts: {},
+      fields: props.fields || [],
       loading
     };
 

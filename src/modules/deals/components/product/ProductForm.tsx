@@ -30,9 +30,9 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal = this.updateTotal.bind(this);
 
     this.state = {
-      total: {},
       discount: {},
-      tax: {}
+      tax: {},
+      total: {}
     };
   }
 
@@ -50,13 +50,13 @@ class ProductForm extends React.Component<Props, State> {
 
     productsData.push({
       _id: Math.random().toString(),
-      quantity: 1,
-      unitPrice: 0,
-      tax: 0,
-      taxPercent: 0,
+      amount: 0,
       discount: 0,
       discountPercent: 0,
-      amount: 0
+      quantity: 1,
+      tax: 0,
+      taxPercent: 0,
+      unitPrice: 0
     });
 
     onChangeProductsData(productsData);

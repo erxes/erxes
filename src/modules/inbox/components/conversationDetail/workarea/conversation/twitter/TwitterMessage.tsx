@@ -50,8 +50,8 @@ class TwitterMessage extends React.Component<Props, {}> {
     if (!twitterData) return null;
 
     const tweet = {
-      integrationId,
-      id: twitterData.id_str
+      id: twitterData.id_str,
+      integrationId
     };
 
     return favoriteTweet(tweet);

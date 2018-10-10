@@ -91,14 +91,14 @@ const KnowledgeBaseContainer = (props: Props) => {
 
   const extendedProps = {
     ...props,
+    articlesCount,
+    currentCategoryId,
+    loading: topicsQuery.loading,
+    queryParams,
+    refetch: topicsQuery.refetch,
     remove,
     save,
-    currentCategoryId,
-    queryParams,
-    articlesCount,
     topics: topicsQuery.knowledgeBaseTopics || [],
-    loading: topicsQuery.loading,
-    refetch: topicsQuery.refetch,
     topicsCount: topicsCountQuery.knowledgeBaseTopicsTotalCount || 0
   };
 

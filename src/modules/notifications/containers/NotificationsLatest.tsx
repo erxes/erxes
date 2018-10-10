@@ -41,8 +41,8 @@ class NotificationsLatestContainer extends React.Component<Props> {
       ...this.props,
 
       markAsRead,
-      update,
-      notifications: notificationsQuery.notifications || []
+      notifications: notificationsQuery.notifications || [],
+      update
     };
 
     return <NotificationsLatest {...updatedProps} />;

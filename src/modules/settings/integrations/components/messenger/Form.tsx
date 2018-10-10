@@ -68,27 +68,27 @@ class CreateMessenger extends React.Component<Props, State> {
     const uiOptions = integration.uiOptions || {};
 
     this.state = {
-      title: integration.name,
-      brandId: integration.brandId || '',
-      languageCode: integration.languageCode || '',
       activeStep: 1,
-      color: uiOptions.color || '#6569DF',
-      wallpaper: uiOptions.wallpaper || '1',
-      welcomeMessage: configData.welcomeMessage || '',
-      awayMessage: configData.awayMessage || '',
-      thankYouMessage: configData.thankYouMessage || '',
-      notifyCustomer: configData.notifyCustomer || false,
-      supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
+      awayMessage: configData.awayMessage || '',
+      brandId: integration.brandId || '',
+      color: uiOptions.color || '#6569DF',
       isOnline: configData.isOnline || false,
-      timezone: configData.timezone || '',
+      languageCode: integration.languageCode || '',
+      logo: uiOptions.logo || '',
+      logoPreviewStyle: {},
+      logoPreviewUrl: uiOptions.logo || '',
+      notifyCustomer: configData.notifyCustomer || false,
       onlineHours: (configData.onlineHours || []).map(h => ({
         _id: Math.random(),
         ...h
       })),
-      logo: uiOptions.logo || '',
-      logoPreviewStyle: {},
-      logoPreviewUrl: uiOptions.logo || ''
+      supporterIds: configData.supporterIds || [],
+      thankYouMessage: configData.thankYouMessage || '',
+      timezone: configData.timezone || '',
+      title: integration.name,
+      wallpaper: uiOptions.wallpaper || '1',
+      welcomeMessage: configData.welcomeMessage || ''
     };
   }
 
@@ -110,24 +110,24 @@ class CreateMessenger extends React.Component<Props, State> {
     }
 
     this.props.save({
-      name: title,
       brandId,
       languageCode: this.state.languageCode,
       messengerData: {
-        notifyCustomer: this.state.notifyCustomer,
         availabilityMethod: this.state.availabilityMethod,
-        isOnline: this.state.isOnline,
-        timezone: this.state.timezone,
-        onlineHours: this.state.onlineHours,
-        welcomeMessage: this.state.welcomeMessage,
         awayMessage: this.state.awayMessage,
+        isOnline: this.state.isOnline,
+        notifyCustomer: this.state.notifyCustomer,
+        onlineHours: this.state.onlineHours,
+        supporterIds: this.state.supporterIds,
         thankYouMessage: this.state.thankYouMessage,
-        supporterIds: this.state.supporterIds
+        timezone: this.state.timezone,
+        welcomeMessage: this.state.welcomeMessage
       },
+      name: title,
       uiOptions: {
         color: this.state.color,
-        wallpaper: this.state.wallpaper,
-        logo: this.state.logo
+        logo: this.state.logo,
+        wallpaper: this.state.wallpaper
       }
     });
   }

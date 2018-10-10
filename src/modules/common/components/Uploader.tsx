@@ -33,9 +33,9 @@ class Uploader extends React.Component<Props, State> {
     const { defaultFileList } = this.props;
 
     this.state = {
+      attachmentPreviewStyle: {},
       attachments: defaultFileList || [],
-      loading: false,
-      attachmentPreviewStyle: {}
+      loading: false
     };
 
     this.handleFileInput = this.handleFileInput.bind(this);
@@ -49,8 +49,8 @@ class Uploader extends React.Component<Props, State> {
 
       beforeUpload: () => {
         this.setState({
-          loading: true,
-          attachmentPreviewStyle: { opacity: '0.2' }
+          attachmentPreviewStyle: { opacity: '0.2' },
+          loading: true
         });
       },
 
@@ -64,9 +64,9 @@ class Uploader extends React.Component<Props, State> {
         this.props.onChange(attachments);
 
         this.setState({
-          loading: false,
+          attachmentPreviewStyle: { opacity: '1' },
           attachments,
-          attachmentPreviewStyle: { opacity: '1' }
+          loading: false
         });
       }
     });

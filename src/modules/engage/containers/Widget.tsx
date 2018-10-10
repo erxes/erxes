@@ -60,10 +60,10 @@ const WidgetContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    emailTemplates,
     brands,
-    save,
+    emailTemplates,
     messengerKinds: MESSENGER_KINDS.SELECT_OPTIONS,
+    save,
     sentAsChoices: SENT_AS_CHOICES.SELECT_OPTIONS
   };
 

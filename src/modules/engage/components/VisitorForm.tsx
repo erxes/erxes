@@ -55,15 +55,15 @@ class VisitorForm extends React.Component<Props, State> {
       : [];
 
     this.state = {
-      maxStep: 2,
       activeStep: 1,
-      method: METHODS.MESSENGER,
-      title: message.title || '',
       content: messenger.content || '',
       fromUserId: message.fromUserId || '',
-      rules,
+      maxStep: 2,
       messenger: message.messenger,
-      scheduleDate: message.scheduleDate
+      method: METHODS.MESSENGER,
+      rules,
+      scheduleDate: message.scheduleDate,
+      title: message.title || ''
     };
 
     this.save = this.save.bind(this);
@@ -80,17 +80,17 @@ class VisitorForm extends React.Component<Props, State> {
     const messenger = this.state.messenger || ({} as IEngageMessenger);
 
     const doc = {
-      kind: MESSAGE_KINDS.VISITOR_AUTO,
-      title: this.state.title,
       fromUserId: this.state.fromUserId,
-      method: METHODS.MESSENGER,
+      kind: MESSAGE_KINDS.VISITOR_AUTO,
       messenger: {
-        rules: this.state.rules,
         brandId: messenger.brandId,
-        sentAs: messenger.sentAs,
-        content: this.state.content
+        content: this.state.content,
+        rules: this.state.rules,
+        sentAs: messenger.sentAs
       },
-      scheduleDate: this.state.scheduleDate
+      method: METHODS.MESSENGER,
+      scheduleDate: this.state.scheduleDate,
+      title: this.state.title
     };
 
     const response = this.props.validateDoc(type, doc);

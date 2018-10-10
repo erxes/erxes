@@ -32,8 +32,8 @@ const SegmentListContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    segments: segmentsQuery.segments || [],
-    removeSegment
+    removeSegment,
+    segments: segmentsQuery.segments || []
   };
 
   return <SegmentsList {...updatedProps} />;

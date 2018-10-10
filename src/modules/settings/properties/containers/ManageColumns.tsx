@@ -49,8 +49,8 @@ const ManageColumnsContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     config,
-    save,
-    fields: fieldsQuery.fieldsCombinedByContentType
+    fields: fieldsQuery.fieldsCombinedByContentType,
+    save
   };
 
   return <ManageColumns {...updatedProps} />;

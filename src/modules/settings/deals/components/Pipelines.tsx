@@ -34,9 +34,9 @@ class Pipelines extends React.Component<Props, State> {
     this.onChangePipelines = this.onChangePipelines.bind(this);
 
     this.state = {
-      showModal: false,
       currentPipeline: undefined,
-      pipelines: props.pipelines
+      pipelines: props.pipelines,
+      showModal: false
     };
   }
 
@@ -52,15 +52,15 @@ class Pipelines extends React.Component<Props, State> {
 
   addPipeline() {
     this.setState({
-      showModal: true,
-      currentPipeline: undefined
+      currentPipeline: undefined,
+      showModal: true
     });
   }
 
   editPipeline(pipeline) {
     this.setState({
-      showModal: true,
-      currentPipeline: pipeline
+      currentPipeline: pipeline,
+      showModal: true
     });
   }
 

@@ -71,12 +71,12 @@ const MessageRowContainer = (props: Props & IRouteProps) => {
   const updatedProps = {
     ...props,
     edit,
-    show,
+    isChecked,
     remove,
     setLive,
     setLiveManual,
     setPause,
-    isChecked,
+    show,
     toggleBulk
   };
 

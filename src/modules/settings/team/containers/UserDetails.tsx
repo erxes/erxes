@@ -68,14 +68,14 @@ const UserDetailsContainer = (props: Props & SaveUserProfileArgs) => {
 
   const updatedProps = {
     ...props,
-    saveUser,
-    saveProfile,
-    user: { ...user, participatedConversations: list },
-    totalConversationCount: totalCount,
-    loadingLogs: userActivityLogQuery.loading,
     activityLogsUser: userActivityLogQuery.activityLogsUser || [],
     channels: channelsQuery.channels || [],
-    currentUser
+    currentUser,
+    loadingLogs: userActivityLogQuery.loading,
+    saveProfile,
+    saveUser,
+    totalConversationCount: totalCount,
+    user: { ...user, participatedConversations: list }
   };
 
   return <UserDetails {...updatedProps} />;

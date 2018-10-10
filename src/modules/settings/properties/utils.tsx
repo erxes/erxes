@@ -10,15 +10,15 @@ const generateFields = (infos: any[], type: string) => {
     fields.push({
       _id: `customerBasicInfos${index}`,
       contentType: type,
-      type: 'input',
-      text: info.label,
-      isVisible: true,
-      validation: '',
-      order: `${index - 1}`,
-      options: [],
-      groupId: `basicInfosGroup${type}`,
       description: info.label,
-      isDefinedByErxes: true
+      groupId: `basicInfosGroup${type}`,
+      isDefinedByErxes: true,
+      isVisible: true,
+      options: [],
+      order: `${index - 1}`,
+      text: info.label,
+      type: 'input',
+      validation: ''
     });
   });
 
@@ -28,18 +28,18 @@ const generateFields = (infos: any[], type: string) => {
 const generateGroup = (infos: any[], type: string) => {
   return {
     _id: `basicInfosGroup${type}`,
-    name: 'Basic Infos',
-    description: `Basic Infos of a ${type}`,
     contentType: type,
-    order: -1,
+    description: `Basic Infos of a ${type}`,
+    fields: generateFields(infos, type),
+    isDefinedByErxes: true,
     isVisible: true,
     lastUpdatedUser: {
       details: {
         fullName: 'SYSTEM'
       }
     },
-    isDefinedByErxes: true,
-    fields: generateFields(infos, type)
+    name: 'Basic Infos',
+    order: -1
   };
 };
 

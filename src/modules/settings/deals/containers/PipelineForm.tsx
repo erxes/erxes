@@ -35,11 +35,11 @@ class EditPipelineFormContainer extends React.Component<IEditProps> {
 
     const extendedProps = {
       ...this.props,
-      stages,
       boardId,
-      save,
       closeModal,
-      pipeline
+      pipeline,
+      save,
+      stages
     };
 
     return <PipelineForm {...extendedProps} />;
@@ -50,8 +50,8 @@ const EditPipelineForm = compose(
   graphql(gql(queries.stages), {
     name: 'stagesQuery',
     options: ({ pipeline }: { pipeline: IPipeline }) => ({
-      variables: { pipelineId: pipeline._id || '' },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      variables: { pipelineId: pipeline._id || '' }
     })
   })
 )(EditPipelineFormContainer);

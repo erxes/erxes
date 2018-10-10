@@ -78,11 +78,11 @@ class AssignBox extends React.Component<Props, State> {
 
       return {
         _id: assignee._id,
-        title: assignee.details ? assignee.details.fullName : assignee.email,
         avatar: assignee.details
           ? assignee.details.avatar
           : '/images/avatar-colored.svg',
-        selectedBy: state
+        selectedBy: state,
+        title: assignee.details ? assignee.details.fullName : assignee.email
       };
     });
   }
@@ -92,8 +92,8 @@ class AssignBox extends React.Component<Props, State> {
 
     assign(
       {
-        conversationIds: targets.map(a => a._id),
-        assignedUserId: id
+        assignedUserId: id,
+        conversationIds: targets.map(a => a._id)
       },
       error => {
         if (error) {
@@ -122,17 +122,17 @@ class AssignBox extends React.Component<Props, State> {
 
     const links = [
       {
-        title: __('Remove assignee'),
         href: '#',
-        onClick: this.removeAssignee
+        onClick: this.removeAssignee,
+        title: __('Remove assignee')
       }
     ];
 
     const props = {
       className,
+      items: this.state.assigneesForList,
       links,
-      selectable: true,
-      items: this.state.assigneesForList
+      selectable: true
     };
 
     if (event) {

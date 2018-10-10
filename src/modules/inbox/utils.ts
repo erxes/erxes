@@ -3,17 +3,17 @@ import queryString from 'query-string';
 import { queries } from './graphql';
 
 export const generateParams = queryParams => ({
-  limit: queryParams.limit || 10,
-  channelId: queryParams.channelId,
-  status: queryParams.status,
-  unassigned: queryParams.unassigned,
   brandId: queryParams.brandId,
-  tag: queryParams.tag,
+  channelId: queryParams.channelId,
+  endDate: queryParams.endDate,
   integrationType: queryParams.integrationType,
+  limit: queryParams.limit || 10,
   participating: queryParams.participating,
   starred: queryParams.starred,
   startDate: queryParams.startDate,
-  endDate: queryParams.endDate
+  status: queryParams.status,
+  tag: queryParams.tag,
+  unassigned: queryParams.unassigned
 });
 
 export const refetchSidebarConversationsOptions = () => {

@@ -50,14 +50,14 @@ class RespondBox extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isInactive: !this.checkIsActive(props.conversation),
-      editorKey: 'editor',
-      isInternal: false,
-      sending: false,
       attachments: [],
-      responseTemplate: '',
       content: '',
-      mentionedUserIds: []
+      editorKey: 'editor',
+      isInactive: !this.checkIsActive(props.conversation),
+      isInternal: false,
+      mentionedUserIds: [],
+      responseTemplate: '',
+      sending: false
     };
 
     // on editor content change
@@ -179,10 +179,10 @@ class RespondBox extends React.Component<Props, State> {
     const { conversation, sendMessage } = this.props;
     const { isInternal, attachments, content, mentionedUserIds } = this.state;
     const message = {
-      conversationId: conversation._id,
-      content: this.cleanText(content) || ' ',
-      internal: isInternal,
       attachments,
+      content: this.cleanText(content) || ' ',
+      conversationId: conversation._id,
+      internal: isInternal,
       mentionedUserIds
     };
 
@@ -198,8 +198,8 @@ class RespondBox extends React.Component<Props, State> {
         return this.setState({
           attachments: [],
           content: '',
-          sending: false,
-          mentionedUserIds: []
+          mentionedUserIds: [],
+          sending: false
         });
       });
     }

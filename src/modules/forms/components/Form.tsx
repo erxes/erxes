@@ -90,25 +90,25 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       activeStep: 1,
-      type: formData.loadType || 'shoutbox',
-      brand: integration.brandId,
-      language: integration.languageCode,
-      title: integration.name,
-      calloutTitle: callout.title || 'Title',
-      formTitle: form.title || 'Contact',
       bodyValue: callout.body || '',
-      formDesc: form.description || '',
-      thankContent: formData.thankContent || 'Thank you.',
-      formBtnText: form.buttonText || 'Send',
+      brand: integration.brandId,
       calloutBtnText: callout.buttonText || 'Start',
+      calloutTitle: callout.title || 'Title',
       color: '',
-      logoPreviewStyle: {},
       defaultValue: {},
-      logo: '',
-      theme: form.themeColor || '#6569DF',
-      logoPreviewUrl: callout.featuredImage,
       fields: fields || [],
-      isSkip: callout.skip && true
+      formBtnText: form.buttonText || 'Send',
+      formDesc: form.description || '',
+      formTitle: form.title || 'Contact',
+      isSkip: callout.skip && true,
+      language: integration.languageCode,
+      logo: '',
+      logoPreviewStyle: {},
+      logoPreviewUrl: callout.featuredImage,
+      thankContent: formData.thankContent || 'Thank you.',
+      theme: form.themeColor || '#6569DF',
+      title: integration.name,
+      type: formData.loadType || 'shoutbox'
     };
   }
 
@@ -126,35 +126,36 @@ class Form extends React.Component<Props, State> {
     }
 
     this.props.save({
-      name: title,
       brandId: brand,
-      languageCode: this.state.language,
-      formData: {
-        loadType: this.state.type,
-        successAction: this.state.successAction,
-        fromEmail: this.state.fromEmail,
-        userEmailTitle: this.state.userEmailTitle,
-        userEmailContent: this.state.userEmailContent,
-        adminEmails: this.state.adminEmails,
-        adminEmailTitle: this.state.adminEmailTitle,
-        adminEmailContent: this.state.adminEmailContent,
-        thankContent: this.state.thankContent,
-        redirectUrl: this.state.redirectUrl
-      },
+      fields: this.state.fields,
       form: {
-        title: this.state.formTitle,
-        description: this.state.formDesc,
         buttonText: this.state.formBtnText,
+        description: this.state.formDesc,
         themeColor: this.state.theme || this.state.color,
+        title: this.state.formTitle,
+
         callout: {
-          title: calloutTitle,
           body: this.state.bodyValue,
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logoPreviewUrl,
-          skip: this.state.isSkip
+          skip: this.state.isSkip,
+          title: calloutTitle
         }
       },
-      fields: this.state.fields
+      formData: {
+        adminEmailContent: this.state.adminEmailContent,
+        adminEmailTitle: this.state.adminEmailTitle,
+        adminEmails: this.state.adminEmails,
+        fromEmail: this.state.fromEmail,
+        loadType: this.state.type,
+        redirectUrl: this.state.redirectUrl,
+        successAction: this.state.successAction,
+        thankContent: this.state.thankContent,
+        userEmailContent: this.state.userEmailContent,
+        userEmailTitle: this.state.userEmailTitle
+      },
+      languageCode: this.state.language,
+      name: title
     });
   }
 

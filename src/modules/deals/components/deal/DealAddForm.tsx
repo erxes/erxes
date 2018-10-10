@@ -37,11 +37,11 @@ class DealAddForm extends React.Component<Props, State> {
     this.save = this.save.bind(this);
 
     this.state = {
-      disabled: false,
       boardId: '',
+      disabled: false,
+      name: '',
       pipelineId: '',
-      stageId: props.stageId || '',
-      name: ''
+      stageId: props.stageId || ''
     };
   }
 
@@ -60,10 +60,10 @@ class DealAddForm extends React.Component<Props, State> {
     if (!name) return Alert.error(__('Enter name'));
 
     const doc = {
-      name,
-      stageId,
+      companyIds: companyId ? [companyId] : [],
       customerIds: customerId ? [customerId] : [],
-      companyIds: companyId ? [companyId] : []
+      name,
+      stageId
     };
 
     // before save, disable save button

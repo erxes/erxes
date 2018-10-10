@@ -40,8 +40,8 @@ export default class GenerateField extends React.Component<Props, State> {
       const defaultValue = nextProps.defaultValue || '';
 
       this.setState({
-        value: defaultValue,
-        checkBoxValues: defaultValue ? [...defaultValue] : []
+        checkBoxValues: defaultValue ? [...defaultValue] : [],
+        value: defaultValue
       });
     }
   }
@@ -161,9 +161,9 @@ export default class GenerateField extends React.Component<Props, State> {
 
     const attrs = {
       id: field._id,
-      value: this.state.value,
+      name: '',
       onChange: this.onChange,
-      name: ''
+      value: this.state.value
     };
 
     switch (type) {

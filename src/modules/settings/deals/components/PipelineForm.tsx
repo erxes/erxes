@@ -54,9 +54,9 @@ class PipelineForm extends React.Component<Props, State> {
 
     return {
       doc: {
+        boardId: pipeline ? pipeline.boardId : this.props.boardId,
         name: (document.getElementById('pipeline-name') as HTMLInputElement)
           .value,
-        boardId: pipeline ? pipeline.boardId : this.props.boardId,
         stages: this.state.stages.filter(el => el.name)
       }
     };

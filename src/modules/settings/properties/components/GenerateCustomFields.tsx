@@ -22,8 +22,8 @@ class GenerateGroup extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      editing: false,
-      data: props.data
+      data: props.data,
+      editing: false
     };
 
     this.toggleEditing = this.toggleEditing.bind(this);

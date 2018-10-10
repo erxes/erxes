@@ -29,8 +29,8 @@ class Signature extends React.Component<Props, State> {
     this.handleSubmit = this.handleSubmit.bind(this);
 
     this.state = {
-      signatures: props.signatures,
-      currentId: undefined
+      currentId: undefined,
+      signatures: props.signatures
     };
   }
 

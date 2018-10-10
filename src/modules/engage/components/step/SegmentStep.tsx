@@ -53,8 +53,8 @@ class SegmentStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      segmentId: props.segmentId || '',
-      createSegment: false
+      createSegment: false,
+      segmentId: props.segmentId || ''
     };
 
     this.changeSegment = this.changeSegment.bind(this);

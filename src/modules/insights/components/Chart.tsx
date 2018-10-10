@@ -31,10 +31,10 @@ class Chart extends React.Component<IProps> {
         <ResponsiveLine
           data={chartData}
           margin={{
-            top: 30,
-            right: 30,
             bottom: 30,
-            left: 30
+            left: 30,
+            right: 30,
+            top: 30
           }}
           colors={[colors.colorPrimary]}
           enableArea={true}

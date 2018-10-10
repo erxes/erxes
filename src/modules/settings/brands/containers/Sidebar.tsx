@@ -75,9 +75,9 @@ const SidebarContainer = (props: ChildProps<QueryResponse>) => {
     ...props,
     brands,
     brandsTotalCount,
-    save,
+    loading: brandsQuery.loading,
     remove,
-    loading: brandsQuery.loading
+    save
   };
 
   return <Sidebar {...updatedProps} />;
@@ -107,10 +107,10 @@ export default compose(
   graphql(gql(queries.brands), {
     name: 'brandsQuery',
     options: ({ queryParams }: { queryParams: any }) => ({
+      fetchPolicy: 'network-only',
       variables: {
         perPage: queryParams.limit || 20
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(gql(queries.brandsCount), {

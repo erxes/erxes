@@ -50,9 +50,9 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
   clearStatusFilter() {
     router.setParams(this.props.history, {
       participating: '',
+      starred: '',
       status: '',
-      unassigned: '',
-      starred: ''
+      unassigned: ''
     });
   }
 

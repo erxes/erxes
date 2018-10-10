@@ -65,11 +65,11 @@ type Props = {
 class Avatar extends React.Component<Props> {
   generateStyle(size = 40) {
     return {
-      width: size,
+      borderRadius: `${size}px`,
+      fontSize: `${size / 3}px`,
       height: size,
       lineHeight: `${size}px`,
-      borderRadius: `${size}px`,
-      fontSize: `${size / 3}px`
+      width: size
     };
   }
 
@@ -83,10 +83,10 @@ class Avatar extends React.Component<Props> {
 
     if (customer) {
       return {
+        facebook: customer.facebookData && true,
         isUser: customer.isUser,
         messenger: customer.messengerData && true,
-        twitter: customer.twitterData && true,
-        facebook: customer.facebookData && true
+        twitter: customer.twitterData && true
       };
     }
 

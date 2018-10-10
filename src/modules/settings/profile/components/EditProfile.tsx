@@ -34,24 +34,24 @@ class EditProfile extends React.Component<Props, State> {
 
   handleSubmit(password) {
     this.props.save({
-      username: this.getInputElementValue('username'),
-      email: this.getInputElementValue('email'),
       details: {
         avatar: this.state.avatar,
+        description: this.getInputElementValue('description'),
         fullName: this.getInputElementValue('fullName'),
-        position: this.getInputElementValue('position'),
         location: this.getInputElementValue('user-location'),
-        description: this.getInputElementValue('description')
+        position: this.getInputElementValue('position')
       },
+      email: this.getInputElementValue('email'),
       links: {
+        facebook: this.getInputElementValue('facebook'),
+        github: this.getInputElementValue('github'),
         linkedIn: this.getInputElementValue('linkedin'),
         twitter: this.getInputElementValue('twitter'),
-        facebook: this.getInputElementValue('facebook'),
-        youtube: this.getInputElementValue('youtube'),
-        github: this.getInputElementValue('github'),
-        website: this.getInputElementValue('website')
+        website: this.getInputElementValue('website'),
+        youtube: this.getInputElementValue('youtube')
       },
-      password
+      password,
+      username: this.getInputElementValue('username')
     });
 
     this.props.closeModal();

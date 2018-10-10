@@ -72,6 +72,7 @@ class WorkArea extends React.Component<Props, State> {
       this.prevSubscription = messagesQuery.subscribeToMore({
         document: gql(subscriptions.conversationMessageInserted),
         variables: { _id: currentId },
+
         updateQuery: (prev, { subscriptionData }) => {
           const message = subscriptionData.data.conversationMessageInserted;
 
@@ -202,6 +203,7 @@ class WorkArea extends React.Component<Props, State> {
           limit,
           skip
         },
+
         updateQuery: (prev, { fetchMoreResult }) => {
           this.setState({ loadingMessages: false });
 
@@ -238,9 +240,9 @@ class WorkArea extends React.Component<Props, State> {
 
     const updatedProps = {
       ...this.props,
+      addMessage: this.addMessage,
       conversationMessages,
       loadMoreMessages: this.loadMoreMessages,
-      addMessage: this.addMessage,
       loading: messagesQuery.loading || loadingMessages
     };
 
@@ -260,19 +262,19 @@ const WithQuery = compose(
       skip = null;
 
       return {
+        fetchPolicy: 'network-only',
         variables: {
           conversationId: currentId,
           limit
-        },
-        fetchPolicy: 'network-only'
+        }
       };
     }
   }),
   graphql(gql(queries.conversationMessagesTotalCount), {
     name: 'messagesTotalCountQuery',
     options: ({ currentId }: { currentId: string }) => ({
-      variables: { conversationId: currentId },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      variables: { conversationId: currentId }
     })
   }),
   graphql(gql(mutations.conversationMessageAdd), {

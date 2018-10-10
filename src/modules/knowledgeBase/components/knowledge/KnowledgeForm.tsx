@@ -91,9 +91,9 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
 
     this.state = {
-      copied: false,
       code,
-      color
+      color,
+      copied: false
     };
 
     this.handleBrandChange = this.handleBrandChange.bind(this);
@@ -165,17 +165,18 @@ class KnowledgeForm extends React.Component<Props, State> {
       ...topic,
       doc: {
         doc: {
-          title: (document.getElementById(
-            'knowledgebase-title'
-          ) as HTMLInputElement).value,
+          brandId: (document.getElementById('selectBrand') as HTMLInputElement)
+            .value,
           description: (document.getElementById(
             'knowledgebase-description'
           ) as HTMLInputElement).value,
-          brandId: (document.getElementById('selectBrand') as HTMLInputElement)
-            .value,
           languageCode: (document.getElementById(
             'languageCode'
           ) as HTMLInputElement).value,
+          title: (document.getElementById(
+            'knowledgebase-title'
+          ) as HTMLInputElement).value,
+
           color: this.state.color
         }
       }
@@ -269,10 +270,10 @@ class KnowledgeForm extends React.Component<Props, State> {
       <form onSubmit={this.save}>
         {this.renderContent(
           topic || {
-            title: '',
+            brand: { _id: '' },
             description: '',
             languageCode: '',
-            brand: { _id: '' }
+            title: ''
           }
         )}
         <ModalFooter>

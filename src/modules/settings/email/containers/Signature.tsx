@@ -76,8 +76,8 @@ const SignatureContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    signatures,
-    save
+    save,
+    signatures
   };
 
   return <Signature {...updatedProps} />;

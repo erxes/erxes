@@ -99,8 +99,8 @@ class BasicInfo extends React.Component<Props> {
                 generateOptions={companies => {
                   return companies.map((c, key) => ({
                     key,
-                    value: JSON.stringify(c),
-                    label: c.primaryName || c.website || 'N/A'
+                    label: c.primaryName || c.website || 'N/A',
+                    value: JSON.stringify(c)
                   }));
                 }}
               />

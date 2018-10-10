@@ -37,8 +37,8 @@ const IntegrationListContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     integrations,
-    removeIntegration,
-    loading: integrationsQuery.loading
+    loading: integrationsQuery.loading,
+    removeIntegration
   };
 
   return <IntegrationList {...updatedProps} />;
@@ -57,13 +57,13 @@ export default compose(
       variables: any;
     }) => {
       return {
+        fetchPolicy: 'network-only',
         notifyOnNetworkStatusChange: true,
         variables: {
           ...variables,
           ...integrationsListParams(queryParams || {}),
           kind
-        },
-        fetchPolicy: 'network-only'
+        }
       };
     }
   }),

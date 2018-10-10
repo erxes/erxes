@@ -103,8 +103,8 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     const { startDate, endDate } = props.queryParams;
 
     const state: State = {
-      startDate: new Date(),
       endDate: new Date(),
+      startDate: new Date(),
       totalCount: 0
     };
 
@@ -166,8 +166,8 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     const formattedEndDate = moment(endDate).format(format);
 
     router.setParams(this.props.history, {
-      startDate: formattedStartDate,
-      endDate: formattedEndDate
+      endDate: formattedEndDate,
+      startDate: formattedStartDate
     });
 
     if (this.props.countQuery) {
@@ -195,10 +195,10 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
 
   renderPopover() {
     const props = {
-      inputProps: { placeholder: __('Select a date') },
-      timeFormat: 'HH:mm',
+      closeOnSelect: true,
       dateFormat: 'YYYY/MM/DD',
-      closeOnSelect: true
+      inputProps: { placeholder: __('Select a date') },
+      timeFormat: 'HH:mm'
     };
 
     return (

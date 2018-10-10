@@ -40,9 +40,9 @@ class ChooseBrand extends React.Component<Props> {
     this.props.closeModal;
 
     this.props.save({
-      name: (document.getElementById('integration-name') as HTMLInputElement)
-        .value,
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
+        .value,
+      name: (document.getElementById('integration-name') as HTMLInputElement)
         .value
     });
   }

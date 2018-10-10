@@ -48,11 +48,11 @@ class ListContainer extends React.Component<Props, {}> {
     const updatedProps = {
       ...this.props,
       integrations,
-      remove,
       loading: integrationsQuery.loading,
-      totalCount,
+      remove,
+      tags: tagsQuery.tags || [],
       tagsCount,
-      tags: tagsQuery.tags || []
+      totalCount
     };
 
     return (
@@ -74,13 +74,13 @@ export default compose(
     name: 'integrationsQuery',
     options: ({ queryParams }) => {
       return {
+        fetchPolicy: 'network-only',
         variables: {
+          kind: 'form',
           page: queryParams.page,
           perPage: queryParams.perPage || 20,
-          tag: queryParams.tag,
-          kind: 'form'
-        },
-        fetchPolicy: 'network-only'
+          tag: queryParams.tag
+        }
       };
     }
   }),
@@ -93,10 +93,10 @@ export default compose(
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
     options: () => ({
+      fetchPolicy: 'network-only',
       variables: {
         type: 'integration'
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(gql(mutations.integrationRemove), {

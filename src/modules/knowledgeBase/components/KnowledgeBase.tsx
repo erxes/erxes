@@ -20,8 +20,8 @@ type Props = {
 class KnowledgeBase extends React.Component<Props> {
   breadcrumb() {
     const currentCategory = this.props.currentCategory || {
-      title: '',
-      firstTopic: { title: '' }
+      firstTopic: { title: '' },
+      title: ''
     };
     const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };
 

@@ -17,8 +17,8 @@ export const leadStatusChoices = __ => {
 
   for (const key of Object.keys(LEAD_STATUS_TYPES)) {
     options.push({
-      value: key,
-      label: __(LEAD_STATUS_TYPES[key])
+      label: __(LEAD_STATUS_TYPES[key]),
+      value: key
     });
   }
 
@@ -30,8 +30,8 @@ export const lifecycleStateChoices = __ => {
 
   for (const key of Object.keys(LIFECYCLE_STATE_TYPES)) {
     options.push({
-      value: key,
-      label: __(LIFECYCLE_STATE_TYPES[key])
+      label: __(LIFECYCLE_STATE_TYPES[key]),
+      value: key
     });
   }
 

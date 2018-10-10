@@ -18,8 +18,8 @@ export function selectOptions(array: Options[] = []) {
 // get config options for react-select-plus
 export function selectConfigOptions(array: string[] = [], CONSTANT: any) {
   return array.map(item => ({
-    value: item,
-    label: CONSTANT.find(el => el.value === item).label
+    label: CONSTANT.find(el => el.value === item).label,
+    value: item
   }));
 }
 
@@ -30,9 +30,9 @@ export function selectUserOptions(array: IUser[] = []) {
     const details = item.details || ({} as IUserDetails);
 
     return {
-      value: user._id,
+      avatar: details.avatar,
       label: details.fullName || user.email,
-      avatar: details.avatar
+      value: user._id
     };
   });
 }

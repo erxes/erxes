@@ -125,24 +125,24 @@ export const timezones = [
   { value: 'America/Antigua', label: 'America/Antigua' },
   { value: 'America/Araguaina', label: 'America/Araguaina' },
   {
-    value: 'America/Argentina/Buenos_Aires',
-    label: 'America/Argentina/Buenos_Aires'
+    label: 'America/Argentina/Buenos_Aires',
+    value: 'America/Argentina/Buenos_Aires'
   },
   {
-    value: 'America/Argentina/Catamarca',
-    label: 'America/Argentina/Catamarca'
+    label: 'America/Argentina/Catamarca',
+    value: 'America/Argentina/Catamarca'
   },
   {
-    value: 'America/Argentina/ComodRivadavia',
-    label: 'America/Argentina/ComodRivadavia'
+    label: 'America/Argentina/ComodRivadavia',
+    value: 'America/Argentina/ComodRivadavia'
   },
   { value: 'America/Argentina/Cordoba', label: 'America/Argentina/Cordoba' },
   { value: 'America/Argentina/Jujuy', label: 'America/Argentina/Jujuy' },
   { value: 'America/Argentina/La_Rioja', label: 'America/Argentina/La_Rioja' },
   { value: 'America/Argentina/Mendoza', label: 'America/Argentina/Mendoza' },
   {
-    value: 'America/Argentina/Rio_Gallegos',
-    label: 'America/Argentina/Rio_Gallegos'
+    label: 'America/Argentina/Rio_Gallegos',
+    value: 'America/Argentina/Rio_Gallegos'
   },
   { value: 'America/Argentina/Salta', label: 'America/Argentina/Salta' },
   { value: 'America/Argentina/San_Juan', label: 'America/Argentina/San_Juan' },
@@ -203,8 +203,8 @@ export const timezones = [
   { value: 'America/Havana', label: 'America/Havana' },
   { value: 'America/Hermosillo', label: 'America/Hermosillo' },
   {
-    value: 'America/Indiana/Indianapolis',
-    label: 'America/Indiana/Indianapolis'
+    label: 'America/Indiana/Indianapolis',
+    value: 'America/Indiana/Indianapolis'
   },
   { value: 'America/Indiana/Knox', label: 'America/Indiana/Knox' },
   { value: 'America/Indiana/Marengo', label: 'America/Indiana/Marengo' },
@@ -220,12 +220,12 @@ export const timezones = [
   { value: 'America/Jujuy', label: 'America/Jujuy' },
   { value: 'America/Juneau', label: 'America/Juneau' },
   {
-    value: 'America/Kentucky/Louisville',
-    label: 'America/Kentucky/Louisville'
+    label: 'America/Kentucky/Louisville',
+    value: 'America/Kentucky/Louisville'
   },
   {
-    value: 'America/Kentucky/Monticello',
-    label: 'America/Kentucky/Monticello'
+    label: 'America/Kentucky/Monticello',
+    value: 'America/Kentucky/Monticello'
   },
   { value: 'America/Knox_IN', label: 'America/Knox_IN' },
   { value: 'America/Kralendijk', label: 'America/Kralendijk' },
@@ -258,16 +258,16 @@ export const timezones = [
   { value: 'America/Nome', label: 'America/Nome' },
   { value: 'America/Noronha', label: 'America/Noronha' },
   {
-    value: 'America/North_Dakota/Beulah',
-    label: 'America/North_Dakota/Beulah'
+    label: 'America/North_Dakota/Beulah',
+    value: 'America/North_Dakota/Beulah'
   },
   {
-    value: 'America/North_Dakota/Center',
-    label: 'America/North_Dakota/Center'
+    label: 'America/North_Dakota/Center',
+    value: 'America/North_Dakota/Center'
   },
   {
-    value: 'America/North_Dakota/New_Salem',
-    label: 'America/North_Dakota/New_Salem'
+    label: 'America/North_Dakota/New_Salem',
+    value: 'America/North_Dakota/New_Salem'
   },
   { value: 'America/Ojinaga', label: 'America/Ojinaga' },
   { value: 'America/Panama', label: 'America/Panama' },
@@ -645,24 +645,27 @@ export const timezones = [
 ];
 
 export const KIND_CHOICES = {
-  MESSENGER: 'messenger',
-  TWITTER: 'twitter',
   FACEBOOK: 'facebook',
   FORM: 'form',
+  MESSENGER: 'messenger',
+  TWITTER: 'twitter',
+
   ALL_LIST: ['messenger', 'twitter', 'facebook', 'form']
 };
 
 export const FORM_LOAD_TYPES = {
-  SHOUTBOX: 'shoutbox',
-  POPUP: 'popup',
   EMBEDDED: 'embedded',
+  POPUP: 'popup',
+  SHOUTBOX: 'shoutbox',
+
   ALL_LIST: ['', 'shoutbox', 'popup', 'embedded']
 };
 
 export const FORM_SUCCESS_ACTIONS = {
   EMAIL: 'email',
-  REDIRECT: 'redirect',
   ONPAGE: 'onPage',
+  REDIRECT: 'redirect',
+
   ALL_LIST: ['', 'email', 'redirect', 'onPage']
 };
 
@@ -671,28 +674,28 @@ export const INTEGRATIONS = [
     name: 'row-1',
     rows: [
       {
-        name: 'Facebook',
+        createModal: 'facebook',
         description: 'See and reply to Facebook messages in your Team Inbox',
         inMessenger: false,
         kind: 'facebook',
         logo: '/images/integrations/facebook.png',
-        createModal: 'facebook'
+        name: 'Facebook'
       },
       {
-        name: 'Twitter',
+        createUrl: '/settings/integrations/twitter',
         description: 'See and reply to Twitter DMs in your Team Inbox',
         inMessenger: false,
         kind: 'twitter',
         logo: '/images/integrations/twitter.png',
-        createUrl: '/settings/integrations/twitter'
+        name: 'Twitter'
       },
       {
-        name: 'Messenger',
+        createUrl: '/settings/integrations/createMessenger',
         description: 'See and reply to Messenger messages in your Team Inbox',
         inMessenger: false,
         kind: 'messenger',
         logo: '/images/integrations/messenger.png',
-        createUrl: '/settings/integrations/createMessenger'
+        name: 'Messenger'
       }
     ]
   },
@@ -700,53 +703,53 @@ export const INTEGRATIONS = [
     name: 'row-2',
     rows: [
       {
-        name: 'Google meet',
+        createUrl: '/settings/integrations/google-calendar',
         description: 'Start a video call from your conversation',
         inMessenger: false,
         logo: '/images/integrations/google-meet.png',
-        createUrl: '/settings/integrations/google-calendar'
+        name: 'Google meet'
       }
     ]
   },
   {
-    title: 'Coming soon',
     name: 'row-3',
     rows: [
       {
-        name: 'Gmail',
         description: 'See and reply to Gmail in your Team Inbox',
         inMessenger: false,
-        logo: '/images/integrations/gmail.png'
+        logo: '/images/integrations/gmail.png',
+        name: 'Gmail'
       },
       {
-        name: 'Knowledge Base',
         description: 'See knowledge base in your Widget',
         inMessenger: true,
-        logo: '/images/integrations/knowledge-base.png'
+        logo: '/images/integrations/knowledge-base.png',
+        name: 'Knowledge Base'
       },
       {
-        name: 'Google calendar',
         description:
           'Let leads and customers book meetings during conversations',
         inMessenger: true,
-        logo: '/images/integrations/google-calendar.png'
+        logo: '/images/integrations/google-calendar.png',
+        name: 'Google calendar'
       }
-    ]
+    ],
+    title: 'Coming soon'
   },
   {
     name: 'row-4',
     rows: [
       {
-        name: 'Viber',
         description: 'See and reply to Viber messages in your Team Inbox',
         inMessenger: false,
-        logo: '/images/integrations/viber.png'
+        logo: '/images/integrations/viber.png',
+        name: 'Viber'
       },
       {
-        name: 'WhatsApp',
         description: 'See and reply to Whatsapp messages in your Team Inbox',
         inMessenger: false,
-        logo: '/images/integrations/whatsapp.png'
+        logo: '/images/integrations/whatsapp.png',
+        name: 'WhatsApp'
       }
     ]
   },
@@ -754,16 +757,16 @@ export const INTEGRATIONS = [
     name: 'row-5',
     rows: [
       {
-        name: 'Wechat',
         description: 'See and reply to Wechat messages in your Team Inbox',
         inMessenger: false,
-        logo: '/images/integrations/wechat.png'
+        logo: '/images/integrations/wechat.png',
+        name: 'Wechat'
       },
       {
-        name: 'Line',
         description: 'See and reply to Line messages in your Team Inbox',
         inMessenger: false,
-        logo: '/images/integrations/line.png'
+        logo: '/images/integrations/line.png',
+        name: 'Line'
       }
     ]
   }

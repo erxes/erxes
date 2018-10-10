@@ -52,12 +52,12 @@ class SegmentsForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      name: '',
-      description: '',
-      subOf: '',
       color: SegmentsForm.generateRandomColorCode(),
       conditions: [],
-      connector: 'any'
+      connector: 'any',
+      description: '',
+      name: '',
+      subOf: ''
     };
 
     this.addCondition = this.addCondition.bind(this);
@@ -81,12 +81,12 @@ class SegmentsForm extends React.Component<Props, State> {
     });
 
     const segment = {
-      name: this.state.name,
-      description: this.state.description,
-      subOf: this.state.subOf,
       color: this.state.color,
       conditions: this.state.conditions,
-      connector: this.state.connector
+      connector: this.state.connector,
+      description: this.state.description,
+      name: this.state.name,
+      subOf: this.state.subOf
     };
 
     this.props.count(segment);

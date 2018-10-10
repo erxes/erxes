@@ -100,12 +100,12 @@ const PropertiesContainer = (props: IProps) => {
 
   const updatedProps = {
     ...props,
-    fieldsGroups,
     currentType,
-    removePropertyGroup,
+    fieldsGroups,
     removeProperty,
-    updatePropertyVisible,
-    updatePropertyGroupVisible
+    removePropertyGroup,
+    updatePropertyGroupVisible,
+    updatePropertyVisible
   };
 
   return <Properties {...updatedProps} />;

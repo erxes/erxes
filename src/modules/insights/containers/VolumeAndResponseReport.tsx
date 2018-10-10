@@ -29,17 +29,17 @@ const VolumenAndResponseReportContainer = (props: IProps) => {
   const data = mainQuery.insightsMain || {};
 
   const extendedProps = {
-    history,
-    queryParams,
-    trend: data.trend || [],
     brands: brandsQuery.brands || [],
-    punch: punchCardQuery.insightsPunchCard || [],
-    summary: data.summary || [],
+    history,
     loading: {
+      insights: volumePieChartQuery && volumePieChartQuery.loading,
       main: mainQuery.loading,
-      punch: punchCardQuery.loading,
-      insights: volumePieChartQuery && volumePieChartQuery.loading
-    }
+      punch: punchCardQuery.loading
+    },
+    punch: punchCardQuery.insightsPunchCard || [],
+    queryParams,
+    summary: data.summary || [],
+    trend: data.trend || []
   };
 
   if (type === 'volume') {
@@ -62,7 +62,6 @@ const VolumenAndResponseReportContainer = (props: IProps) => {
 export default compose(
   graphql(gql(queries.pieChart), {
     name: 'volumePieChartQuery',
-    skip: ({ type }) => type === 'response',
     options: ({ queryParams }: IParams) => ({
       fetchPolicy: 'network-only',
       variables: {
@@ -70,17 +69,18 @@ export default compose(
         endDate: queryParams.endDate,
         startDate: queryParams.startDate
       }
-    })
+    }),
+    skip: ({ type }) => type === 'response'
   }),
   graphql(gql(queries.punchCard), {
     name: 'punchCardQuery',
     options: ({ queryParams, type }: IParamsWithType) => ({
       fetchPolicy: 'network-only',
       variables: {
-        type,
         brandId: queryParams.brandId,
+        endDate: queryParams.endDate,
         integrationType: queryParams.integrationType,
-        endDate: queryParams.endDate
+        type
       }
     })
   }),
@@ -90,11 +90,11 @@ export default compose(
       fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
       variables: {
-        type,
         brandId: queryParams.brandId,
+        endDate: queryParams.endDate,
         integrationType: queryParams.integrationType,
         startDate: queryParams.startDate,
-        endDate: queryParams.endDate
+        type
       }
     })
   }),

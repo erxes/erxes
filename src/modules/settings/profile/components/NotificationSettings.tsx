@@ -30,8 +30,8 @@ class NotificationSettings extends React.Component<Props> {
   onTypeChange(e) {
     // save config
     this.props.saveNotificationConfigurations({
-      notifType: e.target.value,
-      isAllowed: e.target.checked
+      isAllowed: e.target.checked,
+      notifType: e.target.value
     });
   }
 

@@ -293,21 +293,21 @@ const generateCustomerDetailQuery = params => {
 };
 
 export default {
-  conversationList,
-  sidebarConversations,
+  brandList,
+  channelList,
+  conversationCounts,
   conversationDetail,
   conversationDetailMarkAsRead,
+  conversationList,
   conversationMessages,
   conversationMessagesTotalCount,
-  userList,
-  channelList,
-  brandList,
-  tagList,
-  responseTemplateList,
+  generateCustomerDetailQuery,
+  lastConversation,
   messengerApps,
-  conversationCounts,
+  responseTemplateList,
+  sidebarConversations,
+  tagList,
   totalConversationsCount,
   unreadConversationsCount,
-  lastConversation,
-  generateCustomerDetailQuery
+  userList
 };

@@ -56,10 +56,10 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
 
       return {
         _id,
-        title: name,
         iconClass: 'icon-tag',
         iconColor: colorCode,
-        selectedBy: state
+        selectedBy: state,
+        title: name
       };
     });
   }
@@ -92,16 +92,16 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
 
     const links = [
       {
-        title: __('Manage tags'),
-        href: `/tags/${type}`
+        href: `/tags/${type}`,
+        title: __('Manage tags')
       }
     ];
 
     const props = {
       className,
+      items: JSON.parse(JSON.stringify(this.state.tagsForList)),
       links,
-      selectable: true,
-      items: JSON.parse(JSON.stringify(this.state.tagsForList))
+      selectable: true
     };
 
     if (event) {

@@ -55,12 +55,12 @@ class CompanyForm extends React.Component<Props, State> {
     }
 
     this.state = {
-      parentCompanyId: company.parentCompanyId || '',
-      ownerId: company.ownerId || '',
+      avatar: company.avatar,
       companies,
       doNotDisturb: company.doNotDisturb || 'No',
-      users: [],
-      avatar: company.avatar
+      ownerId: company.ownerId || '',
+      parentCompanyId: company.parentCompanyId || '',
+      users: []
     };
 
     this.action = this.action.bind(this);
@@ -90,28 +90,28 @@ class CompanyForm extends React.Component<Props, State> {
 
     this.props.action({
       doc: {
-        names,
-        primaryName,
         avatar,
-        size: parseInt(this.getInputElementValue('company-size'), 10),
-        industry: this.getInputElementValue('company-industry'),
-        parentCompanyId: this.state.parentCompanyId,
-        email: this.getInputElementValue('company-email'),
-        ownerId: this.state.ownerId,
-        phone: this.getInputElementValue('company-phone'),
-        leadStatus: this.getInputElementValue('company-leadStatus'),
-        lifecycleState: this.getInputElementValue('company-lifecycleState'),
         businessType: this.getInputElementValue('company-businessType'),
         description: this.getInputElementValue('company-description'),
         doNotDisturb: this.state.doNotDisturb,
+        email: this.getInputElementValue('company-email'),
+        industry: this.getInputElementValue('company-industry'),
+        leadStatus: this.getInputElementValue('company-leadStatus'),
+        lifecycleState: this.getInputElementValue('company-lifecycleState'),
         links: {
-          linkedIn: this.getInputElementValue('company-linkedIn'),
-          twitter: this.getInputElementValue('company-twitter'),
           facebook: this.getInputElementValue('company-facebook'),
           github: this.getInputElementValue('company-github'),
-          youtube: this.getInputElementValue('company-youtube'),
-          website: this.getInputElementValue('company-website')
-        }
+          linkedIn: this.getInputElementValue('company-linkedIn'),
+          twitter: this.getInputElementValue('company-twitter'),
+          website: this.getInputElementValue('company-website'),
+          youtube: this.getInputElementValue('company-youtube')
+        },
+        names,
+        ownerId: this.state.ownerId,
+        parentCompanyId: this.state.parentCompanyId,
+        phone: this.getInputElementValue('company-phone'),
+        primaryName,
+        size: parseInt(this.getInputElementValue('company-size'), 10)
       }
     });
 
@@ -124,22 +124,22 @@ class CompanyForm extends React.Component<Props, State> {
 
   generateCompanyParams(companies) {
     return companies.map(company => ({
-      value: company._id,
-      label: company.primaryName || ''
+      label: company.primaryName || '',
+      value: company._id
     }));
   }
 
   generateUserParams(users) {
     return users.map(user => ({
-      value: user._id,
-      label: user.details.fullName || ''
+      label: user.details.fullName || '',
+      value: user._id
     }));
   }
 
   generateConstantParams(constants) {
     return constants.map(constant => ({
-      value: constant,
-      label: constant
+      label: constant,
+      value: constant
     }));
   }
 
@@ -208,9 +208,9 @@ class CompanyForm extends React.Component<Props, State> {
             </FormGroup>
 
             {this.renderFormGroup('Industry', {
-              id: 'company-industry',
               componentClass: 'select',
               defaultValue: company.industry || '',
+              id: 'company-industry',
               options: this.generateConstantParams(COMPANY_INDUSTRY_TYPES)
             })}
 
@@ -228,13 +228,13 @@ class CompanyForm extends React.Component<Props, State> {
             </FormGroup>
 
             {this.renderFormGroup('Email', {
-              id: 'company-email',
-              defaultValue: company.email || ''
+              defaultValue: company.email || '',
+              id: 'company-email'
             })}
             {this.renderFormGroup('Lead Status', {
-              id: 'company-leadStatus',
               componentClass: 'select',
               defaultValue: company.leadStatus || '',
+              id: 'company-leadStatus',
               options: leadStatusChoices(__)
             })}
 
@@ -265,39 +265,41 @@ class CompanyForm extends React.Component<Props, State> {
               />
             </FormGroup>
             {this.renderFormGroup('Business Type', {
-              id: 'company-businessType',
               componentClass: 'select',
               defaultValue: company.businessType || '',
+              id: 'company-businessType',
               options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
             })}
             {this.renderFormGroup('Size', {
-              id: 'company-size',
-              defaultValue: company.size || 0
+              defaultValue: company.size || 0,
+              id: 'company-size'
             })}
             {this.renderFormGroup('Phone', {
-              id: 'company-phone',
-              defaultValue: company.phone || ''
+              defaultValue: company.phone || '',
+              id: 'company-phone'
             })}
             {this.renderFormGroup('Lifecycle State', {
-              id: 'company-lifecycleState',
               componentClass: 'select',
               defaultValue: company.lifecycleState || '',
+              id: 'company-lifecycleState',
               options: lifecycleStateChoices(__)
             })}
             {this.renderFormGroup('Do not disturb', {
               componentClass: 'radio',
               options: [
                 {
-                  childNode: 'Yes',
-                  value: 'Yes',
                   checked: this.state.doNotDisturb === 'Yes',
-                  onChange: e => this.setState({ doNotDisturb: e.target.value })
+                  childNode: 'Yes',
+                  onChange: e =>
+                    this.setState({ doNotDisturb: e.target.value }),
+                  value: 'Yes'
                 },
                 {
-                  childNode: 'No',
-                  value: 'No',
                   checked: this.state.doNotDisturb === 'No',
-                  onChange: e => this.setState({ doNotDisturb: e.target.value })
+                  childNode: 'No',
+                  onChange: e =>
+                    this.setState({ doNotDisturb: e.target.value }),
+                  value: 'No'
                 }
               ]
             })}
@@ -307,34 +309,34 @@ class CompanyForm extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('LinkedIn', {
-              id: 'company-linkedIn',
-              defaultValue: links.linkedIn || ''
+              defaultValue: links.linkedIn || '',
+              id: 'company-linkedIn'
             })}
 
             {this.renderFormGroup('Twitter', {
-              id: 'company-twitter',
-              defaultValue: links.twitter || ''
+              defaultValue: links.twitter || '',
+              id: 'company-twitter'
             })}
 
             {this.renderFormGroup('Facebook', {
-              id: 'company-facebook',
-              defaultValue: links.facebook || ''
+              defaultValue: links.facebook || '',
+              id: 'company-facebook'
             })}
           </FormColumn>
           <FormColumn>
             {this.renderFormGroup('Github', {
-              id: 'company-github',
-              defaultValue: links.github || ''
+              defaultValue: links.github || '',
+              id: 'company-github'
             })}
 
             {this.renderFormGroup('Youtube', {
-              id: 'company-youtube',
-              defaultValue: links.youtube || ''
+              defaultValue: links.youtube || '',
+              id: 'company-youtube'
             })}
 
             {this.renderFormGroup('Website', {
-              id: 'company-website',
-              defaultValue: links.website || ''
+              defaultValue: links.website || '',
+              id: 'company-website'
             })}
           </FormColumn>
         </FormWrapper>

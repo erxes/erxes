@@ -7,7 +7,7 @@
   },
   "rules": {
     "no-var-requires": false,
-    "object-literal-sort-keys": false,
+    "object-literal-sort-keys": true,
     "curly": false,
     "no-unused-expression": false,
     "interface-over-type-literal": false,

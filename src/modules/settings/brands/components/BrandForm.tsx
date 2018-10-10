@@ -42,10 +42,10 @@ class BrandForm extends React.Component<Props, {}> {
   generateDoc() {
     return {
       doc: {
-        name: (document.getElementById('brand-name') as HTMLInputElement).value,
         description: (document.getElementById(
           'brand-description'
-        ) as HTMLInputElement).value
+        ) as HTMLInputElement).value,
+        name: (document.getElementById('brand-name') as HTMLInputElement).value
       }
     };
   }

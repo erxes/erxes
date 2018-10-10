@@ -25,8 +25,8 @@ class ProductItemFormContainer extends React.Component<Props> {
 
     const extendedProps = {
       ...this.props,
-      uom,
-      currencies
+      currencies,
+      uom
     };
 
     return <ProductItemForm {...extendedProps} />;

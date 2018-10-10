@@ -36,9 +36,9 @@ class NotificationListContainer extends React.Component<Props> {
     const updatedProps = {
       ...this.props,
 
+      count: notificationCountQuery.notificationCounts || 0,
       markAsRead,
-      notifications: notificationsQuery.notifications || [],
-      count: notificationCountQuery.notificationCounts || 0
+      notifications: notificationsQuery.notifications || []
     };
 
     return <NotificationList {...updatedProps} />;
@@ -50,9 +50,9 @@ export default compose(
     name: 'notificationsQuery',
     options: ({ queryParams }: { queryParams: any }) => ({
       variables: {
-        requireRead: false,
         page: queryParams.page,
         perPage: queryParams.perPage || 20,
+        requireRead: false,
         title: queryParams.title
       }
     })

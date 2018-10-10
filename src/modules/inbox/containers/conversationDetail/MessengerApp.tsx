@@ -37,8 +37,8 @@ const MessengerAppContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    onSelect,
-    messengerApps: messengerAppsQuery.messengerApps
+    messengerApps: messengerAppsQuery.messengerApps,
+    onSelect
   };
 
   return <MessengerApp {...updatedProps} />;

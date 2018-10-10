@@ -4,8 +4,8 @@ const headerSpacing = 50;
 const headerSpacingWide = headerSpacing + 20;
 
 export default {
-  unitSpacing,
   coreSpacing,
   headerSpacing,
-  headerSpacingWide
+  headerSpacingWide,
+  unitSpacing
 };

@@ -36,9 +36,9 @@ class ManageIntegrationsContainer extends React.Component<Props, {}> {
     editMutation({
       variables: {
         _id: currentChannel._id,
-        name: currentChannel.name,
         integrationIds,
-        memberIds: currentChannel.memberIds
+        memberIds: currentChannel.memberIds,
+        name: currentChannel.name
       }
     })
       .then(() => {

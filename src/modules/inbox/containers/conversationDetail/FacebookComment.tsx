@@ -32,8 +32,8 @@ const FacebookCommentContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    replyPost,
     message,
+    replyPost,
     scrollBottom
   };
 

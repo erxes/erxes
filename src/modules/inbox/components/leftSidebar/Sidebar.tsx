@@ -63,8 +63,8 @@ class LeftSidebar extends React.Component<Props, {}> {
           buttonText="# Channel"
           popoverTitle="Filter by channel"
           query={{
-            queryName: 'channelList',
-            dataName: 'channels'
+            dataName: 'channels',
+            queryName: 'channelList'
           }}
           counts="byChannels"
           paramKey="channelId"
@@ -115,8 +115,8 @@ class LeftSidebar extends React.Component<Props, {}> {
         <FilterPopover
           buttonText="Tag"
           query={{
-            queryName: 'tagList',
             dataName: 'tags',
+            queryName: 'tagList',
             variables: {
               type: TAG_TYPES.CONVERSATION
             }

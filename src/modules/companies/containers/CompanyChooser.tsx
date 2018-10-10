@@ -42,18 +42,18 @@ const CompanyChooser = (props: WrapperProps & Props) => {
 
   const updatedProps = {
     ...props,
+    add: addCompany,
+    clearState: () => search(''),
     data: {
       _id: data._id,
-      name: renderName(data),
-      datas: data.companies
+      datas: data.companies,
+      name: renderName(data)
     },
-    search,
-    clearState: () => search(''),
-    title: 'Company',
+    datas: companiesQuery.companies || [],
     renderForm: props => <CompanyForm {...props} action={addCompany} />,
     renderName,
-    add: addCompany,
-    datas: companiesQuery.companies || []
+    search,
+    title: 'Company'
   };
 
   return <Chooser {...updatedProps} />;
@@ -71,8 +71,8 @@ const WithQuery = compose(
     }) => {
       return {
         variables: {
-          searchValue,
-          perPage
+          perPage,
+          searchValue
         }
       };
     }

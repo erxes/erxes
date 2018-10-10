@@ -68,15 +68,15 @@ class FormBase extends React.Component<Props> {
 
     if (type === 'live') {
       return {
-        status: 'ok',
-        doc: { isLive: true, isDraft: false, ...doc }
+        doc: { isLive: true, isDraft: false, ...doc },
+        status: 'ok'
       };
     }
 
     if (type === 'draft ') {
       return {
-        status: 'ok',
-        doc: { isLive: false, isDraft: true, ...doc }
+        doc: { isLive: false, isDraft: true, ...doc },
+        status: 'ok'
       };
     }
 

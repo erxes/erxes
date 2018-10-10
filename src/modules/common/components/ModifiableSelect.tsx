@@ -14,8 +14,8 @@ class Option extends React.Component<OptionProps> {
     const { onRemove } = option;
     const style = {
       display: 'inline-block',
-      width: '100%',
-      padding: '8px 20px'
+      padding: '8px 20px',
+      width: '100%'
     };
 
     return (
@@ -68,9 +68,9 @@ class ModifiableSelect extends React.Component<Props, State> {
     const { options } = this.state;
 
     return options.map(option => ({
-      value: option,
       label: option,
-      onRemove: value => this.removeItem(value)
+      onRemove: value => this.removeItem(value),
+      value: option
     }));
   }
 

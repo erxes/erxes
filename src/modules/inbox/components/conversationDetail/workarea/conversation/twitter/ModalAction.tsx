@@ -56,8 +56,8 @@ class ModalAction extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      tweet: '',
-      characterCount: this.getCharacterCount(this.getContent())
+      characterCount: this.getCharacterCount(this.getContent()),
+      tweet: ''
     };
 
     this.doAction = this.doAction.bind(this);
@@ -75,8 +75,8 @@ class ModalAction extends React.Component<Props, State> {
   onTweetContentChange(e: React.FormEvent<HTMLElement>) {
     const tweetContent = (e.target as HTMLInputElement).value;
     this.setState({
-      tweet: tweetContent,
-      characterCount: this.getCharacterCount(tweetContent)
+      characterCount: this.getCharacterCount(tweetContent),
+      tweet: tweetContent
     });
   }
 
@@ -129,8 +129,8 @@ class ModalAction extends React.Component<Props, State> {
       const tweetContent = this.state.tweet.replace(`@${screenName} `, '');
 
       const replyData = {
-        conversationId: parentMessage.conversationId,
         content: tweetContent,
+        conversationId: parentMessage.conversationId,
         tweetReplyToId: id,
         tweetReplyToScreenName: screenName
       };
@@ -151,8 +151,8 @@ class ModalAction extends React.Component<Props, State> {
     }
 
     const tweetData = {
-      integrationId,
-      id
+      id,
+      integrationId
     };
 
     return (

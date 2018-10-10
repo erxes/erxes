@@ -34,13 +34,13 @@ const uploadHandler = params => {
       }
 
       fetch(url, {
-        method: 'post',
         body: formData,
         headers: {
-          'x-token': localStorage.getItem('erxesLoginToken') || '',
           'x-refresh-token':
-            localStorage.getItem('erxesLoginRefreshToken') || ''
-        }
+            localStorage.getItem('erxesLoginRefreshToken') || '',
+          'x-token': localStorage.getItem('erxesLoginToken') || ''
+        },
+        method: 'post'
       })
         .then(response => {
           return response[responseType]();

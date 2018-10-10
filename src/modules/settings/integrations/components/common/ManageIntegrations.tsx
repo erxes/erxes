@@ -44,9 +44,9 @@ class ManageIntegrations extends React.Component<Props, State> {
     const current = props.current || {};
 
     this.state = {
-      selectedIntegrations: current.integrations || [],
       hasMore: true,
-      searchValue: ''
+      searchValue: '',
+      selectedIntegrations: current.integrations || []
     };
 
     this.save = this.save.bind(this);

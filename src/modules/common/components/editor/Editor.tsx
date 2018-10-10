@@ -330,7 +330,7 @@ export const clearContent = editorState =>
 
 export default {
   ErxesEditor,
-  toHTML,
+  clearContent,
   createStateFromHTML,
-  clearContent
+  toHTML
 };

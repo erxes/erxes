@@ -158,12 +158,12 @@ const tags = `
 `;
 
 export default {
-  integrations,
-  integrationDetail,
-  integrationsTotalCount,
-  fields,
   brands,
-  tags,
+  fields,
   fieldsCombinedByContentType,
-  fieldsDefaultColumnsConfig
+  fieldsDefaultColumnsConfig,
+  integrationDetail,
+  integrations,
+  integrationsTotalCount,
+  tags
 };

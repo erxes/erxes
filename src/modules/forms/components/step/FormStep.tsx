@@ -37,9 +37,9 @@ class FormStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      fields: props.fields,
       chosenFieldType: '',
-      editingField: undefined
+      editingField: undefined,
+      fields: props.fields
     };
 
     this.onFieldAttrChange = this.onFieldAttrChange.bind(this);
@@ -85,13 +85,13 @@ class FormStep extends React.Component<Props, State> {
 
     const doc = {
       contentType: 'form',
-      type: editingField.type,
-      validation: editingField.validation,
-      text: editingField.text,
       description: editingField.description,
+      isRequired: editingField.isRequired,
       options: editingField.options,
       order: 0,
-      isRequired: editingField.isRequired
+      text: editingField.text,
+      type: editingField.type,
+      validation: editingField.validation
     };
 
     // newly created field to fields state

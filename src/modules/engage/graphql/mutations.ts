@@ -103,11 +103,11 @@ const segmentsAdd = `
 `;
 
 export default {
-  setPause,
-  setLive,
-  setLiveManual,
   messageRemove,
   messagesAdd,
   messagesEdit,
-  segmentsAdd
+  segmentsAdd,
+  setLive,
+  setLiveManual,
+  setPause
 };

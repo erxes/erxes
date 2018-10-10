@@ -60,10 +60,10 @@ const ListContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    tags: tagsQuery.tags || [],
-    type,
     remove,
-    save
+    save,
+    tags: tagsQuery.tags || [],
+    type
   };
 
   return <List {...updatedProps} />;
@@ -82,8 +82,8 @@ export default compose(
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
     options: ({ type }: { type: string }) => ({
-      variables: { type },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      variables: { type }
     })
   }),
   graphql(gql(mutations.add), { name: 'addMutation', options }),

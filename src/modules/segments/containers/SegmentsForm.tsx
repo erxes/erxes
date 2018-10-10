@@ -86,8 +86,8 @@ class SegmentsFormContainer extends React.Component<Props> {
     const fields = combinedFieldsQuery.fieldsCombinedByContentType.map(
       ({ name, label }) => ({
         _id: name,
-        title: label,
-        selectedBy: 'none'
+        selectedBy: 'none',
+        title: label
       })
     );
 
@@ -96,13 +96,13 @@ class SegmentsFormContainer extends React.Component<Props> {
 
     const updatedProps = {
       ...this.props,
-      fields,
-      segment,
-      headSegments: headSegments.filter(s => s.contentType === contentType),
-      create: this.create,
       count: this.count,
-      total: customerCounts.customerCounts || {},
-      edit: this.edit
+      create: this.create,
+      edit: this.edit,
+      fields,
+      headSegments: headSegments.filter(s => s.contentType === contentType),
+      segment,
+      total: customerCounts.customerCounts || {}
     };
 
     return <SegmentsForm {...updatedProps} />;

@@ -74,10 +74,10 @@ export default abstract class Bulk extends React.Component<Props, State> {
 
     return this.props.content({
       bulk,
-      isAllSelected,
       emptyBulk,
-      toggleBulk,
-      toggleAll
+      isAllSelected,
+      toggleAll,
+      toggleBulk
     });
   }
 }

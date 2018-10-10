@@ -84,8 +84,8 @@ class CustomerListContainer extends React.Component<IProps, State> {
     const mergeCustomers = ({ ids, data, callback }) =>
       customersMerge({
         variables: {
-          customerIds: ids,
-          customerFields: data
+          customerFields: data,
+          customerIds: ids
         }
       })
         .then(({ data }: any) => {
@@ -124,11 +124,12 @@ class CustomerListContainer extends React.Component<IProps, State> {
       const xlsFile = e.target.files;
 
       uploadHandler({
-        type: 'import',
-        files: xlsFile,
         extraFormData: [{ key: 'type', value: 'customers' }],
-        url: `${process.env.REACT_APP_API_URL}/import-file`,
+        files: xlsFile,
         responseType: 'json',
+        type: 'import',
+        url: `${process.env.REACT_APP_API_URL}/import-file`,
+
         beforeUpload: () => {
           this.setState({ loading: true });
         },
@@ -155,32 +156,32 @@ class CustomerListContainer extends React.Component<IProps, State> {
 
     const counts = customerCountsQuery.customerCounts || {
       byBrand: {},
-      byIntegrationType: {},
-      bySegment: {},
-      byTag: {},
       byForm: {},
+      byIntegrationType: {},
       byLeadStatus: {},
-      byLifecycleState: {}
+      byLifecycleState: {},
+      bySegment: {},
+      byTag: {}
     };
 
     const updatedProps = {
       ...this.props,
+      brands: brandsQuery.brands || [],
       columnsConfig,
-      customers: list,
       counts: {
         all: totalCount,
         ...counts
       },
+      customers: list,
       exportCustomers,
       handleXlsUpload,
-      brands: brandsQuery.brands || [],
       integrations: KIND_CHOICES.ALL_LIST,
-      tags: tagsQuery.tags || [],
-      searchValue,
       loading: customersMainQuery.loading || this.state.loading,
       loadingTags: tagsQuery.loading,
       mergeCustomers,
-      removeCustomers
+      removeCustomers,
+      searchValue,
+      tags: tagsQuery.tags || []
     };
 
     return (
@@ -197,24 +198,24 @@ class CustomerListContainer extends React.Component<IProps, State> {
 
 const generateParams = ({ queryParams }) => {
   return {
+    fetchPolicy: 'network-only',
     variables: {
-      page: queryParams.page,
-      perPage: queryParams.perPage || 20,
-      segment: queryParams.segment,
-      tag: queryParams.tag,
-      ids: queryParams.ids,
-      searchValue: queryParams.searchValue,
       brand: queryParams.brand,
-      integration: queryParams.integrationType,
-      form: queryParams.form,
-      startDate: queryParams.startDate,
       endDate: queryParams.endDate,
+      form: queryParams.form,
+      ids: queryParams.ids,
+      integration: queryParams.integrationType,
       leadStatus: queryParams.leadStatus,
       lifecycleState: queryParams.lifecycleState,
+      page: queryParams.page,
+      perPage: queryParams.perPage || 20,
+      searchValue: queryParams.searchValue,
+      segment: queryParams.segment,
+      sortDirection: queryParams.sortDirection,
       sortField: queryParams.sortField,
-      sortDirection: queryParams.sortDirection
-    },
-    fetchPolicy: 'network-only'
+      startDate: queryParams.startDate,
+      tag: queryParams.tag
+    }
   };
 };
 
@@ -230,10 +231,10 @@ export default compose(
   graphql(gql(tagQueries.tags), {
     name: 'tagsQuery',
     options: () => ({
+      fetchPolicy: 'network-only',
       variables: {
         type: TAG_TYPES.CUSTOMER
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(gql(queries.customersListConfig), {

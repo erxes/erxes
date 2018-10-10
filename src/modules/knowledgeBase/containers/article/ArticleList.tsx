@@ -43,12 +43,12 @@ const ArticleContainer = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    remove,
-    currentCategoryId,
-    topicIds,
-    queryParams,
     articles: articlesQuery.knowledgeBaseArticles || [],
-    loading: articlesQuery.loading
+    currentCategoryId,
+    loading: articlesQuery.loading,
+    queryParams,
+    remove,
+    topicIds
   };
 
   return <ArticleList {...extendedProps} />;
@@ -64,12 +64,12 @@ export default compose(
       queryParams: any;
       currentCategoryId: string;
     }) => ({
+      fetchPolicy: 'network-only',
       variables: {
         categoryIds: [currentCategoryId],
         page: queryParams.page,
         perPage: queryParams.perPage || 20
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(gql(mutations.knowledgeBaseArticlesRemove), {

@@ -175,15 +175,15 @@ class Index extends React.Component<IndexProps> {
         </Box>
 
         {this.renderMessengerData({
+          config,
           customer,
           kind,
-          config,
           toggleSection
         })}
         {this.renderDeviceProperties({
+          config,
           customer,
           kind,
-          config,
           toggleSection
         })}
 

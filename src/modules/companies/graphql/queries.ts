@@ -184,11 +184,11 @@ const activityLogsCompany = `
 `;
 
 export default {
+  activityLogsCompany,
   companies,
+  companiesListConfig,
   companiesMain,
   companyCounts,
   companyDetail,
-  tags,
-  companiesListConfig,
-  activityLogsCompany
+  tags
 };

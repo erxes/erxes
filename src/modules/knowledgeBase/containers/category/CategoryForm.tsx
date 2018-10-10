@@ -56,9 +56,9 @@ const KnowledgeBaseContainer = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    save,
+    category,
     currentTopicId: topicIds,
-    category
+    save
   };
 
   return <CategoryForm {...extendedProps} />;

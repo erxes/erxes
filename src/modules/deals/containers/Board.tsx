@@ -19,8 +19,8 @@ class BoardContainer extends React.Component<Props> {
 
     const extendedProps = {
       ...this.props,
-      pipelines,
-      loading: pipelinesQuery.loading
+      loading: pipelinesQuery.loading,
+      pipelines
     };
 
     return (

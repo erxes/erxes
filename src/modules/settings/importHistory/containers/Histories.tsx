@@ -54,10 +54,10 @@ class HistoriesContainer extends React.Component<IProps, State> {
 
     const updatedProps = {
       ...this.props,
+      currentType,
       histories: historiesQuery.importHistories || [],
       loading: historiesQuery.loading || this.state.loading,
-      removeHistory,
-      currentType
+      removeHistory
     };
 
     return <Histories {...updatedProps} />;

@@ -70,6 +70,7 @@ class DealSelectContainer extends React.Component<Props> {
       boards,
       pipelines,
       stages,
+
       onChangeBoard: this.onChangeBoard,
       onChangePipeline: this.onChangePipeline,
       onChangeStage: this.onChangeStage

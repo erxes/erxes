@@ -55,9 +55,9 @@ class CallOut extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      defaultValue,
       logo: '',
-      logoPreviewStyle: {},
-      defaultValue
+      logoPreviewStyle: {}
     };
 
     this.onChangeFunction = this.onChangeFunction.bind(this);

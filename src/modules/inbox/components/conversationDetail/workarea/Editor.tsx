@@ -156,8 +156,8 @@ export default class Editor extends React.Component<EditorProps, State> {
     super(props);
 
     this.state = {
-      editorState: EditorState.createEmpty(),
       collectedMentions: [],
+      editorState: EditorState.createEmpty(),
       suggestions: this.props.mentions.toArray(),
       templatesState: null
     };
@@ -236,9 +236,9 @@ export default class Editor extends React.Component<EditorProps, State> {
 
     if (foundTemplates.length > 0) {
       return {
-        templates: foundTemplates.slice(0, 5),
         searchText: textContent,
-        selectedIndex: 0
+        selectedIndex: 0,
+        templates: foundTemplates.slice(0, 5)
       };
     }
 
@@ -414,13 +414,13 @@ export default class Editor extends React.Component<EditorProps, State> {
     const props = {
       ...this.props,
       editorState: this.state.editorState,
-      onChange: this.onChange,
-      keyBindingFn: this.keyBindingFn,
-      onUpArrow: this.onUpArrow,
-      onDownArrow: this.onDownArrow,
       handleFileInput: this.props.handleFileInput,
-      plugins,
-      pluginContent
+      keyBindingFn: this.keyBindingFn,
+      onChange: this.onChange,
+      onDownArrow: this.onDownArrow,
+      onUpArrow: this.onUpArrow,
+      pluginContent,
+      plugins
     };
 
     return (

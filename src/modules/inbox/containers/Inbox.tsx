@@ -50,11 +50,11 @@ class WithCurrentId extends React.Component<IProps> {
 const WithLastConversation = compose(
   graphql(gql(queries.lastConversation), {
     name: 'lastConversationQuery',
-    skip: ({ queryParams }: { queryParams: any }) => queryParams._id,
     options: ({ queryParams }: { queryParams: any }) => ({
-      variables: generateParams(queryParams),
-      fetchPolicy: 'network-only'
-    })
+      fetchPolicy: 'network-only',
+      variables: generateParams(queryParams)
+    }),
+    skip: ({ queryParams }: { queryParams: any }) => queryParams._id
   })
 )(WithCurrentId);
 

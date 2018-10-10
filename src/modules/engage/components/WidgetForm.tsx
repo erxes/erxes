@@ -50,21 +50,21 @@ class WidgetForm extends React.Component<Props, State> {
     const { save, customers } = this.props;
 
     const doc = {
-      title: (document.getElementById('title') as HTMLInputElement).value,
       customerIds: customers.map(customer => customer._id),
-      method: ''
+      method: '',
+      title: (document.getElementById('title') as HTMLInputElement).value
     } as IEngageMessageDoc;
 
     if (this.state.channel === 'email') {
       doc.method = METHODS.EMAIL;
       doc.email = {
-        templateId: (document.getElementById(
-          'emailTemplateId'
-        ) as HTMLInputElement).value,
+        attachments: this.state.attachments,
+        content: this.state.content,
         subject: (document.getElementById('emailSubject') as HTMLInputElement)
           .value,
-        attachments: this.state.attachments,
-        content: this.state.content
+        templateId: (document.getElementById(
+          'emailTemplateId'
+        ) as HTMLInputElement).value
       } as IEngageEmail;
     }
 
@@ -72,10 +72,10 @@ class WidgetForm extends React.Component<Props, State> {
       doc.method = METHODS.MESSENGER;
       doc.messenger = {
         brandId: (document.getElementById('brandId') as HTMLInputElement).value,
+        content: this.state.content,
         kind: (document.getElementById('messengerKind') as HTMLInputElement)
           .value,
-        sentAs: (document.getElementById('sentAs') as HTMLInputElement).value,
-        content: this.state.content
+        sentAs: (document.getElementById('sentAs') as HTMLInputElement).value
       } as IEngageMessenger;
     }
 

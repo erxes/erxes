@@ -32,10 +32,10 @@ class Brands extends React.Component<IProps> {
 
     const extendedProps = {
       ...this.props,
-      queryParams: queryString.parse(location.search),
       currentBrand: brandDetailQuery.brandDetail || {},
+      integrationsCount,
       loading: brandDetailQuery.loading,
-      integrationsCount
+      queryParams: queryString.parse(location.search)
     };
 
     return <DumbBrands {...extendedProps} />;
@@ -46,8 +46,8 @@ const BrandsContainer = compose(
   graphql(gql(queries.brandDetail), {
     name: 'brandDetailQuery',
     options: ({ currentBrandId }: { currentBrandId: string }) => ({
-      variables: { _id: currentBrandId },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      variables: { _id: currentBrandId }
     })
   }),
   graphql(gql(queries.integrationsCount), {
@@ -101,11 +101,11 @@ type WithCurrentIdProps = {
 const WithLastBrand = compose(
   graphql(gql(queries.brandsGetLast), {
     name: 'lastBrandQuery',
-    skip: ({ queryParams }: { queryParams: any }) => queryParams._id,
     options: ({ queryParams }: { queryParams: any }) => ({
-      variables: { _id: queryParams._id },
-      fetchPolicy: 'network-only'
-    })
+      fetchPolicy: 'network-only',
+      variables: { _id: queryParams._id }
+    }),
+    skip: ({ queryParams }: { queryParams: any }) => queryParams._id
   })
 )(WithCurrentId);
 

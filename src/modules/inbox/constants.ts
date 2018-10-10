@@ -1,6 +1,6 @@
 export const CONVERSATION_STATUSES = {
-  NEW: 'new',
-  OPEN: 'open',
+  ALL_LIST: ['new', 'open', 'closed'],
   CLOSED: 'closed',
-  ALL_LIST: ['new', 'open', 'closed']
+  NEW: 'new',
+  OPEN: 'open'
 };

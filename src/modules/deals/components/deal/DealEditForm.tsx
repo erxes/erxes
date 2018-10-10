@@ -47,19 +47,21 @@ class DealEditForm extends React.Component<Props, State> {
     const deal = props.deal;
 
     this.state = {
+      amount: deal.amount || {},
+      disabled: false,
       name: deal.name,
       stageId: deal.stageId,
-      disabled: false,
-      amount: deal.amount || {},
+
       // Deal datas
+      closeDate: deal.closeDate,
       companies: deal.companies || [],
       customers: deal.customers || [],
-      closeDate: deal.closeDate,
       description: deal.description || '',
       productsData: deal.products ? deal.products.map(p => ({ ...p })) : [],
+
       // collecting data for ItemCounter component
-      products: deal.products ? deal.products.map(p => p.product) : [],
-      assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
+      assignedUserIds: (deal.assignedUsers || []).map(user => user._id),
+      products: deal.products ? deal.products.map(p => p.product) : []
     };
   }
 
@@ -115,14 +117,14 @@ class DealEditForm extends React.Component<Props, State> {
       return Alert.error(__('Please, select product & service'));
 
     const doc = {
-      name,
+      assignedUserIds,
+      closeDate: closeDate && new Date(closeDate),
       companyIds: companies.map(company => company._id),
       customerIds: customers.map(customer => customer._id),
-      closeDate: closeDate && new Date(closeDate),
       description,
+      name,
       productsData,
-      stageId,
-      assignedUserIds
+      stageId
     };
 
     // before save, disable save button
@@ -142,9 +144,9 @@ class DealEditForm extends React.Component<Props, State> {
     // if changed stageId, update ui
     if (move && deal.stageId !== stageId) {
       const moveDoc = {
-        source: { _id: deal.stageId, index },
         destination: { _id: stageId, index: 0 },
         itemId: deal._id,
+        source: { _id: deal.stageId, index },
         type: 'stage'
       };
 

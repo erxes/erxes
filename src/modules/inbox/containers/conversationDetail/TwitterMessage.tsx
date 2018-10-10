@@ -103,11 +103,11 @@ const TwitterMessageContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    replyTweet,
+    currentConversationId,
     favoriteTweet,
+    replyTweet,
     retweet,
-    tweet,
-    currentConversationId
+    tweet
   };
 
   return <TwitterMessage {...updatedProps} />;

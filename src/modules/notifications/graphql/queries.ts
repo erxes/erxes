@@ -51,6 +51,6 @@ const notificationCounts = `
 `;
 
 export default {
-  notifications,
-  notificationCounts
+  notificationCounts,
+  notifications
 };

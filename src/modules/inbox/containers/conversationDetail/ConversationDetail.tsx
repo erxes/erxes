@@ -54,10 +54,10 @@ class DetailContainer extends React.Component<Props> {
     // listen for conversation changes like status, assignee
     this.prevSubscriptions.detailHandler = detailQuery.subscribeToMore({
       document: gql(subscriptions.conversationChanged),
-      variables: { _id: currentId },
       updateQuery: () => {
         this.props.detailQuery.refetch();
-      }
+      },
+      variables: { _id: currentId }
     });
 
     // listen for customer connection
@@ -68,7 +68,6 @@ class DetailContainer extends React.Component<Props> {
 
       this.prevSubscriptions.customerHandler = detailQuery.subscribeToMore({
         document: gql(subscriptions.customerConnectionChanged),
-        variables: { _id: customerId },
         updateQuery: (prev, { subscriptionData: { data } }) => {
           const prevConv = prev.conversationDetail;
           const customerConnection = data.customerConnectionChanged;
@@ -76,7 +75,8 @@ class DetailContainer extends React.Component<Props> {
           if (prevConv && prevConv.customer._id === customerConnection._id) {
             this.props.detailQuery.refetch();
           }
-        }
+        },
+        variables: { _id: customerId }
       });
     }
   }
@@ -107,8 +107,8 @@ class DetailContainer extends React.Component<Props> {
 
     const updatedProps = {
       ...this.props,
-      currentConversationId: currentId,
       currentConversation: conversation,
+      currentConversationId: currentId,
       loading
     };
 
@@ -120,8 +120,8 @@ const WithQuery = compose(
   graphql(gql(queries.conversationDetail), {
     name: 'detailQuery',
     options: ({ currentId }: { currentId: string }) => ({
-      variables: { _id: currentId },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      variables: { _id: currentId }
     })
   }),
   graphql(gql(mutations.markAsRead), {

@@ -50,8 +50,8 @@ const combinedFields = `
 `;
 
 export default {
-  segments,
-  segmentDetail,
+  combinedFields,
   headSegments,
-  combinedFields
+  segmentDetail,
+  segments
 };

@@ -79,8 +79,8 @@ class CompanyListContainer extends React.Component<IProps, State> {
     const mergeCompanies = ({ ids, data, callback }) => {
       companiesMerge({
         variables: {
-          companyIds: ids,
-          companyFields: data
+          companyFields: data,
+          companyIds: ids
         }
       })
         .then(response => {
@@ -102,26 +102,26 @@ class CompanyListContainer extends React.Component<IProps, State> {
     const counts = companyCountsQuery.companyCounts || {
       byBrand: {},
       byIntegrationType: {},
-      bySegment: {},
-      byTag: {},
       byLeadStatus: {},
-      byLifecycleState: {}
+      byLifecycleState: {},
+      bySegment: {},
+      byTag: {}
     };
 
     const updatedProps = {
       ...this.props,
       columnsConfig,
+      companies: list,
       counts: {
         all: totalCount,
         ...counts
       },
-      tags: tagsQuery.tags || [],
-      searchValue,
-      companies: list,
       loading: companiesMainQuery.loading || this.state.loading,
-      removeCompanies,
+      loadingTags: tagsQuery.loading,
       mergeCompanies,
-      loadingTags: tagsQuery.loading
+      removeCompanies,
+      searchValue,
+      tags: tagsQuery.tags || []
     };
 
     return (
@@ -139,20 +139,20 @@ class CompanyListContainer extends React.Component<IProps, State> {
 }
 
 const generateParams = ({ queryParams }) => ({
+  fetchPolicy: 'network-only',
   variables: {
-    page: queryParams.page,
-    perPage: queryParams.perPage || 20,
-    segment: queryParams.segment,
-    tag: queryParams.tag,
     brand: queryParams.brand,
     ids: queryParams.ids,
-    searchValue: queryParams.searchValue,
     leadStatus: queryParams.leadStatus,
     lifecycleState: queryParams.lifecycleState,
+    page: queryParams.page,
+    perPage: queryParams.perPage || 20,
+    searchValue: queryParams.searchValue,
+    segment: queryParams.segment,
+    sortDirection: queryParams.sortDirection,
     sortField: queryParams.sortField,
-    sortDirection: queryParams.sortDirection
-  },
-  fetchPolicy: 'network-only'
+    tag: queryParams.tag
+  }
 });
 
 export default compose(
@@ -173,10 +173,10 @@ export default compose(
   graphql(gql(queries.tags), {
     name: 'tagsQuery',
     options: () => ({
+      fetchPolicy: 'network-only',
       variables: {
         type: TAG_TYPES.COMPANY
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   // mutations

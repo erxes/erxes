@@ -37,8 +37,8 @@ const CompanyAssociate = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    name: data.name,
     companies: data.companies,
+    name: data.name,
     onSelect: companies => save(companies)
   };
 

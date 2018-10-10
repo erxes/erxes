@@ -35,8 +35,8 @@ const AssignBoxContainer = (props: Props) => {
   ) => {
     assignMutation({
       variables: {
-        conversationIds,
-        assignedUserId
+        assignedUserId,
+        conversationIds
       }
     })
       .then(() => {
@@ -64,8 +64,8 @@ const AssignBoxContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    assignees: usersQuery.users || [],
     assign,
+    assignees: usersQuery.users || [],
     clear
   };
 

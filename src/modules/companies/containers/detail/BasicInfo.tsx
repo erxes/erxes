@@ -39,8 +39,8 @@ const BasicInfoContainer = (props: IProps) => {
   const merge = ({ ids, data }) => {
     companiesMerge({
       variables: {
-        companyIds: ids,
-        companyFields: data
+        companyFields: data,
+        companyIds: ids
       }
     })
       .then(response => {
@@ -54,8 +54,8 @@ const BasicInfoContainer = (props: IProps) => {
 
   const updatedProps = {
     ...props,
-    remove,
-    merge
+    merge,
+    remove
   };
 
   return <BasicInfo {...updatedProps} />;

@@ -40,8 +40,8 @@ class ConversationListContainer extends React.Component<Props> {
     const updatedProps = {
       ...this.props,
       conversations,
-      onChangeConversation,
-      loading: conversationsQuery.loading
+      loading: conversationsQuery.loading,
+      onChangeConversation
     };
 
     return <ConversationList {...updatedProps} />;
@@ -52,8 +52,8 @@ export default compose(
   graphql(gql(queries.sidebarConversations), {
     name: 'conversationsQuery',
     options: ({ queryParams }: { queryParams: any }) => ({
-      variables: generateParams(queryParams),
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      variables: generateParams(queryParams)
     })
   })
 )(ConversationListContainer);

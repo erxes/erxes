@@ -87,12 +87,12 @@ const SidebarContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    members,
     channels,
     channelsTotalCount,
-    save,
+    loading: channelsQuery.loading,
+    members,
     remove,
-    loading: channelsQuery.loading
+    save
   };
 
   return <Sidebar {...updatedProps} />;
@@ -123,10 +123,10 @@ export default compose(
   graphql(gql(queries.channels), {
     name: 'channelsQuery',
     options: ({ queryParams }: { queryParams: any }) => ({
+      fetchPolicy: 'network-only',
       variables: {
         perPage: queryParams.limit || 20
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(gql(queries.users), {

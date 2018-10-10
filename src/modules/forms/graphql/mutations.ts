@@ -123,12 +123,12 @@ const fieldsRemove = `
 `;
 
 export default {
-  integrationRemove,
-  integrationsEditFormIntegration,
-  integrationsCreateFormIntegration,
   addForm,
   editForm,
   fieldsAdd,
   fieldsEdit,
-  fieldsRemove
+  fieldsRemove,
+  integrationRemove,
+  integrationsCreateFormIntegration,
+  integrationsEditFormIntegration
 };

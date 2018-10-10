@@ -99,6 +99,7 @@ export default class Editor extends React.Component<EditorProps, State> {
       ...this.props,
       bordered: true,
       editorState: this.state.editorState,
+
       controls: [
         <DynamicContent
           key="dynamic-content-control"

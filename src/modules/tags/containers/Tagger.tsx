@@ -29,9 +29,9 @@ const TaggerContainer = (props: Props) => {
 
   const tag = selectedTagIds => {
     const variables = {
-      type,
+      tagIds: selectedTagIds,
       targetIds: targets.map(t => t._id),
-      tagIds: selectedTagIds
+      type
     };
 
     tagMutation({ variables })
@@ -56,8 +56,8 @@ const TaggerContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     loading: tagsQuery.loading,
-    tags: tagsQuery.tags || [],
-    tag
+    tag,
+    tags: tagsQuery.tags || []
   };
 
   return <Tagger {...updatedProps} />;

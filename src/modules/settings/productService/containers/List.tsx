@@ -81,11 +81,11 @@ class ProductListContainer extends React.Component<Props> {
 
     const updatedProps = {
       ...this.props,
-      products,
-      save,
-      remove,
       loading: productsQuery.loading,
-      productsCount: productsCountQuery.productsTotalCount || 0
+      products,
+      productsCount: productsCountQuery.productsTotalCount || 0,
+      remove,
+      save
     };
 
     return <List {...updatedProps} />;
@@ -96,11 +96,11 @@ export default compose(
   graphql(gql(queries.products), {
     name: 'productsQuery',
     options: ({ queryParams }: { queryParams: any }) => ({
+      fetchPolicy: 'network-only',
       variables: {
         page: queryParams.page || 1,
         perPage: queryParams.perPage || 20
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(gql(queries.productsCount), {

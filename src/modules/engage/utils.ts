@@ -1,10 +1,10 @@
 export const generateListQueryVariables = ({ queryParams }) => ({
+  ids: queryParams.ids,
+  kind: queryParams.kind,
   page: queryParams.page,
   perPage: queryParams.perPage || 20,
-  kind: queryParams.kind,
   status: queryParams.status,
-  tag: queryParams.tag,
-  ids: queryParams.ids
+  tag: queryParams.tag
 });
 
 export const crudMutationsOptions = () => {

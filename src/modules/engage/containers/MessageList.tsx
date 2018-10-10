@@ -40,13 +40,13 @@ class MessageListContainer extends React.Component<Props, State> {
     } = this.props;
 
     const updatedProps = {
-      kind: queryParams.kind,
-      messages: engageMessagesQuery.engageMessages || [],
-      totalCount: engageMessagesTotalCountQuery.engageMessagesTotalCount || 0,
       bulk: this.state.bulk,
       isAllSelected: this.state.isAllSelected,
+      kind: queryParams.kind,
+      loading: engageMessagesQuery.loading,
+      messages: engageMessagesQuery.engageMessages || [],
       queryParams,
-      loading: engageMessagesQuery.loading
+      totalCount: engageMessagesTotalCountQuery.engageMessagesTotalCount || 0
     };
 
     return (
@@ -63,15 +63,15 @@ const MessageListContainerWithData = compose(
   graphql<Props>(gql(queries.engageMessages), {
     name: 'engageMessagesQuery',
     options: props => ({
-      variables: generateListQueryVariables(props),
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      variables: generateListQueryVariables(props)
     })
   }),
   graphql<Props>(gql(queries.engageMessagesTotalCount), {
     name: 'engageMessagesTotalCountQuery',
     options: props => ({
-      variables: generateListQueryVariables(props),
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      variables: generateListQueryVariables(props)
     })
   })
 )(MessageListContainer);

@@ -32,11 +32,11 @@ class KnowledgeBase extends React.Component<IProps> {
 
     const extendedProps = {
       ...this.props,
-      queryParams: queryString.parse(location.search),
+      articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0,
       currentCategory: categoryDetailQuery.knowledgeBaseCategoryDetail || {},
       loading: categoryDetailQuery.loading,
-      refetch: categoryDetailQuery.refetch,
-      articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0
+      queryParams: queryString.parse(location.search),
+      refetch: categoryDetailQuery.refetch
     };
 
     return <KnowledgeBaseComponent {...extendedProps} />;
@@ -47,8 +47,8 @@ const KnowledgeBaseContainer = compose(
   graphql(gql(queries.knowledgeBaseCategoryDetail), {
     name: 'categoryDetailQuery',
     options: ({ currentCategoryId }: { currentCategoryId: string }) => ({
-      variables: { _id: currentCategoryId || '' },
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
+      variables: { _id: currentCategoryId || '' }
     })
   }),
   graphql(gql(queries.knowledgeBaseArticlesTotalCount), {

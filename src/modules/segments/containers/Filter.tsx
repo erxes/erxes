@@ -27,10 +27,10 @@ const FilterContainer = (props: IProps) => {
   const extendedProps = {
     ...props,
     currentSegment,
-    setSegment,
+    loading: segmentsQuery.loading,
     removeSegment,
     segments: segmentsQuery.segments || [],
-    loading: segmentsQuery.loading
+    setSegment
   };
 
   return <Filter {...extendedProps} />;

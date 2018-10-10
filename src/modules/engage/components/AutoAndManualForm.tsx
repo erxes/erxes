@@ -64,15 +64,15 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     this.state = {
       activeStep: 1,
-      maxStep: 3,
-      method: message.method || 'email',
-      title: message.title || '',
-      segmentId: message.segmentId || '',
       content,
-      fromUserId: message.fromUserId,
-      messenger: message.messenger,
       email: message.email,
-      scheduleDate: message.scheduleDate
+      fromUserId: message.fromUserId,
+      maxStep: 3,
+      messenger: message.messenger,
+      method: message.method || 'email',
+      scheduleDate: message.scheduleDate,
+      segmentId: message.segmentId || '',
+      title: message.title || ''
     };
 
     this.save = this.save.bind(this);
@@ -87,10 +87,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
     e.preventDefault();
 
     const doc = {
-      segmentId: this.state.segmentId,
-      title: this.state.title,
       fromUserId: this.state.fromUserId,
-      method: this.state.method
+      method: this.state.method,
+      segmentId: this.state.segmentId,
+      title: this.state.title
     } as IEngageMessageDoc;
 
     if (this.props.kind !== 'manual') {
@@ -101,19 +101,19 @@ class AutoAndManualForm extends React.Component<Props, State> {
       const email = this.state.email || ({} as IEngageEmail);
 
       doc.email = {
-        templateId: email.templateId,
-        subject: email.subject || '',
+        attachments: email.attachments,
         content: this.state.content,
-        attachments: email.attachments
+        subject: email.subject || '',
+        templateId: email.templateId
       };
     } else if (this.state.method === 'messenger') {
       const messenger = this.state.messenger || ({} as IEngageMessenger);
 
       doc.messenger = {
         brandId: messenger.brandId || '',
+        content: this.state.content,
         kind: messenger.kind || '',
-        sentAs: messenger.sentAs || '',
-        content: this.state.content
+        sentAs: messenger.sentAs || ''
       };
     }
 

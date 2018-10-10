@@ -41,8 +41,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
     }
 
     this.state = {
-      isVisible,
-      action
+      action,
+      isVisible
     };
 
     this.onSubmit = this.onSubmit.bind(this);
@@ -59,9 +59,9 @@ class PropertyGroupForm extends React.Component<Props, State> {
     ) as HTMLInputElement).value;
 
     const doc = {
-      name,
       description,
-      isVisible
+      isVisible,
+      name
     };
 
     this.state.action(

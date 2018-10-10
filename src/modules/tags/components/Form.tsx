@@ -28,8 +28,8 @@ class Form extends React.Component<Props, State> {
     const { tag } = props;
 
     this.state = {
-      name: tag ? tag.name : '',
-      colorCode: tag ? tag.colorCode : generateRandomColorCode()
+      colorCode: tag ? tag.colorCode : generateRandomColorCode(),
+      name: tag ? tag.name : ''
     };
 
     this.submit = this.submit.bind(this);
@@ -44,11 +44,11 @@ class Form extends React.Component<Props, State> {
     const { name, colorCode } = this.state;
 
     save({
-      tag,
-      doc: { name, type, colorCode },
       callback: () => {
         closeModal();
-      }
+      },
+      doc: { name, type, colorCode },
+      tag
     });
   }
 

@@ -54,30 +54,30 @@ const RespondBoxContainer = (props: Props) => {
         conversationMessageAdd: {
           __typename: 'ConversationMessage',
           _id: Math.round(Math.random() * -1000000),
-          content,
           attachments,
-          internal,
-          mentionedUserIds: [],
+          content,
           conversationId,
-          customerId: Math.random(),
-          userId: currentUser._id,
           createdAt: new Date(),
-          messengerAppData: null,
-          isCustomerRead: false,
-          formWidgetData: null,
-          twitterData: null,
+          customer: null,
+          customerId: Math.random(),
           facebookData: null,
+          formWidgetData: null,
+          internal,
+          isCustomerRead: false,
+          mentionedUserIds: [],
+          messengerAppData: null,
+          twitterData: null,
           user: null,
-          customer: null
+          userId: currentUser._id
         }
       };
     }
 
     addMessage({
-      variables,
-      optimisticResponse,
+      callback,
       kind: conversation.integration.kind,
-      callback
+      optimisticResponse,
+      variables
     });
   };
 
@@ -86,16 +86,16 @@ const RespondBoxContainer = (props: Props) => {
   for (const user of usersQuery.users || []) {
     teamMembers.push({
       _id: user._id,
+      avatar: user.details.avatar,
       name: user.username,
-      title: user.details.position,
-      avatar: user.details.avatar
+      title: user.details.position
     });
   }
 
   const updatedProps = {
     ...props,
-    sendMessage,
     responseTemplates: responseTemplatesQuery.responseTemplates || [],
+    sendMessage,
     teamMembers: fromJS(teamMembers)
   };
 

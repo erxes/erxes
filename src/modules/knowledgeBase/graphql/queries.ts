@@ -130,13 +130,13 @@ const knowledgeBaseArticlesTotalCount = `
 `;
 
 export default {
-  getBrandList,
   categoriesGetLast,
-  knowledgeBaseTopics,
-  knowledgeBaseTopicsTotalCount,
-  knowledgeBaseCategories,
-  knowledgeBaseCategoryDetail,
-  knowledgeBaseCategoriesTotalCount,
+  getBrandList,
   knowledgeBaseArticles,
-  knowledgeBaseArticlesTotalCount
+  knowledgeBaseArticlesTotalCount,
+  knowledgeBaseCategories,
+  knowledgeBaseCategoriesTotalCount,
+  knowledgeBaseCategoryDetail,
+  knowledgeBaseTopics,
+  knowledgeBaseTopicsTotalCount
 };

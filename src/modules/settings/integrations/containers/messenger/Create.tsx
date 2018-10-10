@@ -79,9 +79,9 @@ const CreateMessenger = (props: IProps) => {
 
   const updatedProps = {
     ...props,
-    teamMembers: users || [],
     brands,
-    save
+    save,
+    teamMembers: users || []
   };
 
   return <Form {...updatedProps} />;
@@ -91,9 +91,9 @@ const commonOptions = ({ queryParams, integrationId }) => {
   return {
     refetchQueries: [
       {
+        fetchPolicy: 'network-only',
         query: gql(queries.integrationDetail),
-        variables: { _id: integrationId || '' },
-        fetchPolicy: 'network-only'
+        variables: { _id: integrationId || '' }
       }
     ]
   };

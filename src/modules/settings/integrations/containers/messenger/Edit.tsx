@@ -91,10 +91,10 @@ const EditMessenger = (props: IProps) => {
 
   const updatedProps = {
     ...props,
-    teamMembers: users || [],
     brands,
+    integration,
     save,
-    integration
+    teamMembers: users || []
   };
 
   return <Form {...updatedProps} />;
@@ -104,9 +104,9 @@ const commonOptions = ({ queryParams, integrationId }) => {
   return {
     refetchQueries: [
       {
+        fetchPolicy: 'network-only',
         query: gql(queries.integrationDetail),
-        variables: { _id: integrationId || '' },
-        fetchPolicy: 'network-only'
+        variables: { _id: integrationId || '' }
       }
     ]
   };
@@ -125,10 +125,10 @@ const EditMessengerWithData = compose(
   graphql(gql(queries.integrationDetail), {
     name: 'integrationDetailQuery',
     options: ({ integrationId }: { integrationId: string }) => ({
+      fetchPolicy: 'network-only',
       variables: {
         _id: integrationId || ''
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(gql(mutations.integrationsEditMessenger), {

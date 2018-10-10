@@ -51,8 +51,8 @@ const ResponseTemplateContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     brands: brandsQuery.brands,
-    saveResponseTemplate,
-    responseTemplates: responseTemplatesQuery.responseTemplates
+    responseTemplates: responseTemplatesQuery.responseTemplates,
+    saveResponseTemplate
   };
 
   return <ResponseTemplate {...updatedProps} />;

@@ -66,10 +66,10 @@ const channelsGetLast = `
 `;
 
 export default {
-  users,
-  channels,
   channelDetail,
+  channels,
   channelsCount,
   channelsGetLast,
-  integrationsCount
+  integrationsCount,
+  users
 };

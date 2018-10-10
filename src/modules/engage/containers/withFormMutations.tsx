@@ -86,26 +86,27 @@ const withSaveAndEdit = Component => {
       ...props,
       save,
       users,
+
       message: {
         ...message,
         // excluding __type auto fields
+        email: {
+          attachments: email.attachments || [],
+          subject: email.subject || '',
+          templateId: email.templateId || ''
+        },
         messenger: {
           brandId: messenger.brandId || '',
-          kind: messenger.kind || '',
           content: messenger.content || '',
-          sentAs: messenger.sentAs || '',
-          rules: messenger.rules || []
-        },
-        email: {
-          templateId: email.templateId || '',
-          subject: email.subject || '',
-          attachments: email.attachments || []
+          kind: messenger.kind || '',
+          rules: messenger.rules || [],
+          sentAs: messenger.sentAs || ''
         },
         scheduleDate: {
-          type: scheduleDate.type || '',
-          month: scheduleDate.month || '',
           day: scheduleDate.day || '',
-          time: scheduleDate.time
+          month: scheduleDate.month || '',
+          time: scheduleDate.time,
+          type: scheduleDate.type || ''
         }
       }
     };

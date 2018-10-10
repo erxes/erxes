@@ -18,29 +18,29 @@ const MONTHS = [
 ];
 
 const ICON_AND_COLOR_TABLE = {
-  'customer-create': {
-    icon: 'adduser',
-    color: '#A389D4'
-  },
-  'segment-create': {
-    icon: 'filter',
-    color: '#6569DF'
+  'company-create': {
+    color: '#6569DF',
+    icon: 'briefcase'
   },
   'conversation-create': {
-    icon: 'speech-bubble-3',
-    color: '#F44236'
+    color: '#F44236',
+    icon: 'speech-bubble-3'
   },
-  'internal_note-create': {
-    icon: 'pushpin',
-    color: '#F7CE53'
-  },
-  'company-create': {
-    icon: 'briefcase',
-    color: '#6569DF'
+  'customer-create': {
+    color: '#A389D4',
+    icon: 'adduser'
   },
   'deal-create': {
-    icon: 'piggy-bank',
-    color: '#6569DF'
+    color: '#6569DF',
+    icon: 'piggy-bank'
+  },
+  'internal_note-create': {
+    color: '#F7CE53',
+    icon: 'pushpin'
+  },
+  'segment-create': {
+    color: '#6569DF',
+    icon: 'filter'
   }
 };
 
@@ -88,8 +88,8 @@ export default class {
     const { year, month } = date;
 
     const result: any = {
-      title: `${MONTHS[month]} ${year}`,
-      data: []
+      data: [],
+      title: `${MONTHS[month]} ${year}`
     };
 
     for (const item of list) {
@@ -109,11 +109,11 @@ export default class {
 
       result.data.push({
         ...iconAndColor,
+        by: item.by,
         caption,
         content: hasContent ? item.content : null,
-        date: item.createdAt,
         createdAt: item.createdAt,
-        by: item.by
+        date: item.createdAt
       });
     }
 

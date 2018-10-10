@@ -61,8 +61,8 @@ class Main extends React.Component<Props> {
 
     const extendedProps = {
       ...this.props,
-      currentBoard,
-      boards: boardsQuery.dealBoards || []
+      boards: boardsQuery.dealBoards || [],
+      currentBoard
     };
 
     return <Home {...extendedProps} />;
@@ -79,10 +79,10 @@ const MainContainer = compose(
   }),
   graphql(gql(queries.boardDetail), {
     name: 'boardDetailQuery',
-    skip: ({ queryParams }) => !queryParams.id,
     options: ({ queryParams }: { queryParams: { id: string } }) => ({
       variables: { _id: queryParams.id }
-    })
+    }),
+    skip: ({ queryParams }) => !queryParams.id
   })
 )(Main);
 

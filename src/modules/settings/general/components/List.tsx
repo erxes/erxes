@@ -30,9 +30,9 @@ class List extends React.Component<Props, State> {
 
     this.state = {
       currencies: props.currencies,
-      uom: props.uom,
       language: props.currentLanguage,
-      removeSelected: false
+      removeSelected: false,
+      uom: props.uom
     };
 
     this.onCurrenciesChange = this.onCurrenciesChange.bind(this);

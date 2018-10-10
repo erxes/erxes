@@ -99,8 +99,8 @@ const dealActivityLogQuery = `
 `;
 
 export default {
-  customerActivityLogQuery,
   companyActivityLogQuery,
-  userActivityLogQuery,
-  dealActivityLogQuery
+  customerActivityLogQuery,
+  dealActivityLogQuery,
+  userActivityLogQuery
 };

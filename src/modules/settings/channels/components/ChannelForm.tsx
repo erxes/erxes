@@ -61,19 +61,20 @@ class ChannelForm extends React.Component<Props, State> {
 
   generateMembersParams(members) {
     return members.map(member => ({
-      value: member._id,
-      label: (member.details && member.details.fullName) || ''
+      label: (member.details && member.details.fullName) || '',
+      value: member._id
     }));
   }
 
   generateDoc() {
     return {
       doc: {
-        name: (document.getElementById('channel-name') as HTMLInputElement)
-          .value,
         description: (document.getElementById(
           'channel-description'
         ) as HTMLInputElement).value,
+        name: (document.getElementById('channel-name') as HTMLInputElement)
+          .value,
+
         memberIds: this.collectValues(this.state.selectedMembers)
       }
     };

@@ -64,8 +64,8 @@ const integrationsEditMessenger = `
 export default {
   brandAdd,
   brandEdit,
-  brandRemove,
   brandManageIntegrations,
+  brandRemove,
   integrationsCreateMessenger,
   integrationsEditMessenger
 };

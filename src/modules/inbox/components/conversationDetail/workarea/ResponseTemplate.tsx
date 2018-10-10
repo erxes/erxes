@@ -54,8 +54,8 @@ class ResponseTemplate extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      key: '',
       brandId: props.brandId,
+      key: '',
       options: this.filterByBrand(props.brandId)
     };
 
@@ -85,9 +85,9 @@ class ResponseTemplate extends React.Component<Props, State> {
   onSave(brandId: string, name: string) {
     const doc = {
       brandId,
-      name,
       content: this.props.content,
-      files: this.props.attachments
+      files: this.props.attachments,
+      name
     };
 
     this.props.saveResponseTemplate(doc, error => {

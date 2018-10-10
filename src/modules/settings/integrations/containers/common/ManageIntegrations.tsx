@@ -32,8 +32,8 @@ class ManageIntegrationsContainer extends React.Component<Props, State> {
 
       this.setState({ perPage: this.state.perPage + 20 }, () => {
         allIntegrationsQuery.refetch({
-          searchValue: value,
-          perPage: this.state.perPage
+          perPage: this.state.perPage,
+          searchValue: value
         });
       });
     };
@@ -44,11 +44,11 @@ class ManageIntegrationsContainer extends React.Component<Props, State> {
 
     const updatedProps = {
       ...this.props,
-      search,
-      save,
+      allIntegrations: allIntegrationsQuery.integrations || [],
       clearState,
       perPage: this.state.perPage,
-      allIntegrations: allIntegrationsQuery.integrations || []
+      save,
+      search
     };
 
     return <ManageIntegrations {...updatedProps} />;

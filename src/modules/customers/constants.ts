@@ -1,31 +1,16 @@
 export const connectors = {
-  any: 'any',
-  all: 'all'
+  all: 'all',
+  any: 'any'
 };
 
 export const types = {
-  string: 'String',
-  number: 'Number',
   boolean: 'Boolean',
-  date: 'Date'
+  date: 'Date',
+  number: 'Number',
+  string: 'String'
 };
 
 export const operators = {
-  string: [
-    { name: 'equals', value: 'e' },
-    { name: 'does not equal', value: 'dne' },
-    { name: 'contains', value: 'c' },
-    { name: 'does not contain', value: 'dnc' },
-    { name: 'is set', value: 'is', noInput: true },
-    { name: 'is not set', value: 'ins', noInput: true }
-  ],
-  number: [
-    { name: 'is greater than', value: 'igt' },
-    { name: 'equals to', value: 'et' },
-    { name: 'is less than', value: 'ilt' },
-    { name: 'is set', value: 'is', noInput: true },
-    { name: 'is not set', value: 'ins', noInput: true }
-  ],
   boolean: [
     { name: 'is true', value: 'it', noInput: true },
     { name: 'is false', value: 'if', noInput: true },
@@ -39,28 +24,43 @@ export const operators = {
     { name: 'will occur after', value: 'woa' },
     { name: 'is set', value: 'is', noInput: true },
     { name: 'is not set', value: 'ins', noInput: true }
+  ],
+  number: [
+    { name: 'is greater than', value: 'igt' },
+    { name: 'equals to', value: 'et' },
+    { name: 'is less than', value: 'ilt' },
+    { name: 'is set', value: 'is', noInput: true },
+    { name: 'is not set', value: 'ins', noInput: true }
+  ],
+  string: [
+    { name: 'equals', value: 'e' },
+    { name: 'does not equal', value: 'dne' },
+    { name: 'contains', value: 'c' },
+    { name: 'does not contain', value: 'dnc' },
+    { name: 'is set', value: 'is', noInput: true },
+    { name: 'is not set', value: 'ins', noInput: true }
   ]
 };
 
 export const dateUnits = {
   days: 'days',
-  weeks: 'weeks',
-  months: 'months'
+  months: 'months',
+  weeks: 'weeks'
 };
 
 export const CUSTOMER_BASIC_INFO = {
   avatar: 'Avatar',
-  firstName: 'First Name',
-  lastName: 'Last Name',
-  primaryEmail: 'Primary E-mail',
-  primaryPhone: 'Primary Phone',
-  position: 'Position',
   department: 'Department',
-  leadStatus: 'Lead Status',
-  lifecycleState: 'Lifecycle state',
-  hasAuthority: 'Has Authority',
   description: 'Description',
   doNotDisturb: 'Do not disturb',
+  firstName: 'First Name',
+  hasAuthority: 'Has Authority',
+  lastName: 'Last Name',
+  leadStatus: 'Lead Status',
+  lifecycleState: 'Lifecycle state',
+  position: 'Position',
+  primaryEmail: 'Primary E-mail',
+  primaryPhone: 'Primary Phone',
 
   ALL: [
     { field: 'avatar', label: 'Avatar' },
@@ -79,12 +79,12 @@ export const CUSTOMER_BASIC_INFO = {
 };
 
 export const CUSTOMER_DATAS = {
-  messengerData: 'Messenger Data',
-  twitterData: 'Twitter Data',
   facebookData: 'Facebook Data',
-  visitorContactInfo: 'Visitor contact info',
-  owner: 'Owner',
   links: 'Links',
+  messengerData: 'Messenger Data',
+  owner: 'Owner',
+  twitterData: 'Twitter Data',
+  visitorContactInfo: 'Visitor contact info',
 
   ALL: [
     { field: 'messengerData', label: 'Messenger Data' },
@@ -98,35 +98,35 @@ export const CUSTOMER_DATAS = {
 
 export const LEAD_STATUS_TYPES = {
   '': '',
+  attemptedToContact: 'Attempted to contact',
+  badTiming: 'Bad Timing',
+  connected: 'Connected',
+  inProgress: 'In Progress',
   new: 'New',
   open: 'Open',
-  inProgress: 'In Progress',
   openDeal: 'Open Deal',
-  unqualified: 'Unqualified',
-  attemptedToContact: 'Attempted to contact',
-  connected: 'Connected',
-  badTiming: 'Bad Timing'
+  unqualified: 'Unqualified'
 };
 
 export const LIFECYCLE_STATE_TYPES = {
   '': '',
-  subscriber: 'Subscriber',
-  lead: 'Lead',
-  marketingQualifiedLead: 'Marketing Qualified Lead',
-  salesQualifiedLead: 'Sales Qualified Lead',
-  opportunity: 'Opportunity',
   customer: 'Customer',
   evangelist: 'Evangelist',
-  other: 'Other'
+  lead: 'Lead',
+  marketingQualifiedLead: 'Marketing Qualified Lead',
+  opportunity: 'Opportunity',
+  other: 'Other',
+  salesQualifiedLead: 'Sales Qualified Lead',
+  subscriber: 'Subscriber'
 };
 
 export const CUSTOMER_LINKS = {
+  facebook: 'Facebook',
+  github: 'Github',
   linkedIn: 'LinkedIn',
   twitter: 'Twitter',
-  facebook: 'Facebook',
-  youtube: 'Youtube',
-  github: 'Github',
   website: 'Website',
+  youtube: 'Youtube',
 
   ALL: [
     { field: 'linkedIn', label: 'LinkedIn' },

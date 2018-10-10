@@ -52,8 +52,8 @@ class PortableDealsContainer extends React.Component<Props> {
     const extendedProps = {
       ...this.props,
       deals,
-      saveDeal: this.saveDeal,
-      removeDeal: this.removeDeal
+      removeDeal: this.removeDeal,
+      saveDeal: this.saveDeal
     };
 
     return <PortableDeals {...extendedProps} />;
@@ -73,7 +73,6 @@ export default compose(
   }),
   graphql(gql(queries.deals), {
     name: 'dealsQuery',
-    skip: ({ customerId, companyId }) => !customerId && !companyId,
     options: ({
       customerId,
       companyId
@@ -82,9 +81,10 @@ export default compose(
       companyId: string;
     }) => ({
       variables: {
-        customerId,
-        companyId
+        companyId,
+        customerId
       }
-    })
+    }),
+    skip: ({ customerId, companyId }) => !customerId && !companyId
   })
 )(PortableDealsContainer);

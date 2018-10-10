@@ -26,14 +26,14 @@ class ChangePassword extends React.Component<Props> {
     e.preventDefault();
 
     this.props.save({
+      confirmation: (document.getElementById(
+        'new-password-confirmation'
+      ) as HTMLInputElement).value,
       currentPassword: (document.getElementById(
         'current-password'
       ) as HTMLInputElement).value,
       newPassword: (document.getElementById('new-password') as HTMLInputElement)
-        .value,
-      confirmation: (document.getElementById(
-        'new-password-confirmation'
-      ) as HTMLInputElement).value
+        .value
     });
 
     this.props.closeModal;

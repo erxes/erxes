@@ -38,8 +38,8 @@ const stages = `
 `;
 
 export default {
+  boardGetLast,
   boards,
   pipelines,
-  stages,
-  boardGetLast
+  stages
 };

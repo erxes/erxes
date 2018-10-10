@@ -45,8 +45,8 @@ class ListContainer extends React.Component<Props> {
     const updatedProps = {
       ...this.props,
       currencies: currencies ? currencies.value : [],
-      uom: uom ? uom.value : [],
-      save
+      save,
+      uom: uom ? uom.value : []
     };
 
     return (
@@ -67,19 +67,19 @@ export default compose(
   graphql(gql(queries.configsDetail), {
     name: 'currencyConfigQuery',
     options: () => ({
+      fetchPolicy: 'network-only',
       variables: {
         code: 'dealCurrency'
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(gql(queries.configsDetail), {
     name: 'uomConfigQuery',
     options: () => ({
+      fetchPolicy: 'network-only',
       variables: {
         code: 'dealUOM'
-      },
-      fetchPolicy: 'network-only'
+      }
     })
   }),
   graphql(gql(mutations.insertConfig), {

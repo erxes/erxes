@@ -43,14 +43,14 @@ const KnowledgeBaseContainer = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    remove,
-    currentCategoryId,
-    topicIds,
-    categoriesQuery,
+    articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0,
     categories: categoriesQuery.knowledgeBaseCategories || [],
+    categoriesQuery,
+    currentCategoryId,
     loading: categoriesQuery.loading,
-    topicsCount: categoriesCountQuery.knowledgeBaseCategoriesTotalCount || 0,
-    articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0
+    remove,
+    topicIds,
+    topicsCount: categoriesCountQuery.knowledgeBaseCategoriesTotalCount || 0
   };
 
   return <CategoryList {...extendedProps} />;

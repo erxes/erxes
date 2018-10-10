@@ -41,11 +41,11 @@ class Intro extends React.Component<Props, State> {
     );
 
     this.state = {
-      supporters: this.generateSupporterOptions(selectedMembers),
-      supporterIds: [],
-      welcomeMessage: '',
       awayMessage: '',
-      thankYouMessage: ''
+      supporterIds: [],
+      supporters: this.generateSupporterOptions(selectedMembers),
+      thankYouMessage: '',
+      welcomeMessage: ''
     };
 
     this.onInputChange = this.onInputChange.bind(this);
@@ -60,8 +60,8 @@ class Intro extends React.Component<Props, State> {
   onTeamMembersChange(options) {
     if (options.length < 3) {
       this.setState({
-        supporters: options,
-        supporterIds: options.map(option => option.value)
+        supporterIds: options.map(option => option.value),
+        supporters: options
       });
       this.props.onChange('supporterIds', options.map(option => option.value));
     }
@@ -72,9 +72,9 @@ class Intro extends React.Component<Props, State> {
       const details = member.details || {};
 
       return {
-        value: member._id,
+        avatar: details.avatar,
         label: details.fullName,
-        avatar: details.avatar
+        value: member._id
       };
     });
   }

@@ -65,10 +65,10 @@ const warning = (text: string) => createAlert('warning', text);
 const info = (text: string) => createAlert('info', text);
 
 const Alert = {
-  success,
   error,
-  warning,
-  info
+  info,
+  success,
+  warning
 };
 
 export default Alert;

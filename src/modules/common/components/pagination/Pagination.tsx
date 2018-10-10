@@ -242,8 +242,8 @@ const PaginationContainer = (props: IPaginationContainerProps) => {
     ...props,
     currentPage,
     isPaginated: totalPagesCount > 1,
-    totalPagesCount,
-    pages
+    pages,
+    totalPagesCount
   };
 
   return <Pagination {...childProps} />;

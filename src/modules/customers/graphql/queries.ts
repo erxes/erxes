@@ -215,12 +215,12 @@ const activityLogsCustomer = `
 `;
 
 export default {
+  activityLogsCustomer,
   basicFields,
-  customers,
-  customersMain,
   customerCounts,
   customerDetail,
+  customers,
+  customersExport,
   customersListConfig,
-  activityLogsCustomer,
-  customersExport
+  customersMain
 };

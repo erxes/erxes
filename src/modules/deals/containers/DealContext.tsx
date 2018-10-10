@@ -25,17 +25,17 @@ export class DealProvider extends React.Component<{}, any> {
     this.setState({
       // remove from list
       [`${type}State${source._id}`]: {
-        type: 'removeItem',
-        index: source.index
+        index: source.index,
+        type: 'removeItem'
       }
     });
 
     this.setState({
       // add to list
       [`${type}State${destination._id}`]: {
-        type: 'addItem',
         index: destination.index,
-        itemId
+        itemId,
+        type: 'addItem'
       }
     });
   }
@@ -47,9 +47,9 @@ export class DealProvider extends React.Component<{}, any> {
     if (!destination) return;
 
     this.move({
-      source: { _id: source.droppableId, index: source.index },
       destination: { _id: destination.droppableId, index: destination.index },
       itemId: draggableId,
+      source: { _id: source.droppableId, index: source.index },
       type
     });
   }

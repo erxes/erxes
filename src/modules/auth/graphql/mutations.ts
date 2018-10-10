@@ -20,7 +20,7 @@ const resetPassword = `
 `;
 
 export default {
-  login,
   forgotPassword,
+  login,
   resetPassword
 };

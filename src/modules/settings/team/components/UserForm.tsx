@@ -46,8 +46,8 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
 
   generateChannelsParams(channels) {
     return channels.map(channel => ({
-      value: channel._id,
-      label: channel.name
+      label: channel.name,
+      value: channel._id
     }));
   }
 
@@ -83,27 +83,27 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
 
   generateDoc() {
     const doc = {
-      username: this.getInputElementValue('username'),
-      email: this.getInputElementValue('email'),
-      role: this.getInputElementValue('role'),
+      channelIds: this.collectValues(this.state.selectedChannels),
       details: {
         avatar: this.state.avatar,
-        position: this.getInputElementValue('position'),
+        description: this.getInputElementValue('description'),
         fullName: this.getInputElementValue('fullName'),
         location: this.getInputElementValue('user-location'),
-        description: this.getInputElementValue('description')
+        position: this.getInputElementValue('position')
       },
-      channelIds: this.collectValues(this.state.selectedChannels),
-      password: this.getInputElementValue('password'),
-      passwordConfirmation: this.getInputElementValue('password-confirmation'),
+      email: this.getInputElementValue('email'),
       links: {
+        facebook: this.getInputElementValue('facebook'),
+        github: this.getInputElementValue('github'),
         linkedIn: this.getInputElementValue('linkedin'),
         twitter: this.getInputElementValue('twitter'),
-        facebook: this.getInputElementValue('facebook'),
-        youtube: this.getInputElementValue('youtube'),
-        github: this.getInputElementValue('github'),
-        website: this.getInputElementValue('website')
-      }
+        website: this.getInputElementValue('website'),
+        youtube: this.getInputElementValue('youtube')
+      },
+      password: this.getInputElementValue('password'),
+      passwordConfirmation: this.getInputElementValue('password-confirmation'),
+      role: this.getInputElementValue('role'),
+      username: this.getInputElementValue('username')
     };
 
     return { doc };

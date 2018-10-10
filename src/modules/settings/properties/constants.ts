@@ -1,5 +1,6 @@
 export const FIELDS_GROUPS_CONTENT_TYPES = {
-  CUSTOMER: 'customer',
   COMPANY: 'company',
+  CUSTOMER: 'customer',
+
   ALL: ['customer', 'company']
 };

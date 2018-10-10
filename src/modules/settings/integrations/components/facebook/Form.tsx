@@ -54,10 +54,10 @@ class Facebook extends React.Component<Props> {
     e.preventDefault();
 
     this.props.save({
-      name: (document.getElementById('name') as HTMLInputElement).value,
+      appId: (document.getElementById('app') as HTMLInputElement).value,
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value,
-      appId: (document.getElementById('app') as HTMLInputElement).value,
+      name: (document.getElementById('name') as HTMLInputElement).value,
       pageIds: this.collectCheckboxValues('pages')
     });
   }

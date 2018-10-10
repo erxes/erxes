@@ -58,10 +58,10 @@ const brands = `
 `;
 
 export default {
+  brands,
+  firstResponse,
   main,
   pieChart,
   punchCard,
-  firstResponse,
-  responseClose,
-  brands
+  responseClose
 };

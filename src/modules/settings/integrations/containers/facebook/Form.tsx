@@ -88,10 +88,10 @@ class FacebookContainer extends React.Component<IProps, State> {
     };
 
     const updatedProps = {
-      brands,
       apps: integrationFacebookAppsListQuery.integrationFacebookAppsList,
-      pages: this.state.pages,
+      brands,
       onAppSelect: this.onAppSelect,
+      pages: this.state.pages,
       save
     };
 

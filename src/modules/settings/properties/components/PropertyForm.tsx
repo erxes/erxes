@@ -41,9 +41,9 @@ class PropertyForm extends React.Component<Props, State> {
     super(props);
 
     let doc = {
+      hasOptions: false,
       options: [],
-      type: '',
-      hasOptions: false
+      type: ''
     };
 
     if (props.field) {
@@ -58,9 +58,9 @@ class PropertyForm extends React.Component<Props, State> {
         props.field.type === 'check'
       ) {
         doc = {
-          type: props.field.type,
           hasOptions: true,
-          options: Object.assign([], props.field.options || [])
+          options: Object.assign([], props.field.options || []),
+          type: props.field.type
         };
       }
     }
@@ -97,12 +97,12 @@ class PropertyForm extends React.Component<Props, State> {
     const { type, options } = this.state;
 
     const doc = {
-      type,
-      validation,
-      text,
       description,
+      groupId,
       options,
-      groupId
+      text,
+      type,
+      validation
     };
 
     if (field) {

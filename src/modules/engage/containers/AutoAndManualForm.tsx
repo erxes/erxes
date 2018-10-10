@@ -58,8 +58,8 @@ const AutoAndManualFormContainer = (props: Props) => {
     ? combinedFieldsQuery.fieldsCombinedByContentType.map(
         ({ name, label }) => ({
           _id: name,
-          title: label,
-          selectedBy: 'none'
+          selectedBy: 'none',
+          title: label
         })
       )
     : [];
@@ -84,13 +84,13 @@ const AutoAndManualFormContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    headSegments: headSegmentsQuery.segmentsGetHeads || [],
-    segmentFields,
-    segmentAdd,
-    segments: segmentsQuery.segments || [],
-    templates: emailTemplatesQuery.emailTemplates || [],
+    count,
     customerCounts: customerCounts.bySegment || {},
-    count
+    headSegments: headSegmentsQuery.segmentsGetHeads || [],
+    segmentAdd,
+    segmentFields,
+    segments: segmentsQuery.segments || [],
+    templates: emailTemplatesQuery.emailTemplates || []
   };
 
   return (

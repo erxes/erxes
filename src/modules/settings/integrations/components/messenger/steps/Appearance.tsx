@@ -42,10 +42,10 @@ class Appearance extends React.Component<Props, State> {
 
     this.state = {
       color: props.color,
-      wallpaper: props.wallpaper,
-      logoPreviewStyle: {},
       logo: {},
-      logoPreviewUrl: {}
+      logoPreviewStyle: {},
+      logoPreviewUrl: {},
+      wallpaper: props.wallpaper
     };
 
     this.onChange = this.onChange.bind(this);

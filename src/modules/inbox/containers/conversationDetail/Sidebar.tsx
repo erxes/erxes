@@ -62,8 +62,8 @@ class Sidebar extends React.Component<Props, State> {
 
     client
       .query({
-        query: gql(queries.generateCustomerDetailQuery(sectionParams)),
         fetchPolicy: 'network-only',
+        query: gql(queries.generateCustomerDetailQuery(sectionParams)),
         variables: { _id: customerId }
       })
       .then(({ data }: { data: any }) => {
@@ -94,13 +94,13 @@ class Sidebar extends React.Component<Props, State> {
 
     if (!localStorage.getItem(STORAGE_KEY)) {
       setConfig({
-        showProfile: true,
         showCompanies: false,
         showConversationDetails: false,
         showCustomFields: false,
         showDeals: false,
         showDeviceProperties: false,
         showMessengerData: false,
+        showProfile: true,
         showTags: false
       });
     }
@@ -114,11 +114,11 @@ class Sidebar extends React.Component<Props, State> {
 
     const updatedProps = {
       ...this.props,
+      config: getConfig(),
       customer,
       loading,
-      toggleSection: this.toggleSection,
-      config: getConfig(),
-      taggerRefetchQueries
+      taggerRefetchQueries,
+      toggleSection: this.toggleSection
     };
 
     return <DumbSidebar {...updatedProps} />;

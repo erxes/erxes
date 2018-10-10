@@ -27,11 +27,11 @@ const CustomerDetailsContainer = (props: Props, context) => {
 
   const updatedProps = {
     ...props,
+    activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
+    currentUser: context.currentUser,
     customer: customerDetailQuery.customerDetail,
     loadingLogs: customerActivityLogQuery.loading,
-    activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
-    taggerRefetchQueries,
-    currentUser: context.currentUser
+    taggerRefetchQueries
   };
 
   return <CustomerDetails {...updatedProps} />;

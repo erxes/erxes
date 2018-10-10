@@ -109,12 +109,12 @@ const fieldsUpdateVisible = `
 `;
 
 export default {
+  fieldsAdd,
+  fieldsEdit,
   fieldsGroupsAdd,
   fieldsGroupsEdit,
   fieldsGroupsRemove,
   fieldsGroupsUpdateVisible,
-  fieldsAdd,
-  fieldsEdit,
   fieldsRemove,
   fieldsUpdateVisible
 };

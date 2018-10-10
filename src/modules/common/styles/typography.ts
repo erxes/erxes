@@ -27,9 +27,7 @@ const lineHeightBody = 20 / fontSizeBody;
 const lineHeightUppercase = 11 / fontSizeUppercase;
 
 export default {
-  fontWeightLight,
-  fontWeightRegular,
-  fontWeightMedium,
+  fontSizeBody,
   fontSizeHeading1,
   fontSizeHeading2,
   fontSizeHeading3,
@@ -38,8 +36,11 @@ export default {
   fontSizeHeading6,
   fontSizeHeading7,
   fontSizeHeading8,
-  fontSizeBody,
   fontSizeUppercase,
+  fontWeightLight,
+  fontWeightMedium,
+  fontWeightRegular,
+  lineHeightBody,
   lineHeightHeading1,
   lineHeightHeading2,
   lineHeightHeading3,
@@ -48,6 +49,5 @@ export default {
   lineHeightHeading6,
   lineHeightHeading7,
   lineHeightHeading8,
-  lineHeightBody,
   lineHeightUppercase
 };

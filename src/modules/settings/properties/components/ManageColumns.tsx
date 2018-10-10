@@ -65,9 +65,9 @@ class ManageColumns extends React.Component<Props, State> {
 
       if (element.checked) {
         columnsConfig.push({
-          order: index,
+          label: field.label,
           name: field.name,
-          label: field.label
+          order: index
         });
       }
     });

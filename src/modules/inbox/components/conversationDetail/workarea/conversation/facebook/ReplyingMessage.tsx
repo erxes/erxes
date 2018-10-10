@@ -54,9 +54,9 @@ class ReplyingMessage extends React.Component<Props, State> {
     const { replyPost, conversationId, commentId } = this.props;
 
     const replyData = {
-      conversationId,
+      commentReplyToId: commentId,
       content: this.state.post,
-      commentReplyToId: commentId
+      conversationId
     };
 
     return replyPost(replyData, () => {

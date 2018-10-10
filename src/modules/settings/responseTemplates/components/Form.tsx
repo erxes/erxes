@@ -58,9 +58,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         brandId: (document.getElementById(
           'template-brand-id'
         ) as HTMLInputElement).value,
+        content: this.getContent(this.state.editorState),
         name: (document.getElementById('template-name') as HTMLInputElement)
-          .value,
-        content: this.getContent(this.state.editorState)
+          .value
       }
     };
   }
@@ -70,9 +70,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = this.props.object || ({} as IResponseTemplate);
 
     const props = {
+      defaultValue: object.content,
       editorState: this.state.editorState,
-      onChange: this.onChange,
-      defaultValue: object.content
+      onChange: this.onChange
     };
 
     return (

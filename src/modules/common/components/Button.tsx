@@ -7,44 +7,44 @@ import { darken, lighten } from '../styles/color';
 import Icon from './Icon';
 
 const types = {
-  default: {
-    background: colors.colorPrimary
-  },
-  primary: {
-    background: colors.colorSecondary
-  },
-  success: {
-    background: colors.colorCoreGreen
-  },
   danger: {
     background: colors.colorCoreRed
   },
-  warning: {
-    background: colors.colorCoreYellow
+  default: {
+    background: colors.colorPrimary
+  },
+  link: {
+    background: 'transparent',
+    color: colors.colorCoreGray
+  },
+  primary: {
+    background: colors.colorSecondary
   },
   simple: {
     background: colors.colorWhite,
     borderColor: colors.borderDarker,
     color: colors.colorCoreGray
   },
-  link: {
-    background: 'transparent',
-    color: colors.colorCoreGray
+  success: {
+    background: colors.colorCoreGreen
+  },
+  warning: {
+    background: colors.colorCoreYellow
   }
 };
 
 const sizes = {
   large: {
-    padding: '10px 30px',
-    fontSize: '13px'
+    fontSize: '13px',
+    padding: '10px 30px'
   },
   medium: {
-    padding: '7px 20px',
-    fontSize: '12px'
+    fontSize: '12px',
+    padding: '7px 20px'
   },
   small: {
-    padding: '5px 15px',
-    fontSize: '10px'
+    fontSize: '10px',
+    padding: '5px 15px'
   }
 };
 
@@ -152,9 +152,9 @@ export default class Button extends React.Component<ButtonProps> {
   static Group = Group;
 
   static defaultProps = {
+    block: false,
     btnStyle: 'default',
     size: 'medium',
-    block: false,
     type: 'button'
   };
 

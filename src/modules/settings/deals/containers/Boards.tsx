@@ -74,9 +74,9 @@ class BoardsContainer extends React.Component<Props, {}> {
     const extendedProps = {
       ...this.props,
       boards,
-      save,
+      loading: boardsQuery.loading,
       remove,
-      loading: boardsQuery.loading
+      save
     };
 
     return <Boards {...extendedProps} />;

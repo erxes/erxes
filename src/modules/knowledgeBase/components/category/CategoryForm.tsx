@@ -86,12 +86,13 @@ class CategoryForm extends React.Component<Props, State> {
       ...category,
       doc: {
         doc: {
-          title: (document.getElementById(
-            'knowledgebase-category-title'
-          ) as HTMLInputElement).value,
           description: (document.getElementById(
             'knowledgebase-category-description'
           ) as HTMLInputElement).value,
+          title: (document.getElementById(
+            'knowledgebase-category-title'
+          ) as HTMLInputElement).value,
+
           icon: this.state.selectedIcon,
           topicIds: [currentTopicId]
         }

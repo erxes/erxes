@@ -36,11 +36,11 @@ const CompanyDetailsContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    loadingLogs: companyActivityLogQuery.loading,
     company: companyDetail,
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
-    taggerRefetchQueries,
-    currentUser
+    currentUser,
+    loadingLogs: companyActivityLogQuery.loading,
+    taggerRefetchQueries
   };
 
   return <CompanyDetails {...updatedProps} />;

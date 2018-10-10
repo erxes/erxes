@@ -60,10 +60,10 @@ class EmailForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      fromUserId: props.fromUserId,
-      currentTemplate: '',
       content: props.content,
+      currentTemplate: '',
       email: props.email,
+      fromUserId: props.fromUserId,
       scheduleDate: props.scheduleDate
     };
   }

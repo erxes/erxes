@@ -56,9 +56,9 @@ const ArticleContainer = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    save,
     article,
-    currentCategoryId
+    currentCategoryId,
+    save
   };
 
   return <ArticleForm {...extendedProps} />;

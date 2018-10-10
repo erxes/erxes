@@ -149,8 +149,8 @@ class StageContainer extends React.Component<
     const extendedProps = {
       ...this.props,
       deals: this.state.deals,
-      saveDeal: this.saveDeal,
       removeDeal: this.removeDeal,
+      saveDeal: this.saveDeal,
       stage: stageDetailQuery.dealStageDetail || {}
     };
 

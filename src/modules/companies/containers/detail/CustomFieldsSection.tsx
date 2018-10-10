@@ -41,9 +41,9 @@ const CustomFieldsSection = (props: Props) => {
   };
 
   const updatedProps = {
-    save,
     customFieldsData: company.customFieldsData || {},
-    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
+    save
   };
 
   return <GenerateCustomFields {...updatedProps} />;

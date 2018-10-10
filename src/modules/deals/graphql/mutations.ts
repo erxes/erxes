@@ -109,10 +109,10 @@ const stagesChange = `
 
 export default {
   dealsAdd,
+  dealsChange,
   dealsEdit,
   dealsRemove,
   dealsUpdateOrder,
-  stagesUpdateOrder,
-  dealsChange,
-  stagesChange
+  stagesChange,
+  stagesUpdateOrder
 };

@@ -11,8 +11,8 @@ class TabContainer extends React.Component<{ dealActivityLogQuery: any }> {
 
     const extendedProps = {
       ...this.props,
-      loadingLogs: dealActivityLogQuery.loading,
-      dealActivityLog: dealActivityLogQuery.activityLogsDeal || []
+      dealActivityLog: dealActivityLogQuery.activityLogsDeal || [],
+      loadingLogs: dealActivityLogQuery.loading
     };
 
     return <Tab {...extendedProps} />;

@@ -1,3 +1,4 @@
+/* tslint:disable:object-literal-sort-keys */
 export const PROBABILITY = {
   TEN: '10%',
   TWENTY: '20%',
@@ -8,8 +9,10 @@ export const PROBABILITY = {
   SEVENTY: '70%',
   EIGHTY: '80%',
   NINETY: '90%',
-  WON: 'Won',
+
   LOST: 'Lost',
+  WON: 'Won',
+
   ALL: [
     '10%',
     '20%',

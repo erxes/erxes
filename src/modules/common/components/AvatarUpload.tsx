@@ -21,8 +21,8 @@ class AvatarUpload extends React.Component<Props, State> {
     const defaultAvatar = props.defaultAvatar || '/images/avatar-colored.svg';
 
     this.state = {
-      avatarPreviewUrl: this.props.avatar || defaultAvatar,
-      avatarPreviewStyle: {}
+      avatarPreviewStyle: {},
+      avatarPreviewUrl: this.props.avatar || defaultAvatar
     };
 
     this.handleImageChange = this.handleImageChange.bind(this);

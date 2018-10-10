@@ -6,23 +6,23 @@ import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
 
 const types = {
+  danger: {
+    background: colors.colorCoreRed
+  },
   default: {
     background: colors.colorSecondary
   },
   primary: {
     background: colors.colorPrimary
   },
+  simple: {
+    background: colors.colorCoreLightGray
+  },
   success: {
     background: colors.colorCoreGreen
   },
-  danger: {
-    background: colors.colorCoreRed
-  },
   warning: {
     background: colors.colorCoreYellow
-  },
-  simple: {
-    background: colors.colorCoreLightGray
   }
 };
 

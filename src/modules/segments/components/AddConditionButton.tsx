@@ -23,11 +23,11 @@ class AddConditionButton extends React.Component<Props> {
     const [operator] = operators[type];
 
     this.props.addCondition({
-      field: id,
-      value: '',
-      operator: operator.value,
       dateUnit: dateUnits.days,
-      type
+      field: id,
+      operator: operator.value,
+      type,
+      value: ''
     });
 
     this.overlayTrigger.hide();

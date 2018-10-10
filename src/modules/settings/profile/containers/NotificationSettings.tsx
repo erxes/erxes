@@ -70,12 +70,12 @@ const NotificationSettingsContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    modules: notificationModulesQuery.notificationsModules || [],
     configs,
+    modules: notificationModulesQuery.notificationsModules || [],
     saveNotificationConfigurations,
 
-    getNotificationByEmail,
-    configGetNotificationByEmail
+    configGetNotificationByEmail,
+    getNotificationByEmail
   };
 
   return <NotificationSettings {...updatedProps} />;

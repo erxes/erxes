@@ -88,13 +88,13 @@ const commonListComposer = options => {
 
     const updatedProps = {
       ...props,
-      refetch: listQuery.refetch,
-      objects,
-      totalCount,
-      save,
-      remove,
       history,
-      loading: listQuery.loading
+      loading: listQuery.loading,
+      objects,
+      refetch: listQuery.refetch,
+      remove,
+      save,
+      totalCount
     };
 
     return <ListComponent {...updatedProps} />;

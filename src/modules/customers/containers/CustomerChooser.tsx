@@ -37,18 +37,18 @@ const CustomerChooser = (props: WrapperProps & Props) => {
 
   const updatedProps = {
     ...props,
+    add: addCustomer,
+    clearState: () => search(''),
     data: {
       _id: data._id,
-      name: data.name,
-      datas: data.customers
+      datas: data.customers,
+      name: data.name
     },
-    search,
-    clearState: () => search(''),
-    title: 'Customer',
-    renderName: renderFullName,
+    datas: customersQuery.customers || [],
     renderForm: props => <CustomerForm {...props} action={addCustomer} />,
-    add: addCustomer,
-    datas: customersQuery.customers || []
+    renderName: renderFullName,
+    search,
+    title: 'Customer'
   };
 
   return <Chooser {...updatedProps} />;
@@ -66,8 +66,8 @@ const WithQuery = compose(
     }) => {
       return {
         variables: {
-          searchValue,
-          perPage
+          perPage,
+          searchValue
         }
       };
     }

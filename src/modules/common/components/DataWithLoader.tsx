@@ -14,11 +14,11 @@ type Props = {
 
 class DataWithLoader extends React.Component<Props> {
   static defaultProps = {
-    emptyText: 'There is no data',
     emptyIcon: '',
     emptyImage: '',
-    size: 'full',
-    objective: false
+    emptyText: 'There is no data',
+    objective: false,
+    size: 'full'
   };
 
   showData() {

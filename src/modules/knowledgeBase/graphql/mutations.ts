@@ -71,13 +71,13 @@ const knowledgeBaseArticlesRemove = `
 `;
 
 export default {
-  knowledgeBaseTopicsAdd,
-  knowledgeBaseTopicsEdit,
-  knowledgeBaseTopicsRemove,
+  knowledgeBaseArticlesAdd,
+  knowledgeBaseArticlesEdit,
+  knowledgeBaseArticlesRemove,
   knowledgeBaseCategoriesAdd,
   knowledgeBaseCategoriesEdit,
   knowledgeBaseCategoriesRemove,
-  knowledgeBaseArticlesAdd,
-  knowledgeBaseArticlesEdit,
-  knowledgeBaseArticlesRemove
+  knowledgeBaseTopicsAdd,
+  knowledgeBaseTopicsEdit,
+  knowledgeBaseTopicsRemove
 };

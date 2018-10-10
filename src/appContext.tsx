@@ -6,18 +6,18 @@ import * as React from 'react';
 
 moment.defineLocale('mn', {
   relativeTime: {
-    future: '%s дараа',
-    past: '%s өмнө',
-    ss: '$d секундын',
-    s: 'саяхан',
-    m: 'минутын',
-    mm: '%d минутын',
-    h: '1 цагийн',
-    hh: '%d цагийн',
-    d: '1 өдрийн',
-    dd: '%d өдрийн',
     M: '1 сарын',
     MM: '%d сарын',
+    d: '1 өдрийн',
+    dd: '%d өдрийн',
+    future: '%s дараа',
+    h: '1 цагийн',
+    hh: '%d цагийн',
+    m: 'минутын',
+    mm: '%d минутын',
+    past: '%s өмнө',
+    s: 'саяхан',
+    ss: '$d секундын',
     y: '1 жилийн',
     yy: '%d жилийн'
   }
@@ -25,18 +25,18 @@ moment.defineLocale('mn', {
 
 moment.updateLocale('en', {
   relativeTime: {
+    M: 'a month',
+    MM: '%d months',
+    d: 'a day',
+    dd: '%d days',
     future: 'in %s',
+    h: 'an hour',
+    hh: '%d hours',
+    m: 'a minute',
+    mm: '%d minutes',
     past: '%s ago',
     s: '%d seconds',
     ss: '%d s',
-    m: 'a minute',
-    mm: '%d minutes',
-    h: 'an hour',
-    hh: '%d hours',
-    d: 'a day',
-    dd: '%d days',
-    M: 'a month',
-    MM: '%d months',
     y: 'a year',
     yy: '%d years'
   }
@@ -67,8 +67,8 @@ export class AppProvider extends React.Component<
     const currentLanguage = localStorage.getItem('currentLanguage') || 'en';
 
     this.state = {
-      currentUser: props.currentUser,
-      currentLanguage
+      currentLanguage,
+      currentUser: props.currentUser
     };
 
     this.setLocale = this.setLocale.bind(this);
@@ -98,9 +98,9 @@ export class AppProvider extends React.Component<
     return (
       <AppContext.Provider
         value={{
-          currentUser,
+          changeLanguage: this.changeLanguage,
           currentLanguage,
-          changeLanguage: this.changeLanguage
+          currentUser
         }}
       >
         {this.props.children}

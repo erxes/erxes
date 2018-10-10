@@ -32,13 +32,14 @@ class Filter extends React.Component<Props, States> {
     this.state = {
       ...props.queryParams,
       // check condition for showing placeholder
-      startDate: props.queryParams.startDate
-        ? moment(props.queryParams.startDate)
-        : '',
+      isChange: false,
+
       endDate: props.queryParams.endDate
         ? moment(props.queryParams.endDate)
         : '',
-      isChange: false
+      startDate: props.queryParams.startDate
+        ? moment(props.queryParams.startDate)
+        : ''
     };
   }
 
@@ -113,9 +114,9 @@ class Filter extends React.Component<Props, States> {
 
   render() {
     const props = {
+      dateFormat: 'YYYY/MM/DD',
       inputProps: { placeholder: 'Click to select a date' },
-      timeFormat: 'HH:mm',
-      dateFormat: 'YYYY/MM/DD'
+      timeFormat: 'HH:mm'
     };
 
     return (

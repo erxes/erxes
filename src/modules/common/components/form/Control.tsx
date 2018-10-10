@@ -51,9 +51,9 @@ const renderElement = (Element, attributes, type, child) => {
 class FormControl extends React.Component<Props> {
   static defaultProps = {
     componentClass: 'input',
-    required: false,
     defaultChecked: false,
-    disabled: false
+    disabled: false,
+    required: false
   };
 
   render() {
@@ -71,27 +71,27 @@ class FormControl extends React.Component<Props> {
     };
 
     const attributes = {
-      onChange,
-      onKeyPress: props.onKeyPress,
-      onClick: props.onClick,
-      value: props.value,
+      autoFocus: props.autoFocus,
       defaultValue: props.defaultValue,
       [props.defaultChecked
         ? 'defaultChecked'
         : 'checked']: props.defaultChecked
         ? props.defaultChecked
         : props.checked,
-      placeholder: props.placeholder,
-      type: props.type,
-      name: props.name,
-      round: props.round,
-      required: props.required,
       disabled: props.disabled,
-      onFocus: props.onFocus,
-      autoFocus: props.autoFocus,
-      min: props.min,
+      id: props.id,
       max: props.max,
-      id: props.id
+      min: props.min,
+      name: props.name,
+      onChange,
+      onClick: props.onClick,
+      onFocus: props.onFocus,
+      onKeyPress: props.onKeyPress,
+      placeholder: props.placeholder,
+      required: props.required,
+      round: props.round,
+      type: props.type,
+      value: props.value
     };
 
     if (elementType === 'select') {
