@@ -10,9 +10,11 @@ const companyFields = `
   plan
 
   parentCompanyId
-  email
+  emails
+  primaryEmail
   ownerId
-  phone
+  phones
+  primaryPhone
   leadStatus
   lifecycleState
   businessType
