@@ -1,18 +1,10 @@
 import { Tip } from 'modules/common/components';
-import { __, Alert, confirm } from 'modules/common/utils';
 import { DealDate } from 'modules/deals/styles/deal';
 import { Amount } from 'modules/deals/styles/stage';
 import * as moment from 'moment';
 import * as React from 'react';
 import { IUser, IUserDetails } from '../auth/types';
-import {
-  IDeal,
-  IDealMap,
-  IDealParams,
-  IDraggableLocation,
-  RemoveDealMutation,
-  SaveDealMutation
-} from './types';
+import { IDealMap, IDraggableLocation } from './types';
 
 type Options = {
   _id: string;
@@ -54,54 +46,6 @@ export function collectOrders(array: Options[] = []) {
     _id: item._id,
     order: index
   }));
-}
-
-// create or update deal
-export function saveDeal(
-  doc: IDealParams,
-  addMutation: SaveDealMutation,
-  editMutation: SaveDealMutation,
-  callback: (data: any) => void,
-  deal?: IDeal
-) {
-  let mutation = addMutation;
-
-  // if edit mode
-  if (deal) {
-    mutation = editMutation;
-    doc._id = deal._id;
-  }
-
-  mutation({ variables: doc })
-    .then(({ data }) => {
-      Alert.success(__('Successfully saved.'));
-
-      callback(data);
-    })
-    .catch(error => {
-      Alert.error(error.message);
-    });
-}
-
-// remove deal
-export function removeDeal(
-  _id: string,
-  removeMutation: RemoveDealMutation,
-  callback: (dealsRemove: IDeal) => void
-) {
-  confirm().then(() => {
-    removeMutation({
-      variables: { _id }
-    })
-      .then(({ data: { dealsRemove } }) => {
-        Alert.success(__('Successfully deleted.'));
-
-        if (callback) callback(dealsRemove);
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  });
 }
 
 // a little function to help us with reordering the result
