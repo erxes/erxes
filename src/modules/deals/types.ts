@@ -12,6 +12,7 @@ export interface ICommonState {
 export interface IBoard {
   _id: string;
   name: string;
+  pipelines?: IPipeline[];
 }
 
 export interface IPipeline {
