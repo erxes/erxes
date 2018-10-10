@@ -116,9 +116,9 @@ class Scheduler extends React.Component<Props, State> {
           }
         >
           <option />{' '}
-          {SCHEDULE_TYPES.map(type => (
-            <option key={type.value} value={type.value}>
-              {__(type.label)}
+          {SCHEDULE_TYPES.map(scheduleType => (
+            <option key={scheduleType.value} value={scheduleType.value}>
+              {__(scheduleType.label)}
             </option>
           ))}
         </FormControl>

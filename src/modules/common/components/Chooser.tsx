@@ -142,7 +142,7 @@ class CommonChooser extends React.Component<Props, State> {
               onChange={e => this.search(e)}
             />
             <ul>
-              {datas.map(data => this.renderRow(data, 'add'))}
+              {datas.map(dataItem => this.renderRow(dataItem, 'add'))}
               {this.state.loadmore && (
                 <CenterContent>
                   <Button

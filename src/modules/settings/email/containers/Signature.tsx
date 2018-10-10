@@ -33,11 +33,11 @@ const SignatureContainer = (props: Props) => {
   }
 
   // save email configs action
-  const save = (signatures: IEmailSignatureWithBrand[]) => {
+  const save = (signaturesToSave: IEmailSignatureWithBrand[]) => {
     const doc: IEmailSignature[] = [];
 
     // remove brandName from list
-    signatures.forEach(item => {
+    signaturesToSave.forEach(item => {
       if (item.signature) {
         doc.push({
           brandId: item.brandId,
