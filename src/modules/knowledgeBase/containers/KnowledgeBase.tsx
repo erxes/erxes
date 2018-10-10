@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils } from 'modules/common/utils';
-import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -25,7 +24,11 @@ const KnowledgeBase = (props: IProps) => {
     history
   } = props;
 
-  const lastCategory = lastCategoryQuery.knowledgeBaseCategoriesGetLast || {};
+  if (lastCategoryQuery.loading) {
+    return null;
+  }
+
+  const lastCategory = lastCategoryQuery.knowledgeBaseCategoriesGetLast;
 
   let updatedProps: any = {
     articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0
