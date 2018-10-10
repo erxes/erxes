@@ -1,4 +1,3 @@
-import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
@@ -53,9 +52,11 @@ describe('companyQueries', () => {
         plan
 
         parentCompanyId
-        email
+        primaryEmail
+        emails
         ownerId
-        phone
+        primaryPhone
+        phones
         leadStatus
         lifecycleState
         businessType
@@ -153,6 +154,10 @@ describe('companyQueries', () => {
     await companyFactory({ tagIds: [tag._id] });
 
     const tagResponse = await Tags.findOne({}, '_id');
+
+    if (!tagResponse) {
+      throw new Error('Tag response does not exist');
+    }
 
     const responses = await graphqlRequest(qryCompanies, 'companies', {
       tag: tagResponse._id,
