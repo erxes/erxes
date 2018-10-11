@@ -46,7 +46,7 @@ interface IActivityLogModel extends Model<IActivityLogDocument> {
 
   changeCompany(newCompanyId: string, companyIds: string[]): Promise<IActivityLogDocument[]>;
 
-  createGmailLog(content: string, cocType: string, cocId: string, userId: string): Promise<IActivityLogDocument[]>;
+  createGmailLog(content: string, cocType: string, cocId: string, userId: string): Promise<IActivityLogDocument>;
 }
 
 class ActivityLog {
@@ -327,9 +327,10 @@ class ActivityLog {
     });
   }
 
-  static createGmailLog(content: string, cocType: string, cocId: string, userId: string) {
+  public static createGmailLog(content: string, cocType: string, cocId: string, userId: string) {
     return this.createDoc({
       activity: {
+        id: Math.random().toString(),
         type: ACTIVITY_TYPES.EMAIL,
         action: ACTIVITY_ACTIONS.SEND,
         content,
