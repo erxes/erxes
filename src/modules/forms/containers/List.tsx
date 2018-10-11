@@ -23,11 +23,9 @@ class ListContainer extends React.Component<Props, {}> {
       removeMutation
     } = this.props;
 
-    if (integrationsQuery.loading || integrationsTotalCountQuery.loading) {
-      return <Spinner />;
-    }
-
-    const counts = integrationsTotalCountQuery.integrationsTotalCount;
+    const counts = integrationsTotalCountQuery.integrationsTotalCount || {
+      byKind: {}
+    };
     const totalCount = counts.byKind.form || 0;
     const tagsCount = counts.byTag || {};
 
