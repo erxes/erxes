@@ -4,29 +4,29 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { queries as customerQueries } from '../../graphql';
+import { queries as companyQueries } from '../../graphql';
 
 const TagFilterContainer = (props: {
-  customersCountQuery: any;
+  companyCountsQuery: any;
   tagsQuery: any;
 }) => {
-  const { customersCountQuery, tagsQuery } = props;
+  const { companyCountsQuery, tagsQuery } = props;
 
-  const counts = customersCountQuery.customerCounts || {};
+  const counts = companyCountsQuery.companyCounts || {};
 
   return (
     <CountsByTag
       tags={tagsQuery.tags || []}
       counts={counts.byTag || {}}
-      manageUrl="tags/customer"
+      manageUrl="tags/company"
       loading={tagsQuery.loading}
     />
   );
 };
 
 export default compose(
-  graphql(gql(customerQueries.customerCounts), {
-    name: 'customersCountQuery',
+  graphql(gql(companyQueries.companyCounts), {
+    name: 'companyCountsQuery',
     options: {
       variables: { only: 'byTag' }
     }
@@ -35,7 +35,7 @@ export default compose(
     name: 'tagsQuery',
     options: () => ({
       variables: {
-        type: TAG_TYPES.CUSTOMER
+        type: TAG_TYPES.COMPANY
       },
       fetchPolicy: 'network-only'
     })

@@ -97,8 +97,8 @@ export const companiesMain = `
 `;
 
 export const companyCounts = `
-  query companyCounts(${listParamsDef}) {
-    companyCounts(${listParamsValue})
+  query companyCounts(${listParamsDef}, $only: String) {
+    companyCounts(${listParamsValue}, only: $only)
   }
 `;
 
