@@ -9,7 +9,6 @@ import { __ } from 'modules/common/utils';
 import { SubHeading } from 'modules/settings/styles';
 import * as React from 'react';
 import Select from 'react-select-plus';
-import { ILink } from '../../../types';
 
 type Props = {
   onChange: (
@@ -23,7 +22,10 @@ type Props = {
   greetingMessage?: string;
   greetingTitle?: string;
   thankYouMessage?: string;
-  links?: ILink;
+  facebook?: string;
+  twitter?: string;
+  youtube?: string;
+  languageCode?: string;
 };
 
 type State = {
@@ -33,7 +35,10 @@ type State = {
   awayMessage: string;
   thankYouMessage: string;
   greetingMessage: string;
-  links?: ILink;
+  facebook?: string;
+  twitter?: string;
+  youtube?: string;
+  languageCode?: string;
 };
 
 class Intro extends React.Component<Props, State> {
@@ -53,7 +58,9 @@ class Intro extends React.Component<Props, State> {
       awayMessage: '',
       thankYouMessage: '',
       greetingMessage: '',
-      links: {}
+      facebook: '',
+      twitter: '',
+      youtube: ''
     };
 
     this.onInputChange = this.onInputChange.bind(this);
@@ -88,11 +95,29 @@ class Intro extends React.Component<Props, State> {
   }
 
   render() {
-    const { links = {} } = this.props;
+    const { facebook, twitter, youtube } = this.props;
 
     return (
       <FlexItem>
         <LeftItem>
+          <FormGroup>
+            <ControlLabel>Language</ControlLabel>
+
+            <FormControl
+              componentClass="select"
+              id="languageCode"
+              defaultValue={this.props.languageCode}
+              onChange={(e: React.FormEvent<HTMLElement>) => {
+                const target = e.currentTarget as HTMLInputElement;
+                return this.onInputChange('languageCode', target.value);
+              }}
+            >
+              <option />
+              <option value="mn">Монгол</option>
+              <option value="en">English</option>
+            </FormControl>
+          </FormGroup>
+
           <SubHeading>{__('Online messaging')}</SubHeading>
 
           <FormGroup>
@@ -203,14 +228,12 @@ class Intro extends React.Component<Props, State> {
 
             <FormControl
               rows={3}
-              value={links.facebook || ''}
+              value={facebook || ''}
               onChange={e => {
-                const fb = {
-                  ...this.state.links,
-                  facebook: (e.target as HTMLInputElement).value
-                };
-
-                return this.onInputChange('links', fb);
+                this.onInputChange(
+                  'facebook',
+                  (e.target as HTMLInputElement).value
+                );
               }}
             />
           </FormGroup>
@@ -220,14 +243,12 @@ class Intro extends React.Component<Props, State> {
 
             <FormControl
               rows={3}
-              value={links.twitter || ''}
+              value={twitter || ''}
               onChange={e => {
-                const fb = {
-                  ...this.state.links,
-                  twitter: (e.target as HTMLInputElement).value
-                };
-
-                return this.onInputChange('links', fb);
+                this.onInputChange(
+                  'twitter',
+                  (e.target as HTMLInputElement).value
+                );
               }}
             />
           </FormGroup>
@@ -237,14 +258,12 @@ class Intro extends React.Component<Props, State> {
 
             <FormControl
               rows={3}
-              value={links.youtube || ''}
+              value={youtube || ''}
               onChange={e => {
-                const fb = {
-                  ...this.state.links,
-                  youtube: (e.target as HTMLInputElement).value
-                };
-
-                return this.onInputChange('links', fb);
+                this.onInputChange(
+                  'youtube',
+                  (e.target as HTMLInputElement).value
+                );
               }}
             />
           </FormGroup>

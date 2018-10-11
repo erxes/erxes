@@ -31,18 +31,36 @@ export interface IOnlineHour {
   to: string;
 }
 
+interface IGreetingMessage {
+  title?: string;
+  message?: string;
+}
+
+interface IOnlineMessage {
+  welcome?: string;
+}
+
+interface IOfflineMessage {
+  away?: string;
+  thankyou?: string;
+}
+
+interface IMessages {
+  [key: string]: {
+    greetings: IGreetingMessage;
+    online: IOnlineMessage;
+    offline: IOfflineMessage;
+  };
+}
+
 export interface IMessengerData {
-  welcomeMessage?: string;
-  awayMessage?: string;
-  thankYouMessage?: string;
+  messages?: IMessages;
   notifyCustomer?: boolean;
   supporterIds?: string[];
   availabilityMethod?: string;
   isOnline?: boolean;
   timezone?: string;
   onlineHours?: IOnlineHour[];
-  greetingMessage?: string;
-  greetingTitle?: string;
   showFaq?: boolean;
   links?: ILink;
 }

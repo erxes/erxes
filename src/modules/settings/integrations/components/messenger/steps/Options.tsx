@@ -15,7 +15,6 @@ type Props = {
     value: string
   ) => void;
   brandId?: string;
-  languageCode?: string;
   brands?: IBrand[];
   notifyCustomer?: boolean;
   showFaq?: boolean;
@@ -42,24 +41,6 @@ class Options extends React.Component<Props> {
             defaultValue={this.props.brandId}
             onChange={e => this.onChangeFunction('brandId', e.target.value)}
           />
-
-          <FormGroup>
-            <ControlLabel>Language</ControlLabel>
-
-            <FormControl
-              componentClass="select"
-              id="languageCode"
-              defaultValue={this.props.languageCode}
-              onChange={(e: React.FormEvent<HTMLElement>) => {
-                const target = e.currentTarget as HTMLInputElement;
-                return this.onChangeFunction('languageCode', target.value);
-              }}
-            >
-              <option />
-              <option value="mn">Монгол</option>
-              <option value="en">English</option>
-            </FormControl>
-          </FormGroup>
 
           <FormGroup>
             <ControlLabel>Show FAQ</ControlLabel>

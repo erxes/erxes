@@ -56,7 +56,9 @@ type State = {
   logoPreviewUrl: string;
   greetingMessage: string;
   greetingTitle: string;
-  links: ILink;
+  facebook: string;
+  twitter: string;
+  youtube: string;
   showFaq: boolean;
 };
 
@@ -68,20 +70,26 @@ class CreateMessenger extends React.Component<Props, State> {
     this.save = this.save.bind(this);
 
     const integration = props.integration || ({} as IIntegration);
-
+    const languageCode = integration.languageCode || 'en';
     const configData = integration.messengerData || {};
+    const links = configData.links || {};
+    const messages = configData.messages || {};
+    const message = messages[languageCode] || {};
+    const onlineMessage = message.online || {};
+    const offlineMessage = message.offline || {};
+    const greetingMessage = message.greetings || {};
     const uiOptions = integration.uiOptions || {};
 
     this.state = {
       title: integration.name,
       brandId: integration.brandId || '',
-      languageCode: integration.languageCode || '',
+      languageCode,
       activeStep: 1,
       color: uiOptions.color || '#6569DF',
       wallpaper: uiOptions.wallpaper || '1',
-      welcomeMessage: configData.welcomeMessage || '',
-      awayMessage: configData.awayMessage || '',
-      thankYouMessage: configData.thankYouMessage || '',
+      welcomeMessage: onlineMessage.welcome || '',
+      awayMessage: offlineMessage.away || '',
+      thankYouMessage: offlineMessage.thankyou || '',
       notifyCustomer: configData.notifyCustomer || false,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
@@ -94,9 +102,11 @@ class CreateMessenger extends React.Component<Props, State> {
       logo: uiOptions.logo || '',
       logoPreviewStyle: {},
       logoPreviewUrl: uiOptions.logo || '',
-      greetingMessage: configData.greetingMessage || '',
-      greetingTitle: configData.greetingTitle || '',
-      links: configData.links || {},
+      greetingMessage: greetingMessage.message || '',
+      greetingTitle: greetingMessage.title || '',
+      facebook: links.facebook || '',
+      twitter: links.twitter || '',
+      youtube: links.youtube || '',
       showFaq: configData.showFaq || false
     };
   }
@@ -108,15 +118,44 @@ class CreateMessenger extends React.Component<Props, State> {
   save(e) {
     e.preventDefault();
 
-    const { title, brandId } = this.state;
+    const {
+      title,
+      brandId,
+      languageCode,
+      greetingTitle,
+      greetingMessage,
+      welcomeMessage,
+      awayMessage,
+      thankYouMessage
+    } = this.state;
+
+    if (!languageCode) {
+      return Alert.error('Set language');
+    }
 
     if (!title) {
-      return Alert.error(__('Write title'));
+      return Alert.error('Write title');
     }
 
     if (!brandId) {
-      return Alert.error(__('Choose brand'));
+      return Alert.error('Choose brand');
     }
+
+    const messages = {
+      [languageCode]: {
+        greetings: {
+          title: greetingTitle,
+          message: greetingMessage
+        },
+        online: {
+          welcome: welcomeMessage
+        },
+        offline: {
+          away: awayMessage,
+          thankyou: thankYouMessage
+        }
+      }
+    };
 
     this.props.save({
       name: title,
@@ -128,14 +167,9 @@ class CreateMessenger extends React.Component<Props, State> {
         isOnline: this.state.isOnline,
         timezone: this.state.timezone,
         onlineHours: this.state.onlineHours,
-        welcomeMessage: this.state.welcomeMessage,
-        awayMessage: this.state.awayMessage,
-        thankYouMessage: this.state.thankYouMessage,
         supporterIds: this.state.supporterIds,
-        greetingTitle: this.state.greetingTitle,
-        greetingMessage: this.state.greetingMessage,
-        links: this.state.links,
-        showFaq: this.state.showFaq
+        showFaq: this.state.showFaq,
+        messages
       },
       uiOptions: {
         color: this.state.color,
@@ -189,7 +223,9 @@ class CreateMessenger extends React.Component<Props, State> {
       notifyCustomer,
       logoPreviewStyle,
       greetingMessage,
-      links,
+      facebook,
+      twitter,
+      youtube,
       showFaq,
       greetingTitle
     } = this.state;
@@ -230,7 +266,10 @@ class CreateMessenger extends React.Component<Props, State> {
                 thankYouMessage={thankYouMessage}
                 greetingMessage={greetingMessage}
                 greetingTitle={greetingTitle}
-                links={links}
+                facebook={facebook}
+                languageCode={languageCode}
+                twitter={twitter}
+                youtube={youtube}
               />
             </Step>
 
@@ -262,7 +301,6 @@ class CreateMessenger extends React.Component<Props, State> {
                 onChange={this.onChange}
                 brands={this.props.brands}
                 brandId={brandId}
-                languageCode={languageCode}
                 notifyCustomer={notifyCustomer}
                 showFaq={showFaq}
               />
