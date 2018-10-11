@@ -42,6 +42,12 @@ const integrationTotalCount = `
   }
 `;
 
+const integrationGetGoogleAuthUrl = `
+  query integrationGetGoogleAuthUrl($service: String) {
+    integrationGetGoogleAuthUrl(service: $service)
+  }
+`;
+
 const commonParamsDef = `
   $channelId: String,
   $brandId: String,
@@ -100,5 +106,6 @@ export default {
   brands,
   integrationDetail,
   integrationTotalCount,
+  integrationGetGoogleAuthUrl,
   integrations
 };

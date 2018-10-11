@@ -13,6 +13,7 @@ import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { Wrapper } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
+import { MailForm } from 'modules/settings/integrations/containers/google';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../../common/types';
@@ -29,23 +30,35 @@ interface IProps extends IRouterProps {
 
 type State = {
   currentTab: string;
+  currentSubtab: string;
+  attachmentPreview: any;
 };
 
 class CompanyDetails extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentTab: 'activity' };
-
-    this.onTabClick = this.onTabClick.bind(this);
+    this.state = {
+      currentSubtab: 'activity',
+      currentTab: 'newNote',
+      attachmentPreview: null
+    };
   }
 
-  onTabClick(currentTab) {
+  onTabClick = currentSubtab => {
+    this.setState({ currentSubtab });
+  };
+
+  onChangeTab = currentTab => {
     this.setState({ currentTab });
-  }
+  };
 
-  renderTabContent() {
-    const { currentTab } = this.state;
+  setAttachmentPreview = attachmentPreview => {
+    this.setState({ attachmentPreview });
+  };
+
+  renderSubTabContent() {
+    const { currentSubtab } = this.state;
 
     const {
       currentUser,
@@ -66,7 +79,7 @@ class CompanyDetails extends React.Component<IProps, State> {
               user={currentUser}
               activities={companyActivityLog}
               target={company.primaryName || ''}
-              type={currentTab}
+              type={currentSubtab}
             />
           }
           emptyText="No Activities"
@@ -76,8 +89,28 @@ class CompanyDetails extends React.Component<IProps, State> {
     );
   }
 
-  render() {
+  renderTabContent() {
+    const { company } = this.props;
     const { currentTab } = this.state;
+
+    if (currentTab === 'newNote') {
+      return <NoteForm contentType="company" contentTypeId={company._id} />;
+    }
+
+    return (
+      <MailForm
+        contentType="company"
+        contentTypeId={company._id}
+        toEmails={company.emails}
+        setAttachmentPreview={this.setAttachmentPreview}
+        attachmentPreview={this.state.attachmentPreview}
+        refetchQueries={['activityLogsCompany']}
+      />
+    );
+  }
+
+  render() {
+    const { currentSubtab, currentTab } = this.state;
     const { company, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
@@ -89,36 +122,45 @@ class CompanyDetails extends React.Component<IProps, State> {
       <div>
         <WhiteBox>
           <Tabs>
-            <TabTitle className="active">
+            <TabTitle
+              className={currentTab === 'newNote' ? 'active' : ''}
+              onClick={() => this.onChangeTab('newNote')}
+            >
               <Icon icon="edit-1" /> {__('New note')}
+            </TabTitle>
+            <TabTitle
+              className={currentTab === 'email' ? 'active' : ''}
+              onClick={() => this.onChangeTab('email')}
+            >
+              <Icon icon="email" /> {__('Email')}
             </TabTitle>
           </Tabs>
 
-          <NoteForm contentType="company" contentTypeId={company._id} />
+          {this.renderTabContent()}
         </WhiteBox>
 
         <Tabs grayBorder>
           <TabTitle
-            className={currentTab === 'activity' ? 'active' : ''}
+            className={currentSubtab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}
           >
             {__('Activity')}
           </TabTitle>
           <TabTitle
-            className={currentTab === 'notes' ? 'active' : ''}
+            className={currentSubtab === 'notes' ? 'active' : ''}
             onClick={() => this.onTabClick('notes')}
           >
             {__('Notes')}
           </TabTitle>
           <TabTitle
-            className={currentTab === 'conversations' ? 'active' : ''}
+            className={currentSubtab === 'conversations' ? 'active' : ''}
             onClick={() => this.onTabClick('conversations')}
           >
             {__('Conversation')}
           </TabTitle>
         </Tabs>
 
-        {this.renderTabContent()}
+        {this.renderSubTabContent()}
       </div>
     );
 

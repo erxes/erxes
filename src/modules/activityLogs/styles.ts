@@ -45,6 +45,19 @@ const FlexContent = styled.div`
 const FlexBody = styled.div`
   flex: 1;
   align-self: center;
+
+  p {
+    margin: 0;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  > div {
+    font-size: ${typography.fontSizeHeading8}px;
+    color: ${colors.colorCoreGray};
+  }
+
+  span { padding-right: ${dimensions.unitSpacing}px; }
 `;
 
 const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
@@ -106,6 +119,12 @@ const ActivityContent = styled.div`
   box-shadow: 0 1px 2px 0 ${colors.darkShadow};
 `;
 
+const EmailContent = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0 60px;
+  max-height: 110px;
+  overflow: hidden;
+`;
+
 const IconWrapper = styled.div`
   color: ${colors.colorLightGray};
 
@@ -122,6 +141,7 @@ export {
   AvatarWrapper,
   ActivityDate,
   ActivityContent,
+  EmailContent,
   IconWrapper,
   FlexContent,
   FlexBody
