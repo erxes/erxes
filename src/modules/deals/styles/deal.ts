@@ -20,6 +20,7 @@ const AddNew = styled.a`
   transition: all 0.3s ease;
   cursor: pointer;
   background: ${colors.colorWhite};
+  margin: 8px;
 
   &:hover {
     background: transparent;

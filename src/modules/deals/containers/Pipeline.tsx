@@ -10,10 +10,7 @@ import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 import { Stage } from './stage';
 
 const Container = styled.div`
-  min-height: 100vh;
-
-  /* like display:flex but will allow bleeding over the window width */
-  min-width: 100vw;
+  height: 100%;
   display: inline-flex;
 `;
 
@@ -24,8 +21,13 @@ type Props = {
 };
 
 class WithStages extends React.Component<Props, {}> {
+  countStages(obj) {
+    return Object.keys(obj).length;
+  }
+
   render() {
     const { initialDealMap, pipeline, stageMap } = this.props;
+    const stagesCount = this.countStages(stageMap);
 
     return (
       <PipelineProvider pipeline={pipeline} initialDealMap={initialDealMap}>
@@ -47,6 +49,7 @@ class WithStages extends React.Component<Props, {}> {
                       <Stage
                         key={stageId}
                         index={index}
+                        length={stagesCount}
                         stage={stageMap[stageId]}
                         deals={dealMap[stageId]}
                       />

@@ -2,32 +2,20 @@ import { Icon, ModalTrigger } from 'modules/common/components';
 import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
 import { AddNew } from 'modules/deals/styles/deal';
+import {
+  Body,
+  Container,
+  Header,
+  Indicator,
+  IndicatorItem
+} from 'modules/deals/styles/stage';
 import { IDeal, IStage } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { DealAddForm } from '.';
 import DealList from './DealList';
-
-const Container = styled.div`
-  margin: 8px;
-`;
-
-const Header = styledTS<{ isDragging: boolean }>(styled.div)`
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  background-color: ${({ isDragging }) =>
-    isDragging ? colors.colorCoreGray : colors.colorCoreLightGray};
-  transition: background-color 0.1s ease;
-
-  &:hover {
-    background-color: ${colors.colorCoreLightGray};
-  }
-
-  padding: 8px;
-`;
 
 const Title = styled('h4')`
   margin: 0;
@@ -45,6 +33,7 @@ const Title = styled('h4')`
 type Props = {
   index: number;
   stage: IStage;
+  length: number;
   deals: IDeal[];
   addDeal: (name: string, callback: () => void) => void;
 };
@@ -68,6 +57,19 @@ export default class Stage extends React.Component<Props> {
     );
   }
 
+  renderIndicator() {
+    const index = this.props.index || 0;
+    const length = this.props.length || 0;
+
+    const data: any = [];
+
+    for (let i = 0; i < length; i++) {
+      data.push(<IndicatorItem isPass={index >= i} key={i} />);
+    }
+
+    return data;
+  }
+
   render() {
     const { index, stage, deals } = this.props;
 
@@ -75,7 +77,7 @@ export default class Stage extends React.Component<Props> {
       <Draggable draggableId={stage.name} index={index}>
         {(provided, snapshot) => (
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
-            <Header isDragging={snapshot.isDragging}>
+            <Header>
               <Title
                 isDragging={snapshot.isDragging}
                 {...provided.dragHandleProps}
@@ -84,6 +86,7 @@ export default class Stage extends React.Component<Props> {
                 <span>({deals.length})</span>
               </Title>
               {renderDealAmount(stage.amount)}
+              <Indicator>{this.renderIndicator()}</Indicator>
             </Header>
 
             <DealList

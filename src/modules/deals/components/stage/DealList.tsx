@@ -6,38 +6,18 @@ import { Draggable, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const Wrapper = styledTS<{ isDraggingOver: boolean; isDropDisabled: boolean }>(
-  styled.div
-)`
+const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
   background-color: ${({ isDraggingOver }) =>
-    isDraggingOver ? colors.colorCoreGray : colors.colorCoreLightGray};
+    isDraggingOver && colors.colorCoreLightGray};
   display: flex;
   flex-direction: column;
-  opacity: ${({ isDropDisabled }) => (isDropDisabled ? 0.5 : 'inherit')};
-  padding: 8px;
-  border: 8px;
-  padding-bottom: 0;
+  padding: 0 8px;
   transition: background-color 0.1s ease, opacity 0.1s ease;
   user-select: none;
-  width: 250px;
-  margin-bottom: 8px;
 `;
 
 const DropZone = styled.div`
-  /* stop the list collapsing when empty */
   min-height: 250px;
-
-  /*
-    not relying on the items for a margin-bottom
-    as it will collapse when the list is empty
-  */
-  margin-bottom: 8px;
-`;
-
-const ScrollContainer = styled.div`
-  overflow-x: hidden;
-  overflow-y: auto;
-  max-height: 300px;
 `;
 
 type Props = {
@@ -46,7 +26,6 @@ type Props = {
   stageId: string;
   deals: IDeal[];
   internalScroll?: boolean;
-  isDropDisabled?: boolean;
   style?: any;
   // may not be provided - and might be null
   ignoreContainerClipping?: boolean;
@@ -91,12 +70,10 @@ class InnerList extends React.Component<InnerListProps> {
     const { stageId, deals, dropProvided } = this.props;
 
     return (
-      <div>
-        <DropZone innerRef={dropProvided.innerRef}>
-          <InnerDealList stageId={stageId} deals={deals} />
-          {dropProvided.placeholder}
-        </DropZone>
-      </div>
+      <DropZone innerRef={dropProvided.innerRef}>
+        <InnerDealList stageId={stageId} deals={deals} />
+        {dropProvided.placeholder}
+      </DropZone>
     );
   }
 }
@@ -109,8 +86,6 @@ export default class DealList extends React.Component<Props> {
   render() {
     const {
       ignoreContainerClipping,
-      internalScroll,
-      isDropDisabled,
       listId,
       listType,
       style,
@@ -123,30 +98,18 @@ export default class DealList extends React.Component<Props> {
         droppableId={listId}
         type={listType}
         ignoreContainerClipping={ignoreContainerClipping}
-        isDropDisabled={isDropDisabled}
       >
         {(dropProvided, dropSnapshot) => (
           <Wrapper
             style={style}
             isDraggingOver={dropSnapshot.isDraggingOver}
-            isDropDisabled={isDropDisabled}
             {...dropProvided.droppableProps}
           >
-            {internalScroll ? (
-              <ScrollContainer>
-                <InnerList
-                  stageId={stageId}
-                  deals={deals}
-                  dropProvided={dropProvided}
-                />
-              </ScrollContainer>
-            ) : (
-              <InnerList
-                stageId={stageId}
-                deals={deals}
-                dropProvided={dropProvided}
-              />
-            )}
+            <InnerList
+              stageId={stageId}
+              deals={deals}
+              dropProvided={dropProvided}
+            />
           </Wrapper>
         )}
       </Droppable>

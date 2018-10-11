@@ -11,6 +11,7 @@ type BaseProps = {
   index: number;
   stage: IStage;
   deals: IDeal[];
+  length: number;
 };
 
 type Props = {

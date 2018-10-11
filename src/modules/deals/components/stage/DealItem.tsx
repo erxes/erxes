@@ -28,24 +28,25 @@ const Right = styled.div`
 `;
 
 const Content = styled('div')`
-  /* flex child */
   flex-grow: 1;
-  /*
-    Needed to wrap text in ie11
-    https://stackoverflow.com/questions/35111090/why-ie11-doesnt-wrap-the-text-in-flexbox
-  */
   flex-basis: 100%;
-  /* flex parent */
   display: flex;
   flex-direction: column;
+
+  h5 {
+    margin-top: 0;
+  }
 `;
 
 const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
   margin-bottom: 10px;
   background-color: rgb(255, 255, 255);
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
+  box-shadow: ${props =>
+    props.isDragging
+      ? 'rgba(0, 0, 0, 0.3) 0px 5px 15px 0px'
+      : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
   overflow: hidden;
-  padding: 10px;
+  padding: 8px;
   outline: 0px;
   border-radius: 3px;
   transition: box-shadow 0.3s ease-in-out 0s;
@@ -74,6 +75,7 @@ const Footer = styled.div`
   padding-top: 8px;
   margin-top: 8px;
   border-top: 1px dashed #ccc;
+  font-size: 11px;
 `;
 
 export default class DealItem extends React.PureComponent<
@@ -138,7 +140,7 @@ export default class DealItem extends React.PureComponent<
         {...provided.dragHandleProps}
       >
         <Content onClick={this.toggleForm}>
-          <p>{deal.name}</p>
+          <h5>{deal.name}</h5>
 
           {products.map((product, index) => (
             <div key={index}>
