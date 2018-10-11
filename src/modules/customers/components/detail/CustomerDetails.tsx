@@ -10,9 +10,9 @@ import { __, renderFullName } from 'modules/common/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { Wrapper } from 'modules/layout/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
+import { MailForm } from 'modules/settings/integrations/containers/google';
 import * as React from 'react';
 import { IUser } from '../../../auth/types';
-import { MailForm } from '../../containers/common';
 import { ICustomer } from '../../types';
 import { hasAnyActivity } from '../../utils';
 import LeftSidebar from './LeftSidebar';
@@ -103,7 +103,7 @@ class CustomerDetails extends React.Component<Props, State> {
       <MailForm
         contentType="customer"
         contentTypeId={customer._id}
-        customerEmail={customer.primaryEmail}
+        toEmail={customer.primaryEmail}
         setAttachmentPreview={this.setAttachmentPreview}
         attachmentPreview={this.state.attachmentPreview}
       />

@@ -9,11 +9,11 @@ import {
 import { ActivityContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { ICompany, ICompanyActivityLog } from 'modules/companies/types';
-import { MailForm } from 'modules/customers/containers/common';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { Wrapper } from 'modules/layout/components';
 import { WhiteBox } from 'modules/layout/styles';
+import { MailForm } from 'modules/settings/integrations/containers/google';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../../common/types';
@@ -105,7 +105,7 @@ class CompanyDetails extends React.Component<IProps, State> {
       <MailForm
         contentType="company"
         contentTypeId={company._id}
-        companyCustomers={company.customers}
+        toEmails={company.emails}
         setAttachmentPreview={this.setAttachmentPreview}
         attachmentPreview={this.state.attachmentPreview}
       />

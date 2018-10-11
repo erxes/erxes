@@ -42,7 +42,7 @@ export default compose(
       }
     })
   }),
-  graphql(gql(queries.customerActivityLog), {
+  graphql(gql(queries.activityLogsCustomer), {
     name: 'customerActivityLogQuery',
     options: ({ id }: { id: string }) => ({
       variables: {

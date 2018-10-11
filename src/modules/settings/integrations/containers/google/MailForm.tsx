@@ -1,17 +1,17 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
+import { ICustomer } from 'modules/customers/types';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { MailForm } from '../../components/common';
-import { ICustomer } from '../../types';
+import { MailForm } from '../../components/google';
 
 type Props = {
   contentType: string;
   contentTypeId: string;
-  customerEmail?: string;
-  companyCustomers?: ICustomer[];
+  toEmail?: string;
+  toEmails?: ICustomer[];
   gmailIntegrationsQuery: any;
   setAttachmentPreview?: (data: string | null) => void;
   attachmentPreview: { name: string; data: string; type: string };
@@ -34,7 +34,7 @@ const MailFormContainer = (props: Props) => {
     integrationsSendGmail,
     contentType,
     contentTypeId,
-    customerEmail,
+    toEmail,
     gmailIntegrationsQuery
   } = props;
 
@@ -64,7 +64,7 @@ const MailFormContainer = (props: Props) => {
     <MailForm
       save={save}
       integrations={integrations}
-      customerEmail={customerEmail || ''}
+      toEmail={toEmail || ''}
       {...props}
     />
   );
@@ -72,7 +72,7 @@ const MailFormContainer = (props: Props) => {
 
 const options = () => {
   return {
-    refetchQueries: ['activityLogsCustomer']
+    refetchQueries: ['activityLogsCustomer', 'activityLogsCompany']
   };
 };
 

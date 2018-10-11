@@ -12,6 +12,7 @@ import {
   toHTML
 } from 'modules/common/components/editor/Editor';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
+import { ICustomer } from 'modules/customers/types';
 import {
   AttachmentIndicator,
   EditorActions,
@@ -28,14 +29,14 @@ import {
   Preview,
   Resipients
 } from '../../styles';
-import { ICustomer } from '../../types';
 
 type Props = {
   integrations: IIntegration[];
-  customerEmail?: string;
-  companyCustomers?: ICustomer[];
+  toEmail?: string;
+  toEmails?: ICustomer[];
   setAttachmentPreview?: (data: string | null) => void;
   attachmentPreview: { name: string; data: string; type: string };
+
   save: (
     params: {
       cc?: string;
@@ -46,7 +47,7 @@ type Props = {
       integrationId?: string;
       attachments: string[];
     }
-  ) => any;
+  ) => void;
 };
 
 type State = {
@@ -61,7 +62,8 @@ type State = {
   content: string;
   editorState: EditorState;
   integrations: IIntegration[];
-  attachments: any[];
+  attachments: string[];
+  fileSize: number;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -75,47 +77,39 @@ class MailForm extends React.Component<Props, State> {
       content: '',
       cc: '',
       bcc: '',
-      toEmails: props.customerEmail || '',
+      toEmails: props.toEmail || '',
       from: '',
       subject: '',
       attachments: [],
+      fileSize: 0,
       integrations: props.integrations,
       editorState: createStateFromHTML(EditorState.createEmpty(), '')
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.changeContent = this.changeContent.bind(this);
-    this.onClick = this.onClick.bind(this);
-    this.onSend = this.onSend.bind(this);
-    this.getContent = this.getContent.bind(this);
-    this.cancelEditing = this.cancelEditing.bind(this);
-    this.handleFileInput = this.handleFileInput.bind(this);
-    this.removeImage = this.removeImage.bind(this);
   }
 
-  getContent(editorState) {
+  getContent = editorState => {
     return toHTML(editorState);
-  }
+  };
 
-  changeContent(editorState) {
+  changeContent = editorState => {
     this.setState({ editorState });
-  }
+  };
 
-  onChange<T extends keyof State>(name: T, value: State[T]) {
+  onChange = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  onClick(name: 'isCc' | 'isBcc') {
+  onClick = (name: 'isCc' | 'isBcc') => {
     this.onChange(name, !this.state[name]);
-  }
+  };
 
-  removeImage(value: string) {
+  removeImage = (value: string) => {
     const { attachments } = this.state;
 
     this.setState({ attachments: attachments.filter(item => item !== value) });
-  }
+  };
 
-  handleFileInput(e: React.FormEvent<HTMLInputElement>) {
+  handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
     const { setAttachmentPreview } = this.props;
 
@@ -125,15 +119,15 @@ class MailForm extends React.Component<Props, State> {
       beforeUpload: () => {},
 
       afterUpload: ({ response, fileInfo }) => {
-        if (fileInfo.size > 10368000) {
-          return Alert.error(
-            'File is too big! It`s size exceeds the limit 10mb'
-          );
+        if (this.state.fileSize > 10368000) {
+          return Alert.error('It`s size exceeds the limit 10mb');
         }
         // set attachments
         this.setState({
-          attachments: [...this.state.attachments, response]
+          attachments: [...this.state.attachments, response],
+          fileSize: this.state.fileSize + fileInfo.size
         });
+
         // remove preview
         if (setAttachmentPreview) {
           setAttachmentPreview(null);
@@ -146,9 +140,9 @@ class MailForm extends React.Component<Props, State> {
         }
       }
     });
-  }
+  };
 
-  onSend() {
+  onSend = () => {
     const { subject, cc, bcc, toEmails, from, attachments } = this.state;
 
     const body = this.getContent(this.state.editorState);
@@ -165,9 +159,9 @@ class MailForm extends React.Component<Props, State> {
     });
 
     this.cancelEditing();
-  }
+  };
 
-  cancelEditing() {
+  cancelEditing = () => {
     this.setState({
       isCc: false,
       isBcc: false,
@@ -179,7 +173,7 @@ class MailForm extends React.Component<Props, State> {
       subject: '',
       attachments: []
     });
-  }
+  };
 
   renderFromOption() {
     return this.props.integrations.map(i => (
@@ -190,20 +184,19 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderSendTo() {
-    const { companyCustomers = [] } = this.props;
+    const { toEmails = [] } = this.props;
 
-    if (companyCustomers.length > 0) {
+    if (toEmails.length > 0) {
       return (
         <FormControl
           componentClass="select"
-          placeholder="Choose a recipient"
           onChange={e =>
             this.onChange('toEmails', (e.target as HTMLInputElement).value)
           }
           value={this.state.toEmails}
         >
           <option />
-          {companyCustomers.map(customer => (
+          {toEmails.map(customer => (
             <option key={customer._id} value={customer._id}>
               {customer.primaryEmail || ''}
             </option>

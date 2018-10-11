@@ -214,30 +214,6 @@ const activityLogsCustomer = `
   }
 `;
 
-const customerActivityLog = `
-  query activityLogsCustomer($_id: String!) {
-    activityLogsCustomer(_id: $_id) {
-      date {
-        year
-        month
-      }
-      list {
-        action
-        content
-        createdAt
-        by {
-          _id
-          type
-          details {
-            avatar
-            fullName
-          }
-        }
-      }
-    }
-  }
-`;
-
 export default {
   basicFields,
   customers,
@@ -246,6 +222,5 @@ export default {
   customerDetail,
   customersListConfig,
   activityLogsCustomer,
-  customersExport,
-  customerActivityLog
+  customersExport
 };

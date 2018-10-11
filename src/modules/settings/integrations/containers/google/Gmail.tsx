@@ -10,7 +10,7 @@ type Props = {
   history: any;
   queryParams: any;
   googleAuthUrlQuery: any;
-  saveMutation: (params: {variables: { code: string }}) => Promise<any>;
+  saveMutation: (params: { variables: { code: string } }) => Promise<any>;
   brandsQuery: any;
 };
 
@@ -24,11 +24,12 @@ const GmailContainer = (props: Props) => {
     queryParams
   } = props;
 
-  if(brandsQuery.loading) {
+  if (brandsQuery.loading) {
     return <Spinner objective />;
   }
 
-  const authUrl = googleAuthUrlQuery && googleAuthUrlQuery.integrationGetGoogleAuthUrl;
+  const authUrl =
+    googleAuthUrlQuery && googleAuthUrlQuery.integrationGetGoogleAuthUrl;
   const brands = brandsQuery.brands || [];
 
   if (type === 'link' && authUrl) {
@@ -56,6 +57,7 @@ const GmailContainer = (props: Props) => {
 };
 
 export default compose(
+  // TODO: move queries & mutations to graphql folder
   graphql(
     gql`
       query brands {

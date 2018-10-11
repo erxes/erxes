@@ -115,6 +115,7 @@ export default class {
         ...iconAndColor,
         caption,
         content: hasContent ? item.content : null,
+        action: item.action,
         date: item.createdAt,
         createdAt: item.createdAt,
         by: item.by
