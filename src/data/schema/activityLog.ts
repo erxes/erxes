@@ -24,7 +24,7 @@ export const types = `
   type ActivityLog {
     _id: String!
     action: String!
-    id: String!
+    id: String
     createdAt: Date!
     content: String
     by: ActivityLogActionPerformer

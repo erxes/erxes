@@ -1,6 +1,8 @@
 import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
+import { getGmailUserProfile, sendGmail } from '../../../trackers/gmail';
+import { getAccessToken } from '../../../trackers/googleTracker';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { requireAdmin, requireLogin } from '../../permissions';
 
@@ -100,6 +102,37 @@ const integrationMutations = {
   integrationsRemove(_root, { _id }: { _id: string }) {
     return Integrations.removeIntegration(_id);
   },
+
+  /**
+   * Create gmail integration
+   */
+  async integrationsCreateGmailIntegration(_root, { code, brandId }: { code: string; brandId: string }) {
+    const credentials = await getAccessToken(code, 'gmail');
+
+    // get permission granted email address
+    const data = await getGmailUserProfile(credentials);
+
+    if (!data.emailAddress || !data.historyId) {
+      throw new Error('Gmail profile not found');
+    }
+
+    return Integrations.createGmailIntegration({
+      name: data.emailAddress,
+      brandId,
+      gmailData: {
+        email: data.emailAddress,
+        historyId: data.historyId,
+        credentials,
+      },
+    });
+  },
+
+  /**
+   * Send mail by gmail api
+   */
+  integrationsSendGmail(_root, args, { user }) {
+    return sendGmail(args, user._id);
+  },
 };
 
 requireLogin(integrationMutations, 'integrationsCreateMessengerIntegration');
@@ -110,6 +143,8 @@ requireLogin(integrationMutations, 'integrationsCreateFormIntegration');
 requireLogin(integrationMutations, 'integrationsEditFormIntegration');
 requireLogin(integrationMutations, 'integrationsCreateTwitterIntegration');
 requireLogin(integrationMutations, 'integrationsCreateFacebookIntegration');
+requireLogin(integrationMutations, 'integrationsCreateGmailIntegration');
+requireLogin(integrationMutations, 'integrationsSendGmail');
 requireAdmin(integrationMutations, 'integrationsRemove');
 
 export default integrationMutations;
