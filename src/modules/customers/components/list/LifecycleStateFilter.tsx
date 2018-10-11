@@ -10,7 +10,7 @@ import { LIFECYCLE_STATE_TYPES } from '../../constants';
 import { lifecycleStateChoices } from '../../utils';
 
 interface IProps extends IRouterProps {
-  counts: any;
+  counts: { [key: string]: number };
   loading: boolean;
   searchable?: boolean;
 }
