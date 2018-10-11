@@ -1,6 +1,7 @@
 import {
   ActionButtons,
   Button,
+  EmptyState,
   Icon,
   Label,
   ModalTrigger,
@@ -124,6 +125,15 @@ class IntegrationList extends React.Component<Props> {
 
   render() {
     const { integrations } = this.props;
+
+    if (!integrations || integrations.length < 1) {
+      return (
+        <EmptyState
+          text="There aren’t any integrations at the moment."
+          image="/images/robots/robot-05.svg"
+        />
+      );
+    }
 
     return (
       <React.Fragment>

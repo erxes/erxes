@@ -58,7 +58,7 @@ class Entry extends React.Component<Props> {
 
   render() {
     const { integration, getClassName, toggleBox } = this.props;
-    console.log(integration.kind);
+
     return (
       <IntegrationItem
         key={integration.name}
