@@ -5,7 +5,7 @@ import {
   ErxesEditor,
   toHTML
 } from 'modules/common/components/editor/Editor';
-import { __, uploadHandler } from 'modules/common/utils';
+import { __, Alert, uploadHandler } from 'modules/common/utils';
 import {
   AttachmentIndicator,
   AttachmentThumb,
@@ -138,6 +138,10 @@ class MailForm extends React.Component<Props, State> {
 
     const body = this.getContent(this.state.editorState);
     const integrationId = from;
+
+    if (!integrationId) {
+      return Alert.error(__('Create integration'));
+    }
 
     this.props.save({
       subject,
