@@ -31,6 +31,10 @@ interface IBrandFilter {
   _id: IIn;
 }
 
+interface ICountBy {
+  [index: string]: number;
+}
+
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
 /*
@@ -122,7 +126,7 @@ const count = async (query: any, args: ICountArgs) => {
   return Companies.find(findQuery).count();
 };
 
-const countBySegment = async args => {
+const countBySegment = async (args: ICountArgs): Promise<ICountBy> => {
   const counts = {};
 
   // Count companies by segments =========
@@ -137,7 +141,7 @@ const countBySegment = async args => {
   return counts;
 };
 
-const countByTags = async args => {
+const countByTags = async (args: ICountArgs): Promise<ICountBy> => {
   const counts = {};
 
   // Count companies by tag =========
@@ -150,7 +154,7 @@ const countByTags = async args => {
   return counts;
 };
 
-const countByBrands = async args => {
+const countByBrands = async (args: ICountArgs): Promise<ICountBy> => {
   const counts = {};
 
   // Count companies by brand =========
