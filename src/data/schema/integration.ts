@@ -75,6 +75,7 @@ export const types = `
     awayMessage: String
     thankYouMessage: String
     greetingMessage: String
+    greetingTitle: String
     showFaq: Boolean
     links: IntegrationLinks
     supporterIds: [String]
