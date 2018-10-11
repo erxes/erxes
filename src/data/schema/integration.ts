@@ -71,11 +71,7 @@ export const types = `
     isOnline: Boolean,
     onlineHours: [MessengerOnlineHoursSchema]
     timezone: String
-    welcomeMessage: String
-    awayMessage: String
-    thankYouMessage: String
-    greetingMessage: String
-    greetingTitle: String
+    messages: JSON
     showFaq: Boolean
     links: IntegrationLinks
     supporterIds: [String]
