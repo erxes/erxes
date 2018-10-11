@@ -2,23 +2,27 @@ import gql from 'graphql-tag';
 import { queries } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IBrand } from '../../settings/brands/types';
-import { BrandFilter } from '../components';
+import { IBrand } from '../../../settings/brands/types';
+import { BrandFilter } from '../../components';
+import { queries as customerQueries } from '../../graphql';
 
 type Props = {
   brands: IBrand[];
+  customersCountQuery: any;
   loading: boolean;
-  counts: any;
 };
 
 class BrandFilterContainer extends React.Component<Props> {
   render() {
-    const { brands, loading } = this.props;
+    const { brands, loading, customersCountQuery } = this.props;
+
+    const counts = customersCountQuery.customerCounts || {};
 
     const updatedProps = {
       ...this.props,
       brands,
-      loading
+      loading,
+      counts: counts.byBrand || {}
     };
 
     return <BrandFilter {...updatedProps} />;
@@ -32,5 +36,11 @@ export default compose(
       brands: brandsQuery.brands || [],
       loading: brandsQuery.loading
     })
+  }),
+  graphql(gql(customerQueries.customerCounts), {
+    name: 'customersCountQuery',
+    options: {
+      variables: { only: 'byBrand' }
+    }
   })
 )(BrandFilterContainer);
