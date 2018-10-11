@@ -140,7 +140,7 @@ class MailForm extends React.Component<Props, State> {
     const integrationId = from;
 
     if (!integrationId) {
-      return Alert.error(__('Create integration'));
+      return Alert.error(__('Create gmail integration'));
     }
 
     this.props.save({
