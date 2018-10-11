@@ -1,5 +1,11 @@
 import { EditorState } from 'draft-js';
-import { Button, FormControl, Icon, Tip } from 'modules/common/components';
+import {
+  Button,
+  FormControl,
+  Icon,
+  Spinner,
+  Tip
+} from 'modules/common/components';
 import {
   createStateFromHTML,
   ErxesEditor,
@@ -8,18 +14,18 @@ import {
 import { __, Alert, uploadHandler } from 'modules/common/utils';
 import {
   AttachmentIndicator,
-  AttachmentThumb,
   EditorActions,
-  FileName,
-  PreviewImg
+  FileName
 } from 'modules/inbox/styles';
 import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import {
   AttachmentContainer,
+  AttachmentFile,
   ControlWrapper,
   LeftSection,
   MailEditorWrapper,
+  Preview,
   Resipients
 } from '../../styles';
 
@@ -27,6 +33,7 @@ type Props = {
   integrations: IIntegration[];
   customerEmail?: string;
   setAttachmentPreview?: (data: string | null) => void;
+  attachmentPreview: { name: string; data: string; type: string };
   save: (
     params: {
       cc?: string;
@@ -115,20 +122,26 @@ class MailForm extends React.Component<Props, State> {
 
       beforeUpload: () => {},
 
-      afterUpload: ({ response }) => {
+      afterUpload: ({ response, fileInfo }) => {
+        if (fileInfo.size > 10368000) {
+          return Alert.error(
+            'File is too big! It`s size exceeds the limit 10mb'
+          );
+        }
         // set attachments
         this.setState({
           attachments: [...this.state.attachments, response]
         });
         // remove preview
-        // tslint:disable-next-line:no-unused-expression
-        setAttachmentPreview && setAttachmentPreview(null);
+        if (setAttachmentPreview) {
+          setAttachmentPreview(null);
+        }
       },
 
       afterRead: ({ result, fileInfo }) => {
-        // tslint:disable-next-line:no-unused-expression
-        setAttachmentPreview &&
+        if (setAttachmentPreview) {
           setAttachmentPreview(Object.assign({ data: result }, fileInfo));
+        }
       }
     });
   }
@@ -209,6 +222,21 @@ class MailForm extends React.Component<Props, State> {
           value={this.state.bcc}
         />
       </ControlWrapper>
+    );
+  }
+
+  renderAttachmentPreview() {
+    const { attachmentPreview } = this.props;
+
+    if (!attachmentPreview) {
+      return null;
+    }
+
+    return (
+      <Preview>
+        <AttachmentFile>{attachmentPreview.name}</AttachmentFile>
+        <Spinner />
+      </Preview>
     );
   }
 
@@ -333,6 +361,8 @@ class MailForm extends React.Component<Props, State> {
         </ControlWrapper>
 
         <ErxesEditor {...props} />
+
+        {this.renderAttachmentPreview()}
         {this.renderAttachments()}
         {this.renderButtons()}
       </MailEditorWrapper>

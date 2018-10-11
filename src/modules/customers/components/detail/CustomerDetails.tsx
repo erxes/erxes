@@ -39,7 +39,7 @@ class CustomerDetails extends React.Component<Props, State> {
     this.state = {
       currentTab: 'activity',
       currentNoteTab: 'newNote',
-      attachmentPreview: {}
+      attachmentPreview: null
     };
 
     this.onTabClick = this.onTabClick.bind(this);
@@ -105,6 +105,7 @@ class CustomerDetails extends React.Component<Props, State> {
         contentTypeId={customer._id}
         customerEmail={customer.primaryEmail}
         setAttachmentPreview={this.setAttachmentPreview}
+        attachmentPreview={this.state.attachmentPreview}
       />
     );
   }

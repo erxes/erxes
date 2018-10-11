@@ -52,7 +52,8 @@ const ControlWrapper = styled.div`
   input {
     padding-left: 0;
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       border-color: ${colors.colorShadowGray};
     }
   }
@@ -108,4 +109,51 @@ const InfoAvatar = styled.img`
   border-radius: 40px;
 `;
 
-export { InfoTitle, InfoDetail, Info, Action, List, InfoAvatar, MailEditorWrapper, ControlWrapper, LeftSection, Resipients, AttachmentContainer };
+const Preview = styled.div`
+  max-width: 220px;
+  padding: 5px;
+  background: ${colors.colorSecondary};
+  opacity: 0.8;
+  display: flex;
+  box-shadow: 0 1px 5px 0 ${colors.darkShadow};
+  position: relative;
+  color: ${colors.colorWhite};
+  margin: 0 20px 10px;
+
+  > div {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+  }
+
+  img {
+    max-width: 100%;
+    opacity: 0.7;
+  }
+`;
+
+const AttachmentFile = styled.span`
+  min-width: 200px;
+  height: 25px;
+  display: block;
+  font-size: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+export {
+  Preview,
+  AttachmentFile,
+  InfoTitle,
+  InfoDetail,
+  Info,
+  Action,
+  List,
+  InfoAvatar,
+  MailEditorWrapper,
+  ControlWrapper,
+  LeftSection,
+  Resipients,
+  AttachmentContainer
+};
