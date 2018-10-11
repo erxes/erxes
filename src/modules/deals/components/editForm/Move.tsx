@@ -28,8 +28,6 @@ class DealMove extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.toggleForm = this.toggleForm.bind(this);
-
     const {
       deal: { pipeline, boardId }
     } = props;
@@ -48,13 +46,17 @@ class DealMove extends React.Component<Props, State> {
     }
   }
 
-  onChangeField<T extends keyof State>(name: T, value: State[T]) {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
-  }
+  onChangeBoard = (boardId: string) => {
+    this.setState({ boardId });
+  };
 
-  toggleForm() {
+  onChangePipeline = (pipelineId: string, stages: IStage[]) => {
+    this.setState({ pipelineId, stages });
+  };
+
+  toggleForm = () => {
     this.setState({ show: !this.state.show });
-  }
+  };
 
   renderStages() {
     const { stageId, onChangeStage } = this.props;
@@ -96,9 +98,8 @@ class DealMove extends React.Component<Props, State> {
         pipelineId={pipelineId}
         callback={() => this.toggleForm()}
         onChangeStage={onChangeStage}
-        onChangeStages={stages => this.onChangeField('stages', stages)}
-        onChangePipeline={plId => this.onChangeField('pipelineId', plId)}
-        onChangeBoard={brId => this.onChangeField('boardId', brId)}
+        onChangePipeline={this.onChangePipeline}
+        onChangeBoard={this.onChangeBoard}
       />
     );
   }
