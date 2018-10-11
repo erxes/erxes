@@ -36,6 +36,15 @@ const DateFilters = styled.div`
   }
 `;
 
+const Actions = styled.div`
+  display: flex;
+  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
+
+  button {
+    margin-left: 1px;
+  }
+`;
+
 const SectionContainer = styled.div`
   position: relative;
   padding-bottom: 20px;
@@ -51,4 +60,15 @@ const SectionContainer = styled.div`
   }
 `;
 
-export { FlexRow, FlexItem, DateFilters, SectionContainer };
+const Name = styled.div`
+  flex: 1;
+  word-break: break-word;
+
+  p {
+    color: ${colors.colorCoreLightGray};
+    margin: 0;
+    font-size: ${typography.fontSizeHeading8}px;
+  }
+`;
+
+export { FlexRow, FlexItem, DateFilters, SectionContainer, Actions, Name };
