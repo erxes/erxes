@@ -1,4 +1,3 @@
-import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
 import { EditForm } from 'modules/deals/containers/editForm';
 import { IDeal } from 'modules/deals/types';
@@ -43,7 +42,7 @@ const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
   background-color: rgb(255, 255, 255);
   box-shadow: ${props =>
     props.isDragging
-      ? 'rgba(0, 0, 0, 0.3) 0px 5px 15px 0px'
+      ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
       : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
   overflow: hidden;
   padding: 8px;
@@ -52,15 +51,14 @@ const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
   transition: box-shadow 0.3s ease-in-out 0s;
   -webkit-box-pack: justify;
   justify-content: space-between;
+  will-change: transform;
 `;
 
-const Date = styledTS<{ fontSize?: number }>(styled.span)`
+const Date = styled.div`
   color: rgb(136, 136, 136);
-  font-size: ${({ fontSize }) => `${fontSize || 11}px`};
+  font-size: 11px;
   z-index: 10;
-  cursor: help;
   margin-left: 5px;
-  flex-shrink: 0;
 `;
 
 const Indicator = styledTS<{ color: string }>(styled.span)`
@@ -88,7 +86,7 @@ export default class DealItem extends React.PureComponent<
     this.state = { isFormVisible: false };
   }
 
-  renderDate(date, format = 'YYYY-MM-DD') {
+  renderDate(date) {
     if (!date) return null;
 
     return <Date>{moment(date).fromNow()}</Date>;

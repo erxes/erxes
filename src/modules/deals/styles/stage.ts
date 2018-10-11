@@ -1,14 +1,18 @@
 import { colors } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { borderRadius, stageHeight, stageWidth } from './deminsions';
+import { stageWidth } from './deminsions';
+
+const hoverColor = 'rgba(10,45,65,.13)';
+const stageGray = '#dee3e6';
+const secondaryText = '#6a818c';
 
 const Header = styled.div`
   padding: 8px 16px;
   position: relative;
-  min-height: 70px;
+  background: ${stageGray};
 
-  h3 {
+  h4 {
     margin: 0;
     font-size: 11px;
     line-height: inherit;
@@ -16,24 +20,11 @@ const Header = styled.div`
     font-weight: bold;
 
     span {
-      color: ${colors.colorCoreGray};
+      color: ${secondaryText};
       margin-left: 5px;
       font-size: 90%;
     }
   }
-`;
-
-const Headers = styledTS<{ isDragging: boolean }>(styled.div)`
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  background-color: ${({ isDragging }) =>
-    isDragging ? colors.colorCoreGray : colors.colorCoreLightGray};
-  transition: background-color 0.1s ease;
-
-  &:hover {
-    background-color: ${colors.colorCoreLightGray};
-  }
-
 `;
 
 const Container = styledTS<{ isDragging: boolean }>(styled.div)`
@@ -44,11 +35,11 @@ const Container = styledTS<{ isDragging: boolean }>(styled.div)`
   transition: background-color 0.3s ease;
   border-radius: 4px;
   ${props => css`
-    background: ${props.isDragging && colors.colorWhite};
     box-shadow: ${props.isDragging
       ? `0 0 20px 2px rgba(0, 0, 0, 0.14)`
       : 'none'};
   `};
+  overflow: hidden;
 `;
 
 const Amount = styled.ul`
@@ -82,17 +73,30 @@ const Amount = styled.ul`
 
 const Body = styled.div`
   max-height: 100%;
-  overflow-y: auto;
+  overflow: auto;
+  background: ${stageGray};
 `;
 
-const DropZone = styled.div`
-  min-height: 100%;
-  min-height: calc(100% - 10px);
+const StageFooter = styled.div`
+  background: ${stageGray};
+  border-radius: 0 0 3px 3px;
+`;
 
-  > div:not(.deals) {
-    background: ${colors.borderPrimary};
-    border-radius: ${borderRadius};
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
+const AddNew = styled.a`
+  display: block;
+  color: ${secondaryText};
+  padding: 8px 16px;
+  position: relative;
+  user-select: none;
+  border-radius: 0 0 3px 3px;
+
+  &:hover {
+    background: ${hoverColor};
+    cursor: pointer;
+  }
+
+  i {
+    margin-right: 8px;
   }
 `;
 
@@ -112,9 +116,18 @@ const Indicator = styled.div`
 const IndicatorItem = styledTS<{ isPass: boolean }>(styled.div)`
   flex: 1;
   background: ${props =>
-    props.isPass ? colors.colorSecondary : colors.colorWhite};
+    props.isPass ? colors.colorCoreBlue : colors.colorWhite};
   height: 4px;
   border-radius: 2px;
 `;
 
-export { Container, Header, Amount, Body, DropZone, Indicator, IndicatorItem };
+export {
+  AddNew,
+  Container,
+  Header,
+  Amount,
+  Body,
+  Indicator,
+  IndicatorItem,
+  StageFooter
+};

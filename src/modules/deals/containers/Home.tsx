@@ -1,8 +1,7 @@
 import gql from 'graphql-tag';
+import { router as routerUtils } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-
-import { router as routerUtils } from 'modules/common/utils';
 import { Home } from '../components';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';

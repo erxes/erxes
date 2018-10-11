@@ -1,34 +1,10 @@
 import { colors } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius, coreHeight } from './deminsions';
 
 const FlexContent = styled.div`
   display: flex;
-`;
-
-const AddNew = styled.a`
-  display: block;
-  height: ${coreHeight}px;
-  line-height: ${coreHeight - 2}px;
-  text-align: center;
-  border: 1px dashed ${colors.colorShadowGray};
-  border-radius: ${borderRadius};
-  color: ${rgba(colors.colorCoreDarkGray, 0.9)};
-  font-size: 14px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  background: ${colors.colorWhite};
-  margin: 8px;
-
-  &:hover {
-    background: transparent;
-  }
-
-  i {
-    margin-right: 8px;
-  }
 `;
 
 const Container = styledTS<{ isDragging?: boolean }>(styled.div)`
@@ -346,7 +322,6 @@ const Status = styled.div`
 `;
 
 export {
-  AddNew,
   Container,
   SpaceContent,
   FooterContent,

@@ -1,34 +1,20 @@
 import { Icon, ModalTrigger } from 'modules/common/components';
-import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
-import { AddNew } from 'modules/deals/styles/deal';
 import {
+  AddNew,
   Body,
   Container,
   Header,
   Indicator,
-  IndicatorItem
+  IndicatorItem,
+  StageFooter
 } from 'modules/deals/styles/stage';
 import { IDeal, IStage } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import styled from 'styled-components';
 import { DealAddForm } from '.';
 import DealList from './DealList';
-
-const Title = styled('h4')`
-  margin: 0;
-  font-size: 11px;
-  line-height: inherit;
-  text-transform: uppercase;
-  font-weight: bold;
-
-  span {
-    color: ${colors.bgMain};
-    margin-left: 5px;
-  }
-`;
 
 type Props = {
   index: number;
@@ -43,9 +29,11 @@ export default class Stage extends React.Component<Props> {
     const { addDeal } = this.props;
 
     const trigger = (
-      <AddNew>
-        <Icon icon="add" /> {__('Add a deal')}
-      </AddNew>
+      <StageFooter>
+        <AddNew>
+          <Icon icon="add" /> {__('Add a deal')}
+        </AddNew>
+      </StageFooter>
     );
 
     return (
@@ -75,16 +63,13 @@ export default class Stage extends React.Component<Props> {
 
     return (
       <Draggable draggableId={stage.name} index={index}>
-        {(provided, snapshot) => (
+        {provided => (
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
-            <Header>
-              <Title
-                isDragging={snapshot.isDragging}
-                {...provided.dragHandleProps}
-              >
+            <Header {...provided.dragHandleProps}>
+              <h4>
                 {stage.name}
                 <span>({deals.length})</span>
-              </Title>
+              </h4>
               {renderDealAmount(stage.amount)}
               <Indicator>{this.renderIndicator()}</Indicator>
             </Header>
