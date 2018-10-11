@@ -104,6 +104,7 @@ class CompanyDetails extends React.Component<IProps, State> {
         toEmails={company.emails}
         setAttachmentPreview={this.setAttachmentPreview}
         attachmentPreview={this.state.attachmentPreview}
+        refetchQueries={['activityLogsCompany']}
       />
     );
   }

@@ -12,7 +12,6 @@ import {
   toHTML
 } from 'modules/common/components/editor/Editor';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
-import { ICustomer } from 'modules/customers/types';
 import {
   AttachmentIndicator,
   EditorActions,
@@ -33,7 +32,7 @@ import {
 type Props = {
   integrations: IIntegration[];
   toEmail?: string;
-  toEmails?: ICustomer[];
+  toEmails?: string[];
   setAttachmentPreview?: (data: string | null) => void;
   attachmentPreview: { name: string; data: string; type: string };
 
@@ -196,9 +195,9 @@ class MailForm extends React.Component<Props, State> {
           value={this.state.toEmails}
         >
           <option />
-          {toEmails.map(customer => (
-            <option key={customer._id} value={customer._id}>
-              {customer.primaryEmail || ''}
+          {toEmails.map((email, index) => (
+            <option key={index} value={email}>
+              {email}
             </option>
           ))}
         </FormControl>

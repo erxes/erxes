@@ -41,23 +41,19 @@ class CustomerDetails extends React.Component<Props, State> {
       currentTab: 'newNote',
       attachmentPreview: null
     };
-
-    this.onTabClick = this.onTabClick.bind(this);
-    this.onChangeTab = this.onChangeTab.bind(this);
-    this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
   }
 
-  onTabClick(currentSubTab) {
+  onTabClick = currentSubTab => {
     this.setState({ currentSubTab });
-  }
+  };
 
-  onChangeTab(currentTab) {
+  onChangeTab = currentTab => {
     this.setState({ currentTab });
-  }
+  };
 
-  setAttachmentPreview(attachmentPreview) {
+  setAttachmentPreview = attachmentPreview => {
     this.setState({ attachmentPreview });
-  }
+  };
 
   renderSubTabContent() {
     const { currentSubTab } = this.state;
@@ -106,6 +102,7 @@ class CustomerDetails extends React.Component<Props, State> {
         toEmail={customer.primaryEmail}
         setAttachmentPreview={this.setAttachmentPreview}
         attachmentPreview={this.state.attachmentPreview}
+        refetchQueries={['activityLogsCustomer']}
       />
     );
   }
