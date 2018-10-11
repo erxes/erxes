@@ -42,6 +42,7 @@ export interface IMessengerData {
   timezone?: string;
   onlineHours?: IOnlineHour[];
   greetingMessage?: string;
+  greetingTitle?: string;
   showFaq?: boolean;
   links?: ILink;
 }

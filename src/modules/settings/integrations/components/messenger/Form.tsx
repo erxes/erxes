@@ -55,6 +55,7 @@ type State = {
   logoPreviewStyle: any;
   logoPreviewUrl: string;
   greetingMessage: string;
+  greetingTitle: string;
   links: ILink;
   showFaq: boolean;
 };
@@ -94,6 +95,7 @@ class CreateMessenger extends React.Component<Props, State> {
       logoPreviewStyle: {},
       logoPreviewUrl: uiOptions.logo || '',
       greetingMessage: configData.greetingMessage || '',
+      greetingTitle: configData.greetingTitle || '',
       links: configData.links || {},
       showFaq: configData.showFaq || false
     };
@@ -130,6 +132,7 @@ class CreateMessenger extends React.Component<Props, State> {
         awayMessage: this.state.awayMessage,
         thankYouMessage: this.state.thankYouMessage,
         supporterIds: this.state.supporterIds,
+        greetingTitle: this.state.greetingTitle,
         greetingMessage: this.state.greetingMessage,
         links: this.state.links,
         showFaq: this.state.showFaq
@@ -187,7 +190,8 @@ class CreateMessenger extends React.Component<Props, State> {
       logoPreviewStyle,
       greetingMessage,
       links,
-      showFaq
+      showFaq,
+      greetingTitle
     } = this.state;
 
     const breadcrumb = [
@@ -225,6 +229,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 awayMessage={awayMessage}
                 thankYouMessage={thankYouMessage}
                 greetingMessage={greetingMessage}
+                greetingTitle={greetingTitle}
                 links={links}
               />
             </Step>

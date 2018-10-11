@@ -21,6 +21,7 @@ type Props = {
   welcomeMessage?: string;
   awayMessage?: string;
   greetingMessage?: string;
+  greetingTitle?: string;
   thankYouMessage?: string;
   links?: ILink;
 };
@@ -105,6 +106,24 @@ class Intro extends React.Component<Props, State> {
               onChange={e =>
                 this.onInputChange(
                   'welcomeMessage',
+                  (e.target as HTMLInputElement).value
+                )
+              }
+            />
+          </FormGroup>
+
+          <SubHeading>{__('Greeting')}</SubHeading>
+
+          <FormGroup>
+            <ControlLabel>Greeting title</ControlLabel>
+
+            <FormControl
+              placeholder={__('Write here Greeting title.')}
+              rows={3}
+              value={this.props.greetingTitle}
+              onChange={e =>
+                this.onInputChange(
+                  'greetingTitle',
                   (e.target as HTMLInputElement).value
                 )
               }
