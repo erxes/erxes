@@ -63,7 +63,7 @@ type State = {
   editorState: EditorState;
   integrations: IIntegration[];
   attachments: string[];
-  fileSize: number;
+  totalFileSize: number;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -81,7 +81,7 @@ class MailForm extends React.Component<Props, State> {
       from: '',
       subject: '',
       attachments: [],
-      fileSize: 0,
+      totalFileSize: 0,
       integrations: props.integrations,
       editorState: createStateFromHTML(EditorState.createEmpty(), '')
     };
@@ -119,13 +119,13 @@ class MailForm extends React.Component<Props, State> {
       beforeUpload: () => {},
 
       afterUpload: ({ response, fileInfo }) => {
-        if (this.state.fileSize > 10368000) {
+        if (this.state.totalFileSize > 10368000) {
           return Alert.error('It`s size exceeds the limit 10mb');
         }
         // set attachments
         this.setState({
           attachments: [...this.state.attachments, response],
-          fileSize: this.state.fileSize + fileInfo.size
+          totalFileSize: this.state.totalFileSize + fileInfo.size
         });
 
         // remove preview
@@ -183,7 +183,7 @@ class MailForm extends React.Component<Props, State> {
     ));
   }
 
-  renderSendTo() {
+  renderToEmails() {
     const { toEmails = [] } = this.props;
 
     if (toEmails.length > 0) {
@@ -339,7 +339,7 @@ class MailForm extends React.Component<Props, State> {
       <MailEditorWrapper>
         <ControlWrapper>
           <span>To</span>
-          {this.renderSendTo()}
+          {this.renderToEmails()}
 
           <LeftSection>
             <Resipients

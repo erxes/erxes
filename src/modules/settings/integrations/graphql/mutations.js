@@ -78,6 +78,17 @@ const integrationsSendGmail = `
   }
 `;
 
+const integrationsCreateGmail = ` 
+  mutation integrationsCreateGmailIntegration(
+    $code: String!
+    $brandId: String!
+  ) {
+    integrationsCreateGmailIntegration(code: $code, brandId: $brandId) {
+      _id
+    }
+  }
+`;
+
 const integrationsRemove = `
   mutation integrationsRemove($_id: String!) {
     integrationsRemove(_id: $_id)
@@ -90,5 +101,6 @@ export default {
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
   integrationsSendGmail,
+  integrationsCreateGmail,
   integrationsRemove
 };

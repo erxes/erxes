@@ -1,9 +1,12 @@
 import gql from 'graphql-tag';
+import { queries } from 'modules/auth/graphql';
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
+import { queries as brandsQueries } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Gmail } from '../../components/google';
+import { mutations, queries as integrationsQueries } from '../../graphql';
 
 type Props = {
   type: string;
@@ -57,47 +60,17 @@ const GmailContainer = (props: Props) => {
 };
 
 export default compose(
-  // TODO: move queries & mutations to graphql folder
-  graphql(
-    gql`
-      query brands {
-        brands {
-          _id
-          name
-        }
-      }
-    `,
-    {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }
-  ),
-  graphql(
-    gql`
-      query integrationGetGoogleAuthUrl($service: String) {
-        integrationGetGoogleAuthUrl(service: $service)
-      }
-    `,
-    {
-      name: 'googleAuthUrlQuery',
-      options: () => ({
-        variables: { service: 'gmail' }
-      })
-    }
-  ),
-  graphql(
-    gql`
-      mutation integrationsCreateGmailIntegration(
-        $code: String!
-        $brandId: String!
-      ) {
-        integrationsCreateGmailIntegration(code: $code, brandId: $brandId) {
-          _id
-        }
-      }
-    `,
-    { name: 'saveMutation' }
-  )
+  graphql(gql(brandsQueries.brands), {
+    name: 'brandsQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql(gql(integrationsQueries.integrationGetGoogleAuthUrl), {
+    name: 'googleAuthUrlQuery',
+    options: () => ({
+      variables: { service: 'gmail' }
+    })
+  }),
+  graphql(gql(mutations.integrationsCreateGmail), { name: 'saveMutation' })
 )(GmailContainer);

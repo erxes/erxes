@@ -30,7 +30,7 @@ interface IProps extends IRouterProps {
 
 type State = {
   currentTab: string;
-  currentNoteTab: string;
+  currentSubtab: string;
   attachmentPreview: any;
 };
 
@@ -39,30 +39,26 @@ class CompanyDetails extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      currentTab: 'activity',
-      currentNoteTab: 'newNote',
+      currentSubtab: 'activity',
+      currentTab: 'newNote',
       attachmentPreview: null
     };
-
-    this.onTabClick = this.onTabClick.bind(this);
-    this.onChangeTab = this.onChangeTab.bind(this);
-    this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
   }
 
-  onTabClick(currentTab) {
+  onTabClick = currentSubtab => {
+    this.setState({ currentSubtab });
+  };
+
+  onChangeTab = currentTab => {
     this.setState({ currentTab });
-  }
+  };
 
-  onChangeTab(currentNoteTab) {
-    this.setState({ currentNoteTab });
-  }
-
-  setAttachmentPreview(attachmentPreview) {
+  setAttachmentPreview = attachmentPreview => {
     this.setState({ attachmentPreview });
-  }
+  };
 
-  renderTabContent() {
-    const { currentTab } = this.state;
+  renderSubTabContent() {
+    const { currentSubtab } = this.state;
 
     const {
       currentUser,
@@ -83,7 +79,7 @@ class CompanyDetails extends React.Component<IProps, State> {
               user={currentUser}
               activities={companyActivityLog}
               target={company.primaryName || ''}
-              type={currentTab}
+              type={currentSubtab}
             />
           }
           emptyText="No Activities"
@@ -93,11 +89,11 @@ class CompanyDetails extends React.Component<IProps, State> {
     );
   }
 
-  renderHeaderTabContent() {
+  renderTabContent() {
     const { company } = this.props;
-    const { currentNoteTab } = this.state;
+    const { currentTab } = this.state;
 
-    if (currentNoteTab === 'newNote') {
+    if (currentTab === 'newNote') {
       return <NoteForm contentType="company" contentTypeId={company._id} />;
     }
 
@@ -113,7 +109,7 @@ class CompanyDetails extends React.Component<IProps, State> {
   }
 
   render() {
-    const { currentTab, currentNoteTab } = this.state;
+    const { currentSubtab, currentTab } = this.state;
     const { company, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
@@ -126,44 +122,44 @@ class CompanyDetails extends React.Component<IProps, State> {
         <WhiteBox>
           <Tabs>
             <TabTitle
-              className={currentNoteTab === 'newNote' ? 'active' : ''}
+              className={currentTab === 'newNote' ? 'active' : ''}
               onClick={() => this.onChangeTab('newNote')}
             >
               <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
             <TabTitle
-              className={currentNoteTab === 'email' ? 'active' : ''}
+              className={currentTab === 'email' ? 'active' : ''}
               onClick={() => this.onChangeTab('email')}
             >
               <Icon icon="email" /> {__('Email')}
             </TabTitle>
           </Tabs>
 
-          {this.renderHeaderTabContent()}
+          {this.renderTabContent()}
         </WhiteBox>
 
         <Tabs grayBorder>
           <TabTitle
-            className={currentTab === 'activity' ? 'active' : ''}
+            className={currentSubtab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}
           >
             {__('Activity')}
           </TabTitle>
           <TabTitle
-            className={currentTab === 'notes' ? 'active' : ''}
+            className={currentSubtab === 'notes' ? 'active' : ''}
             onClick={() => this.onTabClick('notes')}
           >
             {__('Notes')}
           </TabTitle>
           <TabTitle
-            className={currentTab === 'conversations' ? 'active' : ''}
+            className={currentSubtab === 'conversations' ? 'active' : ''}
             onClick={() => this.onTabClick('conversations')}
           >
             {__('Conversation')}
           </TabTitle>
         </Tabs>
 
-        {this.renderTabContent()}
+        {this.renderSubTabContent()}
       </div>
     );
 
