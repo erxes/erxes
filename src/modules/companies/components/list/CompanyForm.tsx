@@ -33,14 +33,19 @@ type Props = {
 };
 
 type State = {
-  parentCompanyId: string;
-  ownerId: string;
-  companies: ICompany[];
-  doNotDisturb: string;
-  users: IUser[];
-  avatar: string;
+  parentCompanyId?: string;
+  ownerId?: string;
+  companies?: ICompany[];
+  doNotDisturb?: string;
+  users?: IUser[];
+  avatar?: string;
+
   names?: string[];
+  emails?: string[];
+  phones?: string[];
   primaryName?: string;
+  primaryEmail?: string;
+  primaryPhone?: string;
 };
 
 class CompanyForm extends React.Component<Props, State> {
@@ -85,7 +90,15 @@ class CompanyForm extends React.Component<Props, State> {
   }
 
   action(e) {
-    const { names, primaryName, avatar } = this.state;
+    const {
+      names,
+      primaryName,
+      avatar,
+      phones,
+      primaryPhone,
+      emails,
+      primaryEmail
+    } = this.state;
     e.preventDefault();
 
     this.props.action({
@@ -96,9 +109,11 @@ class CompanyForm extends React.Component<Props, State> {
         size: parseInt(this.getInputElementValue('company-size'), 10),
         industry: this.getInputElementValue('company-industry'),
         parentCompanyId: this.state.parentCompanyId,
-        email: this.getInputElementValue('company-email'),
+        emails,
+        primaryEmail,
+        phones,
+        primaryPhone,
         ownerId: this.state.ownerId,
-        phone: this.getInputElementValue('company-phone'),
         leadStatus: this.getInputElementValue('company-leadStatus'),
         lifecycleState: this.getInputElementValue('company-lifecycleState'),
         businessType: this.getInputElementValue('company-businessType'),
@@ -177,14 +192,27 @@ class CompanyForm extends React.Component<Props, State> {
     );
   }
 
-  onChange({ options, selectedOption }) {
-    this.setState({ names: options, primaryName: selectedOption });
+  onChange(
+    { options, selectedOption }: { options: string[]; selectedOption: string },
+    optionsName: string,
+    optionName: string
+  ) {
+    this.setState({ [optionsName]: options, [optionName]: selectedOption });
   }
 
   render() {
     const company = this.props.company || ({} as ICompany);
 
-    const { links = {}, primaryName, names } = company;
+    const {
+      links = {},
+      primaryName,
+      names,
+      primaryPhone,
+      phones,
+      primaryEmail,
+      emails
+    } = company;
+
     const { parentCompanyId, ownerId, companies, users } = this.state;
 
     return (
@@ -203,7 +231,7 @@ class CompanyForm extends React.Component<Props, State> {
                 options={names || []}
                 placeholder="Primary name"
                 buttonText="Add name"
-                onChange={obj => this.onChange(obj)}
+                onChange={obj => this.onChange(obj, 'names', 'primaryName')}
               />
             </FormGroup>
 
@@ -227,10 +255,17 @@ class CompanyForm extends React.Component<Props, State> {
               />
             </FormGroup>
 
-            {this.renderFormGroup('Email', {
-              id: 'company-email',
-              defaultValue: company.email || ''
-            })}
+            <FormGroup>
+              <ControlLabel>Email</ControlLabel>
+              <ModifiableSelect
+                value={primaryEmail}
+                options={emails || []}
+                placeholder="Primary Email"
+                buttonText="Add email"
+                onChange={obj => this.onChange(obj, 'emails', 'primaryEmail')}
+              />
+            </FormGroup>
+
             {this.renderFormGroup('Lead Status', {
               id: 'company-leadStatus',
               componentClass: 'select',
@@ -274,10 +309,18 @@ class CompanyForm extends React.Component<Props, State> {
               id: 'company-size',
               defaultValue: company.size || 0
             })}
-            {this.renderFormGroup('Phone', {
-              id: 'company-phone',
-              defaultValue: company.phone || ''
-            })}
+
+            <FormGroup>
+              <ControlLabel>Phone</ControlLabel>
+              <ModifiableSelect
+                value={primaryPhone}
+                options={phones || []}
+                placeholder="Primary phone"
+                buttonText="Add phone"
+                onChange={obj => this.onChange(obj, 'phones', 'primaryPhone')}
+              />
+            </FormGroup>
+
             {this.renderFormGroup('Lifecycle State', {
               id: 'company-lifecycleState',
               componentClass: 'select',

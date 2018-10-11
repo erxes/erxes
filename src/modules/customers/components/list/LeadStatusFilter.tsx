@@ -10,7 +10,7 @@ import { LEAD_STATUS_TYPES } from '../../constants';
 import { leadStatusChoices } from '../../utils';
 
 interface IProps extends IRouterProps {
-  counts: any;
+  counts: { [key: string]: number };
   loading: boolean;
   searchable?: boolean;
 }
