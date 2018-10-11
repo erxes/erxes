@@ -8,7 +8,7 @@ import {
   HeaderContent,
   HeaderRow
 } from 'modules/deals/styles/deal';
-import { IDeal, IDealParams } from 'modules/deals/types';
+import { IDealParams } from 'modules/deals/types';
 import * as React from 'react';
 
 type Props = {

@@ -9,22 +9,13 @@ type Props = {
   boardsQuery: any;
   pipelinesQuery: any;
   stagesQuery: any;
-  onChangeStage: (stageId: string, callback?: () => void) => Promise<void>;
-  onChangePipeline: (pipelineId: string) => Promise<void>;
+  onChangeStage: (stageId: string, callback?: () => void) => Promise<any>;
+  onChangePipeline: (pipelineId: string, stages: IStage[]) => Promise<any>;
   onChangeBoard: (boardId: string) => Promise<void>;
-  onChangeStages: (stages: IStage[]) => Promise<void>;
 };
 
 class DealSelectContainer extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-
-    this.onChangeBoard = this.onChangeBoard.bind(this);
-    this.onChangePipeline = this.onChangePipeline.bind(this);
-    this.onChangeStage = this.onChangeStage.bind(this);
-  }
-
-  onChangeBoard(boardId: string) {
+  onChangeBoard = (boardId: string) => {
     this.props.onChangeBoard(boardId);
 
     this.props.pipelinesQuery.refetch({ boardId }).then(({ data }) => {
@@ -34,29 +25,27 @@ class DealSelectContainer extends React.Component<Props> {
         this.onChangePipeline(pipelines[0]._id);
       }
     });
-  }
+  };
 
-  onChangePipeline(pipelineId: string) {
-    this.props.onChangePipeline(pipelineId);
-
-    const { stagesQuery, onChangeStages } = this.props;
+  onChangePipeline = (pipelineId: string) => {
+    const { stagesQuery } = this.props;
 
     stagesQuery.refetch({ pipelineId }).then(({ data }) => {
       const stages = data.dealStages;
 
+      this.props.onChangePipeline(pipelineId, stages);
+
       if (stages.length > 0) {
         this.onChangeStage(stages[0]._id);
-
-        if (onChangeStages) onChangeStages(stages);
       }
     });
-  }
+  };
 
-  onChangeStage(stageId: string, callback?: any) {
+  onChangeStage = (stageId: string, callback?: any) => {
     this.props.onChangeStage(stageId);
 
     if (callback) callback();
-  }
+  };
 
   render() {
     const { boardsQuery, pipelinesQuery, stagesQuery } = this.props;
