@@ -108,7 +108,6 @@ class List extends React.Component<Props, {}> {
           counts={tagsCount}
           loading={false}
         />
-        ;
       </Wrapper.Sidebar>
     );
 
