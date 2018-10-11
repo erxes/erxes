@@ -468,12 +468,14 @@ describe('social integration test', () => {
   test('create gmail integration', async () => {
     const doc = {
       name: 'test@gmail.com',
+      brandId: _brand._id,
       gmailData: {
         email: 'test@gmail.com',
+        historyId: 'historyId',
         credentials: {
           token: 'token',
           refreshToken: 'refreshToken',
-        }
+        },
       },
     };
 
@@ -487,6 +489,5 @@ describe('social integration test', () => {
 
     const prevEntry = await Integrations.createGmailIntegration(doc);
     expect(integration._id).toBe(prevEntry._id);
-
   });
 });
