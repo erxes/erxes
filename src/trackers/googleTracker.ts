@@ -13,7 +13,7 @@ const SCOPES_GMAIL = [
 export const getOauthClient = (service?: string) => {
   const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, GMAIL_REDIRECT_URL } = process.env;
 
-  const redirectUrl = service == 'gmail' ? GMAIL_REDIRECT_URL : GOOGLE_REDIRECT_URI;
+  const redirectUrl = service === 'gmail' ? GMAIL_REDIRECT_URL : GOOGLE_REDIRECT_URI;
 
   return new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, redirectUrl);
 };
@@ -23,9 +23,7 @@ export const getOauthClient = (service?: string) => {
  */
 export const getAuthorizeUrl = (service: string) => {
   const oauthClient = getOauthClient(service);
-  let scopes = SCOPES_CALENDAR;
-
-  if (service == 'gmail') scopes = SCOPES_GMAIL;
+  const scopes = service === 'gmail' ? SCOPES_GMAIL : SCOPES_CALENDAR;
 
   return oauthClient.generateAuthUrl({
     access_type: 'offline',
