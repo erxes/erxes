@@ -19,12 +19,20 @@ interface IListArgs {
   brand?: string;
 }
 
+interface ICountArgs extends IListArgs {
+  only?: string;
+}
+
 interface IIn {
   $in: string[];
 }
 
 interface IBrandFilter {
   _id: IIn;
+}
+
+interface ICountBy {
+  [index: string]: number;
 }
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
@@ -111,6 +119,54 @@ const sortBuilder = (params: IListArgs): TSortBuilder => {
   return sortParams;
 };
 
+const count = async (query: any, args: ICountArgs) => {
+  const selector = await listQuery(args);
+
+  const findQuery = { ...selector, ...query };
+  return Companies.find(findQuery).count();
+};
+
+const countBySegment = async (args: ICountArgs): Promise<ICountBy> => {
+  const counts = {};
+
+  // Count companies by segments =========
+  const segments = await Segments.find({
+    contentType: COC_CONTENT_TYPES.COMPANY,
+  });
+
+  for (const s of segments) {
+    counts[s._id] = await count(QueryBuilder.segments(s), args);
+  }
+
+  return counts;
+};
+
+const countByTags = async (args: ICountArgs): Promise<ICountBy> => {
+  const counts = {};
+
+  // Count companies by tag =========
+  const tags = await Tags.find({ type: TAG_TYPES.COMPANY });
+
+  for (const tag of tags) {
+    counts[tag._id] = await count({ tagIds: tag._id }, args);
+  }
+
+  return counts;
+};
+
+const countByBrands = async (args: ICountArgs): Promise<ICountBy> => {
+  const counts = {};
+
+  // Count companies by brand =========
+  const brands = await Brands.find({});
+
+  for (const brand of brands) {
+    counts[brand._id] = await count(await brandFilter(brand._id), args);
+  }
+
+  return counts;
+};
+
 const companyQueries = {
   /**
    * Companies list
@@ -138,7 +194,7 @@ const companyQueries = {
   /**
    * Group company counts by segments
    */
-  async companyCounts(_root, args: IListArgs) {
+  async companyCounts(_root, args: ICountArgs) {
     const counts = {
       bySegment: {},
       byTag: {},
@@ -147,44 +203,34 @@ const companyQueries = {
       byLifecycleState: {},
     };
 
-    const selector = await listQuery(args);
+    const { only } = args;
 
-    const count = query => {
-      const findQuery = { ...selector, ...query };
-      return Companies.find(findQuery).count();
-    };
-
-    // Count companies by segments =========
-    const segments = await Segments.find({
-      contentType: COC_CONTENT_TYPES.COMPANY,
-    });
-
-    for (const s of segments) {
-      counts.bySegment[s._id] = await count(QueryBuilder.segments(s));
-    }
-
-    // Count companies by tag =========
-    const tags = await Tags.find({ type: TAG_TYPES.COMPANY });
-
-    for (const tag of tags) {
-      counts.byTag[tag._id] = await count({ tagIds: tag._id });
-    }
-
-    // Count companies by brand =========
-    const brands = await Brands.find({});
-
-    for (const brand of brands) {
-      counts.byBrand[brand._id] = await count(await brandFilter(brand._id));
-    }
-
-    // Count companies by lead status ======
-    for (const status of COC_LEAD_STATUS_TYPES) {
-      counts.byLeadStatus[status] = await count({ leadStatus: status });
-    }
-
-    // Count companies by life cycle state =======
-    for (const state of COC_LIFECYCLE_STATE_TYPES) {
-      counts.byLifecycleState[state] = await count({ lifecycleState: state });
+    switch (only) {
+      case 'byTag':
+        counts.byTag = await countByTags(args);
+        break;
+      case 'bySegment':
+        counts.bySegment = await countBySegment(args);
+        break;
+      case 'byBrand':
+        counts.byBrand = await countByBrands(args);
+        break;
+      case 'byLeadStatus':
+        {
+          // Count companies by lead status ======
+          for (const status of COC_LEAD_STATUS_TYPES) {
+            counts.byLeadStatus[status] = await count({ leadStatus: status }, args);
+          }
+        }
+        break;
+      case 'byLifecycleState':
+        {
+          // Count companies by life cycle state =======
+          for (const state of COC_LIFECYCLE_STATE_TYPES) {
+            counts.byLifecycleState[state] = await count({ lifecycleState: state }, args);
+          }
+        }
+        break;
     }
 
     return counts;
