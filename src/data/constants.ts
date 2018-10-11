@@ -82,7 +82,8 @@ export const KIND_CHOICES = {
   FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  ALL: ['messenger', 'form', 'twitter', 'facebook'],
+  GMAIL: 'gmail',
+  ALL: ['messenger', 'form', 'twitter', 'facebook', 'gmail'],
 };
 
 // module constants
@@ -281,8 +282,8 @@ export const COMPANY_BASIC_INFOS = [
   'industry',
   'website',
   'plan',
-  'email',
-  'phone',
+  'primaryEmail',
+  'primaryPhone',
   'leadStatus',
   'lifecycleState',
   'businessType',

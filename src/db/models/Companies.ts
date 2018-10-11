@@ -141,6 +141,8 @@ class Company {
 
     let tagIds: string[] = [];
     let names: string[] = [];
+    let emails: string[] = [];
+    let phones: string[] = [];
 
     // Merging company tags
     for (const companyId of companyIds) {
@@ -149,12 +151,20 @@ class Company {
       if (companyObj) {
         const companyTags = companyObj.tagIds || [];
         const companyNames = companyObj.names || [];
+        const companyEmails = companyObj.emails || [];
+        const companyPhones = companyObj.phones || [];
 
         // Merging company's tag into 1 array
         tagIds = tagIds.concat(companyTags);
 
         // Merging company names
         names = names.concat(companyNames);
+
+        // Merging company emails
+        emails = emails.concat(companyEmails);
+
+        // Merging company phones
+        phones = phones.concat(companyPhones);
 
         // Removing company
         await Companies.remove({ _id: companyId });
@@ -167,11 +177,19 @@ class Company {
     // Removing Duplicated names from company
     names = Array.from(new Set(names));
 
+    // Removing Duplicated names from company
+    emails = Array.from(new Set(emails));
+
+    // Removing Duplicated names from company
+    phones = Array.from(new Set(phones));
+
     // Creating company with properties
     const company = await Companies.createCompany({
       ...companyFields,
       tagIds,
       names,
+      emails,
+      phones,
     });
 
     // Updating customer companies

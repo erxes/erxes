@@ -28,6 +28,11 @@ export const types = `
     byKind: JSON
   }
 
+  type GmailResponseData {
+    status: Int!
+    statusText: String
+  }
+
   input IntegrationFormData {
     loadType: String
     successAction: String
@@ -96,7 +101,7 @@ export const queries = `
   integrationDetail(_id: String!): Integration
   integrationsTotalCount: integrationsTotalCount
   integrationGetTwitterAuthUrl: String
-  integrationGetGoogleAuthUrl: String
+  integrationGetGoogleAuthUrl(service: String): String
   integrationGetGoogleAccessToken(code: String): JSON
   integrationFacebookAppsList: [JSON]
   integrationFacebookPagesList(appId: String): [JSON]
@@ -152,4 +157,18 @@ export const mutations = `
     formData: IntegrationFormData!): Integration
 
   integrationsRemove(_id: String!): String
+
+  integrationsCreateGmailIntegration(code: String!, brandId: String!): Integration
+
+  integrationsSendGmail(
+    integrationId: String!,
+    cocType: String!,
+    cocId: String!,
+    subject: String!,
+    body: String!,
+    toEmails: String!,
+    cc: String,
+    bcc: String,
+    attachments: [String],
+  ): GmailResponseData
 `;
