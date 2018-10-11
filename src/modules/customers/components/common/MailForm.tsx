@@ -115,7 +115,7 @@ class MailForm extends React.Component<Props, State> {
 
       beforeUpload: () => {},
 
-      afterUpload: ({ response, fileInfo }) => {
+      afterUpload: ({ response }) => {
         // set attachments
         this.setState({
           attachments: [...this.state.attachments, response]
@@ -138,10 +138,6 @@ class MailForm extends React.Component<Props, State> {
 
     const body = this.getContent(this.state.editorState);
     const integrationId = from;
-
-    if (!integrationId) {
-      return Alert.error(__('Create gmail integration'));
-    }
 
     this.props.save({
       subject,
@@ -242,6 +238,10 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderButtons() {
+    const { toEmails, from } = this.state;
+
+    const disabled = toEmails && from ? false : true;
+
     return (
       <EditorActions>
         <Tip text={__('Attach file')}>
@@ -260,6 +260,7 @@ class MailForm extends React.Component<Props, State> {
           Discard
         </Button>
         <Button
+          disabled={disabled}
           onClick={this.onSend}
           btnStyle="success"
           size="small"
