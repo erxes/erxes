@@ -5,11 +5,13 @@ import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { MailForm } from '../../components/common';
+import { ICustomer } from '../../types';
 
 type Props = {
   contentType: string;
   contentTypeId: string;
   customerEmail?: string;
+  companyCustomers?: ICustomer[];
   gmailIntegrationsQuery: any;
   setAttachmentPreview?: (data: string | null) => void;
   attachmentPreview: { name: string; data: string; type: string };

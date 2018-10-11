@@ -28,10 +28,12 @@ import {
   Preview,
   Resipients
 } from '../../styles';
+import { ICustomer } from '../../types';
 
 type Props = {
   integrations: IIntegration[];
   customerEmail?: string;
+  companyCustomers?: ICustomer[];
   setAttachmentPreview?: (data: string | null) => void;
   attachmentPreview: { name: string; data: string; type: string };
   save: (
@@ -187,6 +189,40 @@ class MailForm extends React.Component<Props, State> {
     ));
   }
 
+  renderSendTo() {
+    const { companyCustomers = [] } = this.props;
+
+    if (companyCustomers.length > 0) {
+      return (
+        <FormControl
+          componentClass="select"
+          placeholder="Choose a recipient"
+          onChange={e =>
+            this.onChange('toEmails', (e.target as HTMLInputElement).value)
+          }
+          value={this.state.toEmails}
+        >
+          <option />
+          {companyCustomers.map(customer => (
+            <option key={customer._id} value={customer._id}>
+              {customer.primaryEmail || ''}
+            </option>
+          ))}
+        </FormControl>
+      );
+    }
+
+    return (
+      <FormControl
+        type="text"
+        onChange={e =>
+          this.onChange('toEmails', (e.target as HTMLInputElement).value)
+        }
+        value={this.state.toEmails}
+      />
+    );
+  }
+
   renderCC() {
     if (!this.state.isCc) {
       return null;
@@ -310,13 +346,8 @@ class MailForm extends React.Component<Props, State> {
       <MailEditorWrapper>
         <ControlWrapper>
           <span>To</span>
-          <FormControl
-            type="text"
-            onChange={e =>
-              this.onChange('toEmails', (e.target as HTMLInputElement).value)
-            }
-            value={this.state.toEmails}
-          />
+          {this.renderSendTo()}
+
           <LeftSection>
             <Resipients
               onClick={() => this.onClick('isCc')}

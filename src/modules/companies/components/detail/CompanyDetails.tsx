@@ -9,6 +9,7 @@ import {
 import { ActivityContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { ICompany, ICompanyActivityLog } from 'modules/companies/types';
+import { MailForm } from 'modules/customers/containers/common';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { Wrapper } from 'modules/layout/components';
@@ -29,19 +30,35 @@ interface IProps extends IRouterProps {
 
 type State = {
   currentTab: string;
+  currentNoteTab: string;
+  attachmentPreview: any;
 };
 
 class CompanyDetails extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentTab: 'activity' };
+    this.state = {
+      currentTab: 'activity',
+      currentNoteTab: 'newNote',
+      attachmentPreview: null
+    };
 
     this.onTabClick = this.onTabClick.bind(this);
+    this.onChangeTab = this.onChangeTab.bind(this);
+    this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
   }
 
   onTabClick(currentTab) {
     this.setState({ currentTab });
+  }
+
+  onChangeTab(currentNoteTab) {
+    this.setState({ currentNoteTab });
+  }
+
+  setAttachmentPreview(attachmentPreview) {
+    this.setState({ attachmentPreview });
   }
 
   renderTabContent() {
@@ -76,8 +93,27 @@ class CompanyDetails extends React.Component<IProps, State> {
     );
   }
 
+  renderHeaderTabContent() {
+    const { company } = this.props;
+    const { currentNoteTab } = this.state;
+
+    if (currentNoteTab === 'newNote') {
+      return <NoteForm contentType="company" contentTypeId={company._id} />;
+    }
+
+    return (
+      <MailForm
+        contentType="company"
+        contentTypeId={company._id}
+        companyCustomers={company.customers}
+        setAttachmentPreview={this.setAttachmentPreview}
+        attachmentPreview={this.state.attachmentPreview}
+      />
+    );
+  }
+
   render() {
-    const { currentTab } = this.state;
+    const { currentTab, currentNoteTab } = this.state;
     const { company, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
@@ -89,12 +125,21 @@ class CompanyDetails extends React.Component<IProps, State> {
       <div>
         <WhiteBox>
           <Tabs>
-            <TabTitle className="active">
+            <TabTitle
+              className={currentNoteTab === 'newNote' ? 'active' : ''}
+              onClick={() => this.onChangeTab('newNote')}
+            >
               <Icon icon="edit-1" /> {__('New note')}
+            </TabTitle>
+            <TabTitle
+              className={currentNoteTab === 'email' ? 'active' : ''}
+              onClick={() => this.onChangeTab('email')}
+            >
+              <Icon icon="email" /> {__('Email')}
             </TabTitle>
           </Tabs>
 
-          <NoteForm contentType="company" contentTypeId={company._id} />
+          {this.renderHeaderTabContent()}
         </WhiteBox>
 
         <Tabs grayBorder>
