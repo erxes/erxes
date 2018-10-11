@@ -1,4 +1,9 @@
-import { EmptyState, Icon, ModalTrigger, Spinner } from 'modules/common/components';
+import {
+  EmptyState,
+  Icon,
+  ModalTrigger,
+  Spinner
+} from 'modules/common/components';
 import { __, renderFullName } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
@@ -28,7 +33,27 @@ function CustomerSection({ name, customers, onSelect }: Props) {
     return null;
   };
 
-  if(!customers) return <Spinner objective />;
+  const renderBody = (customersObj: ICustomer[]) => {
+    if (!customersObj) return <Spinner objective />;
+
+    return (
+      <SectionBody>
+        {customersObj.map((customer, index) => (
+          <SectionBodyItem key={index}>
+            <Link to={`/customers/details/${customer._id}`}>
+              <Icon icon="logout-2" />
+            </Link>
+            <span>{renderFullName(customer)}</span>
+            {mailTo(customer.primaryEmail)}
+            <span>{customer.primaryPhone}</span>
+          </SectionBodyItem>
+        ))}
+        {customersObj.length === 0 && (
+          <EmptyState icon="user-5" text="No customer" />
+        )}
+      </SectionBody>
+    );
+  };
 
   return (
     <Section>
@@ -53,21 +78,7 @@ function CustomerSection({ name, customers, onSelect }: Props) {
         />
       </QuickButtons>
 
-      <SectionBody>
-        {customers.map((customer, index) => (
-          <SectionBodyItem key={index}>
-            <Link to={`/customers/details/${customer._id}`}>
-              <Icon icon="logout-2" />
-            </Link>
-            <span>{renderFullName(customer)}</span>
-            {mailTo(customer.primaryEmail)}
-            <span>{customer.primaryPhone}</span>
-          </SectionBodyItem>
-        ))}
-        {customers.length === 0 && (
-          <EmptyState icon="user-5" text="No customer" />
-        )}
-      </SectionBody>
+      {renderBody(customers)}
     </Section>
   );
 }
