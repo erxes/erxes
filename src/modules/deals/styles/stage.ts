@@ -11,6 +11,7 @@ const Header = styled.div`
   padding: 8px 16px;
   position: relative;
   background: ${stageGray};
+  border-radius: 3px 3px 0 0;
 
   h4 {
     margin: 0;
@@ -39,7 +40,6 @@ const Container = styledTS<{ isDragging: boolean }>(styled.div)`
       ? `0 0 20px 2px rgba(0, 0, 0, 0.14)`
       : 'none'};
   `};
-  overflow: hidden;
 `;
 
 const Amount = styled.ul`
