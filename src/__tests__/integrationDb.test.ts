@@ -464,4 +464,30 @@ describe('social integration test', () => {
     expect(integration.kind).toBe(KIND_CHOICES.FACEBOOK);
     expect(integration.facebookData.toJSON()).toEqual(doc.facebookData);
   });
+
+  test('create gmail integration', async () => {
+    const doc = {
+      name: 'test@gmail.com',
+      brandId: _brand._id,
+      gmailData: {
+        email: 'test@gmail.com',
+        historyId: 'historyId',
+        credentials: {
+          token: 'token',
+          refreshToken: 'refreshToken',
+        },
+      },
+    };
+
+    const integration = await Integrations.createGmailIntegration(doc);
+    if (!integration || !integration.gmailData) {
+      throw new Error('Integration not found');
+    }
+
+    expect(integration.name).toBe(doc.name);
+    expect(integration.gmailData.toJSON()).toEqual(doc.gmailData);
+
+    const prevEntry = await Integrations.createGmailIntegration(doc);
+    expect(integration._id).toBe(prevEntry._id);
+  });
 });

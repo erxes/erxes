@@ -45,6 +45,8 @@ interface IActivityLogModel extends Model<IActivityLogDocument> {
   removeCompanyActivityLog(companyId: string): void;
 
   changeCompany(newCompanyId: string, companyIds: string[]): Promise<IActivityLogDocument[]>;
+
+  createGmailLog(content: string, cocType: string, cocId: string, userId: string): Promise<IActivityLogDocument[]>;
 }
 
 class ActivityLog {
@@ -322,6 +324,24 @@ class ActivityLog {
     // Returning updated list of activity logs of new company
     return ActivityLogs.find({
       coc: { type: COC_CONTENT_TYPES.COMPANY, id: newCompanyId },
+    });
+  }
+
+  static createGmailLog(content: string, cocType: string, cocId: string, userId: string) {
+    return this.createDoc({
+      activity: {
+        type: ACTIVITY_TYPES.EMAIL,
+        action: ACTIVITY_ACTIONS.SEND,
+        content,
+      },
+      performer: {
+        type: ACTIVITY_PERFORMER_TYPES.USER,
+        id: userId,
+      },
+      coc: {
+        type: cocType,
+        id: cocId,
+      },
     });
   }
 }
