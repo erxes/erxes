@@ -23,7 +23,7 @@ type Props = {
   removeMutation: RemoveDealMutation;
   onAdd?: (stageId: string, deal: IDeal) => void;
   onRemove?: (_id: string, stageId: string) => void;
-  onUpdate?: (deal: IDeal) => void;
+  onUpdate?: (deal: IDeal, prevStageId: string) => void;
   closeModal: () => void;
 };
 
@@ -55,7 +55,7 @@ class EditFormContainer extends React.Component<Props> {
   }
 
   saveDeal(doc: IDealParams, callback: () => void) {
-    const { dealId, editMutation, onUpdate } = this.props;
+    const { stageId, dealId, editMutation, onUpdate } = this.props;
 
     editMutation({ variables: { _id: dealId, ...doc } })
       .then(({ data }) => {
@@ -64,7 +64,7 @@ class EditFormContainer extends React.Component<Props> {
         callback();
 
         if (onUpdate) {
-          onUpdate(data.dealsEdit);
+          onUpdate(data.dealsEdit, stageId);
         }
       })
       .catch(error => {

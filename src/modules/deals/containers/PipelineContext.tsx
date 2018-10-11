@@ -21,7 +21,7 @@ interface IStore {
   onDragEnd: (result: IDragResult) => void;
   onAddDeal: (stageId: string, deal: IDeal) => void;
   onRemoveDeal: (_id: string, stageId: string) => void;
-  onUpdateDeal: (deal: IDeal) => void;
+  onUpdateDeal: (deal: IDeal, prevStageId?: string) => void;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -139,13 +139,13 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
   };
 
-  onUpdateDeal = deal => {
+  onUpdateDeal = (deal, prevStageId) => {
     const { stageId } = deal;
     const { dealMap } = this.state;
 
     // Moved to anothor board or pipeline
-    if (!dealMap[stageId]) {
-      return;
+    if (!dealMap[stageId] && prevStageId) {
+      return this.onRemoveDeal(deal._id, prevStageId);
     }
 
     const deals = [...dealMap[stageId]];
