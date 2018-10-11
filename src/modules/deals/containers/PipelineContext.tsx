@@ -143,6 +143,11 @@ export class PipelineProvider extends React.Component<Props, State> {
     const { stageId } = deal;
     const { dealMap } = this.state;
 
+    // Moved to anothor board or pipeline
+    if (!dealMap[stageId]) {
+      return;
+    }
+
     const deals = [...dealMap[stageId]];
 
     const index = deals.findIndex(d => d._id === deal._id);
