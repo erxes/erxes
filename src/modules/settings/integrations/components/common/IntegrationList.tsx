@@ -35,6 +35,10 @@ class IntegrationList extends React.Component<Props> {
       return 'form';
     }
 
+    if (kind === KIND_CHOICES.GMAIL) {
+      return 'gmail';
+    }
+
     return 'default';
   }
 

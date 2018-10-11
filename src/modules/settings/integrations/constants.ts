@@ -649,7 +649,8 @@ export const KIND_CHOICES = {
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
   FORM: 'form',
-  ALL_LIST: ['messenger', 'twitter', 'facebook', 'form']
+  GMAIL: 'gmail',
+  ALL_LIST: ['messenger', 'twitter', 'facebook', 'form', 'gmail']
 };
 
 export const FORM_LOAD_TYPES = {
@@ -710,6 +711,7 @@ export const INTEGRATIONS = [
         name: 'Gmail',
         description: 'See and reply to Gmail in your Team Inbox',
         inMessenger: false,
+        kind: 'gmail',
         logo: '/images/integrations/gmail.png',
         createUrl: '/settings/integrations/gmail'
       }
@@ -737,7 +739,7 @@ export const INTEGRATIONS = [
         description: 'See and reply to Viber messages in your Team Inbox',
         inMessenger: false,
         logo: '/images/integrations/viber.png'
-      },
+      }
     ]
   },
   {
