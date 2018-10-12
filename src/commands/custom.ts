@@ -1,39 +1,23 @@
 import { connect, disconnect } from '../db/connection';
-import { Companies, Customers } from '../db/models';
+import { Users } from '../db/models';
 
 export const customCommand = async () => {
   connect();
 
-  const companies = await Companies.find({
-    $or: [{ email: { $exists: true } }, { phone: { $exists: true } }],
-  });
+  const users = await Users.find({});
 
-  for (const company of companies) {
-    const { phone, email } = company;
+  for (const user of users) {
+    const { details } = user;
 
-    if (phone) {
-      await Companies.update({ _id: company._id }, { $set: { primaryPhone: phone, phones: [phone] } });
+    if (details) {
+      const { fullName } = details;
+
+      if (fullName) {
+        const shortName = fullName.substr(0, 3);
+
+        await Users.update({ _id: user._id }, { $set: { shortName } });
+      }
     }
-
-    if (email) {
-      await Companies.update({ _id: company._id }, { $set: { primaryEmail: email, emails: [email] } });
-    }
-  }
-
-  const customers = await Customers.find({
-    primaryPhone: { $regex: /^-/i },
-  });
-
-  for (const customer of customers) {
-    if (!customer.primaryPhone) {
-      return;
-    }
-
-    const updatedPhone = customer.primaryPhone.substr(1);
-
-    await Customers.update({ _id: customer._id }, { $set: { primaryPhone: updatedPhone } });
-    await Customers.update({ _id: customer._id }, { $pull: { phones: customer.primaryPhone } });
-    await Customers.update({ _id: customer._id }, { $push: { phones: updatedPhone } });
   }
 
   disconnect();
