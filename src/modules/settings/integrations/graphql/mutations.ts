@@ -10,6 +10,30 @@ const commonParams = `
   languageCode: $languageCode
 `;
 
+const sendGmailFields = `
+  $integrationId: String!,
+  $cocType: String!,
+  $cocId: String!,
+  $subject: String!,
+  $body: String!,
+  $toEmails: String!,
+  $cc: String,
+  $bcc: String,
+  $attachments: [String]
+`;
+
+const sendGmailVariables = `
+  integrationId: $integrationId,
+  cocType: $cocType,
+  cocId: $cocId,
+  subject: $subject,
+  body: $body,
+  toEmails: $toEmails,
+  cc: $cc,
+  bcc: $bcc,
+  attachments: $attachments
+`;
+
 const integrationsCreateMessenger = `
   mutation integrationsCreateMessengerIntegration(${commonParamsDef}) {
     integrationsCreateMessengerIntegration(${commonParams}) {
@@ -45,6 +69,26 @@ const integrationsSaveMessengerAppearance = `
   }
 `;
 
+const integrationsSendGmail = ` 
+  mutation integrationsSendGmail(${sendGmailFields}) {
+    integrationsSendGmail(${sendGmailVariables}) {
+      status
+      statusText
+    }
+  }
+`;
+
+const integrationsCreateGmail = ` 
+  mutation integrationsCreateGmailIntegration(
+    $code: String!
+    $brandId: String!
+  ) {
+    integrationsCreateGmailIntegration(code: $code, brandId: $brandId) {
+      _id
+    }
+  }
+`;
+
 const integrationsRemove = `
   mutation integrationsRemove($_id: String!) {
     integrationsRemove(_id: $_id)
@@ -56,5 +100,7 @@ export default {
   integrationsEditMessenger,
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
+  integrationsSendGmail,
+  integrationsCreateGmail,
   integrationsRemove
 };

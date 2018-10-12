@@ -1,7 +1,7 @@
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import GoogleCalendar from './containers/google/Calendar';
+import { Calendar as GoogleCalendar, Gmail } from './containers/google';
 import CreateMessenger from './containers/messenger/Create';
 import EditMessenger from './containers/messenger/Edit';
 import Store from './containers/Store';
@@ -54,6 +54,19 @@ const routes = () => (
     />
 
     <Route
+      key="/settings/integrations/gmail"
+      exact
+      path="/settings/integrations/gmail"
+      component={({ history, location }) => {
+        const queryParams = queryString.parse(location.search);
+
+        return (
+          <Gmail type="link" history={history} queryParams={queryParams} />
+        );
+      }}
+    />
+
+    <Route
       key="/service/oauth/twitter_callback"
       path="/service/oauth/twitter_callback"
       component={({ history, location }) => {
@@ -77,6 +90,18 @@ const routes = () => (
             history={history}
             queryParams={queryParams}
           />
+        );
+      }}
+    />
+
+    <Route
+      key="/service/oauth/gmail_callback"
+      path="/service/oauth/gmail_callback"
+      component={({ history, location }) => {
+        const queryParams = queryString.parse(location.search);
+
+        return (
+          <Gmail type="form" history={history} queryParams={queryParams} />
         );
       }}
     />

@@ -14,7 +14,7 @@ const commonFields = `
   $hasAuthority: String,
   $description: String,
   $doNotDisturb: String,
-  $links: JSON
+  $links: JSON,
   $customFieldsData: JSON
 `;
 
@@ -34,7 +34,7 @@ const commonVariables = `
   hasAuthority: $hasAuthority,
   description: $description,
   doNotDisturb: $doNotDisturb,
-  links: $links
+  links: $links,
   customFieldsData: $customFieldsData
 `;
 

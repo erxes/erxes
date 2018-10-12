@@ -15,7 +15,7 @@ const TabCaption = styled.span`
   font-weight: ${typography.fontWeightRegular};
   padding: 15px ${dimensions.coreSpacing}px;
   position: relative;
-  transition: color 0.3s ease;
+  transition: all ease 0.3s;
 
   &:hover {
     color: ${colors.textPrimary};

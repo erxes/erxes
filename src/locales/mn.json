@@ -661,5 +661,7 @@
   "Choose schedule month": "Цагын хуваарь сар сонгоно уу",
   "Won": "Ялсан",
   "Lost": "Алдсан",
-  "In Progress": "Идэвхитэй"
+  "In Progress": "Идэвхитэй",
+  "It`s size exceeds the limit 10mb": "Хэмжээ 10mb-аас хэтэрсэн байна",
+  "Congrats! Your email sent successfully!": "Баяр хүргье! Таны и-мэйл амжилттай илгээгдлээ."
 }
