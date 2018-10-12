@@ -5,9 +5,11 @@ const commonFields = `
   $size: Int,
   $industry: String,
   $parentCompanyId: String,
-  $email: String,
+  $emails: [String],
+  $primaryEmail: String,
   $ownerId: String,
-  $phone: String,
+  $phones: [String],
+  $primaryPhone: String,
   $leadStatus: String,
   $lifecycleState: String,
   $businessType: String,
@@ -24,9 +26,11 @@ const commonVariables = `
   size: $size,
   industry: $industry,
   parentCompanyId: $parentCompanyId,
-  email: $email,
+  emails: $emails,
+  primaryEmail: $primaryEmail,
   ownerId: $ownerId,
-  phone: $phone,
+  phones: $phones,
+  primaryPhone: $primaryPhone,
   leadStatus: $leadStatus,
   lifecycleState: $lifecycleState,
   businessType: $businessType,
@@ -54,9 +58,11 @@ const companiesEdit = `
       industry
       plan
       parentCompanyId
-      email
+      emails
+      primaryEmail
       ownerId
-      phone
+      phones
+      primaryPhone
       leadStatus
       lifecycleState
       businessType

@@ -8,7 +8,7 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 
 interface IProps extends IRouterProps {
-  counts: any;
+  counts: { [key: string]: number };
   integrations: IIntegration[];
   loading: boolean;
 }

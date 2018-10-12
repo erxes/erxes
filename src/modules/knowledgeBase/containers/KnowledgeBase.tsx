@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils } from 'modules/common/utils';
-import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -12,82 +11,65 @@ interface IProps extends IRouterProps {
   currentCategoryId: string;
   articlesCountQuery: any;
   categoryDetailQuery: any;
+  lastCategoryQuery: any;
+  queryParams: any;
 }
 
-class KnowledgeBase extends React.Component<IProps> {
-  componentWillReceiveProps() {
-    const { history, currentCategoryId } = this.props;
+const KnowledgeBase = (props: IProps) => {
+  const {
+    categoryDetailQuery,
+    articlesCountQuery,
+    lastCategoryQuery,
+    queryParams,
+    history
+  } = props;
 
-    if (!routerUtils.getParam(history, 'id') && currentCategoryId) {
-      routerUtils.setParams(history, { id: currentCategoryId });
-    }
+  if (lastCategoryQuery.loading) {
+    return null;
   }
 
-  render() {
-    const { categoryDetailQuery, location, articlesCountQuery } = this.props;
+  const lastCategory = lastCategoryQuery.knowledgeBaseCategoriesGetLast;
 
-    if (categoryDetailQuery.loading) {
-      return false;
-    }
+  let updatedProps: any = {
+    articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0
+  };
 
-    const extendedProps = {
-      ...this.props,
-      articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0,
-      currentCategory: categoryDetailQuery.knowledgeBaseCategoryDetail || {},
-      loading: categoryDetailQuery.loading,
-      queryParams: queryString.parse(location.search),
-      refetch: categoryDetailQuery.refetch
+  if (!queryParams.id) {
+    routerUtils.setParams(history, { id: lastCategory._id });
+
+    updatedProps = {
+      ...props,
+      currentCategory: lastCategory,
+      currentCategoryId: lastCategory._id
     };
-
-    return <KnowledgeBaseComponent {...extendedProps} />;
   }
-}
 
-const KnowledgeBaseContainer = compose(
+  const currentCategory = categoryDetailQuery.knowledgeBaseCategoryDetail || {};
+
+  updatedProps = {
+    ...props,
+    currentCategory,
+    currentCategoryId: currentCategory._id || ''
+  };
+
+  return <KnowledgeBaseComponent {...updatedProps} />;
+};
+
+export default compose(
   graphql(gql(queries.knowledgeBaseCategoryDetail), {
     name: 'categoryDetailQuery',
-    options: ({ currentCategoryId }: { currentCategoryId: string }) => ({
+    options: ({ queryParams }: { queryParams: any }) => ({
       fetchPolicy: 'network-only',
-      variables: { _id: currentCategoryId || '' }
+      variables: { _id: queryParams.id || '' }
     })
   }),
   graphql(gql(queries.knowledgeBaseArticlesTotalCount), {
     name: 'articlesCountQuery',
-    options: ({ currentCategoryId }: { currentCategoryId: string }) => ({
-      variables: { categoryIds: [currentCategoryId] || '' }
+    options: ({ queryParams }: { queryParams: any }) => ({
+      variables: { categoryIds: [queryParams.id] || [''] }
     })
-  })
-)(KnowledgeBase);
-
-type KnowledgeBaseLastProps = {
-  lastCategoryQuery: any;
-};
-
-const KnowledgeBaseLast = (props: KnowledgeBaseLastProps) => {
-  const { lastCategoryQuery } = props;
-  const lastCategory = lastCategoryQuery.knowledgeBaseCategoriesGetLast || {};
-  const extendedProps = { ...props, currentCategoryId: lastCategory._id };
-
-  return <KnowledgeBaseContainer {...extendedProps} />;
-};
-
-const KnowledgeBaseLastContainer = compose(
+  }),
   graphql(gql(queries.categoriesGetLast), {
     name: 'lastCategoryQuery'
   })
-)(KnowledgeBaseLast);
-
-const MainContainer = (props: IRouterProps) => {
-  const { history } = props;
-  const currentCategoryId = routerUtils.getParam(history, 'id');
-
-  if (currentCategoryId) {
-    const extendedProps = { ...props, currentCategoryId };
-
-    return <KnowledgeBaseContainer {...extendedProps} />;
-  }
-
-  return <KnowledgeBaseLastContainer {...props} />;
-};
-
-export default withRouter<IRouterProps>(MainContainer);
+)(withRouter<IProps>(KnowledgeBase));

@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
 import { Alert, confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -39,10 +38,6 @@ const KnowledgeBaseContainer = (props: Props) => {
     queryParams,
     articlesCount
   } = props;
-
-  if (topicsQuery.loading || topicsCountQuery.loading) {
-    return <Spinner objective />;
-  }
 
   // remove action
   const remove = _id => {

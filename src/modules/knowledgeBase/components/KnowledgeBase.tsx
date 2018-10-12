@@ -13,7 +13,6 @@ import { ICategory } from '../types';
 type Props = {
   queryParams: any;
   articlesCount: number;
-  loading: boolean;
   currentCategory: ICategory;
 };
 
@@ -33,7 +32,7 @@ class KnowledgeBase extends React.Component<Props> {
   }
 
   render() {
-    const { articlesCount, loading, queryParams, currentCategory } = this.props;
+    const { articlesCount, queryParams, currentCategory } = this.props;
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="add">
@@ -73,20 +72,12 @@ class KnowledgeBase extends React.Component<Props> {
         footer={currentCategory._id && <Pagination count={articlesCount} />}
         transparent={true}
         content={
-          <DataWithLoader
-            data={
-              <ArticleList
-                queryParams={queryParams}
-                currentCategoryId={currentCategory._id}
-                topicIds={
-                  currentCategory.firstTopic && currentCategory.firstTopic._id
-                }
-              />
+          <ArticleList
+            queryParams={queryParams}
+            currentCategoryId={currentCategory._id}
+            topicIds={
+              currentCategory.firstTopic && currentCategory.firstTopic._id
             }
-            loading={loading}
-            count={articlesCount}
-            emptyText="There is no data."
-            emptyImage="/images/robots/robot-05.svg"
           />
         }
       />

@@ -34,6 +34,10 @@ const ICON_AND_COLOR_TABLE = {
     color: '#6569DF',
     icon: 'piggy-bank'
   },
+  'email-send': {
+    color: '#d74534',
+    icon: 'email-3'
+  },
   'internal_note-create': {
     color: '#F7CE53',
     icon: 'pushpin'
@@ -109,6 +113,7 @@ export default class {
 
       result.data.push({
         ...iconAndColor,
+        action: item.action,
         by: item.by,
         caption,
         content: hasContent ? item.content : null,
@@ -177,10 +182,14 @@ export default class {
         );
         break;
 
+      case 'email-send':
+        caption = <span>{source} send email</span>;
+        break;
+
       default:
         caption = (
           <span>
-            {source} created {target}
+            {source} created {target}{' '}
           </span>
         );
         break;

@@ -21,11 +21,7 @@ const CompanyDetailsContainer = (props: Props) => {
     currentUser
   } = props;
 
-  if (companyDetailQuery.loading) {
-    return <Spinner />;
-  }
-
-  const companyDetail = companyDetailQuery.companyDetail;
+  const companyDetail = companyDetailQuery.companyDetail || {};
 
   const taggerRefetchQueries = [
     {
@@ -39,6 +35,7 @@ const CompanyDetailsContainer = (props: Props) => {
     company: companyDetail,
     companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
     currentUser,
+    loading: companyDetailQuery.loading,
     loadingLogs: companyActivityLogQuery.loading,
     taggerRefetchQueries
   };

@@ -647,10 +647,11 @@ export const timezones = [
 export const KIND_CHOICES = {
   FACEBOOK: 'facebook',
   FORM: 'form',
+  GMAIL: 'gmail',
   MESSENGER: 'messenger',
   TWITTER: 'twitter',
 
-  ALL_LIST: ['messenger', 'twitter', 'facebook', 'form']
+  ALL_LIST: ['messenger', 'twitter', 'facebook', 'form', 'gmail']
 };
 
 export const FORM_LOAD_TYPES = {
@@ -708,18 +709,20 @@ export const INTEGRATIONS = [
         inMessenger: false,
         logo: '/images/integrations/google-meet.png',
         name: 'Google meet'
+      },
+      {
+        createUrl: '/settings/integrations/gmail',
+        description: 'See and reply to Gmail in your Team Inbox',
+        inMessenger: false,
+        kind: 'gmail',
+        logo: '/images/integrations/gmail.png',
+        name: 'Gmail'
       }
     ]
   },
   {
     name: 'row-3',
     rows: [
-      {
-        description: 'See and reply to Gmail in your Team Inbox',
-        inMessenger: false,
-        logo: '/images/integrations/gmail.png',
-        name: 'Gmail'
-      },
       {
         description: 'See knowledge base in your Widget',
         inMessenger: true,
@@ -732,6 +735,12 @@ export const INTEGRATIONS = [
         inMessenger: true,
         logo: '/images/integrations/google-calendar.png',
         name: 'Google calendar'
+      },
+      {
+        description: 'See and reply to Viber messages in your Team Inbox',
+        inMessenger: false,
+        logo: '/images/integrations/viber.png',
+        name: 'Viber'
       }
     ],
     title: 'Coming soon'
@@ -740,22 +749,11 @@ export const INTEGRATIONS = [
     name: 'row-4',
     rows: [
       {
-        description: 'See and reply to Viber messages in your Team Inbox',
-        inMessenger: false,
-        logo: '/images/integrations/viber.png',
-        name: 'Viber'
-      },
-      {
         description: 'See and reply to Whatsapp messages in your Team Inbox',
         inMessenger: false,
         logo: '/images/integrations/whatsapp.png',
         name: 'WhatsApp'
-      }
-    ]
-  },
-  {
-    name: 'row-5',
-    rows: [
+      },
       {
         description: 'See and reply to Wechat messages in your Team Inbox',
         inMessenger: false,

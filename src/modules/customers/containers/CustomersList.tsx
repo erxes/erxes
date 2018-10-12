@@ -1,10 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
-import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import { TAG_TYPES } from 'modules/tags/constants';
-import { queries as tagQueries } from 'modules/tags/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -15,7 +12,6 @@ import { mutations, queries } from '../graphql';
 
 interface IProps extends IRouterProps {
   customersMainQuery: any;
-  customerCountsQuery: any;
   customersListConfigQuery: any;
   customersRemove: (
     params: { variables: { customerIds: string[] } }
@@ -28,8 +24,6 @@ interface IProps extends IRouterProps {
       };
     }
   ) => Promise<void>;
-  tagsQuery: any;
-  brandsQuery: any;
   queryParams: any;
 }
 
@@ -49,9 +43,6 @@ class CustomerListContainer extends React.Component<IProps, State> {
   render() {
     const {
       customersMainQuery,
-      brandsQuery,
-      tagsQuery,
-      customerCountsQuery,
       customersListConfigQuery,
       customersRemove,
       customersMerge,
@@ -154,34 +145,18 @@ class CustomerListContainer extends React.Component<IProps, State> {
     const { list = [], totalCount = 0 } =
       customersMainQuery.customersMain || {};
 
-    const counts = customerCountsQuery.customerCounts || {
-      byBrand: {},
-      byForm: {},
-      byIntegrationType: {},
-      byLeadStatus: {},
-      byLifecycleState: {},
-      bySegment: {},
-      byTag: {}
-    };
-
     const updatedProps = {
       ...this.props,
-      brands: brandsQuery.brands || [],
       columnsConfig,
-      counts: {
-        all: totalCount,
-        ...counts
-      },
       customers: list,
       exportCustomers,
       handleXlsUpload,
       integrations: KIND_CHOICES.ALL_LIST,
       loading: customersMainQuery.loading || this.state.loading,
-      loadingTags: tagsQuery.loading,
       mergeCustomers,
       removeCustomers,
       searchValue,
-      tags: tagsQuery.tags || []
+      totalCount
     };
 
     return (
@@ -189,7 +164,6 @@ class CustomerListContainer extends React.Component<IProps, State> {
         content={props => <CustomersList {...updatedProps} {...props} />}
         refetch={() => {
           this.props.customersMainQuery.refetch();
-          this.props.customerCountsQuery.refetch();
         }}
       />
     );
@@ -198,53 +172,34 @@ class CustomerListContainer extends React.Component<IProps, State> {
 
 const generateParams = ({ queryParams }) => {
   return {
-    fetchPolicy: 'network-only',
-    variables: {
-      brand: queryParams.brand,
-      endDate: queryParams.endDate,
-      form: queryParams.form,
-      ids: queryParams.ids,
-      integration: queryParams.integrationType,
-      leadStatus: queryParams.leadStatus,
-      lifecycleState: queryParams.lifecycleState,
-      page: queryParams.page,
-      perPage: queryParams.perPage || 20,
-      searchValue: queryParams.searchValue,
-      segment: queryParams.segment,
-      sortDirection: queryParams.sortDirection,
-      sortField: queryParams.sortField,
-      startDate: queryParams.startDate,
-      tag: queryParams.tag
-    }
+    brand: queryParams.brand,
+    endDate: queryParams.endDate,
+    form: queryParams.form,
+    ids: queryParams.ids,
+    integration: queryParams.integrationType,
+    leadStatus: queryParams.leadStatus,
+    lifecycleState: queryParams.lifecycleState,
+    page: queryParams.page,
+    perPage: queryParams.perPage || 20,
+    searchValue: queryParams.searchValue,
+    segment: queryParams.segment,
+    sortDirection: queryParams.sortDirection,
+    sortField: queryParams.sortField,
+    startDate: queryParams.startDate,
+    tag: queryParams.tag
   };
 };
 
 export default compose(
   graphql(gql(queries.customersMain), {
     name: 'customersMainQuery',
-    options: generateParams
-  }),
-  graphql(gql(queries.customerCounts), {
-    name: 'customerCountsQuery',
-    options: generateParams
-  }),
-  graphql(gql(tagQueries.tags), {
-    name: 'tagsQuery',
-    options: () => ({
+    options: ({ queryParams }: { queryParams: any }) => ({
       fetchPolicy: 'network-only',
-      variables: {
-        type: TAG_TYPES.CUSTOMER
-      }
+      variables: generateParams({ queryParams })
     })
   }),
   graphql(gql(queries.customersListConfig), {
     name: 'customersListConfigQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(brandQueries.brands), {
-    name: 'brandsQuery',
     options: () => ({
       fetchPolicy: 'network-only'
     })

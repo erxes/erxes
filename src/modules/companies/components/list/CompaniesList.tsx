@@ -25,19 +25,17 @@ import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   companies: ICompany[];
-  counts: any;
   columnsConfig: any;
   loading: boolean;
   searchValue: string;
+  totalCount: number;
   // TODO: check is below line not throwing error ?
   toggleBulk: () => void;
   toggleAll: (targets: ICompany[], containerId: string) => void;
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
-  tags: ITag[];
   removeCompanies: (doc: { companyIds: string[] }) => void;
-  loadingTags: boolean;
   mergeCompanies: () => void;
   queryParams: any;
 }
@@ -101,13 +99,11 @@ class CompaniesList extends React.Component<IProps, State> {
       history,
       location,
       loading,
-      counts,
       toggleBulk,
       bulk,
       isAllSelected,
       emptyBulk,
-      tags,
-      loadingTags,
+      totalCount,
       mergeCompanies,
       queryParams
     } = this.props;
@@ -252,7 +248,7 @@ class CompaniesList extends React.Component<IProps, State> {
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
-    const breadcrumb = [{ title: __(`Companies`) + ` (${counts.all})` }];
+    const breadcrumb = [{ title: __(`Companies`) + ` (${totalCount})` }];
 
     return (
       <Wrapper
@@ -260,10 +256,8 @@ class CompaniesList extends React.Component<IProps, State> {
           <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
         }
         actionBar={actionBar}
-        footer={<Pagination count={counts.all} />}
-        leftSidebar={
-          <Sidebar counts={counts} tags={tags} loading={loadingTags} />
-        }
+        footer={<Pagination count={totalCount} />}
+        leftSidebar={<Sidebar />}
         content={
           <DataWithLoader
             data={mainContent}
