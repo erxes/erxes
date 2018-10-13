@@ -1,12 +1,13 @@
 import { graphqlRequest } from '../db/connection';
 import { dealBoardFactory, dealFactory, dealPipelineFactory, dealStageFactory, userFactory } from '../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
+import { IBoardDocument, IDealDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/deals';
 
 describe('Test deals mutations', () => {
-  let board;
-  let pipeline;
-  let stage;
-  let deal;
+  let board: IBoardDocument;
+  let pipeline: IPipelineDocument;
+  let stage: IStageDocument;
+  let deal: IDealDocument;
   let context;
 
   const commonPipelineParamDefs = `
@@ -111,7 +112,7 @@ describe('Test deals mutations', () => {
     const args = {
       name: 'deal pipeline',
       boardId: board._id,
-      stages: [stage],
+      stages: [stage.toJSON()],
     };
 
     const mutation = `
@@ -143,7 +144,7 @@ describe('Test deals mutations', () => {
       _id: pipeline._id,
       name: 'deal pipeline',
       boardId: board._id,
-      stages: [stage],
+      stages: [stage.toJSON()],
     };
 
     const mutation = `
@@ -382,12 +383,14 @@ describe('Test deals mutations', () => {
 
     const args = {
       orders: [{ _id: deal._id, order: 9 }, { _id: dealToStage._id, order: 3 }],
+      stageId: stage._id,
     };
 
     const mutation = `
-      mutation dealsUpdateOrder($orders: [OrderItem]) {
-        dealsUpdateOrder(orders: $orders) {
+      mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
+        dealsUpdateOrder(stageId: $stageId, orders: $orders) {
           _id
+          stageId
           order
         }
       }
@@ -397,6 +400,7 @@ describe('Test deals mutations', () => {
 
     expect(updatedDeal.order).toBe(3);
     expect(updatedDealToOrder.order).toBe(9);
+    expect(updatedDeal.stageId).toBe(stage._id);
   });
 
   test('Remove deal', async () => {

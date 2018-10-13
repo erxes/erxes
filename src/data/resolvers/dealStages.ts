@@ -24,4 +24,8 @@ export default {
 
     return amountsMap;
   },
+
+  deals(stage: IStageDocument) {
+    return Deals.find({ stageId: stage._id }).sort({ order: 1, createdAt: -1 });
+  },
 };
