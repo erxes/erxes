@@ -101,6 +101,10 @@ class EditFormContainer extends React.Component<Props> {
     const users = usersQuery.users;
     const deal = dealDetailQuery.dealDetail;
 
+    if (!deal) {
+      return null;
+    }
+
     const extendedProps = {
       ...this.props,
       deal,
