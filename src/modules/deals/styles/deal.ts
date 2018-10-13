@@ -249,6 +249,26 @@ const ItemList = styled.ul`
   }
 `;
 
+const PortableItem = styledTS<{ uppercase: boolean }>(styled.li)`
+  text-transform: ${props => (props.uppercase ? 'uppercase' : 'normal')};
+  font-size: ${props => (props.uppercase ? '10px' : '12px')};
+  align-items: center;
+  vertical-align: bottom;
+
+  &:first-child:before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    float: left;
+    border-radius: 1px;
+    background: ${props =>
+      props.color ? `${props.color}` : `${colors.colorShadowGray}`};
+    position: absolute;
+    top: 4px;
+    left: 0;
+  }
+`;
+
 const SelectValue = styled.div`
   display: flex;
   justify-content: center;
@@ -321,6 +341,34 @@ const Status = styled.div`
   }
 `;
 
+const UserCounterContainer = styled.ul`
+  margin-bottom: 0;
+  list-style: none;
+  padding: 0;
+  flex-shrink: 0;
+  align-self: flex-end;
+
+  li {
+    float: left;
+    border: 2px solid ${colors.colorWhite};
+    width: 28px;
+    height: 28px;
+    line-height: 26px;
+    border-radius: 14px;
+    background: ${colors.colorCoreLightGray};
+    text-align: center;
+    color: ${colors.colorWhite};
+    overflow: hidden;
+    margin-left: -12px;
+    font-size: 10px;
+
+    img {
+      width: 100%;
+      vertical-align: top;
+    }
+  }
+`;
+
 export {
   Container,
   SpaceContent,
@@ -340,6 +388,7 @@ export {
   MoveContainer,
   Stages,
   ItemList,
+  PortableItem,
   StageItem,
   SelectOption,
   SelectValue,
@@ -347,5 +396,6 @@ export {
   AddContainer,
   ActionInfo,
   Status,
+  UserCounterContainer,
   DealFooter
 };

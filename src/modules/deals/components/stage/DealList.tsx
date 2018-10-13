@@ -1,23 +1,8 @@
 import { DealItem } from 'modules/deals/containers/stage';
+import { DropZone, Wrapper } from 'modules/deals/styles/stage';
 import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-
-const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
-  background-color: ${({ isDraggingOver }) =>
-    isDraggingOver && 'rgba(10, 45, 65, .1)'};
-  display: flex;
-  flex-direction: column;
-  padding: 0 8px;
-  transition: background-color 0.1s ease, opacity 0.1s ease;
-  user-select: none;
-`;
-
-const DropZone = styled.div`
-  min-height: 200px;
-`;
 
 type Props = {
   listId: string;

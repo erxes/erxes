@@ -1,12 +1,19 @@
 import { __ } from 'modules/common/utils';
 import { EditForm } from 'modules/deals/containers/editForm';
+import {
+  Content,
+  Date,
+  Deal,
+  DealContainer,
+  DealIndicator,
+  Footer,
+  Right
+} from 'modules/deals/styles/stage';
 import { IDeal } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 
 type Props = {
   stageId: string;
@@ -17,64 +24,6 @@ type Props = {
   onRemove: (_id: string, stageId: string) => void;
   onUpdate: (deal: IDeal) => void;
 };
-
-const Container = styled.div`
-  overflow: auto;
-`;
-
-const Right = styled.div`
-  float: right;
-`;
-
-const Content = styled('div')`
-  flex-grow: 1;
-  flex-basis: 100%;
-  display: flex;
-  flex-direction: column;
-
-  h5 {
-    margin-top: 0;
-  }
-`;
-
-const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
-  margin-bottom: 10px;
-  background-color: rgb(255, 255, 255);
-  box-shadow: ${props =>
-    props.isDragging
-      ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
-      : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
-  overflow: hidden;
-  padding: 8px;
-  outline: 0px;
-  border-radius: 3px;
-  transition: box-shadow 0.3s ease-in-out 0s;
-  -webkit-box-pack: justify;
-  justify-content: space-between;
-  will-change: transform;
-`;
-
-const Date = styled.div`
-  color: rgb(136, 136, 136);
-  font-size: 11px;
-  z-index: 10;
-  margin-left: 5px;
-`;
-
-const Indicator = styledTS<{ color: string }>(styled.span)`
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin: 8px 8px 0 0;
-  background-color: ${props => props.color}
-`;
-
-const Footer = styled.div`
-  padding-top: 8px;
-  margin-top: 8px;
-  border-top: 1px dashed #ccc;
-  font-size: 11px;
-`;
 
 export default class DealItem extends React.PureComponent<
   Props,
@@ -142,28 +91,28 @@ export default class DealItem extends React.PureComponent<
 
           {products.map((product, index) => (
             <div key={index}>
-              <Indicator color="#63D2D6" />
+              <DealIndicator color="#63D2D6" />
               {product.name}
             </div>
           ))}
 
           {customers.map((customer, index) => (
             <div key={index}>
-              <Indicator color="#F7CE53" />
+              <DealIndicator color="#F7CE53" />
               {customer.firstName || customer.primaryEmail}
             </div>
           ))}
 
           {companies.map((company, index) => (
             <div key={index}>
-              <Indicator color="#CEF753" />
+              <DealIndicator color="#CEF753" />
               {company.primaryName}
             </div>
           ))}
 
           <br />
 
-          <Container>
+          <DealContainer>
             {renderDealAmount(deal.amount)}
 
             <Right>
@@ -177,14 +126,14 @@ export default class DealItem extends React.PureComponent<
                 />
               ))}
             </Right>
-          </Container>
+          </DealContainer>
 
           <Footer>
-            <Container>
+            <DealContainer>
               {__('Last updated')}
 
               <Right>{this.renderDate(deal.modifiedAt)}</Right>
-            </Container>
+            </DealContainer>
           </Footer>
         </Content>
         {this.renderForm()}
