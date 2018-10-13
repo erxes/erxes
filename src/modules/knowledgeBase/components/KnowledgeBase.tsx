@@ -1,9 +1,4 @@
-import {
-  Button,
-  DataWithLoader,
-  ModalTrigger,
-  Pagination
-} from 'modules/common/components';
+import { Button, ModalTrigger, Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';

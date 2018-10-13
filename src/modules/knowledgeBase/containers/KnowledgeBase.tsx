@@ -29,9 +29,14 @@ const KnowledgeBase = (props: IProps) => {
   }
 
   const lastCategory = lastCategoryQuery.knowledgeBaseCategoriesGetLast;
+  const articlesCount = articlesCountQuery.knowledgeBaseArticlesTotalCount || 0;
+  const currentCategory = categoryDetailQuery.knowledgeBaseCategoryDetail || {};
 
-  let updatedProps: any = {
-    articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0
+  let updatedProps = {
+    ...props,
+    articlesCount,
+    currentCategory,
+    currentCategoryId: currentCategory._id || ''
   };
 
   if (!queryParams.id) {
@@ -39,18 +44,11 @@ const KnowledgeBase = (props: IProps) => {
 
     updatedProps = {
       ...props,
+      articlesCount,
       currentCategory: lastCategory,
       currentCategoryId: lastCategory._id
     };
   }
-
-  const currentCategory = categoryDetailQuery.knowledgeBaseCategoryDetail || {};
-
-  updatedProps = {
-    ...props,
-    currentCategory,
-    currentCategoryId: currentCategory._id || ''
-  };
 
   return <KnowledgeBaseComponent {...updatedProps} />;
 };
