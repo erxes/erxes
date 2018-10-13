@@ -1,4 +1,3 @@
-import { EditorState } from 'draft-js';
 import {
   ControlLabel,
   FormControl,
@@ -18,55 +17,21 @@ type Props = {
   object?: IEmailTemplate;
 };
 
-type State = {
-  editorState: EditorState;
-};
-
-class Form extends React.Component<Props & ICommonFormProps, State> {
-  constructor(props) {
-    super(props);
-
-    const object = props.object || {};
-
-    this.state = {
-      editorState: createStateFromHTML(
-        EditorState.createEmpty(),
-        object.content || ''
-      )
-    };
-
-    this.renderContent = this.renderContent.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.getContent = this.getContent.bind(this);
-    this.generateDoc = this.generateDoc.bind(this);
-  }
-
-  getContent(editorState) {
-    return toHTML(editorState);
-  }
-
-  onChange(editorState) {
-    this.setState({ editorState });
-  }
-
-  generateDoc() {
+class Form extends React.Component<Props & ICommonFormProps, {}> {
+  generateDoc = () => {
     return {
       doc: {
         name: (document.getElementById('template-name') as HTMLInputElement)
           .value,
-        content: this.getContent(this.state.editorState)
+        content: (document.getElementById(
+          'template-content'
+        ) as HTMLTextAreaElement).value
       }
     };
-  }
+  };
 
-  renderContent() {
+  renderContent = () => {
     const object = this.props.object || ({} as IEmailTemplate);
-
-    const props = {
-      editorState: this.state.editorState,
-      onChange: this.onChange,
-      defaultValue: object.content
-    };
 
     return (
       <React.Fragment>
@@ -83,11 +48,17 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <ErxesEditor bordered {...props} />
+
+          <FormControl
+            id="template-content"
+            componentClass="textarea"
+            rows={5}
+            defaultValue={object.content}
+          />
         </FormGroup>
       </React.Fragment>
     );
-  }
+  };
 
   render() {
     return (
