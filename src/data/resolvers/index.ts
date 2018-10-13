@@ -7,6 +7,7 @@ import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
 import Customer from './customer';
 import customScalars from './customScalars';
+import DealBoard from './dealBoards';
 import Deal from './deals';
 import DealStage from './dealStages';
 import EngageMessage from './engage';
@@ -41,6 +42,7 @@ const resolvers: any = {
   ConversationMessage,
   Deal,
   DealStage,
+  DealBoard,
 
   Mutation,
   Query,

@@ -31,6 +31,13 @@ const dealQueries = {
   },
 
   /**
+   * Deal pipeline detail
+   */
+  dealPipelineDetail(_root, { _id }: { _id: string }) {
+    return DealPipelines.findOne({ _id });
+  },
+
+  /**
    * Deal Stages list
    */
   dealStages(_root, { pipelineId }: { pipelineId: string }) {

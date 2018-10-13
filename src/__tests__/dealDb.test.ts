@@ -8,13 +8,15 @@ import {
   userFactory,
 } from '../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
+import { IBoardDocument, IDealDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/deals';
+import { IUserDocument } from '../db/models/definitions/users';
 
 describe('Test deals model', () => {
-  let board;
-  let pipeline;
-  let stage;
-  let deal;
-  let user;
+  let board: IBoardDocument;
+  let pipeline: IPipelineDocument;
+  let stage: IStageDocument;
+  let deal: IDealDocument;
+  let user: IUserDocument;
 
   beforeEach(async () => {
     // Creating test data
@@ -98,7 +100,7 @@ describe('Test deals model', () => {
         boardId: pipeline.boardId,
         userId: user._id,
       },
-      [stage],
+      [stage.toJSON()],
     );
 
     const stageToPipeline = await DealStages.findOne({ _id: stage._id });
@@ -283,11 +285,12 @@ describe('Test deals model', () => {
   test('Update deal orders', async () => {
     const dealToOrder = await dealFactory({});
 
-    const [updatedDeal, updatedDealToOrder] = await Deals.updateOrder([
+    const [updatedDeal, updatedDealToOrder] = await Deals.updateOrder(stage._id, [
       { _id: deal._id, order: 9 },
       { _id: dealToOrder._id, order: 3 },
     ]);
 
+    expect(updatedDeal.stageId).toBe(stage._id);
     expect(updatedDeal.order).toBe(3);
     expect(updatedDealToOrder.order).toBe(9);
   });

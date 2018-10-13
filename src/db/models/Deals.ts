@@ -19,46 +19,38 @@ export interface IOrderInput {
   order: number;
 }
 
-const updateListOrder = async (collection: any, orders: IOrderInput[]) => {
-  const ids: string[] = [];
+// Not mongoose document, just stage shaped plain object
+type IPipelineStage = IStage & { _id: string };
 
-  for (const { _id, order } of orders) {
-    ids.push(_id);
-
-    // update each deals order
-    await collection.update({ _id }, { order });
-  }
-
-  return collection.find({ _id: { $in: ids } }).sort({ order: 1 });
-};
-
-const createOrUpdatePipelineStages = async (stages: IStageDocument[], pipelineId: string) => {
+const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId: string) => {
   let order = 0;
+
+  const validStageIds: string[] = [];
 
   for (const stage of stages) {
     order++;
 
-    const doc = { ...stage.toJSON(), order, pipelineId };
+    const doc = { ...stage, order, pipelineId };
 
     const _id = doc._id;
-    const obj = await DealStages.findOne({ _id });
+
+    // fetch stage from database
+    const prevEntry = await DealStages.findOne({ _id });
 
     // edit
-    if (obj) {
+    if (prevEntry) {
+      validStageIds.push(_id);
       await DealStages.update({ _id }, { $set: doc });
+
+      // create
     } else {
-      await DealStages.create(doc);
+      delete doc._id;
+      const createdStage = await DealStages.createStage(doc);
+      validStageIds.push(createdStage._id);
     }
   }
 
-  const removedStages = await DealStages.find({
-    pipelineId,
-    _id: { $nin: stages.map(s => s._id) },
-  });
-
-  for (const stage of removedStages) {
-    await DealStages.removeStage(stage._id);
-  }
+  return DealStages.remove({ pipelineId, _id: { $nin: validStageIds } });
 };
 
 interface IBoardModel extends Model<IBoardDocument> {
@@ -105,11 +97,9 @@ class Board {
 }
 
 interface IPipelineModel extends Model<IPipelineDocument> {
-  createPipeline(doc: IPipeline, stages: IStageDocument[]): Promise<IPipelineDocument>;
-
-  updatePipeline(_id: string, doc: IPipeline, stages: IStageDocument[]): Promise<IPipelineDocument>;
-
-  updateOrder(orders: IOrderInput[]): any[];
+  createPipeline(doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
+  updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
+  updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
   removePipeline(_id: string): void;
 }
 
@@ -117,7 +107,7 @@ class Pipeline {
   /**
    * Create a pipeline
    */
-  public static async createPipeline(doc: IPipeline, stages: IStageDocument[]) {
+  public static async createPipeline(doc: IPipeline, stages: IPipelineStage[]) {
     const pipeline = await DealPipelines.create(doc);
 
     if (stages) {
@@ -130,7 +120,7 @@ class Pipeline {
   /**
    * Update Pipeline
    */
-  public static async updatePipeline(_id: string, doc: IPipeline, stages: IStageDocument[]) {
+  public static async updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]) {
     if (stages) {
       await createOrUpdatePipelineStages(stages, _id);
     }
@@ -143,8 +133,17 @@ class Pipeline {
   /*
    * Update given pipelines orders
    */
-  public static updateOrder(orders: IOrderInput[]) {
-    return updateListOrder(this, orders);
+  public static async updateOrder(orders: IOrderInput[]) {
+    const ids: string[] = [];
+
+    for (const { _id, order } of orders) {
+      ids.push(_id);
+
+      // update each deals order
+      await DealPipelines.update({ _id }, { order });
+    }
+
+    return DealPipelines.find({ _id: { $in: ids } }).sort({ order: 1 });
   }
 
   /**
@@ -171,7 +170,7 @@ interface IStageModel extends Model<IStageDocument> {
   createStage(doc: IStage): Promise<IStageDocument>;
   updateStage(_id: string, doc: IStage): Promise<IStageDocument>;
   changeStage(_id: string, pipelineId: string): Promise<IStageDocument>;
-  updateOrder(orders: IOrderInput[]): any[];
+  updateOrder(orders: IOrderInput[]): Promise<IStageDocument[]>;
   removeStage(_id: string): void;
 }
 
@@ -205,8 +204,17 @@ class Stage {
   /*
    * Update given stages orders
    */
-  public static updateOrder(orders: IOrderInput[]) {
-    return updateListOrder(this, orders);
+  public static async updateOrder(orders: IOrderInput[]) {
+    const ids: string[] = [];
+
+    for (const { _id, order } of orders) {
+      ids.push(_id);
+
+      // update each deals order
+      await DealStages.update({ _id }, { order });
+    }
+
+    return DealStages.find({ _id: { $in: ids } }).sort({ order: 1 });
   }
 
   /**
@@ -232,7 +240,7 @@ class Stage {
 interface IDealModel extends Model<IDealDocument> {
   createDeal(doc: IDeal): Promise<IDealDocument>;
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
-  updateOrder(orders: IOrderInput[]): any[];
+  updateOrder(stageId: string, orders: IOrderInput[]): Promise<IDealDocument[]>;
   removeDeal(_id: string): void;
   changeCustomer(newCustomerId: string, oldCustomerIds: string[]): Promise<IDealDocument>;
   changeCompany(newCompanyId: string, oldCompanyIds: string[]): Promise<IDealDocument>;
@@ -243,7 +251,13 @@ class Deal {
    * Create a deal
    */
   public static async createDeal(doc: IDeal) {
-    return Deals.create(doc);
+    const dealsCount = await Deals.find({ stageId: doc.stageId }).count();
+
+    return Deals.create({
+      ...doc,
+      order: dealsCount,
+      modifiedAt: new Date(),
+    });
   }
 
   /**
@@ -258,8 +272,17 @@ class Deal {
   /*
    * Update given deals orders
    */
-  public static updateOrder(orders: IOrderInput[]) {
-    return updateListOrder(this, orders);
+  public static async updateOrder(stageId: string, orders: IOrderInput[]) {
+    const ids: string[] = [];
+
+    for (const { _id, order } of orders) {
+      ids.push(_id);
+
+      // update each deals order
+      await Deals.update({ _id }, { stageId, order });
+    }
+
+    return Deals.find({ _id: { $in: ids } }).sort({ order: 1 });
   }
 
   /**
