@@ -19,6 +19,7 @@ class ProductItemFormContainer extends React.Component<Props> {
     const uom = getUomQuery.configsDetail
       ? getUomQuery.configsDetail.value
       : [];
+
     const currencies = getCurrenciesQuery.configsDetail
       ? getCurrenciesQuery.configsDetail.value
       : [];

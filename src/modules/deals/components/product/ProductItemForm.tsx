@@ -143,10 +143,10 @@ class ProductItemForm extends React.Component<Props> {
             name="uom"
             placeholder={__('Choose')}
             value={productData.uom}
-            onChange={selected =>
+            onChange={option =>
               this.onChangeField(
                 'uom',
-                selected ? selected.value : '',
+                option ? option.value : '',
                 productData._id
               )
             }
