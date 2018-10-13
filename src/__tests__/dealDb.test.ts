@@ -8,13 +8,15 @@ import {
   userFactory,
 } from '../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
+import { IBoardDocument, IDealDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/deals';
+import { IUserDocument } from '../db/models/definitions/users';
 
 describe('Test deals model', () => {
-  let board;
-  let pipeline;
-  let stage;
-  let deal;
-  let user;
+  let board: IBoardDocument;
+  let pipeline: IPipelineDocument;
+  let stage: IStageDocument;
+  let deal: IDealDocument;
+  let user: IUserDocument;
 
   beforeEach(async () => {
     // Creating test data
@@ -98,7 +100,7 @@ describe('Test deals model', () => {
         boardId: pipeline.boardId,
         userId: user._id,
       },
-      [stage],
+      [stage.toJSON()],
     );
 
     const stageToPipeline = await DealStages.findOne({ _id: stage._id });

@@ -19,7 +19,10 @@ export interface IOrderInput {
   order: number;
 }
 
-const createOrUpdatePipelineStages = async (stages: IStageDocument[], pipelineId: string) => {
+// Not mongoose document, just stage shaped plain object
+type IPipelineStage = IStage & { _id: string };
+
+const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId: string) => {
   let order = 0;
 
   const validStageIds: string[] = [];
@@ -30,6 +33,8 @@ const createOrUpdatePipelineStages = async (stages: IStageDocument[], pipelineId
     const doc = { ...stage, order, pipelineId };
 
     const _id = doc._id;
+
+    // fetch stage from database
     const prevEntry = await DealStages.findOne({ _id });
 
     // edit
@@ -92,8 +97,8 @@ class Board {
 }
 
 interface IPipelineModel extends Model<IPipelineDocument> {
-  createPipeline(doc: IPipeline, stages: IStageDocument[]): Promise<IPipelineDocument>;
-  updatePipeline(_id: string, doc: IPipeline, stages: IStageDocument[]): Promise<IPipelineDocument>;
+  createPipeline(doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
+  updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
   removePipeline(_id: string): void;
 }
@@ -102,7 +107,7 @@ class Pipeline {
   /**
    * Create a pipeline
    */
-  public static async createPipeline(doc: IPipeline, stages: IStageDocument[]) {
+  public static async createPipeline(doc: IPipeline, stages: IPipelineStage[]) {
     const pipeline = await DealPipelines.create(doc);
 
     if (stages) {
@@ -115,7 +120,7 @@ class Pipeline {
   /**
    * Update Pipeline
    */
-  public static async updatePipeline(_id: string, doc: IPipeline, stages: IStageDocument[]) {
+  public static async updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]) {
     if (stages) {
       await createOrUpdatePipelineStages(stages, _id);
     }
