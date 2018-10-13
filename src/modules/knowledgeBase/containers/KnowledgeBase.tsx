@@ -32,19 +32,16 @@ const KnowledgeBase = (props: IProps) => {
   }
 
   const articlesCount =
-    (articlesCountQuery &&
-      articlesCountQuery.knowledgeBaseArticlesTotalCount) ||
-    0;
+    articlesCountQuery && articlesCountQuery.knowledgeBaseArticlesTotalCount;
 
   const currentCategory =
-    (categoryDetailQuery && categoryDetailQuery.knowledgeBaseCategoryDetail) ||
-    {};
+    categoryDetailQuery && categoryDetailQuery.knowledgeBaseCategoryDetail;
 
   const updatedProps = {
     ...props,
-    articlesCount,
-    currentCategory,
-    currentCategoryId: currentCategory._id || ''
+    articlesCount: articlesCount || 0,
+    currentCategory: currentCategory || {},
+    currentCategoryId: (currentCategory && currentCategory._id) || ''
   };
 
   return <KnowledgeBaseComponent {...updatedProps} />;
