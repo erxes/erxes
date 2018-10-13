@@ -1,17 +1,15 @@
 // transitions
 
-
 // fade in
 .fade-enter {
   opacity: 0;
 }
 
 .fade-enter-active {
-  opacity: 1;
   height: auto;
+  opacity: 1;
   transition: opacity 300ms linear;
 }
-
 
 .fade-enter-done {
   height: auto;
@@ -22,8 +20,8 @@
 }
 
 .fade-exit-active {
-  opacity: 0;
   height: 0;
+  opacity: 0;
   transition: opacity 300ms linear;
 }
 
@@ -77,6 +75,27 @@
   display: none;
 }
 
+// slide
+.slide-enter,
+.slide-appear {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.slide-enter-active,
+.slide-appear-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms $timing-slide 300ms;
+}
+
+.slide-exit,
+.slide-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 300ms $timing-slide;
+}
+
 // scale in
 .scale-in-enter,
 .scale-in-appear {
@@ -90,7 +109,7 @@
   opacity: 1;
   transform: scale(1);
   transform-origin: 100% 100%;
-  transition: all .3s $timing-scale;
+  transition: all .3s $timing-scale .1s;
   transition-property: transform, opacity;
 }
 

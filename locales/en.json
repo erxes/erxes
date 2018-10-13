@@ -5,6 +5,8 @@
   "Online": "Online",
   "Send a message": "Send a message",
   "Send": "Send",
+  "Support": "Support",
+  "Faq": "Faq",
   "Start new conversation": "Start new conversation",
   "Write a reply": "Write a reply",
   "Conversation": "Conversation",
@@ -31,5 +33,6 @@
   "Recent conversations": "Recent conversations",
   "with Support staffs": "with Support staffs",
   "Talk with support staff": "Talk with support staff",
-  "Do you want to end this conversation ?": "Do you want to end this conversation ?"
+  "Do you want to end this conversation ?": "Do you want to end this conversation ?",
+  "Welcome description": "Let me know if you have any questions! We'd be happy to help"
 }

@@ -61,7 +61,7 @@ $topbar-shadow: rgba(0, 0, 0, .1);
     }
   }
 
-  .brand-info {
+  .welcome-info {
     h3 {
       font-size: 20px;
       font-weight: bold;
@@ -88,12 +88,38 @@ $topbar-shadow: rgba(0, 0, 0, .1);
 
   .erxes-small-head {
     border-radius: $border-radius;
+    max-width: 260px;
     padding: 3px 5px;
     position: absolute;
     top: 10px;
+    transition: all .3s ease;
 
     &:hover {
       background: $topbar-shadow;
+    }
+
+    .erxes-topbar-title {
+      padding: 5px;
+    }
+  }
+
+  .socials {
+    a {
+      opacity: .6;
+      margin-right: 12px;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      &:last-of-type {
+        margin: 0;
+      }
+    }
+
+    img {
+      height: 18px;
+      width: 18px;
     }
   }
 }
@@ -116,6 +142,8 @@ $topbar-shadow: rgba(0, 0, 0, .1);
     color: $name-white;
     display: none;
     font-size: 12px;
+    min-height: 18px;
+    text-transform: capitalize;
   }
 
   &.full {
@@ -142,24 +170,62 @@ $topbar-shadow: rgba(0, 0, 0, .1);
       display: none;
     }
   }
+}
 
-  .avatar {
-    position: relative;
+.erxes-profile {
+  text-align: left;
 
-    img {
-      background: rgba($black, .2);
-      border: 2px solid $main-color;
-      border-radius: $core-spacing + 2;
+  .top-content {
+    align-items: center;
+    display: flex;
+
+    .user-name {
+      flex: 1;
+      font-size: 13px;
+      margin-left: 10px;
+      max-width: 200px;
+      overflow: hidden;
+    }
+
+    span {
+      color: $name-white;
       display: block;
-      height: ($core-spacing * 2);
-      width: ($core-spacing * 2);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .erxes-state {
-      bottom: 2px;
-      position: absolute;
-      right: 2px;
-      z-index: 2;
+    h5 {
+      font-size: 13px;
+      margin: 0;
     }
+  }
+
+  .bottom-content {
+    color: $name-white;
+
+    p {
+      font-size: 13px;
+    }
+  }
+}
+
+.avatar {
+  position: relative;
+
+  img {
+    background: rgba($black, .2);
+    border: 2px solid transparent;
+    border-radius: $core-spacing + 2;
+    display: block;
+    height: ($core-spacing * 2);
+    width: ($core-spacing * 2);
+  }
+
+  .erxes-state {
+    bottom: 2px;
+    position: absolute;
+    right: 2px;
+    z-index: 2;
   }
 }

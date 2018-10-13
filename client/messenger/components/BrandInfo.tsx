@@ -9,7 +9,7 @@ function BrandInfo(props: Props) {
   const { brand } = props;
 
   return (
-    <div className="brand-info">
+    <div className="welcome-info">
       <h3>{brand.name}</h3>
       <div className="description">{brand.description}</div>
     </div>

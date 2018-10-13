@@ -10,8 +10,14 @@ type Props = {
 
 const home = (props: Props) => (
   <AppConsumer>
-    {({ getColor }) => {
-      return <WidgetHome {...props} color={getColor()} />;
+    {({ getColor, getMessengerData }) => {
+      return (
+        <WidgetHome
+          {...props}
+          messengerData={getMessengerData()}
+          color={getColor()}
+        />
+      );
     }}
   </AppConsumer>
 );

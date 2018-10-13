@@ -45,15 +45,23 @@ $shadow-black: rgba(0, 0, 0, .1);
   .erxes-home-content {
     position: relative;
     z-index: 11;
+
+    .erxes-home-item {
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
   }
 }
 
 .erxes-welcome {
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: center;
   overflow-wrap: break-word;
-  padding: 25px 40px 60px;
+  padding: 25px 40px;
   text-align: left;
   word-wrap: break-word;
 
@@ -71,10 +79,6 @@ $shadow-black: rgba(0, 0, 0, .1);
     }
   }
 
-  .brand-info {
-    display: block;
-  }
-
   .erxes-topbar-title,
   .erxes-state {
     display: none;
@@ -88,13 +92,23 @@ $shadow-black: rgba(0, 0, 0, .1);
     margin-left: -50px;
   }
 
-  time {
-    color: rgba($white, .7);
-    font-size: 11px;
+  &.tabbed {
+    padding-bottom: 60px;
+  }
+
+  .assist-bar {
+    display: flex;
+    justify-content: space-between;
     margin-bottom: 10px;
+
+    time {
+      color: rgba($white, .7);
+      font-size: 11px;
+    }
   }
 }
 
+// tab bar
 .erxes-tab {
   border-bottom: 1px solid $border-color;
   bottom: 0;

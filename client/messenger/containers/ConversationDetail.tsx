@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, compose, graphql } from "react-apollo";
-import { IUser } from "../../types";
+import { IParticipator, IUser } from "../../types";
 import { ConversationDetail as DumbComponent } from "../components";
 import { connection } from "../connection";
 import graphqlTypes from "../graphql";
@@ -86,16 +86,23 @@ class ConversationDetail extends React.Component<
     const { data } = this.props;
 
     let messages: IMessage[] = [];
+    let participators: IParticipator[] = [];
     let isOnline: boolean = false;
 
     if (data && data.conversationDetail) {
       const conversationDetail = data.conversationDetail;
       messages = conversationDetail.messages;
+      participators = conversationDetail.participatedUsers || [];
       isOnline = conversationDetail.isOnline;
     }
 
     return (
-      <DumbComponent {...this.props} messages={messages} isOnline={isOnline} />
+      <DumbComponent
+        {...this.props}
+        messages={messages}
+        isOnline={isOnline}
+        participators={participators}
+      />
     );
   }
 }

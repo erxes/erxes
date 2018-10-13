@@ -57,10 +57,9 @@
 }
 
 .erxes-spacial-message {
-  background: $white;
-  border: 1px solid $border-color;
+  background-color: $grey;
   border-radius: 10px;
-  border-top-left-radius: 2px;
+  box-shadow: $message-shadow;
   color: $text-color;
   margin-bottom: 20px;
   padding: 20px;

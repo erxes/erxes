@@ -1,8 +1,8 @@
 import * as React from "react";
 import * as ReactTransitionGroup from "react-transition-group";
-import { Supporters } from ".";
+import { Profile, Supporters } from ".";
 import { iconLeft } from "../../icons/Icons";
-import { IUser } from "../../types";
+import { IParticipator, IUser } from "../../types";
 import { __ } from "../../utils";
 import { BrandInfo, MessageSender, MessagesList, TopBar } from "../containers";
 import { IMessage } from "../types";
@@ -11,6 +11,7 @@ type Props = {
   messages: IMessage[];
   goToConversationList: () => void;
   supporters: IUser[];
+  participators: IParticipator[];
   isOnline: boolean;
   color?: string;
   loading?: boolean;
@@ -53,11 +54,7 @@ class ConversationDetail extends React.Component<Props, State> {
   }
 
   toggle() {
-    const { supporters } = this.props;
-
-    if (supporters.length !== 0) {
-      this.setState({ isFullHead: !this.state.isFullHead });
-    }
+    this.setState({ isFullHead: !this.state.isFullHead });
   }
 
   inputFocus() {
@@ -78,6 +75,34 @@ class ConversationDetail extends React.Component<Props, State> {
         this.setState({ isFullHead: false });
       }
     }
+  }
+
+  renderProfile() {
+    const { participators, isOnline } = this.props;
+
+    const profileComponent = (expanded: boolean) => {
+      return (
+        <Profile
+          user={participators[0]}
+          isOnline={isOnline}
+          isExpanded={expanded}
+        />
+      );
+    };
+
+    return (
+      <React.Fragment>
+        {this.transitionElement(
+          <div className="erxes-head-content">{profileComponent(true)}</div>,
+          this.state.isFullHead
+        )}
+
+        {this.transitionElement(
+          <div className="erxes-small-head">{profileComponent(false)}</div>,
+          !this.state.isFullHead
+        )}
+      </React.Fragment>
+    );
   }
 
   renderHead() {
@@ -113,7 +138,12 @@ class ConversationDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const { messages, goToConversationList, isOnline } = this.props;
+    const {
+      messages,
+      participators,
+      goToConversationList,
+      isOnline
+    } = this.props;
 
     const placeholder = !messages.length
       ? __("Send a message")
@@ -122,7 +152,9 @@ class ConversationDetail extends React.Component<Props, State> {
     return (
       <div className="erxes-conversation-detail" onWheel={this.onWheel}>
         <TopBar
-          middle={this.renderHead()}
+          middle={
+            participators.length ? this.renderProfile() : this.renderHead()
+          }
           buttonIcon={iconLeft}
           toggleHead={this.toggle}
           isExpanded={this.state.expanded}

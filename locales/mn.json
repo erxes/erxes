@@ -5,6 +5,8 @@
   "Offline": "Оффлайн",
   "Send a message": "Зурвас илгээх",
   "Send": "Илгээх",
+  "Support": "Тусламж",
+  "Faq": "Асуулт",
   "Start new conversation": "Харилцан яриа эхлүүлэх",
   "Write a reply": "Хариу бичих",
   "Conversation": "Харилцан яриа",
@@ -31,5 +33,6 @@
   "Recent conversations": "Харилцан ярианууд",
   "with Support staffs": "Туслах ажилтан",
   "Talk with support staff": "Туслах ажилтантай ярилцах",
-  "Do you want to end this conversation ?": "Харилцан яриаг дуусгах уу?"
+  "Do you want to end this conversation ?": "Харилцан яриаг дуусгах уу?",
+  "Welcome description": "Танд асуух асуулт байна уу? Бид танд туслахад бэлэн байна."
 }

@@ -25,7 +25,7 @@ export default class App extends React.Component<Props> {
         <ReactTransitionGroup.CSSTransition
           in={isMessengerVisible}
           appear={true}
-          timeout={300}
+          timeout={400}
           classNames="scale-in"
           unmountOnExit
         >

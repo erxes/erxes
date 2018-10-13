@@ -22,7 +22,11 @@ class Supporters extends React.Component<Props> {
   }
 
   renderSupporter(user: IUser, isOnline: boolean, color: string) {
-    const details = user.details || { avatar: defaultAvatar, fullName: "" };
+    const details = user.details || {
+      avatar: defaultAvatar,
+      fullName: "",
+      shortName: ""
+    };
 
     return (
       <div
@@ -39,7 +43,7 @@ class Supporters extends React.Component<Props> {
           />
           {this.renderOnlineState(isOnline)}
         </div>
-        <span className="erxes-staff-name">{details.fullName}</span>
+        <span className="erxes-staff-name">{details.shortName}</span>
       </div>
     );
   }
@@ -72,7 +76,7 @@ class Supporters extends React.Component<Props> {
   }
 
   render() {
-    const { users, loading } = this.props;
+    const { users, loading, isExpanded } = this.props;
 
     if (loading) {
       return (
@@ -84,6 +88,10 @@ class Supporters extends React.Component<Props> {
 
     if (users.length !== 0) {
       return this.renderUsers();
+    }
+
+    if (isExpanded) {
+      return null;
     }
 
     return (

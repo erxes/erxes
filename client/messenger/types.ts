@@ -2,6 +2,7 @@ import {
   ICustomer,
   IIntegrationMessengerData,
   IIntegrationUiOptions,
+  IParticipator,
   IUser
 } from "../types";
 
@@ -40,7 +41,7 @@ export interface IConversation {
   _id: string;
   content: string;
   createdAt: Date;
-  participatedUsers?: IUser[];
+  participatedUsers?: IParticipator[];
   messages: IMessage[];
   isOnline: boolean;
   supporters?: IUser[];

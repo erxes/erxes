@@ -1,5 +1,4 @@
 /* global FileReader */
-
 import T from "i18n-react";
 import * as moment from "moment";
 import translation from "../locales";
