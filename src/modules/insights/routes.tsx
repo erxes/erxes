@@ -66,12 +66,20 @@ const routes = () => (
       path="/insights/volume-report"
       component={() => {
         return (
-          <AsyncReports type="volume" component={AsyncVolumeAndResponseReport} />
+          <AsyncReports
+            type="volume"
+            component={AsyncVolumeAndResponseReport}
+          />
         );
       }}
     />
 
-    <Route key="/insights" exact path="/insights" component={AsyncInsightPage} />
+    <Route
+      key="/insights"
+      exact
+      path="/insights"
+      component={AsyncInsightPage}
+    />
   </React.Fragment>
 );
 

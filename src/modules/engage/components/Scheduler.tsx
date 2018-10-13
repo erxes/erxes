@@ -18,7 +18,7 @@ type Props = {
 
 type State = {
   scheduleDate: IEngageScheduleDate;
-}
+};
 
 class Scheduler extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -64,7 +64,9 @@ class Scheduler extends React.Component<Props, State> {
         <FormControl
           componentClass="select"
           value={month}
-          onChange={e => this.changeSchedule('month', (e.target as HTMLInputElement).value)}
+          onChange={e =>
+            this.changeSchedule('month', (e.target as HTMLInputElement).value)
+          }
         >
           <option /> {this.generateOptions(12)}
         </FormControl>
@@ -85,7 +87,9 @@ class Scheduler extends React.Component<Props, State> {
         <FormControl
           componentClass="select"
           value={day}
-          onChange={e => this.changeSchedule('day', (e.target as HTMLInputElement).value)}
+          onChange={e =>
+            this.changeSchedule('day', (e.target as HTMLInputElement).value)
+          }
         >
           <option /> {this.generateOptions(31)}
         </FormControl>
@@ -107,12 +111,14 @@ class Scheduler extends React.Component<Props, State> {
         <FormControl
           componentClass="select"
           value={type}
-          onChange={e => this.changeSchedule('type', (e.target as HTMLInputElement).value)}
+          onChange={e =>
+            this.changeSchedule('type', (e.target as HTMLInputElement).value)
+          }
         >
           <option />{' '}
-          {SCHEDULE_TYPES.map(type => (
-            <option key={type.value} value={type.value}>
-              {__(type.label)}
+          {SCHEDULE_TYPES.map(scheduleType => (
+            <option key={scheduleType.value} value={scheduleType.value}>
+              {__(scheduleType.label)}
             </option>
           ))}
         </FormControl>

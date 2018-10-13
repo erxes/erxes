@@ -11,11 +11,15 @@ type Props = {
   type: ITagTypes;
   tagsQuery: any;
 
-  tagMutation: (params: { variables: {
-    type: string;
-    targetIds: string[];
-    tagIds: string[];
-  } }) => Promise<any>;
+  tagMutation: (
+    params: {
+      variables: {
+        type: string;
+        targetIds: string[];
+        tagIds: string[];
+      };
+    }
+  ) => Promise<any>;
 
   successCallback: () => void;
 };
@@ -59,7 +63,7 @@ const TaggerContainer = (props: Props) => {
   return <Tagger {...updatedProps} />;
 };
 
-const tagsQuery = gql`
+const query = gql`
   query($type: String!) {
     tags(type: $type) {
       _id
@@ -69,7 +73,7 @@ const tagsQuery = gql`
   }
 `;
 
-const tagMutation = gql`
+const mutation = gql`
   mutation tagsTag(
     $type: String!
     $targetIds: [String!]!
@@ -80,13 +84,13 @@ const tagMutation = gql`
 `;
 
 export default compose(
-  graphql(tagsQuery, {
+  graphql(query, {
     name: 'tagsQuery',
     options: (props: Props) => ({
       variables: { type: props.type }
     })
   }),
-  graphql(tagMutation, {
+  graphql(mutation, {
     name: 'tagMutation',
     options: ({ refetchQueries }: { refetchQueries: any }) => ({
       refetchQueries

@@ -23,7 +23,6 @@ type Props = {
 };
 
 class ResponseCloseReport extends React.Component<Props> {
-
   renderTitle(title: string, time?: string) {
     return (
       <InsightTitle>

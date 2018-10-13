@@ -17,4 +17,9 @@ export interface ITagSaveParams {
   callback: () => void;
 }
 
-export type ITagTypes = 'conversation' | 'customer'  | 'engageMessage' | 'company' | 'integration';
+export type ITagTypes =
+  | 'conversation'
+  | 'customer'
+  | 'engageMessage'
+  | 'company'
+  | 'integration';

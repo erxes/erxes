@@ -1,20 +1,20 @@
-import * as moment from "moment";
-import * as React from "react";
-import strip from "strip";
+import * as moment from 'moment';
+import * as React from 'react';
+import strip from 'strip';
 
-import { withCurrentUser } from "modules/auth/containers";
+import { withCurrentUser } from 'modules/auth/containers';
 import {
   FormControl,
   IntegrationIcon,
   NameCard,
   Tags
-} from "modules/common/components";
+} from 'modules/common/components';
 
-import { IUser } from "../../../auth/types";
-import { ICustomer } from "../../../customers/types";
-import { IBrand } from "../../../settings/brands/types";
-import { IIntegration } from "../../../settings/integrations/types";
-import { IConversation } from "../../types";
+import { IUser } from '../../../auth/types';
+import { ICustomer } from '../../../customers/types';
+import { IBrand } from '../../../settings/brands/types';
+import { IIntegration } from '../../../settings/integrations/types';
+import { IConversation } from '../../types';
 import {
   AssigneeImg,
   AssigneeWrapper,
@@ -27,7 +27,7 @@ import {
   RowItem,
   SmallText,
   SmallTextOneLine
-} from "./styles";
+} from './styles';
 
 type Props = {
   conversation: IConversation;
@@ -80,7 +80,7 @@ class ConversationItem extends React.Component<Props> {
 
   renderFullName(visitor: { [key: string]: any }) {
     if (visitor.firstName || visitor.lastName) {
-      return (visitor.firstName || "") + " " + (visitor.lastName || "");
+      return (visitor.firstName || '') + ' ' + (visitor.lastName || '');
     }
 
     return null;
@@ -140,7 +140,7 @@ class ConversationItem extends React.Component<Props> {
                       customer.primaryEmail ||
                       customer.primaryPhone ||
                       this.getVisitorInfo(customer) ||
-                      "Unnamed")}
+                      'Unnamed')}
                 </CustomerName>
 
                 <SmallTextOneLine>
@@ -163,7 +163,7 @@ class ConversationItem extends React.Component<Props> {
                 src={
                   assignedUser.details
                     ? assignedUser.details.avatar
-                    : "/images/avatar-colored.svg"
+                    : '/images/avatar-colored.svg'
                 }
               />
             </AssigneeWrapper>

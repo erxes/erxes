@@ -1,6 +1,6 @@
-import * as React from "react";
-import CommonPreview from "./CommonPreview";
-import { ThankContent } from "./styles";
+import * as React from 'react';
+import CommonPreview from './CommonPreview';
+import { ThankContent } from './styles';
 
 type Props = {
   thankContent?: string;

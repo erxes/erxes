@@ -1,8 +1,8 @@
-import { NameCard } from "modules/common/components";
-import * as React from "react";
-import { Date, FacebookContent, Reactions, UserName } from ".";
-import { IMessage, IMessageFacebookData } from "../../../../../types";
-import { Counts, FlexItem, PostContainer, User } from "./styles";
+import { NameCard } from 'modules/common/components';
+import * as React from 'react';
+import { Date, FacebookContent, Reactions, UserName } from '.';
+import { IMessage, IMessageFacebookData } from '../../../../../types';
+import { Counts, FlexItem, PostContainer, User } from './styles';
 
 type Props = {
   message: IMessage;

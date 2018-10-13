@@ -13,7 +13,7 @@ type Doc = {
   name: string;
   description: string;
   isVisible: boolean;
-}
+};
 
 type Props = {
   add: ({ doc }: { doc: Doc }) => void;
@@ -24,9 +24,9 @@ type Props = {
 };
 
 type State = {
-  isVisible: boolean,
-  action: (params: {_id?: string, doc: Doc}) => void
-}
+  isVisible: boolean;
+  action: (params: { _id?: string; doc: Doc }) => void;
+};
 
 class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
@@ -54,7 +54,9 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
     const { isVisible } = this.state;
     const name = (document.getElementById('name') as HTMLInputElement).value;
-    const description = (document.getElementById('description') as HTMLInputElement).value;
+    const description = (document.getElementById(
+      'description'
+    ) as HTMLInputElement).value;
 
     const doc = {
       name,

@@ -19,11 +19,11 @@ import { IResponseTemplate } from '../types';
 type Props = {
   object?: IResponseTemplate;
   brands: IBrand[];
-}
+};
 
 type State = {
   editorState: EditorState;
-}
+};
 
 class Form extends React.Component<Props & ICommonFormProps, State> {
   constructor(props) {
@@ -55,8 +55,11 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   generateDoc() {
     return {
       doc: {
-        brandId: (document.getElementById('template-brand-id') as HTMLInputElement).value,
-        name: (document.getElementById('template-name') as HTMLInputElement).value,
+        brandId: (document.getElementById(
+          'template-brand-id'
+        ) as HTMLInputElement).value,
+        name: (document.getElementById('template-name') as HTMLInputElement)
+          .value,
         content: this.getContent(this.state.editorState)
       }
     };
@@ -64,7 +67,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
   renderContent() {
     const { brands } = this.props;
-    const object = this.props.object || {} as IResponseTemplate;
+    const object = this.props.object || ({} as IResponseTemplate);
 
     const props = {
       editorState: this.state.editorState,
@@ -116,7 +119,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
       />
-    )
+    );
   }
 }
 

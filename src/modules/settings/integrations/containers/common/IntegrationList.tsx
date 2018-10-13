@@ -47,7 +47,15 @@ const IntegrationListContainer = (props: Props) => {
 export default compose(
   graphql(gql(queries.integrations), {
     name: 'integrationsQuery',
-    options: ({ queryParams, kind, variables } : { queryParams: any, kind: string, variables: any }) => {
+    options: ({
+      queryParams,
+      kind,
+      variables
+    }: {
+      queryParams: any;
+      kind: string;
+      variables: any;
+    }) => {
       return {
         notifyOnNetworkStatusChange: true,
         variables: {
@@ -61,7 +69,7 @@ export default compose(
   }),
   graphql(gql(mutations.integrationsRemove), {
     name: 'removeMutation',
-    options: ({ queryParams, kind } : { queryParams: any, kind: string }) => {
+    options: ({ queryParams, kind }: { queryParams: any; kind: string }) => {
       return {
         refetchQueries: [
           {

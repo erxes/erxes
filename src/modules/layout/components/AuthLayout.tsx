@@ -5,7 +5,7 @@ import { AuthContent, AuthDescription, Authlayout } from '../styles';
 
 type Props = {
   content: React.ReactNode;
-}
+};
 
 class AuthLayout extends React.Component<Props, {}> {
   render() {

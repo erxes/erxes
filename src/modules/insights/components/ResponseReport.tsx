@@ -22,7 +22,7 @@ type Props = {
   punch?: any;
   summary?: any;
   loading?: any;
-}
+};
 
 class ResponseReport extends React.Component<Props, { width: number }> {
   private wrapper;
@@ -116,10 +116,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
 
         <InsightRow>
           {this.renderTitle('Response by team members')}
-          <TeamMembers
-            loading={loading.main}
-            datas={teamMembers || []}
-          />
+          <TeamMembers loading={loading.main} datas={teamMembers || []} />
         </InsightRow>
       </InsightContent>
     );

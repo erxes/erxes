@@ -1,6 +1,7 @@
 import {
   ActionButtons,
   Button,
+  EmptyState,
   Icon,
   Label,
   ModalTrigger,
@@ -35,6 +36,10 @@ class IntegrationList extends React.Component<Props> {
       return 'form';
     }
 
+    if (kind === KIND_CHOICES.GMAIL) {
+      return 'gmail';
+    }
+
     return 'default';
   }
 
@@ -60,10 +65,12 @@ class IntegrationList extends React.Component<Props> {
             </Link>
           </Tip>
 
-          <ModalTrigger 
-            title="Install code" 
+          <ModalTrigger
+            title="Install code"
             trigger={editTrigger}
-            content={(props) => <InstallCode {...props} integration={integration} />}
+            content={props => (
+              <InstallCode {...props} integration={integration} />
+            )}
           />
         </ActionButtons>
       );
@@ -118,6 +125,15 @@ class IntegrationList extends React.Component<Props> {
 
   render() {
     const { integrations } = this.props;
+
+    if (!integrations || integrations.length < 1) {
+      return (
+        <EmptyState
+          text="There aren’t any integrations at the moment."
+          image="/images/robots/robot-05.svg"
+        />
+      );
+    }
 
     return (
       <React.Fragment>

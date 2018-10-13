@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Box, IntegrationItem } from './styles';
 
-type Props= {
+type Props = {
   integration: any;
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
@@ -33,10 +33,10 @@ class Entry extends React.Component<Props> {
       const trigger = <a>+ {__('Add')}</a>;
 
       return (
-        <ModalTrigger 
-          title="Add facebook page" 
+        <ModalTrigger
+          title="Add facebook page"
           trigger={trigger}
-          content={(props) => <Facebook {...props} />}
+          content={props => <Facebook {...props} />}
         />
       );
     }

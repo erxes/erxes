@@ -7,7 +7,12 @@ import styledTS from 'styled-components-ts';
 import { IUser } from '../../../auth/types';
 import { ICompany } from '../../../companies/types';
 
-const AvatarStyled = styledTS<{ isUser?: boolean; messenger?: boolean; twitter?: boolean; facebook?: boolean; }>(styled.span)`
+const AvatarStyled = styledTS<{
+  isUser?: boolean;
+  messenger?: boolean;
+  twitter?: boolean;
+  facebook?: boolean;
+}>(styled.span)`
   display: block;
   max-width: 80px;
   border-radius: 40px;
@@ -44,7 +49,7 @@ const AvatarStyled = styledTS<{ isUser?: boolean; messenger?: boolean; twitter?:
 
 const AvatarImage = styledTS<{ image?: string }>(styled.div)`
   background: url(${props =>
-      props.image ? props.image : '/images/avatar.svg'})
+    props.image ? props.image : '/images/avatar.svg'})
     center no-repeat;
   background-size: cover;
 `;

@@ -1,6 +1,6 @@
-import { Button, Icon } from "modules/common/components";
-import { __ } from "modules/common/utils";
-import * as React from "react";
+import { Button, Icon } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
 import {
   FullStep,
   ShortStep,
@@ -10,7 +10,7 @@ import {
   StepHeaderTitle,
   StepImg,
   StepItem
-} from "./styles";
+} from './styles';
 
 type Props = {
   stepNumber?: number;
@@ -34,7 +34,7 @@ class Step extends React.Component<Props> {
           btnStyle="success"
           size="small"
           icon="checked-1"
-          onClick={e => save("save", e)}
+          onClick={e => save('save', e)}
         >
           Save
         </Button>
@@ -48,7 +48,7 @@ class Step extends React.Component<Props> {
             btnStyle="warning"
             size="small"
             icon="rightarrow-2"
-            onClick={e => save("draft", e)}
+            onClick={e => save('draft', e)}
           >
             Save & Draft
           </Button>
@@ -56,7 +56,7 @@ class Step extends React.Component<Props> {
             btnStyle="success"
             size="small"
             icon="checked-1"
-            onClick={e => save("live", e)}
+            onClick={e => save('live', e)}
           >
             Save & Live
           </Button>
@@ -88,12 +88,8 @@ class Step extends React.Component<Props> {
     }
 
     return (
-      <Button
-        btnStyle="primary"
-        size="small"
-        onClick={() => next(0)}
-      >
-        {__("Next")} <Icon icon="rightarrow-2" />
+      <Button btnStyle="primary" size="small" onClick={() => next(0)}>
+        {__('Next')} <Icon icon="rightarrow-2" />
       </Button>
     );
   }
@@ -132,7 +128,10 @@ class Step extends React.Component<Props> {
           <StepContent>{children}</StepContent>
         </FullStep>
 
-        <ShortStep show={!show} onClick={() => next && stepNumber && next(stepNumber)}>
+        <ShortStep
+          show={!show}
+          onClick={() => next && stepNumber && next(stepNumber)}
+        >
           <StepImg>
             <img src={img} alt="step-icon" />
           </StepImg>

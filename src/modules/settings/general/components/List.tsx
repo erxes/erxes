@@ -11,7 +11,7 @@ import { ICurrencies } from '../types';
 type Props = {
   currentLanguage: string;
   changeLanguage: (language: string) => void;
-  save: (name: string, object: any ) => void;
+  save: (name: string, object: any) => void;
   // TODO: check currencies type
   currencies: ICurrencies;
   uom: ICurrencies;

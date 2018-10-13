@@ -8,7 +8,7 @@ type Props = {
   engageMessageDetailQuery: any;
 };
 
-const EmailStatisticsContainer = (props : Props) => {
+const EmailStatisticsContainer = (props: Props) => {
   const { engageMessageDetailQuery } = props;
 
   if (engageMessageDetailQuery.loading) {
@@ -23,7 +23,7 @@ const EmailStatisticsContainer = (props : Props) => {
 export default compose(
   graphql(gql(queries.engageMessageDetail), {
     name: 'engageMessageDetailQuery',
-    options: ({ messageId } : { messageId: string }) => ({
+    options: ({ messageId }: { messageId: string }) => ({
       variables: {
         _id: messageId
       }

@@ -38,21 +38,21 @@ class ProductItemForm extends React.Component<Props> {
     if (amount > 0) {
       switch (type) {
         case 'discount': {
-          productData.discountPercent = productData.discount * 100 / amount;
+          productData.discountPercent = (productData.discount * 100) / amount;
           break;
         }
         case 'discountPercent': {
-          productData.discount = amount * productData.discountPercent / 100;
+          productData.discount = (amount * productData.discountPercent) / 100;
           break;
         }
         default: {
-          productData.discountPercent = productData.discount * 100 / amount;
-          productData.discount = amount * productData.discountPercent / 100;
+          productData.discountPercent = (productData.discount * 100) / amount;
+          productData.discount = (amount * productData.discountPercent) / 100;
         }
       }
 
       productData.tax =
-        (amount - productData.discount || 0) * productData.taxPercent / 100;
+        ((amount - productData.discount || 0) * productData.taxPercent) / 100;
       productData.amount =
         amount - (productData.discount || 0) + (productData.tax || 0);
     } else {
@@ -65,21 +65,25 @@ class ProductItemForm extends React.Component<Props> {
 
     const { updateTotal } = this.props;
 
-    updateTotal && updateTotal();
+    if (updateTotal) {
+      updateTotal();
+    }
   }
 
   onChangeField(type, value, _id) {
     const { productsData, onChangeProductsData } = this.props;
 
-    if(productsData) {
+    if (productsData) {
       const productData = productsData.find(p => p._id === _id);
-      if(productData) productData[type] = value;
-      
+      if (productData) productData[type] = value;
+
       if (type !== 'product' && type !== 'uom') {
         this.calculateAmount(type, productData);
       }
-      
-      onChangeProductsData && onChangeProductsData(productsData);
+
+      if (onChangeProductsData) {
+        onChangeProductsData(productsData);
+      }
     }
   }
 
@@ -108,7 +112,7 @@ class ProductItemForm extends React.Component<Props> {
         title="Choose product & service"
         trigger={this.renderProductServiceTrigger(productData.product)}
         size="large"
-        content={(props) => (
+        content={props => (
           <ProductChooser
             {...props}
             onSelect={products => {
@@ -139,8 +143,12 @@ class ProductItemForm extends React.Component<Props> {
             name="uom"
             placeholder={__('Choose')}
             value={productData.uom}
-            onChange={uom =>
-              this.onChangeField('uom', uom ? uom.value : '', productData._id)
+            onChange={option =>
+              this.onChangeField(
+                'uom',
+                option ? option.value : '',
+                productData._id
+              )
             }
             optionRenderer={option => (
               <div className="simple-option">
@@ -177,7 +185,7 @@ class ProductItemForm extends React.Component<Props> {
             min={1}
             placeholder="0"
             name="quantity"
-            onChange={(e) =>
+            onChange={e =>
               this.onChangeField(
                 (e.target as HTMLInputElement).name,
                 (e.target as HTMLInputElement).value,
@@ -196,7 +204,7 @@ class ProductItemForm extends React.Component<Props> {
             type="number"
             placeholder="0"
             name="unitPrice"
-            onChange={(e) =>
+            onChange={e =>
               this.onChangeField(
                 (e.target as HTMLInputElement).name,
                 (e.target as HTMLInputElement).value,
@@ -212,7 +220,7 @@ class ProductItemForm extends React.Component<Props> {
             max={100}
             placeholder="0"
             name="discountPercent"
-            onChange={(e) =>
+            onChange={e =>
               this.onChangeField(
                 (e.target as HTMLInputElement).name,
                 (e.target as HTMLInputElement).value,
@@ -228,7 +236,7 @@ class ProductItemForm extends React.Component<Props> {
             max={100}
             placeholder="0"
             name="taxPercent"
-            onChange={(e) =>
+            onChange={e =>
               this.onChangeField(
                 (e.target as HTMLInputElement).name,
                 (e.target as HTMLInputElement).value,
@@ -250,7 +258,7 @@ class ProductItemForm extends React.Component<Props> {
             type="number"
             placeholder="0"
             name="discount"
-            onChange={(e) =>
+            onChange={e =>
               this.onChangeField(
                 (e.target as HTMLInputElement).name,
                 (e.target as HTMLInputElement).value,
@@ -272,7 +280,9 @@ class ProductItemForm extends React.Component<Props> {
             btnStyle="danger"
             icon="cancel-1"
             size="small"
-            onClick={() => removeProductItem && removeProductItem(productData._id)}
+            onClick={() =>
+              removeProductItem && removeProductItem(productData._id)
+            }
           />
         </td>
       </tr>

@@ -40,8 +40,8 @@ type Props = {
 };
 
 type State = {
-  fields: IContentTypeFields[]
-}
+  fields: IContentTypeFields[];
+};
 
 class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -61,7 +61,7 @@ class ManageColumns extends React.Component<Props, State> {
     const columnsConfig: IConfigColumn[] = [];
 
     this.state.fields.forEach((field, index) => {
-      const element = (document.getElementById(field._id) as HTMLInputElement);
+      const element = document.getElementById(field._id) as HTMLInputElement;
 
       if (element.checked) {
         columnsConfig.push({
@@ -80,11 +80,11 @@ class ManageColumns extends React.Component<Props, State> {
   }
 
   render() {
-    const { config } = this.props;
+    const { config: configArr } = this.props;
 
     const configMap = {};
 
-    config.forEach(config => {
+    configArr.forEach(config => {
       configMap[config.name] = true;
     });
 

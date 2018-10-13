@@ -17,10 +17,18 @@ import { ChannelRow } from './';
 type Props = {
   channels: IChannel[];
   members: IUser[];
-  remove: ( _id: string ) => void;
-  save: (params: { doc: {
-    name: string; description: string; memberIds: string[];
-  } }, callback: () => void, channel?: IChannel) => void;
+  remove: (_id: string) => void;
+  save: (
+    params: {
+      doc: {
+        name: string;
+        description: string;
+        memberIds: string[];
+      };
+    },
+    callback: () => void,
+    channel?: IChannel
+  ) => void;
   loading: boolean;
   currentChannelId?: string;
   channelsTotalCount: number;
@@ -63,10 +71,12 @@ class Sidebar extends React.Component<Props, {}> {
     return (
       <Header uppercase>
         {__('Channels')}
-        <ModalTrigger 
-          title="New Channel" 
+        <ModalTrigger
+          title="New Channel"
           trigger={addChannel}
-          content={(props) => <ChannelForm {...props} save={save} members={members} />}
+          content={props => (
+            <ChannelForm {...props} save={save} members={members} />
+          )}
         />
       </Header>
     );
@@ -82,7 +92,8 @@ class Sidebar extends React.Component<Props, {}> {
           <LoadMore all={channelsTotalCount} loading={loading} />
         </SidebarList>
         {loading && <Spinner />}
-        {!loading && channelsTotalCount === 0 && (
+        {!loading &&
+          channelsTotalCount === 0 && (
             <EmptyState icon="sitemap" text="There is no channel" />
           )}
       </LeftSidebar>

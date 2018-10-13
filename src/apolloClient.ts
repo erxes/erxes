@@ -30,7 +30,9 @@ const afterwareLink = new ApolloLink((operation, forward) => {
 
   return forward(operation).map(response => {
     const context = operation.getContext();
-    const { response: { headers } } = context;
+    const {
+      response: { headers }
+    } = context;
 
     if (headers) {
       const token = headers.get('x-token');
@@ -80,7 +82,7 @@ const link = split(
   // split based on operation type
   ({ query }) => {
     const { kind, operation }: Definintion = getMainDefinition(query);
-    return kind === "OperationDefinition" && operation === "subscription";
+    return kind === 'OperationDefinition' && operation === 'subscription';
   },
   wsLink,
   httpLinkWithMiddleware

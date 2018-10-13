@@ -112,7 +112,9 @@ const NavIcon = styled.i`
   color: ${colors.colorWhite};
 `;
 
-class Navigation extends React.Component<{ unreadConversationsCount?: number }> {
+class Navigation extends React.Component<{
+  unreadConversationsCount?: number;
+}> {
   componentWillReceiveProps(nextProps) {
     const unreadCount = nextProps.unreadConversationsCount;
 

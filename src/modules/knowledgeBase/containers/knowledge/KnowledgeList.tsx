@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
 import { Alert, confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -23,10 +22,12 @@ type Props = {
 
   addTopicsMutation: (params: { variables: Variables }) => Promise<any>;
   editTopicsMutation: (params: { variables: Variables }) => Promise<any>;
-  removeTopicsMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  removeTopicsMutation: (
+    params: { variables: { _id: string } }
+  ) => Promise<any>;
 };
 
-const KnowledgeBaseContainer = (props : Props) => {
+const KnowledgeBaseContainer = (props: Props) => {
   const {
     currentCategoryId,
     topicsQuery,
@@ -37,10 +38,6 @@ const KnowledgeBaseContainer = (props : Props) => {
     queryParams,
     articlesCount
   } = props;
-
-  if (topicsQuery.loading || topicsCountQuery.loading) {
-    return <Spinner objective />;
-  }
 
   // remove action
   const remove = _id => {
@@ -121,7 +118,7 @@ export default compose(
   }),
   graphql(gql(mutations.knowledgeBaseTopicsRemove), {
     name: 'removeTopicsMutation',
-    options: ({ currentCategoryId } : { currentCategoryId: string }) => {
+    options: ({ currentCategoryId }: { currentCategoryId: string }) => {
       return {
         refetchQueries: [
           {

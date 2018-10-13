@@ -1,9 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import {
-  FormControl,
-  Step,
-  Steps
-} from 'modules/common/components';
+import { FormControl, Step, Steps } from 'modules/common/components';
 import {
   StepWrapper,
   TitleContainer
@@ -11,7 +7,13 @@ import {
 import { __ } from 'modules/common/utils';
 import ConditionStep from 'modules/engage/components/step/ConditionStep';
 import { MESSAGE_KINDS, METHODS } from 'modules/engage/constants';
-import { IEngageMessage, IEngageMessageDoc, IEngageMessenger, IEngageRule, IEngageScheduleDate } from 'modules/engage/types';
+import {
+  IEngageMessage,
+  IEngageMessageDoc,
+  IEngageMessenger,
+  IEngageRule,
+  IEngageScheduleDate
+} from 'modules/engage/types';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
@@ -23,7 +25,10 @@ type Props = {
   brands: IBrand[];
   users: IUser[];
   save: (doc: IEngageMessageDoc) => Promise<any>;
-  validateDoc: (type: string, doc: IEngageMessageDoc) => { status: string, doc?: IEngageMessageDoc };
+  validateDoc: (
+    type: string,
+    doc: IEngageMessageDoc
+  ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => IBreadCrumbItem[];
 };
 
@@ -37,14 +42,14 @@ type State = {
   rules: IEngageRule[];
   messenger?: IEngageMessenger;
   scheduleDate?: IEngageScheduleDate;
-}
+};
 
 class VisitorForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const message = props.message || {} as IEngageMessage;
-    const messenger = message.messenger || {} as IEngageMessenger;
+    const message = props.message || ({} as IEngageMessage);
+    const messenger = message.messenger || ({} as IEngageMessenger);
     const rules = messenger.rules
       ? messenger.rules.map(rule => ({ ...rule }))
       : [];
@@ -72,7 +77,7 @@ class VisitorForm extends React.Component<Props, State> {
   save(type: string, e: React.MouseEvent<Element>): Promise<any> | void {
     e.preventDefault();
 
-    const messenger = this.state.messenger || {} as IEngageMessenger;
+    const messenger = this.state.messenger || ({} as IEngageMessenger);
 
     const doc = {
       kind: MESSAGE_KINDS.VISITOR_AUTO,
@@ -112,7 +117,9 @@ class VisitorForm extends React.Component<Props, State> {
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
-            onChange={e => this.changeState('title', (e.target as HTMLInputElement).value)}
+            onChange={e =>
+              this.changeState('title', (e.target as HTMLInputElement).value)
+            }
             defaultValue={this.state.title}
           />
         </TitleContainer>
@@ -139,10 +146,10 @@ class VisitorForm extends React.Component<Props, State> {
               onChange={this.changeState}
               users={this.props.users}
               hasKind={false}
-              messenger={messenger || {} as IEngageMessenger}
+              messenger={messenger || ({} as IEngageMessenger)}
               fromUserId={fromUserId}
               content={content}
-              scheduleDate={scheduleDate || {} as IEngageScheduleDate}
+              scheduleDate={scheduleDate || ({} as IEngageScheduleDate)}
             />
           </Step>
         </Steps>

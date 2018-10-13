@@ -7,21 +7,33 @@ import {
   NameCard
 } from 'modules/common/components';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
-import { __, confirm, renderFullName, searchCustomer } from 'modules/common/utils';
+import {
+  __,
+  confirm,
+  renderFullName,
+  searchCustomer
+} from 'modules/common/utils';
 import { CustomersMerge, TargetMerge } from 'modules/customers/components';
-import { LEAD_STATUS_TYPES, LIFECYCLE_STATE_TYPES } from 'modules/customers/constants';
+import {
+  LEAD_STATUS_TYPES,
+  LIFECYCLE_STATE_TYPES
+} from 'modules/customers/constants';
 import { CustomerForm } from 'modules/customers/containers';
 import { Action } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarCounter, SidebarFlexRow, SidebarList } from 'modules/layout/styles';
+import {
+  SidebarCounter,
+  SidebarFlexRow,
+  SidebarList
+} from 'modules/layout/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 
 type Props = {
   customer: ICustomer;
   remove: () => void;
-  merge: (doc: { ids: string[], data: ICustomer }) => void;
+  merge: (doc: { ids: string[]; data: ICustomer }) => void;
 };
 
 class BasicInfo extends React.Component<Props> {
@@ -32,8 +44,8 @@ class BasicInfo extends React.Component<Props> {
       return null;
     }
 
-    if(!value.includes('http')) {
-      link = ('https://').concat(value);
+    if (!value.includes('http')) {
+      link = 'https://'.concat(value);
     }
 
     return (
@@ -60,7 +72,9 @@ class BasicInfo extends React.Component<Props> {
     return (
       <li>
         {__(`${label}`)}:
-        <SidebarCounter fullLength={label === 'Description'}>{value || '-'}</SidebarCounter>
+        <SidebarCounter fullLength={label === 'Description'}>
+          {value || '-'}
+        </SidebarCounter>
       </li>
     );
   }
@@ -129,7 +143,9 @@ class BasicInfo extends React.Component<Props> {
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
             size="lg"
-            content={(props) => <CustomerForm {...props} size="lg" customer={customer} />}
+            content={props => (
+              <CustomerForm {...props} size="lg" customer={customer} />
+            )}
           />
         </InfoWrapper>
 
@@ -141,18 +157,25 @@ class BasicInfo extends React.Component<Props> {
 
           {this.renderRow(
             'Owner',
-            customer.owner && customer.owner.details ? customer.owner.details.fullName : ''
+            customer.owner && customer.owner.details
+              ? customer.owner.details.fullName
+              : ''
           )}
 
           {this.renderRow('Position', customer.position)}
           {this.renderRow('Department', customer.department)}
-          {this.renderRow('Lead Status', LEAD_STATUS_TYPES[customer.leadStatus || ''])}
-          {this.renderRow('Lifecycle State', LIFECYCLE_STATE_TYPES[customer.lifecycleState || ''])}
+          {this.renderRow(
+            'Lead Status',
+            LEAD_STATUS_TYPES[customer.leadStatus || '']
+          )}
+          {this.renderRow(
+            'Lifecycle State',
+            LIFECYCLE_STATE_TYPES[customer.lifecycleState || '']
+          )}
           {this.renderRow('Has Authority', customer.hasAuthority)}
           {this.renderRow('Do not disturb', customer.doNotDisturb)}
           <SidebarFlexRow>
-            {__(`Description`)}:
-            <span>{customer.description || '-'}</span>
+            {__(`Description`)}:<span>{customer.description || '-'}</span>
           </SidebarFlexRow>
         </SidebarList>
       </React.Fragment>

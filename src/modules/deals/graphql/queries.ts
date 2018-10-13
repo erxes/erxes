@@ -3,6 +3,11 @@ const boards = `
     dealBoards {
       _id
       name
+
+      pipelines {
+        _id
+        name
+      }
     }
   }
 `;
@@ -12,6 +17,11 @@ const boardGetLast = `
     dealBoardGetLast {
       _id
       name
+
+      pipelines {
+        _id
+        name
+      }
     }
   }
 `;
@@ -21,6 +31,11 @@ const boardDetail = `
     dealBoardDetail(_id: $_id) {
       _id
       name
+
+      pipelines {
+        _id
+        name
+      }
     }
   }
 `;
@@ -35,12 +50,59 @@ const pipelines = `
   }
 `;
 
+const pipelineDetail = `
+  query dealPipelineDetail($_id: String!) {
+    dealPipelineDetail(_id: $_id) {
+      _id
+      name
+    }
+  }
+`;
+
+const pipelineGetLast = `
+  query dealPipelineGetLast {
+    dealPipelineGetLast {
+      _id
+      name
+    }
+  }
+`;
+
 const stages = `
   query dealStages($pipelineId: String!) {
     dealStages(pipelineId: $pipelineId) {
       _id
       name
       order
+      amount
+
+      deals {
+        _id
+        name
+        amount
+        closeDate
+        assignedUsers {
+          _id
+          email
+          details {
+            fullName
+            avatar
+          }
+        }
+        modifiedAt
+        modifiedBy
+        products
+        companies {
+          _id
+          primaryName
+        }
+        customers {
+          _id
+          firstName
+          primaryEmail
+          primaryPhone
+        }
+      }
     }
   }
 `;
@@ -52,14 +114,58 @@ const stageDetail = `
       name
       pipelineId
       amount
+
+      deals {
+        _id
+      }
     }
   }
+`;
+
+const dealFields = `
+  _id
+  name
+  stageId
+  pipeline {
+    _id
+    name
+  }
+  boardId
+  companies {
+    _id
+    primaryName
+    website
+  }
+  customers {
+    _id
+    firstName
+    primaryEmail
+    primaryPhone
+  }
+  products
+  productsData
+  amount
+  closeDate
+  description
+  assignedUsers {
+    _id
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
+  stage {
+    probability
+  }
+  modifiedAt
+  modifiedBy
 `;
 
 const deals = `
   query deals($stageId: String, $customerId: String, $companyId: String) {
     deals(stageId: $stageId, customerId: $customerId, companyId: $companyId) {
-      _id
+      ${dealFields}
     }
   }
 `;
@@ -67,43 +173,7 @@ const deals = `
 const dealDetail = `
   query dealDetail($_id: String!) {
     dealDetail(_id: $_id) {
-      _id
-      name
-      stageId
-      pipeline {
-        _id
-        name
-      }
-      boardId
-      companies {
-        _id
-        primaryName
-        website
-      }
-      customers {
-        _id
-        firstName
-        primaryEmail
-        primaryPhone
-      }
-      products
-      productsData
-      amount
-      closeDate
-      description
-      assignedUsers {
-        _id
-        email
-        details {
-          fullName
-          avatar
-        }
-      }
-      stage {
-        probability
-      }
-      modifiedAt
-      modifiedBy
+      ${dealFields}
     }
   }
 `;
@@ -161,6 +231,8 @@ export default {
   boardGetLast,
   boardDetail,
   pipelines,
+  pipelineGetLast,
+  pipelineDetail,
   stages,
   stageDetail,
   deals,

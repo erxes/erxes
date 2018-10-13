@@ -23,7 +23,9 @@ class ActivityList extends React.Component<Props> {
             <Icon icon="calendar" /> {activity.title}
           </ActivityTitle>
         ) : null}
-        {activities.map((rowData, index) => <ActivityItem key={index} data={rowData} />)}
+        {activities.map((rowData, index) => (
+          <ActivityItem key={index} data={rowData} />
+        ))}
       </div>
     );
   }

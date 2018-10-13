@@ -16,11 +16,11 @@ type Doc = {
   description?: string;
   sku?: string;
   createdAt?: Date;
-}
+};
 
 type Props = {
   product?: IProduct;
-  save: (doc: Doc , callback: () => void, product?: IProduct) => void;
+  save: (doc: Doc, callback: () => void, product?: IProduct) => void;
   closeModal: () => void;
 };
 
@@ -31,7 +31,7 @@ type State = {
   description?: string;
   sku?: string;
   createdAt?: Date;
-}
+};
 
 class Form extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -69,8 +69,9 @@ class Form extends React.Component<Props, State> {
           <FormControl
             defaultValue={name}
             type="text"
-            onChange={(e) => 
-              this.onChangeInput('name', (e.target as HTMLInputElement).value)}
+            onChange={e =>
+              this.onChangeInput('name', (e.target as HTMLInputElement).value)
+            }
             required
           />
         </FormGroup>
@@ -81,12 +82,13 @@ class Form extends React.Component<Props, State> {
           <FormControl
             componentClass="select"
             defaultValue={type}
-            onChange={(e) => 
-              this.onChangeInput('type', (e.target as HTMLInputElement).value)}
+            onChange={e =>
+              this.onChangeInput('type', (e.target as HTMLInputElement).value)
+            }
           >
-            {types.map((type, index) => (
-              <option key={index} value={type}>
-                {type}
+            {types.map((typeName, index) => (
+              <option key={index} value={typeName}>
+                {typeName}
               </option>
             ))}
           </FormControl>
@@ -100,8 +102,12 @@ class Form extends React.Component<Props, State> {
             componentClass="textarea"
             rows={5}
             defaultValue={description}
-            onChange={(e) => 
-              this.onChangeInput('description', (e.target as HTMLInputElement).value)}
+            onChange={e =>
+              this.onChangeInput(
+                'description',
+                (e.target as HTMLInputElement).value
+              )
+            }
           />
         </FormGroup>
 
@@ -112,8 +118,9 @@ class Form extends React.Component<Props, State> {
             name="sku"
             type="text"
             defaultValue={sku}
-            onChange={(e) => 
-              this.onChangeInput('sku', (e.target as HTMLInputElement).value)}
+            onChange={e =>
+              this.onChangeInput('sku', (e.target as HTMLInputElement).value)
+            }
           />
         </FormGroup>
       </React.Fragment>

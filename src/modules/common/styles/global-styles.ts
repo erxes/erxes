@@ -1,5 +1,5 @@
-import { injectGlobal } from "styled-components";
-import { colors, typography } from "./";
+import { injectGlobal } from 'styled-components';
+import { colors, typography } from './';
 
 injectGlobal`
   html {
@@ -703,18 +703,17 @@ injectGlobal`
   /* scrollbar */
 
   ::-webkit-scrollbar {
-    width: 7px;
+    width: 8px;
     height: 10px;
     border-radius: 0;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(215, 215, 215, .6);
-    border-radius: 0;
-    border: 1px solid ${colors.borderDarker};
+    background: rgba(10, 45, 65, .12);
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(215, 215, 215, .4);
+    background: rgba(10, 45, 65, .08);
   }
 `;

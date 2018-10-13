@@ -1,13 +1,13 @@
-import { colors, dimensions } from "modules/common/styles";
-import { rgba } from "modules/common/styles/color";
+import { colors, dimensions } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import {
   DragHandler,
   SortableWrapper,
   SortItem
-} from "modules/common/styles/sort";
-import { fadeIn } from "modules/common/utils/animations";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+} from 'modules/common/styles/sort';
+import { fadeIn } from 'modules/common/utils/animations';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const PreviewTitle = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -21,7 +21,7 @@ const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
   color: ${colors.textPrimary};
   display: flex;
   overflow: auto;
-  max-height: ${props => (props.embedded ? "500px" : "300px")};
+  max-height: ${props => (props.embedded ? '500px' : '300px')};
   background-color: ${colors.bgLight};
 
   img {
@@ -180,7 +180,7 @@ const FieldItem = styledTS<{ selectType?: boolean }>(styled.div)`
     padding: 8px 14px;
     width: 100%;
     background: ${colors.colorWhite};
-    margin-top: ${props => !props.selectType && "10px"};
+    margin-top: ${props => !props.selectType && '10px'};
 
     &:focus {
       box-shadow: none;

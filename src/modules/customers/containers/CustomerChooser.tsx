@@ -46,7 +46,9 @@ const CustomerChooser = (props: WrapperProps & Props) => {
     clearState: () => search(''),
     title: 'Customer',
     renderName: renderFullName,
-    renderForm: (props) => <CustomerForm {...props} action={addCustomer} />,
+    renderForm: formProps => (
+      <CustomerForm {...formProps} action={addCustomer} />
+    ),
     add: addCustomer,
     datas: customersQuery.customers || []
   };
@@ -57,7 +59,13 @@ const CustomerChooser = (props: WrapperProps & Props) => {
 const WithQuery = compose(
   graphql(gql(queries.customers), {
     name: 'customersQuery',
-    options: ({ searchValue, perPage }: { searchValue: string, perPage: number }) => {
+    options: ({
+      searchValue,
+      perPage
+    }: {
+      searchValue: string;
+      perPage: number;
+    }) => {
       return {
         variables: {
           searchValue,
@@ -73,11 +81,14 @@ const WithQuery = compose(
 )(CustomerChooser);
 
 type WrapperProps = {
-  data: any,
-  onSelect: (datas: any[]) => void,
+  data: any;
+  onSelect: (datas: any[]) => void;
 };
 
-export default class Wrapper extends React.Component<WrapperProps, { perPage: number, searchValue: string }> {
+export default class Wrapper extends React.Component<
+  WrapperProps,
+  { perPage: number; searchValue: string }
+> {
   constructor(props) {
     super(props);
 

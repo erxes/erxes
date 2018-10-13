@@ -10,10 +10,10 @@ import { LIFECYCLE_STATE_TYPES } from '../../constants';
 import { lifecycleStateChoices } from '../../utils';
 
 interface IProps extends IRouterProps {
-  counts: any;
+  counts: { [key: string]: number };
   loading: boolean;
   searchable?: boolean;
-};
+}
 
 class LifecycleStateFilter extends React.Component<IProps> {
   constructor(props, context) {
@@ -44,28 +44,30 @@ class LifecycleStateFilter extends React.Component<IProps> {
         </Section.QuickButtons>
         <div>
           <SidebarList>
-            {lifecycleStateChoices(__).map(({ value, label }: { value: string, label: string }) => {
-              return (
-                <li key={Math.random()}>
-                  <a
-                    tabIndex={0}
-                    className={
-                      router.getParam(history, [paramKey]) === value
-                        ? 'active'
-                        : ''
-                    }
-                    onClick={() => {
-                      router.setParams(history, { [paramKey]: value });
-                    }}
-                  >
-                    {label}
-                    <SidebarCounter>
-                      {counts ? counts[value] : 0}
-                    </SidebarCounter>
-                  </a>
-                </li>
-              );
-            })}
+            {lifecycleStateChoices(__).map(
+              ({ value, label }: { value: string; label: string }) => {
+                return (
+                  <li key={Math.random()}>
+                    <a
+                      tabIndex={0}
+                      className={
+                        router.getParam(history, [paramKey]) === value
+                          ? 'active'
+                          : ''
+                      }
+                      onClick={() => {
+                        router.setParams(history, { [paramKey]: value });
+                      }}
+                    >
+                      {label}
+                      <SidebarCounter>
+                        {counts ? counts[value] : 0}
+                      </SidebarCounter>
+                    </a>
+                  </li>
+                );
+              }
+            )}
           </SidebarList>
         </div>
       </Section>

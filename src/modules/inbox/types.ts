@@ -1,7 +1,7 @@
-import { IUser } from "../auth/types";
-import { ICustomer } from "../customers/types";
-import { IIntegration } from "../settings/integrations/types";
-import { ITag } from "../tags/types";
+import { IUser } from '../auth/types';
+import { ICustomer } from '../customers/types';
+import { IIntegration } from '../settings/integrations/types';
+import { ITag } from '../tags/types';
 
 export interface ITwitterData {
   id: number;

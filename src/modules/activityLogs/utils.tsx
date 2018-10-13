@@ -41,6 +41,10 @@ const ICON_AND_COLOR_TABLE = {
   'deal-create': {
     icon: 'piggy-bank',
     color: '#6569DF'
+  },
+  'email-send': {
+    icon: 'email-3',
+    color: '#d74534'
   }
 };
 
@@ -49,7 +53,7 @@ type Props = {
   user: IUser;
   target?: string;
   type: string;
-}
+};
 
 /**
  * This class is used to process the data received from the query
@@ -72,7 +76,7 @@ export default class {
     this.queryData = activities;
 
     // TODO: checkout without {}
-    this.currentUser = user || {} as IUser;
+    this.currentUser = user || ({} as IUser);
     this.target = target || 'N/A';
   }
 
@@ -111,6 +115,7 @@ export default class {
         ...iconAndColor,
         caption,
         content: hasContent ? item.content : null,
+        action: item.action,
         date: item.createdAt,
         createdAt: item.createdAt,
         by: item.by
@@ -177,10 +182,14 @@ export default class {
         );
         break;
 
+      case 'email-send':
+        caption = <span>{source} send email</span>;
+        break;
+
       default:
         caption = (
           <span>
-            {source} created {target}
+            {source} created {target}{' '}
           </span>
         );
         break;

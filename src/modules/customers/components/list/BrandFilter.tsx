@@ -8,10 +8,10 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 
 interface IProps extends IRouterProps {
-  counts: any;
+  counts: { [key: string]: number };
   brands: IBrand[];
   loading: boolean;
-};
+}
 
 function Brands({ history, counts, brands, loading }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;

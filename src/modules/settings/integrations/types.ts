@@ -1,6 +1,6 @@
-import { IForm } from "modules/forms/types";
-import { IBrand } from "../brands/types";
-import { IChannel } from "../channels/types";
+import { IForm } from 'modules/forms/types';
+import { IBrand } from '../brands/types';
+import { IChannel } from '../channels/types';
 
 export interface IMessengerApp {
   _id: string;

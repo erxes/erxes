@@ -11,9 +11,9 @@ type Props = {
   className?: string;
 
   // from container
-  loading: boolean,
-  tags: ITag[],
-  tag: (tags: ITag[]) => void
+  loading: boolean;
+  tags: ITag[];
+  tag: (tags: ITag[]) => void;
 };
 
 class Tagger extends React.Component<Props, { tagsForList: any[] }> {
@@ -40,8 +40,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
     return tags.map(({ _id, name, colorCode }) => {
       // Current tag's selection state (all, some or none)
       const count = targets.reduce(
-        (memo, target) =>
-          memo + ((target.tagIds || []).includes(_id) ? 1 : 0),
+        (memo, target) => memo + ((target.tagIds || []).includes(_id) ? 1 : 0),
         0
       );
 
@@ -102,7 +101,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
       className,
       links,
       selectable: true,
-      items: JSON.parse(JSON.stringify(this.state.tagsForList)),
+      items: JSON.parse(JSON.stringify(this.state.tagsForList))
     };
 
     if (event) {

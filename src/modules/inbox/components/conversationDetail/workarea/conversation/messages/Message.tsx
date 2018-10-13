@@ -1,12 +1,12 @@
-import * as React from "react";
-import { IMessage } from "../../../../../types";
+import * as React from 'react';
+import { IMessage } from '../../../../../types';
 import {
   AppMessage,
   FacebookMessage,
   FormMessage,
   SimpleMessage,
   TwitterMessage
-} from "./";
+} from './';
 
 type Props = {
   message: IMessage;

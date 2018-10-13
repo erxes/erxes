@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import DumbCalendar from 'modules/settings/integrations/components/google/Calendar';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { Calendar as DumbCalendar } from '../../components/google';
 
 type Props = {
   type: string;
@@ -11,7 +11,9 @@ type Props = {
   queryParams: any;
   googleAuthUrlQuery: any;
   googleAccessTokenQuery: any;
-  saveMutation: (params: {variables: { kind: string, credentials: object }}) => any;
+  saveMutation: (
+    params: { variables: { kind: string; credentials: object } }
+  ) => Promise<any>;
 };
 
 const Calendar = (props: Props) => {
@@ -82,7 +84,7 @@ export default compose(
     {
       name: 'googleAccessTokenQuery',
       skip: ({ queryParams }) => !queryParams.code,
-      options: ({ queryParams } : { queryParams: any }) => ({
+      options: ({ queryParams }: { queryParams: any }) => ({
         variables: { code: queryParams.code }
       })
     }

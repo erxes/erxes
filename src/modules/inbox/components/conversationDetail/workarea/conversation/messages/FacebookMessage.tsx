@@ -1,8 +1,8 @@
-import classNames from "classnames";
-import { Attachment } from "modules/common/components";
+import classNames from 'classnames';
+import { Attachment } from 'modules/common/components';
 import * as React from 'react';
-import { IMessage, IMessageFacebookData } from "../../../../../types";
-import { SimpleMessage } from "./";
+import { IMessage, IMessageFacebookData } from '../../../../../types';
+import { SimpleMessage } from './';
 
 type Props = {
   message: IMessage;
@@ -62,8 +62,8 @@ export default class FacebookMessage extends React.Component<Props, {}> {
       return null;
     }
 
-    const isPhotoPost = fbData.item === "photo";
-    const isVideoPost = fbData.item === "video" ? true : false;
+    const isPhotoPost = fbData.item === 'photo';
+    const isVideoPost = fbData.item === 'video' ? true : false;
     const hasAttachment = message.attachments && message.attachments.length > 0;
 
     const classes = classNames({

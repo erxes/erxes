@@ -1,9 +1,9 @@
-import * as React from "react";
-import styled from "styled-components";
-import { IUser } from "../../../auth/types";
-import { ICustomer } from "../../../customers/types";
-import { colors } from "../../styles";
-import Avatar from "./Avatar";
+import * as React from 'react';
+import styled from 'styled-components';
+import { IUser } from '../../../auth/types';
+import { ICustomer } from '../../../customers/types';
+import { colors } from '../../styles';
+import Avatar from './Avatar';
 
 const NameCardStyled = styled.div`
   overflow: hidden;
@@ -70,11 +70,11 @@ class NameCard extends React.Component<Props> {
     if (!customer) return null;
 
     if (singleLine) {
-      return customer.firstName || customer.primaryEmail || "N/A";
+      return customer.firstName || customer.primaryEmail || 'N/A';
     }
 
     if (!singleLine) {
-      return secondLine || customer.primaryEmail || "N/A";
+      return secondLine || customer.primaryEmail || 'N/A';
     }
 
     return null;

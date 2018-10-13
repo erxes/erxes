@@ -9,7 +9,11 @@ import { __, Alert } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
-import { IIntegration, IMessengerData, IUiOptions } from 'modules/settings/integrations/types';
+import {
+  IIntegration,
+  IMessengerData,
+  IUiOptions
+} from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Appearance, Availability, Intro, Options } from './steps';
@@ -19,7 +23,15 @@ type Props = {
   teamMembers: IUser[];
   integration?: IIntegration;
   brands: IBrand[];
-  save: (params: { name: string, brandId: string, languageCode: string, messengerData: IMessengerData, uiOptions: IUiOptions }) => void;
+  save: (
+    params: {
+      name: string;
+      brandId: string;
+      languageCode: string;
+      messengerData: IMessengerData;
+      uiOptions: IUiOptions;
+    }
+  ) => void;
 };
 
 type State = {
@@ -50,7 +62,7 @@ class CreateMessenger extends React.Component<Props, State> {
     this.onChange = this.onChange.bind(this);
     this.save = this.save.bind(this);
 
-    const integration = props.integration || {} as IIntegration;
+    const integration = props.integration || ({} as IIntegration);
 
     const configData = integration.messengerData || {};
     const uiOptions = integration.uiOptions || {};
@@ -179,7 +191,12 @@ class CreateMessenger extends React.Component<Props, State> {
           <div>{__('Title')}</div>
           <FormControl
             required
-            onChange={e => this.onChange('title', (e.currentTarget as HTMLInputElement).value)}
+            onChange={e =>
+              this.onChange(
+                'title',
+                (e.currentTarget as HTMLInputElement).value
+              )
+            }
             defaultValue={title}
           />
         </TitleContainer>

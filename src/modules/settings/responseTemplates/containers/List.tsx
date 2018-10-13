@@ -35,7 +35,7 @@ export default commonListComposer({
     `,
     {
       name: 'listQuery',
-      options: ({ queryParams } : { queryParams: any }) => {
+      options: ({ queryParams }: { queryParams: any }) => {
         return {
           notifyOnNetworkStatusChange: true,
           variables: {

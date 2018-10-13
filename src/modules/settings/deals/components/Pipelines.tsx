@@ -10,16 +10,20 @@ import { PipelineRow } from './';
 
 type Props = {
   pipelines: IPipeline[];
-  save: (params: { doc: { name: string; boardId: string, stages: IStage[] }}, callback: () => void, pipeline?: IPipeline) => void;
+  save: (
+    params: { doc: { name: string; boardId: string; stages: IStage[] } },
+    callback: () => void,
+    pipeline?: IPipeline
+  ) => void;
   updateOrder?: any;
   remove: (_id: string) => void;
   boardId: string;
 };
 
 type State = {
-  showModal: boolean,
-  currentPipeline?: IPipeline,
-  pipelines: IPipeline[]
+  showModal: boolean;
+  currentPipeline?: IPipeline;
+  pipelines: IPipeline[];
 };
 
 class Pipelines extends React.Component<Props, State> {

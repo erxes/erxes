@@ -13,7 +13,7 @@ type Props = {
   messengerKinds: any[];
   sentAsChoices: any[];
   save: (doc: IEngageMessageDoc, closeModal: () => void) => void;
-}
+};
 
 class Widget extends React.Component<Props> {
   render() {
@@ -24,10 +24,10 @@ class Widget extends React.Component<Props> {
     );
 
     return (
-      <ModalTrigger 
-        title="New message" 
+      <ModalTrigger
+        title="New message"
         trigger={trigger}
-        content={(props) => <WidgetForm {...this.props} {...props} />}
+        content={props => <WidgetForm {...this.props} {...props} />}
       />
     );
   }

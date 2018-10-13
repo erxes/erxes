@@ -30,13 +30,13 @@ type Props = {
 };
 
 type State = {
-  selectedIntegrations: IIntegration[],
-  hasMore: boolean,
-  searchValue: string
-}
+  selectedIntegrations: IIntegration[];
+  hasMore: boolean;
+  searchValue: string;
+};
 
 class ManageIntegrations extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer
+  private timer?: NodeJS.Timer;
 
   constructor(props: Props) {
     super(props);
@@ -98,9 +98,13 @@ class ManageIntegrations extends React.Component<Props, State> {
     const kind = integration.kind;
     let type = 'messenger';
 
-    kind === KIND_CHOICES.FORM && (type = 'form');
-    kind === KIND_CHOICES.TWITTER && (type = 'twitter');
-    kind === KIND_CHOICES.FACEBOOK && (type = 'facebook');
+    if (kind === KIND_CHOICES.FORM) {
+      type = 'form';
+    } else if (KIND_CHOICES.TWITTER) {
+      type = 'twitter';
+    } else if (KIND_CHOICES.FACEBOOK) {
+      type = 'facebook';
+    }
 
     return type;
   }
@@ -109,9 +113,13 @@ class ManageIntegrations extends React.Component<Props, State> {
     const kind = integration.kind;
     let icon = 'chat';
 
-    kind === KIND_CHOICES.FORM && (icon = 'file');
-    kind === KIND_CHOICES.TWITTER && (icon = 'twitter');
-    kind === KIND_CHOICES.FACEBOOK && (icon = 'facebook');
+    if (kind === KIND_CHOICES.FORM) {
+      icon = 'form';
+    } else if (KIND_CHOICES.TWITTER) {
+      icon = 'twitter';
+    } else if (KIND_CHOICES.FACEBOOK) {
+      icon = 'facebook';
+    }
 
     return icon;
   }
@@ -216,7 +224,8 @@ class ManageIntegrations extends React.Component<Props, State> {
           </Column>
           <Column>
             <Title full>
-              {current.name}&apos;s integration
+              {current.name}
+              &apos;s integration
               <span>({selectedIntegrations.length})</span>
             </Title>
             <ul>
@@ -228,11 +237,7 @@ class ManageIntegrations extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            icon="cancel-1"
-            onClick={closeModal}
-          >
+          <Button btnStyle="simple" icon="cancel-1" onClick={closeModal}>
             Cancel
           </Button>
           <Button btnStyle="success" icon="checked-1" onClick={this.save}>

@@ -16,7 +16,7 @@ type Props = {
 };
 
 type State = {
-  onlineHours: IOnlineHour[]
+  onlineHours: IOnlineHour[];
 };
 
 class OnlineHours extends React.Component<Props, State> {
@@ -33,7 +33,8 @@ class OnlineHours extends React.Component<Props, State> {
     const onlineHours = this.state.onlineHours;
 
     // find current editing one
-    const onlineHour = onlineHours.find(hour => hour._id === onlineHourId) || [];
+    const onlineHour =
+      onlineHours.find(hour => hour._id === onlineHourId) || [];
 
     // set new value
     onlineHour[name] = value;

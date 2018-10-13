@@ -92,7 +92,7 @@ type State = {
   startDate: Date;
   endDate: Date;
   totalCount: number;
-}
+};
 
 const format = 'YYYY-MM-DD HH:mm';
 
@@ -210,8 +210,8 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
                 {...props}
                 value={this.state.startDate}
                 onChange={date => {
-                  if (typeof(date) !== "string") {
-                    this.onDateChange('startDate', date.toDate())
+                  if (typeof date !== 'string') {
+                    this.onDateChange('startDate', date.toDate());
                   }
                 }}
               />
@@ -222,8 +222,8 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
                 {...props}
                 value={this.state.endDate}
                 onChange={date => {
-                  if (typeof(date) !== "string") {
-                    this.onDateChange('endDate', date.toDate())
+                  if (typeof date !== 'string') {
+                    this.onDateChange('endDate', date.toDate());
                   }
                 }}
               />

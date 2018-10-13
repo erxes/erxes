@@ -1,11 +1,11 @@
-import { Spinner } from "modules/common/components";
-import * as React from "react";
-import styled from "styled-components";
-import { IConversation, IMessage } from "../../../../types";
-import AttachmentPreview from "./AttachmentPreview";
-import { FacebookConversation } from "./facebook";
-import { Message } from "./messages";
-import { TwitterConversation } from "./twitter";
+import { Spinner } from 'modules/common/components';
+import * as React from 'react';
+import styled from 'styled-components';
+import { IConversation, IMessage } from '../../../../types';
+import AttachmentPreview from './AttachmentPreview';
+import { FacebookConversation } from './facebook';
+import { Message } from './messages';
+import { TwitterConversation } from './twitter';
 
 type Props = {
   conversation: IConversation;
@@ -64,14 +64,14 @@ class Conversation extends React.Component<Props, {}> {
       return null;
     }
 
-    if ((kind === "facebook" || kind === "twitter") && loading) {
+    if ((kind === 'facebook' || kind === 'twitter') && loading) {
       return <Spinner objective />;
     }
 
     const twitterData = conversation.twitterData;
     const facebookData = conversation.facebookData;
     const isTweet = twitterData && !twitterData.isDirectMessage;
-    const isFacebookPost = facebookData && facebookData.kind !== "messenger";
+    const isFacebookPost = facebookData && facebookData.kind !== 'messenger';
 
     if (isTweet) {
       return (

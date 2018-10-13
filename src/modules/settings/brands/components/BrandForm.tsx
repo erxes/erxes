@@ -6,15 +6,22 @@ import {
   FormGroup
 } from '../../../common/components';
 import { ModalFooter } from '../../../common/styles/main';
-import { IBrand } from "../types";
+import { IBrand } from '../types';
 
 type Props = {
   brand?: IBrand;
-  save: (params: { doc: {
-    name: string; description: string;
-  } }, callback: () => void, brand?: IBrand) => void;
+  save: (
+    params: {
+      doc: {
+        name: string;
+        description: string;
+      };
+    },
+    callback: () => void,
+    brand?: IBrand
+  ) => void;
   closeModal: () => void;
-}
+};
 
 class BrandForm extends React.Component<Props, {}> {
   constructor(props: Props) {
@@ -36,7 +43,9 @@ class BrandForm extends React.Component<Props, {}> {
     return {
       doc: {
         name: (document.getElementById('brand-name') as HTMLInputElement).value,
-        description: (document.getElementById('brand-description') as HTMLInputElement).value,
+        description: (document.getElementById(
+          'brand-description'
+        ) as HTMLInputElement).value
       }
     };
   }

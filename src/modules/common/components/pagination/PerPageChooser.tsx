@@ -39,5 +39,4 @@ const PerPageChooser = ({ history }: IRouterProps) => {
   );
 };
 
-
 export default withRouter<IRouterProps>(PerPageChooser);

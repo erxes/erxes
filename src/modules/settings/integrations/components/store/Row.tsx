@@ -12,8 +12,8 @@ type Props = {
 };
 
 type State = {
-  isContentVisible: boolean,
-  kind: string | null
+  isContentVisible: boolean;
+  kind: string | null;
 };
 
 class Row extends React.Component<Props, State> {
@@ -59,7 +59,10 @@ class Row extends React.Component<Props, State> {
         return { isContentVisible: !isContentVisible, kind: selectedKind };
       }
 
-      return { kind: selectedKind, isContentVisible: prevState.isContentVisible };
+      return {
+        kind: selectedKind,
+        isContentVisible: prevState.isContentVisible
+      };
     });
 
     return null;

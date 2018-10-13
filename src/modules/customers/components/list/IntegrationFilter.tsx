@@ -8,8 +8,8 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 
 interface IProps extends IRouterProps {
-  counts: any;
-};
+  counts: { [key: string]: number };
+}
 
 function IntegrationFilter({ history, counts }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;

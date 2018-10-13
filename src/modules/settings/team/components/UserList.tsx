@@ -22,7 +22,6 @@ class UserList extends React.Component<ICommonListProps> {
 
   renderRows({ objects }: { objects: IUser[] }) {
     return objects.map((object, index) => {
-
       return (
         <tr key={index}>
           <UserAvatar
@@ -38,12 +37,10 @@ class UserList extends React.Component<ICommonListProps> {
           <RowActions
             {...this.props}
             object={object}
-            renderForm={(props) =>
-              <UserForm {...props} />
-            }
+            renderForm={props => <UserForm {...props} />}
           />
         </tr>
-      )
+      );
     });
   }
 
@@ -78,7 +75,7 @@ class UserList extends React.Component<ICommonListProps> {
           { title: __('Settings'), link: '/settings' },
           { title: __('Team members') }
         ]}
-        renderForm={(props) => <UserForm {...props} />}
+        renderForm={props => <UserForm {...props} />}
         renderContent={this.renderContent}
         {...this.props}
       />

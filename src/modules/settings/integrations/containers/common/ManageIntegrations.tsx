@@ -8,7 +8,7 @@ type Props = {
   current: any;
   allIntegrationsQuery: any;
   save: (ids: string[]) => Promise<any>;
-  closeModal: () => void; 
+  closeModal: () => void;
 };
 
 type State = {

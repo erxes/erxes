@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { TAG_TYPES } from 'modules/tags/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -12,18 +11,20 @@ import { mutations, queries } from '../graphql';
 interface IProps extends IRouterProps {
   queryParams?: any;
   companiesMainQuery?: any;
-  companyCountsQuery?: any;
   companiesListConfigQuery?: any;
-  companiesRemove: (params: { variables: { companyIds: string[] } }) => Promise<any>;
-  companiesMerge: (params: {
-    variables: {
-      companyIds: string[];
-      companyFields: any;
+  companiesRemove: (
+    params: { variables: { companyIds: string[] } }
+  ) => Promise<any>;
+  companiesMerge: (
+    params: {
+      variables: {
+        companyIds: string[];
+        companyFields: any;
+      };
     }
-  }) => Promise<any>;
-  tagsQuery?: any;
+  ) => Promise<any>;
   loading?: boolean;
-};
+}
 
 type State = {
   loading: boolean;
@@ -34,7 +35,7 @@ class CompanyListContainer extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      loading: false,
+      loading: false
     };
   }
 
@@ -42,8 +43,6 @@ class CompanyListContainer extends React.Component<IProps, State> {
     const {
       companiesMainQuery,
       companiesListConfigQuery,
-      companyCountsQuery,
-      tagsQuery,
       companiesRemove,
       companiesMerge,
       history
@@ -95,39 +94,24 @@ class CompanyListContainer extends React.Component<IProps, State> {
     const { list = [], totalCount = 0 } =
       companiesMainQuery.companiesMain || {};
 
-    const counts = companyCountsQuery.companyCounts || {
-      byBrand: {},
-      byIntegrationType: {},
-      bySegment: {},
-      byTag: {},
-      byLeadStatus: {},
-      byLifecycleState: {}
-    };
-
     const updatedProps = {
       ...this.props,
       columnsConfig,
-      counts: {
-        all: totalCount,
-        ...counts
-      },
-      tags: tagsQuery.tags || [],
+      totalCount,
       searchValue,
       companies: list,
       loading: companiesMainQuery.loading || this.state.loading,
       removeCompanies,
-      mergeCompanies,
-      loadingTags: tagsQuery.loading
+      mergeCompanies
     };
 
     return (
       <Bulk
         content={props => {
-          return <CompaniesList {...updatedProps} {...props} />
+          return <CompaniesList {...updatedProps} {...props} />;
         }}
         refetch={() => {
           this.props.companiesMainQuery.refetch();
-          this.props.companyCountsQuery.refetch();
         }}
       />
     );
@@ -156,22 +140,9 @@ export default compose(
     name: 'companiesMainQuery',
     options: generateParams
   }),
-  graphql(gql(queries.companyCounts), {
-    name: 'companyCountsQuery',
-    options: generateParams
-  }),
   graphql(gql(queries.companiesListConfig), {
     name: 'companiesListConfigQuery',
     options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.tags), {
-    name: 'tagsQuery',
-    options: () => ({
-      variables: {
-        type: TAG_TYPES.COMPANY
-      },
       fetchPolicy: 'network-only'
     })
   }),
@@ -181,8 +152,8 @@ export default compose(
   }),
   graphql(gql(mutations.companiesMerge), {
     name: 'companiesMerge',
-    options: props => ({
+    options: {
       refetchQueries: ['companiesMain', 'companyCounts']
-    })
+    }
   })
 )(withRouter<IRouterProps>(CompanyListContainer));

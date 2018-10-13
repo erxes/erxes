@@ -3,7 +3,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { FirstResponse, ResponseCloseReport } from '../components';
 import { queries } from '../graphql';
-import { IParamsWithType } from '../types'
+import { IParamsWithType } from '../types';
 
 interface IProps {
   queryParams: any;
@@ -12,7 +12,7 @@ interface IProps {
   responseCloseQuery: any;
   type: string;
   firstResponseQuery: any;
-};
+}
 
 const FirstAndCloseResponseReportContainer = (props: IProps) => {
   const {

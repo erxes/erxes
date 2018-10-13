@@ -96,5 +96,5 @@ export {
   NotificationSeeAll,
   NotifButton,
   PopoverHeader,
-  PopoverContent,
+  PopoverContent
 };

@@ -15,7 +15,7 @@ type Props = {
   integration: IIntegration;
   save: (variables: { name: string; brandId: string }) => void;
   closeModal?: () => void;
-}
+};
 
 class ChooseBrand extends React.Component<Props> {
   constructor(props: Props) {
@@ -37,11 +37,16 @@ class ChooseBrand extends React.Component<Props> {
 
   handleSubmit(e) {
     e.preventDefault();
-    this.props.closeModal;
+
+    if (this.props.closeModal) {
+      this.props.closeModal();
+    }
 
     this.props.save({
-      name: (document.getElementById('integration-name') as HTMLInputElement).value,
-      brandId: (document.getElementById('selectBrand') as HTMLInputElement).value
+      name: (document.getElementById('integration-name') as HTMLInputElement)
+        .value,
+      brandId: (document.getElementById('selectBrand') as HTMLInputElement)
+        .value
     });
   }
 

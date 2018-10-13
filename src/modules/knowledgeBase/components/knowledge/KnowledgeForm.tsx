@@ -23,14 +23,22 @@ import SelectBrand from '../SelectBrand';
 type Props = {
   topic: ITopic;
   brands: IBrand[];
-  
-  save: (params: { doc: { doc: {
-    title: string;
-    description: string;
-    brandId: string;
-    languageCode: string;
-    color: string
-  }} }, callback: () => void, topic: ITopic) => void;
+
+  save: (
+    params: {
+      doc: {
+        doc: {
+          title: string;
+          description: string;
+          brandId: string;
+          languageCode: string;
+          color: string;
+        };
+      };
+    },
+    callback: () => void,
+    topic: ITopic
+  ) => void;
   remove?: (_id: string) => void;
   closeModal: () => void;
 };
@@ -39,7 +47,7 @@ type State = {
   copied: boolean;
   code: string;
   color: string;
-}
+};
 
 class KnowledgeForm extends React.Component<Props, State> {
   static installCodeIncludeScript() {
@@ -69,7 +77,7 @@ class KnowledgeForm extends React.Component<Props, State> {
       </script>
     `;
   }
-  
+
   constructor(props: Props) {
     super(props);
 
@@ -111,7 +119,7 @@ class KnowledgeForm extends React.Component<Props, State> {
   remove() {
     const { remove, topic } = this.props;
 
-    if(remove) {
+    if (remove) {
       remove(topic._id);
     }
   }
@@ -157,18 +165,26 @@ class KnowledgeForm extends React.Component<Props, State> {
       ...topic,
       doc: {
         doc: {
-          title: (document.getElementById('knowledgebase-title') as HTMLInputElement).value,
-          description: (document.getElementById('knowledgebase-description') as HTMLInputElement)
+          title: (document.getElementById(
+            'knowledgebase-title'
+          ) as HTMLInputElement).value,
+          description: (document.getElementById(
+            'knowledgebase-description'
+          ) as HTMLInputElement).value,
+          brandId: (document.getElementById('selectBrand') as HTMLInputElement)
             .value,
-          brandId: (document.getElementById('selectBrand') as HTMLInputElement).value,
-          languageCode: (document.getElementById('languageCode') as HTMLInputElement).value,
+          languageCode: (document.getElementById(
+            'languageCode'
+          ) as HTMLInputElement).value,
           color: this.state.color
         }
       }
     };
   }
 
-  renderContent(topic = { title: '', description: '', languageCode: '', brand: { _id: '' } }) {
+  renderContent(
+    topic = { title: '', description: '', languageCode: '', brand: { _id: '' } }
+  ) {
     const { brands } = this.props;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
@@ -251,7 +267,14 @@ class KnowledgeForm extends React.Component<Props, State> {
 
     return (
       <form onSubmit={this.save}>
-        {this.renderContent(topic || { title: '', description: '', languageCode: '', brand: { _id: '' } })}
+        {this.renderContent(
+          topic || {
+            title: '',
+            description: '',
+            languageCode: '',
+            brand: { _id: '' }
+          }
+        )}
         <ModalFooter>
           <Button
             btnStyle="simple"

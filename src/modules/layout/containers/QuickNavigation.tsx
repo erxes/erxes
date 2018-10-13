@@ -3,7 +3,7 @@ import consts from 'consts';
 import * as React from 'react';
 import { QuickNavigation } from '../components';
 
-const QuickNavigationContainer = (props) => {
+const QuickNavigationContainer = props => {
   const { LOGIN_TOKEN_KEY, LOGIN_REFRESH_TOKEN_KEY } = consts;
 
   const logout = () => {
@@ -16,15 +16,11 @@ const QuickNavigationContainer = (props) => {
 
   return (
     <AppConsumer>
-      {({ currentUser }) =>
-        <QuickNavigation
-          {...props}
-          logout={logout}
-          currentUser={currentUser}
-        />
-      }
+      {({ currentUser }) => (
+        <QuickNavigation {...props} logout={logout} currentUser={currentUser} />
+      )}
     </AppConsumer>
-  )
+  );
 };
 
 export default QuickNavigationContainer;

@@ -108,7 +108,7 @@ class Row extends React.Component<Props> {
       );
     }
 
-    const messenger = message.messenger || {} as IEngageMessenger;
+    const messenger = message.messenger || ({} as IEngageMessenger);
     const rules = messenger.rules || [];
 
     return rules.map(rule => (

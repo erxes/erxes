@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import { Alert } from "modules/common/utils";
-import { MessengerApp } from "modules/inbox/components/conversationDetail";
-import { mutations, queries } from "modules/inbox/graphql";
-import { IMessengerApp } from "modules/settings/integrations/types";
-import * as React from "react";
-import { compose, graphql } from "react-apollo";
-import { IConversation } from "../../types";
+import gql from 'graphql-tag';
+import { Alert } from 'modules/common/utils';
+import { MessengerApp } from 'modules/inbox/components/conversationDetail';
+import { mutations, queries } from 'modules/inbox/graphql';
+import { IMessengerApp } from 'modules/settings/integrations/types';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { IConversation } from '../../types';
 
 type Props = {
   conversation: IConversation;
@@ -31,7 +31,7 @@ const MessengerAppContainer = (props: Props) => {
     };
 
     return executeAppMutation({ variables }).then(() => {
-      Alert.success("Success");
+      Alert.success('Success');
     });
   };
 
@@ -46,12 +46,12 @@ const MessengerAppContainer = (props: Props) => {
 
 export default compose(
   graphql(gql(queries.messengerApps), {
-    name: "messengerAppsQuery",
+    name: 'messengerAppsQuery',
     options: () => ({
-      fetchPolicy: "network-only"
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(mutations.executeApp), {
-    name: "executeAppMutation"
+    name: 'executeAppMutation'
   })
 )(MessengerAppContainer);

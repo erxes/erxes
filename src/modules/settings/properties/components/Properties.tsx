@@ -21,8 +21,10 @@ type Props = {
   currentType: string;
   removePropertyGroup: (data: { _id: string }) => any;
   removeProperty: (data: { _id: string }) => void;
-  updatePropertyVisible: (data: { _id: string, isVisible: boolean }) => void;
-  updatePropertyGroupVisible: (data: { _id: string, isVisible: boolean }) => void;
+  updatePropertyVisible: (data: { _id: string; isVisible: boolean }) => void;
+  updatePropertyGroupVisible: (
+    data: { _id: string; isVisible: boolean }
+  ) => void;
 };
 
 class Properties extends React.Component<Props> {
@@ -83,20 +85,28 @@ class Properties extends React.Component<Props> {
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>
-          <ModalTrigger 
-            title="Add Group" 
+          <ModalTrigger
+            title="Add Group"
             trigger={addGroup}
-            content={(props) => <PropertyGroupForm {...props} queryParams={queryParams} />}
+            content={props => (
+              <PropertyGroupForm {...props} queryParams={queryParams} />
+            )}
           />
-          <ModalTrigger 
-            title="Add Property" 
+          <ModalTrigger
+            title="Add Property"
             trigger={addField}
-            content={(modalProps) => {
+            content={modalProps => {
               if (fieldsGroups.length === 0) {
                 return <div>{__('Please add property Group first')}!</div>;
               }
 
-              return <PropertyForm  {...modalProps} {...this.props} queryParams={queryParams} />;
+              return (
+                <PropertyForm
+                  {...modalProps}
+                  {...this.props}
+                  queryParams={queryParams}
+                />
+              );
             }}
           />
         </Dropdown.Menu>

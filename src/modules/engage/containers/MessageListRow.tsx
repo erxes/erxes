@@ -10,20 +10,22 @@ import { IEngageMessage } from '../types';
 import { crudMutationsOptions } from '../utils';
 
 type Props = {
-  removeMutation: ( _id: string ) => Promise<void>;
-  setPauseMutation: (params: {vairables: { _id: string  }}) => Promise<void>;
-  setLiveMutation: (params: {vairables: { _id: string  }}) => Promise<void>;
-  setLiveManualMutation: (params: {vairables: { _id: string  }}) => Promise<void>;
-};
-      
-interface IRouteProps extends IRouterProps {
-  isChecked: boolean,
-  toggleBulk: (value: IEngageMessage, isChecked: boolean) => void,
-  message: IEngageMessage,
-  queryParams: any
+  removeMutation: (_id: string) => Promise<void>;
+  setPauseMutation: (params: { vairables: { _id: string } }) => Promise<void>;
+  setLiveMutation: (params: { vairables: { _id: string } }) => Promise<void>;
+  setLiveManualMutation: (
+    params: { vairables: { _id: string } }
+  ) => Promise<void>;
 };
 
-const MessageRowContainer = (props : Props & IRouteProps) => {
+interface IRouteProps extends IRouterProps {
+  isChecked: boolean;
+  toggleBulk: (value: IEngageMessage, isChecked: boolean) => void;
+  message: IEngageMessage;
+  queryParams: any;
+}
+
+const MessageRowContainer = (props: Props & IRouteProps) => {
   const {
     history,
     message,

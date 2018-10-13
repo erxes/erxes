@@ -9,13 +9,13 @@ const Item = styled.li`
   color: ${rgba(colors.colorCoreDarkGray, 0.9)};
   text-transform: capitalize;
   padding-right: 40px;
-  
+
   > a {
     text-decoration: none;
     color: ${colors.colorCoreDarkGray};
     padding: 14px 0;
     display: block;
-    
+
     &.active {
       border-bottom: 2px solid ${colors.colorSecondary};
     }

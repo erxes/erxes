@@ -10,12 +10,16 @@ import { IChannel } from '../types';
 
 type Props = {
   currentChannel: IChannel;
-  editMutation: (params: { variables: {
-    _id: string;
-    name: string;
-    integrationIds: string[];
-    memberIds: string[];
-  } }) => Promise<any>;
+  editMutation: (
+    params: {
+      variables: {
+        _id: string;
+        name: string;
+        integrationIds: string[];
+        memberIds: string[];
+      };
+    }
+  ) => Promise<any>;
   queryParams: any;
 };
 
@@ -61,7 +65,13 @@ class ManageIntegrationsContainer extends React.Component<Props, {}> {
 export default compose(
   graphql(gql(mutations.channelEdit), {
     name: 'editMutation',
-    options: ({ queryParams, currentChannel } : { queryParams: any, currentChannel: IChannel }) => {
+    options: ({
+      queryParams,
+      currentChannel
+    }: {
+      queryParams: any;
+      currentChannel: IChannel;
+    }) => {
       return {
         refetchQueries: [
           {

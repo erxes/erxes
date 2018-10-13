@@ -1,81 +1,123 @@
 import { colors } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { borderRadius, stageHeight, stageWidth } from './deminsions';
+import { stageWidth } from './deminsions';
 
-const Header = styled.div`
-  padding: 10px 20px 10px 21px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  position: relative;
-
-  &:after,
-  &:before {
-    position: absolute;
-    content: '';
-    top: 50%;
-    height: 0;
-    width: 0;
-  }
-
-  &:after {
-    border-top: 13px solid transparent;
-    border-bottom: 13px solid transparent;
-    border-left: 9px solid #fff;
-    right: -9px;
-    margin-top: -13px;
-  }
-
-  &:before {
-    border-top: 15px solid transparent;
-    border-bottom: 15px solid transparent;
-    border-left: 10px solid ${colors.borderPrimary};
-    right: -10px;
-    margin-top: -15px;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 11px;
-    line-height: inherit;
-    text-transform: uppercase;
-    font-weight: bold;
-
-    span {
-      color: ${colors.colorCoreGray};
-      margin-left: 5px;
-      font-size: 90%;
-    }
-  }
-`;
+const hoverColor = 'rgba(10,45,65,.13)';
+const stageGray = '#dee3e6';
+const secondaryText = '#6a818c';
 
 const Container = styledTS<{ isDragging: boolean }>(styled.div)`
   display: flex;
-  border-right: 1px solid ${colors.borderPrimary};
-  border-left: 1px solid ${colors.borderPrimary};
-  margin-left: -1px;
   flex-direction: column;
+  margin: 0 4px;
   width: ${stageWidth}px;
-  max-height: ${stageHeight};
   transition: background-color 0.3s ease;
+  border-radius: 4px;
   ${props => css`
-    background: ${props.isDragging ? colors.colorWhite : 'none'};
     box-shadow: ${props.isDragging
       ? `0 0 20px 2px rgba(0, 0, 0, 0.14)`
       : 'none'};
   `};
+`;
 
-  &:last-of-type {
-    ${Header}:before, ${Header}:after {
-      border: none;
+const DealContainer = styled.div`
+  overflow: auto;
+`;
+
+const Right = styled.div`
+  float: right;
+`;
+
+const Content = styled('div')`
+  flex-grow: 1;
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+
+  h5 {
+    margin-top: 0;
+  }
+`;
+
+const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
+  margin-bottom: 10px;
+  background-color: rgb(255, 255, 255);
+  box-shadow: ${props =>
+    props.isDragging
+      ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
+      : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
+  overflow: hidden;
+  padding: 8px;
+  outline: 0px;
+  border-radius: 3px;
+  transition: box-shadow 0.3s ease-in-out 0s;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  will-change: transform;
+`;
+
+const Date = styled.div`
+  color: rgb(136, 136, 136);
+  font-size: 11px;
+  z-index: 10;
+  margin-left: 5px;
+`;
+
+const Indicator = styled.div`
+  display: flex;
+  margin-top: 5px;
+
+  > div {
+    margin-right: 4px;
+
+    &:last-of-type {
+      margin: 0;
+    }
+  }
+`;
+
+const DealIndicator = styledTS<{ color: string }>(styled.span)`
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 8px 8px 0 0;
+  background-color: ${props => props.color}
+`;
+
+const Footer = styled.div`
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px dashed #ccc;
+  font-size: 11px;
+`;
+
+const Header = styled.div`
+  padding: 10px 16px;
+  position: relative;
+  background: ${stageGray};
+  border-radius: 3px 3px 0 0;
+
+  h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+
+    span {
+      color: ${secondaryText};
+      margin-left: 5px;
+      font-size: 85%;
     }
   }
 `;
 
 const Amount = styled.ul`
   list-style: none;
-  margin: 5px 0 0;
+  margin: 5px 0px 0px;
   overflow: hidden;
   padding: 0;
+  max-width: 230px;
+  display: inline-block;
 
   li {
     float: left;
@@ -99,42 +141,64 @@ const Amount = styled.ul`
 `;
 
 const Body = styled.div`
-  padding: 10px 10px 10px 11px;
-  height: 100%;
+  max-height: 100%;
   overflow: auto;
-  background: ${colors.bgLight};
+  background: ${stageGray};
 `;
 
-const DropZone = styled.div`
-  min-height: 100%;
-  min-height: calc(100% - 10px);
+const AddNew = styled.a`
+  display: block;
+  color: ${secondaryText};
+  padding: 8px 16px;
+  position: relative;
+  user-select: none;
+  border-radius: 0 0 3px 3px;
 
-  > div:not(.deals) {
-    background: ${colors.borderPrimary};
-    border-radius: ${borderRadius};
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
+  &:hover {
+    background: ${hoverColor};
+    cursor: pointer;
   }
-`;
 
-const Indicator = styled.div`
-  display: flex;
-  margin-top: 5px;
-
-  > div {
-    margin-right: 4px;
-
-    &:last-of-type {
-      margin: 0;
-    }
+  i {
+    margin-right: 8px;
   }
 `;
 
 const IndicatorItem = styledTS<{ isPass: boolean }>(styled.div)`
   flex: 1;
-  background: ${props =>
-    props.isPass ? colors.colorSecondary : colors.colorShadowGray};
+  background: ${props => (props.isPass ? colors.colorCoreBlue : hoverColor)};
   height: 4px;
   border-radius: 2px;
 `;
+const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
+  background-color: ${({ isDraggingOver }) =>
+    isDraggingOver && 'rgba(10, 45, 65, .1)'};
+  display: flex;
+  flex-direction: column;
+  padding: 0 8px;
+  transition: background-color 0.1s ease, opacity 0.1s ease;
+  user-select: none;
+`;
 
-export { Container, Header, Amount, Body, DropZone, Indicator, IndicatorItem };
+const DropZone = styled.div`
+  min-height: 200px;
+`;
+
+export {
+  AddNew,
+  Container,
+  DealContainer,
+  Right,
+  Content,
+  Header,
+  Amount,
+  Body,
+  Indicator,
+  DealIndicator,
+  IndicatorItem,
+  Footer,
+  Deal,
+  Date,
+  Wrapper,
+  DropZone
+};

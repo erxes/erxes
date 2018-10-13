@@ -16,7 +16,7 @@ type Props = {
   queryParams: any;
   currentBrand: IBrand;
   loading: boolean;
-}
+};
 
 class Brands extends React.Component<Props, {}> {
   render() {
@@ -40,17 +40,17 @@ class Brands extends React.Component<Props, {}> {
     );
 
     const rightActionBar = currentBrand._id && (
-      <ModalTrigger 
-        title="Manage Integration" 
-        trigger={trigger} 
+      <ModalTrigger
+        title="Manage Integration"
+        trigger={trigger}
         size="lg"
-        content={(props) =>
+        content={props => (
           <ManageIntegrations
             {...props}
             queryParams={queryParams}
             currentBrand={currentBrand}
-          /> 
-        }
+          />
+        )}
       />
     );
 

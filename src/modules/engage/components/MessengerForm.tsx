@@ -15,7 +15,10 @@ import Scheduler from './Scheduler';
 
 type Props = {
   brands: IBrand[];
-  onChange: (name: 'messenger' | 'content' | 'scheduleDate' | 'fromUserId', value: IEngageMessenger | IEngageScheduleDate | string) => void;
+  onChange: (
+    name: 'messenger' | 'content' | 'scheduleDate' | 'fromUserId',
+    value: IEngageMessenger | IEngageScheduleDate | string
+  ) => void;
   users: IUser[];
   hasKind: boolean;
   kind?: string;
@@ -28,8 +31,8 @@ type Props = {
 type State = {
   fromUserId: string;
   messenger: IEngageMessenger;
-  scheduleDate: IEngageScheduleDate;  
-}
+  scheduleDate: IEngageScheduleDate;
+};
 
 class MessengerForm extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -38,7 +41,7 @@ class MessengerForm extends React.Component<Props, State> {
     this.state = {
       fromUserId: props.fromUserId,
       messenger: props.messenger,
-      scheduleDate: props.scheduleDate,
+      scheduleDate: props.scheduleDate
     };
   }
 
@@ -70,7 +73,9 @@ class MessengerForm extends React.Component<Props, State> {
 
         <FormControl
           componentClass="select"
-          onChange={e => this.changeContent('kind', (e.target as HTMLInputElement).value)}
+          onChange={e =>
+            this.changeContent('kind', (e.target as HTMLInputElement).value)
+          }
           defaultValue={this.state.messenger.kind}
         >
           <option />{' '}
@@ -92,10 +97,7 @@ class MessengerForm extends React.Component<Props, State> {
     }
 
     return (
-      <Scheduler
-        scheduleDate={this.state.scheduleDate}
-        onChange={onChange}
-      />
+      <Scheduler scheduleDate={this.state.scheduleDate} onChange={onChange} />
     );
   }
 
@@ -115,11 +117,12 @@ class MessengerForm extends React.Component<Props, State> {
             <ControlLabel>From:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e => this.changeFromUserId((e.target as HTMLInputElement).value)}
+              onChange={e =>
+                this.changeFromUserId((e.target as HTMLInputElement).value)
+              }
               value={this.state.fromUserId}
             >
               <option />{' '}
-
               {this.props.users.map(user => (
                 <option key={user._id} value={user._id}>
                   {user.details ? user.details.fullName : user.username}
@@ -132,7 +135,12 @@ class MessengerForm extends React.Component<Props, State> {
             <ControlLabel>Brand:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e => this.changeContent('brandId', (e.target as HTMLInputElement).value)}
+              onChange={e =>
+                this.changeContent(
+                  'brandId',
+                  (e.target as HTMLInputElement).value
+                )
+              }
               defaultValue={this.state.messenger.brandId}
             >
               <option />{' '}
@@ -150,7 +158,12 @@ class MessengerForm extends React.Component<Props, State> {
             <ControlLabel>Sent as:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e => this.changeContent('sentAs', (e.target as HTMLInputElement).value)}
+              onChange={e =>
+                this.changeContent(
+                  'sentAs',
+                  (e.target as HTMLInputElement).value
+                )
+              }
               defaultValue={this.state.messenger.sentAs}
             >
               <option />{' '}

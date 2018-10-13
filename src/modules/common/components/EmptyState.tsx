@@ -60,7 +60,14 @@ type Props = {
   linkText?: string;
 };
 
-function EmptyState({ text, icon, image, size = 'small', linkUrl, linkText }: Props) {
+function EmptyState({
+  text,
+  icon,
+  image,
+  size = 'small',
+  linkUrl,
+  linkText
+}: Props) {
   return (
     <EmptyStateStyled hugeness={size}>
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}

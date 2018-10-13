@@ -10,7 +10,7 @@ type Props = {
 type State = {
   activeStep: number;
   maxStep: number;
-}
+};
 
 class Steps extends React.Component<Props, State> {
   constructor(props: Props) {

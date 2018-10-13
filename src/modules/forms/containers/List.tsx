@@ -1,9 +1,9 @@
-import gql from "graphql-tag";
-import { Bulk, Spinner } from "modules/common/components";
-import * as React from "react";
-import { compose, graphql } from "react-apollo";
-import { List } from "../components";
-import { mutations, queries } from "../graphql";
+import gql from 'graphql-tag';
+import { Bulk, Spinner } from 'modules/common/components';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { List } from '../components';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   integrationsTotalCountQuery: any;
@@ -23,11 +23,9 @@ class ListContainer extends React.Component<Props, {}> {
       removeMutation
     } = this.props;
 
-    if (integrationsQuery.loading || integrationsTotalCountQuery.loading) {
-      return <Spinner />;
-    }
-
-    const counts = integrationsTotalCountQuery.integrationsTotalCount;
+    const counts = integrationsTotalCountQuery.integrationsTotalCount || {
+      byKind: {}
+    };
     const totalCount = counts.byKind.form || 0;
     const tagsCount = counts.byTag || {};
 
@@ -71,35 +69,35 @@ class ListContainer extends React.Component<Props, {}> {
 
 export default compose(
   graphql<Props>(gql(queries.integrations), {
-    name: "integrationsQuery",
+    name: 'integrationsQuery',
     options: ({ queryParams }) => {
       return {
         variables: {
           page: queryParams.page,
           perPage: queryParams.perPage || 20,
           tag: queryParams.tag,
-          kind: "form"
+          kind: 'form'
         },
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only'
       };
     }
   }),
   graphql(gql(queries.integrationsTotalCount), {
-    name: "integrationsTotalCountQuery",
+    name: 'integrationsTotalCountQuery',
     options: () => ({
-      fetchPolicy: "network-only"
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(queries.tags), {
-    name: "tagsQuery",
+    name: 'tagsQuery',
     options: () => ({
       variables: {
-        type: "integration"
+        type: 'integration'
       },
-      fetchPolicy: "network-only"
+      fetchPolicy: 'network-only'
     })
   }),
   graphql(gql(mutations.integrationRemove), {
-    name: "removeMutation"
+    name: 'removeMutation'
   })
 )(ListContainer);

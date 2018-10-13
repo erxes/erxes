@@ -5,13 +5,13 @@ import { Link } from 'react-router-dom';
 import { AuthBox, Links } from '../styles';
 
 type Props = {
-  login: (doc: { email: string, password: string }) => void;
+  login: (doc: { email: string; password: string }) => void;
 };
 
 type State = {
   email: string;
   password: string;
-}
+};
 
 class SignIn extends React.Component<Props, State> {
   constructor(props) {

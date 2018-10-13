@@ -40,15 +40,16 @@ const ManageColumnsContainer = (props: Props) => {
     }
   };
 
-  let config = fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
+  let columnsConfig =
+    fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
 
   if (storageItem) {
-    config = JSON.parse(storageItem);
+    columnsConfig = JSON.parse(storageItem);
   }
 
   const updatedProps = {
     ...props,
-    config,
+    config: columnsConfig,
     save,
     fields: fieldsQuery.fieldsCombinedByContentType
   };
@@ -59,7 +60,7 @@ const ManageColumnsContainer = (props: Props) => {
 export default compose(
   graphql(gql(queries.fieldsCombinedByContentType), {
     name: 'fieldsQuery',
-    options: ({ contentType } : { contentType: string }) => {
+    options: ({ contentType }: { contentType: string }) => {
       return {
         variables: {
           contentType
@@ -69,7 +70,7 @@ export default compose(
   }),
   graphql(gql(queries.fieldsDefaultColumnsConfig), {
     name: 'fieldsDefaultColumnsConfigQuery',
-    options: ({ contentType } : { contentType: string }) => {
+    options: ({ contentType }: { contentType: string }) => {
       return {
         variables: {
           contentType

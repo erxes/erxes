@@ -17,26 +17,34 @@ type Props = {
   currentCategoryId: string;
   topic: ITopic;
   articlesCount: number;
-  remove: ( _id: string ) => void;
+  remove: (_id: string) => void;
 
-  save: (params: { doc: {doc: {
-    title: string;
-    description: string;
-    brandId: string;
-    languageCode: string;
-    color: string
-  }} }, callback: () => void, object: any) => void;
+  save: (
+    params: {
+      doc: {
+        doc: {
+          title: string;
+          description: string;
+          brandId: string;
+          languageCode: string;
+          color: string;
+        };
+      };
+    },
+    callback: () => void,
+    object: any
+  ) => void;
 };
 
 type State = {
-  detailed: boolean
-}
+  detailed: boolean;
+};
 
 class KnowledgeRow extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { detailed: this.isExpanded() };
+    this.state = { detailed: false };
     this.toggle = this.toggle.bind(this);
   }
 
@@ -44,11 +52,16 @@ class KnowledgeRow extends React.Component<Props, State> {
     this.setState({ detailed: !this.state.detailed });
   }
 
-  isExpanded() {
-    const { currentCategoryId, topic } = this.props;
+  isExpanded(currentCategoryId, topic) {
     const categories = topic.categories || [];
 
-    return categories.some(c => c['_id'] === currentCategoryId);
+    return categories.some(c => c._id === currentCategoryId);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      detailed: this.isExpanded(nextProps.currentCategoryId, nextProps.topic)
+    });
   }
 
   renderManage() {
@@ -64,15 +77,24 @@ class KnowledgeRow extends React.Component<Props, State> {
             <Icon icon="settings" />
           </DropdownToggle>
           <Dropdown.Menu>
-            <ModalTrigger 
-              title="Manage Knowledge Base" 
+            <ModalTrigger
+              title="Manage Knowledge Base"
               trigger={manageTopic}
-              content={(props) => <KnowledgeForm {...props} save={save} topic={topic} remove={remove} />}
+              content={props => (
+                <KnowledgeForm
+                  {...props}
+                  save={save}
+                  topic={topic}
+                  remove={remove}
+                />
+              )}
             />
-            <ModalTrigger 
-              title="Add Category" 
+            <ModalTrigger
+              title="Add Category"
               trigger={addCategory}
-              content={(props) => <CategoryForm {...props} topicIds={topic._id} />}
+              content={props => (
+                <CategoryForm {...props} topicIds={topic._id} />
+              )}
             />
           </Dropdown.Menu>
         </Dropdown>

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { IArticle } from '../../types';
 import { ArticleRow } from './';
 
-type Props= {
+type Props = {
   articles: IArticle[];
   queryParams: any;
   currentCategoryId: string;

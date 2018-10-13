@@ -13,17 +13,24 @@ import { HelperButtons, SidebarList as List } from '../../../layout/styles';
 import { IBrand } from '../types';
 
 type Props = {
-  brands: IBrand[],
+  brands: IBrand[];
   remove: (_id: string) => void;
-  save: (params: { doc: {
-    name: string; description: string;
-  } }, callback: () => void, brand?: IBrand) => void;
+  save: (
+    params: {
+      doc: {
+        name: string;
+        description: string;
+      };
+    },
+    callback: () => void,
+    brand?: IBrand
+  ) => void;
   loading: boolean;
   currentBrandId?: string;
   brandsTotalCount: number;
 };
 
-class Sidebar extends React.Component<Props, {}>  {
+class Sidebar extends React.Component<Props, {}> {
   constructor(props) {
     super(props);
 
@@ -63,7 +70,7 @@ class Sidebar extends React.Component<Props, {}>  {
         <ModalTrigger
           title="New Brand"
           trigger={addBrand}
-          content={(props) => <BrandForm {...props} save={save} />}
+          content={props => <BrandForm {...props} save={save} />}
         />
       </Header>
     );

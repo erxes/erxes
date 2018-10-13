@@ -10,10 +10,10 @@ import { LEAD_STATUS_TYPES } from '../../constants';
 import { leadStatusChoices } from '../../utils';
 
 interface IProps extends IRouterProps {
-  counts: any;
+  counts: { [key: string]: number };
   loading: boolean;
   searchable?: boolean;
-};
+}
 
 class LeadStatusFilter extends React.Component<IProps> {
   constructor(props, context) {
@@ -44,28 +44,30 @@ class LeadStatusFilter extends React.Component<IProps> {
         </Section.QuickButtons>
         <div>
           <SidebarList>
-            {leadStatusChoices(__).map(({ value, label }: { value: string, label: string }) => {
-              return (
-                <li key={Math.random()}>
-                  <a
-                    tabIndex={0}
-                    className={
-                      router.getParam(history, [paramKey]) === value
-                        ? 'active'
-                        : ''
-                    }
-                    onClick={() => {
-                      router.setParams(history, { [paramKey]: value });
-                    }}
-                  >
-                    {label}
-                    <SidebarCounter>
-                      {counts ? counts[value] : 0}
-                    </SidebarCounter>
-                  </a>
-                </li>
-              );
-            })}
+            {leadStatusChoices(__).map(
+              ({ value, label }: { value: string; label: string }) => {
+                return (
+                  <li key={Math.random()}>
+                    <a
+                      tabIndex={0}
+                      className={
+                        router.getParam(history, [paramKey]) === value
+                          ? 'active'
+                          : ''
+                      }
+                      onClick={() => {
+                        router.setParams(history, { [paramKey]: value });
+                      }}
+                    >
+                      {label}
+                      <SidebarCounter>
+                        {counts ? counts[value] : 0}
+                      </SidebarCounter>
+                    </a>
+                  </li>
+                );
+              }
+            )}
           </SidebarList>
         </div>
       </Section>

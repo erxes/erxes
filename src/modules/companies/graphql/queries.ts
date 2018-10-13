@@ -10,9 +10,11 @@ const companyFields = `
   plan
 
   parentCompanyId
-  email
+  emails
+  primaryEmail
   ownerId
-  phone
+  phones
+  primaryPhone
   leadStatus
   lifecycleState
   businessType
@@ -95,8 +97,8 @@ export const companiesMain = `
 `;
 
 export const companyCounts = `
-  query companyCounts(${listParamsDef}) {
-    companyCounts(${listParamsValue})
+  query companyCounts(${listParamsDef}, $only: String) {
+    companyCounts(${listParamsValue}, only: $only)
   }
 `;
 

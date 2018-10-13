@@ -9,7 +9,7 @@ import { queries } from '../graphql';
 
 interface IProps extends IRouterProps {
   segmentsQuery: any;
-};
+}
 
 const FilterContainer = (props: IProps) => {
   const { segmentsQuery, history } = props;

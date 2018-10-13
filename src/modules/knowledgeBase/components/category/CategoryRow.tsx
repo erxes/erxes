@@ -10,13 +10,13 @@ type Props = {
   topicIds: string;
   category: ICategory;
   articlesCount: number;
-  remove: ( _id: string ) => void;
+  remove: (_id: string) => void;
   isActive: boolean;
 };
 
 class CategoryRow extends React.Component<Props> {
   private size;
-  
+
   constructor(props: Props) {
     super(props);
 
@@ -45,12 +45,12 @@ class CategoryRow extends React.Component<Props> {
     );
 
     return (
-      <ModalTrigger 
-        size={this.size} 
-        title="Edit" 
+      <ModalTrigger
+        size={this.size}
+        title="Edit"
         trigger={editTrigger}
-        content={(props) => {
-          return this.renderEditForm({ ...props, category, topicIds })
+        content={props => {
+          return this.renderEditForm({ ...props, category, topicIds });
         }}
       />
     );

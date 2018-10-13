@@ -6,7 +6,9 @@ import { PortableDeals } from 'modules/deals/containers';
 import { Sidebar } from 'modules/layout/components';
 import * as React from 'react';
 
-export default class RightSidebar extends React.Component<{ customer: ICustomer }> {
+export default class RightSidebar extends React.Component<{
+  customer: ICustomer;
+}> {
   renderOther() {
     const { Section } = Sidebar;
     const { Title } = Section;

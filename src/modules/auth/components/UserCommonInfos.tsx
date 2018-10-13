@@ -28,10 +28,7 @@ class UserCommonInfos extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <AvatarUpload
-          avatar={details.avatar}
-          onAvatarUpload={onAvatarUpload}
-        />
+        <AvatarUpload avatar={details.avatar} onAvatarUpload={onAvatarUpload} />
         <FormWrapper>
           <FormColumn>
             <FormGroup>

@@ -16,9 +16,9 @@ type Props = {
 
 interface IRouteProps extends IRouterProps {
   queryParams: any;
-};
+}
 
-const SidebarContainer = (props : Props & IRouteProps) => {
+const SidebarContainer = (props: Props & IRouteProps) => {
   const {
     kindCountsQuery,
     statusCountsQuery,
@@ -47,7 +47,7 @@ export default withRouter<IRouteProps>(
     }),
     graphql(gql(queries.statusCounts), {
       name: 'statusCountsQuery',
-      options: ({ queryParams } : { queryParams: any }) => ({
+      options: ({ queryParams }: { queryParams: any }) => ({
         variables: {
           kind: queryParams.kind || ''
         },
@@ -62,7 +62,7 @@ export default withRouter<IRouteProps>(
     }),
     graphql(gql(queries.tagCounts), {
       name: 'tagCountsQuery',
-      options: ({ queryParams } : { queryParams: any }) => ({
+      options: ({ queryParams }: { queryParams: any }) => ({
         variables: {
           kind: queryParams.kind || '',
           status: queryParams.status || ''

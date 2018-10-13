@@ -4,7 +4,10 @@ import { IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { Form } from 'modules/settings/integrations/components/messenger';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
-import { IMessengerData, IUiOptions } from 'modules/settings/integrations/types';
+import {
+  IMessengerData,
+  IUiOptions
+} from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -14,10 +17,23 @@ interface IProps extends IRouterProps {
   brandsQuery: any;
   integrationId: string;
   integrationDetailQuery: any;
-  saveConfigsMutation: (params: { variables: { _id: string, messengerData: IMessengerData } }) => any;
-  saveAppearanceMutation: (params: { variables: { _id: string, uiOptions: IUiOptions } }) => void;
-  editMessengerMutation: (params: { variables: { _id: string, name: string, brandId: string, languageCode: string } }) => any;
-};
+  saveConfigsMutation: (
+    params: { variables: { _id: string; messengerData: IMessengerData } }
+  ) => any;
+  saveAppearanceMutation: (
+    params: { variables: { _id: string; uiOptions: IUiOptions } }
+  ) => void;
+  editMessengerMutation: (
+    params: {
+      variables: {
+        _id: string;
+        name: string;
+        brandId: string;
+        languageCode: string;
+      };
+    }
+  ) => any;
+}
 
 const EditMessenger = (props: IProps) => {
   const {
@@ -108,7 +124,7 @@ const EditMessengerWithData = compose(
   }),
   graphql(gql(queries.integrationDetail), {
     name: 'integrationDetailQuery',
-    options: ({ integrationId } : { integrationId: string }) => ({
+    options: ({ integrationId }: { integrationId: string }) => ({
       variables: {
         _id: integrationId || ''
       },
