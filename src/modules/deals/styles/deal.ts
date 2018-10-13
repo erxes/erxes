@@ -1,32 +1,10 @@
 import { colors } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius, coreHeight } from './deminsions';
 
 const FlexContent = styled.div`
   display: flex;
-`;
-
-const AddNew = styled.a`
-  display: block;
-  height: ${coreHeight}px;
-  line-height: ${coreHeight - 2}px;
-  text-align: center;
-  border: 1px dashed ${colors.colorShadowGray};
-  border-radius: ${borderRadius};
-  color: ${rgba(colors.colorCoreDarkGray, 0.9)};
-  font-size: 14px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-
-  &:hover {
-    background: ${colors.colorWhite};
-  }
-
-  i {
-    margin-right: 8px;
-  }
 `;
 
 const Container = styledTS<{ isDragging?: boolean }>(styled.div)`
@@ -251,9 +229,10 @@ const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
 const ItemList = styled.ul`
   list-style: none;
   margin: 0;
-  padding: 0 !important;
+  padding: 0 0 0 12px !important;
   display: block;
   overflow: hidden;
+  position: relative;
 
   > li {
     float: left;
@@ -267,6 +246,26 @@ const ItemList = styled.ul`
     &:last-child:after {
       display: none;
     }
+  }
+`;
+
+const PortableItem = styledTS<{ uppercase: boolean }>(styled.li)`
+  text-transform: ${props => (props.uppercase ? 'uppercase' : 'normal')};
+  font-size: ${props => (props.uppercase ? '10px' : '12px')};
+  align-items: center;
+  vertical-align: bottom;
+
+  &:first-child:before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    float: left;
+    border-radius: 1px;
+    background: ${props =>
+      props.color ? `${props.color}` : `${colors.colorShadowGray}`};
+    position: absolute;
+    top: 4px;
+    left: 0;
   }
 `;
 
@@ -319,6 +318,16 @@ const ActionInfo = SpaceContent.extend`
   }
 `;
 
+const DealFooter = styled.div`
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed ${colors.colorShadowGray};
+
+  span {
+    font-size: 10px;
+  }
+`;
+
 const Status = styled.div`
   margin-bottom: 4px;
   overflow: hidden;
@@ -332,8 +341,35 @@ const Status = styled.div`
   }
 `;
 
+const UserCounterContainer = styled.ul`
+  margin-bottom: 0;
+  list-style: none;
+  padding: 0;
+  flex-shrink: 0;
+  align-self: flex-end;
+
+  li {
+    float: left;
+    border: 2px solid ${colors.colorWhite};
+    width: 28px;
+    height: 28px;
+    line-height: 26px;
+    border-radius: 14px;
+    background: ${colors.colorCoreLightGray};
+    text-align: center;
+    color: ${colors.colorWhite};
+    overflow: hidden;
+    margin-left: -12px;
+    font-size: 10px;
+
+    img {
+      width: 100%;
+      vertical-align: top;
+    }
+  }
+`;
+
 export {
-  AddNew,
   Container,
   SpaceContent,
   FooterContent,
@@ -352,11 +388,14 @@ export {
   MoveContainer,
   Stages,
   ItemList,
+  PortableItem,
   StageItem,
   SelectOption,
   SelectValue,
   Avatar,
   AddContainer,
   ActionInfo,
-  Status
+  Status,
+  UserCounterContainer,
+  DealFooter
 };

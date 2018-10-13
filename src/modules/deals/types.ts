@@ -12,6 +12,7 @@ export interface ICommonState {
 export interface IBoard {
   _id: string;
   name: string;
+  pipelines?: IPipeline[];
 }
 
 export interface IPipeline {
@@ -31,14 +32,15 @@ export interface IStage {
 export interface IDeal {
   _id: string;
   name: string;
+  order: number;
   stageId: string;
+  closeDate: Date;
+  amount: number;
+  modifiedAt: Date;
   assignedUsers: IUser[];
   companies: ICompany[];
   customers: ICustomer[];
   pipeline: IPipeline;
-  closeDate: Date;
-  amount: number;
-  modifiedAt: Date;
   stage?: IStage;
   products: any;
 }
@@ -55,6 +57,11 @@ export interface IProductData {
   discountPercent: number;
   discount: number;
   amount: number;
+}
+
+export interface IDraggableLocation {
+  droppableId: string;
+  index: number;
 }
 
 type Position = {
@@ -84,6 +91,17 @@ export interface IDealParams {
   productsData?: IProductData[];
 }
 
-export interface ICommonParams {
-  _id: string;
+export interface IDealMap {
+  [key: string]: IDeal[];
 }
+
+export interface IStageMap {
+  [key: string]: IStage;
+}
+
+export type SaveDealMutation = ({ variables: IDealParams }) => Promise<any>;
+export type RemoveDealMutation = (
+  {
+    variables: { _id: string }
+  }
+) => Promise<any>;
