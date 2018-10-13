@@ -1,7 +1,5 @@
-import {
-  BasicInfoSection,
-  CustomFieldsSection
-} from 'modules/customers/containers/common';
+import { BasicInfoSection } from 'modules/customers/components/common';
+import { CustomFieldsSection } from 'modules/customers/containers/common';
 import { Sidebar } from 'modules/layout/components';
 import * as React from 'react';
 

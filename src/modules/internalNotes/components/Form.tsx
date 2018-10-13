@@ -4,7 +4,7 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
 
-const EditorActions = styled.div`
+export const EditorActions = styled.div`
   padding: 0 20px 10px 20px;
   position: absolute;
   color: ${colors.colorCoreGray};

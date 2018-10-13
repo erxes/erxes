@@ -1,5 +1,18 @@
+import {
+  ActivityDate,
+  ActivityIcon,
+  ActivityRow,
+  AvatarWrapper,
+  EmailContent,
+  FlexContent,
+  Timeline
+} from 'modules/activityLogs/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
+import { ActivityContent } from 'modules/common/styles/main';
+import { EditorActions } from 'modules/internalNotes/components/Form';
 import styled from 'styled-components';
+
+const iconWrapperWidth = '60px';
 
 const FlexRow = styled.div`
   display: flex;
@@ -60,15 +73,87 @@ const SectionContainer = styled.div`
   }
 `;
 
-const Name = styled.div`
-  flex: 1;
-  word-break: break-word;
+const ActivityNote = styled.div`
+  border-bottom: 2px solid ${colors.borderPrimary};
+  padding-bottom: ${dimensions.coreSpacing}px;
 
-  p {
-    color: ${colors.colorCoreLightGray};
-    margin: 0;
-    font-size: ${typography.fontSizeHeading8}px;
+  span {
+    padding: 0 ${dimensions.coreSpacing}px;
+  }
+
+  textarea {
+    color: ${colors.colorCoreGray};
+  }
+
+  ${EditorActions} {
+    bottom: -15px;
   }
 `;
 
-export { FlexRow, FlexItem, DateFilters, SectionContainer, Actions, Name };
+const ActivityLogContent = ActivityContent.extend`
+  padding: 0 ${dimensions.coreSpacing}px;
+  margin-bottom: 30px;
+
+  ${Timeline} {
+    padding-left: 30px;
+
+    &:before {
+      left: 5px;
+    }
+  }
+
+  ${AvatarWrapper} {
+    display: none;
+  }
+
+  ${ActivityIcon} {
+    left: calc(-${iconWrapperWidth} + ${iconWrapperWidth} * 0.3);
+  }
+
+  ${FlexContent} {
+    display: block;
+  }
+
+  ${ActivityRow} {
+    background: ${colors.bgLight};
+  }
+
+  ${ActivityDate} {
+    margin: 0;
+    font-style: italic;
+    font-size: ${typography.fontSizeUppercase}px;
+  }
+
+  ${EmailContent} {
+    padding: 0;
+  }
+`;
+
+const BasicInfo = styled.div`
+  transition: all ease 0.8s;
+
+  .icon-edit {
+    width: 0px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    transition: all ease 0.8s;
+
+    .icon-edit {
+      width: ${dimensions.coreSpacing}px;
+    }
+  }
+`;
+
+export {
+  FlexRow,
+  FlexItem,
+  DateFilters,
+  SectionContainer,
+  Actions,
+  ActivityNote,
+  ActivityLogContent,
+  BasicInfo
+};

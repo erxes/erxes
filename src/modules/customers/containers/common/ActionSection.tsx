@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { BasicInfoSection } from 'modules/customers/components/common';
+import { ActionSection } from 'modules/customers/components/common';
 import { mutations } from 'modules/customers/graphql';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
@@ -26,7 +26,7 @@ type Props = {
   ) => Promise<any>;
 };
 
-const BasicInfoContainer = (props: IBaseProps & Props) => {
+const ActionSectionContainer = (props: IBaseProps & Props) => {
   const { customer, customersRemove, customersMerge, history } = props;
 
   const { _id } = customer;
@@ -66,7 +66,7 @@ const BasicInfoContainer = (props: IBaseProps & Props) => {
     merge
   };
 
-  return <BasicInfoSection {...updatedProps} />;
+  return <ActionSection {...updatedProps} />;
 };
 
 const generateOptions = () => ({
@@ -75,6 +75,7 @@ const generateOptions = () => ({
 
 interface IBaseProps extends IRouterProps {
   customer: ICustomer;
+  isSmall?: boolean;
 }
 
 export default withRouter<IBaseProps>(
@@ -88,5 +89,5 @@ export default withRouter<IBaseProps>(
       name: 'customersMerge',
       options: generateOptions()
     })
-  )(BasicInfoContainer)
+  )(ActionSectionContainer)
 );

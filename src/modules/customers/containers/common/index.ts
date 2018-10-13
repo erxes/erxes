@@ -1,4 +1,4 @@
-import BasicInfoSection from './BasicInfoSection';
+import ActionSection from './ActionSection';
 import CustomFieldsSection from './CustomFieldsSection';
 
-export { BasicInfoSection, CustomFieldsSection };
+export { CustomFieldsSection, ActionSection };

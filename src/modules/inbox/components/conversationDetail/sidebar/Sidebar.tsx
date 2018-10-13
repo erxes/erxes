@@ -1,56 +1,31 @@
 import {
-  Button as CButton,
-  DataWithLoader,
-  DropdownToggle,
+  Button,
   Icon,
   ModalTrigger,
-  NameCard,
   Tabs,
   TabTitle
 } from 'modules/common/components';
 import { CompanyAssociate } from 'modules/companies/containers';
 import {
+  DetailInfo,
   DevicePropertiesSection,
+  InfoSection,
   MessengerSection,
   TaggerSection
 } from 'modules/customers/components/common';
+import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
 import { PortableDeals } from 'modules/deals/containers';
-import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { Sidebar } from 'modules/layout/components';
-import {
-  SidebarCounter,
-  SidebarFlexRow,
-  SidebarList,
-  SidebarToggle
-} from 'modules/layout/styles';
+import { SidebarToggle } from 'modules/layout/styles';
 import * as React from 'react';
-import { Dropdown } from 'react-bootstrap';
-import { Actions, Name, SectionContainer } from './styles';
+import { Actions, BasicInfo, SectionContainer } from './styles';
 
-import { ActivityList } from 'modules/activityLogs/components';
-import { AvatarWrapper } from 'modules/activityLogs/styles';
-import { IUser } from 'modules/auth/types';
-import {
-  ActivityContent,
-  InfoWrapper,
-  Links
-} from 'modules/common/styles/main';
-import {
-  __,
-  confirm,
-  renderFullName,
-  searchCustomer
-} from 'modules/common/utils';
-import { CustomersMerge, TargetMerge } from 'modules/customers/components';
-import {
-  LEAD_STATUS_TYPES,
-  LIFECYCLE_STATE_TYPES
-} from 'modules/customers/constants';
-import { CustomerForm } from 'modules/customers/containers';
+import { __ } from 'modules/common/utils';
+import { Contacts } from 'modules/customers/components';
 import { ICustomer } from 'modules/customers/types';
-import { hasAnyActivity } from 'modules/customers/utils';
-import { Button } from '../../../../deals/styles/deal';
+import { SidebarActivity } from 'modules/inbox/containers/conversationDetail';
+import { MailForm } from 'modules/settings/integrations/containers/google';
 import { IConversation } from '../../../types';
 import ConversationDetails from './ConversationDetails';
 
@@ -128,14 +103,12 @@ type IndexProps = {
   config: { [key: string]: boolean };
   taggerRefetchQueries: any;
   merge?: (doc: { ids: string[]; data: ICustomer }) => void;
-  activityLogsCustomer: any[];
-  loadingLogs: boolean;
-  currentUser: IUser;
 };
 
 type IndexState = {
   currentTab: string;
   currentSubTab: string;
+  attachmentPreview: any;
 };
 
 interface IRenderData {
@@ -149,7 +122,11 @@ class Index extends React.Component<IndexProps, IndexState> {
   constructor(props) {
     super(props);
 
-    this.state = { currentTab: 'customer', currentSubTab: 'details' };
+    this.state = {
+      currentTab: 'customer',
+      currentSubTab: 'details',
+      attachmentPreview: null
+    };
 
     this.onTabClick = this.onTabClick.bind(this);
     this.onSubtabClick = this.onSubtabClick.bind(this);
@@ -163,36 +140,9 @@ class Index extends React.Component<IndexProps, IndexState> {
     this.setState({ currentSubTab });
   }
 
-  renderLink(value, icon) {
-    let link = value;
-
-    if (!value) {
-      return null;
-    }
-
-    if (!value.includes('http')) {
-      link = 'https://'.concat(value);
-    }
-
-    return (
-      <a href={link} target="_blank">
-        <Icon icon={icon} />
-      </a>
-    );
-  }
-
-  renderLinks(links) {
-    return (
-      <Links>
-        {this.renderLink(links.facebook, 'facebook')}
-        {this.renderLink(links.twitter, 'twitter')}
-        {this.renderLink(links.linkedIn, 'linkedin-logo')}
-        {this.renderLink(links.youtube, 'youtube')}
-        {this.renderLink(links.github, 'github')}
-        {this.renderLink(links.website, 'earthgrid')}
-      </Links>
-    );
-  }
+  setAttachmentPreview = attachmentPreview => {
+    this.setState({ attachmentPreview });
+  };
 
   renderMessengerData({ customer, kind, config, toggleSection }: IRenderData) {
     if (kind !== 'messenger') {
@@ -233,64 +183,39 @@ class Index extends React.Component<IndexProps, IndexState> {
     );
   }
 
-  renderRow(label, value) {
-    return (
-      <li>
-        {__(`${label}`)}:
-        <SidebarCounter fullLength={label === 'Description'}>
-          {value || '-'}
-        </SidebarCounter>
-      </li>
-    );
-  }
-
   renderActions() {
-    const { customer, merge } = this.props;
+    const { customer } = this.props;
 
     return (
       <Actions>
-        <a href={`mailto:${customer.primaryEmail}`}>
-          <CButton size="small">{__('Email')}</CButton>
-        </a>
+        <ModalTrigger
+          title="Edit basic info"
+          trigger={
+            <a>
+              <Button size="small">{__('Email')}</Button>
+            </a>
+          }
+          size="lg"
+          content={props => (
+            <MailForm
+              {...props}
+              contentType="customer"
+              contentTypeId={customer._id}
+              toEmail={customer.primaryEmail}
+              setAttachmentPreview={this.setAttachmentPreview}
+              attachmentPreview={this.state.attachmentPreview}
+              refetchQueries={['activityLogsCustomer']}
+            />
+          )}
+        />
         <a href={`sms:${customer.primaryPhone}`}>
-          <CButton size="small">{__('Sms')}</CButton>
+          <Button size="small">{__('Sms')}</Button>
         </a>
         <a href={`tel:${customer.primaryPhone}`}>
-          <CButton size="small">{__('Call')}</CButton>
+          <Button size="small">{__('Call')}</Button>
         </a>
-        <Dropdown id="dropdown-engage">
-          <DropdownToggle bsRole="toggle">
-            <CButton size="small">
-              {__('Action')} <Icon icon="downarrow" />
-            </CButton>
-          </DropdownToggle>
-          <Dropdown.Menu>
-            <li>
-              {/* <TargetMerge
-                onSave={merge}
-                object={customer}
-                searchObject={searchCustomer}
-                mergeForm={CustomersMerge}
-                generateOptions={customers => {
-                  return customers.map((cus, key) => ({
-                    key,
-                    value: JSON.stringify(cus),
-                    label:
-                      cus.firstName ||
-                      cus.lastName ||
-                      cus.primaryEmail ||
-                      cus.primaryPhone ||
-                      'N/A'
-                  }));
-                }}
-              /> */}
-            </li>
-            <li>
-              {/* <a onClick={() => confirm().then(() => remove())}> */}
-              <a>{__('Delete')}</a>
-            </li>
-          </Dropdown.Menu>
-        </Dropdown>
+
+        <ActionSection customer={customer} isSmall />
       </Actions>
     );
   }
@@ -299,42 +224,17 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { currentSubTab } = this.state;
     const {
       taggerRefetchQueries,
-      activityLogsCustomer,
-      loadingLogs,
       conversation,
       customer,
       toggleSection,
-      config,
-      currentUser
+      config
     } = this.props;
     const { kind = '' } = customer.integration || {};
-    const hasActivity = hasAnyActivity(activityLogsCustomer);
 
     if (currentSubTab === 'details') {
       return (
         <React.Fragment>
-          <SidebarList className="no-link">
-            {this.renderRow(
-              'Owner',
-              customer.owner && customer.owner.details
-                ? customer.owner.details.fullName
-                : ''
-            )}
-            {this.renderRow('Department', customer.department)}
-            {this.renderRow(
-              'Lead Status',
-              LEAD_STATUS_TYPES[customer.leadStatus || '']
-            )}
-            {this.renderRow(
-              'Lifecycle State',
-              LIFECYCLE_STATE_TYPES[customer.lifecycleState || '']
-            )}
-            {this.renderRow('Has Authority', customer.hasAuthority)}
-            {this.renderRow('Do not disturb', customer.doNotDisturb)}
-            <SidebarFlexRow>
-              {__(`Description`)}:<span>{customer.description || '-'}</span>
-            </SidebarFlexRow>
-          </SidebarList>
+          <DetailInfo customer={customer} />
 
           <Box
             title={__('Conversation details')}
@@ -383,76 +283,36 @@ class Index extends React.Component<IndexProps, IndexState> {
       );
     }
 
-    if (currentSubTab === 'related') {
+    if (currentSubTab === 'activity') {
       return (
-        <React.Fragment>
-          <Box
-            title={__('Deals')}
-            name="showDeals"
-            isOpen={config.showDeals || false}
-            toggle={toggleSection}
-          >
-            <PortableDeals customerId={customer._id} />
-          </Box>
-        </React.Fragment>
+        <SidebarActivity customer={customer} currentSubTab={currentSubTab} />
       );
     }
 
     return (
       <React.Fragment>
-        <NoteForm contentType="customer" contentTypeId={customer._id} />
-
-        <ActivityContent isEmpty={!hasActivity}>
-          <DataWithLoader
-            loading={loadingLogs}
-            count={!loadingLogs && hasActivity ? 1 : 0}
-            data={
-              <ActivityList
-                user={currentUser}
-                activities={activityLogsCustomer}
-                target={customer.firstName}
-                type={currentSubTab} // show logs filtered by type
-              />
-            }
-            emptyText="No Activities"
-            emptyImage="/images/robots/robot-03.svg"
-          />
-        </ActivityContent>
+        <Box
+          title={__('Deals')}
+          name="showDeals"
+          isOpen={config.showDeals || false}
+          toggle={toggleSection}
+        >
+          <PortableDeals customerId={customer._id} />
+        </Box>
       </React.Fragment>
     );
   }
 
   renderTabContent() {
     const { currentTab, currentSubTab } = this.state;
-    const { customer } = this.props;
-    const { links = {}, isUser } = customer;
+    const { customer, config, toggleSection } = this.props;
 
     if (currentTab === 'customer') {
       return (
         <React.Fragment>
-          <InfoWrapper>
-            <AvatarWrapper isUser={isUser}>
-              <NameCard.Avatar customer={customer} size={50} />
-              {isUser ? <Icon icon="check" /> : <Icon icon="minus" />}
-              <div>{isUser ? 'User' : 'Visitor'}</div>
-            </AvatarWrapper>
-
-            <Name>
-              {renderFullName(customer)}
-              <p>{customer.position}</p>
-              {this.renderLinks(links)}
-            </Name>
-
-            <ModalTrigger
-              title="Edit basic info"
-              trigger={<Icon icon="edit" />}
-              size="lg"
-              content={props => (
-                <CustomerForm {...props} size="lg" customer={customer} />
-              )}
-            />
-          </InfoWrapper>
-
+          <BasicInfo>
+            <InfoSection customer={customer} showUserStatus showUserPosition />
+          </BasicInfo>
           {this.renderActions()}
 
           <Tabs full>
@@ -483,6 +343,15 @@ class Index extends React.Component<IndexProps, IndexState> {
     return (
       <React.Fragment>
         <CompanyAssociate data={customer} />
+
+        <Box
+          title={__('Contacts')}
+          name="showContacts"
+          isOpen={config.showContacts || true}
+          toggle={toggleSection}
+        >
+          <Contacts companies={customer.companies} customerId={customer._id} />
+        </Box>
       </React.Fragment>
     );
   }

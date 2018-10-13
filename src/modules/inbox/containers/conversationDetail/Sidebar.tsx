@@ -1,7 +1,5 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { IUser } from 'modules/auth/types';
-import { queries as customerQuery } from 'modules/customers/graphql';
 import { Sidebar as DumbSidebar } from 'modules/inbox/components/conversationDetail';
 import { queries } from 'modules/inbox/graphql';
 import * as React from 'react';
@@ -12,8 +10,6 @@ import { IConversation } from '../../types';
 type Props = {
   conversation: IConversation;
   customerDetailQuery: any;
-  customerActivityLogQuery: any;
-  currentUser: IUser;
 };
 
 type State = {
@@ -95,7 +91,6 @@ class Sidebar extends React.Component<Props, State> {
 
   render() {
     const { customer, loading } = this.state;
-    const { customerActivityLogQuery, currentUser } = this.props;
 
     if (!localStorage.getItem(STORAGE_KEY)) {
       setConfig({
@@ -121,12 +116,9 @@ class Sidebar extends React.Component<Props, State> {
       ...this.props,
       customer,
       loading,
-      loadingLogs: customerActivityLogQuery.loading,
-      activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
       toggleSection: this.toggleSection,
       config: getConfig(),
-      taggerRefetchQueries,
-      currentUser
+      taggerRefetchQueries
     };
 
     return <DumbSidebar {...updatedProps} />;
@@ -136,14 +128,6 @@ class Sidebar extends React.Component<Props, State> {
 export default compose(
   graphql(gql(queries.generateCustomerDetailQuery(getConfig())), {
     name: 'customerDetailQuery',
-    options: ({ conversation }: { conversation: IConversation }) => ({
-      variables: {
-        _id: conversation.customerId
-      }
-    })
-  }),
-  graphql(gql(customerQuery.activityLogsCustomer), {
-    name: 'customerActivityLogQuery',
     options: ({ conversation }: { conversation: IConversation }) => ({
       variables: {
         _id: conversation.customerId

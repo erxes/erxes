@@ -1,4 +1,5 @@
 import TargetMerge from './common/TargetMerge';
+import Contacts from './detail/Contacts';
 import CustomerDetails from './detail/CustomerDetails';
 import CustomersMerge from './detail/CustomersMerge';
 import BrandFilter from './list/BrandFilter';
@@ -15,6 +16,7 @@ export {
   CustomerForm,
   CustomersList,
   CustomerDetails,
+  Contacts,
   TargetMerge,
   BrandFilter,
   IntegrationFilter,
