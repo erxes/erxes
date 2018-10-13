@@ -31,7 +31,6 @@ type State = {
   companies: ICompany[];
   products: IProduct[];
   productsData: any;
-  disabled: boolean;
 };
 
 class DealEditForm extends React.Component<Props, State> {
@@ -49,7 +48,6 @@ class DealEditForm extends React.Component<Props, State> {
     this.state = {
       name: deal.name,
       stageId: deal.stageId,
-      disabled: false,
       amount: deal.amount || {},
       // Deal datas
       companies: deal.companies || [],
@@ -125,13 +123,7 @@ class DealEditForm extends React.Component<Props, State> {
       assignedUserIds
     };
 
-    // before save, disable save button
-    this.setState({ disabled: true });
-
     saveDeal(doc, () => {
-      // after save, enable save button
-      this.setState({ disabled: false });
-
       closeModal();
     });
   }
@@ -218,12 +210,7 @@ class DealEditForm extends React.Component<Props, State> {
             Close
           </Button>
 
-          <Button
-            disabled={this.state.disabled}
-            btnStyle="success"
-            icon="checked-1"
-            onClick={this.save}
-          >
+          <Button btnStyle="success" icon="checked-1" onClick={this.save}>
             Save
           </Button>
         </FormFooter>
