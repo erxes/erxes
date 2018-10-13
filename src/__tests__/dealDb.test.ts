@@ -283,11 +283,12 @@ describe('Test deals model', () => {
   test('Update deal orders', async () => {
     const dealToOrder = await dealFactory({});
 
-    const [updatedDeal, updatedDealToOrder] = await Deals.updateOrder([
+    const [updatedDeal, updatedDealToOrder] = await Deals.updateOrder(stage._id, [
       { _id: deal._id, order: 9 },
       { _id: dealToOrder._id, order: 3 },
     ]);
 
+    expect(updatedDeal.stageId).toBe(stage._id);
     expect(updatedDeal.order).toBe(3);
     expect(updatedDealToOrder.order).toBe(9);
   });
