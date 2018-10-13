@@ -9,9 +9,9 @@ import { queries } from '../graphql';
 
 interface IProps extends IRouterProps {
   currentCategoryId: string;
-  articlesCountQuery: any;
-  categoryDetailQuery: any;
-  lastCategoryQuery: any;
+  articlesCountQuery?: any;
+  categoryDetailQuery?: any;
+  lastCategoryQuery?: any;
   queryParams: any;
 }
 
@@ -24,32 +24,24 @@ const KnowledgeBase = (props: IProps) => {
     history
   } = props;
 
-  if (lastCategoryQuery.loading) {
-    return null;
-  }
+  const lastCategory =
+    lastCategoryQuery && lastCategoryQuery.knowledgeBaseCategoriesGetLast;
 
-  const lastCategory = lastCategoryQuery.knowledgeBaseCategoriesGetLast;
-
-  let updatedProps: any = {
-    articlesCount: articlesCountQuery.knowledgeBaseArticlesTotalCount || 0
-  };
-
-  if (!queryParams.id) {
+  if (!queryParams.id && lastCategory) {
     routerUtils.setParams(history, { id: lastCategory._id });
-
-    updatedProps = {
-      ...props,
-      currentCategory: lastCategory,
-      currentCategoryId: lastCategory._id
-    };
   }
 
-  const currentCategory = categoryDetailQuery.knowledgeBaseCategoryDetail || {};
+  const articlesCount =
+    articlesCountQuery && articlesCountQuery.knowledgeBaseArticlesTotalCount;
 
-  updatedProps = {
+  const currentCategory =
+    categoryDetailQuery && categoryDetailQuery.knowledgeBaseCategoryDetail;
+
+  const updatedProps = {
     ...props,
-    currentCategory,
-    currentCategoryId: currentCategory._id || ''
+    articlesCount: articlesCount || 0,
+    currentCategory: currentCategory || {},
+    currentCategoryId: (currentCategory && currentCategory._id) || ''
   };
 
   return <KnowledgeBaseComponent {...updatedProps} />;
@@ -61,15 +53,18 @@ export default compose(
     options: ({ queryParams }: { queryParams: any }) => ({
       variables: { _id: queryParams.id || '' },
       fetchPolicy: 'network-only'
-    })
+    }),
+    skip: ({ queryParams }) => !queryParams.id
   }),
   graphql(gql(queries.knowledgeBaseArticlesTotalCount), {
     name: 'articlesCountQuery',
     options: ({ queryParams }: { queryParams: any }) => ({
       variables: { categoryIds: [queryParams.id] || [''] }
-    })
+    }),
+    skip: ({ queryParams }) => !queryParams.id
   }),
   graphql(gql(queries.categoriesGetLast), {
-    name: 'lastCategoryQuery'
+    name: 'lastCategoryQuery',
+    skip: ({ queryParams }) => queryParams.id
   })
 )(withRouter<IProps>(KnowledgeBase));
