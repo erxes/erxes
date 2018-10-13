@@ -93,22 +93,20 @@ const Footer = styled.div`
 `;
 
 const Header = styled.div`
-  padding: 8px 16px;
+  padding: 10px 16px;
   position: relative;
   background: ${stageGray};
   border-radius: 3px 3px 0 0;
 
   h4 {
     margin: 0;
-    font-size: 11px;
-    line-height: inherit;
-    text-transform: uppercase;
+    font-size: 14px;
     font-weight: bold;
 
     span {
       color: ${secondaryText};
       margin-left: 5px;
-      font-size: 90%;
+      font-size: 85%;
     }
   }
 `;
@@ -168,8 +166,7 @@ const AddNew = styled.a`
 
 const IndicatorItem = styledTS<{ isPass: boolean }>(styled.div)`
   flex: 1;
-  background: ${props =>
-    props.isPass ? colors.colorCoreBlue : colors.colorWhite};
+  background: ${props => (props.isPass ? colors.colorCoreBlue : hoverColor)};
   height: 4px;
   border-radius: 2px;
 `;
