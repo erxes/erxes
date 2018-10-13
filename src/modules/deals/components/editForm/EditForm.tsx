@@ -8,7 +8,7 @@ import { ICustomer } from '../../../customers/types';
 import { IProduct } from '../../../settings/productService/types';
 import { Tab } from '../../containers';
 import { FlexContent, FormFooter } from '../../styles/deal';
-import { IDeal, IDealParams, IDragResult } from '../../types';
+import { IDeal, IDealParams } from '../../types';
 import { Sidebar, Top } from './';
 
 type Props = {
