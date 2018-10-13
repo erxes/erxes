@@ -110,7 +110,7 @@ class CreateFormContainer extends React.Component<IProps, {}> {
   }
 }
 
-const CreateFormWithData = compose(
+export default compose(
   graphql(gql(queries.brands), {
     name: 'brandsQuery',
     options: () => ({
@@ -129,6 +129,4 @@ const CreateFormWithData = compose(
   graphql(gql(mutations.fieldsAdd), {
     name: 'addFieldsMutation'
   })
-)(CreateFormContainer);
-
-export default withRouter<IProps>(CreateFormWithData);
+)(withRouter<IProps>(CreateFormContainer));

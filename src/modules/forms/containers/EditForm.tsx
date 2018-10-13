@@ -186,7 +186,7 @@ class EditFormContainer extends React.Component<IProps, {}> {
   }
 }
 
-const EditFormIntegrationContainer = compose(
+export default compose(
   graphql(gql(queries.brands), {
     name: 'brandsQuery',
     options: () => ({
@@ -232,6 +232,4 @@ const EditFormIntegrationContainer = compose(
   graphql(gql(mutations.editForm), {
     name: 'editFormMutation'
   })
-)(EditFormContainer);
-
-export default withRouter<IProps>(EditFormIntegrationContainer);
+)(withRouter<IProps>(EditFormContainer));

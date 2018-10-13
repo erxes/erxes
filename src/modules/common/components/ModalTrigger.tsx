@@ -43,6 +43,8 @@ class ModalTrigger extends React.Component<Props, State> {
       content
     } = this.props;
 
+    const { isOpen } = this.state;
+
     // add onclick event to the trigger component
     const triggerComponent = React.cloneElement(
       trigger as React.ReactElement<any>,
@@ -58,13 +60,15 @@ class ModalTrigger extends React.Component<Props, State> {
         <Modal
           dialogClassName={dialogClassName}
           bsSize={size}
-          show={this.state.isOpen}
+          show={isOpen}
           onHide={this.closeModal}
         >
           <Modal.Header closeButton>
             <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
           </Modal.Header>
-          <Modal.Body>{content({ closeModal: this.closeModal })}</Modal.Body>
+          <Modal.Body>
+            {isOpen && content({ closeModal: this.closeModal })}
+          </Modal.Body>
         </Modal>
       </React.Fragment>
     );
