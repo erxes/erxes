@@ -51,7 +51,7 @@ const DateFilters = styled.div`
 
 const Actions = styled.div`
   display: flex;
-  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
+  padding: 0 19px ${dimensions.coreSpacing}px;
 
   button {
     margin-left: 1px;
