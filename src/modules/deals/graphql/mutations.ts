@@ -76,8 +76,8 @@ const dealsRemove = `
 `;
 
 const dealsUpdateOrder = `
-  mutation dealsUpdateOrder($orders: [OrderItem]) {
-    dealsUpdateOrder(orders: $orders) {
+  mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
+    dealsUpdateOrder(stageId: $stageId, orders: $orders) {
       _id
     }
   }
