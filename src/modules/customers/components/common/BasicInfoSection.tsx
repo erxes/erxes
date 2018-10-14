@@ -131,7 +131,7 @@ class BasicInfo extends React.Component<Props> {
       <React.Fragment>
         <InfoWrapper>
           <AvatarWrapper isUser={isUser}>
-            <NameCard.Avatar customer={customer} size={50} isAvatar={avatar} />
+            <NameCard.Avatar customer={customer} size={50} hasAvatar={avatar} />
             {isUser ? <Icon icon="check" /> : <Icon icon="minus" />}
           </AvatarWrapper>
 
