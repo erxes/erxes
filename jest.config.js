@@ -9,6 +9,7 @@ module.exports = {
   globals: {
     'ts-jest': {
       tsConfigFile: 'tsconfig.json',
+      enableTsDiagnostics: true
     },
   },
   setupTestFrameworkScriptFile: './src/setupTests.ts',
