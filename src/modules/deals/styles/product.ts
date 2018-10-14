@@ -5,6 +5,19 @@ import styledTS from 'styled-components-ts';
 const FormContainer = styled.div`
   background: ${colors.colorWhite};
   margin: -40px -40px -30px -40px;
+
+  .Select-multi-value-wrapper {
+    display: flex;
+    min-width: 100px;
+  }
+
+  .Select-clear {
+    line-height: 1;
+  }
+
+  .Select--single > .Select-control .Select-value {
+    max-width: 135px;
+  }
 `;
 
 const Footer = styled.div`
