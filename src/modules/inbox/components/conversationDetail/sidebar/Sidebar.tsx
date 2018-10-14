@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Actions, BasicInfo, SectionContainer } from './styles';
 
 import { __ } from 'modules/common/utils';
-import { Contacts } from 'modules/customers/components';
+import { Contacts } from 'modules/companies/components';
 import { ICustomer } from 'modules/customers/types';
 import { SidebarActivity } from 'modules/inbox/containers/conversationDetail';
 import { MailForm } from 'modules/settings/integrations/containers/google';
@@ -208,9 +208,6 @@ class Index extends React.Component<IndexProps, IndexState> {
             />
           )}
         />
-        <a href={`sms:${customer.primaryPhone}`}>
-          <Button size="small">{__('Sms')}</Button>
-        </a>
         <a href={`tel:${customer.primaryPhone}`}>
           <Button size="small">{__('Call')}</Button>
         </a>
@@ -339,7 +336,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         </React.Fragment>
       );
     }
-
+    console.log(customer);
     return (
       <React.Fragment>
         <CompanyAssociate data={customer} />

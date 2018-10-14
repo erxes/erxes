@@ -1,9 +1,5 @@
-import { Icon, NameCard } from 'modules/common/components';
+import { EmptyState, Icon, NameCard } from 'modules/common/components';
 import { __, renderFullName } from 'modules/common/utils';
-import {
-  BasicInfo,
-  CustomFieldsSection
-} from 'modules/companies/containers/detail';
 import { ICompany } from 'modules/companies/types';
 import { Contact } from 'modules/customers/styles';
 import { Sidebar } from 'modules/layout/components';
@@ -32,17 +28,27 @@ class Contacts extends React.Component<Props> {
     ));
   }
 
+  renderContent() {
+    const { companies } = this.props;
+
+    if (!companies) {
+      return <EmptyState icon="user-1" text="No contacts" />;
+    }
+
+    const customers = companies.map(company => company.customers);
+
+    return customers.map(users => this.renderContacts(users));
+  }
+
   render() {
     const { Section } = Sidebar;
-    const { Title, QuickButtons } = Section;
+    const { Title } = Section;
 
-    const { companies } = this.props;
-    const customers = companies.map(company => company.customers);
     return (
       <Section>
         <Title>{__('Contacts')}</Title>
 
-        {customers.map(users => this.renderContacts(users))}
+        {this.renderContent()}
       </Section>
     );
   }

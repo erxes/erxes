@@ -1,6 +1,12 @@
-import { Button, DropdownToggle, Icon } from 'modules/common/components';
+import {
+  Button,
+  DropdownToggle,
+  Icon,
+  ModalTrigger
+} from 'modules/common/components';
 import { __, confirm, searchCustomer } from 'modules/common/utils';
 import { CustomersMerge, TargetMerge } from 'modules/customers/components';
+import { CustomerForm } from 'modules/customers/containers';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
@@ -36,6 +42,20 @@ class ActionSection extends React.Component<Props> {
       <Dropdown id="dropdown-engage">
         <DropdownToggle bsRole="toggle">{this.renderButton()}</DropdownToggle>
         <Dropdown.Menu>
+          <li>
+            <ModalTrigger
+              title="Edit basic info"
+              trigger={
+                <a onClick={() => confirm().then(() => remove())}>
+                  {__('Edit')}
+                </a>
+              }
+              size="lg"
+              content={props => (
+                <CustomerForm {...props} size="lg" customer={customer} />
+              )}
+            />
+          </li>
           <li>
             <TargetMerge
               onSave={merge}

@@ -51,7 +51,7 @@ const DateFilters = styled.div`
 
 const Actions = styled.div`
   display: flex;
-  padding: 0 19px ${dimensions.coreSpacing}px;
+  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
 
   button {
     margin-left: 1px;
@@ -130,20 +130,8 @@ const ActivityLogContent = ActivityContent.extend`
 `;
 
 const BasicInfo = styled.div`
-  transition: all ease 0.8s;
-
   .icon-edit {
-    width: 0px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-
-  &:hover {
-    transition: all ease 0.8s;
-
-    .icon-edit {
-      width: ${dimensions.coreSpacing}px;
-    }
+    display: none;
   }
 `;
 
