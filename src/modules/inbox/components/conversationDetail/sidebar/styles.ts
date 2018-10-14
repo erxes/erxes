@@ -51,11 +51,8 @@ const DateFilters = styled.div`
 
 const Actions = styled.div`
   display: flex;
+  justify-content: space-evenly;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
-
-  button {
-    margin-left: 1px;
-  }
 `;
 
 const SectionContainer = styled.div`
