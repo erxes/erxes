@@ -5,17 +5,15 @@ import { Boards, Pipelines } from '../containers';
 
 type Props = {
   boardId: string;
-  boardName: string;
 };
 
 class Home extends React.Component<Props, {}> {
   render() {
-    const { boardId, boardName } = this.props;
+    const { boardId } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Deal'), link: '/settings/deals/' },
-      { title: `${boardName || ''}` }
+      { title: __('Deal'), link: '/settings/deals/' }
     ];
 
     return (

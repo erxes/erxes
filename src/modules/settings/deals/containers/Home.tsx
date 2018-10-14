@@ -11,16 +11,14 @@ import { queries } from '../graphql';
 type HomeContainerProps = {
   history?: any;
   boardId: string;
-  boardName: string;
 };
 
 class HomeContainer extends React.Component<HomeContainerProps> {
   componentWillReceiveProps(nextProps) {
-    const { history, boardId, boardName } = nextProps;
+    const { history, boardId } = nextProps;
 
     if (!routerUtils.getParam(history, 'boardId') && boardId) {
       routerUtils.setParams(history, { boardId });
-      routerUtils.setParams(history, { boardName });
     }
   }
 
@@ -45,8 +43,7 @@ const LastBoard = (props: LastBoardProps) => {
 
   const extendedProps = {
     ...props,
-    boardId: lastBoard._id,
-    boardName: lastBoard.name
+    boardId: lastBoard._id
   };
 
   return <HomeContainer {...extendedProps} />;
@@ -62,10 +59,9 @@ const LastBoardContainer = compose(
 const MainContainer = (props: IRouterProps) => {
   const { history } = props;
   const boardId = routerUtils.getParam(history, 'boardId');
-  const boardName = routerUtils.getParam(history, 'boardName');
 
   if (boardId) {
-    const extendedProps = { ...props, boardId, boardName };
+    const extendedProps = { ...props, boardId };
 
     return <HomeContainer {...extendedProps} />;
   }
