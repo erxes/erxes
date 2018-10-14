@@ -80,6 +80,11 @@ describe('facebook integration: get or create conversation', () => {
     expect(await ConversationMessages.find({}).count()).toBe(1);
 
     let conversation = await Conversations.findOne({});
+
+    if (!conversation) {
+      throw new Error('Conversation not found');
+    }
+
     expect(conversation.status).toBe(CONVERSATION_STATUSES.NEW);
 
     // customer commented on above converstaion ===========
@@ -114,6 +119,11 @@ describe('facebook integration: get or create conversation', () => {
 
     // previous conversation must be stay intact
     conversation = await Conversations.findOne({ _id: conversation._id });
+
+    if (!conversation) {
+      throw new Error('Conversation not found');
+    }
+
     expect(conversation.status).toBe(CONVERSATION_STATUSES.CLOSED);
 
     // checking updatedAt field
@@ -169,9 +179,18 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     const msg = await ConversationMessages.findOne({ _id: msgId });
+
+    if (!msg) {
+      throw new Error('Message not found');
+    }
+
     const conversationObj = await Conversations.findOne({
       _id: msg.conversationId,
     });
+
+    if (!conversationObj) {
+      throw new Error('Conversation not found');
+    }
 
     // must be created new conversation, new message
     expect(await Conversations.find({}).count()).toBe(4);
@@ -284,13 +303,24 @@ describe('facebook integration: get or create conversation', () => {
 
     // increasing
     await saveWebhookResponse.updateCommentCount('add', '123123');
+
     let response = await ConversationMessages.findOne({ _id: msg._id });
+
+    if (!response || !response.facebookData) {
+      throw new Error('Conversation not found');
+    }
+
     expect(response.facebookData.commentCount).toBe(1);
 
     // decreasing
     await saveWebhookResponse.updateCommentCount('subtract', '123123');
 
     response = await ConversationMessages.findOne({ _id: msg._id });
+
+    if (!response || !response.facebookData) {
+      throw new Error('Conversation not found');
+    }
+
     expect(response.facebookData.commentCount).toBe(0);
   });
 
@@ -309,6 +339,11 @@ describe('facebook integration: get or create conversation', () => {
       'facebookData.commentId': '456',
     });
     let response = await ConversationMessages.findOne({ _id: msg._id });
+
+    if (!response || !response.facebookData) {
+      throw new Error('Conversation not found');
+    }
+
     expect(response.facebookData.likeCount).toBe(1);
 
     // decreasing
@@ -317,6 +352,11 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     response = await ConversationMessages.findOne({ _id: msg._id });
+
+    if (!response || !response.facebookData) {
+      throw new Error('Conversation not found');
+    }
+
     expect(response.facebookData.likeCount).toBe(0);
   });
 
@@ -344,6 +384,10 @@ describe('facebook integration: get or create conversation', () => {
 
     let response = await ConversationMessages.findOne({ _id: msg._id });
 
+    if (!response || !response.facebookData || !response.facebookData.reactions) {
+      throw new Error('Conversation not found');
+    }
+
     expect(response.facebookData.reactions[type]).toContainEqual(expect.objectContaining(from));
 
     // removing reaction
@@ -352,7 +396,13 @@ describe('facebook integration: get or create conversation', () => {
 
     response = await ConversationMessages.findOne({ _id: msg._id });
 
-    expect(response.facebookData.reactions[type]).not.toContainEqual(expect.objectContaining(from));
+    if (!response || !response.facebookData || !response.facebookData.reactions) {
+      throw new Error('Conversation not found');
+    }
+
+    expect(response.facebookData && response.facebookData.reactions[type]).not.toContainEqual(
+      expect.objectContaining(from),
+    );
   });
 
   test('Restore old facebook post', async () => {

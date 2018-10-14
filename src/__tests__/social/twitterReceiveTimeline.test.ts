@@ -72,7 +72,16 @@ describe('createOrUpdateTimelineConversation', () => {
     expect(await Customers.find().count()).toBe(1); // 1 customer
 
     let conversation = await Conversations.findOne();
+
+    if (!conversation || !conversation.twitterData) {
+      throw new Error('Conversation not found');
+    }
+
     const customer = await Customers.findOne();
+
+    if (!customer || !customer.twitterData || !customer.links) {
+      throw new Error('Customer not found');
+    }
 
     // check conversation field values
     expect(conversation.createdAt).toBeDefined();
@@ -127,6 +136,10 @@ describe('createOrUpdateTimelineConversation', () => {
 
     conversation = await Conversations.findOne();
 
+    if (!conversation || !conversation.twitterData) {
+      throw new Error('Conversation not found');
+    }
+
     // call
     await createOrUpdateTimelineConversation(_integration._id, updatedData);
 
@@ -151,7 +164,16 @@ describe('createOrUpdateTimelineConversation', () => {
     expect(await Customers.find().count()).toBe(1); // 1 customer
 
     let message = await ConversationMessages.findOne();
+
+    if (!message || !message.twitterData) {
+      throw new Error('Conversation not found');
+    }
+
     const customer = await Customers.findOne();
+
+    if (!customer || !customer.twitterData || !customer.links) {
+      throw new Error('Conversation not found');
+    }
 
     // check message field values
     expect(message.createdAt).toBeDefined();
@@ -202,6 +224,10 @@ describe('createOrUpdateTimelineConversation', () => {
     expect(await ActivityLogs.find().count()).toBe(1); // 1 log
 
     message = await ConversationMessages.findOne();
+
+    if (!message || !message.twitterData) {
+      throw new Error('Message not found');
+    }
 
     // check updated field values
     expect(message.content).toBe('updated');
