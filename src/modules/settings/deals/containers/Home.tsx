@@ -1,23 +1,26 @@
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { IRouterProps } from '../../../common/types';
 import { Home } from '../components';
 import { queries } from '../graphql';
 
 type HomeContainerProps = {
   history?: any;
   boardId: string;
+  boardName: string;
 };
 
 class HomeContainer extends React.Component<HomeContainerProps> {
-  componentWillReceiveProps() {
-    const { history, boardId } = this.props;
+  componentWillReceiveProps(nextProps) {
+    const { history, boardId, boardName } = nextProps;
 
     if (!routerUtils.getParam(history, 'boardId') && boardId) {
       routerUtils.setParams(history, { boardId });
+      routerUtils.setParams(history, { boardName });
     }
   }
 
@@ -34,9 +37,17 @@ type LastBoardProps = {
 const LastBoard = (props: LastBoardProps) => {
   const { boardGetLastQuery } = props;
 
+  if (boardGetLastQuery.loading) {
+    return <Spinner objective />;
+  }
+
   const lastBoard = boardGetLastQuery.dealBoardGetLast || {};
 
-  const extendedProps = { ...props, boardId: lastBoard._id };
+  const extendedProps = {
+    ...props,
+    boardId: lastBoard._id,
+    boardName: lastBoard.name
+  };
 
   return <HomeContainer {...extendedProps} />;
 };
@@ -51,9 +62,10 @@ const LastBoardContainer = compose(
 const MainContainer = (props: IRouterProps) => {
   const { history } = props;
   const boardId = routerUtils.getParam(history, 'boardId');
+  const boardName = routerUtils.getParam(history, 'boardName');
 
   if (boardId) {
-    const extendedProps = { ...props, boardId };
+    const extendedProps = { ...props, boardId, boardName };
 
     return <HomeContainer {...extendedProps} />;
   }

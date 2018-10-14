@@ -5,21 +5,23 @@ import { Boards, Pipelines } from '../containers';
 
 type Props = {
   boardId: string;
+  boardName: string;
 };
 
 class Home extends React.Component<Props, {}> {
   render() {
-    const { boardId } = this.props;
+    const { boardId, boardName } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Deal') }
+      { title: __('Deal'), link: '/settings/deals/' },
+      { title: `${boardName || ''}` }
     ];
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Boards />}
+        leftSidebar={<Boards currentBoardId={boardId} />}
         content={<Pipelines boardId={boardId} />}
       />
     );

@@ -7,6 +7,7 @@ import { IBoard } from '../types';
 import { BoardForm, BoardRow } from './';
 
 type Props = {
+  currentBoardId?: string;
   boards: IBoard[];
   remove: (_id: string) => void;
   save: (
@@ -25,10 +26,16 @@ class Boards extends React.Component<Props, {}> {
   }
 
   renderItems() {
-    const { boards, remove, save } = this.props;
+    const { boards, remove, save, currentBoardId } = this.props;
 
     return boards.map(board => (
-      <BoardRow key={board._id} board={board} remove={remove} save={save} />
+      <BoardRow
+        key={board._id}
+        isActive={currentBoardId === board._id}
+        board={board}
+        remove={remove}
+        save={save}
+      />
     ));
   }
 
@@ -67,17 +74,15 @@ class Boards extends React.Component<Props, {}> {
     const { loading, boards } = this.props;
 
     return (
-      <Sidebar header={this.renderSidebarHeader()}>
-        <Sidebar.Section>
-          <DataWithLoader
-            data={<List>{this.renderItems()}</List>}
-            loading={loading}
-            count={boards.length}
-            emptyText="There is no board"
-            emptyImage="/images/robots/robot-05.svg"
-            objective
-          />
-        </Sidebar.Section>
+      <Sidebar header={this.renderSidebarHeader()} full>
+        <DataWithLoader
+          data={<List>{this.renderItems()}</List>}
+          loading={loading}
+          count={boards.length}
+          emptyText="There is no board"
+          emptyImage="/images/robots/robot-05.svg"
+          objective
+        />
       </Sidebar>
     );
   }

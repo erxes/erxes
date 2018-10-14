@@ -8,6 +8,7 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   boardsQuery: any;
+  currentBoardId?: string;
   addMutation: (params: { variables: { name: string } }) => Promise<any>;
   editMutation: (params: { variables: { name: string } }) => Promise<any>;
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
@@ -83,17 +84,24 @@ class BoardsContainer extends React.Component<Props, {}> {
   }
 }
 
+const generateOptions = () => ({
+  refetchQueries: ['dealBoards', 'dealBoardGetLast', 'dealPipelines']
+});
+
 export default compose(
   graphql(gql(queries.boards), {
     name: 'boardsQuery'
   }),
   graphql(gql(mutations.boardAdd), {
-    name: 'addMutation'
+    name: 'addMutation',
+    options: generateOptions()
   }),
   graphql(gql(mutations.boardEdit), {
-    name: 'editMutation'
+    name: 'editMutation',
+    options: generateOptions()
   }),
   graphql(gql(mutations.boardRemove), {
-    name: 'removeMutation'
+    name: 'removeMutation',
+    options: generateOptions()
   })
 )(BoardsContainer);
