@@ -76,7 +76,7 @@ const ActivityNote = styled.div`
   border-bottom: 2px solid ${colors.borderPrimary};
   padding-bottom: ${dimensions.coreSpacing}px;
 
-  span {
+  > span {
     padding: 0 ${dimensions.coreSpacing}px;
   }
 
