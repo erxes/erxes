@@ -79,6 +79,7 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/erxes/sponsor/7/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/7/avatar.svg"></a>
 <a href="https://opencollective.com/erxes/sponsor/8/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/erxes/sponsor/9/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/9/avatar.svg"></a>
+<a href="https://app.fossa.io/projects/git%2Bgithub.com%2Ferxes%2Ferxes-widgets?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Ferxes%2Ferxes-widgets.svg?type=shield"/></a>
 
 ## In-kind sponsors
 
@@ -90,3 +91,6 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 
 ## Copyright & License
 Copyright (c) 2018 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE.md)
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ferxes%2Ferxes-widgets.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ferxes%2Ferxes-widgets?ref=badge_large)
