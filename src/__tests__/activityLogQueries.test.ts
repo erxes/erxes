@@ -1,11 +1,9 @@
 import cronJobs from '../cronJobs';
-import schema from '../data';
 import { COC_CONTENT_TYPES } from '../data/constants';
 import mutations from '../data/resolvers/mutations';
+import { graphqlRequest } from '../db/connection';
 import { conversationFactory, customerFactory, segmentFactory, userFactory } from '../db/factories';
 import { ActivityLogs, Customers, Segments } from '../db/models';
-
-import { graphql } from 'graphql';
 
 describe('activityLogs', () => {
   let _user;
@@ -103,32 +101,27 @@ describe('activityLogs', () => {
       }
     `;
 
-    const rootValue = {};
     const context = { user: _user };
 
     // call graphql query
-    let result = await graphql(schema, query, rootValue, context, {
-      _id: customer._id,
-    });
-
-    let logs = result.data.activityLogsCustomer;
+    const result = await graphqlRequest(query, 'activityLogsCustomer', { _id: customer._id }, context);
 
     // test values ==============
-    expect(logs[0].list[0].action).toBe('segment-create');
-    expect(logs[0].list[0].id).toBe(segment._id);
-    expect(logs[0].list[0].content).toBe(segment.name);
+    expect(result[0].list[0].action).toBe('segment-create');
+    expect(result[0].list[0].id).toBe(segment._id);
+    expect(result[0].list[0].content).toBe(segment.name);
 
-    expect(logs[0].list[1].action).toBe('internal_note-create');
-    expect(logs[0].list[1].id).toBe(internalNote._id);
-    expect(logs[0].list[1].content).toBe(internalNote.content);
+    expect(result[0].list[1].action).toBe('internal_note-create');
+    expect(result[0].list[1].id).toBe(internalNote._id);
+    expect(result[0].list[1].content).toBe(internalNote.content);
 
-    expect(logs[0].list[2].action).toBe('conversation-create');
-    expect(logs[0].list[2].id).toBe(_conversation._id);
-    expect(logs[0].list[2].content).toBe(_conversation.content);
+    expect(result[0].list[2].action).toBe('conversation-create');
+    expect(result[0].list[2].id).toBe(_conversation._id);
+    expect(result[0].list[2].content).toBe(_conversation.content);
 
-    expect(logs[0].list[3].action).toBe('customer-create');
-    expect(logs[0].list[3].id).toBe(customer._id);
-    expect(logs[0].list[3].content).toBe(`${customer.firstName || ''} ${customer.lastName || ''}`);
+    expect(result[0].list[3].action).toBe('customer-create');
+    expect(result[0].list[3].id).toBe(customer._id);
+    expect(result[0].list[3].content).toBe(`${customer.firstName || ''} ${customer.lastName || ''}`);
 
     // change activity log 'createdAt' values ===================
     await ActivityLogs.update(
@@ -179,13 +172,7 @@ describe('activityLogs', () => {
       },
     );
 
-    // call graphql query
-    result = await graphql(schema, query, rootValue, context, {
-      _id: customer._id,
-    });
-
-    // get new log
-    logs = result.data.activityLogsCustomer;
+    const logs = await graphqlRequest(query, 'activityLogsCustomer', { _id: customer._id }, context);
 
     // test the fetched data =============================
     const yearMonthLength = logs.length - 1;
@@ -253,15 +240,9 @@ describe('activityLogs', () => {
       }
     `;
 
-    const rootValue = {};
     const context = { user: _user };
 
-    // call graphql query
-    const result = await graphql(schema, query, rootValue, context, {
-      _id: company._id,
-    });
-
-    const logs = result.data.activityLogsCompany;
+    const logs = await graphqlRequest(query, 'activityLogsCompany', { _id: company._id }, context);
 
     // test values ===========================
     expect(logs[0].list[0].id).toBe(_conversation._id);

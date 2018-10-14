@@ -295,7 +295,7 @@ interface ICustomerFactoryInput {
   customFieldsData?: any;
   companyIds?: string[];
   tagIds?: string[] | string;
-  twitterData?: string[];
+  twitterData?: any;
   ownerId?: string;
 }
 

@@ -31,7 +31,6 @@ describe('Cronjob conversation send email', () => {
     _conversation = await conversationFactory({
       customerId: _customer._id,
       assignedUserId: _user._id,
-      brandId: _brand._id,
       integrationId: _integration._id,
     });
 
