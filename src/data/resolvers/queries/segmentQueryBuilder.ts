@@ -61,6 +61,8 @@ function convertConditionToQuery(condition: ICondition) {
   switch (operator) {
     case 'e':
     case 'et':
+    default:
+      return transformedValue;
     case 'dne':
       return { $ne: transformedValue };
     case 'c':
@@ -109,8 +111,6 @@ function convertConditionToQuery(condition: ICondition) {
       return { $exists: true };
     case 'ins':
       return { $exists: false };
-    default:
-      return transformedValue;
   }
 }
 

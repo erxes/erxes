@@ -74,7 +74,7 @@ const queryParams = `
 export const queries = `
   companiesMain(${queryParams}): CompaniesListResponse
   companies(${queryParams}): [Company]
-  companyCounts(${queryParams}, only: String): JSON
+  companyCounts(${queryParams}, byFakeSegment: JSON, only: String): JSON
   companyDetail(_id: String!): Company
   companiesExport(${queryParams}) : String
 `;

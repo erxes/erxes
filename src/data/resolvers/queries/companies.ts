@@ -21,6 +21,7 @@ interface IListArgs {
 
 interface ICountArgs extends IListArgs {
   only?: string;
+  byFakeSegment: any;
 }
 
 interface IIn {
@@ -199,6 +200,7 @@ const companyQueries = {
   async companyCounts(_root, args: ICountArgs) {
     const counts = {
       bySegment: {},
+      byFakeSegment: 0,
       byTag: {},
       byBrand: {},
       byLeadStatus: {},
@@ -233,6 +235,11 @@ const companyQueries = {
           }
         }
         break;
+    }
+
+    // Count companies by fake segment
+    if (args.byFakeSegment) {
+      counts.byFakeSegment = await count(await QueryBuilder.segments(args.byFakeSegment), args);
     }
 
     return counts;
