@@ -61,7 +61,8 @@ const listQuery = async (params: IListArgs) => {
   // Filter by segments
   if (params.segment) {
     const segment = await Segments.findOne({ _id: params.segment });
-    const query = QueryBuilder.segments(segment);
+    const query = await QueryBuilder.segments(segment);
+
     Object.assign(selector, query);
   }
 
@@ -123,6 +124,7 @@ const count = async (query: any, args: ICountArgs) => {
   const selector = await listQuery(args);
 
   const findQuery = { ...selector, ...query };
+
   return Companies.find(findQuery).count();
 };
 
@@ -135,7 +137,7 @@ const countBySegment = async (args: ICountArgs): Promise<ICountBy> => {
   });
 
   for (const s of segments) {
-    counts[s._id] = await count(QueryBuilder.segments(s), args);
+    counts[s._id] = await count(await QueryBuilder.segments(s), args);
   }
 
   return counts;

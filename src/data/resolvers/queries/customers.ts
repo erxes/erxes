@@ -203,7 +203,7 @@ const customerQueries = {
 
     // Count customers by fake segment
     if (params.byFakeSegment) {
-      counts.byFakeSegment = await count(QueryBuilder.segments(params.byFakeSegment), mainQuery);
+      counts.byFakeSegment = await count(await QueryBuilder.segments(params.byFakeSegment), mainQuery);
     }
 
     return counts;
@@ -216,7 +216,7 @@ const customerQueries = {
   async customerListForSegmentPreview(_root, { segment, limit }: { segment: ISegment; limit: number }) {
     const headSegment = await Segments.findOne({ _id: segment.subOf });
 
-    const query = QueryBuilder.segments(segment, headSegment);
+    const query = await QueryBuilder.segments(segment, headSegment);
     const sort = { 'messengerData.lastSeenAt': -1 };
 
     return Customers.find(query)

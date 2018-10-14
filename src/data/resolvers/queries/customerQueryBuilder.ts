@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
 import { Forms, Integrations, Segments } from '../../../db/models';
-import QueryBuilder, { TSegments } from './segmentQueryBuilder';
+import QueryBuilder from './segmentQueryBuilder';
 
 interface IIn {
   $in: string[];
@@ -62,7 +62,7 @@ export default class Builder {
   }
 
   // filter by segment
-  public async segmentFilter(segmentId: string): Promise<TSegments> {
+  public async segmentFilter(segmentId: string) {
     const segment = await Segments.findOne({ _id: segmentId });
 
     return QueryBuilder.segments(segment);

@@ -17,7 +17,6 @@ export const types = `
     connector: String
     conditions: JSON
 
-    getParentSegment: Segment
     getSubSegments: [Segment]
   }
 `;

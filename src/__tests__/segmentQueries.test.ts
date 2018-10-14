@@ -26,7 +26,6 @@ describe('segmentQueries', () => {
           connector
           conditions
 
-          getParentSegment { _id }
           getSubSegments { _id }
         }
       }
