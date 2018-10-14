@@ -52,7 +52,7 @@ class Article {
           category.articleIds = [];
         }
 
-        category.articleIds.push(article._id.toString());
+        category.toJSON().articleIds.push(article._id.toString());
 
         await category.save();
       }
@@ -151,7 +151,7 @@ class Category {
 
       // add new category to topics's categoryIds field
       for (const topic of topics) {
-        const categoryIds = topic.categoryIds || [];
+        const categoryIds = topic.toJSON().categoryIds || [];
 
         categoryIds.push(category._id.toString());
 
