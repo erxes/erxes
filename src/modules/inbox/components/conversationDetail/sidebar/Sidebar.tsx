@@ -80,7 +80,7 @@ class Box extends React.Component<BoxProps, BoxState> {
 
     if (!isOpen) {
       return (
-        <SectionContainer noShadow>
+        <SectionContainer>
           <Title>{title}</Title>
           {this.renderDropBtn()}
         </SectionContainer>
@@ -88,7 +88,7 @@ class Box extends React.Component<BoxProps, BoxState> {
     }
 
     return (
-      <SectionContainer noShadow>
+      <SectionContainer>
         {children}
         {this.renderDropBtn()}
       </SectionContainer>
@@ -338,7 +338,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         <Box
           title={__('Companies')}
           name="showCompanies"
-          isOpen={config.showCompanies || true}
+          isOpen={config.showCompanies || false}
           toggle={toggleSection}
         >
           <CompanyAssociate data={customer} />
@@ -347,7 +347,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         <Box
           title={__('Contacts')}
           name="showContacts"
-          isOpen={config.showContacts || true}
+          isOpen={config.showContacts || false}
           toggle={toggleSection}
         >
           <Contacts companies={customer.companies} customerId={customer._id} />

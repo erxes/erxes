@@ -52,16 +52,19 @@ const DateFilters = styled.div`
 
 const Actions = styled.div`
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
+
+  button {
+    min-width: 80px;
+  }
 `;
 
-const SectionContainer = styledTS<{ noShadow?: boolean }>(styled.div)`
+const SectionContainer = styled.div`
   position: relative;
   padding-bottom: 20px;
   margin-bottom: 20px;
-  box-shadow: ${props =>
-    !props.noShadow && `0 0 4px 1px ${colors.shadowPrimary}`};
+  box-shadow: 0 0 4px 1px ${colors.shadowPrimary};
 
   > div {
     margin-bottom: 0;
