@@ -382,7 +382,8 @@ const AuthContent = styled.div`
 `;
 
 const AuthDescription = styled.div`
-  margin-top: 60px;
+  margin: 40px 0;
+
   img {
     width: 100px;
     margin-bottom: 50px;
