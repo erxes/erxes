@@ -1,6 +1,6 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import * as ReactTransitionGroup from "react-transition-group";
+import * as RTG from "react-transition-group";
 import * as striptags from "striptags";
 import { EngageMessage } from "../components";
 import { User } from "../components/common";
@@ -53,7 +53,7 @@ class Notifier extends React.Component<Props> {
     });
 
     return (
-      <ReactTransitionGroup.CSSTransition
+      <RTG.CSSTransition
         in={true}
         appear={true}
         timeout={300}
@@ -66,7 +66,7 @@ class Notifier extends React.Component<Props> {
         >
           {this.renderNotificationBody()}
         </div>
-      </ReactTransitionGroup.CSSTransition>
+      </RTG.CSSTransition>
     );
   }
 }

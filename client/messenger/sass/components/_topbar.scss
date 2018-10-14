@@ -76,7 +76,7 @@ $topbar-shadow: rgba(0, 0, 0, .1);
     }
   }
 
-  .erxes-head-content {
+  .erxes-head-expanded {
     padding: 20px 60px 20px 65px;
     text-align: left;
 
@@ -86,7 +86,7 @@ $topbar-shadow: rgba(0, 0, 0, .1);
     }
   }
 
-  .erxes-small-head {
+  .erxes-head-collapsed {
     border-radius: $border-radius;
     max-width: 260px;
     padding: 3px 5px;

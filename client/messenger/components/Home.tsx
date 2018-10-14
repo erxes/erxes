@@ -1,6 +1,6 @@
 import * as moment from "moment";
 import * as React from "react";
-import * as ReactTransitionGroup from "react-transition-group";
+import * as RTG from "react-transition-group";
 import { facebook, twitter, youtube } from "../../icons/Icons";
 import {
   IIntegrationLink,
@@ -100,7 +100,7 @@ class Home extends React.Component<Props, State> {
       >
         <TopBar middle={this.renderHead()} />
         <div className="erxes-home-content">
-          <ReactTransitionGroup.CSSTransition
+          <RTG.CSSTransition
             in={true}
             appear={true}
             timeout={600}
@@ -109,7 +109,7 @@ class Home extends React.Component<Props, State> {
             <div className="erxes-home-item">
               <Integrations />
             </div>
-          </ReactTransitionGroup.CSSTransition>
+          </RTG.CSSTransition>
         </div>
       </div>
     );
