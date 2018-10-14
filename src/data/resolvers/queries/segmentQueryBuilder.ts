@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { ISegmentDocument } from '../../../db/models/definitions/segments';
+import { ICondition, ISegmentDocument } from '../../../db/models/definitions/segments';
 
 export type TSegments = { $and: any[] } | {};
 
@@ -38,13 +38,14 @@ export default {
   },
 };
 
-function convertConditionToQuery(condition: any) {
-  const { operator, type, dateUnit, value } = condition;
+function convertConditionToQuery(condition: ICondition) {
+  const { operator, type, dateUnit = '', value = '' } = condition;
+
   let transformedValue;
 
   switch (type) {
     case 'string':
-      transformedValue = value && value.toLowerCase();
+      transformedValue = value.toLowerCase();
       break;
     case 'number':
     case 'date':
@@ -58,8 +59,6 @@ function convertConditionToQuery(condition: any) {
   switch (operator) {
     case 'e':
     case 'et':
-    default:
-      return transformedValue;
     case 'dne':
       return { $ne: transformedValue };
     case 'c':
@@ -108,6 +107,8 @@ function convertConditionToQuery(condition: any) {
       return { $exists: true };
     case 'ins':
       return { $exists: false };
+    default:
+      return transformedValue;
   }
 }
 
