@@ -1,4 +1,4 @@
-import { Icon, ModalTrigger } from 'modules/common/components';
+import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons } from 'modules/layout/styles';
@@ -86,9 +86,18 @@ class KnowledgeList extends React.Component<Props> {
   }
 
   render() {
+    const { topics, loading } = this.props;
+
     return (
       <Sidebar full wide header={this.renderSidebarHeader()}>
-        {this.renderTopics()}
+        <DataWithLoader
+          data={this.renderTopics()}
+          loading={loading}
+          count={topics.length}
+          emptyText="There is no knowledge base"
+          emptyImage="/images/robots/robot-05.svg"
+          objective
+        />
       </Sidebar>
     );
   }

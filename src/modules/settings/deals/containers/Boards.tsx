@@ -36,8 +36,6 @@ class BoardsContainer extends React.Component<IProps> {
           variables: { _id }
         })
           .then(() => {
-            boardsQuery.refetch();
-
             // if deleted board is default board
             if (localStorage.getItem(STORAGE_BOARD_KEY) === _id) {
               localStorage.removeItem(STORAGE_BOARD_KEY);
@@ -66,8 +64,6 @@ class BoardsContainer extends React.Component<IProps> {
         variables: doc
       })
         .then(() => {
-          boardsQuery.refetch();
-
           Alert.success(__('Successfully saved.'));
 
           callback();
