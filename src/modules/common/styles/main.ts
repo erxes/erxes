@@ -1,3 +1,4 @@
+import { MainLoader } from 'modules/common/components/Spinner';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
@@ -165,6 +166,24 @@ const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
   }
 `;
 
+const UploadLoader = styled.div`
+  position: absolute;
+  top: 70%;
+  left: ${dimensions.coreSpacing}%;
+
+  ${MainLoader} {
+    width: 15px;
+    height: 15px;
+    position: sticky;
+    margin-top: -15px;
+  }
+
+  span {
+    padding-right: ${dimensions.coreSpacing}px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
 const Avatar = styled.div`
   color: ${colors.colorWhite};
   position: relative;
@@ -182,6 +201,7 @@ const Avatar = styled.div`
     background-color: rgba(0, 0, 0, 0.3);
     position: absolute;
     top: 25px;
+    left: 0;
   }
 
   img {
@@ -189,7 +209,6 @@ const Avatar = styled.div`
     width: 100px;
     height: 100px;
     border-radius: ${dimensions.headerSpacing}px;
-    padding: ${dimensions.unitSpacing}px;
   }
 
   &:hover {
@@ -213,5 +232,6 @@ export {
   CenterContent,
   ActivityContent,
   DropIcon,
+  UploadLoader,
   Avatar
 };

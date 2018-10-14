@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { ControlLabel, FormControl, FormGroup, Icon } from '.';
-import { Avatar } from '../styles/main';
+import { ControlLabel, FormControl, FormGroup, Icon, Spinner } from '.';
+import { Avatar, UploadLoader } from '../styles/main';
 import { Alert, uploadHandler } from '../utils';
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
 type State = {
   avatarPreviewStyle: any;
   avatarPreviewUrl: string;
+  uploadPreview: any;
 };
 
 class AvatarUpload extends React.Component<Props, State> {
@@ -22,13 +23,16 @@ class AvatarUpload extends React.Component<Props, State> {
 
     this.state = {
       avatarPreviewUrl: this.props.avatar || defaultAvatar,
-      avatarPreviewStyle: {}
+      avatarPreviewStyle: {},
+      uploadPreview: null
     };
-
-    this.handleImageChange = this.handleImageChange.bind(this);
   }
 
-  handleImageChange(e) {
+  setUploadPreview = uploadPreview => {
+    this.setState({ uploadPreview });
+  };
+
+  handleImageChange = e => {
     const imageFile = e.target.files;
 
     uploadHandler({
@@ -46,13 +50,36 @@ class AvatarUpload extends React.Component<Props, State> {
         // call success event
         this.props.onAvatarUpload(response);
 
+        // remove preview
+        if (this.setUploadPreview) {
+          this.setUploadPreview(null);
+        }
+
         Alert.info('Looking good!');
       },
 
-      afterRead: ({ result }) => {
-        this.setState({ avatarPreviewUrl: result });
+      afterRead: ({ result, fileInfo }) => {
+        if (this.setUploadPreview) {
+          this.setUploadPreview(Object.assign({ data: result }, fileInfo));
+        }
+        this.setState({
+          avatarPreviewUrl: result
+        });
       }
     });
+  };
+
+  renderUploadLoader() {
+    if (!this.state.uploadPreview) {
+      return null;
+    }
+
+    return (
+      <UploadLoader>
+        <span>Uploading</span>
+        <Spinner />
+      </UploadLoader>
+    );
   }
 
   render() {
@@ -63,6 +90,7 @@ class AvatarUpload extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Photo</ControlLabel>
           <img alt="avatar" style={avatarPreviewStyle} src={avatarPreviewUrl} />
+          {this.renderUploadLoader()}
           <label>
             <Icon icon="upload icon" size={30} />
             <FormControl type="file" onChange={this.handleImageChange} />
