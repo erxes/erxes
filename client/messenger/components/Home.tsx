@@ -11,6 +11,7 @@ import {
 } from "../../types";
 import { __ } from "../../utils";
 import { TopBar } from "../containers";
+import { Categories as FaqCategories } from "../containers/faq";
 import { Integrations } from "./";
 import { SocialLink, Supporters } from "./common";
 
@@ -153,7 +154,9 @@ class Home extends React.Component<Props, State> {
             classNames="slide"
             unmountOnExit
           >
-            <div className="erxes-home-item">FAQ</div>
+            <div className="erxes-home-item">
+              <FaqCategories />
+            </div>
           </ReactTransitionGroup.CSSTransition>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { IUser } from "../../types";
 import { AccquireInformation, ConversationDetail, Home } from "../containers";
+import { Faq } from "../containers/faq";
 
 type Props = {
   activeRoute: string | "";
@@ -21,6 +22,9 @@ function Messenger({ activeRoute, supporters, loading }: Props) {
     // get user's contact information
     case "accquireInformation":
       return <AccquireInformation />;
+
+    case "faq":
+      return <Faq />;
 
     default:
       return WithSupporters(Home);

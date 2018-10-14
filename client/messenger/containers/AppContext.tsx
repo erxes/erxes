@@ -22,6 +22,7 @@ interface IState {
   isMessengerVisible: boolean;
   activeRoute: string | "";
   activeConversation: string | null;
+  activeCategory: string | null;
   isAttachingFile: boolean;
   isBrowserInfoSaved: boolean;
   headHeight: number;
@@ -39,6 +40,7 @@ interface IStore extends IState {
   changeRoute: (route: string) => void;
   changeConversation: (converstionId: string) => void;
   goToConversation: (conversationId: string) => void;
+  goToCategory: (categoryId: string) => void;
   goToConversationList: () => void;
   openLastConversation: () => void;
   saveGetNotified: (doc: { type: string; value: string }) => void;
@@ -70,6 +72,7 @@ export class AppProvider extends React.Component<{}, IState> {
       isMessengerVisible: false,
       activeRoute,
       activeConversation: null,
+      activeCategory: null,
       isAttachingFile: false,
       isBrowserInfoSaved: false,
       headHeight: 200
@@ -196,6 +199,11 @@ export class AppProvider extends React.Component<{}, IState> {
     this.changeConversation(conversationId);
     this.changeRoute("conversationDetail");
     this.readMessages(conversationId);
+  };
+
+  goToCategory = (categoryId: string) => {
+    this.setState({ activeCategory: categoryId });
+    this.changeRoute("faq");
   };
 
   goToConversationList = () => {
@@ -434,6 +442,7 @@ export class AppProvider extends React.Component<{}, IState> {
           changeRoute: this.changeRoute,
           changeConversation: this.changeConversation,
           goToConversation: this.goToConversation,
+          goToCategory: this.goToCategory,
           goToConversationList: this.goToConversationList,
           openLastConversation: this.openLastConversation,
           saveGetNotified: this.saveGetNotified,

@@ -20,9 +20,7 @@ export interface IUserLinks {
   website: string;
 }
 
-export interface IParticipator {
-  _id: string;
-  details?: IUserDetails;
+export interface IParticipator extends IUser {
   links: IUserLinks;
 }
 
