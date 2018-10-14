@@ -125,7 +125,7 @@ $topbar-shadow: rgba(0, 0, 0, .1);
 }
 
 .erxes-supporters {
-  align-items: center;
+  align-items: baseline;
   display: flex;
 
   .erxes-supporter {
@@ -142,7 +142,6 @@ $topbar-shadow: rgba(0, 0, 0, .1);
     color: $name-white;
     display: none;
     font-size: 12px;
-    min-height: 18px;
     text-transform: capitalize;
   }
 
