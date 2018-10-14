@@ -134,6 +134,7 @@ const customerQueries = {
    */
   async customerCounts(_root, params: ICountParams) {
     const { only } = params;
+
     const counts = {
       bySegment: {},
       byBrand: {},
