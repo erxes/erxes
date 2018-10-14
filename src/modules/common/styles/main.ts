@@ -169,7 +169,7 @@ const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
 const UploadLoader = styled.div`
   position: absolute;
   top: 70%;
-  left: ${dimensions.coreSpacing}%;
+  left: 100px;
 
   ${MainLoader} {
     width: 15px;
