@@ -11,6 +11,7 @@ import { colors, dimensions, typography } from 'modules/common/styles';
 import { ActivityContent } from 'modules/common/styles/main';
 import { EditorActions } from 'modules/internalNotes/components/Form';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const iconWrapperWidth = '60px';
 
@@ -55,11 +56,12 @@ const Actions = styled.div`
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
 `;
 
-const SectionContainer = styled.div`
+const SectionContainer = styledTS<{ noShadow?: boolean }>(styled.div)`
   position: relative;
   padding-bottom: 20px;
   margin-bottom: 20px;
-  box-shadow: 0 0 4px 1px ${colors.shadowPrimary};
+  box-shadow: ${props =>
+    !props.noShadow && `0 0 4px 1px ${colors.shadowPrimary}`};
 
   > div {
     margin-bottom: 0;

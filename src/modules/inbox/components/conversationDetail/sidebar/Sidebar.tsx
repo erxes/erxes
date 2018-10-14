@@ -80,7 +80,7 @@ class Box extends React.Component<BoxProps, BoxState> {
 
     if (!isOpen) {
       return (
-        <SectionContainer>
+        <SectionContainer noShadow>
           <Title>{title}</Title>
           {this.renderDropBtn()}
         </SectionContainer>
@@ -88,7 +88,7 @@ class Box extends React.Component<BoxProps, BoxState> {
     }
 
     return (
-      <SectionContainer>
+      <SectionContainer noShadow>
         {children}
         {this.renderDropBtn()}
       </SectionContainer>
@@ -231,8 +231,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     if (currentSubTab === 'details') {
       return (
         <React.Fragment>
-          <DetailInfo customer={customer} />
-
+          <DetailInfo customer={customer} /> <br />
           <Box
             title={__('Conversation details')}
             name="showConversationDetails"
@@ -241,7 +240,6 @@ class Index extends React.Component<IndexProps, IndexState> {
           >
             <ConversationDetails conversation={conversation} />
           </Box>
-
           <Box
             title={__('Tags')}
             name="showTags"
@@ -254,7 +252,6 @@ class Index extends React.Component<IndexProps, IndexState> {
               refetchQueries={taggerRefetchQueries}
             />
           </Box>
-
           <Box
             title={__('Contact information')}
             name="showCustomFields"
@@ -263,7 +260,6 @@ class Index extends React.Component<IndexProps, IndexState> {
           >
             <CustomFieldsSection customer={customer} />
           </Box>
-
           {this.renderMessengerData({
             customer,
             kind,
@@ -336,10 +332,17 @@ class Index extends React.Component<IndexProps, IndexState> {
         </React.Fragment>
       );
     }
-    console.log(customer);
+
     return (
       <React.Fragment>
-        <CompanyAssociate data={customer} />
+        <Box
+          title={__('Companies')}
+          name="showCompanies"
+          isOpen={config.showCompanies || true}
+          toggle={toggleSection}
+        >
+          <CompanyAssociate data={customer} />
+        </Box>
 
         <Box
           title={__('Contacts')}
