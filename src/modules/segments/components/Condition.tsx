@@ -30,26 +30,20 @@ class Condition extends React.Component<Props, State> {
     this.handleValue = this.handleValue.bind(this);
     this.removeCondition = this.removeCondition.bind(this);
 
-    // debounce text input
-    this.changeCondition = debounce(this.props.changeCondition, 350);
-
     this.state = this.props.condition;
   }
 
-  changeCondition(condition: ISegmentCondition) {}
-
-  handleInputValue<T extends keyof State>(name: T, value: any) {
-    const states = { [name]: value, operator: '' } as Pick<State, keyof State>;
+  handleInputValue<T extends keyof State>(name: T, value: State[T]) {
+    const states = { [name]: value } as Pick<State, keyof State>;
 
     // Changing current operator when the type is changed
-    if (name === 'type') {
-      states.operator = operators[value][0].value;
+    if (name === 'type' && typeof value === 'string') {
+      states.operator = operators[value][0].value || '';
     }
 
     this.setState(states, () => {
-      const { field, operator, dateUnit, type } = this.state;
-
-      this.props.changeCondition({ field, operator, value, dateUnit, type });
+      const { changeCondition } = this.props;
+      debounce(() => changeCondition(this.state), 350)();
     });
   }
 
@@ -60,9 +54,10 @@ class Condition extends React.Component<Props, State> {
     const val = e.target.value;
 
     this.setState({ value: val }, () => {
-      const { field, operator, value, dateUnit, type } = this.state;
+      const { changeCondition } = this.props;
 
-      this.changeCondition({ field, operator, value, dateUnit, type });
+      // debounce text input
+      debounce(() => changeCondition(this.state), 350)();
     });
   }
 
@@ -117,6 +112,7 @@ class Condition extends React.Component<Props, State> {
       type === 'date'
         ? this.renderSelect('dateUnit', dateUnit, dateUnits)
         : null;
+
     const ago =
       type === 'date' && (operator === 'wlt' || operator === 'wmt')
         ? 'ago'
