@@ -1,4 +1,3 @@
-import * as classNames from "classnames";
 import * as moment from "moment";
 import * as React from "react";
 import * as ReactTransitionGroup from "react-transition-group";
@@ -53,29 +52,6 @@ class Home extends React.Component<Props, State> {
     this.setState({ activeSupport: !this.state.activeSupport });
   }
 
-  renderTab() {
-    const { messengerData } = this.props;
-
-    if (!messengerData.showFaq) {
-      return null;
-    }
-
-    const indicatorClasses = classNames("indicator", {
-      left: this.state.activeSupport
-    });
-
-    return (
-      <div className="erxes-tab" onClick={this.toggleTab}>
-        <div
-          style={{ backgroundColor: this.props.color }}
-          className={indicatorClasses}
-        />
-        <span>{__("Support")}</span>
-        <span>{__("Faq")}</span>
-      </div>
-    );
-  }
-
   renderGreetings(messengerData: IIntegrationMessengerData) {
     const messages =
       messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
@@ -111,9 +87,7 @@ class Home extends React.Component<Props, State> {
 
     return (
       <div
-        className={classNames("erxes-welcome", {
-          tabbed: messengerData.showFaq
-        })}
+        className="erxes-welcome"
         ref={node => {
           this.node = node;
         }}
@@ -121,7 +95,6 @@ class Home extends React.Component<Props, State> {
         {this.renderAssistBar(messengerData)}
         {this.renderGreetings(messengerData)}
         <Supporters users={supporters} isExpanded={false} loading={loading} />
-        {this.renderTab()}
       </div>
     );
   }
@@ -135,7 +108,7 @@ class Home extends React.Component<Props, State> {
         <TopBar middle={this.renderHead()} />
         <div className="erxes-home-content">
           <ReactTransitionGroup.CSSTransition
-            in={this.state.activeSupport}
+            in={true}
             appear={true}
             timeout={600}
             classNames="slide"
@@ -144,16 +117,6 @@ class Home extends React.Component<Props, State> {
             <div className="erxes-home-item">
               <Integrations />
             </div>
-          </ReactTransitionGroup.CSSTransition>
-
-          <ReactTransitionGroup.CSSTransition
-            in={!this.state.activeSupport}
-            appear={true}
-            timeout={600}
-            classNames="slide"
-            unmountOnExit
-          >
-            <div className="erxes-home-item">FAQ</div>
           </ReactTransitionGroup.CSSTransition>
         </div>
       </div>
