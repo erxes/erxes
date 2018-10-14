@@ -48,11 +48,11 @@ class Article {
       });
 
       for (const category of categories) {
-        if (!category.articleIds) {
-          category.articleIds = [];
-        }
+        const articleIds = category.toJSON().articleIds || [];
 
-        category.toJSON().articleIds.push(article._id.toString());
+        articleIds.push(article._id.toString());
+
+        category.articleIds = articleIds;
 
         await category.save();
       }
@@ -93,7 +93,7 @@ class Article {
       });
 
       for (const category of categories) {
-        const articleIds = category.articleIds || [];
+        const articleIds = category.toJSON().articleIds || [];
 
         // check previous entry
         if (!articleIds.includes(article._id)) {
