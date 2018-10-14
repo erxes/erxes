@@ -118,18 +118,20 @@ export default compose(
   }),
   graphql(gql(mutations.knowledgeBaseTopicsRemove), {
     name: 'removeTopicsMutation',
-    options: ({ currentCategoryId }: { currentCategoryId: string }) => {
+    options: ({ currentCategoryId }: { currentCategoryId?: string }) => {
       return {
-        refetchQueries: [
-          {
-            query: gql(queries.knowledgeBaseArticlesTotalCount),
-            variables: { categoryIds: [currentCategoryId] }
-          },
-          {
-            query: gql(queries.knowledgeBaseCategoryDetail),
-            variables: { _id: currentCategoryId }
-          }
-        ]
+        refetchQueries: !currentCategoryId
+          ? []
+          : [
+              {
+                query: gql(queries.knowledgeBaseArticlesTotalCount),
+                variables: { categoryIds: [currentCategoryId] }
+              },
+              {
+                query: gql(queries.knowledgeBaseCategoryDetail),
+                variables: { _id: currentCategoryId }
+              }
+            ]
       };
     }
   })

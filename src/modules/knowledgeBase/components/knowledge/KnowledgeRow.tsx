@@ -40,28 +40,45 @@ type State = {
   detailed: boolean;
 };
 
+const STORAGE_KEY = `erxes_knowledgebase_accordion`;
+
+const collapse = (id: string, click?: boolean, isCurrent?: boolean) => {
+  const data = localStorage.getItem(STORAGE_KEY);
+  let values: string[] = [];
+
+  if (data) values = JSON.parse(data);
+
+  if (click) {
+    values.includes(id)
+      ? (values = values.filter(key => key !== id))
+      : values.push(id);
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
+  }
+
+  return isCurrent ? true : values.includes(id);
+};
+
 class KnowledgeRow extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { detailed: false };
+    this.state = { detailed: collapse(props.topic._id) };
     this.toggle = this.toggle.bind(this);
   }
 
   toggle() {
-    this.setState({ detailed: !this.state.detailed });
-  }
+    const { topic } = this.props;
 
-  isExpanded(currentCategoryId, topic) {
-    const categories = topic.categories || [];
-
-    return categories.some(c => c._id === currentCategoryId);
+    this.setState({ detailed: collapse(topic._id, true) });
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({
-      detailed: this.isExpanded(nextProps.currentCategoryId, nextProps.topic)
-    });
+    const { categories } = this.props.topic;
+
+    if (categories.includes(nextProps.currentCategoryId)) {
+      this.setState({ detailed: collapse('', false, true) });
+    }
   }
 
   renderManage() {
