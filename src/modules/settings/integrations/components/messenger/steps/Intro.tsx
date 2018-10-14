@@ -6,46 +6,41 @@ import {
 } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import { LANGUAGES } from 'modules/settings/general/constants';
+import { IMessages } from 'modules/settings/integrations/types';
 import { SubHeading } from 'modules/settings/styles';
 import * as React from 'react';
 import Select from 'react-select-plus';
 
 type Props = {
   onChange: (
-    name: 'supporterIds' | 'welcomeMessage' | 'awayMessage' | 'thankYouMessage',
-    value: string | string[]
+    name: 'supporterIds' | 'messages',
+    value: IMessages | string[]
   ) => void;
   teamMembers: IUser[];
   supporterIds?: string[];
-  welcomeMessage?: string;
-  awayMessage?: string;
-  greetingMessage?: string;
-  greetingTitle?: string;
-  thankYouMessage?: string;
   facebook?: string;
   twitter?: string;
   youtube?: string;
-  languageCode?: string;
+  languageCode: string;
+  messages: IMessages;
 };
 
 type State = {
   supporters?: any;
   supporterIds: string[];
-  welcomeMessage: string;
-  awayMessage: string;
-  thankYouMessage: string;
-  greetingMessage: string;
   facebook?: string;
   twitter?: string;
   youtube?: string;
   languageCode?: string;
+  messages: IMessages;
 };
 
 class Intro extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { teamMembers, supporterIds = [] } = props;
+    const { teamMembers, supporterIds = [], messages } = props;
 
     const selectedMembers: IUser[] = teamMembers.filter(member =>
       supporterIds.includes(member._id)
@@ -54,22 +49,41 @@ class Intro extends React.Component<Props, State> {
     this.state = {
       supporters: this.generateSupporterOptions(selectedMembers),
       supporterIds: [],
-      welcomeMessage: '',
-      awayMessage: '',
-      thankYouMessage: '',
-      greetingMessage: '',
       facebook: '',
       twitter: '',
-      youtube: ''
+      youtube: '',
+      messages
     };
 
     this.onInputChange = this.onInputChange.bind(this);
     this.onTeamMembersChange = this.onTeamMembersChange.bind(this);
+    this.onMessageChange = this.onMessageChange.bind(this);
+    this.onGreetingsChange = this.onGreetingsChange.bind(this);
   }
 
   onInputChange<T extends keyof State>(name: any, value: State[T]) {
     this.setState({ [name]: value } as Pick<State, keyof State>);
     this.props.onChange(name, value);
+  }
+
+  onMessageChange(name, value) {
+    const messages = { ...this.state.messages };
+
+    messages[this.props.languageCode][name] = value;
+
+    this.setState({ messages });
+
+    this.props.onChange('messages', messages);
+  }
+
+  onGreetingsChange(name, value) {
+    const messages = { ...this.state.messages };
+
+    messages[this.props.languageCode].greetings[name] = value;
+
+    this.setState({ messages });
+
+    this.props.onChange('messages', messages);
   }
 
   onTeamMembersChange(options) {
@@ -95,7 +109,8 @@ class Intro extends React.Component<Props, State> {
   }
 
   render() {
-    const { facebook, twitter, youtube } = this.props;
+    const { facebook, twitter, youtube, languageCode } = this.props;
+    const message = this.state.messages[languageCode];
 
     return (
       <FlexItem>
@@ -113,8 +128,11 @@ class Intro extends React.Component<Props, State> {
               }}
             >
               <option />
-              <option value="mn">Монгол</option>
-              <option value="en">English</option>
+              {LANGUAGES.map((item, index) => (
+                <option key={index} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
             </FormControl>
           </FormGroup>
 
@@ -127,10 +145,10 @@ class Intro extends React.Component<Props, State> {
               componentClass="textarea"
               placeholder={__('Write here Welcome message.')}
               rows={3}
-              value={this.props.welcomeMessage}
+              value={message.welcome}
               onChange={e =>
-                this.onInputChange(
-                  'welcomeMessage',
+                this.onMessageChange(
+                  'welcome',
                   (e.target as HTMLInputElement).value
                 )
               }
@@ -145,10 +163,10 @@ class Intro extends React.Component<Props, State> {
             <FormControl
               placeholder={__('Write here Greeting title.')}
               rows={3}
-              value={this.props.greetingTitle}
+              value={message.greetings.title}
               onChange={e =>
-                this.onInputChange(
-                  'greetingTitle',
+                this.onGreetingsChange(
+                  'title',
                   (e.target as HTMLInputElement).value
                 )
               }
@@ -162,10 +180,10 @@ class Intro extends React.Component<Props, State> {
               componentClass="textarea"
               placeholder={__('Write here Greeting message.')}
               rows={3}
-              value={this.props.greetingMessage}
+              value={message.greetings.message}
               onChange={e =>
-                this.onInputChange(
-                  'greetingMessage',
+                this.onGreetingsChange(
+                  'message',
                   (e.target as HTMLInputElement).value
                 )
               }
@@ -181,10 +199,10 @@ class Intro extends React.Component<Props, State> {
               componentClass="textarea"
               placeholder={__('Write here Away message.')}
               rows={3}
-              value={this.props.awayMessage}
+              value={message.away}
               onChange={e =>
-                this.onInputChange(
-                  'awayMessage',
+                this.onMessageChange(
+                  'away',
                   (e.target as HTMLInputElement).value
                 )
               }
@@ -198,10 +216,10 @@ class Intro extends React.Component<Props, State> {
               componentClass="textarea"
               placeholder={__('Write here Thank you message.')}
               rows={3}
-              value={this.props.thankYouMessage}
+              value={message.thankyou}
               onChange={e =>
-                this.onInputChange(
-                  'thankYouMessage',
+                this.onMessageChange(
+                  'thankyou',
                   (e.target as HTMLInputElement).value
                 )
               }

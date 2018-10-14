@@ -11,12 +11,13 @@ import { IBrand } from 'modules/settings/brands/types';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
 import {
   IIntegration,
-  ILink,
+  IMessages,
   IMessengerData,
   IUiOptions
 } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { LANGUAGES } from '../../constants';
 import { Appearance, Availability, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 
@@ -42,9 +43,6 @@ type State = {
   activeStep: number;
   color: string;
   wallpaper: string;
-  welcomeMessage: string;
-  awayMessage: string;
-  thankYouMessage: string;
   notifyCustomer: boolean;
   supporterIds: string[];
   availabilityMethod: string;
@@ -54,12 +52,11 @@ type State = {
   logo: string;
   logoPreviewStyle: any;
   logoPreviewUrl: string;
-  greetingMessage: string;
-  greetingTitle: string;
   facebook: string;
   twitter: string;
   youtube: string;
   showFaq: boolean;
+  messages: IMessages;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -74,10 +71,6 @@ class CreateMessenger extends React.Component<Props, State> {
     const configData = integration.messengerData || {};
     const links = configData.links || {};
     const messages = configData.messages || {};
-    const message = messages[languageCode] || {};
-    const onlineMessage = message.online || {};
-    const offlineMessage = message.offline || {};
-    const greetingMessage = message.greetings || {};
     const uiOptions = integration.uiOptions || {};
 
     this.state = {
@@ -87,9 +80,6 @@ class CreateMessenger extends React.Component<Props, State> {
       activeStep: 1,
       color: uiOptions.color || '#6569DF',
       wallpaper: uiOptions.wallpaper || '1',
-      welcomeMessage: onlineMessage.welcome || '',
-      awayMessage: offlineMessage.away || '',
-      thankYouMessage: offlineMessage.thankyou || '',
       notifyCustomer: configData.notifyCustomer || false,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
@@ -102,13 +92,34 @@ class CreateMessenger extends React.Component<Props, State> {
       logo: uiOptions.logo || '',
       logoPreviewStyle: {},
       logoPreviewUrl: uiOptions.logo || '',
-      greetingMessage: greetingMessage.message || '',
-      greetingTitle: greetingMessage.title || '',
       facebook: links.facebook || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
-      showFaq: configData.showFaq || false
+      showFaq: configData.showFaq || false,
+      messages: { ...this.generateMessages(messages) }
     };
+  }
+
+  generateMessages(integrationMessages) {
+    const messages = {};
+
+    LANGUAGES.forEach(item => {
+      const message = integrationMessages[item.value] || {};
+
+      messages[item.value] = {
+        greetings: {
+          title:
+            message && message.greetings ? message.greetings.title || '' : '',
+          message:
+            message && message.greetings ? message.greetings.message || '' : ''
+        },
+        welcome: message.welcome || '',
+        away: message.away || '',
+        thankyou: message.thankyou || ''
+      };
+    });
+
+    return messages;
   }
 
   onChange<T extends keyof State>(key: T, value: State[T]) {
@@ -118,16 +129,7 @@ class CreateMessenger extends React.Component<Props, State> {
   save(e) {
     e.preventDefault();
 
-    const {
-      title,
-      brandId,
-      languageCode,
-      greetingTitle,
-      greetingMessage,
-      welcomeMessage,
-      awayMessage,
-      thankYouMessage
-    } = this.state;
+    const { title, brandId, languageCode, messages } = this.state;
 
     if (!languageCode) {
       return Alert.error('Set language');
@@ -140,22 +142,6 @@ class CreateMessenger extends React.Component<Props, State> {
     if (!brandId) {
       return Alert.error('Choose brand');
     }
-
-    const messages = {
-      [languageCode]: {
-        greetings: {
-          title: greetingTitle,
-          message: greetingMessage
-        },
-        online: {
-          welcome: welcomeMessage
-        },
-        offline: {
-          away: awayMessage,
-          thankyou: thankYouMessage
-        }
-      }
-    };
 
     this.props.save({
       name: title,
@@ -208,9 +194,6 @@ class CreateMessenger extends React.Component<Props, State> {
       activeStep,
       title,
       supporterIds,
-      welcomeMessage,
-      awayMessage,
-      thankYouMessage,
       isOnline,
       availabilityMethod,
       onlineHours,
@@ -222,13 +205,14 @@ class CreateMessenger extends React.Component<Props, State> {
       languageCode,
       notifyCustomer,
       logoPreviewStyle,
-      greetingMessage,
       facebook,
       twitter,
       youtube,
       showFaq,
-      greetingTitle
+      messages
     } = this.state;
+
+    const message = messages[languageCode];
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings/integrations' },
@@ -261,11 +245,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 teamMembers={this.props.teamMembers}
                 onChange={this.onChange}
                 supporterIds={supporterIds}
-                welcomeMessage={welcomeMessage}
-                awayMessage={awayMessage}
-                thankYouMessage={thankYouMessage}
-                greetingMessage={greetingMessage}
-                greetingTitle={greetingTitle}
+                messages={messages}
                 facebook={facebook}
                 languageCode={languageCode}
                 twitter={twitter}
@@ -312,8 +292,7 @@ class CreateMessenger extends React.Component<Props, State> {
               <CommonPreview
                 onChange={this.onChange}
                 teamMembers={this.props.teamMembers}
-                welcomeMessage={welcomeMessage}
-                awayMessage={awayMessage}
+                message={message}
                 supporterIds={supporterIds}
                 isOnline={isOnline}
                 wallpaper={wallpaper}

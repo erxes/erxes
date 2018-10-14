@@ -31,26 +31,15 @@ export interface IOnlineHour {
   to: string;
 }
 
-interface IGreetingMessage {
-  title?: string;
-  message?: string;
-}
-
-interface IOnlineMessage {
+export interface IMessagesItem {
+  greetings: { title?: string; message?: string };
+  away?: string;
+  thankyou?: string;
   welcome?: string;
 }
 
-interface IOfflineMessage {
-  away?: string;
-  thankyou?: string;
-}
-
-interface IMessages {
-  [key: string]: {
-    greetings: IGreetingMessage;
-    online: IOnlineMessage;
-    offline: IOfflineMessage;
-  };
+export interface IMessages {
+  [key: string]: IMessagesItem;
 }
 
 export interface IMessengerData {
