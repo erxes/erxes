@@ -59,7 +59,7 @@ export default compose(
   graphql(gql(queries.knowledgeBaseArticlesTotalCount), {
     name: 'articlesCountQuery',
     options: ({ queryParams }: { queryParams: any }) => ({
-      variables: { categoryIds: [queryParams.id] || [''] }
+      variables: { categoryIds: [queryParams.id || ''] }
     }),
     skip: ({ queryParams }) => !queryParams.id
   }),
