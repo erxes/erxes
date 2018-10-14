@@ -71,8 +71,8 @@ class ConversationDetail extends React.Component<
       document: gql(graphqlTypes.conversationChanged),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
-        const data = subscriptionData.data || {};
-        const conversationChanged = data.conversationChanged || {};
+        const subData = subscriptionData.data || {};
+        const conversationChanged = subData.conversationChanged || {};
         const type = conversationChanged.type;
 
         if (type === "closed") {

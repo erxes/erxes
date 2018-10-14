@@ -22,7 +22,6 @@ type Props = {
 
 type State = {
   headHeight: number;
-  activeSupport: boolean;
 };
 
 class Home extends React.Component<Props, State> {
@@ -31,9 +30,7 @@ class Home extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { headHeight: 120, activeSupport: true };
-
-    this.toggleTab = this.toggleTab.bind(this);
+    this.state = { headHeight: 120 };
   }
 
   componentDidUpdate(prevProps: any, prevState: any) {
@@ -46,10 +43,6 @@ class Home extends React.Component<Props, State> {
     if (this.node) {
       this.setState({ headHeight: this.node.offsetHeight });
     }
-  }
-
-  toggleTab() {
-    this.setState({ activeSupport: !this.state.activeSupport });
   }
 
   renderGreetings(messengerData: IIntegrationMessengerData) {
@@ -112,7 +105,6 @@ class Home extends React.Component<Props, State> {
             appear={true}
             timeout={600}
             classNames="slide"
-            unmountOnExit
           >
             <div className="erxes-home-item">
               <Integrations />
