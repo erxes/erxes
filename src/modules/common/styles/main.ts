@@ -188,7 +188,8 @@ const Avatar = styled.div`
     display: block;
     width: 100px;
     height: 100px;
-    border-radius: 50px;
+    border-radius: ${dimensions.headerSpacing}px;
+    padding: ${dimensions.unitSpacing}px;
   }
 
   &:hover {
