@@ -1,11 +1,12 @@
 import * as React from "react";
 import * as ReactTransitionGroup from "react-transition-group";
-import { Profile, Supporters } from ".";
 import { iconLeft } from "../../icons/Icons";
 import { IParticipator, IUser } from "../../types";
 import { __ } from "../../utils";
-import { BrandInfo, MessageSender, MessagesList, TopBar } from "../containers";
+import { MessageSender, MessagesList, TopBar } from "../containers";
+import { BrandInfo } from "../containers/common";
 import { IMessage } from "../types";
+import { Profile, Supporters } from "./common";
 
 type Props = {
   messages: IMessage[];

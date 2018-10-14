@@ -11,7 +11,8 @@ import {
 } from "../../types";
 import { __ } from "../../utils";
 import { TopBar } from "../containers";
-import { Integrations, SocialLink, Supporters } from "./";
+import { Integrations } from "./";
+import { SocialLink, Supporters } from "./common";
 
 type Props = {
   supporters: IUser[];

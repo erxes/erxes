@@ -3,7 +3,7 @@ import * as moment from "moment";
 import * as React from "react";
 import { defaultAvatar } from "../../icons/Icons";
 import { IUser } from "../../types";
-import { Attachment, User } from "../components";
+import { Attachment, User } from "../components/common";
 import { IAttachment, IMessengerAppData } from "../types";
 
 type Props = {

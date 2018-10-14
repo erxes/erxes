@@ -8,8 +8,8 @@ import {
   linkedin,
   twitter,
   youtube
-} from "../../icons/Icons";
-import { IParticipator, IUserDetails, IUserLinks } from "../../types";
+} from "../../../icons/Icons";
+import { IParticipator, IUserDetails, IUserLinks } from "../../../types";
 import { SocialLink } from "./";
 
 type Props = {

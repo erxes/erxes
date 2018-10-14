@@ -3,7 +3,7 @@ import * as React from "react";
 import * as striptags from "striptags";
 import { iconClose } from "../../icons/Icons";
 import { IUser } from "../../types";
-import { User } from "../components";
+import { User } from "../components/common";
 import { IEngageData } from "../types";
 
 const Fragment = React.Fragment;

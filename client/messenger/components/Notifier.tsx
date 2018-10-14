@@ -2,7 +2,8 @@ import * as classNames from "classnames";
 import * as React from "react";
 import * as ReactTransitionGroup from "react-transition-group";
 import * as striptags from "striptags";
-import { EngageMessage, User } from "../components";
+import { EngageMessage } from "../components";
+import { User } from "../components/common";
 import { IMessage } from "../types";
 
 type Props = {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IBrand } from "../../types";
+import { IBrand } from "../../../types";
 
 type Props = {
   brand: IBrand;

@@ -1,8 +1,8 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import { defaultAvatar } from "../../icons/Icons";
-import { IUser } from "../../types";
-import { __ } from "../../utils";
+import { defaultAvatar } from "../../../icons/Icons";
+import { IUser } from "../../../types";
+import { __ } from "../../../utils";
 
 type Props = {
   users: IUser[];
