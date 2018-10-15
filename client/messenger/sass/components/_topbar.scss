@@ -79,6 +79,7 @@ $topbar-shadow: rgba(0, 0, 0, .1);
   .erxes-head-expanded {
     padding: 20px 60px 20px 65px;
     text-align: left;
+    flex: 1;
 
     &.fade-slide-exit-active {
       position: absolute;

@@ -61,7 +61,7 @@
 .erxes-slide-left-iframe {
   position: fixed;
   bottom: 5px;
-  border-radius: 4px;
+  border-radius: 10px;
   width: 380px;
   max-height: 100%;
   max-height: calc(100% - 10px);
@@ -72,6 +72,7 @@
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
   box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }
 
  /* slide in left */
