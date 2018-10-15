@@ -101,7 +101,5 @@
     "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
     "typescript": "^3.0.3"
-  },
-  "main": "index.js",
-  "author": "Anu-ujin <anu.b@nmma.co>"
+  }
 }
