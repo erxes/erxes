@@ -91,6 +91,3 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 
 ## Copyright & License
 Copyright (c) 2018 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE.md)
-
-
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ferxes%2Ferxes-widgets.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ferxes%2Ferxes-widgets?ref=badge_large)
