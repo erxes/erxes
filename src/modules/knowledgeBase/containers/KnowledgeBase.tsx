@@ -51,7 +51,6 @@ const KnowledgeBaseContainer = compose(
   })
 )(KnowledgeBase);
 
-// tslint:disable-next-line:max-classes-per-file
 class WithCurrentId extends React.Component<WithCurrentIdProps> {
   componentWillReceiveProps(nextProps: WithCurrentIdProps) {
     const {
