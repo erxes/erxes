@@ -58,6 +58,12 @@ export const types = `
     to: String
   }
 
+  input IntegrationLinks {
+    twitter: String
+    facebook: String
+    youtube: String
+  }
+
   input IntegrationMessengerData {
     _id: String
     notifyCustomer: Boolean
@@ -65,9 +71,9 @@ export const types = `
     isOnline: Boolean,
     onlineHours: [MessengerOnlineHoursSchema]
     timezone: String
-    welcomeMessage: String
-    awayMessage: String
-    thankYouMessage: String
+    messages: JSON
+    showFaq: Boolean
+    links: IntegrationLinks
     supporterIds: [String]
   }
 

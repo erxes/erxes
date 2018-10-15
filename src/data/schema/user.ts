@@ -2,6 +2,7 @@ export const types = `
   input UserDetails {
     avatar: String
     fullName: String
+    shortName: String
     position: String
     location: String
     description: String
@@ -24,6 +25,7 @@ export const types = `
   type UserDetailsType {
     avatar: String
     fullName: String
+    shortName: String
     position: String
     location: String
     description: String

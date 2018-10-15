@@ -160,9 +160,13 @@ describe('mutations', () => {
         },
       ],
       timezone: faker.random.word(),
-      welcomeMessage: faker.random.word(),
-      awayMessage: faker.random.word(),
-      thankYouMessage: faker.random.word(),
+      messages: {
+        en: {
+          welcome: faker.random.word(),
+          away: faker.random.word(),
+          thank: faker.random.word(),
+        },
+      },
     };
 
     const args = {

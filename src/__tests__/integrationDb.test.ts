@@ -331,14 +331,23 @@ describe('save integration messenger configurations test', () => {
         },
       ],
       timezone: 'CET',
-      welcomeMessage: 'Welcome user',
-      awayMessage: 'Bye bye',
-      thankYouMessage: 'Thank you',
+      messages: {
+        en: {
+          welcome: 'Welcome user',
+          away: 'Bye bye',
+          thank: 'Thank you',
+        },
+      },
     };
 
     const integration = await Integrations.saveMessengerConfigs(_integration._id, messengerData);
 
-    if (!integration || !integration.messengerData || !integration.messengerData.onlineHours) {
+    if (
+      !integration ||
+      !integration.messengerData ||
+      !integration.messengerData.onlineHours ||
+      !integration.messengerData.messages
+    ) {
       throw new Error('Integration not found');
     }
 
@@ -352,9 +361,9 @@ describe('save integration messenger configurations test', () => {
     expect(integration.messengerData.onlineHours[1].from).toEqual(messengerData.onlineHours[1].from);
     expect(integration.messengerData.onlineHours[1].to).toEqual(messengerData.onlineHours[1].to);
     expect(integration.messengerData.timezone).toEqual(messengerData.timezone);
-    expect(integration.messengerData.welcomeMessage).toEqual(messengerData.welcomeMessage);
-    expect(integration.messengerData.awayMessage).toEqual(messengerData.awayMessage);
-    expect(integration.messengerData.thankYouMessage).toEqual(messengerData.thankYouMessage);
+    expect(integration.messengerData.messages.en.welcome).toEqual(messengerData.messages.en.welcome);
+    expect(integration.messengerData.messages.en.away).toEqual(messengerData.messages.en.away);
+    expect(integration.messengerData.messages.en.thank).toEqual(messengerData.messages.en.thank);
 
     const newMessengerData = {
       notifyCustomer: false,
@@ -373,9 +382,13 @@ describe('save integration messenger configurations test', () => {
         },
       ],
       timezone: 'EET',
-      welcomeMessage: 'Welcome customer',
-      awayMessage: 'Good bye',
-      thankYouMessage: 'Gracias',
+      messages: {
+        en: {
+          welcome: 'Welcome user',
+          away: 'Bye bye',
+          thank: 'Thank you',
+        },
+      },
     };
 
     const updatedIntegration = await Integrations.saveMessengerConfigs(_integration._id, newMessengerData);
@@ -394,9 +407,9 @@ describe('save integration messenger configurations test', () => {
     expect(updatedIntegration.messengerData.onlineHours[1].from).toEqual(newMessengerData.onlineHours[1].from);
     expect(updatedIntegration.messengerData.onlineHours[1].to).toEqual(newMessengerData.onlineHours[1].to);
     expect(updatedIntegration.messengerData.timezone).toEqual(newMessengerData.timezone);
-    expect(updatedIntegration.messengerData.welcomeMessage).toEqual(newMessengerData.welcomeMessage);
-    expect(updatedIntegration.messengerData.awayMessage).toEqual(newMessengerData.awayMessage);
-    expect(updatedIntegration.messengerData.thankYouMessage).toEqual(newMessengerData.thankYouMessage);
+    expect(integration.messengerData.messages.en.welcome).toEqual(messengerData.messages.en.welcome);
+    expect(integration.messengerData.messages.en.away).toEqual(messengerData.messages.en.away);
+    expect(integration.messengerData.messages.en.thank).toEqual(messengerData.messages.en.thank);
   });
 });
 
