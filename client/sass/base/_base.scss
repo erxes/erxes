@@ -1,9 +1,15 @@
 @import '../animations';
 
+html,
+body,
+#root,
+.erxes-widget {
+  height: 100%;
+}
+
 body {
   @include prefix((box-sizing: border-box), webkit moz ms o);
   margin: 0;
-  scroll-behavior: smooth;
 }
 
 .erxes-widget {

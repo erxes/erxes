@@ -25,6 +25,8 @@
   position: absolute;
   bottom: 12px;
   right: 12px;
+  left: auto;
+  top: auto;
   border: none;
   z-index: 2147483647;
 }
@@ -40,6 +42,7 @@
 
 .erxes-messenger-shown {
   width: 416px;
+  height: 100%;
   height: calc(100% - 20px);
   max-height: 780px;
 }

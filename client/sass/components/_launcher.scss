@@ -11,12 +11,14 @@
   color: $main-color;
   cursor: pointer;
   height: 56px;
+  left: auto;
   line-height: 56px;
   pointer-events: auto;
-  position: fixed;
+  position: fixed !important;
   right: 8px;
   text-align: center;
-  transition: position, box-shadow .3s ease-in-out, background .3s ease-in;
+  top: auto;
+  transition: box-shadow .3s ease-in-out, background .3s ease-in;
   width: 56px;
   z-index: $z-index-above - 1;
 
