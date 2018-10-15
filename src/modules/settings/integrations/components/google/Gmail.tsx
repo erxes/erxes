@@ -23,7 +23,8 @@ class Gmail extends React.Component<Props> {
     e.preventDefault();
 
     this.props.save({
-      brandId: (document.getElementById('selectBrand') as HTMLInputElement).value
+      brandId: (document.getElementById('selectBrand') as HTMLInputElement)
+        .value
     });
   }
 
@@ -32,7 +33,7 @@ class Gmail extends React.Component<Props> {
       <ContentBox>
         <form onSubmit={this.handleSubmit}>
           <SelectBrand brands={this.props.brands} />
-          
+
           <ModalFooter>
             <Button btnStyle="success" type="submit" icon="checked-1">
               Save

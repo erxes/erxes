@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { Messenger, MessengerPreview } from 'modules/engage/styles';
+import { IMessagesItem } from 'modules/settings/integrations/types';
 import { LogoContainer } from 'modules/settings/styles';
 import * as React from 'react';
 import WidgetPreview from './WidgetPreview';
@@ -9,8 +10,7 @@ type Props = {
   teamMembers: IUser[];
   color: string;
   logoPreviewStyle?: any;
-  welcomeMessage?: string;
-  awayMessage?: string;
+  message: IMessagesItem;
   wallpaper: string;
   supporterIds?: string[];
   isOnline: boolean;
@@ -24,11 +24,10 @@ class CommonPreview extends React.Component<Props> {
       logoPreviewUrl,
       color,
       wallpaper,
-      welcomeMessage,
-      awayMessage,
       isOnline,
       supporterIds,
-      teamMembers
+      teamMembers,
+      message
     } = this.props;
 
     return (
@@ -39,8 +38,8 @@ class CommonPreview extends React.Component<Props> {
             wallpaper={wallpaper}
             users={teamMembers}
             supporterIds={supporterIds}
-            welcomeMessage={welcomeMessage}
-            awayMessage={awayMessage}
+            welcomeMessage={message.welcome}
+            awayMessage={message.away}
             isOnline={isOnline}
           />
 

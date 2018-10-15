@@ -22,7 +22,6 @@ type Props = {
 class UserCommonInfos extends React.Component<Props> {
   render() {
     const { user, onAvatarUpload } = this.props;
-
     const details = user.details || {};
     const links = user.links || {};
 
@@ -32,11 +31,19 @@ class UserCommonInfos extends React.Component<Props> {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Name</ControlLabel>
+              <ControlLabel>Full name</ControlLabel>
               <FormControl
                 type="text"
                 id="fullName"
                 defaultValue={details.fullName || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Short name</ControlLabel>
+              <FormControl
+                type="text"
+                id="shortName"
+                defaultValue={details.shortName || ''}
               />
             </FormGroup>
             <FormGroup>

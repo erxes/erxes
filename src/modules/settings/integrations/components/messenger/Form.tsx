@@ -11,11 +11,13 @@ import { IBrand } from 'modules/settings/brands/types';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
 import {
   IIntegration,
+  IMessages,
   IMessengerData,
   IUiOptions
 } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { LANGUAGES } from '../../constants';
 import { Appearance, Availability, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 
@@ -41,9 +43,6 @@ type State = {
   activeStep: number;
   color: string;
   wallpaper: string;
-  welcomeMessage: string;
-  awayMessage: string;
-  thankYouMessage: string;
   notifyCustomer: boolean;
   supporterIds: string[];
   availabilityMethod: string;
@@ -53,6 +52,11 @@ type State = {
   logo: string;
   logoPreviewStyle: any;
   logoPreviewUrl: string;
+  facebook: string;
+  twitter: string;
+  youtube: string;
+  showFaq: boolean;
+  messages: IMessages;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -63,20 +67,19 @@ class CreateMessenger extends React.Component<Props, State> {
     this.save = this.save.bind(this);
 
     const integration = props.integration || ({} as IIntegration);
-
+    const languageCode = integration.languageCode || 'en';
     const configData = integration.messengerData || {};
+    const links = configData.links || {};
+    const messages = configData.messages || {};
     const uiOptions = integration.uiOptions || {};
 
     this.state = {
       title: integration.name,
       brandId: integration.brandId || '',
-      languageCode: integration.languageCode || '',
+      languageCode,
       activeStep: 1,
       color: uiOptions.color || '#6569DF',
       wallpaper: uiOptions.wallpaper || '1',
-      welcomeMessage: configData.welcomeMessage || '',
-      awayMessage: configData.awayMessage || '',
-      thankYouMessage: configData.thankYouMessage || '',
       notifyCustomer: configData.notifyCustomer || false,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
@@ -88,8 +91,35 @@ class CreateMessenger extends React.Component<Props, State> {
       })),
       logo: uiOptions.logo || '',
       logoPreviewStyle: {},
-      logoPreviewUrl: uiOptions.logo || ''
+      logoPreviewUrl: uiOptions.logo || '',
+      facebook: links.facebook || '',
+      twitter: links.twitter || '',
+      youtube: links.youtube || '',
+      showFaq: configData.showFaq || false,
+      messages: { ...this.generateMessages(messages) }
     };
+  }
+
+  generateMessages(integrationMessages) {
+    const messages = {};
+
+    LANGUAGES.forEach(item => {
+      const message = integrationMessages[item.value] || {};
+
+      messages[item.value] = {
+        greetings: {
+          title:
+            message && message.greetings ? message.greetings.title || '' : '',
+          message:
+            message && message.greetings ? message.greetings.message || '' : ''
+        },
+        welcome: message.welcome || '',
+        away: message.away || '',
+        thank: message.thank || ''
+      };
+    });
+
+    return messages;
   }
 
   onChange<T extends keyof State>(key: T, value: State[T]) {
@@ -99,15 +129,29 @@ class CreateMessenger extends React.Component<Props, State> {
   save(e) {
     e.preventDefault();
 
-    const { title, brandId } = this.state;
+    const {
+      title,
+      brandId,
+      languageCode,
+      messages,
+      facebook,
+      twitter,
+      youtube
+    } = this.state;
+
+    if (!languageCode) {
+      return Alert.error('Set language');
+    }
 
     if (!title) {
-      return Alert.error(__('Write title'));
+      return Alert.error('Write title');
     }
 
     if (!brandId) {
-      return Alert.error(__('Choose brand'));
+      return Alert.error('Choose brand');
     }
+
+    const links = { facebook, twitter, youtube };
 
     this.props.save({
       name: title,
@@ -119,10 +163,10 @@ class CreateMessenger extends React.Component<Props, State> {
         isOnline: this.state.isOnline,
         timezone: this.state.timezone,
         onlineHours: this.state.onlineHours,
-        welcomeMessage: this.state.welcomeMessage,
-        awayMessage: this.state.awayMessage,
-        thankYouMessage: this.state.thankYouMessage,
-        supporterIds: this.state.supporterIds
+        supporterIds: this.state.supporterIds,
+        showFaq: this.state.showFaq,
+        messages,
+        links
       },
       uiOptions: {
         color: this.state.color,
@@ -161,9 +205,6 @@ class CreateMessenger extends React.Component<Props, State> {
       activeStep,
       title,
       supporterIds,
-      welcomeMessage,
-      awayMessage,
-      thankYouMessage,
       isOnline,
       availabilityMethod,
       onlineHours,
@@ -174,8 +215,15 @@ class CreateMessenger extends React.Component<Props, State> {
       brandId,
       languageCode,
       notifyCustomer,
-      logoPreviewStyle
+      logoPreviewStyle,
+      facebook,
+      twitter,
+      youtube,
+      showFaq,
+      messages
     } = this.state;
+
+    const message = messages[languageCode];
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings/integrations' },
@@ -208,9 +256,11 @@ class CreateMessenger extends React.Component<Props, State> {
                 teamMembers={this.props.teamMembers}
                 onChange={this.onChange}
                 supporterIds={supporterIds}
-                welcomeMessage={welcomeMessage}
-                awayMessage={awayMessage}
-                thankYouMessage={thankYouMessage}
+                messages={messages}
+                facebook={facebook}
+                languageCode={languageCode}
+                twitter={twitter}
+                youtube={youtube}
               />
             </Step>
 
@@ -242,8 +292,8 @@ class CreateMessenger extends React.Component<Props, State> {
                 onChange={this.onChange}
                 brands={this.props.brands}
                 brandId={brandId}
-                languageCode={languageCode}
                 notifyCustomer={notifyCustomer}
+                showFaq={showFaq}
               />
             </Step>
           </Steps>
@@ -253,8 +303,7 @@ class CreateMessenger extends React.Component<Props, State> {
               <CommonPreview
                 onChange={this.onChange}
                 teamMembers={this.props.teamMembers}
-                welcomeMessage={welcomeMessage}
-                awayMessage={awayMessage}
+                message={message}
                 supporterIds={supporterIds}
                 isOnline={isOnline}
                 wallpaper={wallpaper}

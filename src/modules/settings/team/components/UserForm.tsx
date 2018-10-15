@@ -88,6 +88,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
       role: this.getInputElementValue('role'),
       details: {
         avatar: this.state.avatar,
+        shortName: this.getInputElementValue('shortName'),
         position: this.getInputElementValue('position'),
         fullName: this.getInputElementValue('fullName'),
         location: this.getInputElementValue('user-location'),
@@ -105,7 +106,6 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         website: this.getInputElementValue('website')
       }
     };
-
     return { doc };
   }
 

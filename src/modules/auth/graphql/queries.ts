@@ -7,6 +7,7 @@ const currentUser = `
       details {
         avatar
         fullName
+        shortName
         position
         location
         description
