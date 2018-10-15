@@ -114,7 +114,7 @@ $topbar-shadow: rgba(0, 0, 0, .1);
       }
 
       &:last-of-type {
-        margin: 0;
+        margin-right: 0;
       }
     }
 
@@ -206,6 +206,11 @@ $topbar-shadow: rgba(0, 0, 0, .1);
 
     p {
       font-size: 13px;
+      margin-bottom: 0;
+    }
+
+    img {
+      margin-top: 10px;
     }
   }
 }
