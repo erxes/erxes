@@ -3,11 +3,12 @@
 body {
   @include prefix((box-sizing: border-box), webkit moz ms o);
   margin: 0;
+  scroll-behavior: smooth;
 }
 
 .erxes-widget {
   @include prefix((box-sizing: border-box), webkit moz ms o);
-  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
   font-size: $font-size;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -17,18 +18,11 @@ body {
   button,
   input,
   textarea {
-    font-family: 'Roboto', Helvetica, Arial, sans-serif;
+    font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
   }
 
   &.opened .erxes-form {
     @include prefix((opacity: 1), webkit moz ms o);
-    visibility: visible;
-  }
-
-  &.opened .erxes-messenger {
-    @include prefix((
-      opacity: 1
-    ), webkit moz ms o);
     visibility: visible;
   }
 }
@@ -49,9 +43,9 @@ body {
 
 .loader {
   @include animation(0, 1s, animationSpin, linear, infinite);
-  border: 2px solid $grey;
+  border: 2px solid rgba($black, .3);
   border-radius: 50%;
-  border-top: 2px solid darken($grey, 20%);
+  border-top: 2px solid rgba($black, .2);
   height: 20px;
   margin-right: -10px;
   margin-top: -10px;
@@ -63,7 +57,7 @@ body {
   &.bigger {
     height: 28px;
     margin-right: -14px;
-    margin-top: -14px;
+    margin-top: 0;
     width: 28px;
   }
 }
@@ -83,17 +77,20 @@ body {
   &::before {
     @include prefix((box-shadow: $tooltip-shadow), webkit moz);
     background: $white;
-    border-radius: $border-radius;
+    border-radius: $border-radius / 2;
     color: lighten($black, 20%);
     content: attr(data-tooltip);
     font-size: 12px;
     left: auto;
+    max-width: 150px;
     opacity: 0;
+    overflow: hidden;
     padding: 5px 10px;
     pointer-events: none;
     position: absolute;
     right: auto;
     text-align: center;
+    text-overflow: ellipsis;
     top: 100%;
     transform: translateY(0%);
     transition: transform .3s cubic-bezier(.2, 1, .2, 1), opacity .2s cubic-bezier(.2, 1, .2, 1);
@@ -101,4 +98,49 @@ body {
     will-change: transform, opacity;
     z-index: 1;
   }
+
+  &.tooltip-center::before {
+    left: -100%;
+  }
+}
+
+// button
+.erxes-button {
+  background: $main-color;
+  border: 0;
+  border-radius: 30px;
+  box-shadow: 0 2px 16px 0;
+  color: $white;
+  font-size: 12px;
+  outline: 0;
+  padding: 10px 20px;
+  position: relative;
+  transition: all .3s ease;
+
+  span {
+    color: $white;
+  }
+
+  &:hover {
+    box-shadow: 0 2px 22px 0;
+    cursor: pointer;
+    text-decoration: none;
+  }
+}
+
+// scrollbar
+
+::-webkit-scrollbar {
+  border-radius: 0;
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $scroll-color;
+  border-radius: 5px;
+  box-shadow: inset 0 -3px 0 0 transparent, inset 0 3px 0 0 transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }

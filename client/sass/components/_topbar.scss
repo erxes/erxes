@@ -4,8 +4,6 @@
   border-top-right-radius: $border-radius;
   color: $white;
   flex-shrink: 0;
-  height: 70px;
-  overflow: hidden;
   text-align: center;
   width: 100%;
 
@@ -15,16 +13,21 @@
     }
 
     &.right {
+      display: none;
       right: 15px;
+
+      @media screen and (max-width: $break-small) {
+        display: block;
+      }
     }
+  }
+
+  &.end-chat .topbar-button.right {
+    display: block;
   }
 
   .erxes-middle {
     display: inline-block;
-
-    @media screen and (max-width: $break-small) {
-      padding-right: 30px;
-    }
   }
 }
 
@@ -32,15 +35,19 @@
   @include prefix((
     transition: background .3s ease-in-out
   ), webkit moz ms o);
+  background: none;
+  border: 0;
   border-radius: $border-radius;
   cursor: pointer;
   display: block;
   height: $core-spacing * 2;
   line-height: $core-spacing * 2;
+  outline: none;
   position: absolute;
   text-align: center;
   top: 15px;
   width: $core-spacing * 2;
+  z-index: 100;
 
   &:hover {
     background-color: rgba($black, .2);
@@ -64,42 +71,25 @@
   > div {
     margin-left: 50px;
   }
-
-  .erxes-staff-name {
-    font-weight: 600;
-    padding-top: 3px;
-  }
-
-  .erxes-staff-company {
-    font-size: 13px;
-    font-weight: 300;
-  }
 }
 
 .erxes-state {
-  font-size: 11px;
+  background-color: $border-color;
+  border-radius: $border-radius;
+  display: inline-block;
+  height: 8px;
+  margin-bottom: 1px;
+  width: 8px;
 
-  > span {
-    border-radius: $border-radius;
-    display: inline-block;
-    height: 8px;
-    margin-bottom: 1px;
-    width: 8px;
-  }
-
-  &.online span {
+  &.online {
     background-color: $green;
-  }
-
-  &.offline span {
-    background-color: $border-color;
   }
 }
 
 .erxes-topbar-title {
+  align-self: center;
   font-weight: 600;
   line-height: 1.2em;
-  align-self: center;
 
   span {
     display: block;

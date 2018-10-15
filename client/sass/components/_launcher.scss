@@ -1,4 +1,5 @@
 .erxes-launcher {
+  animation: pop .2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
   background-color: $main-color;
   background-image: url($widget-logo);
   background-position: center;
@@ -11,12 +12,13 @@
   cursor: pointer;
   height: 56px;
   line-height: 56px;
+  pointer-events: auto;
   position: fixed;
   right: 8px;
   text-align: center;
-  transition: box-shadow .3s ease-in-out, background .3s ease-in;
+  transition: position, box-shadow .3s ease-in-out, background .3s ease-in;
   width: 56px;
-  z-index: $z-index-above;
+  z-index: $z-index-above - 1;
 
   span {
     background: $red;
@@ -59,24 +61,5 @@
     position: absolute;
     top: 0;
     width: 100%;
-  }
-
-  @media screen and (max-width: $break-small) {
-    &.close,
-    &.close-launcher {
-      border-radius: 4px;
-      box-shadow: none;
-      display: block;
-      height: $core-spacing * 2;
-      line-height: $core-spacing * 2;
-      right: 10px;
-      top: 15px;
-      width: $core-spacing * 2;
-      z-index: $z-index-above;
-
-      &:hover {
-        background-color: rgba($black, .2);
-      }
-    }
   }
 }

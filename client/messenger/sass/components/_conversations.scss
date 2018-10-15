@@ -1,7 +1,12 @@
+.erxes-conversation-detail {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
 .erxes-conversation-list {
   list-style: none;
   margin: 0;
-  overflow-y: auto;
   padding: 0;
 }
 
@@ -20,22 +25,39 @@
   &.unread {
     .erxes-last-message {
       color: lighten($black, 20%);
-      font-weight: 600;
+      font-weight: bold;
     }
   }
 
-  .erxes-list-avatar {
-    border-radius: 20px;
+  .erxes-left-side {
+    border-radius: 21px;
     float: left;
-    height: 40px;
-    margin: 25px 15px 25px 20px;
+    height: 42px;
+    margin: 20px 15px 20px 20px;
+    text-align: center;
     width: 40px;
+
+    > span {
+      align-items: center;
+      background: rgba($black, .04);
+      border: 1px solid $border-color;
+      border-radius: 21px;
+      box-sizing: border-box;
+      display: flex;
+      height: 42px;
+      justify-content: center;
+      width: 42px;
+    }
+
+    svg {
+      stroke: $text-color-light;
+    }
   }
 
   .erxes-right-side {
     border-bottom: 1px solid $grey;
     margin-left: 75px;
-    padding: 25px 20px 25px 0;
+    padding: 20px 20px 20px 0;
   }
 
   .erxes-name {

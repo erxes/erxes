@@ -8,13 +8,14 @@
   box-shadow: 0 2px 15px 2px rgba($black, .2);
   box-sizing: border-box;
   display: flex;
+  max-width: 100%;
   position: absolute;
   right: 8px;
   transition: all .3s ease-in-out;
-  width: calc(100% - 46px);
+  width: 330px;
   z-index: 9998;
 
-  &.fullMessage {
+  &.full-message {
     height: calc(100% - 110px);
   }
 
@@ -23,11 +24,11 @@
     border-radius: 50%;
     box-shadow: 0 1px 5px 0 rgba($black, .1);
     height: 22px;
-    left: -30px;
     opacity: 0;
     position: absolute;
+    right: 10px;
     text-align: center;
-    top: 0;
+    top: 10px;
     transition: all .3s ease;
     width: 22px;
 
@@ -68,7 +69,7 @@
     padding: 0 $core-spacing;
     word-wrap: break-word;
 
-    &.fullMessage {
+    &.full-message {
       display: block;
       flex: 1;
       margin-bottom: 0;
