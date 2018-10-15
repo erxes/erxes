@@ -21,63 +21,34 @@ const isMobile =
   navigator.userAgent.match(/iPad/i) ||
   navigator.userAgent.match(/Android/i);
 
-let viewportContent = "";
-let generatedContent = "";
+let viewportMeta: any;
+let newViewportMeta: any;
 let hideDelayTimer: any;
 const delay = 350;
 
 if (isMobile) {
-  const viewportMeta = document.querySelector('meta[name="viewport"]');
-
-  if (!viewportMeta) {
-    // add meta
-    const meta = document.createElement("meta");
-    meta.name = "viewport";
-    meta.content =
-      "initial-scale=1, user-scalable=0, maximum-scale=1, width=device-width";
-    document.getElementsByTagName("head")[0].appendChild(meta);
-
-    viewportContent = meta.content;
-  } else {
-    viewportContent = viewportMeta.getAttribute("content") || "";
-    disableZoom();
-  }
+  viewportMeta = document.querySelector('meta[name="viewport"]');
 }
 
-function disableZoom() {
-  const viewportMeta = document.querySelector('meta[name="viewport"]');
-
-  if (!viewportMeta) {
-    return false;
+function renewViewPort() {
+  if (viewportMeta) {
+    document.getElementsByTagName("head")[0].removeChild(viewportMeta);
   }
 
-  if (viewportMeta && generatedContent) {
-    viewportMeta.setAttribute("content", generatedContent);
-  } else {
-    const meta = `initial-scale=1, user-scalable=0, maximum-scale=1, ${viewportContent}`;
-    viewportMeta.setAttribute("content", uniqueString(meta));
-    generatedContent = viewportMeta.getAttribute("content") || "";
-  }
+  newViewportMeta = document.createElement("meta");
+  newViewportMeta.name = "viewport";
+  newViewportMeta.content =
+    "initial-scale=1, user-scalable=0, maximum-scale=1, width=device-width";
+  document.getElementsByTagName("head")[0].appendChild(newViewportMeta);
 }
 
 function revertViewPort() {
-  const viewportMeta = document.querySelector('meta[name="viewport"]');
-
+  if (newViewportMeta) {
+    document.getElementsByTagName("head")[0].removeChild(newViewportMeta);
+  }
   if (viewportMeta) {
-    viewportMeta.setAttribute("content", viewportContent);
+    document.getElementsByTagName("head")[0].appendChild(viewportMeta);
   }
-}
-
-function uniqueString(str: string) {
-  const replaced = str.replace(/[ ]/g, "").split(",");
-  const result = [];
-
-  for (const value of replaced) {
-    if (result.indexOf(value) === -1) {
-      result.push(value);
-    }
-  }
-  return result.join(", ");
 }
 
 function delaydAddClass(str: string) {
@@ -141,17 +112,17 @@ window.addEventListener("message", async (event: MessageEvent) => {
   const { isVisible, message, isSmallContainer } = data;
 
   if (data.fromErxes && data.source === "fromMessenger") {
-    if (isMobile && isVisible) {
-      disableZoom();
-    } else {
-      revertViewPort();
-    }
-
     if (isMobile) {
       document.body.classList.toggle("widget-mobile", isVisible);
     }
 
     if (message === "messenger") {
+      if (isMobile && isVisible) {
+        renewViewPort();
+      } else {
+        revertViewPort();
+      }
+
       clearTimer();
 
       if (isVisible) {
