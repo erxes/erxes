@@ -766,3 +766,14 @@ export const INTEGRATIONS = [
     ]
   }
 ];
+
+export const LANGUAGES = [
+  {
+    label: 'Монгол',
+    value: 'mn'
+  },
+  {
+    label: 'English',
+    value: 'en'
+  }
+];

@@ -38,6 +38,7 @@ class EditProfile extends React.Component<Props, State> {
       email: this.getInputElementValue('email'),
       details: {
         avatar: this.state.avatar,
+        shortName: this.getInputElementValue('shortName'),
         fullName: this.getInputElementValue('fullName'),
         position: this.getInputElementValue('position'),
         location: this.getInputElementValue('user-location'),

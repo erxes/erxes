@@ -112,7 +112,7 @@ const commonOptions = ({ queryParams, integrationId }) => {
   };
 };
 
-const EditMessengerWithData = compose(
+export default compose(
   graphql(gql(queries.users), {
     name: 'usersQuery'
   }),
@@ -143,6 +143,4 @@ const EditMessengerWithData = compose(
     name: 'saveAppearanceMutation',
     options: commonOptions
   })
-)(EditMessenger);
-
-export default withRouter<IProps>(EditMessengerWithData);
+)(withRouter<IProps>(EditMessenger));

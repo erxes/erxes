@@ -1,11 +1,11 @@
+import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import queryString from 'query-string';
-import Twitter from './containers/twitter/Form';
 import { Calendar as GoogleCalendar, Gmail } from './containers/google';
 import CreateMessenger from './containers/messenger/Create';
 import EditMessenger from './containers/messenger/Edit';
 import Store from './containers/Store';
+import Twitter from './containers/twitter/Form';
 
 const routes = () => (
   <React.Fragment>

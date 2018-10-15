@@ -57,7 +57,9 @@ const FlexBody = styled.div`
     color: ${colors.colorCoreGray};
   }
 
-  span { padding-right: ${dimensions.unitSpacing}px; }
+  span {
+    padding-right: ${dimensions.unitSpacing}px;
+  }
 `;
 
 const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
