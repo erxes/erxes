@@ -87,13 +87,12 @@ class Intro extends React.Component<Props, State> {
   }
 
   onTeamMembersChange(options) {
-    if (options.length < 3) {
-      this.setState({
-        supporters: options,
-        supporterIds: options.map(option => option.value)
-      });
-      this.props.onChange('supporterIds', options.map(option => option.value));
-    }
+    this.setState({
+      supporters: options,
+      supporterIds: options.map(option => option.value)
+    });
+
+    this.props.onChange('supporterIds', options.map(option => option.value));
   }
 
   generateSupporterOptions(members: IUser[] = []) {
