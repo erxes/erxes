@@ -95,15 +95,23 @@ class MessagesList extends React.Component<Props> {
         <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderWelcomeMessage(messengerData)}
           <RTG.TransitionGroup component={null}>
-            {messages.map(message => (
-              <RTG.CSSTransition
-                key={message._id}
-                timeout={500}
-                classNames="slide-in"
-              >
-                <Message color={color} {...message} />
-              </RTG.CSSTransition>
-            ))}
+            {messages.map(message => {
+              const _id: any = message._id;
+
+              if (_id < 0) {
+                return (
+                  <RTG.CSSTransition
+                    key={message._id}
+                    timeout={500}
+                    classNames="slide-in"
+                  >
+                    <Message color={color} {...message} />
+                  </RTG.CSSTransition>
+                );
+              } else {
+                return <Message key={message._id} color={color} {...message} />;
+              }
+            })}
           </RTG.TransitionGroup>
           {this.renderAwayMessage(messengerData)}
         </ul>
