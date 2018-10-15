@@ -1,14 +1,23 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
-import { List, Twitter, CreateMessenger, EditMessenger } from './containers';
+import Twitter from './containers/twitter/Form';
+import GoogleMeet from './containers/google/Meet';
+import ConnectCalendar from './containers/google/ConnectCalendar';
+import CreateMessenger from './containers/messenger/Create';
+import EditMessenger from './containers/messenger/Edit';
+import Store from './containers/Store';
 
 const routes = () => [
   <Route
     key="/settings/integrations/createMessenger"
     exact
     path="/settings/integrations/createMessenger"
-    component={CreateMessenger}
+    component={({ location }) => {
+      return (
+        <CreateMessenger queryParams={queryString.parse(location.search)} />
+      );
+    }}
   />,
 
   <Route
@@ -28,6 +37,24 @@ const routes = () => [
   />,
 
   <Route
+    key="/settings/integrations/google-meet"
+    exact
+    path="/settings/integrations/google-meet"
+    component={({ history, location }) => {
+      const queryParams = queryString.parse(location.search);
+
+      return (
+        <ConnectCalendar
+          type="link"
+          history={history}
+          queryParams={queryParams}
+          Form={GoogleMeet}
+        />
+      );
+    }}
+  />,
+
+  <Route
     key="/service/oauth/twitter_callback"
     path="/service/oauth/twitter_callback"
     component={({ history, location }) => {
@@ -40,12 +67,27 @@ const routes = () => [
   />,
 
   <Route
+    key="/service/oauth/google_callback"
+    path="/service/oauth/google_callback"
+    component={({ history, location }) => {
+      const queryParams = queryString.parse(location.search);
+
+      return (
+        <ConnectCalendar
+          type="form"
+          history={history}
+          queryParams={queryParams}
+          Form={GoogleMeet}
+        />
+      );
+    }}
+  />,
+
+  <Route
     key="/settings/integrations"
     exact
     path="/settings/integrations"
-    component={({ location }) => {
-      return <List queryParams={queryString.parse(location.search)} />;
-    }}
+    component={() => <Store />}
   />
 ];
 

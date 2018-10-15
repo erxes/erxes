@@ -1,12 +1,9 @@
 {
   "name": "erxes",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
   "homepage": "https://erxes.io",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/erxes/erxes"
-  },
+  "repository": "https://github.com/erxes/erxes",
   "bugs": "https://github.com/erxes/erxes/issues",
   "keywords": [
     "node",
@@ -23,7 +20,7 @@
     "@nivo/pie": "^0.33.0",
     "add-graphql-subscriptions": "^1.0.1",
     "apollo-cache-inmemory": "^1.1.5",
-    "apollo-client": "^2.3.5",
+    "apollo-client": "^2.3.7",
     "apollo-link": "^1.0.7",
     "apollo-link-context": "^1.0.3",
     "apollo-link-error": "^1.0.9",
@@ -39,6 +36,7 @@
     "draft-js": "^0.10.4",
     "draft-js-export-html": "^1.2.0",
     "draft-js-plugins-editor": "^2.0.3",
+    "emotion": "^9.2.12",
     "erxes-icon": "^1.0.3",
     "fuzzysearch-highlight": "^1.0.3",
     "graphql": "^0.12.3",
@@ -46,26 +44,29 @@
     "i18n-react": "^0.6.4",
     "moment": "^2.22.1",
     "query-string": "^5.0.0",
-    "react": "^16.3.2",
-    "react-apollo": "^2.1.6",
-    "react-beautiful-dnd": "^7.1.2",
+    "react": "^16.4.2",
+    "react-apollo": "^2.1.11",
+    "react-beautiful-dnd": "9.0.2",
     "react-bootstrap": "^0.31.3",
+    "react-color": "^2.14.1",
     "react-copy-to-clipboard": "^5.0.1",
     "react-datetime": "^2.11.1",
     "react-dom": "^16.3.2",
     "react-markdown": "^3.3.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
+    "react-scripts-ts": "^2.17.0",
     "react-select-plus": "^1.0.0-rc.5",
     "react-toggle": "^4.0.2",
     "scriptjs": "^2.5.8",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
+    "styled-components-ts": "^0.0.14",
     "subscriptions-transport-ws": "0.8.3",
     "ua-parser-js": "^0.7.17"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,json,css}": [
+    "src/**/*.{ts,tsx,json,css}": [
       "prettier --single-quote --write",
       "git add"
     ]
@@ -76,25 +77,29 @@
     "logo": "https://opencollective.com/opencollective/logo.txt"
   },
   "scripts": {
+    "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
     "compress": "gzip -5 --keep -r build/static/js",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
     "postinstall": "opencollective postinstall"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^3.2.12",
-    "@storybook/addon-knobs": "^3.2.12",
-    "@storybook/addon-links": "^3.2.12",
-    "@storybook/react": "^3.2.12",
+    "@types/draft-js": "^0.10.24",
+    "@types/node": "^10.9.4",
+    "@types/react": "^16.4.13",
+    "@types/react-dom": "^16.0.7",
+    "@types/react-router": "^4.0.30",
+    "@types/react-router-dom": "^4.3.0",
+    "@types/styled-components": "^3.0.0",
     "husky": "^0.14.3",
     "lint-staged": "^4.3.0",
     "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
-    "react-scripts": "1.1.4"
+    "typescript": "^3.0.3"
   }
 }

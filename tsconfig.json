@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "outDir": "build/dist",
+    "moduleResolution": "node",
+    "module": "esnext",
+    "target": "es5",
+    "lib": ["es6", "dom", "es2018", "esnext.asynciterable"],
+    "sourceMap": true,
+    "jsx": "react",
+    "rootDir": "src",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": false, //temporal
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "scripts",
+    "webpack"
+  ]
+}
