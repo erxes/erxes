@@ -1,5 +1,5 @@
 {
-  "name": "erxes-app-api",
+  "name": "erxes-api",
   "version": "0.9.6",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
@@ -15,38 +15,38 @@
   "private": true,
   "scripts": {
     "start": "node dist",
-    "dev": "NODE_ENV=development nodemon src --exec babel-node",
-    "build": "babel src --out-dir dist --ignore __tests__,tests --copy-files",
-    "lint": "eslint src",
-    "format": "prettier --write --print-width 100 --single-quote --trailing-comma all 'src/**/*.js'",
+    "dev": "NODE_ENV=development nodemon -e ts src --exec ts-node",
+    "build": "tsc -p tsconfig.prod.json",
+    "lint": "tslint 'src/**/*.ts'",
+    "format": "prettier --write --print-width 120 --single-quote --trailing-comma all 'src/**/*.ts'",
     "precommit": "lint-staged",
-    "test": "jest --runInBand --coverage --forceExit",
-    "loadInitialData": "babel-node ./src/initialData.js",
-    "customCommand": "babel-node ./src/commands/custom.js",
-    "initProject": "babel-node ./src/commands/initProject.js",
-    "engageSubscriptions": "babel-node ./src/commands/engageSubscriptions.js"
+    "test": "jest --runInBand --no-cache --forceExit",
+    "loadInitialData": "mongorestore --db erxes ./initialData",
+    "customCommand": "ts-node ./src/commands/custom.ts",
+    "initProject": "ts-node ./src/commands/initProject.ts",
+    "engageSubscriptions": "ts-node ./src/commands/engageSubscriptions.ts"
   },
   "lint-staged": {
-    "*.js": [
-      "prettier --write --print-width 100 --single-quote --trailing-comma all",
+    "*.ts": [
+      "prettier --write --print-width 120 --single-quote --trailing-comma all",
       "git add"
     ]
   },
   "jest": {
     "collectCoverageFrom": [
-      "src/**/*.{js}",
-      "!src/index.js",
-      "!src/db/factories.js",
-      "!src/db/connection.js",
+      "src/**/*.{ts}",
+      "!src/index.ts",
+      "!src/db/factories.ts",
+      "!src/db/connection.ts",
       "!src/data/schema/**",
       "!src/data/resolvers/subscriptions/**",
-      "!src/data/index.js",
-      "!src/data/utils.js"
+      "!src/data/index.ts",
+      "!src/data/utils.ts"
     ]
   },
   "dependencies": {
     "aws-sdk": "^2.151.0",
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^3.0.0",
     "body-parser": "^1.17.1",
     "cors": "^2.8.1",
     "dotenv": "^4.0.0",
@@ -71,6 +71,7 @@
     "node-schedule": "^1.2.5",
     "nodemailer": "^4.1.3",
     "oauth": "^0.9.15",
+    "request": "^2.88.0",
     "sha256": "^0.2.0",
     "sinon": "^4.0.1",
     "strip": "^3.0.0",
@@ -81,16 +82,31 @@
     "xlsx-populate": "^1.14.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.0",
-    "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-preset-env": "^1.6.0",
-    "eslint": "3.19.0",
+    "@types/body-parser": "^1.17.0",
+    "@types/cors": "^2.8.4",
+    "@types/dotenv": "^4.0.3",
+    "@types/express": "^4.16.0",
+    "@types/formidable": "^1.0.31",
+    "@types/graphql": "^14.0.0",
+    "@types/ioredis": "^3.2.15",
+    "@types/jest": "^23.3.0",
+    "@types/mongodb": "^3.1.2",
+    "@types/mongoose": "^5.2.1",
+    "@types/q": "^1.5.0",
+    "@types/underscore": "^1.8.9",
+    "@types/request": "^2.47.1",
     "faker": "^4.1.0",
     "husky": "^0.13.4",
     "jest": "^21.2.1",
     "jest-tobetype": "^1.1.0",
     "lint-staged": "^3.6.0",
     "nodemon": "^1.11.0",
-    "prettier": "^1.14.2"
+    "prettier": "^1.14.2",
+    "ts-jest": "^22.0.0",
+    "ts-node": "^7.0.0",
+    "tslint": "^5.8.0",
+    "tslint-config-prettier": "^1.1.0",
+    "tslint-config-standard": "^7.0.0",
+    "typescript": "^2.9.2"
   }
 }
