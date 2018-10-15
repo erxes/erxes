@@ -1,21 +1,26 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import { __, Alert, confirm } from 'modules/common/utils';
 import { STORAGE_BOARD_KEY } from 'modules/deals/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import { Boards } from '../components';
 import { mutations, queries } from '../graphql';
 
-type Props = {
+interface IProps extends IRouterProps {
+  history: any;
   boardsQuery: any;
+  currentBoardId?: string;
   addMutation: (params: { variables: { name: string } }) => Promise<any>;
   editMutation: (params: { variables: { name: string } }) => Promise<any>;
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
-};
+}
 
-class BoardsContainer extends React.Component<Props, {}> {
+class BoardsContainer extends React.Component<IProps> {
   render() {
     const {
+      history,
       boardsQuery,
       addMutation,
       editMutation,
@@ -31,13 +36,12 @@ class BoardsContainer extends React.Component<Props, {}> {
           variables: { _id }
         })
           .then(() => {
-            boardsQuery.refetch();
-
             // if deleted board is default board
             if (localStorage.getItem(STORAGE_BOARD_KEY) === _id) {
               localStorage.removeItem(STORAGE_BOARD_KEY);
             }
 
+            history.push('/settings/deals/');
             Alert.success(__('Successfully deleted.'));
           })
           .catch(error => {
@@ -60,8 +64,6 @@ class BoardsContainer extends React.Component<Props, {}> {
         variables: doc
       })
         .then(() => {
-          boardsQuery.refetch();
-
           Alert.success(__('Successfully saved.'));
 
           callback();
@@ -83,17 +85,24 @@ class BoardsContainer extends React.Component<Props, {}> {
   }
 }
 
+const generateOptions = () => ({
+  refetchQueries: ['dealBoards', 'dealBoardGetLast', 'dealPipelines']
+});
+
 export default compose(
   graphql(gql(queries.boards), {
     name: 'boardsQuery'
   }),
   graphql(gql(mutations.boardAdd), {
-    name: 'addMutation'
+    name: 'addMutation',
+    options: generateOptions()
   }),
   graphql(gql(mutations.boardEdit), {
-    name: 'editMutation'
+    name: 'editMutation',
+    options: generateOptions()
   }),
   graphql(gql(mutations.boardRemove), {
-    name: 'removeMutation'
+    name: 'removeMutation',
+    options: generateOptions()
   })
-)(BoardsContainer);
+)(withRouter<IProps>(BoardsContainer));

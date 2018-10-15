@@ -3,6 +3,7 @@ import { IEmailSignature } from 'modules/settings/email/types';
 export interface IUserDetails {
   avatar?: string;
   fullName?: string;
+  shortName?: string;
   description?: string;
   position?: string;
   location?: string;

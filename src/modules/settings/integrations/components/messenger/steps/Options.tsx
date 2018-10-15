@@ -15,9 +15,9 @@ type Props = {
     value: string
   ) => void;
   brandId?: string;
-  languageCode?: string;
   brands?: IBrand[];
   notifyCustomer?: boolean;
+  showFaq?: boolean;
 };
 
 class Options extends React.Component<Props> {
@@ -43,21 +43,17 @@ class Options extends React.Component<Props> {
           />
 
           <FormGroup>
-            <ControlLabel>Language</ControlLabel>
+            <ControlLabel>Show FAQ</ControlLabel>
 
             <FormControl
-              componentClass="select"
-              id="languageCode"
-              defaultValue={this.props.languageCode}
+              checked={this.props.showFaq || false}
+              componentClass="checkbox"
               onChange={(e: React.FormEvent<HTMLElement>) => {
                 const target = e.currentTarget as HTMLInputElement;
-                return this.onChangeFunction('languageCode', target.value);
+
+                return this.onChangeFunction('showFaq', target.checked);
               }}
-            >
-              <option />
-              <option value="mn">Монгол</option>
-              <option value="en">English</option>
-            </FormControl>
+            />
           </FormGroup>
 
           <FormGroup>

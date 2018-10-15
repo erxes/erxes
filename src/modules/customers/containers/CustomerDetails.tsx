@@ -21,6 +21,10 @@ const CustomerDetailsContainer = (props: Props, context) => {
     currentUser
   } = props;
 
+  if (customerDetailQuery.loading) {
+    return <Spinner objective />;
+  }
+
   const taggerRefetchQueries = [
     {
       query: gql(queries.customerDetail),

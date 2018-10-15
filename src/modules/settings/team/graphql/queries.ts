@@ -9,6 +9,7 @@ const userDetail = `
       details {
         avatar
         fullName
+        shortName
         position
         location
         description

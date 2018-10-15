@@ -98,7 +98,7 @@ class Pipelines extends React.Component<Props, State> {
       return (
         <EmptyState
           size="full"
-          text="There is no pipeline in this board."
+          text="There is no pipeline"
           image="/images/robots/robot-05.svg"
         />
       );
@@ -112,11 +112,12 @@ class Pipelines extends React.Component<Props, State> {
     );
   }
 
-  render() {
-    const { boardId, save } = this.props;
-    const { currentPipeline, showModal } = this.state;
+  renderButton() {
+    if (!this.props.boardId) {
+      return null;
+    }
 
-    const rightActionBar = (
+    return (
       <Button
         btnStyle="success"
         size="small"
@@ -126,10 +127,15 @@ class Pipelines extends React.Component<Props, State> {
         Add pipeline
       </Button>
     );
+  }
+
+  render() {
+    const { boardId, save } = this.props;
+    const { currentPipeline, showModal } = this.state;
 
     return (
       <React.Fragment>
-        <Wrapper.ActionBar right={rightActionBar} />
+        <Wrapper.ActionBar right={this.renderButton()} />
         {this.renderContent()}
 
         <PipelineForm

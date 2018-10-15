@@ -4,10 +4,10 @@ import {
   AddNew,
   Body,
   Container,
-  Footer,
   Header,
   Indicator,
-  IndicatorItem
+  IndicatorItem,
+  StageFooter
 } from 'modules/deals/styles/stage';
 import { IDeal, IStage } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
@@ -29,11 +29,11 @@ export default class Stage extends React.Component<Props> {
     const { addDeal } = this.props;
 
     const trigger = (
-      <Footer>
+      <StageFooter>
         <AddNew>
           <Icon icon="add" /> {__('Add a deal')}
         </AddNew>
-      </Footer>
+      </StageFooter>
     );
 
     return (

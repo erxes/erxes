@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { IRouterProps } from '../../../common/types';
 import { Home } from '../components';
 import { queries } from '../graphql';
 
@@ -13,8 +14,8 @@ type HomeContainerProps = {
 };
 
 class HomeContainer extends React.Component<HomeContainerProps> {
-  componentWillReceiveProps() {
-    const { history, boardId } = this.props;
+  componentWillReceiveProps(nextProps) {
+    const { history, boardId } = nextProps;
 
     if (!routerUtils.getParam(history, 'boardId') && boardId) {
       routerUtils.setParams(history, { boardId });
@@ -34,9 +35,16 @@ type LastBoardProps = {
 const LastBoard = (props: LastBoardProps) => {
   const { boardGetLastQuery } = props;
 
+  if (boardGetLastQuery.loading) {
+    return <Spinner objective />;
+  }
+
   const lastBoard = boardGetLastQuery.dealBoardGetLast || {};
 
-  const extendedProps = { ...props, boardId: lastBoard._id };
+  const extendedProps = {
+    ...props,
+    boardId: lastBoard._id
+  };
 
   return <HomeContainer {...extendedProps} />;
 };
