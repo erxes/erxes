@@ -43,9 +43,9 @@ $shadow-black: rgba(0, 0, 0, .1);
   }
 
   .erxes-home-content {
+    margin-top: -40px;
     position: relative;
     z-index: 11;
-    margin-top: -40px;
 
     .erxes-home-item {
       left: 0;
@@ -105,6 +105,10 @@ $shadow-black: rgba(0, 0, 0, .1);
     time {
       color: rgba($white, .7);
       font-size: 11px;
+    }
+
+    .socials {
+      margin-right: 30px;
     }
   }
 }
