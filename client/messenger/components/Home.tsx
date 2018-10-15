@@ -54,7 +54,7 @@ class Home extends React.Component<Props, State> {
       <div className="welcome-info">
         <h3>{greetings.title || __("Welcome")}</h3>
         <div className="description">
-          {greetings.content || __("Welcome description")}
+          {greetings.message || __("Welcome description")}
         </div>
       </div>
     );
