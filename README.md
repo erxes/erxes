@@ -66,4 +66,4 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
  
 
 ## Copyright & License
-<a href="https://github.com/erxes/erxes/blob/develop/LICENSE.md">Copyright (c) 2018 erxes Inc - Released under the [GNU General Public License v3.0]</a>
+Copyright (c) 2018 erxes Inc - Released under the <a href="https://github.com/erxes/erxes/blob/develop/LICENSE.md">[GNU General Public License v3.0]</a>
