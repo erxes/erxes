@@ -34,7 +34,7 @@ export interface IOnlineHour {
 export interface IMessagesItem {
   greetings: { title?: string; message?: string };
   away?: string;
-  thankyou?: string;
+  thank?: string;
   welcome?: string;
 }
 

@@ -115,7 +115,7 @@ class CreateMessenger extends React.Component<Props, State> {
         },
         welcome: message.welcome || '',
         away: message.away || '',
-        thankyou: message.thankyou || ''
+        thank: message.thank || ''
       };
     });
 

@@ -215,10 +215,10 @@ class Intro extends React.Component<Props, State> {
               componentClass="textarea"
               placeholder={__('Write here Thank you message.')}
               rows={3}
-              value={message.thankyou}
+              value={message.thank}
               onChange={e =>
                 this.onMessageChange(
-                  'thankyou',
+                  'thank',
                   (e.target as HTMLInputElement).value
                 )
               }
