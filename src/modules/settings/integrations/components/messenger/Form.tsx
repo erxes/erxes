@@ -129,7 +129,15 @@ class CreateMessenger extends React.Component<Props, State> {
   save(e) {
     e.preventDefault();
 
-    const { title, brandId, languageCode, messages } = this.state;
+    const {
+      title,
+      brandId,
+      languageCode,
+      messages,
+      facebook,
+      twitter,
+      youtube
+    } = this.state;
 
     if (!languageCode) {
       return Alert.error('Set language');
@@ -143,6 +151,8 @@ class CreateMessenger extends React.Component<Props, State> {
       return Alert.error('Choose brand');
     }
 
+    const links = { facebook, twitter, youtube };
+
     this.props.save({
       name: title,
       brandId,
@@ -155,7 +165,8 @@ class CreateMessenger extends React.Component<Props, State> {
         onlineHours: this.state.onlineHours,
         supporterIds: this.state.supporterIds,
         showFaq: this.state.showFaq,
-        messages
+        messages,
+        links
       },
       uiOptions: {
         color: this.state.color,
