@@ -55,7 +55,7 @@
     "react-markdown": "^3.3.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
-    "react-scripts-ts": "^2.17.0",
+    "react-scripts-ts": "^4.0.1",
     "react-select-plus": "^1.0.0-rc.5",
     "react-toggle": "^4.0.2",
     "scriptjs": "^2.5.8",
