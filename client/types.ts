@@ -79,7 +79,7 @@ export interface IIntegrationLink {
 }
 
 export interface IIntegrationMessengerDataMessagesItem {
-  greetings: { title?: string; content?: string };
+  greetings: { title?: string; message?: string };
   away?: string;
   thank?: string;
   welcome?: string;
