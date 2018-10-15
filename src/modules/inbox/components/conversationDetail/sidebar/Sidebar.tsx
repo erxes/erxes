@@ -99,6 +99,7 @@ class Box extends React.Component<BoxProps, BoxState> {
 type IndexProps = {
   conversation: IConversation;
   customer: ICustomer;
+  loading: boolean;
   toggleSection: (params: { name: string; isOpen: boolean }) => void;
   config: { [key: string]: boolean };
   taggerRefetchQueries: any;
@@ -219,13 +220,16 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   renderTabSubContent() {
     const { currentSubTab } = this.state;
+
     const {
       taggerRefetchQueries,
       conversation,
       customer,
       toggleSection,
+      loading,
       config
     } = this.props;
+
     const { kind = '' } = customer.integration || {};
 
     if (currentSubTab === 'details') {
@@ -258,7 +262,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             isOpen={config.showCustomFields || false}
             toggle={toggleSection}
           >
-            <CustomFieldsSection customer={customer} />
+            <CustomFieldsSection loading={loading} customer={customer} />
           </Box>
           {this.renderMessengerData({
             customer,

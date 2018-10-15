@@ -1,22 +1,20 @@
-import { IUser, IUserDoc } from 'modules/auth/types';
+import { IUser } from 'modules/auth/types';
 import { Icon, ModalTrigger, NameCard } from 'modules/common/components';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { EditProfile } from 'modules/settings/profile/components';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { IChannel } from '../../../channels/types';
-import { UserForm } from '../../containers';
 import { List } from './styles';
 
 type Props = {
   user: IUser;
-  saveUser: (_id: string, doc: IUser, callback: (e: string) => void) => void;
-  saveProfile: (variables: IUserDoc) => void;
   channels: IChannel[];
-  currentUser: IUser;
+  renderEditForm: (
+    { closeModal, user }: { closeModal: () => void; user: IUser }
+  ) => React.ReactNode;
 };
 
 class LeftSidebar extends React.Component<Props> {
@@ -46,7 +44,7 @@ class LeftSidebar extends React.Component<Props> {
   render() {
     const { Section } = Sidebar;
     const { Title } = Section;
-    const { user, saveProfile, channels, saveUser, currentUser } = this.props;
+    const { user, channels, renderEditForm } = this.props;
     const { details = {}, links = {} } = user;
 
     return (
@@ -63,17 +61,7 @@ class LeftSidebar extends React.Component<Props> {
               trigger={<Icon icon="edit" />}
               size="lg"
               content={props => {
-                if (currentUser._id === user._id) {
-                  return (
-                    <EditProfile
-                      {...props}
-                      save={saveProfile}
-                      currentUser={currentUser}
-                    />
-                  );
-                }
-
-                return <UserForm {...props} object={user} save={saveUser} />;
+                return renderEditForm({ ...props, user });
               }}
             />
           </InfoWrapper>

@@ -82,9 +82,7 @@ const QuickNavigation = ({
             <MenuItem divider />
 
             <li>
-              <Link to={`/settings/team/details/${currentUser._id}`}>
-                {__('View Profile')}
-              </Link>
+              <Link to="/profile">{__('View Profile')}</Link>
             </li>
 
             <ModalTrigger

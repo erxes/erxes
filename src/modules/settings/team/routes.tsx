@@ -2,7 +2,7 @@ import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { UserList } from './containers';
-import { UserDetails } from './containers';
+import { UserDetail } from './containers';
 
 const routes = () => (
   <React.Fragment>
@@ -24,7 +24,7 @@ const routes = () => (
         const queryParams = queryString.parse(location.search);
         const id = match.params.id;
 
-        return <UserDetails id={id} queryParams={queryParams} />;
+        return <UserDetail _id={id} queryParams={queryParams} />;
       }}
     />
   </React.Fragment>

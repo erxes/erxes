@@ -1,10 +1,10 @@
 import ChangePassword from './ChangePassword';
-import EditProfile from './EditProfile';
+import EditProfileForm from './EditProfileForm';
 import NotificationSettings from './NotificationSettings';
 import PasswordConfirmation from './PasswordConfirmation';
 
 export {
-  EditProfile,
+  EditProfileForm,
   ChangePassword,
   NotificationSettings,
   PasswordConfirmation

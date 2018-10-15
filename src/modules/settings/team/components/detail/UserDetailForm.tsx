@@ -6,7 +6,7 @@ import {
   FlexBody,
   FlexContent
 } from 'modules/activityLogs/styles';
-import { IUser, IUserDoc } from 'modules/auth/types';
+import { IUser } from 'modules/auth/types';
 import {
   DataWithLoader,
   Icon,
@@ -27,17 +27,19 @@ import * as moment from 'moment';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { IActivityLogsUser } from '../../../../activityLogs/types';
+import { IConversation } from '../../../../inbox/types';
 import LeftSidebar from './LeftSidebar';
 
 type Props = {
   user: IUser;
-  currentUser: IUser;
-  saveUser: (_id: string, doc: IUserDoc, callback: (e: string) => void) => void;
-  saveProfile: (variables: IUserDoc) => void;
   channels: IChannel[];
   loadingLogs: boolean;
   activityLogsUser: IActivityLogsUser[];
+  participatedConversations: IConversation[];
   totalConversationCount: number;
+  renderEditForm: (
+    { closeModal, user }: { closeModal: () => void; user: IUser }
+  ) => React.ReactNode;
 };
 
 type State = {
@@ -97,10 +99,10 @@ class UserDetails extends React.Component<Props, State> {
     const { currentTab } = this.state;
 
     const {
-      currentUser,
       activityLogsUser,
       loadingLogs,
       user,
+      participatedConversations,
       totalConversationCount
     } = this.props;
 
@@ -109,7 +111,7 @@ class UserDetails extends React.Component<Props, State> {
     if (currentTab === 'conversation') {
       return (
         <div>
-          {(user.participatedConversations || []).map(conversation => {
+          {participatedConversations.map(conversation => {
             return this.renderConversation(conversation, user);
           })}
 
@@ -125,7 +127,7 @@ class UserDetails extends React.Component<Props, State> {
           count={!loadingLogs && hasActivity ? 1 : 0}
           data={
             <ActivityList
-              user={currentUser}
+              user={user}
               activities={activityLogsUser}
               target={user.details && user.details.fullName}
               type={currentTab} // show logs filtered by type
@@ -139,7 +141,7 @@ class UserDetails extends React.Component<Props, State> {
   }
 
   render() {
-    const { user } = this.props;
+    const { user, channels, renderEditForm } = this.props;
     const { currentTab } = this.state;
     const { details = {} } = user;
 
@@ -182,7 +184,13 @@ class UserDetails extends React.Component<Props, State> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<LeftSidebar {...this.props} />}
+        leftSidebar={
+          <LeftSidebar
+            user={user}
+            channels={channels}
+            renderEditForm={renderEditForm}
+          />
+        }
         content={content}
         transparent={true}
       />

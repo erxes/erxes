@@ -1,68 +1,31 @@
-# erxes [![Build Status](https://travis-ci.org/erxes/erxes.svg?branch=develop)](https://travis-ci.org/erxes/erxes) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=erxes/erxes&amp;utm_campaign=Badge_Grade) [![Dependencies checker](https://david-dm.org/erxes/erxes.svg)](https://david-dm.org/erxes/erxes) [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes) [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/erxes/erxes/develop/LICENSE.md) [![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/) [![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
+# erxes Inc
 
-erxes is a Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot and Intercom with the mission and community-driven ecosystem.
+erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.
 
-The project is maintained by erxes Inc, along with an amazing group of independent [contributors](https://github.com/erxes/erxes/graphs/contributors). We are striving to make customer experience better through our messaging platform.
+<a href="https://demohome.erxes.io/">View demo</a> <b>| </b> <a href="https://github.com/erxes/erxes/archive/master.zip">Download ZIP </a> <b> | </b> <a href="https://gitter.im/erxes/Lobby">Join us on Gitter</a>
 
-## Quick links
+## Status  <br>
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes)  [![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability) [![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)  [![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master) [![Dependencies checker](https://david-dm.org/erxes/erxes.svg)](https://david-dm.org/erxes/erxes) [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes) [![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/) [![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
 
-- [Homepage](https://erxes.io/)
-- [Roadmap](https://github.com/erxes/erxes/projects/1)
-- [Community](https://community.erxes.io/)
-- [Blog](https://blog.erxes.io/)
-- [Developer Blog](https://dev.erxes.io/)
+<a href="https://erxes.io" target="_blank"><img src="https://erxes.io/img/erxes.gif" alt="erxes is an AI meets open source messaging platform for sales, marketing and support "></a>
 
-## Installation script
+## Features
 
-```Shell
-  curl https://raw.githubusercontent.com/erxes/erxes/master/scripts/install.sh | sh
-```
+<img src="https://erxes.io/img/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
-## Manual install
-This repository is the main web app of the erxes platform that consists of 2 other repositories:
+erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem. One of the ways we make customer engagement a lot easier is with unlimited customer service integrations such as social media platforms, messenger, email, SMS for multiple brands. This way, it’s a lot easier to respond quickly to any channels and solve problems on the go.
 
-- [API](https://github.com/erxes/erxes-api)
-- [Widgets](https://github.com/erxes/erxes-widgets)
+* **Team Inbox:** Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and whenever they want. 
+* **Deals:** Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
+* **Leads:** Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.
+* **Engage:** Start converting your prospects into potential customers through email, SMS, messenger or more interactions to drive them to a successful close. 
+* **CRM:** Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your interactions with your customers. 
+* **Knowledge base:** Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions
 
-If you haven't installed **Node** yet [install nodejs](https://github.com/nodejs/node/wiki/Installation)
-
-If you haven't installed **Yarn** yet on your machine:
-```Shell
-curl -o- -L https://yarnpkg.com/install.sh | sh
-```
-
-Clone erxes repository and install its dependencies:
-```Shell
-git clone https://github.com/erxes/erxes.git
-cd erxes
-yarn install
-```
-
-Create `.env.sample` from default settings file and configure it on your own:
-```Shell
-cp .env.sample .env.development
-```
-
-To start the app:
-```Shell
-yarn start
-```
-
-App is running at [http://localhost:3000](http://localhost:3000). You can **login** using the credential in the `.env.development`.
-
-**We haven't done yet:** We need to run [API](https://github.com/erxes/erxes-api) and  [Widgets](https://github.com/erxes/erxes-widgets) to make our erxes app fully functional. Please jump to their repositories.
-
-## [Docker hub](https://www.docker.com/)
-
-Pull images from [dockerhub](https://hub.docker.com/u/erxes/) and running all servers on [docker compose](https://docs.docker.com/compose/overview/).
-```Shell
-docker-compose -f scripts/docker-compose.yml up
-```
-
-Running servers from [mounted path](https://docs.docker.com/compose/compose-file/#volumes) where source code located.
-```Shell
-docker-compose -f scripts/docker-compose-v.yml up
-```
+## Documentation
+  * <a href="https://github.com/erxes/erxes/wiki/Installation">Installation instructions</a> <br>
+  * <a href="https://github.com/erxes/erxes/wiki/Use-erxes-with-Docker">Use erxes with Docker</a> <br>
+  * <a href="https://www.transifex.com/erxes-inc/erxes/">Translate erxes at Transifex</a> <br>
 
 ## Contributors
 
@@ -92,6 +55,15 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/erxes/sponsor/8/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/erxes/sponsor/9/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/9/avatar.svg"></a>
 
-## Copyright & License
-Copyright (c) 2018 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE.md)
+## In-kind sponsors
 
+<a href="https://www.cloudflare.com/" target="_blank"><img src="https://erxes.io/img/logo/cloudflare.png" width="130px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://cloud.google.com/developers/startups/" target="_blank"><img src="https://erxes.io/img/logo/cloud-logo.svg" width="130px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://www.digitalocean.com/" target="_blank"><img src="https://erxes.io/img/logo/digitalocean.png" width="100px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://www.saucelabs.com/" target="_blank"><img src="https://erxes.io/img/logo/saucelabs.png" width="130px;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://www.transifex.com/" target="_blank"><img src="https://erxes.io/img/logo/transifex.png" width="100px;" /></a>
+
+ 
+
+## Copyright & License
+Copyright (c) 2018 erxes Inc - Released under the <a href="https://github.com/erxes/erxes/blob/develop/LICENSE.md">GNU General Public License v3.0</a>
