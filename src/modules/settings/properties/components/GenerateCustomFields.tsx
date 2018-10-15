@@ -8,6 +8,7 @@ import GenerateField from './GenerateField';
 
 type Props = {
   fieldGroup: IFieldGroup;
+  loading?: boolean;
   data: any;
   save: (data: any, callback: (error: Error) => void) => void;
 };
@@ -30,6 +31,12 @@ class GenerateGroup extends React.Component<Props, State> {
     this.onChange = this.onChange.bind(this);
     this.save = this.save.bind(this);
     this.cancelEditing = this.cancelEditing.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.loading && this.props.data !== nextProps.data) {
+      this.setState({ data: nextProps.data });
+    }
   }
 
   save() {
@@ -128,6 +135,7 @@ class GenerateGroup extends React.Component<Props, State> {
 type GroupsProps = {
   fieldsGroups: IFieldGroup[];
   customFieldsData: any;
+  loading?: boolean;
   save: (data: { customFieldsData: any }, callback: () => any) => void;
 };
 
@@ -150,7 +158,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
   }
 
   render() {
-    const { fieldsGroups, customFieldsData } = this.props;
+    const { loading, fieldsGroups, customFieldsData } = this.props;
 
     return fieldsGroups.map(fieldGroup => {
       const data = {};
@@ -162,6 +170,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
       return (
         <GenerateGroup
           key={fieldGroup._id}
+          loading={loading}
           data={data}
           fieldGroup={fieldGroup}
           save={this.saveGroup}

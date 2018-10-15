@@ -11,12 +11,13 @@ import { ICustomer } from '../../types';
 
 type Props = {
   customer: ICustomer;
+  loading?: boolean;
   customersEdit: (doc: { variables: ICustomer }) => Promise<any>;
   fieldsGroupsQuery: any;
 };
 
 const CustomFieldsSection = (props: Props) => {
-  const { customer, customersEdit, fieldsGroupsQuery } = props;
+  const { loading, customer, customersEdit, fieldsGroupsQuery } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
@@ -42,6 +43,7 @@ const CustomFieldsSection = (props: Props) => {
 
   const updatedProps = {
     save,
+    loading,
     customFieldsData: customer.customFieldsData || {},
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
