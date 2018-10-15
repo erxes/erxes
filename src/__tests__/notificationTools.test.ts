@@ -83,7 +83,7 @@ describe('testings helper methods', () => {
 
     const content = `You have invited to '${channel.name}' channel.`;
 
-    jest.spyOn(utils, 'sendNotification').mockImplementation(() => ({}));
+    const spySendNotification = jest.spyOn(utils, 'sendNotification').mockImplementation(() => ({}));
 
     await sendChannelNotifications(channel);
 
@@ -96,8 +96,6 @@ describe('testings helper methods', () => {
       receivers: channel && channel.memberIds ? channel.memberIds.filter(id => id !== channel.userId) : null,
     });
 
-    if (utils.sendNotification) {
-      expect(utils.sendNotification.mock.calls.length).toBe(1);
-    }
+    expect(spySendNotification.mock.calls.length).toBe(1);
   });
 });

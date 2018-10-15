@@ -21,6 +21,7 @@ interface IListArgs {
 
 interface ICountArgs extends IListArgs {
   only?: string;
+  byFakeSegment: any;
 }
 
 interface IIn {
@@ -61,7 +62,8 @@ const listQuery = async (params: IListArgs) => {
   // Filter by segments
   if (params.segment) {
     const segment = await Segments.findOne({ _id: params.segment });
-    const query = QueryBuilder.segments(segment);
+    const query = await QueryBuilder.segments(segment);
+
     Object.assign(selector, query);
   }
 
@@ -123,6 +125,7 @@ const count = async (query: any, args: ICountArgs) => {
   const selector = await listQuery(args);
 
   const findQuery = { ...selector, ...query };
+
   return Companies.find(findQuery).count();
 };
 
@@ -135,7 +138,7 @@ const countBySegment = async (args: ICountArgs): Promise<ICountBy> => {
   });
 
   for (const s of segments) {
-    counts[s._id] = await count(QueryBuilder.segments(s), args);
+    counts[s._id] = await count(await QueryBuilder.segments(s), args);
   }
 
   return counts;
@@ -197,6 +200,7 @@ const companyQueries = {
   async companyCounts(_root, args: ICountArgs) {
     const counts = {
       bySegment: {},
+      byFakeSegment: 0,
       byTag: {},
       byBrand: {},
       byLeadStatus: {},
@@ -231,6 +235,11 @@ const companyQueries = {
           }
         }
         break;
+    }
+
+    // Count companies by fake segment
+    if (args.byFakeSegment) {
+      counts.byFakeSegment = await count(await QueryBuilder.segments(args.byFakeSegment), args);
     }
 
     return counts;

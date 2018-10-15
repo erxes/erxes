@@ -205,6 +205,8 @@ describe('engage message mutation tests', () => {
   `;
 
   test('Add engage message', async () => {
+    process.env.AWS_SES_ACCESS_KEY_ID = '';
+    process.env.AWS_SES_SECRET_ACCESS_KEY = '';
     process.env.AWS_SES_CONFIG_SET = 'aws-ses';
     process.env.AWS_ENDPOINT = '123';
 
@@ -219,6 +221,12 @@ describe('engage message mutation tests', () => {
     sandbox.stub(awsRequests, 'getVerifiedEmails').callsFake(() => {
       return new Promise(resolve => {
         return resolve({ VerifiedEmailAddresses: [user.email] });
+      });
+    });
+
+    sandbox.stub(engageUtils, 'send').callsFake(() => {
+      return new Promise(resolve => {
+        return resolve('sent');
       });
     });
 

@@ -121,7 +121,19 @@ describe('facebook integration: save webhook response', () => {
 
     let conversation = await Conversations.findOne();
     const customer = await Customers.findOne();
+
+    if (!customer || !customer.facebookData) {
+      throw new Error('Customer not found');
+    }
     const message = await ConversationMessages.findOne();
+
+    if (!message) {
+      throw new Error('Message not found');
+    }
+
+    if (!conversation || !conversation.facebookData) {
+      throw new Error('Conversation not found');
+    }
 
     // check conversation field values
     expect(conversation.integrationId).toBe(integration._id);
@@ -187,11 +199,20 @@ describe('facebook integration: save webhook response', () => {
 
     // check conversation field updates
     conversation = await Conversations.findOne();
+
+    if (!conversation || !conversation.readUserIds) {
+      throw new Error('conversation not found');
+    }
+
     expect(conversation.readUserIds.length).toBe(0);
 
     const newMessage = await ConversationMessages.findOne({
       _id: { $ne: message._id },
     });
+
+    if (!newMessage) {
+      throw new Error('conversation not found');
+    }
 
     // check message fields
     expect(newMessage.conversationId).toBe(conversation._id);
@@ -267,8 +288,22 @@ describe('facebook integration: save webhook response', () => {
     expect(await ConversationMessages.find().count()).toBe(1); // 1 message
 
     let conversation = await Conversations.findOne();
+
+    if (!conversation || !conversation.facebookData) {
+      throw new Error('Conversation not found');
+    }
+
     const customer = await Customers.findOne();
+
+    if (!customer || !customer.facebookData) {
+      throw new Error('Customer not found');
+    }
+
     const message = await ConversationMessages.findOne();
+
+    if (!message || !message.facebookData) {
+      throw new Error('Conversation not found');
+    }
 
     // check conversation field values
     expect(conversation.createdAt).toBeDefined();
@@ -349,11 +384,21 @@ describe('facebook integration: save webhook response', () => {
 
     // check conversation field updates
     conversation = await Conversations.findOne();
+
+    if (!conversation || !conversation.readUserIds) {
+      throw new Error('Conversation not found');
+    }
+
     expect(conversation.readUserIds.length).toBe(0);
 
     const newMessage = await ConversationMessages.findOne({
       _id: { $ne: message._id },
     });
+
+    if (!newMessage || !newMessage.facebookData) {
+      throw new Error('Message not found');
+    }
+
     // check message fields
     expect(newMessage.createdAt).toBeDefined();
     expect(newMessage.conversationId).toBe(conversation._id);

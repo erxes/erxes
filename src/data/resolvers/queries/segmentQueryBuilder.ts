@@ -1,11 +1,14 @@
 import * as moment from 'moment';
-import { ISegmentDocument } from '../../../db/models/definitions/segments';
-
-export type TSegments = { $and: any[] } | {};
+import { Segments } from '../../../db/models';
+import { ICondition, ISegment, ISegmentDocument } from '../../../db/models/definitions/segments';
 
 export default {
-  segments(segment?: ISegmentDocument | any, headSegment?: any): TSegments {
+  async segments(segment?: ISegment | null, headSegment?: ISegmentDocument | null): Promise<any> {
     const query: any = { $and: [] };
+
+    if (!segment || !segment.connector || !segment.conditions) {
+      return {};
+    }
 
     const childQuery = {
       [segment.connector === 'any' ? '$or' : '$and']: segment.conditions.map(condition => ({
@@ -18,8 +21,7 @@ export default {
     }
 
     // Fetching parent segment
-    const embeddedParentSegment = typeof segment.getParentSegment === 'function' ? segment.getParentSegment() : null;
-
+    const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
     const parentSegment = headSegment || embeddedParentSegment;
 
     if (parentSegment) {
@@ -38,13 +40,14 @@ export default {
   },
 };
 
-function convertConditionToQuery(condition: any) {
-  const { operator, type, dateUnit, value } = condition;
+function convertConditionToQuery(condition: ICondition) {
+  const { operator, type, dateUnit = '', value = '' } = condition;
+
   let transformedValue;
 
   switch (type) {
     case 'string':
-      transformedValue = value && value.toLowerCase();
+      transformedValue = value.toLowerCase();
       break;
     case 'number':
     case 'date':
