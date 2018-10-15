@@ -6,8 +6,7 @@
   "There is no data": "Мэдээлэл олдсонгүй",
   "There is no data.": "Мэдээлэл олдсонгүй.",
   "Load more": "Дэлгэрэнгүй үзэх",
-  "There aren't any activities at the moment.":
-    "Одоогоор үйлдэл хийгдээгүй байна.",
+  "There aren't any activities at the moment.": "Одоогоор үйлдэл хийгдээгүй байна.",
   "Reset your password": "Нууц үгээ шинэчлэх",
   "Email me the instruction": "Надад зааварчилгааг илгээнэ үү",
   "Sign in": "Нэвтрэх",
@@ -120,8 +119,7 @@
   "Twitter quote": "Твиттер ишлэл",
   "Retweet": "Дахин жиргэх",
   "Screen name": "Дэлгэцийн нэр",
-  "Don't see the result you're looking for? ":
-    "Таны хайсан нөхцлөөр илэрц олдоогүй юу? ",
+  "Don't see the result you're looking for? ": "Таны хайсан нөхцлөөр илэрц олдоогүй юу? ",
   "Merged Info": "Нэгтгэгдсэн мэдээлэл",
   "E-mail": "Имэйл",
   "Integrations": "Интеграцууд",
@@ -221,32 +219,22 @@
   "Participating": "Оролцсон",
   "Resolved": "Шийдэгдсэн",
   "View more": "Дэлгэрэнгүй үзэх",
-  "Customer is offline Click to hide and send messages and they will receive them the next time they are online":
-    "Хэрэглэгч офлайн байна. Зурвас нуух болон илгээх дарж дараагийн удаа харилцагч онлайнаар хүлээж авна.",
+  "Customer is offline Click to hide and send messages and they will receive them the next time they are online": "Хэрэглэгч офлайн байна. Зурвас нуух болон илгээх дарж дараагийн удаа харилцагч онлайнаар хүлээж авна.",
   "No templates": "Тэмплэйт байхгүй байна",
   "Save as template": "Тэмплэйт - р хадгалах",
-  "Daily First Response Resolve Rate":
-    "Өдөр тутмын анхны арга хэмжээ авсан байдал",
-  "Daily First Response Resolve Rate by Team Members":
-    "Багийн гишүүд өдөр тутмын анхны арга хэмжээ авсан байдал",
-  "Daily Response Close Resolve Rate by Team Members":
-    "Багийн гишүүд өдөр тутмын анхны арга хэмжээ авч хаасан байдал",
+  "Daily First Response Resolve Rate": "Өдөр тутмын анхны арга хэмжээ авсан байдал",
+  "Daily First Response Resolve Rate by Team Members": "Багийн гишүүд өдөр тутмын анхны арга хэмжээ авсан байдал",
+  "Daily Response Close Resolve Rate by Team Members": "Багийн гишүүд өдөр тутмын анхны арга хэмжээ авч хаасан байдал",
   "Volume Report": "Хандалтын тайлан",
-  "Feedbacks gathered through various customer engagement channels.":
-    "Хэрэглэгчийн оролцооны сувгуудыг ашиглан цуглуулсан мэдээлэл.",
+  "Feedbacks gathered through various customer engagement channels.": "Хэрэглэгчийн оролцооны сувгуудыг ашиглан цуглуулсан мэдээлэл.",
   "Response Report": "Хариултын тайлан ",
-  "Total number of response for customer feedbacks, by each staff.":
-    "Харилцагчдын санал асуулгын хариулт/ажилчин тус бүрээр/",
+  "Total number of response for customer feedbacks, by each staff.": "Харилцагчдын санал асуулгын хариулт/ажилчин тус бүрээр/",
   "Response Close Report": "Хариу өгч хаасан ажлын тайлан",
-  "Average time of each staff solving problems that based on customer feedbacks.":
-    "Хэрэглэгчдийн санал асуулгад суурилсан ажилтны асуудал шийдвэрлэх дундаж хугацаа.",
+  "Average time of each staff solving problems that based on customer feedbacks.": "Хэрэглэгчдийн санал асуулгад суурилсан ажилтны асуудал шийдвэрлэх дундаж хугацаа.",
   "First Response Report": "Эхний хариу өгөлтийн тайлан",
-  "Responding time for a single feedback. Stats will define average response time by each staff.":
-    "Нэгж санал хүсэлтийн хариу өгөх хугацаа. Статистикууд нь ажилтнуудын дундаж хариултын хугацааг тодорхойлно.",
-  "Daily Response Close Resolve Rate":
-    "Өдөр тутмын асуудал шийдвэрлэлтийн түвшин",
-  "Daily Response Close Resolve rate by Team Members":
-    "Багийн гишүүдийн өдөр тутмын асуудал шийдвэрлэлтийн түвшин",
+  "Responding time for a single feedback. Stats will define average response time by each staff.": "Нэгж санал хүсэлтийн хариу өгөх хугацаа. Статистикууд нь ажилтнуудын дундаж хариултын хугацааг тодорхойлно.",
+  "Daily Response Close Resolve Rate": "Өдөр тутмын асуудал шийдвэрлэлтийн түвшин",
+  "Daily Response Close Resolve rate by Team Members": "Багийн гишүүдийн өдөр тутмын асуудал шийдвэрлэлтийн түвшин",
   "Response Times summary": "Нийт хариу өгөх хугацаа",
   "Response Trend": "Хариу арга хэмжээ",
   "Punch card": "Панч карт",
@@ -263,12 +251,10 @@
   "Add Category": "Категори нэмэх",
   "Add Article": "Асуулт нэмэх",
   "Customer engagement. REDEFINED.": "Customer engagement. REDEFINED.",
-  "Democratizing business": "Democratizing business",
-  "erxes is an AI meets open source messaging platform for sales, marketing and support":
-    "Хиймэл оюун ухаанд суурилсан борлуулалт, хэрэглэгчтэй харилцах, маркетингийн багт зориулсан нээлттэй эхийн платформ",
+  "erxes is an AI meets open source messaging platform for sales, marketing and support": "Хиймэл оюун ухаанд суурилсан борлуулалт, хэрэглэгчтэй харилцах, маркетингийн багт зориулсан нээлттэй эхийн платформ",
+  "Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.": "Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.",
   "404. This page is not found.": "404. Хуудас олдсонгүй.",
-  "erxes is an open-source messaging platform for customer success":
-    "Хиймэл оюун ухаанд суурилсан борлуулалт, хэрэглэгчтэй харилцах, маркетингийн багт зориулсан нээлттэй эхийн платформ",
+  "erxes is an open-source messaging platform for customer success": "Хиймэл оюун ухаанд суурилсан борлуулалт, хэрэглэгчтэй харилцах, маркетингийн багт зориулсан нээлттэй эхийн платформ",
   "Notification settings": "Мэдэгдлийн тохиргоо",
   "Mark Page Read": "Хуудсыг уншсан гэж тэмдэглэх",
   "Mark All Read": "Бүгдийг уншсан гэж тэмдэглэх",
@@ -289,19 +275,15 @@
   "Sub segment of": "Дэд сегмент",
   "Color": "Өнгө",
   "Filters": "Шүүлтийн нөхцлүүд",
-  "User(s) will recieve this message":
-    "Хэрэглэгч(д) энэхүү мессэжийг хүлээж авах болно",
+  "User(s) will recieve this message": "Хэрэглэгч(д) энэхүү мессэжийг хүлээж авах болно",
   "Color code": "Өнгөний код",
   "Engage Message": "Маркетингийн зурвас",
   "Item counts": "Талбарын тоо",
-  "There is no integration in this Brand":
-    "Энэ брэндэд интеграци байхгүй байна",
+  "There is no integration in this Brand": "Энэ брэндэд интеграци байхгүй байна",
   "Appearance": "Харагдах байдал",
-  "Hours, Availability & Other configs":
-    "Цаг, Боломжтой байдал  & Бусад тохиргоо",
+  "Hours, Availability & Other configs": "Цаг, Боломжтой байдал  & Бусад тохиргоо",
   "There is no brand": "Брэнд байхгүй байна",
-  "There is no integration in this channel.":
-    "Энэ сувагт интеграци байхгүй байна.",
+  "There is no integration in this channel.": "Энэ сувагт интеграци байхгүй байна.",
   "Template markup": "Загварын тэмдэглэгээ",
   "Use html template here": "HTML тэмплэйт энд ашиглана уу",
   "Choose your email template type": "Имэйл тэмплэйтээ сонгоно уу",
@@ -314,8 +296,7 @@
   "Get notification by email": "Мэдэгдэл имэйлээр хүлээж авах",
   "Admin": "Админ",
   "Contributor": "Координатор",
-  "We welcome you warmly to erxes and look forward to a long term healthy working association with us.":
-    "Бид та бүхнийг урт удаан хугацаанд эрүүл зөв харилцаатай хамтран ажиллахыг урьж байна.",
+  "We welcome you warmly to erxes and look forward to a long term healthy working association with us.": "Бид та бүхнийг урт удаан хугацаанд эрүүл зөв харилцаатай хамтран ажиллахыг урьж байна.",
   "Hi, any questions?": "Сайн байна уу? Танд асуулт байна уу?",
   "1 hour ago": "1 цагийн өмнө",
   "We need your help!": "Бидэнд таны тусламж хэрэгтэй байна!",
@@ -336,8 +317,7 @@
   "Choose a custom color": "Өнгө сонгох",
   "Choose a wallpaper": " Зураг сонгох",
   "Choose a logo": "Лого сонгох",
-  "Visible online to visitor or customer":
-    "Зочин болон харилцагчид онлайнаар харагдана",
+  "Visible online to visitor or customer": "Зочин болон харилцагчид онлайнаар харагдана",
   "Online messaging": "Онлайн зурвас илгээх",
   "Welcome message": "Анхны зурвас",
   "Offline messaging": "Оффлайн зурвас илгээх",
@@ -376,11 +356,9 @@
   "Code": "Код",
   "Profile settings": "Профайл тохиргоо",
   "Change Password": "Нууц үг өөрчлөх",
-  "Signatures are only included in response emails.":
-    "Гарын үсэг нь зөвхөн хариу имэйлүүдэд багтана.",
+  "Signatures are only included in response emails.": "Гарын үсэг нь зөвхөн хариу имэйлүүдэд багтана.",
   "Signature template": "Гарын үсгийн тэмплэйт",
-  "You can use Markdown to format your signature.":
-    "Та \"Markdown\" ашиглан өөрийн гарын үсэгийг форматлах боломжтой.",
+  "You can use Markdown to format your signature.": "Та \"Markdown\" ашиглан өөрийн гарын үсэгийг форматлах боломжтой.",
   "Password": "Нууц үг",
   "Password confirmation": "Нууц үг баталгаажуулалт",
   "Choose the channels": " Сувгуудын сонгох",
@@ -393,8 +371,7 @@
   "Add tag": "Таг нэмэх",
   "Company": "Компани",
   "New message ": "Шинэ зурвас",
-  "There aren’t any activities at the moment.":
-    "Одоогоор хийгдсэн үйлдэл байхгүй байна.",
+  "There aren’t any activities at the moment.": "Одоогоор хийгдсэн үйлдэл байхгүй байна.",
   "This item is required": "Заавал бөглөнө үү",
   "Manage fields": "Талбар  тохируулах",
   "Add integrations ": "Интеграци нэмэх",
@@ -425,10 +402,8 @@
   "Youtube": "Юүтүб",
   "Github": "Гитхаб",
   "Edit response": "Хариултыг засах",
-  "To send your message press Enter and Shift + Enter to add a new line":
-    "Тэмдэглэлээ илгээхийн тулд Enter шинэ мөр нэмэх бол Shift + Enter дарна уу",
-  "To send your note press Enter and Shift + Enter to add a new line":
-    "Тэмдэглэлээ илгээхийн тулд Enter шинэ мөр нэмэх бол Shift + Enter дарна уу",
+  "To send your message press Enter and Shift + Enter to add a new line": "Тэмдэглэлээ илгээхийн тулд Enter шинэ мөр нэмэх бол Shift + Enter дарна уу",
+  "To send your note press Enter and Shift + Enter to add a new line": "Тэмдэглэлээ илгээхийн тулд Enter шинэ мөр нэмэх бол Shift + Enter дарна уу",
   "Type to search": "Энд бичиж хайна уу",
   "Members": "Гишүүд",
   "Choose integrations": "Интеграци сонгох",
@@ -458,8 +433,7 @@
   "Website:": "Цахим хуудас:",
   "Industry:": "Салбар:",
   "Plan:": "Төлөвлөгөө:",
-  "There arent't any groups and fields":
-    "Энэ талбарт группын мэдээлэл байхгүй байна",
+  "There arent't any groups and fields": "Энэ талбарт группын мэдээлэл байхгүй байна",
   "Please add property Group first": "Эхлээд өмчийн группыг нэмнэ үү",
   "Add group": "Групп нэмэх",
   "Add Property": "Талбар нэмэх",
@@ -483,10 +457,8 @@
   "Draft": "Түр хадгалах",
   "Paused": "Зогсоосон",
   "Your messages": "Таны зурвас",
-  "Delivered inside your app Reach active users":
-    "Аппликейшний идэвхтэй хэрэглэгчдэд хүргэсэн",
-  "Delivered to a user s email inbox Customize with your own templates":
-    "Харилцагчийн имэйлийн хайрцаганд хүргэгдсэн",
+  "Delivered inside your app Reach active users": "Аппликейшний идэвхтэй хэрэглэгчдэд хүргэсэн",
+  "Delivered to a user s email inbox Customize with your own templates": "Харилцагчийн имэйлийн хайрцаганд хүргэгдсэн",
   "email": "имэйл",
   "Create segment": "Сегмент үүсгэх",
   "customers": "харилцагчид",
@@ -667,8 +639,7 @@
   "All customers imported successfully": "Бүх харилцагчдыг амжилттай орууллаа",
   "There aren't any imports": "Оруулсан мэдээлэл алга байна",
   "Successfully Removed all customers": "Бүх харилцагчдыг амжилттай устгалаа",
-  "You can only import max 600 at a time":
-    "Харилцагчид оруулах дээд хэмжээ: 600",
+  "You can only import max 600 at a time": "Харилцагчид оруулах дээд хэмжээ: 600",
   "Invalid import type": "Буруу төрөл сонгосон байна",
   "Last updated": "Сүүлд өөрчилсөн",
   "Filter by lead status": "Лийдийн төлөвөөр шүүх",
@@ -687,5 +658,10 @@
   "Choose schedule type": "Цагын хуваарь төрөл сонгоно уу",
   "Choose schedule time": "Цагын хуваарь цаг сонгоно уу",
   "Choose schedule day": "Цагын хуваарь өдөр сонгоно уу",
-  "Choose schedule month": "Цагын хуваарь сар сонгоно уу"
+  "Choose schedule month": "Цагын хуваарь сар сонгоно уу",
+  "Won": "Ялсан",
+  "Lost": "Алдсан",
+  "In Progress": "Идэвхитэй",
+  "It`s size exceeds the limit 10mb": "Хэмжээ 10mb-аас хэтэрсэн байна",
+  "Congrats! Your email sent successfully!": "Баяр хүргье! Таны и-мэйл амжилттай илгээгдлээ."
 }

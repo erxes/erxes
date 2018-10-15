@@ -1,0 +1,67 @@
+import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { AuthBox, Links } from '../styles';
+
+type Props = {
+  forgotPassword: (
+    doc: { email: string },
+    callback: (e: Error) => void
+  ) => void;
+};
+
+class ForgotPassword extends React.Component<Props, { email: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = { email: '' };
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleEmailChange = this.handleEmailChange.bind(this);
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+
+    const { email } = this.state;
+
+    this.props.forgotPassword({ email }, err => {
+      if (!err) {
+        window.location.href = '/sign-in';
+      }
+    });
+  }
+
+  handleEmailChange(e) {
+    e.preventDefault();
+    this.setState({ email: e.target.value });
+  }
+
+  render() {
+    return (
+      <AuthBox>
+        <h2>{__('Reset your password')}</h2>
+        <form onSubmit={this.handleSubmit}>
+          <FormGroup>
+            <FormControl
+              type="email"
+              placeholder={__('registered@email.com')}
+              value={this.state.email}
+              required
+              onChange={this.handleEmailChange}
+            />
+          </FormGroup>
+          <Button btnStyle="success" type="submit" block>
+            Email me the instruction
+          </Button>
+        </form>
+        <Links>
+          <Link to="/sign-in">{__('Sign in')}</Link>
+        </Links>
+      </AuthBox>
+    );
+  }
+}
+
+export default ForgotPassword;
