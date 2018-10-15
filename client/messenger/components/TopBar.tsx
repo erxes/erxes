@@ -22,7 +22,6 @@ type State = {
 
 class TopBar extends React.Component<Props, State> {
   private node: HTMLDivElement | null = null;
-
   constructor(props: Props) {
     super(props);
 
