@@ -1,5 +1,6 @@
-import UserDetails from './UserDetails';
+import UserDetail from './UserDetail';
+import UserDetailForm from './UserDetailForm';
 import UserForm from './UserForm';
 import UserList from './UserList';
 
-export { UserList, UserForm, UserDetails };
+export { UserList, UserForm, UserDetailForm, UserDetail };

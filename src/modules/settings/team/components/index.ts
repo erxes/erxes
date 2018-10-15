@@ -1,5 +1,5 @@
-import UserDetails from './detail/UserDetails';
+import UserDetailForm from './detail/UserDetailForm';
 import UserForm from './UserForm';
 import UserList from './UserList';
 
-export { UserList, UserForm, UserDetails };
+export { UserList, UserForm, UserDetailForm };
