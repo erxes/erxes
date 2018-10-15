@@ -125,12 +125,13 @@ class BasicInfo extends React.Component<Props> {
   renderInfo() {
     const { customer } = this.props;
     const { links = {}, isUser } = customer;
+    const avatar = customer.avatar !== null ? true : false;
 
     return (
       <React.Fragment>
         <InfoWrapper>
           <AvatarWrapper isUser={isUser}>
-            <NameCard.Avatar customer={customer} size={50} />
+            <NameCard.Avatar customer={customer} size={50} hasAvatar={avatar} />
             {isUser ? <Icon icon="check" /> : <Icon icon="minus" />}
           </AvatarWrapper>
 

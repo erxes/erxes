@@ -12,6 +12,7 @@ const AvatarStyled = styledTS<{
   messenger?: boolean;
   twitter?: boolean;
   facebook?: boolean;
+  hasAvatar?: boolean;
 }>(styled.span)`
   display: block;
   max-width: 80px;
@@ -23,6 +24,7 @@ const AvatarStyled = styledTS<{
   color: ${colors.colorWhite};
 
   background: ${props =>
+    (props.hasAvatar && 'none') ||
     (props.isUser && colors.colorCoreTeal) ||
     (props.messenger && colors.colorPrimary) ||
     (props.twitter && colors.socialTwitter) ||
@@ -60,6 +62,7 @@ type Props = {
   company?: ICompany;
   size?: number;
   icon?: React.ReactNode;
+  hasAvatar?: boolean;
 };
 
 class Avatar extends React.Component<Props> {
@@ -79,11 +82,12 @@ class Avatar extends React.Component<Props> {
   }
 
   generateTypes() {
-    const { customer } = this.props;
+    const { customer, hasAvatar } = this.props;
 
     if (customer) {
       return {
         isUser: customer.isUser,
+        hasAvatar,
         messenger: customer.messengerData && true,
         twitter: customer.twitterData && true,
         facebook: customer.facebookData && true

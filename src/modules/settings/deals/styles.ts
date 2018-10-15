@@ -4,9 +4,10 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { SidebarListItem } from '../styles';
 
-const BoardItem = styledTS(SidebarListItem.extend)`
+const BoardItem = styledTS<{ isActive: boolean }>(SidebarListItem.extend)`
   overflow: hidden;
-
+  background: ${props => props.isActive && colors.bgActive};
+  
   > button {
     padding: 10px 15px 10px 20px;
 

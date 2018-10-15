@@ -14,6 +14,10 @@ type Props = {
 const CustomerDetailsContainer = (props: Props, context) => {
   const { id, customerDetailQuery, customerActivityLogQuery } = props;
 
+  if (customerDetailQuery.loading) {
+    return <Spinner objective />;
+  }
+
   const taggerRefetchQueries = [
     {
       query: gql(queries.customerDetail),

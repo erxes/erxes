@@ -11,7 +11,7 @@ const Spin = styledTS<{ objective: boolean }>(styled.div)`
   position: ${props => props.objective && 'relative'};
 `;
 
-const MainLoader = styled.div`
+export const MainLoader = styled.div`
   position: absolute;
   left: 50%;
   top: 50%;

@@ -1,3 +1,4 @@
+import { DataWithLoader } from 'modules/common/components';
 import * as React from 'react';
 import { IArticle } from '../../types';
 import { ArticleRow } from './';
@@ -8,10 +9,11 @@ type Props = {
   currentCategoryId: string;
   topicIds: string;
   remove: (_id: string) => void;
+  loading: boolean;
 };
 
 class ArticleList extends React.Component<Props> {
-  render() {
+  renderArticles() {
     const {
       articles,
       queryParams,
@@ -20,18 +22,31 @@ class ArticleList extends React.Component<Props> {
       remove
     } = this.props;
 
+    return articles.map(article => (
+      <ArticleRow
+        key={article._id}
+        queryParams={queryParams}
+        currentCategoryId={currentCategoryId}
+        topicIds={topicIds}
+        article={article}
+        remove={remove}
+      />
+    ));
+  }
+
+  render() {
+    const { articles, loading } = this.props;
+
     return (
       <React.Fragment>
-        {articles.map(article => (
-          <ArticleRow
-            key={article._id}
-            queryParams={queryParams}
-            currentCategoryId={currentCategoryId}
-            topicIds={topicIds}
-            article={article}
-            remove={remove}
-          />
-        ))}
+        <DataWithLoader
+          loading={loading}
+          count={articles.length}
+          emptyText="There is no article"
+          emptyImage="/images/robots/robot-05.svg"
+          objective
+          data={this.renderArticles()}
+        />
       </React.Fragment>
     );
   }

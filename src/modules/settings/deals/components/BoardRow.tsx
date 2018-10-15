@@ -14,6 +14,7 @@ type Props = {
     callback: () => void,
     brand: IBoard
   ) => void;
+  isActive: boolean;
 };
 
 class BoardRow extends React.Component<Props, {}> {
@@ -53,10 +54,10 @@ class BoardRow extends React.Component<Props, {}> {
   }
 
   render() {
-    const { board } = this.props;
+    const { board, isActive } = this.props;
 
     return (
-      <BoardItem key={board._id}>
+      <BoardItem key={board._id} isActive={isActive}>
         <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}

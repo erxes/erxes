@@ -5,6 +5,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import colors from 'modules/common/styles/colors';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IBrand } from 'modules/settings/brands/types';
 import {
@@ -82,7 +83,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     super(props);
 
     let code = '',
-      color = '';
+      color = colors.colorPrimary;
 
     // showed install code automatically in edit mode
     if (props.topic) {

@@ -97,7 +97,6 @@ export const CUSTOMER_DATAS = {
 };
 
 export const LEAD_STATUS_TYPES = {
-  '': '',
   new: 'New',
   open: 'Open',
   inProgress: 'In Progress',
@@ -109,7 +108,6 @@ export const LEAD_STATUS_TYPES = {
 };
 
 export const LIFECYCLE_STATE_TYPES = {
-  '': '',
   subscriber: 'Subscriber',
   lead: 'Lead',
   marketingQualifiedLead: 'Marketing Qualified Lead',
