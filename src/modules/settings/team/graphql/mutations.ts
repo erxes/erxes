@@ -48,4 +48,4 @@ const usersEditProfile = `
   }
 `;
 
-export default { usersEdit, usersEditProfile };
+export default { usersEditProfile, usersEdit };

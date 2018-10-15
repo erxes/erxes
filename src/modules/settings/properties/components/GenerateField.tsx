@@ -22,9 +22,13 @@ export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { field, defaultValue } = props;
-
     this.onChange = this.onChange.bind(this);
+
+    this.state = this.generateState(props);
+  }
+
+  generateState = props => {
+    const { field, defaultValue } = props;
 
     const state = { value: defaultValue, checkBoxValues: [] };
 
@@ -32,17 +36,12 @@ export default class GenerateField extends React.Component<Props, State> {
       state.checkBoxValues = defaultValue;
     }
 
-    this.state = state;
-  }
+    return state;
+  };
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.defaultValue !== this.props.defaultValue) {
-      const defaultValue = nextProps.defaultValue || '';
-
-      this.setState({
-        value: defaultValue,
-        checkBoxValues: defaultValue ? [...defaultValue] : []
-      });
+      this.setState(this.generateState(nextProps));
     }
   }
 

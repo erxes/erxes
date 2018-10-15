@@ -10,6 +10,7 @@ import ImportHistory from './importHistory/routes';
 import IntegrationsRoutes from './integrations/routes';
 import MainRoutes from './main/routes';
 import ProductService from './productService/routes';
+import ProfileRoutes from './profile/routes';
 import PropertiesRoutes from './properties/routes';
 import ResponseTemplatesRoutes from './responseTemplates/routes';
 import TeamRoutes from './team/routes';
@@ -20,6 +21,7 @@ const routes = () => (
     <ChannelsRoutes key="ChannelsRoutes" />
     <BrandsRoutes key="BrandsRoutes" />
     <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />
+    <ProfileRoutes key="profile" />
     <TeamRoutes key="team" />
     <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
     <EmailRoutes key="EmailRoutes" />

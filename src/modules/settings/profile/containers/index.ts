@@ -1,4 +1,5 @@
 import ChangePassword from './ChangePassword';
 import NotificationSettings from './NotificationSettings';
+import Profile from './Profile';
 
-export { ChangePassword, NotificationSettings };
+export { ChangePassword, Profile, NotificationSettings };
