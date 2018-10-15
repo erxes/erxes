@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as RTG from "react-transition-group";
 import { IParticipator, IUser } from "../../types";
-import { __ } from "../../utils";
 import { BrandInfo } from "../containers/common";
 import { Profile, Supporters } from "./common";
 
