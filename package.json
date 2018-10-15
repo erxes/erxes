@@ -1,10 +1,10 @@
 {
   "name": "erxes-api",
-  "version": "0.9.6",
+  "version": "0.9.10",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
-  "repository": "https://github.com/erxes/erxes-app-api",
-  "bugs": "https://github.com/erxes/erxes-app-api/issues",
+  "repository": "https://github.com/erxes/erxes-api",
+  "bugs": "https://github.com/erxes/erxes-api/issues",
   "keywords": [
     "node",
     "express",
