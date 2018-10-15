@@ -154,7 +154,7 @@ class KnowledgeForm extends React.Component<Props, State> {
 
   handleBrandChange() {
     if (this.props.topic && this.props.topic._id) {
-      const code = this.constructor().getInstallCode(this.props.topic._id);
+      const code = KnowledgeForm.getInstallCode(this.props.topic._id);
       this.setState({ code, copied: false });
     }
   }
