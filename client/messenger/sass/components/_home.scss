@@ -61,7 +61,7 @@ $shadow-black: rgba(0, 0, 0, .1);
   flex-direction: column;
   justify-content: center;
   overflow-wrap: break-word;
-  padding: 25px 40px;
+  padding: 25px 40px 45px;
   text-align: left;
   word-wrap: break-word;
 
@@ -104,6 +104,10 @@ $shadow-black: rgba(0, 0, 0, .1);
     time {
       color: rgba($white, .7);
       font-size: 11px;
+    }
+
+    .socials {
+      margin-right: 30px;
     }
   }
 }

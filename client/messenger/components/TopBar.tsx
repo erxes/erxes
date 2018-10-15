@@ -1,11 +1,10 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import { iconClose } from "../../icons/Icons";
+import { iconClose, iconLeft } from "../../icons/Icons";
 import { __ } from "../../utils";
 
 type Props = {
   middle: React.ReactNode;
-  buttonIcon?: React.ReactNode;
   isChat: boolean;
   color?: string;
   isExpanded?: boolean;
@@ -23,7 +22,6 @@ type State = {
 
 class TopBar extends React.Component<Props, State> {
   private node: HTMLDivElement | null = null;
-
   constructor(props: Props) {
     super(props);
 
@@ -85,7 +83,7 @@ class TopBar extends React.Component<Props, State> {
         className="topbar-button left fade-in"
         onClick={onLeftButtonClick}
       >
-        {this.props.buttonIcon}
+        {iconLeft}
       </button>
     );
   }

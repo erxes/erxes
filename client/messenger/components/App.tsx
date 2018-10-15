@@ -1,6 +1,6 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import * as ReactTransitionGroup from "react-transition-group";
+import * as RTG from "react-transition-group";
 import { Launcher, Messenger } from "../containers";
 
 type Props = {
@@ -22,7 +22,7 @@ export default class App extends React.Component<Props> {
 
     return (
       <div className={widgetClasses}>
-        <ReactTransitionGroup.CSSTransition
+        <RTG.CSSTransition
           in={isMessengerVisible}
           appear={true}
           timeout={400}
@@ -32,7 +32,7 @@ export default class App extends React.Component<Props> {
           <div className="erxes-messenger">
             <Messenger />
           </div>
-        </ReactTransitionGroup.CSSTransition>
+        </RTG.CSSTransition>
         <Launcher />
       </div>
     );

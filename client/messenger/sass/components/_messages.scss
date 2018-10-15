@@ -1,3 +1,10 @@
+// call button colors
+$shadow-black: rgba(0, 0, 0, .15);
+$box-black: #3a3a3a;
+$light-purple: #b39ae9;
+$light-blue: #63d2d6;
+$darker-blue: #3b85f4;
+
 @mixin bg-option {
   background-repeat: repeat;
   background-position: 0 0;
@@ -73,30 +80,30 @@
     margin-left: 50px;
   }
 
-  & ~.erxes-spacial-message {
+  ~.erxes-spacial-message {
     margin-top: 15px;
   }
 }
 
 .erxes-message {
   background-color: $grey;
-  border-radius: 20px;
+  border-radius: $core-spacing;
   border-bottom-left-radius: 2px;
   box-shadow: $message-shadow;
   color: $text-color;
   display: inline-block;
-  margin: 0 20px 5px 50px;
-  padding: 12px 20px;
+  margin: 0 $core-spacing 5px 50px;
+  padding: 12px $core-spacing;
   position: relative;
   text-align: left;
   word-break: break-word;
 
   &.from-customer {
     background-color: $main-color;
-    border-bottom-left-radius: 20px;
+    border-bottom-left-radius: $core-spacing;
     border-top-right-radius: 2px;
     color: $white;
-    margin: 0 0 5px 20px;
+    margin: 0 0 5px $core-spacing;
     text-align: right;
   }
 
@@ -250,61 +257,61 @@
 
 .app-message-box {
   background: $white;
-  box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.15);
   border-radius: 5px;
-  border-top: 3px solid #b39ae9;
-  color: #3a3a3a;
-  padding: 15px 0;
+  border-top: 3px solid $light-purple;
+  box-shadow: 0 0 10px 2px $shadow-black;
+  color: $box-black;
   margin-bottom: 8px;
+  padding: 15px 0;
 
   .user-info {
-    padding: 20px;
+    align-items: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    padding: $core-spacing;
 
     h2 {
-      margin: 20px 0 0 0;
       font-size: 18px;
+      margin: $core-spacing 0 0;
     }
 
     img {
-      width: 60px;
-      height: 60px;
-      line-height: 60px;
+      background: $light-blue;
+      border: 1px solid $grey-light;
       border-radius: 60px;
       font-size: 20px;
-      border: 1px solid #fafafa;
+      height: 60px;
+      line-height: 60px;
       overflow: hidden;
-      background: #63d2d6;
+      width: 60px;
     }
   }
 
   .call-button {
-    padding: 20px;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid $border-color;
+    padding: $core-spacing;
 
     h3 {
-      margin-top: 0;
       margin-bottom: 15px;
+      margin-top: 0;
       text-align: center;
     }
 
     button {
-      width: 100%;
-      color: #fff;
+      background: $darker-blue;
+      border-color: $darker-blue;
       border-radius: 5px;
-      border-color: #3B85F4;
-      background:#3B85F4;
+      box-shadow: none;
+      color: $white;
+      cursor: pointer;
       font-size: 14px;
       padding: 10px 20px;
       text-transform: initial;
-      box-shadow: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all .3s ease;
+      width: 100%;
 
       &:hover {
-        box-shadow: 0 2px 22px 0 hsl(216, 89%, 59%);
+        box-shadow: 0 2px 22px 0 $darker-blue;
       }
 
       &:focus {

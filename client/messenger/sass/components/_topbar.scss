@@ -76,9 +76,10 @@ $topbar-shadow: rgba(0, 0, 0, .1);
     }
   }
 
-  .erxes-head-content {
+  .erxes-head-expanded {
     padding: 20px 60px 20px 65px;
     text-align: left;
+    flex: 1;
 
     &.fade-slide-exit-active {
       position: absolute;
@@ -86,7 +87,7 @@ $topbar-shadow: rgba(0, 0, 0, .1);
     }
   }
 
-  .erxes-small-head {
+  .erxes-head-collapsed {
     border-radius: $border-radius;
     max-width: 260px;
     padding: 3px 5px;
@@ -105,15 +106,15 @@ $topbar-shadow: rgba(0, 0, 0, .1);
 
   .socials {
     a {
-      opacity: .6;
       margin-right: 12px;
+      opacity: .6;
 
       &:hover {
         opacity: 1;
       }
 
       &:last-of-type {
-        margin: 0;
+        margin-right: 0;
       }
     }
 
@@ -125,7 +126,7 @@ $topbar-shadow: rgba(0, 0, 0, .1);
 }
 
 .erxes-supporters {
-  align-items: center;
+  align-items: baseline;
   display: flex;
 
   .erxes-supporter {
@@ -142,7 +143,6 @@ $topbar-shadow: rgba(0, 0, 0, .1);
     color: $name-white;
     display: none;
     font-size: 12px;
-    min-height: 18px;
     text-transform: capitalize;
   }
 
@@ -206,6 +206,11 @@ $topbar-shadow: rgba(0, 0, 0, .1);
 
     p {
       font-size: 13px;
+      margin-bottom: 0;
+    }
+
+    img {
+      margin-top: 10px;
     }
   }
 }

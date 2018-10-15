@@ -1,10 +1,10 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import * as ReactTransitionGroup from "react-transition-group";
+import * as RTG from "react-transition-group";
 import * as striptags from "striptags";
 import { EngageMessage } from "../components";
 import { User } from "../components/common";
-import { IMessage } from "../types";
+import { IMessage, IEngageData } from "../types";
 
 type Props = {
   message: IMessage;
@@ -48,12 +48,13 @@ class Notifier extends React.Component<Props> {
 
   render() {
     const { message, readConversation } = this.props;
+    const engageData = message.engageData || ({} as IEngageData);
     const classes = classNames("erxes-notification", {
-      "full-message": message.engageData.sentAs === "fullMessage"
+      "full-message": engageData.sentAs === "fullMessage"
     });
 
     return (
-      <ReactTransitionGroup.CSSTransition
+      <RTG.CSSTransition
         in={true}
         appear={true}
         timeout={300}
@@ -66,7 +67,7 @@ class Notifier extends React.Component<Props> {
         >
           {this.renderNotificationBody()}
         </div>
-      </ReactTransitionGroup.CSSTransition>
+      </RTG.CSSTransition>
     );
   }
 }

@@ -1,7 +1,7 @@
 import * as classNames from "classnames";
 import * as moment from "moment";
 import * as React from "react";
-import * as ReactTransitionGroup from "react-transition-group";
+import * as RTG from "react-transition-group";
 import { facebook, twitter, youtube } from "../../icons/Icons";
 import {
   IIntegrationLink,
@@ -34,7 +34,6 @@ class Home extends React.Component<Props, State> {
     super(props);
 
     this.state = { headHeight: 120, activeSupport: true };
-
     this.toggleTab = this.toggleTab.bind(this);
   }
 
@@ -86,7 +85,7 @@ class Home extends React.Component<Props, State> {
       <div className="welcome-info">
         <h3>{greetings.title || __("Welcome")}</h3>
         <div className="description">
-          {greetings.content || __("Welcome description")}
+          {greetings.message || __("Welcome description")}
         </div>
       </div>
     );
@@ -135,19 +134,18 @@ class Home extends React.Component<Props, State> {
       >
         <TopBar middle={this.renderHead()} />
         <div className="erxes-home-content">
-          <ReactTransitionGroup.CSSTransition
-            in={this.state.activeSupport}
+          <RTG.CSSTransition
+            in={true}
             appear={true}
             timeout={600}
             classNames="slide"
-            unmountOnExit
           >
             <div className="erxes-home-item">
               <Integrations />
             </div>
-          </ReactTransitionGroup.CSSTransition>
+          </RTG.CSSTransition>
 
-          <ReactTransitionGroup.CSSTransition
+          <RTG.CSSTransition
             in={!this.state.activeSupport}
             appear={true}
             timeout={600}
@@ -157,7 +155,7 @@ class Home extends React.Component<Props, State> {
             <div className="erxes-home-item">
               <FaqCategories />
             </div>
-          </ReactTransitionGroup.CSSTransition>
+          </RTG.CSSTransition>
         </div>
       </div>
     );

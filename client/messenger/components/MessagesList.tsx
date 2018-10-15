@@ -1,6 +1,6 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import * as ReactTransitionGroup from "react-transition-group";
+import * as RTG from "react-transition-group";
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
@@ -94,17 +94,17 @@ class MessagesList extends React.Component<Props> {
       >
         <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderWelcomeMessage(messengerData)}
-          <ReactTransitionGroup.TransitionGroup component={null}>
+          <RTG.TransitionGroup component={null}>
             {messages.map(message => (
-              <ReactTransitionGroup.CSSTransition
+              <RTG.CSSTransition
                 key={message._id}
                 timeout={500}
                 classNames="slide-in"
               >
                 <Message color={color} {...message} />
-              </ReactTransitionGroup.CSSTransition>
+              </RTG.CSSTransition>
             ))}
-          </ReactTransitionGroup.TransitionGroup>
+          </RTG.TransitionGroup>
           {this.renderAwayMessage(messengerData)}
         </ul>
       </div>

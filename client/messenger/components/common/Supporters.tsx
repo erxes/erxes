@@ -1,7 +1,7 @@
 import * as classNames from "classnames";
 import * as React from "react";
 import { defaultAvatar } from "../../../icons/Icons";
-import { IUser } from "../../../types";
+import { IUser, IUserDetails } from "../../../types";
 import { __ } from "../../../utils";
 
 type Props = {
@@ -22,11 +22,7 @@ class Supporters extends React.Component<Props> {
   }
 
   renderSupporter(user: IUser, isOnline: boolean, color: string) {
-    const details = user.details || {
-      avatar: defaultAvatar,
-      fullName: "",
-      shortName: ""
-    };
+    const details = user.details || ({} as IUserDetails);
 
     return (
       <div

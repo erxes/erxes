@@ -1,12 +1,9 @@
 import * as React from "react";
-import * as ReactTransitionGroup from "react-transition-group";
-import { iconLeft } from "../../icons/Icons";
 import { IParticipator, IUser } from "../../types";
 import { __ } from "../../utils";
 import { MessageSender, MessagesList, TopBar } from "../containers";
-import { BrandInfo } from "../containers/common";
 import { IMessage } from "../types";
-import { Profile, Supporters } from "./common";
+import ConversatioHeadContent from "./ConversatioHeadContent";
 
 type Props = {
   messages: IMessage[];
@@ -32,30 +29,17 @@ class ConversationDetail extends React.Component<Props, State> {
 
     this.inputFocus = this.inputFocus.bind(this);
     this.onTextInputBlur = this.onTextInputBlur.bind(this);
-    this.toggle = this.toggle.bind(this);
+    this.toggleHead = this.toggleHead.bind(this);
+    this.toggleExpand = this.toggleExpand.bind(this);
     this.onWheel = this.onWheel.bind(this);
   }
 
-  transitionElement(children: any, visible: boolean) {
-    return (
-      <ReactTransitionGroup.CSSTransition
-        in={visible}
-        timeout={300}
-        classNames="fade-slide"
-        unmountOnExit
-        onExit={() => {
-          this.setState({
-            expanded: !this.state.expanded
-          });
-        }}
-      >
-        {children}
-      </ReactTransitionGroup.CSSTransition>
-    );
+  toggleHead() {
+    this.setState({ isFullHead: !this.state.isFullHead });
   }
 
-  toggle() {
-    this.setState({ isFullHead: !this.state.isFullHead });
+  toggleExpand() {
+    this.setState({ expanded: !this.state.expanded });
   }
 
   inputFocus() {
@@ -78,72 +62,15 @@ class ConversationDetail extends React.Component<Props, State> {
     }
   }
 
-  renderProfile() {
-    const { participators, isOnline } = this.props;
-
-    const profileComponent = (expanded: boolean) => {
-      return (
-        <Profile
-          user={participators[0]}
-          isOnline={isOnline}
-          isExpanded={expanded}
-        />
-      );
-    };
-
-    return (
-      <React.Fragment>
-        {this.transitionElement(
-          <div className="erxes-head-content">{profileComponent(true)}</div>,
-          this.state.isFullHead
-        )}
-
-        {this.transitionElement(
-          <div className="erxes-small-head">{profileComponent(false)}</div>,
-          !this.state.isFullHead
-        )}
-      </React.Fragment>
-    );
-  }
-
-  renderHead() {
-    const { supporters, isOnline, color, loading } = this.props;
-    const supportersComponent = (expanded: boolean) => {
-      return (
-        <Supporters
-          users={supporters}
-          loading={loading}
-          isOnline={isOnline}
-          color={color}
-          isExpanded={expanded}
-        />
-      );
-    };
-
-    return (
-      <React.Fragment>
-        {this.transitionElement(
-          <div className="erxes-head-content">
-            <BrandInfo />
-            {supportersComponent(true)}
-          </div>,
-          this.state.isFullHead
-        )}
-
-        {this.transitionElement(
-          <div className="erxes-small-head">{supportersComponent(false)}</div>,
-          !this.state.isFullHead
-        )}
-      </React.Fragment>
-    );
-  }
-
   render() {
     const {
       messages,
       participators,
+      supporters,
       goToConversationList,
-      isOnline
+      isOnline,
+      color,
+      loading
     } = this.props;
 
     const placeholder = !messages.length
@@ -154,10 +81,17 @@ class ConversationDetail extends React.Component<Props, State> {
       <div className="erxes-conversation-detail" onWheel={this.onWheel}>
         <TopBar
           middle={
-            participators.length ? this.renderProfile() : this.renderHead()
+            <ConversatioHeadContent
+              supporters={supporters}
+              participators={participators}
+              isOnline={isOnline}
+              color={color}
+              loading={loading}
+              expanded={this.state.isFullHead}
+              toggleExpand={this.toggleExpand}
+            />
           }
-          buttonIcon={iconLeft}
-          toggleHead={this.toggle}
+          toggleHead={this.toggleHead}
           isExpanded={this.state.expanded}
           onLeftButtonClick={(e: React.FormEvent<HTMLButtonElement>) => {
             e.preventDefault();
