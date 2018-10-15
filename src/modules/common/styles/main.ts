@@ -68,11 +68,6 @@ const InfoWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
 
-  .name {
-    flex: 1;
-    word-break: break-word;
-  }
-
   i {
     transition: all 0.3s ease;
     color: ${colors.colorCoreLightGray};

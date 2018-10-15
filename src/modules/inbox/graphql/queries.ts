@@ -267,6 +267,13 @@ const generateCustomerDetailQuery = params => {
         _id
         primaryName
         website
+        customers {
+          _id
+          avatar
+          firstName
+          lastName
+          primaryEmail
+        }
       }
     `;
   }

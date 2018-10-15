@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { TabCaption, TabContainer } from './styles';
 
-function Tabs(props: { children: React.ReactNode; grayBorder?: boolean }) {
+function Tabs(props: {
+  children: React.ReactNode;
+  grayBorder?: boolean;
+  full?: boolean;
+}) {
   return <TabContainer {...props} />;
 }
 

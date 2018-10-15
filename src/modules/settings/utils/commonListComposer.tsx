@@ -69,6 +69,7 @@ const commonListComposer = options => {
         mutation = editMutation;
         doc._id = object._id;
       }
+
       mutation({
         variables: doc
       })
