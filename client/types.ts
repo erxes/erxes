@@ -1,11 +1,29 @@
 export interface IUserDetails {
   avatar: string;
   fullName: string;
+  shortName: string;
+  position: string;
+  description: string;
 }
 
 export interface IUser {
   _id: string;
   details?: IUserDetails;
+}
+
+export interface IUserLinks {
+  facebook: string;
+  twitter: string;
+  youtube: string;
+  linkedIn: string;
+  github: string;
+  website: string;
+}
+
+export interface IParticipator {
+  _id: string;
+  details?: IUserDetails;
+  links: IUserLinks;
 }
 
 export interface ICustomer {
@@ -54,16 +72,29 @@ export interface IIntegrationMessengerOnlineHours {
   to: string;
 }
 
+export interface IIntegrationLink {
+  twitter?: string;
+  facebook?: string;
+  youtube?: string;
+}
+
+export interface IIntegrationMessengerDataMessagesItem {
+  greetings: { title?: string; content?: string };
+  away?: string;
+  thank?: string;
+  welcome?: string;
+}
+
 export interface IIntegrationMessengerData {
   supporterIds: string[];
   notifyCustomer: boolean;
+  showFaq: boolean;
   availabilityMethod: string;
   isOnline: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
   timezone?: string;
-  welcomeMessage?: string;
-  awayMessage?: string;
-  thankYouMessage?: string;
+  messages?: IIntegrationMessengerDataMessagesItem;
+  links?: IIntegrationLink;
 }
 
 export interface IIntegrationFormData {

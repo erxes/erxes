@@ -1,4 +1,5 @@
 import * as React from "react";
+import { iconPlus } from "../../icons/Icons";
 import { __ } from "../../utils";
 import { ConversationItem } from "../containers";
 import { IConversation } from "../types";
@@ -6,9 +7,8 @@ import { IConversation } from "../types";
 type Props = {
   conversations: IConversation[];
   goToConversation: (conversationId: string) => void;
-  createConversation: (e: React.FormEvent<HTMLButtonElement>) => void;
+  createConversation: (e: React.FormEvent<HTMLLIElement>) => void;
   loading: boolean;
-  color: string;
 };
 
 function ConversationList(props: Props) {
@@ -16,31 +16,32 @@ function ConversationList(props: Props) {
     conversations,
     goToConversation,
     loading,
-    createConversation,
-    color
+    createConversation
   } = props;
 
   if (loading) {
     return <div className="loader bigger" />;
   }
 
-  if (conversations.length === 0) {
+  const createButton = () => {
     return (
-      <div className="empty-list">
-        <p>{__("You didn't have any conversation yet")}</p>
-        <button
-          className="erxes-button"
-          onClick={createConversation}
-          style={{ backgroundColor: color, color }}
-        >
-          <span>{__("Start new conversation")}</span>
-        </button>
-      </div>
+      <li onClick={createConversation} className="erxes-conversation-item">
+        <div className="erxes-left-side">
+          <span>{iconPlus}</span>
+        </div>
+        <div className="erxes-right-side">
+          <div className="erxes-name">{__("Start new conversation")}</div>
+          <div className="erxes-last-message">
+            {__("Talk with support staff")}
+          </div>
+        </div>
+      </li>
     );
-  }
+  };
 
   return (
     <ul className="erxes-conversation-list">
+      {createButton()}
       {conversations.map(conversation => (
         <ConversationItem
           key={conversation._id}

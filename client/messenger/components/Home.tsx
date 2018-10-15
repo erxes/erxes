@@ -1,15 +1,23 @@
+import * as moment from "moment";
 import * as React from "react";
-import * as ReactTransitionGroup from "react-transition-group";
-import { iconPlus } from "../../icons/Icons";
-import { IUser } from "../../types";
+import * as RTG from "react-transition-group";
+import { facebook, twitter, youtube } from "../../icons/Icons";
+import {
+  IIntegrationLink,
+  IIntegrationMessengerData,
+  IIntegrationMessengerDataMessagesItem,
+  IUser
+} from "../../types";
 import { __ } from "../../utils";
-import { BrandInfo, ConversationList, TopBar } from "../containers";
-import { IntegrationItem, Supporters } from "./";
+import { TopBar } from "../containers";
+import { Integrations } from "./";
+import { SocialLink, Supporters } from "./common";
 
 type Props = {
-  createConversation: (e: React.FormEvent<HTMLButtonElement>) => void;
   supporters: IUser[];
   loading?: boolean;
+  color?: string;
+  messengerData: IIntegrationMessengerData;
 };
 
 type State = {
@@ -37,47 +45,72 @@ class Home extends React.Component<Props, State> {
     }
   }
 
-  renderHead() {
-    const { supporters, loading } = this.props;
+  renderGreetings(messengerData: IIntegrationMessengerData) {
+    const messages =
+      messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
+    const greetings = messages.greetings;
 
     return (
-      <ReactTransitionGroup.CSSTransition
-        in={true}
-        appear={true}
-        timeout={500}
-        classNames="slide-in"
-        unmountOnExit
-      >
-        <div
-          className="erxes-welcome"
-          ref={node => {
-            this.node = node;
-          }}
-        >
-          <BrandInfo />
-          <Supporters users={supporters} isExpanded={false} loading={loading} />
+      <div className="welcome-info">
+        <h3>{greetings.title || __("Welcome")}</h3>
+        <div className="description">
+          {greetings.content || __("Welcome description")}
         </div>
-      </ReactTransitionGroup.CSSTransition>
+      </div>
+    );
+  }
+
+  renderAssistBar(messengerData: IIntegrationMessengerData) {
+    const links = messengerData.links || ({} as IIntegrationLink);
+
+    return (
+      <div className="assist-bar">
+        <time>{moment(new Date()).format("MMMM Do YYYY, h:mm a")}</time>
+        <div className="socials">
+          <SocialLink url={links.facebook} icon={facebook} />
+          <SocialLink url={links.twitter} icon={twitter} />
+          <SocialLink url={links.youtube} icon={youtube} />
+        </div>
+      </div>
+    );
+  }
+
+  renderHead() {
+    const { supporters, loading, messengerData } = this.props;
+
+    return (
+      <div
+        className="erxes-welcome"
+        ref={node => {
+          this.node = node;
+        }}
+      >
+        {this.renderAssistBar(messengerData)}
+        {this.renderGreetings(messengerData)}
+        <Supporters users={supporters} isExpanded={false} loading={loading} />
+      </div>
     );
   }
 
   render() {
-    const { createConversation } = this.props;
-
     return (
       <div
         className="erxes-home-container"
-        style={{ paddingTop: this.state.headHeight - 30 }}
+        style={{ paddingTop: this.state.headHeight }}
       >
-        <TopBar
-          isBig
-          middle={this.renderHead()}
-          buttonIcon={iconPlus}
-          onButtonClick={createConversation}
-        />
-        <IntegrationItem title="Recent conversations">
-          <ConversationList />
-        </IntegrationItem>
+        <TopBar middle={this.renderHead()} />
+        <div className="erxes-home-content">
+          <RTG.CSSTransition
+            in={true}
+            appear={true}
+            timeout={600}
+            classNames="slide"
+          >
+            <div className="erxes-home-item">
+              <Integrations />
+            </div>
+          </RTG.CSSTransition>
+        </div>
       </div>
     );
   }

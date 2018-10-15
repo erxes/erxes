@@ -35,6 +35,7 @@ const userFields = `
   details {
     avatar
     fullName
+    shortName
   }
 `;
 
@@ -51,6 +52,24 @@ const conversationDetailQuery = `
         details {
           avatar
           fullName
+        }
+      }
+      participatedUsers {
+        _id
+        details {
+          avatar
+          fullName
+          shortName
+          description
+          position
+        }
+        links {
+          facebook
+          twitter
+          youtube
+          linkedIn
+          github
+          website
         }
       }
     }

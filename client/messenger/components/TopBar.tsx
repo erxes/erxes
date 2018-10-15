@@ -1,49 +1,69 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import { iconClose } from "../../icons/Icons";
+import { iconClose, iconLeft } from "../../icons/Icons";
 import { __ } from "../../utils";
 
 type Props = {
   middle: React.ReactNode;
-  buttonIcon?: React.ReactNode;
   isChat: boolean;
   color?: string;
   isExpanded?: boolean;
-  isBig: boolean;
-  onButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void;
-  onToggle?: () => void;
-  toggleLauncher: () => void;
+  prevHeight?: number;
+  toggleHead?: () => void;
+  toggleLauncher: (isMessengerVisible?: boolean) => void;
   endConversation: () => void;
+  setHeadHeight: (height: number) => void;
+  onLeftButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void;
 };
 
-class TopBar extends React.Component<Props, {}> {
+type State = {
+  headHeight: any;
+};
+
+class TopBar extends React.Component<Props, State> {
+  private node: HTMLDivElement | null = null;
   constructor(props: Props) {
     super(props);
 
-    this.onEndConversation = this.onEndConversation.bind(this);
+    this.state = { headHeight: props.prevHeight };
+    this.onRightButtonClick = this.onRightButtonClick.bind(this);
   }
 
-  onEndConversation() {
+  updateHeight() {
+    if (this.node && this.state.headHeight !== this.node.clientHeight) {
+      const headHeight = this.node.clientHeight;
+      this.setState({ headHeight });
+      this.props.setHeadHeight(headHeight);
+    }
+  }
+
+  componentDidUpdate() {
+    this.updateHeight();
+  }
+
+  componentDidMount() {
+    this.updateHeight();
+  }
+
+  onRightButtonClick() {
     const { isChat, toggleLauncher, endConversation } = this.props;
 
     if (
       isChat &&
       confirm((__("Do you want to end this conversation ?") || {}).toString())
     ) {
-      endConversation();
-    } else {
-      toggleLauncher();
+      return endConversation();
     }
+
+    toggleLauncher(true);
   }
 
   renderRightButton() {
-    const { isChat, toggleLauncher } = this.props;
-
     return (
       <a
         href="#"
-        className="topbar-button right"
-        onClick={isChat ? this.onEndConversation : toggleLauncher}
+        className="topbar-button right fade-in"
+        onClick={this.onRightButtonClick}
         title="End conversation"
       >
         {iconClose}
@@ -52,38 +72,51 @@ class TopBar extends React.Component<Props, {}> {
   }
 
   renderLeftButton() {
-    const { onButtonClick } = this.props;
+    const { onLeftButtonClick } = this.props;
 
-    if (!onButtonClick) {
+    if (!onLeftButtonClick) {
       return null;
     }
 
     return (
-      <button className="topbar-button left" onClick={onButtonClick}>
-        {this.props.buttonIcon}
+      <button
+        className="topbar-button left fade-in"
+        onClick={onLeftButtonClick}
+      >
+        {iconLeft}
       </button>
     );
   }
 
   render() {
-    const { middle, color, isExpanded, isBig, onToggle } = this.props;
+    const { color, isExpanded, isChat, middle, toggleHead } = this.props;
 
     const topBarClassNames = classNames("erxes-topbar", {
       expanded: isExpanded,
-      big: isBig
+      "end-chat": isChat
     });
 
-    const middleClass = classNames("erxes-middle", {
-      expandable: onToggle ? true : false
+    const middleClass = classNames("erxes-middle", "fade-in", {
+      expandable: toggleHead ? true : false
     });
 
     return (
-      <div className={topBarClassNames} style={{ backgroundColor: color }}>
-        {this.renderLeftButton()}
-        <div onClick={onToggle} className={middleClass}>
-          {middle}
+      <div
+        className="head-wrapper"
+        style={{ height: this.state.headHeight, backgroundColor: color }}
+      >
+        <div
+          className={topBarClassNames}
+          ref={node => {
+            this.node = node;
+          }}
+        >
+          {this.renderLeftButton()}
+          <div onClick={toggleHead} className={middleClass}>
+            {middle}
+          </div>
+          {this.renderRightButton()}
         </div>
-        {this.renderRightButton()}
       </div>
     );
   }

@@ -1,8 +1,8 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import { defaultAvatar } from "../../icons/Icons";
-import { IUser } from "../../types";
-import { __ } from "../../utils";
+import { defaultAvatar } from "../../../icons/Icons";
+import { IUser, IUserDetails } from "../../../types";
+import { __ } from "../../../utils";
 
 type Props = {
   users: IUser[];
@@ -22,7 +22,7 @@ class Supporters extends React.Component<Props> {
   }
 
   renderSupporter(user: IUser, isOnline: boolean, color: string) {
-    const details = user.details || { avatar: defaultAvatar, fullName: "" };
+    const details = user.details || ({} as IUserDetails);
 
     return (
       <div
@@ -37,19 +37,19 @@ class Supporters extends React.Component<Props> {
             style={{ borderColor: color }}
             alt={details.fullName}
           />
-          {this.renderOnlineState(isOnline, color)}
+          {this.renderOnlineState(isOnline)}
         </div>
-        <span className="erxes-staff-name">{details.fullName}</span>
+        <span className="erxes-staff-name">{details.shortName}</span>
       </div>
     );
   }
 
-  renderOnlineState(isOnline: boolean, color: string) {
+  renderOnlineState(isOnline: boolean) {
     const stateClasses = classNames("erxes-state", {
       online: isOnline
     });
 
-    return <span className={stateClasses} style={{ borderColor: color }} />;
+    return <span className={stateClasses} />;
   }
 
   renderUsers() {
@@ -72,7 +72,7 @@ class Supporters extends React.Component<Props> {
   }
 
   render() {
-    const { users, loading } = this.props;
+    const { users, loading, isExpanded } = this.props;
 
     if (loading) {
       return (
@@ -84,6 +84,10 @@ class Supporters extends React.Component<Props> {
 
     if (users.length !== 0) {
       return this.renderUsers();
+    }
+
+    if (isExpanded) {
+      return null;
     }
 
     return (

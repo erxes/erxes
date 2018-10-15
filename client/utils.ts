@@ -1,5 +1,4 @@
 /* global FileReader */
-
 import T from "i18n-react";
 import * as moment from "moment";
 import translation from "../locales";
@@ -134,4 +133,34 @@ export const setLocale = (code?: string) => {
 
 export const __ = (msg: string) => {
   return T.translate(msg);
+};
+
+export const scrollTo = (element: any, to: number, duration: number) => {
+  const start = element.scrollTop;
+  const change = to - start;
+  const increment = 20;
+  let currentTime = 0;
+
+  const animateScroll = () => {
+    const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
+      t /= d / 2;
+      if (t < 1) {
+        return (c / 2) * t * t + b;
+      }
+      t--;
+      return (-c / 2) * (t * (t - 2) - 1) + b;
+    };
+
+    currentTime += increment;
+
+    const val = easeInOutQuad(currentTime, start, change, duration);
+
+    element.scrollTop = val;
+
+    if (currentTime < duration) {
+      setTimeout(animateScroll, increment);
+    }
+  };
+
+  animateScroll();
 };

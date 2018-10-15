@@ -1,32 +1,42 @@
-$name-white: rgba(255, 255, 255, .6);
-$topbar-shadow: rgba(0, 0, 0, 0.1);
+$name-white: rgba(255, 255, 255, .8);
+$topbar-shadow: rgba(0, 0, 0, .1);
+
+.head-wrapper {
+  background-color: $main-color;
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+  box-shadow: 0 4px 6px 0 $topbar-shadow;
+  transition: height .25s ease-in-out;
+  background-image: url('https://s3.amazonaws.com/erxes/pattern.png');
+  background-repeat: repeat;
+  background-size: cover;
+  position: relative;
+  z-index: 10;
+
+  &::before {
+    background: url('https://s3.amazonaws.com/erxes/radial.png') left top no-repeat;
+    background-size: cover;
+    bottom: 0;
+    content: '';
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+}
 
 .erxes-topbar {
   align-items: center;
-  box-shadow: 0 4px 6px 0 $topbar-shadow;
+  background: none;
   display: flex;
-  height: 70px;
   justify-content: space-around;
   min-height: 70px;
-  padding: 0 15px;
-  transition: height ease .3s;
+  padding: 0;
   width: auto;
   z-index: 2;
 
-  &.big {
-    height: auto;
-  }
-
   &.expanded {
     height: auto;
-
-    .brand-info {
-      display: block;
-    }
-
-    .erxes-middle.expandable {
-      margin: 0 0 0 55px;
-    }
 
     .erxes-topbar-title {
       margin-right: 55px;
@@ -38,27 +48,22 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
   }
 
   .erxes-middle {
-    @include prefix((
-      transition: background .3s ease-in-out
-    ), webkit moz ms o);
     align-items: center;
     display: flex;
     flex: 1;
     flex-shrink: 0;
     height: 100%;
     justify-content: center;
-    margin: 0 55px;
+    transition-property: background, opacity;
 
     &.expandable:hover {
       cursor: pointer;
     }
   }
 
-  .brand-info {
-    display: none;
-
+  .welcome-info {
     h3 {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
       margin: 0 0 10px;
       padding-right: 50px;
@@ -71,14 +76,57 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
     }
   }
 
-  .erxes-head-content {
-    padding: 22px 0;
+  .erxes-head-expanded {
+    padding: 20px 60px 20px 65px;
     text-align: left;
+    flex: 1;
+
+    &.fade-slide-exit-active {
+      position: absolute;
+      top: 0;
+    }
+  }
+
+  .erxes-head-collapsed {
+    border-radius: $border-radius;
+    max-width: 260px;
+    padding: 3px 5px;
+    position: absolute;
+    top: 10px;
+    transition: all .3s ease;
+
+    &:hover {
+      background: $topbar-shadow;
+    }
+
+    .erxes-topbar-title {
+      padding: 5px;
+    }
+  }
+
+  .socials {
+    a {
+      margin-right: 12px;
+      opacity: .6;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      &:last-of-type {
+        margin-right: 0;
+      }
+    }
+
+    img {
+      height: 18px;
+      width: 18px;
+    }
   }
 }
 
 .erxes-supporters {
-  align-items: center;
+  align-items: baseline;
   display: flex;
 
   .erxes-supporter {
@@ -95,10 +143,11 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
     color: $name-white;
     display: none;
     font-size: 12px;
+    text-transform: capitalize;
   }
 
   &.full {
-    padding-top: 20px;
+    padding-top: 10px;
 
     .erxes-supporter {
       margin: 0;
@@ -121,35 +170,67 @@ $topbar-shadow: rgba(0, 0, 0, 0.1);
       display: none;
     }
   }
+}
 
-  .avatar {
-    position: relative;
+.erxes-profile {
+  text-align: left;
 
-    img {
-      background: rgba($black, .2);
-      border: 2px solid $main-color;
-      border-radius: $core-spacing + 2;
-      display: block;
-      height: ($core-spacing * 2);
-      width: ($core-spacing * 2);
+  .top-content {
+    align-items: center;
+    display: flex;
+
+    .user-name {
+      flex: 1;
+      font-size: 13px;
+      margin-left: 10px;
+      max-width: 200px;
+      overflow: hidden;
     }
 
-    .erxes-state {
-      border: 1px solid $main-color;
-      bottom: 2px;
-      position: absolute;
-      right: 2px;
-      z-index: 2;
+    span {
+      color: $name-white;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    h5 {
+      font-size: 13px;
+      margin: 0;
     }
   }
 
-  .supporters-name {
-    font-size: 13px;
-    font-weight: 500;
-    margin-top: 3px;
-    max-height: 20px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    word-break: break-all;
+  .bottom-content {
+    color: $name-white;
+
+    p {
+      font-size: 13px;
+      margin-bottom: 0;
+    }
+
+    img {
+      margin-top: 10px;
+    }
+  }
+}
+
+.avatar {
+  position: relative;
+
+  img {
+    background: rgba($black, .2);
+    border: 2px solid transparent;
+    border-radius: $core-spacing + 2;
+    display: block;
+    height: ($core-spacing * 2);
+    width: ($core-spacing * 2);
+  }
+
+  .erxes-state {
+    bottom: 2px;
+    position: absolute;
+    right: 2px;
+    z-index: 2;
   }
 }

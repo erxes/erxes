@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, compose, graphql } from "react-apollo";
-import { IUser } from "../../types";
-import { Conversation as DumbConversation } from "../components";
+import { IParticipator, IUser } from "../../types";
+import { ConversationDetail as DumbComponent } from "../components";
 import { connection } from "../connection";
 import graphqlTypes from "../graphql";
 import { IConversation, IMessage } from "../types";
@@ -71,8 +71,8 @@ class ConversationDetail extends React.Component<
       document: gql(graphqlTypes.conversationChanged),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
-        const data = subscriptionData.data || {};
-        const conversationChanged = data.conversationChanged || {};
+        const subData = subscriptionData.data || {};
+        const conversationChanged = subData.conversationChanged || {};
         const type = conversationChanged.type;
 
         if (type === "closed") {
@@ -86,20 +86,22 @@ class ConversationDetail extends React.Component<
     const { data } = this.props;
 
     let messages: IMessage[] = [];
+    let participators: IParticipator[] = [];
     let isOnline: boolean = false;
 
     if (data && data.conversationDetail) {
       const conversationDetail = data.conversationDetail;
-
       messages = conversationDetail.messages;
+      participators = conversationDetail.participatedUsers || [];
       isOnline = conversationDetail.isOnline;
     }
 
     return (
-      <DumbConversation
+      <DumbComponent
         {...this.props}
         messages={messages}
         isOnline={isOnline}
+        participators={participators}
       />
     );
   }

@@ -18,7 +18,6 @@ function ConversationItem({
   goToConversation
 }: Props) {
   const { _id, content, createdAt } = conversation;
-
   const participatedUsers = conversation.participatedUsers;
   let participatedUser = null;
 
@@ -43,7 +42,7 @@ function ConversationItem({
         goToConversation(_id);
       }}
     >
-      <img className="erxes-list-avatar" src={avatar} alt={fullName} />
+      <img className="erxes-left-side" src={avatar} alt={fullName} />
       <div className="erxes-right-side">
         <div
           className="erxes-date erxes-tooltip"

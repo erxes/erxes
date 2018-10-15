@@ -24,7 +24,7 @@ const isMobile =
 let viewportContent = "";
 let generatedContent = "";
 let hideDelayTimer: any;
-const delay = 300;
+const delay = 350;
 
 if (isMobile) {
   const viewportMeta = document.querySelector('meta[name="viewport"]');

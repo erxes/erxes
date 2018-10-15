@@ -1,7 +1,12 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import * as ReactTransitionGroup from "react-transition-group";
-import { IIntegrationMessengerData, IIntegrationUiOptions } from "../../types";
+import * as RTG from "react-transition-group";
+import {
+  IIntegrationMessengerData,
+  IIntegrationMessengerDataMessagesItem,
+  IIntegrationUiOptions
+} from "../../types";
+import { scrollTo } from "../../utils";
 import { IMessage } from "../types";
 import { Message } from "./";
 
@@ -29,16 +34,17 @@ class MessagesList extends React.Component<Props> {
 
     if (node) {
       this.shouldScrollBottom =
-        node.scrollHeight - (node.scrollTop + node.offsetHeight) < 30;
+        node.scrollHeight - (node.scrollTop + node.offsetHeight) < 20;
     }
   }
 
-  componentDidUpdate() {
-    if (this.node && this.shouldScrollBottom) {
-      this.node.scrollTop = this.node.scrollHeight;
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.messages !== this.props.messages) {
+      if (this.node && this.shouldScrollBottom) {
+        scrollTo(this.node, this.node.scrollHeight, 500);
+      }
+      this.makeClickableLink();
     }
-
-    this.makeClickableLink();
   }
 
   makeClickableLink() {
@@ -49,36 +55,28 @@ class MessagesList extends React.Component<Props> {
     });
   }
 
-  renderAwayMessage(messengerData: any) {
+  renderAwayMessage(messengerData: IIntegrationMessengerData) {
     const { isOnline } = this.props;
+    const messages =
+      messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
-    if (!messengerData) {
+    if (isOnline || !messages.away) {
       return null;
     }
 
-    if (!isOnline && messengerData.awayMessage) {
-      return (
-        <li className="erxes-spacial-message away">
-          {messengerData.awayMessage}
-        </li>
-      );
-    }
+    return <li className="erxes-spacial-message away">{messages.away}</li>;
   }
 
-  renderWelcomeMessage(messengerData: any) {
+  renderWelcomeMessage(messengerData: IIntegrationMessengerData) {
     const { isOnline } = this.props;
+    const messages =
+      messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
 
-    if (!messengerData) {
+    if (!isOnline || !messages.welcome) {
       return null;
     }
 
-    if (isOnline && messengerData.welcomeMessage) {
-      return (
-        <li className="erxes-spacial-message">
-          {messengerData.welcomeMessage}
-        </li>
-      );
-    }
+    return <li className="erxes-spacial-message">{messages.welcome}</li>;
   }
 
   render() {
@@ -94,11 +92,19 @@ class MessagesList extends React.Component<Props> {
         ref={node => (this.node = node)}
         onClick={inputFocus}
       >
-        <ul id="erxes-messages" className="erxes-messages-list appear-slide-in">
+        <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderWelcomeMessage(messengerData)}
-          {messages.map(message => (
-            <Message key={message._id} color={color} {...message} />
-          ))}
+          <RTG.TransitionGroup component={null}>
+            {messages.map(message => (
+              <RTG.CSSTransition
+                key={message._id}
+                timeout={500}
+                classNames="slide-in"
+              >
+                <Message color={color} {...message} />
+              </RTG.CSSTransition>
+            ))}
+          </RTG.TransitionGroup>
           {this.renderAwayMessage(messengerData)}
         </ul>
       </div>

@@ -7,15 +7,14 @@ type Props = {
   middle: React.ReactNode;
   buttonIcon?: React.ReactNode;
   isExpanded?: boolean;
-  isBig: boolean;
-  onButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void;
-  onToggle?: () => void;
+  onLeftButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void;
+  toggleHead?: () => void;
 };
 
 const container = (props: Props) => {
   return (
     <AppConsumer>
-      {({ endConversation, getColor, toggle }) => {
+      {({ endConversation, getColor, toggle, setHeadHeight, headHeight }) => {
         return (
           <TopBar
             {...props}
@@ -23,6 +22,8 @@ const container = (props: Props) => {
             toggleLauncher={toggle}
             isChat={Boolean(!connection.setting.email)}
             endConversation={endConversation}
+            prevHeight={headHeight}
+            setHeadHeight={setHeadHeight}
           />
         );
       }}

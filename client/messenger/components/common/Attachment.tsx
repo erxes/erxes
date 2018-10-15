@@ -1,6 +1,6 @@
 import * as React from "react";
-import { iconAttach } from "../../icons/Icons";
-import { IAttachment } from "../types";
+import { iconAttach } from "../../../icons/Icons";
+import { IAttachment } from "../../types";
 
 function Attachment({ attachment }: { attachment: IAttachment }) {
   function renderAtachment() {

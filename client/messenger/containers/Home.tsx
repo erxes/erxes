@@ -5,16 +5,19 @@ import { AppConsumer } from "./AppContext";
 
 type Props = {
   supporters: IUser[];
+  color: string;
 };
 
 const home = (props: Props) => (
   <AppConsumer>
-    {({ changeRoute }) => {
-      const createConversation = () => {
-        changeRoute("conversationCreate");
-      };
-
-      return <WidgetHome {...props} createConversation={createConversation} />;
+    {({ getColor, getMessengerData }) => {
+      return (
+        <WidgetHome
+          {...props}
+          messengerData={getMessengerData()}
+          color={getColor()}
+        />
+      );
     }}
   </AppConsumer>
 );
