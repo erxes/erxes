@@ -1,4 +1,4 @@
-import { Button, DropdownToggle, Icon } from 'modules/common/components';
+import { Button, DropdownToggle } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
@@ -18,16 +18,6 @@ type Props = {
 class Home extends React.Component<Props> {
   renderBoards() {
     const { currentBoard, boards } = this.props;
-
-    if (boards.length === 1) {
-      return (
-        <li>
-          <Link to="/settings/deals">
-            <Icon icon="add" /> {__('Create another board')}
-          </Link>
-        </li>
-      );
-    }
 
     return boards.map(board => {
       if (currentBoard && board._id === currentBoard._id) {

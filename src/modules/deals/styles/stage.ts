@@ -92,6 +92,11 @@ const Footer = styled.div`
   font-size: 11px;
 `;
 
+const StageFooter = styled.div`
+  background: ${stageGray};
+  border-radius: 0 0 3px 3px;
+`;
+
 const Header = styled.div`
   padding: 10px 16px;
   position: relative;
@@ -196,6 +201,7 @@ export {
   Indicator,
   DealIndicator,
   IndicatorItem,
+  StageFooter,
   Footer,
   Deal,
   Date,
