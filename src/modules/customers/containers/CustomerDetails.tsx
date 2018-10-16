@@ -22,7 +22,7 @@ const CustomerDetailsContainer = (props: Props, context) => {
   } = props;
 
   if (customerDetailQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const taggerRefetchQueries = [

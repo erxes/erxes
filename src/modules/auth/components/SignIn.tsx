@@ -55,7 +55,7 @@ class SignIn extends React.Component<Props, State> {
               type="email"
               placeholder={__('your@email.com')}
               value={this.state.email}
-              required
+              required={true}
               onChange={this.handleEmailChange}
             />
           </FormGroup>
@@ -64,11 +64,11 @@ class SignIn extends React.Component<Props, State> {
               type="password"
               placeholder={__('password')}
               value={this.state.password}
-              required
+              required={true}
               onChange={this.handlePasswordChange}
             />
           </FormGroup>
-          <Button btnStyle="success" type="submit" block>
+          <Button btnStyle="success" type="submit" block={true}>
             Sign in
           </Button>
         </form>

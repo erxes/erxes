@@ -139,7 +139,7 @@ class CompanyDetails extends React.Component<IProps, State> {
           {this.renderTabContent()}
         </WhiteBox>
 
-        <Tabs grayBorder>
+        <Tabs grayBorder={true}>
           <TabTitle
             className={currentSubtab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}

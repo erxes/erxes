@@ -116,7 +116,7 @@ class WidgetForm extends React.Component<Props, State> {
       <div>
         <FormGroup>
           <ControlLabel>Email subject:</ControlLabel>
-          <FormControl id="emailSubject" type="text" required />
+          <FormControl id="emailSubject" type="text" required={true} />
         </FormGroup>
 
         <FormGroup>
@@ -209,7 +209,7 @@ class WidgetForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>Title:</ControlLabel>
-          <FormControl id="title" type="text" required />
+          <FormControl id="title" type="text" required={true} />
         </FormGroup>
 
         {this.renderEmailContent()}

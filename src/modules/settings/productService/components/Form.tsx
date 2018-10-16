@@ -72,7 +72,7 @@ class Form extends React.Component<Props, State> {
             onChange={e =>
               this.onChangeInput('name', (e.target as HTMLInputElement).value)
             }
-            required
+            required={true}
           />
         </FormGroup>
 

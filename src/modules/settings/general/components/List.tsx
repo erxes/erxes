@@ -110,7 +110,7 @@ class List extends React.Component<Props, State> {
             value={this.state.currencies}
             removeSelected={this.state.removeSelected}
             onChange={this.onCurrenciesChange}
-            multi
+            multi={true}
           />
         </FormGroup>
 
@@ -121,7 +121,7 @@ class List extends React.Component<Props, State> {
             value={this.state.uom}
             removeSelected={this.state.removeSelected}
             onChange={this.onUOMChange}
-            multi
+            multi={true}
           />
         </FormGroup>
       </ContentBox>

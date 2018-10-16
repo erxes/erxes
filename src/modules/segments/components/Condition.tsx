@@ -156,7 +156,9 @@ class Condition extends React.Component<Props, State> {
 
     return (
       <ConditionItem>
-        <ControlLabel ignoreTrans>{field ? field.title : ''}</ControlLabel>
+        <ControlLabel ignoreTrans={true}>
+          {field ? field.title : ''}
+        </ControlLabel>
         <br />
         <FlexContent>
           <FlexItem>

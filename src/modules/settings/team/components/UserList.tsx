@@ -29,7 +29,7 @@ class UserList extends React.Component<ICommonListProps> {
               this.props.history.push(`team/details/${object._id}`);
             }}
           >
-            <NameCard user={object} avatarSize={30} singleLine />
+            <NameCard user={object} avatarSize={30} singleLine={true} />
           </UserAvatar>
           <td>{object.email}</td>
           <td>{object.role}</td>

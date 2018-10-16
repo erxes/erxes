@@ -11,7 +11,7 @@ const routes = () => (
   <React.Fragment>
     <Route
       key="/settings/integrations/createMessenger"
-      exact
+      exact={true}
       path="/settings/integrations/createMessenger"
       component={({ location }) => {
         return (
@@ -22,7 +22,7 @@ const routes = () => (
 
     <Route
       key="/settings/integrations/editMessenger/:_id"
-      exact
+      exact={true}
       path="/settings/integrations/editMessenger/:_id"
       component={({ match }) => {
         return <EditMessenger integrationId={match.params._id} />;
@@ -31,14 +31,14 @@ const routes = () => (
 
     <Route
       key="/settings/integrations/twitter"
-      exact
+      exact={true}
       path="/settings/integrations/twitter"
       component={() => <Twitter type="link" />}
     />
 
     <Route
       key="/settings/integrations/google-calendar"
-      exact
+      exact={true}
       path="/settings/integrations/google-calendar"
       component={({ history, location }) => {
         const queryParams = queryString.parse(location.search);
@@ -55,7 +55,7 @@ const routes = () => (
 
     <Route
       key="/settings/integrations/gmail"
-      exact
+      exact={true}
       path="/settings/integrations/gmail"
       component={({ history, location }) => {
         const queryParams = queryString.parse(location.search);
@@ -108,7 +108,7 @@ const routes = () => (
 
     <Route
       key="/settings/integrations"
-      exact
+      exact={true}
       path="/settings/integrations"
       component={() => <Store />}
     />

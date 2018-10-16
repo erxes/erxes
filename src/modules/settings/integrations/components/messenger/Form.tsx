@@ -238,7 +238,7 @@ class CreateMessenger extends React.Component<Props, State> {
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
-            required
+            required={true}
             onChange={e =>
               this.onChange(
                 'title',
@@ -299,7 +299,7 @@ class CreateMessenger extends React.Component<Props, State> {
           </Steps>
 
           <MessengerPreview>
-            <Preview fullHeight>
+            <Preview fullHeight={true}>
               <CommonPreview
                 onChange={this.onChange}
                 teamMembers={this.props.teamMembers}

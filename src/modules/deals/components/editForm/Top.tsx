@@ -97,7 +97,7 @@ class Top extends React.Component<Props> {
             <ControlLabel>Name</ControlLabel>
             <FormControl
               defaultValue={name}
-              required
+              required={true}
               onChange={e =>
                 onChangeField('name', (e.target as HTMLInputElement).value)
               }
@@ -118,7 +118,7 @@ class Top extends React.Component<Props> {
                 dateFormat="YYYY/MM/DD"
                 timeFormat={false}
                 value={closeDate}
-                closeOnSelect
+                closeOnSelect={true}
                 onChange={date => onChangeField('closeDate', date)}
               />
             </FormGroup>
@@ -154,7 +154,7 @@ class Top extends React.Component<Props> {
                 valueRenderer={userValue}
                 removeSelected={true}
                 options={selectUserOptions(users)}
-                multi
+                multi={true}
               />
             </FormGroup>
           </Right>

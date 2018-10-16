@@ -39,7 +39,7 @@ function IntegrationFilter({ history, counts }: IProps) {
 
   return (
     <Section>
-      <Header uppercase>{__('Filter by integrations')}</Header>
+      <Header uppercase={true}>{__('Filter by integrations')}</Header>
 
       <DataWithLoader
         data={data}

@@ -162,7 +162,7 @@ class UserDetails extends React.Component<Props, State> {
           <NoteForm contentType="user" contentTypeId={user._id} />
         </WhiteBoxRoot>
 
-        <Tabs grayBorder>
+        <Tabs grayBorder={true}>
           <TabTitle
             className={currentTab === 'conversation' ? 'active' : ''}
             onClick={() => this.onTabClick('conversation')}

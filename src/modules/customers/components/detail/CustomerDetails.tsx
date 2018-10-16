@@ -137,7 +137,7 @@ class CustomerDetails extends React.Component<Props, State> {
           {this.renderTabContent()}
         </WhiteBoxRoot>
 
-        <Tabs grayBorder>
+        <Tabs grayBorder={true}>
           <TabTitle
             className={currentSubTab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}
@@ -167,7 +167,7 @@ class CustomerDetails extends React.Component<Props, State> {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={
           <LeftSidebar
-            wide
+            wide={true}
             customer={customer}
             taggerRefetchQueries={taggerRefetchQueries}
           />

@@ -103,7 +103,7 @@ class CustomersList extends React.Component<IProps, State> {
     } = this.props;
 
     return (
-      <Table whiteSpace="nowrap" hover bordered>
+      <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
           <tr>
             <th>
@@ -191,13 +191,13 @@ class CustomersList extends React.Component<IProps, State> {
           placeholder={__('Type to search')}
           onChange={e => this.search(e)}
           value={this.state.searchValue}
-          autoFocus
+          autoFocus={true}
           onFocus={e => this.moveCursorAtTheEnd(e)}
         />
 
         {dateFilter}
 
-        <Dropdown id="dropdown-engage" pullRight>
+        <Dropdown id="dropdown-engage" pullRight={true}>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
               {__('Customize ')} <Icon icon="downarrow" />

@@ -23,7 +23,7 @@ class StageItem extends React.Component<Props, {}> {
           type="text"
           placeholder="Stage name"
           onKeyPress={onKeyPress}
-          autoFocus
+          autoFocus={true}
           name="name"
           onChange={onChange.bind(this, stage._id)}
         />

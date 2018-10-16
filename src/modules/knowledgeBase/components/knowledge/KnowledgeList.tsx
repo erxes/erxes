@@ -74,7 +74,7 @@ class KnowledgeList extends React.Component<Props> {
     );
 
     return (
-      <Header uppercase>
+      <Header uppercase={true}>
         {__('Knowledge base')}
         <ModalTrigger
           title="Add Knowledge base"
@@ -89,14 +89,14 @@ class KnowledgeList extends React.Component<Props> {
     const { topics, loading } = this.props;
 
     return (
-      <Sidebar full wide header={this.renderSidebarHeader()}>
+      <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
         <DataWithLoader
           data={this.renderTopics()}
           loading={loading}
           count={topics.length}
           emptyText="There is no knowledge base"
           emptyImage="/images/robots/robot-05.svg"
-          objective
+          objective={true}
         />
       </Sidebar>
     );

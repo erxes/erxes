@@ -75,7 +75,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
   renderPunchCard(loading, punch, width) {
     let content = (
       <LoaderWrapper>
-        <Spinner objective />
+        <Spinner objective={true} />
       </LoaderWrapper>
     );
 

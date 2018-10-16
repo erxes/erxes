@@ -78,7 +78,11 @@ class Properties extends React.Component<Props> {
     const addField = <MenuItem>{__('Add Property')}</MenuItem>;
 
     return (
-      <Dropdown id="dropdown-knowledgebase" className="quick-button" pullRight>
+      <Dropdown
+        id="dropdown-knowledgebase"
+        className="quick-button"
+        pullRight={true}
+      >
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="add">
             {__('Add Group & Field ')} <Icon icon="downarrow" />

@@ -8,7 +8,7 @@ const routes = () => (
   <React.Fragment>
     <Route
       path="/settings/team/"
-      exact
+      exact={true}
       key="/settings/team/"
       component={({ history, location }) => {
         const queryParams = queryString.parse(location.search);
@@ -18,7 +18,7 @@ const routes = () => (
 
     <Route
       key="/settings/team/details/:id"
-      exact
+      exact={true}
       path="/settings/team/details/:id"
       component={({ match, location }) => {
         const queryParams = queryString.parse(location.search);

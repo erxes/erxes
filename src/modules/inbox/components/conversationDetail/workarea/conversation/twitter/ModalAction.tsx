@@ -177,12 +177,12 @@ class ModalAction extends React.Component<Props, State> {
           </TweetInfo>
 
           <FormControl
-            autoFocus
+            autoFocus={true}
             componentClass="textarea"
             disabled={type === 'retweet'}
             onChange={this.onTweetContentChange}
             defaultValue={this.getContent()}
-            required
+            required={true}
           />
         </FormGroup>
 

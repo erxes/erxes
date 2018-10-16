@@ -13,7 +13,7 @@ const FormContainer = (props: Props & ICommonFormProps) => {
   const { brandsQuery } = props;
 
   if (brandsQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   return <Form {...props} brands={brandsQuery.brands} />;

@@ -38,7 +38,7 @@ class MessengerPreview extends React.Component<Props, State> {
 
     return (
       <WidgetPreviewStyled className={classNames}>
-        <NameCard user={this.props.user} singleLine />
+        <NameCard user={this.props.user} singleLine={true} />
         <PreviewContent
           isFullmessage={isFullmessage}
           dangerouslySetInnerHTML={{

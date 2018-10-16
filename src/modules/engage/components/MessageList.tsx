@@ -76,7 +76,7 @@ class List extends React.Component<Props> {
     } = this.props;
 
     const actionBarRight = (
-      <Dropdown id="dropdown-engage" pullRight>
+      <Dropdown id="dropdown-engage" pullRight={true}>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="add">
             {__('New message')} <Icon icon="downarrow" />
@@ -108,7 +108,7 @@ class List extends React.Component<Props> {
     );
 
     const mainContent = (
-      <Table whiteSpace="nowrap" hover bordered>
+      <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
           <tr>
             <th>

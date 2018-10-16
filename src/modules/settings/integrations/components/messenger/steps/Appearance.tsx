@@ -119,7 +119,7 @@ class Appearance extends React.Component<Props, State> {
             <SubHeading>{__('Choose a custom color')}</SubHeading>
             <OverlayTrigger
               trigger="click"
-              rootClose
+              rootClose={true}
               placement="bottom"
               overlay={popoverTop}
             >

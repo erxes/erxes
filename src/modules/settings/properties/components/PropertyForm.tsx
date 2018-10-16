@@ -158,7 +158,7 @@ class PropertyForm extends React.Component<Props, State> {
         <React.Fragment>
           <FormControl
             id="optionValue"
-            autoFocus
+            autoFocus={true}
             onKeyPress={e => {
               if (e.key === 'Enter') this.handleSaveOption();
             }}

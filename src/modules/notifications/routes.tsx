@@ -6,7 +6,7 @@ import { NotificationList } from './containers';
 const routes = () => (
   <Route
     path="/notifications"
-    exact
+    exact={true}
     key="/notifications"
     component={({ location }) => {
       const queryParams = queryString.parse(location.search);

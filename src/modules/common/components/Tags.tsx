@@ -32,7 +32,7 @@ function Tags({ tags, limit }: Props) {
         <Label
           key={tag.name}
           style={{ backgroundColor: tag.colorCode }}
-          ignoreTrans
+          ignoreTrans={true}
         >
           <span>{tag.name}</span>
         </Label>
@@ -41,7 +41,7 @@ function Tags({ tags, limit }: Props) {
         length - limit > 0 && (
           <Label
             style={{ backgroundColor: colors.colorCoreLightGray }}
-            ignoreTrans
+            ignoreTrans={true}
           >
             <span>{`+${length - limit}`}</span>
           </Label>

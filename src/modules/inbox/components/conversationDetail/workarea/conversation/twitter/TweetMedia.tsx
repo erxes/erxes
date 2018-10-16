@@ -81,10 +81,10 @@ class TweetMedia extends React.Component<Props, {}> {
       return (
         <Gif href={media.expanded_url} target="_blank">
           <video
-            playsInline
-            autoPlay
-            loop
-            muted
+            playsInline={true}
+            autoPlay={true}
+            loop={true}
+            muted={true}
             poster={media.media_url}
             src={url}
           />
