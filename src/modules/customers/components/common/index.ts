@@ -1,6 +1,9 @@
+import ActionSection from './ActionSection';
 import BasicInfoSection from './BasicInfoSection';
 import CustomerSection from './CustomerSection';
+import DetailInfo from './DetailInfo';
 import DevicePropertiesSection from './DevicePropertiesSection';
+import InfoSection from './InfoSection';
 import MessengerSection from './MessengerSection';
 import TaggerSection from './TaggerSection';
 
@@ -9,5 +12,8 @@ export {
   CustomerSection,
   DevicePropertiesSection,
   MessengerSection,
-  TaggerSection
+  TaggerSection,
+  InfoSection,
+  DetailInfo,
+  ActionSection
 };

@@ -1,6 +1,6 @@
 import { SidebarList } from 'modules/layout/styles';
 import styled from 'styled-components';
-import { colors } from '../common/styles';
+import { colors, dimensions } from '../common/styles';
 
 const CompaniesTableWrapper = styled.div`
   td {
@@ -12,10 +12,10 @@ const CompaniesTableWrapper = styled.div`
 `;
 
 const CompanyLogo = styled.div`
-  width: 50px;
-  height: 50px;
+  width: ${dimensions.headerSpacing}px;
+  height: ${dimensions.headerSpacing}px;
   border-radius: 25px;
-  margin-right: 20px;
+  margin-right: ${dimensions.coreSpacing}px;
   background: ${colors.colorSecondary};
 `;
 
@@ -24,7 +24,7 @@ const List = SidebarList.extend`
     border-bottom: 1px solid ${colors.borderPrimary};
     color: ${colors.textPrimary};
     white-space: normal;
-    padding: 10px 20px;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
 
     span {
       color: ${colors.colorCoreLightGray};

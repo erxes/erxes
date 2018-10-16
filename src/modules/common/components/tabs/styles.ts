@@ -2,10 +2,14 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../../styles';
 
-const TabContainer = styledTS<{ grayBorder?: boolean }>(styled.div)`
+const TabContainer = styledTS<{ grayBorder?: boolean; full?: boolean }>(
+  styled.div
+)`
   border-bottom: 1px solid
     ${props => (props.grayBorder ? colors.borderDarker : colors.borderPrimary)};
   margin-bottom: ${dimensions.coreSpacing}px;
+  display: flex;
+  justify-content: ${props => props.full && 'space-evenly'};
 `;
 
 const TabCaption = styled.span`

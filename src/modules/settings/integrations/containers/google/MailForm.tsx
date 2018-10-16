@@ -15,6 +15,7 @@ type Props = {
   gmailIntegrationsQuery: any;
   setAttachmentPreview?: (data: string | null) => void;
   attachmentPreview: { name: string; data: string; type: string };
+  closeModal?: () => void;
   integrationsSendGmail: (
     params: {
       variables: {

@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import { queries as companyQueries } from 'modules/companies/graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -30,7 +31,7 @@ type Props = {
     params: { variables: { _id: string; doc: Variables } }
   ) => Promise<any>;
 
-  customerCounts: any;
+  counts: any;
 };
 
 class SegmentsFormContainer extends React.Component<Props> {
@@ -61,9 +62,9 @@ class SegmentsFormContainer extends React.Component<Props> {
   }
 
   count(segment) {
-    const { customerCounts } = this.props;
+    const { counts } = this.props;
 
-    customerCounts.refetch({ byFakeSegment: segment });
+    counts.refetch({ byFakeSegment: segment });
   }
 
   render() {
@@ -72,7 +73,7 @@ class SegmentsFormContainer extends React.Component<Props> {
       segmentDetailQuery,
       headSegmentsQuery,
       combinedFieldsQuery,
-      customerCounts
+      counts
     } = this.props;
 
     if (
@@ -101,7 +102,7 @@ class SegmentsFormContainer extends React.Component<Props> {
       headSegments: headSegments.filter(s => s.contentType === contentType),
       create: this.create,
       count: this.count,
-      total: customerCounts.customerCounts || {},
+      total: counts[`${contentType}Counts`] || {},
       edit: this.edit
     };
 
@@ -117,7 +118,16 @@ export default compose(
     })
   }),
   graphql(gql(customerQueries.customerCounts), {
-    name: 'customerCounts'
+    name: 'counts',
+    skip: ({ contentType }: { contentType: string }) => {
+      return contentType === 'company';
+    }
+  }),
+  graphql(gql(companyQueries.companyCounts), {
+    name: 'counts',
+    skip: ({ contentType }: { contentType: string }) => {
+      return contentType === 'customer';
+    }
   }),
   graphql(gql(queries.headSegments), { name: 'headSegmentsQuery' }),
   graphql(gql(queries.combinedFields), {

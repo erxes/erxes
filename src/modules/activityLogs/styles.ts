@@ -73,7 +73,7 @@ const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
   > i {
     position: absolute;
     right: -3px;
-    bottom: 1px;
+    top: 30px;
     background: ${props =>
       props.isUser ? colors.colorCoreGreen : colors.colorCoreRed};
     width: 18px;
@@ -85,6 +85,11 @@ const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
     font-size: ${dimensions.unitSpacing}px;
     border: 1px solid ${colors.colorWhite};
   }
+
+  > div {
+    text-align: center;
+    font-size: ${typography.fontSizeUppercase}px;
+  } 
 `;
 
 const ActivityIcon = styledTS<{ color?: string }>(styled.span)`

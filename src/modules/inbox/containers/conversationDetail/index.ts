@@ -4,6 +4,7 @@ import MessengerApp from './MessengerApp';
 import RespondBox from './RespondBox';
 import ResponseTemplate from './ResponseTemplate';
 import Sidebar from './Sidebar';
+import SidebarActivity from './SidebarActivity';
 import TwitterMessage from './TwitterMessage';
 import WorkArea from './WorkArea';
 
@@ -15,5 +16,6 @@ export {
   ResponseTemplate,
   MessengerApp,
   TwitterMessage,
-  FacebookComment
+  FacebookComment,
+  SidebarActivity
 };

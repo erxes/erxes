@@ -1,3 +1,4 @@
+import { ICompany } from 'modules/companies/types';
 import { ITag } from 'modules/tags/types';
 import { IUser } from '../auth/types';
 import { IIntegration } from '../settings/integrations/types';
@@ -74,4 +75,5 @@ export interface ICustomer extends ICustomerDoc {
   integration?: IIntegration;
   getMessengerCustomData?: any;
   getTags: ITag[];
+  companies: ICompany[];
 }

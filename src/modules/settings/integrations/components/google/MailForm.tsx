@@ -35,6 +35,7 @@ type Props = {
   toEmails?: string[];
   setAttachmentPreview?: (data: string | null) => void;
   attachmentPreview: { name: string; data: string; type: string };
+  closeModal?: () => void;
 
   save: (
     params: {
@@ -293,6 +294,27 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
+  renderCancelButton() {
+    const { closeModal } = this.props;
+
+    if (!closeModal) {
+      return null;
+    }
+
+    return (
+      <Button
+        btnStyle="simple"
+        size="small"
+        onClick={() => {
+          closeModal();
+        }}
+        icon="cancel-1"
+      >
+        Close
+      </Button>
+    );
+  }
+
   renderButtons() {
     const { toEmails, from } = this.state;
 
@@ -315,6 +337,7 @@ class MailForm extends React.Component<Props, State> {
         >
           Discard
         </Button>
+        {this.renderCancelButton()}
         <Button
           disabled={disabled}
           onClick={this.onSend}
