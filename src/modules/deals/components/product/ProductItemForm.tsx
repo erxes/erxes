@@ -19,7 +19,7 @@ type Props = {
   currencies: string[];
   productsData?: IProductData[];
   productData: IProductData;
-  removeProductItem?: (_id: string) => void;
+  removeProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
 };
@@ -70,11 +70,11 @@ class ProductItemForm extends React.Component<Props> {
     }
   }
 
-  onChangeField(type, value, _id) {
+  onChangeField(type, value, productId) {
     const { productsData, onChangeProductsData } = this.props;
 
     if (productsData) {
-      const productData = productsData.find(p => p._id === _id);
+      const productData = productsData.find(p => p._id === productId);
       if (productData) {
         productData[type] = value;
       }

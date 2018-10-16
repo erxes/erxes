@@ -5,7 +5,7 @@ import * as React from 'react';
 
 type Props = {
   history?: any;
-  removeHistory: (_id: string) => void;
+  removeHistory: (historyId: string) => void;
 };
 
 function HistoryRow({ history, removeHistory }: Props) {

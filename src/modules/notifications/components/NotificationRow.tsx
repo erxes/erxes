@@ -9,7 +9,7 @@ import { INotification } from '../types';
 
 interface IProps extends IRouterProps {
   notification: INotification;
-  markAsRead: (_ids?: string[]) => void;
+  markAsRead: (notificationIds?: string[]) => void;
   createdUser?: IUser;
 }
 

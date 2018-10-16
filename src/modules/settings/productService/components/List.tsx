@@ -23,7 +23,7 @@ type Doc = {
 type Props = {
   products: IProduct[];
   productsCount: number;
-  remove: (_id: string) => void;
+  remove: (productId: string) => void;
   save: (doc: Doc, callback: () => void, product?: IProduct) => void;
   loading: boolean;
 };

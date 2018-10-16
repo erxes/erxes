@@ -100,8 +100,11 @@ export interface IStageMap {
 }
 
 export type SaveDealMutation = ({ variables: IDealParams }) => Promise<any>;
+
+interface IRemoveDealVariables {
+  _id: string;
+}
+
 export type RemoveDealMutation = (
-  {
-    variables: { _id: string }
-  }
+  { variables: IRemoveDealVariables }
 ) => Promise<any>;

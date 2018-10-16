@@ -10,7 +10,7 @@ type Props = {
   topicIds: string;
   category: ICategory;
   articlesCount: number;
-  remove: (_id: string) => void;
+  remove: (categoryId: string) => void;
   isActive: boolean;
 };
 

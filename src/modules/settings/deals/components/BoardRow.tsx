@@ -8,7 +8,7 @@ import { BoardForm } from './';
 
 type Props = {
   board: IBoard;
-  remove: (_id: string) => void;
+  remove: (boardId: string) => void;
   save: (
     params: { doc: { name: string } },
     callback: () => void,

@@ -24,7 +24,7 @@ type Props = {
   queryParams: any;
   currentCategoryId: string;
   topicIds: string;
-  remove: (_id: string) => void;
+  remove: (articleId: string) => void;
 };
 
 class ArticleRow extends React.Component<Props> {

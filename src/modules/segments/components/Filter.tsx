@@ -13,7 +13,7 @@ import { ISegment } from '../types';
 
 type Props = {
   currentSegment?: string;
-  setSegment: (_id: string) => void;
+  setSegment: (segmentId: string) => void;
   removeSegment: () => void;
   contentType?: string;
   counts?: any;

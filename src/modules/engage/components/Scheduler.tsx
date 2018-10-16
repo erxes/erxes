@@ -37,10 +37,10 @@ class Scheduler extends React.Component<Props, State> {
     this.props.onChange('scheduleDate', scheduleDate);
   }
 
-  generateOptions(number) {
+  generateOptions(length) {
     const options: React.ReactNode[] = [];
 
-    for (let i = 1; i <= number; i++) {
+    for (let i = 1; i <= length; i++) {
       options.push(
         <option key={i} value={i}>
           {i}

@@ -37,11 +37,11 @@ class HistoriesContainer extends React.Component<IProps, State> {
 
     const currentType = router.getParam(history, 'type');
 
-    const removeHistory = _id => {
+    const removeHistory = historyId => {
       this.setState({ loading: true });
 
       importHistoriesRemove({
-        variables: { _id }
+        variables: { _id: historyId }
       })
         .then(() => {
           Alert.success(__('Successfully Removed all customers'));

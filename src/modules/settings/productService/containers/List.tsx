@@ -36,10 +36,10 @@ class ProductListContainer extends React.Component<Props> {
     const products = productsQuery.products || [];
 
     // remove action
-    const remove = _id => {
+    const remove = productId => {
       confirm().then(() => {
         removeMutation({
-          variables: { _id }
+          variables: { _id: productId }
         })
           .then(() => {
             productsQuery.refetch();

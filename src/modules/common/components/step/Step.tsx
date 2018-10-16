@@ -18,7 +18,7 @@ type Props = {
   img?: string;
   title?: string;
   children?: React.ReactNode;
-  next?: (number: number) => void;
+  next?: (stepNumber: number) => void;
   nextButton?: React.ReactNode;
   save?: (name: string, e: React.MouseEvent) => void;
   message?: any;

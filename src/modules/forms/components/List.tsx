@@ -27,7 +27,7 @@ type Props = {
   toggleBulk: (target: IFormIntegration, toAdd: boolean) => void;
   toggleAll: (bulk: IFormIntegration[], name: string) => void;
   loading: boolean;
-  remove: (_id: string, callback: (error: Error) => void) => void;
+  remove: (integrationId: string, callback: (error: Error) => void) => void;
 };
 
 class List extends React.Component<Props, {}> {

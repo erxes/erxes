@@ -16,7 +16,7 @@ type Props = {
   users: IUser[];
   addDeal: (doc: IDealParams, callback: () => void) => void;
   saveDeal: (doc: IDealParams, callback: () => void) => void;
-  removeDeal: (_id: string, callback: () => void) => void;
+  removeDeal: (dealId: string, callback: () => void) => void;
   closeModal: () => void;
 };
 

@@ -3,6 +3,10 @@ import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose } from 'react-apollo';
 
+interface IRemoveMutationVariables {
+  _id: string;
+}
+
 const commonListComposer = options => {
   const {
     name,
@@ -18,12 +22,12 @@ const commonListComposer = options => {
     totalCountQuery: any;
     listQuery: any;
     history: any;
-    addMutation: ({ variables: any }) => Promise<any>;
-    editMutation: ({ variables: any }) => Promise<any>;
+    addMutation: ({ variables }: { variables: any }) => Promise<any>;
+    editMutation: ({ variables }: { variables: any }) => Promise<any>;
     removeMutation: (
       {
-        variables: { _id: string }
-      }
+        variables: { _id }
+      }: { variables: IRemoveMutationVariables }
     ) => Promise<any>;
   };
 
@@ -42,10 +46,10 @@ const commonListComposer = options => {
     const objects = listQuery[name] || [];
 
     // remove action
-    const remove = _id => {
+    const remove = id => {
       confirm().then(() => {
         removeMutation({
-          variables: { _id }
+          variables: { _id: id }
         })
           .then(() => {
             // update queries

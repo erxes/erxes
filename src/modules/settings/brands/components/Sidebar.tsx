@@ -14,7 +14,7 @@ import { IBrand } from '../types';
 
 type Props = {
   brands: IBrand[];
-  remove: (_id: string) => void;
+  remove: (brandId: string) => void;
   save: (
     params: {
       doc: {

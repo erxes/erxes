@@ -14,7 +14,7 @@ import { ISegment } from '../types';
 type Props = {
   contentType?: string;
   segments: ISegment[];
-  removeSegment: (_id: string) => void;
+  removeSegment: (segmentId: string) => void;
 };
 
 class SegmentsList extends React.Component<Props> {

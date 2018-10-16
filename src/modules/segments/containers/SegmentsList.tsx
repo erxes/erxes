@@ -14,10 +14,10 @@ type Props = {
 const SegmentListContainer = (props: Props) => {
   const { segmentsQuery, removeMutation } = props;
 
-  const removeSegment = _id => {
+  const removeSegment = segmentId => {
     confirm().then(() => {
       removeMutation({
-        variables: { _id }
+        variables: { _id: segmentId }
       })
         .then(() => {
           segmentsQuery.refetch();

@@ -13,7 +13,7 @@ import {
 
 type Props = {
   notifications: INotification[];
-  markAsRead: (_ids?: string[]) => void;
+  markAsRead: (notificationIds?: string[]) => void;
   update?: () => void;
 };
 

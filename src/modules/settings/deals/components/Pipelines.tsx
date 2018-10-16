@@ -16,7 +16,7 @@ type Props = {
     pipeline?: IPipeline
   ) => void;
   updateOrder?: any;
-  remove: (_id: string) => void;
+  remove: (pipelineId: string) => void;
   boardId: string;
 };
 

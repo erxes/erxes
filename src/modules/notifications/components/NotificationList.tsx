@@ -9,7 +9,7 @@ import { NotifList } from './styles';
 
 type Props = {
   notifications: INotification[];
-  markAsRead: (_ids?: string[]) => void;
+  markAsRead: (notificationIds?: string[]) => void;
   count: number;
 };
 

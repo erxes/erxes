@@ -18,7 +18,7 @@ type Props = {
   integration: IFormIntegration;
 
   toggleBulk: (integration: IFormIntegration, checked: boolean) => void;
-  remove: (_id: string, callback: (error: Error) => void) => void;
+  remove: (integrationId: string, callback: (error: Error) => void) => void;
 
   isChecked: boolean;
 };

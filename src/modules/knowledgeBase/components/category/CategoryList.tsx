@@ -8,7 +8,7 @@ type Props = {
   topicIds: string;
   categories: ICategory[];
   articlesCount: number;
-  remove: (_id: string) => void;
+  remove: (categoryId: string) => void;
 };
 
 class CategoryList extends React.Component<Props> {
