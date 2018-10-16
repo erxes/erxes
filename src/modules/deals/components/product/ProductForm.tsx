@@ -62,10 +62,10 @@ class ProductForm extends React.Component<Props, State> {
     onChangeProductsData(productsData);
   }
 
-  removeProductItem(_id) {
+  removeProductItem(productId) {
     const { productsData, onChangeProductsData } = this.props;
 
-    const removedProductsData = productsData.filter(p => p._id !== _id);
+    const removedProductsData = productsData.filter(p => p._id !== productId);
 
     onChangeProductsData(removedProductsData);
 

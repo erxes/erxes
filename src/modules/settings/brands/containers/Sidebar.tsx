@@ -31,10 +31,10 @@ const SidebarContainer = (props: ChildProps<QueryResponse>) => {
   const brandsTotalCount = brandsCountQuery.brandsTotalCount || 0;
 
   // remove action
-  const remove = _id => {
+  const remove = brandId => {
     confirm().then(() => {
       removeMutation({
-        variables: { _id }
+        variables: { _id: brandId }
       })
         .then(() => {
           brandsQuery.refetch();

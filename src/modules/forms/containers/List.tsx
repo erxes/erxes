@@ -31,9 +31,9 @@ class ListContainer extends React.Component<Props, {}> {
 
     const integrations = integrationsQuery.integrations || [];
 
-    const remove = (_id: string, callback: (error?: any) => void) => {
+    const remove = (integrationId: string, callback: (error?: any) => void) => {
       removeMutation({
-        variables: { _id }
+        variables: { _id: integrationId }
       }).then(() => {
         // refresh queries
         integrationsQuery.refetch();

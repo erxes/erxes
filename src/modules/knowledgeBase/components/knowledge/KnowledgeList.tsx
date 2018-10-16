@@ -30,7 +30,7 @@ type Props = {
     callback: () => void,
     object: any
   ) => void;
-  remove: (_id: string) => void;
+  remove: (knowledgeBaseId: string) => void;
 };
 
 class KnowledgeList extends React.Component<Props> {

@@ -10,7 +10,7 @@ type Props = {
   queryParams: any;
   currentType: string;
   histories: IImportHistory[];
-  removeHistory: (_id: string) => void;
+  removeHistory: (historyId: string) => void;
   loading: boolean;
 };
 

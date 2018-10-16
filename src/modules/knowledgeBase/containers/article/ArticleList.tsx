@@ -25,10 +25,10 @@ const ArticleContainer = (props: Props) => {
   } = props;
 
   // remove action
-  const remove = _id => {
+  const remove = articleId => {
     confirm().then(() => {
       removeArticlesMutation({
-        variables: { _id }
+        variables: { _id: articleId }
       })
         .then(() => {
           articlesQuery.refetch();

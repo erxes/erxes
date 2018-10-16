@@ -22,7 +22,7 @@ type Doc = {
 
 type Props = {
   product: IProduct;
-  remove: (_id: string) => void;
+  remove: (productId: string) => void;
   save: (doc: Doc, callback: () => void, product?: IProduct) => void;
 };
 

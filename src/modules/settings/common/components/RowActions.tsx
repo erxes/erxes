@@ -14,7 +14,7 @@ type Props = {
   renderForm: (
     doc: { object: any; closeModal: () => void; save: () => void }
   ) => void;
-  remove: (_id: string) => void;
+  remove: (id: string) => void;
   save: () => void;
 };
 

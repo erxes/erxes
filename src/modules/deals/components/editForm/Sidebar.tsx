@@ -20,7 +20,7 @@ type Props = {
     value: any
   ) => void;
   copyDeal: () => void;
-  removeDeal: (_id: string) => void;
+  removeDeal: (dealId: string) => void;
   saveProductsData: () => void;
 };
 

@@ -1,7 +1,7 @@
 export interface ICommonListProps {
   objects: any;
   history: any;
-  remove: (_id: string) => void;
+  remove: (id: string) => void;
   save: () => void;
   refetch: () => void;
   totalCount: number;
@@ -11,7 +11,7 @@ export interface ICommonListProps {
 export interface ICommonRowActionProps {
   size?: string;
   object: any;
-  remove: (_id: string) => void;
+  remove: (id: string) => void;
   save: () => void;
 }
 

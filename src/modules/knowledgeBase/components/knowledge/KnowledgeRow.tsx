@@ -17,7 +17,7 @@ type Props = {
   currentCategoryId: string;
   topic: ITopic;
   articlesCount: number;
-  remove: (_id: string) => void;
+  remove: (knowledgeBaseId: string) => void;
 
   save: (
     params: {

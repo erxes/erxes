@@ -10,7 +10,7 @@ import { IEngageMessage } from '../types';
 import { crudMutationsOptions } from '../utils';
 
 type Props = {
-  removeMutation: (_id: string) => Promise<void>;
+  removeMutation: (engageId: string) => Promise<void>;
   setPauseMutation: (params: { vairables: { _id: string } }) => Promise<void>;
   setLiveMutation: (params: { vairables: { _id: string } }) => Promise<void>;
   setLiveManualMutation: (

@@ -19,7 +19,7 @@ import { IDeal } from '../../types';
 type Props = {
   deal: IDeal;
   onAdd: (stageId: string, deal: IDeal) => void;
-  onRemove: (_id: string, stageId: string) => void;
+  onRemove: (dealId: string, stageId: string) => void;
   onUpdate: (deal: IDeal) => void;
 };
 

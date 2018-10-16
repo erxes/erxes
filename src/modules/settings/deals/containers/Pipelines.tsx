@@ -54,10 +54,10 @@ class PipelinesContainer extends React.Component<Props> {
     const pipelines = pipelinesQuery.dealPipelines;
 
     // remove action
-    const remove = _id => {
+    const remove = pipelineId => {
       confirm().then(() => {
         removePipelineMutation({
-          variables: { _id }
+          variables: { _id: pipelineId }
         })
           .then(() => {
             pipelinesQuery.refetch();

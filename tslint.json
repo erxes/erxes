@@ -8,7 +8,6 @@
     "object-literal-sort-keys": false,
     "no-unused-expression": [true, "allow-tagged-template"],
     "interface-over-type-literal": false,
-    "variable-name": false,
     "no-empty": false,
     "one-variable-per-declaration": false,
     "no-console": false, // allow some console statements for debugging

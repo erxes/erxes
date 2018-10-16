@@ -21,7 +21,7 @@ type Props = {
   isDragging: boolean;
   provided;
   onAdd: (stageId: string, deal: IDeal) => void;
-  onRemove: (_id: string, stageId: string) => void;
+  onRemove: (dealId: string, stageId: string) => void;
   onUpdate: (deal: IDeal) => void;
 };
 

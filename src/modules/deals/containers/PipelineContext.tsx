@@ -20,7 +20,7 @@ interface IStore {
   stageIds: string[];
   onDragEnd: (result: IDragResult) => void;
   onAddDeal: (stageId: string, deal: IDeal) => void;
-  onRemoveDeal: (_id: string, stageId: string) => void;
+  onRemoveDeal: (dealId: string, stageId: string) => void;
   onUpdateDeal: (deal: IDeal, prevStageId?: string) => void;
 }
 
@@ -129,10 +129,10 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
   };
 
-  onRemoveDeal = (_id: string, stageId: string) => {
+  onRemoveDeal = (dealId: string, stageId: string) => {
     const { dealMap } = this.state;
 
-    const deals = dealMap[stageId].filter(deal => deal._id !== _id);
+    const deals = dealMap[stageId].filter(deal => deal._id !== dealId);
 
     this.setState({
       dealMap: { ...dealMap, [stageId]: deals }

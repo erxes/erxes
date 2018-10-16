@@ -6,8 +6,8 @@ import { IStage } from '../types';
 
 type Props = {
   stage: IStage;
-  remove: (_id: string) => void;
-  onChange: (_id: string, e: any) => void;
+  remove: (stageId: string) => void;
+  onChange: (stageId: string, e: any) => void;
   onKeyPress: (e: any) => void;
 };
 

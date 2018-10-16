@@ -6,7 +6,7 @@ import { IPipeline } from '../types';
 type Props = {
   pipeline: IPipeline;
   edit: () => void;
-  remove: (_id: string) => void;
+  remove: (pipelineId: string) => void;
 };
 
 class PipelineRow extends React.Component<Props> {

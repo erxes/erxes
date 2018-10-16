@@ -40,7 +40,7 @@ type Props = {
     callback: () => void,
     topic: ITopic
   ) => void;
-  remove?: (_id: string) => void;
+  remove?: (knowledgeBaseId: string) => void;
   closeModal: () => void;
 };
 
