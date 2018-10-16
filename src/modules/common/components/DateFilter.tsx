@@ -121,7 +121,6 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     this.renderPopover = this.renderPopover.bind(this);
     this.refetchCountQuery = this.refetchCountQuery.bind(this);
     this.renderCount = this.renderCount.bind(this);
-    this.onDateChange = this.onDateChange.bind(this);
     this.filterByDate = this.filterByDate.bind(this);
   }
 
@@ -135,8 +134,10 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
   }
 
-  onDateChange<T extends keyof State>(type: T, date: State[T]) {
-    this.setState({ [type]: date } as Pick<State, keyof State>);
+  onDateChange<T extends keyof State>({ date }: { date: State[T] }, type: T) {
+    if (typeof date !== 'string') {
+      this.setState({ [type]: date } as Pick<State, keyof State>);
+    }
   }
 
   refetchCountQuery() {
@@ -209,11 +210,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
               <Datetime
                 {...props}
                 value={this.state.startDate}
-                onChange={date => {
-                  if (typeof date !== 'string') {
-                    this.onDateChange('startDate', date.toDate());
-                  }
-                }}
+                onChange={this.onDateChange.bind(this, 'startDate')}
               />
             </FlexItem>
 
@@ -221,11 +218,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
               <Datetime
                 {...props}
                 value={this.state.endDate}
-                onChange={date => {
-                  if (typeof date !== 'string') {
-                    this.onDateChange('endDate', date.toDate());
-                  }
-                }}
+                onChange={this.onDateChange.bind(this, 'endDate')}
               />
             </FlexItem>
           </FlexRow>
@@ -233,7 +226,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
           {this.renderCount()}
 
           <FlexRow>
-            <Button btnStyle="simple" onClick={() => this.filterByDate()}>
+            <Button btnStyle="simple" onClick={this.filterByDate}>
               Filter
             </Button>
           </FlexRow>

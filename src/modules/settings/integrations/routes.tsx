@@ -7,112 +7,116 @@ import EditMessenger from './containers/messenger/Edit';
 import Store from './containers/Store';
 import Twitter from './containers/twitter/Form';
 
-const routes = () => (
-  <React.Fragment>
-    <Route
-      key="/settings/integrations/createMessenger"
-      exact={true}
-      path="/settings/integrations/createMessenger"
-      component={({ location }) => {
-        return (
-          <CreateMessenger queryParams={queryString.parse(location.search)} />
-        );
-      }}
-    />
+const routes = () => {
+  const createMessenger = ({ location }) => {
+    return <CreateMessenger queryParams={queryString.parse(location.search)} />;
+  };
 
-    <Route
-      key="/settings/integrations/editMessenger/:_id"
-      exact={true}
-      path="/settings/integrations/editMessenger/:_id"
-      component={({ match }) => {
-        return <EditMessenger integrationId={match.params._id} />;
-      }}
-    />
+  const editMessenger = ({ match }) => {
+    return <EditMessenger integrationId={match.params._id} />;
+  };
 
-    <Route
-      key="/settings/integrations/twitter"
-      exact={true}
-      path="/settings/integrations/twitter"
-      component={() => <Twitter type="link" />}
-    />
+  const twitter = () => {
+    return <Twitter type="link" />;
+  };
 
-    <Route
-      key="/settings/integrations/google-calendar"
-      exact={true}
-      path="/settings/integrations/google-calendar"
-      component={({ history, location }) => {
-        const queryParams = queryString.parse(location.search);
+  const googleCalendar = ({ history, location }) => {
+    const queryParams = queryString.parse(location.search);
 
-        return (
-          <GoogleCalendar
-            type="link"
-            history={history}
-            queryParams={queryParams}
-          />
-        );
-      }}
-    />
+    return (
+      <GoogleCalendar type="link" history={history} queryParams={queryParams} />
+    );
+  };
 
-    <Route
-      key="/settings/integrations/gmail"
-      exact={true}
-      path="/settings/integrations/gmail"
-      component={({ history, location }) => {
-        const queryParams = queryString.parse(location.search);
+  const gmail = ({ history, location }) => {
+    const queryParams = queryString.parse(location.search);
 
-        return (
-          <Gmail type="link" history={history} queryParams={queryParams} />
-        );
-      }}
-    />
+    return <Gmail type="link" history={history} queryParams={queryParams} />;
+  };
 
-    <Route
-      key="/service/oauth/twitter_callback"
-      path="/service/oauth/twitter_callback"
-      component={({ history, location }) => {
-        const queryParams = queryString.parse(location.search);
+  const twitterCallback = ({ history, location }) => {
+    const queryParams = queryString.parse(location.search);
 
-        return (
-          <Twitter type="form" history={history} queryParams={queryParams} />
-        );
-      }}
-    />
+    return <Twitter type="form" history={history} queryParams={queryParams} />;
+  };
 
-    <Route
-      key="/service/oauth/google_callback"
-      path="/service/oauth/google_callback"
-      component={({ history, location }) => {
-        const queryParams = queryString.parse(location.search);
+  const googleCallback = ({ history, location }) => {
+    const queryParams = queryString.parse(location.search);
 
-        return (
-          <GoogleCalendar
-            type="form"
-            history={history}
-            queryParams={queryParams}
-          />
-        );
-      }}
-    />
+    return (
+      <GoogleCalendar type="form" history={history} queryParams={queryParams} />
+    );
+  };
 
-    <Route
-      key="/service/oauth/gmail_callback"
-      path="/service/oauth/gmail_callback"
-      component={({ history, location }) => {
-        const queryParams = queryString.parse(location.search);
+  const gmailCallback = ({ location, history }) => {
+    const queryParams = queryString.parse(location.search);
 
-        return (
-          <Gmail type="form" history={history} queryParams={queryParams} />
-        );
-      }}
-    />
+    return <Gmail type="form" history={history} queryParams={queryParams} />;
+  };
 
-    <Route
-      key="/settings/integrations"
-      exact={true}
-      path="/settings/integrations"
-      component={() => <Store />}
-    />
-  </React.Fragment>
-);
+  return (
+    <React.Fragment>
+      <Route
+        key="/settings/integrations/createMessenger"
+        exact={true}
+        path="/settings/integrations/createMessenger"
+        component={createMessenger}
+      />
+
+      <Route
+        key="/settings/integrations/editMessenger/:_id"
+        exact={true}
+        path="/settings/integrations/editMessenger/:_id"
+        component={editMessenger}
+      />
+
+      <Route
+        key="/settings/integrations/twitter"
+        exact={true}
+        path="/settings/integrations/twitter"
+        component={twitter}
+      />
+
+      <Route
+        key="/settings/integrations/google-calendar"
+        exact={true}
+        path="/settings/integrations/google-calendar"
+        component={googleCalendar}
+      />
+
+      <Route
+        key="/settings/integrations/gmail"
+        exact={true}
+        path="/settings/integrations/gmail"
+        component={gmail}
+      />
+
+      <Route
+        key="/service/oauth/twitter_callback"
+        path="/service/oauth/twitter_callback"
+        component={twitterCallback}
+      />
+
+      <Route
+        key="/service/oauth/google_callback"
+        path="/service/oauth/google_callback"
+        component={googleCallback}
+      />
+
+      <Route
+        key="/service/oauth/gmail_callback"
+        path="/service/oauth/gmail_callback"
+        component={gmailCallback}
+      />
+
+      <Route
+        key="/settings/integrations"
+        exact={true}
+        path="/settings/integrations"
+        component={Store}
+      />
+    </React.Fragment>
+  );
+};
 
 export default routes;

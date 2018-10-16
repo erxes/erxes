@@ -88,9 +88,7 @@ class FilterableList extends React.Component<Props, State> {
         <li
           key={item._id}
           className={showCheckmark ? item.selectedBy : ''}
-          onClick={() => {
-            this.toggleItem(item._id);
-          }}
+          onClick={this.toggleItem.bind(this, item._id)}
         >
           {item.iconClass ? (
             <i

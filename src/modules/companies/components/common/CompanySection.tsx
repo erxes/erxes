@@ -18,6 +18,16 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
+  const renderCompanyChooser = props => {
+    return (
+      <CompanyChooser
+        {...props}
+        data={{ name, companies }}
+        onSelect={onSelect}
+      />
+    );
+  };
+
   const companyTrigger = (
     <a>
       <Icon icon="add" />
@@ -29,13 +39,7 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
       title="Associate"
       trigger={companyTrigger}
       size="lg"
-      content={props => (
-        <CompanyChooser
-          {...props}
-          data={{ name, companies }}
-          onSelect={onSelect}
-        />
-      )}
+      content={renderCompanyChooser}
     />
   );
 

@@ -46,7 +46,6 @@ class CommonChooser extends React.Component<Props, State> {
     };
 
     this.onSelect = this.onSelect.bind(this);
-    this.handleChange = this.handleChange.bind(this);
     this.search = this.search.bind(this);
     this.loadMore = this.loadMore.bind(this);
   }
@@ -105,7 +104,7 @@ class CommonChooser extends React.Component<Props, State> {
     }
 
     return (
-      <li key={data._id} onClick={() => this.handleChange(icon, data)}>
+      <li key={data._id} onClick={this.handleChange.bind(this, icon, data)}>
         {this.props.renderName(data)}
         <Icon icon={icon} />
       </li>
@@ -125,7 +124,7 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   render() {
-    const { renderForm, datas, title, data } = this.props;
+    const { renderForm, datas, title, data, closeModal } = this.props;
     const selectedDatas = this.state.datas;
 
     const addTrigger = (
@@ -141,7 +140,7 @@ class CommonChooser extends React.Component<Props, State> {
           <Column>
             <FormControl
               placeholder={__('Type to search')}
-              onChange={e => this.search(e)}
+              onChange={this.search}
             />
             <ul>
               {datas.map(dataItem => this.renderRow(dataItem, 'add'))}
@@ -177,11 +176,7 @@ class CommonChooser extends React.Component<Props, State> {
               content={renderForm}
             />
             <div>
-              <Button
-                btnStyle="simple"
-                onClick={() => this.props.closeModal()}
-                icon="cancel-1"
-              >
+              <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
                 Cancel
               </Button>
               <Button

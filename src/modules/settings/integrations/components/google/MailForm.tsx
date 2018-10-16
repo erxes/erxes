@@ -116,7 +116,9 @@ class MailForm extends React.Component<Props, State> {
     uploadHandler({
       files,
 
-      beforeUpload: () => {},
+      beforeUpload: () => {
+        return;
+      },
 
       afterUpload: ({ response, fileInfo }) => {
         if (this.state.totalFileSize > 10368000) {

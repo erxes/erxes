@@ -95,7 +95,7 @@ class Uploader extends React.Component<Props, State> {
             alt="attachment"
             src="/images/attach.svg"
             style={attachmentPreviewStyle}
-            onClick={e => this.removeAttachment(e)}
+            onClick={this.removeAttachment}
           />
         ))}
         {loading && <Spinner />}

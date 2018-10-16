@@ -16,71 +16,69 @@ const AsyncInsightPage = asyncComponent(() =>
   import('./components/InsightPage')
 );
 
-const routes = () => (
-  <React.Fragment>
-    <Route
-      key="/insights/response-report"
-      exact={true}
-      path="/insights/response-report"
-      component={() => {
-        return (
-          <AsyncReports
-            type="response"
-            component={AsyncVolumeAndResponseReport}
-          />
-        );
-      }}
-    />
+const routes = () => {
+  const responseReport = () => {
+    return (
+      <AsyncReports type="response" component={AsyncVolumeAndResponseReport} />
+    );
+  };
 
-    <Route
-      key="/insights/response-close-report"
-      exact={true}
-      path="/insights/response-close-report"
-      component={() => {
-        return (
-          <AsyncReports
-            type="close"
-            component={AsyncFirstAndCloseResponseReport}
-          />
-        );
-      }}
-    />
+  const responseCloseReport = () => {
+    return (
+      <AsyncReports type="close" component={AsyncFirstAndCloseResponseReport} />
+    );
+  };
 
-    <Route
-      key="/insights/first-response"
-      exact={true}
-      path="/insights/first-response"
-      component={() => {
-        return (
-          <AsyncReports
-            type="first"
-            component={AsyncFirstAndCloseResponseReport}
-          />
-        );
-      }}
-    />
+  const firstResponse = () => {
+    return (
+      <AsyncReports type="first" component={AsyncFirstAndCloseResponseReport} />
+    );
+  };
 
-    <Route
-      key="/insights/volume-report"
-      exact={true}
-      path="/insights/volume-report"
-      component={() => {
-        return (
-          <AsyncReports
-            type="volume"
-            component={AsyncVolumeAndResponseReport}
-          />
-        );
-      }}
-    />
+  const volumeReport = () => {
+    return (
+      <AsyncReports type="volume" component={AsyncVolumeAndResponseReport} />
+    );
+  };
 
-    <Route
-      key="/insights"
-      exact={true}
-      path="/insights"
-      component={AsyncInsightPage}
-    />
-  </React.Fragment>
-);
+  return (
+    <React.Fragment>
+      <Route
+        key="/insights/response-report"
+        exact={true}
+        path="/insights/response-report"
+        component={responseReport}
+      />
+
+      <Route
+        key="/insights/response-close-report"
+        exact={true}
+        path="/insights/response-close-report"
+        component={responseCloseReport}
+      />
+
+      <Route
+        key="/insights/first-response"
+        exact={true}
+        path="/insights/first-response"
+        component={firstResponse}
+      />
+
+      <Route
+        key="/insights/volume-report"
+        exact={true}
+        path="/insights/volume-report"
+        component={volumeReport}
+      />
+
+      <Route
+        key="/insights"
+        exact={true}
+        path="/insights"
+        component={AsyncInsightPage}
+      />
+    </React.Fragment>
+  );
+};
 
 export default routes;

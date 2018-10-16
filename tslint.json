@@ -4,15 +4,9 @@
     "exclude": ["node_modules/**/*.ts"]
   },
   "rules": {
-    "no-var-requires": false,
     "object-literal-sort-keys": false,
-    "no-unused-expression": [true, "allow-tagged-template"],
     "interface-over-type-literal": false,
-    "no-empty": false,
-    "one-variable-per-declaration": false,
-    "no-console": false, // allow some console statements for debugging
     "member-access": false, // start without having to write public, private modifier
-    "jsx-no-lambda": false, // lambdas in render are bad for performance but this can be annoying during prototyping
     "max-classes-per-file": false
   }
 }

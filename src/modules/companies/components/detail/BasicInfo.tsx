@@ -78,6 +78,14 @@ class BasicInfo extends React.Component<Props> {
     );
   }
 
+  targetMergeOptions(companies) {
+    return companies.map((c, key) => ({
+      key,
+      value: JSON.stringify(c),
+      label: c.primaryName || c.website || 'N/A'
+    }));
+  }
+
   renderAction() {
     const { remove, merge, company } = this.props;
 
@@ -96,17 +104,11 @@ class BasicInfo extends React.Component<Props> {
                 object={company}
                 searchObject={searchCompany}
                 mergeForm={CompaniesMerge}
-                generateOptions={companies => {
-                  return companies.map((c, key) => ({
-                    key,
-                    value: JSON.stringify(c),
-                    label: c.primaryName || c.website || 'N/A'
-                  }));
-                }}
+                generateOptions={this.targetMergeOptions}
               />
             </li>
             <li>
-              <a onClick={() => confirm().then(() => remove())}>
+              <a onClick={confirm.bind(null).then(() => remove())}>
                 {__('Delete')}
               </a>
             </li>
@@ -114,6 +116,10 @@ class BasicInfo extends React.Component<Props> {
         </Dropdown>
       </Action>
     );
+  }
+
+  renderCompanyForm(props, company) {
+    return <CompanyForm {...props} company={company} />;
   }
 
   renderInfo() {
@@ -135,7 +141,7 @@ class BasicInfo extends React.Component<Props> {
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
             size="lg"
-            content={props => <CompanyForm {...props} company={company} />}
+            content={this.renderCompanyForm.bind(this, company)}
           />
         </InfoWrapper>
 

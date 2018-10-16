@@ -82,8 +82,8 @@ class KnowledgeForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    let code = '',
-      color = colors.colorPrimary;
+    let code = '';
+    let color = colors.colorPrimary;
 
     // showed install code automatically in edit mode
     if (props.topic) {

@@ -56,7 +56,7 @@ const uploadHandler = params => {
         })
 
         .catch(e => {
-          console.log(e); // eslint-disable-line
+          console.log(e); // tslint:disable-line
         });
     };
 

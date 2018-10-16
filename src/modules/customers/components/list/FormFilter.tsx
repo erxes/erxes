@@ -16,6 +16,10 @@ interface IProps extends IRouterProps {
 function Forms({ history, counts, integrations, loading }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;
 
+  const onClick = formId => {
+    router.setParams(history, { form: formId });
+  };
+
   const data = (
     <SidebarList>
       {integrations.map(integration => {
@@ -28,9 +32,7 @@ function Forms({ history, counts, integrations, loading }: IProps) {
               className={
                 router.getParam(history, 'form') === form._id ? 'active' : ''
               }
-              onClick={() => {
-                router.setParams(history, { form: form._id });
-              }}
+              onClick={onClick.bind(null, form._id)}
             >
               {integration.name}
               <SidebarCounter>{counts[form._id]}</SidebarCounter>

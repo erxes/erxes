@@ -122,13 +122,13 @@ class CustomerDetails extends React.Component<Props, State> {
           <Tabs>
             <TabTitle
               className={currentTab === 'newNote' ? 'active' : ''}
-              onClick={() => this.onChangeTab('newNote')}
+              onClick={this.onChangeTab.bind(this, 'newNote')}
             >
               <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
             <TabTitle
               className={currentTab === 'email' ? 'active' : ''}
-              onClick={() => this.onChangeTab('email')}
+              onClick={this.onChangeTab.bind(this, 'email')}
             >
               <Icon icon="email" /> {__('Email')}
             </TabTitle>
@@ -140,19 +140,19 @@ class CustomerDetails extends React.Component<Props, State> {
         <Tabs grayBorder={true}>
           <TabTitle
             className={currentSubTab === 'activity' ? 'active' : ''}
-            onClick={() => this.onTabClick('activity')}
+            onClick={this.onTabClick.bind(this, 'activity')}
           >
             {__('Activity')}
           </TabTitle>
           <TabTitle
             className={currentSubTab === 'notes' ? 'active' : ''}
-            onClick={() => this.onTabClick('notes')}
+            onClick={this.onTabClick.bind(this, 'notes')}
           >
             {__('Notes')}
           </TabTitle>
           <TabTitle
             className={currentSubTab === 'conversations' ? 'active' : ''}
-            onClick={() => this.onTabClick('conversations')}
+            onClick={this.onTabClick.bind(this, 'conversations')}
           >
             {__('Conversation')}
           </TabTitle>

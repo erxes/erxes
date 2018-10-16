@@ -27,17 +27,20 @@ class LeadStatusFilter extends React.Component<IProps> {
     const { Section } = Wrapper.Sidebar;
     const paramKey = 'leadStatus';
 
+    const onClear = () => {
+      router.setParams(history, { leadStatus: null });
+    };
+
+    const onClick = (key, value) => {
+      router.setParams(history, { [key]: value });
+    };
+
     return (
       <Section collapsible={true}>
         <Section.Title>{__('Filter by lead status')}</Section.Title>
         <Section.QuickButtons>
           {router.getParam(history, 'leadStatus') ? (
-            <a
-              tabIndex={0}
-              onClick={() => {
-                router.setParams(history, { leadStatus: null });
-              }}
-            >
+            <a tabIndex={0} onClick={onClear}>
               <Icon icon="cancel-1" />
             </a>
           ) : null}
@@ -55,9 +58,7 @@ class LeadStatusFilter extends React.Component<IProps> {
                           ? 'active'
                           : ''
                       }
-                      onClick={() => {
-                        router.setParams(history, { [paramKey]: value });
-                      }}
+                      onClick={onClick.bind(this, paramKey, value)}
                     >
                       {label}
                       <SidebarCounter>

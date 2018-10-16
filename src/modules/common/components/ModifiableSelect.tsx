@@ -5,7 +5,7 @@ import { __, Alert } from '../utils';
 
 type OptionProps = {
   option: any;
-  onSelect: (option: any[], e: any) => void;
+  onSelect: (option: any[]) => void;
 };
 
 class Option extends React.Component<OptionProps> {
@@ -19,11 +19,11 @@ class Option extends React.Component<OptionProps> {
     };
 
     return (
-      <div style={style} onClick={e => onSelect(option, e)}>
+      <div style={style} onClick={onSelect.bind(null, option)}>
         <span style={{ float: 'left' }}>{option.label}</span>
         <Icon
           style={{ float: 'right' }}
-          onClick={() => onRemove(option.value)}
+          onClick={onRemove(option.value)}
           icon="cancel-1"
         />
       </div>
@@ -80,7 +80,11 @@ class ModifiableSelect extends React.Component<Props, State> {
     return <span>{selectedOption}</span>;
   }
 
-  handleSave() {
+  handleSave(e) {
+    if (e.key !== 'Enter') {
+      return;
+    }
+
     const { options, selectedOption } = this.state;
     const { onChange } = this.props;
     const value = (document.getElementById(
@@ -157,11 +161,7 @@ class ModifiableSelect extends React.Component<Props, State> {
             <FormControl
               id="removableSelect-value"
               autoFocus={true}
-              onKeyPress={e => {
-                if (e.key === 'Enter') {
-                  this.handleSave();
-                }
-              }}
+              onKeyPress={this.handleSave}
             />
           </FormGroup>
           <Button
@@ -205,7 +205,7 @@ class ModifiableSelect extends React.Component<Props, State> {
             searchable={false}
             value={selectedOption}
             valueComponent={this.renderValue}
-            onChange={obj => this.setItem(obj)}
+            onChange={this.setItem}
             options={this.generateOptions()}
             optionComponent={Option}
           />

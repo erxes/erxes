@@ -37,13 +37,13 @@ class SortHandler extends React.Component<IProps> {
           icon="uparrow-2"
           size={7}
           isActive={this.checkSortActive(sortField, -1)}
-          onClick={() => this.sortHandler(sortField, -1)}
+          onClick={this.sortHandler.bind(this, sortField, -1)}
         />
         <Icon
           icon="downarrow"
           size={7}
           isActive={this.checkSortActive(sortField, 1)}
-          onClick={() => this.sortHandler(sortField, 1)}
+          onClick={this.sortHandler.bind(this, sortField, 1)}
         />
       </div>
     );

@@ -38,6 +38,23 @@ class ActionSection extends React.Component<Props> {
   render() {
     const { customer, remove, merge } = this.props;
 
+    const customerForm = props => {
+      return <CustomerForm {...props} size="lg" customer={customer} />;
+    };
+
+    const generateOptions = customers => {
+      return customers.map((cus, key) => ({
+        key,
+        value: JSON.stringify(cus),
+        label:
+          cus.firstName ||
+          cus.lastName ||
+          cus.primaryEmail ||
+          cus.primaryPhone ||
+          'N/A'
+      }));
+    };
+
     return (
       <Dropdown id="dropdown-engage">
         <DropdownToggle bsRole="toggle">{this.renderButton()}</DropdownToggle>
@@ -46,14 +63,12 @@ class ActionSection extends React.Component<Props> {
             <ModalTrigger
               title="Edit basic info"
               trigger={
-                <a onClick={() => confirm().then(() => remove())}>
+                <a onClick={confirm.bind(null).then(() => remove())}>
                   {__('Edit')}
                 </a>
               }
               size="lg"
-              content={props => (
-                <CustomerForm {...props} size="lg" customer={customer} />
-              )}
+              content={customerForm}
             />
           </li>
           <li>
@@ -62,22 +77,13 @@ class ActionSection extends React.Component<Props> {
               object={customer}
               searchObject={searchCustomer}
               mergeForm={CustomersMerge}
-              generateOptions={customers => {
-                return customers.map((cus, key) => ({
-                  key,
-                  value: JSON.stringify(cus),
-                  label:
-                    cus.firstName ||
-                    cus.lastName ||
-                    cus.primaryEmail ||
-                    cus.primaryPhone ||
-                    'N/A'
-                }));
-              }}
+              generateOptions={generateOptions}
             />
           </li>
           <li>
-            <a onClick={() => confirm().then(() => remove())}>{__('Delete')}</a>
+            <a onClick={confirm.bind(null).then(() => remove())}>
+              {__('Delete')}
+            </a>
           </li>
         </Dropdown.Menu>
       </Dropdown>

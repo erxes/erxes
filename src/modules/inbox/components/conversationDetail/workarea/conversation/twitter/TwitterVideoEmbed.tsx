@@ -19,7 +19,7 @@ class TwitterVideoEmbed extends React.Component<Props, {}> {
   componentDidMount() {
     script.ready('twitter-embed', () => {
       if (!(window as any).twttr) {
-        console.error('Failure to load window.twttr, aborting load.');
+        console.error('Failure to load window.twttr, aborting load.'); //tslint:disable-line
         return;
       }
 

@@ -38,15 +38,17 @@ class Textarea extends React.Component<Props> {
     }
   }
 
+  setArea({ area }) {
+    this.area = area;
+  }
+
   render() {
     const { maxHeight, ...props } = this.props;
 
     return (
       <TextArea
         {...props}
-        innerRef={area => {
-          this.area = area;
-        }}
+        innerRef={this.setArea}
         maxHeight={maxHeight}
         onChange={this.onChange}
       />
