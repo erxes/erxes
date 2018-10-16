@@ -144,7 +144,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
-            required
+            required={true}
             onChange={e =>
               this.changeState('title', (e.target as HTMLInputElement).value)
             }

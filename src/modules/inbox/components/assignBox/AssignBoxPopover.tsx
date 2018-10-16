@@ -51,7 +51,7 @@ class AssignBoxPopover extends React.Component<Props> {
         placement="bottom"
         overlay={popover}
         container={container}
-        rootClose
+        rootClose={true}
       >
         {trigger}
       </OverlayTrigger>

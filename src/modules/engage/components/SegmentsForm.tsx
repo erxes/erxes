@@ -181,7 +181,7 @@ class SegmentsForm extends React.Component<Props, State> {
               <ControlLabel>Name</ControlLabel>
               <FormControl
                 type="text"
-                required
+                required={true}
                 value={this.state.name}
                 onChange={e =>
                   this.handleChange(

@@ -74,7 +74,7 @@ class Home extends React.Component<Props> {
       <BarItems>
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
-            <Button btnStyle="primary" icon="downarrow" ignoreTrans>
+            <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
               {currentBoard && currentBoard.name}
             </Button>
           </DropdownToggle>
@@ -83,7 +83,7 @@ class Home extends React.Component<Props> {
 
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
-            <Button btnStyle="primary" icon="downarrow" ignoreTrans>
+            <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
               {currentPipeline && currentPipeline.name}
             </Button>
           </DropdownToggle>
@@ -117,7 +117,7 @@ class Home extends React.Component<Props> {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={this.renderActionBar()}
         content={<Board currentPipeline={currentPipeline} />}
-        transparent
+        transparent={true}
       />
     );
   }

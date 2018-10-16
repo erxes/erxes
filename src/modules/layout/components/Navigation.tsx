@@ -136,7 +136,7 @@ class Navigation extends React.Component<{
             <NavLink to="/inbox" activeClassName="active">
               <NavIcon className="icon-chat" />
               {unreadConversationsCount !== 0 && (
-                <Label shake lblStyle="danger" ignoreTrans>
+                <Label shake={true} lblStyle="danger" ignoreTrans={true}>
                   {unreadConversationsCount}
                 </Label>
               )}

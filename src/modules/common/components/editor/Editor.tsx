@@ -287,7 +287,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
             // tslint:disable-next-line:jsx-no-string-ref
             ref="editor"
             plugins={this.props.plugins}
-            spellCheck
+            spellCheck={true}
             handlePastedFiles={this.handlePastedFile}
           />
         </div>

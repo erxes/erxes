@@ -53,7 +53,7 @@ class List extends React.Component<Props, {}> {
               content={props => (
                 <Config {...props} brandId={_id} refetch={refetch} />
               )}
-              ignoreTrans
+              ignoreTrans={true}
             />
           </ActionButtons>
         </td>

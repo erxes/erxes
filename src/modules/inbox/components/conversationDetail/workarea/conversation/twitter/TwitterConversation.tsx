@@ -109,7 +109,9 @@ class TwitterConversation extends React.Component<Props, {}> {
 
     return (
       <React.Fragment>
-        <List isRoot>{this.renderTweets(nestedMessages, integrationId)}</List>
+        <List isRoot={true}>
+          {this.renderTweets(nestedMessages, integrationId)}
+        </List>
         {this.renderInternals(messages)}
       </React.Fragment>
     );

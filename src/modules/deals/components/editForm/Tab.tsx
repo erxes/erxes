@@ -76,7 +76,7 @@ class Tab extends React.Component<Props, { currentTab: string }> {
 
           <NoteForm contentType="deal" contentTypeId={deal && deal._id} />
         </WhiteBox>
-        <Tabs grayBorder>
+        <Tabs grayBorder={true}>
           <TabTitle
             className={currentTab === 'activity' ? 'active' : ''}
             onClick={() => this.onTabClick('activity')}

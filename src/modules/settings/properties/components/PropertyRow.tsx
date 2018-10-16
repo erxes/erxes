@@ -121,7 +121,7 @@ class PropertyRow extends React.Component<Props, State> {
     }
 
     return (
-      <Table hover>
+      <Table hover={true}>
         <thead>
           <tr>
             <th>{__('Name')}</th>

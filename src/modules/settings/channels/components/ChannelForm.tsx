@@ -94,7 +94,7 @@ class ChannelForm extends React.Component<Props, State> {
             id="channel-name"
             defaultValue={object.name}
             type="text"
-            required
+            required={true}
           />
         </FormGroup>
 
@@ -119,7 +119,7 @@ class ChannelForm extends React.Component<Props, State> {
             }}
             value={self.state.selectedMembers}
             options={self.generateMembersParams(members)}
-            multi
+            multi={true}
           />
         </FormGroup>
       </React.Fragment>

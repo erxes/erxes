@@ -57,7 +57,7 @@ export default class DealItem extends React.PureComponent<
 
     return (
       <Modal bsSize="lg" show={true} onHide={this.toggleForm}>
-        <Modal.Header closeButton>
+        <Modal.Header closeButton={true}>
           <Modal.Title>{__('Edit deal')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>

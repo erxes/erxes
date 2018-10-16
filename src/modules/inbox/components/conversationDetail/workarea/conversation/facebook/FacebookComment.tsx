@@ -44,7 +44,9 @@ export default class FacebookComment extends React.Component<Props, {}> {
 
     return (
       <ReplyReaction>
-        {data.reactions && <Reactions reactions={data.reactions} comment />}
+        {data.reactions && (
+          <Reactions reactions={data.reactions} comment={true} />
+        )}
         <a>{data.likeCount}</a>
       </ReplyReaction>
     );

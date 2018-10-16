@@ -55,7 +55,7 @@ class ChannelStep extends React.Component<Props> {
 
   render() {
     return (
-      <FullContent center>
+      <FullContent center={true}>
         {this.renderBox(
           METHODS.EMAIL,
           'email-1',

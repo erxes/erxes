@@ -121,7 +121,7 @@ class ArticleForm extends React.Component<Props, State> {
             id="knowledgebase-article-title"
             type="text"
             defaultValue={article.title}
-            required
+            required={true}
           />
         </FormGroup>
 
@@ -136,7 +136,7 @@ class ArticleForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <ErxesEditor bordered {...props} />
+          <ErxesEditor bordered={true} {...props} />
         </FormGroup>
 
         <FormGroup>

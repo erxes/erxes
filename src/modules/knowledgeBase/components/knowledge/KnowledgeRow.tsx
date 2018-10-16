@@ -89,7 +89,7 @@ class KnowledgeRow extends React.Component<Props, State> {
 
     return (
       <RowActions>
-        <Dropdown id="dropdown-knowledgebase" pullRight>
+        <Dropdown id="dropdown-knowledgebase" pullRight={true}>
           <DropdownToggle bsRole="toggle">
             <Icon icon="settings" />
           </DropdownToggle>

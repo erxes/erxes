@@ -43,7 +43,7 @@ function Forms({ history, counts, integrations, loading }: IProps) {
 
   return (
     <Section collapsible={integrations.length > 5}>
-      <Header uppercase>{__('Filter by form')}</Header>
+      <Header uppercase={true}>{__('Filter by form')}</Header>
 
       <DataWithLoader
         data={data}

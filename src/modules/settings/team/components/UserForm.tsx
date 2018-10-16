@@ -71,7 +71,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
           onChange={items => {
             self.setState({ selectedChannels: items });
           }}
-          multi
+          multi={true}
         />
       </FormGroup>
     );

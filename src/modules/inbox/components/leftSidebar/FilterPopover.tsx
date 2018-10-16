@@ -93,7 +93,7 @@ export default class FilterPopover extends React.Component<Props, State> {
     if (loading) {
       return (
         <Popover id="filter-popover" title={__(popoverTitle)}>
-          <Spinner objective />
+          <Spinner objective={true} />
         </Popover>
       );
     }
@@ -122,8 +122,8 @@ export default class FilterPopover extends React.Component<Props, State> {
         placement={placement}
         overlay={this.renderPopover()}
         container={this}
-        shouldUpdatePosition
-        rootClose
+        shouldUpdatePosition={true}
+        rootClose={true}
       >
         <PopoverButton onClick={() => this.onClick()}>
           {__(buttonText)}

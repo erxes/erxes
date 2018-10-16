@@ -7,7 +7,7 @@ const routes = () => (
   <React.Fragment>
     <Route
       key="/settings/emails/"
-      exact
+      exact={true}
       path="/settings/emails/"
       component={({ location }) => {
         return <List queryParams={queryString.parse(location.search)} />;
@@ -16,7 +16,7 @@ const routes = () => (
 
     <Route
       key="/settings/emails/signatures"
-      exact
+      exact={true}
       path="/settings/emails/signatures"
       component={({ location }) => {
         return <Signature queryParams={queryString.parse(location.search)} />;

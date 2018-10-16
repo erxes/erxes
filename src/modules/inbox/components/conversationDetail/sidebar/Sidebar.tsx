@@ -213,7 +213,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           <Button size="small">{__('Call')}</Button>
         </a>
 
-        <ActionSection customer={customer} isSmall />
+        <ActionSection customer={customer} isSmall={true} />
       </Actions>
     );
   }
@@ -308,11 +308,15 @@ class Index extends React.Component<IndexProps, IndexState> {
       return (
         <React.Fragment>
           <BasicInfo>
-            <InfoSection customer={customer} showUserStatus showUserPosition />
+            <InfoSection
+              customer={customer}
+              showUserStatus={true}
+              showUserPosition={true}
+            />
           </BasicInfo>
           {this.renderActions()}
 
-          <Tabs full>
+          <Tabs full={true}>
             <TabTitle
               className={currentSubTab === 'details' ? 'active' : ''}
               onClick={() => this.onSubtabClick('details')}
@@ -364,8 +368,8 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { currentTab } = this.state;
 
     return (
-      <Sidebar full>
-        <Tabs full>
+      <Sidebar full={true}>
+        <Tabs full={true}>
           <TabTitle
             className={currentTab === 'customer' ? 'active' : ''}
             onClick={() => this.onTabClick('customer')}

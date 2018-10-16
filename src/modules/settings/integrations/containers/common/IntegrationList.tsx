@@ -16,7 +16,7 @@ const IntegrationListContainer = (props: Props) => {
   const { integrationsQuery, removeMutation } = props;
 
   if (integrationsQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const integrations = integrationsQuery.integrations || [];

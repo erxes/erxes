@@ -4,8 +4,13 @@ import { Inbox } from './containers';
 
 const routes = () => (
   <React.Fragment>
-    <Route exact path="/" key="index" render={() => <Redirect to="/inbox" />} />
-    <Route exact key="inbox" path="/inbox" component={Inbox} />
+    <Route
+      exact={true}
+      path="/"
+      key="index"
+      render={() => <Redirect to="/inbox" />}
+    />
+    <Route exact={true} key="inbox" path="/inbox" component={Inbox} />
   </React.Fragment>
 );
 

@@ -71,7 +71,7 @@ class Form extends React.Component<Props, State> {
             type="text"
             value={name}
             onChange={this.handleName}
-            required
+            required={true}
             id="name"
           />
         </FormGroup>

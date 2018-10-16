@@ -1,9 +1,7 @@
 {
   "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
   "linterOptions": {
-    "exclude": [
-      "node_modules/**/*.ts"
-    ]
+    "exclude": ["node_modules/**/*.ts"]
   },
   "rules": {
     "no-var-requires": false,
@@ -15,9 +13,8 @@
     "no-empty": false,
     "one-variable-per-declaration": false,
     "no-console": false, // allow some console statements for debugging
-    "member-access": false, // start without having to write public, private modifiers
+    "member-access": false, // start without having to write public, private modifier
     "jsx-no-lambda": false, // lambdas in render are bad for performance but this can be annoying during prototyping
-    "jsx-boolean-value": false, // allow someProp instead of someProp={true}
     "max-classes-per-file": false
   }
 }

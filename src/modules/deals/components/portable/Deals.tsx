@@ -55,7 +55,7 @@ class PortableDeals extends React.Component<Props> {
             saveDeal={saveDeal}
             customerId={customerId}
             companyId={companyId}
-            showSelect
+            showSelect={true}
           />
         )}
       />

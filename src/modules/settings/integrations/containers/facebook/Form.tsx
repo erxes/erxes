@@ -71,7 +71,7 @@ class FacebookContainer extends React.Component<IProps, State> {
     } = this.props;
 
     if (brandsQuery.loading || integrationFacebookAppsListQuery.loading) {
-      return <Spinner objective />;
+      return <Spinner objective={true} />;
     }
 
     const brands = brandsQuery.brands;

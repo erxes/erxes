@@ -17,7 +17,7 @@ class LeftSidebar extends React.Component<Props> {
     const { company, taggerRefetchQueries } = this.props;
 
     return (
-      <Sidebar wide>
+      <Sidebar wide={true}>
         <BasicInfo company={company} />
         <CustomFieldsSection company={company} />
         <TaggerSection

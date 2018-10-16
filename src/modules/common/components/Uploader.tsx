@@ -99,7 +99,7 @@ class Uploader extends React.Component<Props, State> {
           />
         ))}
         {loading && <Spinner />}
-        <input type="file" multiple onChange={this.handleFileInput} />
+        <input type="file" multiple={true} onChange={this.handleFileInput} />
       </Attachment>
     );
   }

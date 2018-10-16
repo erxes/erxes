@@ -64,7 +64,7 @@ class Sidebar extends React.Component<Props, {}> {
     );
 
     return (
-      <Header uppercase>
+      <Header uppercase={true}>
         {__('Brands')}
 
         <ModalTrigger
@@ -80,7 +80,7 @@ class Sidebar extends React.Component<Props, {}> {
     const { loading, brandsTotalCount } = this.props;
 
     return (
-      <LeftSidebar wide full header={this.renderSidebarHeader()}>
+      <LeftSidebar wide={true} full={true} header={this.renderSidebarHeader()}>
         <List>
           {this.renderItems()}
           <LoadMore all={brandsTotalCount} loading={loading} />

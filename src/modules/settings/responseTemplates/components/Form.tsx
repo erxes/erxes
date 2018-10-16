@@ -100,13 +100,13 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             id="template-name"
             defaultValue={object.name}
             type="text"
-            required
+            required={true}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <ErxesEditor bordered {...props} />
+          <ErxesEditor bordered={true} {...props} />
         </FormGroup>
       </React.Fragment>
     );

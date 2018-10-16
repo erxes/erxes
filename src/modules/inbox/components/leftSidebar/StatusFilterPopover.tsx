@@ -92,7 +92,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
     if (loading) {
       return (
         <Popover id="filter-popover" title={__('Filter by status')}>
-          <Spinner objective />
+          <Spinner objective={true} />
         </Popover>
       );
     }
@@ -134,7 +134,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
         placement="bottom"
         overlay={this.renderPopover()}
         container={this}
-        rootClose
+        rootClose={true}
       >
         <PopoverButton onClick={() => this.onClick()}>
           {__('Status')}

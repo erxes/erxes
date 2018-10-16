@@ -153,7 +153,7 @@ class ManageIntegrations extends React.Component<Props, State> {
         <Tip text={this.getTypeName(integration)}>
           <Label
             className={`label-${this.getTypeName(integration)} round`}
-            ignoreTrans
+            ignoreTrans={true}
           >
             <Icon icon={this.getIconByKind(integration)} />
           </Label>
@@ -223,7 +223,7 @@ class ManageIntegrations extends React.Component<Props, State> {
             </ul>
           </Column>
           <Column>
-            <Title full>
+            <Title full={true}>
               {current.name}
               &apos;s integration
               <span>({selectedIntegrations.length})</span>

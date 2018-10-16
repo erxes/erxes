@@ -69,7 +69,7 @@ class Sidebar extends React.Component<Props, {}> {
     );
 
     return (
-      <Header uppercase>
+      <Header uppercase={true}>
         {__('Channels')}
         <ModalTrigger
           title="New Channel"
@@ -86,7 +86,7 @@ class Sidebar extends React.Component<Props, {}> {
     const { loading, channelsTotalCount } = this.props;
 
     return (
-      <LeftSidebar wide full header={this.renderSidebarHeader()}>
+      <LeftSidebar wide={true} full={true} header={this.renderSidebarHeader()}>
         <SidebarList>
           {this.renderItems()}
           <LoadMore all={channelsTotalCount} loading={loading} />

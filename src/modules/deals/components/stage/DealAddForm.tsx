@@ -61,7 +61,7 @@ class DealAddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
-            <FormControl autoFocus onChange={this.onChangeName} />
+            <FormControl autoFocus={true} onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
 

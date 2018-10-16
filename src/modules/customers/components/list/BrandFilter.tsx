@@ -39,7 +39,7 @@ function Brands({ history, counts, brands, loading }: IProps) {
 
   return (
     <Section collapsible={brands.length > 5}>
-      <Header uppercase>{__('Filter by brand')}</Header>
+      <Header uppercase={true}>{__('Filter by brand')}</Header>
 
       <DataWithLoader
         data={data}
