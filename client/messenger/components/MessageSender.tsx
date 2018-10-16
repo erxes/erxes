@@ -39,10 +39,15 @@ class MessageSender extends React.Component<Props, State> {
     }
   }
 
+  componentDidUpdate() {
+    if (this.textarea && window.innerWidth > 415) {
+      this.textarea.focus();
+    }
+  }
+
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.isParentFocused) {
       this.readMessage();
-
       if (this.textarea) {
         this.textarea.focus();
       }
@@ -106,7 +111,6 @@ class MessageSender extends React.Component<Props, State> {
           onChange={this.handleMessageChange}
           onBlur={this.handleOnBlur}
           onClick={this.handleClick}
-          autoFocus
           onKeyDown={this.handleKeyPress}
         />
         {this.props.isAttachingFile ? (
