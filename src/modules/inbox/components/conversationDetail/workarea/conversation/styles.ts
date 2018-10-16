@@ -17,7 +17,9 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
   text-align: left;
 
   ${props => {
-    if (!props.staff) return '';
+    if (!props.staff) {
+      return '';
+    }
 
     return `
         border-bottom-right-radius: 2px;
@@ -77,7 +79,9 @@ const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean }>(styled.div)`
   }
 
   ${props => {
-    if (!props.staff) return '';
+    if (!props.staff) {
+      return '';
+    }
 
     return `
         padding-right: 0;

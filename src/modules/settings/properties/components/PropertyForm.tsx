@@ -160,7 +160,9 @@ class PropertyForm extends React.Component<Props, State> {
             id="optionValue"
             autoFocus={true}
             onKeyPress={e => {
-              if (e.key === 'Enter') this.handleSaveOption();
+              if (e.key === 'Enter') {
+                this.handleSaveOption();
+              }
             }}
           />
           <Actions>
@@ -204,7 +206,9 @@ class PropertyForm extends React.Component<Props, State> {
   }
 
   renderOptions() {
-    if (!this.state.hasOptions) return null;
+    if (!this.state.hasOptions) {
+      return null;
+    }
 
     return (
       <TypeList>

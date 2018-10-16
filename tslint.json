@@ -6,7 +6,6 @@
   "rules": {
     "no-var-requires": false,
     "object-literal-sort-keys": false,
-    "curly": false,
     "no-unused-expression": [true, "allow-tagged-template"],
     "interface-over-type-literal": false,
     "variable-name": false,

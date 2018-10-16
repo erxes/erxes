@@ -36,7 +36,9 @@ export default class DealItem extends React.PureComponent<
   }
 
   renderDate(date) {
-    if (!date) return null;
+    if (!date) {
+      return null;
+    }
 
     return <Date>{moment(date).fromNow()}</Date>;
   }

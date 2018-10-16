@@ -44,7 +44,9 @@ class GenerateGroup extends React.Component<Props, State> {
     const { save } = this.props;
 
     save(data, error => {
-      if (error) return Alert.error(error.message);
+      if (error) {
+        return Alert.error(error.message);
+      }
 
       this.cancelEditing();
 
@@ -103,7 +105,9 @@ class GenerateGroup extends React.Component<Props, State> {
     const { fieldGroup } = this.props;
     const { data } = this.state;
 
-    if (!fieldGroup.isVisible) return null;
+    if (!fieldGroup.isVisible) {
+      return null;
+    }
 
     return (
       <Section>
@@ -111,7 +115,9 @@ class GenerateGroup extends React.Component<Props, State> {
 
         <SidebarContent>
           {fieldGroup.fields.map((field, index) => {
-            if (!field.isVisible) return null;
+            if (!field.isVisible) {
+              return null;
+            }
 
             return (
               <GenerateField

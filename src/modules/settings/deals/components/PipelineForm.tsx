@@ -88,7 +88,9 @@ class PipelineForm extends React.Component<Props, State> {
   render() {
     const { show, pipeline, closeModal } = this.props;
 
-    if (!show) return null;
+    if (!show) {
+      return null;
+    }
 
     return (
       <Modal show={show} onHide={closeModal}>

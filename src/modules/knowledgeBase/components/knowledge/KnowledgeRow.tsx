@@ -46,7 +46,9 @@ const collapse = (id: string, click?: boolean, isCurrent?: boolean) => {
   const data = localStorage.getItem(STORAGE_KEY);
   let values: string[] = [];
 
-  if (data) values = JSON.parse(data);
+  if (data) {
+    values = JSON.parse(data);
+  }
 
   if (click) {
     values.includes(id)

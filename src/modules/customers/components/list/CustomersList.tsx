@@ -139,7 +139,9 @@ class CustomersList extends React.Component<IProps, State> {
   }
 
   search(e) {
-    if (this.timer) clearTimeout(this.timer);
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
     const { history } = this.props;
     const searchValue = e.target.value;
 

@@ -77,7 +77,9 @@ class DealMove extends React.Component<Props, State> {
             </StageItem>
           );
 
-          if (s._id === stageId) isPass = false;
+          if (s._id === stageId) {
+            isPass = false;
+          }
 
           return item;
         })}
@@ -86,7 +88,9 @@ class DealMove extends React.Component<Props, State> {
   }
 
   renderDealSelect() {
-    if (!this.state.show) return null;
+    if (!this.state.show) {
+      return null;
+    }
 
     const { stageId, onChangeStage } = this.props;
     const { boardId, pipelineId } = this.state;

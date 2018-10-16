@@ -213,7 +213,9 @@ class WorkArea extends React.Component<Props, State> {
         updateQuery: (prev, { fetchMoreResult }) => {
           this.setState({ loadingMessages: false });
 
-          if (!fetchMoreResult) return prev;
+          if (!fetchMoreResult) {
+            return prev;
+          }
 
           const prevMessageIds = (prev.conversationMessages || []).map(
             m => m._id

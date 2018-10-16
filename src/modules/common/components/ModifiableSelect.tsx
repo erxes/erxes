@@ -158,7 +158,9 @@ class ModifiableSelect extends React.Component<Props, State> {
               id="removableSelect-value"
               autoFocus={true}
               onKeyPress={e => {
-                if (e.key === 'Enter') this.handleSave();
+                if (e.key === 'Enter') {
+                  this.handleSave();
+                }
               }}
             />
           </FormGroup>
