@@ -109,6 +109,7 @@ class Home extends React.Component<Props, State> {
 
   renderHead() {
     const { supporters, loading, messengerData } = this.props;
+    console.log(messengerData);
 
     return (
       <div
@@ -136,10 +137,11 @@ class Home extends React.Component<Props, State> {
         <TopBar middle={this.renderHead()} />
         <div className="erxes-home-content">
           <RTG.CSSTransition
-            in={true}
+            in={this.state.activeSupport}
             appear={true}
             timeout={600}
             classNames="slide"
+            unmountOnExit
           >
             <div className="erxes-home-item">
               <Integrations />
