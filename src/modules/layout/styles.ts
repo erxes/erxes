@@ -204,10 +204,11 @@ const SidebarToggle = styledTS<{ inverse?: boolean }>(styled.a)`
   }
 `;
 
-const HelperButtons = styled.div`
+const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
-  top: 15px;
+  top: ${props =>
+    props.isSidebarOpen ? `${dimensions.unitSpacing}px` : '15px'};
   color: ${colors.colorCoreLightGray};
 
   a {
@@ -222,7 +223,7 @@ const HelperButtons = styled.div`
 
     > i {
       font-size: 14px;
-      margin-right: 0;
+      margin-right: ${props => (props.isSidebarOpen ? '25px' : '0')};
 
       &:hover {
         color: ${colors.colorCoreBlack};

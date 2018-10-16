@@ -16,8 +16,16 @@ function Title({ children }: { children: React.ReactNode }) {
   return <SidebarTitle>{children}</SidebarTitle>;
 }
 
-function QuickButtons({ children }: { children: React.ReactNode }) {
-  return <HelperButtons>{children}</HelperButtons>;
+function QuickButtons({
+  children,
+  isSidebarOpen
+}: {
+  children: React.ReactNode;
+  isSidebarOpen?: boolean;
+}) {
+  return (
+    <HelperButtons isSidebarOpen={isSidebarOpen}>{children}</HelperButtons>
+  );
 }
 
 type Props = {

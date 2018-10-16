@@ -11,9 +11,10 @@ type Props = {
   name: string;
   companies?: ICompany[];
   onSelect: (companies: ICompany[]) => void;
+  isOpen?: boolean;
 };
 
-function CompanySection({ name, companies = [], onSelect }: Props) {
+function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
@@ -63,7 +64,7 @@ function CompanySection({ name, companies = [], onSelect }: Props) {
     <Section>
       <Title>{__('Companies')}</Title>
 
-      <QuickButtons>{quickButtons}</QuickButtons>
+      <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
 
       {content}
     </Section>
