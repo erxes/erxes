@@ -6,11 +6,8 @@ import { IBrowserInfo } from "./types";
 
 export const getBrowserInfo = async () => {
   let location;
-
   try {
-    const response = await fetch(
-      "https://geoip.nekudo.com/api/{ip}/{language}/{type}"
-    );
+    const response = await fetch("https://json.geoiplookup.io/");
 
     location = await response.json();
   } catch (e) {
@@ -18,25 +15,17 @@ export const getBrowserInfo = async () => {
 
     location = {
       city: "",
-      country: {
-        name: "",
-        code: ""
-      },
-      location: {
-        accuracy_radius: 1,
-        latitude: 0,
-        longitude: 0,
-        time_zone: ""
-      },
-      ip: ""
+      remoteAddress: "",
+      region: "",
+      country: ""
     };
   }
 
   return {
     remoteAddress: location.ip,
-    region: location.region_name,
+    region: location.region,
     city: location.city,
-    country: location.country.name,
+    country: location.country_name,
     url: window.location.pathname,
     hostname: window.location.origin,
     language: navigator.language,
