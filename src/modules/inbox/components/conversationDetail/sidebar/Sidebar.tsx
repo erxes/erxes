@@ -17,9 +17,13 @@ import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
 import { PortableDeals } from 'modules/deals/containers';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarToggle } from 'modules/layout/styles';
 import * as React from 'react';
-import { Actions, BasicInfo, SectionContainer } from './styles';
+import {
+  Actions,
+  BasicInfo,
+  SectionContainer,
+  SidebarCollapse
+} from './styles';
 
 import { __ } from 'modules/common/utils';
 import { Contacts } from 'modules/companies/components';
@@ -62,12 +66,12 @@ class Box extends React.Component<BoxProps, BoxState> {
   }
 
   renderDropBtn() {
-    const icon = this.state.isOpen ? 'uparrow-2' : 'downarrow';
+    const icon = this.state.isOpen ? 'downarrow' : 'rightarrow-2';
 
     return (
-      <SidebarToggle inverse={!this.state.isOpen} onClick={this.toggle}>
+      <SidebarCollapse onClick={this.toggle}>
         <Icon icon={icon} />
-      </SidebarToggle>
+      </SidebarCollapse>
     );
   }
 
@@ -251,6 +255,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             toggle={toggleSection}
           >
             <TaggerSection
+              isOpen={config.showTags}
               data={customer}
               type="customer"
               refetchQueries={taggerRefetchQueries}
@@ -294,7 +299,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showDeals || false}
           toggle={toggleSection}
         >
-          <PortableDeals customerId={customer._id} />
+          <PortableDeals customerId={customer._id} isOpen={config.showDeals} />
         </Box>
       </React.Fragment>
     );
@@ -345,7 +350,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showCompanies || false}
           toggle={toggleSection}
         >
-          <CompanyAssociate data={customer} />
+          <CompanyAssociate isOpen={config.showCompanies} data={customer} />
         </Box>
 
         <Box
