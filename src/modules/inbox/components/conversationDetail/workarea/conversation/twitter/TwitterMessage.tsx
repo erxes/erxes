@@ -47,7 +47,9 @@ class TwitterMessage extends React.Component<Props, {}> {
     const { message, favoriteTweet, integrationId } = this.props;
     const twitterData = message.twitterData;
 
-    if (!twitterData) return null;
+    if (!twitterData) {
+      return null;
+    }
 
     const tweet = {
       integrationId,
@@ -196,7 +198,9 @@ class TwitterMessage extends React.Component<Props, {}> {
     // twitter data
     const twitterData = message.twitterData;
 
-    if (!twitterData) return null;
+    if (!twitterData) {
+      return null;
+    }
 
     const extendedTweet = twitterData.extended_tweet;
     const tweetContent = this.getTweetContent(extendedTweet, message);

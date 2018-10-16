@@ -51,7 +51,9 @@ class NameCard extends React.Component<Props> {
   renderUserName() {
     const { user, singleLine, secondLine } = this.props;
 
-    if (!user) return null;
+    if (!user) {
+      return null;
+    }
 
     if (user.details) {
       return user.details.fullName;
@@ -67,7 +69,9 @@ class NameCard extends React.Component<Props> {
   renderCustomerName() {
     const { customer, singleLine, secondLine } = this.props;
 
-    if (!customer) return null;
+    if (!customer) {
+      return null;
+    }
 
     if (singleLine) {
       return customer.firstName || customer.primaryEmail || 'N/A';

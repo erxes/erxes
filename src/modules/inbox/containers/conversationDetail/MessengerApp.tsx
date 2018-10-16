@@ -23,7 +23,9 @@ const MessengerAppContainer = (props: Props) => {
   }
 
   const onSelect = (app?: IMessengerApp) => {
-    if (!app) return null;
+    if (!app) {
+      return null;
+    }
 
     const variables = {
       _id: app._id,

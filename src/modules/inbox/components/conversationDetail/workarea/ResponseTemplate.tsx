@@ -91,7 +91,9 @@ class ResponseTemplate extends React.Component<Props, State> {
     };
 
     this.props.saveResponseTemplate(doc, error => {
-      if (error) return Alert.error(error.message);
+      if (error) {
+        return Alert.error(error.message);
+      }
 
       Alert.success('Congrats');
 

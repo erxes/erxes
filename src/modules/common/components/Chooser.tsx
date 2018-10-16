@@ -81,7 +81,9 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   search(e) {
-    if (this.timer) clearTimeout(this.timer);
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
 
     const { search } = this.props;
     const value = e.target.value;

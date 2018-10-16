@@ -18,7 +18,9 @@ class Conditions extends React.Component<Props> {
   renderParent() {
     const { contentType, parentSegmentId } = this.props;
 
-    if (!parentSegmentId) return null;
+    if (!parentSegmentId) {
+      return null;
+    }
 
     return (
       <React.Fragment>

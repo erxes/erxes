@@ -40,7 +40,9 @@ type Props = {
 
 class Top extends React.Component<Props> {
   renderAmount(amount) {
-    if (Object.keys(amount).length === 0) return null;
+    if (Object.keys(amount).length === 0) {
+      return null;
+    }
 
     return (
       <HeaderContentSmall>

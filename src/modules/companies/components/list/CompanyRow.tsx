@@ -25,7 +25,9 @@ function isTimeStamp(value) {
 }
 
 function createLinkFromUrl(url) {
-  if (!url.includes('http')) url = 'http://' + url;
+  if (!url.includes('http')) {
+    url = 'http://' + url;
+  }
 
   return (
     <a

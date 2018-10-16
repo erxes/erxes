@@ -55,7 +55,9 @@ class PropertyRow extends React.Component<Props, State> {
   }
 
   renderActionButtons(data, remove, content) {
-    if (data.isDefinedByErxes) return null;
+    if (data.isDefinedByErxes) {
+      return null;
+    }
 
     return (
       <ActionButtons>

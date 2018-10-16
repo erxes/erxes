@@ -75,7 +75,9 @@ class ProductItemForm extends React.Component<Props> {
 
     if (productsData) {
       const productData = productsData.find(p => p._id === _id);
-      if (productData) productData[type] = value;
+      if (productData) {
+        productData[type] = value;
+      }
 
       if (type !== 'product' && type !== 'uom') {
         this.calculateAmount(type, productData);

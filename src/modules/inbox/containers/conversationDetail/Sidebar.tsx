@@ -22,7 +22,9 @@ const STORAGE_KEY = `erxes_sidebar_section_config`;
 const getConfig = () => {
   const sidebarConfig = localStorage.getItem(STORAGE_KEY);
 
-  if (sidebarConfig) return JSON.parse(sidebarConfig);
+  if (sidebarConfig) {
+    return JSON.parse(sidebarConfig);
+  }
 };
 
 const setConfig = params => {
@@ -54,7 +56,9 @@ class Sidebar extends React.Component<Props, State> {
   }
 
   getCustomerDetail(customerId?: string) {
-    if (!customerId) return null;
+    if (!customerId) {
+      return null;
+    }
 
     const sectionParams = getConfig();
 
