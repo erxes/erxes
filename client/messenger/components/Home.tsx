@@ -79,7 +79,8 @@ class Home extends React.Component<Props, State> {
   renderGreetings(messengerData: IIntegrationMessengerData) {
     const messages =
       messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
-    const greetings = messages.greetings;
+
+    const greetings = messages.greetings || {};
 
     return (
       <div className="welcome-info">
