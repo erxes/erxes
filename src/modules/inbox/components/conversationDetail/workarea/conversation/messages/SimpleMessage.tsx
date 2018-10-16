@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import { Attachment, NameCard, Tip } from 'modules/common/components';
 import * as moment from 'moment';
 import * as React from 'react';
+import * as xss from 'xss';
 import { IMessage } from '../../../../../types';
 import { MessageBody, MessageContent, MessageItem } from '../styles';
 
@@ -47,7 +48,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
 
     return (
       <React.Fragment>
-        <span dangerouslySetInnerHTML={{ __html: message.content }} />
+        <span dangerouslySetInnerHTML={{ __html: xss(message.content) }} />
         {this.renderAttachment(hasAttachment)}
       </React.Fragment>
     );
