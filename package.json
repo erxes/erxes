@@ -65,7 +65,8 @@
     "react-dom": "^16.3.2",
     "react-transition-group": "^2.4.0",
     "striptags": "^3.0.1",
-    "subscriptions-transport-ws": "^0.9.14"
+    "subscriptions-transport-ws": "^0.9.14",
+    "xss": "^1.0.3"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.6",
