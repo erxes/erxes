@@ -11,7 +11,7 @@ function ActionBar({ left, right, background }: Props) {
   return (
     <ContentHeader background={background || 'bgLight'}>
       {left && <HeaderItems>{left}</HeaderItems>}
-      {right && <HeaderItems rightAligned>{right}</HeaderItems>}
+      {right && <HeaderItems rightAligned={true}>{right}</HeaderItems>}
     </ContentHeader>
   );
 }

@@ -77,8 +77,11 @@ class DealEditForm extends React.Component<Props, State> {
       if (data.product) {
         if (data.currency) {
           // calculating deal amount
-          if (!amount[data.currency]) amount[data.currency] = data.amount || 0;
-          else amount[data.currency] += data.amount || 0;
+          if (!amount[data.currency]) {
+            amount[data.currency] = data.amount || 0;
+          } else {
+            amount[data.currency] += data.amount || 0;
+          }
         }
 
         // collecting data for ItemCounter component
@@ -107,10 +110,13 @@ class DealEditForm extends React.Component<Props, State> {
 
     const { closeModal, saveDeal } = this.props;
 
-    if (!name) return Alert.error(__('Enter name'));
+    if (!name) {
+      return Alert.error(__('Enter name'));
+    }
 
-    if (productsData.length === 0)
+    if (productsData.length === 0) {
       return Alert.error(__('Please, select product & service'));
+    }
 
     const doc = {
       name,

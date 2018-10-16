@@ -42,8 +42,9 @@ class TargetMergeModal extends React.Component<Props, State> {
     const { object, onSave, mergeForm } = this.props;
     const { selectedObject } = this.state;
 
-    if (!selectedObject._id)
+    if (!selectedObject._id) {
       return <EmptyState icon="search" text="Please select one to merge" />;
+    }
 
     const MergeForm = mergeForm;
 

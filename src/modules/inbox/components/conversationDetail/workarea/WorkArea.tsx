@@ -108,7 +108,9 @@ export default class WorkArea extends React.Component<Props, State> {
     const { current } = this.node;
     const { loadMoreMessages } = this.props;
 
-    if (current.scrollTop === 0) loadMoreMessages();
+    if (current.scrollTop === 0) {
+      loadMoreMessages();
+    }
   }
 
   scrollBottom() {

@@ -6,7 +6,7 @@ import { CreateForm, EditForm, List } from './containers';
 const routes = () => (
   <React.Fragment>
     <Route
-      exact
+      exact={true}
       key="/forms"
       path="/forms"
       component={({ location }) => {
@@ -17,7 +17,7 @@ const routes = () => (
 
     <Route
       key="/forms/create"
-      exact
+      exact={true}
       path="/forms/create"
       component={({ location }) => {
         const queryParams = queryString.parse(location.search);
@@ -27,7 +27,7 @@ const routes = () => (
 
     <Route
       key="/forms/edit/:contentTypeId?/:formId?"
-      exact
+      exact={true}
       path="/forms/edit/:contentTypeId/:formId"
       component={({ match, location }) => {
         const { contentTypeId, formId } = match.params;

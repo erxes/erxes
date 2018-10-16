@@ -20,7 +20,7 @@ const CustomFieldsSection = (props: Props) => {
 
   if (fieldsGroupsQuery.loading) {
     return (
-      <Sidebar full>
+      <Sidebar full={true}>
         <Spinner />
       </Sidebar>
     );

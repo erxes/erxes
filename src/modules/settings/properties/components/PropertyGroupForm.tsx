@@ -87,8 +87,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <FormControl
             type="text"
             id="name"
-            autoFocus
-            required
+            autoFocus={true}
+            required={true}
             defaultValue={group.name || ''}
           />
         </FormGroup>
@@ -98,7 +98,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <FormControl
             type="text"
             id="description"
-            required
+            required={true}
             defaultValue={group.name || ''}
           />
         </FormGroup>

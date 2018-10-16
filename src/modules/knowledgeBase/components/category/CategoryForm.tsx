@@ -108,7 +108,7 @@ class CategoryForm extends React.Component<Props, State> {
             id="knowledgebase-category-title"
             type="text"
             defaultValue={category.title}
-            required
+            required={true}
           />
         </FormGroup>
 

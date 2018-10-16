@@ -34,7 +34,9 @@ function CustomerSection({ name, customers, onSelect }: Props) {
   };
 
   const renderBody = (customersObj: ICustomer[]) => {
-    if (!customersObj) return <Spinner objective />;
+    if (!customersObj) {
+      return <Spinner objective={true} />;
+    }
 
     return (
       <SectionBody>

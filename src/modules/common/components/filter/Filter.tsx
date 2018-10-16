@@ -53,7 +53,7 @@ function Filter({ queryParams = {}, history }: IProps) {
       const ChipText = createChipText(graphqlQuery, id);
 
       return (
-        <Chip normal onClickClose={() => onClickClose([paramKey])}>
+        <Chip normal={true} onClickClose={() => onClickClose([paramKey])}>
           <ChipText />
         </Chip>
       );
@@ -66,7 +66,7 @@ function Filter({ queryParams = {}, history }: IProps) {
     if (queryParams.startDate && queryParams.endDate) {
       return (
         <Chip
-          normal
+          normal={true}
           onClickClose={() => onClickClose(['startDate', 'endDate'])}
         >
           {queryParams.startDate} - {queryParams.endDate}

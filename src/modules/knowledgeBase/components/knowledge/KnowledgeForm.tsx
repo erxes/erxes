@@ -204,7 +204,7 @@ class KnowledgeForm extends React.Component<Props, State> {
             id="knowledgebase-title"
             type="text"
             defaultValue={topic.title}
-            required
+            required={true}
           />
         </FormGroup>
 
@@ -230,14 +230,14 @@ class KnowledgeForm extends React.Component<Props, State> {
           <div>
             <OverlayTrigger
               trigger="click"
-              rootClose
+              rootClose={true}
               placement="bottom"
               overlay={popoverTop}
             >
-              <ColorPick full>
+              <ColorPick full={true}>
                 <ColorPicker
                   style={{ backgroundColor: this.state.color }}
-                  full
+                  full={true}
                 />
               </ColorPick>
             </OverlayTrigger>

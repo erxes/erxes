@@ -129,7 +129,7 @@ class OptionStep extends React.Component<Props, {}> {
             {this.renderThemeColor('#2d2d32')}
             <OverlayTrigger
               trigger="click"
-              rootClose
+              rootClose={true}
               placement="bottom"
               overlay={popoverTop}
             >

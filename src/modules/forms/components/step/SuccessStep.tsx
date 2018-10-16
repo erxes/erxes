@@ -64,7 +64,9 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderEmailFields(formData: IFormData) {
-    if (this.state.successAction !== 'email') return null;
+    if (this.state.successAction !== 'email') {
+      return null;
+    }
 
     return (
       <div>
@@ -166,7 +168,9 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderRedirectUrl(formData) {
-    if (this.state.successAction !== 'redirect') return null;
+    if (this.state.successAction !== 'redirect') {
+      return null;
+    }
 
     return (
       <div>
@@ -192,7 +196,9 @@ class SuccessStep extends React.Component<Props, State> {
     const { thankContent } = this.props;
     const { successAction } = this.state;
 
-    if (successAction !== 'onPage') return null;
+    if (successAction !== 'onPage') {
+      return null;
+    }
 
     return (
       <FormGroup>

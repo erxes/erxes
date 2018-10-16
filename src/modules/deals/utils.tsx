@@ -111,7 +111,9 @@ export const reorderDealMap = ({
 };
 
 export const renderDealDate = (date, format = 'YYYY-MM-DD') => {
-  if (!date) return null;
+  if (!date) {
+    return null;
+  }
 
   return (
     <Tip text={moment(date).format(format)}>
@@ -121,7 +123,9 @@ export const renderDealDate = (date, format = 'YYYY-MM-DD') => {
 };
 
 export const renderDealAmount = amount => {
-  if (Object.keys(amount).length === 0) return null;
+  if (Object.keys(amount).length === 0) {
+    return null;
+  }
 
   return (
     <Amount>

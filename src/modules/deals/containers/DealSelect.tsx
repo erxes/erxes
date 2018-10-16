@@ -44,7 +44,9 @@ class DealSelectContainer extends React.Component<Props> {
   onChangeStage = (stageId: string, callback?: any) => {
     this.props.onChangeStage(stageId);
 
-    if (callback) callback();
+    if (callback) {
+      callback();
+    }
   };
 
   render() {

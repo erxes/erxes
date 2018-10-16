@@ -222,7 +222,7 @@ class Form extends React.Component<Props, State> {
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
-            required
+            required={true}
             onChange={e =>
               this.onChange(
                 'title',

@@ -46,7 +46,9 @@ const collapse = (id: string, click?: boolean, isCurrent?: boolean) => {
   const data = localStorage.getItem(STORAGE_KEY);
   let values: string[] = [];
 
-  if (data) values = JSON.parse(data);
+  if (data) {
+    values = JSON.parse(data);
+  }
 
   if (click) {
     values.includes(id)
@@ -89,7 +91,7 @@ class KnowledgeRow extends React.Component<Props, State> {
 
     return (
       <RowActions>
-        <Dropdown id="dropdown-knowledgebase" pullRight>
+        <Dropdown id="dropdown-knowledgebase" pullRight={true}>
           <DropdownToggle bsRole="toggle">
             <Icon icon="settings" />
           </DropdownToggle>

@@ -91,7 +91,9 @@ class ResponseTemplate extends React.Component<Props, State> {
     };
 
     this.props.saveResponseTemplate(doc, error => {
-      if (error) return Alert.error(error.message);
+      if (error) {
+        return Alert.error(error.message);
+      }
 
       Alert.success('Congrats');
 
@@ -180,7 +182,7 @@ class ResponseTemplate extends React.Component<Props, State> {
                 type="text"
                 placeholder={__('Search') as string}
                 onChange={this.filterItems}
-                autoFocus
+                autoFocus={true}
               />
             </InlineColumn>
             <InlineColumn>
@@ -204,7 +206,7 @@ class ResponseTemplate extends React.Component<Props, State> {
           <PopoverList>{this.renderItems()}</PopoverList>
         </PopoverBody>
         <PopoverFooter>
-          <PopoverList center>
+          <PopoverList center={true}>
             <li>
               <Link to="/settings/response-templates">
                 {__('Manage templates')}
@@ -221,7 +223,7 @@ class ResponseTemplate extends React.Component<Props, State> {
           trigger="click"
           placement="top"
           overlay={popover}
-          rootClose
+          rootClose={true}
           ref={overlayTrigger => {
             this.overlayRef = overlayTrigger;
           }}

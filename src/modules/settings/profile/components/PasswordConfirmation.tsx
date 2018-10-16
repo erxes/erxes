@@ -34,7 +34,7 @@ class PasswordConfirmation extends React.Component<Props> {
       <form onSubmit={e => this.submit(e)}>
         <FormGroup>
           <ControlLabel>Enter your password to Confirm</ControlLabel>
-          <FormControl autoFocus id="password" type="password" />
+          <FormControl autoFocus={true} id="password" type="password" />
         </FormGroup>
         <ModalFooter>
           <Button

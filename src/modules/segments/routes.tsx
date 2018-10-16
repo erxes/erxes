@@ -6,7 +6,7 @@ const routes = () => (
   <React.Fragment>
     <Route
       key="/segments/:contentType"
-      exact
+      exact={true}
       path="/segments/:contentType"
       component={({ match }) => {
         const contentType = match.params.contentType;
@@ -17,7 +17,7 @@ const routes = () => (
 
     <Route
       key="/segments/new/:contentType"
-      exact
+      exact={true}
       path="/segments/new/:contentType"
       component={({ match, history }) => {
         const contentType = match.params.contentType;
@@ -28,7 +28,7 @@ const routes = () => (
 
     <Route
       key="/segments/edit/:contentType/:id"
-      exact
+      exact={true}
       path="/segments/edit/:contentType/:id"
       component={({ match, history }) => {
         const { id, contentType } = match.params;

@@ -31,7 +31,9 @@ class Items extends React.Component<Props> {
     const { items } = this.props;
     const length = items.length;
 
-    if (length === 0) return null;
+    if (length === 0) {
+      return null;
+    }
 
     return <React.Fragment>{this.renderItems(items)}</React.Fragment>;
   }

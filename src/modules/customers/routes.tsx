@@ -7,7 +7,7 @@ const routes = () => (
   <React.Fragment>
     <Route
       key="/customers/details/:id"
-      exact
+      exact={true}
       path="/customers/details/:id"
       component={({ match, location }) => {
         const queryParams = queryString.parse(location.search);
@@ -19,7 +19,7 @@ const routes = () => (
 
     <Route
       key="/customers"
-      exact
+      exact={true}
       path="/customers"
       component={({ location }) => {
         const queryParams = queryString.parse(location.search);

@@ -113,7 +113,7 @@ class CommonPreview extends React.Component<Props, {}> {
 
             {btnText && (
               <Button
-                ignoreTrans
+                ignoreTrans={true}
                 btnStyle={btnStyle}
                 style={{ backgroundColor: theme ? theme : color }}
               >

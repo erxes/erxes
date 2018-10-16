@@ -65,7 +65,9 @@ class CompaniesList extends React.Component<IProps, State> {
   }
 
   search(e) {
-    if (this.timer) clearTimeout(this.timer);
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
 
     const { history } = this.props;
     const searchValue = e.target.value;
@@ -110,7 +112,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
     const mainContent = (
       <CompaniesTableWrapper>
-        <Table whiteSpace="nowrap" bordered hover>
+        <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
             <tr>
               <th>
@@ -219,7 +221,7 @@ class CompaniesList extends React.Component<IProps, State> {
           placeholder={__('Type to search')}
           onChange={e => this.search(e)}
           value={this.state.searchValue}
-          autoFocus
+          autoFocus={true}
           onFocus={e => this.moveCursorAtTheEnd(e)}
         />
         <ModalTrigger

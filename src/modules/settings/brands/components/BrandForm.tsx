@@ -62,7 +62,7 @@ class BrandForm extends React.Component<Props, {}> {
             id="brand-name"
             defaultValue={object.name}
             type="text"
-            required
+            required={true}
           />
         </FormGroup>
 

@@ -55,9 +55,13 @@ class DealAddForm extends React.Component<Props, State> {
     const { stageId, name } = this.state;
     const { customerId, companyId, saveDeal, closeModal } = this.props;
 
-    if (!stageId) return Alert.error(__('No stage'));
+    if (!stageId) {
+      return Alert.error(__('No stage'));
+    }
 
-    if (!name) return Alert.error(__('Enter name'));
+    if (!name) {
+      return Alert.error(__('Enter name'));
+    }
 
     const doc = {
       name,
@@ -80,7 +84,9 @@ class DealAddForm extends React.Component<Props, State> {
   renderSelect() {
     const { showSelect } = this.props;
 
-    if (!showSelect) return null;
+    if (!showSelect) {
+      return null;
+    }
 
     const { stageId, pipelineId, boardId } = this.state;
 
@@ -105,7 +111,7 @@ class DealAddForm extends React.Component<Props, State> {
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
             <FormControl
-              autoFocus
+              autoFocus={true}
               onChange={e =>
                 this.onChangeField('name', (e.target as HTMLInputElement).value)
               }

@@ -63,7 +63,9 @@ class Form extends React.Component<
   }
 
   renderFooter() {
-    if (!this.state.editing) return null;
+    if (!this.state.editing) {
+      return null;
+    }
     return (
       <EditorActions>
         <Button

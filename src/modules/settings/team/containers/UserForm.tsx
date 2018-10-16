@@ -17,7 +17,7 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
   const object = props.object || ({} as IUser);
 
   if (channelsQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const channels = channelsQuery.channels;

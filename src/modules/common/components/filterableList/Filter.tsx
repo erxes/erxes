@@ -13,7 +13,7 @@ function Filter({ placeholder = 'Search', onChange }: Props) {
       type="text"
       placeholder={__(placeholder)}
       onChange={onChange}
-      autoFocus
+      autoFocus={true}
     />
   );
 }

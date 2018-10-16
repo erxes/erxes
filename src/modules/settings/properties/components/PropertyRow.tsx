@@ -55,7 +55,9 @@ class PropertyRow extends React.Component<Props, State> {
   }
 
   renderActionButtons(data, remove, content) {
-    if (data.isDefinedByErxes) return null;
+    if (data.isDefinedByErxes) {
+      return null;
+    }
 
     return (
       <ActionButtons>
@@ -121,7 +123,7 @@ class PropertyRow extends React.Component<Props, State> {
     }
 
     return (
-      <Table hover>
+      <Table hover={true}>
         <thead>
           <tr>
             <th>{__('Name')}</th>

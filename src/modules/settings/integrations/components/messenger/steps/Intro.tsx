@@ -234,7 +234,7 @@ class Intro extends React.Component<Props, State> {
               options={this.generateSupporterOptions(this.props.teamMembers)}
               onChange={this.onTeamMembersChange}
               clearable={true}
-              multi
+              multi={true}
             />
           </FormGroup>
 

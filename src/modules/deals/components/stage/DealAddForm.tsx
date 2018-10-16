@@ -42,7 +42,9 @@ class DealAddForm extends React.Component<Props, State> {
     const { name } = this.state;
     const { add, closeModal } = this.props;
 
-    if (!name) return Alert.error(__('Enter name'));
+    if (!name) {
+      return Alert.error(__('Enter name'));
+    }
 
     // before save, disable save button
     this.setState({ disabled: true });
@@ -61,7 +63,7 @@ class DealAddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
-            <FormControl autoFocus onChange={this.onChangeName} />
+            <FormControl autoFocus={true} onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
 

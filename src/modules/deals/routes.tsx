@@ -7,14 +7,14 @@ const routes = () => (
   <React.Fragment>
     <Route
       key="deals"
-      exact
+      exact={true}
       path="/deals"
       render={() => <Redirect to="/deals/board" />}
     />
 
     <Route
       key="deals/board"
-      exact
+      exact={true}
       path="/deals/board"
       component={({ history, location }) => {
         const queryParams = queryString.parse(location.search);

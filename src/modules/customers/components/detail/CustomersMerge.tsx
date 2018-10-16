@@ -94,10 +94,13 @@ class CustomersMerge extends React.Component<Props, State> {
           {properties.map(info => {
             const key = info.field;
 
-            if (!customer[key]) return null;
+            if (!customer[key]) {
+              return null;
+            }
 
-            if (info.field === 'links')
+            if (info.field === 'links') {
               return this.renderLinks(customer[key], icon);
+            }
 
             return this.renderCustomerProperties(key, customer[key], icon);
           })}
@@ -213,7 +216,9 @@ class CustomersMerge extends React.Component<Props, State> {
       const field = info.field;
       const value = data[field];
 
-      if (!data[field]) return null;
+      if (!data[field]) {
+        return null;
+      }
 
       return (
         <li

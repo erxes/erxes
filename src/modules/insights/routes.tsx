@@ -20,7 +20,7 @@ const routes = () => (
   <React.Fragment>
     <Route
       key="/insights/response-report"
-      exact
+      exact={true}
       path="/insights/response-report"
       component={() => {
         return (
@@ -34,7 +34,7 @@ const routes = () => (
 
     <Route
       key="/insights/response-close-report"
-      exact
+      exact={true}
       path="/insights/response-close-report"
       component={() => {
         return (
@@ -48,7 +48,7 @@ const routes = () => (
 
     <Route
       key="/insights/first-response"
-      exact
+      exact={true}
       path="/insights/first-response"
       component={() => {
         return (
@@ -62,7 +62,7 @@ const routes = () => (
 
     <Route
       key="/insights/volume-report"
-      exact
+      exact={true}
       path="/insights/volume-report"
       component={() => {
         return (
@@ -76,7 +76,7 @@ const routes = () => (
 
     <Route
       key="/insights"
-      exact
+      exact={true}
       path="/insights"
       component={AsyncInsightPage}
     />

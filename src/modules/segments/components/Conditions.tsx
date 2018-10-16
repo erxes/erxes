@@ -18,7 +18,9 @@ class Conditions extends React.Component<Props> {
   renderParent() {
     const { contentType, parentSegmentId } = this.props;
 
-    if (!parentSegmentId) return null;
+    if (!parentSegmentId) {
+      return null;
+    }
 
     return (
       <React.Fragment>
@@ -26,7 +28,7 @@ class Conditions extends React.Component<Props> {
           to={`/segments/edit/${contentType}/${parentSegmentId}`}
           target="_blank"
         >
-          <Button icon="eye" ignoreTrans>
+          <Button icon="eye" ignoreTrans={true}>
             {__('Parent segment conditions')}
           </Button>
         </Link>

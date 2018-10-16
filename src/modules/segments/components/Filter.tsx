@@ -45,7 +45,7 @@ class Segments extends React.Component<Props> {
         <Dropdown
           id="dropdown-user"
           className="quick-button"
-          pullRight
+          pullRight={true}
           style={{ verticalAlign: 'top', float: 'left' }}
         >
           <DropdownToggle bsRole="toggle">
@@ -116,7 +116,7 @@ class Segments extends React.Component<Props> {
 
     return (
       <Section collapsible={segments.length > 5}>
-        <Header uppercase>{__('Filter by segments')}</Header>
+        <Header uppercase={true}>{__('Filter by segments')}</Header>
 
         {this.renderQuickBtns()}
 

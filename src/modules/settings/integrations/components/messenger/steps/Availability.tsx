@@ -105,7 +105,7 @@ class Availability extends React.Component<Props> {
                   target.value
                 );
               }}
-              inline
+              inline={true}
             >
               {__('Turn online/offline manually')}
             </FormControl>
@@ -118,7 +118,7 @@ class Availability extends React.Component<Props> {
                 const target = e.currentTarget as HTMLInputElement;
                 this.onChangeFunction('availabilityMethod', target.value);
               }}
-              inline
+              inline={true}
             >
               {__('Set to follow your schedule')}
             </FormControl>

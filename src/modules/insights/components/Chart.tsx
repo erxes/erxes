@@ -19,7 +19,7 @@ class Chart extends React.Component<IProps> {
     if (loading) {
       return (
         <LoaderWrapper>
-          <Spinner objective />
+          <Spinner objective={true} />
         </LoaderWrapper>
       );
     }

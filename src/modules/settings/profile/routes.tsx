@@ -7,7 +7,7 @@ const routes = () => (
   <React.Fragment>
     <Route
       path="/profile"
-      exact
+      exact={true}
       key="/profile"
       component={({ location }) => {
         const queryParams = queryString.parse(location.search);

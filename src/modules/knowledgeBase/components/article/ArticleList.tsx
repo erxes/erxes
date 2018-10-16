@@ -44,7 +44,7 @@ class ArticleList extends React.Component<Props> {
           count={articles.length}
           emptyText="There is no article"
           emptyImage="/images/robots/robot-05.svg"
-          objective
+          objective={true}
           data={this.renderArticles()}
         />
       </React.Fragment>

@@ -69,7 +69,7 @@ class MessengerApp extends React.Component<Props> {
           trigger="click"
           placement="top"
           overlay={popover}
-          rootClose
+          rootClose={true}
           ref={overlayTrigger => {
             this.overlayRef = overlayTrigger;
           }}

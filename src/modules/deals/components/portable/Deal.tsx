@@ -88,7 +88,11 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
             </ItemList>
             <ItemList>
               <Items color="#F7CE53" items={deal.customers || []} />
-              <Items color="#F7CE53" uppercase items={deal.companies || []} />
+              <Items
+                color="#F7CE53"
+                uppercase={true}
+                items={deal.companies || []}
+              />
             </ItemList>
             {renderDealAmount(deal.amount || {})}
           </FooterContent>

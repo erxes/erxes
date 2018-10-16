@@ -128,7 +128,9 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   onSelectTemplate(responseTemplate?: IResponseTemplate) {
-    if (!responseTemplate) return null;
+    if (!responseTemplate) {
+      return null;
+    }
 
     return this.setState({
       responseTemplate: responseTemplate.content,

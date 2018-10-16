@@ -94,10 +94,13 @@ class CompaniesMerge extends React.Component<Props, State> {
           {properties.map(info => {
             const key = info.field;
 
-            if (!company[key]) return null;
+            if (!company[key]) {
+              return null;
+            }
 
-            if (info.field === 'links')
+            if (info.field === 'links') {
               return this.renderLinks(company[key], icon);
+            }
 
             return this.renderCompanyProperties(key, company[key], icon);
           })}
@@ -167,7 +170,9 @@ class CompaniesMerge extends React.Component<Props, State> {
       const field = info.field;
       const value = data[field];
 
-      if (!data[field]) return null;
+      if (!data[field]) {
+        return null;
+      }
 
       return (
         <li

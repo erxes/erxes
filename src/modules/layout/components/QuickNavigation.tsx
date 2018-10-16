@@ -66,7 +66,7 @@ const QuickNavigation = ({
         </NavLink>
       </NavItem>
       <NavItem>
-        <Dropdown id="dropdown-user" pullRight>
+        <Dropdown id="dropdown-user" pullRight={true}>
           <DropdownToggle bsRole="toggle">
             <UserHelper>
               <UserInfo>
@@ -79,7 +79,7 @@ const QuickNavigation = ({
             <NameCardWrapper>
               <NameCard user={currentUser} />
             </NameCardWrapper>
-            <MenuItem divider />
+            <MenuItem divider={true} />
 
             <li>
               <Link to="/profile">{__('View Profile')}</Link>
@@ -117,7 +117,7 @@ const QuickNavigation = ({
               )}
             />
 
-            <MenuItem divider />
+            <MenuItem divider={true} />
             <MenuItem onClick={logout}>{__('Sign out')}</MenuItem>
           </Dropdown.Menu>
         </Dropdown>

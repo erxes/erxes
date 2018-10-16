@@ -61,7 +61,7 @@ class ChooseBrand extends React.Component<Props> {
             id="integration-name"
             type="text"
             defaultValue={integration.name}
-            required
+            required={true}
           />
         </FormGroup>
 
