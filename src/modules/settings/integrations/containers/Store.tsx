@@ -7,6 +7,7 @@ import { compose, graphql } from 'react-apollo';
 
 type Props = {
   totalCountQuery: any;
+  queryParams: any;
 };
 
 const Store = (props: Props) => {

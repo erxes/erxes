@@ -136,19 +136,17 @@ class IntegrationList extends React.Component<Props> {
     }
 
     return (
-      <React.Fragment>
-        <Table>
-          <thead>
-            <tr>
-              <th>{__('Name')}</th>
-              <th>{__('Kind')}</th>
-              <th>{__('Brand')}</th>
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>{integrations.map(i => this.renderRow(i))}</tbody>
-        </Table>
-      </React.Fragment>
+      <Table>
+        <thead>
+          <tr>
+            <th>{__('Name')}</th>
+            <th>{__('Kind')}</th>
+            <th>{__('Brand')}</th>
+            <th>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody>{integrations.map(i => this.renderRow(i))}</tbody>
+      </Table>
     );
   }
 }

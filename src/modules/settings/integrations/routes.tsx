@@ -7,6 +7,10 @@ import EditMessenger from './containers/messenger/Edit';
 import Store from './containers/Store';
 import Twitter from './containers/twitter/Form';
 
+const store = ({ location }) => (
+  <Store queryParams={queryString.parse(location.search)} />
+);
+
 const routes = () => (
   <React.Fragment>
     <Route
@@ -110,7 +114,7 @@ const routes = () => (
       key="/settings/integrations"
       exact={true}
       path="/settings/integrations"
-      component={() => <Store />}
+      component={store}
     />
   </React.Fragment>
 );
