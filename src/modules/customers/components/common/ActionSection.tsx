@@ -63,7 +63,7 @@ class ActionSection extends React.Component<Props> {
             <ModalTrigger
               title="Edit basic info"
               trigger={
-                <a onClick={confirm.bind(null).then(() => remove())}>
+                <a onClick={() => confirm().then(() => remove())}>
                   {__('Edit')}
                 </a>
               }
@@ -81,9 +81,7 @@ class ActionSection extends React.Component<Props> {
             />
           </li>
           <li>
-            <a onClick={confirm.bind(null).then(() => remove())}>
-              {__('Delete')}
-            </a>
+            <a onClick={() => confirm().then(() => remove())}>{__('Delete')}</a>
           </li>
         </Dropdown.Menu>
       </Dropdown>
