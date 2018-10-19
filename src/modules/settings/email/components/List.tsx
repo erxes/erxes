@@ -35,6 +35,10 @@ class List extends React.Component<Props, {}> {
 
     const title = `${name}'s email template`;
 
+    const content = props => (
+      <Config {...props} brandId={_id} refetch={refetch} />
+    );
+
     return (
       <tr key={brand.code}>
         <td>{name}</td>
@@ -50,9 +54,7 @@ class List extends React.Component<Props, {}> {
             <ModalTrigger
               title={title}
               trigger={editTrigger}
-              content={props => (
-                <Config {...props} brandId={_id} refetch={refetch} />
-              )}
+              content={content}
               ignoreTrans={true}
             />
           </ActionButtons>

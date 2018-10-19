@@ -42,20 +42,14 @@ class FormStep extends React.Component<Props, State> {
       editingField: undefined
     };
 
-    this.onFieldAttrChange = this.onFieldAttrChange.bind(this);
-    this.onChangeState = this.onChangeState.bind(this);
-    this.onChangeType = this.onChangeType.bind(this);
-
     this.footerActions = this.footerActions.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onFieldEdit = this.onFieldEdit.bind(this);
   }
 
   componentWillReceiveProps(nextProps: Props) {
     this.setState({ fields: nextProps.fields });
   }
 
-  onChangeType(e: React.FormEvent<HTMLElement>) {
+  onChangeType = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
       chosenFieldType: (e.currentTarget as HTMLInputElement).value
     });
@@ -63,22 +57,22 @@ class FormStep extends React.Component<Props, State> {
       'type',
       (e.currentTarget as HTMLInputElement).value
     );
-  }
+  };
 
-  onFieldEdit(field: IField) {
+  onFieldEdit = (field: IField) => {
     this.setState({ editingField: field });
-  }
+  };
 
-  onFieldAttrChange(name: string, value: string | boolean | string[]) {
+  onFieldAttrChange = (name: string, value: string | boolean | string[]) => {
     this.setFieldAttrChanges(name, value);
-  }
+  };
 
-  onChangeState(name: any, value: string) {
+  onChangeState = (name: any, value: string) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
-  }
+  };
 
-  onSubmit(e) {
+  onSubmit = e => {
     e.preventDefault();
 
     const editingField = this.state.editingField || ({} as IField);
@@ -103,7 +97,7 @@ class FormStep extends React.Component<Props, State> {
     this.setState({ fields: this.state.fields, editingField: undefined });
 
     this.props.onChange('fields', this.state.fields || []);
-  }
+  };
 
   setFieldAttrChanges(
     attributeName: string,
@@ -178,6 +172,12 @@ class FormStep extends React.Component<Props, State> {
   footerActions() {
     const editingField = this.state.editingField || ({} as IField);
 
+    const onChange = e =>
+      this.onFieldAttrChange(
+        'isRequired',
+        (e.currentTarget as HTMLInputElement).checked
+      );
+
     return (
       <ActionBar
         right={
@@ -186,12 +186,7 @@ class FormStep extends React.Component<Props, State> {
               checked={editingField.isRequired || false}
               id="isRequired"
               componentClass="checkbox"
-              onChange={(e: React.FormEvent<HTMLElement>) =>
-                this.onFieldAttrChange(
-                  'isRequired',
-                  (e.currentTarget as HTMLInputElement).checked
-                )
-              }
+              onChange={onChange}
             >
               {__('This item is required')}
             </FormControl>
@@ -205,6 +200,12 @@ class FormStep extends React.Component<Props, State> {
   renderOptionsTextArea() {
     const { chosenFieldType = '' } = this.state;
     const editingField = this.state.editingField || ({} as IField);
+
+    const onChange = e =>
+      this.onFieldAttrChange(
+        'options',
+        (e.currentTarget as HTMLInputElement).value.split('\n')
+      );
 
     if (
       !['select', 'check', 'radio'].includes(
@@ -222,12 +223,7 @@ class FormStep extends React.Component<Props, State> {
           id="options"
           componentClass="textarea"
           value={(editingField.options || []).join('\n')}
-          onChange={(e: React.FormEvent<HTMLElement>) =>
-            this.onFieldAttrChange(
-              'options',
-              (e.currentTarget as HTMLInputElement).value.split('\n')
-            )
-          }
+          onChange={onChange}
         />
       </FormGroup>
     );
@@ -236,6 +232,42 @@ class FormStep extends React.Component<Props, State> {
   renderOptions() {
     const editingField = this.state.editingField || ({} as IField);
 
+    const formTitle = e =>
+      this.onChangeState(
+        'formTitle',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const formDesc = e =>
+      this.onChangeState(
+        'formDesc',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const validation = e =>
+      this.onFieldAttrChange(
+        'validation',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const text = e =>
+      this.onFieldAttrChange(
+        'text',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const desc = e =>
+      this.onFieldAttrChange(
+        'description',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const formBtnText = e =>
+      this.onChangeState(
+        'formBtnText',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
     return (
       <React.Fragment>
         <FormGroup>
@@ -243,12 +275,7 @@ class FormStep extends React.Component<Props, State> {
           <FormControl
             id="form-btn-text"
             value={this.props.formTitle}
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeState(
-                'formTitle',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={formTitle}
           />
         </FormGroup>
 
@@ -257,12 +284,7 @@ class FormStep extends React.Component<Props, State> {
           <FormControl
             id="form-btn-text"
             value={this.props.formDesc}
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeState(
-                'formDesc',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={formDesc}
           />
         </FormGroup>
 
@@ -295,12 +317,7 @@ class FormStep extends React.Component<Props, State> {
             id="validation"
             componentClass="select"
             value={editingField.validation || ''}
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onFieldAttrChange(
-                'validation',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={validation}
           >
             <option />
             <option value="email">{__('Email')}</option>
@@ -316,12 +333,7 @@ class FormStep extends React.Component<Props, State> {
             id="text"
             type="text"
             value={editingField.text || ''}
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onFieldAttrChange(
-                'text',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={text}
           />
         </FormGroup>
 
@@ -331,12 +343,7 @@ class FormStep extends React.Component<Props, State> {
             id="description"
             componentClass="textarea"
             value={editingField.description || ''}
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onFieldAttrChange(
-                'description',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={desc}
           />
         </FormGroup>
 
@@ -347,12 +354,7 @@ class FormStep extends React.Component<Props, State> {
           <FormControl
             id="form-btn-text"
             value={this.props.formBtnText}
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeState(
-                'formBtnText',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={formBtnText}
           />
         </FormGroup>
       </React.Fragment>

@@ -63,15 +63,13 @@ class Sidebar extends React.Component<Props, {}> {
       </HelperButtons>
     );
 
+    const content = props => <BrandForm {...props} save={save} />;
+
     return (
       <Header uppercase={true}>
         {__('Brands')}
 
-        <ModalTrigger
-          title="New Brand"
-          trigger={addBrand}
-          content={props => <BrandForm {...props} save={save} />}
-        />
+        <ModalTrigger title="New Brand" trigger={addBrand} content={content} />
       </Header>
     );
   }

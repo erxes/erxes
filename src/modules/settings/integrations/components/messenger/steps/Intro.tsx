@@ -54,19 +54,14 @@ class Intro extends React.Component<Props, State> {
       youtube: '',
       messages
     };
-
-    this.onInputChange = this.onInputChange.bind(this);
-    this.onTeamMembersChange = this.onTeamMembersChange.bind(this);
-    this.onMessageChange = this.onMessageChange.bind(this);
-    this.onGreetingsChange = this.onGreetingsChange.bind(this);
   }
 
-  onInputChange<T extends keyof State>(name: any, value: State[T]) {
+  onInputChange = <T extends keyof State>(name: any, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
     this.props.onChange(name, value);
-  }
+  };
 
-  onMessageChange(name, value) {
+  onMessageChange = (name, value) => {
     const messages = { ...this.state.messages };
 
     messages[this.props.languageCode][name] = value;
@@ -74,9 +69,9 @@ class Intro extends React.Component<Props, State> {
     this.setState({ messages });
 
     this.props.onChange('messages', messages);
-  }
+  };
 
-  onGreetingsChange(name, value) {
+  onGreetingsChange = (name, value) => {
     const messages = { ...this.state.messages };
 
     messages[this.props.languageCode].greetings[name] = value;
@@ -84,16 +79,16 @@ class Intro extends React.Component<Props, State> {
     this.setState({ messages });
 
     this.props.onChange('messages', messages);
-  }
+  };
 
-  onTeamMembersChange(options) {
+  onTeamMembersChange = options => {
     this.setState({
       supporters: options,
       supporterIds: options.map(option => option.value)
     });
 
     this.props.onChange('supporterIds', options.map(option => option.value));
-  }
+  };
 
   generateSupporterOptions(members: IUser[] = []) {
     return members.map(member => {
@@ -111,6 +106,36 @@ class Intro extends React.Component<Props, State> {
     const { facebook, twitter, youtube, languageCode } = this.props;
     const message = this.state.messages[languageCode];
 
+    const languageOnChange = e =>
+      this.onInputChange(
+        'languageCode',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const welcomeOnChange = e =>
+      this.onMessageChange('welcome', (e.target as HTMLInputElement).value);
+
+    const greetingTitle = e =>
+      this.onGreetingsChange('title', (e.target as HTMLInputElement).value);
+
+    const greetingMessage = e =>
+      this.onGreetingsChange('message', (e.target as HTMLInputElement).value);
+
+    const awayMessage = e =>
+      this.onMessageChange('away', (e.target as HTMLInputElement).value);
+
+    const thankMessage = e =>
+      this.onMessageChange('thank', (e.target as HTMLInputElement).value);
+
+    const facebookChange = e =>
+      this.onInputChange('facebook', (e.target as HTMLInputElement).value);
+
+    const twitterChange = e =>
+      this.onInputChange('twitter', (e.target as HTMLInputElement).value);
+
+    const youtubeChange = e =>
+      this.onInputChange('youtube', (e.target as HTMLInputElement).value);
+
     return (
       <FlexItem>
         <LeftItem>
@@ -121,10 +146,7 @@ class Intro extends React.Component<Props, State> {
               componentClass="select"
               id="languageCode"
               defaultValue={this.props.languageCode}
-              onChange={(e: React.FormEvent<HTMLElement>) => {
-                const target = e.currentTarget as HTMLInputElement;
-                return this.onInputChange('languageCode', target.value);
-              }}
+              onChange={languageOnChange}
             >
               <option />
               {LANGUAGES.map((item, index) => (
@@ -145,12 +167,7 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Welcome message.')}
               rows={3}
               value={message.welcome}
-              onChange={e =>
-                this.onMessageChange(
-                  'welcome',
-                  (e.target as HTMLInputElement).value
-                )
-              }
+              onChange={welcomeOnChange}
             />
           </FormGroup>
 
@@ -163,12 +180,7 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Greeting title.')}
               rows={3}
               value={message.greetings.title}
-              onChange={e =>
-                this.onGreetingsChange(
-                  'title',
-                  (e.target as HTMLInputElement).value
-                )
-              }
+              onChange={greetingTitle}
             />
           </FormGroup>
 
@@ -180,12 +192,7 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Greeting message.')}
               rows={3}
               value={message.greetings.message}
-              onChange={e =>
-                this.onGreetingsChange(
-                  'message',
-                  (e.target as HTMLInputElement).value
-                )
-              }
+              onChange={greetingMessage}
             />
           </FormGroup>
 
@@ -199,12 +206,7 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Away message.')}
               rows={3}
               value={message.away}
-              onChange={e =>
-                this.onMessageChange(
-                  'away',
-                  (e.target as HTMLInputElement).value
-                )
-              }
+              onChange={awayMessage}
             />
           </FormGroup>
 
@@ -216,12 +218,7 @@ class Intro extends React.Component<Props, State> {
               placeholder={__('Write here Thank you message.')}
               rows={3}
               value={message.thank}
-              onChange={e =>
-                this.onMessageChange(
-                  'thank',
-                  (e.target as HTMLInputElement).value
-                )
-              }
+              onChange={thankMessage}
             />
           </FormGroup>
 
@@ -246,12 +243,7 @@ class Intro extends React.Component<Props, State> {
             <FormControl
               rows={3}
               value={facebook || ''}
-              onChange={e => {
-                this.onInputChange(
-                  'facebook',
-                  (e.target as HTMLInputElement).value
-                );
-              }}
+              onChange={facebookChange}
             />
           </FormGroup>
 
@@ -261,12 +253,7 @@ class Intro extends React.Component<Props, State> {
             <FormControl
               rows={3}
               value={twitter || ''}
-              onChange={e => {
-                this.onInputChange(
-                  'twitter',
-                  (e.target as HTMLInputElement).value
-                );
-              }}
+              onChange={twitterChange}
             />
           </FormGroup>
 
@@ -276,12 +263,7 @@ class Intro extends React.Component<Props, State> {
             <FormControl
               rows={3}
               value={youtube || ''}
-              onChange={e => {
-                this.onInputChange(
-                  'youtube',
-                  (e.target as HTMLInputElement).value
-                );
-              }}
+              onChange={youtubeChange}
             />
           </FormGroup>
         </LeftItem>

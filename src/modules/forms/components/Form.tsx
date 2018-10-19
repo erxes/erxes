@@ -77,10 +77,6 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.onChange = this.onChange.bind(this);
-    this.renderSaveButton = this.renderSaveButton.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-
     const integration = props.integration || ({} as IFormIntegration);
 
     const formData = integration.formData || ({} as IFormData);
@@ -112,7 +108,7 @@ class Form extends React.Component<Props, State> {
     };
   }
 
-  handleSubmit(e: React.FormEvent) {
+  handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const { brand, calloutTitle, title } = this.state;
@@ -156,9 +152,9 @@ class Form extends React.Component<Props, State> {
       },
       fields: this.state.fields
     });
-  }
+  };
 
-  renderSaveButton() {
+  renderSaveButton = () => {
     const cancelButton = (
       <Link to="/forms">
         <Button btnStyle="simple" size="small" icon="cancel-1">
@@ -180,11 +176,11 @@ class Form extends React.Component<Props, State> {
         </Button>
       </Button.Group>
     );
-  }
+  };
 
-  onChange<T extends keyof State>(key: T, value: State[T]) {
+  onChange = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
-  }
+  };
 
   render() {
     const {
@@ -216,6 +212,9 @@ class Form extends React.Component<Props, State> {
     const breadcrumb = [{ title: __('Leads'), link: '/forms' }];
     const constant = isSkip ? 'form' : 'callout';
 
+    const onChange = e =>
+      this.onChange('title', (e.currentTarget as HTMLInputElement).value);
+
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
@@ -223,12 +222,7 @@ class Form extends React.Component<Props, State> {
           <div>{__('Title')}</div>
           <FormControl
             required={true}
-            onChange={e =>
-              this.onChange(
-                'title',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={onChange}
             defaultValue={title}
           />
         </TitleContainer>

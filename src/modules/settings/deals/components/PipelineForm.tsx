@@ -108,7 +108,7 @@ class PipelineForm extends React.Component<Props, State> {
                 btnStyle="simple"
                 type="button"
                 icon="cancel-1"
-                onClick={() => closeModal()}
+                onClick={closeModal}
               >
                 Cancel
               </Button>

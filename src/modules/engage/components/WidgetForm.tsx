@@ -38,13 +38,9 @@ class WidgetForm extends React.Component<Props, State> {
     super(props);
 
     this.state = { content: '', channel: 'email', attachments: [] };
-
-    this.onChangeCommon = this.onChangeCommon.bind(this);
-    this.onChannelChange = this.onChannelChange.bind(this);
-    this.save = this.save.bind(this);
   }
 
-  save(e) {
+  save = e => {
     e.preventDefault();
 
     const { save, customers } = this.props;
@@ -80,15 +76,15 @@ class WidgetForm extends React.Component<Props, State> {
     }
 
     return save(doc, () => this.props.closeModal());
-  }
+  };
 
-  onChangeCommon<T extends keyof State>(name: T, value: State[T]) {
+  onChangeCommon = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  onChannelChange(e) {
+  onChannelChange = e => {
     this.setState({ channel: e.target.value });
-  }
+  };
 
   renderCustomers() {
     return (
@@ -111,6 +107,8 @@ class WidgetForm extends React.Component<Props, State> {
     }
 
     const { attachments } = this.state;
+    const onChange = attachmentsAtt =>
+      this.onChangeCommon('attachments', attachmentsAtt);
 
     return (
       <div>
@@ -133,12 +131,7 @@ class WidgetForm extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel>Attachments:</ControlLabel>
-          <Uploader
-            defaultFileList={attachments}
-            onChange={attachmentsAtt =>
-              this.onChangeCommon('attachments', attachmentsAtt)
-            }
-          />
+          <Uploader defaultFileList={attachments} onChange={onChange} />
         </FormGroup>
       </div>
     );
@@ -194,6 +187,8 @@ class WidgetForm extends React.Component<Props, State> {
   }
 
   render() {
+    const onChange = content => this.onChangeCommon('content', content);
+
     return (
       <form onSubmit={this.save}>
         {this.renderCustomers()}
@@ -217,9 +212,7 @@ class WidgetForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>Content:</ControlLabel>
-          <Editor
-            onChange={content => this.onChangeCommon('content', content)}
-          />
+          <Editor onChange={onChange} />
         </FormGroup>
 
         <ModalFooter>

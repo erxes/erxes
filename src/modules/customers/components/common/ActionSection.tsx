@@ -55,6 +55,8 @@ class ActionSection extends React.Component<Props> {
       }));
     };
 
+    const onClick = () => confirm().then(() => remove());
+
     return (
       <Dropdown id="dropdown-engage">
         <DropdownToggle bsRole="toggle">{this.renderButton()}</DropdownToggle>
@@ -62,11 +64,7 @@ class ActionSection extends React.Component<Props> {
           <li>
             <ModalTrigger
               title="Edit basic info"
-              trigger={
-                <a onClick={() => confirm().then(() => remove())}>
-                  {__('Edit')}
-                </a>
-              }
+              trigger={<a onClick={onClick}>{__('Edit')}</a>}
               size="lg"
               content={customerForm}
             />
@@ -81,7 +79,7 @@ class ActionSection extends React.Component<Props> {
             />
           </li>
           <li>
-            <a onClick={() => confirm().then(() => remove())}>{__('Delete')}</a>
+            <a onClick={onClick}>{__('Delete')}</a>
           </li>
         </Dropdown.Menu>
       </Dropdown>

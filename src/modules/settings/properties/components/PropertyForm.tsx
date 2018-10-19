@@ -77,7 +77,6 @@ class PropertyForm extends React.Component<Props, State> {
     this.renderButtonOrElement = this.renderButtonOrElement.bind(this);
     this.onTypeChange = this.onTypeChange.bind(this);
     this.handleCancelAddingOption = this.handleCancelAddingOption.bind(this);
-    this.handleRemoveOption = this.handleRemoveOption.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
 
@@ -144,26 +143,28 @@ class PropertyForm extends React.Component<Props, State> {
     this.handleCancelAddingOption();
   }
 
-  handleRemoveOption(index) {
+  handleRemoveOption = index => {
     const { options } = this.state;
 
     this.setState({
       options: options.splice(index, 1) && options
     });
-  }
+  };
 
   renderButtonOrElement() {
     if (this.state.add) {
+      const onKeyPress = e => {
+        if (e.key === 'Enter') {
+          this.handleSaveOption();
+        }
+      };
+
       return (
         <React.Fragment>
           <FormControl
             id="optionValue"
             autoFocus={true}
-            onKeyPress={e => {
-              if (e.key === 'Enter') {
-                this.handleSaveOption();
-              }
-            }}
+            onKeyPress={onKeyPress}
           />
           <Actions>
             <Button
@@ -196,11 +197,15 @@ class PropertyForm extends React.Component<Props, State> {
     );
   }
 
+  removeClick = index => {
+    return this.handleRemoveOption(index);
+  };
+
   renderOption(option, index) {
     return (
       <li key={index}>
         {option}
-        <Icon icon="cancel-1" onClick={() => this.handleRemoveOption(index)} />
+        <Icon icon="cancel-1" onClick={this.removeClick} />
       </li>
     );
   }

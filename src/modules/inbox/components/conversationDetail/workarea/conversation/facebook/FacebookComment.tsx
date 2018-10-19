@@ -67,6 +67,16 @@ export default class FacebookComment extends React.Component<Props, {}> {
       commentVideo = message.content;
     }
 
+    const content = props => (
+      <ReplyingMessage
+        conversationId={message.conversationId}
+        commentId={data.commentId}
+        currentUserName={data.senderName}
+        replyPost={replyPost}
+        {...props}
+      />
+    );
+
     return (
       <ChildPost isReply={data.parentId}>
         <NameCard.Avatar customer={message.customer} size={size} />
@@ -89,15 +99,7 @@ export default class FacebookComment extends React.Component<Props, {}> {
             <ModalTrigger
               title="Reply"
               trigger={<a> Reply •</a>}
-              content={props => (
-                <ReplyingMessage
-                  conversationId={message.conversationId}
-                  commentId={data.commentId}
-                  currentUserName={data.senderName}
-                  replyPost={replyPost}
-                  {...props}
-                />
-              )}
+              content={content}
             />
           </Reply>
 

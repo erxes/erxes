@@ -73,13 +73,15 @@ class KnowledgeList extends React.Component<Props> {
       </HelperButtons>
     );
 
+    const content = props => <KnowledgeForm {...props} save={save} />;
+
     return (
       <Header uppercase={true}>
         {__('Knowledge base')}
         <ModalTrigger
           title="Add Knowledge base"
           trigger={trigger}
-          content={props => <KnowledgeForm {...props} save={save} />}
+          content={content}
         />
       </Header>
     );

@@ -83,7 +83,7 @@ class EmailForm extends React.Component<Props, State> {
     }
   }
 
-  changeContent(key, value) {
+  changeContent = (key, value) => {
     const email = { ...this.state.email } as IEngageEmail;
 
     email[key] = value;
@@ -91,20 +91,20 @@ class EmailForm extends React.Component<Props, State> {
     this.setState({ email });
 
     this.props.onChange('email', email);
-  }
+  };
 
-  changeUser(fromUserId) {
+  changeUser = fromUserId => {
     this.setState({ fromUserId });
     this.props.onChange('fromUserId', fromUserId);
-  }
+  };
 
-  templateChange(value) {
+  templateChange = value => {
     this.changeContent('templateId', value);
     this.setState({ currentTemplate: this.findTemplate(value) });
     this.renderBuilder();
-  }
+  };
 
-  findTemplate(id) {
+  findTemplate = id => {
     const template = this.props.templates.find(t => t._id === id);
 
     if (template) {
@@ -112,7 +112,7 @@ class EmailForm extends React.Component<Props, State> {
     }
 
     return '';
-  }
+  };
 
   renderBuilder() {
     const contentContainer = document.getElementsByClassName(
@@ -162,6 +162,15 @@ class EmailForm extends React.Component<Props, State> {
   render() {
     const { attachments } = this.state.email;
 
+    const onChangeUser = e =>
+      this.changeUser((e.target as HTMLInputElement).value);
+    const onChangeContent = e =>
+      this.changeContent('subject', (e.target as HTMLInputElement).value);
+    const onChangeTemplate = e =>
+      this.templateChange((e.target as HTMLInputElement).value);
+    const onChangeAttachment = attachmentsArr =>
+      this.changeContent('attachments', attachmentsArr);
+
     return (
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
@@ -177,9 +186,7 @@ class EmailForm extends React.Component<Props, State> {
             <ControlLabel>From:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e =>
-                this.changeUser((e.target as HTMLInputElement).value)
-              }
+              onChange={onChangeUser}
               value={this.state.fromUserId}
             >
               <option />{' '}
@@ -194,12 +201,7 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Email subject:</ControlLabel>
             <FormControl
-              onChange={e =>
-                this.changeContent(
-                  'subject',
-                  (e.target as HTMLInputElement).value
-                )
-              }
+              onChange={onChangeContent}
               defaultValue={this.state.email.subject}
             />
           </FormGroup>
@@ -208,9 +210,7 @@ class EmailForm extends React.Component<Props, State> {
             <ControlLabel>Email template:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e =>
-                this.templateChange((e.target as HTMLInputElement).value)
-              }
+              onChange={onChangeTemplate}
               value={this.state.email.templateId}
             >
               <option />{' '}
@@ -225,9 +225,7 @@ class EmailForm extends React.Component<Props, State> {
             <ControlLabel>Attachments: </ControlLabel>
             <Uploader
               defaultFileList={attachments || []}
-              onChange={attachmentsArr =>
-                this.changeContent('attachments', attachmentsArr)
-              }
+              onChange={onChangeAttachment}
             />
           </FormGroup>
 

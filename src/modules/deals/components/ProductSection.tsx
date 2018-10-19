@@ -20,11 +20,20 @@ function ProductSection({
   products,
   productsData,
   onChangeProductsData,
-  onChangeProducts,
   saveProductsData
 }: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
+
+  const content = props => (
+    <ProductForm
+      {...props}
+      onChangeProductsData={onChangeProductsData}
+      productsData={productsData}
+      products={products}
+      saveProductsData={saveProductsData}
+    />
+  );
 
   return (
     <Section>
@@ -39,15 +48,7 @@ function ProductSection({
               <Icon icon="add" />
             </a>
           }
-          content={props => (
-            <ProductForm
-              {...props}
-              onChangeProductsData={onChangeProductsData}
-              productsData={productsData}
-              products={products}
-              saveProductsData={saveProductsData}
-            />
-          )}
+          content={content}
         />
       </QuickButtons>
       <SectionBody>

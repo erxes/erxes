@@ -12,6 +12,11 @@ function HistoryRow({ history, removeHistory }: Props) {
   const { user = {} } = history;
   const { details = {} } = user;
 
+  const onClick = () =>
+    confirm().then(() => {
+      removeHistory(history._id);
+    });
+
   return (
     <tr>
       <td>{history.success || 0}</td>
@@ -20,15 +25,7 @@ function HistoryRow({ history, removeHistory }: Props) {
       <td>{moment(history.date).format('lll')}</td>
       <td>{details.fullName || '-'}</td>
       <td>
-        <Button
-          btnStyle="link"
-          icon="cancel-1"
-          onClick={() =>
-            confirm().then(() => {
-              removeHistory(history._id);
-            })
-          }
-        />
+        <Button btnStyle="link" icon="cancel-1" onClick={onClick} />
       </td>
     </tr>
   );

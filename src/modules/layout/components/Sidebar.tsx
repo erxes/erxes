@@ -81,6 +81,10 @@ class Section extends React.Component<Props, State> {
       maxHeight: collapsible ? this.state.maxHeight : undefined
     };
 
+    const innerRef = node => {
+      this.node = node;
+    };
+
     return (
       <SidebarBox
         collapsible={collapsible}
@@ -89,13 +93,7 @@ class Section extends React.Component<Props, State> {
         noBackground={noBackground}
         full={full}
       >
-        <BoxContent
-          innerRef={node => {
-            this.node = node;
-          }}
-        >
-          {children}
-        </BoxContent>
+        <BoxContent innerRef={innerRef}>{children}</BoxContent>
         {collapsible ? this.renderCollapseButton() : null}
       </SidebarBox>
     );

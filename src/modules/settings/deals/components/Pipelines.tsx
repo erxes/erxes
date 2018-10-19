@@ -71,11 +71,13 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderRows() {
+    const edit = () => this.editPipeline;
+
     const child = pipeline => (
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
-        edit={() => this.editPipeline(pipeline)}
+        edit={edit}
         remove={this.props.remove}
       />
     );
@@ -122,7 +124,7 @@ class Pipelines extends React.Component<Props, State> {
         btnStyle="success"
         size="small"
         icon="add"
-        onClick={() => this.addPipeline()}
+        onClick={this.addPipeline}
       >
         Add pipeline
       </Button>

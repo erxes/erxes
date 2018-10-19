@@ -30,7 +30,7 @@ class Segments extends React.Component<Props> {
     }
 
     return (
-      <a tabIndex={0} onClick={() => removeSegment()}>
+      <a tabIndex={0} onClick={removeSegment}>
         <Icon icon="cancel-1" />
       </a>
     );
@@ -82,6 +82,8 @@ class Segments extends React.Component<Props> {
       }
     });
 
+    const onClick = segment => setSegment(segment._id);
+
     return (
       <SidebarList>
         {orderedSegments.map(segment => (
@@ -92,7 +94,7 @@ class Segments extends React.Component<Props> {
             <a
               tabIndex={0}
               className={currentSegment === segment._id ? 'active' : ''}
-              onClick={() => setSegment(segment._id)}
+              onClick={onClick}
             >
               {segment.subOf ? '\u00a0\u00a0' : null}
               <Icon

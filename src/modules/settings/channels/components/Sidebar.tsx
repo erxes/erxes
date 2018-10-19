@@ -68,15 +68,17 @@ class Sidebar extends React.Component<Props, {}> {
       </HelperButtons>
     );
 
+    const content = props => (
+      <ChannelForm {...props} save={save} members={members} />
+    );
+
     return (
       <Header uppercase={true}>
         {__('Channels')}
         <ModalTrigger
           title="New Channel"
           trigger={addChannel}
-          content={props => (
-            <ChannelForm {...props} save={save} members={members} />
-          )}
+          content={content}
         />
       </Header>
     );

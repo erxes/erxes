@@ -34,21 +34,22 @@ type Props = {
 
 class FullPreviewStep extends React.Component<Props, {}> {
   renderTabs(name: string, value: string) {
+    const onClick = () => this.onChange(value);
+
     return (
-      <Tabs
-        selected={this.props.preview === value}
-        onClick={() => this.onChange(value)}
-      >
+      <Tabs selected={this.props.preview === value} onClick={onClick}>
         {__(name)}
       </Tabs>
     );
   }
 
   carouseItems(name: string, value: string) {
+    const onClick = () => this.onChangePreview(value);
+
     return (
       <CarouselInner selected={this.props.carousel === value}>
         <li>
-          <span onClick={() => this.onChangePreview(value)} />
+          <span onClick={onClick} />
         </li>
         <span>{__(name)}</span>
       </CarouselInner>

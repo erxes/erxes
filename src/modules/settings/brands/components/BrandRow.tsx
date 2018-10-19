@@ -46,12 +46,10 @@ class BrandRow extends React.Component<Props> {
       </Button>
     );
 
+    const content = props => <BrandForm {...props} brand={brand} save={save} />;
+
     return (
-      <ModalTrigger
-        title="Edit"
-        trigger={editTrigger}
-        content={props => <BrandForm {...props} brand={brand} save={save} />}
-      />
+      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
   }
 

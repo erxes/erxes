@@ -67,15 +67,14 @@ class Manage extends React.Component<Props, State> {
   }
 
   render() {
+    const onCopy = () => this.setState({ copied: true });
+
     return (
       <React.Fragment>
         <MarkdownWrapper>
           <ReactMarkdown source={this.state.code || ''} />
           {this.state.code ? (
-            <CopyToClipboard
-              text={this.state.code}
-              onCopy={() => this.setState({ copied: true })}
-            >
+            <CopyToClipboard text={this.state.code} onCopy={onCopy}>
               <Button size="small" btnStyle="primary" icon="copy">
                 {this.state.copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
@@ -89,7 +88,7 @@ class Manage extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             icon="cancel-1"
-            onClick={() => this.props.closeModal()}
+            onClick={this.props.closeModal}
           >
             Cancel
           </Button>

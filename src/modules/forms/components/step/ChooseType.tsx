@@ -17,11 +17,10 @@ type Props = {
 
 class ChooseType extends React.Component<Props, {}> {
   renderBox(name: string, icon: string, value: string) {
+    const onClick = () => this.onChange(value);
+
     return (
-      <Box
-        selected={this.props.type === value}
-        onClick={() => this.onChange(value)}
-      >
+      <Box selected={this.props.type === value} onClick={onClick}>
         <Icon icon={icon} />
         <span>{__(name)}</span>
       </Box>

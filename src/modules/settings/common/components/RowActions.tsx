@@ -50,14 +50,16 @@ export default class RowActions extends React.Component<Props, {}> {
       </Button>
     );
 
+    const content = props => {
+      return renderForm({ ...props, object, save });
+    };
+
     return (
       <ModalTrigger
         size={size}
         title="Edit"
         trigger={editTrigger}
-        content={props => {
-          return renderForm({ ...props, object, save });
-        }}
+        content={content}
       />
     );
   }

@@ -98,6 +98,10 @@ class GenerateGroup extends React.Component<Props, State> {
     );
   }
 
+  onValueChange = ({ _id, value }) => {
+    return this.onChange({ _id, value });
+  };
+
   render() {
     const { Section } = Sidebar;
     const { Title } = Section;
@@ -123,9 +127,7 @@ class GenerateGroup extends React.Component<Props, State> {
               <GenerateField
                 field={field}
                 key={index}
-                onValueChange={({ _id, value }) =>
-                  this.onChange({ _id, value })
-                }
+                onValueChange={this.onValueChange}
                 defaultValue={data[field._id] || ''}
               />
             );

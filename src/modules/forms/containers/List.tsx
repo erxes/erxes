@@ -53,17 +53,16 @@ class ListContainer extends React.Component<Props, {}> {
       tags: tagsQuery.tags || []
     };
 
-    return (
-      <Bulk
-        content={props => {
-          return <List {...updatedProps} {...props} />;
-        }}
-        refetch={() => {
-          this.props.integrationsQuery.refetch();
-          this.props.integrationsTotalCountQuery.refetch();
-        }}
-      />
-    );
+    const content = props => {
+      return <List {...updatedProps} {...props} />;
+    };
+
+    const refetch = () => {
+      this.props.integrationsQuery.refetch();
+      this.props.integrationsTotalCountQuery.refetch();
+    };
+
+    return <Bulk content={content} refetch={refetch} />;
   }
 }
 

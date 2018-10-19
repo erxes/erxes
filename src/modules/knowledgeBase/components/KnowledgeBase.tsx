@@ -35,21 +35,21 @@ class KnowledgeBase extends React.Component<Props> {
       </Button>
     );
 
+    const content = props => (
+      <ArticleForm
+        {...props}
+        queryParams={queryParams}
+        currentCategoryId={currentCategory._id}
+        topicIds={currentCategory.firstTopic && currentCategory.firstTopic._id}
+      />
+    );
+
     const actionBarLeft = currentCategory._id && (
       <ModalTrigger
         title="Add Article"
         trigger={trigger}
         size="lg"
-        content={props => (
-          <ArticleForm
-            {...props}
-            queryParams={queryParams}
-            currentCategoryId={currentCategory._id}
-            topicIds={
-              currentCategory.firstTopic && currentCategory.firstTopic._id
-            }
-          />
-        )}
+        content={content}
       />
     );
 

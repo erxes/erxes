@@ -59,13 +59,13 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderTrend(name, loading, trend, width) {
+  renderTrend(name, loading, trend) {
+    const innerRef = node => {
+      this.wrapper = node;
+    };
+
     return (
-      <InsightRow
-        innerRef={node => {
-          this.wrapper = node;
-        }}
-      >
+      <InsightRow innerRef={innerRef}>
         {this.renderTitle(name)}
         <Chart loading={loading.main} height={360} data={trend} />
       </InsightRow>
@@ -110,7 +110,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
           <Summary loading={loading.main} data={summary} />
         </InsightRow>
 
-        {this.renderTrend('Response Trend', loading, trend, width)}
+        {this.renderTrend('Response Trend', loading, trend)}
 
         {this.renderPunchCard(loading, punch, width)}
 
