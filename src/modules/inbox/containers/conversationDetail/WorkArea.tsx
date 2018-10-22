@@ -138,7 +138,7 @@ class WorkArea extends React.Component<Props, State> {
         const optimisticResponseVariables = {
           conversationId: currentId,
           limit,
-          skip
+          skip: undefined
         };
 
         if (skip) {
