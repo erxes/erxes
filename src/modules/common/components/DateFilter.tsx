@@ -134,11 +134,11 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
   }
 
-  onDateChange<T extends keyof State>({ date }: { date: State[T] }, type: T) {
+  onDateChange = <T extends keyof State>(type: T, date: State[T]) => {
     if (typeof date !== 'string') {
       this.setState({ [type]: date } as Pick<State, keyof State>);
     }
-  }
+  };
 
   refetchCountQuery() {
     const { client, queryParams, countQuery, countQueryParam } = this.props;
@@ -160,7 +160,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
       });
   }
 
-  filterByDate() {
+  filterByDate = () => {
     const { startDate, endDate } = this.state;
 
     const formattedStartDate = moment(startDate).format(format);
@@ -174,7 +174,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     if (this.props.countQuery) {
       this.refetchCountQuery();
     }
-  }
+  };
 
   renderCount() {
     const { totalCount } = this.state;
@@ -202,6 +202,18 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
       closeOnSelect: true
     };
 
+    const onChangeStart = date => {
+      if (typeof date !== 'string') {
+        this.onDateChange('startDate', date.toDate());
+      }
+    };
+
+    const onChangeEnd = date => {
+      if (typeof date !== 'string') {
+        this.onDateChange('endDate', date.toDate());
+      }
+    };
+
     return (
       <Popover id="filter-popover" title={__('Filter by date')}>
         <DateFilters>
@@ -210,7 +222,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
               <Datetime
                 {...props}
                 value={this.state.startDate}
-                onChange={this.onDateChange.bind(this, 'startDate')}
+                onChange={onChangeStart}
               />
             </FlexItem>
 
@@ -218,7 +230,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
               <Datetime
                 {...props}
                 value={this.state.endDate}
-                onChange={this.onDateChange.bind(this, 'endDate')}
+                onChange={onChangeEnd}
               />
             </FlexItem>
           </FlexRow>

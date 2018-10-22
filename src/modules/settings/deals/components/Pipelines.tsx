@@ -30,9 +30,6 @@ class Pipelines extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.closeModal = this.closeModal.bind(this);
-    this.onChangePipelines = this.onChangePipelines.bind(this);
-
     this.state = {
       showModal: false,
       currentPipeline: undefined,
@@ -46,23 +43,23 @@ class Pipelines extends React.Component<Props, State> {
     }
   }
 
-  closeModal() {
+  closeModal = () => {
     this.setState({ showModal: false });
-  }
+  };
 
-  addPipeline() {
+  addPipeline = () => {
     this.setState({
       showModal: true,
       currentPipeline: undefined
     });
-  }
+  };
 
-  editPipeline(pipeline) {
+  editPipeline = pipeline => {
     this.setState({
       showModal: true,
       currentPipeline: pipeline
     });
-  }
+  };
 
   onChangePipelines(pipelines) {
     this.setState({ pipelines });
@@ -71,16 +68,18 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderRows() {
-    const edit = () => this.editPipeline;
+    const child = pipeline => {
+      const edit = () => this.editPipeline(pipeline);
 
-    const child = pipeline => (
-      <PipelineRow
-        key={pipeline._id}
-        pipeline={pipeline}
-        edit={edit}
-        remove={this.props.remove}
-      />
-    );
+      return (
+        <PipelineRow
+          key={pipeline._id}
+          pipeline={pipeline}
+          edit={edit}
+          remove={this.props.remove}
+        />
+      );
+    };
 
     const { pipelines } = this.state;
 
