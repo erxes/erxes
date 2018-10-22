@@ -283,6 +283,7 @@ class FormStep extends React.Component<Props, State> {
           <ControlLabel>{__('Form description')}</ControlLabel>
           <FormControl
             id="form-btn-text"
+            componentClass="textarea"
             value={this.props.formDesc}
             onChange={formDesc}
           />

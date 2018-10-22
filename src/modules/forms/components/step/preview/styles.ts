@@ -13,6 +13,8 @@ const PreviewTitle = styled.div`
   padding: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorSecondary};
   color: ${colors.colorWhite};
+  font-weight: 700;
+  font-size: 13px;
   text-align: center;
 `;
 
@@ -75,6 +77,18 @@ const SlideLeftContent = styled.div`
 const BodyContent = styled.div`
   flex: 1;
 
+  span {
+    padding-left: 5px;
+
+    &:after {
+      left: ${dimensions.unitSpacing - 1}px;
+    }
+  }
+
+  p {
+    margin-bottom: 10px;
+  }
+
   ${SortableWrapper} {
     overflow: visible;
     max-height: none;
@@ -91,8 +105,10 @@ const BodyContent = styled.div`
 
       ${DragHandler} {
         position: absolute;
-        top: ${dimensions.unitSpacing / 2}px;
-        right: ${dimensions.unitSpacing}px;
+        background: ${colors.colorWhite};
+        top: 0;
+        right: 0;
+        margin-right: 0;
         z-index: 10;
         display: flex;
         justify-content: center;
@@ -166,8 +182,10 @@ const Embedded = styled.div`
   box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.colorShadowGray} inset;
 `;
 
-const FieldItem = styledTS<{ selectType?: boolean }>(styled.div)`
-  padding: 0 ${dimensions.unitSpacing}px;
+const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
+  styled.div
+)`
+  padding: ${props => !props.noPadding && `0 ${dimensions.unitSpacing}px`};
 
   input,
   textarea,
@@ -204,6 +222,10 @@ const FieldItem = styledTS<{ selectType?: boolean }>(styled.div)`
   textarea {
     overflow: auto;
     height: auto;
+  }
+
+  .required {
+    color: ${colors.colorCoreRed};
   }
 `;
 
