@@ -37,10 +37,7 @@ class Home extends React.Component<Props> {
   }
 
   render() {
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Integrations') }
-    ];
+    const breadcrumb = [{ title: __('App store') }];
 
     return (
       <Wrapper

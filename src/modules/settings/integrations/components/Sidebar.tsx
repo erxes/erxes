@@ -10,7 +10,7 @@ function IntegrationsSidebar(props) {
   return (
     <Sidebar>
       <Sidebar.Section>
-        <Title>{__('Integration menu')}</Title>
+        <Title>{__('App store menu')}</Title>
         <SidebarList>
           <li>
             <NavLink activeClassName="active" to="/settings/channels">
