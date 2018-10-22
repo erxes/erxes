@@ -178,6 +178,11 @@ class CompaniesList extends React.Component<IProps, State> {
         </Button>
       );
 
+      const onClick = () =>
+        confirm().then(() => {
+          this.removeCompanies(bulk);
+        });
+
       actionBarLeft = (
         <BarItems>
           <TaggerPopover
@@ -200,9 +205,7 @@ class CompaniesList extends React.Component<IProps, State> {
             btnStyle="danger"
             size="small"
             icon="cancel-1"
-            onClick={confirm.bind(null).then(() => {
-              this.removeCompanies(bulk);
-            })}
+            onClick={onClick}
           >
             Remove
           </Button>

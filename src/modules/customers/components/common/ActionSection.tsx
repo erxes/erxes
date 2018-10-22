@@ -35,12 +35,35 @@ class ActionSection extends React.Component<Props> {
     );
   }
 
-  render() {
-    const { customer, remove, merge } = this.props;
+  renderEditButton() {
+    const { customer, remove, isSmall } = this.props;
+
+    if (!isSmall) {
+      return null;
+    }
 
     const customerForm = props => {
       return <CustomerForm {...props} size="lg" customer={customer} />;
     };
+
+    const onClick = () => confirm().then(() => remove());
+
+    return (
+      <li>
+        <ModalTrigger
+          title="Edit basic info"
+          trigger={<a onClick={onClick}>{__('Edit')}</a>}
+          size="lg"
+          content={customerForm}
+        />
+      </li>
+    );
+  }
+
+  render() {
+    const { customer, merge, remove } = this.props;
+
+    const onClick = () => confirm().then(() => remove());
 
     const generateOptions = customers => {
       return customers.map((cus, key) => ({
@@ -55,20 +78,11 @@ class ActionSection extends React.Component<Props> {
       }));
     };
 
-    const onClick = () => confirm().then(() => remove());
-
     return (
       <Dropdown id="dropdown-engage">
         <DropdownToggle bsRole="toggle">{this.renderButton()}</DropdownToggle>
         <Dropdown.Menu>
-          <li>
-            <ModalTrigger
-              title="Edit basic info"
-              trigger={<a onClick={onClick}>{__('Edit')}</a>}
-              size="lg"
-              content={customerForm}
-            />
-          </li>
+          {this.renderEditButton()}
           <li>
             <TargetMerge
               onSave={merge}

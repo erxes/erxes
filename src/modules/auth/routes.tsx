@@ -8,7 +8,6 @@ const routes = () => {
   const home = () => <AuthLayout content={<SignIn />} />;
   const signIn = () => <AuthLayout content={<SignIn />} />;
   const forgotPassword = () => <AuthLayout content={<ForgotPassword />} />;
-
   const resetPassword = ({ location }) => {
     const parsed = queryString.parse(location.search);
     return (
@@ -19,11 +18,8 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route path="/" component={home} />
-
       <Route path="/sign-in" component={signIn} />
-
       <Route path="/forgot-password" component={forgotPassword} />
-
       <Route path="/reset-password" component={resetPassword} />
     </React.Fragment>
   );

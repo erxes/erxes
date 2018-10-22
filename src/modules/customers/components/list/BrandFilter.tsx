@@ -16,26 +16,28 @@ interface IProps extends IRouterProps {
 function Brands({ history, counts, brands, loading }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;
 
-  const onClick = brandId => {
-    router.setParams(history, { brand: brandId });
-  };
-
   const data = (
     <SidebarList>
-      {brands.map(brand => (
-        <li key={brand._id}>
-          <a
-            tabIndex={0}
-            className={
-              router.getParam(history, 'brand') === brand._id ? 'active' : ''
-            }
-            onClick={onClick}
-          >
-            {brand.name}
-            <SidebarCounter>{counts[brand._id]}</SidebarCounter>
-          </a>
-        </li>
-      ))}
+      {brands.map(brand => {
+        const onClick = () => {
+          router.setParams(history, { brand: brand._id });
+        };
+
+        return (
+          <li key={brand._id}>
+            <a
+              tabIndex={0}
+              className={
+                router.getParam(history, 'brand') === brand._id ? 'active' : ''
+              }
+              onClick={onClick}
+            >
+              {brand.name}
+              <SidebarCounter>{counts[brand._id]}</SidebarCounter>
+            </a>
+          </li>
+        );
+      })}
     </SidebarList>
   );
 

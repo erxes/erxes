@@ -78,16 +78,18 @@ class BasicInfo extends React.Component<Props> {
     );
   }
 
-  targetMergeOptions(companies) {
-    return companies.map((c, key) => ({
-      key,
-      value: JSON.stringify(c),
-      label: c.primaryName || c.website || 'N/A'
-    }));
-  }
-
   renderAction() {
     const { remove, merge, company } = this.props;
+
+    const targetMergeOptions = companies => {
+      return companies.map((c, key) => ({
+        key,
+        value: JSON.stringify(c),
+        label: c.primaryName || c.website || 'N/A'
+      }));
+    };
+
+    const onDelete = () => confirm().then(() => remove());
 
     return (
       <Action>
@@ -104,13 +106,11 @@ class BasicInfo extends React.Component<Props> {
                 object={company}
                 searchObject={searchCompany}
                 mergeForm={CompaniesMerge}
-                generateOptions={this.targetMergeOptions}
+                generateOptions={targetMergeOptions}
               />
             </li>
             <li>
-              <a onClick={confirm.bind(null).then(() => remove())}>
-                {__('Delete')}
-              </a>
+              <a onClick={onDelete}>{__('Delete')}</a>
             </li>
           </Dropdown.Menu>
         </Dropdown>
@@ -118,13 +118,11 @@ class BasicInfo extends React.Component<Props> {
     );
   }
 
-  renderCompanyForm(props, company) {
-    return <CompanyForm {...props} company={company} />;
-  }
-
   renderInfo() {
     const { company } = this.props;
     const { links = {} } = company;
+
+    const content = props => <CompanyForm {...props} company={company} />;
 
     return (
       <Sidebar.Section>
@@ -141,7 +139,7 @@ class BasicInfo extends React.Component<Props> {
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
             size="lg"
-            content={this.renderCompanyForm.bind(this, company)}
+            content={content}
           />
         </InfoWrapper>
 

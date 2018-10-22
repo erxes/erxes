@@ -282,6 +282,11 @@ class CustomersList extends React.Component<IProps, State> {
         </Button>
       );
 
+      const onClick = () =>
+        confirm().then(() => {
+          this.removeCustomers(bulk);
+        });
+
       actionBarLeft = (
         <BarItems>
           <Widget customers={bulk} emptyBulk={emptyBulk} />
@@ -304,9 +309,7 @@ class CustomersList extends React.Component<IProps, State> {
             btnStyle="danger"
             size="small"
             icon="cancel-1"
-            onClick={confirm.bind(null).then(() => {
-              this.removeCustomers(bulk);
-            })}
+            onClick={onClick}
           >
             Remove
           </Button>

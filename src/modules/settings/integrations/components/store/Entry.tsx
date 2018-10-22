@@ -59,8 +59,8 @@ class Entry extends React.Component<Props> {
     );
   }
 
-  BoxOnClick = integration => {
-    return this.props.toggleBox(integration.kind);
+  BoxOnClick = () => {
+    return this.props.toggleBox(this.props.integration.kind);
   };
 
   render() {

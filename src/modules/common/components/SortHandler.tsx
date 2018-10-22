@@ -31,19 +31,22 @@ class SortHandler extends React.Component<IProps> {
   render() {
     const { sortField } = this.props;
 
+    const onClickUp = () => this.sortHandler(sortField, -1);
+    const onClickDown = () => this.sortHandler(sortField, 1);
+
     return (
       <div className="table-sorter">
         <Icon
           icon="uparrow-2"
           size={7}
           isActive={this.checkSortActive(sortField, -1)}
-          onClick={this.sortHandler.bind(this, sortField, -1)}
+          onClick={onClickUp}
         />
         <Icon
           icon="downarrow"
           size={7}
           isActive={this.checkSortActive(sortField, 1)}
-          onClick={this.sortHandler.bind(this, sortField, 1)}
+          onClick={onClickDown}
         />
       </div>
     );

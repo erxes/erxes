@@ -40,7 +40,6 @@ class CompaniesMerge extends React.Component<Props, State> {
     };
 
     this.renderCompany = this.renderCompany.bind(this);
-    this.handleChange = this.handleChange.bind(this);
     this.save = this.save.bind(this);
   }
 
@@ -72,7 +71,7 @@ class CompaniesMerge extends React.Component<Props, State> {
     });
   }
 
-  handleChange(type, key, value) {
+  handleChange = (type, key, value) => {
     const selectedValues = { ...this.state.selectedValues };
 
     if (type === 'add') {
@@ -88,7 +87,7 @@ class CompaniesMerge extends React.Component<Props, State> {
     }
 
     this.setState({ selectedValues });
-  }
+  };
 
   renderCompany(company, icon) {
     const properties = COMPANY_INFO.ALL.concat(COMPANY_DATAS.ALL);

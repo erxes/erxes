@@ -44,16 +44,12 @@ class CommonChooser extends React.Component<Props, State> {
       loadmore: true,
       searchValue: ''
     };
-
-    this.onSelect = this.onSelect.bind(this);
-    this.search = this.search.bind(this);
-    this.loadMore = this.loadMore.bind(this);
   }
 
-  onSelect() {
+  onSelect = () => {
     this.props.onSelect(this.state.datas);
     this.props.closeModal();
-  }
+  };
 
   componentWillUnmount() {
     this.props.clearState();
@@ -65,7 +61,7 @@ class CommonChooser extends React.Component<Props, State> {
     this.setState({ loadmore: datas.length === perPage });
   }
 
-  handleChange(type, data) {
+  handleChange = (type, data) => {
     const { datas } = this.state;
 
     if (type === 'add') {
@@ -77,9 +73,9 @@ class CommonChooser extends React.Component<Props, State> {
     } else {
       this.setState({ datas: datas.filter(item => item !== data) });
     }
-  }
+  };
 
-  search(e) {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -91,20 +87,22 @@ class CommonChooser extends React.Component<Props, State> {
       search(value);
       this.setState({ searchValue: value });
     }, 500);
-  }
+  };
 
-  loadMore() {
+  loadMore = () => {
     this.setState({ loadmore: false });
     this.props.search(this.state.searchValue, true);
-  }
+  };
 
   renderRow(data, icon) {
     if (icon === 'add' && this.state.datas.some(e => e._id === data._id)) {
       return null;
     }
 
+    const onClick = () => this.handleChange(icon, data);
+
     return (
-      <li key={data._id} onClick={this.handleChange.bind(this, icon, data)}>
+      <li key={data._id} onClick={onClick}>
         {this.props.renderName(data)}
         <Icon icon={icon} />
       </li>
