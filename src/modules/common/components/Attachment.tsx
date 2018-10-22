@@ -86,15 +86,7 @@ type Props = {
 };
 
 class Attachment extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-
-    this.renderAtachment = this.renderAtachment.bind(this);
-    this.renderOtherFile = this.renderOtherFile.bind(this);
-    this.onLoadImage = this.onLoadImage.bind(this);
-  }
-
-  renderOtherFile(name, icon) {
+  renderOtherFile = (name, icon) => {
     return (
       <React.Fragment>
         <FileWrapper key="wrapper">
@@ -107,17 +99,17 @@ class Attachment extends React.Component<Props> {
         </Overlay>
       </React.Fragment>
     );
-  }
+  };
 
-  onLoadImage() {
+  onLoadImage = () => {
     const { scrollBottom } = this.props;
 
     if (scrollBottom) {
       scrollBottom();
     }
-  }
+  };
 
-  renderAtachment({ attachment }) {
+  renderAtachment = ({ attachment }) => {
     if (!attachment.type) {
       return null;
     }
@@ -170,7 +162,7 @@ class Attachment extends React.Component<Props> {
         filePreview = this.renderOtherFile(name, 'clipboard-1');
     }
     return filePreview;
-  }
+  };
 
   render() {
     const props = this.props;
