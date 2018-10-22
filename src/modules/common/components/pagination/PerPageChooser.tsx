@@ -17,7 +17,7 @@ const PerPageChooser = ({ history }: IRouterProps) => {
   const renderOption = n => {
     return (
       <Option>
-        <a onClick={() => onClick(n)}>{n}</a>
+        <a onClick={onClick.bind(null, n)}>{n}</a>
       </Option>
     );
   };

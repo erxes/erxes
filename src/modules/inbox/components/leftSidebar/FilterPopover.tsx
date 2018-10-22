@@ -42,22 +42,18 @@ export default class FilterPopover extends React.Component<Props, State> {
       counts: {},
       loading
     };
-
-    this.renderPopover = this.renderPopover.bind(this);
-    this.onClick = this.onClick.bind(this);
-    this.update = this.update.bind(this);
   }
 
   // rerender component
-  update() {
+  update = () => {
     this.forceUpdate();
-  }
+  };
 
   shouldComponentUpdate(nextProps, nextState) {
     return this.state !== nextState;
   }
 
-  onClick() {
+  onClick = () => {
     const { query, counts, queryParams } = this.props;
 
     // Fetching filter lists channels, brands, tags etc
@@ -83,9 +79,9 @@ export default class FilterPopover extends React.Component<Props, State> {
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         this.setState({ counts: data.conversationCounts[counts], loading });
       });
-  }
+  };
 
-  renderPopover() {
+  renderPopover = () => {
     const { popoverTitle, paramKey, icon, searchable } = this.props;
     const { counts } = this.state;
     const { fields, loading } = this.state;
@@ -111,7 +107,7 @@ export default class FilterPopover extends React.Component<Props, State> {
         />
       </Popover>
     );
-  }
+  };
 
   render() {
     const { buttonText, placement = 'bottom' } = this.props;
@@ -125,7 +121,7 @@ export default class FilterPopover extends React.Component<Props, State> {
         shouldUpdatePosition={true}
         rootClose={true}
       >
-        <PopoverButton onClick={() => this.onClick()}>
+        <PopoverButton onClick={this.onClick}>
           {__(buttonText)}
           <Icon icon={placement === 'top' ? 'uparrow-2' : 'downarrow'} />
         </PopoverButton>

@@ -27,21 +27,23 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
   renderFormTrigger = (trigger: React.ReactNode) => {
     const { deal, onAdd, onRemove, onUpdate } = this.props;
 
+    const content = props => (
+      <EditForm
+        {...props}
+        stageId={deal.stageId}
+        dealId={deal._id}
+        onAdd={onAdd}
+        onRemove={onRemove}
+        onUpdate={onUpdate}
+      />
+    );
+
     return (
       <ModalTrigger
         title="Edit deal"
         trigger={trigger}
         size="lg"
-        content={props => (
-          <EditForm
-            {...props}
-            stageId={deal.stageId}
-            dealId={deal._id}
-            onAdd={onAdd}
-            onRemove={onRemove}
-            onUpdate={onUpdate}
-          />
-        )}
+        content={content}
       />
     );
   };

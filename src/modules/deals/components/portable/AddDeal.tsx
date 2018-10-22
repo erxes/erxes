@@ -34,8 +34,6 @@ class DealAddForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.save = this.save.bind(this);
-
     this.state = {
       disabled: false,
       boardId: '',
@@ -45,11 +43,11 @@ class DealAddForm extends React.Component<Props, State> {
     };
   }
 
-  onChangeField<T extends keyof State>(name: T, value: State[T]) {
+  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  save(e) {
+  save = e => {
     e.preventDefault();
 
     const { stageId, name } = this.state;
@@ -79,7 +77,7 @@ class DealAddForm extends React.Component<Props, State> {
 
       closeModal();
     });
-  }
+  };
 
   renderSelect() {
     const { showSelect } = this.props;
@@ -90,32 +88,34 @@ class DealAddForm extends React.Component<Props, State> {
 
     const { stageId, pipelineId, boardId } = this.state;
 
+    const stgIdOnChange = stgId => this.onChangeField('stageId', stgId);
+    const plIdOnChange = plId => this.onChangeField('pipelineId', plId);
+    const brIdOnChange = brId => this.onChangeField('boardId', brId);
+
     return (
       <DealSelect
         stageId={stageId}
         pipelineId={pipelineId}
         boardId={boardId}
-        onChangeStage={stgId => this.onChangeField('stageId', stgId)}
-        onChangePipeline={plId => this.onChangeField('pipelineId', plId)}
-        onChangeBoard={brId => this.onChangeField('boardId', brId)}
+        onChangeStage={stgIdOnChange}
+        onChangePipeline={plIdOnChange}
+        onChangeBoard={brIdOnChange}
       />
     );
   }
 
   render() {
+    const onChangeName = e =>
+      this.onChangeField('name', (e.target as HTMLInputElement).value);
+
     return (
-      <AddContainer onSubmit={e => this.save(e)}>
+      <AddContainer onSubmit={this.save}>
         {this.renderSelect()}
 
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
-            <FormControl
-              autoFocus={true}
-              onChange={e =>
-                this.onChangeField('name', (e.target as HTMLInputElement).value)
-              }
-            />
+            <FormControl autoFocus={true} onChange={onChangeName} />
           </HeaderContent>
         </HeaderRow>
 

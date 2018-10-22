@@ -40,14 +40,16 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       </Button>
     );
 
+    const content = props => {
+      return renderForm({ ...props, save });
+    };
+
     const actionBarLeft = (
       <ModalTrigger
         title={title || ''}
         size={size}
         trigger={trigger}
-        content={props => {
-          return renderForm({ ...props, save });
-        }}
+        content={content}
       />
     );
 

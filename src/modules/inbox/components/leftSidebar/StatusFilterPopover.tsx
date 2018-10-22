@@ -27,14 +27,9 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       counts: {},
       loading: true
     };
-
-    this.clearStatusFilter = this.clearStatusFilter.bind(this);
-    this.onClick = this.onClick.bind(this);
-    this.renderPopover = this.renderPopover.bind(this);
-    this.renderSingleFilter = this.renderSingleFilter.bind(this);
   }
 
-  onClick() {
+  onClick = () => {
     const { queryParams } = this.props;
 
     client
@@ -45,24 +40,24 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         this.setState({ counts: data.conversationCounts, loading });
       });
-  }
+  };
 
-  clearStatusFilter() {
+  clearStatusFilter = () => {
     router.setParams(this.props.history, {
       participating: '',
       status: '',
       unassigned: '',
       starred: ''
     });
-  }
+  };
 
-  renderSingleFilter(
+  renderSingleFilter = (
     paramName: string,
     paramValue: string,
     countName: string,
     text: string,
     count: number
-  ) {
+  ) => {
     const { history } = this.props;
 
     const onClick = () => {
@@ -84,9 +79,9 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
         </a>
       </li>
     );
-  }
+  };
 
-  renderPopover() {
+  renderPopover = () => {
     const { loading, counts } = this.state;
 
     if (loading) {
@@ -125,7 +120,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
         </SidebarList>
       </Popover>
     );
-  }
+  };
 
   render() {
     return (
@@ -136,7 +131,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
         container={this}
         rootClose={true}
       >
-        <PopoverButton onClick={() => this.onClick()}>
+        <PopoverButton onClick={this.onClick}>
           {__('Status')}
           <Icon icon="downarrow" />
         </PopoverButton>

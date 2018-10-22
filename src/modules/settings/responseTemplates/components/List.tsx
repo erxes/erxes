@@ -12,6 +12,10 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
     this.renderContent = this.renderContent.bind(this);
   }
 
+  renderForm = props => {
+    return <Form {...props} />;
+  };
+
   renderRows({ objects }) {
     return objects.map((object, index) => {
       const brand = object.brand || {};
@@ -23,7 +27,7 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
           <RowActions
             {...this.props}
             object={object}
-            renderForm={props => <Form {...props} />}
+            renderForm={this.renderForm}
           />
         </tr>
       );
@@ -53,7 +57,7 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
           { title: __('Settings'), link: '/settings' },
           { title: __('Response templates') }
         ]}
-        renderForm={props => <Form {...props} />}
+        renderForm={this.renderForm}
         renderContent={this.renderContent}
         {...this.props}
       />

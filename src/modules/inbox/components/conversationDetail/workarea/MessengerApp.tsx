@@ -37,8 +37,10 @@ class MessengerApp extends React.Component<Props> {
   }
 
   renderItems() {
+    const onClick = item => this.onSelect(item._id);
+
     return this.props.messengerApps.map(item => (
-      <li key={item._id} onClick={() => this.onSelect(item._id)}>
+      <li key={item._id} onClick={onClick}>
         <MessengerApps>
           <img src="/images/integrations/google-meet.png" alt="google-meet" />
           <div>

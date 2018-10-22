@@ -82,10 +82,12 @@ class Appearance extends React.Component<Props, State> {
     const isSelected = this.state.wallpaper === value;
     const selectorClass = classnames({ selected: isSelected });
 
+    const onClick = () => this.onChange('wallpaper', value);
+
     return (
       <BackgroundSelector
         className={selectorClass}
-        onClick={() => this.onChange('wallpaper', value)}
+        onClick={onClick}
         style={{ borderColor: isSelected ? this.state.color : 'transparent' }}
       >
         <div className={`background-${value}`} />
@@ -103,12 +105,11 @@ class Appearance extends React.Component<Props, State> {
   }
 
   render() {
+    const onChange = e => this.onChange('color', e.hex);
+
     const popoverTop = (
       <Popover id="color-picker">
-        <ChromePicker
-          color={this.state.color}
-          onChange={e => this.onChange('color', e.hex)}
-        />
+        <ChromePicker color={this.state.color} onChange={onChange} />
       </Popover>
     );
 

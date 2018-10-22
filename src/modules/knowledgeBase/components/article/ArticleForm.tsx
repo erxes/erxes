@@ -113,6 +113,10 @@ class ArticleForm extends React.Component<Props, State> {
       defaultValue: article.content
     };
 
+    const onChange = e => {
+      this.setState({ status: (e.target as HTMLInputElement).value });
+    };
+
     return (
       <React.Fragment>
         <FormGroup>
@@ -145,9 +149,7 @@ class ArticleForm extends React.Component<Props, State> {
             id="knowledgebase-article-status"
             componentClass="select"
             placeholder={__('select')}
-            onChange={e => {
-              this.setState({ status: (e.target as HTMLInputElement).value });
-            }}
+            onChange={onChange}
             value={this.state.status}
           >
             {[{ value: 'draft' }, { value: 'publish' }].map(op => (

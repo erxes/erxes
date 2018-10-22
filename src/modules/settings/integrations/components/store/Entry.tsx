@@ -3,6 +3,7 @@ import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { integrationOptions } from '../../../../insights/utils';
 import { Box, IntegrationItem } from './styles';
 
 type Props = {
@@ -38,11 +39,13 @@ class Entry extends React.Component<Props> {
     if (createModal === 'facebook') {
       const trigger = <a>+ {__('Add')}</a>;
 
+      const content = props => <Facebook {...props} />;
+
       return (
         <ModalTrigger
           title="Add facebook page"
           trigger={trigger}
-          content={props => <Facebook {...props} />}
+          content={content}
         />
       );
     }
@@ -62,15 +65,19 @@ class Entry extends React.Component<Props> {
     );
   }
 
+  BoxOnClick = () => {
+    return this.props.toggleBox(this.props.integration.kind);
+  };
+
   render() {
-    const { integration, getClassName, toggleBox } = this.props;
+    const { integration, getClassName } = this.props;
 
     return (
       <IntegrationItem
         key={integration.name}
         className={getClassName(integration.kind)}
       >
-        <Box onClick={() => toggleBox(integration.kind)}>
+        <Box onClick={this.BoxOnClick}>
           <img alt="logo" src={integration.logo} />
           <h5>
             {integration.name} {this.getCount(integration.kind)}{' '}

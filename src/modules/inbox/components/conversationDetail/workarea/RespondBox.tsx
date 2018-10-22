@@ -152,7 +152,9 @@ class RespondBox extends React.Component<Props, State> {
     uploadHandler({
       files,
 
-      beforeUpload: () => {},
+      beforeUpload: () => {
+        return;
+      },
 
       afterUpload: ({ response, fileInfo }) => {
         // set attachments

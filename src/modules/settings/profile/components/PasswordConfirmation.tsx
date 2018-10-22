@@ -13,13 +13,7 @@ type Props = {
 };
 
 class PasswordConfirmation extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.submit = this.submit.bind(this);
-  }
-
-  submit(e) {
+  submit = e => {
     e.preventDefault();
 
     const password = (document.getElementById('password') as HTMLInputElement)
@@ -27,11 +21,11 @@ class PasswordConfirmation extends React.Component<Props> {
 
     this.props.onSuccess(password);
     this.props.closeModal();
-  }
+  };
 
   render() {
     return (
-      <form onSubmit={e => this.submit(e)}>
+      <form onSubmit={this.submit}>
         <FormGroup>
           <ControlLabel>Enter your password to Confirm</ControlLabel>
           <FormControl autoFocus={true} id="password" type="password" />
@@ -44,11 +38,7 @@ class PasswordConfirmation extends React.Component<Props> {
           >
             Cancel
           </Button>
-          <Button
-            btnStyle="success"
-            icon="checked-1"
-            onClick={e => this.submit(e)}
-          >
+          <Button btnStyle="success" icon="checked-1" onClick={this.submit}>
             Save
           </Button>
         </ModalFooter>

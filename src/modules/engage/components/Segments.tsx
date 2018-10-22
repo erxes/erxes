@@ -22,8 +22,6 @@ class Segments extends React.Component<Props, State> {
     this.state = {
       chosenSegment: ''
     };
-
-    this.onClickSegment = this.onClickSegment.bind(this);
   }
 
   componentDidMount() {
@@ -32,7 +30,7 @@ class Segments extends React.Component<Props, State> {
     }
   }
 
-  onClickSegment(segmentId) {
+  onClickSegment = segmentId => {
     if (segmentId === this.state.chosenSegment) {
       this.setState({ chosenSegment: '' });
       this.props.changeSegments('');
@@ -40,10 +38,11 @@ class Segments extends React.Component<Props, State> {
       this.props.changeSegments(segmentId);
       this.setState({ chosenSegment: segmentId });
     }
-  }
+  };
 
   renderItems(orderedSegments) {
     const { counts } = this.props;
+    const onClickSegment = segment => this.onClickSegment(segment._id);
 
     if (orderedSegments.length === 0) {
       return <EmptyState icon="piechart" text="No segments" size="small" />;
@@ -54,7 +53,7 @@ class Segments extends React.Component<Props, State> {
         key={segment._id}
         chosen={this.state.chosenSegment === segment._id}
       >
-        <a tabIndex={0} onClick={() => this.onClickSegment(segment._id)}>
+        <a tabIndex={0} onClick={onClickSegment}>
           {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
           <Icon icon="piechart icon" style={{ color: segment.color }} />
           {segment.name}

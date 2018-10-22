@@ -45,6 +45,7 @@ const sidebarConversations = `
     conversations(${listParamsValue}) {
       _id
       content
+      status
       updatedAt
       assignedUser {
         _id

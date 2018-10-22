@@ -40,7 +40,6 @@ class CompaniesMerge extends React.Component<Props, State> {
     };
 
     this.renderCompany = this.renderCompany.bind(this);
-    this.handleChange = this.handleChange.bind(this);
     this.save = this.save.bind(this);
   }
 
@@ -72,17 +71,23 @@ class CompaniesMerge extends React.Component<Props, State> {
     });
   }
 
-  handleChange(type, key, value) {
+  handleChange = (type, key, value) => {
     const selectedValues = { ...this.state.selectedValues };
 
     if (type === 'add') {
       selectedValues[key] = value;
+
+      if (key === 'links') {
+        const links = { ...selectedValues.links, value };
+
+        selectedValues[key] = links;
+      }
     } else {
       delete selectedValues[key];
     }
 
     this.setState({ selectedValues });
-  }
+  };
 
   renderCompany(company, icon) {
     const properties = COMPANY_INFO.ALL.concat(COMPANY_DATAS.ALL);
@@ -111,12 +116,7 @@ class CompaniesMerge extends React.Component<Props, State> {
 
   renderCompanyProperties(key, value, icon) {
     return (
-      <li
-        key={key}
-        onClick={() => {
-          this.handleChange(icon, key, value);
-        }}
-      >
+      <li key={key} onClick={this.handleChange.bind(this, icon, key, value)}>
         {this.renderTitle(key)}
         {this.renderValue(key, value)}
 
@@ -177,11 +177,9 @@ class CompaniesMerge extends React.Component<Props, State> {
       return (
         <li
           key={field}
-          onClick={() => {
-            const links = { ...selectedValues.links, [field]: value };
-
-            return this.handleChange(icon, `links`, links);
-          }}
+          onClick={this.handleChange.bind(this, icon, `links`, {
+            [field]: value
+          })}
         >
           <InfoTitle>{info.label}:</InfoTitle>
           <InfoDetail>{value}</InfoDetail>
@@ -211,11 +209,7 @@ class CompaniesMerge extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={() => closeModal()}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Cancel
           </Button>
           <Button type="submit" btnStyle="success" icon="checked-1">

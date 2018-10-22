@@ -48,14 +48,9 @@ class ManageIntegrations extends React.Component<Props, State> {
       hasMore: true,
       searchValue: ''
     };
-
-    this.save = this.save.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.search = this.search.bind(this);
-    this.loadMore = this.loadMore.bind(this);
   }
 
-  save() {
+  save = () => {
     const { selectedIntegrations } = this.state;
     const ids: string[] = [];
 
@@ -65,7 +60,7 @@ class ManageIntegrations extends React.Component<Props, State> {
 
     this.props.save(ids);
     this.props.closeModal();
-  }
+  };
 
   componentWillUnmount() {
     this.props.clearState();
@@ -77,7 +72,7 @@ class ManageIntegrations extends React.Component<Props, State> {
     this.setState({ hasMore: allIntegrations.length === perPage });
   }
 
-  search(e) {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -89,12 +84,12 @@ class ManageIntegrations extends React.Component<Props, State> {
       search(value);
       this.setState({ searchValue: value });
     }, 500);
-  }
+  };
 
-  loadMore() {
+  loadMore = () => {
     this.setState({ hasMore: false });
     this.props.search(this.state.searchValue, true);
-  }
+  };
 
   getTypeName(integration) {
     const kind = integration.kind;
@@ -126,7 +121,7 @@ class ManageIntegrations extends React.Component<Props, State> {
     return icon;
   }
 
-  handleChange(type, integration) {
+  handleChange = (type, integration) => {
     const { selectedIntegrations } = this.state;
 
     if (type === 'add') {
@@ -140,17 +135,16 @@ class ManageIntegrations extends React.Component<Props, State> {
         item => item !== integration
       )
     });
-  }
+  };
 
   renderRowContent(integration, icon) {
     const brand = integration.brand || {};
     const { renderConfirm } = this.props;
 
+    const onClick = () => this.handleChange(icon, integration);
+
     const actionTrigger = (
-      <li
-        key={integration._id}
-        onClick={() => this.handleChange(icon, integration)}
-      >
+      <li key={integration._id} onClick={onClick}>
         <IntegrationName>{integration.name}</IntegrationName>
         <Tip text={this.getTypeName(integration)}>
           <Label
@@ -204,7 +198,7 @@ class ManageIntegrations extends React.Component<Props, State> {
           <Column>
             <FormControl
               placeholder={__('Type to search')}
-              onChange={e => this.search(e)}
+              onChange={this.search}
             />
             <ul>
               {allIntegrations.map(integration =>

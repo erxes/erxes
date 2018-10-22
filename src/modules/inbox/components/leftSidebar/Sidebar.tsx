@@ -156,7 +156,7 @@ class LeftSidebar extends React.Component<Props, {}> {
           history={history}
           queryParams={queryParams}
           toggleRowCheckbox={toggleBulk}
-          selectedIds={bulk}
+          selectedConversations={bulk}
         />
       </Sidebar>
     );

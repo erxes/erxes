@@ -49,13 +49,11 @@ class MessageListContainer extends React.Component<Props, State> {
       loading: engageMessagesQuery.loading
     };
 
-    return (
-      <Bulk
-        content={props => {
-          return <MessageList {...updatedProps} {...props} />;
-        }}
-      />
-    );
+    const content = props => {
+      return <MessageList {...updatedProps} {...props} />;
+    };
+
+    return <Bulk content={content} />;
   }
 }
 

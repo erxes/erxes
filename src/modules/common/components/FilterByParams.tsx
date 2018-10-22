@@ -66,6 +66,10 @@ class FilterByParams extends React.Component<IProps, State> {
               return false;
             }
 
+            const onClick = () => {
+              router.setParams(history, { [paramKey]: field._id });
+            };
+
             return (
               <li key={field._id}>
                 <a
@@ -75,9 +79,7 @@ class FilterByParams extends React.Component<IProps, State> {
                       ? 'active'
                       : ''
                   }
-                  onClick={() => {
-                    router.setParams(history, { [paramKey]: field._id });
-                  }}
+                  onClick={onClick}
                 >
                   {icon ? (
                     <Icon icon={icon} style={{ color: field.colorCode }} />

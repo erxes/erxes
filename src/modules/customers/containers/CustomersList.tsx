@@ -158,14 +158,15 @@ class CustomerListContainer extends React.Component<IProps, State> {
       removeCustomers
     };
 
-    return (
-      <Bulk
-        content={props => <CustomersList {...updatedProps} {...props} />}
-        refetch={() => {
-          this.props.customersMainQuery.refetch();
-        }}
-      />
-    );
+    const content = props => {
+      return <CustomersList {...updatedProps} {...props} />;
+    };
+
+    const refetch = () => {
+      this.props.customersMainQuery.refetch();
+    };
+
+    return <Bulk content={content} refetch={refetch} />;
   }
 }
 

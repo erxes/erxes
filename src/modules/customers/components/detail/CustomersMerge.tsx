@@ -77,6 +77,12 @@ class CustomersMerge extends React.Component<Props, State> {
 
     if (type === 'add') {
       selectedValues[key] = value;
+
+      if (key === 'link') {
+        const links = { ...selectedValues.links };
+
+        selectedValues[key] = links;
+      }
     } else {
       delete selectedValues[key];
     }
@@ -111,12 +117,7 @@ class CustomersMerge extends React.Component<Props, State> {
 
   renderCustomerProperties(key: string, value: string, icon: string) {
     return (
-      <li
-        key={key}
-        onClick={() => {
-          this.handleChange(icon, key, value);
-        }}
-      >
+      <li key={key} onClick={this.handleChange.bind(this, icon, key, value)}>
         {this.renderTitle(key)}
         {this.renderValue(key, value)}
 
@@ -223,11 +224,9 @@ class CustomersMerge extends React.Component<Props, State> {
       return (
         <li
           key={field}
-          onClick={() => {
-            const links = { ...selectedValues.links, [field]: value };
-
-            return this.handleChange(icon, `links`, links);
-          }}
+          onClick={this.handleChange.bind(this, icon, `links`, {
+            [field]: value
+          })}
         >
           <InfoTitle>{info.label}:</InfoTitle>
           <InfoDetail>{value}</InfoDetail>
@@ -239,7 +238,7 @@ class CustomersMerge extends React.Component<Props, State> {
 
   render() {
     const { selectedValues } = this.state;
-    const { objects } = this.props;
+    const { objects, closeModal } = this.props;
     const [customer1, customer2] = objects;
 
     return (
@@ -257,11 +256,7 @@ class CustomersMerge extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={() => this.props.closeModal()}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Cancel
           </Button>
           <Button type="submit" btnStyle="success" icon="checked-1">

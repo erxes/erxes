@@ -89,6 +89,14 @@ class KnowledgeRow extends React.Component<Props, State> {
     const addCategory = <MenuItem>{__('Add category')}</MenuItem>;
     const manageTopic = <MenuItem>{__('Manage Knowledge Base')}</MenuItem>;
 
+    const content = props => (
+      <KnowledgeForm {...props} save={save} topic={topic} remove={remove} />
+    );
+
+    const categoryContent = props => (
+      <CategoryForm {...props} topicIds={topic._id} />
+    );
+
     return (
       <RowActions>
         <Dropdown id="dropdown-knowledgebase" pullRight={true}>
@@ -99,21 +107,12 @@ class KnowledgeRow extends React.Component<Props, State> {
             <ModalTrigger
               title="Manage Knowledge Base"
               trigger={manageTopic}
-              content={props => (
-                <KnowledgeForm
-                  {...props}
-                  save={save}
-                  topic={topic}
-                  remove={remove}
-                />
-              )}
+              content={content}
             />
             <ModalTrigger
               title="Add Category"
               trigger={addCategory}
-              content={props => (
-                <CategoryForm {...props} topicIds={topic._id} />
-              )}
+              content={categoryContent}
             />
           </Dropdown.Menu>
         </Dropdown>

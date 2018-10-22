@@ -50,20 +50,22 @@ class ArticleRow extends React.Component<Props> {
       </Button>
     );
 
+    const content = props => (
+      <ArticleForm
+        {...props}
+        article={article}
+        queryParams={queryParams}
+        currentCategoryId={currentCategoryId}
+        topicIds={topicIds}
+      />
+    );
+
     return (
       <ModalTrigger
         size="large"
         title="Edit"
         trigger={editTrigger ? editTrigger : editButton}
-        content={props => (
-          <ArticleForm
-            {...props}
-            article={article}
-            queryParams={queryParams}
-            currentCategoryId={currentCategoryId}
-            topicIds={topicIds}
-          />
-        )}
+        content={content}
       />
     );
   }

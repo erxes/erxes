@@ -19,9 +19,6 @@ class EditProfile extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.onAvatarUpload = this.onAvatarUpload.bind(this);
-
     const { currentUser } = props;
     const { details } = currentUser;
 
@@ -32,7 +29,7 @@ class EditProfile extends React.Component<Props, State> {
     return (document.getElementById(id) as HTMLInputElement).value;
   }
 
-  handleSubmit(password) {
+  handleSubmit = password => {
     this.props.save({
       username: this.getInputElementValue('username'),
       email: this.getInputElementValue('email'),
@@ -56,17 +53,25 @@ class EditProfile extends React.Component<Props, State> {
     });
 
     this.props.closeModal();
-  }
+  };
 
-  onAvatarUpload(url) {
+  onAvatarUpload = url => {
     this.setState({ avatar: url });
-  }
+  };
+
+  onSuccess = password => {
+    return this.handleSubmit(password);
+  };
 
   render() {
     const saveButton = (
       <Button btnStyle="success" icon="checked-1">
         Save
       </Button>
+    );
+
+    const content = props => (
+      <PasswordConfirmation {...props} onSuccess={this.onSuccess} />
     );
 
     return (
@@ -89,12 +94,7 @@ class EditProfile extends React.Component<Props, State> {
           <ModalTrigger
             title="Enter your password to Confirm"
             trigger={saveButton}
-            content={props => (
-              <PasswordConfirmation
-                {...props}
-                onSuccess={password => this.handleSubmit(password)}
-              />
-            )}
+            content={content}
           />
         </ModalFooter>
       </React.Fragment>

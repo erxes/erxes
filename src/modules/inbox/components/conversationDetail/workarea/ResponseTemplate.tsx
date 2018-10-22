@@ -149,8 +149,10 @@ class ResponseTemplate extends React.Component<Props, State> {
         return false;
       }
 
+      const onClick = () => this.onSelect(item._id);
+
       return (
-        <li key={item._id} onClick={() => this.onSelect(item._id)}>
+        <li key={item._id} onClick={onClick}>
           <TemplateTitle>{item.name}</TemplateTitle>
           <TemplateContent>{strip(item.content)}</TemplateContent>
         </li>

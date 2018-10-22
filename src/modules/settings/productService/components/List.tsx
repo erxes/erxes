@@ -57,11 +57,13 @@ class List extends React.Component<Props> {
       </Button>
     );
 
+    const modalContent = props => <Form {...props} save={save} />;
+
     const actionBarRight = (
       <ModalTrigger
         title="Add Product / Service"
         trigger={trigger}
-        content={props => <Form {...props} save={save} />}
+        content={modalContent}
       />
     );
 

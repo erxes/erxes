@@ -46,20 +46,18 @@ class PortableDeals extends React.Component<Props> {
       </a>
     );
 
-    const quickButtons = (
-      <ModalTrigger
-        title="Add a deal"
-        trigger={trigger}
-        content={props => (
-          <AddDeal
-            {...props}
-            saveDeal={saveDeal}
-            customerId={customerId}
-            companyId={companyId}
-            showSelect={true}
-          />
-        )}
+    const content = props => (
+      <AddDeal
+        {...props}
+        saveDeal={saveDeal}
+        customerId={customerId}
+        companyId={companyId}
+        showSelect={true}
       />
+    );
+
+    const quickButtons = (
+      <ModalTrigger title="Add a deal" trigger={trigger} content={content} />
     );
 
     return (

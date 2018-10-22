@@ -191,6 +191,18 @@ class Index extends React.Component<IndexProps, IndexState> {
   renderActions() {
     const { customer } = this.props;
 
+    const content = props => (
+      <MailForm
+        {...props}
+        contentType="customer"
+        contentTypeId={customer._id}
+        toEmail={customer.primaryEmail}
+        setAttachmentPreview={this.setAttachmentPreview}
+        attachmentPreview={this.state.attachmentPreview}
+        refetchQueries={['activityLogsCustomer']}
+      />
+    );
+
     return (
       <Actions>
         <ModalTrigger
@@ -201,17 +213,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             </a>
           }
           size="lg"
-          content={props => (
-            <MailForm
-              {...props}
-              contentType="customer"
-              contentTypeId={customer._id}
-              toEmail={customer.primaryEmail}
-              setAttachmentPreview={this.setAttachmentPreview}
-              attachmentPreview={this.state.attachmentPreview}
-              refetchQueries={['activityLogsCustomer']}
-            />
-          )}
+          content={content}
         />
         <a href={`tel:${customer.primaryPhone}`}>
           <Button size="small">{__('Call')}</Button>
@@ -310,6 +312,10 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { customer, config, toggleSection } = this.props;
 
     if (currentTab === 'customer') {
+      const detailsOnClick = () => this.onSubtabClick('details');
+      const activityOnClick = () => this.onSubtabClick('activity');
+      const relatedOnClick = () => this.onSubtabClick('related');
+
       return (
         <React.Fragment>
           <BasicInfo>
@@ -324,19 +330,19 @@ class Index extends React.Component<IndexProps, IndexState> {
           <Tabs full={true}>
             <TabTitle
               className={currentSubTab === 'details' ? 'active' : ''}
-              onClick={() => this.onSubtabClick('details')}
+              onClick={detailsOnClick}
             >
               {__('Details')}
             </TabTitle>
             <TabTitle
               className={currentSubTab === 'activity' ? 'active' : ''}
-              onClick={() => this.onSubtabClick('activity')}
+              onClick={activityOnClick}
             >
               {__('Activity')}
             </TabTitle>
             <TabTitle
               className={currentSubTab === 'related' ? 'active' : ''}
-              onClick={() => this.onSubtabClick('related')}
+              onClick={relatedOnClick}
             >
               {__('Related')}
             </TabTitle>
@@ -371,19 +377,21 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   render() {
     const { currentTab } = this.state;
+    const customerOnClick = () => this.onTabClick('customer');
+    const companyOnClick = () => this.onTabClick('company');
 
     return (
       <Sidebar full={true}>
         <Tabs full={true}>
           <TabTitle
             className={currentTab === 'customer' ? 'active' : ''}
-            onClick={() => this.onTabClick('customer')}
+            onClick={customerOnClick}
           >
             {__('CUSTOMER')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'company' ? 'active' : ''}
-            onClick={() => this.onTabClick('company')}
+            onClick={companyOnClick}
           >
             {__('COMPANY')}
           </TabTitle>

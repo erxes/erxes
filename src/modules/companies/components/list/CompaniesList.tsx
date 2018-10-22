@@ -167,12 +167,21 @@ class CompaniesList extends React.Component<IProps, State> {
 
     let actionBarLeft: React.ReactNode;
 
+    const companiesMerge = props => {
+      return <CompaniesMerge {...props} objects={bulk} save={mergeCompanies} />;
+    };
+
     if (bulk.length > 0) {
       const tagButton = (
         <Button btnStyle="simple" size="small" icon="downarrow">
           Tag
         </Button>
       );
+
+      const onClick = () =>
+        confirm().then(() => {
+          this.removeCompanies(bulk);
+        });
 
       actionBarLeft = (
         <BarItems>
@@ -188,13 +197,7 @@ class CompaniesList extends React.Component<IProps, State> {
               title="Merge Companies"
               size="lg"
               trigger={mergeButton}
-              content={props => (
-                <CompaniesMerge
-                  {...props}
-                  objects={bulk}
-                  save={mergeCompanies}
-                />
-              )}
+              content={companiesMerge}
             />
           )}
 
@@ -202,11 +205,7 @@ class CompaniesList extends React.Component<IProps, State> {
             btnStyle="danger"
             size="small"
             icon="cancel-1"
-            onClick={() =>
-              confirm().then(() => {
-                this.removeCompanies(bulk);
-              })
-            }
+            onClick={onClick}
           >
             Remove
           </Button>
@@ -214,35 +213,41 @@ class CompaniesList extends React.Component<IProps, State> {
       );
     }
 
+    const manageColumns = props => {
+      return (
+        <ManageColumns
+          {...props}
+          location={location}
+          history={history}
+          contentType="company"
+        />
+      );
+    };
+
+    const companyForm = props => {
+      return <CompanyForm {...props} queryParams={queryParams} />;
+    };
+
     const actionBarRight = (
       <BarItems>
         <FormControl
           type="text"
           placeholder={__('Type to search')}
-          onChange={e => this.search(e)}
+          onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}
-          onFocus={e => this.moveCursorAtTheEnd(e)}
+          onFocus={this.moveCursorAtTheEnd}
         />
         <ModalTrigger
           title="Choose which column you see"
           trigger={editColumns}
-          content={props => (
-            <ManageColumns
-              {...props}
-              location={location}
-              history={history}
-              contentType="company"
-            />
-          )}
+          content={manageColumns}
         />
         <ModalTrigger
           title="New company"
           trigger={addTrigger}
           size="lg"
-          content={props => (
-            <CompanyForm {...props} queryParams={queryParams} />
-          )}
+          content={companyForm}
         />
       </BarItems>
     );

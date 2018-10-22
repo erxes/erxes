@@ -76,7 +76,7 @@ class Sidebar extends React.Component<Props, State> {
         }
       })
       .catch(error => {
-        console.log(error.message); // eslint-disable-line
+        console.log(error.message); // tslint:disable-line
       });
 
     return;

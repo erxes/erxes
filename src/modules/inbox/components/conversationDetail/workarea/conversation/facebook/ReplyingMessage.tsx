@@ -80,9 +80,7 @@ class ReplyingMessage extends React.Component<Props, State> {
         <Footer>
           <Button
             btnStyle="simple"
-            onClick={() => {
-              this.props.closeModal();
-            }}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Close

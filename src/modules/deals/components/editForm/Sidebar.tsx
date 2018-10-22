@@ -44,11 +44,17 @@ class Sidebar extends React.Component<Props> {
       }
     };
 
+    const pDataChange = pData => onChange('productsData', pData);
+    const prsChange = prs => onChange('products', prs);
+    const cmpsChange = cmps => onChange('companies', cmps);
+    const cmrsChange = cmrs => onChange('customers', cmrs);
+    const onClick = () => removeDeal(deal._id);
+
     return (
       <Right>
         <ProductSection
-          onChangeProductsData={pData => onChange('productsData', pData)}
-          onChangeProducts={prs => onChange('products', prs)}
+          onChangeProductsData={pDataChange}
+          onChangeProducts={prsChange}
           productsData={productsData}
           products={products}
           saveProductsData={saveProductsData}
@@ -57,20 +63,20 @@ class Sidebar extends React.Component<Props> {
         <CompanySection
           name="Deal"
           companies={companies}
-          onSelect={cmps => onChange('companies', cmps)}
+          onSelect={cmpsChange}
         />
 
         <CustomerSection
           name="Deal"
           customers={customers}
-          onSelect={cmrs => onChange('customers', cmrs)}
+          onSelect={cmrsChange}
         />
 
         <Button icon="checked-1" onClick={copyDeal}>
           Copy
         </Button>
 
-        <Button icon="cancel-1" onClick={() => removeDeal(deal._id)}>
+        <Button icon="cancel-1" onClick={onClick}>
           Delete
         </Button>
       </Right>

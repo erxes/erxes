@@ -44,14 +44,16 @@ class CategoryRow extends React.Component<Props> {
       </Button>
     );
 
+    const content = props => {
+      return this.renderEditForm({ ...props, category, topicIds });
+    };
+
     return (
       <ModalTrigger
         size={this.size}
         title="Edit"
         trigger={editTrigger}
-        content={props => {
-          return this.renderEditForm({ ...props, category, topicIds });
-        }}
+        content={content}
       />
     );
   }

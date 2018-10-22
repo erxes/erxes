@@ -45,7 +45,7 @@ class MessengerForm extends React.Component<Props, State> {
     };
   }
 
-  changeContent(key, value) {
+  changeContent = (key, value) => {
     const messenger = {
       ...this.state.messenger
     };
@@ -55,17 +55,19 @@ class MessengerForm extends React.Component<Props, State> {
     this.setState({ messenger });
 
     this.props.onChange('messenger', messenger);
-  }
+  };
 
-  changeFromUserId(fromUserId) {
+  changeFromUserId = fromUserId => {
     this.setState({ fromUserId });
     this.props.onChange('fromUserId', fromUserId);
-  }
+  };
 
   renderKind(hasKind) {
     if (!hasKind) {
       return null;
     }
+    const onChange = e =>
+      this.changeContent('kind', (e.target as HTMLInputElement).value);
 
     return (
       <FormGroup>
@@ -73,9 +75,7 @@ class MessengerForm extends React.Component<Props, State> {
 
         <FormControl
           componentClass="select"
-          onChange={e =>
-            this.changeContent('kind', (e.target as HTMLInputElement).value)
-          }
+          onChange={onChange}
           defaultValue={this.state.messenger.kind}
         >
           <option />{' '}
@@ -102,6 +102,13 @@ class MessengerForm extends React.Component<Props, State> {
   }
 
   render() {
+    const onChangeFrom = e =>
+      this.changeFromUserId((e.target as HTMLInputElement).value);
+    const onChangeContent = e =>
+      this.changeContent('brandId', (e.target as HTMLInputElement).value);
+    const onChangeSentAs = e =>
+      this.changeContent('sentAs', (e.target as HTMLInputElement).value);
+
     return (
       <FlexItem>
         <FlexPad overflow="auto" direction="column">
@@ -117,9 +124,7 @@ class MessengerForm extends React.Component<Props, State> {
             <ControlLabel>From:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e =>
-                this.changeFromUserId((e.target as HTMLInputElement).value)
-              }
+              onChange={onChangeFrom}
               value={this.state.fromUserId}
             >
               <option />{' '}
@@ -135,12 +140,7 @@ class MessengerForm extends React.Component<Props, State> {
             <ControlLabel>Brand:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e =>
-                this.changeContent(
-                  'brandId',
-                  (e.target as HTMLInputElement).value
-                )
-              }
+              onChange={onChangeContent}
               defaultValue={this.state.messenger.brandId}
             >
               <option />{' '}
@@ -158,12 +158,7 @@ class MessengerForm extends React.Component<Props, State> {
             <ControlLabel>Sent as:</ControlLabel>
             <FormControl
               componentClass="select"
-              onChange={e =>
-                this.changeContent(
-                  'sentAs',
-                  (e.target as HTMLInputElement).value
-                )
-              }
+              onChange={onChangeSentAs}
               defaultValue={this.state.messenger.sentAs}
             >
               <option />{' '}

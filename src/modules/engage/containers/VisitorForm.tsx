@@ -16,12 +16,9 @@ type Props = {
 
 class VisitorFormContainer extends React.Component<Props> {
   render() {
-    return (
-      <FormBase
-        kind={this.props.kind}
-        content={props => <VisitorForm {...this.props} {...props} />}
-      />
-    );
+    const content = props => <VisitorForm {...this.props} {...props} />;
+
+    return <FormBase kind={this.props.kind} content={content} />;
   }
 }
 

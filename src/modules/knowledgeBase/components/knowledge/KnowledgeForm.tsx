@@ -82,8 +82,8 @@ class KnowledgeForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    let code = '',
-      color = colors.colorPrimary;
+    let code = '';
+    let color = colors.colorPrimary;
 
     // showed install code automatically in edit mode
     if (props.topic) {
@@ -127,16 +127,15 @@ class KnowledgeForm extends React.Component<Props, State> {
 
   renderInstallCode() {
     if (this.props.topic && this.props.topic._id) {
+      const onCopy = () => this.setState({ copied: true });
+
       return (
         <FormGroup>
           <ControlLabel>Install code</ControlLabel>
           <MarkdownWrapper>
             <ReactMarkdown source={this.state.code} />
             {this.state.code ? (
-              <CopyToClipboard
-                text={this.state.code}
-                onCopy={() => this.setState({ copied: true })}
-              >
+              <CopyToClipboard text={this.state.code} onCopy={onCopy}>
                 <Button size="small" btnStyle="primary" icon="copy">
                   {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                 </Button>

@@ -191,7 +191,9 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
     this.toggleInlineStyle = this.toggleInlineStyle.bind(this);
   }
 
-  focus() {}
+  focus() {
+    return;
+  }
 
   onTab(e) {
     const { onChange, editorState } = this.props;

@@ -56,12 +56,10 @@ class Row extends React.Component<Props> {
       </Button>
     );
 
+    const content = props => <Form {...props} product={product} save={save} />;
+
     return (
-      <ModalTrigger
-        title="Edit"
-        trigger={editTrigger}
-        content={props => <Form {...props} product={product} save={save} />}
-      />
+      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
   }
 

@@ -57,6 +57,16 @@ function CustomerSection({ name, customers, onSelect }: Props) {
     );
   };
 
+  const customerChooser = props => {
+    return (
+      <CustomerChooser
+        {...props}
+        data={{ name, customers }}
+        onSelect={onSelect}
+      />
+    );
+  };
+
   return (
     <Section>
       <Title>{__('Customers')}</Title>
@@ -70,13 +80,7 @@ function CustomerSection({ name, customers, onSelect }: Props) {
               <Icon icon="add" />
             </a>
           }
-          content={props => (
-            <CustomerChooser
-              {...props}
-              data={{ name, customers }}
-              onSelect={onSelect}
-            />
-          )}
+          content={customerChooser}
         />
       </QuickButtons>
 

@@ -93,14 +93,11 @@ const AutoAndManualFormContainer = (props: Props) => {
     count
   };
 
-  return (
-    <FormBase
-      kind={props.kind}
-      content={formProps => (
-        <AutoAndManualForm {...updatedProps} {...formProps} />
-      )}
-    />
+  const content = formProps => (
+    <AutoAndManualForm {...updatedProps} {...formProps} />
   );
+
+  return <FormBase kind={props.kind} content={content} />;
 };
 
 export default withFormMutations(

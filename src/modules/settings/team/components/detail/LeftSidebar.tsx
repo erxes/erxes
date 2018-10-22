@@ -47,6 +47,10 @@ class LeftSidebar extends React.Component<Props> {
     const { user, channels, renderEditForm } = this.props;
     const { details = {}, links = {} } = user;
 
+    const content = props => {
+      return renderEditForm({ ...props, user });
+    };
+
     return (
       <Sidebar wide={true}>
         <Section>
@@ -60,9 +64,7 @@ class LeftSidebar extends React.Component<Props> {
               title="Edit"
               trigger={<Icon icon="edit" />}
               size="lg"
-              content={props => {
-                return renderEditForm({ ...props, user });
-              }}
+              content={content}
             />
           </InfoWrapper>
           <SidebarList className="no-link">

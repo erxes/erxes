@@ -33,13 +33,22 @@ class Options extends React.Component<Props> {
   }
 
   render() {
+    const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
+    const showFaqChange = e =>
+      this.onChangeFunction(
+        'showFaq',
+        (e.currentTarget as HTMLInputElement).checked
+      );
+    const notifyCustomerChange = e =>
+      this.onChangeFunction('notifyCustomer', e.target.checked);
+
     return (
       <FlexItem>
         <LeftItem>
           <SelectBrand
             brands={this.props.brands || []}
             defaultValue={this.props.brandId}
-            onChange={e => this.onChangeFunction('brandId', e.target.value)}
+            onChange={brandOnChange}
           />
 
           <FormGroup>
@@ -48,11 +57,7 @@ class Options extends React.Component<Props> {
             <FormControl
               checked={this.props.showFaq || false}
               componentClass="checkbox"
-              onChange={(e: React.FormEvent<HTMLElement>) => {
-                const target = e.currentTarget as HTMLInputElement;
-
-                return this.onChangeFunction('showFaq', target.checked);
-              }}
+              onChange={showFaqChange}
             />
           </FormGroup>
 
@@ -62,9 +67,7 @@ class Options extends React.Component<Props> {
               <Toggle
                 className="wide"
                 checked={this.props.notifyCustomer}
-                onChange={e =>
-                  this.onChangeFunction('notifyCustomer', e.target.checked)
-                }
+                onChange={notifyCustomerChange}
                 icons={{
                   checked: <span>Yes</span>,
                   unchecked: <span>No</span>

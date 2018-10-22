@@ -79,17 +79,15 @@ class Condition extends React.Component<Props, State> {
   }
 
   renderSelect(name, value, obj) {
+    const onChange = e =>
+      this.handleInputValue(name, (e.currentTarget as HTMLInputElement).value);
+
     return (
       <FormControl
         componentClass="select"
         placeholder={__('select')}
         value={value}
-        onChange={e =>
-          this.handleInputValue(
-            name,
-            (e.currentTarget as HTMLInputElement).value
-          )
-        }
+        onChange={onChange}
       >
         {Object.keys(obj).map(key => (
           <option value={key} key={key}>
@@ -128,17 +126,18 @@ class Condition extends React.Component<Props, State> {
   }
 
   renderOperator() {
+    const onChange = e =>
+      this.handleInputValue(
+        'operator',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
     return (
       <FormControl
         componentClass="select"
         placeholder={__('select')}
         value={this.state.operator}
-        onChange={e =>
-          this.handleInputValue(
-            'operator',
-            (e.currentTarget as HTMLInputElement).value
-          )
-        }
+        onChange={onChange}
       >
         {operators[this.state.type].map(c => (
           <option value={c.value} key={c.value}>

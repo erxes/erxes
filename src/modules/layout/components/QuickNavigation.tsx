@@ -55,6 +55,12 @@ const QuickNavigation = ({
   logout: () => void;
   currentUser: IUser;
 }) => {
+  const passContent = props => <ChangePassword {...props} />;
+  const signatureContent = props => <Signature {...props} />;
+  const notificationContent = props => (
+    <NotificationSettings currentUser={currentUser} {...props} />
+  );
+
   return (
     <nav>
       <NavItem>
@@ -92,7 +98,7 @@ const QuickNavigation = ({
                   <a>{__('Change Password')}</a>
                 </li>
               }
-              content={props => <ChangePassword {...props} />}
+              content={passContent}
             />
 
             <ModalTrigger
@@ -102,7 +108,7 @@ const QuickNavigation = ({
                   <a>{__('Email signatures')}</a>
                 </li>
               }
-              content={props => <Signature {...props} />}
+              content={signatureContent}
             />
 
             <ModalTrigger
@@ -112,9 +118,7 @@ const QuickNavigation = ({
                   <a>{__('Notification settings')}</a>
                 </li>
               }
-              content={props => (
-                <NotificationSettings currentUser={currentUser} {...props} />
-              )}
+              content={notificationContent}
             />
 
             <MenuItem divider={true} />
