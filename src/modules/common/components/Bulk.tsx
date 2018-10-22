@@ -33,7 +33,6 @@ export default abstract class Bulk extends React.Component<Props, State> {
 
   toggleBulk(target, toAdd) {
     let { bulk } = this.state;
-
     // remove old entry
     bulk = bulk.filter((el: any) => el._id !== target._id);
 

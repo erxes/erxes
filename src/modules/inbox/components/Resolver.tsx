@@ -10,13 +10,7 @@ type Props = {
 };
 
 class Resolver extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.changeStatus = this.changeStatus.bind(this);
-  }
-
-  changeStatus(status: string) {
+  changeStatus = (status: string) => {
     const { conversations, changeStatus } = this.props;
 
     // call change status method
@@ -26,28 +20,25 @@ class Resolver extends React.Component<Props> {
       }),
       status
     );
-  }
+  };
 
   render() {
-    const allNotClosed = _.reduce(
-      this.props.conversations,
-      (memo, conversation) =>
-        conversation.status !== CONVERSATION_STATUSES.CLOSED,
-      true
+    const hasClosedConversation = this.props.conversations.find(
+      conversation => conversation.status === CONVERSATION_STATUSES.CLOSED
     );
 
-    const buttonText = allNotClosed ? 'Resolve' : 'Open';
-    const icon = allNotClosed ? 'checked' : 'refresh';
+    const buttonText = hasClosedConversation ? 'Open' : 'Resolve';
+    const icon = hasClosedConversation ? 'refresh' : 'checked';
 
     const btnAttrs = {
       size: 'small',
-      btnStyle: allNotClosed ? 'success' : 'warning',
-      onClick: allNotClosed
+      btnStyle: hasClosedConversation ? 'warning' : 'success',
+      onClick: hasClosedConversation
         ? () => {
-            this.changeStatus(CONVERSATION_STATUSES.CLOSED);
+            this.changeStatus(CONVERSATION_STATUSES.OPEN);
           }
         : () => {
-            this.changeStatus(CONVERSATION_STATUSES.OPEN);
+            this.changeStatus(CONVERSATION_STATUSES.CLOSED);
           }
     };
 
