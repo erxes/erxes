@@ -74,8 +74,11 @@ export const publishMessage = (message?: IMessageDocument | null, customerId?: s
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
   if (customerId) {
+    const extendedMessage = message.toJSON();
+    extendedMessage.customerId = customerId;
+
     pubsub.publish('conversationAdminMessageInserted', {
-      conversationAdminMessageInserted: { ...message.toJSON(), customerId },
+      conversationAdminMessageInserted: extendedMessage,
     });
   }
 };
