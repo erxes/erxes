@@ -188,7 +188,7 @@ class CallOut extends React.Component<Props, State> {
               <ControlLabel>Callout body</ControlLabel>
               <FormControl
                 id="callout-body"
-                type="text"
+                componentClass="textarea"
                 value={this.props.bodyValue}
                 disabled={skip}
                 onChange={onChangeBody}

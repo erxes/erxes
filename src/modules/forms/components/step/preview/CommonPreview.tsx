@@ -107,7 +107,7 @@ class CommonPreview extends React.Component<Props, {}> {
             <img src={image} alt={image} />
           </div>
           <BodyContent>
-            {bodyValue}
+            <p>{bodyValue}</p>
 
             {children}
 
