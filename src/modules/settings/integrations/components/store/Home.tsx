@@ -7,12 +7,19 @@ import Row from './Row';
 import { IntegrationWrapper } from './styles';
 
 type Props = {
-  totalCount: number;
+  totalCount: {
+    messenger: number;
+    form: number;
+    twitter: number;
+    facebook: number;
+    gmail: number;
+  };
+  queryParams: any;
 };
 
 class Home extends React.Component<Props> {
   renderContent() {
-    const { totalCount } = this.props;
+    const { totalCount, queryParams } = this.props;
 
     return (
       <IntegrationWrapper>
@@ -22,6 +29,7 @@ class Home extends React.Component<Props> {
             title={obj.title}
             integrations={obj.rows}
             totalCount={totalCount}
+            queryParams={queryParams}
           />
         ))}
       </IntegrationWrapper>

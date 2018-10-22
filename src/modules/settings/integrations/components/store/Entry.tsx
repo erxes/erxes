@@ -10,7 +10,13 @@ type Props = {
   integration: any;
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
-  totalCount: number;
+  totalCount: {
+    messenger: number;
+    form: number;
+    twitter: number;
+    facebook: number;
+    gmail: number;
+  };
 };
 
 class Entry extends React.Component<Props> {

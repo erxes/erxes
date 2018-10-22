@@ -1,3 +1,4 @@
+import { Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
 import * as React from 'react';
@@ -8,7 +9,14 @@ import { CollapsibleContent, IntegrationRow } from './styles';
 type Props = {
   integrations: any[];
   title?: string;
-  totalCount: number;
+  totalCount: {
+    messenger: number;
+    form: number;
+    twitter: number;
+    facebook: number;
+    gmail: number;
+  };
+  queryParams: any;
 };
 
 type State = {
@@ -68,14 +76,28 @@ class Row extends React.Component<Props, State> {
     return null;
   }
 
+  renderPagination(totalCount) {
+    if (totalCount <= 20) {
+      return null;
+    }
+
+    return <Pagination count={totalCount} />;
+  }
+
   renderIntegrations() {
+    const { queryParams, totalCount } = this.props;
     const { isContentVisible, kind } = this.state;
 
     if (!isContentVisible) {
       return null;
     }
 
-    return <IntegrationList kind={kind} />;
+    return (
+      <React.Fragment>
+        <IntegrationList kind={kind} queryParams={queryParams} />
+        {this.renderPagination(totalCount[kind || ''])}
+      </React.Fragment>
+    );
   }
 
   render() {
