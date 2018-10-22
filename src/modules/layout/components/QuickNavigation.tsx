@@ -15,7 +15,7 @@ import {
 } from 'modules/settings/profile/containers';
 import * as React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { UserHelper } from '../styles';
 
@@ -41,10 +41,6 @@ const NavItem = styled.div`
 
   > a {
     color: ${colors.colorCoreDarkGray};
-
-    &.active {
-      color: ${colors.colorSecondary};
-    }
   }
 `;
 
@@ -61,9 +57,9 @@ const QuickNavigation = ({
         <Widget />
       </NavItem>
       <NavItem>
-        <NavLink to="/settings" activeClassName="active">
+        <Link to="/settings">
           <Icon icon="settings" size={18} />
-        </NavLink>
+        </Link>
       </NavItem>
       <NavItem>
         <Dropdown id="dropdown-user" pullRight={true}>
