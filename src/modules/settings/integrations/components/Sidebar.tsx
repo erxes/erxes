@@ -24,7 +24,7 @@ function IntegrationsSidebar(props) {
           </li>
           <li>
             <NavLink activeClassName="active" to="/settings/integrations">
-              {__('Integrations')}
+              {__('App store')}
             </NavLink>
           </li>
         </SidebarList>
