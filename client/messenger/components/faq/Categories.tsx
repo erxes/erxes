@@ -3,17 +3,18 @@ import { Category } from "../../containers/faq";
 import { IFaqTopic } from "../../types";
 
 type Props = {
-  kbTopic?: IFaqTopic;
+  faqTopics?: IFaqTopic;
+  loading: boolean;
 };
 
-export default function Categories({ kbTopic }: Props) {
-  if (!kbTopic) {
+export default function Categories({ faqTopics, loading }: Props) {
+  if (!faqTopics || loading) {
     return <div className="loader bigger" />;
   }
 
   return (
     <React.Fragment>
-      {kbTopic.categories.map(category => (
+      {faqTopics.categories.map(category => (
         <Category key={category._id} category={category} />
       ))}
     </React.Fragment>

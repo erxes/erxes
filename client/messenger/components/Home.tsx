@@ -56,7 +56,7 @@ class Home extends React.Component<Props, State> {
   renderTab() {
     const { messengerData } = this.props;
 
-    if (!messengerData.showFaq) {
+    if (!messengerData.knowledgeBaseTopicId) {
       return null;
     }
 
@@ -113,7 +113,7 @@ class Home extends React.Component<Props, State> {
     return (
       <div
         className={classNames("erxes-welcome", {
-          tabbed: messengerData.showFaq
+          tabbed: messengerData.knowledgeBaseTopicId
         })}
         ref={node => {
           this.node = node;
@@ -128,13 +128,19 @@ class Home extends React.Component<Props, State> {
   }
 
   render() {
+    const { messengerData } = this.props;
+
     return (
       <div
         className="erxes-home-container"
         style={{ paddingTop: this.state.headHeight }}
       >
         <TopBar middle={this.renderHead()} />
-        <div className="erxes-home-content">
+        <div
+          className={classNames("erxes-home-content", {
+            tabbed: messengerData.knowledgeBaseTopicId
+          })}
+        >
           <RTG.CSSTransition
             in={this.state.activeSupport}
             appear={true}
@@ -154,7 +160,7 @@ class Home extends React.Component<Props, State> {
             unmountOnExit
           >
             <div className="erxes-home-item">
-              <FaqCategories />
+              <FaqCategories topicId={messengerData.knowledgeBaseTopicId} />
             </div>
           </RTG.CSSTransition>
         </div>

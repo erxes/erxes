@@ -2,20 +2,20 @@ import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
 import { Categories as DumbCategories } from "../../components/faq";
-import { connection } from "../../connection";
 import queries from "../../graphql";
 import { IFaqTopic } from "../../types";
 
 const Categories = (props: ChildProps<{}, QueryResponse>) => {
   const { data } = props;
 
-  if (!data || data.loading) {
+  if (!data) {
     return null;
   }
 
   const extendedProps = {
     ...props,
-    kbTopic: data.knowledgeBaseTopicsDetail
+    loading: data.loading,
+    faqTopics: data.knowledgeBaseTopicsDetail
   };
 
   return <DumbCategories {...extendedProps} />;
@@ -25,13 +25,17 @@ type QueryResponse = {
   knowledgeBaseTopicsDetail: IFaqTopic;
 };
 
-const CategoriesWithData = graphql<{}, QueryResponse>(
+type Props = {
+  topicId?: string;
+};
+
+const CategoriesWithData = graphql<Props, QueryResponse>(
   gql(queries.getFaqTopicQuery),
   {
-    options: () => ({
+    options: ({ topicId }) => ({
       fetchPolicy: "network-only",
       variables: {
-        topicId: connection.setting.topic_id
+        topicId: topicId
       }
     })
   }
