@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { IActivityLogForMonth } from '../../../activityLogs/types';
 import { IUser } from '../../../auth/types';
 import { CompanyDetails } from '../../components';
 import { queries } from '../../graphql';
@@ -12,7 +13,7 @@ type DetailQueryResponse = {
 };
 
 type ActivityLogQueryResponse = {
-  activityLogsCompany: any[];
+  activityLogsCompany: IActivityLogForMonth[];
   loading: boolean;
 };
 

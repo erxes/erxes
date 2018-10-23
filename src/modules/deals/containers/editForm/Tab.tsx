@@ -1,13 +1,14 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { IActivityLogForMonth } from '../../../activityLogs/types';
 import { withProps } from '../../../common/utils';
 import { Tab } from '../../components/editForm';
 import { queries } from '../../graphql';
 import { IDeal } from '../../types';
 
 type ActivityLogQueryResponse = {
-  activityLogsDeal: any;
+  activityLogsDeal: IActivityLogForMonth[];
   loading: boolean;
 };
 
@@ -16,7 +17,7 @@ type Props = {
 };
 
 class TabContainer extends React.Component<
-  Props & { dealActivityLogQuery: any }
+  Props & { dealActivityLogQuery: ActivityLogQueryResponse }
 > {
   render() {
     const { dealActivityLogQuery } = this.props;
