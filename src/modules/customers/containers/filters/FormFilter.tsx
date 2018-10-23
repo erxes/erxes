@@ -1,12 +1,20 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { IIntegration } from '../../../settings/integrations/types';
 import { FormFilter } from '../../components';
 import { queries } from '../../graphql';
+import { CountQueryResponse } from './BrandFilter';
+
+type IntegrationsQueryResponse = {
+  integrations: IIntegration[];
+  loading: boolean;
+};
 
 type Props = {
-  integrationsQuery: any;
-  customersCountQuery: any;
+  integrationsQuery: IntegrationsQueryResponse;
+  customersCountQuery: CountQueryResponse;
   counts: { [key: string]: number };
 };
 
@@ -25,27 +33,32 @@ const FormFilterContainer = (props: Props) => {
   return <FormFilter {...updatedProps} />;
 };
 
-export default compose(
-  graphql(
-    gql`
-      query integrations {
-        integrations(kind: "form") {
-          _id
-          name
-          form {
+export default withProps<{}>(
+  compose(
+    graphql<{}, IntegrationsQueryResponse, {}>(
+      gql`
+        query integrations {
+          integrations(kind: "form") {
             _id
+            name
+            form {
+              _id
+            }
           }
         }
+      `,
+      {
+        name: 'integrationsQuery'
       }
-    `,
-    {
-      name: 'integrationsQuery'
-    }
-  ),
-  graphql(gql(queries.customerCounts), {
-    name: 'customersCountQuery',
-    options: {
-      variables: { only: 'byForm' }
-    }
-  })
-)(FormFilterContainer);
+    ),
+    graphql<{}, CountQueryResponse, { only: string }>(
+      gql(queries.customerCounts),
+      {
+        name: 'customersCountQuery',
+        options: {
+          variables: { only: 'byForm' }
+        }
+      }
+    )
+  )(FormFilterContainer)
+);

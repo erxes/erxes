@@ -7,13 +7,9 @@ import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { ITag } from '../../../tags/types';
 import { queries as companyQueries } from '../../graphql';
+import { CountQueryResponse } from './BrandFilter';
 
-type CountQueryResponse = {
-  companyCounts: { [key: string]: number };
-  loading: boolean;
-};
-
-type TagQueryResponse = {
+export type TagQueryResponse = {
   tags: ITag[];
   loading: boolean;
 };

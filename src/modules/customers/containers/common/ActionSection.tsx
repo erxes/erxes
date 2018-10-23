@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { ActionSection } from 'modules/customers/components/common';
 import { mutations } from 'modules/customers/graphql';
 import { ICustomer } from 'modules/customers/types';
@@ -8,25 +8,42 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 
-type Props = {
+type RemoveMutationVariables = {
+  customerIds: string[];
+};
+
+type RemoveMutationResponse = {
   customersRemove: (
     doc: {
-      variables: {
-        customerIds: string[];
-      };
-    }
-  ) => Promise<any>;
-  customersMerge: (
-    doc: {
-      variables: {
-        customerIds: string[];
-        customerFields: ICustomer;
-      };
+      variables: RemoveMutationVariables;
     }
   ) => Promise<any>;
 };
 
-const ActionSectionContainer = (props: IBaseProps & Props) => {
+type MergeMutationVariables = {
+  customerIds: string[];
+  customerFields: ICustomer;
+};
+
+type MergeMutationResponse = {
+  customersMerge: (
+    doc: {
+      variables: MergeMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+type Props = {
+  customer: ICustomer;
+  isSmall?: boolean;
+};
+
+type FinalProps = Props &
+  RemoveMutationResponse &
+  MergeMutationResponse &
+  IRouterProps;
+
+const ActionSectionContainer = (props: FinalProps) => {
   const { customer, customersRemove, customersMerge, history } = props;
 
   const { _id } = customer;
@@ -73,21 +90,22 @@ const generateOptions = () => ({
   refetchQueries: ['customersMain', 'customerCounts']
 });
 
-interface IBaseProps extends IRouterProps {
-  customer: ICustomer;
-  isSmall?: boolean;
-}
-
-export default withRouter<IBaseProps>(
+export default withProps<Props>(
   compose(
     // mutations
-    graphql(gql(mutations.customersRemove), {
-      name: 'customersRemove',
-      options: generateOptions()
-    }),
-    graphql(gql(mutations.customersMerge), {
-      name: 'customersMerge',
-      options: generateOptions()
-    })
-  )(ActionSectionContainer)
+    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
+      gql(mutations.customersRemove),
+      {
+        name: 'customersRemove',
+        options: generateOptions()
+      }
+    ),
+    graphql<{}, MergeMutationResponse, MergeMutationVariables>(
+      gql(mutations.customersMerge),
+      {
+        name: 'customersMerge',
+        options: generateOptions()
+      }
+    )
+  )(withRouter<FinalProps>(ActionSectionContainer))
 );

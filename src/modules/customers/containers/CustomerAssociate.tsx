@@ -1,24 +1,31 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { mutations as companyMutations } from 'modules/companies/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ICompany } from '../../companies/types';
 import { CustomerSection } from '../components/common';
 
-type Props = {
+type EditMutationVariables = {
+  _id: string;
+  customerIds: string[];
+};
+
+type EditMutationResponse = {
   companiesEditCustomers: (
     doc: {
-      variables: {
-        _id: string;
-        customerIds: string[];
-      };
+      variables: EditMutationVariables;
     }
   ) => Promise<any>;
+};
+
+type Props = {
   data: ICompany;
 };
 
-const CustomerAssociate = (props: Props) => {
+type FinalProps = Props & EditMutationResponse;
+
+const CustomerAssociate = (props: FinalProps) => {
   const { companiesEditCustomers, data } = props;
 
   const save = customers => {
@@ -46,11 +53,16 @@ const CustomerAssociate = (props: Props) => {
   return <CustomerSection {...extendedProps} />;
 };
 
-export default compose(
-  graphql(gql(companyMutations.companiesEditCustomers), {
-    name: 'companiesEditCustomers',
-    options: () => ({
-      refetchQueries: ['companyDetail']
-    })
-  })
-)(CustomerAssociate);
+export default withProps<Props>(
+  compose(
+    graphql<{}, EditMutationResponse, EditMutationVariables>(
+      gql(companyMutations.companiesEditCustomers),
+      {
+        name: 'companiesEditCustomers',
+        options: () => ({
+          refetchQueries: ['companyDetail']
+        })
+      }
+    )
+  )(CustomerAssociate)
+);

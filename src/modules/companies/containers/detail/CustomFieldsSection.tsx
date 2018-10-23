@@ -22,6 +22,7 @@ type EditMutationResponse = {
 
 type Props = {
   company: ICompany;
+  loading?: boolean;
 };
 
 type FinalProps = {
@@ -30,7 +31,7 @@ type FinalProps = {
   EditMutationResponse;
 
 const CustomFieldsSection = (props: FinalProps) => {
-  const { company, companiesEdit, fieldsGroupsQuery } = props;
+  const { loading, company, companiesEdit, fieldsGroupsQuery } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
@@ -56,6 +57,7 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const updatedProps = {
     save,
+    loading,
     customFieldsData: company.customFieldsData || {},
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };

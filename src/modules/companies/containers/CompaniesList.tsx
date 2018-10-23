@@ -35,7 +35,7 @@ type MainQueryResponse = {
   refetch: () => void;
 };
 
-type ListConfigQueryResponse = {
+export type ListConfigQueryResponse = {
   fieldsDefaultColumnsConfig: ListConfig[];
   loading: boolean;
 };

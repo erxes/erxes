@@ -12,7 +12,7 @@ type BrandsQueryResponse = {
   loading: boolean;
 };
 
-type CountQueryResponse = {
+export type CountQueryResponse = {
   companyCounts: { [key: string]: number };
   loading: boolean;
 };

@@ -12,7 +12,7 @@ const routes = () => {
 
   const list = ({ location }) => {
     const queryParams = queryString.parse(location.search);
-    return <CustomersList queryParams={queryParams} location={location} />;
+    return <CustomersList queryParams={queryParams} />;
   };
 
   return (

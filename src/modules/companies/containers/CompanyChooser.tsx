@@ -17,10 +17,8 @@ type CompaniesQueryResponse = {
 };
 
 type Props = {
-  data: { name: string; companies: ICompany[]; _id?: string };
   search: (value: string, loadMore?: boolean) => void;
   perPage: number;
-  closeModal: () => void;
   searchValue: string;
 };
 
@@ -96,7 +94,7 @@ const WithQuery = withProps<Props>(
 );
 
 type WrapperProps = {
-  data: { name: string; companies: ICompany[] };
+  data: { _id?: string; name: string; companies: ICompany[] };
   onSelect: (datas: ICompany[]) => void;
   closeModal: () => void;
 };
