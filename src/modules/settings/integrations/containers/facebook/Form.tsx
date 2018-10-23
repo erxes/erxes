@@ -33,11 +33,10 @@ class FacebookContainer extends React.Component<IProps, State> {
   constructor(props: IProps) {
     super(props);
 
-    this.onAppSelect = this.onAppSelect.bind(this);
     this.state = { pages: [] };
   }
 
-  onAppSelect(appId) {
+  onAppSelect = (appId) => {
     this.props.client
       .query({
         query: gql`

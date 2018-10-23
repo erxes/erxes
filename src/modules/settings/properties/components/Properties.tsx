@@ -28,14 +28,7 @@ type Props = {
 };
 
 class Properties extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderProperties = this.renderProperties.bind(this);
-    this.renderActionBar = this.renderActionBar.bind(this);
-  }
-
-  renderProperties() {
+  renderProperties = () => {
     const {
       fieldsGroups,
       queryParams,
@@ -71,7 +64,7 @@ class Properties extends React.Component<Props> {
     );
   }
 
-  renderActionBar() {
+  renderActionBar = () => {
     const { queryParams, fieldsGroups } = this.props;
 
     const addGroup = <MenuItem>{__('Add group')}</MenuItem>;

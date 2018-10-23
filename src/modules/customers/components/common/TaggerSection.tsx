@@ -24,11 +24,9 @@ class TaggerSection extends React.Component<Props, State> {
     this.state = {
       isTaggerVisible: false
     };
-
-    this.toggleTagger = this.toggleTagger.bind(this);
   }
 
-  toggleTagger(e) {
+  toggleTagger = (e) => {
     e.preventDefault();
 
     const { isTaggerVisible } = this.state;

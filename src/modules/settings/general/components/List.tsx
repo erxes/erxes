@@ -34,30 +34,24 @@ class List extends React.Component<Props, State> {
       language: props.currentLanguage,
       removeSelected: false
     };
-
-    this.onCurrenciesChange = this.onCurrenciesChange.bind(this);
-    this.onUOMChange = this.onUOMChange.bind(this);
-    this.onLanguageChange = this.onLanguageChange.bind(this);
-
-    this.save = this.save.bind(this);
   }
 
-  save(e) {
+  save = (e) => {
     e.preventDefault();
 
     this.props.save('dealCurrency', this.state.currencies);
     this.props.save('dealUOM', this.state.uom);
   }
 
-  onCurrenciesChange(currencies) {
+  onCurrenciesChange = (currencies) => {
     this.setState({ currencies: currencies.map(el => el.value) });
   }
 
-  onUOMChange(uom) {
+  onUOMChange = (uom) => {
     this.setState({ uom: uom.map(el => el.value) });
   }
 
-  onLanguageChange(language) {
+  onLanguageChange = (language) => {
     this.setState({ language });
     this.props.changeLanguage(language.value);
   }

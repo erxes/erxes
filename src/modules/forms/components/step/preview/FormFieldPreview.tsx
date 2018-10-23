@@ -17,8 +17,6 @@ class FormFieldPreview extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.onChangeFields = this.onChangeFields.bind(this);
-
     this.state = {
       fields: props.fields
     };
@@ -32,7 +30,7 @@ class FormFieldPreview extends React.Component<Props, State> {
     }
   }
 
-  onChangeFields(reOrderedFields: IField[]) {
+  onChangeFields = (reOrderedFields: IField[]) => {
     const fields: IField[] = [];
 
     reOrderedFields.forEach((field, index) => {

@@ -17,14 +17,7 @@ type Props = {
 class CategoryRow extends React.Component<Props> {
   private size;
 
-  constructor(props: Props) {
-    super(props);
-
-    this.remove = this.remove.bind(this);
-    this.renderEditAction = this.renderEditAction.bind(this);
-  }
-
-  remove() {
+  remove = () => {
     const { remove, category } = this.props;
     remove(category._id);
   }
@@ -33,7 +26,7 @@ class CategoryRow extends React.Component<Props> {
     return <CategoryForm {...props} />;
   }
 
-  renderEditAction() {
+  renderEditAction = () => {
     const { category, topicIds } = this.props;
 
     const editTrigger = (

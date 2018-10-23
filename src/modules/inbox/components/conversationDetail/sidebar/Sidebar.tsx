@@ -52,11 +52,9 @@ class Box extends React.Component<BoxProps, BoxState> {
     this.state = {
       isOpen: props.isOpen
     };
-
-    this.toggle = this.toggle.bind(this);
   }
 
-  toggle() {
+  toggle = () => {
     const { name, toggle } = this.props;
     const { isOpen } = this.state;
 
@@ -132,16 +130,13 @@ class Index extends React.Component<IndexProps, IndexState> {
       currentSubTab: 'details',
       attachmentPreview: null
     };
-
-    this.onTabClick = this.onTabClick.bind(this);
-    this.onSubtabClick = this.onSubtabClick.bind(this);
   }
 
-  onTabClick(currentTab) {
+  onTabClick = (currentTab) => {
     this.setState({ currentTab });
   }
 
-  onSubtabClick(currentSubTab) {
+  onSubtabClick = (currentSubTab) => {
     this.setState({ currentSubTab });
   }
 

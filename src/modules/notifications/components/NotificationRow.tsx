@@ -14,13 +14,7 @@ interface IProps extends IRouterProps {
 }
 
 class NotificationRow extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
-
-    this.markAsRead = this.markAsRead.bind(this);
-  }
-
-  markAsRead() {
+  markAsRead = () => {
     const { history, notification, markAsRead } = this.props;
 
     if (!notification.isRead) {

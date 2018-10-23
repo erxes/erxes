@@ -19,14 +19,7 @@ type Props = {
 };
 
 class BoardForm extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.generateDoc = this.generateDoc.bind(this);
-    this.save = this.save.bind(this);
-  }
-
-  save(e) {
+  save = (e) => {
     e.preventDefault();
 
     this.props.save(
@@ -36,7 +29,7 @@ class BoardForm extends React.Component<Props, {}> {
     );
   }
 
-  generateDoc() {
+  generateDoc = () => {
     return {
       doc: {
         name: (document.getElementById('channel-name') as HTMLInputElement)

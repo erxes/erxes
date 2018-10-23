@@ -58,12 +58,6 @@ class ResponseTemplate extends React.Component<Props, State> {
       brandId: props.brandId,
       options: this.filterByBrand(props.brandId)
     };
-
-    this.onSelect = this.onSelect.bind(this);
-    this.onSave = this.onSave.bind(this);
-    this.filterItems = this.filterItems.bind(this);
-    this.onFilter = this.onFilter.bind(this);
-    this.filterByBrand = this.filterByBrand.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -82,7 +76,7 @@ class ResponseTemplate extends React.Component<Props, State> {
     }
   }
 
-  onSave(brandId: string, name: string) {
+  onSave = (brandId: string, name: string) => {
     const doc = {
       brandId,
       name,
@@ -103,7 +97,7 @@ class ResponseTemplate extends React.Component<Props, State> {
     });
   }
 
-  onSelect(responseTemplateId: string) {
+  onSelect = (responseTemplateId: string) => {
     const { responseTemplates, onSelect } = this.props;
 
     // find response template using event key
@@ -117,18 +111,18 @@ class ResponseTemplate extends React.Component<Props, State> {
     return onSelect && onSelect(responseTemplate);
   }
 
-  onFilter(e: React.FormEvent<HTMLElement>) {
+  onFilter = (e: React.FormEvent<HTMLElement>) => {
     const options = this.filterByBrand((e.target as HTMLInputElement).value);
     this.setState({ options, brandId: (e.target as HTMLInputElement).value });
   }
 
-  filterByBrand(brandId) {
+  filterByBrand = (brandId) => {
     return this.props.responseTemplates.filter(
       option => option.brandId === brandId
     );
   }
 
-  filterItems(e: React.FormEvent<HTMLElement>) {
+  filterItems = (e: React.FormEvent<HTMLElement>) => {
     this.setState({ key: (e.target as HTMLInputElement).value });
   }
 

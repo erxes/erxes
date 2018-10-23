@@ -18,14 +18,7 @@ type Props = {
 };
 
 class ResponseTemplateModal extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.onSave = this.onSave.bind(this);
-    this.renderForm = this.renderForm.bind(this);
-  }
-
-  onSave() {
+  onSave = () => {
     const doc = {
       brandId: (document.getElementById(
         'template-brand-id'
@@ -36,7 +29,7 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
     this.props.onSave(doc.brandId, doc.name);
   }
 
-  renderForm() {
+  renderForm = () => {
     const { brands, brandId } = this.props;
 
     return (

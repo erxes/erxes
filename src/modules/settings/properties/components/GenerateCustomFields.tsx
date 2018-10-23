@@ -26,11 +26,6 @@ class GenerateGroup extends React.Component<Props, State> {
       editing: false,
       data: props.data
     };
-
-    this.toggleEditing = this.toggleEditing.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.save = this.save.bind(this);
-    this.cancelEditing = this.cancelEditing.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -39,7 +34,7 @@ class GenerateGroup extends React.Component<Props, State> {
     }
   }
 
-  save() {
+  save = () => {
     const { data } = this.state;
     const { save } = this.props;
 
@@ -54,17 +49,17 @@ class GenerateGroup extends React.Component<Props, State> {
     });
   }
 
-  toggleEditing() {
+  toggleEditing = () => {
     this.setState({ editing: true });
   }
 
-  cancelEditing() {
+  cancelEditing = () => {
     this.setState({
       editing: false
     });
   }
 
-  onChange({ _id, value }) {
+  onChange = ({ _id, value }) => {
     const { data } = this.state;
 
     this.setState({ data: { ...data, [_id]: value } });
@@ -148,13 +143,7 @@ type GroupsProps = {
 };
 
 class GenerateGroups extends React.Component<GroupsProps> {
-  constructor(props) {
-    super(props);
-
-    this.saveGroup = this.saveGroup.bind(this);
-  }
-
-  saveGroup(groupData, callback) {
+  saveGroup = (groupData, callback) => {
     const { customFieldsData, save } = this.props;
 
     const updatedData = {

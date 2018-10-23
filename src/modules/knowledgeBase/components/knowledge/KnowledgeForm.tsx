@@ -96,18 +96,13 @@ class KnowledgeForm extends React.Component<Props, State> {
       code,
       color
     };
-
-    this.handleBrandChange = this.handleBrandChange.bind(this);
-    this.onColorChange = this.onColorChange.bind(this);
-    this.save = this.save.bind(this);
-    this.remove = this.remove.bind(this);
   }
 
-  onColorChange(e) {
+  onColorChange = (e) => {
     this.setState({ color: e.hex });
   }
 
-  save(e) {
+  save = (e) => {
     e.preventDefault();
 
     this.props.save(
@@ -117,7 +112,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     );
   }
 
-  remove() {
+  remove = () => {
     const { remove, topic } = this.props;
 
     if (remove) {
@@ -151,7 +146,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
   }
 
-  handleBrandChange() {
+  handleBrandChange = () => {
     if (this.props.topic && this.props.topic._id) {
       const code = KnowledgeForm.getInstallCode(this.props.topic._id);
       this.setState({ code, copied: false });

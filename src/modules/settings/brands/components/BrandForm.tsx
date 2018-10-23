@@ -24,14 +24,7 @@ type Props = {
 };
 
 class BrandForm extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.generateDoc = this.generateDoc.bind(this);
-    this.save = this.save.bind(this);
-  }
-
-  save(e) {
+  save = (e) => {
     e.preventDefault();
 
     const { save, brand, closeModal } = this.props;
@@ -39,7 +32,7 @@ class BrandForm extends React.Component<Props, {}> {
     save(this.generateDoc(), () => closeModal(), brand);
   }
 
-  generateDoc() {
+  generateDoc = () => {
     return {
       doc: {
         name: (document.getElementById('brand-name') as HTMLInputElement).value,

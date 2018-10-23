@@ -53,18 +53,14 @@ class CompaniesList extends React.Component<IProps, State> {
     this.state = {
       searchValue: this.props.searchValue
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.search = this.search.bind(this);
-    this.removeCompanies = this.removeCompanies.bind(this);
   }
 
-  onChange() {
+  onChange = () => {
     const { toggleAll, companies } = this.props;
     toggleAll(companies, 'companies');
   }
 
-  search(e) {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -78,7 +74,7 @@ class CompaniesList extends React.Component<IProps, State> {
     }, 500);
   }
 
-  removeCompanies(companies) {
+  removeCompanies = (companies) => {
     const companyIds: string[] = [];
 
     companies.forEach(company => {
@@ -88,7 +84,7 @@ class CompaniesList extends React.Component<IProps, State> {
     this.props.removeCompanies({ companyIds });
   }
 
-  moveCursorAtTheEnd(e) {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;

@@ -21,11 +21,9 @@ class MessengerPreview extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { fromUser: '' };
-
-    this.renderNotificationBody = this.renderNotificationBody.bind(this);
   }
 
-  renderNotificationBody() {
+  renderNotificationBody = () => {
     const { content, sentAs } = this.props;
 
     const type = sentAs ? sentAs : 'default';

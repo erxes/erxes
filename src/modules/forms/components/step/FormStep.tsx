@@ -41,8 +41,6 @@ class FormStep extends React.Component<Props, State> {
       chosenFieldType: '',
       editingField: undefined
     };
-
-    this.footerActions = this.footerActions.bind(this);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -169,7 +167,7 @@ class FormStep extends React.Component<Props, State> {
     );
   }
 
-  footerActions() {
+  footerActions = () => {
     const editingField = this.state.editingField || ({} as IField);
 
     const onChange = e =>

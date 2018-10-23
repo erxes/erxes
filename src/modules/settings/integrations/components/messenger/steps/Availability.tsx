@@ -24,15 +24,7 @@ type Props = {
 };
 
 class Availability extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onOnlineHoursChange = this.onOnlineHoursChange.bind(this);
-    this.onSelectChange = this.onSelectChange.bind(this);
-    this.onChangeFunction = this.onChangeFunction.bind(this);
-  }
-
-  onSelectChange(e, name) {
+  onSelectChange = (e, name) => {
     let value = '';
 
     if (e) {
@@ -43,12 +35,12 @@ class Availability extends React.Component<Props> {
     this.props.onChange(name, value);
   }
 
-  onChangeFunction(name, value) {
+  onChangeFunction = (name, value) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
   }
 
-  onOnlineHoursChange(onlineHours) {
+  onOnlineHoursChange = (onlineHours) => {
     this.setState({ onlineHours });
     this.props.onChange('onlineHours', onlineHours);
   }

@@ -28,15 +28,7 @@ type Props = {
 };
 
 class EditFormContainer extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-
-    this.addDeal = this.addDeal.bind(this);
-    this.saveDeal = this.saveDeal.bind(this);
-    this.removeDeal = this.removeDeal.bind(this);
-  }
-
-  addDeal(doc: IDealParams, callback: () => void) {
+  addDeal = (doc: IDealParams, callback: () => void) => {
     const { onAdd, addMutation, stageId } = this.props;
 
     addMutation({ variables: doc })
@@ -54,7 +46,7 @@ class EditFormContainer extends React.Component<Props> {
       });
   }
 
-  saveDeal(doc: IDealParams, callback: () => void) {
+  saveDeal = (doc: IDealParams, callback: () => void) => {
     const { stageId, dealId, editMutation, onUpdate } = this.props;
 
     editMutation({ variables: { _id: dealId, ...doc } })
@@ -72,7 +64,7 @@ class EditFormContainer extends React.Component<Props> {
       });
   }
 
-  removeDeal(dealId: string, callback) {
+  removeDeal = (dealId: string, callback) => {
     const { removeMutation, onRemove, stageId } = this.props;
 
     confirm().then(() =>

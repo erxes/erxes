@@ -56,9 +56,6 @@ export default class WorkArea extends React.Component<Props, State> {
     this.state = { attachmentPreview: {} };
 
     this.node = React.createRef();
-    this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
-    this.scrollBottom = this.scrollBottom.bind(this);
-    this.onScroll = this.onScroll.bind(this);
   }
 
   componentDidMount() {
@@ -104,7 +101,7 @@ export default class WorkArea extends React.Component<Props, State> {
     return;
   }
 
-  onScroll() {
+  onScroll = () => {
     const { current } = this.node;
     const { loadMoreMessages } = this.props;
 
@@ -113,13 +110,13 @@ export default class WorkArea extends React.Component<Props, State> {
     }
   }
 
-  scrollBottom() {
+  scrollBottom = () => {
     const { current } = this.node;
 
     current.scrollTop = current.scrollHeight;
   }
 
-  setAttachmentPreview(attachmentPreview) {
+  setAttachmentPreview = (attachmentPreview) => {
     this.setState({ attachmentPreview });
   }
 

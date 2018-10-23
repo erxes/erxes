@@ -24,9 +24,6 @@ class OnlineHours extends React.Component<Props, State> {
     super(props);
 
     this.state = { onlineHours: props.prevOptions || [] };
-
-    this.addTime = this.addTime.bind(this);
-    this.removeTime = this.removeTime.bind(this);
   }
 
   onTimeItemChange(onlineHourId, name, value) {
@@ -45,7 +42,7 @@ class OnlineHours extends React.Component<Props, State> {
     this.props.onChange(onlineHours);
   }
 
-  addTime() {
+  addTime = () => {
     const onlineHours = this.state.onlineHours.slice();
 
     onlineHours.push({
@@ -61,7 +58,7 @@ class OnlineHours extends React.Component<Props, State> {
     this.props.onChange(onlineHours);
   }
 
-  removeTime(onlineHourId) {
+  removeTime = (onlineHourId) => {
     let onlineHours = this.state.onlineHours;
 
     onlineHours = onlineHours.filter(hour => hour._id !== onlineHourId);

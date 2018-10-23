@@ -17,19 +17,13 @@ type Props = {
 };
 
 class FormBase extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-
-    this.validateDoc = this.validateDoc.bind(this);
-  }
-
   sendError(message: string): { status: string } {
     Alert.error(message);
 
     return { status: 'error' };
   }
 
-  validateDoc(docType, doc): { status: string; doc?: IEngageMessageDoc } {
+  validateDoc = (docType, doc): { status: string; doc?: IEngageMessageDoc } => {
     if (!doc.title) {
       return this.sendError(__('Write title'));
     }

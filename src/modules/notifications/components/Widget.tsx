@@ -9,13 +9,8 @@ class Widget extends React.Component<
   { unreadCount: number },
   { activeFirst: boolean }
 > {
-  constructor(props) {
-    super(props);
 
-    this.update = this.update.bind(this);
-  }
-
-  update() {
+  update = () => {
     // rerender component
     this.forceUpdate();
   }

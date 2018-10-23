@@ -33,12 +33,6 @@ type Props = {
 };
 
 class BasicInfo extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-
-    this.renderRow = this.renderRow.bind(this);
-  }
-
   renderLink(value, icon) {
     let link = value;
 
@@ -70,7 +64,7 @@ class BasicInfo extends React.Component<Props> {
     );
   }
 
-  renderRow(label, value) {
+  renderRow = (label, value) => {
     return (
       <li>
         {__(`${label}`)}:<SidebarCounter>{value || '-'}</SidebarCounter>

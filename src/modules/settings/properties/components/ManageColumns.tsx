@@ -47,15 +47,12 @@ class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onChangeFields = this.onChangeFields.bind(this);
-
     this.state = {
       fields: props.fields
     };
   }
 
-  onSubmit(e) {
+  onSubmit = (e) => {
     e.preventDefault();
 
     const columnsConfig: IConfigColumn[] = [];
@@ -75,7 +72,7 @@ class ManageColumns extends React.Component<Props, State> {
     this.props.save(columnsConfig);
   }
 
-  onChangeFields(fields) {
+  onChangeFields = (fields) => {
     this.setState({ fields });
   }
 

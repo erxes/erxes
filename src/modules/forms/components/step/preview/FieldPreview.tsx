@@ -9,13 +9,7 @@ type Props = {
 };
 
 class FieldPreview extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onEdit = this.onEdit.bind(this);
-  }
-
-  onEdit() {
+  onEdit = () => {
     const { onEdit } = this.props;
 
     if (onEdit) {

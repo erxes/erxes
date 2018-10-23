@@ -27,20 +27,12 @@ type Props = {
 };
 
 class ChannelRow extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderMember = this.renderMember.bind(this);
-    this.remove = this.remove.bind(this);
-    this.renderEditAction = this.renderEditAction.bind(this);
-  }
-
-  remove() {
+  remove = () => {
     const { remove, channel } = this.props;
     remove(channel._id);
   }
 
-  renderEditAction() {
+  renderEditAction = () => {
     const { channel, save, members } = this.props;
 
     const editTrigger = (
@@ -60,7 +52,7 @@ class ChannelRow extends React.Component<Props, {}> {
     );
   }
 
-  renderMember(member) {
+  renderMember = (member) => {
     return (
       <Tip key={member._id} text={member.details.fullName} placement="top">
         <MemberImg

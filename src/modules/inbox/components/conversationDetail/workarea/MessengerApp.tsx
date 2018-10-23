@@ -18,13 +18,7 @@ type Props = {
 class MessengerApp extends React.Component<Props> {
   private overlayRef;
 
-  constructor(props) {
-    super(props);
-
-    this.onSelect = this.onSelect.bind(this);
-  }
-
-  onSelect(mesengerAppId: string) {
+  onSelect = (mesengerAppId: string) => {
     const messengerApps = this.props.messengerApps;
 
     // find response template using event key

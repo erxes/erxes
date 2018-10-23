@@ -10,22 +10,13 @@ type Props = {
 };
 
 class Stages extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onChange = this.onChange.bind(this);
-    this.add = this.add.bind(this);
-    this.remove = this.remove.bind(this);
-    this.onStageInputKeyPress = this.onStageInputKeyPress.bind(this);
-  }
-
   componentDidMount() {
     if (this.props.stages.length === 0) {
       this.add();
     }
   }
 
-  onChange(stageId, e) {
+  onChange = (stageId, e) => {
     const { name, value } = e.target;
     const { stages, onChangeStages } = this.props;
 
@@ -35,7 +26,7 @@ class Stages extends React.Component<Props, {}> {
     onChangeStages(stages);
   }
 
-  add() {
+  add = () => {
     const { stages, onChangeStages } = this.props;
 
     stages.push({
@@ -46,7 +37,7 @@ class Stages extends React.Component<Props, {}> {
     onChangeStages(stages);
   }
 
-  remove(stageId) {
+  remove = (stageId) => {
     const { stages, onChangeStages } = this.props;
 
     const remainedStages = stages.filter(stage => stage._id !== stageId);
@@ -54,7 +45,7 @@ class Stages extends React.Component<Props, {}> {
     onChangeStages(remainedStages);
   }
 
-  onStageInputKeyPress(e) {
+  onStageInputKeyPress = (e) => {
     if (e.key === 'Enter') {
       this.add();
       e.preventDefault();

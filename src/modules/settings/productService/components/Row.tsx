@@ -27,25 +27,17 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderEditForm = this.renderEditForm.bind(this);
-    this.renderEditAction = this.renderEditAction.bind(this);
-    this.remove = this.remove.bind(this);
-  }
-
-  remove() {
+  remove = () => {
     const { product } = this.props;
 
     this.props.remove(product._id);
   }
 
-  renderEditForm(props) {
+  renderEditForm = (props) => {
     return <Form {...props} />;
   }
 
-  renderEditAction() {
+  renderEditAction = () => {
     const { product, save } = this.props;
 
     const editTrigger = (
