@@ -17,6 +17,7 @@ import {
 } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { ITopic } from '../../../../knowledgeBase/types';
 import { LANGUAGES } from '../../constants';
 import { Appearance, Availability, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
@@ -34,6 +35,7 @@ type Props = {
       uiOptions: IUiOptions;
     }
   ) => void;
+  topics?: ITopic[];
 };
 
 type State = {
@@ -55,7 +57,7 @@ type State = {
   facebook: string;
   twitter: string;
   youtube: string;
-  showFaq: boolean;
+  knowledgeBaseTopicId: string;
   messages: IMessages;
 };
 
@@ -95,7 +97,7 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook: links.facebook || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
-      showFaq: configData.showFaq || false,
+      knowledgeBaseTopicId: configData.knowledgeBaseTopicId || '',
       messages: { ...this.generateMessages(messages) }
     };
   }
@@ -164,7 +166,7 @@ class CreateMessenger extends React.Component<Props, State> {
         timezone: this.state.timezone,
         onlineHours: this.state.onlineHours,
         supporterIds: this.state.supporterIds,
-        showFaq: this.state.showFaq,
+        knowledgeBaseTopicId: this.state.knowledgeBaseTopicId,
         messages,
         links
       },
@@ -219,9 +221,10 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook,
       twitter,
       youtube,
-      showFaq,
+      knowledgeBaseTopicId,
       messages
     } = this.state;
+    const { topics } = this.props;
 
     const message = messages[languageCode];
 
@@ -291,7 +294,8 @@ class CreateMessenger extends React.Component<Props, State> {
                 brands={this.props.brands}
                 brandId={brandId}
                 notifyCustomer={notifyCustomer}
-                showFaq={showFaq}
+                topics={topics}
+                topicId={knowledgeBaseTopicId}
               />
             </Step>
           </Steps>

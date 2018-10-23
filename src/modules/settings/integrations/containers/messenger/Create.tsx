@@ -2,10 +2,11 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
+import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { Form } from 'modules/settings/integrations/components/messenger';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
 import {
   IMessengerData,
   IUiOptions
@@ -28,6 +29,7 @@ interface IProps extends IRouterProps {
   saveAppearanceMutation: (
     params: { variables: { _id: string; uiOptions: IUiOptions } }
   ) => void;
+  knowledgeBaseTopicsQuery: any;
 }
 
 const CreateMessenger = (props: IProps) => {
@@ -37,7 +39,8 @@ const CreateMessenger = (props: IProps) => {
     brandsQuery,
     saveMessengerMutation,
     saveConfigsMutation,
-    saveAppearanceMutation
+    saveAppearanceMutation,
+    knowledgeBaseTopicsQuery
   } = props;
 
   if (usersQuery.loading || brandsQuery.loading) {
@@ -46,6 +49,7 @@ const CreateMessenger = (props: IProps) => {
 
   const users = usersQuery.users || [];
   const brands = brandsQuery.brands || [];
+  const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
 
   const save = doc => {
     const { name, brandId, languageCode, messengerData, uiOptions } = doc;
@@ -81,7 +85,8 @@ const CreateMessenger = (props: IProps) => {
     ...props,
     teamMembers: users || [],
     brands,
-    save
+    save,
+    topics
   };
 
   return <Form {...updatedProps} />;
@@ -108,6 +113,9 @@ export default compose(
     options: () => ({
       fetchPolicy: 'network-only'
     })
+  }),
+  graphql(gql(kbQueries.knowledgeBaseTopics), {
+    name: 'knowledgeBaseTopicsQuery'
   }),
   graphql(gql(mutations.integrationsCreateMessenger), {
     name: 'saveMessengerMutation',

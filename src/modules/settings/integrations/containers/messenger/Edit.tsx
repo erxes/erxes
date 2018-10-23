@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
+import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { Form } from 'modules/settings/integrations/components/messenger';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import {
@@ -33,6 +34,7 @@ interface IProps extends IRouterProps {
       };
     }
   ) => any;
+  knowledgeBaseTopicsQuery: any;
 }
 
 const EditMessenger = (props: IProps) => {
@@ -44,7 +46,8 @@ const EditMessenger = (props: IProps) => {
     integrationDetailQuery,
     editMessengerMutation,
     saveConfigsMutation,
-    saveAppearanceMutation
+    saveAppearanceMutation,
+    knowledgeBaseTopicsQuery
   } = props;
 
   if (
@@ -58,6 +61,7 @@ const EditMessenger = (props: IProps) => {
   const users = usersQuery.users || [];
   const brands = brandsQuery.brands || [];
   const integration = integrationDetailQuery.integrationDetail || {};
+  const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
 
   const save = doc => {
     const { name, brandId, languageCode, messengerData, uiOptions } = doc;
@@ -94,6 +98,7 @@ const EditMessenger = (props: IProps) => {
     teamMembers: users || [],
     brands,
     save,
+    topics,
     integration
   };
 
@@ -121,6 +126,9 @@ export default compose(
     options: () => ({
       fetchPolicy: 'network-only'
     })
+  }),
+  graphql(gql(kbQueries.knowledgeBaseTopics), {
+    name: 'knowledgeBaseTopicsQuery'
   }),
   graphql(gql(queries.integrationDetail), {
     name: 'integrationDetailQuery',
