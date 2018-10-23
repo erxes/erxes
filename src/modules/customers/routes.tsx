@@ -4,11 +4,10 @@ import { Route } from 'react-router-dom';
 import { CustomerDetails, CustomersList } from './containers';
 
 const routes = () => {
-  const detail = ({ match, location }) => {
-    const queryParams = queryString.parse(location.search);
+  const detail = ({ match }) => {
     const id = match.params.id;
 
-    return <CustomerDetails id={id} queryParams={queryParams} />;
+    return <CustomerDetails id={id} />;
   };
 
   const list = ({ location }) => {
