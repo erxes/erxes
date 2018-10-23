@@ -18,7 +18,7 @@ type Props = {
   img?: string;
   title?: string;
   children?: React.ReactNode;
-  next?: (number: number) => void;
+  next?: (stepNumber: number) => void;
   nextButton?: React.ReactNode;
   save?: (name: string, e: React.MouseEvent) => void;
   message?: any;
@@ -34,7 +34,7 @@ class Step extends React.Component<Props> {
           btnStyle="success"
           size="small"
           icon="checked-1"
-          onClick={e => save('save', e)}
+          onClick={save.bind(this, 'save')}
         >
           Save
         </Button>
@@ -48,7 +48,7 @@ class Step extends React.Component<Props> {
             btnStyle="warning"
             size="small"
             icon="rightarrow-2"
-            onClick={e => save('draft', e)}
+            onClick={save.bind(this, 'draft')}
           >
             Save & Draft
           </Button>
@@ -56,7 +56,7 @@ class Step extends React.Component<Props> {
             btnStyle="success"
             size="small"
             icon="checked-1"
-            onClick={e => save('live', e)}
+            onClick={save.bind(this, 'live')}
           >
             Save & Live
           </Button>
@@ -70,7 +70,7 @@ class Step extends React.Component<Props> {
           btnStyle="primary"
           size="small"
           icon="rightarrow-2"
-          onClick={() => next(0)}
+          onClick={next.bind(null, 0)}
         >
           Next
         </Button>
@@ -88,7 +88,7 @@ class Step extends React.Component<Props> {
     }
 
     return (
-      <Button btnStyle="primary" size="small" onClick={() => next(0)}>
+      <Button btnStyle="primary" size="small" onClick={next.bind(null, 0)}>
         {__('Next')} <Icon icon="rightarrow-2" />
       </Button>
     );
@@ -130,7 +130,7 @@ class Step extends React.Component<Props> {
 
         <ShortStep
           show={!show}
-          onClick={() => next && stepNumber && next(stepNumber)}
+          onClick={next && stepNumber && next.bind(null, stepNumber)}
         >
           <StepImg>
             <img src={img} alt="step-icon" />

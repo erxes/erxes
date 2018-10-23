@@ -16,7 +16,7 @@ function Sidebar() {
           <li>
             <NavLink
               activeClassName="active"
-              exact
+              exact={true}
               to="/insights/volume-report"
             >
               {__('Volume Report')}

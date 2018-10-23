@@ -105,16 +105,15 @@ class CompanyListContainer extends React.Component<IProps, State> {
       mergeCompanies
     };
 
-    return (
-      <Bulk
-        content={props => {
-          return <CompaniesList {...updatedProps} {...props} />;
-        }}
-        refetch={() => {
-          this.props.companiesMainQuery.refetch();
-        }}
-      />
-    );
+    const companiesList = props => {
+      return <CompaniesList {...updatedProps} {...props} />;
+    };
+
+    const refetch = () => {
+      this.props.companiesMainQuery.refetch();
+    };
+
+    return <Bulk content={companiesList} refetch={refetch} />;
   }
 }
 

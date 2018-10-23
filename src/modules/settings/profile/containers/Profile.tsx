@@ -27,17 +27,15 @@ const Profile = (props: Props) => {
       });
   };
 
+  const editForm = ({ user, closeModal }) => (
+    <EditProfileForm currentUser={user} save={save} closeModal={closeModal} />
+  );
+
   return (
     <UserDetailForm
       _id={currentUser._id}
       queryParams={queryParams}
-      renderEditForm={({ user, closeModal }) => (
-        <EditProfileForm
-          currentUser={user}
-          save={save}
-          closeModal={closeModal}
-        />
-      )}
+      renderEditForm={editForm}
     />
   );
 };

@@ -10,8 +10,8 @@ import {
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { ActivityContent } from 'modules/common/styles/main';
 import { EditorActions } from 'modules/internalNotes/components/Form';
+import { SidebarBox, SidebarTitle } from 'modules/layout/styles';
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 
 const iconWrapperWidth = '60px';
 
@@ -62,9 +62,7 @@ const Actions = styled.div`
 
 const SectionContainer = styled.div`
   position: relative;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 0 4px 1px ${colors.shadowPrimary};
+  border-top: 1px solid ${colors.borderPrimary};
 
   > div {
     margin-bottom: 0;
@@ -72,6 +70,14 @@ const SectionContainer = styled.div`
 
   &:last-child {
     margin-bottom: 0;
+  }
+
+  ${SidebarBox} {
+    box-shadow: none;
+  }
+
+  ${SidebarTitle} {
+    height: 40px;
   }
 `;
 
@@ -137,6 +143,22 @@ const BasicInfo = styled.div`
   }
 `;
 
+const SidebarCollapse = styled.a`
+  color: ${colors.colorCoreGray};
+  position: absolute;
+  top: ${dimensions.unitSpacing}px;
+  right: ${dimensions.coreSpacing}px;
+  font-size: 15px;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &:focus {
+    outline: 0;
+  }
+`;
+
 export {
   FlexRow,
   FlexItem,
@@ -145,5 +167,6 @@ export {
   Actions,
   ActivityNote,
   ActivityLogContent,
-  BasicInfo
+  BasicInfo,
+  SidebarCollapse
 };

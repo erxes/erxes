@@ -14,22 +14,20 @@ const UserAvatar = styled.td`
 `;
 
 class UserList extends React.Component<ICommonListProps> {
-  constructor(props) {
-    super(props);
+  onAvatarClick = object => {
+    return this.props.history.push(`team/details/${object._id}`);
+  };
 
-    this.renderContent = this.renderContent.bind(this);
-  }
+  renderForm = props => {
+    return <UserForm {...props} />;
+  };
 
   renderRows({ objects }: { objects: IUser[] }) {
     return objects.map((object, index) => {
       return (
         <tr key={index}>
-          <UserAvatar
-            onClick={() => {
-              this.props.history.push(`team/details/${object._id}`);
-            }}
-          >
-            <NameCard user={object} avatarSize={30} singleLine />
+          <UserAvatar onClick={this.onAvatarClick}>
+            <NameCard user={object} avatarSize={30} singleLine={true} />
           </UserAvatar>
           <td>{object.email}</td>
           <td>{object.role}</td>
@@ -37,14 +35,14 @@ class UserList extends React.Component<ICommonListProps> {
           <RowActions
             {...this.props}
             object={object}
-            renderForm={props => <UserForm {...props} />}
+            renderForm={this.renderForm}
           />
         </tr>
       );
     });
   }
 
-  renderContent(props) {
+  renderContent = props => {
     return (
       <Table>
         <thead>
@@ -58,7 +56,7 @@ class UserList extends React.Component<ICommonListProps> {
         <tbody>{this.renderRows(props)}</tbody>
       </Table>
     );
-  }
+  };
 
   breadcrumb() {
     return [
@@ -75,7 +73,7 @@ class UserList extends React.Component<ICommonListProps> {
           { title: __('Settings'), link: '/settings' },
           { title: __('Team members') }
         ]}
-        renderForm={props => <UserForm {...props} />}
+        renderForm={this.renderForm}
         renderContent={this.renderContent}
         {...this.props}
       />

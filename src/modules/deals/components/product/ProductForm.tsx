@@ -62,10 +62,10 @@ class ProductForm extends React.Component<Props, State> {
     onChangeProductsData(productsData);
   }
 
-  removeProductItem(_id) {
+  removeProductItem(productId) {
     const { productsData, onChangeProductsData } = this.props;
 
-    const removedProductsData = productsData.filter(p => p._id !== _id);
+    const removedProductsData = productsData.filter(p => p._id !== productId);
 
     onChangeProductsData(removedProductsData);
 
@@ -135,6 +135,11 @@ class ProductForm extends React.Component<Props, State> {
     const { total, tax, discount } = this.state;
     const { saveProductsData } = this.props;
 
+    const onClick = () => {
+      saveProductsData();
+      this.props.closeModal();
+    };
+
     return (
       <FormContainer>
         <Table alignTop={true}>
@@ -185,20 +190,13 @@ class ProductForm extends React.Component<Props, State> {
           <ModalFooter>
             <Button
               btnStyle="simple"
-              onClick={() => this.props.closeModal()}
+              onClick={this.props.closeModal}
               icon="cancel-1"
             >
               Close
             </Button>
 
-            <Button
-              btnStyle="success"
-              onClick={() => {
-                saveProductsData();
-                this.props.closeModal();
-              }}
-              icon="checked-1"
-            >
+            <Button btnStyle="success" onClick={onClick} icon="checked-1">
               Save
             </Button>
           </ModalFooter>

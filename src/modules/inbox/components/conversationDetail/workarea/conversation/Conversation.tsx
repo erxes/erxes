@@ -65,7 +65,7 @@ class Conversation extends React.Component<Props, {}> {
     }
 
     if ((kind === 'facebook' || kind === 'twitter') && loading) {
-      return <Spinner objective />;
+      return <Spinner objective={true} />;
     }
 
     const twitterData = conversation.twitterData;

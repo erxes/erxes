@@ -92,6 +92,12 @@ const Nav = styled.nav`
       }
     }
 
+    &.bottom {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+
     @media (max-height: 760px) {
       height: ${dimensions.headerSpacing}px;
 
@@ -133,43 +139,48 @@ class Navigation extends React.Component<{
         </NavLink>
         <Nav>
           <Tip placement="right" text={__('Inbox').toString()}>
-            <NavLink to="/inbox" activeClassName="active">
+            <NavLink to="/inbox">
               <NavIcon className="icon-chat" />
               {unreadConversationsCount !== 0 && (
-                <Label shake lblStyle="danger" ignoreTrans>
+                <Label shake={true} lblStyle="danger" ignoreTrans={true}>
                   {unreadConversationsCount}
                 </Label>
               )}
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Deal').toString()}>
-            <NavLink to="/deals" activeClassName="active">
+            <NavLink to="/deals">
               <NavIcon className="icon-piggy-bank" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Customers').toString()}>
-            <NavLink to="/customers" activeClassName="active">
+            <NavLink to="/customers">
               <NavIcon className="icon-users" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Companies').toString()}>
-            <NavLink to="/companies" activeClassName="active">
+            <NavLink to="/companies">
               <NavIcon className="icon-briefcase" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Leads').toString()}>
-            <NavLink to="/forms" activeClassName="active">
+            <NavLink to="/forms">
               <NavIcon className="icon-laptop" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Engage').toString()}>
-            <NavLink to="/engage" activeClassName="active">
+            <NavLink to="/engage">
               <NavIcon className="icon-megaphone" />
             </NavLink>
           </Tip>
           <Tip placement="right" text={__('Knowledge Base').toString()}>
-            <NavLink to="/knowledgeBase" activeClassName="active">
+            <NavLink to="/knowledgeBase">
               <NavIcon className="icon-clipboard" />
+            </NavLink>
+          </Tip>
+          <Tip placement="right" text={__('App store').toString()}>
+            <NavLink to="/settings/integrations" className="bottom">
+              <NavIcon className="icon-menu" />
             </NavLink>
           </Tip>
         </Nav>

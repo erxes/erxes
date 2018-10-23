@@ -55,7 +55,7 @@ class AddConditionButton extends React.Component<Props> {
         placement="bottom"
         overlay={this.renderPopover()}
         container={this}
-        rootClose
+        rootClose={true}
       >
         <Button btnStyle="success" icon="add">
           Add a condition

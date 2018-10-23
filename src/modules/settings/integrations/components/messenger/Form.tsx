@@ -231,6 +231,9 @@ class CreateMessenger extends React.Component<Props, State> {
       { title: __('Messenger') }
     ];
 
+    const onChange = e =>
+      this.onChange('title', (e.currentTarget as HTMLInputElement).value);
+
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
@@ -238,13 +241,8 @@ class CreateMessenger extends React.Component<Props, State> {
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
-            required
-            onChange={e =>
-              this.onChange(
-                'title',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            required={true}
+            onChange={onChange}
             defaultValue={title}
           />
         </TitleContainer>
@@ -299,7 +297,7 @@ class CreateMessenger extends React.Component<Props, State> {
           </Steps>
 
           <MessengerPreview>
-            <Preview fullHeight>
+            <Preview fullHeight={true}>
               <CommonPreview
                 onChange={this.onChange}
                 teamMembers={this.props.teamMembers}

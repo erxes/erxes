@@ -32,29 +32,24 @@ type Props = {
 };
 
 class OptionStep extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onColorChange = this.onColorChange.bind(this);
-    this.onChangeFunction = this.onChangeFunction.bind(this);
-  }
-
-  onChangeFunction(name: any, value: string) {
+  onChangeFunction = (name: any, value: string) => {
     this.props.onChange(name, value);
-  }
+  };
 
-  onColorChange(e) {
+  onColorChange = e => {
     this.setState({ color: e.hex, theme: '#000' }, () => {
       this.props.onChange('color', e.hex);
       this.props.onChange('theme', '');
     });
-  }
+  };
 
   renderThemeColor(value: string) {
+    const onClick = () => this.onChangeFunction('theme', value);
+
     return (
       <BackgroundSelector
         selected={this.props.theme === value}
-        onClick={() => this.onChangeFunction('theme', value)}
+        onClick={onClick}
       >
         <div style={{ backgroundColor: value }} />
       </BackgroundSelector>
@@ -70,6 +65,18 @@ class OptionStep extends React.Component<Props, {}> {
       </Popover>
     );
 
+    const onChange = e =>
+      this.onChangeFunction(
+        'brand',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const onChangeLanguage = e =>
+      this.onChangeFunction(
+        'language',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
     return (
       <FlexItem>
         <LeftItem>
@@ -79,12 +86,7 @@ class OptionStep extends React.Component<Props, {}> {
               componentClass="select"
               defaultValue={brand ? brand._id : ''}
               id="selectBrand"
-              onChange={(e: React.FormEvent<HTMLElement>) =>
-                this.onChangeFunction(
-                  'brand',
-                  (e.currentTarget as HTMLInputElement).value
-                )
-              }
+              onChange={onChange}
             >
               <option />
               {brands &&
@@ -102,12 +104,7 @@ class OptionStep extends React.Component<Props, {}> {
               componentClass="select"
               defaultValue={language}
               id="languageCode"
-              onChange={(e: React.FormEvent<HTMLElement>) =>
-                this.onChangeFunction(
-                  'language',
-                  (e.currentTarget as HTMLInputElement).value
-                )
-              }
+              onChange={onChangeLanguage}
             >
               <option />
               <option value="mn">Монгол</option>
@@ -129,7 +126,7 @@ class OptionStep extends React.Component<Props, {}> {
             {this.renderThemeColor('#2d2d32')}
             <OverlayTrigger
               trigger="click"
-              rootClose
+              rootClose={true}
               placement="bottom"
               overlay={popoverTop}
             >

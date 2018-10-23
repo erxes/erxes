@@ -10,6 +10,7 @@ type Props = {
   deals: IDeal[];
   addMutation: SaveDealMutation;
   dealsQuery: any;
+  isOpen?: boolean;
 };
 
 class PortableDealsContainer extends React.Component<Props> {

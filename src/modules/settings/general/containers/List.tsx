@@ -20,7 +20,7 @@ class ListContainer extends React.Component<Props> {
     const { insertConfig, currencyConfigQuery, uomConfigQuery } = this.props;
 
     if (currencyConfigQuery.loading || uomConfigQuery.loading) {
-      return <Spinner objective />;
+      return <Spinner objective={true} />;
     }
 
     // create or update action

@@ -55,7 +55,14 @@ class PropertyRow extends React.Component<Props, State> {
   }
 
   renderActionButtons(data, remove, content) {
-    if (data.isDefinedByErxes) return null;
+    if (data.isDefinedByErxes) {
+      return null;
+    }
+
+    const onClick = () =>
+      confirm().then(() => {
+        remove({ _id: data._id });
+      });
 
     return (
       <ActionButtons>
@@ -64,21 +71,15 @@ class PropertyRow extends React.Component<Props, State> {
           trigger={<Button btnStyle="link" icon="edit" />}
           content={content}
         />
-        <Button
-          btnStyle="link"
-          icon="cancel-1"
-          onClick={() =>
-            confirm().then(() => {
-              remove({ _id: data._id });
-            })
-          }
-        />
+        <Button btnStyle="link" icon="cancel-1" onClick={onClick} />
       </ActionButtons>
     );
   }
 
   renderTableRow(field) {
     const { removeProperty, queryParams } = this.props;
+
+    const onChange = e => this.visibleHandler(e, field);
 
     return (
       <tr key={field._id}>
@@ -98,7 +99,7 @@ class PropertyRow extends React.Component<Props, State> {
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
             }}
-            onChange={e => this.visibleHandler(e, field)}
+            onChange={onChange}
           />
         </td>
         <td>
@@ -121,7 +122,7 @@ class PropertyRow extends React.Component<Props, State> {
     }
 
     return (
-      <Table hover>
+      <Table hover={true}>
         <thead>
           <tr>
             <th>{__('Name')}</th>

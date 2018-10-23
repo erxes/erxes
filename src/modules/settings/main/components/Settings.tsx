@@ -61,7 +61,7 @@ class Settings extends React.Component {
               '/settings/brands'
             )}
             {this.renderBox(
-              'Integrations',
+              'App store',
               '/images/icons/erxes-04.svg',
               '/settings/integrations'
             )}

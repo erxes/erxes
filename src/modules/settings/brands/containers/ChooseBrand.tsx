@@ -33,7 +33,7 @@ const ChooseBrandContainer = (props: Props) => {
   } = props;
 
   if (brandsQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const updatedProps = {

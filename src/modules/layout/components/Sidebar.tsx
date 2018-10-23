@@ -16,8 +16,16 @@ function Title({ children }: { children: React.ReactNode }) {
   return <SidebarTitle>{children}</SidebarTitle>;
 }
 
-function QuickButtons({ children }: { children: React.ReactNode }) {
-  return <HelperButtons>{children}</HelperButtons>;
+function QuickButtons({
+  children,
+  isSidebarOpen
+}: {
+  children: React.ReactNode;
+  isSidebarOpen?: boolean;
+}) {
+  return (
+    <HelperButtons isSidebarOpen={isSidebarOpen}>{children}</HelperButtons>
+  );
 }
 
 type Props = {
@@ -73,6 +81,10 @@ class Section extends React.Component<Props, State> {
       maxHeight: collapsible ? this.state.maxHeight : undefined
     };
 
+    const innerRef = node => {
+      this.node = node;
+    };
+
     return (
       <SidebarBox
         collapsible={collapsible}
@@ -81,13 +93,7 @@ class Section extends React.Component<Props, State> {
         noBackground={noBackground}
         full={full}
       >
-        <BoxContent
-          innerRef={node => {
-            this.node = node;
-          }}
-        >
-          {children}
-        </BoxContent>
+        <BoxContent innerRef={innerRef}>{children}</BoxContent>
         {collapsible ? this.renderCollapseButton() : null}
       </SidebarBox>
     );

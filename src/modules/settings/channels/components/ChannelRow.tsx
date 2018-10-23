@@ -51,19 +51,12 @@ class ChannelRow extends React.Component<Props, {}> {
       </Button>
     );
 
+    const content = props => (
+      <ChannelForm {...props} save={save} members={members} channel={channel} />
+    );
+
     return (
-      <ModalTrigger
-        title="Edit"
-        trigger={editTrigger}
-        content={props => (
-          <ChannelForm
-            {...props}
-            save={save}
-            members={members}
-            channel={channel}
-          />
-        )}
-      />
+      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
   }
 

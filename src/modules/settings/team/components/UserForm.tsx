@@ -59,6 +59,10 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     const self = this;
     const { channels } = this.props;
 
+    const onChange = items => {
+      self.setState({ selectedChannels: items });
+    };
+
     return (
       <FormGroup>
         <ControlLabel>Choose the channels</ControlLabel>
@@ -68,10 +72,8 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
           placeholder={__('Choose channels')}
           value={self.state.selectedChannels}
           options={self.generateChannelsParams(channels)}
-          onChange={items => {
-            self.setState({ selectedChannels: items });
-          }}
-          multi
+          onChange={onChange}
+          multi={true}
         />
       </FormGroup>
     );

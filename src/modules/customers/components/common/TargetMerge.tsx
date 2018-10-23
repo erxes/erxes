@@ -31,7 +31,11 @@ class TargetMergeModal extends React.Component<Props, State> {
   }
 
   handleSearch(value) {
-    this.props.searchObject(value, objects => this.setState({ objects }));
+    const { objects } = this.state;
+
+    if (objects.length < 1) {
+      this.props.searchObject(value, objs => this.setState({ objects: objs }));
+    }
   }
 
   onSelect(option) {
@@ -42,8 +46,9 @@ class TargetMergeModal extends React.Component<Props, State> {
     const { object, onSave, mergeForm } = this.props;
     const { selectedObject } = this.state;
 
-    if (!selectedObject._id)
+    if (!selectedObject._id) {
       return <EmptyState icon="search" text="Please select one to merge" />;
+    }
 
     const MergeForm = mergeForm;
 
@@ -64,7 +69,7 @@ class TargetMergeModal extends React.Component<Props, State> {
       <Select
         placeholder="Search"
         onInputChange={this.handleSearch}
-        onFocus={() => objects.length < 1 && this.handleSearch('')}
+        onFocus={this.handleSearch.bind(this, '')}
         onChange={this.onSelect}
         options={generateOptions(objects)}
       />
@@ -72,20 +77,22 @@ class TargetMergeModal extends React.Component<Props, State> {
   }
 
   render() {
+    const modalContent = props => {
+      return (
+        <React.Fragment>
+          {this.renderSelect()}
+          <br />
+          {this.renderMerger(props)}
+        </React.Fragment>
+      );
+    };
+
     return (
       <ModalTrigger
         title={__('Merge')}
         trigger={<a>{__('Merge')}</a>}
         size="lg"
-        content={props => {
-          return (
-            <React.Fragment>
-              {this.renderSelect()}
-              <br />
-              {this.renderMerger(props)}
-            </React.Fragment>
-          );
-        }}
+        content={modalContent}
       />
     );
   }

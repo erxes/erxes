@@ -75,8 +75,8 @@ class PipelineForm extends React.Component<Props, State> {
             id="pipeline-name"
             defaultValue={pipeline ? pipeline.name : ''}
             type="text"
-            autoFocus
-            required
+            autoFocus={true}
+            required={true}
           />
         </FormGroup>
 
@@ -88,12 +88,14 @@ class PipelineForm extends React.Component<Props, State> {
   render() {
     const { show, pipeline, closeModal } = this.props;
 
-    if (!show) return null;
+    if (!show) {
+      return null;
+    }
 
     return (
       <Modal show={show} onHide={closeModal}>
         <form onSubmit={this.save}>
-          <Modal.Header closeButton>
+          <Modal.Header closeButton={true}>
             <Modal.Title>
               {pipeline ? 'Edit pipeline' : 'Add pipeline'}
             </Modal.Title>
@@ -106,7 +108,7 @@ class PipelineForm extends React.Component<Props, State> {
                 btnStyle="simple"
                 type="button"
                 icon="cancel-1"
-                onClick={() => closeModal()}
+                onClick={closeModal}
               >
                 Cancel
               </Button>

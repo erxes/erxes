@@ -17,9 +17,13 @@ import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
 import { PortableDeals } from 'modules/deals/containers';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarToggle } from 'modules/layout/styles';
 import * as React from 'react';
-import { Actions, BasicInfo, SectionContainer } from './styles';
+import {
+  Actions,
+  BasicInfo,
+  SectionContainer,
+  SidebarCollapse
+} from './styles';
 
 import { __ } from 'modules/common/utils';
 import { Contacts } from 'modules/companies/components';
@@ -62,12 +66,12 @@ class Box extends React.Component<BoxProps, BoxState> {
   }
 
   renderDropBtn() {
-    const icon = this.state.isOpen ? 'uparrow-2' : 'downarrow';
+    const icon = this.state.isOpen ? 'downarrow' : 'rightarrow-2';
 
     return (
-      <SidebarToggle inverse={!this.state.isOpen} onClick={this.toggle}>
+      <SidebarCollapse onClick={this.toggle}>
         <Icon icon={icon} />
-      </SidebarToggle>
+      </SidebarCollapse>
     );
   }
 
@@ -187,6 +191,18 @@ class Index extends React.Component<IndexProps, IndexState> {
   renderActions() {
     const { customer } = this.props;
 
+    const content = props => (
+      <MailForm
+        {...props}
+        contentType="customer"
+        contentTypeId={customer._id}
+        toEmail={customer.primaryEmail}
+        setAttachmentPreview={this.setAttachmentPreview}
+        attachmentPreview={this.state.attachmentPreview}
+        refetchQueries={['activityLogsCustomer']}
+      />
+    );
+
     return (
       <Actions>
         <ModalTrigger
@@ -197,23 +213,13 @@ class Index extends React.Component<IndexProps, IndexState> {
             </a>
           }
           size="lg"
-          content={props => (
-            <MailForm
-              {...props}
-              contentType="customer"
-              contentTypeId={customer._id}
-              toEmail={customer.primaryEmail}
-              setAttachmentPreview={this.setAttachmentPreview}
-              attachmentPreview={this.state.attachmentPreview}
-              refetchQueries={['activityLogsCustomer']}
-            />
-          )}
+          content={content}
         />
         <a href={`tel:${customer.primaryPhone}`}>
           <Button size="small">{__('Call')}</Button>
         </a>
 
-        <ActionSection customer={customer} isSmall />
+        <ActionSection customer={customer} isSmall={true} />
       </Actions>
     );
   }
@@ -251,6 +257,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             toggle={toggleSection}
           >
             <TaggerSection
+              isOpen={config.showTags}
               data={customer}
               type="customer"
               refetchQueries={taggerRefetchQueries}
@@ -294,7 +301,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showDeals || false}
           toggle={toggleSection}
         >
-          <PortableDeals customerId={customer._id} />
+          <PortableDeals customerId={customer._id} isOpen={config.showDeals} />
         </Box>
       </React.Fragment>
     );
@@ -305,29 +312,37 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { customer, config, toggleSection } = this.props;
 
     if (currentTab === 'customer') {
+      const detailsOnClick = () => this.onSubtabClick('details');
+      const activityOnClick = () => this.onSubtabClick('activity');
+      const relatedOnClick = () => this.onSubtabClick('related');
+
       return (
         <React.Fragment>
           <BasicInfo>
-            <InfoSection customer={customer} showUserStatus showUserPosition />
+            <InfoSection
+              customer={customer}
+              showUserStatus={true}
+              showUserPosition={true}
+            />
           </BasicInfo>
           {this.renderActions()}
 
-          <Tabs full>
+          <Tabs full={true}>
             <TabTitle
               className={currentSubTab === 'details' ? 'active' : ''}
-              onClick={() => this.onSubtabClick('details')}
+              onClick={detailsOnClick}
             >
               {__('Details')}
             </TabTitle>
             <TabTitle
               className={currentSubTab === 'activity' ? 'active' : ''}
-              onClick={() => this.onSubtabClick('activity')}
+              onClick={activityOnClick}
             >
               {__('Activity')}
             </TabTitle>
             <TabTitle
               className={currentSubTab === 'related' ? 'active' : ''}
-              onClick={() => this.onSubtabClick('related')}
+              onClick={relatedOnClick}
             >
               {__('Related')}
             </TabTitle>
@@ -345,7 +360,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showCompanies || false}
           toggle={toggleSection}
         >
-          <CompanyAssociate data={customer} />
+          <CompanyAssociate isOpen={config.showCompanies} data={customer} />
         </Box>
 
         <Box
@@ -362,19 +377,21 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   render() {
     const { currentTab } = this.state;
+    const customerOnClick = () => this.onTabClick('customer');
+    const companyOnClick = () => this.onTabClick('company');
 
     return (
-      <Sidebar full>
-        <Tabs full>
+      <Sidebar full={true}>
+        <Tabs full={true}>
           <TabTitle
             className={currentTab === 'customer' ? 'active' : ''}
-            onClick={() => this.onTabClick('customer')}
+            onClick={customerOnClick}
           >
             {__('CUSTOMER')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'company' ? 'active' : ''}
-            onClick={() => this.onTabClick('company')}
+            onClick={companyOnClick}
           >
             {__('COMPANY')}
           </TabTitle>

@@ -74,16 +74,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
       email: message.email,
       scheduleDate: message.scheduleDate
     };
-
-    this.save = this.save.bind(this);
-    this.changeState = this.changeState.bind(this);
   }
 
-  changeState<T extends keyof State>(key: T, value: State[T]) {
+  changeState = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  save(type: string, e: React.MouseEvent<Element>): Promise<any> | void {
+  save = (type: string, e: React.MouseEvent<Element>): Promise<any> | void => {
     e.preventDefault();
 
     const doc = {
@@ -122,7 +119,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     if (response.status === 'ok' && response.doc) {
       return this.props.save(response.doc);
     }
-  }
+  };
 
   render() {
     const { renderTitle } = this.props;
@@ -137,6 +134,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       scheduleDate
     } = this.state;
 
+    const onChange = e =>
+      this.changeState('title', (e.target as HTMLInputElement).value);
+
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={renderTitle()} />
@@ -144,10 +144,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
-            required
-            onChange={e =>
-              this.changeState('title', (e.target as HTMLInputElement).value)
-            }
+            required={true}
+            onChange={onChange}
             defaultValue={this.state.title}
           />
         </TitleContainer>

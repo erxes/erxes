@@ -138,7 +138,7 @@ class WorkArea extends React.Component<Props, State> {
         const optimisticResponseVariables = {
           conversationId: currentId,
           limit,
-          skip
+          skip: undefined
         };
 
         if (skip) {
@@ -213,7 +213,9 @@ class WorkArea extends React.Component<Props, State> {
         updateQuery: (prev, { fetchMoreResult }) => {
           this.setState({ loadingMessages: false });
 
-          if (!fetchMoreResult) return prev;
+          if (!fetchMoreResult) {
+            return prev;
+          }
 
           const prevMessageIds = (prev.conversationMessages || []).map(
             m => m._id

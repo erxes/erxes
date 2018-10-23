@@ -40,10 +40,10 @@ const KnowledgeBaseContainer = (props: Props) => {
   } = props;
 
   // remove action
-  const remove = _id => {
+  const remove = topicId => {
     confirm().then(() => {
       removeTopicsMutation({
-        variables: { _id }
+        variables: { _id: topicId }
       })
         .then(() => {
           topicsQuery.refetch();

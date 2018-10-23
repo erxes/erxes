@@ -4,10 +4,10 @@ import { IDeal } from './types';
 type StagesWithDeals = IStage & { deals: IDeal[] };
 
 const dealFactory = (pipeline: IPipeline, stage: IStage): IDeal => {
-  const _id = Math.random().toString();
+  const id = Math.random().toString();
 
   return {
-    _id,
+    _id: id,
     order: 1,
     stageId: stage._id,
     assignedUsers: [],
@@ -18,7 +18,7 @@ const dealFactory = (pipeline: IPipeline, stage: IStage): IDeal => {
     pipeline,
     products: [],
     amount: 10000,
-    name: `Deal_${_id}`
+    name: `Deal_${id}`
   };
 };
 
@@ -26,11 +26,11 @@ const stageFactory = (
   pipeline: IPipeline,
   dealCount: number
 ): StagesWithDeals => {
-  const _id = Math.random().toString();
+  const id = Math.random().toString();
 
   const stage: IStage = {
-    _id,
-    name: `Stage_${_id}`,
+    _id: id,
+    name: `Stage_${id}`,
     pipelineId: pipeline._id
   };
 

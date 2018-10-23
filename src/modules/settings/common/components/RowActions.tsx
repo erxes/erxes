@@ -14,7 +14,7 @@ type Props = {
   renderForm: (
     doc: { object: any; closeModal: () => void; save: () => void }
   ) => void;
-  remove: (_id: string) => void;
+  remove: (id: string) => void;
   save: () => void;
 };
 
@@ -50,14 +50,16 @@ export default class RowActions extends React.Component<Props, {}> {
       </Button>
     );
 
+    const content = props => {
+      return renderForm({ ...props, object, save });
+    };
+
     return (
       <ModalTrigger
         size={size}
         title="Edit"
         trigger={editTrigger}
-        content={props => {
-          return renderForm({ ...props, object, save });
-        }}
+        content={content}
       />
     );
   }

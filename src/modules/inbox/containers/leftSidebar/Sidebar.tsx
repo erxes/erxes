@@ -34,13 +34,11 @@ class Sidebar extends React.Component<IProps & QueryResponse> {
       totalCount
     };
 
-    return (
-      <Bulk
-        content={props => {
-          return <DumbSidebar {...updatedProps} {...props} />;
-        }}
-      />
-    );
+    const content = props => {
+      return <DumbSidebar {...updatedProps} {...props} />;
+    };
+
+    return <Bulk content={content} />;
   }
 }
 

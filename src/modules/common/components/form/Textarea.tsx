@@ -9,12 +9,6 @@ type Props = {
 class Textarea extends React.Component<Props> {
   private area;
 
-  constructor(props, context) {
-    super(props, context);
-
-    this.onChange = this.onChange.bind(this);
-  }
-
   componentDidMount() {
     this.area.style.height = `${this.area.scrollHeight}px`;
   }
@@ -28,7 +22,7 @@ class Textarea extends React.Component<Props> {
     textarea.style.height = `${textarea.scrollHeight + 1}px`;
   }
 
-  onChange(e) {
+  onChange = e => {
     const { onChange } = this.props;
 
     this.setHeight();
@@ -36,7 +30,11 @@ class Textarea extends React.Component<Props> {
     if (onChange) {
       onChange(e);
     }
-  }
+  };
+
+  setArea = area => {
+    this.area = area;
+  };
 
   render() {
     const { maxHeight, ...props } = this.props;
@@ -44,9 +42,7 @@ class Textarea extends React.Component<Props> {
     return (
       <TextArea
         {...props}
-        innerRef={area => {
-          this.area = area;
-        }}
+        innerRef={this.setArea}
         maxHeight={maxHeight}
         onChange={this.onChange}
       />

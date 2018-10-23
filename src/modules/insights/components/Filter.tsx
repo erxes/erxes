@@ -42,11 +42,11 @@ class Filter extends React.Component<Props, States> {
     };
   }
 
-  onTypeChange(value: any) {
+  onTypeChange = (value: any) => {
     const integrationType = value ? value.value : '';
     this.setState({ integrationType });
     router.setParams(this.props.history, { integrationType });
-  }
+  };
 
   onBrandChange(value: any) {
     const brandId = value ? value.value : '';
@@ -72,18 +72,21 @@ class Filter extends React.Component<Props, States> {
   renderIntegrations() {
     const integrations = INTEGRATIONS_TYPES.ALL_LIST;
 
+    const onChange = value => this.onTypeChange(value);
+    const options = option => (
+      <div className="simple-option">
+        <span>{option.label}</span>
+      </div>
+    );
+
     return (
       <FlexItem>
         <ControlLabel>Integrations</ControlLabel>
         <Select
           placeholder={__('Choose integrations')}
           value={this.state.integrationType}
-          onChange={value => this.onTypeChange(value)}
-          optionRenderer={option => (
-            <div className="simple-option">
-              <span>{option.label}</span>
-            </div>
-          )}
+          onChange={onChange}
+          optionRenderer={options}
           options={integrationOptions(integrations)}
         />
       </FlexItem>
@@ -92,6 +95,14 @@ class Filter extends React.Component<Props, States> {
 
   renderBrands() {
     const { brands } = this.props;
+
+    const onChange = value => this.onBrandChange(value);
+    const options = option => (
+      <div className="simple-option">
+        <span>{option.label}</span>
+      </div>
+    );
+
     return (
       <FlexItem>
         <ControlLabel>Brands</ControlLabel>
@@ -99,12 +110,8 @@ class Filter extends React.Component<Props, States> {
         <Select
           placeholder={__('Choose brands')}
           value={this.state.brandId}
-          onChange={value => this.onBrandChange(value)}
-          optionRenderer={option => (
-            <div className="simple-option">
-              <span>{option.label}</span>
-            </div>
-          )}
+          onChange={onChange}
+          optionRenderer={options}
           options={selectOptions(brands)}
         />
       </FlexItem>

@@ -41,7 +41,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
             alt={image}
             src={image}
             onLoad={scrollBottom}
-            full
+            full={true}
           />
         ))}
       </ImageContainer>
@@ -66,7 +66,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
           height="280"
           scrolling="no"
           frameBorder="0"
-          allowFullScreen
+          allowFullScreen={true}
         />
       );
     }
@@ -77,7 +77,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
       link.endsWith('.jpeg')
     ) {
       return (
-        <ImageContainer isComment>
+        <ImageContainer isComment={true}>
           <ImageWithPreview alt={link} src={link} onLoad={scrollBottom} />
         </ImageContainer>
       );
@@ -92,7 +92,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
           height="280"
           scrolling="no"
           frameBorder="0"
-          allowFullScreen
+          allowFullScreen={true}
         />
       );
     }

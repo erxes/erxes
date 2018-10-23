@@ -124,10 +124,12 @@ class TemplateList extends React.Component<TemplateListProps, {}> {
             style.color = '#ffffff';
           }
 
+          const onClick = () => onSelect(index);
+
           return (
             <ResponseSuggestionItem
               key={template._id}
-              onClick={() => onSelect(index)}
+              onClick={onClick}
               style={style}
             >
               <span

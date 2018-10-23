@@ -25,7 +25,9 @@ export function convertTime(second?: number) {
   const seconds = second - hours * 3600 - minutes * 60;
 
   const timeFormat = (num: number) => {
-    if (num < 10) return '0' + num.toString();
+    if (num < 10) {
+      return '0' + num.toString();
+    }
 
     return num.toString();
   };

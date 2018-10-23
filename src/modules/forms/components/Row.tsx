@@ -18,7 +18,7 @@ type Props = {
   integration: IFormIntegration;
 
   toggleBulk: (integration: IFormIntegration, checked: boolean) => void;
-  remove: (_id: string, callback: (error: Error) => void) => void;
+  remove: (integrationId: string, callback: (error: Error) => void) => void;
 
   isChecked: boolean;
 };
@@ -65,12 +65,10 @@ class Row extends React.Component<Props, {}> {
       </Button>
     );
 
+    const content = props => <Manage integration={integration} {...props} />;
+
     return (
-      <ModalTrigger
-        title="Install code"
-        trigger={trigger}
-        content={props => <Manage integration={integration} {...props} />}
-      />
+      <ModalTrigger title="Install code" trigger={trigger} content={content} />
     );
   }
 

@@ -17,7 +17,7 @@ import { ChannelRow } from './';
 type Props = {
   channels: IChannel[];
   members: IUser[];
-  remove: (_id: string) => void;
+  remove: (channelId: string) => void;
   save: (
     params: {
       doc: {
@@ -68,15 +68,17 @@ class Sidebar extends React.Component<Props, {}> {
       </HelperButtons>
     );
 
+    const content = props => (
+      <ChannelForm {...props} save={save} members={members} />
+    );
+
     return (
-      <Header uppercase>
+      <Header uppercase={true}>
         {__('Channels')}
         <ModalTrigger
           title="New Channel"
           trigger={addChannel}
-          content={props => (
-            <ChannelForm {...props} save={save} members={members} />
-          )}
+          content={content}
         />
       </Header>
     );
@@ -86,7 +88,7 @@ class Sidebar extends React.Component<Props, {}> {
     const { loading, channelsTotalCount } = this.props;
 
     return (
-      <LeftSidebar wide full header={this.renderSidebarHeader()}>
+      <LeftSidebar wide={true} full={true} header={this.renderSidebarHeader()}>
         <SidebarList>
           {this.renderItems()}
           <LoadMore all={channelsTotalCount} loading={loading} />

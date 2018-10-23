@@ -87,12 +87,12 @@ function CustomerRow({
     e.stopPropagation();
   };
 
+  const onTrClick = () => {
+    history.push(`/customers/details/${customer._id}`);
+  };
+
   return (
-    <tr
-      onClick={() => {
-        history.push(`/customers/details/${customer._id}`);
-      }}
-    >
+    <tr onClick={onTrClick}>
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}

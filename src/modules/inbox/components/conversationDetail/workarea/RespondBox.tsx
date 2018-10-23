@@ -128,7 +128,9 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   onSelectTemplate(responseTemplate?: IResponseTemplate) {
-    if (!responseTemplate) return null;
+    if (!responseTemplate) {
+      return null;
+    }
 
     return this.setState({
       responseTemplate: responseTemplate.content,
@@ -150,7 +152,9 @@ class RespondBox extends React.Component<Props, State> {
     uploadHandler({
       files,
 
-      beforeUpload: () => {},
+      beforeUpload: () => {
+        return;
+      },
 
       afterUpload: ({ response, fileInfo }) => {
         // set attachments

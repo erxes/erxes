@@ -35,7 +35,7 @@ export default class FacebookPost extends React.Component<Props, {}> {
       <PostContainer>
         <NameCard.Avatar customer={customer} />
 
-        <User isPost>
+        <User isPost={true}>
           <UserName username={data.senderName} userId={data.senderId} />
           <Date message={message} />
         </User>

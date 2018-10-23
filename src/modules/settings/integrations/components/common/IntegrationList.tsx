@@ -55,6 +55,10 @@ class IntegrationList extends React.Component<Props> {
         </Button>
       );
 
+      const content = props => (
+        <InstallCode {...props} integration={integration} />
+      );
+
       return (
         <ActionButtons>
           <Tip text={__('Edit messenger integration')}>
@@ -68,9 +72,7 @@ class IntegrationList extends React.Component<Props> {
           <ModalTrigger
             title="Install code"
             trigger={editTrigger}
-            content={props => (
-              <InstallCode {...props} integration={integration} />
-            )}
+            content={content}
           />
         </ActionButtons>
       );
@@ -86,13 +88,11 @@ class IntegrationList extends React.Component<Props> {
       return null;
     }
 
+    const onClick = () => removeIntegration(integration);
+
     return (
       <Tip text={__('Delete')}>
-        <Button
-          btnStyle="link"
-          onClick={() => removeIntegration(integration)}
-          icon="cancel-1"
-        />
+        <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
       </Tip>
     );
   }
@@ -136,19 +136,17 @@ class IntegrationList extends React.Component<Props> {
     }
 
     return (
-      <React.Fragment>
-        <Table>
-          <thead>
-            <tr>
-              <th>{__('Name')}</th>
-              <th>{__('Kind')}</th>
-              <th>{__('Brand')}</th>
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>{integrations.map(i => this.renderRow(i))}</tbody>
-        </Table>
-      </React.Fragment>
+      <Table>
+        <thead>
+          <tr>
+            <th>{__('Name')}</th>
+            <th>{__('Kind')}</th>
+            <th>{__('Brand')}</th>
+            <th>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody>{integrations.map(i => this.renderRow(i))}</tbody>
+      </Table>
     );
   }
 }

@@ -150,6 +150,9 @@ class UserDetails extends React.Component<Props, State> {
       { title: details.fullName || 'N/A' }
     ];
 
+    const conversationClick = () => this.onTabClick('conversation');
+    const notesClick = () => this.onTabClick('notes');
+
     const content = (
       <div>
         <WhiteBoxRoot>
@@ -162,16 +165,16 @@ class UserDetails extends React.Component<Props, State> {
           <NoteForm contentType="user" contentTypeId={user._id} />
         </WhiteBoxRoot>
 
-        <Tabs grayBorder>
+        <Tabs grayBorder={true}>
           <TabTitle
             className={currentTab === 'conversation' ? 'active' : ''}
-            onClick={() => this.onTabClick('conversation')}
+            onClick={conversationClick}
           >
             {__('Conversation')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
-            onClick={() => this.onTabClick('notes')}
+            onClick={notesClick}
           >
             {__('Notes')}
           </TabTitle>

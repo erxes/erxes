@@ -31,7 +31,7 @@ class Summary extends React.Component<Props> {
     if (loading) {
       return (
         <LoaderWrapper>
-          <Spinner objective />
+          <Spinner objective={true} />
         </LoaderWrapper>
       );
     }

@@ -85,6 +85,10 @@ class ChannelForm extends React.Component<Props, State> {
     const object = channel || { name: '', description: '' };
     const self = this;
 
+    const onChange = items => {
+      self.setState({ selectedMembers: items });
+    };
+
     return (
       <React.Fragment>
         <FormGroup>
@@ -94,7 +98,7 @@ class ChannelForm extends React.Component<Props, State> {
             id="channel-name"
             defaultValue={object.name}
             type="text"
-            required
+            required={true}
           />
         </FormGroup>
 
@@ -114,12 +118,10 @@ class ChannelForm extends React.Component<Props, State> {
 
           <Select
             placeholder={__('Choose members')}
-            onChange={items => {
-              self.setState({ selectedMembers: items });
-            }}
+            onChange={onChange}
             value={self.state.selectedMembers}
             options={self.generateMembersParams(members)}
-            multi
+            multi={true}
           />
         </FormGroup>
       </React.Fragment>

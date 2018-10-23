@@ -25,7 +25,7 @@ class Widget extends React.Component<
 
     if (unreadCount && unreadCount !== 0) {
       return (
-        <Label shake lblStyle="danger" ignoreTrans>
+        <Label shake={true} lblStyle="danger" ignoreTrans={true}>
           {unreadCount}
         </Label>
       );
@@ -45,7 +45,7 @@ class Widget extends React.Component<
     return (
       <OverlayTrigger
         trigger="click"
-        rootClose
+        rootClose={true}
         placement="bottom"
         containerPadding={20}
         overlay={popoverNotification}

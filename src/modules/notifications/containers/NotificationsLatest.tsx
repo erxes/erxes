@@ -23,11 +23,11 @@ class NotificationsLatestContainer extends React.Component<Props> {
     } = this.props;
 
     if (notificationsQuery.loading) {
-      return <Spinner objective />;
+      return <Spinner objective={true} />;
     }
 
-    const markAsRead = _ids => {
-      notificationsMarkAsReadMutation({ variables: { _ids } })
+    const markAsRead = notificationIds => {
+      notificationsMarkAsReadMutation({ variables: { _ids: notificationIds } })
         .then(() => {
           notificationsQuery.refetch();
           Alert.success('Notification have been seen');

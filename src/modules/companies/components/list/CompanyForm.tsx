@@ -177,11 +177,11 @@ class CompanyForm extends React.Component<Props, State> {
     }
   }
 
-  handleUserSearch(value) {
+  handleUserSearch = value => {
     if (value) {
       searchUser(value, users => this.setState({ users }));
     }
-  }
+  };
 
   renderFormGroup(label, props) {
     return (
@@ -202,6 +202,7 @@ class CompanyForm extends React.Component<Props, State> {
 
   render() {
     const company = this.props.company || ({} as ICompany);
+    const { closeModal } = this.props;
 
     const {
       links = {},
@@ -215,8 +216,12 @@ class CompanyForm extends React.Component<Props, State> {
 
     const { parentCompanyId, ownerId, companies, users } = this.state;
 
+    const filterOptions = options => {
+      return options;
+    };
+
     return (
-      <form onSubmit={e => this.action(e)}>
+      <form onSubmit={this.action}>
         <AvatarUpload
           avatar={company.avatar}
           onAvatarUpload={this.onAvatarUpload}
@@ -231,7 +236,7 @@ class CompanyForm extends React.Component<Props, State> {
                 options={names || []}
                 placeholder="Primary name"
                 buttonText="Add name"
-                onChange={obj => this.onChange(obj, 'names', 'primaryName')}
+                onChange={this.onChange.bind(this, 'names', 'primaryName')}
               />
             </FormGroup>
 
@@ -246,10 +251,10 @@ class CompanyForm extends React.Component<Props, State> {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search"
-                onFocus={() => this.handleUserSearch(' ')}
+                onFocus={this.handleUserSearch}
                 onInputChange={this.handleUserSearch}
-                filterOptions={options => options}
-                onChange={option => this.handleSelect(option, 'ownerId')}
+                filterOptions={filterOptions}
+                onChange={this.handleSelect.bind(this, 'ownerId')}
                 value={ownerId}
                 options={this.generateUserParams(users)}
               />
@@ -262,7 +267,7 @@ class CompanyForm extends React.Component<Props, State> {
                 options={emails || []}
                 placeholder="Primary Email"
                 buttonText="Add email"
-                onChange={obj => this.onChange(obj, 'emails', 'primaryEmail')}
+                onChange={this.onChange.bind(this, 'emails', 'primaryEmail')}
               />
             </FormGroup>
 
@@ -289,12 +294,10 @@ class CompanyForm extends React.Component<Props, State> {
               <ControlLabel>Parent Company</ControlLabel>
               <Select
                 placeholder={__('Search')}
-                onFocus={() => this.handleCompanySearch(' ')}
+                onFocus={this.handleCompanySearch.bind(this, ' ')}
                 onInputChange={this.handleCompanySearch}
-                filterOptions={options => options}
-                onChange={option =>
-                  this.handleSelect(option, 'parentCompanyId')
-                }
+                filterOptions={filterOptions}
+                onChange={this.handleSelect.bind(this, 'parentCompanyId')}
                 value={parentCompanyId}
                 options={this.generateCompanyParams(companies)}
               />
@@ -317,7 +320,7 @@ class CompanyForm extends React.Component<Props, State> {
                 options={phones || []}
                 placeholder="Primary phone"
                 buttonText="Add phone"
-                onChange={obj => this.onChange(obj, 'phones', 'primaryPhone')}
+                onChange={this.onChange.bind(this, 'phones', 'primaryPhone')}
               />
             </FormGroup>
 
@@ -383,13 +386,7 @@ class CompanyForm extends React.Component<Props, State> {
         </FormWrapper>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={() => {
-              this.props.closeModal();
-            }}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Close
           </Button>
 

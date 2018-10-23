@@ -63,7 +63,7 @@ class ModalTrigger extends React.Component<Props, State> {
           show={isOpen}
           onHide={this.closeModal}
         >
-          <Modal.Header closeButton>
+          <Modal.Header closeButton={true}>
             <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
           </Modal.Header>
           <Modal.Body>

@@ -59,7 +59,7 @@ class BoardForm extends React.Component<Props, {}> {
             id="channel-name"
             defaultValue={object.name}
             type="text"
-            required
+            required={true}
           />
         </FormGroup>
       </div>

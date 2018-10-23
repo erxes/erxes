@@ -30,13 +30,15 @@ const UserDetailContainer = (props: Props) => {
       });
   };
 
+  const editForm = ({ closeModal, user }) => (
+    <UserForm object={user} closeModal={closeModal} save={save} />
+  );
+
   return (
     <UserDetailForm
       _id={_id}
       queryParams={queryParams}
-      renderEditForm={({ closeModal, user }) => (
-        <UserForm object={user} closeModal={closeModal} save={save} />
-      )}
+      renderEditForm={editForm}
     />
   );
 };

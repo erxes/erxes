@@ -50,7 +50,9 @@ class UserCounter extends React.Component<Props, { show: boolean }> {
     const { users } = this.props;
     const length = users.length;
 
-    if (length === 0) return null;
+    if (length === 0) {
+      return null;
+    }
 
     return (
       <UserCounterContainer>

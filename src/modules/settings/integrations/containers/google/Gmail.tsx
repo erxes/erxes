@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-import { queries } from 'modules/auth/graphql';
 import { Spinner } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { queries as brandsQueries } from 'modules/settings/brands/graphql';
@@ -28,7 +27,7 @@ const GmailContainer = (props: Props) => {
   } = props;
 
   if (brandsQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const authUrl =

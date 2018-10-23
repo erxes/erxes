@@ -1,3 +1,4 @@
+// tslint:disable
 const en = require('./en.json');
 const mn = require('./mn.json');
 

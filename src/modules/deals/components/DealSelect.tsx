@@ -20,17 +20,21 @@ type Props = {
 };
 
 class DealSelect extends React.Component<Props> {
+  renderOptions = option => {
+    return (
+      <div className="simple-option">
+        <span>{option.label}</span>
+      </div>
+    );
+  };
+
   renderSelect(placeholder, value, onChange, options) {
     return (
       <Select
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        optionRenderer={option => (
-          <div className="simple-option">
-            <span>{option.label}</span>
-          </div>
-        )}
+        optionRenderer={this.renderOptions}
         options={options}
         clearable={false}
       />

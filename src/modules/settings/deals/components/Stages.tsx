@@ -25,11 +25,11 @@ class Stages extends React.Component<Props, {}> {
     }
   }
 
-  onChange(_id, e) {
+  onChange(stageId, e) {
     const { name, value } = e.target;
     const { stages, onChangeStages } = this.props;
 
-    const stage = stages.find(s => s._id === _id);
+    const stage = stages.find(s => s._id === stageId);
     stage[name] = value;
 
     onChangeStages(stages);
@@ -46,10 +46,10 @@ class Stages extends React.Component<Props, {}> {
     onChangeStages(stages);
   }
 
-  remove(_id) {
+  remove(stageId) {
     const { stages, onChangeStages } = this.props;
 
-    const remainedStages = stages.filter(stage => stage._id !== _id);
+    const remainedStages = stages.filter(stage => stage._id !== stageId);
 
     onChangeStages(remainedStages);
   }

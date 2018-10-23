@@ -8,7 +8,7 @@ import { BoardForm } from './';
 
 type Props = {
   board: IBoard;
-  remove: (_id: string) => void;
+  remove: (boardId: string) => void;
   save: (
     params: { doc: { name: string } },
     callback: () => void,
@@ -43,12 +43,14 @@ class BoardRow extends React.Component<Props, {}> {
       </Button>
     );
 
+    const content = props => <BoardForm {...props} board={board} save={save} />;
+
     return (
       <ModalTrigger
         size={this.size}
         title="Edit"
         trigger={editTrigger}
-        content={props => <BoardForm {...props} board={board} save={save} />}
+        content={content}
       />
     );
   }

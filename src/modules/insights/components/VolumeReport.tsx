@@ -59,13 +59,13 @@ class VolumeReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderTrend(name, loading, trend, width) {
+  renderTrend(name, loading, trend) {
+    const innerRef = node => {
+      this.wrapper = node;
+    };
+
     return (
-      <InsightRow
-        innerRef={node => {
-          this.wrapper = node;
-        }}
-      >
+      <InsightRow innerRef={innerRef}>
         {this.renderTitle(name)}
         <Chart loading={loading.main} height={360} data={trend} />
       </InsightRow>
@@ -75,7 +75,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   renderPunchCard(loading, punch, width) {
     let content = (
       <LoaderWrapper>
-        <Spinner objective />
+        <Spinner objective={true} />
       </LoaderWrapper>
     );
 
@@ -110,7 +110,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
           <Summary loading={loading.main} data={summary} />
         </InsightRow>
 
-        {this.renderTrend('Volume Trend', loading, trend, width)}
+        {this.renderTrend('Volume Trend', loading, trend)}
 
         {this.renderPunchCard(loading, punch, width)}
 

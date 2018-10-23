@@ -18,12 +18,15 @@ class Option extends React.Component<OptionProps> {
       padding: '8px 20px'
     };
 
+    const onClick = e => onSelect(option, e);
+    const onRemoveClick = () => onRemove(option.value);
+
     return (
-      <div style={style} onClick={e => onSelect(option, e)}>
+      <div style={style} onClick={onClick}>
         <span style={{ float: 'left' }}>{option.label}</span>
         <Icon
           style={{ float: 'right' }}
-          onClick={() => onRemove(option.value)}
+          onClick={onRemoveClick}
           icon="cancel-1"
         />
       </div>
@@ -55,7 +58,6 @@ class ModifiableSelect extends React.Component<Props, State> {
       selectedOption: props.value
     };
 
-    this.handleSave = this.handleSave.bind(this);
     this.handleAdding = this.handleAdding.bind(this);
     this.handleCancelAdding = this.handleCancelAdding.bind(this);
     this.renderInput = this.renderInput.bind(this);
@@ -80,7 +82,7 @@ class ModifiableSelect extends React.Component<Props, State> {
     return <span>{selectedOption}</span>;
   }
 
-  handleSave() {
+  handleSave = () => {
     const { options, selectedOption } = this.state;
     const { onChange } = this.props;
     const value = (document.getElementById(
@@ -104,7 +106,7 @@ class ModifiableSelect extends React.Component<Props, State> {
     (document.getElementById(
       'removableSelect-value'
     ) as HTMLInputElement).value = '';
-  }
+  };
 
   handleAdding() {
     this.setState({ adding: true });
@@ -151,15 +153,19 @@ class ModifiableSelect extends React.Component<Props, State> {
     const { buttonText } = this.props;
 
     if (this.state.adding) {
+      const onPress = e => {
+        if (e.key === 'Enter') {
+          return this.handleSave();
+        }
+      };
+
       return (
         <React.Fragment>
           <FormGroup>
             <FormControl
               id="removableSelect-value"
-              autoFocus
-              onKeyPress={e => {
-                if (e.key === 'Enter') this.handleSave();
-              }}
+              autoFocus={true}
+              onKeyPress={onPress}
             />
           </FormGroup>
           <Button
@@ -195,6 +201,8 @@ class ModifiableSelect extends React.Component<Props, State> {
     const { placeholder } = this.props;
     const { selectedOption } = this.state;
 
+    const onChange = obj => this.setItem(obj);
+
     return (
       <React.Fragment>
         <FormGroup>
@@ -203,7 +211,7 @@ class ModifiableSelect extends React.Component<Props, State> {
             searchable={false}
             value={selectedOption}
             valueComponent={this.renderValue}
-            onChange={obj => this.setItem(obj)}
+            onChange={onChange}
             options={this.generateOptions()}
             optionComponent={Option}
           />

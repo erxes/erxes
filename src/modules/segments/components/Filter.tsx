@@ -13,7 +13,7 @@ import { ISegment } from '../types';
 
 type Props = {
   currentSegment?: string;
-  setSegment: (_id: string) => void;
+  setSegment: (segmentId: string) => void;
   removeSegment: () => void;
   contentType?: string;
   counts?: any;
@@ -30,7 +30,7 @@ class Segments extends React.Component<Props> {
     }
 
     return (
-      <a tabIndex={0} onClick={() => removeSegment()}>
+      <a tabIndex={0} onClick={removeSegment}>
         <Icon icon="cancel-1" />
       </a>
     );
@@ -45,7 +45,7 @@ class Segments extends React.Component<Props> {
         <Dropdown
           id="dropdown-user"
           className="quick-button"
-          pullRight
+          pullRight={true}
           style={{ verticalAlign: 'top', float: 'left' }}
         >
           <DropdownToggle bsRole="toggle">
@@ -82,6 +82,8 @@ class Segments extends React.Component<Props> {
       }
     });
 
+    const onClick = segment => setSegment(segment._id);
+
     return (
       <SidebarList>
         {orderedSegments.map(segment => (
@@ -92,7 +94,7 @@ class Segments extends React.Component<Props> {
             <a
               tabIndex={0}
               className={currentSegment === segment._id ? 'active' : ''}
-              onClick={() => setSegment(segment._id)}
+              onClick={onClick}
             >
               {segment.subOf ? '\u00a0\u00a0' : null}
               <Icon
@@ -116,7 +118,7 @@ class Segments extends React.Component<Props> {
 
     return (
       <Section collapsible={segments.length > 5}>
-        <Header uppercase>{__('Filter by segments')}</Header>
+        <Header uppercase={true}>{__('Filter by segments')}</Header>
 
         {this.renderQuickBtns()}
 

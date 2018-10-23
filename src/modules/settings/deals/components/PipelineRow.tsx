@@ -6,12 +6,14 @@ import { IPipeline } from '../types';
 type Props = {
   pipeline: IPipeline;
   edit: () => void;
-  remove: (_id: string) => void;
+  remove: (pipelineId: string) => void;
 };
 
 class PipelineRow extends React.Component<Props> {
   renderExtraLinks() {
     const { edit, remove, pipeline } = this.props;
+
+    const onClick = () => remove(pipeline._id);
 
     return (
       <ActionButtons>
@@ -19,11 +21,7 @@ class PipelineRow extends React.Component<Props> {
           <Button btnStyle="link" onClick={edit} icon="edit" />
         </Tip>
         <Tip text="Delete">
-          <Button
-            btnStyle="link"
-            onClick={() => remove(pipeline._id)}
-            icon="cancel-1"
-          />
+          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
         </Tip>
       </ActionButtons>
     );

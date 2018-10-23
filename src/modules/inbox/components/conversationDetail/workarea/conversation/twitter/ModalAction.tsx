@@ -67,7 +67,9 @@ class ModalAction extends React.Component<Props, State> {
   getCharacterCount(character?: string) {
     const maxChar = 280;
 
-    if (!character) return maxChar;
+    if (!character) {
+      return maxChar;
+    }
 
     return maxChar - character.length;
   }
@@ -120,7 +122,9 @@ class ModalAction extends React.Component<Props, State> {
     } = this.props;
     const twitterData = parentMessage.twitterData;
 
-    if (!twitterData) return null;
+    if (!twitterData) {
+      return null;
+    }
 
     const id = twitterData.id_str;
 
@@ -177,21 +181,19 @@ class ModalAction extends React.Component<Props, State> {
           </TweetInfo>
 
           <FormControl
-            autoFocus
+            autoFocus={true}
             componentClass="textarea"
             disabled={type === 'retweet'}
             onChange={this.onTweetContentChange}
             defaultValue={this.getContent()}
-            required
+            required={true}
           />
         </FormGroup>
 
         <Footer>
           <Button
             btnStyle="simple"
-            onClick={() => {
-              this.props.closeModal();
-            }}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Close

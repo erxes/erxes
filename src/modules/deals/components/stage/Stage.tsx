@@ -36,12 +36,10 @@ export default class Stage extends React.Component<Props> {
       </StageFooter>
     );
 
+    const content = props => <DealAddForm {...props} add={addDeal} />;
+
     return (
-      <ModalTrigger
-        title="Add a deal"
-        trigger={trigger}
-        content={props => <DealAddForm {...props} add={addDeal} />}
-      />
+      <ModalTrigger title="Add a deal" trigger={trigger} content={content} />
     );
   }
 

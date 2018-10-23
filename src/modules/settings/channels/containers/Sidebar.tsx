@@ -48,10 +48,10 @@ const SidebarContainer = (props: Props) => {
   const channelsTotalCount = channelsCountQuery.channelsTotalCount || 0;
 
   // remove action
-  const remove = _id => {
+  const remove = channelId => {
     confirm().then(() => {
       removeMutation({
-        variables: { _id }
+        variables: { _id: channelId }
       })
         .then(() => {
           Alert.success('Successfully deleted.');

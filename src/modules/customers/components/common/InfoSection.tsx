@@ -65,6 +65,10 @@ class InfoSection extends React.Component<Props> {
     const { customer } = this.props;
     const { links = {}, isUser } = customer;
 
+    const customerForm = props => {
+      return <CustomerForm {...props} size="lg" customer={customer} />;
+    };
+
     return (
       <InfoWrapper>
         <AvatarWrapper isUser={isUser}>
@@ -83,9 +87,7 @@ class InfoSection extends React.Component<Props> {
           title="Edit basic info"
           trigger={<Icon icon="edit" />}
           size="lg"
-          content={props => (
-            <CustomerForm {...props} size="lg" customer={customer} />
-          )}
+          content={customerForm}
         />
       </InfoWrapper>
     );

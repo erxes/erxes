@@ -36,7 +36,7 @@ class Calendar extends React.Component<Props> {
           <FormGroup>
             <ControlLabel>Name</ControlLabel>
 
-            <FormControl id="name" type="text" required />
+            <FormControl id="name" type="text" required={true} />
           </FormGroup>
 
           <ModalFooter>

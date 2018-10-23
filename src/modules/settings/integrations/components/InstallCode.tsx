@@ -64,16 +64,17 @@ class InstallCode extends React.Component<Props, State> {
     };
   }
 
+  onCopy = () => {
+    this.setState({ copied: true });
+  };
+
   render() {
     return (
       <React.Fragment>
         <MarkdownWrapper>
           <ReactMarkdown source={this.state.code} />
           {this.state.code ? (
-            <CopyToClipboard
-              text={this.state.code}
-              onCopy={() => this.setState({ copied: true })}
-            >
+            <CopyToClipboard text={this.state.code} onCopy={this.onCopy}>
               <Button size="small" btnStyle="primary" icon="copy">
                 {this.state.copied ? 'Copied' : 'Copy to clipboard'}
               </Button>

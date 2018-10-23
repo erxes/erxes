@@ -11,7 +11,9 @@ const uploadHandler = params => {
     extraFormData = []
   } = params;
 
-  if (files.length === 0) return;
+  if (files.length === 0) {
+    return;
+  }
 
   for (const file of files) {
     // initiate upload file reader
@@ -54,7 +56,7 @@ const uploadHandler = params => {
         })
 
         .catch(e => {
-          console.log(e); // eslint-disable-line
+          console.log(e); // tslint:disable-line
         });
     };
 

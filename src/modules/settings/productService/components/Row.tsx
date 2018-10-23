@@ -22,7 +22,7 @@ type Doc = {
 
 type Props = {
   product: IProduct;
-  remove: (_id: string) => void;
+  remove: (productId: string) => void;
   save: (doc: Doc, callback: () => void, product?: IProduct) => void;
 };
 
@@ -56,12 +56,10 @@ class Row extends React.Component<Props> {
       </Button>
     );
 
+    const content = props => <Form {...props} product={product} save={save} />;
+
     return (
-      <ModalTrigger
-        title="Edit"
-        trigger={editTrigger}
-        content={props => <Form {...props} product={product} save={save} />}
-      />
+      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
   }
 

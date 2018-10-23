@@ -20,34 +20,28 @@ type Props = {
 };
 
 class ManageIntegrationsContainer extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.save = this.save.bind(this);
-  }
-
   renderConfirm(integration: IIntegration, actionTrigger, icon, handleChange) {
     if (icon === 'add') {
       return null;
     }
+
+    const onSave = () => handleChange(icon, integration);
+
+    const content = props => (
+      <ChooseBrand {...props} integration={integration} onSave={onSave} />
+    );
 
     return (
       <ModalTrigger
         key={integration._id}
         title="Choose new brand"
         trigger={actionTrigger}
-        content={props => (
-          <ChooseBrand
-            {...props}
-            integration={integration}
-            onSave={() => handleChange(icon, integration)}
-          />
-        )}
+        content={content}
       />
     );
   }
 
-  save(integrationIds) {
+  save = integrationIds => {
     const { currentBrand, saveMutation } = this.props;
 
     saveMutation({
@@ -62,7 +56,7 @@ class ManageIntegrationsContainer extends React.Component<Props> {
       .catch(e => {
         Alert.error(e.message);
       });
-  }
+  };
 
   render() {
     const { currentBrand } = this.props;

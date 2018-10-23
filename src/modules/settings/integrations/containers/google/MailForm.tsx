@@ -40,7 +40,7 @@ const MailFormContainer = (props: Props) => {
   } = props;
 
   if (gmailIntegrationsQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const integrations = gmailIntegrationsQuery.integrations || [];

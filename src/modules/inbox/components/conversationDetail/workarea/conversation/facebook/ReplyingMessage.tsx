@@ -69,20 +69,18 @@ class ReplyingMessage extends React.Component<Props, State> {
       <form onSubmit={this.doAction}>
         <FormGroup>
           <FormControl
-            autoFocus
+            autoFocus={true}
             componentClass="textarea"
             onChange={this.onContentChange}
             defaultValue={this.getContent()}
-            required
+            required={true}
           />
         </FormGroup>
 
         <Footer>
           <Button
             btnStyle="simple"
-            onClick={() => {
-              this.props.closeModal();
-            }}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Close

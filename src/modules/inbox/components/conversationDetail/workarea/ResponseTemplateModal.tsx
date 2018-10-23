@@ -60,7 +60,7 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
 
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <FormControl id="template-name" type="text" required />
+          <FormControl id="template-name" type="text" required={true} />
         </FormGroup>
 
         <ModalFooter>

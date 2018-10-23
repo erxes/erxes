@@ -34,7 +34,7 @@ const TopicAddFormContainer = ({
   ...props
 }: Props) => {
   if (getBrandListQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const updatedProps = {

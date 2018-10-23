@@ -48,11 +48,11 @@ class ForgotPassword extends React.Component<Props, { email: string }> {
               type="email"
               placeholder={__('registered@email.com')}
               value={this.state.email}
-              required
+              required={true}
               onChange={this.handleEmailChange}
             />
           </FormGroup>
-          <Button btnStyle="success" type="submit" block>
+          <Button btnStyle="success" type="submit" block={true}>
             Email me the instruction
           </Button>
         </form>

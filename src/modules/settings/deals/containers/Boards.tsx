@@ -30,14 +30,14 @@ class BoardsContainer extends React.Component<IProps> {
     const boards = boardsQuery.dealBoards || [];
 
     // remove action
-    const remove = _id => {
+    const remove = boardId => {
       confirm().then(() => {
         removeMutation({
-          variables: { _id }
+          variables: { _id: boardId }
         })
           .then(() => {
             // if deleted board is default board
-            if (localStorage.getItem(STORAGE_BOARD_KEY) === _id) {
+            if (localStorage.getItem(STORAGE_BOARD_KEY) === boardId) {
               localStorage.removeItem(STORAGE_BOARD_KEY);
             }
 

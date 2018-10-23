@@ -81,6 +81,16 @@ class BasicInfo extends React.Component<Props> {
   renderAction() {
     const { remove, merge, company } = this.props;
 
+    const targetMergeOptions = companies => {
+      return companies.map((c, key) => ({
+        key,
+        value: JSON.stringify(c),
+        label: c.primaryName || c.website || 'N/A'
+      }));
+    };
+
+    const onDelete = () => confirm().then(() => remove());
+
     return (
       <Action>
         <Dropdown id="dropdown-engage">
@@ -96,19 +106,11 @@ class BasicInfo extends React.Component<Props> {
                 object={company}
                 searchObject={searchCompany}
                 mergeForm={CompaniesMerge}
-                generateOptions={companies => {
-                  return companies.map((c, key) => ({
-                    key,
-                    value: JSON.stringify(c),
-                    label: c.primaryName || c.website || 'N/A'
-                  }));
-                }}
+                generateOptions={targetMergeOptions}
               />
             </li>
             <li>
-              <a onClick={() => confirm().then(() => remove())}>
-                {__('Delete')}
-              </a>
+              <a onClick={onDelete}>{__('Delete')}</a>
             </li>
           </Dropdown.Menu>
         </Dropdown>
@@ -119,6 +121,8 @@ class BasicInfo extends React.Component<Props> {
   renderInfo() {
     const { company } = this.props;
     const { links = {} } = company;
+
+    const content = props => <CompanyForm {...props} company={company} />;
 
     return (
       <Sidebar.Section>
@@ -135,7 +139,7 @@ class BasicInfo extends React.Component<Props> {
             title="Edit basic info"
             trigger={<Icon icon="edit" />}
             size="lg"
-            content={props => <CompanyForm {...props} company={company} />}
+            content={content}
           />
         </InfoWrapper>
 

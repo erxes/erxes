@@ -93,7 +93,7 @@ const IntegrationItem = styledTS(styled.div)`
 
 const CollapsibleContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 5px;
   background: ${collapsibleBackground};
   transition: height ease 0.3s;
 `;

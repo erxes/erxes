@@ -42,7 +42,9 @@ class FilterableList extends React.Component<Props, State> {
     // onExit hook
     const { onExit } = this.props;
 
-    if (onExit) onExit(this.state.items);
+    if (onExit) {
+      onExit(this.state.items);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -67,7 +69,9 @@ class FilterableList extends React.Component<Props, State> {
     // onClick hook
     const { onClick } = this.props;
 
-    if (onClick) onClick(items, id);
+    if (onClick) {
+      onClick(items, id);
+    }
   }
 
   renderItems() {
@@ -80,13 +84,13 @@ class FilterableList extends React.Component<Props, State> {
         return false;
       }
 
+      const onClick = () => this.toggleItem(item._id);
+
       return (
         <li
           key={item._id}
           className={showCheckmark ? item.selectedBy : ''}
-          onClick={() => {
-            this.toggleItem(item._id);
-          }}
+          onClick={onClick}
         >
           {item.iconClass ? (
             <i

@@ -44,7 +44,9 @@ export default class FacebookComment extends React.Component<Props, {}> {
 
     return (
       <ReplyReaction>
-        {data.reactions && <Reactions reactions={data.reactions} comment />}
+        {data.reactions && (
+          <Reactions reactions={data.reactions} comment={true} />
+        )}
         <a>{data.likeCount}</a>
       </ReplyReaction>
     );
@@ -64,6 +66,16 @@ export default class FacebookComment extends React.Component<Props, {}> {
     if (message.content.includes('youtube.com')) {
       commentVideo = message.content;
     }
+
+    const content = props => (
+      <ReplyingMessage
+        conversationId={message.conversationId}
+        commentId={data.commentId}
+        currentUserName={data.senderName}
+        replyPost={replyPost}
+        {...props}
+      />
+    );
 
     return (
       <ChildPost isReply={data.parentId}>
@@ -87,15 +99,7 @@ export default class FacebookComment extends React.Component<Props, {}> {
             <ModalTrigger
               title="Reply"
               trigger={<a> Reply •</a>}
-              content={props => (
-                <ReplyingMessage
-                  conversationId={message.conversationId}
-                  commentId={data.commentId}
-                  currentUserName={data.senderName}
-                  replyPost={replyPost}
-                  {...props}
-                />
-              )}
+              content={content}
             />
           </Reply>
 

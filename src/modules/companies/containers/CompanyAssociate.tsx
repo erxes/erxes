@@ -15,6 +15,7 @@ type Props = {
     }
   ) => Promise<any>;
   data: any;
+  isOpen?: boolean;
 };
 
 const CompanyAssociate = (props: Props) => {

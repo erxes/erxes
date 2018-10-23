@@ -21,7 +21,7 @@ type Props = {
   isDragging: boolean;
   provided;
   onAdd: (stageId: string, deal: IDeal) => void;
-  onRemove: (_id: string, stageId: string) => void;
+  onRemove: (dealId: string, stageId: string) => void;
   onUpdate: (deal: IDeal) => void;
 };
 
@@ -36,7 +36,9 @@ export default class DealItem extends React.PureComponent<
   }
 
   renderDate(date) {
-    if (!date) return null;
+    if (!date) {
+      return null;
+    }
 
     return <Date>{moment(date).fromNow()}</Date>;
   }
@@ -57,7 +59,7 @@ export default class DealItem extends React.PureComponent<
 
     return (
       <Modal bsSize="lg" show={true} onHide={this.toggleForm}>
-        <Modal.Header closeButton>
+        <Modal.Header closeButton={true}>
           <Modal.Title>{__('Edit deal')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>

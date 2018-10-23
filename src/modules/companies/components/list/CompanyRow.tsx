@@ -25,18 +25,16 @@ function isTimeStamp(value) {
 }
 
 function createLinkFromUrl(url) {
-  if (!url.includes('http')) url = 'http://' + url;
+  if (!url.includes('http')) {
+    url = 'http://' + url;
+  }
 
-  return (
-    <a
-      onClick={e => {
-        e.stopPropagation();
-        window.open(url);
-      }}
-    >
-      {urlParser.extractRootDomain(url)}
-    </a>
-  );
+  const onClick = e => {
+    e.stopPropagation();
+    window.open(url);
+  };
+
+  return <a onClick={onClick}>{urlParser.extractRootDomain(url)}</a>;
 }
 
 function formatValue(value) {
@@ -92,12 +90,12 @@ function CompanyRow({
     e.stopPropagation();
   };
 
+  const onTrClick = () => {
+    history.push(`companies/details/${company._id}`);
+  };
+
   return (
-    <tr
-      onClick={() => {
-        history.push(`companies/details/${company._id}`);
-      }}
-    >
+    <tr onClick={onTrClick}>
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}

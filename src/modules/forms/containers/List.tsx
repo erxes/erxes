@@ -31,9 +31,9 @@ class ListContainer extends React.Component<Props, {}> {
 
     const integrations = integrationsQuery.integrations || [];
 
-    const remove = (_id: string, callback: (error?: any) => void) => {
+    const remove = (integrationId: string, callback: (error?: any) => void) => {
       removeMutation({
-        variables: { _id }
+        variables: { _id: integrationId }
       }).then(() => {
         // refresh queries
         integrationsQuery.refetch();
@@ -53,17 +53,16 @@ class ListContainer extends React.Component<Props, {}> {
       tags: tagsQuery.tags || []
     };
 
-    return (
-      <Bulk
-        content={props => {
-          return <List {...updatedProps} {...props} />;
-        }}
-        refetch={() => {
-          this.props.integrationsQuery.refetch();
-          this.props.integrationsTotalCountQuery.refetch();
-        }}
-      />
-    );
+    const content = props => {
+      return <List {...updatedProps} {...props} />;
+    };
+
+    const refetch = () => {
+      this.props.integrationsQuery.refetch();
+      this.props.integrationsTotalCountQuery.refetch();
+    };
+
+    return <Bulk content={content} refetch={refetch} />;
   }
 }
 

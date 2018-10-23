@@ -21,14 +21,14 @@ export default class ConversationDetail extends React.Component<Props> {
 
     if (loading) {
       return (
-        <EmptySidebar full>
+        <EmptySidebar full={true}>
           <Spinner />
         </EmptySidebar>
       );
     }
 
     return (
-      <EmptySidebar full>
+      <EmptySidebar full={true}>
         <EmptyState
           text="Customer not found"
           size="small"

@@ -191,7 +191,9 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
     this.toggleInlineStyle = this.toggleInlineStyle.bind(this);
   }
 
-  focus() {}
+  focus() {
+    return;
+  }
 
   onTab(e) {
     const { onChange, editorState } = this.props;
@@ -287,7 +289,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
             // tslint:disable-next-line:jsx-no-string-ref
             ref="editor"
             plugins={this.props.plugins}
-            spellCheck
+            spellCheck={true}
             handlePastedFiles={this.handlePastedFile}
           />
         </div>

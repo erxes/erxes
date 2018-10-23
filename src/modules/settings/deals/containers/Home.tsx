@@ -36,7 +36,7 @@ const LastBoard = (props: LastBoardProps) => {
   const { boardGetLastQuery } = props;
 
   if (boardGetLastQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const lastBoard = boardGetLastQuery.dealBoardGetLast || {};

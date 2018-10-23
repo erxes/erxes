@@ -65,16 +65,13 @@ class VisitorForm extends React.Component<Props, State> {
       messenger: message.messenger,
       scheduleDate: message.scheduleDate
     };
-
-    this.save = this.save.bind(this);
-    this.changeState = this.changeState.bind(this);
   }
 
-  changeState<T extends keyof State>(key: T, value: State[T]) {
+  changeState = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  save(type: string, e: React.MouseEvent<Element>): Promise<any> | void {
+  save = (type: string, e: React.MouseEvent<Element>): Promise<any> | void => {
     e.preventDefault();
 
     const messenger = this.state.messenger || ({} as IEngageMessenger);
@@ -98,7 +95,7 @@ class VisitorForm extends React.Component<Props, State> {
     if (response.status === 'ok' && response.doc) {
       return this.props.save(response.doc);
     }
-  }
+  };
 
   render() {
     const {
@@ -110,18 +107,16 @@ class VisitorForm extends React.Component<Props, State> {
       scheduleDate
     } = this.state;
 
+    const onChange = e =>
+      this.changeState('title', (e.target as HTMLInputElement).value);
+
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={this.props.renderTitle()} />
 
         <TitleContainer>
           <div>{__('Title')}</div>
-          <FormControl
-            onChange={e =>
-              this.changeState('title', (e.target as HTMLInputElement).value)
-            }
-            defaultValue={this.state.title}
-          />
+          <FormControl onChange={onChange} defaultValue={this.state.title} />
         </TitleContainer>
 
         <Steps maxStep={maxStep} active={activeStep}>
