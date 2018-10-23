@@ -53,7 +53,7 @@ class SignIn extends React.Component<Props, State> {
           <FormGroup>
             <FormControl
               type="email"
-              placeholder={__('your@email.com')}
+              placeholder={__('demo@erxes.io')}
               value={this.state.email}
               required={true}
               onChange={this.handleEmailChange}
@@ -62,7 +62,7 @@ class SignIn extends React.Component<Props, State> {
           <FormGroup>
             <FormControl
               type="password"
-              placeholder={__('password')}
+              placeholder={__('demo')}
               value={this.state.password}
               required={true}
               onChange={this.handlePasswordChange}
