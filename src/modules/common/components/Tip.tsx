@@ -10,6 +10,7 @@ type Props = {
 function Tip({ text, children, placement }: Props) {
   const tooltip = <Tooltip id="tooltip">{text}</Tooltip>;
   const placementValue = placement || 'top';
+
   return (
     <OverlayTrigger
       overlay={tooltip}

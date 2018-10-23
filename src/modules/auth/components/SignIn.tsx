@@ -21,29 +21,25 @@ class SignIn extends React.Component<Props, State> {
       email: '',
       password: ''
     };
-
-    this.login = this.login.bind(this);
-    this.handleEmailChange = this.handleEmailChange.bind(this);
-    this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
 
-  login(e) {
+  login = e => {
     e.preventDefault();
 
     const { email, password } = this.state;
 
     this.props.login({ email, password });
-  }
+  };
 
-  handleEmailChange(e) {
+  handleEmailChange = e => {
     e.preventDefault();
     this.setState({ email: e.target.value });
-  }
+  };
 
-  handlePasswordChange(e) {
+  handlePasswordChange = e => {
     e.preventDefault();
     this.setState({ password: e.target.value });
-  }
+  };
 
   render() {
     return (
