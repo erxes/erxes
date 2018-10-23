@@ -66,7 +66,7 @@ class Home extends React.Component<Props, State> {
 
     return (
       <div className="assist-bar">
-        <time>{moment(new Date()).format("MMMM Do YYYY, h:mm a")}</time>
+        <time>{moment(new Date()).format("lll")}</time>
         <div className="socials">
           <SocialLink url={links.facebook} icon={facebook} />
           <SocialLink url={links.twitter} icon={twitter} />

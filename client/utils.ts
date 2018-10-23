@@ -1,6 +1,7 @@
 /* global FileReader */
 import T from "i18n-react";
 import * as moment from "moment";
+import "moment/locale/mn";
 import translation from "../locales";
 import { IBrowserInfo } from "./types";
 
@@ -73,50 +74,11 @@ export const requestBrowserInfo = ({
 };
 
 export const setMomentLocale = (code: string) => {
-  moment.updateLocale("en", {
-    relativeTime: {
-      future: "in %s",
-      past: "%s ",
-      s: "s",
-      ss: "%d s",
-      m: "m",
-      mm: "%d m",
-      h: "h",
-      hh: "%d h",
-      d: "d",
-      dd: "%d d",
-      M: "a mth",
-      MM: "%d mths",
-      y: "y",
-      yy: "%d y"
-    }
-  });
-
-  moment.defineLocale("mn", {
-    relativeTime: {
-      future: "%s дараа",
-      past: "%s өмнө",
-      s: "саяхан",
-      ss: "$d секундын",
-      m: "минутын",
-      mm: "%d минутын",
-      h: "1 цагийн",
-      hh: "%d цагийн",
-      d: "1 өдрийн",
-      dd: "%d өдрийн",
-      M: "1 сарын",
-      MM: "%d сарын",
-      y: "1 жилийн",
-      yy: "%d жилийн"
-    }
-  });
-
   moment.locale(code);
 };
 
 export const setLocale = (code?: string) => {
   T.setTexts(translation[code || "en"]);
-
   setMomentLocale(code || "en");
 };
 
