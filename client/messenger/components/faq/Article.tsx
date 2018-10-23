@@ -1,7 +1,4 @@
-import * as moment from "moment";
 import * as React from "react";
-import { defaultAvatar } from "../../../icons/Icons";
-import { __ } from "../../../utils";
 import { IFaqArticle } from "../../types";
 
 type Props = {

@@ -1,6 +1,5 @@
 import * as React from "react";
 import { iconLeft } from "../../../icons/Icons";
-import { __ } from "../../../utils";
 import { Articles } from "../../components/faq";
 import { TopBar } from "../../containers";
 import { IFaqCategory } from "../../types";

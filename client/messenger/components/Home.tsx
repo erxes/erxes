@@ -37,7 +37,7 @@ class Home extends React.Component<Props, State> {
     this.toggleTab = this.toggleTab.bind(this);
   }
 
-  componentDidUpdate(prevProps: any, prevState: any) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.node && prevState.headHeight !== this.node.offsetHeight) {
       this.setState({ headHeight: this.node.offsetHeight });
     }
