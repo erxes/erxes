@@ -72,7 +72,7 @@ export const types = `
     onlineHours: [MessengerOnlineHoursSchema]
     timezone: String
     messages: JSON
-    showFaq: Boolean
+    knowledgeBaseTopicId: String
     links: IntegrationLinks
     supporterIds: [String]
   }
