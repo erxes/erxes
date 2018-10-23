@@ -4,10 +4,12 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
+import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import Toggle from 'react-toggle';
 import { SelectBrand } from '../..';
+import { ITopic } from '../../../../../knowledgeBase/types';
 
 type Props = {
   onChange: (
@@ -17,7 +19,8 @@ type Props = {
   brandId?: string;
   brands?: IBrand[];
   notifyCustomer?: boolean;
-  showFaq?: boolean;
+  topics?: ITopic[];
+  topicId?: string;
 };
 
 class Options extends React.Component<Props> {
@@ -34,13 +37,11 @@ class Options extends React.Component<Props> {
 
   render() {
     const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
-    const showFaqChange = e =>
-      this.onChangeFunction(
-        'showFaq',
-        (e.currentTarget as HTMLInputElement).checked
-      );
     const notifyCustomerChange = e =>
       this.onChangeFunction('notifyCustomer', e.target.checked);
+    const onTopicChange = e =>
+      this.onChangeFunction('knowledgeBaseTopicId', e.target.value);
+    const { topics, topicId } = this.props;
 
     return (
       <FlexItem>
@@ -52,13 +53,21 @@ class Options extends React.Component<Props> {
           />
 
           <FormGroup>
-            <ControlLabel>Show FAQ</ControlLabel>
+            <ControlLabel>Knowledge Base Topic</ControlLabel>
 
             <FormControl
-              checked={this.props.showFaq || false}
-              componentClass="checkbox"
-              onChange={showFaqChange}
-            />
+              componentClass="select"
+              placeholder={__('Select Topic')}
+              onChange={onTopicChange}
+              defaultValue={topicId}
+            >
+              <option />
+              {(topics || []).map(topic => (
+                <option key={topic._id} value={topic._id}>
+                  {topic.title}
+                </option>
+              ))}
+            </FormControl>
           </FormGroup>
 
           <FormGroup>
