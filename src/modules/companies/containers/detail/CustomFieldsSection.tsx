@@ -6,16 +6,30 @@ import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constan
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { IFieldGroup } from '../../../settings/properties/types';
 import { mutations } from '../../graphql';
 import { ICompany } from '../../types';
 
-type Props = {
-  company: ICompany;
-  companiesEdit: (params: { variables: ICompany }) => Promise<any>;
-  fieldsGroupsQuery: any;
+type FieldsGroupsQueryResponse = {
+  fieldsGroups: IFieldGroup[];
+  loading: boolean;
 };
 
-const CustomFieldsSection = (props: Props) => {
+type EditMutationResponse = {
+  companiesEdit: (params: { variables: ICompany }) => Promise<any>;
+};
+
+type Props = {
+  company: ICompany;
+};
+
+type FinalProps = {
+  fieldsGroupsQuery: FieldsGroupsQueryResponse;
+} & Props &
+  EditMutationResponse;
+
+const CustomFieldsSection = (props: FinalProps) => {
   const { company, companiesEdit, fieldsGroupsQuery } = props;
 
   if (fieldsGroupsQuery.loading) {
@@ -53,18 +67,25 @@ const options = () => ({
   refetchQueries: ['companDetail']
 });
 
-export default compose(
-  graphql(gql(fieldQueries.fieldsGroups), {
-    name: 'fieldsGroupsQuery',
-    options: () => ({
-      variables: {
-        contentType: FIELDS_GROUPS_CONTENT_TYPES.COMPANY
+export default withProps<Props>(
+  compose(
+    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
+      gql(fieldQueries.fieldsGroups),
+      {
+        name: 'fieldsGroupsQuery',
+        options: () => ({
+          variables: {
+            contentType: FIELDS_GROUPS_CONTENT_TYPES.COMPANY
+          }
+        })
       }
-    })
-  }),
-  // mutations
-  graphql(gql(mutations.companiesEdit), {
-    name: 'companiesEdit',
-    options
-  })
-)(CustomFieldsSection);
+    ),
+    graphql<Props, EditMutationResponse, ICompany>(
+      gql(mutations.companiesEdit),
+      {
+        name: 'companiesEdit',
+        options
+      }
+    )
+  )(CustomFieldsSection)
+);

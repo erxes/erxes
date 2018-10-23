@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { BasicInfo } from 'modules/companies/components';
 import { mutations } from 'modules/companies/graphql';
 import * as React from 'react';
@@ -9,18 +9,37 @@ import { IUser } from '../../../auth/types';
 import { IRouterProps } from '../../../common/types';
 import { ICompany } from '../../types';
 
-interface IProps extends IRouterProps {
+type RemoveMutationVariables = {
+  companyIds: string[];
+};
+
+type RemoveMutationResponse = {
   companiesRemove: (
-    params: { variables: { companyIds: string[] } }
+    params: { variables: RemoveMutationVariables }
   ) => Promise<any>;
+};
+
+type MergeMutationVariables = {
+  companyIds: string[];
+  companyFields: any;
+};
+
+type MergeMutationResponse = {
   companiesMerge: (
-    params: { variables: { companyIds: string[]; companyFields: any } }
+    params: { variables: MergeMutationVariables }
   ) => Promise<any>;
+};
+
+interface IProps {
   company: ICompany;
-  currentUser: IUser;
 }
 
-const BasicInfoContainer = (props: IProps) => {
+type FinalProps = { currentUser: IUser } & IProps &
+  IRouterProps &
+  RemoveMutationResponse &
+  MergeMutationResponse;
+
+const BasicInfoContainer = (props: FinalProps) => {
   const { company, companiesRemove, companiesMerge, history } = props;
 
   const { _id } = company;
@@ -65,14 +84,21 @@ const generateOptions = () => ({
   refetchQueries: ['companieMain', 'companyCounts']
 });
 
-export default compose(
-  // mutations
-  graphql(gql(mutations.companiesRemove), {
-    name: 'companiesRemove',
-    options: generateOptions
-  }),
-  graphql(gql(mutations.companiesMerge), {
-    name: 'companiesMerge',
-    options: generateOptions
-  })
-)(withRouter<IProps>(BasicInfoContainer));
+export default withProps<IProps>(
+  compose(
+    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
+      gql(mutations.companiesRemove),
+      {
+        name: 'companiesRemove',
+        options: generateOptions
+      }
+    ),
+    graphql<{}, MergeMutationResponse, MergeMutationVariables>(
+      gql(mutations.companiesMerge),
+      {
+        name: 'companiesMerge',
+        options: generateOptions
+      }
+    )
+  )(withRouter<FinalProps>(BasicInfoContainer))
+);

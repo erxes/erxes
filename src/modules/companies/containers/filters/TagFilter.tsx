@@ -4,10 +4,22 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { ITag } from '../../../tags/types';
 import { queries as companyQueries } from '../../graphql';
 
+type CountQueryResponse = {
+  companyCounts: { [key: string]: number };
+  loading: boolean;
+};
+
+type TagQueryResponse = {
+  tags: ITag[];
+  loading: boolean;
+};
+
 const TagFilterContainer = (props: {
-  companyCountsQuery: any;
+  companyCountsQuery: CountQueryResponse;
   tagsQuery: any;
 }) => {
   const { companyCountsQuery, tagsQuery } = props;
@@ -24,20 +36,25 @@ const TagFilterContainer = (props: {
   );
 };
 
-export default compose(
-  graphql(gql(companyQueries.companyCounts), {
-    name: 'companyCountsQuery',
-    options: {
-      variables: { only: 'byTag' }
-    }
-  }),
-  graphql(gql(tagQueries.tags), {
-    name: 'tagsQuery',
-    options: () => ({
-      variables: {
-        type: TAG_TYPES.COMPANY
-      },
-      fetchPolicy: 'network-only'
+export default withProps<{}>(
+  compose(
+    graphql<{}, CountQueryResponse, { only: string }>(
+      gql(companyQueries.companyCounts),
+      {
+        name: 'companyCountsQuery',
+        options: {
+          variables: { only: 'byTag' }
+        }
+      }
+    ),
+    graphql<{}, TagQueryResponse, { type: string }>(gql(tagQueries.tags), {
+      name: 'tagsQuery',
+      options: () => ({
+        variables: {
+          type: TAG_TYPES.COMPANY
+        },
+        fetchPolicy: 'network-only'
+      })
     })
-  })
-)(TagFilterContainer);
+  )(TagFilterContainer)
+);

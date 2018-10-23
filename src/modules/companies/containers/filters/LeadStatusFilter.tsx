@@ -2,10 +2,16 @@ import gql from 'graphql-tag';
 import { LeadStatusFilter } from 'modules/customers/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
 import { queries } from '../../graphql';
 
+type CountQueryResponse = {
+  companyCounts: { [key: string]: number };
+  loading: boolean;
+};
+
 type Props = {
-  companyCountsQuery: any;
+  companyCountsQuery: CountQueryResponse;
 };
 
 class LeadStatusFilterContainer extends React.Component<Props> {
@@ -23,11 +29,16 @@ class LeadStatusFilterContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.companyCounts), {
-    name: 'companyCountsQuery',
-    options: {
-      variables: { only: 'byLeadStatus' }
-    }
-  })
-)(LeadStatusFilterContainer);
+export default withProps<{}>(
+  compose(
+    graphql<{}, CountQueryResponse, { only: string }>(
+      gql(queries.companyCounts),
+      {
+        name: 'companyCountsQuery',
+        options: {
+          variables: { only: 'byLeadStatus' }
+        }
+      }
+    )
+  )(LeadStatusFilterContainer)
+);

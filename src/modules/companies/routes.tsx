@@ -4,17 +4,16 @@ import { Route } from 'react-router-dom';
 import { CompaniesList, CompanyDetails } from './containers';
 
 const routes = () => {
-  const details = ({ match, location }) => {
-    const queryParams = queryString.parse(location.search);
+  const details = ({ match }) => {
     const id = match.params.id;
 
-    return <CompanyDetails id={id} queryParams={queryParams} />;
+    return <CompanyDetails id={id} />;
   };
 
   const list = ({ location }) => {
     const queryParams = queryString.parse(location.search);
 
-    return <CompaniesList location={location} queryParams={queryParams} />;
+    return <CompaniesList queryParams={queryParams} />;
   };
 
   return (

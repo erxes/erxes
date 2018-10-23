@@ -9,18 +9,22 @@ import { IRouterProps } from '../../common/types';
 import { SignIn } from '../components';
 import { mutations } from '../graphql';
 
-interface IProps extends IRouterProps {
+type LoginMutationVariables = {
+  email: string;
+  password: string;
+};
+
+type LoginMutationResponse = {
   loginMutation: (
     params: {
-      variables: {
-        email: string;
-        password: string;
-      };
+      variables: LoginMutationVariables;
     }
   ) => Promise<any>;
-}
+};
 
-const SignInContainer = (props: IProps) => {
+interface IExtendedProps extends IRouterProps, LoginMutationResponse {}
+
+const SignInContainer = (props: IExtendedProps) => {
   const { loginMutation, history } = props;
 
   const login = variables => {
@@ -53,8 +57,11 @@ const SignInContainer = (props: IProps) => {
 
 export default withRouter<IRouterProps>(
   compose(
-    graphql(gql(mutations.login), {
-      name: 'loginMutation'
-    })
+    graphql<{}, LoginMutationResponse, { LoginMutationVariables }>(
+      gql(mutations.login),
+      {
+        name: 'loginMutation'
+      }
+    )
   )(SignInContainer)
 );

@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../auth/types';
@@ -7,16 +7,32 @@ import { CompanyForm } from '../components';
 import { mutations } from '../graphql';
 import { ICompany, ICompanyDoc } from '../types';
 
+type EditMutationResponse = {
+  companiesEdit: (params: { variables: ICompany }) => Promise<any>;
+};
+
+type AddMutationResponse = {
+  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>;
+};
+
+type UsersQueryResponse = {
+  users: IUser[];
+  loading: boolean;
+};
+
 type Props = {
   company: ICompany;
   closeModal: () => void;
-  companiesEdit: (params: { variables: ICompany }) => Promise<any>;
-  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>;
-  usersQuery: any;
-  currentUser: IUser;
 };
 
-const CompanyFromContainer = (props: Props) => {
+type FinalProps = {
+  usersQuery: UsersQueryResponse;
+  currentUser: IUser;
+} & Props &
+  EditMutationResponse &
+  AddMutationResponse;
+
+const CompanyFromContainer = (props: FinalProps) => {
   const { companiesEdit, company, companiesAdd } = props;
 
   let action = ({ doc }) => {
@@ -59,13 +75,15 @@ const options = () => ({
   ]
 });
 
-export default compose(
-  graphql(gql(mutations.companiesEdit), {
-    name: 'companiesEdit',
-    options
-  }),
-  graphql(gql(mutations.companiesAdd), {
-    name: 'companiesAdd',
-    options
-  })
-)(CompanyFromContainer);
+export default withProps<Props>(
+  compose(
+    graphql<{}, EditMutationResponse, ICompany>(gql(mutations.companiesEdit), {
+      name: 'companiesEdit',
+      options
+    }),
+    graphql<{}, AddMutationResponse, ICompanyDoc>(gql(mutations.companiesAdd), {
+      name: 'companiesAdd',
+      options
+    })
+  )(CompanyFromContainer)
+);

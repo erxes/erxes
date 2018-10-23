@@ -1,24 +1,36 @@
 import gql from 'graphql-tag';
 import { Chooser } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CompanyForm } from '.';
 import { mutations, queries } from '../graphql';
-import { ICompanyDoc } from '../types';
+import { ICompany, ICompanyDoc } from '../types';
 
-type Props = {
-  data: any;
-  companiesQuery: any;
+type AddMutationResponse = {
   companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>;
-  search: (value?: string) => void;
-  perPage: number;
-  closeModal: () => void;
 };
 
-const CompanyChooser = (props: WrapperProps & Props) => {
-  const { data, companiesQuery, companiesAdd, search } = props;
+type CompaniesQueryResponse = {
+  companies: ICompany[];
+  loading: boolean;
+};
 
+type Props = {
+  data: { name: string; companies: ICompany[]; _id?: string };
+  search: (value: string, loadMore?: boolean) => void;
+  perPage: number;
+  closeModal: () => void;
+  searchValue: string;
+};
+
+type FinalProps = {
+  companiesQuery: any;
+} & Props &
+  AddMutationResponse;
+
+const CompanyChooser = (props: WrapperProps & FinalProps) => {
+  const { data, companiesQuery, companiesAdd, search } = props;
   // add company
   const addCompany = ({ doc, callback }) => {
     companiesAdd({
@@ -59,33 +71,34 @@ const CompanyChooser = (props: WrapperProps & Props) => {
   return <Chooser {...updatedProps} />;
 };
 
-const WithQuery = compose(
-  graphql(gql(queries.companies), {
-    name: 'companiesQuery',
-    options: ({
-      searchValue,
-      perPage
-    }: {
-      searchValue: string;
-      perPage: number;
-    }) => {
-      return {
-        variables: {
-          searchValue,
-          perPage
-        }
-      };
-    }
-  }),
-  // mutations
-  graphql(gql(mutations.companiesAdd), {
-    name: 'companiesAdd'
-  })
-)(CompanyChooser);
+const WithQuery = withProps<Props>(
+  compose(
+    graphql<
+      Props,
+      CompaniesQueryResponse,
+      { searchValue: string; perPage: number }
+    >(gql(queries.companies), {
+      name: 'companiesQuery',
+      options: ({ searchValue, perPage }) => {
+        return {
+          variables: {
+            searchValue,
+            perPage
+          }
+        };
+      }
+    }),
+    // mutations
+    graphql<{}, AddMutationResponse, ICompanyDoc>(gql(mutations.companiesAdd), {
+      name: 'companiesAdd'
+    })
+  )(CompanyChooser)
+);
 
 type WrapperProps = {
-  data: any;
-  onSelect: (datas: any[]) => void;
+  data: { name: string; companies: ICompany[] };
+  onSelect: (datas: ICompany[]) => void;
+  closeModal: () => void;
 };
 
 export default class Wrapper extends React.Component<

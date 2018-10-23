@@ -1,36 +1,85 @@
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
 import { CompaniesList } from '../components';
 import { mutations, queries } from '../graphql';
+import { ICompany } from '../types';
 
-interface IProps extends IRouterProps {
-  queryParams?: any;
-  companiesMainQuery?: any;
-  companiesListConfigQuery?: any;
+type QueryVariables = {
+  page: number;
+  perPage: number;
+  segment: string;
+  tag: string;
+  brand: string;
+  ids: string[];
+  searchValue: string;
+  leadStatus: string;
+  lifecycleState: string;
+  sortField: string;
+  sortDirection: number;
+};
+
+type ListConfig = {
+  name: string;
+  label: string;
+  order: number;
+};
+
+type MainQueryResponse = {
+  companiesMain: { list: ICompany[]; totalCount: number };
+  loading: boolean;
+  refetch: () => void;
+};
+
+type ListConfigQueryResponse = {
+  fieldsDefaultColumnsConfig: ListConfig[];
+  loading: boolean;
+};
+
+type RemoveMutationVariables = {
+  companyIds: string[];
+};
+
+type RemoveMutationResponse = {
   companiesRemove: (
-    params: { variables: { companyIds: string[] } }
+    params: { variables: RemoveMutationVariables }
   ) => Promise<any>;
+};
+
+type MergeMutationVariables = {
+  companyIds: string[];
+  companyFields: any;
+};
+
+type MergeMutationResponse = {
   companiesMerge: (
     params: {
-      variables: {
-        companyIds: string[];
-        companyFields: any;
-      };
+      variables: MergeMutationVariables;
     }
   ) => Promise<any>;
-  loading?: boolean;
-}
+};
+
+type Props = {
+  queryParams?: any;
+};
+
+type FinalProps = {
+  companiesMainQuery: MainQueryResponse;
+  companiesListConfigQuery?: any;
+} & Props &
+  IRouterProps &
+  RemoveMutationResponse &
+  MergeMutationResponse;
 
 type State = {
   loading: boolean;
 };
 
-class CompanyListContainer extends React.Component<IProps, State> {
+class CompanyListContainer extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
@@ -47,7 +96,6 @@ class CompanyListContainer extends React.Component<IProps, State> {
       companiesMerge,
       history
     } = this.props;
-
     let columnsConfig =
       companiesListConfigQuery.fieldsDefaultColumnsConfig || [];
 
@@ -134,25 +182,36 @@ const generateParams = ({ queryParams }) => ({
   fetchPolicy: 'network-only'
 });
 
-export default compose(
-  graphql(gql(queries.companiesMain), {
-    name: 'companiesMainQuery',
-    options: generateParams
-  }),
-  graphql(gql(queries.companiesListConfig), {
-    name: 'companiesListConfigQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  // mutations
-  graphql(gql(mutations.companiesRemove), {
-    name: 'companiesRemove'
-  }),
-  graphql(gql(mutations.companiesMerge), {
-    name: 'companiesMerge',
-    options: {
-      refetchQueries: ['companiesMain', 'companyCounts']
-    }
-  })
-)(withRouter<IRouterProps>(CompanyListContainer));
+export default withProps<Props>(
+  compose(
+    graphql<{ queryParams: any }, MainQueryResponse, QueryVariables>(
+      gql(queries.companiesMain),
+      {
+        name: 'companiesMainQuery',
+        options: generateParams
+      }
+    ),
+    graphql<{}, ListConfigQueryResponse, {}>(gql(queries.companiesListConfig), {
+      name: 'companiesListConfigQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    // mutations
+    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
+      gql(mutations.companiesRemove),
+      {
+        name: 'companiesRemove'
+      }
+    ),
+    graphql<{}, MergeMutationResponse, MergeMutationVariables>(
+      gql(mutations.companiesMerge),
+      {
+        name: 'companiesMerge',
+        options: {
+          refetchQueries: ['companiesMain', 'companyCounts']
+        }
+      }
+    )
+  )(withRouter<IRouterProps>(CompanyListContainer))
+);

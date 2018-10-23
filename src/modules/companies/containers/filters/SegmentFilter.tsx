@@ -4,7 +4,14 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 
-const SegmentFilterContainer = (props: { companyCountsQuery: any }) => {
+type CountQueryResponse = {
+  companyCounts: { [key: string]: number };
+  loading: boolean;
+};
+
+const SegmentFilterContainer = (props: {
+  companyCountsQuery: CountQueryResponse;
+}) => {
   const { companyCountsQuery } = props;
 
   const counts = companyCountsQuery.companyCounts || {};
@@ -13,10 +20,13 @@ const SegmentFilterContainer = (props: { companyCountsQuery: any }) => {
 };
 
 export default compose(
-  graphql(gql(queries.companyCounts), {
-    name: 'companyCountsQuery',
-    options: {
-      variables: { only: 'bySegment' }
+  graphql<{}, CountQueryResponse, { only: string }>(
+    gql(queries.companyCounts),
+    {
+      name: 'companyCountsQuery',
+      options: {
+        variables: { only: 'bySegment' }
+      }
     }
-  })
+  )
 )(SegmentFilterContainer);

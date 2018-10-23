@@ -22,13 +22,13 @@ type Props = {
   id: string;
 };
 
-interface IExtendedProps extends Props {
+type FinalProps = {
   customerDetailQuery: CustomerDetailQueryResponse;
   customerActivityLogQuery: ActivityLogQueryResponse;
   currentUser: IUser;
-}
+} & Props;
 
-class CustomerDetailsContainer extends React.Component<IExtendedProps, {}> {
+class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
   render() {
     const {
       id,
