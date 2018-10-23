@@ -138,9 +138,12 @@ const WithConsumer = (props: PropsWihtConsumer) => {
         endConversation,
         getColor
       }) => {
+        const key = activeConversation || "create";
+
         return (
           <WithQuery
             {...props}
+            key={key}
             conversationId={activeConversation}
             goToConversationList={goToConversationList}
             endConversation={endConversation}
