@@ -43,15 +43,21 @@ $shadow-black: rgba(0, 0, 0, .1);
   }
 
   .erxes-home-content {
+    height: 100%;
     margin-top: -40px;
     position: relative;
     z-index: 11;
 
     .erxes-home-item {
+      bottom: 0;
       left: 0;
       position: absolute;
       right: 0;
       top: 0;
+    }
+
+    &.tabbed {
+      margin-top: 0;
     }
   }
 }

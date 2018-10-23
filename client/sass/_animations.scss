@@ -96,6 +96,14 @@
   transition: all 300ms $timing-slide;
 }
 
+.slide-enter-done {
+  display: block;
+}
+
+.slide-exit-done {
+  display: none;
+}
+
 // scale in
 .scale-in-enter,
 .scale-in-appear {

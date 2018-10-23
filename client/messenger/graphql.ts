@@ -170,6 +170,41 @@ const saveBrowserInfo = `
   }
 `;
 
+const getFaqCategoryQuery = `
+  query knowledgeBaseCategoriesDetail($categoryId: String!) {
+    knowledgeBaseCategoriesDetail(categoryId: $categoryId) {
+      _id
+      title
+      description
+      numOfArticles
+      icon
+      articles {
+        _id
+        title
+        summary
+        content
+        createdDate
+      }
+    }
+  }
+`;
+
+const getFaqTopicQuery = `
+  query knowledgeBaseTopicsDetail($topicId: String!) {
+    knowledgeBaseTopicsDetail(topicId: $topicId) {
+      title
+      description
+      categories {
+        _id
+        title
+        description
+        icon
+        numOfArticles
+      }
+    }
+  }
+`;
+
 export default {
   messageFields,
   conversationDetailQuery,
@@ -182,5 +217,7 @@ export default {
   connect,
   saveBrowserInfo,
   readConversationMessages,
-  messengerSupportersQuery
+  messengerSupportersQuery,
+  getFaqCategoryQuery,
+  getFaqTopicQuery
 };

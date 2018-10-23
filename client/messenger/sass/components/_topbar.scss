@@ -123,6 +123,17 @@ $topbar-shadow: rgba(0, 0, 0, .1);
       width: 18px;
     }
   }
+
+  .erxes-topbar-title.limited {
+    max-width: 260px;
+
+    > div,
+    > span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 }
 
 .erxes-supporters {

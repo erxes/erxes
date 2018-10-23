@@ -91,6 +91,11 @@
   font-weight: 600;
   line-height: 1.2em;
 
+  > div span {
+    display: inline;
+    opacity: .8;
+  }
+
   span {
     display: block;
     font-size: $font-size - 2;

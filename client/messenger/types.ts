@@ -54,3 +54,30 @@ export interface IConnectResponse {
   messengerData: IIntegrationMessengerData;
   uiOptions: IIntegrationUiOptions;
 }
+
+// faq
+interface ICommonFields {
+  _id: string;
+  title: string;
+}
+
+export interface IFaqArticle extends ICommonFields {
+  summary: string;
+  content: string;
+  status: string;
+  createdDate: Date;
+}
+
+export interface IFaqCategory extends ICommonFields {
+  description: string;
+  icon: string;
+  createdDate: Date;
+
+  articles: IFaqArticle[];
+  numOfArticles: number;
+}
+
+export interface IFaqTopic extends ICommonFields {
+  description: string;
+  categories: IFaqCategory[];
+}

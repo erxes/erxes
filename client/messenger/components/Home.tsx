@@ -1,3 +1,4 @@
+import * as classNames from "classnames";
 import * as moment from "moment";
 import * as React from "react";
 import * as RTG from "react-transition-group";
@@ -10,6 +11,7 @@ import {
 } from "../../types";
 import { __ } from "../../utils";
 import { TopBar } from "../containers";
+import { Categories as FaqCategories } from "../containers/faq";
 import { Integrations } from "./";
 import { SocialLink, Supporters } from "./common";
 
@@ -22,6 +24,7 @@ type Props = {
 
 type State = {
   headHeight: number;
+  activeSupport: boolean;
 };
 
 class Home extends React.Component<Props, State> {
@@ -30,10 +33,11 @@ class Home extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { headHeight: 120 };
+    this.state = { headHeight: 120, activeSupport: true };
+    this.toggleTab = this.toggleTab.bind(this);
   }
 
-  componentDidUpdate(prevProps: any, prevState: any) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.node && prevState.headHeight !== this.node.offsetHeight) {
       this.setState({ headHeight: this.node.offsetHeight });
     }
@@ -43,6 +47,33 @@ class Home extends React.Component<Props, State> {
     if (this.node) {
       this.setState({ headHeight: this.node.offsetHeight });
     }
+  }
+
+  toggleTab() {
+    this.setState({ activeSupport: !this.state.activeSupport });
+  }
+
+  renderTab() {
+    const { messengerData } = this.props;
+
+    if (!messengerData.knowledgeBaseTopicId) {
+      return null;
+    }
+
+    const indicatorClasses = classNames("indicator", {
+      left: this.state.activeSupport
+    });
+
+    return (
+      <div className="erxes-tab" onClick={this.toggleTab}>
+        <div
+          style={{ backgroundColor: this.props.color }}
+          className={indicatorClasses}
+        />
+        <span>{__("Support")}</span>
+        <span>{__("Faq")}</span>
+      </div>
+    );
   }
 
   renderGreetings(messengerData: IIntegrationMessengerData) {
@@ -81,7 +112,9 @@ class Home extends React.Component<Props, State> {
 
     return (
       <div
-        className="erxes-welcome"
+        className={classNames("erxes-welcome", {
+          tabbed: messengerData.knowledgeBaseTopicId
+        })}
         ref={node => {
           this.node = node;
         }}
@@ -89,26 +122,45 @@ class Home extends React.Component<Props, State> {
         {this.renderAssistBar(messengerData)}
         {this.renderGreetings(messengerData)}
         <Supporters users={supporters} isExpanded={false} loading={loading} />
+        {this.renderTab()}
       </div>
     );
   }
 
   render() {
+    const { messengerData } = this.props;
+
     return (
       <div
         className="erxes-home-container"
         style={{ paddingTop: this.state.headHeight }}
       >
         <TopBar middle={this.renderHead()} />
-        <div className="erxes-home-content">
+        <div
+          className={classNames("erxes-home-content", {
+            tabbed: messengerData.knowledgeBaseTopicId
+          })}
+        >
           <RTG.CSSTransition
-            in={true}
+            in={this.state.activeSupport}
             appear={true}
             timeout={600}
             classNames="slide"
           >
             <div className="erxes-home-item">
               <Integrations />
+            </div>
+          </RTG.CSSTransition>
+
+          <RTG.CSSTransition
+            in={!this.state.activeSupport}
+            appear={true}
+            timeout={600}
+            classNames="slide"
+            unmountOnExit
+          >
+            <div className="erxes-home-item">
+              <FaqCategories topicId={messengerData.knowledgeBaseTopicId} />
             </div>
           </RTG.CSSTransition>
         </div>
