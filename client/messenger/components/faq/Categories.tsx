@@ -8,14 +8,14 @@ type Props = {
 
 export default function Categories({ kbTopic }: Props) {
   if (!kbTopic) {
-    return null;
+    return <div className="loader bigger" />;
   }
 
   return (
-    <div>
+    <React.Fragment>
       {kbTopic.categories.map(category => (
         <Category key={category._id} category={category} />
       ))}
-    </div>
+    </React.Fragment>
   );
 }

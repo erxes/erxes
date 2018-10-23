@@ -57,41 +57,27 @@ export interface IConnectResponse {
 
 // faq
 interface ICommonFields {
-  createdBy: string;
-  createdDate: Date;
-  modifiedBy: string;
-  modifiedDate: Date;
+  _id: string;
+  title: string;
 }
 
 export interface IFaqArticle extends ICommonFields {
-  _id: string;
-  title: string;
   summary: string;
   content: string;
   status: string;
-  author: IUser;
+  createdDate: Date;
 }
 
 export interface IFaqCategory extends ICommonFields {
-  _id: string;
-  title: string;
   description: string;
-  articleIds: string[];
   icon: string;
+  createdDate: Date;
 
-  authors: IUser[];
   articles: IFaqArticle[];
   numOfArticles: number;
 }
 
 export interface IFaqTopic extends ICommonFields {
-  _id: string;
-  title: string;
   description: string;
-  brandId: string;
-  categoryIds: string[];
-  color: string;
-  languageCode?: string;
-
   categories: IFaqCategory[];
 }

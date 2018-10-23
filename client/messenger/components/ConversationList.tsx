@@ -25,7 +25,7 @@ function ConversationList(props: Props) {
 
   const createButton = () => {
     return (
-      <li onClick={createConversation} className="erxes-conversation-item">
+      <li onClick={createConversation} className="erxes-list-item">
         <div className="erxes-left-side">
           <span>{iconPlus}</span>
         </div>

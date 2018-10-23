@@ -41,7 +41,7 @@ function Profile(props: Props) {
   const bottomContent = () => {
     return (
       <div className="bottom-content">
-        <p>{userDetail.description}</p>
+        {userDetail.description && <p>{userDetail.description}</p>}
         {socialLinks()}
       </div>
     );

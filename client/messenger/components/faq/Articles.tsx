@@ -7,15 +7,11 @@ type Props = {
 };
 
 export default class Articles extends React.Component<Props> {
-  renderArticles() {
+  render() {
     const { articles = [] } = this.props;
 
     return articles.map(article => (
       <Article key={article._id} article={article} />
     ));
-  }
-
-  render() {
-    return <div>{this.renderArticles()}</div>;
   }
 }

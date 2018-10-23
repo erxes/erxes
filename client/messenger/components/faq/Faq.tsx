@@ -5,23 +5,14 @@ type Props = {
   activeRoute: string;
 };
 
-export default class Faq extends React.Component<Props> {
-  renderContent() {
-    const { activeRoute } = this.props;
-    console.log(activeRoute);
-
-    if (activeRoute === "CATEGORY_DETAIL") {
-      return <CategoryDetail />;
-    }
-
-    if (activeRoute === "ARTICLE_DETAIL") {
-      return <ArticleDetail />;
-    }
-
-    return null;
+export default function Faq({ activeRoute }: Props) {
+  if (activeRoute === "CATEGORY_DETAIL") {
+    return <CategoryDetail />;
   }
 
-  render() {
-    return this.renderContent();
+  if (activeRoute === "ARTICLE_DETAIL") {
+    return <ArticleDetail />;
   }
+
+  return null;
 }

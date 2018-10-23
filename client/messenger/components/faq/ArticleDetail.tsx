@@ -1,7 +1,8 @@
 import * as moment from "moment";
 import * as React from "react";
-import { defaultAvatar } from "../../../icons/Icons";
+import { iconLeft } from "../../../icons/Icons";
 import { __ } from "../../../utils";
+import { TopBar } from "../../containers";
 import { IFaqArticle } from "../../types";
 
 type Props = {
@@ -11,51 +12,36 @@ type Props = {
 
 export default function ArticleDetail({ article, goToArticles }: Props) {
   if (!article) {
-    return null;
+    return <div className="loader bigger" />;
   }
 
-  const {
-    author,
-    modifiedDate,
-    createdDate,
-    title,
-    summary,
-    content
-  } = article;
-  const authorDetails = author.details || {
-    fullName: "",
-    avatar: defaultAvatar
+  const { createdDate, title, summary, content } = article;
+
+  const renderHead = () => {
+    return (
+      <div className="erxes-topbar-title limited">
+        <div>{title}</div>
+      </div>
+    );
   };
 
   return (
-    <div>
-      <a onClick={goToArticles}>{__("Back to articles")}</a>
-
-      <div className="erxes-kb-item detail">
-        <h1>{title}</h1>
-        <div className="item-meta flex-item">
-          <div className="avatars">
-            <img alt={authorDetails.fullName} src={authorDetails.avatar} />
-          </div>
-          <div>
-            <div>
-              {__("Written by")}: <span>{authorDetails.fullName}</span>
-            </div>
-            <div>
-              {modifiedDate ? __("Modified ") : __("Created ")}
-              <span>
-                {moment(modifiedDate ? modifiedDate : createdDate).format(
-                  "lll"
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
+    <React.Fragment>
+      <TopBar
+        middle={renderHead()}
+        buttonIcon={iconLeft}
+        onLeftButtonClick={goToArticles}
+      />
+      <div className="erxes-content slide-in">
         <div className="erxes-article-content">
+          <h2>{title}</h2>
+          <div className="date">
+            {__("Created ")}: <span>{moment(createdDate).format("lll")}</span>
+          </div>
           <p>{summary}</p>
           <p dangerouslySetInnerHTML={{ __html: content }} />
         </div>
       </div>
-    </div>
+    </React.Fragment>
   );
 }

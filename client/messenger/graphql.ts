@@ -170,27 +170,6 @@ const saveBrowserInfo = `
   }
 `;
 
-const faqSearchArticlesQuery = `
-  query knowledgeBaseArticles($topicId: String!, $searchString: String!) {
-    knowledgeBaseArticles(topicId: $topicId, searchString: $searchString) {
-      _id
-      title
-      summary
-      content
-      createdBy
-      createdDate
-      modifiedBy
-      modifiedDate
-      author {
-        details {
-          fullName
-          avatar
-        }
-      }
-    }
-  }
-`;
-
 const getFaqCategoryQuery = `
   query knowledgeBaseCategoriesDetail($categoryId: String!) {
     knowledgeBaseCategoriesDetail(categoryId: $categoryId) {
@@ -199,27 +178,12 @@ const getFaqCategoryQuery = `
       description
       numOfArticles
       icon
-      authors {
-        details {
-          fullName
-          avatar
-        }
-      }
       articles {
         _id
         title
         summary
         content
-        createdBy
         createdDate
-        modifiedBy
-        modifiedDate
-        author {
-          details {
-            fullName
-            avatar
-          }
-        }
       }
     }
   }
@@ -230,20 +194,12 @@ const getFaqTopicQuery = `
     knowledgeBaseTopicsDetail(topicId: $topicId) {
       title
       description
-      color
-      languageCode
       categories {
         _id
         title
         description
         icon
         numOfArticles
-        authors {
-          details {
-            fullName
-            avatar
-          }
-        }
       }
     }
   }
@@ -262,7 +218,6 @@ export default {
   saveBrowserInfo,
   readConversationMessages,
   messengerSupportersQuery,
-  faqSearchArticlesQuery,
   getFaqCategoryQuery,
   getFaqTopicQuery
 };

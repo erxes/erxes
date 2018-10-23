@@ -18,13 +18,26 @@ type QueryResponse = {
 const CategoryDetail = (props: ChildProps<Props, QueryResponse>) => {
   const { data } = props;
 
-  if (!data || data.loading) {
-    return null;
+  let category: IFaqCategory = {
+    _id: "",
+    title: "",
+    description: "",
+    articles: [],
+    icon: "",
+    numOfArticles: 0,
+    createdDate: new Date()
+  };
+  let loading: boolean = true;
+
+  if (data && data.knowledgeBaseCategoriesDetail) {
+    category = data.knowledgeBaseCategoriesDetail;
+    loading = data.loading;
   }
 
   const extendedProps = {
     ...props,
-    category: data.knowledgeBaseCategoriesDetail || null
+    category,
+    loading
   };
 
   return <DumbCategoryDetail {...extendedProps} />;

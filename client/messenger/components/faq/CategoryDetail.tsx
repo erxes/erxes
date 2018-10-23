@@ -6,36 +6,32 @@ import { TopBar } from "../../containers";
 import { IFaqCategory } from "../../types";
 
 type Props = {
-  category: IFaqCategory | null;
+  category: IFaqCategory;
   goToCategories: () => void;
+  loading: boolean;
 };
 
 function CategoryDetail({ category, goToCategories }: Props) {
-  if (!category) {
-    return null;
-  }
+  const renderHead = () => {
+    return (
+      <div className="erxes-topbar-title limited">
+        <div>
+          {category.title} <span>({category.numOfArticles})</span>
+        </div>
+        <span>{category.description}</span>
+      </div>
+    );
+  };
 
   return (
     <React.Fragment>
       <TopBar
-        middle={null}
+        middle={renderHead()}
         buttonIcon={iconLeft}
         onLeftButtonClick={goToCategories}
       />
-      <div className="erxes-content">
-        <div className="category-container">
-          <div className="flex-item spaced">
-            <div className="topic-icon">
-              <i className={`icon-${category.icon}`} />
-            </div>
-            <div className="topic-content">
-              <h1>{category.title}</h1>
-              {category.description}
-            </div>
-          </div>
-
-          <Articles articles={category.articles} />
-        </div>
+      <div className="erxes-content slide-in">
+        <Articles articles={category.articles} />
       </div>
     </React.Fragment>
   );

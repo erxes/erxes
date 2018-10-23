@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default class Article extends React.Component<Props> {
-  handleOnClick = (event: React.FormEvent<HTMLAnchorElement>) => {
+  handleOnClick = (event: React.FormEvent<HTMLDivElement>) => {
     event.preventDefault();
 
     const { article, onClick } = this.props;
@@ -20,13 +20,17 @@ export default class Article extends React.Component<Props> {
 
   render() {
     const { article } = this.props;
-    const { author } = article;
 
     return (
-      <a className="erxes-kb-item" onClick={this.handleOnClick}>
-        <h3>{article.title}</h3>
-        <p>{article.summary}</p>
-      </a>
+      <div className="erxes-list-item faq-item" onClick={this.handleOnClick}>
+        <div className="erxes-left-side">
+          <i className="erxes-icon-clipboard" />
+        </div>
+        <div className="erxes-right-side">
+          <div className="erxes-name">{article.title}</div>
+          <div className="description">{article.summary}</div>
+        </div>
+      </div>
     );
   }
 }

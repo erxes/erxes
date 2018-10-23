@@ -21,6 +21,8 @@ export const getBrowserInfo = async () => {
     };
   }
 
+  console.log(location);
+
   return {
     remoteAddress: location.ip,
     region: location.region,

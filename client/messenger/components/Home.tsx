@@ -109,7 +109,6 @@ class Home extends React.Component<Props, State> {
 
   renderHead() {
     const { supporters, loading, messengerData } = this.props;
-    console.log(messengerData);
 
     return (
       <div
@@ -141,7 +140,6 @@ class Home extends React.Component<Props, State> {
             appear={true}
             timeout={600}
             classNames="slide"
-            unmountOnExit
           >
             <div className="erxes-home-item">
               <Integrations />
