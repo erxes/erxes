@@ -27,6 +27,7 @@ type Props = {
 
   bulk: IConversation[];
   toggleBulk: (target: IConversation[], toggleAdd: boolean) => void;
+  emptyBulk: () => void;
 };
 
 class LeftSidebar extends React.Component<Props, {}> {
@@ -39,7 +40,7 @@ class LeftSidebar extends React.Component<Props, {}> {
   }
 
   renderSidebarActions() {
-    const { queryParams, history, bulk } = this.props;
+    const { queryParams, history, bulk, emptyBulk } = this.props;
 
     if (bulk.length > 0) {
       return (
@@ -51,7 +52,7 @@ class LeftSidebar extends React.Component<Props, {}> {
             />
 
             <Tagger targets={bulk} trigger={this.renderTrigger('Tag')} />
-            <Resolver conversations={bulk} />
+            <Resolver conversations={bulk} emptyBulk={emptyBulk} />
           </RightItems>
         </Sidebar.Header>
       );

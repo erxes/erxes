@@ -14,10 +14,11 @@ type Props = {
   ) => Promise<any>;
 
   conversations: IConversation[];
+  emptyBulk: () => void;
 };
 
 const ResolverContainer = (props: Props) => {
-  const { changeStatusMutation } = props;
+  const { changeStatusMutation, emptyBulk } = props;
 
   // change conversation status
   const changeStatus = (conversationIds, status) => {
@@ -30,6 +31,8 @@ const ResolverContainer = (props: Props) => {
             'The conversation has been reopened and restored to Inbox.'
           );
         }
+
+        emptyBulk();
       })
       .catch(e => {
         Alert.error(e.message);
