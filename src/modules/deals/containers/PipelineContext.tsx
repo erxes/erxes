@@ -7,7 +7,7 @@ import { collectOrders, reorder, reorderDealMap } from '../utils';
 
 type Props = {
   pipeline: IPipeline;
-  initialDealMap: IDealMap;
+  initialDealMap?: IDealMap;
 };
 
 type State = {

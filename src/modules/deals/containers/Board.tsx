@@ -2,11 +2,27 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Spinner } from '../../common/components';
-import { IPipeline } from '../../settings/deals/types';
+import { withProps } from '../../common/utils';
 import { queries } from '../graphql';
+import { IPipeline } from '../types';
 import Pipeline from './Pipeline';
 
-const WithPipelinesQuery = ({ pipelineDetailQuery }) => {
+type PipelineDetailQueryResponse = {
+  dealPipelineDetail: IPipeline;
+  loading: boolean;
+};
+
+type Props = {
+  currentPipeline?: IPipeline;
+};
+
+type FinalProps = {
+  pipelineDetailQuery: PipelineDetailQueryResponse;
+} & Props;
+
+const WithPipelinesQuery = (props: FinalProps) => {
+  const { pipelineDetailQuery } = props;
+
   if (!pipelineDetailQuery) {
     return null;
   }
@@ -20,13 +36,17 @@ const WithPipelinesQuery = ({ pipelineDetailQuery }) => {
   return <Pipeline pipeline={pipeline} key={pipeline._id} />;
 };
 
-export default compose(
-  graphql(gql(queries.pipelineDetail), {
-    name: 'pipelineDetailQuery',
-    skip: ({ currentPipeline }: { currentPipeline: IPipeline }) =>
-      !currentPipeline,
-    options: ({ currentPipeline }: { currentPipeline: IPipeline }) => ({
-      variables: { _id: currentPipeline._id }
-    })
-  })
-)(WithPipelinesQuery);
+export default withProps<Props>(
+  compose(
+    graphql<Props, PipelineDetailQueryResponse, { _id?: string }>(
+      gql(queries.pipelineDetail),
+      {
+        name: 'pipelineDetailQuery',
+        skip: ({ currentPipeline }) => !currentPipeline,
+        options: ({ currentPipeline }) => ({
+          variables: { _id: currentPipeline && currentPipeline._id }
+        })
+      }
+    )
+  )(WithPipelinesQuery)
+);

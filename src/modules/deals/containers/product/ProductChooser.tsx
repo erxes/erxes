@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Chooser } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { Form as ProductForm } from 'modules/settings/productService/components';
 import {
@@ -11,15 +11,26 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IProduct } from '../../../settings/productService/types';
 
+type ProductsQueryResponse = {
+  loading: boolean;
+  refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
+  products: IProduct[];
+};
+
+type AddMutationResponse = {
+  productAdd: (params: { variables: IProduct }) => Promise<void>;
+};
+
 type Props = {
   data: { name: string; products: IProduct[] };
-  productsQuery: any;
-  productAdd: (params: { variables: IProduct }) => Promise<void>;
   closeModal: () => void;
   onSelect: (products: IProduct[]) => void;
 };
 
-class ProductChooser extends React.Component<Props, any> {
+type FinalProps = { productsQuery: ProductsQueryResponse } & Props &
+  AddMutationResponse;
+
+class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
   constructor(props) {
     super(props);
 
@@ -81,17 +92,25 @@ class ProductChooser extends React.Component<Props, any> {
   }
 }
 
-export default compose(
-  graphql(gql(productQueries.products), {
-    name: 'productsQuery',
-    options: {
-      variables: {
-        perPage: 20
+export default withProps<Props>(
+  compose(
+    graphql<{}, ProductsQueryResponse, { perPage: number }>(
+      gql(productQueries.products),
+      {
+        name: 'productsQuery',
+        options: {
+          variables: {
+            perPage: 20
+          }
+        }
       }
-    }
-  }),
-  // mutations
-  graphql(gql(productMutations.productAdd), {
-    name: 'productAdd'
-  })
-)(ProductChooser);
+    ),
+    // mutations
+    graphql<{}, AddMutationResponse, IProduct>(
+      gql(productMutations.productAdd),
+      {
+        name: 'productAdd'
+      }
+    )
+  )(ProductChooser)
+);

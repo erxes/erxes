@@ -4,8 +4,10 @@ import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { Spinner } from '../../common/components';
+import { withProps } from '../../common/utils';
 import { queries } from '../graphql';
 import { IDealMap, IPipeline, IStageMap } from '../types';
+import { StagesQueryResponse } from './DealSelect';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 import { Stage } from './stage';
 
@@ -17,8 +19,8 @@ const Container = styled.div`
 
 type Props = {
   pipeline: IPipeline;
-  initialDealMap: IDealMap;
-  stageMap: IStageMap;
+  initialDealMap?: IDealMap;
+  stageMap?: IStageMap;
 };
 
 class WithStages extends React.Component<Props, {}> {
@@ -51,7 +53,7 @@ class WithStages extends React.Component<Props, {}> {
                         key={stageId}
                         index={index}
                         length={stagesCount}
-                        stage={stageMap[stageId]}
+                        stage={stageMap && stageMap[stageId]}
                         deals={dealMap[stageId]}
                       />
                     ))}
@@ -86,14 +88,16 @@ const WithStatesQuery = props => {
   return <WithStages {...props} stageMap={stageMap} initialDealMap={dealMap} />;
 };
 
-export default compose(
-  graphql(gql(queries.stages), {
-    name: 'stagesQuery',
-    options: ({ pipeline }: { pipeline: IPipeline }) => ({
-      fetchPolicy: 'network-only',
-      variables: {
-        pipelineId: pipeline._id
-      }
+export default withProps<Props>(
+  compose(
+    graphql<Props, StagesQueryResponse>(gql(queries.stages), {
+      name: 'stagesQuery',
+      options: ({ pipeline }) => ({
+        fetchPolicy: 'network-only',
+        variables: {
+          pipelineId: pipeline._id
+        }
+      })
     })
-  })
-)(WithStatesQuery);
+  )(WithStatesQuery)
+);

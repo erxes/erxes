@@ -1,19 +1,29 @@
 import gql from 'graphql-tag';
-import { __, Alert } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Deals } from '../components/portable';
 import { mutations, queries } from '../graphql';
 import { IDeal, IDealParams, SaveDealMutation } from '../types';
 
-type Props = {
+type DealsQueryResponse = {
   deals: IDeal[];
-  addMutation: SaveDealMutation;
-  dealsQuery: any;
+  loading: boolean;
+  refetch: () => void;
+};
+
+type Props = {
+  customerId?: string;
+  companyId?: string;
   isOpen?: boolean;
 };
 
-class PortableDealsContainer extends React.Component<Props> {
+type FinalProps = {
+  addMutation: SaveDealMutation;
+  dealsQuery: DealsQueryResponse;
+};
+
+class PortableDealsContainer extends React.Component<FinalProps> {
   saveDeal = (doc: IDealParams, callback: () => void) => {
     const { addMutation, dealsQuery } = this.props;
 
@@ -37,7 +47,7 @@ class PortableDealsContainer extends React.Component<Props> {
   };
 
   render() {
-    const { dealsQuery = {} } = this.props;
+    const { dealsQuery } = this.props;
 
     const deals = dealsQuery.deals || [];
 
@@ -52,25 +62,25 @@ class PortableDealsContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  // mutation
-  graphql(gql(mutations.dealsAdd), {
-    name: 'addMutation'
-  }),
-  graphql(gql(queries.deals), {
-    name: 'dealsQuery',
-    skip: ({ customerId, companyId }) => !customerId && !companyId,
-    options: ({
-      customerId,
-      companyId
-    }: {
-      customerId: string;
-      companyId: string;
-    }) => ({
-      variables: {
-        customerId,
-        companyId
-      }
+export default withProps<Props>(
+  compose(
+    // mutation
+    graphql<{}, SaveDealMutation, IDealParams>(gql(mutations.dealsAdd), {
+      name: 'addMutation'
+    }),
+    graphql<
+      Props,
+      DealsQueryResponse,
+      { customerId?: string; companyId?: string }
+    >(gql(queries.deals), {
+      name: 'dealsQuery',
+      skip: ({ customerId, companyId }) => !customerId && !companyId,
+      options: ({ customerId, companyId }) => ({
+        variables: {
+          customerId,
+          companyId
+        }
+      })
     })
-  })
-)(PortableDealsContainer);
+  )(PortableDealsContainer)
+);

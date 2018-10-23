@@ -2,17 +2,34 @@ import gql from 'graphql-tag';
 import { queries as generalQueries } from 'modules/settings/general/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { IConfig } from '../../../settings/profile/types';
 import { ProductItemForm } from '../../components';
 import { IProductData } from '../../types';
 
 type Props = {
+  productData: IProductData;
+  removeProductItem?: (productId: string) => void;
+  productsData?: IProductData[];
+  onChangeProductsData: (productsData: IProductData[]) => void;
+  updateTotal: () => void;
+};
+
+type GetUomQueryResponse = {
+  configsDetail: IConfig;
+};
+
+type GetCurrenciesQueryResponse = {
+  configsDetail: IConfig;
+};
+
+type FinalProps = {
   getUomQuery: any;
   getCurrenciesQuery: any;
   productDetailQuery: any;
-  productData: IProductData;
-};
+} & Props;
 
-class ProductItemFormContainer extends React.Component<Props> {
+class ProductItemFormContainer extends React.Component<FinalProps> {
   render() {
     const { getUomQuery, getCurrenciesQuery } = this.props;
 
@@ -34,21 +51,29 @@ class ProductItemFormContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(generalQueries.configsDetail), {
-    name: 'getUomQuery',
-    options: {
-      variables: {
-        code: 'dealUOM'
+export default withProps<Props>(
+  compose(
+    graphql<Props, GetUomQueryResponse, { code: string }>(
+      gql(generalQueries.configsDetail),
+      {
+        name: 'getUomQuery',
+        options: {
+          variables: {
+            code: 'dealUOM'
+          }
+        }
       }
-    }
-  }),
-  graphql(gql(generalQueries.configsDetail), {
-    name: 'getCurrenciesQuery',
-    options: {
-      variables: {
-        code: 'dealCurrency'
+    ),
+    graphql<Props, GetCurrenciesQueryResponse, { code: string }>(
+      gql(generalQueries.configsDetail),
+      {
+        name: 'getCurrenciesQuery',
+        options: {
+          variables: {
+            code: 'dealCurrency'
+          }
+        }
       }
-    }
-  })
-)(ProductItemFormContainer);
+    )
+  )(ProductItemFormContainer)
+);
