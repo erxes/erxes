@@ -9,7 +9,7 @@ type Props = {
   link?: string;
   images?: string[];
   commentVideo?: string;
-  scrollBottom: () => void;
+  scrollBottom?: () => void;
 };
 
 export default class FacebookContent extends React.Component<Props, {}> {

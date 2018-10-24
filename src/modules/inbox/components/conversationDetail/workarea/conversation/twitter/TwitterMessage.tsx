@@ -2,8 +2,11 @@ import { Icon, ModalTrigger, NameCard, Tip } from 'modules/common/components';
 import * as moment from 'moment';
 import * as React from 'react';
 import { ICustomer } from '../../../../../../customers/types';
-import { IAddMessage } from '../../../../../containers/conversationDetail/WorkArea';
-import { IMessage, ITwitterData } from '../../../../../types';
+import {
+  AddMessageMutationVariables,
+  IMessage,
+  ITwitterData
+} from '../../../../../types';
 import { ModalAction, TweetContent, TweetMedia } from './';
 import { Count, Counts, Reply, Time, Tweet, User } from './styles';
 
@@ -22,7 +25,7 @@ type Props = {
     },
     callback: () => void
   ) => void;
-  replyTweet: (data: IAddMessage, callback: () => void) => void;
+  replyTweet: (data: AddMessageMutationVariables, callback: () => void) => void;
   tweet: (
     data: {
       integrationId: string;

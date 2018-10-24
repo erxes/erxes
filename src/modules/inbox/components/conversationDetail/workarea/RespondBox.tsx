@@ -22,13 +22,15 @@ import {
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
-import { IAddMessage } from '../../../containers/conversationDetail/WorkArea';
-import { IConversation } from '../../../types';
+import { AddMessageMutationVariables, IConversation } from '../../../types';
 import Editor from './Editor';
 
 type Props = {
   conversation: IConversation;
-  sendMessage: (message: IAddMessage, callback: (error: Error) => void) => void;
+  sendMessage: (
+    message: AddMessageMutationVariables,
+    callback: (error: Error) => void
+  ) => void;
   setAttachmentPreview?: (data: string | null) => void;
   responseTemplates: IResponseTemplate[];
   teamMembers: IUser[];

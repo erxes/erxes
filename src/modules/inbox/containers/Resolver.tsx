@@ -1,23 +1,25 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Resolver } from '../components';
 import { mutations } from '../graphql';
-import { IConversation } from '../types';
+import {
+  ChangeStatusMutationResponse,
+  ChangeStatusMutationVariables,
+  IConversation
+} from '../types';
 import { refetchSidebarConversationsOptions } from '../utils';
 
 type Props = {
-  changeStatusMutation: (
-    doc: { variables: { _ids: string[]; status: boolean } }
-  ) => Promise<any>;
-
   conversations: IConversation[];
-  emptyBulk: () => void;
+  emptyBulk?: () => void;
 };
 
-const ResolverContainer = (props: Props) => {
+type FinalProps = Props & ChangeStatusMutationResponse;
+
+const ResolverContainer = (props: FinalProps) => {
   const { changeStatusMutation, emptyBulk } = props;
 
   // change conversation status
@@ -32,7 +34,9 @@ const ResolverContainer = (props: Props) => {
           );
         }
 
-        emptyBulk();
+        if (emptyBulk) {
+          emptyBulk();
+        }
       })
       .catch(e => {
         Alert.error(e.message);
@@ -47,9 +51,14 @@ const ResolverContainer = (props: Props) => {
   return <Resolver {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(mutations.conversationsChangeStatus), {
-    name: 'changeStatusMutation',
-    options: () => refetchSidebarConversationsOptions()
-  })
-)(ResolverContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, ChangeStatusMutationResponse, ChangeStatusMutationVariables>(
+      gql(mutations.conversationsChangeStatus),
+      {
+        name: 'changeStatusMutation',
+        options: () => refetchSidebarConversationsOptions()
+      }
+    )
+  )(ResolverContainer)
+);

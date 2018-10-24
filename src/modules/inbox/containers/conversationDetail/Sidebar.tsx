@@ -4,13 +4,18 @@ import { Sidebar as DumbSidebar } from 'modules/inbox/components/conversationDet
 import { queries } from 'modules/inbox/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { ICustomer } from '../../../customers/types';
+import { withProps } from '../../../common/utils';
+import {
+  CustomerDetailQueryResponse,
+  ICustomer
+} from '../../../customers/types';
 import { IConversation } from '../../types';
 
 type Props = {
   conversation: IConversation;
-  customerDetailQuery: any;
 };
+
+type FinalProps = { customerDetailQuery: CustomerDetailQueryResponse } & Props;
 
 type State = {
   customer: ICustomer;
@@ -31,7 +36,7 @@ const setConfig = params => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
 };
 
-class Sidebar extends React.Component<Props, State> {
+class Sidebar extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
@@ -128,13 +133,18 @@ class Sidebar extends React.Component<Props, State> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.generateCustomerDetailQuery(getConfig())), {
-    name: 'customerDetailQuery',
-    options: ({ conversation }: { conversation: IConversation }) => ({
-      variables: {
-        _id: conversation.customerId
+export default withProps<Props>(
+  compose(
+    graphql<Props, CustomerDetailQueryResponse, { _id?: string }>(
+      gql(queries.generateCustomerDetailQuery(getConfig())),
+      {
+        name: 'customerDetailQuery',
+        options: ({ conversation }) => ({
+          variables: {
+            _id: conversation.customerId
+          }
+        })
       }
-    })
-  })
-)(Sidebar);
+    )
+  )(Sidebar)
+);
