@@ -21,7 +21,7 @@ type Props = {
 type FinalProps = {
   addMutation: SaveDealMutation;
   dealsQuery: DealsQueryResponse;
-};
+} & Props;
 
 class PortableDealsContainer extends React.Component<FinalProps> {
   saveDeal = (doc: IDealParams, callback: () => void) => {
@@ -48,6 +48,9 @@ class PortableDealsContainer extends React.Component<FinalProps> {
 
   render() {
     const { dealsQuery } = this.props;
+    if (!dealsQuery) {
+      return null;
+    }
 
     const deals = dealsQuery.deals || [];
 
