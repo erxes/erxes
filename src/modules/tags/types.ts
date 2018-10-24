@@ -23,3 +23,11 @@ export type ITagTypes =
   | 'engageMessage'
   | 'company'
   | 'integration';
+
+// queries
+
+export type TagsQueryResponse = {
+  tags: ITag[];
+  loading: boolean;
+  refetch: () => void;
+};

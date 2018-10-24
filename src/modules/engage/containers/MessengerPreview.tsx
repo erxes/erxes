@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
-import { UserDetailQueryResponse } from '../../settings/team/containers/UserDetailForm';
+import { UserDetailQueryResponse } from '../../settings/team/types';
 import { MessengerPreview } from '../components';
 import { queries } from '../graphql';
 

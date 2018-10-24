@@ -6,12 +6,6 @@ import { List } from '../components';
 import { mutations, queries } from '../graphql';
 import { ITag, ITagSaveParams } from '../types';
 
-export type TagsQueryResponse = {
-  tags: ITag[];
-  loading: boolean;
-  refetch: () => void;
-};
-
 type Variables = {
   _id?: string;
   name: string;

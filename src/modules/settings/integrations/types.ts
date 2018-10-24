@@ -105,3 +105,28 @@ export interface IIntegration {
   brand: IBrand;
   channels: IChannel[];
 }
+
+// query types
+
+export type IntegrationsQueryResponse = {
+  integrations: IIntegration[];
+  loading: boolean;
+};
+
+// mutation types
+
+export type AddIntegrationMutationVariables = {
+  formData: IFormData;
+  brandId: string;
+  name: string;
+  languageCode: string;
+  formId: string;
+};
+
+export type AddIntegrationMutationResponse = {
+  addIntegrationMutation: (
+    params: {
+      variables: AddIntegrationMutationVariables;
+    }
+  ) => Promise<void>;
+};

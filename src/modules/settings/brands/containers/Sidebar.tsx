@@ -6,12 +6,6 @@ import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
 import { IBrand } from '../types';
 
-export type BrandsQueryResponse = {
-  brands: IBrand[];
-  loading: boolean;
-  refetch: () => void;
-};
-
 type QueryResponse = {
   brandsQuery: any;
   brandsCountQuery: any;

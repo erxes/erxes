@@ -2,15 +2,10 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { IIntegration } from '../../../settings/integrations/types';
+import { IntegrationsQueryResponse } from '../../../settings/integrations/types';
 import { FormFilter } from '../../components';
 import { queries } from '../../graphql';
-import { CountQueryResponse } from './BrandFilter';
-
-type IntegrationsQueryResponse = {
-  integrations: IIntegration[];
-  loading: boolean;
-};
+import { CountQueryResponse } from '../../types';
 
 type Props = {
   integrationsQuery: IntegrationsQueryResponse;

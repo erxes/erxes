@@ -3,37 +3,10 @@ import { queries } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { ISegment } from '../../../segments/types';
-import { IBrand } from '../../../settings/brands/types';
+import { BrandsQueryResponse } from '../../../settings/brands/types';
 import { BrandFilter } from '../../components';
 import { queries as customerQueries } from '../../graphql';
-import { QueryVariables } from '../CustomersList';
-
-type CountResponse = {
-  [key: string]: number;
-};
-
-type CustomerCounts = {
-  byBrand: CountResponse;
-  byFakeSegment: number;
-  byForm: CountResponse;
-  byIntegrationType: CountResponse;
-  byLeadStatus: CountResponse;
-  byLifecycleState: CountResponse;
-  bySegment: CountResponse;
-  byTag: CountResponse;
-};
-
-export type CountQueryResponse = {
-  customerCounts: CustomerCounts;
-  loading: boolean;
-  refetch: (variables?: { byFakeSegment: ISegment } & QueryVariables) => void;
-};
-
-type BrandsQueryResponse = {
-  brands: IBrand[];
-  loading: boolean;
-};
+import { CountQueryResponse } from '../../types';
 
 type Props = {
   brandsQuery: BrandsQueryResponse;

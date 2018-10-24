@@ -2,10 +2,10 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
-import { BrandsQueryResponse } from '../../settings/brands/containers/Sidebar';
+import { BrandsQueryResponse } from '../../settings/brands/types';
 import { MessageForm } from '../components';
 import { queries } from '../graphql';
-import { EngageMessageDetailQueryResponse } from './EmailStatistics';
+import { EngageMessageDetailQueryResponse } from '../types';
 
 type Props = {
   kind?: string;

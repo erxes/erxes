@@ -1,43 +1,22 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
-import { ISegmentCondition } from 'modules/segments/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { UsersQueryResponse } from '../../settings/team/containers/UserList';
+import { UsersQueryResponse } from '../../settings/team/types';
 import { mutations, queries } from '../graphql';
+import {
+  EngageMessageDetailQueryResponse,
+  WithFormAddMutationResponse,
+  WithFormEditMutationResponse,
+  WithFormMutationVariables
+} from '../types';
 import { crudMutationsOptions } from '../utils';
-import { EngageMessageDetailQueryResponse } from './EmailStatistics';
 
 type Props = {
   messageId: string;
   kind: string;
-};
-
-type MutationVariables = {
-  name: string;
-  description: string;
-  subOf: string;
-  color: string;
-  connector: string;
-  conditions: ISegmentCondition[];
-};
-
-type AddMutationResponse = {
-  addMutation: (
-    params: {
-      variables: MutationVariables;
-    }
-  ) => Promise<any>;
-};
-
-type EditMutationResponse = {
-  editMutation: (
-    params: {
-      vairables: MutationVariables;
-    }
-  ) => Promise<any>;
 };
 
 type FinalProps = {
@@ -45,8 +24,8 @@ type FinalProps = {
   usersQuery: UsersQueryResponse;
 } & IRouterProps &
   Props &
-  AddMutationResponse &
-  EditMutationResponse;
+  WithFormAddMutationResponse &
+  WithFormEditMutationResponse;
 
 function withSaveAndEdit<IComponentProps>(Component) {
   const Container = (props: FinalProps) => {
@@ -155,14 +134,14 @@ function withSaveAndEdit<IComponentProps>(Component) {
       graphql<Props, UsersQueryResponse>(gql(queries.users), {
         name: 'usersQuery'
       }),
-      graphql<Props, AddMutationResponse, MutationVariables>(
+      graphql<Props, WithFormAddMutationResponse, WithFormMutationVariables>(
         gql(mutations.messagesAdd),
         {
           name: 'addMutation',
           options: crudMutationsOptions
         }
       ),
-      graphql<Props, EditMutationResponse, MutationVariables>(
+      graphql<Props, WithFormEditMutationResponse, WithFormMutationVariables>(
         gql(mutations.messagesEdit),
         {
           name: 'editMutation',

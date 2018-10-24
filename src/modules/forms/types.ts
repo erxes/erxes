@@ -34,3 +34,18 @@ export interface IFormIntegration extends IIntegration {
   tags: ITag[];
   createdUser: IUser;
 }
+
+// mutation types
+export type AddFormMutationVariables = {
+  title: string;
+  description: string;
+  buttonText: string;
+  themeColor: string;
+  callout: ICallout;
+};
+
+export type AddFormMutationResponse = {
+  addFormMutation: (
+    params: { variables: AddFormMutationVariables }
+  ) => Promise<any>;
+};

@@ -5,25 +5,16 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ICompany } from '../../companies/types';
 import { CustomerSection } from '../components/common';
-
-type EditMutationVariables = {
-  _id: string;
-  customerIds: string[];
-};
-
-type EditMutationResponse = {
-  companiesEditCustomers: (
-    doc: {
-      variables: EditMutationVariables;
-    }
-  ) => Promise<any>;
-};
+import {
+  CompaniesEditCustomersMutationResponse,
+  CompaniesEditCustomersMutationVariables
+} from '../types';
 
 type Props = {
   data: ICompany;
 };
 
-type FinalProps = Props & EditMutationResponse;
+type FinalProps = Props & CompaniesEditCustomersMutationResponse;
 
 const CustomerAssociate = (props: FinalProps) => {
   const { companiesEditCustomers, data } = props;
@@ -55,14 +46,15 @@ const CustomerAssociate = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<{}, EditMutationResponse, EditMutationVariables>(
-      gql(companyMutations.companiesEditCustomers),
-      {
-        name: 'companiesEditCustomers',
-        options: () => ({
-          refetchQueries: ['companyDetail']
-        })
-      }
-    )
+    graphql<
+      {},
+      CompaniesEditCustomersMutationResponse,
+      CompaniesEditCustomersMutationVariables
+    >(gql(companyMutations.companiesEditCustomers), {
+      name: 'companiesEditCustomers',
+      options: () => ({
+        refetchQueries: ['companyDetail']
+      })
+    })
   )(CustomerAssociate)
 );

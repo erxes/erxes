@@ -3,7 +3,7 @@ import Segments from 'modules/segments/containers/Filter';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
-import { CountQueryResponse } from './BrandFilter';
+import { CountQueryResponse } from '../../types';
 
 const SegmentFilterContainer = (props: {
   companyCountsQuery: CountQueryResponse;

@@ -5,16 +5,12 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CompanyForm } from '.';
 import { mutations, queries } from '../graphql';
-import { ICompany, ICompanyDoc } from '../types';
-
-type AddMutationResponse = {
-  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>;
-};
-
-type CompaniesQueryResponse = {
-  companies: ICompany[];
-  loading: boolean;
-};
+import {
+  AddMutationResponse,
+  CompaniesQueryResponse,
+  ICompany,
+  ICompanyDoc
+} from '../types';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;

@@ -42,3 +42,40 @@ export interface IConfigColumn {
   label: string;
   order: React.ReactNode;
 }
+
+// query types
+
+export type FieldsQueryResponse = {
+  fields: IField[];
+  loading: boolean;
+  refetch: () => Promise<void>;
+};
+
+export type FieldsGroupsQueryResponse = {
+  fieldsGroups: IFieldGroup[];
+  loading: boolean;
+};
+
+export type FieldsCombinedByType = {
+  _id: number;
+  name: string;
+  label: string;
+};
+
+export type FieldsCombinedByTypeQueryResponse = {
+  fieldsCombinedByContentType: FieldsCombinedByType[];
+};
+
+export type AddFieldsMutationVariables = {
+  contentType: string;
+  contentTypeId: string;
+  field: IField;
+};
+
+export type AddFieldsMutationResponse = {
+  addFieldsMutation: (
+    params: {
+      variables: AddFieldsMutationVariables;
+    }
+  ) => void;
+};

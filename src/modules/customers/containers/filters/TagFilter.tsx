@@ -5,13 +5,13 @@ import { queries as tagQueries } from 'modules/tags/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { TagQueryResponse } from '../../../companies/containers/filters/TagFilter';
+import { TagsQueryResponse } from '../../../tags/types';
 import { queries as customerQueries } from '../../graphql';
-import { CountQueryResponse } from './BrandFilter';
+import { CountQueryResponse } from '../../types';
 
 const TagFilterContainer = (props: {
   customersCountQuery: CountQueryResponse;
-  tagsQuery: TagQueryResponse;
+  tagsQuery: TagsQueryResponse;
 }) => {
   const { customersCountQuery, tagsQuery } = props;
 
@@ -38,7 +38,7 @@ export default withProps<{}>(
         }
       }
     ),
-    graphql<{}, TagQueryResponse, { type: string }>(gql(tagQueries.tags), {
+    graphql<{}, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
       name: 'tagsQuery',
       options: () => ({
         variables: {

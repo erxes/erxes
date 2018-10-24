@@ -7,18 +7,9 @@ import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { IFieldGroup } from '../../../settings/properties/types';
+import { FieldsGroupsQueryResponse } from '../../../settings/properties/types';
 import { mutations } from '../../graphql';
-import { ICustomer } from '../../types';
-
-type FieldsGroupsQueryResponse = {
-  fieldsGroups: IFieldGroup[];
-  loading: boolean;
-};
-
-type EditMutationResponse = {
-  customersEdit: (doc: { variables: ICustomer }) => Promise<any>;
-};
+import { EditMutationResponse, ICustomer } from '../../types';
 
 type Props = {
   customer: ICustomer;

@@ -4,12 +4,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { UserDetailForm } from '../components';
 import { queries } from '../graphql';
-
-export type UserDetailQueryResponse = {
-  userDetail: IUser;
-  loading: boolean;
-  refetch: () => void;
-};
+import { UserDetailQueryResponse } from '../types';
 
 type Props = {
   userDetailQuery: UserDetailQueryResponse;

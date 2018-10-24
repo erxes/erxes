@@ -3,10 +3,10 @@ import { withCurrentUser } from 'modules/auth/containers';
 import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import { IEngageMessageDoc } from 'modules/engage/types';
+import { AddMutationResponse, IEngageMessageDoc } from 'modules/engage/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { BrandsQueryResponse } from '../../settings/brands/containers/Sidebar';
+import { BrandsQueryResponse } from '../../settings/brands/types';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
 import { Widget } from '../components';
 import { MESSAGE_KINDS, MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
@@ -16,12 +16,6 @@ import { crudMutationsOptions } from '../utils';
 type Props = {
   customers: ICustomer[];
   emptyBulk: () => void;
-};
-
-type AddMutationResponse = {
-  messagesAddMutation: (
-    params: { variables: IEngageMessageDoc }
-  ) => Promise<any>;
 };
 
 type FinalProps = {

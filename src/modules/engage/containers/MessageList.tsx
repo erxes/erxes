@@ -8,29 +8,12 @@ import { withRouter } from 'react-router';
 import { withProps } from '../../common/utils';
 import { MessageList } from '../components';
 import { queries } from '../graphql';
-import { IEngageMessage } from '../types';
+import {
+  EngageMessagesQueryResponse,
+  EngageMessagesTotalCountQueryResponse,
+  ListQueryVariables
+} from '../types';
 import { generateListQueryVariables } from '../utils';
-
-type QueryVariables = {
-  page?: number;
-  perPage?: number;
-  kind?: string;
-  status?: string;
-  tag?: string;
-  ids?: string[];
-};
-
-type EngageMessagesQueryResponse = {
-  engageMessages: IEngageMessage[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-type EngageMessagesTotalCountQueryResponse = {
-  engageMessagesTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
 
 type Props = {
   type: string;
@@ -85,7 +68,7 @@ class MessageListContainer extends React.Component<FinalProps, State> {
 
 const MessageListContainerWithData = withProps<Props>(
   compose(
-    graphql<Props, EngageMessagesQueryResponse, QueryVariables>(
+    graphql<Props, EngageMessagesQueryResponse, ListQueryVariables>(
       gql(queries.engageMessages),
       {
         name: 'engageMessagesQuery',
@@ -95,7 +78,7 @@ const MessageListContainerWithData = withProps<Props>(
         })
       }
     ),
-    graphql<Props, EngageMessagesTotalCountQueryResponse, QueryVariables>(
+    graphql<Props, EngageMessagesTotalCountQueryResponse, ListQueryVariables>(
       gql(queries.engageMessagesTotalCount),
       {
         name: 'engageMessagesTotalCountQuery',

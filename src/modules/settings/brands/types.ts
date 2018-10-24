@@ -10,3 +10,11 @@ export interface IBrand {
 export interface IBrandsCount {
   brandsTotalCount: number;
 }
+
+// queries
+
+export type BrandsQueryResponse = {
+  brands: IBrand[];
+  loading: boolean;
+  refetch: () => void;
+};

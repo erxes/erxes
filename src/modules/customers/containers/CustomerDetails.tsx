@@ -4,20 +4,12 @@ import { Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IActivityLogForMonth } from '../../activityLogs/types';
 import { CustomerDetails } from '../components';
 import { queries } from '../graphql';
-import { ICustomer } from '../types';
-
-type CustomerDetailQueryResponse = {
-  customerDetail: ICustomer;
-  loading: boolean;
-};
-
-type ActivityLogQueryResponse = {
-  activityLogsCustomer: IActivityLogForMonth[];
-  loading: boolean;
-};
+import {
+  ActivityLogQueryResponse,
+  CustomerDetailQueryResponse
+} from '../types';
 
 type Props = {
   id: string;

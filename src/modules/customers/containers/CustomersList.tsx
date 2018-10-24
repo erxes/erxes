@@ -7,57 +7,17 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Bulk } from '../../common/components';
 import { IRouterProps } from '../../common/types';
-import { ListConfigQueryResponse } from '../../companies/containers/CompaniesList';
+import { ListConfigQueryResponse } from '../../companies/types';
 import { CustomersList } from '../components';
 import { mutations, queries } from '../graphql';
-import { ICustomer } from '../types';
-
-export type QueryVariables = {
-  page?: number;
-  perPage?: number;
-  segment?: string;
-  tag?: string;
-  ids?: string;
-  searchValue?: string;
-  brand?: string;
-  integration?: string;
-  form?: string;
-  startDate?: string;
-  endDate?: string;
-  leadStatus?: string;
-  lifecycleState?: string;
-  sortField?: string;
-  sortDirection?: number;
-};
-
-type MainQueryResponse = {
-  customersMain: { list: ICustomer[]; totalCount: number };
-  loading: boolean;
-  refetch: () => void;
-};
-
-type RemoveMutationVariables = {
-  customerIds: string[];
-};
-
-type RemoveMutationResponse = {
-  customersRemove: (
-    params: { variables: RemoveMutationVariables }
-  ) => Promise<void>;
-};
-
-type MergeMutationVariables = {
-  customerIds: string[];
-  customerFields: any;
-};
-
-type MergeMutationResponse = {
-  customersMerge: (
-    params: {
-      variables: MergeMutationVariables;
-    }
-  ) => Promise<void>;
-};
+import {
+  ListQueryVariables,
+  MainQueryResponse,
+  MergeMutationResponse,
+  MergeMutationVariables,
+  RemoveMutationResponse,
+  RemoveMutationVariables
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -236,7 +196,7 @@ const generateParams = ({ queryParams }) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, MainQueryResponse, QueryVariables>(
+    graphql<Props, MainQueryResponse, ListQueryVariables>(
       gql(queries.customersMain),
       {
         name: 'customersMainQuery',

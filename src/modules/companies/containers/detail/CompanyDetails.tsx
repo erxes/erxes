@@ -2,28 +2,18 @@ import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IActivityLogForMonth } from '../../../activityLogs/types';
 import { IUser } from '../../../auth/types';
 import { CompanyDetails } from '../../components';
 import { queries } from '../../graphql';
-import { ICompany } from '../../types';
-
-type DetailQueryResponse = {
-  companyDetail: ICompany;
-};
-
-type ActivityLogQueryResponse = {
-  activityLogsCompany: IActivityLogForMonth[];
-  loading: boolean;
-};
+import { ActivityLogQueryResponse, DetailQueryResponse } from '../../types';
 
 type Props = {
   id: string;
 };
 
 type FinalProps = {
-  companyDetailQuery?: any;
-  companyActivityLogQuery?: any;
+  companyDetailQuery: DetailQueryResponse;
+  companyActivityLogQuery: ActivityLogQueryResponse;
   currentUser: IUser;
 } & Props;
 

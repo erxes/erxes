@@ -5,17 +5,12 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CustomerForm } from '../containers';
 import { mutations, queries } from '../graphql';
-import { ICustomer, ICustomerDoc } from '../types';
-
-type CustomersQueryResponse = {
-  customers: ICustomer[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-type AddMutationResponse = {
-  customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>;
-};
+import {
+  AddMutationResponse,
+  CustomersQueryResponse,
+  ICustomer,
+  ICustomerDoc
+} from '../types';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;

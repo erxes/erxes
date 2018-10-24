@@ -1,48 +1,25 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
-import { ISegmentCondition } from 'modules/segments/types';
+import {
+  AddMutationResponse,
+  AddMutationVariables
+} from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { CountQueryResponse } from '../../customers/containers/filters/BrandFilter';
+import { CountQueryResponse } from '../../customers/types';
 import {
   HeadSegmentsQueryResponse,
   SegmentsQueryResponse
 } from '../../segments/containers/SegmentsList';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
+import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
 import { AutoAndManualForm } from '../components';
 import FormBase from '../components/FormBase';
 import { mutations, queries } from '../graphql';
 import { IEngageMessageDoc, IEngageScheduleDate } from '../types';
 import withFormMutations from './withFormMutations';
-
-type FieldsCombinedByType = {
-  _id: number;
-  name: string;
-  label: string;
-};
-
-type FieldsCombinedByTypeQueryResponse = {
-  fieldsCombinedByContentType: FieldsCombinedByType[];
-};
-
-type AddMutationVariables = {
-  name: string;
-  description: string;
-  subOf: string;
-  color: string;
-  connector: string;
-  conditions: ISegmentCondition[];
-};
-
-type AddMutationResponse = {
-  segmentsAdd: (
-    params: {
-      variables: AddMutationVariables;
-    }
-  ) => Promise<any>;
-};
 
 type Props = {
   kind?: string;

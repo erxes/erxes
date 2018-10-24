@@ -2,36 +2,17 @@ import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { ActionSection } from 'modules/customers/components/common';
 import { mutations } from 'modules/customers/graphql';
-import { ICustomer } from 'modules/customers/types';
+import {
+  ICustomer,
+  MergeMutationResponse,
+  MergeMutationVariables,
+  RemoveMutationResponse,
+  RemoveMutationVariables
+} from 'modules/customers/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
-
-type RemoveMutationVariables = {
-  customerIds: string[];
-};
-
-type RemoveMutationResponse = {
-  customersRemove: (
-    doc: {
-      variables: RemoveMutationVariables;
-    }
-  ) => Promise<any>;
-};
-
-type MergeMutationVariables = {
-  customerIds: string[];
-  customerFields: ICustomer;
-};
-
-type MergeMutationResponse = {
-  customersMerge: (
-    doc: {
-      variables: MergeMutationVariables;
-    }
-  ) => Promise<any>;
-};
 
 type Props = {
   customer: ICustomer;

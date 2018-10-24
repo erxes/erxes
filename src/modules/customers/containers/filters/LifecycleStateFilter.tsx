@@ -4,7 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { LifecycleStateFilter } from '../../components';
 import { queries } from '../../graphql';
-import { CountQueryResponse } from './BrandFilter';
+import { CountQueryResponse } from '../../types';
 
 type Props = {
   customersCountQuery: CountQueryResponse;

@@ -5,14 +5,9 @@ import { queries as tagQueries } from 'modules/tags/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { ITag } from '../../../tags/types';
+import { TagsQueryResponse } from '../../../tags/types';
 import { queries as companyQueries } from '../../graphql';
-import { CountQueryResponse } from './BrandFilter';
-
-export type TagQueryResponse = {
-  tags: ITag[];
-  loading: boolean;
-};
+import { CountQueryResponse } from '../../types';
 
 const TagFilterContainer = (props: {
   companyCountsQuery: CountQueryResponse;
@@ -43,7 +38,7 @@ export default withProps<{}>(
         }
       }
     ),
-    graphql<{}, TagQueryResponse, { type: string }>(gql(tagQueries.tags), {
+    graphql<{}, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
       name: 'tagsQuery',
       options: () => ({
         variables: {

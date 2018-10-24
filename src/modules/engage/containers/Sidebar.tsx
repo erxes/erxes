@@ -5,24 +5,10 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { withProps } from '../../common/utils';
-import { TagsQueryResponse } from '../../tags/containers/List';
+import { TagsQueryResponse } from '../../tags/types';
 import { Sidebar } from '../components';
 import { queries } from '../graphql';
-
-type EngageMessageCounts = {
-  all: number;
-  auto: number;
-  manual: number;
-  visitoryAuto: number;
-};
-
-type TagCountQueryResponse = {
-  [key: string]: number;
-};
-
-type CountQueryResponse = {
-  engageMessageCounts: EngageMessageCounts;
-};
+import { CountQueryResponse, TagCountQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;

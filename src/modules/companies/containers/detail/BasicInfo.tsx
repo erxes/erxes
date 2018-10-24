@@ -7,28 +7,13 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IUser } from '../../../auth/types';
 import { IRouterProps } from '../../../common/types';
-import { ICompany } from '../../types';
-
-type RemoveMutationVariables = {
-  companyIds: string[];
-};
-
-type RemoveMutationResponse = {
-  companiesRemove: (
-    params: { variables: RemoveMutationVariables }
-  ) => Promise<any>;
-};
-
-type MergeMutationVariables = {
-  companyIds: string[];
-  companyFields: any;
-};
-
-type MergeMutationResponse = {
-  companiesMerge: (
-    params: { variables: MergeMutationVariables }
-  ) => Promise<any>;
-};
+import {
+  ICompany,
+  MergeMutationResponse,
+  MergeMutationVariables,
+  RemoveMutationResponse,
+  RemoveMutationVariables
+} from '../../types';
 
 interface IProps {
   company: ICompany;

@@ -1,18 +1,15 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import { ICustomer, ICustomerDoc } from 'modules/customers/types';
+import {
+  AddMutationResponse,
+  EditMutationResponse,
+  ICustomer,
+  ICustomerDoc
+} from 'modules/customers/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CustomerForm } from '../components';
 import { mutations } from '../graphql';
-
-type EditMutationResponse = {
-  customersEdit: (params: { variables: ICustomer }) => Promise<any>;
-};
-
-type AddMutationResponse = {
-  customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>;
-};
 
 type Props = {
   customer: ICustomer;

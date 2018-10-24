@@ -27,12 +27,6 @@ const commonParams = `
   passwordConfirmation: $passwordConfirmation
 `;
 
-export type UsersQueryResponse = {
-  users: IUser[];
-  loading: boolean;
-  refetch: () => void;
-};
-
 export default commonListComposer({
   name: 'users',
 

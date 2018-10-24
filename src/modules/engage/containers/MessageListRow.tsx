@@ -6,30 +6,15 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { MessageListRow } from '../components';
 import { mutations, queries } from '../graphql';
-import { IEngageMessage } from '../types';
+import {
+  IEngageMessage,
+  MutationVariables,
+  RemoveMutationResponse,
+  SetLiveManualMutationResponse,
+  SetLiveMutationResponse,
+  SetPauseMutationResponse
+} from '../types';
 import { crudMutationsOptions } from '../utils';
-
-type MutationVariables = {
-  _id: string;
-};
-
-type RemoveMutationResponse = {
-  removeMutation: (params: { variables: MutationVariables }) => Promise<void>;
-};
-
-type SetPauseMutationResponse = {
-  setPauseMutation: (params: { variables: MutationVariables }) => Promise<void>;
-};
-
-type SetLiveMutationResponse = {
-  setLiveMutation: (params: { variables: MutationVariables }) => Promise<void>;
-};
-
-type SetLiveManualMutationResponse = {
-  setLiveManualMutation: (
-    params: { vairables: MutationVariables }
-  ) => Promise<void>;
-};
 
 type Props = {
   isChecked: boolean;

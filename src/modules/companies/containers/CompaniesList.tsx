@@ -7,61 +7,15 @@ import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
 import { CompaniesList } from '../components';
 import { mutations, queries } from '../graphql';
-import { ICompany } from '../types';
-
-type QueryVariables = {
-  page: number;
-  perPage: number;
-  segment: string;
-  tag: string;
-  brand: string;
-  ids: string[];
-  searchValue: string;
-  leadStatus: string;
-  lifecycleState: string;
-  sortField: string;
-  sortDirection: number;
-};
-
-type ListConfig = {
-  name: string;
-  label: string;
-  order: number;
-};
-
-type MainQueryResponse = {
-  companiesMain: { list: ICompany[]; totalCount: number };
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type ListConfigQueryResponse = {
-  fieldsDefaultColumnsConfig: ListConfig[];
-  loading: boolean;
-};
-
-type RemoveMutationVariables = {
-  companyIds: string[];
-};
-
-type RemoveMutationResponse = {
-  companiesRemove: (
-    params: { variables: RemoveMutationVariables }
-  ) => Promise<any>;
-};
-
-type MergeMutationVariables = {
-  companyIds: string[];
-  companyFields: any;
-};
-
-type MergeMutationResponse = {
-  companiesMerge: (
-    params: {
-      variables: MergeMutationVariables;
-    }
-  ) => Promise<any>;
-};
+import {
+  ListConfigQueryResponse,
+  ListQueryVariables,
+  MainQueryResponse,
+  MergeMutationResponse,
+  MergeMutationVariables,
+  RemoveMutationResponse,
+  RemoveMutationVariables
+} from '../types';
 
 type Props = {
   queryParams?: any;
@@ -184,7 +138,7 @@ const generateParams = ({ queryParams }) => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{ queryParams: any }, MainQueryResponse, QueryVariables>(
+    graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
       gql(queries.companiesMain),
       {
         name: 'companiesMainQuery',

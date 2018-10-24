@@ -4,18 +4,9 @@ import { queries } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { IBrand } from '../../../settings/brands/types';
+import { BrandsQueryResponse } from '../../../settings/brands/types';
 import { queries as companyQueries } from '../../graphql';
-
-type BrandsQueryResponse = {
-  brands: IBrand[];
-  loading: boolean;
-};
-
-export type CountQueryResponse = {
-  companyCounts: { [key: string]: number };
-  loading: boolean;
-};
+import { CountQueryResponse } from '../../types';
 
 type Props = {
   brandsQuery: BrandsQueryResponse;
@@ -28,7 +19,8 @@ class BrandFilterContainer extends React.Component<Props> {
     const { companyCountsQuery, brandsQuery } = this.props;
 
     const counts = companyCountsQuery.companyCounts || {};
-
+    // tslint:disable-next-line
+    console.log(counts);
     const updatedProps = {
       ...this.props,
       brands: brandsQuery.brands || [],

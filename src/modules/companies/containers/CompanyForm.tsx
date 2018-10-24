@@ -3,22 +3,15 @@ import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../auth/types';
+import { UsersQueryResponse } from '../../settings/team/types';
 import { CompanyForm } from '../components';
 import { mutations } from '../graphql';
-import { ICompany, ICompanyDoc } from '../types';
-
-type EditMutationResponse = {
-  companiesEdit: (params: { variables: ICompany }) => Promise<any>;
-};
-
-type AddMutationResponse = {
-  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>;
-};
-
-type UsersQueryResponse = {
-  users: IUser[];
-  loading: boolean;
-};
+import {
+  AddMutationResponse,
+  EditMutationResponse,
+  ICompany,
+  ICompanyDoc
+} from '../types';
 
 type Props = {
   company: ICompany;

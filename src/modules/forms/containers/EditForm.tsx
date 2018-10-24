@@ -1,68 +1,79 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import { IField } from 'modules/settings/properties/types';
+import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { BrandsQueryResponse } from '../../settings/brands/containers/Sidebar';
+import { BrandsQueryResponse } from '../../settings/brands/types';
 import { FormIntegrationDetailQueryResponse } from '../../settings/integrations/containers/common/IntegrationList';
 import { IFormData } from '../../settings/integrations/types';
-import { FieldsQueryResponse } from '../../settings/properties/containers/Properties';
 import { Form } from '../components';
 import { mutations, queries } from '../graphql';
 import { IForm } from '../types';
 
+type EditIntegrationMutationVariables = {
+  _id: string;
+  formData: IFormData;
+  brandId: string;
+  name: string;
+  languageCode: string;
+  formId: string;
+};
+
 type EditIntegrationMutationResponse = {
   editIntegrationMutation: (
     params: {
-      variables: {
-        _id: string;
-        formData: IFormData;
-        brandId: string;
-        name: string;
-        languageCode: string;
-        formId: string;
-      };
+      variables: EditIntegrationMutationVariables;
     }
   ) => Promise<void>;
+};
+
+type EditFormMutationVariables = {
+  _id: string;
+  formId: string;
+  form: IForm;
 };
 
 type EditFormMutationResponse = {
   editFormMutation: (
     params: {
-      variables: {
-        _id: string;
-        formId: string;
-        form: IForm;
-      };
+      variables: EditFormMutationVariables;
     }
   ) => Promise<any>;
+};
+
+type AddFieldMutationVariables = {
+  createFieldsData: IField[];
 };
 
 type AddFieldMutationResponse = {
   addFieldMutation: (
     params: {
-      variables: {
-        createFieldsData: IField[];
-      };
+      variables: AddFieldMutationVariables;
     }
   ) => Promise<void>;
+};
+
+type EditFieldMutationVariables = {
+  updateFieldsData: IField[];
 };
 
 type EditFieldMutationResponse = {
   editFieldMutation: (
     params: {
-      variables: {
-        updateFieldsData: IField[];
-      };
+      variables: EditFieldMutationVariables;
     }
   ) => Promise<void>;
 };
 
+type RemoveFieldMutationVariables = {
+  removeFieldsData: IField[];
+};
+
 type RemoveFieldMutationResponse = {
   removeFieldMutation: (
-    params: { variable: { removeFieldsData: IField[] } }
+    params: { variable: RemoveFieldMutationVariables }
   ) => Promise<void>;
 };
 
@@ -243,26 +254,39 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, EditIntegrationMutationResponse>(
-      gql(mutations.integrationsEditFormIntegration),
+    graphql<
+      Props,
+      EditIntegrationMutationResponse,
+      EditIntegrationMutationVariables
+    >(gql(mutations.integrationsEditFormIntegration), {
+      name: 'editIntegrationMutation',
+      options: {
+        refetchQueries: ['formIntegrations', 'formIntegrationCounts']
+      }
+    }),
+    graphql<Props, AddFieldMutationResponse, AddFieldMutationVariables>(
+      gql(mutations.fieldsAdd),
       {
-        name: 'editIntegrationMutation',
-        options: {
-          refetchQueries: ['formIntegrations', 'formIntegrationCounts']
-        }
+        name: 'addFieldMutation'
       }
     ),
-    graphql<Props, AddFieldMutationResponse>(gql(mutations.fieldsAdd), {
-      name: 'addFieldMutation'
-    }),
-    graphql<Props, EditFieldMutationResponse>(gql(mutations.fieldsEdit), {
-      name: 'editFieldMutation'
-    }),
-    graphql<Props, RemoveFieldMutationResponse>(gql(mutations.fieldsRemove), {
-      name: 'removeFieldMutation'
-    }),
-    graphql<Props, EditFormMutationResponse>(gql(mutations.editForm), {
-      name: 'editFormMutation'
-    })
+    graphql<Props, EditFieldMutationResponse, EditFieldMutationVariables>(
+      gql(mutations.fieldsEdit),
+      {
+        name: 'editFieldMutation'
+      }
+    ),
+    graphql<Props, RemoveFieldMutationResponse, RemoveFieldMutationVariables>(
+      gql(mutations.fieldsRemove),
+      {
+        name: 'removeFieldMutation'
+      }
+    ),
+    graphql<Props, EditFormMutationResponse, EditFormMutationResponse>(
+      gql(mutations.editForm),
+      {
+        name: 'editFormMutation'
+      }
+    )
   )(withRouter<FinalProps>(EditFormContainer))
 );
