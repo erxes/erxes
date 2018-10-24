@@ -54,6 +54,10 @@ const routes = () => {
     return <Gmail type="form" history={history} queryParams={queryParams} />;
   };
 
+  const store = ({ location }) => (
+    <Store queryParams={queryString.parse(location.search)} />
+  );
+
   return (
     <React.Fragment>
       <Route
@@ -113,7 +117,7 @@ const routes = () => {
         key="/settings/integrations"
         exact={true}
         path="/settings/integrations"
-        component={Store}
+        component={store}
       />
     </React.Fragment>
   );
