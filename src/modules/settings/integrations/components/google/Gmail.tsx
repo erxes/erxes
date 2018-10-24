@@ -13,13 +13,7 @@ type Props = {
 };
 
 class Gmail extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleSubmit(e) {
+  handleSubmit = (e) => {
     e.preventDefault();
 
     this.props.save({

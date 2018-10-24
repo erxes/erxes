@@ -32,12 +32,9 @@ class Row extends React.Component<Props, State> {
       isContentVisible: false,
       kind: null
     };
-
-    this.toggleBox = this.toggleBox.bind(this);
-    this.getClassName = this.getClassName.bind(this);
   }
 
-  getClassName(selectedKind) {
+  getClassName = (selectedKind) => {
     const { kind, isContentVisible } = this.state;
 
     if (!isContentVisible) {
@@ -51,7 +48,7 @@ class Row extends React.Component<Props, State> {
     return '';
   }
 
-  toggleBox(selectedKind) {
+  toggleBox = (selectedKind) => {
     if (!selectedKind) {
       return false;
     }

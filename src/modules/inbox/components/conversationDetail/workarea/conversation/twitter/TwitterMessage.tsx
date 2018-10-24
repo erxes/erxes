@@ -34,16 +34,7 @@ type Props = {
 };
 
 class TwitterMessage extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.renderReply = this.renderReply.bind(this);
-    this.renderTweetLink = this.renderTweetLink.bind(this);
-    this.renderUserLink = this.renderUserLink.bind(this);
-    this.favoriteTweet = this.favoriteTweet.bind(this);
-  }
-
-  favoriteTweet() {
+  favoriteTweet = () => {
     const { message, favoriteTweet, integrationId } = this.props;
     const twitterData = message.twitterData;
 
@@ -59,7 +50,7 @@ class TwitterMessage extends React.Component<Props, {}> {
     return favoriteTweet(tweet);
   }
 
-  renderUserLink(username?: string, fullName?: string, customer?: ICustomer) {
+  renderUserLink = (username?: string, fullName?: string, customer?: ICustomer) => {
     if (!username) {
       return <div>{customer && customer.firstName}</div>;
     }
@@ -71,7 +62,7 @@ class TwitterMessage extends React.Component<Props, {}> {
     );
   }
 
-  renderTweetLink() {
+  renderTweetLink = () => {
     const { message } = this.props;
 
     if (!message.twitterData) {
@@ -164,7 +155,7 @@ class TwitterMessage extends React.Component<Props, {}> {
     );
   }
 
-  renderReply(twitterData: ITwitterData, inReplyStatus: boolean) {
+  renderReply = (twitterData: ITwitterData, inReplyStatus: boolean) => {
     if (inReplyStatus) {
       return null;
     }

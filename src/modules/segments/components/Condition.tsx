@@ -26,14 +26,10 @@ class Condition extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.handleInputValue = this.handleInputValue.bind(this);
-    this.handleValue = this.handleValue.bind(this);
-    this.removeCondition = this.removeCondition.bind(this);
-
     this.state = this.props.condition;
   }
 
-  handleInputValue<T extends keyof State>(name: T, value: State[T]) {
+  handleInputValue = <T extends keyof State>(name: T, value: State[T]) => {
     const states = { [name]: value } as Pick<State, keyof State>;
 
     // Changing current operator when the type is changed
@@ -48,7 +44,7 @@ class Condition extends React.Component<Props, State> {
   }
 
   // changeCondition will be fired after 350ms
-  handleValue(e) {
+  handleValue = (e) => {
     e.preventDefault();
 
     const val = e.target.value;
@@ -61,7 +57,7 @@ class Condition extends React.Component<Props, State> {
     });
   }
 
-  removeCondition() {
+  removeCondition = () => {
     this.props.removeCondition(this.props.condition.field);
   }
 

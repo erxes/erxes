@@ -65,9 +65,6 @@ class CreateMessenger extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.onChange = this.onChange.bind(this);
-    this.save = this.save.bind(this);
-
     const integration = props.integration || ({} as IIntegration);
     const languageCode = integration.languageCode || 'en';
     const configData = integration.messengerData || {};
@@ -124,11 +121,11 @@ class CreateMessenger extends React.Component<Props, State> {
     return messages;
   }
 
-  onChange<T extends keyof State>(key: T, value: State[T]) {
+  onChange = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
   }
 
-  save(e) {
+  save = (e) => {
     e.preventDefault();
 
     const {

@@ -31,14 +31,6 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderRemoveButton = this.renderRemoveButton.bind(this);
-    this.toggleBulk = this.toggleBulk.bind(this);
-    this.onClick = this.onClick.bind(this);
-  }
-
   renderLink(text, className, onClick) {
     return (
       <Tip text={__(text)} key={`${text}-${this.props.message._id}`}>
@@ -81,7 +73,7 @@ class Row extends React.Component<Props> {
     return [...links, edit, live];
   }
 
-  renderRemoveButton(message, onClick) {
+  renderRemoveButton = (message, onClick) => {
     if (!message.kind.toLowerCase().includes('auto')) {
       return null;
     }
@@ -93,7 +85,7 @@ class Row extends React.Component<Props> {
     );
   }
 
-  toggleBulk(e) {
+  toggleBulk = (e) => {
     this.props.toggleBulk(this.props.message, e.target.checked);
   }
 
@@ -118,7 +110,7 @@ class Row extends React.Component<Props> {
     ));
   }
 
-  onClick() {
+  onClick = () => {
     const { message } = this.props;
 
     if (message.method === 'email') {

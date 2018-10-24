@@ -30,18 +30,14 @@ class PipelineForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.save = this.save.bind(this);
-    this.onChangeStages = this.onChangeStages.bind(this);
-    this.generateDoc = this.generateDoc.bind(this);
-
     this.state = { stages: (props.stages || []).map(stage => ({ ...stage })) };
   }
 
-  onChangeStages(stages) {
+  onChangeStages = (stages) => {
     this.setState({ stages });
   }
 
-  save(e) {
+  save = (e) => {
     e.preventDefault();
 
     const { save, closeModal, pipeline } = this.props;
@@ -49,7 +45,7 @@ class PipelineForm extends React.Component<Props, State> {
     save(this.generateDoc(), () => closeModal(), pipeline);
   }
 
-  generateDoc() {
+  generateDoc = () => {
     const { pipeline } = this.props;
 
     return {

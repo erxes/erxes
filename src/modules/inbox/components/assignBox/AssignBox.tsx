@@ -40,9 +40,6 @@ class AssignBox extends React.Component<Props, State> {
         props.targets
       )
     };
-
-    this.removeAssignee = this.removeAssignee.bind(this);
-    this.assign = this.assign.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -87,7 +84,7 @@ class AssignBox extends React.Component<Props, State> {
     });
   }
 
-  assign(items: IAssignee[], id: string) {
+  assign = (items: IAssignee[], id: string) => {
     const { assign, targets, afterSave } = this.props;
 
     assign(
@@ -107,7 +104,7 @@ class AssignBox extends React.Component<Props, State> {
     }
   }
 
-  removeAssignee() {
+  removeAssignee = () => {
     const { clear, targets } = this.props;
 
     clear(targets.map(t => t._id), error => {

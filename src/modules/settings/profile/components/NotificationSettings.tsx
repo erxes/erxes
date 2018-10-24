@@ -18,16 +18,7 @@ type Props = {
 };
 
 class NotificationSettings extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    // on notif type change
-    this.onTypeChange = this.onTypeChange.bind(this);
-
-    this.onEmailConfigChange = this.onEmailConfigChange.bind(this);
-  }
-
-  onTypeChange(e) {
+  onTypeChange = (e) => {
     // save config
     this.props.saveNotificationConfigurations({
       notifType: e.target.value,
@@ -35,7 +26,7 @@ class NotificationSettings extends React.Component<Props> {
     });
   }
 
-  onEmailConfigChange(e) {
+  onEmailConfigChange = (e) => {
     // save get notification by email config
     this.props.configGetNotificationByEmail({ isAllowed: e.target.checked });
   }

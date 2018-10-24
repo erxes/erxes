@@ -12,13 +12,7 @@ type Props = {
 class AddConditionButton extends React.Component<Props> {
   private overlayTrigger;
 
-  constructor(props) {
-    super(props);
-
-    this.addCondition = this.addCondition.bind(this);
-  }
-
-  addCondition(items, id) {
+  addCondition = (items, id) => {
     const [type] = Object.keys(types);
     const [operator] = operators[type];
 

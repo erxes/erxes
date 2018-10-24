@@ -25,12 +25,9 @@ class TargetMergeModal extends React.Component<Props, State> {
       objects: [],
       selectedObject: {}
     };
-
-    this.onSelect = this.onSelect.bind(this);
-    this.handleSearch = this.handleSearch.bind(this);
   }
 
-  handleSearch(value) {
+  handleSearch = (value) => {
     const { objects } = this.state;
 
     if (objects.length < 1) {
@@ -38,7 +35,7 @@ class TargetMergeModal extends React.Component<Props, State> {
     }
   }
 
-  onSelect(option) {
+  onSelect = (option) => {
     this.setState({ selectedObject: JSON.parse(option.value) });
   }
 

@@ -1,6 +1,7 @@
 import Autolinker from 'autolinker';
 import * as React from 'react';
 import styled from 'styled-components';
+import * as xss from 'xss';
 
 type Props = {
   content: string;
@@ -57,7 +58,7 @@ class TweetContent extends React.Component<Props, {}> {
     return (
       <MessageContent
         dangerouslySetInnerHTML={{
-          __html: this.renderContent()
+          __html: xss(this.renderContent())
         }}
       />
     );

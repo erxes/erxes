@@ -29,13 +29,7 @@ type Props = {
 };
 
 class List extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderRow = this.renderRow.bind(this);
-  }
-
-  renderRow() {
+  renderRow = () => {
     const { products, remove, save } = this.props;
 
     return products.map(product => (

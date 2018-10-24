@@ -35,15 +35,7 @@ type Props = {
 };
 
 class SegmentsFormContainer extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.create = this.create.bind(this);
-    this.edit = this.edit.bind(this);
-    this.count = this.count.bind(this);
-  }
-
-  create({ doc }) {
+  create = ({ doc }) => {
     const { contentType, segmentsAdd, history } = this.props;
 
     segmentsAdd({ variables: { contentType, ...doc } }).then(() => {
@@ -52,7 +44,7 @@ class SegmentsFormContainer extends React.Component<Props> {
     });
   }
 
-  edit({ _id, doc }) {
+  edit = ({ _id, doc }) => {
     const { contentType, segmentsEdit, history } = this.props;
 
     segmentsEdit({ variables: { _id, ...doc } }).then(() => {
@@ -61,7 +53,7 @@ class SegmentsFormContainer extends React.Component<Props> {
     });
   }
 
-  count(segment) {
+  count = (segment) => {
     const { counts } = this.props;
 
     counts.refetch({ byFakeSegment: segment });

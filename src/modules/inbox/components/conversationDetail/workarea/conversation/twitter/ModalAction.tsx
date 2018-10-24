@@ -59,9 +59,6 @@ class ModalAction extends React.Component<Props, State> {
       tweet: '',
       characterCount: this.getCharacterCount(this.getContent())
     };
-
-    this.doAction = this.doAction.bind(this);
-    this.onTweetContentChange = this.onTweetContentChange.bind(this);
   }
 
   getCharacterCount(character?: string) {
@@ -74,7 +71,7 @@ class ModalAction extends React.Component<Props, State> {
     return maxChar - character.length;
   }
 
-  onTweetContentChange(e: React.FormEvent<HTMLElement>) {
+  onTweetContentChange = (e: React.FormEvent<HTMLElement>) => {
     const tweetContent = (e.target as HTMLInputElement).value;
     this.setState({
       tweet: tweetContent,
@@ -110,7 +107,7 @@ class ModalAction extends React.Component<Props, State> {
     return `@${screenName} `;
   }
 
-  doAction(e: React.FormEvent) {
+  doAction = (e: React.FormEvent) => {
     e.preventDefault();
 
     const {

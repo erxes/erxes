@@ -43,13 +43,9 @@ class CategoryForm extends React.Component<Props, State> {
     this.state = {
       selectedIcon: this.getSelectedIcon()
     };
-
-    this.renderOption = this.renderOption.bind(this);
-    this.onChangeIcon = this.onChangeIcon.bind(this);
-    this.save = this.save.bind(this);
   }
 
-  save(e) {
+  save = (e) => {
     e.preventDefault();
 
     this.props.save(
@@ -64,13 +60,13 @@ class CategoryForm extends React.Component<Props, State> {
     return (category && category.icon) || '';
   }
 
-  onChangeIcon(obj) {
+  onChangeIcon = (obj) => {
     this.setState({
       selectedIcon: obj.value
     });
   }
 
-  renderOption(option) {
+  renderOption = (option) => {
     return (
       <div className="icon-option">
         <Icon icon={option.value} />

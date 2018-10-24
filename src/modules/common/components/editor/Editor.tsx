@@ -183,26 +183,20 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
 
       editor.focus();
     };
-
-    this.handleKeyCommand = this.handleKeyCommand.bind(this);
-    this.onTab = this.onTab.bind(this);
-    this.handlePastedFile = this.handlePastedFile.bind(this);
-    this.toggleBlockType = this.toggleBlockType.bind(this);
-    this.toggleInlineStyle = this.toggleInlineStyle.bind(this);
   }
 
   focus() {
     return;
   }
 
-  onTab(e) {
+  onTab = e => {
     const { onChange, editorState } = this.props;
     const maxDepth = 4;
 
     onChange(RichUtils.onTab(e, editorState, maxDepth));
-  }
+  };
 
-  handleKeyCommand(command: string) {
+  handleKeyCommand = (command: string) => {
     const { onChange, editorState } = this.props;
     const newState = RichUtils.handleKeyCommand(editorState, command);
 
@@ -213,25 +207,25 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
     }
 
     return false;
-  }
+  };
 
-  toggleBlockType(blockType: string = 'unstyled') {
+  toggleBlockType = (blockType: string = 'unstyled') => {
     const { onChange, editorState } = this.props;
 
     onChange(RichUtils.toggleBlockType(editorState, blockType));
-  }
+  };
 
-  toggleInlineStyle(inlineStyle) {
+  toggleInlineStyle = inlineStyle => {
     const { onChange, editorState } = this.props;
 
     onChange(RichUtils.toggleInlineStyle(editorState, inlineStyle));
-  }
+  };
 
-  handlePastedFile(e) {
+  handlePastedFile = e => {
     if (this.props.handleFileInput) {
       this.props.handleFileInput(e);
     }
-  }
+  };
 
   render() {
     const {

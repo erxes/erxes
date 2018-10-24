@@ -52,19 +52,16 @@ class Section extends React.Component<Props, State> {
     super(props);
 
     this.state = { collapse: false, maxHeight: 240 };
-
-    this.toggleCollapse = this.toggleCollapse.bind(this);
-    this.renderCollapseButton = this.renderCollapseButton.bind(this);
   }
 
-  toggleCollapse() {
+  toggleCollapse = () => {
     this.setState({
       collapse: !this.state.collapse,
       maxHeight: this.state.collapse ? 240 : this.node.clientHeight + 20
     });
   }
 
-  renderCollapseButton() {
+  renderCollapseButton = () => {
     const icon = this.state.collapse ? 'uparrow-2' : 'downarrow';
 
     return (

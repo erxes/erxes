@@ -24,13 +24,7 @@ type Props = {
 };
 
 class Row extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.remove = this.remove.bind(this);
-  }
-
-  remove() {
+  remove = () => {
     confirm().then(() => {
       const { integration, remove } = this.props;
 

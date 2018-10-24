@@ -14,13 +14,7 @@ type Props = {
 class AssignBoxPopover extends React.Component<Props> {
   private overlayTrigger;
 
-  constructor(props: Props) {
-    super(props);
-
-    this.hidePopover = this.hidePopover.bind(this);
-  }
-
-  hidePopover() {
+  hidePopover = () => {
     const { afterSave } = this.props;
 
     if (afterSave) {

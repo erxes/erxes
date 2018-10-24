@@ -16,12 +16,9 @@ class ForgotPassword extends React.Component<Props, { email: string }> {
     super(props);
 
     this.state = { email: '' };
-
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleEmailChange = this.handleEmailChange.bind(this);
   }
 
-  handleSubmit(e) {
+  handleSubmit = e => {
     e.preventDefault();
 
     const { email } = this.state;
@@ -31,12 +28,12 @@ class ForgotPassword extends React.Component<Props, { email: string }> {
         window.location.href = '/sign-in';
       }
     });
-  }
+  };
 
-  handleEmailChange(e) {
+  handleEmailChange = e => {
     e.preventDefault();
     this.setState({ email: e.target.value });
-  }
+  };
 
   render() {
     return (

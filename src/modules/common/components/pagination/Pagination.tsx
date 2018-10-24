@@ -74,21 +74,15 @@ class Page extends React.Component<{
   page: number;
   currentPage: number;
 }> {
-  constructor(props) {
-    super(props);
-
-    this.onClick = this.onClick.bind(this);
-  }
-
   goto(page) {
     router.setParams(this.props.history, { page });
   }
 
-  onClick(e) {
+  onClick = e => {
     e.preventDefault();
 
     this.goto(this.props.page);
-  }
+  };
 
   render() {
     const { currentPage, page } = this.props;
@@ -124,19 +118,11 @@ interface IPaginationProps extends IRouterProps {
 
 // main pagination component
 class Pagination extends React.Component<IPaginationProps> {
-  constructor(props) {
-    super(props);
-
-    // bind events
-    this.onNext = this.onNext.bind(this);
-    this.onPrev = this.onPrev.bind(this);
-  }
-
   goto(page) {
     router.setParams(this.props.history, { page });
   }
 
-  onPrev(e) {
+  onPrev = e => {
     e.preventDefault();
 
     const page = (this.props.currentPage || 1) - 1;
@@ -144,9 +130,9 @@ class Pagination extends React.Component<IPaginationProps> {
     if (page > 0) {
       this.goto(page);
     }
-  }
+  };
 
-  onNext(e) {
+  onNext = e => {
     e.preventDefault();
 
     const { totalPagesCount, currentPage } = this.props;
@@ -156,7 +142,7 @@ class Pagination extends React.Component<IPaginationProps> {
     if (page <= totalPagesCount) {
       this.goto(page);
     }
-  }
+  };
 
   renderBar() {
     const {

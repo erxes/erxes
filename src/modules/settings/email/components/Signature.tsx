@@ -24,17 +24,13 @@ class Signature extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.changeCurrent = this.changeCurrent.bind(this);
-    this.changeContent = this.changeContent.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-
     this.state = {
       signatures: props.signatures,
       currentId: undefined
     };
   }
 
-  getCurrent() {
+  getCurrent = () => {
     const currentId = this.state.currentId;
 
     if (!currentId) {
@@ -46,11 +42,11 @@ class Signature extends React.Component<Props, State> {
     );
   }
 
-  changeCurrent(e) {
+  changeCurrent = (e) => {
     this.setState({ currentId: e.target.value });
   }
 
-  changeContent(e) {
+  changeContent = (e) => {
     const current = this.getCurrent();
 
     if (current) {
@@ -60,7 +56,7 @@ class Signature extends React.Component<Props, State> {
     }
   }
 
-  handleSubmit(e) {
+  handleSubmit = (e) => {
     e.preventDefault();
 
     this.props.save(this.state.signatures);

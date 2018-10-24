@@ -31,13 +31,9 @@ class Config extends React.Component<Props, State> {
     };
 
     this.state = { type, template: template || props.defaultTemplate };
-
-    this.configureEmail = this.configureEmail.bind(this);
-    this.handleTypeChange = this.handleTypeChange.bind(this);
-    this.handleTemplateChange = this.handleTemplateChange.bind(this);
   }
 
-  configureEmail(e) {
+  configureEmail = (e) => {
     e.preventDefault();
 
     const { brand, configEmail } = this.props;
@@ -48,11 +44,11 @@ class Config extends React.Component<Props, State> {
     });
   }
 
-  handleTypeChange(e) {
+  handleTypeChange = (e) => {
     this.setState({ type: e.target.value });
   }
 
-  handleTemplateChange(e) {
+  handleTemplateChange = (e) => {
     this.setState({ template: e.target.value });
   }
 

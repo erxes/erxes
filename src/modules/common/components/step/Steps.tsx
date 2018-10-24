@@ -20,11 +20,9 @@ class Steps extends React.Component<Props, State> {
       activeStep: 1,
       maxStep: 6
     };
-
-    this.next = this.next.bind(this);
   }
 
-  next(stepNumber) {
+  next = stepNumber => {
     const { activeStep, maxStep } = this.state;
 
     if (stepNumber === 0) {
@@ -34,7 +32,7 @@ class Steps extends React.Component<Props, State> {
     } else {
       this.setState({ activeStep: stepNumber });
     }
-  }
+  };
 
   render() {
     const { children, maxStep } = this.props;

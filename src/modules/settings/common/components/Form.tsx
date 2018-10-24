@@ -9,13 +9,7 @@ type Props = {
 };
 
 class Form extends React.Component<Props & ICommonFormProps> {
-  constructor(props) {
-    super(props);
-
-    this.save = this.save.bind(this);
-  }
-
-  save(e) {
+  save = (e) => {
     e.preventDefault();
 
     this.props.save(

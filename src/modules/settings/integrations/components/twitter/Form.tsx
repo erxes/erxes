@@ -13,13 +13,7 @@ type Props = {
 };
 
 class Twitter extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleSubmit(e) {
+  handleSubmit = (e) => {
     e.preventDefault();
 
     this.props.save(

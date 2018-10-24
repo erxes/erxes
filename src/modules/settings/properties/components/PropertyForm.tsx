@@ -69,18 +69,9 @@ class PropertyForm extends React.Component<Props, State> {
       ...doc,
       add: false
     };
-
-    this.handleAddOption = this.handleAddOption.bind(this);
-    this.renderOption = this.renderOption.bind(this);
-    this.renderOptions = this.renderOptions.bind(this);
-    this.handleSaveOption = this.handleSaveOption.bind(this);
-    this.renderButtonOrElement = this.renderButtonOrElement.bind(this);
-    this.onTypeChange = this.onTypeChange.bind(this);
-    this.handleCancelAddingOption = this.handleCancelAddingOption.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
   }
 
-  onSubmit(e) {
+  onSubmit = (e) => {
     e.preventDefault();
     const groupId = (document.getElementById('groupId') as HTMLInputElement)
       .value;
@@ -113,7 +104,7 @@ class PropertyForm extends React.Component<Props, State> {
     this.props.closeModal();
   }
 
-  onTypeChange(e) {
+  onTypeChange = (e) => {
     const value = e.target.value;
 
     let doc = { hasOptions: false, options: [] };
@@ -125,15 +116,15 @@ class PropertyForm extends React.Component<Props, State> {
     this.setState({ type: value, ...doc });
   }
 
-  handleAddOption() {
+  handleAddOption = () => {
     this.setState({ add: true });
   }
 
-  handleCancelAddingOption() {
+  handleCancelAddingOption = () => {
     this.setState({ add: false });
   }
 
-  handleSaveOption() {
+  handleSaveOption = () => {
     const { options } = this.state;
     const optionValue = (document.getElementById(
       'optionValue'
@@ -151,7 +142,7 @@ class PropertyForm extends React.Component<Props, State> {
     });
   };
 
-  renderButtonOrElement() {
+  renderButtonOrElement = () => {
     if (this.state.add) {
       const onKeyPress = e => {
         if (e.key === 'Enter') {
@@ -201,7 +192,7 @@ class PropertyForm extends React.Component<Props, State> {
     return this.handleRemoveOption(index);
   };
 
-  renderOption(option, index) {
+  renderOption = (option, index) => {
     return (
       <li key={index}>
         {option}
@@ -210,7 +201,7 @@ class PropertyForm extends React.Component<Props, State> {
     );
   }
 
-  renderOptions() {
+  renderOptions = () => {
     if (!this.state.hasOptions) {
       return null;
     }
