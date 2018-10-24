@@ -5,7 +5,14 @@ import { IntegrationList } from 'modules/settings/integrations/components/common
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { IFormIntegration } from '../../../../forms/types';
 import { integrationsListParams } from '../utils';
+
+export type FormIntegrationDetailQueryResponse = {
+  integrationDetail: IFormIntegration;
+  loading: boolean;
+  refetch: () => void;
+};
 
 type Props = {
   integrationsQuery: any;

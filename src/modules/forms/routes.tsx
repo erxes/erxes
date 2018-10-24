@@ -9,9 +9,8 @@ const routes = () => {
     return <List queryParams={queryParams} />;
   };
 
-  const createForm = ({ location }) => {
-    const queryParams = queryString.parse(location.search);
-    return <CreateForm queryParams={queryParams} />;
+  const createForm = () => {
+    return <CreateForm />;
   };
 
   const editForm = ({ match, location }) => {

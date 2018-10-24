@@ -8,7 +8,14 @@ import { withRouter } from 'react-router';
 import { Properties } from '../components';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 import { mutations, queries } from '../graphql';
+import { IField } from '../types';
 import { companyBasicInfos, customerBasicInfos } from '../utils';
+
+export type FieldsQueryResponse = {
+  fields: IField[];
+  loading: boolean;
+  refetch: () => Promise<void>;
+};
 
 interface IProps extends IRouterProps {
   queryParams: any;
