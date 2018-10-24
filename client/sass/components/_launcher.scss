@@ -1,5 +1,5 @@
 .erxes-launcher {
-  animation: pop .2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  animation: pop .2s cubic-bezier(.25, .46, .45, .94) 1;
   background-color: $main-color;
   background-image: url($widget-logo);
   background-position: center;
@@ -18,7 +18,7 @@
   right: 8px;
   text-align: center;
   top: auto;
-  transition: box-shadow .3s ease-in-out, background .3s ease-in;
+  transition: box-shadow .3s ease-in-out, background-image .3s ease-in;
   width: 56px;
   z-index: $z-index-above - 1;
 
@@ -42,7 +42,7 @@
     background-image: url($close) !important;
     background-position: 50%;
     background-size: inherit;
-    transition: background .3s ease-in-out;
+    transition: box-shadow .3s ease-in-out, background-image .3s ease-in;
 
     &::before {
       animation: none;
@@ -50,18 +50,18 @@
   }
 
   &:hover {
-    box-shadow: 0 0 12px 0 rgba($black, .3);
+    box-shadow: 0 0 12px 0 rgba($black, .5);
   }
 
   &::before {
-    @include animation(0, 2s, animationPulse, linear, infinite);
+    @include animation(.5s, 2s, animationPulse, linear, 10);
     border-radius: 50%;
     color: inherit;
     content: '';
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
+    height: 56px;
+    left: 8px;
+    position: fixed;
+    top: 8px;
+    width: 56px;
   }
 }

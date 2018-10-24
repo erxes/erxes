@@ -1,0 +1,50 @@
+.erxes-content {
+  background: $white;
+  flex: 1;
+  overflow: auto;
+
+  .erxes-article-content {
+    color: darken($text-color, 12%);
+    padding: 30px;
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .date {
+      color: $text-color;
+      font-size: 90%;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-bottom: 10px;
+    }
+
+    img {
+      max-width: 100%;
+    }
+  }
+}
+
+.faq-item {
+  .erxes-right-side {
+    margin-left: 80px;
+  }
+  
+  .erxes-left-side {
+    border-radius: 0;
+    margin-right: 20px;
+
+    i {
+      height: 36px;
+      margin-top: 3px;
+      opacity: .7;
+      width: 42px;
+    }
+  }
+
+  .description {
+    color: $text-color;
+  }
+}
