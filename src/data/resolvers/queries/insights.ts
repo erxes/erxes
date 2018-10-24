@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { ConversationMessages, Conversations, Integrations } from '../../../db/models';
-import { INTEGRATION_KIND_CHOICES } from '../../constants';
+import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
+import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import {
   fixDate,
@@ -24,21 +24,40 @@ interface IListArgs {
   type: string;
 }
 
+interface IPieChartData {
+  id: string;
+  label: string;
+  value: number;
+}
+
 const insightQueries = {
   /**
    * Builds insights charting data contains
    * count of conversations in various integrations kinds.
    */
-  async insights(_root, { brandId, startDate, endDate }: IListArgs) {
+  async insights(_root, { brandId, integrationType, startDate, endDate }: IListArgs) {
     const { start, end } = fixDates(startDate, endDate);
 
-    const integrationSelector: any = {};
+    const integrationSelector: { brandId?: string; kind?: string } = {};
 
     if (brandId) {
       integrationSelector.brandId = brandId;
     }
 
-    const insights: any = [];
+    const insights: { integration: IPieChartData[]; tag: IPieChartData[] } = { integration: [], tag: [] };
+
+    const conversationSelector = {
+      createdAt: { $gte: start, $lte: end },
+      $or: [
+        {
+          userId: { $exists: true },
+          messageCount: { $gt: 1 },
+        },
+        {
+          userId: { $exists: false },
+        },
+      ],
+    };
 
     // count conversations by each integration kind
     for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
@@ -47,25 +66,57 @@ const insightQueries = {
         kind,
       }).select('_id');
 
-      insights.push({
-        id: kind,
-        label: kind,
-
-        // find conversation counts of given integrations
-        value: await Conversations.count({
-          createdAt: { $gte: start, $lte: end },
-          integrationId: { $in: integrationIds },
-          $or: [
-            {
-              userId: { $exists: true },
-              messageCount: { $gt: 1 },
-            },
-            {
-              userId: { $exists: false },
-            },
-          ],
-        }),
+      // find conversation counts of given integrations
+      const value = await Conversations.count({
+        ...conversationSelector,
+        integrationId: { $in: integrationIds },
       });
+
+      if (kind === INTEGRATION_KIND_CHOICES.FACEBOOK) {
+        const { FEED, MESSENGER } = FACEBOOK_DATA_KINDS;
+
+        const feedCount = await Conversations.count({
+          ...conversationSelector,
+          integrationId: { $in: integrationIds },
+          'facebookData.kind': FEED,
+        });
+
+        insights.integration.push({
+          id: `${kind} ${FEED}`,
+          label: `${kind} ${FEED}`,
+          value: feedCount,
+        });
+
+        insights.integration.push({
+          id: `${kind} ${MESSENGER}`,
+          label: `${kind} ${MESSENGER}`,
+          value: value - feedCount,
+        });
+      } else {
+        insights.integration.push({ id: kind, label: kind, value });
+      }
+    }
+
+    const tags = await Tags.find({ type: TAG_TYPES.CONVERSATION }).select('name');
+
+    if (integrationType) {
+      integrationSelector.kind = integrationType;
+    }
+
+    // count conversations by each tag
+    for (const tag of tags) {
+      const integrationIds = await Integrations.find(integrationSelector).select('_id');
+
+      // find conversation counts of given tag
+      const value = await Conversations.count({
+        ...conversationSelector,
+        integrationId: { $in: integrationIds },
+        tagIds: tag._id,
+      });
+
+      if (value > 0) {
+        insights.tag.push({ id: tag.name, label: tag.name, value });
+      }
     }
 
     return insights;
@@ -201,7 +252,7 @@ const insightQueries = {
             startTime,
           }),
 
-          time: Math.abs(responseTime / count),
+          time: Math.floor(responseTime / count),
         });
       }
     }
@@ -259,6 +310,7 @@ const insightQueries = {
     }
 
     const conversationIds = messageSelector.conversationId.$in;
+    const summaries = [0, 0, 0, 0];
 
     // Processes total first response time for each users.
     for (const conversationId of conversationIds) {
@@ -294,19 +346,30 @@ const insightQueries = {
 
         allResponseTime += responseTime;
 
-        let count = 1;
-
         // Builds every users's response time and conversation message count.
         if (responseUserData[userId]) {
-          responseTime = responseTime + responseUserData[userId].responseTime;
-          count = responseUserData[userId].count + 1;
+          responseUserData[userId].responseTime = responseTime + responseUserData[userId].responseTime;
+          responseUserData[userId].count = responseUserData[userId].count + 1;
+        } else {
+          responseUserData[userId] = { responseTime, count: 1, summaries: [0, 0, 0, 0] };
         }
 
-        responseUserData[userId] = { responseTime, count };
+        const minute = Math.floor(responseTime / 60);
+        const userSummary = responseUserData[userId].summaries;
+
+        if (minute < 3) {
+          summaries[minute] = summaries[minute] + 1;
+          userSummary[minute] = userSummary[minute] + 1;
+        } else {
+          summaries[3] = summaries[3] + 1;
+          userSummary[3] = userSummary[3] + 1;
+        }
       }
     }
 
-    return generateResponseData(firstResponseData, responseUserData, allResponseTime, duration, startTime);
+    const doc = await generateResponseData(firstResponseData, responseUserData, allResponseTime, duration, startTime);
+
+    return { ...doc, summaries };
   },
 
   /**
