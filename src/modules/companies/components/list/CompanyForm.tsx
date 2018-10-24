@@ -81,7 +81,7 @@ class CompanyForm extends React.Component<Props, State> {
     return (document.getElementById(id) as HTMLInputElement).value;
   }
 
-  action = (e) => {
+  action = e => {
     const {
       names,
       primaryName,
@@ -123,11 +123,11 @@ class CompanyForm extends React.Component<Props, State> {
     });
 
     this.props.closeModal();
-  }
+  };
 
   onAvatarUpload = (url: string) => {
     this.setState({ avatar: url });
-  }
+  };
 
   generateCompanyParams(companies) {
     return companies.map(company => ({
@@ -151,23 +151,23 @@ class CompanyForm extends React.Component<Props, State> {
   }
 
   handleSelect = <T extends keyof State>(
-    selectedOption: { value: State[T] },
-    name: T
+    name: T,
+    selectedOption: { value: State[T] }
   ) => {
     this.setState({
       [name]: selectedOption ? selectedOption.value : null
     } as Pick<State, keyof State>);
-  }
+  };
 
   /*
    * Used filterOptions={(options) => options} in component to solve
    * `react-select leaving out a particular option` issue
    */
-  handleCompanySearch = (value) => {
+  handleCompanySearch = value => {
     if (value) {
       searchCompany(value, companies => this.setState({ companies }));
     }
-  }
+  };
 
   handleUserSearch = value => {
     if (value) {
@@ -182,15 +182,15 @@ class CompanyForm extends React.Component<Props, State> {
         <FormControl {...props} />
       </FormGroup>
     );
-  }
+  };
 
   onChange = (
-    { options, selectedOption }: { options: string[]; selectedOption: string },
     optionsName: string,
-    optionName: string
+    optionName: string,
+    { options, selectedOption }: { options: string[]; selectedOption: string }
   ) => {
     this.setState({ [optionsName]: options, [optionName]: selectedOption });
-  }
+  };
 
   render() {
     const company = this.props.company || ({} as ICompany);
@@ -243,7 +243,7 @@ class CompanyForm extends React.Component<Props, State> {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search"
-                onFocus={this.handleUserSearch}
+                onFocus={this.handleUserSearch.bind(this, ' ')}
                 onInputChange={this.handleUserSearch}
                 filterOptions={filterOptions}
                 onChange={this.handleSelect.bind(this, 'ownerId')}
