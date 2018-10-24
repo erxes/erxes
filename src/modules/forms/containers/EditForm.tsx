@@ -7,75 +7,21 @@ import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import { FormIntegrationDetailQueryResponse } from '../../settings/integrations/containers/common/IntegrationList';
-import { IFormData } from '../../settings/integrations/types';
+import {
+  EditIntegrationMutationResponse,
+  EditIntegrationMutationVariables
+} from '../../settings/integrations/types';
 import { Form } from '../components';
 import { mutations, queries } from '../graphql';
-import { IForm } from '../types';
-
-type EditIntegrationMutationVariables = {
-  _id: string;
-  formData: IFormData;
-  brandId: string;
-  name: string;
-  languageCode: string;
-  formId: string;
-};
-
-type EditIntegrationMutationResponse = {
-  editIntegrationMutation: (
-    params: {
-      variables: EditIntegrationMutationVariables;
-    }
-  ) => Promise<void>;
-};
-
-type EditFormMutationVariables = {
-  _id: string;
-  formId: string;
-  form: IForm;
-};
-
-type EditFormMutationResponse = {
-  editFormMutation: (
-    params: {
-      variables: EditFormMutationVariables;
-    }
-  ) => Promise<any>;
-};
-
-type AddFieldMutationVariables = {
-  createFieldsData: IField[];
-};
-
-type AddFieldMutationResponse = {
-  addFieldMutation: (
-    params: {
-      variables: AddFieldMutationVariables;
-    }
-  ) => Promise<void>;
-};
-
-type EditFieldMutationVariables = {
-  updateFieldsData: IField[];
-};
-
-type EditFieldMutationResponse = {
-  editFieldMutation: (
-    params: {
-      variables: EditFieldMutationVariables;
-    }
-  ) => Promise<void>;
-};
-
-type RemoveFieldMutationVariables = {
-  removeFieldsData: IField[];
-};
-
-type RemoveFieldMutationResponse = {
-  removeFieldMutation: (
-    params: { variable: RemoveFieldMutationVariables }
-  ) => Promise<void>;
-};
+import {
+  AddFieldMutationResponse,
+  AddFieldMutationVariables,
+  EditFieldMutationResponse,
+  EditFieldMutationVariables,
+  EditFormMutationResponse,
+  RemoveFieldMutationResponse,
+  RemoveFieldMutationVariables
+} from '../types';
 
 type Props = {
   contentTypeId: string;

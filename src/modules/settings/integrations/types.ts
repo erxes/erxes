@@ -130,3 +130,20 @@ export type AddIntegrationMutationResponse = {
     }
   ) => Promise<void>;
 };
+
+export type EditIntegrationMutationVariables = {
+  _id: string;
+  formData: IFormData;
+  brandId: string;
+  name: string;
+  languageCode: string;
+  formId: string;
+};
+
+export type EditIntegrationMutationResponse = {
+  editIntegrationMutation: (
+    params: {
+      variables: EditIntegrationMutationVariables;
+    }
+  ) => Promise<void>;
+};
