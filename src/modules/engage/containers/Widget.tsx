@@ -1,28 +1,37 @@
 import gql from 'graphql-tag';
 import { withCurrentUser } from 'modules/auth/containers';
 import { IUser } from 'modules/auth/types';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { IEngageMessageDoc } from 'modules/engage/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { BrandsQueryResponse } from '../../settings/brands/containers/Sidebar';
+import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
 import { Widget } from '../components';
 import { MESSAGE_KINDS, MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
 import { mutations, queries } from '../graphql';
 import { crudMutationsOptions } from '../utils';
 
 type Props = {
-  currentUser: IUser;
-  emailTemplatesQuery: any;
-  brandsQuery: any;
-  messagesAddMutation: (
-    params: { variables: IEngageMessageDoc }
-  ) => Promise<any>;
   customers: ICustomer[];
   emptyBulk: () => void;
 };
 
-const WidgetContainer = (props: Props) => {
+type AddMutationResponse = {
+  messagesAddMutation: (
+    params: { variables: IEngageMessageDoc }
+  ) => Promise<any>;
+};
+
+type FinalProps = {
+  currentUser: IUser;
+  emailTemplatesQuery: EmailTemplatesQueryResponse;
+  brandsQuery: BrandsQueryResponse;
+} & Props &
+  AddMutationResponse;
+
+const WidgetContainer = (props: FinalProps) => {
   const {
     currentUser,
     emailTemplatesQuery,
@@ -70,11 +79,20 @@ const WidgetContainer = (props: Props) => {
   return <Widget {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
-  graphql(gql(queries.brands), { name: 'brandsQuery' }),
-  graphql(gql(mutations.messagesAdd), {
-    name: 'messagesAddMutation',
-    options: crudMutationsOptions
-  })
-)(withCurrentUser(WidgetContainer));
+export default withProps<Props>(
+  compose(
+    graphql<Props, EmailTemplatesQueryResponse>(gql(queries.emailTemplates), {
+      name: 'emailTemplatesQuery'
+    }),
+    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
+      name: 'brandsQuery'
+    }),
+    graphql<Props, AddMutationResponse, IEngageMessageDoc>(
+      gql(mutations.messagesAdd),
+      {
+        name: 'messagesAddMutation',
+        options: crudMutationsOptions
+      }
+    )
+  )(withCurrentUser(WidgetContainer))
+);

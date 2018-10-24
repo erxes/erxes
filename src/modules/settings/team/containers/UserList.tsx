@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import { IUser } from '../../../auth/types';
 import { commonListComposer } from '../../utils';
 import { UserList } from '../components';
 import { queries } from '../graphql';
@@ -25,6 +26,12 @@ const commonParams = `
   password: $password,
   passwordConfirmation: $passwordConfirmation
 `;
+
+export type UsersQueryResponse = {
+  users: IUser[];
+  loading: boolean;
+  refetch: () => void;
+};
 
 export default commonListComposer({
   name: 'users',

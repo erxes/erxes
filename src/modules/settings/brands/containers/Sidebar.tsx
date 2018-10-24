@@ -4,6 +4,13 @@ import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
+import { IBrand } from '../types';
+
+export type BrandsQueryResponse = {
+  brands: IBrand[];
+  loading: boolean;
+  refetch: () => void;
+};
 
 type QueryResponse = {
   brandsQuery: any;

@@ -5,6 +5,15 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { SegmentsList } from '../components';
 import { mutations, queries } from '../graphql';
+import { ISegment } from '../types';
+
+export type SegmentsQueryResponse = {
+  segments: ISegment[];
+  refetch: () => void;
+  loading: boolean;
+};
+
+export type HeadSegmentsQueryResponse = { segmentsGetHeads: ISegment[] };
 
 type Props = {
   segmentsQuery: any;

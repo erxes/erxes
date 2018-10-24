@@ -1,43 +1,57 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
+import { BrandsQueryResponse } from '../../settings/brands/containers/Sidebar';
 import { MessageForm } from '../components';
 import { queries } from '../graphql';
+import { EngageMessageDetailQueryResponse } from './EmailStatistics';
 
 type Props = {
-  kind: string;
-  engageMessageDetailQuery: any;
-  brandsQuery: any;
+  kind?: string;
+  messageId?: string;
 };
 
-const MessageFormContainer = (props: Props) => {
+type FinalProps = {
+  engageMessageDetailQuery: EngageMessageDetailQueryResponse;
+  brandsQuery: BrandsQueryResponse;
+} & Props;
+
+const MessageFormContainer = (props: FinalProps) => {
   const { engageMessageDetailQuery, brandsQuery, kind } = props;
 
   if (engageMessageDetailQuery.loading || brandsQuery.loading) {
     return null;
   }
 
-  const message = engageMessageDetailQuery.engageMessageDetail;
+  const message = engageMessageDetailQuery.engageMessageDetail || {};
   const brands = brandsQuery.brands || [];
 
   const updatedProps = {
     ...props,
     kind: message ? message.kind : kind,
     brands,
-    scheduleDate: message ? message.scheduleDate : {}
+    scheduleDate: message && message.scheduleDate
   };
 
   return <MessageForm {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.engageMessageDetail), {
-    name: 'engageMessageDetailQuery',
-    options: ({ messageId }: { messageId: string }) => ({
-      variables: {
-        _id: messageId
+export default withProps<Props>(
+  compose(
+    graphql<Props, EngageMessageDetailQueryResponse, { _id?: string }>(
+      gql(queries.engageMessageDetail),
+      {
+        name: 'engageMessageDetailQuery',
+        options: ({ messageId }) => ({
+          variables: {
+            _id: messageId
+          }
+        })
       }
+    ),
+    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
+      name: 'brandsQuery'
     })
-  }),
-  graphql(gql(queries.brands), { name: 'brandsQuery' })
-)(MessageFormContainer);
+  )(MessageFormContainer)
+);

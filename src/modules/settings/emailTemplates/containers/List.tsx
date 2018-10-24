@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import { List } from '../components';
+import { IEmailTemplate } from '../types';
 
 const commonParamsDef = `
   $name: String!,
@@ -12,6 +13,12 @@ const commonParams = `
   name: $name,
   content: $content,
 `;
+
+export type EmailTemplatesQueryResponse = {
+  emailTemplates: IEmailTemplate[];
+  loading: boolean;
+  refetch: () => void;
+};
 
 export default commonListComposer({
   name: 'emailTemplates',

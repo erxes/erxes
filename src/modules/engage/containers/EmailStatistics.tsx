@@ -1,14 +1,25 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
 import { EmailStatistics } from '../components';
 import { queries } from '../graphql';
+import { IEngageMessage } from '../types';
 
-type Props = {
-  engageMessageDetailQuery: any;
+export type EngageMessageDetailQueryResponse = {
+  engageMessageDetail: IEngageMessage;
+  loading: boolean;
 };
 
-const EmailStatisticsContainer = (props: Props) => {
+type Props = {
+  messageId: string;
+};
+
+type FinalProps = {
+  engageMessageDetailQuery: EngageMessageDetailQueryResponse;
+};
+
+const EmailStatisticsContainer = (props: FinalProps) => {
   const { engageMessageDetailQuery } = props;
 
   if (engageMessageDetailQuery.loading) {
@@ -20,13 +31,18 @@ const EmailStatisticsContainer = (props: Props) => {
   return <EmailStatistics message={message} {...props} />;
 };
 
-export default compose(
-  graphql(gql(queries.engageMessageDetail), {
-    name: 'engageMessageDetailQuery',
-    options: ({ messageId }: { messageId: string }) => ({
-      variables: {
-        _id: messageId
+export default withProps<Props>(
+  compose(
+    graphql<Props, EngageMessageDetailQueryResponse, { _id: string }>(
+      gql(queries.engageMessageDetail),
+      {
+        name: 'engageMessageDetailQuery',
+        options: ({ messageId }) => ({
+          variables: {
+            _id: messageId
+          }
+        })
       }
-    })
-  })
-)(EmailStatisticsContainer);
+    )
+  )(EmailStatisticsContainer)
+);

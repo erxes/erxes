@@ -1,15 +1,20 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
+import { UserDetailQueryResponse } from '../../settings/team/containers/UserDetailForm';
 import { MessengerPreview } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  userDetailQuery: any;
   fromUserId: string;
+  sentAs: string;
+  content: string;
 };
 
-const MessengerPreviewContainer = (props: Props) => {
+type FinalProps = { userDetailQuery: UserDetailQueryResponse } & Props;
+
+const MessengerPreviewContainer = (props: FinalProps) => {
   const { userDetailQuery } = props;
 
   if (userDetailQuery.loading) {
@@ -25,13 +30,18 @@ const MessengerPreviewContainer = (props: Props) => {
   return <MessengerPreview {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.userDetail), {
-    name: 'userDetailQuery',
-    options: ({ fromUserId }: { fromUserId: string }) => ({
-      variables: {
-        _id: fromUserId
+export default withProps<Props>(
+  compose(
+    graphql<Props, UserDetailQueryResponse, { _id: string }>(
+      gql(queries.userDetail),
+      {
+        name: 'userDetailQuery',
+        options: ({ fromUserId }: { fromUserId: string }) => ({
+          variables: {
+            _id: fromUserId
+          }
+        })
       }
-    })
-  })
-)(MessengerPreviewContainer);
+    )
+  )(MessengerPreviewContainer)
+);

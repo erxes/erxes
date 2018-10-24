@@ -5,8 +5,14 @@ import { compose, graphql } from 'react-apollo';
 import { UserDetailForm } from '../components';
 import { queries } from '../graphql';
 
+export type UserDetailQueryResponse = {
+  userDetail: IUser;
+  loading: boolean;
+  refetch: () => void;
+};
+
 type Props = {
-  userDetailQuery: any;
+  userDetailQuery: UserDetailQueryResponse;
   channelsQuery: any;
   userActivityLogQuery: any;
   userConversationsQuery: any;

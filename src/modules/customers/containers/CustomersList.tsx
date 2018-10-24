@@ -12,22 +12,22 @@ import { CustomersList } from '../components';
 import { mutations, queries } from '../graphql';
 import { ICustomer } from '../types';
 
-type QueryVariables = {
-  page: number;
-  perPage: number;
-  segment: string;
-  tag: string;
-  ids: string;
-  searchValue: string;
-  brand: string;
-  integration: string;
-  form: string;
-  startDate: string;
-  endDate: string;
-  leadStatus: string;
-  lifecycleState: string;
-  sortField: string;
-  sortDirection: number;
+export type QueryVariables = {
+  page?: number;
+  perPage?: number;
+  segment?: string;
+  tag?: string;
+  ids?: string;
+  searchValue?: string;
+  brand?: string;
+  integration?: string;
+  form?: string;
+  startDate?: string;
+  endDate?: string;
+  leadStatus?: string;
+  lifecycleState?: string;
+  sortField?: string;
+  sortDirection?: number;
 };
 
 type MainQueryResponse = {

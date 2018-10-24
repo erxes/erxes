@@ -5,9 +5,9 @@ import { AutoAndManualForm, VisitorForm } from '../containers';
 import { IEngageScheduleDate } from '../types';
 
 type Props = {
-  kind: string;
+  kind?: string;
   brands: IBrand[];
-  scheduleDate: IEngageScheduleDate;
+  scheduleDate?: IEngageScheduleDate;
 };
 
 class MessageForm extends React.Component<Props> {
