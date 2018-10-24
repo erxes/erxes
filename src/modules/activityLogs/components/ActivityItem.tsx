@@ -70,7 +70,9 @@ const ActivityItem = (props: Props) => {
             <ActivityDate>{moment(data.date).fromNow()}</ActivityDate>
           </Tip>
         </FlexContent>
-        {data.content && <ActivityContent>{data.content}</ActivityContent>}
+        {data.content && (
+          <ActivityContent dangerouslySetInnerHTML={{ __html: data.content }} />
+        )}
       </React.Fragment>
     </ActivityRow>
   );
