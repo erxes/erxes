@@ -15,6 +15,7 @@ import {
 } from 'modules/common/components/editor/Editor';
 import * as React from 'react';
 import strip from 'strip';
+import * as xss from 'xss';
 
 import {
   ResponseSuggestionItem,
@@ -135,12 +136,12 @@ class TemplateList extends React.Component<TemplateListProps, {}> {
               <span
                 style={{ fontWeight: 'bold' }}
                 dangerouslySetInnerHTML={{
-                  __html: highlighter(searchText, template.name)
+                  __html: xss(highlighter(searchText, template.name))
                 }}
               />
               <span
                 dangerouslySetInnerHTML={{
-                  __html: highlighter(searchText, strip(template.content))
+                  __html: xss(highlighter(searchText, strip(template.content)))
                 }}
               />
             </ResponseSuggestionItem>
@@ -185,7 +186,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     }
   }
 
-  onChange = (editorState) => {
+  onChange = editorState => {
     this.setState({ editorState });
 
     this.props.onChange(this.getContent(editorState));
@@ -193,11 +194,11 @@ export default class Editor extends React.Component<EditorProps, State> {
     window.requestAnimationFrame(() => {
       this.onTemplatesStateChange(this.getTemplatesState());
     });
-  }
+  };
 
-  onTemplatesStateChange = (templatesState) => {
+  onTemplatesStateChange = templatesState => {
     this.setState({ templatesState });
-  }
+  };
 
   getTemplatesState = (invalidate: boolean = true) => {
     if (!invalidate) {
@@ -232,7 +233,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     }
 
     return null;
-  }
+  };
 
   onSelectTemplate = (index?: number) => {
     const { templatesState } = this.state;
@@ -261,7 +262,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     editorState = EditorState.moveFocusToEnd(es);
 
     return this.setState({ editorState, templatesState: null });
-  }
+  };
 
   onArrow = (e: KeyboardEvent, nudgeAmount: number) => {
     const templatesState = this.getTemplatesState(false);
@@ -275,15 +276,15 @@ export default class Editor extends React.Component<EditorProps, State> {
     templatesState.selectedIndex += nudgeAmount;
 
     this.onTemplatesStateChange(templatesState);
-  }
+  };
 
   onUpArrow = (e: KeyboardEvent) => {
     this.onArrow(e, -1);
-  }
+  };
 
   onDownArrow = (e: KeyboardEvent) => {
     this.onArrow(e, 1);
-  }
+  };
 
   // Render response templates suggestions
   renderTemplates() {
@@ -309,9 +310,9 @@ export default class Editor extends React.Component<EditorProps, State> {
         this.props.mentions.toArray()
       )
     });
-  }
+  };
 
-  onAddMention = (object) => {
+  onAddMention = object => {
     const mention = extractEntries(object);
 
     const collectedMentions = this.state.collectedMentions;
@@ -319,7 +320,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     collectedMentions.push(mention);
 
     this.setState({ collectedMentions });
-  }
+  };
 
   getContent = (editorState: EditorState) => {
     let content = toHTML(editorState);
@@ -349,9 +350,9 @@ export default class Editor extends React.Component<EditorProps, State> {
     this.props.onAddMention(finalMentions.map(mention => mention._id));
 
     return content;
-  }
+  };
 
-  keyBindingFn = (e) => {
+  keyBindingFn = e => {
     // handle new line
     if (e.key === 'Enter' && e.shiftKey) {
       return getDefaultKeyBinding(e);
@@ -384,7 +385,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     }
 
     return getDefaultKeyBinding(e);
-  }
+  };
 
   render() {
     const { MentionSuggestions } = this.mentionPlugin;
