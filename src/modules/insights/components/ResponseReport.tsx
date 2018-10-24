@@ -19,10 +19,10 @@ type Props = {
   trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  teamMembers?: IChartParams[];
-  punch?: any;
-  summary?: any;
-  loading?: any;
+  teamMembers: IChartParams[];
+  punch: any;
+  summary: any;
+  loading: any;
 };
 
 class ResponseReport extends React.Component<Props, { width: number }> {

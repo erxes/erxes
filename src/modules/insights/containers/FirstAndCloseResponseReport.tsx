@@ -46,7 +46,8 @@ const FirstAndCloseResponseReportContainer = (props: FinalProps) => {
     time: data.time,
     teamMembers: data.teamMembers || [],
     brands: brandsQuery.brands || [],
-    isLoading: brandsQuery.loading || loading
+    isLoading: brandsQuery.loading || loading,
+    summaries: data.summaries || []
   };
 
   if (type === 'close') {

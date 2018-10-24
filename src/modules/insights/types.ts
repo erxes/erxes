@@ -19,7 +19,12 @@ export interface IChartParams {
   y: number;
 }
 
-export interface InsightParams {
+export interface IPieChartData {
   label: string;
   value: number;
+}
+
+export interface InsightData {
+  integration: IPieChartData[];
+  tag: IPieChartData[];
 }

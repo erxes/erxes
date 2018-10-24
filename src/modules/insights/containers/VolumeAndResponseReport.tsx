@@ -50,7 +50,7 @@ const VolumenAndResponseReportContainer = (props: FinalProps) => {
   if (type === 'volume') {
     const volumeProps = {
       ...extendedProps,
-      insights: volumePieChartQuery.insights || []
+      insights: volumePieChartQuery.insights || {}
     };
 
     return <VolumeReport {...volumeProps} />;
@@ -72,6 +72,7 @@ export default compose(
       fetchPolicy: 'network-only',
       variables: {
         brandId: queryParams.brandId,
+        integrationType: queryParams.integrationType,
         endDate: queryParams.endDate,
         startDate: queryParams.startDate
       }
