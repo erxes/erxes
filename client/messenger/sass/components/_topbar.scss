@@ -23,6 +23,11 @@ $topbar-shadow: rgba(0, 0, 0, .1);
     right: 0;
     top: 0;
   }
+
+  @media screen and (max-width: $break-small) {
+    border: none;
+    border-radius: 0;
+  }
 }
 
 .erxes-topbar {
