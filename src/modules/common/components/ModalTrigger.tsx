@@ -20,18 +20,15 @@ class ModalTrigger extends React.Component<Props, State> {
     super(props);
 
     this.state = { isOpen: false };
-
-    this.openModal = this.openModal.bind(this);
-    this.closeModal = this.closeModal.bind(this);
   }
 
-  openModal() {
+  openModal = () => {
     this.setState({ isOpen: true });
-  }
+  };
 
-  closeModal() {
+  closeModal = () => {
     this.setState({ isOpen: false });
-  }
+  };
 
   render() {
     const {

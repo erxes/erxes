@@ -44,14 +44,9 @@ class CustomersMerge extends React.Component<Props, State> {
     this.state = {
       selectedValues: {}
     };
-
-    this.renderCustomer = this.renderCustomer.bind(this);
-    this.renderLinks = this.renderLinks.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.save = this.save.bind(this);
   }
 
-  save(e: React.FormEvent) {
+  save = (e: React.FormEvent) => {
     e.preventDefault();
     const { objects } = this.props;
     const selectedValues = { ...this.state.selectedValues };
@@ -70,9 +65,13 @@ class CustomersMerge extends React.Component<Props, State> {
         this.props.closeModal();
       }
     });
-  }
+  };
 
-  handleChange(type: string, key: string, value: string | ICustomerLinks) {
+  handleChange = (
+    type: string,
+    key: string,
+    value: string | ICustomerLinks
+  ) => {
     const selectedValues = { ...this.state.selectedValues };
 
     if (type === 'add') {
@@ -88,9 +87,9 @@ class CustomersMerge extends React.Component<Props, State> {
     }
 
     this.setState({ selectedValues });
-  }
+  };
 
-  renderCustomer(customer: ICustomerDoc, icon: string) {
+  renderCustomer = (customer: ICustomerDoc, icon: string) => {
     const properties = CUSTOMER_BASIC_INFO.ALL.concat(CUSTOMER_DATAS.ALL);
 
     return (
@@ -113,7 +112,7 @@ class CustomersMerge extends React.Component<Props, State> {
         </ul>
       </React.Fragment>
     );
-  }
+  };
 
   renderCustomerProperties(key: string, value: string, icon: string) {
     return (
@@ -210,7 +209,7 @@ class CustomersMerge extends React.Component<Props, State> {
     );
   }
 
-  renderLinks(data: ICustomerLinks, icon: string) {
+  renderLinks = (data: ICustomerLinks, icon: string) => {
     const { selectedValues } = this.state;
 
     return CUSTOMER_LINKS.ALL.map(info => {
@@ -234,7 +233,7 @@ class CustomersMerge extends React.Component<Props, State> {
         </li>
       );
     });
-  }
+  };
 
   render() {
     const { selectedValues } = this.state;

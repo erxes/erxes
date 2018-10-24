@@ -37,11 +37,9 @@ class Uploader extends React.Component<Props, State> {
       loading: false,
       attachmentPreviewStyle: {}
     };
-
-    this.handleFileInput = this.handleFileInput.bind(this);
   }
 
-  handleFileInput(e) {
+  handleFileInput = e => {
     const files = e.target.files;
 
     uploadHandler({
@@ -70,9 +68,9 @@ class Uploader extends React.Component<Props, State> {
         });
       }
     });
-  }
+  };
 
-  removeAttachment(e) {
+  removeAttachment = e => {
     const attachments = [...this.state.attachments];
 
     const index = attachments.indexOf(e);
@@ -82,7 +80,7 @@ class Uploader extends React.Component<Props, State> {
     this.setState({ attachments });
 
     this.props.onChange(attachments);
-  }
+  };
 
   render() {
     const { loading, attachments, attachmentPreviewStyle } = this.state;

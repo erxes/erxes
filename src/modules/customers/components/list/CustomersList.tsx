@@ -68,19 +68,15 @@ class CustomersList extends React.Component<IProps, State> {
     this.state = {
       searchValue: this.props.searchValue
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.removeCustomers = this.removeCustomers.bind(this);
-    this.search = this.search.bind(this);
   }
 
-  onChange() {
+  onChange = () => {
     const { toggleAll, customers } = this.props;
 
     toggleAll(customers, 'customers');
-  }
+  };
 
-  removeCustomers(customers) {
+  removeCustomers = customers => {
     const customerIds: string[] = [];
 
     customers.forEach(customer => {
@@ -90,7 +86,7 @@ class CustomersList extends React.Component<IProps, State> {
     const { removeCustomers, emptyBulk } = this.props;
 
     removeCustomers({ customerIds }, emptyBulk);
-  }
+  };
 
   renderContent() {
     const {
@@ -138,7 +134,7 @@ class CustomersList extends React.Component<IProps, State> {
     );
   }
 
-  search(e) {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -150,7 +146,7 @@ class CustomersList extends React.Component<IProps, State> {
     this.timer = setTimeout(() => {
       router.setParams(history, { searchValue });
     }, 500);
-  }
+  };
 
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;

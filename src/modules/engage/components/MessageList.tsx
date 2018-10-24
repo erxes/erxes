@@ -29,17 +29,11 @@ type Props = {
 };
 
 class List extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange() {
+  onChange = () => {
     const { toggleAll, messages } = this.props;
 
     toggleAll(messages, 'engageMessages');
-  }
+  };
 
   renderTagger() {
     const { bulk, emptyBulk } = this.props;

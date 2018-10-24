@@ -31,16 +31,10 @@ type Props = {
 };
 
 class List extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange() {
+  onChange = () => {
     const { toggleAll, integrations } = this.props;
     toggleAll(integrations, 'integrations');
-  }
+  };
 
   renderRow() {
     const { integrations, remove, bulk, toggleBulk } = this.props;

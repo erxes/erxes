@@ -37,22 +37,17 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         object.content || ''
       )
     };
-
-    this.renderContent = this.renderContent.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.getContent = this.getContent.bind(this);
-    this.generateDoc = this.generateDoc.bind(this);
   }
 
-  getContent(editorState) {
+  getContent = editorState => {
     return toHTML(editorState);
-  }
+  };
 
-  onChange(editorState) {
+  onChange = editorState => {
     this.setState({ editorState });
-  }
+  };
 
-  generateDoc() {
+  generateDoc = () => {
     return {
       doc: {
         brandId: (document.getElementById(
@@ -63,9 +58,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         content: this.getContent(this.state.editorState)
       }
     };
-  }
+  };
 
-  renderContent() {
+  renderContent = () => {
     const { brands } = this.props;
     const object = this.props.object || ({} as IResponseTemplate);
 
@@ -110,7 +105,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
       </React.Fragment>
     );
-  }
+  };
 
   render() {
     return (

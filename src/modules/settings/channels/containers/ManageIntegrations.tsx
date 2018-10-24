@@ -24,13 +24,7 @@ type Props = {
 };
 
 class ManageIntegrationsContainer extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.save = this.save.bind(this);
-  }
-
-  save(integrationIds) {
+  save = integrationIds => {
     const { currentChannel, editMutation } = this.props;
 
     editMutation({
@@ -47,7 +41,7 @@ class ManageIntegrationsContainer extends React.Component<Props, {}> {
       .catch(e => {
         Alert.error(e.message);
       });
-  }
+  };
 
   render() {
     const { currentChannel } = this.props;

@@ -59,20 +59,6 @@ class RespondBox extends React.Component<Props, State> {
       content: '',
       mentionedUserIds: []
     };
-
-    // on editor content change
-    this.onEditorContentChange = this.onEditorContentChange.bind(this);
-
-    // on new members mention
-    this.onAddMention = this.onAddMention.bind(this);
-
-    // on shift + enter press in editor
-    this.onShifEnter = this.onShifEnter.bind(this);
-    this.onSend = this.onSend.bind(this);
-    this.toggleForm = this.toggleForm.bind(this);
-    this.hideMask = this.hideMask.bind(this);
-    this.handleFileInput = this.handleFileInput.bind(this);
-    this.onSelectTemplate = this.onSelectTemplate.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -92,14 +78,14 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   // save editor current content to state
-  onEditorContentChange(content: string) {
+  onEditorContentChange = (content: string) => {
     this.setState({ content });
-  }
+  };
 
   // save mentioned user to state
-  onAddMention(mentionedUserIds: string[]) {
+  onAddMention = (mentionedUserIds: string[]) => {
     this.setState({ mentionedUserIds });
-  }
+  };
 
   checkIsActive(conversation: IConversation) {
     return (
@@ -110,24 +96,24 @@ class RespondBox extends React.Component<Props, State> {
     );
   }
 
-  hideMask() {
+  hideMask = () => {
     this.setState({ isInactive: false });
 
     const element = document.querySelector('.DraftEditor-root') as HTMLElement;
 
     element.click();
-  }
+  };
 
-  onSend(e: React.FormEvent) {
+  onSend = (e: React.FormEvent) => {
     e.preventDefault();
 
     this.addMessage();
 
     // redrawing editor after sned button, so editor content will be reseted
     this.setState({ editorKey: `${this.state.editorKey}Key` });
-  }
+  };
 
-  onSelectTemplate(responseTemplate?: IResponseTemplate) {
+  onSelectTemplate = (responseTemplate?: IResponseTemplate) => {
     if (!responseTemplate) {
       return null;
     }
@@ -138,14 +124,14 @@ class RespondBox extends React.Component<Props, State> {
       // set attachment from response template files
       attachments: responseTemplate.files || []
     });
-  }
+  };
 
   // on shift + enter press in editor
-  onShifEnter() {
+  onShifEnter = () => {
     this.addMessage();
-  }
+  };
 
-  handleFileInput(e: React.FormEvent<HTMLInputElement>) {
+  handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
     const { setAttachmentPreview } = this.props;
 
@@ -176,7 +162,7 @@ class RespondBox extends React.Component<Props, State> {
         }
       }
     });
-  }
+  };
 
   cleanText(text: string) {
     return text.replace(/&nbsp;/g, ' ');
@@ -212,11 +198,11 @@ class RespondBox extends React.Component<Props, State> {
     }
   }
 
-  toggleForm() {
+  toggleForm = () => {
     this.setState({
       isInternal: !this.state.isInternal
     });
-  }
+  };
 
   renderIncicator() {
     const attachments = this.state.attachments;

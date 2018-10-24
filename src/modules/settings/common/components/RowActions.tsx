@@ -19,27 +19,19 @@ type Props = {
 };
 
 export default class RowActions extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.remove = this.remove.bind(this);
-    this.renderRemoveAction = this.renderRemoveAction.bind(this);
-    this.renderEditAction = this.renderEditAction.bind(this);
-  }
-
-  remove() {
+  remove = () => {
     this.props.remove(this.props.object._id);
-  }
+  };
 
-  renderRemoveAction() {
+  renderRemoveAction = () => {
     return (
       <Tip text={__('Delete')}>
         <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
       </Tip>
     );
-  }
+  };
 
-  renderEditAction() {
+  renderEditAction = () => {
     const { size, renderForm, object, save } = this.props;
 
     const editTrigger = (
@@ -62,7 +54,7 @@ export default class RowActions extends React.Component<Props, {}> {
         content={content}
       />
     );
-  }
+  };
 
   render() {
     return (

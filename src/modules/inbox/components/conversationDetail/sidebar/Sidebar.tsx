@@ -52,18 +52,16 @@ class Box extends React.Component<BoxProps, BoxState> {
     this.state = {
       isOpen: props.isOpen
     };
-
-    this.toggle = this.toggle.bind(this);
   }
 
-  toggle() {
+  toggle = () => {
     const { name, toggle } = this.props;
     const { isOpen } = this.state;
 
     this.setState({ isOpen: !isOpen });
 
     toggle({ name, isOpen: !isOpen });
-  }
+  };
 
   renderDropBtn() {
     const icon = this.state.isOpen ? 'downarrow' : 'rightarrow-2';
@@ -132,31 +130,33 @@ class Index extends React.Component<IndexProps, IndexState> {
       currentSubTab: 'details',
       attachmentPreview: null
     };
-
-    this.onTabClick = this.onTabClick.bind(this);
-    this.onSubtabClick = this.onSubtabClick.bind(this);
   }
 
-  onTabClick(currentTab) {
+  onTabClick = currentTab => {
     this.setState({ currentTab });
-  }
+  };
 
-  onSubtabClick(currentSubTab) {
+  onSubtabClick = currentSubTab => {
     this.setState({ currentSubTab });
-  }
+  };
 
   setAttachmentPreview = attachmentPreview => {
     this.setState({ attachmentPreview });
   };
 
-  renderMessengerData({ customer, kind, config, toggleSection }: IRenderData) {
+  renderMessengerData = ({
+    customer,
+    kind,
+    config,
+    toggleSection
+  }: IRenderData) => {
     if (kind !== 'messenger') {
       return null;
     }
 
     return (
       <Box
-        title={__('Messenger data') as string}
+        title={__('Messenger data')}
         name="showMessengerData"
         isOpen={config.showMessengerData || false}
         toggle={toggleSection}
@@ -164,21 +164,21 @@ class Index extends React.Component<IndexProps, IndexState> {
         <MessengerSection customer={customer} />
       </Box>
     );
-  }
+  };
 
-  renderDeviceProperties({
+  renderDeviceProperties = ({
     customer,
     kind,
     config,
     toggleSection
-  }: IRenderData) {
+  }: IRenderData) => {
     if (!(kind === 'messenger' || kind === 'form')) {
       return null;
     }
 
     return (
       <Box
-        title={__('Device properties') as string}
+        title={__('Device properties')}
         name="showDeviceProperties"
         isOpen={config.showDeviceProperties || false}
         toggle={toggleSection}
@@ -186,7 +186,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         <DevicePropertiesSection customer={customer} />
       </Box>
     );
-  }
+  };
 
   renderActions() {
     const { customer } = this.props;

@@ -51,9 +51,6 @@ class WorkArea extends React.Component<Props, State> {
     this.state = { loadingMessages: false };
 
     this.prevSubscription = null;
-
-    this.loadMoreMessages = this.loadMoreMessages.bind(this);
-    this.addMessage = this.addMessage.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -115,7 +112,7 @@ class WorkArea extends React.Component<Props, State> {
     }
   }
 
-  addMessage({
+  addMessage = ({
     variables,
     optimisticResponse,
     callback,
@@ -125,7 +122,7 @@ class WorkArea extends React.Component<Props, State> {
     optimisticResponse: any;
     callback?: (e?) => void;
     kind: string;
-  }) {
+  }) => {
     const { addMessageMutation, currentId } = this.props;
 
     // immidiate ui update =======
@@ -187,9 +184,9 @@ class WorkArea extends React.Component<Props, State> {
           callback(e);
         }
       });
-  }
+  };
 
-  loadMoreMessages() {
+  loadMoreMessages = () => {
     const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
     const { conversationMessages } = messagesQuery;
@@ -239,7 +236,7 @@ class WorkArea extends React.Component<Props, State> {
         }
       });
     }
-  }
+  };
 
   render() {
     const { loadingMessages } = this.state;

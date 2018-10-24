@@ -25,13 +25,9 @@ export default abstract class Bulk extends React.Component<Props, State> {
     super(props);
 
     this.state = { bulk: [], isAllSelected: false };
-
-    this.toggleBulk = this.toggleBulk.bind(this);
-    this.toggleAll = this.toggleAll.bind(this);
-    this.emptyBulk = this.emptyBulk.bind(this);
   }
 
-  toggleBulk(target, toAdd) {
+  toggleBulk = (target, toAdd) => {
     let { bulk } = this.state;
     // remove old entry
     bulk = bulk.filter((el: any) => el._id !== target._id);
@@ -41,9 +37,9 @@ export default abstract class Bulk extends React.Component<Props, State> {
     }
 
     this.setState({ bulk });
-  }
+  };
 
-  toggleAll(targets, containerId) {
+  toggleAll = (targets, containerId) => {
     if (this.state.isAllSelected) {
       this.emptyBulk();
     } else {
@@ -55,9 +51,9 @@ export default abstract class Bulk extends React.Component<Props, State> {
     toggleCheckBoxes(containerId, !isAllSelected);
 
     this.setState({ isAllSelected: !isAllSelected });
-  }
+  };
 
-  emptyBulk() {
+  emptyBulk = () => {
     const { refetch } = this.props;
 
     if (refetch) {
@@ -65,7 +61,7 @@ export default abstract class Bulk extends React.Component<Props, State> {
     }
 
     this.setState({ bulk: [], isAllSelected: false });
-  }
+  };
 
   render() {
     const { toggleBulk, toggleAll, emptyBulk } = this;

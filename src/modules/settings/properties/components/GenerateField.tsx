@@ -22,8 +22,6 @@ export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.onChange = this.onChange.bind(this);
-
     this.state = this.generateState(props);
   }
 
@@ -117,7 +115,7 @@ export default class GenerateField extends React.Component<Props, State> {
    * @param {Object} e - Event object
    * @param {String} optionValue - per radio button or checkbox value
    */
-  onChange(e, optionValue) {
+  onChange = (e, optionValue) => {
     const { field, onValueChange } = this.props;
     const { validation, type } = field;
 
@@ -151,7 +149,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
       onValueChange({ _id: field._id, value });
     }
-  }
+  };
 
   renderControl() {
     const { field } = this.props;

@@ -11,6 +11,7 @@ import {
 import { Icon, NameCard, Tip } from 'modules/common/components';
 import * as moment from 'moment';
 import * as React from 'react';
+import * as xss from 'xss';
 
 type Props = {
   data: any;
@@ -46,7 +47,9 @@ const ActivityItem = (props: Props) => {
             </Tip>
           </FlexContent>
           {data.content && (
-            <EmailContent dangerouslySetInnerHTML={{ __html: content.body }} />
+            <EmailContent
+              dangerouslySetInnerHTML={{ __html: xss(content.body) }}
+            />
           )}
         </React.Fragment>
       </ActivityRow>
@@ -70,7 +73,11 @@ const ActivityItem = (props: Props) => {
             <ActivityDate>{moment(data.date).fromNow()}</ActivityDate>
           </Tip>
         </FlexContent>
-        {data.content && <ActivityContent>{data.content}</ActivityContent>}
+        {data.content && (
+          <ActivityContent
+            dangerouslySetInnerHTML={{ __html: xss(data.content) }}
+          />
+        )}
       </React.Fragment>
     </ActivityRow>
   );

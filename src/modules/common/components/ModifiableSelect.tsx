@@ -57,13 +57,6 @@ class ModifiableSelect extends React.Component<Props, State> {
       options: props.options || [],
       selectedOption: props.value
     };
-
-    this.handleAdding = this.handleAdding.bind(this);
-    this.handleCancelAdding = this.handleCancelAdding.bind(this);
-    this.renderInput = this.renderInput.bind(this);
-    this.renderValue = this.renderValue.bind(this);
-    this.removeItem = this.removeItem.bind(this);
-    this.setItem = this.setItem.bind(this);
   }
 
   generateOptions() {
@@ -76,11 +69,11 @@ class ModifiableSelect extends React.Component<Props, State> {
     }));
   }
 
-  renderValue() {
+  renderValue = () => {
     const { selectedOption } = this.state;
 
     return <span>{selectedOption}</span>;
-  }
+  };
 
   handleSave = () => {
     const { options, selectedOption } = this.state;
@@ -108,15 +101,15 @@ class ModifiableSelect extends React.Component<Props, State> {
     ) as HTMLInputElement).value = '';
   };
 
-  handleAdding() {
+  handleAdding = () => {
     this.setState({ adding: true });
-  }
+  };
 
-  handleCancelAdding() {
+  handleCancelAdding = () => {
     this.setState({ adding: false });
-  }
+  };
 
-  removeItem(value) {
+  removeItem = value => {
     const { options } = this.state;
     const { onChange } = this.props;
 
@@ -134,9 +127,9 @@ class ModifiableSelect extends React.Component<Props, State> {
     );
 
     Alert.success('Successfully removed');
-  }
+  };
 
-  setItem(option) {
+  setItem = option => {
     const { options } = this.state;
     const { onChange } = this.props;
     const value = option ? option.value : null;
@@ -147,9 +140,9 @@ class ModifiableSelect extends React.Component<Props, State> {
         selectedOption: this.state.selectedOption ? value : null
       });
     });
-  }
+  };
 
-  renderInput() {
+  renderInput = () => {
     const { buttonText } = this.props;
 
     if (this.state.adding) {
@@ -195,7 +188,7 @@ class ModifiableSelect extends React.Component<Props, State> {
         {__(buttonText || '')}
       </Button>
     );
-  }
+  };
 
   render() {
     const { placeholder } = this.props;

@@ -1,10 +1,10 @@
-import * as React from 'react';
-import strip from 'strip';
-
 import { IUser } from 'modules/auth/types';
 import { NameCard } from 'modules/common/components';
 import { WidgetPreviewStyled } from 'modules/settings/integrations/components/messenger/widgetPreview/styles';
 import { LogoContainer } from 'modules/settings/styles';
+import * as React from 'react';
+import strip from 'strip';
+import * as xss from 'xss';
 import { Messenger, PreviewContent, WebPreview } from '../styles';
 
 type Props = {
@@ -21,11 +21,9 @@ class MessengerPreview extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { fromUser: '' };
-
-    this.renderNotificationBody = this.renderNotificationBody.bind(this);
   }
 
-  renderNotificationBody() {
+  renderNotificationBody = () => {
     const { content, sentAs } = this.props;
 
     const type = sentAs ? sentAs : 'default';
@@ -42,12 +40,12 @@ class MessengerPreview extends React.Component<Props, State> {
         <PreviewContent
           isFullmessage={isFullmessage}
           dangerouslySetInnerHTML={{
-            __html: isFullmessage ? content : strip(content)
+            __html: isFullmessage ? xss(content || '') : xss(strip(content))
           }}
         />
       </WidgetPreviewStyled>
     );
-  }
+  };
 
   render() {
     const { sentAs } = this.props;

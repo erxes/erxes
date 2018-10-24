@@ -24,16 +24,10 @@ type Props = {
 };
 
 class Options extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onChangeFunction = this.onChangeFunction.bind(this);
-  }
-
-  onChangeFunction(name, value) {
+  onChangeFunction = (name, value) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
-  }
+  };
 
   render() {
     const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);

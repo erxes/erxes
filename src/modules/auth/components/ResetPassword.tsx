@@ -11,21 +11,19 @@ class ResetPassword extends React.Component<Props, { newPassword: string }> {
     super(props);
 
     this.state = { newPassword: '' };
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
 
-  handleSubmit(e) {
+  handleSubmit = e => {
     e.preventDefault();
 
     this.props.resetPassword(this.state.newPassword);
-  }
+  };
 
-  handlePasswordChange(e) {
+  handlePasswordChange = e => {
     e.preventDefault();
 
     this.setState({ newPassword: e.target.value });
-  }
+  };
 
   render() {
     const { __ } = this.context;

@@ -25,22 +25,19 @@ class TargetMergeModal extends React.Component<Props, State> {
       objects: [],
       selectedObject: {}
     };
-
-    this.onSelect = this.onSelect.bind(this);
-    this.handleSearch = this.handleSearch.bind(this);
   }
 
-  handleSearch(value) {
+  handleSearch = value => {
     const { objects } = this.state;
 
     if (objects.length < 1) {
       this.props.searchObject(value, objs => this.setState({ objects: objs }));
     }
-  }
+  };
 
-  onSelect(option) {
+  onSelect = option => {
     this.setState({ selectedObject: JSON.parse(option.value) });
-  }
+  };
 
   renderMerger({ closeModal }) {
     const { object, onSave, mergeForm } = this.props;

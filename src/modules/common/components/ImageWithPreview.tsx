@@ -65,24 +65,21 @@ class ImageWithPreview extends React.Component<Props, State> {
     this.state = {
       visible: false
     };
-
-    this.toggleImage = this.toggleImage.bind(this);
-    this.handleKeydown = this.handleKeydown.bind(this);
   }
 
-  toggleImage() {
+  toggleImage = () => {
     this.setState({ visible: !this.state.visible });
-  }
+  };
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeydown);
   }
 
-  handleKeydown(e) {
+  handleKeydown = e => {
     if (e.keyCode === KEYCODES.ESCAPE && this.state.visible) {
       this.setState({ visible: false });
     }
-  }
+  };
 
   render() {
     const { src, alt, onLoad } = this.props;

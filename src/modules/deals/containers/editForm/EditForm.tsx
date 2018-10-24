@@ -68,7 +68,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       });
   }
 
-  saveDeal(doc: IDealParams, callback: () => void) {
+  saveDeal = (doc: IDealParams, callback: () => void) => {
     const { stageId, dealId, editMutation, onUpdate } = this.props;
 
     editMutation({ variables: { _id: dealId, ...doc } })
@@ -84,9 +84,9 @@ class EditFormContainer extends React.Component<FinalProps> {
       .catch(error => {
         Alert.error(error.message);
       });
-  }
+  };
 
-  removeDeal(dealId: string, callback) {
+  removeDeal = (dealId: string, callback) => {
     const { removeMutation, onRemove, stageId } = this.props;
 
     confirm().then(() =>
@@ -103,7 +103,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           Alert.error(error.message);
         })
     );
-  }
+  };
 
   render() {
     const { usersQuery, dealDetailQuery } = this.props;

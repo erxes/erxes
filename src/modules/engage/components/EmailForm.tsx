@@ -9,6 +9,7 @@ import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import styled from 'styled-components';
+import * as xss from 'xss';
 import { IUser } from '../../auth/types';
 import { IEmailTemplate } from '../../settings/emailTemplates/types';
 import { IEngageEmail, IEngageScheduleDate } from '../types';
@@ -124,7 +125,7 @@ class EmailForm extends React.Component<Props, State> {
       ReactDom.render(
         <EmailContent
           dangerouslySetInnerHTML={{
-            __html: this.props.content || ''
+            __html: xss(this.props.content || '')
           }}
         />,
         contentContainer[0]
@@ -140,7 +141,7 @@ class EmailForm extends React.Component<Props, State> {
     return (
       <PreviewContainer
         dangerouslySetInnerHTML={{
-          __html: this.state.currentTemplate
+          __html: xss(this.state.currentTemplate)
         }}
       />
     );

@@ -117,11 +117,6 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
 
     this.state = state;
-
-    this.renderPopover = this.renderPopover.bind(this);
-    this.refetchCountQuery = this.refetchCountQuery.bind(this);
-    this.renderCount = this.renderCount.bind(this);
-    this.filterByDate = this.filterByDate.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -140,7 +135,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
   };
 
-  refetchCountQuery() {
+  refetchCountQuery = () => {
     const { client, queryParams, countQuery, countQueryParam } = this.props;
 
     if (!countQuery || !countQueryParam) {
@@ -158,7 +153,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
           totalCount: data[countQueryParam]
         });
       });
-  }
+  };
 
   filterByDate = () => {
     const { startDate, endDate } = this.state;
@@ -176,7 +171,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
   };
 
-  renderCount() {
+  renderCount = () => {
     const { totalCount } = this.state;
 
     if (this.props.countQuery) {
@@ -192,9 +187,9 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
 
     return null;
-  }
+  };
 
-  renderPopover() {
+  renderPopover = () => {
     const props = {
       inputProps: { placeholder: __('Select a date') },
       timeFormat: 'HH:mm',
@@ -245,7 +240,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
         </DateFilters>
       </Popover>
     );
-  }
+  };
 
   render() {
     return (

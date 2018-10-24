@@ -19,13 +19,7 @@ type Props = {
 };
 
 class Boards extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.renderItems = this.renderItems.bind(this);
-  }
-
-  renderItems() {
+  renderItems = () => {
     const { boards, remove, save, currentBoardId } = this.props;
 
     return boards.map(board => (
@@ -37,7 +31,7 @@ class Boards extends React.Component<Props, {}> {
         save={save}
       />
     ));
-  }
+  };
 
   renderBoardForm(props) {
     return <BoardForm {...props} />;

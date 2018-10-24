@@ -51,14 +51,11 @@ class UserDetails extends React.Component<Props, State> {
     super(props);
 
     this.state = { currentTab: 'conversation' };
-
-    this.renderTabContent = this.renderTabContent.bind(this);
-    this.onTabClick = this.onTabClick.bind(this);
   }
 
-  onTabClick(currentTab) {
+  onTabClick = currentTab => {
     this.setState({ currentTab });
-  }
+  };
 
   renderConversation(conversation, user) {
     const details = user.details || {};
@@ -95,7 +92,7 @@ class UserDetails extends React.Component<Props, State> {
     );
   }
 
-  renderTabContent() {
+  renderTabContent = () => {
     const { currentTab } = this.state;
 
     const {
@@ -138,7 +135,7 @@ class UserDetails extends React.Component<Props, State> {
         />
       </ActivityContent>
     );
-  }
+  };
 
   render() {
     const { user, channels, renderEditForm } = this.props;

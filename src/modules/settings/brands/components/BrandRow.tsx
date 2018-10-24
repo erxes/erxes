@@ -23,19 +23,12 @@ type Props = {
 };
 
 class BrandRow extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.remove = this.remove.bind(this);
-    this.renderEditAction = this.renderEditAction.bind(this);
-  }
-
-  remove() {
+  remove = () => {
     const { remove, brand } = this.props;
     remove(brand._id);
-  }
+  };
 
-  renderEditAction() {
+  renderEditAction = () => {
     const { brand, save } = this.props;
 
     const editTrigger = (
@@ -51,7 +44,7 @@ class BrandRow extends React.Component<Props> {
     return (
       <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
-  }
+  };
 
   render() {
     const { brand, isActive } = this.props;

@@ -67,14 +67,6 @@ class CompanyForm extends React.Component<Props, State> {
       users: [],
       avatar: company.avatar
     };
-
-    this.action = this.action.bind(this);
-    this.renderFormGroup = this.renderFormGroup.bind(this);
-    this.handleCompanySearch = this.handleCompanySearch.bind(this);
-    this.handleUserSearch = this.handleUserSearch.bind(this);
-    this.handleSelect = this.handleSelect.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.onAvatarUpload = this.onAvatarUpload.bind(this);
   }
 
   componentDidMount() {
@@ -89,7 +81,7 @@ class CompanyForm extends React.Component<Props, State> {
     return (document.getElementById(id) as HTMLInputElement).value;
   }
 
-  action(e) {
+  action = e => {
     const {
       names,
       primaryName,
@@ -131,11 +123,11 @@ class CompanyForm extends React.Component<Props, State> {
     });
 
     this.props.closeModal();
-  }
+  };
 
-  onAvatarUpload(url: string) {
+  onAvatarUpload = (url: string) => {
     this.setState({ avatar: url });
-  }
+  };
 
   generateCompanyParams(companies) {
     return companies.map(company => ({
@@ -158,24 +150,24 @@ class CompanyForm extends React.Component<Props, State> {
     }));
   }
 
-  handleSelect<T extends keyof State>(
+  handleSelect = <T extends keyof State>(
     selectedOption: { value: State[T] },
     name: T
-  ) {
+  ) => {
     this.setState({
       [name]: selectedOption ? selectedOption.value : null
     } as Pick<State, keyof State>);
-  }
+  };
 
   /*
    * Used filterOptions={(options) => options} in component to solve
    * `react-select leaving out a particular option` issue
    */
-  handleCompanySearch(value) {
+  handleCompanySearch = value => {
     if (value) {
       searchCompany(value, companies => this.setState({ companies }));
     }
-  }
+  };
 
   handleUserSearch = value => {
     if (value) {
@@ -183,22 +175,22 @@ class CompanyForm extends React.Component<Props, State> {
     }
   };
 
-  renderFormGroup(label, props) {
+  renderFormGroup = (label, props) => {
     return (
       <FormGroup>
         <ControlLabel>{label}</ControlLabel>
         <FormControl {...props} />
       </FormGroup>
     );
-  }
+  };
 
-  onChange(
+  onChange = (
     { options, selectedOption }: { options: string[]; selectedOption: string },
     optionsName: string,
     optionName: string
-  ) {
+  ) => {
     this.setState({ [optionsName]: options, [optionName]: selectedOption });
-  }
+  };
 
   render() {
     const company = this.props.company || ({} as ICompany);
