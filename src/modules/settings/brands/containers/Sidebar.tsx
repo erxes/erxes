@@ -1,25 +1,34 @@
 import gql from 'graphql-tag';
-import { Alert, confirm } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
-import { IBrand } from '../types';
+import {
+  BrandAddMutationResponse,
+  BrandAddMutationVariables,
+  BrandEditMutationResponse,
+  BrandEditMutationVariables,
+  BrandRemoveMutationResponse,
+  BrandRemoveMutationVariables,
+  BrandsCountQueryResponse,
+  BrandsQueryResponse
+} from '../types';
 
-type QueryResponse = {
-  brandsQuery: any;
-  brandsCountQuery: any;
-
-  addMutation: (
-    params: { variables: { name: string; description: string } }
-  ) => Promise<any>;
-  editMutation: (
-    params: { variables: { name: string; description: string } }
-  ) => Promise<any>;
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+type Props = {
+  queryParams: any;
+  currentBrandId?: string;
 };
 
-const SidebarContainer = (props: ChildProps<QueryResponse>) => {
+type FinalProps = {
+  brandsQuery: BrandsQueryResponse;
+  brandsCountQuery: BrandsCountQueryResponse;
+} & Props &
+  BrandAddMutationResponse &
+  BrandEditMutationResponse &
+  BrandRemoveMutationResponse;
+
+const SidebarContainer = (props: ChildProps<FinalProps>) => {
   const {
     brandsQuery,
     brandsCountQuery,
@@ -84,7 +93,7 @@ const SidebarContainer = (props: ChildProps<QueryResponse>) => {
   return <Sidebar {...updatedProps} />;
 };
 
-const commonOptions = ({ queryParams, currentBrandId }) => {
+const commonOptions = ({ queryParams, currentBrandId }: Props) => {
   return {
     refetchQueries: [
       {
@@ -104,29 +113,43 @@ const commonOptions = ({ queryParams, currentBrandId }) => {
   };
 };
 
-export default compose(
-  graphql(gql(queries.brands), {
-    name: 'brandsQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: {
-        perPage: queryParams.limit || 20
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.brandsCount), {
-    name: 'brandsCountQuery'
-  }),
-  graphql(gql(mutations.brandAdd), {
-    name: 'addMutation',
-    options: commonOptions
-  }),
-  graphql(gql(mutations.brandEdit), {
-    name: 'editMutation',
-    options: commonOptions
-  }),
-  graphql(gql(mutations.brandRemove), {
-    name: 'removeMutation',
-    options: commonOptions
-  })
-)(SidebarContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, BrandsQueryResponse, { perPage: number }>(
+      gql(queries.brands),
+      {
+        name: 'brandsQuery',
+        options: ({ queryParams }: { queryParams: any }) => ({
+          variables: {
+            perPage: queryParams.limit || 20
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, BrandsCountQueryResponse, {}>(gql(queries.brandsCount), {
+      name: 'brandsCountQuery'
+    }),
+    graphql<Props, BrandAddMutationResponse, BrandAddMutationVariables>(
+      gql(mutations.brandAdd),
+      {
+        name: 'addMutation',
+        options: commonOptions
+      }
+    ),
+    graphql<Props, BrandEditMutationResponse, BrandEditMutationVariables>(
+      gql(mutations.brandEdit),
+      {
+        name: 'editMutation',
+        options: commonOptions
+      }
+    ),
+    graphql<Props, BrandRemoveMutationResponse, BrandRemoveMutationVariables>(
+      gql(mutations.brandRemove),
+      {
+        name: 'removeMutation',
+        options: commonOptions
+      }
+    )
+  )(SidebarContainer)
+);
