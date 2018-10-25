@@ -26,7 +26,7 @@ import { IChannel } from 'modules/settings/channels/types';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { IActivityLogsUser } from '../../../../activityLogs/types';
+import { IActivityLogForMonth } from '../../../../activityLogs/types';
 import { IConversation } from '../../../../inbox/types';
 import LeftSidebar from './LeftSidebar';
 
@@ -34,7 +34,7 @@ type Props = {
   user: IUser;
   channels: IChannel[];
   loadingLogs: boolean;
-  activityLogsUser: IActivityLogsUser[];
+  activityLogsUser: IActivityLogForMonth[];
   participatedConversations: IConversation[];
   totalConversationCount: number;
   renderEditForm: (
