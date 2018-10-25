@@ -151,8 +151,8 @@ class CompanyForm extends React.Component<Props, State> {
   }
 
   handleSelect = <T extends keyof State>(
-    selectedOption: { value: State[T] },
-    name: T
+    name: T,
+    selectedOption: { value: State[T] }
   ) => {
     this.setState({
       [name]: selectedOption ? selectedOption.value : null
@@ -185,9 +185,9 @@ class CompanyForm extends React.Component<Props, State> {
   };
 
   onChange = (
-    { options, selectedOption }: { options: string[]; selectedOption: string },
     optionsName: string,
-    optionName: string
+    optionName: string,
+    { options, selectedOption }: { options: string[]; selectedOption: string }
   ) => {
     this.setState({ [optionsName]: options, [optionName]: selectedOption });
   };
@@ -243,7 +243,7 @@ class CompanyForm extends React.Component<Props, State> {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search"
-                onFocus={this.handleUserSearch}
+                onFocus={this.handleUserSearch.bind(this, ' ')}
                 onInputChange={this.handleUserSearch}
                 filterOptions={filterOptions}
                 onChange={this.handleSelect.bind(this, 'ownerId')}
