@@ -107,9 +107,19 @@ export interface IIntegration {
 }
 
 // query types
-
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
+  loading: boolean;
+};
+
+type ByBrand = { [key: string]: number };
+
+type IntegrationsCount = {
+  byBrand: ByBrand;
+};
+
+export type IntegrationsCountQueryResponse = {
+  integrationsTotalCount: IntegrationsCount;
   loading: boolean;
 };
 

@@ -1,11 +1,17 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { IIntegration } from 'modules/settings/integrations/types';
+import { withProps } from 'modules/common/utils';
+import {
+  AddIntegrationMutationResponse,
+  EditIntegrationMutationResponse,
+  IIntegration
+} from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { save } from '../../integrations/containers/utils';
 import { ChooseBrand } from '../components';
 import { mutations, queries } from '../graphql';
+import { BrandsQueryResponse } from '../types';
 
 type Variables = {
   name: string;
@@ -14,15 +20,18 @@ type Variables = {
 
 type Props = {
   integration: IIntegration;
-  brandsQuery: any;
-
-  addMutation: (params: { variables: Variables }) => Promise<any>;
-  editMutation: (params: { variables: Variables }) => Promise<any>;
   onSave: () => void;
   refetch: () => void;
 };
 
-const ChooseBrandContainer = (props: Props) => {
+type FinalProps = {
+  brandsQuery: BrandsQueryResponse;
+
+  addMutation: (params: { variables: Variables }) => Promise<any>;
+  editMutation: (params: { variables: Variables }) => Promise<any>;
+} & Props;
+
+const ChooseBrandContainer = (props: FinalProps) => {
   const {
     brandsQuery,
     integration,
@@ -55,19 +64,25 @@ const ChooseBrandContainer = (props: Props) => {
   return <ChooseBrand {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.brands), {
-    name: 'brandsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-
-  graphql(gql(mutations.integrationsCreateMessenger), {
-    name: 'addMutation'
-  }),
-
-  graphql(gql(mutations.integrationsEditMessenger), {
-    name: 'editMutation'
-  })
-)(ChooseBrandContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, BrandsQueryResponse, {}>(gql(queries.brands), {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, AddIntegrationMutationResponse, IIntegration>(
+      gql(mutations.integrationsCreateMessenger),
+      {
+        name: 'addMutation'
+      }
+    ),
+    graphql<Props, EditIntegrationMutationResponse, IIntegration>(
+      gql(mutations.integrationsEditMessenger),
+      {
+        name: 'editMutation'
+      }
+    )
+  )(ChooseBrandContainer)
+);

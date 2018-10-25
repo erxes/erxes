@@ -18,3 +18,75 @@ export type BrandsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type BrandDetailQueryResponse = {
+  brandDetail: IBrand;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type BrandsGetLastQueryResponse = {
+  brandsGetLast: IBrand;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type BrandsCountQueryResponse = {
+  brandsTotalCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+// mutation
+
+export type BrandsManageIntegrationsMutationVariables = {
+  _id: string;
+  integrationIds: [string];
+};
+
+export type BrandsManageIntegrationsMutationResponse = {
+  saveMutation: (
+    params: {
+      variables: BrandsManageIntegrationsMutationVariables;
+    }
+  ) => Promise<void>;
+};
+
+export type BrandAddMutationVariables = {
+  name: string;
+  description: string;
+};
+
+export type BrandAddMutationResponse = {
+  addMutation: (
+    params: {
+      variables: BrandAddMutationVariables;
+    }
+  ) => Promise<void>;
+};
+
+export type BrandEditMutationVariables = {
+  _id: string;
+  name: string;
+  description: string;
+};
+
+export type BrandEditMutationResponse = {
+  editMutation: (
+    params: {
+      variables: BrandAddMutationVariables;
+    }
+  ) => Promise<void>;
+};
+
+export type BrandRemoveMutationVariables = {
+  _id: string;
+};
+
+export type BrandRemoveMutationResponse = {
+  removeMutation: (
+    params: {
+      variables: BrandRemoveMutationVariables;
+    }
+  ) => Promise<void>;
+};
