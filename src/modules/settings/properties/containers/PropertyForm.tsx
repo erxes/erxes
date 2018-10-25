@@ -1,23 +1,28 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PropertyForm } from '../components';
 import { mutations, queries } from '../graphql';
+import {
+  FieldsAddMutationResponse,
+  FieldsEditMutationResponse,
+  FieldsGroupsQueryResponse,
+  FieldsMutationVariables
+} from '../types';
 
 type Props = {
   queryParams: any;
-  fieldsGroupsQuery: any;
-  fieldsAdd: (
-    fieldsAdd: { variables: { contentType: string } }
-  ) => Promise<any>;
-  fieldsEdit: (
-    fieldsEdit: { variables: { contentType: string } }
-  ) => Promise<any>;
   closeModal: () => void;
 };
 
-const PropertyFormContainer = (props: Props) => {
+type FinalProps = {
+  fieldsGroupsQuery: FieldsGroupsQueryResponse;
+} & Props &
+  FieldsAddMutationResponse &
+  FieldsEditMutationResponse;
+
+const PropertyFormContainer = (props: FinalProps) => {
   const { fieldsAdd, fieldsGroupsQuery, fieldsEdit, queryParams } = props;
   const { type } = queryParams;
 
@@ -72,21 +77,32 @@ const options = ({ queryParams }) => ({
   ]
 });
 
-export default compose(
-  graphql(gql(queries.fieldsGroups), {
-    name: 'fieldsGroupsQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: {
-        contentType: queryParams.type
+export default withProps<Props>(
+  compose(
+    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
+      gql(queries.fieldsGroups),
+      {
+        name: 'fieldsGroupsQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            contentType: queryParams.type
+          }
+        })
       }
-    })
-  }),
-  graphql(gql(mutations.fieldsAdd), {
-    name: 'fieldsAdd',
-    options
-  }),
-  graphql(gql(mutations.fieldsEdit), {
-    name: 'fieldsEdit',
-    options
-  })
-)(PropertyFormContainer);
+    ),
+    graphql<Props, FieldsAddMutationResponse, FieldsMutationVariables>(
+      gql(mutations.fieldsAdd),
+      {
+        name: 'fieldsAdd',
+        options
+      }
+    ),
+    graphql<Props, FieldsEditMutationResponse, FieldsMutationVariables>(
+      gql(mutations.fieldsEdit),
+      {
+        name: 'fieldsEdit',
+        options
+      }
+    )
+  )(PropertyFormContainer)
+);

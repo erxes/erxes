@@ -34,10 +34,15 @@ const generateGroup = (infos: any[], type: string) => {
     order: -1,
     isVisible: true,
     lastUpdatedUser: {
+      _id: '123',
+      role: 'SYSTEM',
+      username: 'system',
+      email: 'system@erxes.io',
       details: {
         fullName: 'SYSTEM'
       }
     },
+    lastUpdatedUserId: '123',
     isDefinedByErxes: true,
     fields: generateFields(infos, type)
   };

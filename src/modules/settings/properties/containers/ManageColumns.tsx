@@ -1,20 +1,27 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { queries } from 'modules/forms/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ManageColumns } from '../components';
+import {
+  DefaultColumnsConfigQueryResponse,
+  FieldsCombinedByTypeQueryResponse
+} from '../types';
 
 type Props = {
   contentType: string;
-  fieldsQuery: any;
   location: any;
   history: any;
-  fieldsDefaultColumnsConfigQuery: any;
   closeModal: () => void;
 };
 
-const ManageColumnsContainer = (props: Props) => {
+type FinalProps = {
+  fieldsDefaultColumnsConfigQuery: DefaultColumnsConfigQueryResponse;
+  fieldsQuery: FieldsCombinedByTypeQueryResponse;
+} & Props;
+
+const ManageColumnsContainer = (props: FinalProps) => {
   const {
     fieldsDefaultColumnsConfigQuery,
     fieldsQuery,
@@ -57,25 +64,33 @@ const ManageColumnsContainer = (props: Props) => {
   return <ManageColumns {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.fieldsCombinedByContentType), {
-    name: 'fieldsQuery',
-    options: ({ contentType }: { contentType: string }) => {
-      return {
-        variables: {
-          contentType
+export default withProps<Props>(
+  compose(
+    graphql<Props, FieldsCombinedByTypeQueryResponse, { contentType: string }>(
+      gql(queries.fieldsCombinedByContentType),
+      {
+        name: 'fieldsQuery',
+        options: ({ contentType }) => {
+          return {
+            variables: {
+              contentType
+            }
+          };
         }
-      };
-    }
-  }),
-  graphql(gql(queries.fieldsDefaultColumnsConfig), {
-    name: 'fieldsDefaultColumnsConfigQuery',
-    options: ({ contentType }: { contentType: string }) => {
-      return {
-        variables: {
-          contentType
+      }
+    ),
+    graphql<Props, DefaultColumnsConfigQueryResponse, { contentType: string }>(
+      gql(queries.fieldsDefaultColumnsConfig),
+      {
+        name: 'fieldsDefaultColumnsConfigQuery',
+        options: ({ contentType }) => {
+          return {
+            variables: {
+              contentType
+            }
+          };
         }
-      };
-    }
-  })
-)(ManageColumnsContainer);
+      }
+    )
+  )(ManageColumnsContainer)
+);

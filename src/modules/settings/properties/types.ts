@@ -40,10 +40,16 @@ export interface IContentTypeFields {
 export interface IConfigColumn {
   name: string;
   label: string;
-  order: React.ReactNode;
+  order: number;
 }
 
 // query types
+
+export type DefaultColumnsConfigQueryResponse = {
+  fieldsDefaultColumnsConfig: IConfigColumn[];
+  loading: boolean;
+  refetch: () => void;
+};
 
 export type FieldsQueryResponse = {
   fields: IField[];
@@ -57,7 +63,7 @@ export type FieldsGroupsQueryResponse = {
 };
 
 export type FieldsCombinedByType = {
-  _id: number;
+  _id: string;
   name: string;
   label: string;
 };
@@ -80,4 +86,64 @@ export type AddFieldsMutationResponse = {
       variables: AddFieldsMutationVariables;
     }
   ) => void;
+};
+
+// mutation types
+export type FieldsMutationVariables = {
+  type: string;
+  validation: string;
+  text: string;
+  description: string;
+  options: any[];
+  groupId: string;
+};
+
+export type FieldsGroupsMutationVariables = {
+  name: string;
+  description: string;
+  isVisible: boolean;
+};
+
+export type FieldsGroupsRemoveMutationResponse = {
+  fieldsGroupsRemove: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type FieldsRemoveMutationResponse = {
+  fieldsRemove: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type FieldsGroupsUpdateVisibleMutationResponse = {
+  fieldsGroupsUpdateVisible: (
+    params: { variables: { _id: string; isVisible: boolean } }
+  ) => Promise<any>;
+};
+
+export type FieldsUpdateVisibleMutationResponse = {
+  fieldsUpdateVisible: (
+    params: { variables: { _id: string; isVisible: boolean } }
+  ) => Promise<any>;
+};
+
+export type FieldsAddMutationResponse = {
+  fieldsAdd: (
+    fieldsAdd: { variables: FieldsMutationVariables }
+  ) => Promise<any>;
+};
+
+export type FieldsEditMutationResponse = {
+  fieldsEdit: (
+    fieldsEdit: { variables: FieldsMutationVariables }
+  ) => Promise<any>;
+};
+
+export type FieldsGroupsAddMutationResponse = {
+  fieldsGroupsAdd: (
+    fieldsAdd: { variables: FieldsGroupsMutationVariables }
+  ) => Promise<any>;
+};
+
+export type FieldsGroupsEditMutationResponse = {
+  fieldsGroupsEdit: (
+    fieldsEdit: { variables: FieldsGroupsMutationVariables }
+  ) => Promise<any>;
 };

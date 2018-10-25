@@ -3,7 +3,7 @@ import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
-import { IConfigColumn, IContentTypeFields } from '../types';
+import { FieldsCombinedByType, IConfigColumn } from '../types';
 
 const Header = styled.div`
   display: flex;
@@ -33,14 +33,14 @@ const Child = styled.div`
 `;
 
 type Props = {
-  fields: IContentTypeFields[];
+  fields: FieldsCombinedByType[];
   config: IConfigColumn[];
   save: (columnsConfig: IConfigColumn[]) => void;
   closeModal: () => void;
 };
 
 type State = {
-  fields: IContentTypeFields[];
+  fields: FieldsCombinedByType[];
 };
 
 class ManageColumns extends React.Component<Props, State> {
