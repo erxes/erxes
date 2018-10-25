@@ -52,7 +52,7 @@ export type BrandsManageIntegrationsMutationResponse = {
   ) => Promise<void>;
 };
 
-export type BrandAddMutationVariables = {
+export type BrandMutationVariables = {
   name: string;
   description: string;
 };
@@ -60,21 +60,15 @@ export type BrandAddMutationVariables = {
 export type BrandAddMutationResponse = {
   addMutation: (
     params: {
-      variables: BrandAddMutationVariables;
+      variables: BrandMutationVariables;
     }
   ) => Promise<void>;
-};
-
-export type BrandEditMutationVariables = {
-  _id: string;
-  name: string;
-  description: string;
 };
 
 export type BrandEditMutationResponse = {
   editMutation: (
     params: {
-      variables: BrandAddMutationVariables;
+      variables: BrandMutationVariables;
     }
   ) => Promise<void>;
 };

@@ -112,10 +112,14 @@ export type IntegrationsQueryResponse = {
   loading: boolean;
 };
 
-type ByBrand = { [key: string]: number };
+type By = { [key: string]: number };
 
 type IntegrationsCount = {
-  byBrand: ByBrand;
+  total: number;
+  byTag: By;
+  byChannel: By;
+  byBrand: By;
+  byKind: By;
 };
 
 export type IntegrationsCountQueryResponse = {
