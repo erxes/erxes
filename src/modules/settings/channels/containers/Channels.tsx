@@ -1,21 +1,30 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { router as routerUtils } from 'modules/common/utils';
+import { router as routerUtils, withProps } from 'modules/common/utils';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { IntegrationsCountQueryResponse } from '../../integrations/types';
 import { Channels as DumbChannels, Empty } from '../components';
 import { queries } from '../graphql';
-import { IChannel } from '../types';
+import {
+  ChannelDetailQueryResponse,
+  ChannelsGetLastQueryResponse,
+  IChannel
+} from '../types';
 
-interface IProps extends IRouterProps {
+type Props = {
   currentChannelId: string;
-  integrationsCountQuery: any;
-  channelDetailQuery: any;
-}
+};
 
-class Channels extends React.Component<IProps> {
+type FinalProps = {
+  integrationsCountQuery: IntegrationsCountQueryResponse;
+  channelDetailQuery: ChannelDetailQueryResponse;
+} & Props &
+  IRouterProps;
+
+class Channels extends React.Component<FinalProps> {
   render() {
     const {
       channelDetailQuery,
@@ -43,29 +52,41 @@ class Channels extends React.Component<IProps> {
   }
 }
 
-const ChannelsContainer = compose(
-  graphql(gql(queries.channelDetail), {
-    name: 'channelDetailQuery',
-    options: ({ currentChannelId }: { currentChannelId: string }) => ({
-      variables: { _id: currentChannelId },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.integrationsCount), {
-    name: 'integrationsCountQuery',
-    options: ({ currentChannelId }: { currentChannelId: string }) => ({
-      variables: { channelId: currentChannelId }
-    })
-  })
-)(Channels);
+const ChannelsContainer = withProps<Props>(
+  compose(
+    graphql<Props, ChannelDetailQueryResponse, { _id: string }>(
+      gql(queries.channelDetail),
+      {
+        name: 'channelDetailQuery',
+        options: ({ currentChannelId }: { currentChannelId: string }) => ({
+          variables: { _id: currentChannelId },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, IntegrationsCountQueryResponse, { channelId: string }>(
+      gql(queries.integrationsCount),
+      {
+        name: 'integrationsCountQuery',
+        options: ({ currentChannelId }: { currentChannelId: string }) => ({
+          variables: { channelId: currentChannelId }
+        })
+      }
+    )
+  )(Channels)
+);
 
-interface IWithCurrentIdProps extends IRouterProps {
+type withCurrentIdProps = {
+  queryParams?: any;
+};
+
+type withCurrentIdFinalProps = {
   lastChannelQuery: IChannel;
-  queryParams: any;
-}
+} & IRouterProps &
+  withCurrentIdProps;
 
 // tslint:disable-next-line:max-classes-per-file
-class WithCurrentId extends React.Component<IWithCurrentIdProps> {
+class WithCurrentId extends React.Component<withCurrentIdFinalProps> {
   componentWillReceiveProps(nextProps) {
     const {
       lastChannelQuery = {},
@@ -98,16 +119,21 @@ class WithCurrentId extends React.Component<IWithCurrentIdProps> {
   }
 }
 
-const WithLastChannel = compose(
-  graphql(gql(queries.channelsGetLast), {
-    name: 'lastChannelQuery',
-    skip: ({ queryParams }) => queryParams._id,
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: { _id: queryParams._id },
-      fetchPolicy: 'network-only'
-    })
-  })
-)(WithCurrentId);
+const WithLastChannel = withProps<withCurrentIdProps>(
+  compose(
+    graphql<withCurrentIdProps, ChannelsGetLastQueryResponse, { _id: string }>(
+      gql(queries.channelsGetLast),
+      {
+        name: 'lastChannelQuery',
+        skip: ({ queryParams }) => queryParams._id,
+        options: ({ queryParams }: withCurrentIdProps) => ({
+          variables: { _id: queryParams._id },
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
+  )(WithCurrentId)
+);
 
 const WithQueryParams = (props: IRouterProps) => {
   const { location } = props;

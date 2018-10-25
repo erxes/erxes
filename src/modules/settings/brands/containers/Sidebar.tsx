@@ -6,9 +6,8 @@ import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
 import {
   BrandAddMutationResponse,
-  BrandAddMutationVariables,
   BrandEditMutationResponse,
-  BrandEditMutationVariables,
+  BrandMutationVariables,
   BrandRemoveMutationResponse,
   BrandRemoveMutationVariables,
   BrandsCountQueryResponse,
@@ -130,14 +129,14 @@ export default withProps<Props>(
     graphql<Props, BrandsCountQueryResponse, {}>(gql(queries.brandsCount), {
       name: 'brandsCountQuery'
     }),
-    graphql<Props, BrandAddMutationResponse, BrandAddMutationVariables>(
+    graphql<Props, BrandAddMutationResponse, BrandMutationVariables>(
       gql(mutations.brandAdd),
       {
         name: 'addMutation',
         options: commonOptions
       }
     ),
-    graphql<Props, BrandEditMutationResponse, BrandEditMutationVariables>(
+    graphql<Props, BrandEditMutationResponse, BrandMutationVariables>(
       gql(mutations.brandEdit),
       {
         name: 'editMutation',
