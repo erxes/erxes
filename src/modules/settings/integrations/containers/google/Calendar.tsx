@@ -17,6 +17,7 @@ type Props = {
 
 type FinalProps = {
   googleAuthUrlQuery: GetGoogleAuthUrlQueryResponse;
+  // TODO: to determine googleAccessTokenQuery response type
   googleAccessTokenQuery: any;
 } & MessengerAppsAddMutationResponse &
   Props;

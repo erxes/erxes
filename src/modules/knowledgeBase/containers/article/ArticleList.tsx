@@ -11,7 +11,6 @@ import {
 
 type Props = {
   queryParams: any;
-
   currentCategoryId: string;
   topicIds: string;
 };

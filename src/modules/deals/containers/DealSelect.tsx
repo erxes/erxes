@@ -6,8 +6,6 @@ import { DealSelect } from '../components';
 import { queries } from '../graphql';
 import {
   BoardsQueryResponse,
-  IBoard,
-  IPipeline,
   IStage,
   PipelinesQueryResponse,
   StagesQueryResponse

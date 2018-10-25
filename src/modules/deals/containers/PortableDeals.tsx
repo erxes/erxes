@@ -5,6 +5,7 @@ import { compose, graphql } from 'react-apollo';
 import { Deals } from '../components/portable';
 import { mutations, queries } from '../graphql';
 import { DealsQueryResponse, IDealParams, SaveDealMutation } from '../types';
+
 type Props = {
   customerId?: string;
   companyId?: string;
