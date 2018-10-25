@@ -18,3 +18,15 @@ export type BrandsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type BrandDetailQueryResponse = {
+  brandDetail: IBrand;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type BrandsGetLastQueryResponse = {
+  brandsGetLast: IBrand;
+  loading: boolean;
+  refetch: () => void;
+};
