@@ -1,30 +1,24 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import {
+  GetNotificationByEmailMutationResponse,
+  GetNotificationByEmailMutationVariables,
+  NotificationConfigsQueryResponse,
+  NotificationModulesQueryResponse,
+  SaveNotificationConfigMutationResponse,
+  SaveNotificationConfigMutationVariables
+} from '../../../notifications/types';
 import { NotificationSettings } from '../components';
 
 type Props = {
-  notificationModulesQuery: any;
-  notificationConfigurationsQuery: any;
-  configGetNotificationByEmailMutation: (
-    params: {
-      variables: {
-        byEmail: { isAllowed: boolean };
-      };
-    }
-  ) => Promise<any>;
-  saveNotificationConfigurationsMutation: (
-    params: {
-      variables: {
-        notify: { notifType: string; isAllowed: boolean };
-      };
-    }
-  ) => Promise<any>;
-
+  notificationModulesQuery: NotificationModulesQueryResponse;
+  notificationConfigurationsQuery: NotificationConfigsQueryResponse;
   currentUser: IUser;
-};
+} & GetNotificationByEmailMutationResponse &
+  SaveNotificationConfigMutationResponse;
 
 const NotificationSettingsContainer = (props: Props) => {
   const {
@@ -81,56 +75,69 @@ const NotificationSettingsContainer = (props: Props) => {
   return <NotificationSettings {...updatedProps} />;
 };
 
-export default compose(
-  graphql(
-    gql`
-      query notificationsModules {
-        notificationsModules
-      }
-    `,
-    {
-      name: 'notificationModulesQuery'
-    }
-  ),
-  graphql(
-    gql`
-      query notificationsGetConfigurations {
-        notificationsGetConfigurations {
-          _id
-          notifType
-          isAllowed
+export default withProps<{}>(
+  compose(
+    graphql<{}, NotificationModulesQueryResponse>(
+      gql`
+        query notificationsModules {
+          notificationsModules
         }
+      `,
+      {
+        name: 'notificationModulesQuery'
       }
-    `,
-    {
-      name: 'notificationConfigurationsQuery'
-    }
-  ),
-  graphql(
-    gql`
-      mutation usersConfigGetNotificationByEmail($isAllowed: Boolean) {
-        usersConfigGetNotificationByEmail(isAllowed: $isAllowed) {
-          _id
+    ),
+    graphql<{}, NotificationConfigsQueryResponse>(
+      gql`
+        query notificationsGetConfigurations {
+          notificationsGetConfigurations {
+            _id
+            notifType
+            isAllowed
+          }
         }
+      `,
+      {
+        name: 'notificationConfigurationsQuery'
       }
-    `,
-    {
-      name: 'configGetNotificationByEmailMutation'
-    }
-  ),
-  graphql(
-    gql`
-      mutation notificationsSaveConfig(
-        $notifType: String!
-        $isAllowed: Boolean
-      ) {
-        notificationsSaveConfig(notifType: $notifType, isAllowed: $isAllowed) {
-          _id
+    ),
+    graphql<
+      {},
+      GetNotificationByEmailMutationResponse,
+      GetNotificationByEmailMutationVariables
+    >(
+      gql`
+        mutation usersConfigGetNotificationByEmail($isAllowed: Boolean) {
+          usersConfigGetNotificationByEmail(isAllowed: $isAllowed) {
+            _id
+          }
         }
+      `,
+      {
+        name: 'configGetNotificationByEmailMutation'
       }
-    `,
-    {
-      name: 'saveNotificationConfigurationsMutation'
-    }
-  )
-)(NotificationSettingsContainer);
+    ),
+    graphql<
+      {},
+      SaveNotificationConfigMutationResponse,
+      SaveNotificationConfigMutationVariables
+    >(
+      gql`
+        mutation notificationsSaveConfig(
+          $notifType: String!
+          $isAllowed: Boolean
+        ) {
+          notificationsSaveConfig(
+            notifType: $notifType
+            isAllowed: $isAllowed
+          ) {
+            _id
+          }
+        }
+      `,
+      {
+        name: 'saveNotificationConfigurationsMutation'
+      }
+    )
+  )(NotificationSettingsContainer)
+);

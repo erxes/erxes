@@ -3,7 +3,7 @@ import { queries as generalQueries } from 'modules/settings/general/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { IConfig } from '../../../settings/profile/types';
+import { ICurrencies } from '../../../settings/general/types';
 import { ProductItemForm } from '../../components';
 import { IProductData } from '../../types';
 
@@ -16,11 +16,11 @@ type Props = {
 };
 
 type GetUomQueryResponse = {
-  configsDetail: IConfig;
+  configsDetail: ICurrencies;
 };
 
 type GetCurrenciesQueryResponse = {
-  configsDetail: IConfig;
+  configsDetail: ICurrencies;
 };
 
 type FinalProps = {
