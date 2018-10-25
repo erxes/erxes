@@ -23,24 +23,19 @@
 
 #erxes-messenger-iframe {
   position: absolute !important;
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none;
   bottom: 12px;
   right: 12px;
   border: none;
   z-index: 2147483647;
 }
 
-.erxes-messenger-hidden {
-  background: none;
+.erxes-messenger-hidden > iframe {
   width: 72px;
   height: 72px;
 }
 
-.erxes-messenger-hidden > iframe {
-  width: 72px;
-  height: 72px;
+.erxes-messenger-hidden {
+  background: none;
 }
 
 .erxes-messenger-shown {
@@ -60,6 +55,13 @@
   max-height: 310px;
 }
 
+.erxes-messenger-shown > iframe,
+.erxes-notifier-shown > iframe {
+  width: 416px;
+  height: 100% !important;
+  max-width: none;
+}
+
 .erxes-notifier-shown {
   width: 370px;
   height: 230px;
@@ -71,7 +73,7 @@
 }
 
 @media only screen and (max-width: 420px) {
-  #erxes-messenger-container.erxes-messenger-shown {
+  #erxes-messenger-container {
     width: 100%;
     max-height: none;
   }
@@ -83,6 +85,7 @@
   #erxes-messenger-iframe {
     bottom: 0;
     right: 0;
+    width: 100%;
   }
 
   body.messenger-widget-shown.widget-mobile {
