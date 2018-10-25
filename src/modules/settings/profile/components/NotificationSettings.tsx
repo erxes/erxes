@@ -1,12 +1,15 @@
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Toggle from 'react-toggle';
+import {
+  NotificationConfig,
+  NotificationModule
+} from '../../../notifications/types';
 import { InlineItems, ModuleBox, SubHeading, SubItem } from '../../styles';
-import { IConfig, IModules } from '../types';
 
 type Props = {
-  modules: IModules[];
-  configs: IConfig[];
+  modules: NotificationModule[];
+  configs: NotificationConfig[];
   // save notification configurations
   saveNotificationConfigurations: (
     notify: { notifType: string; isAllowed: boolean }
