@@ -280,7 +280,7 @@ export class AppProvider extends React.Component<{}, IState> {
     setLocalStorageItem("getNotifiedValue", "");
     setLocalStorageItem("lastConversationId", "");
     setLocalStorageItem("customerId", "");
-
+    this.toggle(true);
     window.location.reload();
   };
 

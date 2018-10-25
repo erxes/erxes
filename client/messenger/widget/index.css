@@ -57,7 +57,7 @@
 
 .erxes-messenger-shown > iframe,
 .erxes-notifier-shown > iframe {
-  width: 416px;
+  width: 100% !important;
   height: 100% !important;
   max-width: none;
 }
