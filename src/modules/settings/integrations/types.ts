@@ -1,4 +1,4 @@
-import { IForm } from 'modules/forms/types';
+import { IForm, IFormIntegration } from 'modules/forms/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
 
@@ -107,19 +107,46 @@ export interface IIntegration {
 }
 
 // query types
+export type QueryVariables = {
+  page?: number;
+  perPage?: number;
+  searchValue?: string;
+};
+
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
+  loading: boolean;
+  refetch: (variables?: QueryVariables) => void;
+};
+
+export type IntegrationDetailQueryResponse = {
+  integration: IIntegration;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type FacebookAppsListQueryResponse = {
+  integrationFacebookAppsList: IFacebookApp[];
+  refetch: () => void;
   loading: boolean;
 };
 
 type By = { [key: string]: number };
+
+export type ByKind = {
+  messenger: number;
+  form: number;
+  twitter: number;
+  facebook: number;
+  gmail: number;
+};
 
 type IntegrationsCount = {
   total: number;
   byTag: By;
   byChannel: By;
   byBrand: By;
-  byKind: By;
+  byKind: ByKind;
 };
 
 export type IntegrationsCountQueryResponse = {
@@ -127,7 +154,124 @@ export type IntegrationsCountQueryResponse = {
   loading: boolean;
 };
 
+export type FormIntegrationDetailQueryResponse = {
+  integrationDetail: IFormIntegration;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type GetGoogleAuthUrlQueryResponse = {
+  integrationGetGoogleAuthUrl: string;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type GetTwitterAuthUrlQueryResponse = {
+  integrationGetTwitterAuthUrl: string;
+  loading: boolean;
+  refetch: () => void;
+};
+
 // mutation types
+
+export type SaveMessengerMutationVariables = {
+  name: string;
+  brandId: string;
+  languageCode: string;
+};
+
+export type SaveMessengerMutationResponse = {
+  saveMessengerMutation: (
+    params: {
+      variables: SaveMessengerMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type SaveMessengerAppearanceMutationResponse = {
+  saveAppearanceMutation: (
+    params: { variables: { _id: string; uiOptions: IUiOptions } }
+  ) => void;
+};
+
+export type SaveMessengerConfigsMutationResponse = {
+  saveConfigsMutation: (
+    params: { variables: { _id: string; messengerData: IMessengerData } }
+  ) => any;
+};
+
+export type TwitterAuthParams = {
+  oauth_token: string;
+  oauth_verifier: string;
+};
+
+export type SaveTwitterMutationResponse = {
+  saveMutation: (
+    params: { variables: { brandId: string; queryParams: TwitterAuthParams } }
+  ) => Promise<any>;
+};
+
+export type EditMessengerMutationVariables = {
+  _id: string;
+  name: string;
+  brandId: string;
+  languageCode: string;
+};
+
+export type EditMessengerMutationResponse = {
+  editMessengerMutation: (
+    params: {
+      variables: EditMessengerMutationVariables;
+    }
+  ) => any;
+};
+
+export type CreateGmailMutationResponse = {
+  saveMutation: (params: { variables: { code: string } }) => Promise<any>;
+};
+
+export type SendGmailMutationVariables = {
+  cc?: string;
+  bcc?: string;
+  toEmails?: string;
+  subject?: string;
+  body: string;
+  integrationId?: string;
+};
+
+export type SendGmailMutationResponse = {
+  integrationsSendGmail: (
+    params: {
+      variables: SendGmailMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type CreateFacebookMutationVariables = {
+  name: string;
+  brandId: string;
+  appId: string;
+  pageIds: string[];
+};
+
+export type MessengerAppsAddMutationVariables = {
+  kind: string;
+  credentials: object;
+};
+
+export type MessengerAppsAddMutationResponse = {
+  saveMutation: (
+    params: { variables: MessengerAppsAddMutationVariables }
+  ) => Promise<any>;
+};
+
+export type CreateFacebookMutationResponse = {
+  saveMutation: (
+    params: {
+      variables: CreateFacebookMutationVariables;
+    }
+  ) => Promise<any>;
+};
 
 export type AddIntegrationMutationVariables = {
   formData: IFormData;
@@ -160,4 +304,8 @@ export type EditIntegrationMutationResponse = {
       variables: EditIntegrationMutationVariables;
     }
   ) => Promise<void>;
+};
+
+export type RemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };

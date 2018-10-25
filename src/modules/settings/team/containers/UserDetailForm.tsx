@@ -3,6 +3,7 @@ import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
+import { ChannelsQueryResponse } from '../../channels/types';
 import { UserDetailForm } from '../components';
 import { queries } from '../graphql';
 import {
@@ -19,7 +20,7 @@ type Props = {
 
 type FinalProps = {
   userDetailQuery: UserDetailQueryResponse;
-  channelsQuery: any;
+  channelsQuery: ChannelsQueryResponse;
   userActivityLogQuery: ActivityLogQueryResponse;
   userConversationsQuery: UserConverationsQueryResponse;
   renderEditForm: (
