@@ -86,6 +86,10 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
       queryParams: { _id }
     } = nextProps;
 
+    if (!lastCategoryQuery) {
+      return;
+    }
+
     const { knowledgeBaseCategoriesGetLast, loading } = lastCategoryQuery;
 
     if (!_id && knowledgeBaseCategoriesGetLast && !loading) {
