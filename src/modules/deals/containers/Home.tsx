@@ -5,17 +5,11 @@ import { compose, graphql } from 'react-apollo';
 import { Home } from '../components';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
-import { IBoard } from '../types';
-import { BoardsQueryResponse } from './DealSelect';
-
-type BoardsGetLastQueryResponse = {
-  dealBoardGetLast: IBoard;
-  loading: boolean;
-};
-
-type BoardDetailQueryResponse = {
-  dealBoardDetail: IBoard;
-};
+import {
+  BoardDetailQueryResponse,
+  BoardsGetLastQueryResponse,
+  BoardsQueryResponse
+} from '../types';
 
 type Props = {
   history: any;

@@ -4,11 +4,7 @@ import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { Move } from '../../components/editForm';
 import { queries } from '../../graphql';
-import { IDeal, IPipeline, IStage } from '../../types';
-
-type StagesQueryResponse = {
-  dealStages: IStage[];
-};
+import { IDeal, IPipeline, StagesQueryResponse } from '../../types';
 
 type Props = {
   deal: IDeal;

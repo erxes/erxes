@@ -64,11 +64,14 @@ const options = () => {
 
 export default withProps<Props>(
   compose(
-    graphql<{}, EditMutationResponse, ICustomer>(gql(mutations.customersEdit), {
-      name: 'customersEdit',
-      options
-    }),
-    graphql<{}, AddMutationResponse, ICustomerDoc>(
+    graphql<Props, EditMutationResponse, ICustomer>(
+      gql(mutations.customersEdit),
+      {
+        name: 'customersEdit',
+        options
+      }
+    ),
+    graphql<Props, AddMutationResponse, ICustomerDoc>(
       gql(mutations.customersAdd),
       {
         name: 'customersAdd',

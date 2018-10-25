@@ -138,6 +138,7 @@ export type MainQueryResponse = {
 export type CompaniesQueryResponse = {
   companies: ICompany[];
   loading: boolean;
+  refetch: () => void;
 };
 
 export type ListConfigQueryResponse = {

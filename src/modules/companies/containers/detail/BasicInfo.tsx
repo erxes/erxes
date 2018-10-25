@@ -15,11 +15,11 @@ import {
   RemoveMutationVariables
 } from '../../types';
 
-interface IProps {
+type Props = {
   company: ICompany;
-}
+};
 
-type FinalProps = { currentUser: IUser } & IProps &
+type FinalProps = { currentUser: IUser } & Props &
   IRouterProps &
   RemoveMutationResponse &
   MergeMutationResponse;
@@ -69,7 +69,7 @@ const generateOptions = () => ({
   refetchQueries: ['companieMain', 'companyCounts']
 });
 
-export default withProps<IProps>(
+export default withProps<Props>(
   compose(
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.companiesRemove),

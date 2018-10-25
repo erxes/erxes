@@ -1,16 +1,10 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IActivityLogForMonth } from '../../../activityLogs/types';
 import { withProps } from '../../../common/utils';
 import { Tab } from '../../components/editForm';
 import { queries } from '../../graphql';
-import { IDeal } from '../../types';
-
-type ActivityLogQueryResponse = {
-  activityLogsDeal: IActivityLogForMonth[];
-  loading: boolean;
-};
+import { ActivityLogQueryResponse, IDeal } from '../../types';
 
 type Props = {
   deal: IDeal;

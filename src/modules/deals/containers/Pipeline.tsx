@@ -6,8 +6,7 @@ import styled from 'styled-components';
 import { Spinner } from '../../common/components';
 import { withProps } from '../../common/utils';
 import { queries } from '../graphql';
-import { IDealMap, IPipeline, IStageMap } from '../types';
-import { StagesQueryResponse } from './DealSelect';
+import { IDealMap, IPipeline, IStageMap, StagesQueryResponse } from '../types';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 import { Stage } from './stage';
 
@@ -68,7 +67,11 @@ class WithStages extends React.Component<Props, {}> {
   }
 }
 
-const WithStatesQuery = props => {
+type WithStatesQueryProps = {
+  stagesQuery: StagesQueryResponse;
+} & Props;
+
+const WithStatesQuery = (props: WithStatesQueryProps) => {
   const { stagesQuery } = props;
 
   if (stagesQuery.loading) {
@@ -81,7 +84,7 @@ const WithStatesQuery = props => {
   const stageMap: IStageMap = {};
 
   for (const stage of stages) {
-    dealMap[stage._id] = stage.deals;
+    dealMap[stage._id] = stage.deals || [];
     stageMap[stage._id] = stage;
   }
 
