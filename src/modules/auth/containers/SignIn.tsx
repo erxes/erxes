@@ -1,30 +1,18 @@
 import apolloClient from 'apolloClient';
 import consts from 'consts';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
 import { SignIn } from '../components';
 import { mutations } from '../graphql';
+import { LoginMutationResponse } from '../types';
 
-type LoginMutationVariables = {
-  email: string;
-  password: string;
-};
+type FinalProps = IRouterProps & LoginMutationResponse;
 
-type LoginMutationResponse = {
-  loginMutation: (
-    params: {
-      variables: LoginMutationVariables;
-    }
-  ) => Promise<any>;
-};
-
-interface IExtendedProps extends IRouterProps, LoginMutationResponse {}
-
-const SignInContainer = (props: IExtendedProps) => {
+const SignInContainer = (props: FinalProps) => {
   const { loginMutation, history } = props;
 
   const login = variables => {
@@ -55,7 +43,7 @@ const SignInContainer = (props: IExtendedProps) => {
   return <SignIn {...updatedProps} />;
 };
 
-export default withRouter<IRouterProps>(
+export default withProps<{}>(
   compose(
     graphql<{}, LoginMutationResponse, { LoginMutationVariables }>(
       gql(mutations.login),
@@ -63,5 +51,5 @@ export default withRouter<IRouterProps>(
         name: 'loginMutation'
       }
     )
-  )(SignInContainer)
+  )(withRouter<FinalProps>(SignInContainer))
 );
