@@ -15,7 +15,7 @@ type Props = {
   pipeline?: IPipeline;
   stages?: IStage[];
   save: (
-    params: { doc: { name: string; boardId: string; stages: IStage[] } },
+    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
     callback: () => void,
     pipeline?: IPipeline
   ) => void;
@@ -37,14 +37,6 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ stages });
   };
 
-  save = e => {
-    e.preventDefault();
-
-    const { save, closeModal, pipeline } = this.props;
-
-    save(this.generateDoc(), () => closeModal(), pipeline);
-  };
-
   generateDoc = () => {
     const { pipeline } = this.props;
 
@@ -56,6 +48,14 @@ class PipelineForm extends React.Component<Props, State> {
         stages: this.state.stages.filter(el => el.name)
       }
     };
+  };
+
+  save = e => {
+    e.preventDefault();
+
+    const { save, closeModal, pipeline } = this.props;
+
+    save(this.generateDoc(), () => closeModal(), pipeline);
   };
 
   renderContent() {
