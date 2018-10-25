@@ -100,7 +100,15 @@ const ConfigContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, BrandDetailQueryResponse, { brandId: string }>(
-      gql(brandQueries.brandDetail),
+      gql`
+        query brandDetail($brandId: String!) {
+          brandDetail(_id: $brandId) {
+            _id
+            name
+            emailConfig
+          }
+        }
+      `,
       {
         name: 'brandDetailQuery',
         options: ({ brandId }: { brandId: string }) => {

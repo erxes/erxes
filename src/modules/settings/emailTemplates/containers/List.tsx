@@ -11,7 +11,11 @@ export type EmailTemplatesQueryResponse = {
   refetch: () => void;
 };
 
-export default commonListComposer<{ queryParams: any }>({
+type Props = {
+  queryParams: any;
+};
+
+export default commonListComposer<Props>({
   name: 'emailTemplates',
 
   gqlListQuery: graphql(gql(queries.emailTemplates), {

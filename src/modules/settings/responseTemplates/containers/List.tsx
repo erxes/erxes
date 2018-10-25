@@ -15,7 +15,11 @@ const commonParams = `
   content: $content,
 `;
 
-export default commonListComposer<{ queryParams: any }>({
+type Props = {
+  queryParams: any;
+};
+
+export default commonListComposer<Props>({
   name: 'responseTemplates',
 
   gqlListQuery: graphql(
