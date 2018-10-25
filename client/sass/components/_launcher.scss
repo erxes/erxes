@@ -54,14 +54,14 @@
   }
 
   &::before {
-    @include animation(.5s, 2s, animationPulse, linear, 10);
+    @include animation(.5s, 3s, animationPulse, linear, 10);
     border-radius: 50%;
     color: inherit;
     content: '';
-    height: 56px;
-    left: 8px;
-    position: fixed;
-    top: 8px;
-    width: 56px;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
   }
 }

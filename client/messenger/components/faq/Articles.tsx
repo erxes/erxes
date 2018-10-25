@@ -6,7 +6,7 @@ type Props = {
   articles: IFaqArticle[];
 };
 
-export default class Articles extends React.Component<Props> {
+export default class Articles extends React.PureComponent<Props> {
   render() {
     const { articles = [] } = this.props;
 

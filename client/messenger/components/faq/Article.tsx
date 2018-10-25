@@ -6,7 +6,7 @@ type Props = {
   onClick: (article: IFaqArticle) => void;
 };
 
-export default class Article extends React.Component<Props> {
+export default class Article extends React.PureComponent<Props> {
   handleOnClick = (event: React.FormEvent<HTMLDivElement>) => {
     event.preventDefault();
 
