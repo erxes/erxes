@@ -1,7 +1,8 @@
 import { Tip } from 'modules/common/components';
+import { IMessage } from 'modules/inbox/types';
 import * as moment from 'moment';
 import * as React from 'react';
-import { IMessage } from '../../../../../types';
+import { DateTime } from './styles';
 
 type Props = {
   message: IMessage;
@@ -13,9 +14,7 @@ export default class Date extends React.Component<Props, {}> {
 
     return (
       <Tip placement="bottom" text={moment(message.createdAt).format('lll')}>
-        <a href={`https://facebook.com/statuses/`} target="_blank">
-          {moment(message.createdAt).fromNow()}
-        </a>
+        <DateTime>{moment(message.createdAt).fromNow()}</DateTime>
       </Tip>
     );
   }
