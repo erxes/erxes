@@ -2,14 +2,14 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { BrandsQueryResponse } from '../../../settings/brands/types';
 import { KnowledgeForm } from '../../components';
 import { queries } from '../../graphql';
 import { ITopic } from '../../types';
 
 type Props = {
-  getBrandListQuery: any;
   topic: ITopic;
-
   save: (
     params: {
       doc: {
@@ -28,11 +28,13 @@ type Props = {
   closeModal: () => void;
 };
 
+type FinalProps = { getBrandListQuery: BrandsQueryResponse } & Props;
+
 const TopicAddFormContainer = ({
   topic,
   getBrandListQuery,
   ...props
-}: Props) => {
+}: FinalProps) => {
   if (getBrandListQuery.loading) {
     return <Spinner objective={true} />;
   }
@@ -45,11 +47,13 @@ const TopicAddFormContainer = ({
   return <KnowledgeForm {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.getBrandList), {
-    name: 'getBrandListQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
+export default withProps<Props>(
+  compose(
+    graphql<Props, BrandsQueryResponse>(gql(queries.getBrandList), {
+      name: 'getBrandListQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
     })
-  })
-)(TopicAddFormContainer);
+  )(TopicAddFormContainer)
+);

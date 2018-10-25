@@ -4,9 +4,9 @@ import { ITag, ITagTypes } from 'modules/tags/types';
 import * as React from 'react';
 
 type Props = {
-  type: ITagTypes;
+  type: ITagTypes | string;
   // targets can be conversation, customer, company etc ...
-  targets: any[];
+  targets?: any[];
   event?: 'onClick' | 'onExit';
   className?: string;
 

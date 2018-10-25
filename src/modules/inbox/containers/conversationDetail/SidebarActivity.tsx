@@ -1,19 +1,23 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { queries } from 'modules/customers/graphql';
-import { ICustomer } from 'modules/customers/types';
+import { ActivityLogQueryResponse, ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
 import SidebarActivity from '../../components/conversationDetail/sidebar/SidebarActivity';
 
 type Props = {
-  customerActivityLogQuery: any;
-  currentUser: IUser;
   customer: ICustomer;
   currentSubTab: string;
 };
 
-class SidebarActivityContainer extends React.Component<Props> {
+type FinalProps = {
+  customerActivityLogQuery: ActivityLogQueryResponse;
+  currentUser: IUser;
+} & Props;
+
+class SidebarActivityContainer extends React.Component<FinalProps> {
   render() {
     const { customerActivityLogQuery, currentUser, customer } = this.props;
 
@@ -29,13 +33,18 @@ class SidebarActivityContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.activityLogsCustomer), {
-    name: 'customerActivityLogQuery',
-    options: ({ customer }: { customer: ICustomer }) => ({
-      variables: {
-        _id: customer._id
+export default withProps<Props>(
+  compose(
+    graphql<Props, ActivityLogQueryResponse, { _id: string }>(
+      gql(queries.activityLogsCustomer),
+      {
+        name: 'customerActivityLogQuery',
+        options: ({ customer }) => ({
+          variables: {
+            _id: customer._id
+          }
+        })
       }
-    })
-  })
-)(SidebarActivityContainer);
+    )
+  )(SidebarActivityContainer)
+);

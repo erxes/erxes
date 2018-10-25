@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { queries, subscriptions } from 'modules/inbox/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
 import { Navigation } from '../components';
 
 class NavigationContainer extends React.Component<{
@@ -35,11 +36,13 @@ class NavigationContainer extends React.Component<{
   }
 }
 
-export default compose(
-  graphql(gql(queries.unreadConversationsCount), {
-    name: 'unreadConversationsCountQuery',
-    options: () => ({
-      notifyOnNetworkStatusChange: true
+export default withProps<{}>(
+  compose(
+    graphql(gql(queries.unreadConversationsCount), {
+      name: 'unreadConversationsCountQuery',
+      options: () => ({
+        notifyOnNetworkStatusChange: true
+      })
     })
-  })
-)(NavigationContainer);
+  )(NavigationContainer)
+);

@@ -3,27 +3,28 @@ import { ResponseTemplate } from 'modules/inbox/components/conversationDetail';
 import { mutations, queries } from 'modules/inbox/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IResponseTemplate } from '../../../settings/responseTemplates/types';
-
-export interface ISaveResponseTemplate {
-  brandId: string;
-  name: string;
-  content?: string;
-  files?: any;
-}
+import { withProps } from '../../../common/utils';
+import { BrandsQueryResponse } from '../../../settings/brands/types';
+import {
+  IResponseTemplate,
+  SaveResponseTemplateMutationResponse,
+  SaveResponsTemplateMutationVariables
+} from '../../../settings/responseTemplates/types';
 
 type Props = {
-  brandsQuery: any;
-  responseTemplatesQuery: any;
-  saveResponseTemplateMutation: (
-    doc: {
-      variables: ISaveResponseTemplate;
-    }
-  ) => Promise<any>;
   onSelect: (responseTemplate?: IResponseTemplate) => void;
+  brandId?: string;
+  attachments: any[];
+  content: string;
 };
 
-const ResponseTemplateContainer = (props: Props) => {
+type FinalProps = {
+  brandsQuery: any;
+  responseTemplatesQuery: any;
+} & Props &
+  SaveResponseTemplateMutationResponse;
+
+const ResponseTemplateContainer = (props: FinalProps) => {
   const {
     brandsQuery,
     responseTemplatesQuery,
@@ -35,7 +36,7 @@ const ResponseTemplateContainer = (props: Props) => {
   }
 
   const saveResponseTemplate = (
-    variables: ISaveResponseTemplate,
+    variables: SaveResponsTemplateMutationVariables,
     callback: (e?: Error) => void
   ) => {
     saveResponseTemplateMutation({ variables })
@@ -58,24 +59,32 @@ const ResponseTemplateContainer = (props: Props) => {
   return <ResponseTemplate {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.brandList), { name: 'brandsQuery' }),
-  graphql(gql(queries.responseTemplateList), {
-    name: 'responseTemplatesQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
+export default withProps<Props>(
+  compose(
+    graphql<Props, BrandsQueryResponse>(gql(queries.brandList), {
+      name: 'brandsQuery'
+    }),
+    graphql(gql(queries.responseTemplateList), {
+      name: 'responseTemplatesQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<
+      Props,
+      SaveResponseTemplateMutationResponse,
+      SaveResponsTemplateMutationVariables
+    >(gql(mutations.saveResponseTemplate), {
+      name: 'saveResponseTemplateMutation',
+      options: {
+        refetchQueries: [
+          {
+            query: gql`
+              ${queries.responseTemplateList}
+            `
+          }
+        ]
+      }
     })
-  }),
-  graphql(gql(mutations.saveResponseTemplate), {
-    name: 'saveResponseTemplateMutation',
-    options: {
-      refetchQueries: [
-        {
-          query: gql`
-            ${queries.responseTemplateList}
-          `
-        }
-      ]
-    }
-  })
-)(ResponseTemplateContainer);
+  )(ResponseTemplateContainer)
+);

@@ -6,10 +6,10 @@ import { ConversationItems } from './styles';
 
 type Props = {
   conversations: IConversation[];
-  currentConversationId: string;
+  currentConversationId?: string;
   selectedConversations?: IConversation[];
   onChangeConversation: (conversation: IConversation) => void;
-  toggleRowCheckbox: (conversation: IConversation, checked: boolean) => void;
+  toggleRowCheckbox: (conversation: IConversation[], checked: boolean) => void;
   loading: boolean;
   totalCount: number;
 };

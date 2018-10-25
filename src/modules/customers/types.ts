@@ -2,7 +2,7 @@ import { ICompany } from 'modules/companies/types';
 import { ITag } from 'modules/tags/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
 import { IUser } from '../auth/types';
-import { ISegment } from '../segments/types';
+import { ISegmentDoc } from '../segments/types';
 import { IIntegration } from '../settings/integrations/types';
 
 export interface IMessengerData {
@@ -178,9 +178,7 @@ export type CustomersQueryResponse = {
 export type CountQueryResponse = {
   customerCounts: CustomerCounts;
   loading: boolean;
-  refetch: (
-    variables?: { byFakeSegment: ISegment } & ListQueryVariables
-  ) => void;
+  refetch: (variables?: { byFakeSegment?: ISegmentDoc }) => void;
 };
 
 export type CustomerDetailQueryResponse = {

@@ -2,24 +2,32 @@ import gql from 'graphql-tag';
 import Alert from 'modules/common/utils/Alert';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
+import { UsersQueryResponse } from '../../settings/team/types';
 import AssignBox from '../components/assignBox/AssignBox';
 import { mutations, queries } from '../graphql';
-import { IConversation } from '../types';
+import {
+  AssignMutationResponse,
+  AssignMutationVariables,
+  IConversation,
+  UnAssignMutationResponse,
+  UnAssignMutationVariables
+} from '../types';
 import { refetchSidebarConversationsOptions } from '../utils';
 
 type Props = {
   targets: IConversation[];
-  usersQuery: any;
-  assignMutation: (
-    doc: { variables: { conversationIds?: string[]; assignedUserId: string } }
-  ) => Promise<any>;
-
-  conversationsUnassign: (
-    doc: { variables: { _ids: string[] } }
-  ) => Promise<any>;
+  event: string;
+  afterSave: () => void;
 };
 
-const AssignBoxContainer = (props: Props) => {
+type FinalProps = {
+  usersQuery: UsersQueryResponse;
+} & Props &
+  AssignMutationResponse &
+  UnAssignMutationResponse;
+
+const AssignBoxContainer = (props: FinalProps) => {
   const { usersQuery, assignMutation, conversationsUnassign } = props;
 
   if (usersQuery.loading) {
@@ -72,14 +80,24 @@ const AssignBoxContainer = (props: Props) => {
   return <AssignBox {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.userList), { name: 'usersQuery' }),
-  graphql(gql(mutations.conversationsAssign), {
-    name: 'assignMutation',
-    options: () => refetchSidebarConversationsOptions()
-  }),
-  graphql(gql(mutations.conversationsUnassign), {
-    name: 'conversationsUnassign',
-    options: () => refetchSidebarConversationsOptions()
-  })
-)(AssignBoxContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, UsersQueryResponse>(gql(queries.userList), {
+      name: 'usersQuery'
+    }),
+    graphql<Props, AssignMutationResponse, AssignMutationVariables>(
+      gql(mutations.conversationsAssign),
+      {
+        name: 'assignMutation',
+        options: () => refetchSidebarConversationsOptions()
+      }
+    ),
+    graphql<Props, UnAssignMutationResponse, UnAssignMutationVariables>(
+      gql(mutations.conversationsUnassign),
+      {
+        name: 'conversationsUnassign',
+        options: () => refetchSidebarConversationsOptions()
+      }
+    )
+  )(AssignBoxContainer)
+);

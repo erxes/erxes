@@ -23,8 +23,10 @@ import { Link } from 'react-router-dom';
 import strip from 'strip';
 import { IAttachment } from '../../../../common/types';
 import { IBrand } from '../../../../settings/brands/types';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
-import { ISaveResponseTemplate } from '../../../containers/conversationDetail/ResponseTemplate';
+import {
+  IResponseTemplate,
+  SaveResponsTemplateMutationVariables
+} from '../../../../settings/responseTemplates/types';
 import ResponseTemplateModal from './ResponseTemplateModal';
 
 type Props = {
@@ -32,7 +34,7 @@ type Props = {
   responseTemplates: IResponseTemplate[];
   onSelect: (responseTemplate?: IResponseTemplate) => void;
   saveResponseTemplate: (
-    doc: ISaveResponseTemplate,
+    doc: SaveResponsTemplateMutationVariables,
     callback: (error?: Error) => void
   ) => void;
 

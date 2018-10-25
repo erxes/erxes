@@ -8,8 +8,7 @@ import { colors } from 'modules/common/styles';
 import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IAddMessage } from '../../../../../containers/conversationDetail/WorkArea';
-import { IMessage } from '../../../../../types';
+import { AddMessageMutationVariables, IMessage } from '../../../../../types';
 
 const Footer = styled.div`
   text-align: right;
@@ -25,7 +24,10 @@ const Char = styledTS<{ count?: number }>(styled.b)`
 `;
 
 type Props = {
-  replyTweet?: (data: IAddMessage, callback: () => void) => void;
+  replyTweet?: (
+    data: AddMessageMutationVariables,
+    callback: () => void
+  ) => void;
   tweet?: (
     data: {
       integrationId: string;

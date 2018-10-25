@@ -5,44 +5,37 @@ import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
-import { IConversation, IMessage } from '../../types';
+import { withProps } from '../../../common/utils';
+import {
+  AddMessageMutationResponse,
+  AddMessageMutationVariables,
+  IConversation,
+  IMessage,
+  MessagesQueryResponse,
+  MessagesTotalCountQuery
+} from '../../types';
 
 // messages limit
 let limit = 10;
 let skip;
 
-export interface IAddMessage {
-  conversationId: string;
-  content: string;
-  mentionedUserIds?: string[];
-  internal?: boolean;
-  attachments?: any;
-  tweetReplyToId?: string;
-  tweetReplyToScreenName?: string;
-  commentReplyToId?: string;
-}
-
 type Props = {
-  currentUser: IUser;
-  messagesQuery: any;
-  messagesTotalCountQuery: any;
   currentConversation: IConversation;
-  currentId: string;
-  addMessageMutation: (
-    doc: {
-      variables: IAddMessage;
-      optimisticResponse: any;
-      update: any;
-    }
-  ) => Promise<any>;
-  history: any;
+  currentId?: string;
 };
+
+type FinalProps = {
+  currentUser: IUser;
+  messagesQuery: MessagesQueryResponse;
+  messagesTotalCountQuery: MessagesTotalCountQuery;
+} & Props &
+  AddMessageMutationResponse;
 
 type State = {
   loadingMessages: boolean;
 };
 
-class WorkArea extends React.Component<Props, State> {
+class WorkArea extends React.Component<FinalProps, State> {
   private prevSubscription;
 
   constructor(props) {
@@ -255,45 +248,59 @@ class WorkArea extends React.Component<Props, State> {
   }
 }
 
-const WithQuery = compose(
-  graphql(gql(queries.conversationMessages), {
-    name: 'messagesQuery',
-    options: ({ currentId }: { currentId: string }) => {
-      const windowHeight = window.innerHeight;
+const WithQuery = withProps<Props & { currentUser: IUser }>(
+  compose(
+    graphql<
+      Props,
+      MessagesQueryResponse,
+      { conversationId?: string; limit: number }
+    >(gql(queries.conversationMessages), {
+      name: 'messagesQuery',
+      options: ({ currentId }) => {
+        const windowHeight = window.innerHeight;
 
-      // 330 - height of above and below sections of detail area
-      // 45 -  min height of per message
-      limit = Math.round((windowHeight - 330) / 45 + 1);
-      skip = null;
+        // 330 - height of above and below sections of detail area
+        // 45 -  min height of per message
+        limit = Math.round((windowHeight - 330) / 45 + 1);
+        skip = null;
 
-      return {
-        variables: {
-          conversationId: currentId,
-          limit
-        },
-        fetchPolicy: 'network-only'
-      };
-    }
-  }),
-  graphql(gql(queries.conversationMessagesTotalCount), {
-    name: 'messagesTotalCountQuery',
-    options: ({ currentId }: { currentId: string }) => ({
-      variables: { conversationId: currentId },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(mutations.conversationMessageAdd), {
-    name: 'addMessageMutation',
-    options: ({ currentId }: { currentId: string }) => ({
-      refetchQueries: ['conversationMessages']
-    })
-  })
-)(WorkArea);
+        return {
+          variables: {
+            conversationId: currentId,
+            limit
+          },
+          fetchPolicy: 'network-only'
+        };
+      }
+    }),
+    graphql<Props, MessagesTotalCountQuery, { conversationId?: string }>(
+      gql(queries.conversationMessagesTotalCount),
+      {
+        name: 'messagesTotalCountQuery',
+        options: ({ currentId }) => ({
+          variables: { conversationId: currentId },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, AddMessageMutationResponse, AddMessageMutationVariables>(
+      gql(mutations.conversationMessageAdd),
+      {
+        name: 'addMessageMutation',
+        options: {
+          refetchQueries: ['conversationMessages']
+        }
+      }
+    )
+  )(WorkArea)
+);
 
-const WithConsumer = props => {
+const WithConsumer = (props: Props) => {
   return (
     <AppConsumer>
-      {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}
+      {({ currentUser }) => (
+        <WithQuery {...props} currentUser={currentUser || ({} as IUser)} />
+      )}
     </AppConsumer>
   );
 };
