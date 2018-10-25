@@ -4,6 +4,7 @@ import { ICommonFormProps } from 'modules/settings/common/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
+import { withProps } from '../../../common/utils';
 import { UserForm } from '../components';
 import { queries } from '../graphql';
 
@@ -37,11 +38,13 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
   return <UserForm {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.channels), {
-    name: 'channelsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
+export default withProps<ICommonFormProps>(
+  compose(
+    graphql(gql(queries.channels), {
+      name: 'channelsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
     })
-  })
-)(UserFormContainer);
+  )(UserFormContainer)
+);

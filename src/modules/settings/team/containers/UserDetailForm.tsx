@@ -2,21 +2,32 @@ import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
 import { UserDetailForm } from '../components';
 import { queries } from '../graphql';
-import { UserDetailQueryResponse } from '../types';
+import {
+  ActivityLogQueryResponse,
+  UserConverationsQueryResponse,
+  UserDetailQueryResponse
+} from '../types';
 
 type Props = {
+  _id: string;
+  queryParams: any;
+  renderEditForm: React.ReactNode;
+};
+
+type FinalProps = {
   userDetailQuery: UserDetailQueryResponse;
   channelsQuery: any;
-  userActivityLogQuery: any;
-  userConversationsQuery: any;
+  userActivityLogQuery: ActivityLogQueryResponse;
+  userConversationsQuery: UserConverationsQueryResponse;
   renderEditForm: (
     { closeModal, user }: { closeModal: () => void; user: IUser }
   ) => React.ReactNode;
 };
 
-const UserDetailFormContainer = (props: Props) => {
+const UserDetailFormContainer = (props: FinalProps) => {
   const {
     userDetailQuery,
     channelsQuery,
@@ -45,28 +56,40 @@ const commonOptions = ({ _id }: { _id: string }) => ({
   variables: { _id }
 });
 
-export default compose(
-  graphql(gql(queries.userDetail), {
-    name: 'userDetailQuery',
-    options: ({ _id }: { _id: string }) => ({
-      variables: { _id }
-    })
-  }),
-  graphql(gql(queries.userConversations), {
-    name: 'userConversationsQuery',
-    options: ({ _id, queryParams }: { _id: string; queryParams: any }) => ({
-      variables: {
-        _id,
-        perPage: queryParams.limit || 20
+export default withProps<Props>(
+  compose(
+    graphql<Props, UserDetailQueryResponse, { _id: string }>(
+      gql(queries.userDetail),
+      {
+        name: 'userDetailQuery',
+        options: ({ _id }) => ({
+          variables: { _id }
+        })
       }
-    })
-  }),
-  graphql(gql(queries.channels), {
-    name: 'channelsQuery',
-    options: commonOptions
-  }),
-  graphql(gql(queries.userActivityLog), {
-    name: 'userActivityLogQuery',
-    options: commonOptions
-  })
-)(UserDetailFormContainer);
+    ),
+    graphql<
+      Props,
+      UserConverationsQueryResponse,
+      { _id: string; perPage: number }
+    >(gql(queries.userConversations), {
+      name: 'userConversationsQuery',
+      options: ({ _id, queryParams }) => ({
+        variables: {
+          _id,
+          perPage: queryParams.limit || 20
+        }
+      })
+    }),
+    graphql(gql(queries.channels), {
+      name: 'channelsQuery',
+      options: commonOptions
+    }),
+    graphql<Props, ActivityLogQueryResponse, { _id: string }>(
+      gql(queries.userActivityLog),
+      {
+        name: 'userActivityLogQuery',
+        options: commonOptions
+      }
+    )
+  )(UserDetailFormContainer)
+);
