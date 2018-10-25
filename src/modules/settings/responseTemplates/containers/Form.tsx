@@ -2,11 +2,13 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { BrandsQueryResponse } from '../../brands/types';
 import { ICommonFormProps } from '../../common/types';
 import { Form } from '../components';
 
 type Props = {
-  brandsQuery: any;
+  brandsQuery: BrandsQueryResponse;
 };
 
 const FormContainer = (props: Props & ICommonFormProps) => {
@@ -19,16 +21,18 @@ const FormContainer = (props: Props & ICommonFormProps) => {
   return <Form {...props} brands={brandsQuery.brands} />;
 };
 
-export default compose(
-  graphql(
-    gql`
-      query brands {
-        brands {
-          _id
-          name
+export default withProps<ICommonFormProps>(
+  compose(
+    graphql(
+      gql`
+        query brands {
+          brands {
+            _id
+            name
+          }
         }
-      }
-    `,
-    { name: 'brandsQuery' }
-  )
-)(FormContainer);
+      `,
+      { name: 'brandsQuery' }
+    )
+  )(FormContainer)
+);
