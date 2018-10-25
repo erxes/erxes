@@ -47,7 +47,7 @@ const CustomerAssociate = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<
-      {},
+      Props,
       CompaniesEditCustomersMutationResponse,
       CompaniesEditCustomersMutationVariables
     >(gql(companyMutations.companiesEditCustomers), {

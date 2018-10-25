@@ -19,7 +19,7 @@ type Props = {
 };
 
 type FinalProps = {
-  companiesQuery: any;
+  companiesQuery: CompaniesQueryResponse;
 } & Props &
   AddMutationResponse;
 

@@ -206,21 +206,24 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<{}, ListConfigQueryResponse, {}>(gql(queries.customersListConfig), {
-      name: 'customersListConfigQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
+    graphql<Props, ListConfigQueryResponse, {}>(
+      gql(queries.customersListConfig),
+      {
+        name: 'customersListConfigQuery',
+        options: () => ({
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
 
     // mutations
-    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
+    graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.customersRemove),
       {
         name: 'customersRemove'
       }
     ),
-    graphql<{}, MergeMutationResponse, MergeMutationVariables>(
+    graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.customersMerge),
       {
         name: 'customersMerge',

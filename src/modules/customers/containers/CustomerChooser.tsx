@@ -8,7 +8,8 @@ import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,
   CustomersQueryResponse,
-  ICustomer
+  ICustomer,
+  ICustomerDoc
 } from '../types';
 
 type Props = {
@@ -79,9 +80,12 @@ const WithQuery = withProps<Props>(
       }
     }),
     // mutations
-    graphql(gql(mutations.customersAdd), {
-      name: 'customersAdd'
-    })
+    graphql<Props, AddMutationResponse, ICustomerDoc>(
+      gql(mutations.customersAdd),
+      {
+        name: 'customersAdd'
+      }
+    )
   )(CustomerChooser)
 );
 

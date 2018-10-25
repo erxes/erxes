@@ -4,24 +4,14 @@ import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import { DealSelect } from '../components';
 import { queries } from '../graphql';
-import { IBoard, IPipeline, IStage } from '../types';
-
-export type BoardsQueryResponse = {
-  dealBoards: IBoard[];
-  loading: boolean;
-};
-
-type PipelinesQueryResponse = {
-  dealPipelines: IPipeline[];
-  loading: boolean;
-  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
-};
-
-export type StagesQueryResponse = {
-  dealStages: IStage[];
-  loading: boolean;
-  refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
-};
+import {
+  BoardsQueryResponse,
+  IBoard,
+  IPipeline,
+  IStage,
+  PipelinesQueryResponse,
+  StagesQueryResponse
+} from '../types';
 
 type Props = {
   stageId?: string;

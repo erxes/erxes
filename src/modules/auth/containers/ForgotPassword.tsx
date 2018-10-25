@@ -1,23 +1,19 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ForgotPassword } from '../components';
 import { mutations } from '../graphql';
+import {
+  ForgotPasswordMutationResponse,
+  ForgotPasswordMutationVariables
+} from '../types';
 
-type Props = {
-  forgotPasswordMutation: (
-    params: {
-      variables: {
-        email: string;
-        callback: (e: Error) => void;
-      };
-    }
-  ) => Promise<any>;
-  history: any;
-};
+type Props = {};
 
-const ForgotPasswordContainer = (props: Props) => {
+type FinalProps = Props & ForgotPasswordMutationResponse;
+
+const ForgotPasswordContainer = (props: FinalProps) => {
   const { forgotPasswordMutation } = props;
 
   const forgotPassword = variables => {
@@ -40,8 +36,14 @@ const ForgotPasswordContainer = (props: Props) => {
   return <ForgotPassword {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(mutations.forgotPassword), {
-    name: 'forgotPasswordMutation'
-  })
-)(ForgotPasswordContainer);
+export default withProps<Props>(
+  compose(
+    graphql<
+      Props,
+      ForgotPasswordMutationResponse,
+      ForgotPasswordMutationVariables
+    >(gql(mutations.forgotPassword), {
+      name: 'forgotPasswordMutation'
+    })
+  )(ForgotPasswordContainer)
+);

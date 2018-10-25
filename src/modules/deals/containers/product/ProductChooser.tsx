@@ -10,16 +10,7 @@ import {
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IProduct } from '../../../settings/productService/types';
-
-type ProductsQueryResponse = {
-  loading: boolean;
-  refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
-  products: IProduct[];
-};
-
-type AddMutationResponse = {
-  productAdd: (params: { variables: IProduct }) => Promise<void>;
-};
+import { ProductAddMutationResponse, ProductsQueryResponse } from '../../types';
 
 type Props = {
   data: { name: string; products: IProduct[] };
@@ -28,7 +19,7 @@ type Props = {
 };
 
 type FinalProps = { productsQuery: ProductsQueryResponse } & Props &
-  AddMutationResponse;
+  ProductAddMutationResponse;
 
 class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
   constructor(props) {
@@ -106,7 +97,7 @@ export default withProps<Props>(
       }
     ),
     // mutations
-    graphql<{}, AddMutationResponse, IProduct>(
+    graphql<{}, ProductAddMutationResponse, IProduct>(
       gql(productMutations.productAdd),
       {
         name: 'productAdd'

@@ -53,7 +53,7 @@ export default withProps<Props>(
       gql(queries.companyDetail),
       {
         name: 'companyDetailQuery',
-        options: ({ id }: { id: string }) => ({
+        options: ({ id }) => ({
           variables: {
             _id: id
           }
@@ -64,7 +64,7 @@ export default withProps<Props>(
       gql(queries.activityLogsCompany),
       {
         name: 'companyActivityLogQuery',
-        options: ({ id }: { id: string }) => ({
+        options: ({ id }) => ({
           variables: {
             _id: id
           }

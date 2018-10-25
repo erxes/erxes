@@ -4,13 +4,8 @@ import { compose, graphql } from 'react-apollo';
 import { Spinner } from '../../common/components';
 import { withProps } from '../../common/utils';
 import { queries } from '../graphql';
-import { IPipeline } from '../types';
+import { IPipeline, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
-
-type PipelineDetailQueryResponse = {
-  dealPipelineDetail: IPipeline;
-  loading: boolean;
-};
 
 type Props = {
   currentPipeline?: IPipeline;

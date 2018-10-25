@@ -74,14 +74,14 @@ const generateOptions = () => ({
 export default withProps<Props>(
   compose(
     // mutations
-    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
+    graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.customersRemove),
       {
         name: 'customersRemove',
         options: generateOptions()
       }
     ),
-    graphql<{}, MergeMutationResponse, MergeMutationVariables>(
+    graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.customersMerge),
       {
         name: 'customersMerge',

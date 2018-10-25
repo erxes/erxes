@@ -3,7 +3,7 @@ import { queries as generalQueries } from 'modules/settings/general/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { ICurrencies } from '../../../settings/general/types';
+import { ConfigDetailQueryResponse } from '../../../settings/general/types';
 import { ProductItemForm } from '../../components';
 import { IProductData } from '../../types';
 
@@ -15,18 +15,9 @@ type Props = {
   updateTotal: () => void;
 };
 
-type GetUomQueryResponse = {
-  configsDetail: ICurrencies;
-};
-
-type GetCurrenciesQueryResponse = {
-  configsDetail: ICurrencies;
-};
-
 type FinalProps = {
-  getUomQuery: any;
-  getCurrenciesQuery: any;
-  productDetailQuery: any;
+  getUomQuery: ConfigDetailQueryResponse;
+  getCurrenciesQuery: ConfigDetailQueryResponse;
 } & Props;
 
 class ProductItemFormContainer extends React.Component<FinalProps> {
@@ -53,7 +44,7 @@ class ProductItemFormContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, GetUomQueryResponse, { code: string }>(
+    graphql<Props, ConfigDetailQueryResponse, { code: string }>(
       gql(generalQueries.configsDetail),
       {
         name: 'getUomQuery',
@@ -64,7 +55,7 @@ export default withProps<Props>(
         }
       }
     ),
-    graphql<Props, GetCurrenciesQueryResponse, { code: string }>(
+    graphql<Props, ConfigDetailQueryResponse, { code: string }>(
       gql(generalQueries.configsDetail),
       {
         name: 'getCurrenciesQuery',
