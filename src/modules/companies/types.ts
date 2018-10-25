@@ -2,6 +2,7 @@ import { ITag } from 'modules/tags/types';
 import { IActivityLog, IActivityLogForMonth } from '../activityLogs/types';
 import { IUser } from '../auth/types';
 import { ICustomer } from '../customers/types';
+import { ISegmentDoc } from '../segments/types';
 
 export interface ICompanyLinks {
   linkedIn?: string;
@@ -109,17 +110,17 @@ export type AddMutationResponse = {
 // query types
 
 export type ListQueryVariables = {
-  page: number;
-  perPage: number;
-  segment: string;
-  tag: string;
-  brand: string;
-  ids: string[];
-  searchValue: string;
-  leadStatus: string;
-  lifecycleState: string;
-  sortField: string;
-  sortDirection: number;
+  page?: number;
+  perPage?: number;
+  segment?: string;
+  tag?: string;
+  brand?: string;
+  ids?: string[];
+  searchValue?: string;
+  leadStatus?: string;
+  lifecycleState?: string;
+  sortField?: string;
+  sortDirection?: number;
 };
 
 type ListConfig = {
@@ -170,4 +171,5 @@ type CompanyCounts = {
 export type CountQueryResponse = {
   companyCounts: CompanyCounts;
   loading: boolean;
+  refetch: (variables?: { byFakeSegment?: ISegmentDoc }) => void;
 };

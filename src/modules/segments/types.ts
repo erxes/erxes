@@ -27,6 +27,29 @@ export interface ISegment extends ISegmentDoc {
   getParentSegment: ISegment;
 }
 
+// query types
+
+export type Counts = {
+  [key: string]: number;
+};
+
+export type SegmentsQueryResponse = {
+  segments: ISegment[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type HeadSegmentsQueryResponse = {
+  segmentsGetHeads: ISegment[];
+  loading: boolean;
+};
+
+export type SegmentDetailQueryResponse = {
+  segmentDetail: ISegment;
+  loading: boolean;
+  refetch: () => void;
+};
+
 // mutation types
 
 export type AddMutationVariables = {
@@ -43,5 +66,11 @@ export type AddMutationResponse = {
     params: {
       variables: AddMutationVariables;
     }
+  ) => Promise<any>;
+};
+
+export type EditMutationResponse = {
+  segmentsEdit: (
+    params: { variables: { _id: string; doc: AddMutationVariables } }
   ) => Promise<any>;
 };

@@ -12,7 +12,7 @@ import { CountQueryResponse } from '../../customers/types';
 import {
   HeadSegmentsQueryResponse,
   SegmentsQueryResponse
-} from '../../segments/containers/SegmentsList';
+} from '../../segments/types';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
 import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
 import { AutoAndManualForm } from '../components';

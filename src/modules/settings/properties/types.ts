@@ -64,6 +64,8 @@ export type FieldsCombinedByType = {
 
 export type FieldsCombinedByTypeQueryResponse = {
   fieldsCombinedByContentType: FieldsCombinedByType[];
+  loading: boolean;
+  refetch: () => void;
 };
 
 export type AddFieldsMutationVariables = {
