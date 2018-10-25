@@ -41,7 +41,7 @@ export type BrandsCountQueryResponse = {
 
 export type BrandsManageIntegrationsMutationVariables = {
   _id: string;
-  integrationIds: [string];
+  integrationIds: string[];
 };
 
 export type BrandsManageIntegrationsMutationResponse = {

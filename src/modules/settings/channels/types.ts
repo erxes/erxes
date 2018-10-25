@@ -35,8 +35,8 @@ export type ChannelsCountQueryResponse = {
 export type ChannelMutationVariables = {
   name: string;
   description: string;
-  memberIds: [string];
-  integrationIds: [string];
+  memberIds: string[];
+  integrationIds: string[];
 };
 
 export type AddChannelMutationResponse = {
@@ -52,7 +52,7 @@ export type EditChannelMutationVariables = {
   name: string;
   memberIds: string[];
   description?: string;
-  integrationIds: [string];
+  integrationIds: string[];
 };
 
 export type EditChannelMutationResponse = {

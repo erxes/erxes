@@ -6,10 +6,10 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
 import { BrandsQueryResponse } from '../../settings/brands/types';
-import { FormIntegrationDetailQueryResponse } from '../../settings/integrations/containers/common/IntegrationList';
 import {
   EditIntegrationMutationResponse,
-  EditIntegrationMutationVariables
+  EditIntegrationMutationVariables,
+  FormIntegrationDetailQueryResponse
 } from '../../settings/integrations/types';
 import { Form } from '../components';
 import { mutations, queries } from '../graphql';

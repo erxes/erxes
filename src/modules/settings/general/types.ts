@@ -4,9 +4,9 @@ export interface ICurrencies {
   value: string[];
 }
 
-// queries
-export type ConfigQueryResponse = {
-  configsDetail: ICurrencies[];
+// query types
+export type ConfigDetailQueryResponse = {
+  configsDetail: ICurrencies;
   loading: boolean;
   refetch: () => void;
 };

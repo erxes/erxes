@@ -4,13 +4,16 @@ import { Home } from 'modules/settings/integrations/components/store';
 import { queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { IntegrationsCountQueryResponse } from '../types';
 
 type Props = {
-  totalCountQuery: any;
   queryParams: any;
 };
 
-const Store = (props: Props) => {
+type FinalProps = { totalCountQuery: IntegrationsCountQueryResponse } & Props;
+
+const Store = (props: FinalProps) => {
   const { totalCountQuery } = props;
 
   if (totalCountQuery.loading) {
@@ -27,6 +30,8 @@ const Store = (props: Props) => {
   return <Home {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' })
-)(Store);
+export default withProps<Props>(
+  compose(
+    graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' })
+  )(Store)
+);

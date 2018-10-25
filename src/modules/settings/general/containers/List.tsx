@@ -7,14 +7,14 @@ import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
 import {
-  ConfigQueryResponse,
+  ConfigDetailQueryResponse,
   ConfigsInsertMutationResponse,
   ConfigsInsertMutationVariables
 } from '../types';
 
 type FinalProps = {
-  currencyConfigQuery: any;
-  uomConfigQuery: any;
+  currencyConfigQuery: ConfigDetailQueryResponse;
+  uomConfigQuery: ConfigDetailQueryResponse;
 } & ConfigsInsertMutationResponse;
 
 class ListContainer extends React.Component<FinalProps> {
@@ -67,7 +67,7 @@ class ListContainer extends React.Component<FinalProps> {
 
 export default withProps<{}>(
   compose(
-    graphql<{}, ConfigQueryResponse, { code: string }>(
+    graphql<{}, ConfigDetailQueryResponse, { code: string }>(
       gql(queries.configsDetail),
       {
         name: 'currencyConfigQuery',
@@ -79,7 +79,7 @@ export default withProps<{}>(
         })
       }
     ),
-    graphql<{}, ConfigQueryResponse, { code: string }>(
+    graphql<{}, ConfigDetailQueryResponse, { code: string }>(
       gql(queries.configsDetail),
       {
         name: 'uomConfigQuery',

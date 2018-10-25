@@ -20,10 +20,10 @@ type Props = {
 type FinalProps = Props & EditChannelMutationResponse;
 
 class ManageIntegrationsContainer extends React.Component<FinalProps, {}> {
-  save = integrationIds => {
+  save = (integrationIds: string[]): Promise<any> => {
     const { currentChannel, editMutation } = this.props;
 
-    editMutation({
+    return editMutation({
       variables: {
         _id: currentChannel._id,
         name: currentChannel.name,

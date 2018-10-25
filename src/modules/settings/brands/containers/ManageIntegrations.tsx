@@ -40,10 +40,10 @@ class ManageIntegrationsContainer extends React.Component<FinalProps> {
     );
   }
 
-  save = integrationIds => {
+  save = (integrationIds: string[]): Promise<any> => {
     const { currentBrand, saveMutation } = this.props;
 
-    saveMutation({
+    return saveMutation({
       variables: {
         _id: currentBrand._id,
         integrationIds

@@ -13,13 +13,13 @@ type Props = {
   changeLanguage: (language: string) => void;
   save: (name: string, object: any) => void;
   // TODO: check currencies type
-  currencies: ICurrencies;
-  uom: ICurrencies;
+  currencies: string[];
+  uom: string[];
 };
 
 type State = {
-  currencies: ICurrencies;
-  uom: ICurrencies;
+  currencies: string[];
+  uom: string[];
   language: string;
   removeSelected: boolean;
 };
