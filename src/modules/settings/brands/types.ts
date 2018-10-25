@@ -84,3 +84,21 @@ export type BrandRemoveMutationResponse = {
     }
   ) => Promise<void>;
 };
+
+export type EmailConfig = {
+  type: string;
+  template: string;
+};
+
+export type BrandsConfigEmailMutationVariables = {
+  _id: string;
+  emailConfig: EmailConfig;
+};
+
+export type BrandsConfigEmailMutationResponse = {
+  configEmailMutation: (
+    params: {
+      variables: BrandsConfigEmailMutationVariables;
+    }
+  ) => Promise<void>;
+};

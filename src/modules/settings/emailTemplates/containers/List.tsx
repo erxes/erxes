@@ -2,17 +2,8 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import { List } from '../components';
+import { mutations, queries } from '../graphql';
 import { IEmailTemplate } from '../types';
-
-const commonParamsDef = `
-  $name: String!,
-  $content: String,
-`;
-
-const commonParams = `
-  name: $name,
-  content: $content,
-`;
 
 export type EmailTemplatesQueryResponse = {
   emailTemplates: IEmailTemplate[];
@@ -23,77 +14,34 @@ export type EmailTemplatesQueryResponse = {
 export default commonListComposer<{ queryParams: any }>({
   name: 'emailTemplates',
 
-  gqlListQuery: graphql(
-    gql`
-      query emailTemplates($page: Int, $perPage: Int) {
-        emailTemplates(page: $page, perPage: $perPage) {
-          _id
-          name
-          content
+  gqlListQuery: graphql(gql(queries.emailTemplates), {
+    name: 'listQuery',
+    options: ({ queryParams }: { queryParams: any }) => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: {
+          page: queryParams.page,
+          perPage: queryParams.perPage || 20
         }
-      }
-    `,
-    {
-      name: 'listQuery',
-      options: ({ queryParams }: { queryParams: any }) => {
-        return {
-          notifyOnNetworkStatusChange: true,
-          variables: {
-            page: queryParams.page,
-            perPage: queryParams.perPage || 20
-          }
-        };
-      }
+      };
     }
-  ),
+  }),
 
-  gqlTotalCountQuery: graphql(
-    gql`
-      query totalEmailTemplatesCount {
-        emailTemplatesTotalCount
-      }
-    `,
-    {
-      name: 'totalCountQuery'
-    }
-  ),
+  gqlTotalCountQuery: graphql(gql(queries.totalCount), {
+    name: 'totalCountQuery'
+  }),
 
-  gqlAddMutation: graphql(
-    gql`
-      mutation emailTemplatesAdd(${commonParamsDef}) {
-        emailTemplatesAdd(${commonParams}) {
-          _id
-        }
-      }
-    `,
-    {
-      name: 'addMutation'
-    }
-  ),
+  gqlAddMutation: graphql(gql(mutations.emailTemplatesAdd), {
+    name: 'addMutation'
+  }),
 
-  gqlEditMutation: graphql(
-    gql`
-      mutation emailTemplatesEdit($_id: String!, ${commonParamsDef}) {
-        emailTemplatesEdit(_id: $_id, ${commonParams}) {
-          _id
-        }
-      }
-    `,
-    {
-      name: 'editMutation'
-    }
-  ),
+  gqlEditMutation: graphql(gql(mutations.emailTemplatesEdit), {
+    name: 'editMutation'
+  }),
 
-  gqlRemoveMutation: graphql(
-    gql`
-      mutation emailTemplatesRemove($_id: String!) {
-        emailTemplatesRemove(_id: $_id)
-      }
-    `,
-    {
-      name: 'removeMutation'
-    }
-  ),
+  gqlRemoveMutation: graphql(gql(mutations.emailTemplatesRemove), {
+    name: 'removeMutation'
+  }),
 
   ListComponent: List
 });

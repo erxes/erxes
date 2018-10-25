@@ -3,10 +3,6 @@ import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { List, Signature } from './containers';
 
-const emails = ({ location }) => {
-  return <List queryParams={queryString.parse(location.search)} />;
-};
-
 const emailSignatures = ({ location }) => {
   return <Signature queryParams={queryString.parse(location.search)} />;
 };
@@ -17,7 +13,7 @@ const routes = () => (
       key="/settings/emails/"
       exact={true}
       path="/settings/emails/"
-      component={emails}
+      component={List}
     />
 
     <Route

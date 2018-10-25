@@ -1,8 +1,16 @@
 import gql from 'graphql-tag';
 import { colors } from 'modules/common/styles';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
+import {
+  mutations as brandMutations,
+  queries as brandQueries
+} from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import {
+  BrandDetailQueryResponse,
+  BrandsConfigEmailMutationResponse
+} from '../../brands/types';
 import { Config } from '../components';
 
 const defaultTemplate = `<p>Dear {{fullName}},</p>
@@ -47,28 +55,21 @@ const defaultTemplate = `<p>Dear {{fullName}},</p>
     }
 </style>`;
 
-type ConfigProps = {
-  brandQuery: any;
+type Props = {
   refetch: () => void;
   closeModal: () => void;
-
-  configEmailMutation: (
-    params: {
-      variables: {
-        _id: string;
-        emailConfig: {
-          type: string;
-          template: string;
-        };
-      };
-    }
-  ) => Promise<any>;
+  brandId: string;
 };
 
-const ConfigContainer = (props: ConfigProps) => {
-  const { brandQuery, configEmailMutation, refetch } = props;
+type FinalProps = {
+  brandDetailQuery: any;
+} & Props &
+  BrandsConfigEmailMutationResponse;
 
-  if (brandQuery.loading) {
+const ConfigContainer = (props: FinalProps) => {
+  const { brandDetailQuery, configEmailMutation, refetch } = props;
+
+  if (brandDetailQuery.loading) {
     return null;
   }
 
@@ -88,7 +89,7 @@ const ConfigContainer = (props: ConfigProps) => {
 
   const updatedProps = {
     ...props,
-    brand: brandQuery.brandDetail,
+    brand: brandDetailQuery.brandDetail,
     configEmail,
     defaultTemplate
   };
@@ -96,39 +97,24 @@ const ConfigContainer = (props: ConfigProps) => {
   return <Config {...updatedProps} />;
 };
 
-export default compose(
-  graphql(
-    gql`
-      query brandDetail($brandId: String!) {
-        brandDetail(_id: $brandId) {
-          _id
-          name
-          emailConfig
+export default withProps<Props>(
+  compose(
+    graphql<Props, BrandDetailQueryResponse, { brandId: string }>(
+      gql(brandQueries.brandDetail),
+      {
+        name: 'brandDetailQuery',
+        options: ({ brandId }: { brandId: string }) => {
+          return {
+            variables: {
+              brandId
+            }
+          };
         }
       }
-    `,
-    {
-      name: 'brandQuery',
-      options: ({ brandId }: { brandId: string }) => {
-        return {
-          variables: {
-            brandId
-          }
-        };
-      }
-    }
-  ),
+    ),
 
-  graphql(
-    gql`
-      mutation brandsConfigEmail($_id: String!, $emailConfig: JSON) {
-        brandsConfigEmail(_id: $_id, emailConfig: $emailConfig) {
-          _id
-        }
-      }
-    `,
-    {
+    graphql(gql(brandMutations.brandsConfigEmail), {
       name: 'configEmailMutation'
-    }
-  )
-)(ConfigContainer);
+    })
+  )(ConfigContainer)
+);
