@@ -49,7 +49,7 @@ const configQueries = {
     return Configs.findOne({ code });
   },
 
-  versions(_root) {
+  configsVersions(_root) {
     const { ERXES_PATH, API_PATH, WIDGET_PATH, WIDGET_API_PATH } = process.env;
 
     const erxesProjectPath = ERXES_PATH || `${process.cwd()}/../erxes`;

@@ -25,7 +25,7 @@ export const types = `
 
 export const queries = `
   configsDetail(code: String!): Config
-  versions: ProjectInfos
+  configsVersions: ProjectInfos
 `;
 
 export const mutations = `
