@@ -16,6 +16,8 @@ const PreviewTitle = styled.div`
   font-weight: 700;
   font-size: 13px;
   text-align: center;
+  border-top-left-radius: ${dimensions.unitSpacing}px;
+  border-top-right-radius: ${dimensions.unitSpacing}px;
 `;
 
 const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
@@ -68,10 +70,6 @@ const SlideLeftContent = styled.div`
   bottom: 0;
   left: 0;
   box-shadow: 3px 0px 5px ${rgba(colors.colorBlack, 0.25)};
-
-  ${PreviewTitle} {
-    text-align: inherit;
-  }
 `;
 
 const BodyContent = styled.div`
