@@ -1,3 +1,4 @@
+import { Formgroup, Label } from 'modules/common/components/form/styles';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import {
@@ -10,14 +11,26 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const PreviewTitle = styled.div`
-  padding: ${dimensions.coreSpacing}px;
+  height: 50px;
+  overflow: hidden;
   background-color: ${colors.colorSecondary};
-  color: ${colors.colorWhite};
-  font-weight: 700;
-  font-size: 13px;
-  text-align: center;
+  font-size: ${dimensions.coreSpacing - 5}px;
+  line-height: 1.2em;
+  display: flex;
+  align-items: center;
   border-top-left-radius: ${dimensions.unitSpacing}px;
   border-top-right-radius: ${dimensions.unitSpacing}px;
+
+  span {
+    color: ${colors.colorWhite};
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    width: 100%;
+    padding: 0 40px;
+  }
 `;
 
 const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
@@ -26,7 +39,7 @@ const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
   display: flex;
   overflow: auto;
   max-height: ${props => (props.embedded ? '500px' : '300px')};
-  background-color: ${colors.bgLight};
+  background-color: #faf9fb;
 
   img {
     max-width: 100px;
@@ -35,7 +48,22 @@ const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
 
   button {
     width: 100%;
-    margin: ${dimensions.coreSpacing}px 0;
+    display: block;
+    outline: 0;
+    border: 0;
+    border-radius: ${dimensions.unitSpacing}px;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    text-transform: inherit;
+    margin-bottom: ${dimensions.coreSpacing - 5}px;
+
+    &:hover {
+      box-shadow: 0 2px 22px 0 hsl(0, 0%, 73%);
+    }
+
+    &:focus {
+      outline: 0;
+      color: ${colors.colorWhite};
+    }
   }
 `;
 
@@ -70,6 +98,8 @@ const SlideLeftContent = styled.div`
   bottom: 0;
   left: 0;
   box-shadow: 3px 0px 5px ${rgba(colors.colorBlack, 0.25)};
+  border-top-left-radius: ${dimensions.unitSpacing}px;
+  border-top-right-radius: ${dimensions.unitSpacing}px;
 `;
 
 const BodyContent = styled.div`
@@ -84,7 +114,25 @@ const BodyContent = styled.div`
   }
 
   p {
+    color: #5c5c5c;
     margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  input,
+  textarea {
+    border-radius: ${dimensions.unitSpacing}px !important;
+    margin-top: 5px !important;
+  }
+
+  ${Formgroup} {
+    margin-bottom: 15px;
+  }
+
+  ${Label} {
+    text-transform: inherit;
+    color: ${colors.colorCoreBlack};
+    font-size: 13px;
   }
 
   ${SortableWrapper} {
