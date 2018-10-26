@@ -54,7 +54,6 @@ class ManageColumns extends React.Component<Props, State> {
 
   onSubmit = e => {
     e.preventDefault();
-
     const columnsConfig: IConfigColumn[] = [];
 
     this.state.fields.forEach((field, index) => {
@@ -70,6 +69,7 @@ class ManageColumns extends React.Component<Props, State> {
     });
 
     this.props.save(columnsConfig);
+    this.props.closeModal();
   };
 
   onChangeFields = fields => {
@@ -122,12 +122,7 @@ class ManageColumns extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button
-            type="submit"
-            onClick={this.props.closeModal}
-            btnStyle="success"
-            icon="checked-1"
-          >
+          <Button type="submit" btnStyle="success" icon="checked-1">
             Submit
           </Button>
         </Footer>
