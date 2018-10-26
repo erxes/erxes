@@ -50,7 +50,7 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
 
   toggleParticipator = () => {
     this.setState({ toggle: !this.state.toggle });
-  }
+  };
 
   render() {
     const { participatedUsers, limit } = this.props;

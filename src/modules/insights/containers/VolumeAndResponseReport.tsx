@@ -1,21 +1,26 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { BrandsQueryResponse } from '../../settings/brands/types';
 import { ResponseReport, VolumeReport } from '../components';
 import { queries } from '../graphql';
 import { IParams, IParamsWithType } from '../types';
 
-interface IProps {
+type Props = {
   history: any;
   type: string;
+
+  queryParams: any;
+};
+
+type FinalProps = {
   volumePieChartQuery: any;
-  brandsQuery: any;
+  brandsQuery: BrandsQueryResponse;
   punchCardQuery: any;
   mainQuery: any;
-  queryParams: any;
-}
+} & Props;
 
-const VolumenAndResponseReportContainer = (props: IProps) => {
+const VolumenAndResponseReportContainer = (props: FinalProps) => {
   const {
     type,
     volumePieChartQuery,
@@ -98,5 +103,7 @@ export default compose(
       }
     })
   }),
-  graphql(gql(queries.brands), { name: 'brandsQuery' })
+  graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
+    name: 'brandsQuery'
+  })
 )(VolumenAndResponseReportContainer);

@@ -34,7 +34,7 @@ class Row extends React.Component<Props, State> {
     };
   }
 
-  getClassName = (selectedKind) => {
+  getClassName = selectedKind => {
     const { kind, isContentVisible } = this.state;
 
     if (!isContentVisible) {
@@ -46,9 +46,9 @@ class Row extends React.Component<Props, State> {
     }
 
     return '';
-  }
+  };
 
-  toggleBox = (selectedKind) => {
+  toggleBox = selectedKind => {
     if (!selectedKind) {
       return false;
     }
@@ -71,7 +71,7 @@ class Row extends React.Component<Props, State> {
     });
 
     return null;
-  }
+  };
 
   renderPagination(totalCount) {
     if (totalCount <= 20) {

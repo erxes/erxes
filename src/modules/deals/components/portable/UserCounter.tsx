@@ -16,7 +16,7 @@ class UserCounter extends React.Component<Props, { show: boolean }> {
 
   showOthers = () => {
     this.setState({ show: true });
-  }
+  };
 
   renderUserItem(item) {
     return (

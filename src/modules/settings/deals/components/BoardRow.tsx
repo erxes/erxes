@@ -24,7 +24,7 @@ class BoardRow extends React.Component<Props, {}> {
     const { board } = this.props;
 
     this.props.remove(board._id);
-  }
+  };
 
   renderEditAction() {
     const { board, save } = this.props;

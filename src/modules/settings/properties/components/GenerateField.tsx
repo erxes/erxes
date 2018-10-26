@@ -149,7 +149,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
       onValueChange({ _id: field._id, value });
     }
-  }
+  };
 
   renderControl() {
     const { field } = this.props;

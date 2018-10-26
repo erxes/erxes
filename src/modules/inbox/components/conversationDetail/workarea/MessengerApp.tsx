@@ -28,7 +28,7 @@ class MessengerApp extends React.Component<Props> {
     this.overlayRef.hide();
 
     return this.props.onSelect(messengerApp);
-  }
+  };
 
   renderItems() {
     const onClick = item => this.onSelect(item._id);

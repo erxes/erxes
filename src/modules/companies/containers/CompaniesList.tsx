@@ -1,36 +1,40 @@
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
+import { DefaultColumnsConfigQueryResponse } from '../../settings/properties/types';
 import { CompaniesList } from '../components';
 import { mutations, queries } from '../graphql';
+import {
+  ListConfigQueryResponse,
+  ListQueryVariables,
+  MainQueryResponse,
+  MergeMutationResponse,
+  MergeMutationVariables,
+  RemoveMutationResponse,
+  RemoveMutationVariables
+} from '../types';
 
-interface IProps extends IRouterProps {
+type Props = {
   queryParams?: any;
-  companiesMainQuery?: any;
-  companiesListConfigQuery?: any;
-  companiesRemove: (
-    params: { variables: { companyIds: string[] } }
-  ) => Promise<any>;
-  companiesMerge: (
-    params: {
-      variables: {
-        companyIds: string[];
-        companyFields: any;
-      };
-    }
-  ) => Promise<any>;
-  loading?: boolean;
-}
+};
+
+type FinalProps = {
+  companiesMainQuery: MainQueryResponse;
+  companiesListConfigQuery: DefaultColumnsConfigQueryResponse;
+} & Props &
+  IRouterProps &
+  RemoveMutationResponse &
+  MergeMutationResponse;
 
 type State = {
   loading: boolean;
 };
 
-class CompanyListContainer extends React.Component<IProps, State> {
+class CompanyListContainer extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
@@ -47,7 +51,6 @@ class CompanyListContainer extends React.Component<IProps, State> {
       companiesMerge,
       history
     } = this.props;
-
     let columnsConfig =
       companiesListConfigQuery.fieldsDefaultColumnsConfig || [];
 
@@ -134,25 +137,36 @@ const generateParams = ({ queryParams }) => ({
   fetchPolicy: 'network-only'
 });
 
-export default compose(
-  graphql(gql(queries.companiesMain), {
-    name: 'companiesMainQuery',
-    options: generateParams
-  }),
-  graphql(gql(queries.companiesListConfig), {
-    name: 'companiesListConfigQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  // mutations
-  graphql(gql(mutations.companiesRemove), {
-    name: 'companiesRemove'
-  }),
-  graphql(gql(mutations.companiesMerge), {
-    name: 'companiesMerge',
-    options: {
-      refetchQueries: ['companiesMain', 'companyCounts']
-    }
-  })
-)(withRouter<IRouterProps>(CompanyListContainer));
+export default withProps<Props>(
+  compose(
+    graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
+      gql(queries.companiesMain),
+      {
+        name: 'companiesMainQuery',
+        options: generateParams
+      }
+    ),
+    graphql<{}, ListConfigQueryResponse, {}>(gql(queries.companiesListConfig), {
+      name: 'companiesListConfigQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    // mutations
+    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
+      gql(mutations.companiesRemove),
+      {
+        name: 'companiesRemove'
+      }
+    ),
+    graphql<{}, MergeMutationResponse, MergeMutationVariables>(
+      gql(mutations.companiesMerge),
+      {
+        name: 'companiesMerge',
+        options: {
+          refetchQueries: ['companiesMain', 'companyCounts']
+        }
+      }
+    )
+  )(withRouter<IRouterProps>(CompanyListContainer))
+);

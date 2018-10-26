@@ -71,7 +71,7 @@ class PropertyForm extends React.Component<Props, State> {
     };
   }
 
-  onSubmit = (e) => {
+  onSubmit = e => {
     e.preventDefault();
     const groupId = (document.getElementById('groupId') as HTMLInputElement)
       .value;
@@ -102,9 +102,9 @@ class PropertyForm extends React.Component<Props, State> {
     }
 
     this.props.closeModal();
-  }
+  };
 
-  onTypeChange = (e) => {
+  onTypeChange = e => {
     const value = e.target.value;
 
     let doc = { hasOptions: false, options: [] };
@@ -114,15 +114,15 @@ class PropertyForm extends React.Component<Props, State> {
     }
 
     this.setState({ type: value, ...doc });
-  }
+  };
 
   handleAddOption = () => {
     this.setState({ add: true });
-  }
+  };
 
   handleCancelAddingOption = () => {
     this.setState({ add: false });
-  }
+  };
 
   handleSaveOption = () => {
     const { options } = this.state;
@@ -132,7 +132,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     this.setState({ options: [...options, optionValue] });
     this.handleCancelAddingOption();
-  }
+  };
 
   handleRemoveOption = index => {
     const { options } = this.state;
@@ -186,7 +186,7 @@ class PropertyForm extends React.Component<Props, State> {
         {__('Add an option')}
       </Button>
     );
-  }
+  };
 
   removeClick = index => {
     return this.handleRemoveOption(index);
@@ -199,7 +199,7 @@ class PropertyForm extends React.Component<Props, State> {
         <Icon icon="cancel-1" onClick={this.removeClick} />
       </li>
     );
-  }
+  };
 
   renderOptions = () => {
     if (!this.state.hasOptions) {
@@ -214,7 +214,7 @@ class PropertyForm extends React.Component<Props, State> {
         {this.renderButtonOrElement()}
       </TypeList>
     );
-  }
+  };
 
   render() {
     const {

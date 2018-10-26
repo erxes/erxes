@@ -70,7 +70,7 @@ class BasicInfo extends React.Component<Props> {
         {__(`${label}`)}:<SidebarCounter>{value || '-'}</SidebarCounter>
       </li>
     );
-  }
+  };
 
   renderAction() {
     const { remove, merge, company } = this.props;

@@ -1,29 +1,30 @@
 import gql from 'graphql-tag';
-import { Alert, confirm } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
-import { ITagSaveParams } from '../types';
-
-type Variables = {
-  _id?: string;
-  name: string;
-  type: string;
-  colorCode: string;
-};
+import {
+  AddMutationResponse,
+  EditMutationResponse,
+  ITagSaveParams,
+  MutationVariables,
+  RemoveMutationResponse,
+  TagsQueryResponse
+} from '../types';
 
 type Props = {
   type: string;
-  tagsQuery: any;
-
-  addMutation: (params: { variables: Variables }) => Promise<any>;
-  editMutation: (params: { variables: Variables }) => Promise<any>;
-
-  removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
 };
 
-const ListContainer = (props: Props) => {
+type FinalProps = {
+  tagsQuery: TagsQueryResponse;
+} & Props &
+  AddMutationResponse &
+  EditMutationResponse &
+  RemoveMutationResponse;
+
+const ListContainer = (props: FinalProps) => {
   const { tagsQuery, addMutation, editMutation, removeMutation, type } = props;
 
   const remove = tag => {
@@ -78,15 +79,29 @@ const options = ({ type }) => ({
   ]
 });
 
-export default compose(
-  graphql(gql(queries.tags), {
-    name: 'tagsQuery',
-    options: ({ type }: { type: string }) => ({
-      variables: { type },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(mutations.add), { name: 'addMutation', options }),
-  graphql(gql(mutations.edit), { name: 'editMutation', options }),
-  graphql(gql(mutations.remove), { name: 'removeMutation', options })
-)(ListContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
+      name: 'tagsQuery',
+      options: ({ type }) => ({
+        variables: { type },
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, AddMutationResponse, MutationVariables>(gql(mutations.add), {
+      name: 'addMutation',
+      options
+    }),
+    graphql<Props, EditMutationResponse, MutationVariables>(
+      gql(mutations.edit),
+      { name: 'editMutation', options }
+    ),
+    graphql<Props, RemoveMutationResponse, { ids: string[] }>(
+      gql(mutations.remove),
+      {
+        name: 'removeMutation',
+        options
+      }
+    )
+  )(ListContainer)
+);

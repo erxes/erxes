@@ -193,7 +193,7 @@ class FormStep extends React.Component<Props, State> {
         }
       />
     );
-  }
+  };
 
   renderOptionsTextArea() {
     const { chosenFieldType = '' } = this.state;

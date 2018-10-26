@@ -1,29 +1,27 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CategoryForm } from '../../components';
 import { mutations, queries } from '../../graphql';
-import { ICategory } from '../../types';
-
-type Variables = {
-  title: string;
-  description: string;
-  icon: string;
-  topicIds: string[];
-};
+import {
+  AddCategoriesMutationResponse,
+  CategoryVariables,
+  EditCategoriesMutationResponse,
+  ICategory
+} from '../../types';
 
 type Props = {
   category: ICategory;
-
-  addCategoriesMutation: (params: { variables: Variables }) => Promise<any>;
-  editCategoriesMutation: (params: { variables: Variables }) => Promise<any>;
-
   topicIds: string;
   closeModal: () => void;
 };
 
-const KnowledgeBaseContainer = (props: Props) => {
+type FinalProps = Props &
+  AddCategoriesMutationResponse &
+  EditCategoriesMutationResponse;
+
+const KnowledgeBaseContainer = (props: FinalProps) => {
   const {
     category,
     topicIds,
@@ -81,14 +79,22 @@ const commonOptions = ({ topicIds }) => {
   };
 };
 
-export default compose(
-  graphql(gql(mutations.knowledgeBaseCategoriesEdit), {
-    name: 'editCategoriesMutation',
-    options: commonOptions
-  }),
+export default withProps<Props>(
+  compose(
+    graphql<Props, EditCategoriesMutationResponse, CategoryVariables>(
+      gql(mutations.knowledgeBaseCategoriesEdit),
+      {
+        name: 'editCategoriesMutation',
+        options: commonOptions
+      }
+    ),
 
-  graphql(gql(mutations.knowledgeBaseCategoriesAdd), {
-    name: 'addCategoriesMutation',
-    options: commonOptions
-  })
-)(KnowledgeBaseContainer);
+    graphql<Props, AddCategoriesMutationResponse, CategoryVariables>(
+      gql(mutations.knowledgeBaseCategoriesAdd),
+      {
+        name: 'addCategoriesMutation',
+        options: commonOptions
+      }
+    )
+  )(KnowledgeBaseContainer)
+);

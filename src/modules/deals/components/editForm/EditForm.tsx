@@ -57,7 +57,7 @@ class DealEditForm extends React.Component<Props, State> {
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  }
+  };
 
   saveProductsData = () => {
     const { productsData } = this.state;
@@ -88,7 +88,7 @@ class DealEditForm extends React.Component<Props, State> {
     });
 
     this.setState({ productsData: filteredProductsData, products, amount });
-  }
+  };
 
   save = () => {
     const {
@@ -126,13 +126,13 @@ class DealEditForm extends React.Component<Props, State> {
     saveDeal(doc, () => {
       closeModal();
     });
-  }
+  };
 
-  remove = (id) => {
+  remove = id => {
     const { removeDeal, closeModal } = this.props;
 
     removeDeal(id, () => closeModal());
-  }
+  };
 
   copy = () => {
     const { deal, closeModal, addDeal } = this.props;
@@ -146,7 +146,7 @@ class DealEditForm extends React.Component<Props, State> {
     };
 
     addDeal(doc, () => closeModal && closeModal());
-  }
+  };
 
   renderFormContent() {
     const { deal, users } = this.props;

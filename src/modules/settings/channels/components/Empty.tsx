@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Sidebar } from '../containers';
 
 type Props = {
-  queryParams: any;
+  queryParams?: any;
 };
 
 class Empty extends React.Component<Props, {}> {

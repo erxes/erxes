@@ -45,7 +45,7 @@ class TwitterConversation extends React.Component<Props, {}> {
     });
 
     return array;
-  }
+  };
 
   renderChildren = (children: INestedMessage[], integrationId: string) => {
     if (!children) {
@@ -53,7 +53,7 @@ class TwitterConversation extends React.Component<Props, {}> {
     }
 
     return <List>{this.renderTweets(children, integrationId)}</List>;
-  }
+  };
 
   renderTweets = (messages: INestedMessage[], integrationId: string) => {
     const { scrollBottom } = this.props;
@@ -71,7 +71,7 @@ class TwitterConversation extends React.Component<Props, {}> {
         </li>
       );
     });
-  }
+  };
 
   renderInternals(messages: IMessage[]) {
     return messages.filter(message => !message.twitterData).map(message => {

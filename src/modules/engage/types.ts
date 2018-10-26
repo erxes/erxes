@@ -1,6 +1,6 @@
 import { IUser } from '../auth/types';
 import { IAttachment } from '../common/types';
-import { ISegment } from '../segments/types';
+import { ISegment, ISegmentCondition } from '../segments/types';
 import { IBrand } from '../settings/brands/types';
 import { ITag } from '../tags/types';
 
@@ -73,3 +73,101 @@ export interface IEngageMessage extends IEngageMessageDoc {
   tagIds: string[];
   getTags: ITag[];
 }
+
+// mutation types
+
+export type MutationVariables = {
+  _id: string;
+};
+
+export type RemoveMutationResponse = {
+  removeMutation: (params: { variables: MutationVariables }) => Promise<void>;
+};
+
+export type SetPauseMutationResponse = {
+  setPauseMutation: (params: { variables: MutationVariables }) => Promise<void>;
+};
+
+export type SetLiveMutationResponse = {
+  setLiveMutation: (params: { variables: MutationVariables }) => Promise<void>;
+};
+
+export type SetLiveManualMutationResponse = {
+  setLiveManualMutation: (
+    params: { vairables: MutationVariables }
+  ) => Promise<void>;
+};
+
+export type WithFormMutationVariables = {
+  name: string;
+  description: string;
+  subOf: string;
+  color: string;
+  connector: string;
+  conditions: ISegmentCondition[];
+};
+
+export type WithFormAddMutationResponse = {
+  addMutation: (
+    params: {
+      variables: WithFormMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type WithFormEditMutationResponse = {
+  editMutation: (
+    params: {
+      vairables: WithFormMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+// query types
+
+export type EngageMessageDetailQueryResponse = {
+  engageMessageDetail: IEngageMessage;
+  loading: boolean;
+};
+
+export type ListQueryVariables = {
+  page?: number;
+  perPage?: number;
+  kind?: string;
+  status?: string;
+  tag?: string;
+  ids?: string[];
+};
+
+export type EngageMessagesQueryResponse = {
+  engageMessages: IEngageMessage[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type EngageMessagesTotalCountQueryResponse = {
+  engageMessagesTotalCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type EngageMessageCounts = {
+  all: number;
+  auto: number;
+  manual: number;
+  visitoryAuto: number;
+};
+
+export type TagCountQueryResponse = {
+  [key: string]: number;
+};
+
+export type CountQueryResponse = {
+  engageMessageCounts: EngageMessageCounts;
+};
+
+export type AddMutationResponse = {
+  messagesAddMutation: (
+    params: { variables: IEngageMessageDoc }
+  ) => Promise<any>;
+};

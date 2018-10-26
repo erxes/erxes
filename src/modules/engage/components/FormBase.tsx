@@ -75,7 +75,7 @@ class FormBase extends React.Component<Props> {
     }
 
     return { status: 'ok', doc };
-  }
+  };
 
   renderTitle() {
     const { kind } = this.props;

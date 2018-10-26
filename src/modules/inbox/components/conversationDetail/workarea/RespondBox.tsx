@@ -22,13 +22,15 @@ import {
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
-import { IAddMessage } from '../../../containers/conversationDetail/WorkArea';
-import { IConversation } from '../../../types';
+import { AddMessageMutationVariables, IConversation } from '../../../types';
 import Editor from './Editor';
 
 type Props = {
   conversation: IConversation;
-  sendMessage: (message: IAddMessage, callback: (error: Error) => void) => void;
+  sendMessage: (
+    message: AddMessageMutationVariables,
+    callback: (error: Error) => void
+  ) => void;
   setAttachmentPreview?: (data: string | null) => void;
   responseTemplates: IResponseTemplate[];
   teamMembers: IUser[];
@@ -80,12 +82,12 @@ class RespondBox extends React.Component<Props, State> {
   // save editor current content to state
   onEditorContentChange = (content: string) => {
     this.setState({ content });
-  }
+  };
 
   // save mentioned user to state
   onAddMention = (mentionedUserIds: string[]) => {
     this.setState({ mentionedUserIds });
-  }
+  };
 
   checkIsActive(conversation: IConversation) {
     return (
@@ -102,7 +104,7 @@ class RespondBox extends React.Component<Props, State> {
     const element = document.querySelector('.DraftEditor-root') as HTMLElement;
 
     element.click();
-  }
+  };
 
   onSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,7 +113,7 @@ class RespondBox extends React.Component<Props, State> {
 
     // redrawing editor after sned button, so editor content will be reseted
     this.setState({ editorKey: `${this.state.editorKey}Key` });
-  }
+  };
 
   onSelectTemplate = (responseTemplate?: IResponseTemplate) => {
     if (!responseTemplate) {
@@ -124,12 +126,12 @@ class RespondBox extends React.Component<Props, State> {
       // set attachment from response template files
       attachments: responseTemplate.files || []
     });
-  }
+  };
 
   // on shift + enter press in editor
   onShifEnter = () => {
     this.addMessage();
-  }
+  };
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
@@ -162,7 +164,7 @@ class RespondBox extends React.Component<Props, State> {
         }
       }
     });
-  }
+  };
 
   cleanText(text: string) {
     return text.replace(/&nbsp;/g, ' ');
@@ -202,7 +204,7 @@ class RespondBox extends React.Component<Props, State> {
     this.setState({
       isInternal: !this.state.isInternal
     });
-  }
+  };
 
   renderIncicator() {
     const attachments = this.state.attachments;

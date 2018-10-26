@@ -1,69 +1,47 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
-import { IField } from 'modules/settings/properties/types';
+import { Alert, withProps } from 'modules/common/utils';
+import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { IFormData } from '../../settings/integrations/types';
+import { BrandsQueryResponse } from '../../settings/brands/types';
+import {
+  EditIntegrationMutationResponse,
+  EditIntegrationMutationVariables,
+  FormIntegrationDetailQueryResponse
+} from '../../settings/integrations/types';
 import { Form } from '../components';
 import { mutations, queries } from '../graphql';
-import { IForm } from '../types';
+import {
+  AddFieldMutationResponse,
+  AddFieldMutationVariables,
+  EditFieldMutationResponse,
+  EditFieldMutationVariables,
+  EditFormMutationResponse,
+  RemoveFieldMutationResponse,
+  RemoveFieldMutationVariables
+} from '../types';
 
-interface IProps extends IRouterProps {
+type Props = {
   contentTypeId: string;
   formId: string;
-  fieldsQuery: any;
-  brandsQuery: any;
-  integrationDetailQuery: any;
-
-  editIntegrationMutation: (
-    params: {
-      variables: {
-        _id: string;
-        formData: IFormData;
-        brandId: string;
-        name: string;
-        languageCode: string;
-        formId: string;
-      };
-    }
-  ) => Promise<void>;
-
-  editFormMutation: (
-    params: {
-      variables: {
-        _id: string;
-        formId: string;
-        form: IForm;
-      };
-    }
-  ) => Promise<any>;
-
-  addFieldMutation: (
-    params: {
-      variables: {
-        createFieldsData: IField[];
-      };
-    }
-  ) => Promise<void>;
-
-  editFieldMutation: (
-    params: {
-      variables: {
-        updateFieldsData: IField[];
-      };
-    }
-  ) => Promise<void>;
-
-  removeFieldMutation: (
-    params: { variable: { removeFieldsData: IField[] } }
-  ) => Promise<void>;
-
   queryParams: any;
-}
+};
 
-class EditFormContainer extends React.Component<IProps, {}> {
+type FinalProps = {
+  fieldsQuery: FieldsQueryResponse;
+  brandsQuery: BrandsQueryResponse;
+  integrationDetailQuery: FormIntegrationDetailQueryResponse;
+} & Props &
+  EditIntegrationMutationResponse &
+  EditFormMutationResponse &
+  AddFieldMutationResponse &
+  EditFieldMutationResponse &
+  RemoveFieldMutationResponse &
+  IRouterProps;
+
+class EditFormContainer extends React.Component<FinalProps, {}> {
   render() {
     const {
       formId,
@@ -186,50 +164,75 @@ class EditFormContainer extends React.Component<IProps, {}> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.brands), {
-    name: 'brandsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.fields), {
-    name: 'fieldsQuery',
-    options: ({ formId }: { formId: string }) => {
-      return {
-        variables: {
-          contentType: 'form',
-          contentTypeId: formId
-        },
+export default withProps<Props>(
+  compose(
+    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
+      name: 'brandsQuery',
+      options: () => ({
         fetchPolicy: 'network-only'
-      };
-    }
-  }),
-  graphql(gql(queries.integrationDetail), {
-    name: 'integrationDetailQuery',
-    options: ({ contentTypeId }: { contentTypeId: string }) => ({
-      variables: {
-        _id: contentTypeId
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(mutations.integrationsEditFormIntegration), {
-    name: 'editIntegrationMutation',
-    options: {
-      refetchQueries: ['formIntegrations', 'formIntegrationCounts']
-    }
-  }),
-  graphql(gql(mutations.fieldsAdd), {
-    name: 'addFieldMutation'
-  }),
-  graphql(gql(mutations.fieldsEdit), {
-    name: 'editFieldMutation'
-  }),
-  graphql(gql(mutations.fieldsRemove), {
-    name: 'removeFieldMutation'
-  }),
-  graphql(gql(mutations.editForm), {
-    name: 'editFormMutation'
-  })
-)(withRouter<IProps>(EditFormContainer));
+      })
+    }),
+    graphql<
+      Props,
+      FieldsQueryResponse,
+      { contentType: string; contentTypeId: string }
+    >(gql(queries.fields), {
+      name: 'fieldsQuery',
+      options: ({ formId }) => {
+        return {
+          variables: {
+            contentType: 'form',
+            contentTypeId: formId
+          },
+          fetchPolicy: 'network-only'
+        };
+      }
+    }),
+    graphql<Props, FormIntegrationDetailQueryResponse, { _id: string }>(
+      gql(queries.integrationDetail),
+      {
+        name: 'integrationDetailQuery',
+        options: ({ contentTypeId }) => ({
+          variables: {
+            _id: contentTypeId
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<
+      Props,
+      EditIntegrationMutationResponse,
+      EditIntegrationMutationVariables
+    >(gql(mutations.integrationsEditFormIntegration), {
+      name: 'editIntegrationMutation',
+      options: {
+        refetchQueries: ['formIntegrations', 'formIntegrationCounts']
+      }
+    }),
+    graphql<Props, AddFieldMutationResponse, AddFieldMutationVariables>(
+      gql(mutations.fieldsAdd),
+      {
+        name: 'addFieldMutation'
+      }
+    ),
+    graphql<Props, EditFieldMutationResponse, EditFieldMutationVariables>(
+      gql(mutations.fieldsEdit),
+      {
+        name: 'editFieldMutation'
+      }
+    ),
+    graphql<Props, RemoveFieldMutationResponse, RemoveFieldMutationVariables>(
+      gql(mutations.fieldsRemove),
+      {
+        name: 'removeFieldMutation'
+      }
+    ),
+    graphql<Props, EditFormMutationResponse, EditFormMutationResponse>(
+      gql(mutations.editForm),
+      {
+        name: 'editFormMutation'
+      }
+    )
+  )(withRouter<FinalProps>(EditFormContainer))
+);

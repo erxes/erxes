@@ -4,9 +4,9 @@ import { ITag, ITagTypes } from 'modules/tags/types';
 import * as React from 'react';
 
 type Props = {
-  type: ITagTypes;
+  type: ITagTypes | string;
   // targets can be conversation, customer, company etc ...
-  targets: any[];
+  targets?: any[];
   event?: 'onClick' | 'onExit';
   className?: string;
 
@@ -62,7 +62,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
     });
   }
 
-  tag = (tags) => {
+  tag = tags => {
     const { tag } = this.props;
 
     // detect changes
@@ -79,7 +79,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
     }
 
     tag(tags.filter(t => t.selectedBy === 'all').map(t => t._id));
-  }
+  };
 
   render() {
     if (this.props.loading) {

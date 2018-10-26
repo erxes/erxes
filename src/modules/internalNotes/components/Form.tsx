@@ -36,26 +36,26 @@ class Form extends React.Component<
     };
   }
 
-  handleChange = (e) => {
+  handleChange = e => {
     e.preventDefault();
     this.setState({ content: e.target.value, editing: true });
-  }
+  };
 
-  handleKeyDown = (e) => {
+  handleKeyDown = e => {
     if (e.keyCode === 13 && e.shiftKey === false && this.state.content !== '') {
       e.preventDefault();
       this.onSend();
     }
-  }
+  };
 
   onSend = () => {
     this.props.create(this.state.content);
     this.cancelEditing();
-  }
+  };
 
   cancelEditing = () => {
     this.setState({ content: '', editing: false });
-  }
+  };
 
   renderFooter() {
     if (!this.state.editing) {

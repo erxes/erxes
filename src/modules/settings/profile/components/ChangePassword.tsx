@@ -16,7 +16,7 @@ type Props = {
 };
 
 class ChangePassword extends React.Component<Props> {
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
 
     this.props.save({
@@ -31,7 +31,7 @@ class ChangePassword extends React.Component<Props> {
     });
 
     this.props.closeModal();
-  }
+  };
 
   render() {
     return (

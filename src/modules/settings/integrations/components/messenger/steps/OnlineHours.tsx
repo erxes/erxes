@@ -56,9 +56,9 @@ class OnlineHours extends React.Component<Props, State> {
 
     // notify as change to main component
     this.props.onChange(onlineHours);
-  }
+  };
 
-  removeTime = (onlineHourId) => {
+  removeTime = onlineHourId => {
     let onlineHours = this.state.onlineHours;
 
     onlineHours = onlineHours.filter(hour => hour._id !== onlineHourId);
@@ -67,7 +67,7 @@ class OnlineHours extends React.Component<Props, State> {
 
     // notify as change to main component
     this.props.onChange(onlineHours);
-  }
+  };
 
   renderOnlineHour(onlineHour) {
     const remove = () => {

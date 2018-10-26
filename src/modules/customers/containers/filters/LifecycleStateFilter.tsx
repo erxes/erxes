@@ -1,11 +1,13 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
 import { LifecycleStateFilter } from '../../components';
 import { queries } from '../../graphql';
+import { CountQueryResponse } from '../../types';
 
 type Props = {
-  customersCountQuery: any;
+  customersCountQuery: CountQueryResponse;
 };
 
 class LifecycleStateFilterContainer extends React.Component<Props> {
@@ -23,11 +25,16 @@ class LifecycleStateFilterContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.customerCounts), {
-    name: 'customersCountQuery',
-    options: {
-      variables: { only: 'byLifecycleState' }
-    }
-  })
-)(LifecycleStateFilterContainer);
+export default withProps<{}>(
+  compose(
+    graphql<{}, CountQueryResponse, { only: string }>(
+      gql(queries.customerCounts),
+      {
+        name: 'customersCountQuery',
+        options: {
+          variables: { only: 'byLifecycleState' }
+        }
+      }
+    )
+  )(LifecycleStateFilterContainer)
+);

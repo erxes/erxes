@@ -52,9 +52,9 @@ class Appearance extends React.Component<Props, State> {
   onChange = <T extends keyof State>(name: T, value: State[T]) => {
     this.props.onChange(name, value);
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  handleLogoChange = (e) => {
+  handleLogoChange = e => {
     const imageFile = e.target.files;
 
     uploadHandler({
@@ -73,7 +73,7 @@ class Appearance extends React.Component<Props, State> {
         this.onChange('logoPreviewUrl', result);
       }
     });
-  }
+  };
 
   renderWallpaperSelect(value) {
     const isSelected = this.state.wallpaper === value;

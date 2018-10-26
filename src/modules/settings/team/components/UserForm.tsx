@@ -34,20 +34,20 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     };
   }
 
-  onAvatarUpload = (url) => {
+  onAvatarUpload = url => {
     this.setState({ avatar: url });
-  }
+  };
 
-  generateChannelsParams = (channels) => {
+  generateChannelsParams = channels => {
     return channels.map(channel => ({
       value: channel._id,
       label: channel.name
     }));
-  }
+  };
 
-  collectValues = (items) => {
+  collectValues = items => {
     return items.map(item => item.value);
-  }
+  };
 
   renderChannels() {
     const self = this;
@@ -103,7 +103,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
       }
     };
     return { doc };
-  }
+  };
 
   renderContent = () => {
     const { object } = this.props;
@@ -141,7 +141,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
       </div>
     );
-  }
+  };
 
   render() {
     return (

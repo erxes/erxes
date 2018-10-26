@@ -22,7 +22,7 @@ class AssignBoxPopover extends React.Component<Props> {
     }
 
     this.overlayTrigger.hide();
-  }
+  };
 
   render() {
     const { targets, trigger, container } = this.props;

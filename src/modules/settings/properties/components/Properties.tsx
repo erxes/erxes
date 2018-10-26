@@ -62,7 +62,7 @@ class Properties extends React.Component<Props> {
         })}
       </PropertyList>
     );
-  }
+  };
 
   renderActionBar = () => {
     const { queryParams, fieldsGroups } = this.props;
@@ -113,7 +113,7 @@ class Properties extends React.Component<Props> {
         </Dropdown.Menu>
       </Dropdown>
     );
-  }
+  };
 
   render() {
     const { currentType } = this.props;

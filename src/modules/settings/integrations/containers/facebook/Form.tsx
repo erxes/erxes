@@ -1,42 +1,43 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
 import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { IPages } from '../../types';
+import { BrandsQueryResponse } from '../../../brands/types';
+import {
+  CreateFacebookMutationResponse,
+  CreateFacebookMutationVariables,
+  FacebookAppsListQueryResponse,
+  IPages
+} from '../../types';
 
-interface IProps extends IRouterProps {
+type Props = {
   client: any;
   type?: string;
-  integrationFacebookAppsListQuery: any;
-  saveMutation: (
-    params: {
-      variables: {
-        name: string;
-        brandId: string;
-        appId: string;
-        pageIds: string[];
-      };
-    }
-  ) => Promise<any>;
-  brandsQuery: any;
-}
+};
+
+type FinalProps = {
+  integrationFacebookAppsListQuery: FacebookAppsListQueryResponse;
+  brandsQuery: BrandsQueryResponse;
+} & IRouterProps &
+  Props &
+  CreateFacebookMutationResponse;
 
 type State = {
   pages: IPages[];
 };
 
-class FacebookContainer extends React.Component<IProps, State> {
-  constructor(props: IProps) {
+class FacebookContainer extends React.Component<FinalProps, State> {
+  constructor(props: FinalProps) {
     super(props);
 
     this.state = { pages: [] };
   }
 
-  onAppSelect = (appId) => {
+  onAppSelect = (appId: string) => {
     this.props.client
       .query({
         query: gql`
@@ -59,7 +60,7 @@ class FacebookContainer extends React.Component<IProps, State> {
       .catch(error => {
         Alert.error(error.message);
       });
-  }
+  };
 
   render() {
     const {
@@ -98,9 +99,9 @@ class FacebookContainer extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(
+export default withProps<Props>(
   compose(
-    graphql(
+    graphql<Props, BrandsQueryResponse>(
       gql`
         query brands {
           brands {
@@ -116,7 +117,7 @@ export default withRouter<IRouterProps>(
         })
       }
     ),
-    graphql(
+    graphql<Props, FacebookAppsListQueryResponse>(
       gql`
         query integrationFacebookAppsList {
           integrationFacebookAppsList
@@ -124,7 +125,11 @@ export default withRouter<IRouterProps>(
       `,
       { name: 'integrationFacebookAppsListQuery' }
     ),
-    graphql(
+    graphql<
+      Props,
+      CreateFacebookMutationResponse,
+      CreateFacebookMutationVariables
+    >(
       gql`
         mutation integrationsCreateFacebookIntegration(
           $brandId: String!
@@ -145,5 +150,5 @@ export default withRouter<IRouterProps>(
       { name: 'saveMutation' }
     ),
     withApollo
-  )(FacebookContainer)
+  )(withRouter<FinalProps>(FacebookContainer))
 );

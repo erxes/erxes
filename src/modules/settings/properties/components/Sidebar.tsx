@@ -16,7 +16,7 @@ class Sidebar extends React.Component<Props> {
     const { Header } = LeftSidebar;
 
     return <Header uppercase={true}>{__(title)}</Header>;
-  }
+  };
 
   getClassName(type) {
     const { currentType } = this.props;

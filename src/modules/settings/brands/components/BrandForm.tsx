@@ -24,13 +24,13 @@ type Props = {
 };
 
 class BrandForm extends React.Component<Props, {}> {
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const { save, brand, closeModal } = this.props;
 
     save(this.generateDoc(), () => closeModal(), brand);
-  }
+  };
 
   generateDoc = () => {
     return {
@@ -41,7 +41,7 @@ class BrandForm extends React.Component<Props, {}> {
         ) as HTMLInputElement).value
       }
     };
-  }
+  };
 
   renderContent() {
     const object = this.props.brand || { name: '', description: '' };

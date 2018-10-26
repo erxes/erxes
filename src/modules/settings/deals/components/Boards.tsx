@@ -31,7 +31,7 @@ class Boards extends React.Component<Props, {}> {
         save={save}
       />
     ));
-  }
+  };
 
   renderBoardForm(props) {
     return <BoardForm {...props} />;

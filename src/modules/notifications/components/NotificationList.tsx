@@ -20,7 +20,7 @@ class NotificationList extends React.Component<Props, { bulk: string[] }> {
     this.state = { bulk: [] };
   }
 
-  markAllRead = (isPageRead) => {
+  markAllRead = isPageRead => {
     if (!isPageRead) {
       return this.props.markAsRead();
     }
@@ -36,7 +36,7 @@ class NotificationList extends React.Component<Props, { bulk: string[] }> {
     this.props.markAsRead(this.state.bulk);
 
     this.setState({ bulk: [] });
-  }
+  };
 
   render() {
     const { notifications, count, markAsRead } = this.props;

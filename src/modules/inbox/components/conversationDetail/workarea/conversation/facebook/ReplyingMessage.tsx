@@ -36,13 +36,13 @@ class ReplyingMessage extends React.Component<Props, State> {
     this.setState({
       post: postContent
     });
-  }
+  };
 
   getContent = () => {
     const { currentUserName } = this.props;
 
     return `@${currentUserName} `;
-  }
+  };
 
   doAction = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +58,7 @@ class ReplyingMessage extends React.Component<Props, State> {
     return replyPost(replyData, () => {
       this.props.closeModal();
     });
-  }
+  };
 
   render() {
     return (

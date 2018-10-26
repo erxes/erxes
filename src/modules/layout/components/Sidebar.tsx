@@ -59,7 +59,7 @@ class Section extends React.Component<Props, State> {
       collapse: !this.state.collapse,
       maxHeight: this.state.collapse ? 240 : this.node.clientHeight + 20
     });
-  }
+  };
 
   renderCollapseButton = () => {
     const icon = this.state.collapse ? 'uparrow-2' : 'downarrow';
@@ -69,7 +69,7 @@ class Section extends React.Component<Props, State> {
         <Icon icon={icon} />
       </SidebarToggle>
     );
-  }
+  };
 
   render() {
     const { children, collapsible, noShadow, noBackground, full } = this.props;

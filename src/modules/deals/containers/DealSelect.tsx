@@ -1,20 +1,33 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
 import { DealSelect } from '../components';
 import { queries } from '../graphql';
-import { IStage } from '../types';
+import {
+  BoardsQueryResponse,
+  IStage,
+  PipelinesQueryResponse,
+  StagesQueryResponse
+} from '../types';
 
 type Props = {
-  boardsQuery: any;
-  pipelinesQuery: any;
-  stagesQuery: any;
-  onChangeStage: (stageId: string, callback?: () => void) => Promise<any>;
-  onChangePipeline: (pipelineId: string, stages: IStage[]) => Promise<any>;
-  onChangeBoard: (boardId: string) => Promise<void>;
+  stageId?: string;
+  boardId: string;
+  pipelineId: string;
+  callback?: () => void;
+  onChangeStage?: (stageId: string) => void;
+  onChangePipeline: (pipelineId: string, stages: IStage[]) => void;
+  onChangeBoard: (boardId: string) => void;
 };
 
-class DealSelectContainer extends React.Component<Props> {
+type FinalProps = {
+  boardsQuery: BoardsQueryResponse;
+  pipelinesQuery: PipelinesQueryResponse;
+  stagesQuery: StagesQueryResponse;
+} & Props;
+
+class DealSelectContainer extends React.Component<FinalProps> {
   onChangeBoard = (boardId: string) => {
     this.props.onChangeBoard(boardId);
 
@@ -42,7 +55,9 @@ class DealSelectContainer extends React.Component<Props> {
   };
 
   onChangeStage = (stageId: string, callback?: any) => {
-    this.props.onChangeStage(stageId);
+    if (this.props.onChangeStage) {
+      this.props.onChangeStage(stageId);
+    }
 
     if (callback) {
       callback();
@@ -70,20 +85,28 @@ class DealSelectContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.boards), {
-    name: 'boardsQuery'
-  }),
-  graphql(gql(queries.pipelines), {
-    name: 'pipelinesQuery',
-    options: ({ boardId = '' }: { boardId: string }) => ({
-      variables: { boardId }
-    })
-  }),
-  graphql(gql(queries.stages), {
-    name: 'stagesQuery',
-    options: ({ pipelineId = '' }: { pipelineId: string }) => ({
-      variables: { pipelineId }
-    })
-  })
-)(DealSelectContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
+      name: 'boardsQuery'
+    }),
+    graphql<Props, PipelinesQueryResponse, { boardId: string }>(
+      gql(queries.pipelines),
+      {
+        name: 'pipelinesQuery',
+        options: ({ boardId = '' }) => ({
+          variables: { boardId }
+        })
+      }
+    ),
+    graphql<Props, StagesQueryResponse, { pipelineId: string }>(
+      gql(queries.stages),
+      {
+        name: 'stagesQuery',
+        options: ({ pipelineId = '' }) => ({
+          variables: { pipelineId }
+        })
+      }
+    )
+  )(DealSelectContainer)
+);

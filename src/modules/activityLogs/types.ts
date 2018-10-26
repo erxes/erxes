@@ -28,3 +28,13 @@ export interface IActivityLogsUser {
   date: IActivityLogYearMonthDoc;
   list: IActivityLog;
 }
+
+export interface IActivityLogYearMonth {
+  year: number;
+  month: number;
+}
+
+export interface IActivityLogForMonth {
+  date: IActivityLogYearMonth;
+  list: IActivityLog[];
+}

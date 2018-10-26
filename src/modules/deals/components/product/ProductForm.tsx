@@ -56,9 +56,9 @@ class ProductForm extends React.Component<Props, State> {
     });
 
     onChangeProductsData(productsData);
-  }
+  };
 
-  removeProductItem = (productId) => {
+  removeProductItem = productId => {
     const { productsData, onChangeProductsData } = this.props;
 
     const removedProductsData = productsData.filter(p => p._id !== productId);
@@ -66,7 +66,7 @@ class ProductForm extends React.Component<Props, State> {
     onChangeProductsData(removedProductsData);
 
     this.updateTotal();
-  }
+  };
 
   updateTotal = () => {
     const { productsData } = this.props;
@@ -90,7 +90,7 @@ class ProductForm extends React.Component<Props, State> {
     });
 
     this.setState({ total, tax, discount });
-  }
+  };
 
   renderTotal(value) {
     return Object.keys(value).map(key => (

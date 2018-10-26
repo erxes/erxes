@@ -1,10 +1,20 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
-import { Alert } from 'modules/common/utils';
-import { ISegmentCondition } from 'modules/segments/types';
+import { Alert, withProps } from 'modules/common/utils';
+import {
+  AddMutationResponse,
+  AddMutationVariables
+} from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { CountQueryResponse } from '../../customers/types';
+import {
+  HeadSegmentsQueryResponse,
+  SegmentsQueryResponse
+} from '../../segments/types';
+import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
+import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
 import { AutoAndManualForm } from '../components';
 import FormBase from '../components/FormBase';
 import { mutations, queries } from '../graphql';
@@ -12,46 +22,34 @@ import { IEngageMessageDoc, IEngageScheduleDate } from '../types';
 import withFormMutations from './withFormMutations';
 
 type Props = {
-  segmentsQuery: any;
-  emailTemplatesQuery: any;
-  customerCountsQuery: any;
-  headSegmentsQuery: any;
-  combinedFieldsQuery: any;
-  segmentsAddQuery: (
-    params: {
-      variables: {
-        name: string;
-        description: string;
-        subOf: string;
-        color: string;
-        connector: string;
-        conditions: ISegmentCondition[];
-      };
-    }
-  ) => Promise<any>;
-  kind: string;
+  kind?: string;
   brands: IBrand[];
-  users: IUser[];
-  scheduleDate: IEngageScheduleDate;
-  save: (doc: IEngageMessageDoc) => Promise<any>;
+  scheduleDate?: IEngageScheduleDate;
 };
 
-const AutoAndManualFormContainer = (props: Props) => {
+type FinalProps = {
+  segmentsQuery: SegmentsQueryResponse;
+  emailTemplatesQuery: EmailTemplatesQueryResponse;
+  customerCountsQuery: CountQueryResponse;
+  headSegmentsQuery: HeadSegmentsQueryResponse;
+  combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
+  users: IUser[];
+  save: (doc: IEngageMessageDoc) => Promise<any>;
+} & Props &
+  AddMutationResponse;
+
+const AutoAndManualFormContainer = (props: FinalProps) => {
   const {
     segmentsQuery,
     headSegmentsQuery,
     combinedFieldsQuery,
-    segmentsAddQuery,
+    segmentsAdd,
     emailTemplatesQuery,
     customerCountsQuery
   } = props;
 
   const customerCounts = customerCountsQuery.customerCounts || {
-    all: 0,
-    byBrand: {},
-    byIntegrationType: {},
-    bySegment: {},
-    byTag: {}
+    bySegment: {}
   };
 
   const segmentFields = combinedFieldsQuery.fieldsCombinedByContentType
@@ -71,7 +69,7 @@ const AutoAndManualFormContainer = (props: Props) => {
   };
 
   const segmentAdd = ({ doc }) => {
-    segmentsAddQuery({ variables: { ...doc } }).then(() => {
+    segmentsAdd({ variables: { ...doc } }).then(() => {
       segmentsQuery.refetch();
       customerCountsQuery.refetch();
       Alert.success('Success');
@@ -97,16 +95,40 @@ const AutoAndManualFormContainer = (props: Props) => {
     <AutoAndManualForm {...updatedProps} {...formProps} />
   );
 
-  return <FormBase kind={props.kind} content={content} />;
+  return <FormBase kind={props.kind || ''} content={content} />;
 };
 
-export default withFormMutations(
-  compose(
-    graphql(gql(queries.emailTemplates), { name: 'emailTemplatesQuery' }),
-    graphql(gql(queries.segments), { name: 'segmentsQuery' }),
-    graphql(gql(queries.customerCounts), { name: 'customerCountsQuery' }),
-    graphql(gql(queries.headSegments), { name: 'headSegmentsQuery' }),
-    graphql(gql(queries.combinedFields), { name: 'combinedFieldsQuery' }),
-    graphql(gql(mutations.segmentsAdd), { name: 'segmentsAddQuery' })
-  )(AutoAndManualFormContainer)
+export default withFormMutations<Props>(
+  withProps<Props>(
+    compose(
+      graphql<Props, EmailTemplatesQueryResponse>(gql(queries.emailTemplates), {
+        name: 'emailTemplatesQuery'
+      }),
+      graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
+        name: 'segmentsQuery'
+      }),
+      graphql<Props, CountQueryResponse, { only: string }>(
+        gql(queries.customerCounts),
+        {
+          name: 'customerCountsQuery',
+          options: {
+            variables: {
+              only: 'bySegment'
+            }
+          }
+        }
+      ),
+      graphql<Props, HeadSegmentsQueryResponse>(gql(queries.headSegments), {
+        name: 'headSegmentsQuery'
+      }),
+      graphql<Props, FieldsCombinedByTypeQueryResponse>(
+        gql(queries.combinedFields),
+        { name: 'combinedFieldsQuery' }
+      ),
+      graphql<Props, AddMutationResponse, AddMutationVariables>(
+        gql(mutations.segmentsAdd),
+        { name: 'segmentsAdd' }
+      )
+    )(AutoAndManualFormContainer)
+  )
 );

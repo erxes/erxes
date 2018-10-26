@@ -35,7 +35,7 @@ class List extends React.Component<Props> {
     return products.map(product => (
       <Row key={product._id} product={product} remove={remove} save={save} />
     ));
-  }
+  };
 
   render() {
     const { save, productsCount, loading } = this.props;

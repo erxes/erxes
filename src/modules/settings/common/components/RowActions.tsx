@@ -21,7 +21,7 @@ type Props = {
 export default class RowActions extends React.Component<Props, {}> {
   remove = () => {
     this.props.remove(this.props.object._id);
-  }
+  };
 
   renderRemoveAction = () => {
     return (
@@ -29,7 +29,7 @@ export default class RowActions extends React.Component<Props, {}> {
         <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
       </Tip>
     );
-  }
+  };
 
   renderEditAction = () => {
     const { size, renderForm, object, save } = this.props;
@@ -54,7 +54,7 @@ export default class RowActions extends React.Component<Props, {}> {
         content={content}
       />
     );
-  }
+  };
 
   render() {
     return (

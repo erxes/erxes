@@ -102,7 +102,7 @@ class AssignBox extends React.Component<Props, State> {
     if (afterSave) {
       afterSave();
     }
-  }
+  };
 
   removeAssignee = () => {
     const { clear, targets } = this.props;
@@ -112,7 +112,7 @@ class AssignBox extends React.Component<Props, State> {
         Alert.error(`Error: ${error.message}`);
       }
     });
-  }
+  };
 
   render() {
     const { event, className } = this.props;

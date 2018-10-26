@@ -25,7 +25,7 @@ class Facebook extends React.Component<Props> {
   onAppChange = () => {
     const appId = (document.getElementById('app') as HTMLInputElement).value;
     this.props.onAppSelect(appId);
-  }
+  };
 
   collectCheckboxValues(name) {
     const values: string[] = [];
@@ -43,7 +43,7 @@ class Facebook extends React.Component<Props> {
     return values;
   }
 
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
 
     this.props.save({
@@ -53,7 +53,7 @@ class Facebook extends React.Component<Props> {
       appId: (document.getElementById('app') as HTMLInputElement).value,
       pageIds: this.collectCheckboxValues('pages')
     });
-  }
+  };
 
   render() {
     const { apps, pages, brands } = this.props;

@@ -26,7 +26,7 @@ class BrandRow extends React.Component<Props> {
   remove = () => {
     const { remove, brand } = this.props;
     remove(brand._id);
-  }
+  };
 
   renderEditAction = () => {
     const { brand, save } = this.props;
@@ -44,7 +44,7 @@ class BrandRow extends React.Component<Props> {
     return (
       <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
-  }
+  };
 
   render() {
     const { brand, isActive } = this.props;

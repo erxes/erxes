@@ -25,7 +25,7 @@ class AddConditionButton extends React.Component<Props> {
     });
 
     this.overlayTrigger.hide();
-  }
+  };
 
   renderPopover() {
     return (

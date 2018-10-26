@@ -8,19 +8,21 @@ import {
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { CenterContent, ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { IBrandDoc } from 'modules/settings/brands/types';
+import { IChannelDoc } from 'modules/settings/channels/types';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import { BrandName, IntegrationName } from '../../styles';
 import { IIntegration } from '../../types';
 
 type Props = {
-  current: any;
+  current: IChannelDoc | IBrandDoc;
   save: (ids: string[]) => void;
   search: (searchValue: string, check?: boolean) => void;
   allIntegrations: IIntegration[];
   perPage: number;
   clearState: () => void;
-  closeModal: () => void;
+  closeModal?: () => void;
   renderConfirm?: (
     integration: IIntegration,
     actionTrigger: React.ReactNode,
@@ -59,7 +61,10 @@ class ManageIntegrations extends React.Component<Props, State> {
     });
 
     this.props.save(ids);
-    this.props.closeModal();
+
+    if (this.props.closeModal) {
+      this.props.closeModal();
+    }
   };
 
   componentWillUnmount() {

@@ -123,9 +123,9 @@ class CreateMessenger extends React.Component<Props, State> {
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const {
@@ -173,7 +173,7 @@ class CreateMessenger extends React.Component<Props, State> {
         logo: this.state.logo
       }
     });
-  }
+  };
 
   renderButtons() {
     const cancelButton = (

@@ -33,7 +33,7 @@ class List extends React.Component<Props> {
     const { toggleAll, messages } = this.props;
 
     toggleAll(messages, 'engageMessages');
-  }
+  };
 
   renderTagger() {
     const { bulk, emptyBulk } = this.props;

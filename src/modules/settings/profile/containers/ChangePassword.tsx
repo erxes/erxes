@@ -1,17 +1,17 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ChangePassword } from '../components';
+import { ChangePasswordMutationResponse } from '../types';
 
 type Props = {
-  changePasswordMutation: (
-    params: { variables: { currentPassword: string; newPassword: string } }
-  ) => Promise<any>;
   closeModal: () => void;
 };
 
-const ChangePasswordContainer = (props: Props) => {
+const ChangePasswordContainer = (
+  props: Props & ChangePasswordMutationResponse
+) => {
   const { changePasswordMutation } = props;
 
   const save = ({ currentPassword, newPassword, confirmation }) => {
@@ -36,23 +36,25 @@ const ChangePasswordContainer = (props: Props) => {
   return <ChangePassword {...updatedProps} />;
 };
 
-export default compose(
-  graphql(
-    gql`
-      mutation usersChangePassword(
-        $currentPassword: String!
-        $newPassword: String!
-      ) {
-        usersChangePassword(
-          currentPassword: $currentPassword
-          newPassword: $newPassword
+export default withProps<Props>(
+  compose(
+    graphql(
+      gql`
+        mutation usersChangePassword(
+          $currentPassword: String!
+          $newPassword: String!
         ) {
-          _id
+          usersChangePassword(
+            currentPassword: $currentPassword
+            newPassword: $newPassword
+          ) {
+            _id
+          }
         }
+      `,
+      {
+        name: 'changePasswordMutation'
       }
-    `,
-    {
-      name: 'changePasswordMutation'
-    }
-  )
-)(ChangePasswordContainer);
+    )
+  )(ChangePasswordContainer)
+);

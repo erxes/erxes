@@ -1,21 +1,23 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { __, Alert } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
+import {
+  ConfigDetailQueryResponse,
+  ConfigsInsertMutationResponse,
+  ConfigsInsertMutationVariables
+} from '../types';
 
-type Props = {
-  currencyConfigQuery: any;
-  uomConfigQuery: any;
-  insertConfig: (
-    params: { variables: { code: string; value: string } }
-  ) => Promise<any>;
-};
+type FinalProps = {
+  currencyConfigQuery: ConfigDetailQueryResponse;
+  uomConfigQuery: ConfigDetailQueryResponse;
+} & ConfigsInsertMutationResponse;
 
-class ListContainer extends React.Component<Props> {
+class ListContainer extends React.Component<FinalProps> {
   render() {
     const { insertConfig, currencyConfigQuery, uomConfigQuery } = this.props;
 
@@ -63,26 +65,37 @@ class ListContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.configsDetail), {
-    name: 'currencyConfigQuery',
-    options: () => ({
-      variables: {
-        code: 'dealCurrency'
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.configsDetail), {
-    name: 'uomConfigQuery',
-    options: () => ({
-      variables: {
-        code: 'dealUOM'
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(mutations.insertConfig), {
-    name: 'insertConfig'
-  })
-)(ListContainer);
+export default withProps<{}>(
+  compose(
+    graphql<{}, ConfigDetailQueryResponse, { code: string }>(
+      gql(queries.configsDetail),
+      {
+        name: 'currencyConfigQuery',
+        options: () => ({
+          variables: {
+            code: 'dealCurrency'
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<{}, ConfigDetailQueryResponse, { code: string }>(
+      gql(queries.configsDetail),
+      {
+        name: 'uomConfigQuery',
+        options: () => ({
+          variables: {
+            code: 'dealUOM'
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<{}, ConfigsInsertMutationResponse, ConfigsInsertMutationVariables>(
+      gql(mutations.insertConfig),
+      {
+        name: 'insertConfig'
+      }
+    )
+  )(ListContainer)
+);

@@ -56,10 +56,16 @@ class Top extends React.Component<Props> {
     );
   }
 
+  onChangeStage = stageId => {
+    this.props.onChangeField('stageId', stageId);
+  };
+
   renderDealMove() {
     const { deal, stageId, onChangeField } = this.props;
 
-    return <Move deal={deal} stageId={stageId} onChangeStage={onChangeField} />;
+    return (
+      <Move deal={deal} stageId={stageId} onChangeStage={this.onChangeStage} />
+    );
   }
 
   render() {
@@ -88,9 +94,12 @@ class Top extends React.Component<Props> {
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
+
     const dateOnChange = date => onChangeField('closeDate', date);
+
     const descriptionOnChange = e =>
       onChangeField('description', (e.target as HTMLInputElement).value);
+
     const userOnChange = usrs =>
       onChangeField('assignedUserIds', usrs.map(user => user.value));
 

@@ -30,9 +30,9 @@ type Props = {
 class ArticleRow extends React.Component<Props> {
   remove = () => {
     this.props.remove(this.props.article._id);
-  }
+  };
 
-  renderEditAction = (editTrigger) => {
+  renderEditAction = editTrigger => {
     const { article, queryParams, currentCategoryId, topicIds } = this.props;
 
     const editButton = (
@@ -61,7 +61,7 @@ class ArticleRow extends React.Component<Props> {
         content={content}
       />
     );
-  }
+  };
 
   render() {
     const { article } = this.props;

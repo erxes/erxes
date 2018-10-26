@@ -23,8 +23,10 @@ import { Link } from 'react-router-dom';
 import strip from 'strip';
 import { IAttachment } from '../../../../common/types';
 import { IBrand } from '../../../../settings/brands/types';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
-import { ISaveResponseTemplate } from '../../../containers/conversationDetail/ResponseTemplate';
+import {
+  IResponseTemplate,
+  SaveResponsTemplateMutationVariables
+} from '../../../../settings/responseTemplates/types';
 import ResponseTemplateModal from './ResponseTemplateModal';
 
 type Props = {
@@ -32,7 +34,7 @@ type Props = {
   responseTemplates: IResponseTemplate[];
   onSelect: (responseTemplate?: IResponseTemplate) => void;
   saveResponseTemplate: (
-    doc: ISaveResponseTemplate,
+    doc: SaveResponsTemplateMutationVariables,
     callback: (error?: Error) => void
   ) => void;
 
@@ -95,7 +97,7 @@ class ResponseTemplate extends React.Component<Props, State> {
 
       return element.click();
     });
-  }
+  };
 
   onSelect = (responseTemplateId: string) => {
     const { responseTemplates, onSelect } = this.props;
@@ -109,22 +111,22 @@ class ResponseTemplate extends React.Component<Props, State> {
     this.overlayRef.hide();
 
     return onSelect && onSelect(responseTemplate);
-  }
+  };
 
   onFilter = (e: React.FormEvent<HTMLElement>) => {
     const options = this.filterByBrand((e.target as HTMLInputElement).value);
     this.setState({ options, brandId: (e.target as HTMLInputElement).value });
-  }
+  };
 
-  filterByBrand = (brandId) => {
+  filterByBrand = brandId => {
     return this.props.responseTemplates.filter(
       option => option.brandId === brandId
     );
-  }
+  };
 
   filterItems = (e: React.FormEvent<HTMLElement>) => {
     this.setState({ key: (e.target as HTMLInputElement).value });
-  }
+  };
 
   renderItems() {
     const { options, key } = this.state;
