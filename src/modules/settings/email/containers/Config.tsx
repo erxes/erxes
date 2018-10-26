@@ -1,10 +1,7 @@
 import gql from 'graphql-tag';
 import { colors } from 'modules/common/styles';
 import { Alert, withProps } from 'modules/common/utils';
-import {
-  mutations as brandMutations,
-  queries as brandQueries
-} from 'modules/settings/brands/graphql';
+import { mutations as brandMutations } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
@@ -62,7 +59,7 @@ type Props = {
 };
 
 type FinalProps = {
-  brandDetailQuery: any;
+  brandDetailQuery: BrandDetailQueryResponse;
 } & Props &
   BrandsConfigEmailMutationResponse;
 
