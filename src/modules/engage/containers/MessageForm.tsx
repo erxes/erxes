@@ -24,7 +24,7 @@ const MessageFormContainer = (props: FinalProps) => {
     return null;
   }
 
-  const message = engageMessageDetailQuery.engageMessageDetail || {};
+  const message = engageMessageDetailQuery.engageMessageDetail;
   const brands = brandsQuery.brands || [];
 
   const updatedProps = {
