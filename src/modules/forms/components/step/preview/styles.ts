@@ -52,7 +52,7 @@ const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
     outline: 0;
     border: 0;
     border-radius: ${dimensions.unitSpacing}px;
-    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
     text-transform: inherit;
     margin-bottom: ${dimensions.coreSpacing - 5}px;
 
@@ -194,7 +194,7 @@ const CenterContainer = styled.div`
 
 const FormContainer = styled.div`
   display: block;
-  border-radius: ${dimensions.unitSpacing / 2}px;
+  border-radius: ${dimensions.unitSpacing}px;
   background-color: ${colors.colorWhite};
   margin: ${dimensions.coreSpacing}px auto;
   width: 70%;
