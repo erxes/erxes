@@ -4,6 +4,7 @@ const es = require("./es.json");
 const ptbr = require("./pt-br.json");
 const np = require("./np.json");
 const ch = require("./ch.json");
+const vn = require("./vn.json");
 
 const languages: any = {
   en,
@@ -11,7 +12,8 @@ const languages: any = {
   es,
   ptbr,
   np,
-  ch
+  ch,
+  vn
 };
 
 export default languages;
