@@ -10,7 +10,7 @@ import { CountQueryResponse } from '../../types';
 
 type Props = {
   brandsQuery: BrandsQueryResponse;
-  companyCountsQuery: any;
+  companyCountsQuery: CountQueryResponse;
   loading: boolean;
 };
 
