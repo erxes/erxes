@@ -77,9 +77,11 @@ class CustomersMerge extends React.Component<Props, State> {
     if (type === 'add') {
       selectedValues[key] = value;
 
-      if (key === 'link') {
-        const links = { ...selectedValues.links };
-
+      if (key === 'links') {
+        const links = Object.assign(
+          { ...this.state.selectedValues.links },
+          value
+        );
         selectedValues[key] = links;
       }
     } else {
@@ -210,8 +212,6 @@ class CustomersMerge extends React.Component<Props, State> {
   }
 
   renderLinks = (data: ICustomerLinks, icon: string) => {
-    const { selectedValues } = this.state;
-
     return CUSTOMER_LINKS.ALL.map(info => {
       const field = info.field;
       const value = data[field];
