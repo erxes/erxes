@@ -59,9 +59,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
     super(props);
 
     const message = props.message || {};
+    const messenger = message.messenger || {};
+    const email = message.email || {};
 
-    let content = message.messenger ? message.messenger.content : '';
-    content = message.email ? message.email.content : content;
+    const content = messenger.content ? messenger.content : email.content || '';
 
     this.state = {
       activeStep: 1,
