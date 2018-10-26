@@ -6,8 +6,7 @@ import {
 } from 'modules/settings/integrations/types';
 import {
   AddFieldsMutationResponse,
-  AddFieldsMutationVariables,
-  IField
+  AddFieldsMutationVariables
 } from 'modules/settings/properties/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
