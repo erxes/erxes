@@ -43,7 +43,7 @@ class Sidebar extends React.Component<Props, {}> {
         save={save}
       />
     ));
-  }
+  };
 
   renderSidebarHeader() {
     const { save } = this.props;

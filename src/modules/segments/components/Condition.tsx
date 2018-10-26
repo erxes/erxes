@@ -41,10 +41,10 @@ class Condition extends React.Component<Props, State> {
       const { changeCondition } = this.props;
       debounce(() => changeCondition(this.state), 350)();
     });
-  }
+  };
 
   // changeCondition will be fired after 350ms
-  handleValue = (e) => {
+  handleValue = e => {
     e.preventDefault();
 
     const val = e.target.value;
@@ -55,11 +55,11 @@ class Condition extends React.Component<Props, State> {
       // debounce text input
       debounce(() => changeCondition(this.state), 350)();
     });
-  }
+  };
 
   removeCondition = () => {
     this.props.removeCondition(this.props.condition.field);
-  }
+  };
 
   renderInput() {
     const { type, value } = this.state;

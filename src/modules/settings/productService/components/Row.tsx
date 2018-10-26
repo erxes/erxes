@@ -31,11 +31,11 @@ class Row extends React.Component<Props> {
     const { product } = this.props;
 
     this.props.remove(product._id);
-  }
+  };
 
-  renderEditForm = (props) => {
+  renderEditForm = props => {
     return <Form {...props} />;
-  }
+  };
 
   renderEditAction = () => {
     const { product, save } = this.props;
@@ -53,7 +53,7 @@ class Row extends React.Component<Props> {
     return (
       <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
-  }
+  };
 
   render() {
     const { product } = this.props;

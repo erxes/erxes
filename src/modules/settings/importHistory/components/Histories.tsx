@@ -43,7 +43,7 @@ class Histories extends React.Component<Props> {
         </tbody>
       </Table>
     );
-  }
+  };
 
   render() {
     const { currentType, histories, loading } = this.props;

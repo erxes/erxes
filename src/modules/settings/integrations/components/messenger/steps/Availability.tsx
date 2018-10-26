@@ -33,17 +33,17 @@ class Availability extends React.Component<Props> {
 
     this.setState({ [name]: value });
     this.props.onChange(name, value);
-  }
+  };
 
   onChangeFunction = (name, value) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
-  }
+  };
 
-  onOnlineHoursChange = (onlineHours) => {
+  onOnlineHoursChange = onlineHours => {
     this.setState({ onlineHours });
     this.props.onChange('onlineHours', onlineHours);
-  }
+  };
 
   renderOnlineHours() {
     if (this.props.availabilityMethod === 'manual') {

@@ -22,7 +22,7 @@ class NotificationRow extends React.Component<IProps> {
     }
 
     history.push(notification.link);
-  }
+  };
 
   render() {
     const { notification } = this.props;

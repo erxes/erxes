@@ -24,7 +24,7 @@ class Stages extends React.Component<Props, {}> {
     stage[name] = value;
 
     onChangeStages(stages);
-  }
+  };
 
   add = () => {
     const { stages, onChangeStages } = this.props;
@@ -35,22 +35,22 @@ class Stages extends React.Component<Props, {}> {
     });
 
     onChangeStages(stages);
-  }
+  };
 
-  remove = (stageId) => {
+  remove = stageId => {
     const { stages, onChangeStages } = this.props;
 
     const remainedStages = stages.filter(stage => stage._id !== stageId);
 
     onChangeStages(remainedStages);
-  }
+  };
 
-  onStageInputKeyPress = (e) => {
+  onStageInputKeyPress = e => {
     if (e.key === 'Enter') {
       this.add();
       e.preventDefault();
     }
-  }
+  };
 
   render() {
     const child = stage => (

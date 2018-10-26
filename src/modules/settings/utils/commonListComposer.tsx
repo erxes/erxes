@@ -1,4 +1,4 @@
-import { confirm } from 'modules/common/utils';
+import { confirm, withProps } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose } from 'react-apollo';
@@ -7,7 +7,7 @@ interface IRemoveMutationVariables {
   _id: string;
 }
 
-const commonListComposer = options => {
+function commonListComposer<ComponentProps>(options) {
   const {
     name,
     gqlListQuery,
@@ -106,20 +106,24 @@ const commonListComposer = options => {
   };
 
   if (gqlAddMutation) {
-    return compose(
-      gqlListQuery,
-      gqlTotalCountQuery,
-      // mutations
-      gqlAddMutation,
-      gqlEditMutation,
-      gqlRemoveMutation
-    )(ListContainer);
+    return withProps<ComponentProps>(
+      compose(
+        gqlListQuery,
+        gqlTotalCountQuery,
+        // mutations
+        gqlAddMutation,
+        gqlEditMutation,
+        gqlRemoveMutation
+      )(ListContainer)
+    );
   }
 
-  return compose(
-    gqlListQuery,
-    gqlTotalCountQuery
-  )(ListContainer);
-};
+  return withProps<ComponentProps>(
+    compose(
+      gqlListQuery,
+      gqlTotalCountQuery
+    )(ListContainer)
+  );
+}
 
 export default commonListComposer;

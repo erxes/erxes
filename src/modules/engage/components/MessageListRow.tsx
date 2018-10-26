@@ -83,11 +83,11 @@ class Row extends React.Component<Props> {
         <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
       </Tip>
     );
-  }
+  };
 
-  toggleBulk = (e) => {
+  toggleBulk = e => {
     this.props.toggleBulk(this.props.message, e.target.checked);
-  }
+  };
 
   renderRules() {
     const { message } = this.props;
@@ -118,7 +118,7 @@ class Row extends React.Component<Props> {
     }
 
     return this.props.edit();
-  }
+  };
 
   render() {
     let status = <Label lblStyle="default">Sending</Label>;

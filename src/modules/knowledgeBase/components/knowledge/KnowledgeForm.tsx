@@ -98,11 +98,11 @@ class KnowledgeForm extends React.Component<Props, State> {
     };
   }
 
-  onColorChange = (e) => {
+  onColorChange = e => {
     this.setState({ color: e.hex });
-  }
+  };
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     this.props.save(
@@ -110,7 +110,7 @@ class KnowledgeForm extends React.Component<Props, State> {
       () => this.props.closeModal(),
       this.props.topic
     );
-  }
+  };
 
   remove = () => {
     const { remove, topic } = this.props;
@@ -118,7 +118,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     if (remove) {
       remove(topic._id);
     }
-  }
+  };
 
   renderInstallCode() {
     if (this.props.topic && this.props.topic._id) {
@@ -151,7 +151,7 @@ class KnowledgeForm extends React.Component<Props, State> {
       const code = KnowledgeForm.getInstallCode(this.props.topic._id);
       this.setState({ code, copied: false });
     }
-  }
+  };
 
   generateDoc() {
     const { topic } = this.props;

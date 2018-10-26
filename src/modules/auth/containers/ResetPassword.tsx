@@ -1,23 +1,23 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
 import { ResetPassword } from '../components';
 import { mutations } from '../graphql';
+import {
+  ResetPasswordMutationResponse,
+  ResetPasswordMutationVariables
+} from '../types';
 
-interface IProps extends IRouterProps {
+type Props = {
   token: string;
-}
-
-type MutationResponse = {
-  resetPasswordMutation: (
-    params: { variables: { newPassword: string; token: string } }
-  ) => Promise<any>;
 };
 
-const ResetPasswordContainer = (props: IProps & MutationResponse) => {
+export type FinalProps = ResetPasswordMutationResponse & Props & IRouterProps;
+
+const ResetPasswordContainer = (props: FinalProps) => {
   const { resetPasswordMutation, history, token } = props;
 
   const resetPassword = newPassword => {
@@ -43,10 +43,14 @@ const ResetPasswordContainer = (props: IProps & MutationResponse) => {
   return <ResetPassword {...updatedProps} />;
 };
 
-export default withRouter<IProps>(
+export default withProps<Props>(
   compose(
-    graphql(gql(mutations.resetPassword), {
+    graphql<
+      Props,
+      ResetPasswordMutationResponse,
+      ResetPasswordMutationVariables
+    >(gql(mutations.resetPassword), {
       name: 'resetPasswordMutation'
     })
-  )(ResetPasswordContainer)
+  )(withRouter<FinalProps>(ResetPasswordContainer))
 );

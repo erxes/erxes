@@ -36,7 +36,7 @@ class Row extends React.Component<Props, {}> {
         return Alert.success('Congrats');
       });
     });
-  }
+  };
 
   manageAction(integration) {
     return (

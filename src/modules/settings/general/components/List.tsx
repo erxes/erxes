@@ -13,13 +13,13 @@ type Props = {
   changeLanguage: (language: string) => void;
   save: (name: string, object: any) => void;
   // TODO: check currencies type
-  currencies: ICurrencies;
-  uom: ICurrencies;
+  currencies: string[];
+  uom: string[];
 };
 
 type State = {
-  currencies: ICurrencies;
-  uom: ICurrencies;
+  currencies: string[];
+  uom: string[];
   language: string;
   removeSelected: boolean;
 };
@@ -36,25 +36,25 @@ class List extends React.Component<Props, State> {
     };
   }
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     this.props.save('dealCurrency', this.state.currencies);
     this.props.save('dealUOM', this.state.uom);
-  }
+  };
 
-  onCurrenciesChange = (currencies) => {
+  onCurrenciesChange = currencies => {
     this.setState({ currencies: currencies.map(el => el.value) });
-  }
+  };
 
-  onUOMChange = (uom) => {
+  onUOMChange = uom => {
     this.setState({ uom: uom.map(el => el.value) });
-  }
+  };
 
-  onLanguageChange = (language) => {
+  onLanguageChange = language => {
     this.setState({ language });
     this.props.changeLanguage(language.value);
-  }
+  };
 
   render() {
     const breadcrumb = [

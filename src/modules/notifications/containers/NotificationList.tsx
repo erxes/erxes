@@ -1,20 +1,26 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { NotificationList } from '../components';
 import { mutations, queries } from '../graphql';
+import {
+  MarkAsReadMutationResponse,
+  NotificationsCountQueryResponse,
+  NotificationsQueryResponse
+} from '../types';
 
 type Props = {
   queryParams: any;
-  notificationsQuery: any;
-  notificationCountQuery: any;
-  notificationsMarkAsReadMutation: (
-    params: { variables: { _ids: string[] } }
-  ) => Promise<any>;
 };
 
-class NotificationListContainer extends React.Component<Props> {
+type FinalProps = {
+  notificationsQuery: NotificationsQueryResponse;
+  notificationCountQuery: NotificationsCountQueryResponse;
+} & Props &
+  MarkAsReadMutationResponse;
+
+class NotificationListContainer extends React.Component<FinalProps> {
   render() {
     const {
       notificationsQuery,
@@ -47,27 +53,39 @@ class NotificationListContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.notifications), {
-    name: 'notificationsQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: {
-        requireRead: false,
-        page: queryParams.page,
-        perPage: queryParams.perPage || 20,
-        title: queryParams.title
+export default withProps<Props>(
+  compose(
+    graphql<
+      Props,
+      NotificationsQueryResponse,
+      { requireRead: boolean; page?: number; perPage?: number; title?: string }
+    >(gql(queries.notifications), {
+      name: 'notificationsQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          requireRead: false,
+          page: queryParams.page,
+          perPage: queryParams.perPage || 20,
+          title: queryParams.title
+        }
+      })
+    }),
+    graphql<Props, NotificationsCountQueryResponse>(
+      gql(queries.notificationCounts),
+      {
+        name: 'notificationCountQuery',
+        options: () => ({
+          variables: {
+            requireRead: false
+          }
+        })
       }
-    })
-  }),
-  graphql(gql(queries.notificationCounts), {
-    name: 'notificationCountQuery',
-    options: () => ({
-      variables: {
-        requireRead: false
+    ),
+    graphql<Props, MarkAsReadMutationResponse, { _ids: string[] }>(
+      gql(mutations.markAsRead),
+      {
+        name: 'notificationsMarkAsReadMutation'
       }
-    })
-  }),
-  graphql(gql(mutations.markAsRead), {
-    name: 'notificationsMarkAsReadMutation'
-  })
-)(NotificationListContainer);
+    )
+  )(NotificationListContainer)
+);

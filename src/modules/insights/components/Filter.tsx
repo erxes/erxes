@@ -52,7 +52,7 @@ class Filter extends React.Component<Props, States> {
     const brandId = value ? value.value : '';
     this.setState({ brandId });
     router.setParams(this.props.history, { brandId });
-  }
+  };
 
   onDateInputChange = (type: string, date: Date) => {
     if (type === 'endDate') {
@@ -60,14 +60,14 @@ class Filter extends React.Component<Props, States> {
     } else {
       this.setState({ startDate: date, isChange: true });
     }
-  }
+  };
 
   onFilterByDate = (type: string, date: Date) => {
     if (this.state.isChange) {
       const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
       router.setParams(this.props.history, { [type]: formatDate });
     }
-  }
+  };
 
   renderIntegrations() {
     const integrations = INTEGRATIONS_TYPES.ALL_LIST;

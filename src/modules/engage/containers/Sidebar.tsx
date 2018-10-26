@@ -4,21 +4,24 @@ import { queries as tagQueries } from 'modules/tags/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { withProps } from '../../common/utils';
+import { TagsQueryResponse } from '../../tags/types';
 import { Sidebar } from '../components';
 import { queries } from '../graphql';
+import { CountQueryResponse, TagCountQueryResponse } from '../types';
 
 type Props = {
-  kindCountsQuery: any;
-  statusCountsQuery: any;
-  tagsQuery: any;
-  tagCountsQuery: any;
+  queryParams: any;
 };
 
-interface IRouteProps extends IRouterProps {
-  queryParams: any;
-}
+type FinalProps = {
+  kindCountsQuery: CountQueryResponse;
+  statusCountsQuery: CountQueryResponse;
+  tagsQuery: TagsQueryResponse;
+  tagCountsQuery: TagCountQueryResponse;
+} & IRouterProps;
 
-const SidebarContainer = (props: Props & IRouteProps) => {
+const SidebarContainer = (props: FinalProps) => {
   const {
     kindCountsQuery,
     statusCountsQuery,
@@ -37,38 +40,47 @@ const SidebarContainer = (props: Props & IRouteProps) => {
   return <Sidebar {...updatedProps} />;
 };
 
-export default withRouter<IRouteProps>(
+export default withProps<Props>(
   compose(
-    graphql(gql(queries.kindCounts), {
+    graphql<Props, CountQueryResponse>(gql(queries.kindCounts), {
       name: 'kindCountsQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
     }),
-    graphql(gql(queries.statusCounts), {
-      name: 'statusCountsQuery',
-      options: ({ queryParams }: { queryParams: any }) => ({
-        variables: {
-          kind: queryParams.kind || ''
-        },
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql(gql(tagQueries.tags), {
-      name: 'tagsQuery',
-      options: () => ({
-        variables: { type: 'engageMessage' }
-      })
-    }),
-    graphql(gql(queries.tagCounts), {
-      name: 'tagCountsQuery',
-      options: ({ queryParams }: { queryParams: any }) => ({
-        variables: {
-          kind: queryParams.kind || '',
-          status: queryParams.status || ''
-        },
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(SidebarContainer)
+    graphql<Props, CountQueryResponse, { kind: string }>(
+      gql(queries.statusCounts),
+      {
+        name: 'statusCountsQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            kind: queryParams.kind || ''
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, TagCountQueryResponse, { type: string }>(
+      gql(tagQueries.tags),
+      {
+        name: 'tagsQuery',
+        options: () => ({
+          variables: { type: 'engageMessage' }
+        })
+      }
+    ),
+    graphql<Props, CountQueryResponse, { kind: string; status: string }>(
+      gql(queries.tagCounts),
+      {
+        name: 'tagCountsQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            kind: queryParams.kind || '',
+            status: queryParams.status || ''
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
+  )(withRouter<FinalProps>(SidebarContainer))
 );

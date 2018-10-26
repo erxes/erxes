@@ -27,7 +27,7 @@ class Options extends React.Component<Props> {
   onChangeFunction = (name, value) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
-  }
+  };
 
   render() {
     const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);

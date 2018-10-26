@@ -1,4 +1,4 @@
-import { colors } from 'modules/common/styles';
+import { colors, typography } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -38,6 +38,18 @@ const PostContainer = styled.div`
     margin-bottom: 15px;
     max-width: 100%;
     border-radius: ${borderRadius};
+  }
+`;
+
+const DateTime = styled.span`
+  color: ${colors.colorCoreGray};
+  font-size: ${typography.fontSizeHeading8}px;
+  font-weight: normal;
+  display: initial;
+
+  &:hover {
+    text-decoration: underline;
+    color: ${colors.colorCoreGray};
   }
 `;
 
@@ -241,5 +253,6 @@ export {
   ReplyReaction,
   Footer,
   ImageContainer,
-  LeftAlign
+  LeftAlign,
+  DateTime
 };

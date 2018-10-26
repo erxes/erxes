@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { router } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -8,22 +8,29 @@ import { withRouter } from 'react-router';
 import { Properties } from '../components';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 import { mutations, queries } from '../graphql';
+import {
+  FieldsGroupsQueryResponse,
+  FieldsGroupsRemoveMutationResponse,
+  FieldsGroupsUpdateVisibleMutationResponse,
+  FieldsRemoveMutationResponse,
+  FieldsUpdateVisibleMutationResponse
+} from '../types';
 import { companyBasicInfos, customerBasicInfos } from '../utils';
 
-interface IProps extends IRouterProps {
+type Props = {
   queryParams: any;
-  fieldsGroupsQuery: any;
-  fieldsGroupsRemove: (params: { variables: { _id: string } }) => Promise<any>;
-  fieldsRemove: (params: { variables: { _id: string } }) => Promise<any>;
-  fieldsGroupsUpdateVisible: (
-    params: { variables: { _id: string; isVisible: boolean } }
-  ) => Promise<any>;
-  fieldsUpdateVisible: (
-    params: { variables: { _id: string; isVisible: boolean } }
-  ) => Promise<any>;
-}
+};
 
-const PropertiesContainer = (props: IProps) => {
+type FinalProps = {
+  fieldsGroupsQuery: FieldsGroupsQueryResponse;
+} & Props &
+  FieldsGroupsRemoveMutationResponse &
+  FieldsRemoveMutationResponse &
+  FieldsGroupsUpdateVisibleMutationResponse &
+  FieldsUpdateVisibleMutationResponse &
+  IRouterProps;
+
+const PropertiesContainer = (props: FinalProps) => {
   const {
     fieldsGroupsQuery,
     history,
@@ -122,29 +129,45 @@ const options = ({ queryParams }) => ({
   ]
 });
 
-export default compose(
-  graphql(gql(queries.fieldsGroups), {
-    name: 'fieldsGroupsQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: {
-        contentType: queryParams.type || ''
+export default withProps<Props>(
+  compose(
+    graphql<Props, FieldsGroupsQueryResponse>(gql(queries.fieldsGroups), {
+      name: 'fieldsGroupsQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          contentType: queryParams.type || ''
+        }
+      })
+    }),
+    graphql<Props, FieldsGroupsRemoveMutationResponse, { _id: string }>(
+      gql(mutations.fieldsGroupsRemove),
+      {
+        name: 'fieldsGroupsRemove',
+        options
       }
+    ),
+    graphql<Props, FieldsRemoveMutationResponse, { _id: string }>(
+      gql(mutations.fieldsRemove),
+      {
+        name: 'fieldsRemove',
+        options
+      }
+    ),
+    graphql<
+      Props,
+      FieldsUpdateVisibleMutationResponse,
+      { _id: string; isVisible: boolean }
+    >(gql(mutations.fieldsUpdateVisible), {
+      name: 'fieldsUpdateVisible',
+      options
+    }),
+    graphql<
+      Props,
+      FieldsGroupsUpdateVisibleMutationResponse,
+      { _id: string; isVisible: boolean }
+    >(gql(mutations.fieldsGroupsUpdateVisible), {
+      name: 'fieldsGroupsUpdateVisible',
+      options
     })
-  }),
-  graphql(gql(mutations.fieldsGroupsRemove), {
-    name: 'fieldsGroupsRemove',
-    options
-  }),
-  graphql(gql(mutations.fieldsRemove), {
-    name: 'fieldsRemove',
-    options
-  }),
-  graphql(gql(mutations.fieldsUpdateVisible), {
-    name: 'fieldsUpdateVisible',
-    options
-  }),
-  graphql(gql(mutations.fieldsGroupsUpdateVisible), {
-    name: 'fieldsGroupsUpdateVisible',
-    options
-  })
-)(withRouter<IProps>(PropertiesContainer));
+  )(withRouter<FinalProps>(PropertiesContainer))
+);

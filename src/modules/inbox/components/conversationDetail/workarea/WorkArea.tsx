@@ -15,8 +15,11 @@ import { Wrapper } from 'modules/layout/components';
 import { ContenFooter, ContentBox } from 'modules/layout/styles';
 import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
-import { IAddMessage } from '../../../containers/conversationDetail/WorkArea';
-import { IConversation, IMessage } from '../../../types';
+import {
+  AddMessageMutationVariables,
+  IConversation,
+  IMessage
+} from '../../../types';
 import Conversation from './conversation/Conversation';
 import Participators from './Participators';
 
@@ -35,7 +38,7 @@ type Props = {
       callback,
       kind
     }: {
-      variables: IAddMessage;
+      variables: AddMessageMutationVariables;
       optimisticResponse: any;
       callback?: (e?) => void;
       kind: string;
@@ -108,17 +111,17 @@ export default class WorkArea extends React.Component<Props, State> {
     if (current.scrollTop === 0) {
       loadMoreMessages();
     }
-  }
+  };
 
   scrollBottom = () => {
     const { current } = this.node;
 
     current.scrollTop = current.scrollHeight;
-  }
+  };
 
-  setAttachmentPreview = (attachmentPreview) => {
+  setAttachmentPreview = attachmentPreview => {
     this.setState({ attachmentPreview });
-  }
+  };
 
   render() {
     const {

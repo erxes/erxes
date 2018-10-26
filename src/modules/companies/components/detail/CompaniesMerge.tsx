@@ -40,7 +40,7 @@ class CompaniesMerge extends React.Component<Props, State> {
     };
   }
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
     const { objects } = this.props;
     const selectedValues = { ...this.state.selectedValues };
@@ -66,7 +66,7 @@ class CompaniesMerge extends React.Component<Props, State> {
         this.props.closeModal();
       }
     });
-  }
+  };
 
   handleChange = (type, key, value) => {
     const selectedValues = { ...this.state.selectedValues };
@@ -75,8 +75,10 @@ class CompaniesMerge extends React.Component<Props, State> {
       selectedValues[key] = value;
 
       if (key === 'links') {
-        const links = { ...selectedValues.links, value };
-
+        const links = Object.assign(
+          { ...this.state.selectedValues.links },
+          value
+        );
         selectedValues[key] = links;
       }
     } else {
@@ -109,7 +111,7 @@ class CompaniesMerge extends React.Component<Props, State> {
         </ul>
       </React.Fragment>
     );
-  }
+  };
 
   renderCompanyProperties(key, value, icon) {
     return (
@@ -140,7 +142,7 @@ class CompaniesMerge extends React.Component<Props, State> {
       default:
         return <InfoDetail>{value}</InfoDetail>;
     }
-  }
+  };
 
   renderOwner(data) {
     return (

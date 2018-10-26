@@ -19,7 +19,7 @@ type Props = {
 };
 
 class BoardForm extends React.Component<Props, {}> {
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     this.props.save(
@@ -27,7 +27,7 @@ class BoardForm extends React.Component<Props, {}> {
       () => this.props.closeModal(),
       this.props.board
     );
-  }
+  };
 
   generateDoc = () => {
     return {
@@ -36,7 +36,7 @@ class BoardForm extends React.Component<Props, {}> {
           .value
       }
     };
-  }
+  };
 
   renderContent() {
     const { board } = this.props;

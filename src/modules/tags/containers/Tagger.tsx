@@ -1,31 +1,32 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Tagger } from '../components';
-import { ITagTypes } from '../types';
+import {
+  ITagTypes,
+  TagMutationResponse,
+  TagMutationVariables,
+  TagsQueryResponse
+} from '../types';
 
 type Props = {
   // targets can be conversation, customer, company etc ...
-  targets: any[];
-  type: ITagTypes;
-  tagsQuery: any;
-
-  tagMutation: (
-    params: {
-      variables: {
-        type: string;
-        targetIds: string[];
-        tagIds: string[];
-      };
-    }
-  ) => Promise<any>;
-
-  successCallback: () => void;
+  targets?: any[];
+  event?: 'onClick' | 'onExit';
+  type: ITagTypes | string;
+  successCallback?: () => void;
+  className?: string;
+  refetchQueries?: string[];
 };
 
-const TaggerContainer = (props: Props) => {
-  const { type, targets, successCallback, tagsQuery, tagMutation } = props;
+type FinalProps = {
+  tagsQuery: TagsQueryResponse;
+} & Props &
+  TagMutationResponse;
+
+const TaggerContainer = (props: FinalProps) => {
+  const { type, targets = [], successCallback, tagsQuery, tagMutation } = props;
 
   const tag = selectedTagIds => {
     const variables = {
@@ -83,17 +84,19 @@ const mutation = gql`
   }
 `;
 
-export default compose(
-  graphql(query, {
-    name: 'tagsQuery',
-    options: (props: Props) => ({
-      variables: { type: props.type }
+export default withProps<Props>(
+  compose(
+    graphql<Props, TagsQueryResponse, { type: string }>(query, {
+      name: 'tagsQuery',
+      options: (props: Props) => ({
+        variables: { type: props.type }
+      })
+    }),
+    graphql<Props, TagMutationResponse, TagMutationVariables>(mutation, {
+      name: 'tagMutation',
+      options: ({ refetchQueries }) => ({
+        refetchQueries
+      })
     })
-  }),
-  graphql(mutation, {
-    name: 'tagMutation',
-    options: ({ refetchQueries }: { refetchQueries: any }) => ({
-      refetchQueries
-    })
-  })
-)(TaggerContainer);
+  )(TaggerContainer)
+);

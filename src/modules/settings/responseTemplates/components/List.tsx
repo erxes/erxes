@@ -26,9 +26,9 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
         </tr>
       );
     });
-  }
+  };
 
-  renderContent = (props) => {
+  renderContent = props => {
     return (
       <Table>
         <thead>
@@ -41,7 +41,7 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
         <tbody>{this.renderRows(props)}</tbody>
       </Table>
     );
-  }
+  };
 
   render() {
     return (

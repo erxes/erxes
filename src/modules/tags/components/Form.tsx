@@ -33,7 +33,7 @@ class Form extends React.Component<Props, State> {
     };
   }
 
-  submit = (e) => {
+  submit = e => {
     e.preventDefault();
 
     const { tag, type, save, closeModal } = this.props;
@@ -46,15 +46,15 @@ class Form extends React.Component<Props, State> {
         closeModal();
       }
     });
-  }
+  };
 
-  handleName = (e) => {
+  handleName = e => {
     this.setState({ name: e.target.value });
-  }
+  };
 
-  handleColorCode = (e) => {
+  handleColorCode = e => {
     this.setState({ colorCode: e.target.value });
-  }
+  };
 
   render() {
     const { name, colorCode } = this.state;

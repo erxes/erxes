@@ -1,29 +1,29 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ArticleForm } from '../../components';
 import { mutations, queries } from '../../graphql';
-import { IArticle } from '../../types';
-
-type Variables = {
-  title: string;
-  summary: string;
-  content: string;
-  status: string;
-  categoryIds: string[];
-};
+import {
+  AddArticlesMutationResponse,
+  ArticleVariables,
+  EditArticlesMutationResponse,
+  IArticle
+} from '../../types';
 
 type Props = {
   article: IArticle;
   currentCategoryId: string;
-
-  addArticlesMutation: (params: { variables: Variables }) => Promise<any>;
-  editArticlesMutation: (params: { variables: Variables }) => Promise<any>;
+  queryParams: any;
+  topicIds: string[];
   closeModal: () => void;
 };
 
-const ArticleContainer = (props: Props) => {
+type FinalProps = Props &
+  AddArticlesMutationResponse &
+  EditArticlesMutationResponse;
+
+const ArticleContainer = (props: FinalProps) => {
   const {
     article,
     addArticlesMutation,
@@ -87,13 +87,21 @@ const commonOptions = ({ queryParams, currentCategoryId, topicIds }) => {
   };
 };
 
-export default compose(
-  graphql(gql(mutations.knowledgeBaseArticlesEdit), {
-    name: 'editArticlesMutation',
-    options: commonOptions
-  }),
-  graphql(gql(mutations.knowledgeBaseArticlesAdd), {
-    name: 'addArticlesMutation',
-    options: commonOptions
-  })
-)(ArticleContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, EditArticlesMutationResponse, ArticleVariables>(
+      gql(mutations.knowledgeBaseArticlesEdit),
+      {
+        name: 'editArticlesMutation',
+        options: commonOptions
+      }
+    ),
+    graphql<Props, AddArticlesMutationResponse, ArticleVariables>(
+      gql(mutations.knowledgeBaseArticlesAdd),
+      {
+        name: 'addArticlesMutation',
+        options: commonOptions
+      }
+    )
+  )(ArticleContainer)
+);

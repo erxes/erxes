@@ -64,7 +64,7 @@ class CustomerForm extends React.Component<Props, State> {
     return (document.getElementById(id) as HTMLInputElement).value;
   }
 
-  action = (e) => {
+  action = e => {
     const { phones, emails, primaryPhone, primaryEmail, avatar } = this.state;
 
     e.preventDefault();
@@ -99,11 +99,11 @@ class CustomerForm extends React.Component<Props, State> {
     });
 
     this.props.closeModal();
-  }
+  };
 
-  onAvatarUpload = (url) => {
+  onAvatarUpload = url => {
     this.setState({ avatar: url });
-  }
+  };
 
   generateUserParams(users) {
     return users.map(user => ({
@@ -119,11 +119,11 @@ class CustomerForm extends React.Component<Props, State> {
     }));
   }
 
-  handleUserSearch = (value) => {
+  handleUserSearch = value => {
     if (value) {
       searchUser(value, users => this.setState({ users }));
     }
-  }
+  };
 
   getVisitorInfo(customer, key) {
     return customer.visitorContactInfo && customer.visitorContactInfo[key];
@@ -164,21 +164,21 @@ class CustomerForm extends React.Component<Props, State> {
         <FormControl {...props} />
       </FormGroup>
     );
-  }
+  };
 
   onEmailChange = ({ options, selectedOption }) => {
     this.setState({ emails: options, primaryEmail: selectedOption });
-  }
+  };
 
   onPhoneChange = ({ options, selectedOption }) => {
     this.setState({ phones: options, primaryPhone: selectedOption });
-  }
+  };
 
-  onOwnerChange = (selectedOption) => {
+  onOwnerChange = selectedOption => {
     this.setState({
       ownerId: selectedOption ? selectedOption.value : null
     });
-  }
+  };
 
   render() {
     const { closeModal } = this.props;

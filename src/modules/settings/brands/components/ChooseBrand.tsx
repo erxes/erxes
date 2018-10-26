@@ -24,11 +24,11 @@ class ChooseBrand extends React.Component<Props> {
     }
   }
 
-  handleBrandChange = (e) => {
+  handleBrandChange = e => {
     this.updateInstallCodeValue(e.target.value);
-  }
+  };
 
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
 
     if (this.props.closeModal) {
@@ -41,7 +41,7 @@ class ChooseBrand extends React.Component<Props> {
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value
     });
-  }
+  };
 
   render() {
     const integration = this.props.integration;

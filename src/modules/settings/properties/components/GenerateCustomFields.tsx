@@ -47,24 +47,24 @@ class GenerateGroup extends React.Component<Props, State> {
 
       return Alert.success('Success');
     });
-  }
+  };
 
   toggleEditing = () => {
     this.setState({ editing: true });
-  }
+  };
 
   cancelEditing = () => {
     this.setState({
       editing: false
     });
-  }
+  };
 
   onChange = ({ _id, value }) => {
     const { data } = this.state;
 
     this.setState({ data: { ...data, [_id]: value } });
     this.toggleEditing();
-  }
+  };
 
   renderButtons() {
     if (!this.state.editing) {
@@ -152,7 +152,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
     };
 
     save({ customFieldsData: updatedData }, callback);
-  }
+  };
 
   render() {
     const { loading, fieldsGroups, customFieldsData } = this.props;

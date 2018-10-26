@@ -67,7 +67,7 @@ class LifecycleStateFilter extends React.Component<IProps> {
         </div>
       </Section>
     );
-  }
+  };
 
   render() {
     return (

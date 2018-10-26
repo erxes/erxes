@@ -15,13 +15,13 @@ type Props = {
 };
 
 class Calendar extends React.Component<Props> {
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
 
     this.props.save({
       name: (document.getElementById('name') as HTMLInputElement).value
     });
-  }
+  };
 
   render() {
     const content = (

@@ -2,8 +2,11 @@ import { Icon, ModalTrigger, NameCard, Tip } from 'modules/common/components';
 import * as moment from 'moment';
 import * as React from 'react';
 import { ICustomer } from '../../../../../../customers/types';
-import { IAddMessage } from '../../../../../containers/conversationDetail/WorkArea';
-import { IMessage, ITwitterData } from '../../../../../types';
+import {
+  AddMessageMutationVariables,
+  IMessage,
+  ITwitterData
+} from '../../../../../types';
 import { ModalAction, TweetContent, TweetMedia } from './';
 import { Count, Counts, Reply, Time, Tweet, User } from './styles';
 
@@ -22,7 +25,7 @@ type Props = {
     },
     callback: () => void
   ) => void;
-  replyTweet: (data: IAddMessage, callback: () => void) => void;
+  replyTweet: (data: AddMessageMutationVariables, callback: () => void) => void;
   tweet: (
     data: {
       integrationId: string;
@@ -48,9 +51,13 @@ class TwitterMessage extends React.Component<Props, {}> {
     };
 
     return favoriteTweet(tweet);
-  }
+  };
 
-  renderUserLink = (username?: string, fullName?: string, customer?: ICustomer) => {
+  renderUserLink = (
+    username?: string,
+    fullName?: string,
+    customer?: ICustomer
+  ) => {
     if (!username) {
       return <div>{customer && customer.firstName}</div>;
     }
@@ -60,7 +67,7 @@ class TwitterMessage extends React.Component<Props, {}> {
         {fullName ? <b>{fullName} </b> : `@${username}`}
       </a>
     );
-  }
+  };
 
   renderTweetLink = () => {
     const { message } = this.props;
@@ -79,7 +86,7 @@ class TwitterMessage extends React.Component<Props, {}> {
         </Time>
       </Tip>
     );
-  }
+  };
 
   renderCounts(twitterData: ITwitterData) {
     const inReplyStatus = twitterData.in_reply_to_status_id ? false : true;
@@ -165,7 +172,7 @@ class TwitterMessage extends React.Component<Props, {}> {
         Replying to {this.renderUserLink(twitterData.in_reply_to_screen_name)}
       </Reply>
     );
-  }
+  };
 
   getTweetContent(extendedTweet: any, message: IMessage) {
     if (extendedTweet) {

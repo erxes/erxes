@@ -17,7 +17,7 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 import { CompaniesMerge } from '..';
 import { IRouterProps } from '../../../common/types';
-import { ITag } from '../../../tags/types';
+import { IConfigColumn } from '../../../settings/properties/types';
 import { CompanyForm } from '../../containers';
 import { ICompany } from '../../types';
 import CompanyRow from './CompanyRow';
@@ -25,7 +25,7 @@ import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   companies: ICompany[];
-  columnsConfig: any;
+  columnsConfig: IConfigColumn[];
   loading: boolean;
   searchValue: string;
   totalCount: number;
@@ -35,7 +35,10 @@ interface IProps extends IRouterProps {
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
-  removeCompanies: (doc: { companyIds: string[] }) => void;
+  removeCompanies: (
+    doc: { companyIds: string[] },
+    emptyBulk: () => void
+  ) => void;
   mergeCompanies: () => void;
   queryParams: any;
 }
@@ -58,9 +61,9 @@ class CompaniesList extends React.Component<IProps, State> {
   onChange = () => {
     const { toggleAll, companies } = this.props;
     toggleAll(companies, 'companies');
-  }
+  };
 
-  search = (e) => {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -72,23 +75,23 @@ class CompaniesList extends React.Component<IProps, State> {
     this.timer = setTimeout(() => {
       router.setParams(history, { searchValue });
     }, 500);
-  }
+  };
 
-  removeCompanies = (companies) => {
+  removeCompanies = companies => {
     const companyIds: string[] = [];
 
     companies.forEach(company => {
       companyIds.push(company._id);
     });
 
-    this.props.removeCompanies({ companyIds });
-  }
+    this.props.removeCompanies({ companyIds }, this.props.emptyBulk);
+  };
 
-  moveCursorAtTheEnd = (e) => {
+  moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
-  }
+  };
 
   render() {
     const {

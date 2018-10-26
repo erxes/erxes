@@ -39,13 +39,13 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     };
   }
 
-  getContent = (editorState) => {
+  getContent = editorState => {
     return toHTML(editorState);
-  }
+  };
 
-  onChange = (editorState) => {
+  onChange = editorState => {
     this.setState({ editorState });
-  }
+  };
 
   generateDoc = () => {
     return {
@@ -58,7 +58,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         content: this.getContent(this.state.editorState)
       }
     };
-  }
+  };
 
   renderContent = () => {
     const { brands } = this.props;
@@ -105,7 +105,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
       </React.Fragment>
     );
-  }
+  };
 
   render() {
     return (

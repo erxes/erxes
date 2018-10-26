@@ -3,25 +3,27 @@ import { BrandFilter } from 'modules/customers/components';
 import { queries } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IBrand } from '../../../settings/brands/types';
+import { withProps } from '../../../common/utils';
+import { BrandsQueryResponse } from '../../../settings/brands/types';
 import { queries as companyQueries } from '../../graphql';
+import { CountQueryResponse } from '../../types';
 
 type Props = {
-  brands: IBrand[];
-  companyCountsQuery: any;
+  brandsQuery: BrandsQueryResponse;
+  companyCountsQuery: CountQueryResponse;
   loading: boolean;
 };
 
 class BrandFilterContainer extends React.Component<Props> {
   render() {
-    const { brands, loading, companyCountsQuery } = this.props;
+    const { companyCountsQuery, brandsQuery } = this.props;
 
     const counts = companyCountsQuery.companyCounts || {};
 
     const updatedProps = {
       ...this.props,
-      brands,
-      loading,
+      brands: brandsQuery.brands || [],
+      loading: brandsQuery.loading,
       counts: counts.byBrand || {}
     };
 
@@ -29,18 +31,19 @@ class BrandFilterContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.brands), {
-    name: 'brandsQuery',
-    props: ({ brandsQuery }: any) => ({
-      brands: brandsQuery.brands || [],
-      loading: brandsQuery.loading
-    })
-  }),
-  graphql(gql(companyQueries.companyCounts), {
-    name: 'companyCountsQuery',
-    options: {
-      variables: { only: 'byBrand' }
-    }
-  })
-)(BrandFilterContainer);
+export default withProps<{}>(
+  compose(
+    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
+      name: 'brandsQuery'
+    }),
+    graphql<Props, CountQueryResponse, { only: string }>(
+      gql(companyQueries.companyCounts),
+      {
+        name: 'companyCountsQuery',
+        options: {
+          variables: { only: 'byBrand' }
+        }
+      }
+    )
+  )(BrandFilterContainer)
+);

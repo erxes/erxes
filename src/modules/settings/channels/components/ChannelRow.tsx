@@ -30,7 +30,7 @@ class ChannelRow extends React.Component<Props, {}> {
   remove = () => {
     const { remove, channel } = this.props;
     remove(channel._id);
-  }
+  };
 
   renderEditAction = () => {
     const { channel, save, members } = this.props;
@@ -50,9 +50,9 @@ class ChannelRow extends React.Component<Props, {}> {
     return (
       <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
-  }
+  };
 
-  renderMember = (member) => {
+  renderMember = member => {
     return (
       <Tip key={member._id} text={member.details.fullName} placement="top">
         <MemberImg
@@ -64,7 +64,7 @@ class ChannelRow extends React.Component<Props, {}> {
         />
       </Tip>
     );
-  }
+  };
 
   renderMembers() {
     const { channel, members } = this.props;

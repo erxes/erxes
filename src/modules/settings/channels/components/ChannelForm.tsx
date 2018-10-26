@@ -42,24 +42,24 @@ class ChannelForm extends React.Component<Props, State> {
     };
   }
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const { save, channel, closeModal } = this.props;
 
     save(this.generateDoc(), () => closeModal(), channel);
-  }
+  };
 
-  collectValues = (items) => {
+  collectValues = items => {
     return items.map(item => item.value);
-  }
+  };
 
-  generateMembersParams = (members) => {
+  generateMembersParams = members => {
     return members.map(member => ({
       value: member._id,
       label: (member.details && member.details.fullName) || ''
     }));
-  }
+  };
 
   generateDoc = () => {
     return {
@@ -72,7 +72,7 @@ class ChannelForm extends React.Component<Props, State> {
         memberIds: this.collectValues(this.state.selectedMembers)
       }
     };
-  }
+  };
 
   renderContent() {
     const { members, channel } = this.props;

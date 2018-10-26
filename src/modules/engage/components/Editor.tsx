@@ -82,14 +82,14 @@ export default class Editor extends React.Component<EditorProps, State> {
     };
   }
 
-  getContent = (editorState) => {
+  getContent = editorState => {
     return toHTML(editorState);
-  }
+  };
 
-  onChange = (editorState) => {
+  onChange = editorState => {
     this.setState({ editorState });
     this.props.onChange('content', this.getContent(editorState));
-  }
+  };
 
   render() {
     const props = {

@@ -29,9 +29,9 @@ class Tab extends React.Component<Props, { currentTab: string }> {
     this.state = { currentTab: 'activity' };
   }
 
-  onTabClick = (currentTab) => {
+  onTabClick = currentTab => {
     this.setState({ currentTab });
-  }
+  };
 
   renderTabContent() {
     const { currentTab } = this.state;

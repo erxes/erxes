@@ -36,7 +36,7 @@ class PropertyRow extends React.Component<Props, State> {
 
   handleCollapse = () => {
     this.setState({ collapse: !this.state.collapse });
-  }
+  };
 
   visibleHandler = (e, property) => {
     if (property.isDefinedByErxes) {
@@ -46,7 +46,7 @@ class PropertyRow extends React.Component<Props, State> {
     const isVisible = e.target.checked;
 
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
-  }
+  };
 
   renderActionButtons = (data, remove, content) => {
     if (data.isDefinedByErxes) {
@@ -68,9 +68,9 @@ class PropertyRow extends React.Component<Props, State> {
         <Button btnStyle="link" icon="cancel-1" onClick={onClick} />
       </ActionButtons>
     );
-  }
+  };
 
-  renderTableRow = (field) => {
+  renderTableRow = field => {
     const { removeProperty, queryParams } = this.props;
 
     const onChange = e => this.visibleHandler(e, field);
@@ -103,9 +103,9 @@ class PropertyRow extends React.Component<Props, State> {
         </td>
       </tr>
     );
-  }
+  };
 
-  renderTable = (fields) => {
+  renderTable = fields => {
     if (fields.length === 0) {
       return (
         <EmptyState
@@ -128,7 +128,7 @@ class PropertyRow extends React.Component<Props, State> {
         <tbody>{fields.map(field => this.renderTableRow(field))}</tbody>
       </Table>
     );
-  }
+  };
 
   render() {
     const { group, removePropertyGroup, queryParams } = this.props;

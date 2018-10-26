@@ -38,6 +38,14 @@ const brandManageIntegrations = `
   }
 `;
 
+const brandsConfigEmail = `
+  mutation brandsConfigEmail($_id: String!, $emailConfig: JSON) {
+    brandsConfigEmail(_id: $_id, emailConfig: $emailConfig) {
+      _id
+    }
+  }
+`;
+
 const integrationsCreateMessenger = `
   mutation add($name: String!, $brandId: String!) {
     integrationsCreateMessengerIntegration(
@@ -65,6 +73,7 @@ export default {
   brandAdd,
   brandEdit,
   brandRemove,
+  brandsConfigEmail,
   brandManageIntegrations,
   integrationsCreateMessenger,
   integrationsEditMessenger

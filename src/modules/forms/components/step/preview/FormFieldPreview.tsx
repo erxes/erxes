@@ -43,7 +43,7 @@ class FormFieldPreview extends React.Component<Props, State> {
     this.setState({ fields });
 
     this.props.onChange('fields', this.state.fields || []);
-  }
+  };
 
   render() {
     const child = field => {

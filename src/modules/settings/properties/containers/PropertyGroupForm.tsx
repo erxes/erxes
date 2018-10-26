@@ -1,22 +1,25 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PropertyGroupForm } from '../components';
 import { mutations, queries } from '../graphql';
+import {
+  FieldsGroupsAddMutationResponse,
+  FieldsGroupsEditMutationResponse,
+  FieldsGroupsMutationVariables
+} from '../types';
 
 type Props = {
   queryParams: any;
-  fieldsGroupsAdd: (
-    fieldsAdd: { variables: { contentType: string } }
-  ) => Promise<any>;
-  fieldsGroupsEdit: (
-    fieldsEdit: { variables: { contentType: string } }
-  ) => Promise<any>;
   closeModal: () => void;
 };
 
-const PropertyGroupFormContainer = (props: Props) => {
+type FinalProps = Props &
+  FieldsGroupsAddMutationResponse &
+  FieldsGroupsEditMutationResponse;
+
+const PropertyGroupFormContainer = (props: FinalProps) => {
   const { fieldsGroupsAdd, fieldsGroupsEdit, queryParams } = props;
 
   const { type } = queryParams;
@@ -71,13 +74,23 @@ const options = ({ queryParams }) => ({
   ]
 });
 
-export default compose(
-  graphql(gql(mutations.fieldsGroupsAdd), {
-    name: 'fieldsGroupsAdd',
-    options
-  }),
-  graphql(gql(mutations.fieldsGroupsEdit), {
-    name: 'fieldsGroupsEdit',
-    options
-  })
-)(PropertyGroupFormContainer);
+export default withProps<Props>(
+  compose(
+    graphql<
+      Props,
+      FieldsGroupsAddMutationResponse,
+      FieldsGroupsMutationVariables
+    >(gql(mutations.fieldsGroupsAdd), {
+      name: 'fieldsGroupsAdd',
+      options
+    }),
+    graphql<
+      Props,
+      FieldsGroupsEditMutationResponse,
+      FieldsGroupsMutationVariables
+    >(gql(mutations.fieldsGroupsEdit), {
+      name: 'fieldsGroupsEdit',
+      options
+    })
+  )(PropertyGroupFormContainer)
+);

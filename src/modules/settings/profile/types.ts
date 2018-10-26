@@ -1,10 +1,16 @@
-export interface IModules {
-  _id: string;
-}
+import { IUserDoc } from '../../auth/types';
 
-export interface IConfig {
-  _id: string;
-  user: string;
-  notifType: string;
-  isAllowed: boolean;
-}
+export type ChangePasswordMutationVariables = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export type ChangePasswordMutationResponse = {
+  changePasswordMutation: (
+    params: { variables: ChangePasswordMutationVariables }
+  ) => Promise<any>;
+};
+
+export type EditProfileMutationResponse = {
+  usersEditProfile: (params: { variables: IUserDoc }) => Promise<any>;
+};

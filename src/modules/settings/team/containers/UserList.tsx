@@ -26,7 +26,7 @@ const commonParams = `
   passwordConfirmation: $passwordConfirmation
 `;
 
-export default commonListComposer({
+export default commonListComposer<{ queryParams: any; history: any }>({
   name: 'users',
 
   gqlListQuery: graphql(gql(queries.users), {

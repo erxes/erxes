@@ -68,13 +68,13 @@ class SegmentsForm extends React.Component<Props, State> {
     }
   }
 
-  addCondition = (condition) => {
+  addCondition = condition => {
     this.setState({
       conditions: [...this.state.conditions, condition]
     });
-  }
+  };
 
-  changeCondition = (condition) => {
+  changeCondition = condition => {
     this.setState({
       conditions: this.state.conditions.map(
         c => (c.field === condition.field ? condition : c)
@@ -103,19 +103,19 @@ class SegmentsForm extends React.Component<Props, State> {
     };
 
     this.props.count(segment);
-  }
+  };
 
-  removeCondition = (conditionField) => {
+  removeCondition = conditionField => {
     this.setState({
       conditions: this.state.conditions.filter(c => c.field !== conditionField)
     });
-  }
+  };
 
   handleChange = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const { segment, create, edit } = this.props;
@@ -140,7 +140,7 @@ class SegmentsForm extends React.Component<Props, State> {
     }
 
     return create({ doc });
-  }
+  };
 
   renderConditions() {
     const { contentType, fields } = this.props;

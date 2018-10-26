@@ -20,7 +20,7 @@ class CategoryRow extends React.Component<Props> {
   remove = () => {
     const { remove, category } = this.props;
     remove(category._id);
-  }
+  };
 
   renderEditForm(props) {
     return <CategoryForm {...props} />;
@@ -49,7 +49,7 @@ class CategoryRow extends React.Component<Props> {
         content={content}
       />
     );
-  }
+  };
 
   render() {
     const { category, isActive } = this.props;

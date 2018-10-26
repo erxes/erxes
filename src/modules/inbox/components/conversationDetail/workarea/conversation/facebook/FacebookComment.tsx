@@ -27,7 +27,7 @@ type Props = {
     },
     callback: () => void
   ) => void;
-  scrollBottom: () => void;
+  scrollBottom?: () => void;
 };
 
 export default class FacebookComment extends React.Component<Props, {}> {

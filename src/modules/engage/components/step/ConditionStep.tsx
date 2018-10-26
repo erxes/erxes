@@ -30,7 +30,7 @@ class ConditionStep extends React.Component<Props, State> {
     };
   }
 
-  addRule = (e) => {
+  addRule = e => {
     const rules = this.state.rules;
     const selectedOption = e.target.options[e.target.selectedIndex];
 
@@ -45,7 +45,7 @@ class ConditionStep extends React.Component<Props, State> {
 
       this.setState({ rules });
     }
-  }
+  };
 
   renderRule(rule) {
     const remove = () => {

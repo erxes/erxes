@@ -4,11 +4,13 @@ import { ICommonFormProps } from 'modules/settings/common/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
+import { withProps } from '../../../common/utils';
+import { ChannelsQueryResponse, IChannel } from '../../channels/types';
 import { UserForm } from '../components';
 import { queries } from '../graphql';
 
 type Props = {
-  channelsQuery: any;
+  channelsQuery: ChannelsQueryResponse;
 };
 
 const UserFormContainer = (props: Props & ICommonFormProps) => {
@@ -22,7 +24,7 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
 
   const channels = channelsQuery.channels;
 
-  let selectedChannels = [];
+  let selectedChannels: IChannel[] = [];
 
   if (object._id) {
     selectedChannels = channels.filter(c => c.memberIds.includes(object._id));
@@ -37,11 +39,13 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
   return <UserForm {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.channels), {
-    name: 'channelsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
+export default withProps<ICommonFormProps>(
+  compose(
+    graphql(gql(queries.channels), {
+      name: 'channelsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
     })
-  })
-)(UserFormContainer);
+  )(UserFormContainer)
+);

@@ -27,7 +27,7 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
     };
 
     this.props.onSave(doc.brandId, doc.name);
-  }
+  };
 
   renderForm = () => {
     const { brands, brandId } = this.props;
@@ -63,7 +63,7 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
         </ModalFooter>
       </React.Fragment>
     );
-  }
+  };
 
   render() {
     const { trigger } = this.props;

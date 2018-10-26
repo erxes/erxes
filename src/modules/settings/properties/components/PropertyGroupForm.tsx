@@ -46,7 +46,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     };
   }
 
-  onSubmit = (e) => {
+  onSubmit = e => {
     e.preventDefault();
 
     const { isVisible } = this.state;
@@ -66,13 +66,13 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
 
     this.props.closeModal();
-  }
+  };
 
-  visibleHandler = (e) => {
+  visibleHandler = e => {
     const isVisible = e.target.checked;
 
     this.setState({ isVisible });
-  }
+  };
 
   render() {
     const { group = { name: '' } } = this.props;
