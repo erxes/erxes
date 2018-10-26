@@ -106,25 +106,15 @@ class Settings extends React.Component<{ versions: ProjectVersions }> {
             )}
           </div>
         </Row>
-        <Row>
-          <div>
-            <div>
-              Erxes version: {erxesVersion && erxesVersion.packageVersion}
-            </div>
-            <div>
-              Erxes-api version:{' '}
-              {apiVersion && versions.apiVersion.packageVersion}
-            </div>
-            <div>
-              Erxes-widgets version:{' '}
-              {widgetVersion && versions.widgetVersion.packageVersion}
-            </div>
-            <div>
-              Erxes-widgets-api version:{' '}
-              {widgetApiVersion && widgetApiVersion.packageVersion}
-            </div>
-          </div>
-        </Row>
+        <span
+          style={{
+            position: 'absolute',
+            top: '97%',
+            right: '97%'
+          }}
+        >
+          {erxesVersion && erxesVersion.packageVersion}
+        </span>
       </div>
     );
 
