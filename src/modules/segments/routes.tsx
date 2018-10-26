@@ -2,25 +2,25 @@ import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { SegmentsForm, SegmentsList } from './containers';
 
+const segments = ({ match }) => {
+  const contentType = match.params.contentType;
+
+  return <SegmentsList contentType={contentType} />;
+};
+
+const segmentsForm = ({ match, history }) => {
+  const contentType = match.params.contentType;
+
+  return <SegmentsForm history={history} contentType={contentType} />;
+};
+
+const segmentsEditForm = ({ match, history }) => {
+  const { id, contentType } = match.params;
+
+  return <SegmentsForm id={id} history={history} contentType={contentType} />;
+};
+
 const routes = () => {
-  const segments = ({ match }) => {
-    const contentType = match.params.contentType;
-
-    return <SegmentsList contentType={contentType} />;
-  };
-
-  const segmentsForm = ({ match, history }) => {
-    const contentType = match.params.contentType;
-
-    return <SegmentsForm history={history} contentType={contentType} />;
-  };
-
-  const segmentsEditForm = ({ match, history }) => {
-    const { id, contentType } = match.params;
-
-    return <SegmentsForm id={id} history={history} contentType={contentType} />;
-  };
-
   return (
     <React.Fragment>
       <Route
