@@ -74,3 +74,7 @@ export type EditMutationResponse = {
     params: { variables: { _id: string; doc: AddMutationVariables } }
   ) => Promise<any>;
 };
+
+export type RemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => any;
+};
