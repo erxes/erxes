@@ -15,7 +15,7 @@ const SettingsContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    versions: versionsQuery.versions || {}
+    versions: versionsQuery.configsVersions || {}
   };
 
   return <Settings {...updatedProps} />;
@@ -23,7 +23,7 @@ const SettingsContainer = (props: Props) => {
 
 export default withProps<{}>(
   compose(
-    graphql<{}, VersionsQueryResponse>(gql(queries.versions), {
+    graphql<{}, VersionsQueryResponse>(gql(queries.configsVersions), {
       name: 'versionsQuery'
     })
   )(SettingsContainer)

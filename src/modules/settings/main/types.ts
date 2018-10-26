@@ -16,7 +16,7 @@ export type ProjectVersions = {
 };
 
 export type VersionsQueryResponse = {
-  versions: ProjectVersions;
+  configsVersions: ProjectVersions;
   loading: boolean;
   refetch: () => void;
 };

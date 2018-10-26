@@ -8,9 +8,9 @@ const commonFields = `
   abbreviatedSha
 `;
 
-const versions = `
-  query versions {
-    versions {
+const configsVersions = `
+  query configsVersions {
+    configsVersions {
       erxesVersion {
         ${commonFields}
       }
@@ -32,5 +32,5 @@ const versions = `
 `;
 
 export default {
-  versions
+  configsVersions
 };
