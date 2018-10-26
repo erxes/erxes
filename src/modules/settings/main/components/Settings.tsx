@@ -3,8 +3,9 @@ import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Box, BoxName, Divider, Row, RowTitle } from '../styles';
+import { ProjectVersions } from '../types';
 
-class Settings extends React.Component {
+class Settings extends React.Component<{ versions: ProjectVersions }> {
   renderBox(name: string, image: string, to: string) {
     return (
       <Box>
@@ -18,6 +19,13 @@ class Settings extends React.Component {
 
   render() {
     const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
+    const { versions } = this.props;
+    const {
+      erxesVersion,
+      apiVersion,
+      widgetVersion,
+      widgetApiVersion
+    } = versions;
 
     const content = (
       <div>
@@ -98,6 +106,15 @@ class Settings extends React.Component {
             )}
           </div>
         </Row>
+        <span
+          style={{
+            position: 'absolute',
+            top: '97%',
+            right: '97%'
+          }}
+        >
+          {erxesVersion && erxesVersion.packageVersion}
+        </span>
       </div>
     );
 
