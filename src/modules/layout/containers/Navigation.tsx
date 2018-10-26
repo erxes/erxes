@@ -1,12 +1,13 @@
 import gql from 'graphql-tag';
 import { queries, subscriptions } from 'modules/inbox/graphql';
+import { UnreadConversationsTotalCountQueryResponse } from 'modules/inbox/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import { Navigation } from '../components';
 
 class NavigationContainer extends React.Component<{
-  unreadConversationsCountQuery: any;
+  unreadConversationsCountQuery: UnreadConversationsTotalCountQueryResponse;
 }> {
   componentWillMount() {
     this.props.unreadConversationsCountQuery.subscribeToMore({
@@ -38,11 +39,14 @@ class NavigationContainer extends React.Component<{
 
 export default withProps<{}>(
   compose(
-    graphql(gql(queries.unreadConversationsCount), {
-      name: 'unreadConversationsCountQuery',
-      options: () => ({
-        notifyOnNetworkStatusChange: true
-      })
-    })
+    graphql<{}, UnreadConversationsTotalCountQueryResponse>(
+      gql(queries.unreadConversationsCount),
+      {
+        name: 'unreadConversationsCountQuery',
+        options: () => ({
+          notifyOnNetworkStatusChange: true
+        })
+      }
+    )
   )(NavigationContainer)
 );

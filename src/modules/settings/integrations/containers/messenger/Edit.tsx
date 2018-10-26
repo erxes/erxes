@@ -26,10 +26,10 @@ type Props = {
 };
 
 type FinalProps = {
-  usersQuery: any;
-  brandsQuery: any;
-  integrationDetailQuery: any;
-  knowledgeBaseTopicsQuery: any;
+  usersQuery: UsersQueryResponse;
+  brandsQuery: BrandsQueryResponse;
+  integrationDetailQuery: IntegrationDetailQueryResponse;
+  knowledgeBaseTopicsQuery: TopicsQueryResponse;
 } & Props &
   SaveMessengerConfigsMutationResponse &
   SaveMessengerAppearanceMutationResponse &

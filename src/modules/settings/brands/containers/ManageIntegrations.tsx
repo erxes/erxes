@@ -8,11 +8,11 @@ import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
-import { BrandsManageIntegrationsMutationResponse, IBrand } from '../types';
+import { BrandsManageIntegrationsMutationResponse, IBrandDoc } from '../types';
 import { ChooseBrand } from './';
 
 type Props = {
-  currentBrand: IBrand;
+  currentBrand: IBrandDoc;
   queryParams: any;
 };
 
@@ -82,7 +82,7 @@ export default withProps<Props>(
           currentBrand
         }: {
           queryParams: any;
-          currentBrand: IBrand;
+          currentBrand: IBrandDoc;
         }) => {
           return {
             refetchQueries: [

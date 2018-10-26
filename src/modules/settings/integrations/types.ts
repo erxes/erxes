@@ -120,7 +120,7 @@ export type IntegrationsQueryResponse = {
 };
 
 export type IntegrationDetailQueryResponse = {
-  integration: IIntegration;
+  integrationDetail: IIntegration;
   loading: boolean;
   refetch: () => void;
 };

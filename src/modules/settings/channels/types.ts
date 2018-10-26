@@ -1,9 +1,15 @@
+import { IIntegration } from 'modules/settings/integrations/types';
+
 export interface IChannel {
   _id: string;
   name: string;
   description?: string;
   integrationIds: string[];
   memberIds: string[];
+}
+
+export interface IChannelDoc extends IChannel {
+  integrations: IIntegration[];
 }
 
 // query types
