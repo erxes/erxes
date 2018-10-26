@@ -18,7 +18,6 @@ import { withRouter } from 'react-router';
 import { CompaniesMerge } from '..';
 import { IRouterProps } from '../../../common/types';
 import { IConfigColumn } from '../../../settings/properties/types';
-import { ITag } from '../../../tags/types';
 import { CompanyForm } from '../../containers';
 import { ICompany } from '../../types';
 import CompanyRow from './CompanyRow';
@@ -36,7 +35,10 @@ interface IProps extends IRouterProps {
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
-  removeCompanies: (doc: { companyIds: string[] }) => void;
+  removeCompanies: (
+    doc: { companyIds: string[] },
+    emptyBulk: () => void
+  ) => void;
   mergeCompanies: () => void;
   queryParams: any;
 }
@@ -82,7 +84,7 @@ class CompaniesList extends React.Component<IProps, State> {
       companyIds.push(company._id);
     });
 
-    this.props.removeCompanies({ companyIds });
+    this.props.removeCompanies({ companyIds }, this.props.emptyBulk);
   };
 
   moveCursorAtTheEnd = e => {
