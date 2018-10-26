@@ -75,3 +75,8 @@ export type LoginMutationResponse = {
     }
   ) => Promise<any>;
 };
+
+export type CurrentUserQueryResponse = {
+  currentUser: IUser;
+  loading: boolean;
+};

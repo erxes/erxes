@@ -11,7 +11,7 @@ import { CountQueryResponse } from '../../types';
 
 const TagFilterContainer = (props: {
   companyCountsQuery: CountQueryResponse;
-  tagsQuery: any;
+  tagsQuery: TagsQueryResponse;
 }) => {
   const { companyCountsQuery, tagsQuery } = props;
 

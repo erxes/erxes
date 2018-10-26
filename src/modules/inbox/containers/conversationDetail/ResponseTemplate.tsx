@@ -7,6 +7,7 @@ import { withProps } from '../../../common/utils';
 import { BrandsQueryResponse } from '../../../settings/brands/types';
 import {
   IResponseTemplate,
+  ResponseTemplatesQueryResponse,
   SaveResponseTemplateMutationResponse,
   SaveResponsTemplateMutationVariables
 } from '../../../settings/responseTemplates/types';
@@ -19,8 +20,8 @@ type Props = {
 };
 
 type FinalProps = {
-  brandsQuery: any;
-  responseTemplatesQuery: any;
+  brandsQuery: BrandsQueryResponse;
+  responseTemplatesQuery: ResponseTemplatesQueryResponse;
 } & Props &
   SaveResponseTemplateMutationResponse;
 

@@ -3,14 +3,10 @@ import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
-import { IUser } from '../types';
-
-type currentUserQueryResponse = {
-  currentUser: IUser;
-};
+import { CurrentUserQueryResponse } from '../types';
 
 type Props = {
-  currentUserQuery: any;
+  currentUserQuery: CurrentUserQueryResponse;
 };
 
 const withCurrentUser = Component => {
@@ -31,7 +27,7 @@ const withCurrentUser = Component => {
 
   return withProps<{}>(
     compose(
-      graphql<{}, currentUserQueryResponse>(gql(queries.currentUser), {
+      graphql<{}, CurrentUserQueryResponse>(gql(queries.currentUser), {
         name: 'currentUserQuery'
       })
     )(Container)

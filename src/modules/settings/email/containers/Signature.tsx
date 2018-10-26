@@ -23,8 +23,8 @@ type Props = {
 };
 
 type FinalProps = {
-  userDetailQuery: any;
-  brandsQuery: any;
+  userDetailQuery: UserDetailQueryResponse;
+  brandsQuery: BrandsQueryResponse;
 } & Props &
   UsersConfigEmailSignaturesMutationResponse;
 

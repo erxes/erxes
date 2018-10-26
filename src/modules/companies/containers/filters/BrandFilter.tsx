@@ -19,8 +19,7 @@ class BrandFilterContainer extends React.Component<Props> {
     const { companyCountsQuery, brandsQuery } = this.props;
 
     const counts = companyCountsQuery.companyCounts || {};
-    // tslint:disable-next-line
-    console.log(counts);
+
     const updatedProps = {
       ...this.props,
       brands: brandsQuery.brands || [],

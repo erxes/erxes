@@ -20,7 +20,7 @@ type Props = {
 };
 
 type FinalProps = {
-  topicsQuery: any;
+  topicsQuery: TopicsQueryResponse;
   topicsCountQuery: TopicsTotalCountQueryResponse;
 } & Props &
   AddTopicsMutationResponse &

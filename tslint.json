@@ -7,7 +7,6 @@
     "object-literal-sort-keys": false,
     "interface-over-type-literal": false,
     "member-access": false, // start without having to write public, private modifier
-    "max-classes-per-file": false,
-    "no-console": false
+    "max-classes-per-file": false
   }
 }
