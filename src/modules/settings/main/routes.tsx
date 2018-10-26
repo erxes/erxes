@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { Settings } from './components';
+import { Settings } from './containers';
 
 const routes = () => (
   <Route exact={true} path="/settings" component={Settings} />
