@@ -21,6 +21,7 @@ import { Widget } from '../../../engage/containers';
 import { Wrapper } from '../../../layout/components';
 import { BarItems } from '../../../layout/styles';
 import { ManageColumns } from '../../../settings/properties/containers';
+import { IConfigColumn } from '../../../settings/properties/types';
 import { TaggerPopover } from '../../../tags/components';
 import { CustomerForm } from '../../containers';
 import { ICustomer } from '../../types';
@@ -30,7 +31,7 @@ import Sidebar from './Sidebar';
 interface IProps extends IRouterProps {
   customers: ICustomer[];
   totalCount: number;
-  columnsConfig: any;
+  columnsConfig: IConfigColumn[];
   integrations: string[];
   bulk: any[];
   isAllSelected: boolean;

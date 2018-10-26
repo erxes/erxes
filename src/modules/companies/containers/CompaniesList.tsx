@@ -5,6 +5,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
+import { DefaultColumnsConfigQueryResponse } from '../../settings/properties/types';
 import { CompaniesList } from '../components';
 import { mutations, queries } from '../graphql';
 import {
@@ -23,7 +24,7 @@ type Props = {
 
 type FinalProps = {
   companiesMainQuery: MainQueryResponse;
-  companiesListConfigQuery?: any;
+  companiesListConfigQuery: DefaultColumnsConfigQueryResponse;
 } & Props &
   IRouterProps &
   RemoveMutationResponse &

@@ -17,6 +17,7 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 import { CompaniesMerge } from '..';
 import { IRouterProps } from '../../../common/types';
+import { IConfigColumn } from '../../../settings/properties/types';
 import { ITag } from '../../../tags/types';
 import { CompanyForm } from '../../containers';
 import { ICompany } from '../../types';
@@ -25,7 +26,7 @@ import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   companies: ICompany[];
-  columnsConfig: any;
+  columnsConfig: IConfigColumn[];
   loading: boolean;
   searchValue: string;
   totalCount: number;

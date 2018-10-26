@@ -10,6 +10,7 @@ import { ISegment, ISegmentDoc } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import * as React from 'react';
+import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IBreadCrumbItem } from '../../common/types';
 import {
   IEngageEmail,
@@ -29,7 +30,7 @@ type Props = {
   segmentFields: ISegment[];
   templates: IEmailTemplate[];
   segmentAdd: (params: { doc: ISegmentDoc }) => void;
-  customerCounts?: any;
+  customerCounts?: IActivityLogForMonth[];
   count: (segment: ISegmentDoc) => void;
   kind: string;
   save: (doc: IEngageMessageDoc) => Promise<any>;
