@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
 import { Settings } from '../components';
 import { queries } from '../graphql';
 import { VersionsQueryResponse } from '../types';
@@ -20,8 +21,10 @@ const SettingsContainer = (props: Props) => {
   return <Settings {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.versions), {
-    name: 'versionsQuery'
-  })
-)(SettingsContainer);
+export default withProps<{}>(
+  compose(
+    graphql<{}, VersionsQueryResponse>(gql(queries.versions), {
+      name: 'versionsQuery'
+    })
+  )(SettingsContainer)
+);
