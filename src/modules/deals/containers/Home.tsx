@@ -18,8 +18,8 @@ type Props = {
 
 type FinalProps = {
   boardsQuery: BoardsQueryResponse;
-  boardGetLastQuery: BoardsGetLastQueryResponse;
-  boardDetailQuery: BoardDetailQueryResponse;
+  boardGetLastQuery?: BoardsGetLastQueryResponse;
+  boardDetailQuery?: BoardDetailQueryResponse;
 } & Props;
 
 /*
@@ -35,8 +35,8 @@ class Main extends React.Component<FinalProps> {
       boardDetailQuery
     } = this.props;
 
-    const lastBoard = boardGetLastQuery.dealBoardGetLast;
-    const currentBoard = boardDetailQuery.dealBoardDetail;
+    const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
+    const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
 
     let currentPipeline;
     let boardId = queryParams.id || localStorage.getItem(STORAGE_BOARD_KEY);
