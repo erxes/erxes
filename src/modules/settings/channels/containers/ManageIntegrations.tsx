@@ -9,11 +9,11 @@ import { mutations, queries } from '../graphql';
 import {
   EditChannelMutationResponse,
   EditChannelMutationVariables,
-  IChannel
+  IChannelDoc
 } from '../types';
 
 type Props = {
-  currentChannel: IChannel;
+  currentChannel: IChannelDoc;
   queryParams: any;
 };
 
@@ -63,7 +63,7 @@ export default withProps<Props>(
           currentChannel
         }: {
           queryParams: any;
-          currentChannel: IChannel;
+          currentChannel: IChannelDoc;
         }) => {
           return {
             refetchQueries: [

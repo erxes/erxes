@@ -1,4 +1,6 @@
 import gql from 'graphql-tag';
+import { IBrandDoc } from 'modules/settings/brands/types';
+import { IChannelDoc } from 'modules/settings/channels/types';
 import { ManageIntegrations } from 'modules/settings/integrations/components/common';
 import { queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
@@ -7,7 +9,7 @@ import { withProps } from '../../../../common/utils';
 import { IntegrationsQueryResponse } from '../../types';
 
 type Props = {
-  current: any;
+  current: IChannelDoc | IBrandDoc;
   save: (ids: string[]) => Promise<any>;
   closeModal?: () => void;
 };

@@ -22,7 +22,7 @@ type Props = {
 };
 
 type FinalProps = {
-  pipelinesQuery: any;
+  pipelinesQuery: PipelineQueryResponse;
 } & Props &
   AddPipelineMutationResponse &
   EditPipelineMutationResponse &

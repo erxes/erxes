@@ -1,3 +1,5 @@
+import { IIntegration } from 'modules/settings/integrations/types';
+
 export interface IBrand {
   _id: string;
   code: string;
@@ -5,6 +7,10 @@ export interface IBrand {
   createdAt: string;
   description?: string;
   emailConfig: { type: string; template: string };
+}
+
+export interface IBrandDoc extends IBrand {
+  integrations: IIntegration[];
 }
 
 export interface IBrandsCount {

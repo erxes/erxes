@@ -11,7 +11,7 @@ import { integrationsListParams } from '../utils';
 type Props = {
   queryParams: any;
   kind?: string | null;
-  variables?: any;
+  variables?: { brandId?: string; channelId?: string };
 };
 
 type FinalProps = {

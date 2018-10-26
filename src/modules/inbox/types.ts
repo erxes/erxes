@@ -327,3 +327,10 @@ export type ConversationsTotalCountQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type UnreadConversationsTotalCountQueryResponse = {
+  conversationsTotalUnreadCount: number;
+  loading: boolean;
+  refetch: () => void;
+  subscribeToMore: (variables) => void;
+};
