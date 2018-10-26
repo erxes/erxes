@@ -50,12 +50,12 @@ const configQueries = {
   },
 
   versions(_root) {
-    const { erxesPath, apiPath, widgetPath, widgetApiPath } = process.env;
+    const { ERXES_PATH, API_PATH, WIDGET_PATH, WIDGET_API_PATH } = process.env;
 
-    const erxesProjectPath = erxesPath || `${process.cwd()}/../erxes`;
-    const apiProjectPath = apiPath || process.cwd();
-    const widgetProjectPath = widgetPath || `${process.cwd()}/../erxes-widgets`;
-    const widgetApiProjectPath = widgetApiPath || `${process.cwd()}/../erxes-widgets-api`;
+    const erxesProjectPath = ERXES_PATH || `${process.cwd()}/../erxes`;
+    const apiProjectPath = API_PATH || process.cwd();
+    const widgetProjectPath = WIDGET_PATH || `${process.cwd()}/../erxes-widgets`;
+    const widgetApiProjectPath = WIDGET_API_PATH || `${process.cwd()}/../erxes-widgets-api`;
 
     const response = {
       erxesVersion: getGitInfos(erxesProjectPath),
