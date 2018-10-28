@@ -1,3 +1,28 @@
+export const formQuery = `
+  query form($formId: String) {
+    form(formId: $formId) {
+      title
+      description
+      buttonText
+      themeColor
+
+      fields {
+        _id
+        formId
+        name
+        type
+        check
+        text
+        description
+        options
+        isRequired
+        order
+        validation
+      }
+    }
+  }
+`;
+
 export const connectMutation = `
   mutation formConnect($brandCode: String!, $formCode: String!) {
     formConnect(brandCode: $brandCode, formCode: $formCode) {

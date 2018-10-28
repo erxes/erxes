@@ -17,6 +17,10 @@
 
   .erxes-result {
     color: $text-color;
+
+    p {
+      margin: 0;
+    }
   }
 
   .erxes-button {

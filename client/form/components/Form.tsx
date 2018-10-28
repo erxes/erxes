@@ -12,7 +12,8 @@ type Props = {
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
-  setHeight: () => void;
+  setHeight?: () => void;
+  hasTopBar: boolean;
 };
 
 type State = {
@@ -27,11 +28,15 @@ export default class Form extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    this.props.setHeight();
+    if (this.props.setHeight) {
+      this.props.setHeight();
+    }
   }
 
   componentDidUpdate() {
-    this.props.setHeight();
+    if (this.props.setHeight) {
+      this.props.setHeight();
+    }
   }
 
   componentWillUpdate(nextProps: Props) {
@@ -79,6 +84,14 @@ export default class Form extends React.Component<Props, State> {
     return doc;
   }
 
+  renderHead(title: string, color: string) {
+    if (this.props.hasTopBar) {
+      return <TopBar title={title} color={color} />;
+    }
+
+    return <h4>{title}</h4>;
+  }
+
   renderFields() {
     const { form, currentStatus } = this.props;
     const { fields } = form;
@@ -105,7 +118,7 @@ export default class Form extends React.Component<Props, State> {
 
     return (
       <div className="erxes-form">
-        <TopBar title={form.title || integration.name} color={color} />
+        {this.renderHead(form.title || integration.name, color)}
         <div className="erxes-form-content">
           <div className="erxes-description">{form.description}</div>
           {this.renderFields()}
@@ -128,18 +141,18 @@ export default class Form extends React.Component<Props, State> {
 
     return (
       <div className="erxes-form">
-        <TopBar title={form.title || integration.name} color={color} />
+        {this.renderHead(form.title || integration.name, color)}
         <div className="erxes-form-content">
           <div className="erxes-result">
-            <span>
+            <p>
               {thankContent ||
                 __(
                   "Thanks for your message. We will respond as soon as we can."
                 )}
-            </span>
+            </p>
             <button
               style={{ background: color }}
-              className="erxes-button"
+              className="erxes-button btn-block"
               onClick={onCreateNew}
             >
               {__("Create new")}

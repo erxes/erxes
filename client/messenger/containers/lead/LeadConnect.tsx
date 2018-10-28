@@ -61,7 +61,6 @@ class LeadConnect extends React.PureComponent<Props, IState> {
       })
 
       .catch(error => {
-        console.log(error); // eslint-disable-line
         this.setState({ hasError: true });
       });
   }

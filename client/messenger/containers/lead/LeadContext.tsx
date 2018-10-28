@@ -64,7 +64,6 @@ export class LeadProvider extends React.Component<{}, IState> {
    * Save user submissions
    */
   saveForm = (doc: { [key: string]: any }) => {
-    console.log(doc);
     const submissions = Object.keys(doc).map(fieldId => {
       const { value, text, type, validation } = doc[fieldId];
 

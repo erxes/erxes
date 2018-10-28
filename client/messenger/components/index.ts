@@ -8,7 +8,6 @@ import Home from "./Home";
 import IntegrationItem from "./IntegrationItem";
 import Integrations from "./Integrations";
 import Launcher from "./Launcher";
-import Form from "./lead/Form";
 import Message from "./Message";
 import MessageSender from "./MessageSender";
 import MessagesList from "./MessagesList";
@@ -32,6 +31,5 @@ export {
   AccquireInformation,
   Home,
   Integrations,
-  IntegrationItem,
-  Form
+  IntegrationItem
 };

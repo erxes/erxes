@@ -3,6 +3,7 @@ import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
 import { IEmailParams, IIntegration } from "../../types";
 import { Form as DumbForm } from "../components";
+import { formQuery } from "../graphql";
 import { ICurrentStatus, IForm } from "../types";
 import { AppConsumer } from "./AppContext";
 
@@ -22,7 +23,7 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
     form: data.form
   };
 
-  return <DumbForm {...extendedProps} />;
+  return <DumbForm {...extendedProps} hasTopBar={true} />;
 };
 
 type QueryResponse = {
@@ -40,30 +41,7 @@ interface IProps {
 }
 
 const FormWithData = graphql<IProps, QueryResponse>(
-  gql`
-    query form($formId: String) {
-      form(formId: $formId) {
-        title
-        description
-        buttonText
-        themeColor
-
-        fields {
-          _id
-          formId
-          name
-          type
-          check
-          text
-          description
-          options
-          isRequired
-          order
-          validation
-        }
-      }
-    }
-  `,
+  gql(formQuery),
 
   {
     options: ({ form }) => ({

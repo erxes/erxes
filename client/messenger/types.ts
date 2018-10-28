@@ -82,7 +82,7 @@ export interface IFaqTopic extends ICommonFields {
   categories: IFaqCategory[];
 }
 
-//lead
+// lead
 export interface IField {
   _id: string;
   contentType: string;

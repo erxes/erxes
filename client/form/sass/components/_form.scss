@@ -1,6 +1,5 @@
 #erxes-container {
   overflow: hidden;
-  position: relative;
 
   .close {
     outline: 0;
@@ -99,6 +98,7 @@
   -moz-osx-font-smoothing: grayscale;
 
   .erxes-form-content {
+    background: $white;
     overflow: auto;
     padding: 20px;
     margin: 0;
@@ -129,6 +129,10 @@
   .erxes-result {
     text-align: center;
     color: $text-color;
+
+    p {
+      margin: 0;
+    }
 
     button {
       border: none;
