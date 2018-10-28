@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { Settings } from './components';
+import { Status } from './containers';
 
 const routes = () => (
-  <Route exact={true} path="/settings" component={Settings} />
+  <Route exact={true} path="/settings/status/" component={Status} />
 );
 
 export default routes;

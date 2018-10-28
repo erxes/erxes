@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { Settings } from '../components';
+import { Status } from '../components';
 import { queries } from '../graphql';
 import { VersionsQueryResponse } from '../types';
 
@@ -10,15 +11,19 @@ type Props = {
   versionsQuery: VersionsQueryResponse;
 };
 
-const SettingsContainer = (props: Props) => {
+const StatusContainer = (props: Props) => {
   const { versionsQuery } = props;
+
+  if (versionsQuery.loading) {
+    return <Spinner objective={true} />;
+  }
 
   const updatedProps = {
     ...props,
     versions: versionsQuery.configsVersions || {}
   };
 
-  return <Settings {...updatedProps} />;
+  return <Status {...updatedProps} />;
 };
 
 export default withProps<{}>(
@@ -26,5 +31,5 @@ export default withProps<{}>(
     graphql<{}, VersionsQueryResponse>(gql(queries.configsVersions), {
       name: 'versionsQuery'
     })
-  )(SettingsContainer)
+  )(StatusContainer)
 );

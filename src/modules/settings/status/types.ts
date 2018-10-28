@@ -1,4 +1,4 @@
-export type Versions = {
+export type Version = {
   packageVersion: string;
   lastCommittedUser: string;
   lastCommittedDate: string;
@@ -9,10 +9,10 @@ export type Versions = {
 };
 
 export type ProjectVersions = {
-  erxesVersion: Versions;
-  apiVersion: Versions;
-  widgetVersion: Versions;
-  widgetApiVersion: Versions;
+  erxesVersion: Version;
+  apiVersion: Version;
+  widgetVersion: Version;
+  widgetApiVersion: Version;
 };
 
 export type VersionsQueryResponse = {
