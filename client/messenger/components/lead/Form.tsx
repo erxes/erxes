@@ -1,8 +1,7 @@
 import * as React from "react";
-import { IEmailParams, IIntegration } from "../../types";
-import { __ } from "../../utils";
-import { FieldValue, ICurrentStatus, IFieldError, IForm } from "../types";
-import { TopBar } from "./";
+import { IEmailParams, IIntegration } from "../../../types";
+import { __ } from "../../../utils";
+import { FieldValue, ICurrentStatus, IFieldError, IForm } from "../../types";
 import Field from "./Field";
 
 type Props = {
@@ -12,26 +11,17 @@ type Props = {
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
-  setHeight: () => void;
 };
 
 type State = {
   doc: any;
 };
 
-export default class Form extends React.Component<Props, State> {
+export default class Form extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = { doc: this.resetDocState() };
-  }
-
-  componentDidMount() {
-    this.props.setHeight();
-  }
-
-  componentDidUpdate() {
-    this.props.setHeight();
   }
 
   componentWillUpdate(nextProps: Props) {
@@ -100,59 +90,57 @@ export default class Form extends React.Component<Props, State> {
     });
   }
 
-  renderForm(color: string) {
+  renderForm() {
     const { form, integration } = this.props;
 
     return (
-      <div className="erxes-form">
-        <TopBar title={form.title || integration.name} color={color} />
-        <div className="erxes-form-content">
-          <div className="erxes-description">{form.description}</div>
-          {this.renderFields()}
+      <>
+        <h4>{form.title || integration.name}</h4>
+        <div className="erxes-form">
+          <div className="erxes-form-content">
+            <div className="erxes-description">{form.description}</div>
+            {this.renderFields()}
 
-          <button
-            style={{ background: color }}
-            type="button"
-            onClick={this.onSubmit}
-            className="erxes-button btn-block"
-          >
-            {form.buttonText || __("Send")}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  renderSuccessForm(color: string, thankContent?: string) {
-    const { integration, form, onCreateNew } = this.props;
-
-    return (
-      <div className="erxes-form">
-        <TopBar title={form.title || integration.name} color={color} />
-        <div className="erxes-form-content">
-          <div className="erxes-result">
-            <span>
-              {thankContent ||
-                __(
-                  "Thanks for your message. We will respond as soon as we can."
-                )}
-            </span>
             <button
-              style={{ background: color }}
-              className="erxes-button"
-              onClick={onCreateNew}
+              type="button"
+              onClick={this.onSubmit}
+              className="erxes-button btn-block"
             >
-              {__("Create new")}
+              {form.buttonText || __("Send")}
             </button>
           </div>
         </div>
-      </div>
+      </>
+    );
+  }
+
+  renderSuccessForm(thankContent?: string) {
+    const { integration, form, onCreateNew } = this.props;
+
+    return (
+      <>
+        <h4>{form.title || integration.name}</h4>
+        <div className="erxes-form">
+          <div className="erxes-form-content">
+            <div className="erxes-result">
+              <span>
+                {thankContent ||
+                  __(
+                    "Thanks for your message. We will respond as soon as we can."
+                  )}
+              </span>
+              <button className="erxes-button btn-block" onClick={onCreateNew}>
+                {__("Create new")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
     );
   }
 
   render() {
     const { form, currentStatus, sendEmail, integration } = this.props;
-    const { themeColor = "" } = form;
 
     if (currentStatus.status === "SUCCESS") {
       const {
@@ -206,9 +194,9 @@ export default class Form extends React.Component<Props, State> {
         }
       }
 
-      return this.renderSuccessForm(themeColor, thankContent);
+      return this.renderSuccessForm(thankContent);
     }
 
-    return this.renderForm(themeColor);
+    return this.renderForm();
   }
 }

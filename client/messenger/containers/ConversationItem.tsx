@@ -14,7 +14,7 @@ type Response = {
   unreadCount: number;
 };
 
-class ConversationItem extends React.Component<
+class ConversationItem extends React.PureComponent<
   ChildProps<Props, Response>,
   {}
 > {

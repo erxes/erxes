@@ -14,6 +14,7 @@ import MessagesList from "./MessagesList";
 import Messenger from "./Messenger";
 import Notifier from "./Notifier";
 import TopBar from "./TopBar";
+import Form from "./lead/Form";
 
 export {
   App,
@@ -31,5 +32,6 @@ export {
   AccquireInformation,
   Home,
   Integrations,
-  IntegrationItem
+  IntegrationItem,
+  Form
 };

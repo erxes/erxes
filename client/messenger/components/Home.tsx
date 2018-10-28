@@ -10,9 +10,8 @@ import {
   IUser
 } from "../../types";
 import { __ } from "../../utils";
-import { TopBar } from "../containers";
+import { TopBar, Integrations } from "../containers";
 import { Categories as FaqCategories } from "../containers/faq";
-import { Integrations } from "./";
 import { SocialLink, Supporters } from "./common";
 
 type Props = {

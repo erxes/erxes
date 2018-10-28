@@ -1,6 +1,7 @@
 export const connection: any = {
   setting: {},
   data: {},
+  formData: {},
   queryVariables: "$integrationId: String!, $customerId: String!",
   queryParams: "integrationId: $integrationId, customerId: $customerId"
 };

@@ -4,7 +4,9 @@ import ConversationDetail from "./ConversationDetail";
 import ConversationItem from "./ConversationItem";
 import ConversationList from "./ConversationList";
 import Home from "./Home";
+import Integrations from "./Integrations";
 import Launcher from "./Launcher";
+import LeadConnect from "./lead/LeadConnect";
 import MessageSender from "./MessageSender";
 import MessagesList from "./MessagesList";
 import Messenger from "./Messenger";
@@ -23,5 +25,7 @@ export {
   MessageSender,
   MessagesList,
   AccquireInformation,
-  Home
+  Home,
+  Integrations,
+  LeadConnect
 };

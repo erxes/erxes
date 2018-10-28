@@ -13,10 +13,10 @@ export default function Categories({ faqTopics, loading }: Props) {
   }
 
   return (
-    <React.Fragment>
+    <>
       {faqTopics.categories.map(category => (
         <Category key={category._id} category={category} />
       ))}
-    </React.Fragment>
+    </>
   );
 }

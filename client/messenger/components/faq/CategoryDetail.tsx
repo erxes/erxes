@@ -23,7 +23,7 @@ function CategoryDetail({ category, goToCategories }: Props) {
   };
 
   return (
-    <React.Fragment>
+    <>
       <TopBar
         middle={renderHead()}
         buttonIcon={iconLeft}
@@ -32,7 +32,7 @@ function CategoryDetail({ category, goToCategories }: Props) {
       <div className="erxes-content slide-in">
         <Articles articles={category.articles} />
       </div>
-    </React.Fragment>
+    </>
   );
 }
 

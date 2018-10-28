@@ -35,7 +35,7 @@ class ConversatioHeadContent extends React.Component<Props> {
     const { supporters, isOnline, color, loading, participators } = this.props;
 
     let content = (
-      <React.Fragment>
+      <>
         {isExpanded && <BrandInfo />}
         <Supporters
           users={supporters}
@@ -44,7 +44,7 @@ class ConversatioHeadContent extends React.Component<Props> {
           color={color}
           isExpanded={isExpanded}
         />
-      </React.Fragment>
+      </>
     );
 
     if (participators.length) {
@@ -68,10 +68,10 @@ class ConversatioHeadContent extends React.Component<Props> {
     const { expanded } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         {this.withTransition(this.withComponent(true), expanded)}
         {this.withTransition(this.withComponent(false), !expanded)}
-      </React.Fragment>
+      </>
     );
   }
 }

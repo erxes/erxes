@@ -6,7 +6,6 @@ import { IUser } from "../../types";
 import { User } from "../components/common";
 import { IEngageData } from "../types";
 
-const Fragment = React.Fragment;
 const Component = React.Component;
 
 type Props = {
@@ -46,7 +45,7 @@ class EngageMessage extends Component<Props> {
     });
 
     return (
-      <Fragment>
+      <>
         <div className="flex-notification">
           <div className="user-info">
             <User user={fromUser} />
@@ -61,7 +60,7 @@ class EngageMessage extends Component<Props> {
           </div>
         </div>
         {this.renderClose()}
-      </Fragment>
+      </>
     );
   }
 

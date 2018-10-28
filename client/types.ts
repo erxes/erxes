@@ -87,6 +87,7 @@ export interface IIntegrationMessengerData {
   supporterIds: string[];
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;
+  formId: string;
   availabilityMethod: string;
   isOnline: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];

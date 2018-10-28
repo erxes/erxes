@@ -26,7 +26,7 @@ export default function ArticleDetail({ article, goToArticles }: Props) {
   };
 
   return (
-    <React.Fragment>
+    <>
       <TopBar
         middle={renderHead()}
         buttonIcon={iconLeft}
@@ -42,6 +42,6 @@ export default function ArticleDetail({ article, goToArticles }: Props) {
           <p dangerouslySetInnerHTML={{ __html: content }} />
         </div>
       </div>
-    </React.Fragment>
+    </>
   );
 }
