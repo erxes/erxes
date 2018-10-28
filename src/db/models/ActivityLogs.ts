@@ -276,7 +276,7 @@ class ActivityLog {
     for (const customerId of customerIds) {
       // Updating every activity log of customer
       await ActivityLogs.updateMany(
-        { coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER } },
+        { 'coc.id': customerId, 'coc.type': COC_CONTENT_TYPES.CUSTOMER },
         {
           $set: { coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } },
         },
