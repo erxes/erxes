@@ -24,7 +24,7 @@ interface IStore extends IState {
   toggleShoutbox: (isVisible?: boolean) => void;
   showPopup: () => void;
   closePopup: () => void;
-  saveForm: (doc: any) => void;
+  saveForm: (doc: { [key: string]: any }) => void;
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight: () => void;
@@ -157,7 +157,7 @@ export class AppProvider extends React.Component<{}, IState> {
   /*
    * Save user submissions
    */
-  saveForm = (doc: any) => {
+  saveForm = (doc: { [key: string]: any }) => {
     const submissions = Object.keys(doc).map(fieldId => {
       const { value, text, type, validation } = doc[fieldId];
 

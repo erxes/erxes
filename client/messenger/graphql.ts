@@ -207,22 +207,47 @@ const getFaqTopicQuery = `
 `;
 
 // lead
+const formQuery = `
+  query form($formId: String) {
+    form(formId: $formId) {
+      title
+      description
+      buttonText
+
+      fields {
+        _id
+        formId
+        name
+        type
+        check
+        text
+        description
+        options
+        isRequired
+        order
+        validation
+      }
+    }
+  }
+`;
+
 const formConnectMutation = `
 	mutation formConnect($brandCode: String!, $formCode: String!) {
 		formConnect(brandCode: $brandCode, formCode: $formCode) {
-		form {
-			_id
-			title
-			description
-		}
-		integration {
-			_id
-			name
-			languageCode
-			formData
-    }
-	}
-}`;
+      form {
+        _id
+        title
+        description
+      }
+      integration {
+        _id
+        name
+        languageCode
+        formData
+      }
+	  }
+  }
+`;
 
 const saveFormMutation = `
 	mutation saveForm($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!) {
@@ -235,17 +260,20 @@ const saveFormMutation = `
 				text
 			}
 		}
-	}`;
+  }
+`;
 
 const sendEmailMutation = `
 	mutation sendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String) {
 		sendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content)
-	}`;
+  }
+`;
 
 const increaseViewCountMutation = `
 	mutation formIncreaseViewCount($formId: String!) {
 		formIncreaseViewCount(formId: $formId)
-	}`;
+  }
+`;
 
 export default {
   messageFields,
@@ -262,6 +290,7 @@ export default {
   messengerSupportersQuery,
   getFaqCategoryQuery,
   getFaqTopicQuery,
+  formQuery,
   formConnectMutation,
   saveFormMutation,
   sendEmailMutation,

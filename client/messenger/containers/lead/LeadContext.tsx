@@ -17,7 +17,7 @@ interface IState {
 
 interface IStore extends IState {
   showForm: () => void;
-  saveForm: (doc: any) => void;
+  saveForm: (doc: { [key: string]: any }) => void;
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   getIntegration: () => IIntegration;
@@ -63,7 +63,8 @@ export class LeadProvider extends React.Component<{}, IState> {
   /*
    * Save user submissions
    */
-  saveForm = (doc: any) => {
+  saveForm = (doc: { [key: string]: any }) => {
+    console.log(doc);
     const submissions = Object.keys(doc).map(fieldId => {
       const { value, text, type, validation } = doc[fieldId];
 

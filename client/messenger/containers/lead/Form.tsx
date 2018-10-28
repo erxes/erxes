@@ -5,6 +5,7 @@ import { IEmailParams, IIntegration } from "../../../types";
 import { Form as DumbForm } from "../../components";
 import { ICurrentStatus, IForm } from "../../types";
 import { LeadProvider, LeadConsumer } from "./LeadContext";
+import queries from "../../graphql";
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {
   const data = props.data;
@@ -38,40 +39,14 @@ interface IProps {
   sendEmail: (params: IEmailParams) => void;
 }
 
-const FormWithData = graphql<IProps, QueryResponse>(
-  gql`
-    query form($formId: String) {
-      form(formId: $formId) {
-        title
-        description
-        buttonText
-
-        fields {
-          _id
-          formId
-          name
-          type
-          check
-          text
-          description
-          options
-          isRequired
-          order
-          validation
-        }
-      }
+const FormWithData = graphql<IProps, QueryResponse>(gql(queries.formQuery), {
+  options: ({ form }) => ({
+    fetchPolicy: "network-only",
+    variables: {
+      formId: form._id
     }
-  `,
-
-  {
-    options: ({ form }) => ({
-      fetchPolicy: "network-only",
-      variables: {
-        formId: form._id
-      }
-    })
-  }
-)(Form);
+  })
+})(Form);
 
 const WithContext = () => (
   <LeadProvider>
