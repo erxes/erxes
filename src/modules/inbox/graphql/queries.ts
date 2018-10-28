@@ -207,11 +207,12 @@ const responseTemplateList = `
 `;
 
 const messengerApps = `
-  query messengerApps {
-    messengerApps {
+  query messengerApps($kind: String) {
+    messengerApps(kind: $kind) {
       _id
       kind
       name
+      showInInbox
     }
   }
 `;

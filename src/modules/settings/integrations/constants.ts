@@ -719,7 +719,6 @@ export const INTEGRATIONS = [
         name: 'Lead',
         description: 'See lead in your Widget',
         inMessenger: true,
-        kind: 'lead',
         logo: '/images/integrations/lead.png',
         createModal: 'lead',
         createUrl: '/settings/integrations/lead'
@@ -733,7 +732,6 @@ export const INTEGRATIONS = [
         name: 'Knowledge Base',
         description: 'See knowledge base in your Widget',
         inMessenger: true,
-        kind: 'knowledgeBase',
         logo: '/images/integrations/knowledge-base.png',
         createModal: 'knowledgeBase',
         createUrl: '/settings/integrations/knowledgeBase'

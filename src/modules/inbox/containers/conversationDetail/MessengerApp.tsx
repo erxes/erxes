@@ -57,6 +57,7 @@ export default withProps<Props>(
     graphql<Props, MessengerAppsQueryResponse>(gql(queries.messengerApps), {
       name: 'messengerAppsQuery',
       options: () => ({
+        variables: { kind: 'googleMeet' },
         fetchPolicy: 'network-only'
       })
     }),

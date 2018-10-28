@@ -166,6 +166,12 @@ export type GetGoogleAuthUrlQueryResponse = {
   refetch: () => void;
 };
 
+export type GetGoogleAccessTokenQueryResponse = {
+  integrationGetGoogleAccessToken: string;
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type GetTwitterAuthUrlQueryResponse = {
   integrationGetTwitterAuthUrl: string;
   loading: boolean;
@@ -254,14 +260,14 @@ export type CreateFacebookMutationVariables = {
   pageIds: string[];
 };
 
-export type MessengerAppsAddMutationVariables = {
-  kind: string;
+export type MessengerAppsAddGoogleMeetMutationVariables = {
+  name: string;
   credentials: object;
 };
 
-export type MessengerAppsAddMutationResponse = {
+export type messengerAppsAddGoogleMeetMutationResponse = {
   saveMutation: (
-    params: { variables: MessengerAppsAddMutationVariables }
+    params: { variables: MessengerAppsAddGoogleMeetMutationVariables }
   ) => Promise<any>;
 };
 
