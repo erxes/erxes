@@ -276,7 +276,7 @@ class ActivityLog {
     for (const customerId of customerIds) {
       // Updating every activity log of customer
       await ActivityLogs.updateMany(
-        { coc: { id: customerId, type: COC_CONTENT_TYPES.CUSTOMER } },
+        { 'coc.id': customerId, 'coc.type': COC_CONTENT_TYPES.CUSTOMER },
         {
           $set: { coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: newCustomerId } },
         },
@@ -316,7 +316,7 @@ class ActivityLog {
     for (const companyId of companyIds) {
       // Updating every activity log of company
       await ActivityLogs.updateMany(
-        { coc: { id: companyId, type: COC_CONTENT_TYPES.COMPANY } },
+        { 'coc.id': companyId, 'coc.type': COC_CONTENT_TYPES.COMPANY },
         { $set: { coc: { type: COC_CONTENT_TYPES.COMPANY, id: newCompanyId } } },
       );
     }
