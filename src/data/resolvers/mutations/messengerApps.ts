@@ -6,6 +6,9 @@ import { requireLogin } from '../../permissions';
 import { publishMessage } from './conversations';
 
 const messengerAppMutations = {
+  /*
+   * Google meet
+   */
   async messengerAppsAddGoogleMeet(_root, { name, credentials }: { name: string; credentials: IGoogleCredentials }) {
     return MessengerApps.createApp({
       name,
@@ -15,6 +18,9 @@ const messengerAppMutations = {
     });
   },
 
+  /*
+   * Knowledgebase
+   */
   async messengerAppsAddKnowledgebase(
     _root,
     { name, integrationId, topicId }: { name: string; integrationId: string; topicId: string },
@@ -30,6 +36,9 @@ const messengerAppMutations = {
     });
   },
 
+  /*
+   * Lead
+   */
   async messengerAppsAddLead(
     _root,
     { name, integrationId, formId }: { name: string; integrationId: string; formId: string },
@@ -45,6 +54,9 @@ const messengerAppMutations = {
     });
   },
 
+  /*
+   * Execute google meet
+   */
   async messengerAppsExecuteGoogleMeet(_root, { _id, conversationId }: { _id: string; conversationId: string }) {
     const conversation = await Conversations.findOne({ _id: conversationId });
 
@@ -98,6 +110,8 @@ const messengerAppMutations = {
 };
 
 requireLogin(messengerAppMutations, 'messengerAppsAddGoogleMeet');
+requireLogin(messengerAppMutations, 'messengerAppsAddKnowledgebase');
+requireLogin(messengerAppMutations, 'messengerAppsAddLead');
 requireLogin(messengerAppMutations, 'messengerAppsExecuteGoogleMeet');
 
 export default messengerAppMutations;
