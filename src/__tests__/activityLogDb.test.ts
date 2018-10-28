@@ -314,7 +314,12 @@ describe('ActivityLogs model methods', () => {
     const newCustomer = await customerFactory({});
     const conversation = await conversationFactory({});
 
-    await ActivityLogs.createConversationLog(conversation, customer);
+    const log = await ActivityLogs.createConversationLog(conversation, customer);
+
+    await ActivityLogs.update(
+      { _id: log._id },
+      { $set: { coc: { id: customer._id, type: COC_CONTENT_TYPES.CUSTOMER } } },
+    );
 
     const aLogs = await ActivityLogs.changeCustomer(newCustomer._id, [customer._id]);
 
@@ -331,7 +336,12 @@ describe('ActivityLogs model methods', () => {
     const newCompany = await companyFactory({});
     const user = await userFactory({});
 
-    await ActivityLogs.createCompanyRegistrationLog(company, user);
+    const log = await ActivityLogs.createCompanyRegistrationLog(company, user);
+
+    await ActivityLogs.update(
+      { _id: log._id },
+      { $set: { coc: { id: company._id, type: COC_CONTENT_TYPES.COMPANY } } },
+    );
 
     const aLogs = await ActivityLogs.changeCompany(newCompany._id, [company._id]);
 
