@@ -39,7 +39,7 @@ const twitterCallback = ({ history, location }) => {
   return <Twitter type="form" history={history} queryParams={queryParams} />;
 };
 
-const googleCallback = ({ history, location }) => {
+const googleCalendarCallback = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
   return (
@@ -101,9 +101,9 @@ const routes = () => (
     />
 
     <Route
-      key="/service/oauth/google_callback"
-      path="/service/oauth/google_callback"
-      component={googleCallback}
+      key="/service/oauth/google_calendar_callback"
+      path="/service/oauth/google_calendar_callback"
+      component={googleCalendarCallback}
     />
 
     <Route

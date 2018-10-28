@@ -6,6 +6,7 @@ import { compose, graphql } from 'react-apollo';
 import { Calendar as DumbCalendar } from '../../components/google';
 import {
   GetGoogleAuthUrlQueryResponse,
+  GoogleAccessTokenQueryResponse,
   MessengerAppsAddMutationResponse
 } from '../../types';
 
@@ -17,8 +18,7 @@ type Props = {
 
 type FinalProps = {
   googleAuthUrlQuery: GetGoogleAuthUrlQueryResponse;
-  // TODO: to determine googleAccessTokenQuery response type
-  googleAccessTokenQuery: any;
+  googleAccessTokenQuery: GoogleAccessTokenQueryResponse;
 } & MessengerAppsAddMutationResponse &
   Props;
 
@@ -52,7 +52,7 @@ const Calendar = (props: FinalProps) => {
     saveMutation({
       variables: {
         ...variables,
-        kind: 'googleCalendar',
+        kind: 'googleMeet',
         credentials
       }
     })
