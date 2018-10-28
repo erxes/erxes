@@ -6,9 +6,9 @@ import {
   IIntegration,
   IIntegrationFormData
 } from "../../../types";
+import { connection } from "../../connection";
 import queries from "../../graphql";
 import { ICurrentStatus, IForm } from "../../types";
-import { connection } from "../../connection";
 
 interface IState {
   isFormVisible: boolean;

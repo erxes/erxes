@@ -232,8 +232,8 @@ const formQuery = `
 `;
 
 const formConnectMutation = `
-	mutation formConnect($brandCode: String!, $formCode: String!) {
-		formConnect(brandCode: $brandCode, formCode: $formCode) {
+  mutation formConnect($brandCode: String!, $formCode: String!) {
+    formConnect(brandCode: $brandCode, formCode: $formCode) {
       form {
         _id
         title
@@ -245,33 +245,33 @@ const formConnectMutation = `
         languageCode
         formData
       }
-	  }
+    }
   }
 `;
 
 const saveFormMutation = `
-	mutation saveForm($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!) {
-		saveForm(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo) {
-			status
-			messageId
-			errors {
-				fieldId
-				code
-				text
-			}
-		}
+  mutation saveForm($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!) {
+    saveForm(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo) {
+      status
+      messageId
+      errors {
+        fieldId
+        code
+        text
+      }
+    }
   }
 `;
 
 const sendEmailMutation = `
-	mutation sendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String) {
-		sendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content)
+  mutation sendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String) {
+    sendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content)
   }
 `;
 
 const increaseViewCountMutation = `
-	mutation formIncreaseViewCount($formId: String!) {
-		formIncreaseViewCount(formId: $formId)
+  mutation formIncreaseViewCount($formId: String!) {
+    formIncreaseViewCount(formId: $formId)
   }
 `;
 

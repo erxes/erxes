@@ -1,10 +1,10 @@
 import gql from "graphql-tag";
 import * as React from "react";
-import Form from "./Form";
 import client from "../../../apollo-client";
-import queries from "../../graphql";
 import { __, requestBrowserInfo } from "../../../utils";
 import { connection } from "../../connection";
+import queries from "../../graphql";
+import Form from "./Form";
 
 interface IState {
   loading: boolean;
