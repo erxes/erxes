@@ -277,6 +277,18 @@ export type MessengerAppsAddLeadMutationResponse = {
   ) => Promise<any>;
 };
 
+export type messengerAppsAddKnowledgebaseVariables = {
+  name: string;
+  integrationId: string;
+  topicId: string;
+};
+
+export type messengerAppsAddKnowledgebaseMutationResponse = {
+  saveMutation: (
+    params: { variables: messengerAppsAddKnowledgebaseVariables }
+  ) => Promise<any>;
+};
+
 export type CreateFacebookMutationResponse = {
   saveMutation: (
     params: {

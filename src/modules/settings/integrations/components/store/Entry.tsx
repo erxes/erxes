@@ -3,6 +3,7 @@ import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import { Box, IntegrationItem } from './styles';
 
@@ -63,7 +64,7 @@ class Entry extends React.Component<Props> {
     if (createModal === 'knowledgeBase') {
       const trigger = <a>+ {__('Add')}</a>;
 
-      const content = props => <Facebook {...props} />;
+      const content = props => <KnowledgeBase {...props} />;
 
       return (
         <ModalTrigger

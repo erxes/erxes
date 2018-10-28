@@ -63,9 +63,9 @@ const lead = ({ location }) => (
   <Lead queryParams={queryString.parse(location.search)} />
 );
 
-// const knowledgeBase = ({ location }) => (
-//   <KnowledgeBase queryParams={queryString.parse(location.search)} />
-// );
+const knowledgeBase = ({ location }) => (
+  <KnowledgeBase queryParams={queryString.parse(location.search)} />
+);
 
 const routes = () => (
   <React.Fragment>
@@ -111,12 +111,12 @@ const routes = () => (
       component={lead}
     />
 
-    {/* <Route
+    <Route
       key="/settings/integrations/knowledgeBase"
       exact={true}
       path="/settings/integrations/knowledgeBase"
       component={knowledgeBase}
-    /> */}
+    />
 
     <Route
       key="/service/oauth/twitter_callback"

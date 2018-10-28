@@ -2,79 +2,46 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
-import Facebook from 'modules/settings/integrations/components/facebook/Form';
+import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
+import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
+import { queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { BrandsQueryResponse } from '../../../brands/types';
+import { KnowledgeBase } from '../../components/knowledgebase';
 import {
-  CreateFacebookMutationResponse,
-  CreateFacebookMutationVariables,
-  FacebookAppsListQueryResponse,
-  IPages
+  IntegrationsQueryResponse,
+  messengerAppsAddKnowledgebaseMutationResponse
 } from '../../types';
+import { integrationsListParams } from '../utils';
 
 type Props = {
-  client: any;
-  type?: string;
+  queryParams: any;
+  closeModal?: () => void;
 };
 
 type FinalProps = {
-  integrationFacebookAppsListQuery: FacebookAppsListQueryResponse;
-  brandsQuery: BrandsQueryResponse;
+  integrationsQuery: IntegrationsQueryResponse;
+  knowledgeBaseTopicsQuery: TopicsQueryResponse;
 } & IRouterProps &
   Props &
-  CreateFacebookMutationResponse;
+  messengerAppsAddKnowledgebaseMutationResponse;
 
-type State = {
-  pages: IPages[];
-};
-
-class KnowledgebaseContainer extends React.Component<FinalProps, State> {
-  constructor(props: FinalProps) {
-    super(props);
-
-    this.state = { pages: [] };
-  }
-
-  onAppSelect = (appId: string) => {
-    this.props.client
-      .query({
-        query: gql`
-          query integrationFacebookPagesList($appId: String) {
-            integrationFacebookPagesList(appId: $appId)
-          }
-        `,
-
-        variables: {
-          appId
-        }
-      })
-
-      .then(({ data, loading }) => {
-        if (!loading) {
-          this.setState({ pages: data.integrationFacebookPagesList });
-        }
-      })
-
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
+class KnowledgeBaseContainer extends React.Component<FinalProps> {
   render() {
     const {
-      history,
-      brandsQuery,
-      integrationFacebookAppsListQuery,
-      saveMutation
+      integrationsQuery,
+      knowledgeBaseTopicsQuery,
+      saveMutation,
+      history
     } = this.props;
 
-    if (brandsQuery.loading || integrationFacebookAppsListQuery.loading) {
+    if (integrationsQuery.loading && knowledgeBaseTopicsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    const brands = brandsQuery.brands;
+    const integrations = integrationsQuery.integrations || [];
+    const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
 
     const save = variables => {
       saveMutation({ variables })
@@ -88,60 +55,45 @@ class KnowledgebaseContainer extends React.Component<FinalProps, State> {
     };
 
     const updatedProps = {
-      brands,
-      apps: integrationFacebookAppsListQuery.integrationFacebookAppsList,
-      pages: this.state.pages,
-      onAppSelect: this.onAppSelect,
+      ...this.props,
+      integrations,
+      topics,
       save
     };
 
-    return <Facebook {...updatedProps} />;
+    return <KnowledgeBase {...updatedProps} />;
   }
 }
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(
-      gql`
-        query brands {
-          brands {
-            _id
-            name
-          }
-        }
-      `,
-      {
-        name: 'brandsQuery',
-        options: () => ({
+    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
+      name: 'integrationsQuery',
+      options: ({ queryParams }) => {
+        return {
+          notifyOnNetworkStatusChange: true,
+          variables: {
+            ...integrationsListParams(queryParams || {}),
+            kind: 'messenger'
+          },
           fetchPolicy: 'network-only'
-        })
+        };
       }
-    ),
-    graphql<Props, FacebookAppsListQueryResponse>(
+    }),
+    graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
+      name: 'knowledgeBaseTopicsQuery'
+    }),
+    graphql<Props, messengerAppsAddKnowledgebaseMutationResponse>(
       gql`
-        query integrationFacebookAppsList {
-          integrationFacebookAppsList
-        }
-      `,
-      { name: 'integrationFacebookAppsListQuery' }
-    ),
-    graphql<
-      Props,
-      CreateFacebookMutationResponse,
-      CreateFacebookMutationVariables
-    >(
-      gql`
-        mutation integrationsCreateFacebookIntegration(
-          $brandId: String!
+        mutation messengerAppsAddKnowledgebase(
           $name: String!
-          $appId: String!
-          $pageIds: [String!]!
+          $integrationId: String!
+          $topicId: String!
         ) {
-          integrationsCreateFacebookIntegration(
-            brandId: $brandId
+          messengerAppsAddKnowledgebase(
             name: $name
-            appId: $appId
-            pageIds: $pageIds
+            integrationId: $integrationId
+            topicId: $topicId
           ) {
             _id
           }
@@ -150,5 +102,5 @@ export default withProps<Props>(
       { name: 'saveMutation' }
     ),
     withApollo
-  )(withRouter<FinalProps>(KnowledgebaseContainer))
+  )(withRouter<FinalProps>(KnowledgeBaseContainer))
 );

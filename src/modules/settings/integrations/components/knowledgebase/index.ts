@@ -1,3 +1,3 @@
-import knowledgeBase from './knowledgeBase';
+import KnowledgeBase from './knowledgeBase';
 
-export { knowledgeBase };
+export { KnowledgeBase };
