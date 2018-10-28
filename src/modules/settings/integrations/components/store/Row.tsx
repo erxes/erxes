@@ -74,7 +74,7 @@ class Row extends React.Component<Props, State> {
   };
 
   renderPagination(totalCount) {
-    if (totalCount <= 20) {
+    if (!totalCount || totalCount <= 20) {
       return null;
     }
 

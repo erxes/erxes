@@ -2,6 +2,8 @@ import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { Calendar as GoogleCalendar, Gmail } from './containers/google';
+import KnowledgeBase from './containers/knowledgebase/Form';
+import Lead from './containers/lead/Form';
 import CreateMessenger from './containers/messenger/Create';
 import EditMessenger from './containers/messenger/Edit';
 import Store from './containers/Store';
@@ -57,6 +59,14 @@ const store = ({ location }) => (
   <Store queryParams={queryString.parse(location.search)} />
 );
 
+const lead = ({ location }) => (
+  <Lead queryParams={queryString.parse(location.search)} />
+);
+
+// const knowledgeBase = ({ location }) => (
+//   <KnowledgeBase queryParams={queryString.parse(location.search)} />
+// );
+
 const routes = () => (
   <React.Fragment>
     <Route
@@ -93,6 +103,20 @@ const routes = () => (
       path="/settings/integrations/gmail"
       component={gmail}
     />
+
+    <Route
+      key="/settings/integrations/lead"
+      exact={true}
+      path="/settings/integrations/lead"
+      component={lead}
+    />
+
+    {/* <Route
+      key="/settings/integrations/knowledgeBase"
+      exact={true}
+      path="/settings/integrations/knowledgeBase"
+      component={knowledgeBase}
+    /> */}
 
     <Route
       key="/service/oauth/twitter_callback"

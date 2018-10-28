@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { integrationOptions } from '../../../../insights/utils';
+import Lead from '../../containers/lead/Form';
 import { Box, IntegrationItem } from './styles';
 
 type Props = {
@@ -44,6 +44,30 @@ class Entry extends React.Component<Props> {
       return (
         <ModalTrigger
           title="Add facebook page"
+          trigger={trigger}
+          content={content}
+        />
+      );
+    }
+
+    if (createModal === 'lead') {
+      const trigger = <a>+ {__('Add')}</a>;
+
+      const content = props => <Lead {...props} />;
+
+      return (
+        <ModalTrigger title="Add lead" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === 'knowledgeBase') {
+      const trigger = <a>+ {__('Add')}</a>;
+
+      const content = props => <Facebook {...props} />;
+
+      return (
+        <ModalTrigger
+          title="Add knowledgeBase"
           trigger={trigger}
           content={content}
         />
