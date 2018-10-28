@@ -7,6 +7,14 @@ interface IMessengerAppModel extends Model<IMessengerAppDocument> {
 
 class MessengerApp {
   public static async createApp(doc: IMessengerApp) {
+    const prev = await MessengerApps.findOne({ kind: doc.kind });
+
+    if (prev && prev._id) {
+      await MessengerApps.update({ _id: prev._id }, { $set: doc });
+
+      return MessengerApps.findOne({ _id: prev._id });
+    }
+
     return MessengerApps.create(doc);
   }
 }

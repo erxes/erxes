@@ -1,24 +1,51 @@
 import * as moment from 'moment';
 import { ConversationMessages, Conversations, Customers, MessengerApps } from '../../../db/models';
-import { IMessengerApp } from '../../../db/models/definitions/messengerApps';
+import { IGoogleCredentials } from '../../../db/models/definitions/messengerApps';
 import { createMeetEvent } from '../../../trackers/googleTracker';
 import { requireLogin } from '../../permissions';
 import { publishMessage } from './conversations';
 
 const messengerAppMutations = {
-  async messengerAppsAdd(_root, doc: IMessengerApp) {
-    const prev = await MessengerApps.findOne({ kind: doc.kind });
-
-    if (prev && prev._id) {
-      await MessengerApps.update({ _id: prev._id }, { $set: doc });
-
-      return MessengerApps.findOne({ _id: prev._id });
-    }
-
-    return MessengerApps.createApp(doc);
+  async messengerAppsAddGoogleMeet(_root, { name, credentials }: { name: string; credentials: IGoogleCredentials }) {
+    return MessengerApps.createApp({
+      name,
+      kind: 'googleMeet',
+      showInInbox: true,
+      credentials,
+    });
   },
 
-  async messengerAppsExecute(_root, { _id, conversationId }: { _id: string; conversationId: string }) {
+  async messengerAppsAddKnowledgebase(
+    _root,
+    { name, integrationId, topicId }: { name: string; integrationId: string; topicId: string },
+  ) {
+    return MessengerApps.createApp({
+      name,
+      kind: 'knowledgebase',
+      showInInbox: false,
+      credentials: {
+        integrationId,
+        topicId,
+      },
+    });
+  },
+
+  async messengerAppsAddLead(
+    _root,
+    { name, integrationId, formId }: { name: string; integrationId: string; formId: string },
+  ) {
+    return MessengerApps.createApp({
+      name,
+      kind: 'lead',
+      showInInbox: false,
+      credentials: {
+        integrationId,
+        formId,
+      },
+    });
+  },
+
+  async messengerAppsExecuteGoogleMeet(_root, { _id, conversationId }: { _id: string; conversationId: string }) {
     const conversation = await Conversations.findOne({ _id: conversationId });
 
     if (!conversation) {
@@ -31,7 +58,7 @@ const messengerAppMutations = {
       throw new Error('Customer not found');
     }
 
-    const app = await MessengerApps.findOne({ _id });
+    const app = await MessengerApps.findOne({ _id, kind: 'googleMeet' });
 
     if (!app) {
       throw new Error('App not found');
@@ -70,7 +97,7 @@ const messengerAppMutations = {
   },
 };
 
-requireLogin(messengerAppMutations, 'messengerAppsAdd');
-requireLogin(messengerAppMutations, 'messengerAppsExecute');
+requireLogin(messengerAppMutations, 'messengerAppsAddGoogleMeet');
+requireLogin(messengerAppMutations, 'messengerAppsExecuteGoogleMeet');
 
 export default messengerAppMutations;
