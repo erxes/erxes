@@ -1,4 +1,4 @@
-import { Button } from 'modules/common/components';
+import { Button, EmptyState } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import * as React from 'react';
@@ -97,12 +97,39 @@ class GenerateGroup extends React.Component<Props, State> {
     return this.onChange({ _id, value });
   };
 
+  renderContent() {
+    const { fieldGroup } = this.props;
+    const { data } = this.state;
+
+    if (!fieldGroup) {
+      return <EmptyState icon="information" text="Empty" size="small" />;
+    }
+
+    return (
+      <SidebarContent>
+        {fieldGroup.fields.map((field, index) => {
+          if (!field.isVisible) {
+            return null;
+          }
+
+          return (
+            <GenerateField
+              field={field}
+              key={index}
+              onValueChange={this.onValueChange}
+              defaultValue={data[field._id] || ''}
+            />
+          );
+        })}
+      </SidebarContent>
+    );
+  }
+
   render() {
     const { Section } = Sidebar;
     const { Title } = Section;
 
     const { fieldGroup } = this.props;
-    const { data } = this.state;
 
     if (!fieldGroup.isVisible) {
       return null;
@@ -112,23 +139,7 @@ class GenerateGroup extends React.Component<Props, State> {
       <Section>
         <Title>{fieldGroup.name}</Title>
 
-        <SidebarContent>
-          {fieldGroup.fields.map((field, index) => {
-            if (!field.isVisible) {
-              return null;
-            }
-
-            return (
-              <GenerateField
-                field={field}
-                key={index}
-                onValueChange={this.onValueChange}
-                defaultValue={data[field._id] || ''}
-              />
-            );
-          })}
-        </SidebarContent>
-
+        {this.renderContent()}
         {this.renderButtons()}
       </Section>
     );
