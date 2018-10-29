@@ -2,6 +2,13 @@ import { IForm, IFormIntegration } from 'modules/forms/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
 
+export interface IGoogleCredentials {
+  access_token: string;
+  scope: string;
+  token_type: string;
+  expiry_date: number;
+}
+
 export interface IMessengerApp {
   _id: string;
   name: string;
@@ -173,6 +180,12 @@ export type GetGoogleAccessTokenQueryResponse = {
 
 export type GetTwitterAuthUrlQueryResponse = {
   integrationGetTwitterAuthUrl: string;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type GoogleAccessTokenQueryResponse = {
+  integrationGetGoogleAccessToken: IGoogleCredentials;
   loading: boolean;
   refetch: () => void;
 };

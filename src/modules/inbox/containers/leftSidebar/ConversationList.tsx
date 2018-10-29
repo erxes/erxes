@@ -65,7 +65,9 @@ export default withProps<Props>(
         name: 'conversationsQuery',
         options: ({ queryParams }) => ({
           variables: generateParams(queryParams),
-          fetchPolicy: 'network-only'
+          fetchPolicy: 'network-only',
+          // every minute
+          pollInterval: 60000
         })
       }
     )

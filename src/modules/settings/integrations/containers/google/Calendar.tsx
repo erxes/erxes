@@ -7,6 +7,7 @@ import { Calendar as DumbCalendar } from '../../components/google';
 import {
   GetGoogleAccessTokenQueryResponse,
   GetGoogleAuthUrlQueryResponse,
+  GoogleAccessTokenQueryResponse,
   messengerAppsAddGoogleMeetMutationResponse
 } from '../../types';
 
@@ -18,8 +19,7 @@ type Props = {
 
 type FinalProps = {
   googleAuthUrlQuery: GetGoogleAuthUrlQueryResponse;
-  // TODO: to determine googleAccessTokenQuery response type
-  googleAccessTokenQuery: any;
+  googleAccessTokenQuery: GoogleAccessTokenQueryResponse;
 } & messengerAppsAddGoogleMeetMutationResponse &
   Props;
 
@@ -53,7 +53,7 @@ const Calendar = (props: FinalProps) => {
     saveMutation({
       variables: {
         ...variables,
-        kind: 'googleCalendar',
+        kind: 'googleMeet',
         credentials
       }
     })

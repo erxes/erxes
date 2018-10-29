@@ -47,6 +47,7 @@ const sidebarConversations = `
       content
       status
       updatedAt
+      idleTime
       assignedUser {
         _id
         details {

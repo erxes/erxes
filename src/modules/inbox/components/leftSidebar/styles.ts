@@ -113,7 +113,11 @@ const MessageContent = styled.div`
   max-height: 18px;
 `;
 
-const RowItem = styledTS<{ isActive?: boolean; isRead?: boolean }>(styled.li)`
+const RowItem = styledTS<{
+  isActive?: boolean;
+  isRead?: boolean;
+  isIdle: boolean;
+}>(styled.li)`
   padding: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: row;
