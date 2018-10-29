@@ -101,8 +101,8 @@ const routes = () => (
     />
 
     <Route
-      key="/service/oauth/google_callback"
-      path="/service/oauth/google_callback"
+      key="/service/oauth/google_calendar_callback"
+      path="/service/oauth/google_calendar_callback"
       component={googleCallback}
     />
 
