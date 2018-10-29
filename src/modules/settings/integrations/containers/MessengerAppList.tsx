@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import { MessengerAppList } from 'modules/settings/integrations/components/common';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { MessengerAppList } from '../components';
 import { mutations, queries } from '../graphql';
 import {
   MessengerAppsQueryResponse,

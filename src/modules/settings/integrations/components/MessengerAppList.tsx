@@ -2,16 +2,13 @@ import {
   ActionButtons,
   Button,
   EmptyState,
-  Icon,
   Label,
-  ModalTrigger,
   Table,
   Tip
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import { IMessengerApp } from '../../types';
+import { IMessengerApp } from '../types';
 
 type Props = {
   messengerApps: IMessengerApp[];

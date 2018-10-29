@@ -50,7 +50,6 @@ export interface IMessengerData {
   isOnline?: boolean;
   timezone?: string;
   onlineHours?: IOnlineHour[];
-  knowledgeBaseTopicId?: string;
   links?: ILink;
 }
 
