@@ -1,5 +1,5 @@
 import { graphqlRequest } from '../db/connection';
-import { userFactory } from '../db/factories';
+import { messengerAppFactory, userFactory } from '../db/factories';
 import { MessengerApps, Users } from '../db/models';
 
 describe('mutations', () => {
@@ -102,5 +102,21 @@ describe('mutations', () => {
       integrationId: args.integrationId,
       formId: args.formId,
     });
+  });
+
+  test('Remove', async () => {
+    const app = await messengerAppFactory({ credentials: { integrationId: '_id', formId: '_id' } });
+
+    const mutation = `
+      mutation messengerAppsRemove($_id: String!) {
+        messengerAppsRemove(_id: $_id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'messengerAppsRemove', { _id: app._id }, context);
+
+    const count = await MessengerApps.find().count();
+
+    expect(count).toBe(0);
   });
 });
