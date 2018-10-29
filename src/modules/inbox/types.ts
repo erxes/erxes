@@ -248,6 +248,10 @@ export type AssignMutationResponse = {
   assignMutation: (doc: { variables: AssignMutationVariables }) => Promise<any>;
 };
 
+export type MessengerAppsRemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
 export type UnAssignMutationVariables = {
   _ids: string[];
 };

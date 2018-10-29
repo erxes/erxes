@@ -123,6 +123,12 @@ const executeApp = `
   }
 `;
 
+const messengerAppsRemove = `
+  mutation messengerAppsRemove($_id: String!) {
+    messengerAppsRemove(_id: $_id)
+  }
+`;
+
 export default {
   conversationMessageAdd,
   conversationsChangeStatus,
@@ -133,5 +139,6 @@ export default {
   favoriteTweet,
   retweetTweet,
   tweet,
-  executeApp
+  executeApp,
+  messengerAppsRemove
 };

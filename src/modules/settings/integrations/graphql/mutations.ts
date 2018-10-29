@@ -95,6 +95,38 @@ const integrationsRemove = `
   }
 `;
 
+const messengerAppsAddLead = `
+  mutation messengerAppsAddLead(
+    $name: String!
+    $integrationId: String!
+    $formId: String!
+  ) {
+    messengerAppsAddLead(
+      name: $name
+      integrationId: $integrationId
+      formId: $formId
+    ) {
+      _id
+    }
+  }
+`;
+
+const messengerAppsAddKnowledgebase = `
+  mutation messengerAppsAddKnowledgebase(
+    $name: String!
+    $integrationId: String!
+    $topicId: String!
+  ) {
+    messengerAppsAddKnowledgebase(
+      name: $name
+      integrationId: $integrationId
+      topicId: $topicId
+    ) {
+      _id
+    }
+  }
+`;
+
 export default {
   integrationsCreateMessenger,
   integrationsEditMessenger,
@@ -102,5 +134,7 @@ export default {
   integrationsSaveMessengerAppearance,
   integrationsSendGmail,
   integrationsCreateGmail,
-  integrationsRemove
+  integrationsRemove,
+  messengerAppsAddLead,
+  messengerAppsAddKnowledgebase
 };

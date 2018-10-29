@@ -1,0 +1,79 @@
+import {
+  ActionButtons,
+  Button,
+  EmptyState,
+  Icon,
+  Label,
+  ModalTrigger,
+  Table,
+  Tip
+} from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { IMessengerApp } from '../../types';
+
+type Props = {
+  messengerApps: IMessengerApp[];
+  remove: (app: IMessengerApp) => void;
+};
+
+class MessengerAppList extends React.Component<Props> {
+  renderRemoveAction(app) {
+    const { remove } = this.props;
+
+    if (!remove) {
+      return null;
+    }
+
+    const onClick = () => remove(app);
+
+    return (
+      <Tip text={__('Delete')}>
+        <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+      </Tip>
+    );
+  }
+
+  renderRow(app) {
+    return (
+      <tr key={app._id}>
+        <td>{app.name}</td>
+        <td>
+          <Label className={`label-${app.kind}`}>{app.kind}</Label>
+        </td>
+        <td>
+          <ActionButtons>{this.renderRemoveAction(app)}</ActionButtons>
+        </td>
+      </tr>
+    );
+  }
+
+  render() {
+    const { messengerApps } = this.props;
+
+    if (!messengerApps || messengerApps.length < 1) {
+      return (
+        <EmptyState
+          text="There aren’t any integrations at the moment."
+          image="/images/robots/robot-05.svg"
+        />
+      );
+    }
+
+    return (
+      <Table>
+        <thead>
+          <tr>
+            <th>{__('Name')}</th>
+            <th>{__('Kind')}</th>
+            <th>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody>{messengerApps.map(app => this.renderRow(app))}</tbody>
+      </Table>
+    );
+  }
+}
+
+export default MessengerAppList;

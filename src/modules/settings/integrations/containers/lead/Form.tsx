@@ -7,6 +7,7 @@ import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Lead } from '../../components/lead';
+import { mutations } from '../../graphql';
 import {
   IntegrationsQueryResponse,
   MessengerAppsAddLeadMutationResponse
@@ -87,21 +88,7 @@ export default withProps<Props>(
       }
     }),
     graphql<Props, MessengerAppsAddLeadMutationResponse>(
-      gql`
-        mutation messengerAppsAddLead(
-          $name: String!
-          $integrationId: String!
-          $formId: String!
-        ) {
-          messengerAppsAddLead(
-            name: $name
-            integrationId: $integrationId
-            formId: $formId
-          ) {
-            _id
-          }
-        }
-      `,
+      gql(mutations.messengerAppsAddLead),
       { name: 'saveMutation' }
     ),
     withApollo

@@ -1,6 +1,9 @@
 import { Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { IntegrationList } from 'modules/settings/integrations/containers/common';
+import {
+  IntegrationList,
+  MessengerAppList
+} from 'modules/settings/integrations/containers/common';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
 import Entry from './Entry';
@@ -81,12 +84,16 @@ class Row extends React.Component<Props, State> {
     return <Pagination count={totalCount} />;
   }
 
-  renderIntegrations() {
+  renderList() {
     const { queryParams, totalCount } = this.props;
     const { isContentVisible, kind } = this.state;
 
     if (!isContentVisible) {
       return null;
+    }
+
+    if (kind === 'googleMeet' || kind === 'lead' || kind === 'knowledgebase') {
+      return <MessengerAppList kind={kind} queryParams={queryParams} />;
     }
 
     return (
@@ -115,7 +122,7 @@ class Row extends React.Component<Props, State> {
           ))}
         </IntegrationRow>
         <Collapse in={this.state.isContentVisible}>
-          <CollapsibleContent>{this.renderIntegrations()}</CollapsibleContent>
+          <CollapsibleContent>{this.renderList()}</CollapsibleContent>
         </Collapse>
       </React.Fragment>
     );

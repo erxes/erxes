@@ -9,6 +9,7 @@ import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { KnowledgeBase } from '../../components/knowledgebase';
+import { mutations } from '../../graphql';
 import {
   IntegrationsQueryResponse,
   messengerAppsAddKnowledgebaseMutationResponse
@@ -84,21 +85,7 @@ export default withProps<Props>(
       name: 'knowledgeBaseTopicsQuery'
     }),
     graphql<Props, messengerAppsAddKnowledgebaseMutationResponse>(
-      gql`
-        mutation messengerAppsAddKnowledgebase(
-          $name: String!
-          $integrationId: String!
-          $topicId: String!
-        ) {
-          messengerAppsAddKnowledgebase(
-            name: $name
-            integrationId: $integrationId
-            topicId: $topicId
-          ) {
-            _id
-          }
-        }
-      `,
+      gql(mutations.messengerAppsAddKnowledgebase),
       { name: 'saveMutation' }
     ),
     withApollo

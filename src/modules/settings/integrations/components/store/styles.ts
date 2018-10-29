@@ -19,8 +19,9 @@ const IntegrationRow = styled.div`
   display: flex;
 `;
 
-const Box = styled.div`
+const Box = styledTS<{ isInMessenger: boolean }>(styled.div)`
   padding: 30px;
+  padding-bottom: ${props => props.isInMessenger && '10px'};
   border: 1px solid ${colors.borderPrimary};
   border-radius: 2px;
   flex: 1;
@@ -31,6 +32,13 @@ const Box = styled.div`
     cursor: pointer;
     border-color: ${colors.colorCoreTeal};
   }
+`;
+
+const Messenger = styled.span`
+  display: block;
+  color: ${colors.colorCoreGray};
+  font-weight: 500;
+  padding-top: ${dimensions.coreSpacing - 5}px;
 `;
 
 const IntegrationItem = styledTS(styled.div)`
@@ -103,5 +111,6 @@ export {
   IntegrationRow,
   IntegrationItem,
   CollapsibleContent,
-  Box
+  Box,
+  Messenger
 };
