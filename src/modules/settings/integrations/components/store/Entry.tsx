@@ -85,7 +85,7 @@ class Entry extends React.Component<Props> {
 
     return (
       <Messenger>
-        <Icon icon="chat" /> Works with messenger
+        <Icon icon="chat" /> {__('Works with messenger')}
       </Messenger>
     );
   };

@@ -63,7 +63,7 @@ class KnowledgeBase extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Knowledgebase topic</ControlLabel>
+          <ControlLabel>Knowledge base topic</ControlLabel>
 
           <FormControl componentClass="select" id="selectTopic">
             <option />

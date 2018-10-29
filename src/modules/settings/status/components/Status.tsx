@@ -10,23 +10,26 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
   renderData(title: string, version: Version) {
     return (
       <Box>
-        <Title>{title}</Title>
+        <Title>{__(title)}</Title>
 
         <Group>
           <span>
-            <Icon icon="information" /> Info
+            <Icon icon="information" /> {__('Info')}
           </span>
           <div>
-            <b>Package version</b> - {version.packageVersion}
+            <b>{__('Package version')}</b> - {version.packageVersion}
           </div>
           <div>
-            <b>Branch name</b> - {version.branch}
+            <b>{__('Branch name')}</b> - {version.branch}
           </div>
           <div>
-            <b>Sha</b> - {version.sha}
+            <b>{__('Sha')}</b> - {version.sha}
           </div>
           <div>
-            <b>Abbreviated Sha</b> - {version.abbreviatedSha}{' '}
+            <b>
+              {__('Abbreviated')} {__('Sha')}
+            </b>{' '}
+            - {version.abbreviatedSha}{' '}
           </div>
         </Group>
         <Group>
@@ -34,13 +37,13 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
             <Icon icon="wallclock" /> Last commit{' '}
           </span>
           <div>
-            <b>Message</b> - {version.lastCommitMessage}
+            <b>{__('Message')}</b> - {version.lastCommitMessage}
           </div>
           <div>
-            <b>User</b> - {version.lastCommittedUser}
+            <b>{__('User')}</b> - {version.lastCommittedUser}
           </div>
           <div>
-            <b>Date</b> - {version.lastCommittedDate}
+            <b>{__('Date')}</b> - {version.lastCommittedDate}
           </div>
         </Group>
       </Box>
