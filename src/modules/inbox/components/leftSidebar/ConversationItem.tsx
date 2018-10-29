@@ -3,12 +3,7 @@ import * as React from 'react';
 import strip from 'strip';
 
 import { withCurrentUser } from 'modules/auth/containers';
-import {
-  FormControl,
-  IntegrationIcon,
-  NameCard,
-  Tags
-} from 'modules/common/components';
+import { FormControl, IntegrationIcon, Tags } from 'modules/common/components';
 
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../../customers/types';
