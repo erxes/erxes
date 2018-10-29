@@ -91,7 +91,7 @@ class ConversationItem extends React.Component<Props> {
   render() {
     const { currentUser } = this.props;
     const { conversation, isActive, selectedIds = [] } = this.props;
-    const { createdAt, updatedAt, content } = conversation;
+    const { createdAt, updatedAt, idleTime, content } = conversation;
     const customer = conversation.customer || ({} as ICustomer);
     const integration = conversation.integration || ({} as IIntegration);
     const brand = integration.brand || ({} as IBrand);
@@ -106,7 +106,12 @@ class ConversationItem extends React.Component<Props> {
       conversation.readUserIds.indexOf(currentUser._id) > -1;
 
     return (
-      <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
+      <RowItem
+        onClick={this.onClick}
+        isActive={isActive}
+        isRead={isRead}
+        isIdle={idleTime >= 1}
+      >
         <RowContent isChecked={isChecked}>
           {this.renderCheckbox()}
           <FlexContent>

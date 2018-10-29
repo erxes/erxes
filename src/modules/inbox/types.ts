@@ -76,6 +76,7 @@ export interface IConversation {
   participatedUsers?: IUser[];
   tags: ITag[];
   updatedAt: Date;
+  idleTime: number;
 }
 
 export interface IFbUser {
