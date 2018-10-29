@@ -79,6 +79,18 @@ const LabelStyled = styledTS<{
   &.label-gmail {
     background: ${colors.socialGmail};
   }
+
+  &.label-lead {
+    background: ${colors.colorCoreBlue};
+  }
+
+  &.label-knowledgebase {
+    background: ${colors.colorPrimary};
+  }
+
+  &.label-googleMeet {
+    background: ${colors.socialGoogleMeet};
+  }
 `;
 
 type Props = {

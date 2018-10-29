@@ -52,6 +52,7 @@ const socialFacebook = '#3A5999';
 const socialFacebookMessenger = '#1472FB';
 const socialTwitter = '#1DA1F2';
 const socialGmail = '#f7412d';
+const socialGoogleMeet = '#038476';
 
 export default {
   colorPrimary,
@@ -96,5 +97,6 @@ export default {
   socialFacebook,
   socialFacebookMessenger,
   socialTwitter,
-  socialGmail
+  socialGmail,
+  socialGoogleMeet
 };

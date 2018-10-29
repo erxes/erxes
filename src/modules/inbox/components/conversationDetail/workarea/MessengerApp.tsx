@@ -31,19 +31,21 @@ class MessengerApp extends React.Component<Props> {
   };
 
   renderItems() {
-    const onClick = item => this.onSelect(item._id);
+    return this.props.messengerApps.map(item => {
+      const onClick = () => this.onSelect(item._id);
 
-    return this.props.messengerApps.map(item => (
-      <li key={item._id} onClick={onClick}>
-        <MessengerApps>
-          <img src="/images/integrations/google-meet.png" alt="google-meet" />
-          <div>
-            <h5>{item.name}</h5>
-            <p>Start a video call from your conversation</p>
-          </div>
-        </MessengerApps>
-      </li>
-    ));
+      return (
+        <li key={item._id} onClick={onClick}>
+          <MessengerApps>
+            <img src="/images/integrations/google-meet.png" alt="google-meet" />
+            <div>
+              <h5>{item.name}</h5>
+              <p>Start a video call from your conversation</p>
+            </div>
+          </MessengerApps>
+        </li>
+      );
+    });
   }
 
   render() {

@@ -3,8 +3,9 @@ import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { integrationOptions } from '../../../../insights/utils';
-import { Box, IntegrationItem } from './styles';
+import KnowledgeBase from '../../containers/knowledgebase/Form';
+import Lead from '../../containers/lead/Form';
+import { Box, IntegrationItem, Messenger } from './styles';
 
 type Props = {
   integration: any;
@@ -20,7 +21,7 @@ type Props = {
 };
 
 class Entry extends React.Component<Props> {
-  getCount(kind) {
+  getCount = kind => {
     const { totalCount } = this.props;
     const countByKind = totalCount[kind];
 
@@ -29,7 +30,7 @@ class Entry extends React.Component<Props> {
     }
 
     return <span>({countByKind})</span>;
-  }
+  };
 
   renderCreate(createUrl, createModal) {
     if (!createUrl && !createModal) {
@@ -50,20 +51,44 @@ class Entry extends React.Component<Props> {
       );
     }
 
+    if (createModal === 'lead') {
+      const trigger = <a>+ {__('Add')}</a>;
+
+      const content = props => <Lead {...props} />;
+
+      return (
+        <ModalTrigger title="Add lead" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === 'knowledgeBase') {
+      const trigger = <a>+ {__('Add')}</a>;
+
+      const content = props => <KnowledgeBase {...props} />;
+
+      return (
+        <ModalTrigger
+          title="Add knowledgeBase"
+          trigger={trigger}
+          content={content}
+        />
+      );
+    }
+
     return <Link to={createUrl}>+ {__('Add')}</Link>;
   }
 
-  renderType(inMessenger) {
-    if (!inMessenger) {
+  renderType = type => {
+    if (!type) {
       return null;
     }
 
     return (
-      <Tip text="Works in messenger">
-        <Icon icon="chat" />
-      </Tip>
+      <Messenger>
+        <Icon icon="chat" /> {__('Works with messenger')}
+      </Messenger>
     );
-  }
+  };
 
   BoxOnClick = () => {
     return this.props.toggleBox(this.props.integration.kind);
@@ -71,19 +96,22 @@ class Entry extends React.Component<Props> {
 
   render() {
     const { integration, getClassName } = this.props;
+    const { kind } = integration;
 
     return (
       <IntegrationItem
         key={integration.name}
         className={getClassName(integration.kind)}
       >
-        <Box onClick={this.BoxOnClick}>
+        <Box onClick={this.BoxOnClick} isInMessenger={integration.inMessenger}>
           <img alt="logo" src={integration.logo} />
           <h5>
             {integration.name} {this.getCount(integration.kind)}{' '}
-            {this.renderType(integration.isMessenger)}
           </h5>
-          <p>{integration.description}</p>
+          <p>
+            {integration.description}
+            {this.renderType(integration.inMessenger)}
+          </p>
         </Box>
         {this.renderCreate(integration.createUrl, integration.createModal)}
       </IntegrationItem>

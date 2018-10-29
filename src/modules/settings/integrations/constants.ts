@@ -703,7 +703,8 @@ export const INTEGRATIONS = [
       {
         name: 'Google meet',
         description: 'Start a video call from your conversation',
-        inMessenger: false,
+        inMessenger: true,
+        kind: 'googleMeet',
         logo: '/images/integrations/google-meet.png',
         createUrl: '/settings/integrations/google-calendar'
       },
@@ -714,37 +715,42 @@ export const INTEGRATIONS = [
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
         createUrl: '/settings/integrations/gmail'
+      },
+      {
+        name: 'Lead',
+        description: 'See lead in your Widget',
+        inMessenger: true,
+        kind: 'lead',
+        logo: '/images/integrations/lead.png',
+        createModal: 'lead',
+        createUrl: '/settings/integrations/lead'
       }
     ]
   },
   {
-    title: 'Coming soon',
     name: 'row-3',
     rows: [
       {
         name: 'Knowledge Base',
         description: 'See knowledge base in your Widget',
         inMessenger: true,
-        logo: '/images/integrations/knowledge-base.png'
-      },
-      {
-        name: 'Google calendar',
-        description:
-          'Let leads and customers book meetings during conversations',
-        inMessenger: true,
-        logo: '/images/integrations/google-calendar.png'
-      },
+        kind: 'knowledgebase',
+        logo: '/images/integrations/knowledge-base.png',
+        createModal: 'knowledgeBase',
+        createUrl: '/settings/integrations/knowledgeBase'
+      }
+    ]
+  },
+  {
+    title: 'Coming soon',
+    name: 'row-4',
+    rows: [
       {
         name: 'Viber',
         description: 'See and reply to Viber messages in your Team Inbox',
         inMessenger: false,
         logo: '/images/integrations/viber.png'
-      }
-    ]
-  },
-  {
-    name: 'row-4',
-    rows: [
+      },
       {
         name: 'WhatsApp',
         description: 'See and reply to Whatsapp messages in your Team Inbox',
@@ -756,7 +762,12 @@ export const INTEGRATIONS = [
         description: 'See and reply to Wechat messages in your Team Inbox',
         inMessenger: false,
         logo: '/images/integrations/wechat.png'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-5',
+    rows: [
       {
         name: 'Line',
         description: 'See and reply to Line messages in your Team Inbox',

@@ -57,7 +57,6 @@ export interface IMessengerData {
   isOnline?: boolean;
   timezone?: string;
   onlineHours?: IOnlineHour[];
-  knowledgeBaseTopicId?: string;
   links?: ILink;
 }
 
@@ -173,6 +172,12 @@ export type GetGoogleAuthUrlQueryResponse = {
   refetch: () => void;
 };
 
+export type GetGoogleAccessTokenQueryResponse = {
+  integrationGetGoogleAccessToken: string;
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type GetTwitterAuthUrlQueryResponse = {
   integrationGetTwitterAuthUrl: string;
   loading: boolean;
@@ -267,14 +272,38 @@ export type CreateFacebookMutationVariables = {
   pageIds: string[];
 };
 
-export type MessengerAppsAddMutationVariables = {
-  kind: string;
+export type MessengerAppsAddGoogleMeetMutationVariables = {
+  name: string;
   credentials: object;
 };
 
-export type MessengerAppsAddMutationResponse = {
+export type messengerAppsAddGoogleMeetMutationResponse = {
   saveMutation: (
-    params: { variables: MessengerAppsAddMutationVariables }
+    params: { variables: MessengerAppsAddGoogleMeetMutationVariables }
+  ) => Promise<any>;
+};
+
+export type MessengerAppsAddLeadMutationVariables = {
+  name: string;
+  integrationId: string;
+  formId: string;
+};
+
+export type MessengerAppsAddLeadMutationResponse = {
+  saveMutation: (
+    params: { variables: MessengerAppsAddLeadMutationVariables }
+  ) => Promise<any>;
+};
+
+export type messengerAppsAddKnowledgebaseVariables = {
+  name: string;
+  integrationId: string;
+  topicId: string;
+};
+
+export type messengerAppsAddKnowledgebaseMutationResponse = {
+  saveMutation: (
+    params: { variables: messengerAppsAddKnowledgebaseVariables }
   ) => Promise<any>;
 };
 
@@ -320,5 +349,15 @@ export type EditIntegrationMutationResponse = {
 };
 
 export type RemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type MessengerAppsQueryResponse = {
+  messengerApps: IMessengerApp[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type MessengerAppsRemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
