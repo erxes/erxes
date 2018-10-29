@@ -13,7 +13,7 @@ import * as React from 'react';
 
 type Props = {
   customer: ICustomer;
-  hasEmailAndPhone?: boolean;
+  hasPosition?: boolean;
 };
 
 class DetailInfo extends React.Component<Props> {
@@ -28,15 +28,13 @@ class DetailInfo extends React.Component<Props> {
     );
   }
 
-  renderPhoneAndEmail(customer) {
-    if (!this.props.hasEmailAndPhone) {
+  renderPosition(customer) {
+    if (!this.props.hasPosition) {
       return null;
     }
 
     return (
       <React.Fragment>
-        {this.renderRow('Primary email', customer.primaryEmail)}
-        {this.renderRow('Primary phone', customer.primaryPhone)}
         {this.renderRow('Position', customer.position)}
       </React.Fragment>
     );
@@ -47,7 +45,9 @@ class DetailInfo extends React.Component<Props> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderPhoneAndEmail(customer)}
+        {this.renderRow('Primary email', customer.primaryEmail)}
+        {this.renderRow('Primary phone', customer.primaryPhone)}
+        {this.renderPosition(customer)}
         {this.renderRow(
           'Owner',
           customer.owner && customer.owner.details

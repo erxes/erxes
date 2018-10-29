@@ -123,8 +123,17 @@ const RowItem = styledTS<{
   flex-direction: row;
   border-bottom: 1px solid ${colors.borderPrimary};
   transition: all ease 0.3s;
+  background: ${props => {
+    if (props.isActive) {
+      return colors.bgActive;
+    }
 
-  background: ${props => props.isActive && colors.bgActive};
+    if (props.isIdle) {
+      return colors.bgIdle;
+    }
+
+    return null;
+  }};
 
   ${props =>
     !props.isRead &&
