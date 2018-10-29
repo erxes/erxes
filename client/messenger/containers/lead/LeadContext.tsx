@@ -1,28 +1,23 @@
-import gql from "graphql-tag";
 import * as React from "react";
-import client from "../../../apollo-client";
 import {
-  IEmailParams,
-  IIntegration,
-  IIntegrationFormData
-} from "../../../types";
+  increaseViewCount,
+  saveForm,
+  sendEmail
+} from "../../../form/containers/utils";
+import { ICurrentStatus, IForm } from "../../../form/types";
+import { IEmailParams, IIntegration } from "../../../types";
 import { connection } from "../../connection";
-import queries from "../../graphql";
-import { ICurrentStatus, IForm } from "../../types";
 
 interface IState {
-  isFormVisible: boolean;
   currentStatus: ICurrentStatus;
 }
 
 interface IStore extends IState {
-  showForm: () => void;
   saveForm: (doc: { [key: string]: any }) => void;
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   getIntegration: () => IIntegration;
   getForm: () => IForm;
-  getIntegrationConfigs: () => IIntegrationFormData;
 }
 
 const LeadContext = React.createContext({} as IStore);
@@ -34,64 +29,33 @@ export class LeadProvider extends React.Component<{}, IState> {
     super(props);
 
     this.state = {
-      isFormVisible: false,
       currentStatus: { status: "INITIAL" }
     };
   }
 
-  /*
-   * Will be called when user click callout's submit button
-   */
-  showForm = () => {
-    this.setState({ isFormVisible: true });
-  };
+  componentDidMount() {
+    this.increaseViewCount();
+  }
 
   /*
    * Increasing view count
    */
   increaseViewCount = () => {
     const form = this.getForm();
-
-    return client.mutate({
-      mutation: gql(queries.increaseViewCountMutation),
-      variables: {
-        formId: form._id
-      }
-    });
+    increaseViewCount(form._id);
   };
 
   /*
    * Save user submissions
    */
-  saveForm = (doc: { [key: string]: any }) => {
-    const submissions = Object.keys(doc).map(fieldId => {
-      const { value, text, type, validation } = doc[fieldId];
-
-      return {
-        _id: fieldId,
-        type,
-        text,
-        value,
-        validation
-      };
-    });
-
-    const integration = this.getIntegration();
-    const form = this.getForm();
-
-    client
-      .mutate({
-        mutation: gql(queries.saveFormMutation),
-        variables: {
-          integrationId: integration._id,
-          formId: form._id,
-          browserInfo: connection.browserInfo,
-          submissions
-        }
-      })
-
-      .then(({ data: { saveForm } }: any) => {
-        const { status, errors } = saveForm;
+  save = (doc: { [key: string]: any }) => {
+    saveForm({
+      doc,
+      browserInfo: connection.browserInfo,
+      integrationId: this.getIntegration()._id,
+      formId: this.getForm()._id,
+      saveCallback: (data: { [key: string]: any }) => {
+        const { status, errors } = data.saveForm;
 
         this.setState({
           currentStatus: {
@@ -99,7 +63,8 @@ export class LeadProvider extends React.Component<{}, IState> {
             errors
           }
         });
-      });
+      }
+    });
   };
 
   /*
@@ -107,21 +72,6 @@ export class LeadProvider extends React.Component<{}, IState> {
    */
   createNew = () => {
     this.setState({ currentStatus: { status: "INITIAL" } });
-  };
-
-  /*
-   * Send email to submitted user after successfull submission
-   */
-  sendEmail = ({ toEmails, fromEmail, title, content }: IEmailParams) => {
-    client.mutate({
-      mutation: gql(queries.sendEmailMutation),
-      variables: {
-        toEmails,
-        fromEmail,
-        title,
-        content
-      }
-    });
   };
 
   getIntegration = () => {
@@ -132,22 +82,16 @@ export class LeadProvider extends React.Component<{}, IState> {
     return connection.formData.form;
   };
 
-  getIntegrationConfigs = () => {
-    return this.getIntegration().formData;
-  };
-
   render() {
     return (
       <LeadContext.Provider
         value={{
           ...this.state,
-          showForm: this.showForm,
-          saveForm: this.saveForm,
+          saveForm: this.save,
           createNew: this.createNew,
-          sendEmail: this.sendEmail,
+          sendEmail,
           getIntegration: this.getIntegration,
-          getForm: this.getForm,
-          getIntegrationConfigs: this.getIntegrationConfigs
+          getForm: this.getForm
         }}
       >
         {this.props.children}

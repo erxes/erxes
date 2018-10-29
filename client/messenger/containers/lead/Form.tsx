@@ -2,9 +2,9 @@ import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
 import { Form as DumbForm } from "../../../form/components";
+import { ICurrentStatus, IForm } from "../../../form/types";
 import { IEmailParams, IIntegration } from "../../../types";
 import queries from "../../graphql";
-import { ICurrentStatus, IForm } from "../../types";
 import { LeadConsumer, LeadProvider } from "./LeadContext";
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {

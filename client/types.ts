@@ -40,6 +40,10 @@ export interface IBrowserInfo {
   url?: string;
   city?: string;
   country?: string;
+  remoteAddress?: string;
+  region?: string;
+  hostname?: string;
+  userAgent?: string;
 }
 
 export interface IEmailParams {

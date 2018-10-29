@@ -60,7 +60,7 @@ class LeadConnect extends React.PureComponent<Props, IState> {
         this.saveBrowserInfo();
       })
 
-      .catch(error => {
+      .catch(() => {
         this.setState({ hasError: true });
       });
   }

@@ -1,8 +1,16 @@
-import { IIntegration } from "../types";
+import { IBrowserInfo, IIntegration } from "../types";
 
 export interface IConnectResponse {
   form: IForm;
   integration: IIntegration;
+}
+
+export interface ISaveFormParams {
+  doc: { [key: string]: any };
+  browserInfo: IBrowserInfo;
+  integrationId: string;
+  formId: string;
+  saveCallback: (data: { [key: string]: any }) => void;
 }
 
 export interface IField {
