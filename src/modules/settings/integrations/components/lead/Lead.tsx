@@ -12,11 +12,11 @@ import { IIntegration } from '../../types';
 type Props = {
   save: (
     params: { name: string; integrationId: string; formId: string },
-    callback?: () => void
+    callback: () => void
   ) => void;
   integrations: IIntegration[];
   leads: IIntegration[];
-  closeModal?: () => void;
+  closeModal: () => void;
 };
 
 class Lead extends React.Component<Props> {

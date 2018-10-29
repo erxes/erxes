@@ -16,7 +16,7 @@ import { integrationsListParams } from '../utils';
 
 type Props = {
   queryParams: any;
-  closeModal?: () => void;
+  closeModal: () => void;
 };
 
 type FinalProps = {
@@ -37,10 +37,11 @@ class LeadContainer extends React.Component<FinalProps> {
     const integrations = integrationsQuery.integrations || [];
     const leads = leadsQuery.integrations || [];
 
-    const save = variables => {
+    const save = (variables, callback) => {
       saveMutation({ variables })
         .then(() => {
           Alert.success('Congrats');
+          callback();
           history.push('/settings/integrations');
         })
         .catch(e => {

@@ -1,9 +1,7 @@
 import { Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import {
-  IntegrationList,
-  MessengerAppList
-} from 'modules/settings/integrations/containers/common';
+import { IntegrationList } from 'modules/settings/integrations/containers/common';
+import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
 import Entry from './Entry';

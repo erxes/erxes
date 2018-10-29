@@ -13,11 +13,11 @@ import { IIntegration } from '../../types';
 type Props = {
   save: (
     params: { name: string; integrationId: string; topicId: string },
-    callback?: () => void
+    callback: () => void
   ) => void;
   integrations: IIntegration[];
   topics: ITopic[];
-  closeModal?: () => void;
+  closeModal: () => void;
 };
 
 class KnowledgeBase extends React.Component<Props> {
