@@ -117,17 +117,12 @@ class ConversationItem extends React.Component<Props> {
           <FlexContent>
             <MainInfo>
               {isExistingCustomer && (
-                <NameCard.Avatar
+                <IntegrationIcon
                   size={40}
+                  integration={integration}
                   customer={customer}
-                  icon={
-                    <IntegrationIcon
-                      integration={integration}
-                      customer={customer}
-                      facebookData={conversation.facebookData}
-                      twitterData={conversation.twitterData}
-                    />
-                  }
+                  facebookData={conversation.facebookData}
+                  twitterData={conversation.twitterData}
                 />
               )}
               <FlexContent>
