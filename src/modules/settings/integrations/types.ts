@@ -339,3 +339,13 @@ export type EditIntegrationMutationResponse = {
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
+
+export type MessengerAppsQueryResponse = {
+  messengerApps: IMessengerApp[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type MessengerAppsRemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};

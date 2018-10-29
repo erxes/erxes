@@ -1,17 +1,14 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import {
-  mutations as inboxMutations,
-  queries as inboxQueries
-} from 'modules/inbox/graphql';
-import {
-  MessengerAppsQueryResponse,
-  MessengerAppsRemoveMutationResponse
-} from 'modules/inbox/types';
 import { MessengerAppList } from 'modules/settings/integrations/components/common';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { mutations, queries } from '../graphql';
+import {
+  MessengerAppsQueryResponse,
+  MessengerAppsRemoveMutationResponse
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -56,27 +53,24 @@ const MessengerAppContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, MessengerAppsQueryResponse>(
-      gql(inboxQueries.messengerApps),
-      {
-        name: 'messengerAppsQuery',
-        options: ({ kind }) => {
-          return {
-            variables: { kind },
-            fetchPolicy: 'network-only'
-          };
-        }
+    graphql<Props, MessengerAppsQueryResponse>(gql(queries.messengerApps), {
+      name: 'messengerAppsQuery',
+      options: ({ kind }) => {
+        return {
+          variables: { kind },
+          fetchPolicy: 'network-only'
+        };
       }
-    ),
+    }),
     graphql<Props, MessengerAppsRemoveMutationResponse>(
-      gql(inboxMutations.messengerAppsRemove),
+      gql(mutations.messengerAppsRemove),
       {
         name: 'removeMutation',
         options: ({ kind }) => {
           return {
             refetchQueries: [
               {
-                query: gql(inboxQueries.messengerApps),
+                query: gql(queries.messengerApps),
                 variables: { kind }
               }
             ]

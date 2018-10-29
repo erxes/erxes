@@ -206,17 +206,6 @@ const responseTemplateList = `
   }
 `;
 
-const messengerApps = `
-  query messengerApps($kind: String) {
-    messengerApps(kind: $kind) {
-      _id
-      kind
-      name
-      showInInbox
-    }
-  }
-`;
-
 const generateCustomerDetailQuery = params => {
   const {
     showProfile = false,
@@ -314,7 +303,6 @@ export default {
   brandList,
   tagList,
   responseTemplateList,
-  messengerApps,
   conversationCounts,
   totalConversationsCount,
   unreadConversationsCount,

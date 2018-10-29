@@ -127,6 +127,12 @@ const messengerAppsAddKnowledgebase = `
   }
 `;
 
+const messengerAppsRemove = `
+  mutation messengerAppsRemove($_id: String!) {
+    messengerAppsRemove(_id: $_id)
+  }
+`;
+
 export default {
   integrationsCreateMessenger,
   integrationsEditMessenger,
@@ -136,5 +142,6 @@ export default {
   integrationsCreateGmail,
   integrationsRemove,
   messengerAppsAddLead,
-  messengerAppsAddKnowledgebase
+  messengerAppsAddKnowledgebase,
+  messengerAppsRemove
 };
