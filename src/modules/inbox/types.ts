@@ -305,12 +305,6 @@ export type ConversationDetailQueryResponse = {
   refetch: () => void;
 };
 
-export type MessengerAppsQueryResponse = {
-  messengerApps: IMessengerApp[];
-  loading: boolean;
-  refetch: () => void;
-};
-
 export type MessagesQueryResponse = {
   conversationMessages: IMessage[];
   loading: boolean;

@@ -5,9 +5,10 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Calendar as DumbCalendar } from '../../components/google';
 import {
+  GetGoogleAccessTokenQueryResponse,
   GetGoogleAuthUrlQueryResponse,
   GoogleAccessTokenQueryResponse,
-  MessengerAppsAddMutationResponse
+  messengerAppsAddGoogleMeetMutationResponse
 } from '../../types';
 
 type Props = {
@@ -19,7 +20,7 @@ type Props = {
 type FinalProps = {
   googleAuthUrlQuery: GetGoogleAuthUrlQueryResponse;
   googleAccessTokenQuery: GoogleAccessTokenQueryResponse;
-} & MessengerAppsAddMutationResponse &
+} & messengerAppsAddGoogleMeetMutationResponse &
   Props;
 
 const Calendar = (props: FinalProps) => {
@@ -81,7 +82,7 @@ export default withProps<Props>(
         skip: ({ type }) => type === 'form'
       }
     ),
-    graphql(
+    graphql<Props, GetGoogleAccessTokenQueryResponse>(
       gql`
         query integrationGetGoogleAccessToken($code: String) {
           integrationGetGoogleAccessToken(code: $code)
@@ -95,18 +96,13 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql(
+    graphql<Props, messengerAppsAddGoogleMeetMutationResponse>(
       gql`
-        mutation messengerAppsAdd(
-          $kind: String!
+        mutation messengerAppsAddGoogleMeet(
           $name: String!
           $credentials: JSON
         ) {
-          messengerAppsAdd(
-            kind: $kind
-            name: $name
-            credentials: $credentials
-          ) {
+          messengerAppsAddGoogleMeet(name: $name, credentials: $credentials) {
             _id
           }
         }
