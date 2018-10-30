@@ -85,8 +85,7 @@ const ButtonStyled = styledTS<{
 
     &:disabled {
       cursor: not-allowed !important;
-      background: ${lighten(types[props.btnStyle].background, 30)};
-      color: ${lighten(types[props.btnStyle].color, 20)};
+      opacity: 0.6;
     }
   `};
 
