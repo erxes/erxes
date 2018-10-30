@@ -27,7 +27,7 @@ export default class App extends React.Component<Props> {
           appear={true}
           timeout={300}
           classNames="scale-in"
-          unmountOnExit
+          unmountOnExit={true}
         >
           <div className="erxes-messenger">
             <Messenger />

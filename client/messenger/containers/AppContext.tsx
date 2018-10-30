@@ -101,6 +101,10 @@ export class AppProvider extends React.Component<{}, IState> {
     return connection.data.messengerData || {};
   };
 
+  isOnline = () => {
+    return this.getMessengerData().isOnline;
+  };
+
   isSmallContainer = () => {
     const { activeRoute } = this.state;
 

@@ -71,7 +71,7 @@ class MessagesList extends React.Component<Props> {
     const { isOnline } = this.props;
     const messages =
       messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
-
+    console.log(messengerData);
     if (!isOnline || !messages.welcome) {
       return null;
     }
