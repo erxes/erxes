@@ -59,7 +59,10 @@ export default withProps<Props>(
     graphql<Props, MarkAsReadMutationResponse, { _ids: string[] }>(
       gql(mutations.markAsRead),
       {
-        name: 'notificationsMarkAsReadMutation'
+        name: 'notificationsMarkAsReadMutation',
+        options: {
+          refetchQueries: () => ['notificationCounts']
+        }
       }
     ),
     graphql<

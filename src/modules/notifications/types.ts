@@ -20,7 +20,7 @@ export type NotificationsQueryResponse = {
 
 export type MarkAsReadMutationResponse = {
   notificationsMarkAsReadMutation: (
-    params: { variables: { _ids: string[] } }
+    params: { variables: { _ids?: string[] } }
   ) => Promise<any>;
 };
 

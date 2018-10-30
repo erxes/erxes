@@ -30,7 +30,7 @@ class NotificationListContainer extends React.Component<FinalProps> {
 
     const markAsRead = (notificationIds?: string[]) => {
       notificationsMarkAsReadMutation({
-        variables: { _ids: notificationIds || [] }
+        variables: { _ids: notificationIds }
       })
         .then(() => {
           notificationsQuery.refetch();
@@ -81,10 +81,13 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, MarkAsReadMutationResponse, { _ids: string[] }>(
+    graphql<Props, MarkAsReadMutationResponse, { _ids?: string[] }>(
       gql(mutations.markAsRead),
       {
-        name: 'notificationsMarkAsReadMutation'
+        name: 'notificationsMarkAsReadMutation',
+        options: {
+          refetchQueries: () => ['notificationCounts']
+        }
       }
     )
   )(NotificationListContainer)
