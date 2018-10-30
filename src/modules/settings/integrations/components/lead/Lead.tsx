@@ -5,6 +5,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IForm } from 'modules/forms/types';
 import * as React from 'react';
 import { IIntegration } from '../../types';
 
@@ -14,7 +15,7 @@ type Props = {
     callback: () => void
   ) => void;
   integrations: IIntegration[];
-  leads: IIntegration[];
+  leads: IForm[];
   closeModal: () => void;
 };
 
@@ -66,7 +67,7 @@ class Lead extends React.Component<Props> {
             <option />
             {leads.map(lead => (
               <option key={lead._id} value={lead._id}>
-                {lead.name}
+                {lead.title}
               </option>
             ))}
           </FormControl>
