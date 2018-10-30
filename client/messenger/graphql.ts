@@ -242,7 +242,6 @@ const formConnectMutation = `
       integration {
         _id
         name
-        languageCode
         formData
       }
     }

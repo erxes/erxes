@@ -36,6 +36,7 @@ export const connectMutation = `
       integration {
         _id
         name
+        languageCode
         formData
       }
     }
