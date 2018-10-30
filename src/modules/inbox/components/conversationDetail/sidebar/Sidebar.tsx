@@ -190,13 +190,14 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   renderActions() {
     const { customer } = this.props;
+    const { primaryPhone, primaryEmail } = customer;
 
     const content = props => (
       <MailForm
         {...props}
         contentType="customer"
         contentTypeId={customer._id}
-        toEmail={customer.primaryEmail}
+        toEmail={primaryEmail}
         setAttachmentPreview={this.setAttachmentPreview}
         attachmentPreview={this.state.attachmentPreview}
         refetchQueries={['activityLogsCustomer']}
@@ -208,17 +209,20 @@ class Index extends React.Component<IndexProps, IndexState> {
         <ModalTrigger
           title="Edit basic info"
           trigger={
-            <a>
-              <Button size="small">{__('Email')}</Button>
-            </a>
+            <Button disabled={primaryEmail ? false : true} size="small">
+              {__('Email')}
+            </Button>
           }
           size="lg"
           content={content}
         />
-        <a href={`tel:${customer.primaryPhone}`}>
-          <Button size="small">{__('Call')}</Button>
-        </a>
-
+        <Button
+          href={primaryPhone && `tel:${primaryPhone}`}
+          size="small"
+          disabled={primaryPhone ? false : true}
+        >
+          {__('Call')}
+        </Button>
         <ActionSection customer={customer} isSmall={true} />
       </Actions>
     );

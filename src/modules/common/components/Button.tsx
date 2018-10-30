@@ -85,7 +85,7 @@ const ButtonStyled = styledTS<{
 
     &:disabled {
       cursor: not-allowed !important;
-      opacity: 0.6;
+      opacity: 0.75;
     }
   `};
 
@@ -115,8 +115,12 @@ const ButtonLink = styledTS<{ disabled?: boolean }>(
   ${props =>
     props.disabled &&
     css`
-      pointer-events: none;
-      background: lighten(types[props.btnStyle].background, 30);
+      cursor: not-allowed !important;
+      opacity: 0.75;
+
+      &:focus {
+        text-decoration: none;
+      }
     `};
 `;
 
