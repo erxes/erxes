@@ -1,5 +1,5 @@
 import { graphqlRequest } from '../db/connection';
-import { messengerAppFactory, userFactory } from '../db/factories';
+import { formFactory, messengerAppFactory, userFactory } from '../db/factories';
 import { MessengerApps, Users } from '../db/models';
 
 describe('mutations', () => {
@@ -76,10 +76,12 @@ describe('mutations', () => {
   });
 
   test('Add lead', async () => {
+    const form = await formFactory({});
+
     const args = {
       name: 'lead',
       integrationId: 'integrationId',
-      formId: 'formId',
+      formId: form._id,
     };
 
     const mutation = `
@@ -100,7 +102,7 @@ describe('mutations', () => {
     expect(app.name).toBe(args.name);
     expect(app.credentials).toEqual({
       integrationId: args.integrationId,
-      formId: args.formId,
+      formCode: form.code,
     });
   });
 

@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { ConversationMessages, Conversations, Customers, MessengerApps } from '../../../db/models';
+import { ConversationMessages, Conversations, Customers, Forms, MessengerApps } from '../../../db/models';
 import { IGoogleCredentials } from '../../../db/models/definitions/messengerApps';
 import { createMeetEvent } from '../../../trackers/googleTracker';
 import { requireLogin } from '../../permissions';
@@ -43,13 +43,19 @@ const messengerAppMutations = {
     _root,
     { name, integrationId, formId }: { name: string; integrationId: string; formId: string },
   ) {
+    const form = await Forms.findOne({ _id: formId });
+
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
     return MessengerApps.createApp({
       name,
       kind: 'lead',
       showInInbox: false,
       credentials: {
         integrationId,
-        formId,
+        formCode: form.code || '',
       },
     });
   },
