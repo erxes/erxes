@@ -52,6 +52,7 @@ const sidebarConversations = `
         _id
         details {
           avatar
+          fullName
         }
       }
       integration {

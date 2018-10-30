@@ -7,7 +7,8 @@ import {
   FormControl,
   NameCard,
   SvgIcon,
-  Tags
+  Tags,
+  Tip
 } from 'modules/common/components';
 
 import { IUser } from '../../../auth/types';
@@ -156,13 +157,19 @@ class ConversationItem extends React.Component<Props> {
 
           {assignedUser && (
             <AssigneeWrapper>
-              <AssigneeImg
-                src={
-                  assignedUser.details
-                    ? assignedUser.details.avatar
-                    : '/images/avatar-colored.svg'
-                }
-              />
+              <Tip
+                key={assignedUser._id}
+                placement="top"
+                text={assignedUser.details && assignedUser.details.fullName}
+              >
+                <AssigneeImg
+                  src={
+                    assignedUser.details
+                      ? assignedUser.details.avatar
+                      : '/images/avatar-colored.svg'
+                  }
+                />
+              </Tip>
             </AssigneeWrapper>
           )}
         </SmallText>
