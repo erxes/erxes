@@ -34,7 +34,8 @@ export default withProps<{}>(
         options: () => ({
           variables: {
             requireRead: true
-          }
+          },
+          notifyOnNetworkStatusChange: true
         })
       }
     )
