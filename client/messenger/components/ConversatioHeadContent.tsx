@@ -21,7 +21,7 @@ class ConversatioHeadContent extends React.Component<Props> {
         in={visible}
         timeout={300}
         classNames="fade-slide"
-        unmountOnExit
+        unmountOnExit={true}
         onExit={() => {
           this.props.toggleExpand();
         }}
