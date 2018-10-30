@@ -4,20 +4,20 @@ import { ConversationList, LeadConnect } from "../containers";
 import { IntegrationItem } from "./";
 
 type Props = {
-  formId: string;
-  brandId: string;
+  formCode: string;
+  brandCode: string;
 };
 
 export default class Integrations extends React.PureComponent<Props> {
   renderLead() {
-    if (!this.props.formId) {
+    if (!this.props.formCode) {
       return null;
     }
 
-    const { brandId, formId } = this.props;
+    const { brandCode, formCode } = this.props;
     return (
       <IntegrationItem>
-        <LeadConnect brandCode={brandId} formCode={formId} />
+        <LeadConnect brandCode={brandCode} formCode={formCode} />
       </IntegrationItem>
     );
   }

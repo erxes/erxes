@@ -9,8 +9,8 @@ const container = () => {
       {({ getMessengerData }) => {
         return (
           <Integrations
-            brandId={connection.setting.brand_id}
-            formId={getMessengerData().formId}
+            brandCode={connection.setting.brand_id}
+            formCode={getMessengerData().formCode}
           />
         );
       }}

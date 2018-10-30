@@ -35,7 +35,7 @@ const CategoriesWithData = graphql<Props, QueryResponse>(
     options: ({ topicId }) => ({
       fetchPolicy: "network-only",
       variables: {
-        topicId: topicId
+        topicId
       }
     })
   }

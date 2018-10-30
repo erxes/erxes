@@ -216,7 +216,7 @@ export default class Form extends React.Component<Props, State> {
             adminEmailContent
           ) {
             sendEmail({
-              toEmails: adminEmails.split(","),
+              toEmails: adminEmails,
               fromEmail,
               title: adminEmailTitle,
               content: adminEmailContent
