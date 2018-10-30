@@ -1,5 +1,6 @@
 import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { menuInbox } from 'modules/common/utils/menus';
 import { Sidebar } from 'modules/inbox/containers/leftSidebar';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
@@ -10,10 +11,7 @@ type Props = {
 
 function Empty({ queryParams }: Props) {
   const breadcrumb = [{ title: __('Inbox') }];
-  const submenu = [
-    { title: __('Inbox'), link: '/inbox' },
-    { title: __('Insights'), link: '/insights' }
-  ];
+
   const content = (
     <EmptyState
       text="There is no message."
@@ -28,7 +26,7 @@ function Empty({ queryParams }: Props) {
         <Wrapper.Header
           queryParams={queryParams}
           breadcrumb={breadcrumb}
-          submenu={submenu}
+          submenu={menuInbox}
         />
       }
       content={content}
