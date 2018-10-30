@@ -1,4 +1,4 @@
-import { IIntegration } from "../types";
+import { IBrowserInfo, IIntegration } from "../types";
 
 export interface IConnectResponse {
   form: IForm;
@@ -51,6 +51,20 @@ export interface IFieldError {
 }
 
 export interface ICurrentStatus {
+  status: string;
+  errors?: IFieldError[];
+}
+
+export interface IFormDoc {
+  [fieldId: string]: {
+    value: FieldValue;
+    text: string;
+    type: string;
+    validation: string;
+  };
+}
+
+export interface ISaveFormResponse {
   status: string;
   errors?: IFieldError[];
 }

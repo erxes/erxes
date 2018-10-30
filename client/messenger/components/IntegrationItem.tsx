@@ -3,7 +3,7 @@ import { __ } from "../../utils";
 
 type Props = {
   children: React.ReactNode;
-  title: string;
+  title?: string;
 };
 
 function IntegrationItem(props: Props) {
@@ -11,7 +11,7 @@ function IntegrationItem(props: Props) {
 
   return (
     <div className="integration-box">
-      <h4>{__(title)}</h4>
+      {title && <h4>{__(title)}</h4>}
       {children}
     </div>
   );

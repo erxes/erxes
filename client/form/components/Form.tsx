@@ -1,7 +1,13 @@
 import * as React from "react";
 import { IEmailParams, IIntegration } from "../../types";
 import { __ } from "../../utils";
-import { FieldValue, ICurrentStatus, IFieldError, IForm } from "../types";
+import {
+  FieldValue,
+  ICurrentStatus,
+  IFieldError,
+  IForm,
+  IFormDoc
+} from "../types";
 import { TopBar } from "./";
 import Field from "./Field";
 
@@ -9,14 +15,15 @@ type Props = {
   form: IForm;
   integration: IIntegration;
   currentStatus: ICurrentStatus;
-  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
+  onSubmit: (doc: IFormDoc) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
-  setHeight: () => void;
+  setHeight?: () => void;
+  hasTopBar: boolean;
 };
 
 type State = {
-  doc: any;
+  doc: IFormDoc;
 };
 
 export default class Form extends React.Component<Props, State> {
@@ -27,11 +34,15 @@ export default class Form extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    this.props.setHeight();
+    if (this.props.setHeight) {
+      this.props.setHeight();
+    }
   }
 
   componentDidUpdate() {
-    this.props.setHeight();
+    if (this.props.setHeight) {
+      this.props.setHeight();
+    }
   }
 
   componentWillUpdate(nextProps: Props) {
@@ -79,6 +90,14 @@ export default class Form extends React.Component<Props, State> {
     return doc;
   }
 
+  renderHead(title: string, color: string) {
+    if (this.props.hasTopBar) {
+      return <TopBar title={title} color={color} />;
+    }
+
+    return <h4>{title}</h4>;
+  }
+
   renderFields() {
     const { form, currentStatus } = this.props;
     const { fields } = form;
@@ -105,7 +124,7 @@ export default class Form extends React.Component<Props, State> {
 
     return (
       <div className="erxes-form">
-        <TopBar title={form.title || integration.name} color={color} />
+        {this.renderHead(form.title || integration.name, color)}
         <div className="erxes-form-content">
           <div className="erxes-description">{form.description}</div>
           {this.renderFields()}
@@ -114,7 +133,7 @@ export default class Form extends React.Component<Props, State> {
             style={{ background: color }}
             type="button"
             onClick={this.onSubmit}
-            className="btn btn-block"
+            className="erxes-button btn-block"
           >
             {form.buttonText || __("Send")}
           </button>
@@ -128,18 +147,18 @@ export default class Form extends React.Component<Props, State> {
 
     return (
       <div className="erxes-form">
-        <TopBar title={form.title || integration.name} color={color} />
+        {this.renderHead(form.title || integration.name, color)}
         <div className="erxes-form-content">
           <div className="erxes-result">
-            <span>
-              {__(
-                thankContent ||
+            <p>
+              {thankContent ||
+                __(
                   "Thanks for your message. We will respond as soon as we can."
-              )}
-            </span>
+                )}
+            </p>
             <button
               style={{ background: color }}
-              className="btn"
+              className="erxes-button btn-block"
               onClick={onCreateNew}
             >
               {__("Create new")}
@@ -177,7 +196,7 @@ export default class Form extends React.Component<Props, State> {
         const emailField = form.fields.find(f => f.validation === "email");
 
         if (emailField) {
-          const email = this.state.doc[emailField._id].value;
+          const email = this.state.doc[emailField._id].value as string;
 
           // send email to user
           if (email && fromEmail && userEmailTitle && userEmailContent) {
@@ -197,7 +216,7 @@ export default class Form extends React.Component<Props, State> {
             adminEmailContent
           ) {
             sendEmail({
-              toEmails: adminEmails.split(","),
+              toEmails: adminEmails,
               fromEmail,
               title: adminEmailTitle,
               content: adminEmailContent

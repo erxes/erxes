@@ -40,6 +40,10 @@ export interface IBrowserInfo {
   url?: string;
   city?: string;
   country?: string;
+  remoteAddress?: string;
+  region?: string;
+  hostname?: string;
+  userAgent?: string;
 }
 
 export interface IEmailParams {
@@ -87,6 +91,7 @@ export interface IIntegrationMessengerData {
   supporterIds: string[];
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;
+  formCode: string;
   availabilityMethod: string;
   isOnline: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
@@ -101,7 +106,7 @@ export interface IIntegrationFormData {
   fromEmail?: string;
   userEmailTitle?: string;
   userEmailContent?: string;
-  adminEmails?: string;
+  adminEmails?: string[];
   adminEmailTitle?: string;
   adminEmailContent?: string;
   thankContent?: string;

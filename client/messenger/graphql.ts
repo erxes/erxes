@@ -170,6 +170,7 @@ const saveBrowserInfo = `
   }
 `;
 
+// faq
 const getFaqCategoryQuery = `
   query knowledgeBaseCategoriesDetail($categoryId: String!) {
     knowledgeBaseCategoriesDetail(categoryId: $categoryId) {
@@ -205,6 +206,48 @@ const getFaqTopicQuery = `
   }
 `;
 
+// lead
+const formQuery = `
+  query form($formId: String) {
+    form(formId: $formId) {
+      title
+      description
+      buttonText
+
+      fields {
+        _id
+        formId
+        name
+        type
+        check
+        text
+        description
+        options
+        isRequired
+        order
+        validation
+      }
+    }
+  }
+`;
+
+const formConnectMutation = `
+  mutation formConnect($brandCode: String!, $formCode: String!) {
+    formConnect(brandCode: $brandCode, formCode: $formCode) {
+      form {
+        _id
+        title
+        description
+      }
+      integration {
+        _id
+        name
+        formData
+      }
+    }
+  }
+`;
+
 export default {
   messageFields,
   conversationDetailQuery,
@@ -219,5 +262,7 @@ export default {
   readConversationMessages,
   messengerSupportersQuery,
   getFaqCategoryQuery,
-  getFaqTopicQuery
+  getFaqTopicQuery,
+  formQuery,
+  formConnectMutation
 };

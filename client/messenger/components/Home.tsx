@@ -10,9 +10,8 @@ import {
   IUser
 } from "../../types";
 import { __ } from "../../utils";
-import { TopBar } from "../containers";
+import { Integrations, TopBar } from "../containers";
 import { Categories as FaqCategories } from "../containers/faq";
-import { Integrations } from "./";
 import { SocialLink, Supporters } from "./common";
 
 type Props = {
@@ -157,7 +156,7 @@ class Home extends React.Component<Props, State> {
             appear={true}
             timeout={600}
             classNames="slide"
-            unmountOnExit
+            unmountOnExit={true}
           >
             <div className="erxes-home-item">
               <FaqCategories topicId={messengerData.knowledgeBaseTopicId} />

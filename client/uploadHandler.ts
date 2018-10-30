@@ -10,7 +10,9 @@ type UploaderParams = {
   file: File;
   beforeUpload?: () => void;
   afterUpload?: (doc: { response: string; fileInfo: FileInfo }) => void;
-  afterRead?: (doc: { result: string; fileInfo: FileInfo }) => void;
+  afterRead?: (
+    doc: { result: string | ArrayBuffer | null; fileInfo: FileInfo }
+  ) => void;
 };
 
 /**
