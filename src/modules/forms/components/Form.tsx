@@ -49,7 +49,6 @@ type State = {
   formTitle?: string;
   bodyValue?: string;
   formDesc?: string;
-  thankContent?: string;
   formBtnText?: string;
   calloutBtnText?: string;
   theme: string;
@@ -68,6 +67,7 @@ type State = {
   adminEmails?: string[];
   adminEmailTitle?: string;
   adminEmailContent?: string;
+  thankContent?: string;
   redirectUrl?: string;
   preview?: string;
   carousel?: string;
@@ -86,7 +86,18 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       activeStep: 1,
+
       type: formData.loadType || 'shoutbox',
+      successAction: formData.successAction || '',
+      fromEmail: formData.fromEmail || '',
+      userEmailTitle: formData.userEmailTitle || '',
+      userEmailContent: formData.userEmailContent || '',
+      adminEmails: formData.adminEmails || [],
+      adminEmailTitle: formData.adminEmailTitle || '',
+      adminEmailContent: formData.adminEmailContent || '',
+      thankContent: formData.thankContent || 'Thank you.',
+      redirectUrl: formData.redirectUrl || '',
+
       brand: integration.brandId,
       language: integration.languageCode,
       title: integration.name,
@@ -94,7 +105,6 @@ class Form extends React.Component<Props, State> {
       formTitle: form.title || 'Contact',
       bodyValue: callout.body || '',
       formDesc: form.description || '',
-      thankContent: formData.thankContent || 'Thank you.',
       formBtnText: form.buttonText || 'Send',
       calloutBtnText: callout.buttonText || 'Start',
       color: '',
