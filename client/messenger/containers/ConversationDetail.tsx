@@ -95,8 +95,6 @@ class ConversationDetail extends React.Component<
       messages = conversationDetail.messages;
       participators = conversationDetail.participatedUsers || [];
       state = conversationDetail.isOnline;
-
-      console.log(conversationDetail);
     }
 
     return (
