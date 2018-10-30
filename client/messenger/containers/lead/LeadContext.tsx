@@ -48,7 +48,7 @@ export class LeadProvider extends React.Component<{}, IState> {
   /*
    * Save user submissions
    */
-  save = (doc: { [key: string]: any }) => {
+  save = (doc: { [key: string]: string | number }) => {
     saveForm({
       doc,
       browserInfo: connection.browserInfo,

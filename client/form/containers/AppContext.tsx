@@ -17,7 +17,7 @@ interface IStore extends IState {
   toggleShoutbox: (isVisible?: boolean) => void;
   showPopup: () => void;
   closePopup: () => void;
-  saveForm: (doc: { [key: string]: any }) => void;
+  saveForm: (doc: { [key: string]: string | number }) => void;
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight: () => void;
@@ -136,7 +136,7 @@ export class AppProvider extends React.Component<{}, IState> {
   /*
    * Save user submissions
    */
-  save = (doc: { [key: string]: any }) => {
+  save = (doc: { [key: string]: string | number }) => {
     saveForm({
       doc,
       browserInfo: connection.browserInfo,
