@@ -94,6 +94,11 @@ const SmallText = styled.div`
   flex-shrink: 0;
 `;
 
+const RowText = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
 const SmallTextOneLine = SmallText.extend`
   max-height: ${dimensions.coreSpacing}px;
   overflow: hidden;
@@ -116,20 +121,19 @@ const MessageContent = styled.div`
 const RowItem = styledTS<{
   isActive?: boolean;
   isRead?: boolean;
-  isIdle: boolean;
+  isIdle?: boolean;
+  kind?: string;
+  status?: string;
 }>(styled.li)`
   padding: ${dimensions.coreSpacing}px;
   display: flex;
+  position: relative;
   flex-direction: row;
   border-bottom: 1px solid ${colors.borderPrimary};
   transition: all ease 0.3s;
   background: ${props => {
     if (props.isActive) {
       return colors.bgActive;
-    }
-
-    if (props.isIdle) {
-      return colors.bgIdle;
     }
 
     return null;
@@ -146,8 +150,38 @@ const RowItem = styledTS<{
     `};
   &:hover {
     background: ${props =>
-      !props.isRead || props.isActive || props.isIdle ? '' : colors.bgLight};
+      !props.isRead || props.isActive ? '' : colors.bgLight};
     cursor: pointer;
+  }
+
+  &:after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      border: ${dimensions.unitSpacing}px solid transparent;
+      border-right-color: ${props => {
+        if (
+          props.isIdle &&
+          props.kind !== 'form' &&
+          props.status !== 'closed'
+        ) {
+          return colors.colorCoreRed;
+        }
+
+        return null;
+      }};
+      border-top-color: ${props => {
+        if (
+          props.isIdle &&
+          props.kind !== 'form' &&
+          props.status !== 'closed'
+        ) {
+          return colors.colorCoreRed;
+        }
+
+        return null;
+      }};
   }
 `;
 
@@ -175,5 +209,6 @@ export {
   SmallTextOneLine,
   MessageContent,
   AssigneeImg,
-  AssigneeWrapper
+  AssigneeWrapper,
+  RowText
 };

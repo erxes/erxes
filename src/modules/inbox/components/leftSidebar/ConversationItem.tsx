@@ -3,7 +3,12 @@ import * as React from 'react';
 import strip from 'strip';
 
 import { withCurrentUser } from 'modules/auth/containers';
-import { FormControl, IntegrationIcon, Tags } from 'modules/common/components';
+import {
+  FormControl,
+  NameCard,
+  SvgIcon,
+  Tags
+} from 'modules/common/components';
 
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../../customers/types';
@@ -20,6 +25,7 @@ import {
   MessageContent,
   RowContent,
   RowItem,
+  RowText,
   SmallText,
   SmallTextOneLine
 } from './styles';
@@ -106,19 +112,15 @@ class ConversationItem extends React.Component<Props> {
         isActive={isActive}
         isRead={isRead}
         isIdle={idleTime >= 1}
+        kind={integration.kind}
+        status={conversation.status}
       >
         <RowContent isChecked={isChecked}>
           {this.renderCheckbox()}
           <FlexContent>
             <MainInfo>
               {isExistingCustomer && (
-                <IntegrationIcon
-                  size={40}
-                  integration={integration}
-                  customer={customer}
-                  facebookData={conversation.facebookData}
-                  twitterData={conversation.twitterData}
-                />
+                <NameCard.Avatar size={40} customer={customer} />
               )}
               <FlexContent>
                 <CustomerName>
@@ -142,7 +144,15 @@ class ConversationItem extends React.Component<Props> {
         </RowContent>
 
         <SmallText>
-          {moment(updatedAt || createdAt).fromNow()}
+          <RowText>
+            {moment(updatedAt || createdAt).fromNow()}
+            <SvgIcon
+              integration={integration}
+              customer={customer}
+              facebookData={conversation.facebookData}
+              twitterData={conversation.twitterData}
+            />
+          </RowText>
 
           {assignedUser && (
             <AssigneeWrapper>

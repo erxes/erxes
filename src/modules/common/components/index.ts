@@ -32,6 +32,7 @@ import SortHandler from './SortHandler';
 import Spinner from './Spinner';
 import { Step, Steps } from './step';
 import Submenu from './submenu/Submenu';
+import SvgIcon from './SvgIcon';
 import Table from './table';
 import { Tabs, TabTitle } from './tabs';
 import Tags from './Tags';
@@ -88,5 +89,6 @@ export {
   DateFilter,
   ModifiableSelect,
   Uploader,
-  SortHandler
+  SortHandler,
+  SvgIcon
 };

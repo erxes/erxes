@@ -27,7 +27,7 @@ const bgDark = rgba('#000', 0.95);
 const bgLight = '#FAFAFA';
 const bgActive = '#F0F0F0';
 const bgUnread = '#F7F8FC';
-const bgInternal = '#FFEDED';
+const bgInternal = '#FFFCCC';
 const bgIdle = '#FCE1E1';
 
 // Link colors
