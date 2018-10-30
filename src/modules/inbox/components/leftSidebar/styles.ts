@@ -159,7 +159,7 @@ const RowItem = styledTS<{
       position: absolute;
       top: 0;
       right: 0;
-      border: ${dimensions.unitSpacing}px solid transparent;
+      border: 6px solid transparent;
       border-right-color: ${props => {
         if (
           props.isIdle &&
