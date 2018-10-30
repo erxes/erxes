@@ -1,7 +1,13 @@
 import * as React from "react";
 import { IEmailParams, IIntegration } from "../../types";
 import { __ } from "../../utils";
-import { FieldValue, ICurrentStatus, IFieldError, IForm } from "../types";
+import {
+  FieldValue,
+  ICurrentStatus,
+  IFieldError,
+  IForm,
+  IFormDoc
+} from "../types";
 import { TopBar } from "./";
 import Field from "./Field";
 
@@ -9,7 +15,7 @@ type Props = {
   form: IForm;
   integration: IIntegration;
   currentStatus: ICurrentStatus;
-  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
+  onSubmit: (doc: IFormDoc) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
@@ -17,7 +23,7 @@ type Props = {
 };
 
 type State = {
-  doc: any;
+  doc: IFormDoc;
 };
 
 export default class Form extends React.Component<Props, State> {
@@ -190,7 +196,7 @@ export default class Form extends React.Component<Props, State> {
         const emailField = form.fields.find(f => f.validation === "email");
 
         if (emailField) {
-          const email = this.state.doc[emailField._id].value;
+          const email = this.state.doc[emailField._id].value as string;
 
           // send email to user
           if (email && fromEmail && userEmailTitle && userEmailContent) {

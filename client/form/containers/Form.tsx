@@ -4,7 +4,7 @@ import { ChildProps, graphql } from "react-apollo";
 import { IEmailParams, IIntegration } from "../../types";
 import { Form as DumbForm } from "../components";
 import { formQuery } from "../graphql";
-import { ICurrentStatus, IForm } from "../types";
+import { ICurrentStatus, IForm, IFormDoc } from "../types";
 import { AppConsumer } from "./AppContext";
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {
@@ -34,7 +34,7 @@ interface IProps {
   integration: IIntegration;
   form: IForm;
   currentStatus: ICurrentStatus;
-  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
+  onSubmit: (doc: IFormDoc) => void;
   onCreateNew: () => void;
   setHeight: () => void;
   sendEmail: (params: IEmailParams) => void;
@@ -57,7 +57,7 @@ const WithContext = () => (
   <AppConsumer>
     {({
       currentStatus,
-      saveForm,
+      save,
       createNew,
       sendEmail,
       setHeight,
@@ -70,7 +70,7 @@ const WithContext = () => (
       return (
         <FormWithData
           currentStatus={currentStatus}
-          onSubmit={saveForm}
+          onSubmit={save}
           onCreateNew={createNew}
           sendEmail={sendEmail}
           setHeight={setHeight}

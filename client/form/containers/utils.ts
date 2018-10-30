@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import client from "../../apollo-client";
-import { IEmailParams } from "../../types";
+import { IBrowserInfo, IEmailParams } from "../../types";
 import { requestBrowserInfo } from "../../utils";
 import { connection } from "../connection";
 import {
@@ -8,7 +8,7 @@ import {
   saveFormMutation,
   sendEmailMutation
 } from "../graphql";
-import { ISaveFormParams } from "../types";
+import { IFormDoc, ISaveFormResponse } from "../types";
 
 /*
  * Send message to iframe's parent
@@ -71,9 +71,15 @@ export const increaseViewCount = (formId: string) => {
 };
 
 /*
-  * Save user submissions
-  */
-export const saveForm = (params: ISaveFormParams) => {
+ * Save user submissions
+ */
+export const saveForm = (params: {
+  doc: IFormDoc;
+  browserInfo: IBrowserInfo;
+  integrationId: string;
+  formId: string;
+  saveCallback: (response: ISaveFormResponse) => void;
+}) => {
   const { doc, browserInfo, integrationId, formId, saveCallback } = params;
 
   const submissions = Object.keys(doc).map(fieldId => {
@@ -101,7 +107,7 @@ export const saveForm = (params: ISaveFormParams) => {
 
     .then(({ data }) => {
       if (data) {
-        saveCallback(data);
+        saveCallback(data.saveForm);
       }
     });
 };

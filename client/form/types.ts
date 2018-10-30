@@ -5,14 +5,6 @@ export interface IConnectResponse {
   integration: IIntegration;
 }
 
-export interface ISaveFormParams {
-  doc: { [key: string]: any };
-  browserInfo: IBrowserInfo;
-  integrationId: string;
-  formId: string;
-  saveCallback: (data: { [key: string]: any }) => void;
-}
-
 export interface IField {
   _id: string;
   contentType: string;
@@ -59,6 +51,20 @@ export interface IFieldError {
 }
 
 export interface ICurrentStatus {
+  status: string;
+  errors?: IFieldError[];
+}
+
+export interface IFormDoc {
+  [fieldId: string]: {
+    value: FieldValue;
+    text: string;
+    type: string;
+    validation: string;
+  };
+}
+
+export interface ISaveFormResponse {
   status: string;
   errors?: IFieldError[];
 }

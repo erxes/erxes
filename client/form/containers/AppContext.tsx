@@ -1,7 +1,7 @@
 import * as React from "react";
 import { IEmailParams, IIntegration, IIntegrationFormData } from "../../types";
 import { connection } from "../connection";
-import { ICurrentStatus, IForm } from "../types";
+import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from "../types";
 import { increaseViewCount, postMessage, saveForm, sendEmail } from "./utils";
 
 interface IState {
@@ -17,7 +17,7 @@ interface IStore extends IState {
   toggleShoutbox: (isVisible?: boolean) => void;
   showPopup: () => void;
   closePopup: () => void;
-  saveForm: (doc: { [key: string]: string | number }) => void;
+  save: (doc: IFormDoc) => void;
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight: () => void;
@@ -136,14 +136,14 @@ export class AppProvider extends React.Component<{}, IState> {
   /*
    * Save user submissions
    */
-  save = (doc: { [key: string]: string | number }) => {
+  save = (doc: IFormDoc) => {
     saveForm({
       doc,
       browserInfo: connection.browserInfo,
       integrationId: this.getIntegration()._id,
       formId: this.getForm()._id,
-      saveCallback: (data: { [key: string]: any }) => {
-        const { status, errors } = data.saveForm;
+      saveCallback: (response: ISaveFormResponse) => {
+        const { status, errors } = response;
 
         this.setState({
           currentStatus: {
@@ -198,7 +198,7 @@ export class AppProvider extends React.Component<{}, IState> {
           toggleShoutbox: this.toggleShoutbox,
           showPopup: this.showPopup,
           closePopup: this.closePopup,
-          saveForm: this.save,
+          save: this.save,
           createNew: this.createNew,
           sendEmail,
           setHeight: this.setHeight,

@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
 import { Form as DumbForm } from "../../../form/components";
-import { ICurrentStatus, IForm } from "../../../form/types";
+import { ICurrentStatus, IForm, IFormDoc } from "../../../form/types";
 import { IEmailParams, IIntegration } from "../../../types";
 import queries from "../../graphql";
 import { LeadConsumer, LeadProvider } from "./LeadContext";
@@ -34,7 +34,7 @@ interface IProps {
   integration: IIntegration;
   form: IForm;
   currentStatus: ICurrentStatus;
-  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
+  onSubmit: (doc: IFormDoc) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
 }
@@ -53,7 +53,7 @@ const WithContext = () => (
     <LeadConsumer>
       {({
         currentStatus,
-        saveForm,
+        save,
         createNew,
         sendEmail,
         getIntegration,
@@ -65,7 +65,7 @@ const WithContext = () => (
         return (
           <FormWithData
             currentStatus={currentStatus}
-            onSubmit={saveForm}
+            onSubmit={save}
             onCreateNew={createNew}
             sendEmail={sendEmail}
             form={form}
