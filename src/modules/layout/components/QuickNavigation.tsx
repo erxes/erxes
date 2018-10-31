@@ -87,15 +87,15 @@ const QuickNavigation = ({
               <Link to="/profile">{__('View Profile')}</Link>
             </li>
 
-            <ModalTrigger
-              title="Change Password"
-              trigger={
-                <li>
-                  <a>{__('Change Password')}</a>
-                </li>
-              }
-              content={passContent}
-            />
+            #<ModalTrigger
+            #  title="Change Password"
+            #  trigger={
+            #    <li>
+            #      <a>{__('Change Password')}</a>
+            #    </li>
+            #  }
+            #  content={passContent}
+            #/>
 
             <ModalTrigger
               title="Email signatures"
