@@ -125,6 +125,12 @@ export type IntegrationsQueryResponse = {
   refetch: (variables?: QueryVariables) => void;
 };
 
+export type LeadsQueryResponse = {
+  forms: IForm[];
+  loading: boolean;
+  refetch: (variables?: QueryVariables) => void;
+};
+
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
   loading: boolean;

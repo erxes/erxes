@@ -256,8 +256,9 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       { conversationId?: string; limit: number }
     >(gql(queries.conversationMessages), {
       name: 'messagesQuery',
-      options: ({ currentId }) => {
+      options: ({ currentId, currentConversation }) => {
         const windowHeight = window.innerHeight;
+        const { integration } = currentConversation;
 
         // 330 - height of above and below sections of detail area
         // 45 -  min height of per message
@@ -267,7 +268,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
         return {
           variables: {
             conversationId: currentId,
-            limit
+            limit: integration.kind === 'messenger' ? limit : 0
           },
           fetchPolicy: 'network-only'
         };

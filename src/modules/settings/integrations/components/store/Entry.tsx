@@ -1,11 +1,11 @@
-import { Icon, ModalTrigger, Tip } from 'modules/common/components';
+import { Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
-import { Box, IntegrationItem, Messenger } from './styles';
+import { Box, IntegrationItem, Type } from './styles';
 
 type Props = {
   integration: any;
@@ -84,9 +84,9 @@ class Entry extends React.Component<Props> {
     }
 
     return (
-      <Messenger>
+      <Type>
         <Icon icon="chat" /> {__('Works with messenger')}
-      </Messenger>
+      </Type>
     );
   };
 
@@ -96,7 +96,6 @@ class Entry extends React.Component<Props> {
 
   render() {
     const { integration, getClassName } = this.props;
-    const { kind } = integration;
 
     return (
       <IntegrationItem

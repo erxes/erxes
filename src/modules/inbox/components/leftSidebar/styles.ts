@@ -150,7 +150,7 @@ const RowItem = styledTS<{
     `};
   &:hover {
     background: ${props =>
-      !props.isRead || props.isActive ? '' : colors.bgLight};
+      !props.isRead || props.isActive || props.isIdle ? '' : colors.bgLight};
     cursor: pointer;
   }
 
