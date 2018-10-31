@@ -1,4 +1,5 @@
 import T from 'i18n-react';
+import * as React from 'react';
 import Alert from './Alert';
 import colorParser from './colorParser';
 import confirm from './confirmation/confirm';
@@ -98,3 +99,13 @@ export const __ = (key: string, options?: any) => {
 
   return translation.toString();
 };
+
+export function withProps<IProps>(
+  Wrapped: new (props: IProps) => React.Component<IProps>
+) {
+  return class WithProps extends React.Component<IProps, {}> {
+    render() {
+      return <Wrapped {...this.props} />;
+    }
+  };
+}

@@ -5,25 +5,34 @@ import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { withProps } from '../../common/utils';
 import { MessageList } from '../components';
 import { queries } from '../graphql';
+import {
+  EngageMessagesQueryResponse,
+  EngageMessagesTotalCountQueryResponse,
+  ListQueryVariables
+} from '../types';
 import { generateListQueryVariables } from '../utils';
 
 type Props = {
   type: string;
   queryParams: any;
-  engageMessagesQuery: any;
-  engageMessagesTotalCountQuery: any;
   loading: boolean;
 };
+
+type FinalProps = {
+  engageMessagesQuery: EngageMessagesQueryResponse;
+  engageMessagesTotalCountQuery: EngageMessagesTotalCountQueryResponse;
+} & Props;
 
 type State = {
   bulk: any[];
   isAllSelected: boolean;
 };
 
-class MessageListContainer extends React.Component<Props, State> {
-  constructor(props: Props) {
+class MessageListContainer extends React.Component<FinalProps, State> {
+  constructor(props: FinalProps) {
     super(props);
 
     this.state = {
@@ -57,24 +66,32 @@ class MessageListContainer extends React.Component<Props, State> {
   }
 }
 
-const MessageListContainerWithData = compose(
-  graphql<Props>(gql(queries.engageMessages), {
-    name: 'engageMessagesQuery',
-    options: props => ({
-      variables: generateListQueryVariables(props),
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql<Props>(gql(queries.engageMessagesTotalCount), {
-    name: 'engageMessagesTotalCountQuery',
-    options: props => ({
-      variables: generateListQueryVariables(props),
-      fetchPolicy: 'network-only'
-    })
-  })
-)(MessageListContainer);
+const MessageListContainerWithData = withProps<Props>(
+  compose(
+    graphql<Props, EngageMessagesQueryResponse, ListQueryVariables>(
+      gql(queries.engageMessages),
+      {
+        name: 'engageMessagesQuery',
+        options: props => ({
+          variables: generateListQueryVariables(props),
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, EngageMessagesTotalCountQueryResponse, ListQueryVariables>(
+      gql(queries.engageMessagesTotalCount),
+      {
+        name: 'engageMessagesTotalCountQuery',
+        options: props => ({
+          variables: generateListQueryVariables(props),
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
+  )(MessageListContainer)
+);
 
-const EngageListContainer = (props: IRouterProps) => {
+const EngageListContainer = (props: IRouterProps & Props) => {
   const queryParams = queryString.parse(props.location.search);
 
   const extendedProps = { ...props, queryParams };
@@ -82,4 +99,4 @@ const EngageListContainer = (props: IRouterProps) => {
   return <MessageListContainerWithData {...extendedProps} />;
 };
 
-export default withRouter<IRouterProps>(EngageListContainer);
+export default withRouter<IRouterProps & Props>(EngageListContainer);

@@ -25,10 +25,6 @@ class ProductForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.addProductItem = this.addProductItem.bind(this);
-    this.removeProductItem = this.removeProductItem.bind(this);
-    this.updateTotal = this.updateTotal.bind(this);
-
     this.state = {
       total: {},
       discount: {},
@@ -45,7 +41,7 @@ class ProductForm extends React.Component<Props, State> {
     }
   }
 
-  addProductItem() {
+  addProductItem = () => {
     const { productsData, onChangeProductsData } = this.props;
 
     productsData.push({
@@ -60,9 +56,9 @@ class ProductForm extends React.Component<Props, State> {
     });
 
     onChangeProductsData(productsData);
-  }
+  };
 
-  removeProductItem(productId) {
+  removeProductItem = productId => {
     const { productsData, onChangeProductsData } = this.props;
 
     const removedProductsData = productsData.filter(p => p._id !== productId);
@@ -70,9 +66,9 @@ class ProductForm extends React.Component<Props, State> {
     onChangeProductsData(removedProductsData);
 
     this.updateTotal();
-  }
+  };
 
-  updateTotal() {
+  updateTotal = () => {
     const { productsData } = this.props;
 
     const total = {};
@@ -94,7 +90,7 @@ class ProductForm extends React.Component<Props, State> {
     });
 
     this.setState({ total, tax, discount });
-  }
+  };
 
   renderTotal(value) {
     return Object.keys(value).map(key => (

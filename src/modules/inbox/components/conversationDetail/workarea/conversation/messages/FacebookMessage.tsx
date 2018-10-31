@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import { Attachment } from 'modules/common/components';
 import * as React from 'react';
+import * as xss from 'xss';
 import { IMessage, IMessageFacebookData } from '../../../../../types';
 import { SimpleMessage } from './';
 
@@ -74,7 +75,7 @@ export default class FacebookMessage extends React.Component<Props, {}> {
     const renderContent = () => {
       return (
         <React.Fragment>
-          <span dangerouslySetInnerHTML={{ __html: message.content }} />
+          <span dangerouslySetInnerHTML={{ __html: xss(message.content) }} />
           {this.renderVideoIframe(fbData, isVideoPost)}
           {this.renderAttachment(message, hasAttachment, isPhotoPost)}
         </React.Fragment>

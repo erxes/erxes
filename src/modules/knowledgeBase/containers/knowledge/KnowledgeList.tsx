@@ -1,33 +1,33 @@
 import gql from 'graphql-tag';
-import { Alert, confirm } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { KnowledgeList } from '../../components';
 import { mutations, queries } from '../../graphql';
-
-type Variables = {
-  title: string;
-  description: string;
-  brandId: string;
-  languageCode: string;
-  color: string;
-};
+import {
+  AddTopicsMutationResponse,
+  EditTopicsMutationResponse,
+  RemoveTopicsMutation,
+  TopicsQueryResponse,
+  TopicsTotalCountQueryResponse,
+  TopicVariables
+} from '../../types';
 
 type Props = {
   queryParams: any;
-  topicsQuery: any;
-  topicsCountQuery: any;
   currentCategoryId: string;
   articlesCount: number;
-
-  addTopicsMutation: (params: { variables: Variables }) => Promise<any>;
-  editTopicsMutation: (params: { variables: Variables }) => Promise<any>;
-  removeTopicsMutation: (
-    params: { variables: { _id: string } }
-  ) => Promise<any>;
 };
 
-const KnowledgeBaseContainer = (props: Props) => {
+type FinalProps = {
+  topicsQuery: TopicsQueryResponse;
+  topicsCountQuery: TopicsTotalCountQueryResponse;
+} & Props &
+  AddTopicsMutationResponse &
+  EditTopicsMutationResponse &
+  RemoveTopicsMutation;
+
+const KnowledgeBaseContainer = (props: FinalProps) => {
   const {
     currentCategoryId,
     topicsQuery,
@@ -100,39 +100,53 @@ const KnowledgeBaseContainer = (props: Props) => {
   return <KnowledgeList {...extendedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.knowledgeBaseTopics), {
-    name: 'topicsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.knowledgeBaseTopicsTotalCount), {
-    name: 'topicsCountQuery'
-  }),
-  graphql(gql(mutations.knowledgeBaseTopicsEdit), {
-    name: 'editTopicsMutation'
-  }),
-  graphql(gql(mutations.knowledgeBaseTopicsAdd), {
-    name: 'addTopicsMutation'
-  }),
-  graphql(gql(mutations.knowledgeBaseTopicsRemove), {
-    name: 'removeTopicsMutation',
-    options: ({ currentCategoryId }: { currentCategoryId?: string }) => {
-      return {
-        refetchQueries: !currentCategoryId
-          ? []
-          : [
-              {
-                query: gql(queries.knowledgeBaseArticlesTotalCount),
-                variables: { categoryIds: [currentCategoryId] }
-              },
-              {
-                query: gql(queries.knowledgeBaseCategoryDetail),
-                variables: { _id: currentCategoryId }
-              }
-            ]
-      };
-    }
-  })
-)(KnowledgeBaseContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, TopicsQueryResponse>(gql(queries.knowledgeBaseTopics), {
+      name: 'topicsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, TopicsTotalCountQueryResponse>(
+      gql(queries.knowledgeBaseTopicsTotalCount),
+      {
+        name: 'topicsCountQuery'
+      }
+    ),
+    graphql<Props, EditTopicsMutationResponse, TopicVariables>(
+      gql(mutations.knowledgeBaseTopicsEdit),
+      {
+        name: 'editTopicsMutation'
+      }
+    ),
+    graphql<Props, AddTopicsMutationResponse, TopicVariables>(
+      gql(mutations.knowledgeBaseTopicsAdd),
+      {
+        name: 'addTopicsMutation'
+      }
+    ),
+    graphql<Props, RemoveTopicsMutation, { _id: string }>(
+      gql(mutations.knowledgeBaseTopicsRemove),
+      {
+        name: 'removeTopicsMutation',
+        options: ({ currentCategoryId }) => {
+          return {
+            refetchQueries: !currentCategoryId
+              ? []
+              : [
+                  {
+                    query: gql(queries.knowledgeBaseArticlesTotalCount),
+                    variables: { categoryIds: [currentCategoryId] }
+                  },
+                  {
+                    query: gql(queries.knowledgeBaseCategoryDetail),
+                    variables: { _id: currentCategoryId }
+                  }
+                ]
+          };
+        }
+      }
+    )
+  )(KnowledgeBaseContainer)
+);

@@ -113,14 +113,27 @@ const MessageContent = styled.div`
   max-height: 18px;
 `;
 
-const RowItem = styledTS<{ isActive?: boolean; isRead?: boolean }>(styled.li)`
+const RowItem = styledTS<{
+  isActive?: boolean;
+  isRead?: boolean;
+  isIdle: boolean;
+}>(styled.li)`
   padding: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: row;
   border-bottom: 1px solid ${colors.borderPrimary};
   transition: all ease 0.3s;
+  background: ${props => {
+    if (props.isActive) {
+      return colors.bgActive;
+    }
 
-  background: ${props => props.isActive && colors.bgActive};
+    if (props.isIdle) {
+      return colors.bgIdle;
+    }
+
+    return null;
+  }};
 
   ${props =>
     !props.isRead &&
@@ -133,7 +146,7 @@ const RowItem = styledTS<{ isActive?: boolean; isRead?: boolean }>(styled.li)`
     `};
   &:hover {
     background: ${props =>
-      !props.isRead || props.isActive ? '' : colors.bgLight};
+      !props.isRead || props.isActive || props.isIdle ? '' : colors.bgLight};
     cursor: pointer;
   }
 `;

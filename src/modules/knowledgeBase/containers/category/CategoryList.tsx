@@ -4,17 +4,26 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CategoryList } from '../../components';
 import { mutations, queries } from '../../graphql';
+import {
+  ArticlesTotalCountQueryResponse,
+  CategoriesQueryResponse,
+  CategoriesTotalCountQueryResponse,
+  RemoveCategoriesMutationResponse
+} from '../../types';
 
 type Props = {
-  categoriesQuery: any;
-  categoriesCountQuery: any;
-  articlesCountQuery: any;
-  removeCategoriesMutation: (params: { variables: { _id: string } }) => any;
   currentCategoryId: string;
   topicIds: string;
 };
 
-const KnowledgeBaseContainer = (props: Props) => {
+type FinalProps = {
+  categoriesQuery: CategoriesQueryResponse;
+  categoriesCountQuery: CategoriesTotalCountQueryResponse;
+  articlesCountQuery: ArticlesTotalCountQueryResponse;
+} & Props &
+  RemoveCategoriesMutationResponse;
+
+const KnowledgeBaseContainer = (props: FinalProps) => {
   const {
     currentCategoryId,
     categoriesQuery,
@@ -57,40 +66,52 @@ const KnowledgeBaseContainer = (props: Props) => {
 };
 
 export default compose(
-  graphql(gql(queries.knowledgeBaseCategories), {
-    name: 'categoriesQuery',
-    options: ({ topicIds }: { topicIds: string[] }) => {
-      return {
-        variables: {
-          topicIds: [topicIds]
-        }
-      };
-    }
-  }),
-  graphql(gql(queries.knowledgeBaseArticlesTotalCount), {
-    name: 'articlesCountQuery',
-    options: ({ currentCategoryId }: { currentCategoryId: string }) => ({
-      variables: { categoryIds: [currentCategoryId] || '' }
-    })
-  }),
-  graphql(gql(queries.knowledgeBaseCategoriesTotalCount), {
-    name: 'categoriesCountQuery'
-  }),
-  graphql(gql(mutations.knowledgeBaseCategoriesRemove), {
-    name: 'removeCategoriesMutation',
-    options: ({ currentCategoryId }: { currentCategoryId: string }) => {
-      return {
-        refetchQueries: [
-          {
-            query: gql(queries.knowledgeBaseArticlesTotalCount),
-            variables: { categoryIds: [currentCategoryId] }
-          },
-          {
-            query: gql(queries.knowledgeBaseCategoryDetail),
-            variables: { _id: currentCategoryId }
+  graphql<Props, CategoriesQueryResponse, { topicIds: string[] }>(
+    gql(queries.knowledgeBaseCategories),
+    {
+      name: 'categoriesQuery',
+      options: ({ topicIds }) => {
+        return {
+          variables: {
+            topicIds: [topicIds]
           }
-        ]
-      };
+        };
+      }
     }
-  })
+  ),
+  graphql<Props, ArticlesTotalCountQueryResponse, { categoryIds: string[] }>(
+    gql(queries.knowledgeBaseArticlesTotalCount),
+    {
+      name: 'articlesCountQuery',
+      options: ({ currentCategoryId }) => ({
+        variables: { categoryIds: [currentCategoryId] || '' }
+      })
+    }
+  ),
+  graphql<Props, CategoriesTotalCountQueryResponse>(
+    gql(queries.knowledgeBaseCategoriesTotalCount),
+    {
+      name: 'categoriesCountQuery'
+    }
+  ),
+  graphql<Props, RemoveCategoriesMutationResponse, { _id: string }>(
+    gql(mutations.knowledgeBaseCategoriesRemove),
+    {
+      name: 'removeCategoriesMutation',
+      options: ({ currentCategoryId }) => {
+        return {
+          refetchQueries: [
+            {
+              query: gql(queries.knowledgeBaseArticlesTotalCount),
+              variables: { categoryIds: [currentCategoryId] }
+            },
+            {
+              query: gql(queries.knowledgeBaseCategoryDetail),
+              variables: { _id: currentCategoryId }
+            }
+          ]
+        };
+      }
+    }
+  )
 )(KnowledgeBaseContainer);

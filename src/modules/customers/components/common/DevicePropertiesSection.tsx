@@ -1,3 +1,4 @@
+import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
@@ -10,12 +11,12 @@ type Props = {
 };
 
 class DevicePropertiesSection extends React.Component<Props> {
-  renderDeviceProperty(
+  renderDeviceProperty = (
     text: string,
     value?: string,
     secondValue?: string,
     nowrap?: boolean
-  ) {
+  ) => {
     if (value || secondValue) {
       return (
         <li>
@@ -28,43 +29,44 @@ class DevicePropertiesSection extends React.Component<Props> {
     }
 
     return null;
+  };
+
+  renderContent() {
+    const { customer } = this.props;
+    const location = customer.location;
+
+    if (!location) {
+      return <EmptyState icon="placeholder" text="No location" size="small" />;
+    }
+
+    const ua = parse(location.userAgent || ' ');
+
+    return (
+      <SidebarList className="no-link">
+        {this.renderDeviceProperty('Location', location.country)}
+        {this.renderDeviceProperty(
+          'Browser',
+          ua.browser.name,
+          ua.browser.version
+        )}
+        {this.renderDeviceProperty('Platform', ua.os.name, ua.os.version)}
+        {this.renderDeviceProperty('IP Address', location.remoteAddress)}
+        {this.renderDeviceProperty('Hostname', location.hostname)}
+        {this.renderDeviceProperty('Language', location.language)}
+        {this.renderDeviceProperty('User Agent', location.userAgent, '', true)}
+      </SidebarList>
+    );
   }
 
   render() {
     const { Section } = Sidebar;
     const { Title } = Section;
 
-    const { customer } = this.props;
-    const location = customer.location;
-
-    if (!location) {
-      return null;
-    }
-
-    const ua = parse(location.userAgent || ' ');
-
     return (
       <Section>
         <Title>{__('Device properties')}</Title>
 
-        <SidebarList className="no-link">
-          {this.renderDeviceProperty('Location', location.country)}
-          {this.renderDeviceProperty(
-            'Browser',
-            ua.browser.name,
-            ua.browser.version
-          )}
-          {this.renderDeviceProperty('Platform', ua.os.name, ua.os.version)}
-          {this.renderDeviceProperty('IP Address', location.remoteAddress)}
-          {this.renderDeviceProperty('Hostname', location.hostname)}
-          {this.renderDeviceProperty('Language', location.language)}
-          {this.renderDeviceProperty(
-            'User Agent',
-            location.userAgent,
-            '',
-            true
-          )}
-        </SidebarList>
+        {this.renderContent()}
       </Section>
     );
   }

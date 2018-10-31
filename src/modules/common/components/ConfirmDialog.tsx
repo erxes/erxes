@@ -46,22 +46,19 @@ class ConfirmDialog extends React.Component<Props, State> {
     super(props);
 
     this.state = { show: true };
-
-    this.dismiss = this.dismiss.bind(this);
-    this.proceed = this.proceed.bind(this);
   }
 
-  dismiss() {
+  dismiss = () => {
     this.setState({ show: false }, () => {
       this.props.dismiss();
     });
-  }
+  };
 
-  proceed(value) {
+  proceed = value => {
     this.setState({ show: false }, () => {
       this.props.proceed(value);
     });
-  }
+  };
 
   render() {
     const { confirmation = 'Are you sure?' } = this.props;

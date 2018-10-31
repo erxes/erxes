@@ -1,4 +1,5 @@
 import { __ } from 'modules/common/utils';
+import { menuInbox } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import { Contents } from 'modules/layout/styles';
 import * as React from 'react';
@@ -12,17 +13,13 @@ type Props = {
 
 function Inbox({ currentConversationId, queryParams }: Props) {
   const breadcrumb = [{ title: __('Inbox') }];
-  const submenu = [
-    { title: __('Inbox'), link: '/inbox' },
-    { title: __('Insights'), link: '/insights' }
-  ];
 
   return (
     <Contents>
       <Header
         queryParams={queryParams}
         breadcrumb={breadcrumb}
-        submenu={submenu}
+        submenu={menuInbox}
       />
       <Sidebar
         queryParams={queryParams}

@@ -1,24 +1,30 @@
 import gql from 'graphql-tag';
 import { Chooser } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CompanyForm } from '.';
 import { mutations, queries } from '../graphql';
-import { ICompanyDoc } from '../types';
+import {
+  AddMutationResponse,
+  CompaniesQueryResponse,
+  ICompany,
+  ICompanyDoc
+} from '../types';
 
 type Props = {
-  data: any;
-  companiesQuery: any;
-  companiesAdd: (params: { variables: ICompanyDoc }) => Promise<any>;
-  search: (value?: string) => void;
+  search: (value: string, loadMore?: boolean) => void;
   perPage: number;
-  closeModal: () => void;
+  searchValue: string;
 };
 
-const CompanyChooser = (props: WrapperProps & Props) => {
-  const { data, companiesQuery, companiesAdd, search } = props;
+type FinalProps = {
+  companiesQuery: CompaniesQueryResponse;
+} & Props &
+  AddMutationResponse;
 
+const CompanyChooser = (props: WrapperProps & FinalProps) => {
+  const { data, companiesQuery, companiesAdd, search } = props;
   // add company
   const addCompany = ({ doc, callback }) => {
     companiesAdd({
@@ -59,33 +65,34 @@ const CompanyChooser = (props: WrapperProps & Props) => {
   return <Chooser {...updatedProps} />;
 };
 
-const WithQuery = compose(
-  graphql(gql(queries.companies), {
-    name: 'companiesQuery',
-    options: ({
-      searchValue,
-      perPage
-    }: {
-      searchValue: string;
-      perPage: number;
-    }) => {
-      return {
-        variables: {
-          searchValue,
-          perPage
-        }
-      };
-    }
-  }),
-  // mutations
-  graphql(gql(mutations.companiesAdd), {
-    name: 'companiesAdd'
-  })
-)(CompanyChooser);
+const WithQuery = withProps<Props>(
+  compose(
+    graphql<
+      Props,
+      CompaniesQueryResponse,
+      { searchValue: string; perPage: number }
+    >(gql(queries.companies), {
+      name: 'companiesQuery',
+      options: ({ searchValue, perPage }) => {
+        return {
+          variables: {
+            searchValue,
+            perPage
+          }
+        };
+      }
+    }),
+    // mutations
+    graphql<{}, AddMutationResponse, ICompanyDoc>(gql(mutations.companiesAdd), {
+      name: 'companiesAdd'
+    })
+  )(CompanyChooser)
+);
 
 type WrapperProps = {
-  data: any;
-  onSelect: (datas: any[]) => void;
+  data: { _id?: string; name: string; companies: ICompany[] };
+  onSelect: (datas: ICompany[]) => void;
+  closeModal: () => void;
 };
 
 export default class Wrapper extends React.Component<
@@ -96,11 +103,9 @@ export default class Wrapper extends React.Component<
     super(props);
 
     this.state = { perPage: 20, searchValue: '' };
-
-    this.search = this.search.bind(this);
   }
 
-  search(value, loadmore) {
+  search = (value, loadmore) => {
     let perPage = 20;
 
     if (loadmore) {
@@ -108,7 +113,7 @@ export default class Wrapper extends React.Component<
     }
 
     return this.setState({ perPage, searchValue: value });
-  }
+  };
 
   render() {
     const { searchValue, perPage } = this.state;

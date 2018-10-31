@@ -55,8 +55,13 @@ const Actions = styled.div`
   justify-content: space-between;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
 
+  > a,
   button {
-    min-width: 80px;
+    flex: 1;
+  }
+
+  > div {
+    margin-left: 10px;
   }
 `;
 

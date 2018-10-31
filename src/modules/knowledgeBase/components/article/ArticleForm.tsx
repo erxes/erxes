@@ -56,13 +56,9 @@ class ArticleForm extends React.Component<Props, State> {
         article.content || ''
       )
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.getContent = this.getContent.bind(this);
-    this.save = this.save.bind(this);
   }
 
-  save(e) {
+  save = e => {
     e.preventDefault();
 
     this.props.save(
@@ -70,7 +66,7 @@ class ArticleForm extends React.Component<Props, State> {
       () => this.props.closeModal(),
       this.props.article
     );
-  }
+  };
 
   getCurrentStatus() {
     const { article } = this.props;
@@ -98,13 +94,13 @@ class ArticleForm extends React.Component<Props, State> {
     };
   }
 
-  getContent(editorState) {
+  getContent = editorState => {
     return toHTML(editorState);
-  }
+  };
 
-  onChange(editorState) {
+  onChange = editorState => {
     this.setState({ editorState });
-  }
+  };
 
   renderContent(article) {
     const props = {

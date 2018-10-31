@@ -9,3 +9,19 @@ export interface IImportHistory {
   date: Date;
   user: IUser;
 }
+
+// query types
+
+export type ImportHistoriesQueryResponse = {
+  importHistories: IImportHistory[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+// mutation types
+
+export type RemoveMutationResponse = {
+  importHistoriesRemove: (
+    params: { variables: { _id: string } }
+  ) => Promise<any>;
+};

@@ -1,5 +1,6 @@
 import { Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
@@ -136,7 +137,12 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={this.renderBreadCrumnb()} />}
+        header={
+          <Wrapper.Header
+            breadcrumb={this.renderBreadCrumnb()}
+            submenu={menuInbox}
+          />
+        }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

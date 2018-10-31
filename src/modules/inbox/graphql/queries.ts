@@ -47,10 +47,12 @@ const sidebarConversations = `
       content
       status
       updatedAt
+      idleTime
       assignedUser {
         _id
         details {
           avatar
+          fullName
         }
       }
       integration {
@@ -206,16 +208,6 @@ const responseTemplateList = `
   }
 `;
 
-const messengerApps = `
-  query messengerApps {
-    messengerApps {
-      _id
-      kind
-      name
-    }
-  }
-`;
-
 const generateCustomerDetailQuery = params => {
   const {
     showProfile = false,
@@ -313,7 +305,6 @@ export default {
   brandList,
   tagList,
   responseTemplateList,
-  messengerApps,
   conversationCounts,
   totalConversationsCount,
   unreadConversationsCount,

@@ -26,14 +26,12 @@ class Tab extends React.Component<Props, { currentTab: string }> {
   constructor(props) {
     super(props);
 
-    this.onTabClick = this.onTabClick.bind(this);
-
     this.state = { currentTab: 'activity' };
   }
 
-  onTabClick(currentTab) {
+  onTabClick = currentTab => {
     this.setState({ currentTab });
-  }
+  };
 
   renderTabContent() {
     const { currentTab } = this.state;

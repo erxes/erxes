@@ -35,13 +35,7 @@ type Props = {
 };
 
 class Sidebar extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderItems = this.renderItems.bind(this);
-  }
-
-  renderItems() {
+  renderItems = () => {
     const { channels, members, remove, save, currentChannelId } = this.props;
 
     return channels.map(channel => (
@@ -54,7 +48,7 @@ class Sidebar extends React.Component<Props, {}> {
         save={save}
       />
     ));
-  }
+  };
 
   renderSidebarHeader() {
     const { save, members } = this.props;

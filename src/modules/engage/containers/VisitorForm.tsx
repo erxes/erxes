@@ -7,19 +7,22 @@ import { IEngageMessage, IEngageMessageDoc } from '../types';
 import withFormMutations from './withFormMutations';
 
 type Props = {
-  kind: string;
+  kind?: string;
   brands: IBrand[];
+};
+
+type FinalProps = {
   users: IUser[];
   save: (doc: IEngageMessageDoc) => Promise<any>;
   message?: IEngageMessage;
-};
+} & Props;
 
-class VisitorFormContainer extends React.Component<Props> {
+class VisitorFormContainer extends React.Component<FinalProps> {
   render() {
     const content = props => <VisitorForm {...this.props} {...props} />;
 
-    return <FormBase kind={this.props.kind} content={content} />;
+    return <FormBase kind={this.props.kind || ''} content={content} />;
   }
 }
 
-export default withFormMutations(VisitorFormContainer);
+export default withFormMutations<Props>(VisitorFormContainer);

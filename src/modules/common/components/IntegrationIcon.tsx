@@ -7,10 +7,12 @@ import { ICustomer } from '../../customers/types';
 import { IConversationFacebookData, ITwitterData } from '../../inbox/types';
 import { IIntegration } from '../../settings/integrations/types';
 
-const RoundedBackground = styledTS<{ type: string }>(styled.span)`
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
+const RoundedBackground = styledTS<{ type: string; size?: number }>(
+  styled.span
+)`
+  width: ${props => (props.size ? `${props.size}px` : '20px')};
+  height: ${props => (props.size ? `${props.size}px` : '20px')};
+  border-radius: ${props => (props.size ? `${props.size / 2}px` : '10px')};
   text-align: center;
   display: flex;
   justify-content: center;
@@ -24,8 +26,8 @@ const RoundedBackground = styledTS<{ type: string }>(styled.span)`
 
   i {
     color: ${colors.colorWhite};
-    font-size: 11px;
-    line-height: 18px;
+    font-size: ${props => (props.size ? '18px' : '11px')};
+    line-height: ${props => (props.size ? '38px' : '18px')};
   }
 
   img {
@@ -38,6 +40,7 @@ type Props = {
   integration: IIntegration;
   facebookData?: IConversationFacebookData;
   twitterData?: ITwitterData;
+  size?: number;
 };
 
 class IntegrationIcon extends React.Component<Props> {
@@ -66,10 +69,10 @@ class IntegrationIcon extends React.Component<Props> {
   }
 
   render() {
-    const { integration } = this.props;
+    const { integration, size } = this.props;
 
     return (
-      <RoundedBackground type={integration.kind}>
+      <RoundedBackground type={integration.kind} size={size}>
         <Icon icon={this.getIcon()} />
       </RoundedBackground>
     );

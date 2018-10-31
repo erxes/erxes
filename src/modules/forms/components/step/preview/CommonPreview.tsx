@@ -99,7 +99,7 @@ class CommonPreview extends React.Component<Props, {}> {
     return (
       <PreviewWrapper>
         <PreviewTitle style={{ backgroundColor: theme ? theme : color }}>
-          {title}
+          <span>{title}</span>
         </PreviewTitle>
 
         <PreviewBody embedded="embedded">

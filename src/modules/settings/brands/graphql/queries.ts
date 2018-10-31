@@ -3,6 +3,7 @@ const brandDetail = `
     brandDetail(_id: $_id) {
       _id
       name
+      emailConfig
       code
       integrations {
         _id

@@ -157,6 +157,15 @@ const tags = `
   }
 `;
 
+const forms = `
+  query forms {
+    forms {
+      _id
+      title
+    }
+  }
+`;
+
 export default {
   integrations,
   integrationDetail,
@@ -164,6 +173,7 @@ export default {
   fields,
   brands,
   tags,
+  forms,
   fieldsCombinedByContentType,
   fieldsDefaultColumnsConfig
 };

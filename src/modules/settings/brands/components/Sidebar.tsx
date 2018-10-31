@@ -31,13 +31,7 @@ type Props = {
 };
 
 class Sidebar extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.renderItems = this.renderItems.bind(this);
-  }
-
-  renderItems() {
+  renderItems = () => {
     const { brands, remove, save, currentBrandId } = this.props;
 
     return brands.map(brand => (
@@ -49,7 +43,7 @@ class Sidebar extends React.Component<Props, {}> {
         save={save}
       />
     ));
-  }
+  };
 
   renderSidebarHeader() {
     const { save } = this.props;

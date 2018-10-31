@@ -10,6 +10,7 @@ import { ISegment, ISegmentDoc } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import * as React from 'react';
+import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IBreadCrumbItem } from '../../common/types';
 import {
   IEngageEmail,
@@ -29,7 +30,7 @@ type Props = {
   segmentFields: ISegment[];
   templates: IEmailTemplate[];
   segmentAdd: (params: { doc: ISegmentDoc }) => void;
-  customerCounts?: any;
+  customerCounts?: IActivityLogForMonth[];
   count: (segment: ISegmentDoc) => void;
   kind: string;
   save: (doc: IEngageMessageDoc) => Promise<any>;
@@ -58,9 +59,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
     super(props);
 
     const message = props.message || {};
+    const messenger = message.messenger || {};
+    const email = message.email || {};
 
-    let content = message.messenger ? message.messenger.content : '';
-    content = message.email ? message.email.content : content;
+    const content = messenger.content ? messenger.content : email.content || '';
 
     this.state = {
       activeStep: 1,
