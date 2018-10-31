@@ -118,8 +118,8 @@ const conversationsUnassign = `
 `;
 
 const executeApp = `
-  mutation messengerAppsExecute($_id: String!, $conversationId: String!) {
-    messengerAppsExecute(_id: $_id, conversationId: $conversationId)
+  mutation messengerAppsExecuteGoogleMeet($_id: String!, $conversationId: String!) {
+    messengerAppsExecuteGoogleMeet(_id: $_id, conversationId: $conversationId)
   }
 `;
 

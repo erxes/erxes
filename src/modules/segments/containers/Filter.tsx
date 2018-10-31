@@ -1,17 +1,24 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { router } from 'modules/common/utils';
+import { router, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Filter } from '../components';
 import { queries } from '../graphql';
+import { Counts, SegmentsQueryResponse } from '../types';
 
-interface IProps extends IRouterProps {
-  segmentsQuery: any;
-}
+type Props = {
+  contentType: string;
+  counts: Counts;
+};
 
-const FilterContainer = (props: IProps) => {
+type FinalProps = {
+  segmentsQuery: SegmentsQueryResponse;
+} & Props &
+  IRouterProps;
+
+const FilterContainer = (props: FinalProps) => {
   const { segmentsQuery, history } = props;
 
   const currentSegment = router.getParam(history, 'segment');
@@ -36,11 +43,13 @@ const FilterContainer = (props: IProps) => {
   return <Filter {...extendedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.segments), {
-    name: 'segmentsQuery',
-    options: ({ contentType }: { contentType: string }) => ({
-      variables: { contentType }
+export default withProps<Props>(
+  compose(
+    graphql(gql(queries.segments), {
+      name: 'segmentsQuery',
+      options: ({ contentType }: { contentType: string }) => ({
+        variables: { contentType }
+      })
     })
-  })
-)(withRouter<IProps>(FilterContainer));
+  )(withRouter<FinalProps>(FilterContainer))
+);

@@ -37,36 +37,31 @@ class ChannelForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.generateMembersParams = this.generateMembersParams.bind(this);
-    this.generateDoc = this.generateDoc.bind(this);
-    this.collectValues = this.collectValues.bind(this);
-    this.save = this.save.bind(this);
-
     this.state = {
       selectedMembers: this.generateMembersParams(props.selectedMembers)
     };
   }
 
-  save(e) {
+  save = e => {
     e.preventDefault();
 
     const { save, channel, closeModal } = this.props;
 
     save(this.generateDoc(), () => closeModal(), channel);
-  }
+  };
 
-  collectValues(items) {
+  collectValues = items => {
     return items.map(item => item.value);
-  }
+  };
 
-  generateMembersParams(members) {
+  generateMembersParams = members => {
     return members.map(member => ({
       value: member._id,
       label: (member.details && member.details.fullName) || ''
     }));
-  }
+  };
 
-  generateDoc() {
+  generateDoc = () => {
     return {
       doc: {
         name: (document.getElementById('channel-name') as HTMLInputElement)
@@ -77,7 +72,7 @@ class ChannelForm extends React.Component<Props, State> {
         memberIds: this.collectValues(this.state.selectedMembers)
       }
     };
-  }
+  };
 
   renderContent() {
     const { members, channel } = this.props;

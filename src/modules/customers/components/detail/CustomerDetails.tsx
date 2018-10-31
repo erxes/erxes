@@ -12,6 +12,7 @@ import { Wrapper } from 'modules/layout/components';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import { MailForm } from 'modules/settings/integrations/containers/google';
 import * as React from 'react';
+import { IActivityLogForMonth } from '../../../activityLogs/types';
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../types';
 import { hasAnyActivity } from '../../utils';
@@ -21,7 +22,7 @@ import RightSidebar from './RightSidebar';
 type Props = {
   customer: ICustomer;
   currentUser: IUser;
-  activityLogsCustomer: any[];
+  activityLogsCustomer: IActivityLogForMonth[];
   taggerRefetchQueries?: any[];
   loadingLogs: boolean;
 };

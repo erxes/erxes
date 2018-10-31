@@ -11,7 +11,7 @@ import { PipelineRow } from './';
 type Props = {
   pipelines: IPipeline[];
   save: (
-    params: { doc: { name: string; boardId: string; stages: IStage[] } },
+    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
     callback: () => void,
     pipeline?: IPipeline
   ) => void;

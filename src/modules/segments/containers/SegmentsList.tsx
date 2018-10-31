@@ -1,17 +1,22 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { SegmentsList } from '../components';
 import { mutations, queries } from '../graphql';
+import { RemoveMutationResponse, SegmentsQueryResponse } from '../types';
 
 type Props = {
-  segmentsQuery: any;
-  removeMutation: (params: { variables: { _id: string } }) => any;
+  contentType: string;
 };
 
-const SegmentListContainer = (props: Props) => {
+type FinalProps = {
+  segmentsQuery: SegmentsQueryResponse;
+} & Props &
+  RemoveMutationResponse;
+
+const SegmentListContainer = (props: FinalProps) => {
   const { segmentsQuery, removeMutation } = props;
 
   const removeSegment = segmentId => {
@@ -39,16 +44,24 @@ const SegmentListContainer = (props: Props) => {
   return <SegmentsList {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.segments), {
-    name: 'segmentsQuery',
-    options: ({ contentType }: { contentType: string }) => ({
-      fetchPolicy: 'network-only',
-      variables: { contentType }
-    })
-  }),
+export default withProps<Props>(
+  compose(
+    graphql<Props, SegmentsQueryResponse, { contentType: string }>(
+      gql(queries.segments),
+      {
+        name: 'segmentsQuery',
+        options: ({ contentType }) => ({
+          fetchPolicy: 'network-only',
+          variables: { contentType }
+        })
+      }
+    ),
 
-  graphql(gql(mutations.segmentsRemove), {
-    name: 'removeMutation'
-  })
-)(SegmentListContainer);
+    graphql<Props, RemoveMutationResponse, { _id: string }>(
+      gql(mutations.segmentsRemove),
+      {
+        name: 'removeMutation'
+      }
+    )
+  )(SegmentListContainer)
+);

@@ -1,39 +1,36 @@
 import gql from 'graphql-tag';
-import { Alert, confirm } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { UsersQueryResponse } from '../../team/types';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
+import {
+  AddChannelMutationResponse,
+  ChannelMutationVariables,
+  ChannelsCountQueryResponse,
+  ChannelsQueryResponse,
+  EditChannelMutationResponse,
+  EditChannelMutationVariables,
+  RemoveChannelMutationResponse,
+  RemoveChannelMutationVariables
+} from '../types';
 
 type Props = {
-  channelsQuery: any;
-  usersQuery: any;
-  channelsCountQuery: any;
-
-  addMutation: (
-    params: {
-      variables: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    }
-  ) => Promise<any>;
-
-  editMutation: (
-    params: {
-      variables: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    }
-  ) => Promise<any>;
-
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  queryParams: any;
+  currentChannelId?: string;
 };
 
-const SidebarContainer = (props: Props) => {
+type FinalProps = {
+  channelsQuery: ChannelsQueryResponse;
+  usersQuery: UsersQueryResponse;
+  channelsCountQuery: ChannelsCountQueryResponse;
+} & Props &
+  AddChannelMutationResponse &
+  EditChannelMutationResponse &
+  RemoveChannelMutationResponse;
+
+const SidebarContainer = (props: FinalProps) => {
   const {
     usersQuery,
     channelsQuery,
@@ -98,7 +95,7 @@ const SidebarContainer = (props: Props) => {
   return <Sidebar {...updatedProps} />;
 };
 
-const commonOptions = ({ queryParams, currentChannelId }) => {
+const commonOptions = ({ queryParams, currentChannelId }: Props) => {
   return {
     refetchQueries: [
       {
@@ -119,35 +116,50 @@ const commonOptions = ({ queryParams, currentChannelId }) => {
   };
 };
 
-export default compose(
-  graphql(gql(queries.channels), {
-    name: 'channelsQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: {
-        perPage: queryParams.limit || 20
-      },
-      fetchPolicy: 'network-only'
+export default withProps<Props>(
+  compose(
+    graphql<Props, ChannelsQueryResponse, { perPage: number }>(
+      gql(queries.channels),
+      {
+        name: 'channelsQuery',
+        options: ({ queryParams }: { queryParams: any }) => ({
+          variables: {
+            perPage: queryParams.limit || 20
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, UsersQueryResponse, {}>(gql(queries.users), {
+      name: 'usersQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
+      name: 'channelsCountQuery'
+    }),
+    graphql<Props, AddChannelMutationResponse, ChannelMutationVariables>(
+      gql(mutations.channelAdd),
+      {
+        name: 'addMutation',
+        options: commonOptions
+      }
+    ),
+    graphql<Props, EditChannelMutationResponse, EditChannelMutationVariables>(
+      gql(mutations.channelEdit),
+      {
+        name: 'editMutation',
+        options: commonOptions
+      }
+    ),
+    graphql<
+      Props,
+      RemoveChannelMutationResponse,
+      RemoveChannelMutationVariables
+    >(gql(mutations.channelRemove), {
+      name: 'removeMutation',
+      options: commonOptions
     })
-  }),
-  graphql(gql(queries.users), {
-    name: 'usersQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.channelsCount), {
-    name: 'channelsCountQuery'
-  }),
-  graphql(gql(mutations.channelAdd), {
-    name: 'addMutation',
-    options: commonOptions
-  }),
-  graphql(gql(mutations.channelEdit), {
-    name: 'editMutation',
-    options: commonOptions
-  }),
-  graphql(gql(mutations.channelRemove), {
-    name: 'removeMutation',
-    options: commonOptions
-  })
-)(SidebarContainer);
+  )(SidebarContainer)
+);

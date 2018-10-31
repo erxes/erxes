@@ -12,12 +12,11 @@ class UserCounter extends React.Component<Props, { show: boolean }> {
     super(props);
 
     this.state = { show: false };
-    this.showOthers = this.showOthers.bind(this);
   }
 
-  showOthers() {
+  showOthers = () => {
     this.setState({ show: true });
-  }
+  };
 
   renderUserItem(item) {
     return (

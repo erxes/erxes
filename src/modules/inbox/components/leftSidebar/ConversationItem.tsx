@@ -6,8 +6,8 @@ import { withCurrentUser } from 'modules/auth/containers';
 import {
   FormControl,
   IntegrationIcon,
-  NameCard,
-  Tags
+  Tags,
+  Tip
 } from 'modules/common/components';
 
 import { IUser } from '../../../auth/types';
@@ -91,7 +91,7 @@ class ConversationItem extends React.Component<Props> {
   render() {
     const { currentUser } = this.props;
     const { conversation, isActive, selectedIds = [] } = this.props;
-    const { createdAt, updatedAt, content } = conversation;
+    const { createdAt, updatedAt, idleTime, content } = conversation;
     const customer = conversation.customer || ({} as ICustomer);
     const integration = conversation.integration || ({} as IIntegration);
     const brand = integration.brand || ({} as IBrand);
@@ -106,23 +106,23 @@ class ConversationItem extends React.Component<Props> {
       conversation.readUserIds.indexOf(currentUser._id) > -1;
 
     return (
-      <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
+      <RowItem
+        onClick={this.onClick}
+        isActive={isActive}
+        isRead={isRead}
+        isIdle={idleTime >= 1}
+      >
         <RowContent isChecked={isChecked}>
           {this.renderCheckbox()}
           <FlexContent>
             <MainInfo>
               {isExistingCustomer && (
-                <NameCard.Avatar
+                <IntegrationIcon
                   size={40}
+                  integration={integration}
                   customer={customer}
-                  icon={
-                    <IntegrationIcon
-                      integration={integration}
-                      customer={customer}
-                      facebookData={conversation.facebookData}
-                      twitterData={conversation.twitterData}
-                    />
-                  }
+                  facebookData={conversation.facebookData}
+                  twitterData={conversation.twitterData}
                 />
               )}
               <FlexContent>
@@ -151,13 +151,19 @@ class ConversationItem extends React.Component<Props> {
 
           {assignedUser && (
             <AssigneeWrapper>
-              <AssigneeImg
-                src={
-                  assignedUser.details
-                    ? assignedUser.details.avatar
-                    : '/images/avatar-colored.svg'
-                }
-              />
+              <Tip
+                key={assignedUser._id}
+                placement="top"
+                text={assignedUser.details && assignedUser.details.fullName}
+              >
+                <AssigneeImg
+                  src={
+                    assignedUser.details
+                      ? assignedUser.details.avatar
+                      : '/images/avatar-colored.svg'
+                  }
+                />
+              </Tip>
             </AssigneeWrapper>
           )}
         </SmallText>

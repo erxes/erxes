@@ -2,8 +2,11 @@ import { Icon, ModalTrigger, NameCard, Tip } from 'modules/common/components';
 import * as moment from 'moment';
 import * as React from 'react';
 import { ICustomer } from '../../../../../../customers/types';
-import { IAddMessage } from '../../../../../containers/conversationDetail/WorkArea';
-import { IMessage, ITwitterData } from '../../../../../types';
+import {
+  AddMessageMutationVariables,
+  IMessage,
+  ITwitterData
+} from '../../../../../types';
 import { ModalAction, TweetContent, TweetMedia } from './';
 import { Count, Counts, Reply, Time, Tweet, User } from './styles';
 
@@ -22,7 +25,7 @@ type Props = {
     },
     callback: () => void
   ) => void;
-  replyTweet: (data: IAddMessage, callback: () => void) => void;
+  replyTweet: (data: AddMessageMutationVariables, callback: () => void) => void;
   tweet: (
     data: {
       integrationId: string;
@@ -34,16 +37,7 @@ type Props = {
 };
 
 class TwitterMessage extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.renderReply = this.renderReply.bind(this);
-    this.renderTweetLink = this.renderTweetLink.bind(this);
-    this.renderUserLink = this.renderUserLink.bind(this);
-    this.favoriteTweet = this.favoriteTweet.bind(this);
-  }
-
-  favoriteTweet() {
+  favoriteTweet = () => {
     const { message, favoriteTweet, integrationId } = this.props;
     const twitterData = message.twitterData;
 
@@ -57,9 +51,13 @@ class TwitterMessage extends React.Component<Props, {}> {
     };
 
     return favoriteTweet(tweet);
-  }
+  };
 
-  renderUserLink(username?: string, fullName?: string, customer?: ICustomer) {
+  renderUserLink = (
+    username?: string,
+    fullName?: string,
+    customer?: ICustomer
+  ) => {
     if (!username) {
       return <div>{customer && customer.firstName}</div>;
     }
@@ -69,9 +67,9 @@ class TwitterMessage extends React.Component<Props, {}> {
         {fullName ? <b>{fullName} </b> : `@${username}`}
       </a>
     );
-  }
+  };
 
-  renderTweetLink() {
+  renderTweetLink = () => {
     const { message } = this.props;
 
     if (!message.twitterData) {
@@ -88,7 +86,7 @@ class TwitterMessage extends React.Component<Props, {}> {
         </Time>
       </Tip>
     );
-  }
+  };
 
   renderCounts(twitterData: ITwitterData) {
     const inReplyStatus = twitterData.in_reply_to_status_id ? false : true;
@@ -164,7 +162,7 @@ class TwitterMessage extends React.Component<Props, {}> {
     );
   }
 
-  renderReply(twitterData: ITwitterData, inReplyStatus: boolean) {
+  renderReply = (twitterData: ITwitterData, inReplyStatus: boolean) => {
     if (inReplyStatus) {
       return null;
     }
@@ -174,7 +172,7 @@ class TwitterMessage extends React.Component<Props, {}> {
         Replying to {this.renderUserLink(twitterData.in_reply_to_screen_name)}
       </Reply>
     );
-  }
+  };
 
   getTweetContent(extendedTweet: any, message: IMessage) {
     if (extendedTweet) {

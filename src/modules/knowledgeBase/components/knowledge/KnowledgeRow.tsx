@@ -66,14 +66,13 @@ class KnowledgeRow extends React.Component<Props, State> {
     super(props);
 
     this.state = { detailed: collapse(props.topic._id) };
-    this.toggle = this.toggle.bind(this);
   }
 
-  toggle() {
+  toggle = () => {
     const { topic } = this.props;
 
     this.setState({ detailed: collapse(topic._id, true) });
-  }
+  };
 
   componentWillReceiveProps(nextProps) {
     const { categories } = this.props.topic;

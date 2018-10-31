@@ -1,4 +1,4 @@
-import { Label } from 'modules/common/components';
+import { EmptyState, Label } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
@@ -12,22 +12,18 @@ type Props = {
   queryParams?: any;
 };
 
-function MessengerSection({ customer, queryParams }: Props) {
-  const { Section } = Sidebar;
-  const { Title } = Section;
+class MessengerSection extends React.Component<Props> {
+  renderContent() {
+    const { customer } = this.props;
+    const { messengerData } = customer;
 
-  const { messengerData } = customer;
+    if (!messengerData) {
+      return <EmptyState icon="chat" text="Empty" size="small" />;
+    }
 
-  if (!messengerData || !queryParams) {
-    return null;
-  }
+    const customData = customer.getMessengerCustomData || [];
 
-  const customData = customer.getMessengerCustomData || [];
-
-  return (
-    <Section>
-      <Title>{__('Messenger data')}</Title>
-
+    return (
       <SidebarList className="no-link">
         <li>
           {__('Status')}
@@ -56,8 +52,21 @@ function MessengerSection({ customer, queryParams }: Props) {
           </li>
         ))}
       </SidebarList>
-    </Section>
-  );
+    );
+  }
+
+  render() {
+    const { Section } = Sidebar;
+    const { Title } = Section;
+
+    return (
+      <Section>
+        <Title>{__('Messenger data')}</Title>
+
+        {this.renderContent()}
+      </Section>
+    );
+  }
 }
 
 export default MessengerSection;

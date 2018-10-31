@@ -1,10 +1,13 @@
 import gql from 'graphql-tag';
+import { withProps } from 'modules/common/utils';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { BrandsQueryResponse } from '../../brands/types';
 import { List } from '../components';
 
 type Props = {
-  listQuery: any;
+  listQuery: BrandsQueryResponse;
 };
 
 const ListContainer = (props: Props) => {
@@ -21,18 +24,10 @@ const ListContainer = (props: Props) => {
   return <List {...updatedProps} />;
 };
 
-export default compose(
-  graphql(
-    gql`
-      query brands {
-        brands {
-          _id
-          name
-          code
-          emailConfig
-        }
-      }
-    `,
-    { name: 'listQuery' }
-  )
-)(ListContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, BrandsQueryResponse, {}>(gql(brandQueries.brands), {
+      name: 'listQuery'
+    })
+  )(ListContainer)
+);

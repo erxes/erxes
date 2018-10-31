@@ -1,29 +1,29 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PipelineForm } from '../components';
 import { queries } from '../graphql';
-import { IPipeline, IStage } from '../types';
+import { IPipeline, IStage, StagesQueryResponse } from '../types';
 
-interface ICommonProps {
+type Props = {
+  pipeline?: IPipeline;
   boardId: string;
   save: (
-    params: { doc: { name: string; boardId: string; stages: IStage[] } },
+    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
     callback: () => void,
     pipeline?: IPipeline
   ) => void;
   closeModal: () => void;
-  pipeline?: IPipeline;
   show: boolean;
-}
+};
 
-interface IEditProps extends ICommonProps {
-  stagesQuery: any;
-  pipeline: IPipeline;
-}
+type FinalProps = {
+  stagesQuery: StagesQueryResponse;
+} & Props;
 
-class EditPipelineFormContainer extends React.Component<IEditProps> {
+class EditPipelineFormContainer extends React.Component<FinalProps> {
   render() {
     const { stagesQuery, boardId, save, closeModal, pipeline } = this.props;
 
@@ -46,17 +46,22 @@ class EditPipelineFormContainer extends React.Component<IEditProps> {
   }
 }
 
-const EditPipelineForm = compose(
-  graphql(gql(queries.stages), {
-    name: 'stagesQuery',
-    options: ({ pipeline }: { pipeline: IPipeline }) => ({
-      variables: { pipelineId: pipeline._id || '' },
-      fetchPolicy: 'network-only'
-    })
-  })
-)(EditPipelineFormContainer);
+const EditPipelineForm = withProps<Props>(
+  compose(
+    graphql<Props, StagesQueryResponse, { pipelineId: string }>(
+      gql(queries.stages),
+      {
+        name: 'stagesQuery',
+        options: ({ pipeline }: { pipeline?: IPipeline }) => ({
+          variables: { pipelineId: pipeline ? pipeline._id : '' },
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
+  )(EditPipelineFormContainer)
+);
 
-const PipelineFormContainer = (props: ICommonProps) => {
+const PipelineFormContainer = (props: Props) => {
   const { pipeline } = props;
 
   if (pipeline) {

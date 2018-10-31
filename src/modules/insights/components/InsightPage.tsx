@@ -1,6 +1,7 @@
 import { colors } from 'modules/common/styles';
 import { BoxRoot, FullContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
@@ -46,10 +47,6 @@ class InsightPage extends React.Component {
 
   render() {
     const breadcrumb = [{ title: __('Insights'), link: '/insights' }];
-    const submenu = [
-      { title: __('Inbox'), link: '/inbox' },
-      { title: __('Insights'), link: '/insights' }
-    ];
 
     const content = (
       <FullContent center={true}>
@@ -88,7 +85,7 @@ class InsightPage extends React.Component {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} submenu={submenu} />}
+        header={<Wrapper.Header breadcrumb={breadcrumb} submenu={menuInbox} />}
         content={content}
         transparent={true}
       />

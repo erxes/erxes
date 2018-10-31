@@ -24,9 +24,13 @@ class UserList extends React.Component<ICommonListProps> {
 
   renderRows({ objects }: { objects: IUser[] }) {
     return objects.map((object, index) => {
+      const onClick = () => {
+        this.onAvatarClick(object);
+      };
+
       return (
         <tr key={index}>
-          <UserAvatar onClick={this.onAvatarClick}>
+          <UserAvatar onClick={onClick}>
             <NameCard user={object} avatarSize={30} singleLine={true} />
           </UserAvatar>
           <td>{object.email}</td>

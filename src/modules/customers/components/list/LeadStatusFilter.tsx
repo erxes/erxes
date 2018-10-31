@@ -16,13 +16,7 @@ interface IProps extends IRouterProps {
 }
 
 class LeadStatusFilter extends React.Component<IProps> {
-  constructor(props, context) {
-    super(props, context);
-
-    this.renderCounts = this.renderCounts.bind(this);
-  }
-
-  renderCounts() {
+  renderCounts = () => {
     const { history, counts } = this.props;
     const { Section } = Wrapper.Sidebar;
     const paramKey = 'leadStatus';
@@ -73,7 +67,7 @@ class LeadStatusFilter extends React.Component<IProps> {
         </div>
       </Section>
     );
-  }
+  };
 
   render() {
     return (

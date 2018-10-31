@@ -23,7 +23,7 @@ type Props = {
   isAllSelected: boolean;
   emptyBulk: () => void;
   totalCount: number;
-  tagsCount: any;
+  tagsCount: { [key: string]: number };
   toggleBulk: (target: IFormIntegration, toAdd: boolean) => void;
   toggleAll: (bulk: IFormIntegration[], name: string) => void;
   loading: boolean;
@@ -31,16 +31,10 @@ type Props = {
 };
 
 class List extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange() {
+  onChange = () => {
     const { toggleAll, integrations } = this.props;
     toggleAll(integrations, 'integrations');
-  }
+  };
 
   renderRow() {
     const { integrations, remove, bulk, toggleBulk } = this.props;

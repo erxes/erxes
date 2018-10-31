@@ -1,71 +1,62 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { queries as companyQueries } from 'modules/companies/graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { CountQueryResponse as CompanyCountQueryResponse } from '../../companies/types';
+import { CountQueryResponse as CustomerCountQueryResponse } from '../../customers/types';
+import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
 import { SegmentsForm } from '../components';
 import { mutations, queries } from '../graphql';
-import { ISegmentCondition } from '../types';
-
-type Variables = {
-  name: string;
-  description: string;
-  subOf: string;
-  color: string;
-  connector: string;
-  conditions: ISegmentCondition[];
-};
+import {
+  AddMutationResponse,
+  AddMutationVariables,
+  EditMutationResponse,
+  HeadSegmentsQueryResponse,
+  ISegmentDoc,
+  SegmentDetailQueryResponse
+} from '../types';
 
 type Props = {
   contentType: string;
   history: any;
-  segmentDetailQuery: any;
-  headSegmentsQuery: any;
-  combinedFieldsQuery: any;
-
-  segmentsAdd: (
-    params: { variables: { contentType: string; doc: Variables } }
-  ) => Promise<any>;
-  segmentsEdit: (
-    params: { variables: { _id: string; doc: Variables } }
-  ) => Promise<any>;
-
-  counts: any;
+  id?: string;
 };
 
-class SegmentsFormContainer extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
+type FinalProps = {
+  segmentDetailQuery: SegmentDetailQueryResponse;
+  headSegmentsQuery: HeadSegmentsQueryResponse;
+  combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
+  counts: CustomerCountQueryResponse | CompanyCountQueryResponse;
+} & Props &
+  AddMutationResponse &
+  EditMutationResponse;
 
-    this.create = this.create.bind(this);
-    this.edit = this.edit.bind(this);
-    this.count = this.count.bind(this);
-  }
-
-  create({ doc }) {
+class SegmentsFormContainer extends React.Component<FinalProps> {
+  create = ({ doc }) => {
     const { contentType, segmentsAdd, history } = this.props;
 
     segmentsAdd({ variables: { contentType, ...doc } }).then(() => {
       Alert.success('Success');
       history.push(`/segments/${contentType}`);
     });
-  }
+  };
 
-  edit({ _id, doc }) {
+  edit = ({ _id, doc }) => {
     const { contentType, segmentsEdit, history } = this.props;
 
     segmentsEdit({ variables: { _id, ...doc } }).then(() => {
       Alert.success('Success');
       history.push(`/segments/${contentType}`);
     });
-  }
+  };
 
-  count(segment) {
+  count = (segment: ISegmentDoc) => {
     const { counts } = this.props;
 
     counts.refetch({ byFakeSegment: segment });
-  }
+  };
 
   render() {
     const {
@@ -110,37 +101,60 @@ class SegmentsFormContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.segmentDetail), {
-    name: 'segmentDetailQuery',
-    options: ({ id }: { id: string }) => ({
-      variables: { _id: id }
+export default withProps<Props>(
+  compose(
+    graphql<Props, SegmentDetailQueryResponse, { _id?: string }>(
+      gql(queries.segmentDetail),
+      {
+        name: 'segmentDetailQuery',
+        options: ({ id }) => ({
+          variables: { _id: id }
+        })
+      }
+    ),
+    graphql<Props, CustomerCountQueryResponse>(
+      gql(customerQueries.customerCounts),
+      {
+        name: 'counts',
+        skip: ({ contentType }) => {
+          return contentType === 'company';
+        }
+      }
+    ),
+    graphql<Props, CompanyCountQueryResponse>(
+      gql(companyQueries.companyCounts),
+      {
+        name: 'counts',
+        skip: ({ contentType }) => {
+          return contentType === 'customer';
+        }
+      }
+    ),
+    graphql<Props, HeadSegmentsQueryResponse, { contentType: string }>(
+      gql(queries.headSegments),
+      {
+        name: 'headSegmentsQuery'
+      }
+    ),
+    graphql<Props>(gql(queries.combinedFields), {
+      name: 'combinedFieldsQuery',
+      options: ({ contentType }) => ({
+        variables: { contentType }
+      })
+    }),
+    // mutations
+    graphql<Props, AddMutationResponse, AddMutationVariables>(
+      gql(mutations.segmentsAdd),
+      {
+        name: 'segmentsAdd'
+      }
+    ),
+    graphql<
+      Props,
+      EditMutationResponse,
+      { _id: string } & AddMutationVariables
+    >(gql(mutations.segmentsEdit), {
+      name: 'segmentsEdit'
     })
-  }),
-  graphql(gql(customerQueries.customerCounts), {
-    name: 'counts',
-    skip: ({ contentType }: { contentType: string }) => {
-      return contentType === 'company';
-    }
-  }),
-  graphql(gql(companyQueries.companyCounts), {
-    name: 'counts',
-    skip: ({ contentType }: { contentType: string }) => {
-      return contentType === 'customer';
-    }
-  }),
-  graphql(gql(queries.headSegments), { name: 'headSegmentsQuery' }),
-  graphql(gql(queries.combinedFields), {
-    name: 'combinedFieldsQuery',
-    options: ({ contentType }: { contentType: string }) => ({
-      variables: { contentType }
-    })
-  }),
-  // mutations
-  graphql(gql(mutations.segmentsAdd), {
-    name: 'segmentsAdd'
-  }),
-  graphql(gql(mutations.segmentsEdit), {
-    name: 'segmentsEdit'
-  })
-)(SegmentsFormContainer);
+  )(SegmentsFormContainer)
+);

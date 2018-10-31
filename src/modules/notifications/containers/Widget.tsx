@@ -3,14 +3,16 @@ import { IRouterProps } from 'modules/common/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { withProps } from '../../common/utils';
 import { Widget } from '../components';
 import { queries } from '../graphql';
+import { NotificationsCountQueryResponse } from '../types';
 
-interface IProps extends IRouterProps {
-  notificationCountQuery: any;
-}
+type Props = {
+  notificationCountQuery: NotificationsCountQueryResponse;
+} & IRouterProps;
 
-class WidgetContainer extends React.Component<IProps> {
+class WidgetContainer extends React.Component<Props> {
   render() {
     const { notificationCountQuery } = this.props;
 
@@ -23,15 +25,19 @@ class WidgetContainer extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IRouterProps>(
+export default withProps<{}>(
   compose(
-    graphql(gql(queries.notificationCounts), {
-      name: 'notificationCountQuery',
-      options: () => ({
-        variables: {
-          requireRead: true
-        }
-      })
-    })
-  )(WidgetContainer)
+    graphql<Props, NotificationsCountQueryResponse, { requireRead: boolean }>(
+      gql(queries.notificationCounts),
+      {
+        name: 'notificationCountQuery',
+        options: () => ({
+          variables: {
+            requireRead: true
+          },
+          notifyOnNetworkStatusChange: true
+        })
+      }
+    )
+  )(withRouter<Props>(WidgetContainer))
 );

@@ -1,6 +1,7 @@
 import { Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
+import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
 import Entry from './Entry';
@@ -32,12 +33,9 @@ class Row extends React.Component<Props, State> {
       isContentVisible: false,
       kind: null
     };
-
-    this.toggleBox = this.toggleBox.bind(this);
-    this.getClassName = this.getClassName.bind(this);
   }
 
-  getClassName(selectedKind) {
+  getClassName = selectedKind => {
     const { kind, isContentVisible } = this.state;
 
     if (!isContentVisible) {
@@ -49,9 +47,9 @@ class Row extends React.Component<Props, State> {
     }
 
     return '';
-  }
+  };
 
-  toggleBox(selectedKind) {
+  toggleBox = selectedKind => {
     if (!selectedKind) {
       return false;
     }
@@ -74,22 +72,26 @@ class Row extends React.Component<Props, State> {
     });
 
     return null;
-  }
+  };
 
   renderPagination(totalCount) {
-    if (totalCount <= 20) {
+    if (!totalCount || totalCount <= 20) {
       return null;
     }
 
     return <Pagination count={totalCount} />;
   }
 
-  renderIntegrations() {
+  renderList() {
     const { queryParams, totalCount } = this.props;
     const { isContentVisible, kind } = this.state;
 
     if (!isContentVisible) {
       return null;
+    }
+
+    if (kind === 'googleMeet' || kind === 'lead' || kind === 'knowledgebase') {
+      return <MessengerAppList kind={kind} queryParams={queryParams} />;
     }
 
     return (
@@ -118,7 +120,7 @@ class Row extends React.Component<Props, State> {
           ))}
         </IntegrationRow>
         <Collapse in={this.state.isContentVisible}>
-          <CollapsibleContent>{this.renderIntegrations()}</CollapsibleContent>
+          <CollapsibleContent>{this.renderList()}</CollapsibleContent>
         </Collapse>
       </React.Fragment>
     );

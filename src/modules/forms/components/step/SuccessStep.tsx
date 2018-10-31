@@ -9,24 +9,24 @@ import { IFormData } from '../../../settings/integrations/types';
 import { SuccessPreview } from './preview';
 import { FlexItem } from './style';
 
+type Name =
+  | 'successAction'
+  | 'fromEmail'
+  | 'userEmailTitle'
+  | 'userEmailContent'
+  | 'adminEmails'
+  | 'adminEmailTitle'
+  | 'adminEmailContent'
+  | 'redirectUrl'
+  | 'thankContent';
+
 type Props = {
   type: string;
   color: string;
   theme: string;
   thankContent?: string;
   successAction?: string;
-  onChange: (
-    name:
-      | 'successAction'
-      | 'fromEmail'
-      | 'userEmailTitle'
-      | 'userEmailContent'
-      | 'adminEmails'
-      | 'adminEmailTitle'
-      | 'redirectUrl'
-      | 'thankContent',
-    value: string
-  ) => void;
+  onChange: (name: Name, value: string) => void;
   formData?: IFormData;
 };
 
@@ -55,7 +55,7 @@ class SuccessStep extends React.Component<Props, State> {
     this.props.onChange('successAction', value);
   };
 
-  onChangeFunction = (name: any, value: string) => {
+  onChangeFunction = (name: Name, value: string) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
   };
@@ -140,7 +140,7 @@ class SuccessStep extends React.Component<Props, State> {
             id="adminEmails"
             type="text"
             defaultValue={
-              formData.adminEmails ? formData.adminEmails.join(',') : []
+              formData.adminEmails ? formData.adminEmails.join(',') : ''
             }
             onChange={adminEmails}
           />

@@ -38,12 +38,9 @@ class CompaniesMerge extends React.Component<Props, State> {
     this.state = {
       selectedValues: {}
     };
-
-    this.renderCompany = this.renderCompany.bind(this);
-    this.save = this.save.bind(this);
   }
 
-  save(e) {
+  save = e => {
     e.preventDefault();
     const { objects } = this.props;
     const selectedValues = { ...this.state.selectedValues };
@@ -69,7 +66,7 @@ class CompaniesMerge extends React.Component<Props, State> {
         this.props.closeModal();
       }
     });
-  }
+  };
 
   handleChange = (type, key, value) => {
     const selectedValues = { ...this.state.selectedValues };
@@ -78,8 +75,10 @@ class CompaniesMerge extends React.Component<Props, State> {
       selectedValues[key] = value;
 
       if (key === 'links') {
-        const links = { ...selectedValues.links, value };
-
+        const links = Object.assign(
+          { ...this.state.selectedValues.links },
+          value
+        );
         selectedValues[key] = links;
       }
     } else {
@@ -89,7 +88,7 @@ class CompaniesMerge extends React.Component<Props, State> {
     this.setState({ selectedValues });
   };
 
-  renderCompany(company, icon) {
+  renderCompany = (company, icon) => {
     const properties = COMPANY_INFO.ALL.concat(COMPANY_DATAS.ALL);
 
     return (
@@ -112,7 +111,7 @@ class CompaniesMerge extends React.Component<Props, State> {
         </ul>
       </React.Fragment>
     );
-  }
+  };
 
   renderCompanyProperties(key, value, icon) {
     return (
@@ -131,7 +130,7 @@ class CompaniesMerge extends React.Component<Props, State> {
     return <InfoTitle>{title}:</InfoTitle>;
   }
 
-  renderValue(field, value) {
+  renderValue = (field, value) => {
     switch (field) {
       case 'owner':
         return this.renderOwner(value);
@@ -143,7 +142,7 @@ class CompaniesMerge extends React.Component<Props, State> {
       default:
         return <InfoDetail>{value}</InfoDetail>;
     }
-  }
+  };
 
   renderOwner(data) {
     return (

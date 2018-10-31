@@ -1,22 +1,29 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Calendar as DumbCalendar } from '../../components/google';
+import {
+  GetGoogleAccessTokenQueryResponse,
+  GetGoogleAuthUrlQueryResponse,
+  GoogleAccessTokenQueryResponse,
+  messengerAppsAddGoogleMeetMutationResponse
+} from '../../types';
 
 type Props = {
   type: string;
   history: any;
   queryParams: any;
-  googleAuthUrlQuery: any;
-  googleAccessTokenQuery: any;
-  saveMutation: (
-    params: { variables: { kind: string; credentials: object } }
-  ) => Promise<any>;
 };
 
-const Calendar = (props: Props) => {
+type FinalProps = {
+  googleAuthUrlQuery: GetGoogleAuthUrlQueryResponse;
+  googleAccessTokenQuery: GoogleAccessTokenQueryResponse;
+} & messengerAppsAddGoogleMeetMutationResponse &
+  Props;
+
+const Calendar = (props: FinalProps) => {
   const {
     history,
     type,
@@ -24,7 +31,6 @@ const Calendar = (props: Props) => {
     googleAuthUrlQuery,
     googleAccessTokenQuery
   } = props;
-
   const authUrl =
     googleAuthUrlQuery && googleAuthUrlQuery.integrationGetGoogleAuthUrl;
 
@@ -47,7 +53,7 @@ const Calendar = (props: Props) => {
     saveMutation({
       variables: {
         ...variables,
-        kind: 'googleCalendar',
+        kind: 'googleMeet',
         credentials
       }
     })
@@ -63,44 +69,45 @@ const Calendar = (props: Props) => {
   return <DumbCalendar save={save} />;
 };
 
-export default compose(
-  graphql(
-    gql`
-      query integrationGetGoogleAuthUrl {
-        integrationGetGoogleAuthUrl
-      }
-    `,
-    {
-      name: 'googleAuthUrlQuery',
-      skip: ({ type }) => type === 'form'
-    }
-  ),
-  graphql(
-    gql`
-      query integrationGetGoogleAccessToken($code: String) {
-        integrationGetGoogleAccessToken(code: $code)
-      }
-    `,
-    {
-      name: 'googleAccessTokenQuery',
-      skip: ({ queryParams }) => !queryParams.code,
-      options: ({ queryParams }: { queryParams: any }) => ({
-        variables: { code: queryParams.code }
-      })
-    }
-  ),
-  graphql(
-    gql`
-      mutation messengerAppsAdd(
-        $kind: String!
-        $name: String!
-        $credentials: JSON
-      ) {
-        messengerAppsAdd(kind: $kind, name: $name, credentials: $credentials) {
-          _id
+export default withProps<Props>(
+  compose(
+    graphql<Props, GetGoogleAuthUrlQueryResponse>(
+      gql`
+        query integrationGetGoogleAuthUrl {
+          integrationGetGoogleAuthUrl
         }
+      `,
+      {
+        name: 'googleAuthUrlQuery',
+        skip: ({ type }) => type === 'form'
       }
-    `,
-    { name: 'saveMutation' }
-  )
-)(Calendar);
+    ),
+    graphql<Props, GetGoogleAccessTokenQueryResponse>(
+      gql`
+        query integrationGetGoogleAccessToken($code: String) {
+          integrationGetGoogleAccessToken(code: $code)
+        }
+      `,
+      {
+        name: 'googleAccessTokenQuery',
+        skip: ({ queryParams }) => !queryParams.code,
+        options: ({ queryParams }: { queryParams: any }) => ({
+          variables: { code: queryParams.code }
+        })
+      }
+    ),
+    graphql<Props, messengerAppsAddGoogleMeetMutationResponse>(
+      gql`
+        mutation messengerAppsAddGoogleMeet(
+          $name: String!
+          $credentials: JSON
+        ) {
+          messengerAppsAddGoogleMeet(name: $name, credentials: $credentials) {
+            _id
+          }
+        }
+      `,
+      { name: 'saveMutation' }
+    )
+  )(Calendar)
+);

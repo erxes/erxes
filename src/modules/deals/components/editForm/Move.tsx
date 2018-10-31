@@ -63,6 +63,7 @@ class DealMove extends React.Component<Props, State> {
     const { stages } = this.state;
 
     let isPass = true;
+
     const onClick = s => onChangeStage && onChangeStage(s._id);
 
     return (

@@ -3,17 +3,17 @@ import * as React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { Home } from './containers';
 
+const deals = () => {
+  return <Redirect to="/deals/board" />;
+};
+
+const boards = ({ history, location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <Home queryParams={queryParams} history={history} />;
+};
+
 const routes = () => {
-  const deals = () => {
-    return <Redirect to="/deals/board" />;
-  };
-
-  const boards = ({ history, location }) => {
-    const queryParams = queryString.parse(location.search);
-
-    return <Home queryParams={queryParams} history={history} />;
-  };
-
   return (
     <React.Fragment>
       <Route key="deals" exact={true} path="/deals" render={deals} />

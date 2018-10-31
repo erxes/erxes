@@ -1,26 +1,29 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { FacebookComment } from 'modules/inbox/components/conversationDetail';
 import { mutations } from 'modules/inbox/graphql';
-import { IMessage } from 'modules/inbox/types';
+import {
+  AddMessageMutationVariables,
+  IMessage,
+  ReplyMutationResponse
+} from 'modules/inbox/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IAddMessage } from './WorkArea';
 
 type Props = {
-  replyMutation: (
-    doc: {
-      variables: IAddMessage;
-    }
-  ) => Promise<any>;
   message: IMessage;
-  scrollBottom: () => void;
+  scrollBottom?: () => void;
 };
 
-const FacebookCommentContainer = (props: Props) => {
+type FinalProps = Props & ReplyMutationResponse;
+
+const FacebookCommentContainer = (props: FinalProps) => {
   const { replyMutation, message, scrollBottom } = props;
 
-  const replyPost = (variables: IAddMessage, callback: () => void) => {
+  const replyPost = (
+    variables: AddMessageMutationVariables,
+    callback: () => void
+  ) => {
     replyMutation({ variables })
       .then(() => {
         callback();
@@ -40,8 +43,13 @@ const FacebookCommentContainer = (props: Props) => {
   return <FacebookComment {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(mutations.conversationMessageAdd), {
-    name: 'replyMutation'
-  })
-)(FacebookCommentContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, ReplyMutationResponse, AddMessageMutationVariables>(
+      gql(mutations.conversationMessageAdd),
+      {
+        name: 'replyMutation'
+      }
+    )
+  )(FacebookCommentContainer)
+);

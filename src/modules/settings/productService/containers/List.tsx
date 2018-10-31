@@ -1,29 +1,31 @@
 import gql from 'graphql-tag';
-import { __, Alert, confirm } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
-
-type Doc = {
-  type: string;
-  _id?: string;
-  name?: string;
-  description?: string;
-  sku?: string;
-  createdAt?: Date;
-};
+import {
+  AddMutationResponse,
+  EditMutationResponse,
+  MutationVariables,
+  ProductsCountQueryResponse,
+  ProductsQueryResponse,
+  RemoveMutationResponse
+} from '../types';
 
 type Props = {
-  productsQuery: any;
-  productsCountQuery: any;
-
-  addMutation: (mutation: { variables: Doc }) => Promise<any>;
-  editMutation: (mutation: { variables: Doc }) => Promise<any>;
-  removeMutation: (mutation: { variables: { _id: string } }) => Promise<any>;
+  queryParams: any;
 };
 
-class ProductListContainer extends React.Component<Props> {
+type FinalProps = {
+  productsQuery: ProductsQueryResponse;
+  productsCountQuery: ProductsCountQueryResponse;
+} & Props &
+  AddMutationResponse &
+  EditMutationResponse &
+  RemoveMutationResponse;
+
+class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
       productsQuery,
@@ -92,27 +94,41 @@ class ProductListContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.products), {
-    name: 'productsQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: {
-        page: queryParams.page || 1,
-        perPage: queryParams.perPage || 20
-      },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.productsCount), {
-    name: 'productsCountQuery'
-  }),
-  graphql(gql(mutations.productAdd), {
-    name: 'addMutation'
-  }),
-  graphql(gql(mutations.productEdit), {
-    name: 'editMutation'
-  }),
-  graphql(gql(mutations.productRemove), {
-    name: 'removeMutation'
-  })
-)(ProductListContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, ProductsQueryResponse, { page: number; perPage: number }>(
+      gql(queries.products),
+      {
+        name: 'productsQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            page: queryParams.page || 1,
+            perPage: queryParams.perPage || 20
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, ProductsCountQueryResponse>(gql(queries.productsCount), {
+      name: 'productsCountQuery'
+    }),
+    graphql<Props, AddMutationResponse, MutationVariables>(
+      gql(mutations.productAdd),
+      {
+        name: 'addMutation'
+      }
+    ),
+    graphql<Props, EditMutationResponse, MutationVariables>(
+      gql(mutations.productEdit),
+      {
+        name: 'editMutation'
+      }
+    ),
+    graphql<Props, RemoveMutationResponse, { _id: string }>(
+      gql(mutations.productRemove),
+      {
+        name: 'removeMutation'
+      }
+    )
+  )(ProductListContainer)
+);

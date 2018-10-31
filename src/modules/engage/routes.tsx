@@ -3,20 +3,20 @@ import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { EmailStatistics, MessageForm, MessageList } from './containers';
 
+const createForm = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+  return <MessageForm kind={queryParams.kind} />;
+};
+
+const editForm = ({ match }) => {
+  return <MessageForm messageId={match.params._id} />;
+};
+
+const statistic = ({ match }) => {
+  return <EmailStatistics messageId={match.params._id} />;
+};
+
 const routes = () => {
-  const createForm = ({ location }) => {
-    const queryParams = queryString.parse(location.search);
-    return <MessageForm kind={queryParams.kind} />;
-  };
-
-  const editForm = ({ match }) => {
-    return <MessageForm messageId={match.params._id} />;
-  };
-
-  const statistic = ({ match }) => {
-    return <EmailStatistics messageId={match.params._id} />;
-  };
-
   return (
     <React.Fragment>
       <Route

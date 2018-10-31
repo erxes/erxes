@@ -16,31 +16,31 @@ const AsyncInsightPage = asyncComponent(() =>
   import('./components/InsightPage')
 );
 
+const responseReport = () => {
+  return (
+    <AsyncReports type="response" component={AsyncVolumeAndResponseReport} />
+  );
+};
+
+const responseCloseReport = () => {
+  return (
+    <AsyncReports type="close" component={AsyncFirstAndCloseResponseReport} />
+  );
+};
+
+const firstResponse = () => {
+  return (
+    <AsyncReports type="first" component={AsyncFirstAndCloseResponseReport} />
+  );
+};
+
+const volumeReport = () => {
+  return (
+    <AsyncReports type="volume" component={AsyncVolumeAndResponseReport} />
+  );
+};
+
 const routes = () => {
-  const responseReport = () => {
-    return (
-      <AsyncReports type="response" component={AsyncVolumeAndResponseReport} />
-    );
-  };
-
-  const responseCloseReport = () => {
-    return (
-      <AsyncReports type="close" component={AsyncFirstAndCloseResponseReport} />
-    );
-  };
-
-  const firstResponse = () => {
-    return (
-      <AsyncReports type="first" component={AsyncFirstAndCloseResponseReport} />
-    );
-  };
-
-  const volumeReport = () => {
-    return (
-      <AsyncReports type="volume" component={AsyncVolumeAndResponseReport} />
-    );
-  };
-
   return (
     <React.Fragment>
       <Route

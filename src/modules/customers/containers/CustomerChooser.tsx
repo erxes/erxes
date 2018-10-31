@@ -1,21 +1,27 @@
 import gql from 'graphql-tag';
 import { Chooser } from 'modules/common/components';
-import { Alert, renderFullName } from 'modules/common/utils';
+import { Alert, renderFullName, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CustomerForm } from '../containers';
 import { mutations, queries } from '../graphql';
-import { ICustomerDoc } from '../types';
+import {
+  AddMutationResponse,
+  CustomersQueryResponse,
+  ICustomer,
+  ICustomerDoc
+} from '../types';
 
 type Props = {
-  customersQuery: any;
-  customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>;
-  search: (value?: string) => void;
+  search: (value: string, loadMore?: boolean) => void;
+  searchValue: string;
   perPage: number;
-  closeModal: () => void;
 };
 
-const CustomerChooser = (props: WrapperProps & Props) => {
+type FinalProps = { customersQuery: CustomersQueryResponse } & Props &
+  AddMutationResponse;
+
+const CustomerChooser = (props: WrapperProps & FinalProps) => {
   const { data, customersQuery, customersAdd, search } = props;
 
   // add customer
@@ -56,33 +62,37 @@ const CustomerChooser = (props: WrapperProps & Props) => {
   return <Chooser {...updatedProps} />;
 };
 
-const WithQuery = compose(
-  graphql(gql(queries.customers), {
-    name: 'customersQuery',
-    options: ({
-      searchValue,
-      perPage
-    }: {
-      searchValue: string;
-      perPage: number;
-    }) => {
-      return {
-        variables: {
-          searchValue,
-          perPage
-        }
-      };
-    }
-  }),
-  // mutations
-  graphql(gql(mutations.customersAdd), {
-    name: 'customersAdd'
-  })
-)(CustomerChooser);
+const WithQuery = withProps<Props>(
+  compose(
+    graphql<
+      Props,
+      CustomersQueryResponse,
+      { searchValue: string; perPage: number }
+    >(gql(queries.customers), {
+      name: 'customersQuery',
+      options: ({ searchValue, perPage }) => {
+        return {
+          variables: {
+            searchValue,
+            perPage
+          }
+        };
+      }
+    }),
+    // mutations
+    graphql<Props, AddMutationResponse, ICustomerDoc>(
+      gql(mutations.customersAdd),
+      {
+        name: 'customersAdd'
+      }
+    )
+  )(CustomerChooser)
+);
 
 type WrapperProps = {
-  data: any;
-  onSelect: (datas: any[]) => void;
+  data: { _id?: string; name: string; customers: ICustomer[] };
+  onSelect: (datas: ICustomer[]) => void;
+  closeModal: () => void;
 };
 
 export default class Wrapper extends React.Component<
@@ -93,11 +103,9 @@ export default class Wrapper extends React.Component<
     super(props);
 
     this.state = { perPage: 20, searchValue: '' };
-
-    this.search = this.search.bind(this);
   }
 
-  search(value, loadmore) {
+  search = (value, loadmore) => {
     let perPage = 20;
 
     if (loadmore) {
@@ -105,7 +113,7 @@ export default class Wrapper extends React.Component<
     }
 
     return this.setState({ perPage, searchValue: value });
-  }
+  };
 
   render() {
     const { searchValue, perPage } = this.state;

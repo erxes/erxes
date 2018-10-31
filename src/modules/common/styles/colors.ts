@@ -28,6 +28,7 @@ const bgLight = '#FAFAFA';
 const bgActive = '#F0F0F0';
 const bgUnread = '#F7F8FC';
 const bgInternal = '#FFFCCC';
+const bgIdle = '#FCE1E1';
 
 // Link colors
 const linkPrimary = '#1785FC';
@@ -51,6 +52,7 @@ const socialFacebook = '#3A5999';
 const socialFacebookMessenger = '#1472FB';
 const socialTwitter = '#1DA1F2';
 const socialGmail = '#f7412d';
+const socialGoogleMeet = '#038476';
 
 export default {
   colorPrimary,
@@ -77,6 +79,7 @@ export default {
   bgActive,
   bgUnread,
   bgInternal,
+  bgIdle,
 
   linkPrimary,
   linkPrimaryHover,
@@ -94,5 +97,6 @@ export default {
   socialFacebook,
   socialFacebookMessenger,
   socialTwitter,
-  socialGmail
+  socialGmail,
+  socialGoogleMeet
 };
