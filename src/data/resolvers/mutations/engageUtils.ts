@@ -211,6 +211,9 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
   }
 };
 
+/*
+ *  Send engage messages
+ */
 export const send = message => {
   const { method, kind } = message;
 
@@ -224,19 +227,11 @@ export const send = message => {
   }
 };
 
-export const handleEngageUnSubscribe = async (params: { cid: string }) => {
-  const customerId = params.cid;
-
-  const customer = await Customers.findOne({ _id: customerId });
-
-  if (!customer) {
-    throw new Error('Customer not found');
-  }
-
-  await Customers.update({ _id: customerId }, { $set: { doNotDisturb: 'Yes' } });
-
-  return true;
-};
+/*
+ * Handle engage unsubscribe request
+ */
+export const handleEngageUnSubscribe = (query: { cid: string }) =>
+  Customers.update({ _id: query.cid }, { $set: { doNotDisturb: 'Yes' } });
 
 export default {
   replaceKeys,
