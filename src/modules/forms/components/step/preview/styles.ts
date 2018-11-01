@@ -1,4 +1,8 @@
-import { Formgroup, Label } from 'modules/common/components/form/styles';
+import {
+  Formgroup,
+  Label,
+  SelectWrapper
+} from 'modules/common/components/form/styles';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import {
@@ -6,55 +10,46 @@ import {
   SortableWrapper,
   SortItem
 } from 'modules/common/styles/sort';
-import { fadeIn } from 'modules/common/utils/animations';
+import {
+  fadeIn,
+  slideDown,
+  slideLeft,
+  slideRight
+} from 'modules/common/utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const PreviewTitle = styled.div`
-  height: 50px;
-  overflow: hidden;
   background-color: ${colors.colorSecondary};
-  font-size: ${dimensions.coreSpacing - 5}px;
-  line-height: 1.2em;
-  display: flex;
-  align-items: center;
   border-top-left-radius: ${dimensions.unitSpacing}px;
   border-top-right-radius: ${dimensions.unitSpacing}px;
 
-  span {
+  > div {
+    height: ${dimensions.headerSpacing}px;
     color: ${colors.colorWhite};
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
-    width: 100%;
-    padding: 0 40px;
+    padding: 13px 40px 0;
+    font-size: ${dimensions.coreSpacing - 5}px;
   }
 `;
 
 const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
   padding: ${dimensions.coreSpacing}px;
   color: ${colors.textPrimary};
-  display: flex;
+  background-color: ${colors.colorWhite};
+  border-radius: ${dimensions.coreSpacing}px;
   overflow: auto;
-  max-height: ${props => (props.embedded ? '500px' : '300px')};
-  background-color: #faf9fb;
-
-  img {
-    max-width: 100px;
-    margin-right: ${dimensions.unitSpacing}px;
-  }
+  height: 100%;
 
   button {
     width: 100%;
-    display: block;
-    outline: 0;
-    border: 0;
-    border-radius: ${dimensions.unitSpacing}px;
-    padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
+    border-radius: 5px;
+    padding: 8px ${dimensions.coreSpacing}px;
     text-transform: inherit;
-    margin-bottom: ${dimensions.coreSpacing - 5}px;
 
     &:hover {
       box-shadow: 0 2px 22px 0 hsl(0, 0%, 73%);
@@ -67,56 +62,50 @@ const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
   }
 `;
 
-const PreviewWrapper = styled.div`
-  padding: 0 !important;
-`;
-
 const DropdownContent = styled.div`
-  flex: 1;
-  box-shadow: 0 5px 8px ${colors.darkShadow};
+  box-shadow: 0 3px 20px -2px ${rgba(colors.colorBlack, 0.3)};
   background: ${colors.bgLight};
-
-  ${PreviewWrapper} {
-    align-items: center;
-    justify-content: center;
-
-    ${PreviewBody} {
-      padding: 10px 20px;
-      max-height: 350px;
-    }
-
-    button {
-      margin: 10px 0;
-    }
-  }
+  transition: all 0.2s linear;
+  border-top-left-radius: ${dimensions.unitSpacing}px;
+  border-top-right-radius: ${dimensions.unitSpacing}px;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  animation: ${slideDown} 0.5s linear;
 `;
 
 const SlideLeftContent = styled.div`
   position: absolute;
-  width: 60%;
+  width: 380px;
   background: ${colors.bgLight};
-  bottom: 0;
+  bottom: 5px;
   left: 0;
-  box-shadow: 3px 0px 5px ${rgba(colors.colorBlack, 0.25)};
-  border-top-left-radius: ${dimensions.unitSpacing}px;
-  border-top-right-radius: ${dimensions.unitSpacing}px;
+  box-shadow: 0 3px 20px 0px ${rgba(colors.colorBlack, 0.3)};
+  border-radius: ${dimensions.unitSpacing}px;
+  max-height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: ${slideLeft} 0.5s linear;
+
+  @media (max-width: 1300px) {
+    width: 100%;
+  }
+`;
+
+const SlideRightContent = SlideLeftContent.extend`
+  right: 0;
+  left: auto;
+  animation: ${slideRight} 0.5s linear;
 `;
 
 const BodyContent = styled.div`
-  flex: 1;
-
   span {
     padding-left: 5px;
 
     &:after {
       left: ${dimensions.unitSpacing - 1}px;
     }
-  }
-
-  p {
-    color: #5c5c5c;
-    margin-bottom: 10px;
-    font-size: 14px;
   }
 
   input,
@@ -137,7 +126,7 @@ const BodyContent = styled.div`
 
   ${SortableWrapper} {
     overflow: visible;
-    max-height: none;
+    max-height: 100%;
 
     ${SortItem} {
       background: none;
@@ -192,8 +181,25 @@ const CenterContainer = styled.div`
   height: 100%;
 `;
 
-const FormContainer = styled.div`
-  display: block;
+const CallOutBody = styled.div`
+  color: #5c5c5c;
+  font-size: 14px;
+  display: inline-block;
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  img {
+    max-width: 100px;
+    float: left;
+    margin-right: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const PreviewContainer = styled.div`
+  position: relative;
+  height: 100%;
+`;
+
+const PopUpContainer = styled.div`
   border-radius: ${dimensions.unitSpacing}px;
   background-color: ${colors.colorWhite};
   margin: ${dimensions.coreSpacing}px auto;
@@ -217,7 +223,6 @@ const OverlayTrigger = styled.div`
 `;
 
 const Embedded = styled.div`
-  flex: 1;
   position: absolute;
   top: ${dimensions.unitSpacing}%;
   left: ${dimensions.unitSpacing / 2}%;
@@ -226,6 +231,14 @@ const Embedded = styled.div`
   padding: ${dimensions.unitSpacing / 2}px;
   margin-bottom: ${dimensions.coreSpacing}px;
   box-shadow: 0 0 ${dimensions.unitSpacing}px ${colors.colorShadowGray} inset;
+  max-height: 90%;
+  display: flex;
+  border-radius: ${dimensions.unitSpacing}px;
+  flex-direction: column;
+
+  @media (max-width: 1300px) {
+    width: 90%;
+  }
 `;
 
 const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
@@ -236,33 +249,31 @@ const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
   input,
   textarea,
   select {
+    box-sizing: border-box;
+    transition: all 0.3s ease-in-out;
+    background: #faf9fb;
     border: 1px solid ${colors.colorShadowGray};
-    border-radius: 4px;
+    border-radius: 5px !important;
+    box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.07);
+    color: #1a1a1a;
     display: block;
+    font-size: 14px;
+    height: 36px;
+    line-height: 1.42857143;
+    margin-top: ${props => !props.selectType && `${dimensions.unitSpacing}px`};
     outline: 0;
-    height: 34px;
-    padding: 8px 14px;
+    padding: 6px 15px;
     width: 100%;
-    background: ${colors.colorWhite};
-    margin-top: ${props => !props.selectType && '10px'};
+
 
     &:focus {
-      box-shadow: none;
-      border-color: ${colors.colorSecondary};
+      border-color: ${colors.colorShadowGray};
+      background: ${colors.colorWhite};
     }
 
     &:after {
       top: 22px;
     }
-  }
-
-  input[type="checkbox"],
-  input[type="radio"] {
-    width: auto;
-    height: auto;
-    display: inline-block;
-    margin-right: 7px;
-    padding: 0;
   }
 
   textarea {
@@ -273,6 +284,10 @@ const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
   .required {
     color: ${colors.colorCoreRed};
   }
+
+  ${SelectWrapper} {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
 `;
 
 const ThankContent = styled.div`
@@ -282,14 +297,16 @@ const ThankContent = styled.div`
 export {
   PreviewTitle,
   PreviewBody,
-  PreviewWrapper,
+  CallOutBody,
   DropdownContent,
   SlideLeftContent,
+  SlideRightContent,
   BodyContent,
   CenterContainer,
-  FormContainer,
+  PopUpContainer,
   OverlayTrigger,
   Embedded,
   FieldItem,
-  ThankContent
+  ThankContent,
+  PreviewContainer
 };

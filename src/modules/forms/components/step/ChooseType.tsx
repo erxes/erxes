@@ -10,7 +10,6 @@ type Props = {
   onChange: (name: 'type', value: string) => void;
   calloutTitle?: string;
   calloutBtnText?: string;
-  bodyValue?: string;
   color: string;
   theme: string;
 };

@@ -32,6 +32,7 @@ const LogoContainer = styled.div`
   margin-top: ${unitSpace};
   position: relative;
   float: right;
+  display: table;
 
   span {
     position: absolute;
