@@ -111,6 +111,7 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
       replacedContent = template.content.replace(EMAIL_CONTENT_PLACEHOLDER, replacedContent);
     }
 
+    // Add unsubscribe link ========
     const unSubscribeUrl = `${AWS_ENDPOINT}/unsubscribe/?cid=${customer._id}`;
 
     replacedContent += `<div style="padding: 10px"> <a style="text-decoration: underline;color: #0068a5;" rel="noopener" target="_blank" href="${unSubscribeUrl}">Unsubscribe</a> </div>`;
