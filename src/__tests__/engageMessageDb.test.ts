@@ -145,10 +145,41 @@ describe('engage messages model tests', () => {
   });
 
   test('change delivery report status', async () => {
-    const mailMessageId = Random.id();
-    const message = await EngageMessages.changeDeliveryReportStatus(_message._id, mailMessageId, 'sent');
+    const customer = await customerFactory({});
+    const mailId = Random.id();
 
-    expect(message.deliveryReports[`${mailMessageId}`].status).toEqual('sent');
+    const headers = {
+      mailId,
+      customerId: customer._id,
+      engageMessageId: _message._id,
+    };
+
+    const message = await EngageMessages.changeDeliveryReportStatus(headers, 'sent');
+
+    expect(message.deliveryReports[`${mailId}`].status).toEqual('sent');
+  });
+
+  test('Set customer to do not disturb when complaint or bounce', async () => {
+    const customer = await customerFactory({
+      doNotDisturb: 'No',
+    });
+    const mailId = Random.id();
+
+    const headers = {
+      mailId,
+      customerId: customer._id,
+      engageMessageId: _message._id,
+    };
+
+    await EngageMessages.changeDeliveryReportStatus(headers, 'bounce');
+
+    const customerObj = await Customers.findOne({ _id: customer._id });
+
+    if (!customerObj) {
+      throw new Error('Customer not found');
+    }
+
+    expect(customerObj.doNotDisturb).toBe('Yes');
   });
 
   test('changeCustomer', async () => {

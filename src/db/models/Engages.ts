@@ -132,10 +132,10 @@ class Message {
 
     switch (status) {
       case 'complaint':
-        await Customers.update({ _id: customer._id }, { $set: { doNotDisturb: true } });
+        await Customers.update({ _id: customer._id }, { $set: { doNotDisturb: 'Yes' } });
         break;
       case 'bounce':
-        await Customers.update({ _id: customer._id }, { $set: { doNotDisturb: true } });
+        await Customers.update({ _id: customer._id }, { $set: { doNotDisturb: 'Yes' } });
         break;
     }
 
