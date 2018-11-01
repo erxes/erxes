@@ -58,12 +58,16 @@ const findCustomers = async ({
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
 
+  const doNotDisturbQuery = {
+    $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }],
+  };
+
   if (segmentId) {
     const segment = await Segments.findOne({ _id: segmentId });
-    customerQuery = QueryBuilder.segments(segment);
+    customerQuery = await QueryBuilder.segments(segment);
   }
 
-  return Customers.find(customerQuery);
+  return Customers.find({ ...customerQuery, ...doNotDisturbQuery });
 };
 
 /**
@@ -135,6 +139,7 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
       headers: {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET,
         EngageMessageId: message._id,
+        CustomerId: customer._id,
         MailMessageId: mailMessageId,
       },
     });
