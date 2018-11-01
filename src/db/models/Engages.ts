@@ -130,13 +130,8 @@ class Message {
       throw new Error('Change Delivery Report Status: Customer not found');
     }
 
-    switch (status) {
-      case 'complaint':
-        await Customers.update({ _id: customer._id }, { $set: { doNotDisturb: 'Yes' } });
-        break;
-      case 'bounce':
-        await Customers.update({ _id: customer._id }, { $set: { doNotDisturb: 'Yes' } });
-        break;
+    if (status === 'complaint' || status === 'bounce') {
+      await Customers.update({ _id: customer._id }, { $set: { doNotDisturb: 'Yes' } });
     }
 
     await EngageMessages.update(
