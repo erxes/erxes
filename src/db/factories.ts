@@ -291,6 +291,7 @@ interface ICustomerFactoryInput {
   primaryPhone?: string;
   emails?: string[];
   phones?: string[];
+  doNotDisturb?: string;
   leadStatus?: string;
   lifecycleState?: string;
   messengerData?: any;
