@@ -82,7 +82,7 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
 
   const { templateId, subject, content, attachments = [] } = message.email.toJSON();
 
-  const { AWS_SES_CONFIG_SET } = process.env;
+  const { AWS_SES_CONFIG_SET, AWS_ENDPOINT } = process.env;
 
   const user = await Users.findOne({ _id: fromUserId });
 
@@ -110,6 +110,10 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
     if (template) {
       replacedContent = template.content.replace(EMAIL_CONTENT_PLACEHOLDER, replacedContent);
     }
+
+    const unSubscribeUrl = `${AWS_ENDPOINT}/unsubscribe/?cid=${customer._id}`;
+
+    replacedContent += `<div style="padding: 10px"> <a style="text-decoration: underline;color: #0068a5;" rel="noopener" target="_blank" href="${unSubscribeUrl}">Unsubscribe</a> </div>`;
 
     const mailMessageId = Random.id();
 
@@ -218,6 +222,20 @@ export const send = message => {
   if (method === METHODS.MESSENGER && kind !== MESSAGE_KINDS.VISITOR_AUTO) {
     return sendViaMessenger(message);
   }
+};
+
+export const handleEngageUnSubscribe = async (params: { cid: string }) => {
+  const customerId = params.cid;
+
+  const customer = await Customers.findOne({ _id: customerId });
+
+  if (!customer) {
+    throw new Error('Customer not found');
+  }
+
+  await Customers.update({ _id: customerId }, { $set: { doNotDisturb: 'Yes' } });
+
+  return true;
 };
 
 export default {

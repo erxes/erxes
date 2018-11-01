@@ -10,6 +10,7 @@ import * as path from 'path';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { userMiddleware } from './auth';
 import schema from './data';
+import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
 import { pubsub } from './data/resolvers/subscriptions';
 import { importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
@@ -49,6 +50,17 @@ app.post('/upload-file', async (req, res) => {
 
     return res.end(url);
   });
+});
+
+// engage unsubscribe
+app.get('/unsubscribe', async (req, res) => {
+  const unsubscribed = await handleEngageUnSubscribe(req.query);
+
+  if (unsubscribed) {
+    res.end('Unsubscribed');
+  }
+
+  res.end();
 });
 
 // file import
