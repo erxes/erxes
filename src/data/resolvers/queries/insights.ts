@@ -35,7 +35,8 @@ const insightQueries = {
    * Builds insights charting data contains
    * count of conversations in various integrations kinds.
    */
-  async insights(_root, { brandId, integrationType, startDate, endDate }: IListArgs) {
+  async insights(_root, args: IListArgs) {
+    const { brandId, integrationType, startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
 
     const integrationSelector: { brandId?: string; kind?: string } = {};
@@ -48,23 +49,12 @@ const insightQueries = {
 
     const conversationSelector = {
       createdAt: { $gte: start, $lte: end },
-      $or: [
-        {
-          userId: { $exists: true },
-          messageCount: { $gt: 1 },
-        },
-        {
-          userId: { $exists: false },
-        },
-      ],
+      $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
     };
 
     // count conversations by each integration kind
     for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
-      const integrationIds = await Integrations.find({
-        ...integrationSelector,
-        kind,
-      }).select('_id');
+      const integrationIds = await Integrations.find({ ...integrationSelector, kind }).select('_id');
 
       // find conversation counts of given integrations
       const value = await Conversations.count({
@@ -338,11 +328,7 @@ const insightQueries = {
         const userId = userMessage.userId || '';
 
         // collecting each user's respond information
-        firstResponseData.push({
-          createdAt: userMessage.createdAt,
-          userId,
-          responseTime,
-        });
+        firstResponseData.push({ createdAt: userMessage.createdAt, userId, responseTime });
 
         allResponseTime += responseTime;
 
@@ -355,15 +341,10 @@ const insightQueries = {
         }
 
         const minute = Math.floor(responseTime / 60);
-        const userSummary = responseUserData[userId].summaries;
+        const index = minute < 3 ? minute : 3;
 
-        if (minute < 3) {
-          summaries[minute] = summaries[minute] + 1;
-          userSummary[minute] = userSummary[minute] + 1;
-        } else {
-          summaries[3] = summaries[3] + 1;
-          userSummary[3] = userSummary[3] + 1;
-        }
+        summaries[index] = summaries[index] + 1;
+        responseUserData[userId].summaries[index] = responseUserData[userId].summaries[index] + 1;
       }
     }
 
