@@ -493,4 +493,45 @@ describe('facebook integration: get or create conversation', () => {
     expect(parentPost).toBeDefined();
     expect(res).toBe(true);
   });
+
+  test('Restore old facebook post: Must create new conversation on every comment', async () => {
+    const integration = await integrationFactory({});
+    const customer = await customerFactory({});
+    const facebookData = {
+      item: 'comment',
+      postId: 'postId',
+    };
+
+    const saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+    saveWebhookResponse.currentPageId = pageId;
+
+    sinon.stub(saveWebhookResponse, 'getPageAccessToken').callsFake(() => 'page_token');
+    sinon.stub(saveWebhookResponse, 'getOrCreateCustomer').callsFake(() => customer);
+
+    await saveWebhookResponse.getOrCreateConversation({
+      findSelector: { 'facebookData.postId': 'postId', 'facebookData.kind': 'status' },
+      status: CONVERSATION_STATUSES.CLOSED,
+      senderId,
+      facebookData,
+      content: 'hi',
+      msgFacebookData: {},
+    });
+
+    const conversation = await Conversations.findOne({ 'facebookData.postId': 'postId' });
+
+    expect(conversation).toBeDefined();
+
+    await saveWebhookResponse.getOrCreateConversation({
+      findSelector: { 'facebookData.postId': 'postId', 'facebookData.kind': 'status' },
+      status: CONVERSATION_STATUSES.NEW,
+      senderId,
+      facebookData,
+      content: 'hi',
+      msgFacebookData: {},
+    });
+
+    const conversations = await Conversations.find({ 'facebookData.postId': 'postId' });
+    // 2 conversations must be created with the same postId
+    expect(conversations.length).toBe(2);
+  });
 });
