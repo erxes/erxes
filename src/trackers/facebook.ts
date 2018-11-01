@@ -631,6 +631,7 @@ export class SaveWebhookResponse {
     }
 
     const parentPost = await ConversationMessages.findOne({
+      conversationId: conversation._id,
       'facebookData.isPost': true,
       'facebookData.postId': postId,
     });
@@ -651,7 +652,7 @@ export class SaveWebhookResponse {
     const postParams = await this.handlePosts({
       ...postResponse,
       item: 'status',
-      postId: postResponse.id,
+      post_id: postResponse.id,
     });
 
     await this.createMessage({
