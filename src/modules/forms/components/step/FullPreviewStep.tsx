@@ -104,19 +104,19 @@ class FullPreviewStep extends React.Component<Props, State> {
               className={currentTab === 'desktop' ? 'active' : ''}
               onClick={this.onChangeTab.bind(this, 'desktop')}
             >
-              <Icon icon="edit-1" /> {__('Desktop')}
+              <Icon icon="laptop" /> {__('Desktop')}
             </TabTitle>
             <TabTitle
               className={currentTab === 'tablet' ? 'active' : ''}
               onClick={this.onChangeTab.bind(this, 'tablet')}
             >
-              <Icon icon="email" /> {__('Tablet')}
+              <Icon icon="paste" /> {__('Tablet')}
             </TabTitle>
             <TabTitle
               className={currentTab === 'mobile' ? 'active' : ''}
               onClick={this.onChangeTab.bind(this, 'mobile')}
             >
-              <Icon icon="email" /> {__('Mobile')}
+              <Icon icon="devices" /> {__('Mobile')}
             </TabTitle>
           </Tabs>
           {this.renderResolutionPreview()}
