@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { Customers } from '.';
 import { ICustomerDocument } from './definitions/customers';
 import { engageMessageSchema, IEngageMessage, IEngageMessageDocument } from './definitions/engages';
 
@@ -14,12 +15,18 @@ interface IEngageMessageModel extends Model<IEngageMessageDocument> {
 
   addNewDeliveryReport(_id: string, mailMessageId: string, customerId: string): Promise<IEngageMessageDocument>;
 
-  changeDeliveryReportStatus(_id: string, mailMessageId: string, status: string): Promise<IEngageMessageDocument>;
+  changeDeliveryReportStatus(headers: IHeaders, status: string): Promise<IEngageMessageDocument>;
 
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IEngageMessageDocument>;
 
   removeCustomerEngages(customerId: string): void;
   updateStats(engageMessageId: string, stat: string): void;
+}
+
+interface IHeaders {
+  engageMessageId: string;
+  customerId: string;
+  mailId: string;
 }
 
 class Message {
@@ -115,17 +122,28 @@ class Message {
   /**
    * Change delivery report status
    */
-  public static async changeDeliveryReportStatus(_id: string, mailMessageId: string, status: string) {
+  public static async changeDeliveryReportStatus(headers: IHeaders, status: string) {
+    const { engageMessageId, mailId, customerId } = headers;
+    const customer = await Customers.findOne({ _id: customerId });
+
+    if (!customer) {
+      throw new Error('Change Delivery Report Status: Customer not found');
+    }
+
+    if (status === 'complaint' || status === 'bounce') {
+      await Customers.update({ _id: customer._id }, { $set: { doNotDisturb: 'Yes' } });
+    }
+
     await EngageMessages.update(
-      { _id },
+      { _id: engageMessageId },
       {
         $set: {
-          [`deliveryReports.${mailMessageId}.status`]: status,
+          [`deliveryReports.${mailId}.status`]: status,
         },
       },
     );
 
-    return EngageMessages.findOne({ _id });
+    return EngageMessages.findOne({ _id: engageMessageId });
   }
 
   /**
