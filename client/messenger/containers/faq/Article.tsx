@@ -1,16 +1,16 @@
 import * as React from "react";
 import { Article } from "../../components/faq";
 import { IFaqArticle } from "../../types";
-import { FaqConsumer } from "./FaqContext";
+import { AppConsumer } from "../AppContext";
 
 type Props = {
   article: IFaqArticle;
 };
 
 const container = (props: Props) => (
-  <FaqConsumer>
-    {({ goToArticle }) => <Article {...props} onClick={goToArticle} />}
-  </FaqConsumer>
+  <AppConsumer>
+    {({ goToFaqArticle }) => <Article {...props} onClick={goToFaqArticle} />}
+  </AppConsumer>
 );
 
 export default container;

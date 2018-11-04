@@ -2,7 +2,7 @@ $shadow-black: rgba(0, 0, 0, .1);
 
 .erxes-home-container {
   flex: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   .integration-box {
     animation-delay: .4s;
@@ -36,7 +36,6 @@ $shadow-black: rgba(0, 0, 0, .1);
     right: 0;
     top: 0;
 
-
     .erxes-middle {
       justify-content: flex-start;
     }
@@ -58,6 +57,11 @@ $shadow-black: rgba(0, 0, 0, .1);
 
     &.tabbed {
       margin-top: 0;
+    }
+
+    .scroll-wrapper {
+      height: calc(100% - 60px);
+      overflow: auto;
     }
   }
 }

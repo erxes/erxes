@@ -9,6 +9,7 @@ import { AppConsumer } from "../AppContext";
 type Props = {
   goToCategories: () => void;
   categoryId: string | null;
+  topicId: string;
 };
 
 type QueryResponse = {
@@ -58,15 +59,20 @@ const WithData = graphql<Props, QueryResponse>(
 const WithContext = () => {
   return (
     <AppConsumer>
-      {({ changeRoute, activeCategory }) => {
+      {({ changeRoute, activeFaqCategory, getMessengerData }) => {
         const goToCategories = () => {
           changeRoute("conversationList");
         };
 
+        const categoryId = activeFaqCategory && activeFaqCategory._id;
+
+        const topicId = getMessengerData().knowledgeBaseTopicId;
+
         return (
           <WithData
             goToCategories={goToCategories}
-            categoryId={activeCategory}
+            categoryId={categoryId}
+            topicId={topicId}
           />
         );
       }}

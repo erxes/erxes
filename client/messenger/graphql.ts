@@ -171,20 +171,29 @@ const saveBrowserInfo = `
 `;
 
 // faq
+
+const faqFields = `
+  _id
+  title
+  summary
+  content
+  createdDate
+`;
+
+const categoryFields = `
+  _id
+  title
+  description
+  numOfArticles
+  icon
+`;
+
 const getFaqCategoryQuery = `
   query knowledgeBaseCategoriesDetail($categoryId: String!) {
     knowledgeBaseCategoriesDetail(categoryId: $categoryId) {
-      _id
-      title
-      description
-      numOfArticles
-      icon
+      ${categoryFields}
       articles {
-        _id
-        title
-        summary
-        content
-        createdDate
+        ${faqFields}
       }
     }
   }
@@ -196,12 +205,16 @@ const getFaqTopicQuery = `
       title
       description
       categories {
-        _id
-        title
-        description
-        icon
-        numOfArticles
+        ${categoryFields}
       }
+    }
+  }
+`;
+
+const faqSearchArticlesQuery = `
+  query knowledgeBaseArticles($topicId: String!, $searchString: String!) {
+    knowledgeBaseArticles(topicId: $topicId, searchString: $searchString) {
+      ${faqFields}
     }
   }
 `;
@@ -263,6 +276,7 @@ export default {
   messengerSupportersQuery,
   getFaqCategoryQuery,
   getFaqTopicQuery,
+  faqSearchArticlesQuery,
   formQuery,
   formConnectMutation
 };

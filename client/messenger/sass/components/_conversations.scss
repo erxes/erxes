@@ -18,7 +18,7 @@
   position: relative;
 
   &:hover {
-    background: rgba($black, .03);
+    background: $bg-color;
     cursor: pointer;
   }
 
@@ -62,6 +62,10 @@
 
   .erxes-name {
     font-weight: 400;
+
+    > span {
+      color: $text-color-light;
+    }
   }
 
   .erxes-last-message {

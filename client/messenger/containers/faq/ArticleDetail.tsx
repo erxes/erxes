@@ -1,14 +1,17 @@
 import * as React from "react";
 import { ArticleDetail } from "../../components/faq";
-import { FaqConsumer } from "./FaqContext";
+import { AppConsumer } from "../AppContext";
 
 const ArticleDetailContainer = () => {
   return (
-    <FaqConsumer>
-      {({ goToArticles, activeArticle }) => (
-        <ArticleDetail goToArticles={goToArticles} article={activeArticle} />
+    <AppConsumer>
+      {({ goToFaqCategory, activeFaqArticle }) => (
+        <ArticleDetail
+          goToCategory={goToFaqCategory}
+          article={activeFaqArticle}
+        />
       )}
-    </FaqConsumer>
+    </AppConsumer>
   );
 };
 

@@ -3,7 +3,7 @@ import { IFaqCategory } from "../../types";
 
 type Props = {
   category: IFaqCategory;
-  onClick: (categoryId: string) => void;
+  onClick: (category?: IFaqCategory) => void;
 };
 
 export default class Category extends React.Component<Props> {
@@ -11,7 +11,7 @@ export default class Category extends React.Component<Props> {
     event.preventDefault();
 
     const { category, onClick } = this.props;
-    onClick(category._id);
+    onClick(category);
   };
 
   render() {
@@ -23,7 +23,9 @@ export default class Category extends React.Component<Props> {
           <i className={`erxes-icon-${category.icon}`} />
         </div>
         <div className="erxes-right-side">
-          <div className="erxes-name">{category.title}</div>
+          <div className="erxes-name">
+            {category.title} <span>({category.numOfArticles})</span>
+          </div>
           <div className="description">{category.description}</div>
         </div>
       </div>
