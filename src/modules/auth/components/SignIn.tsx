@@ -68,9 +68,9 @@ class SignIn extends React.Component<Props, State> {
             Sign in
           </Button>
         </form>
-        /* <Links>
+        {/* <Links>
           <Link to="/forgot-password">{__('Forgot password?')}</Link>
-        </Links> */
+        </Links> */}
       </AuthBox>
     );
   }
