@@ -11,36 +11,44 @@ interface IMessageSelector {
     $in: IConversationDocument[];
   };
 }
+
 interface IGenerateChartData {
   x: any;
   y: number;
 }
+
 interface IGenerateTimeIntervals {
   title: string;
   start: any;
   end: any;
 }
+
 interface IGenerateUserChartData {
   fullName?: string;
   avatar?: string;
   graph: IGenerateChartData[];
 }
+
 interface IIntegrationSelector {
   brandId?: string;
   kind?: string;
 }
+
 interface IFixDates {
   start: Date;
   end: Date;
 }
+
 interface IGenerateDuration {
   startTime: number;
   endTime: number;
   duration: number;
 }
+
 interface IResponseUserData {
-  [index: string]: { responseTime: number; count: number };
+  [index: string]: { responseTime: number; count: number; summaries?: number[] };
 }
+
 interface IGenerateResponseData {
   trend: IGenerateChartData[];
   time: number;
@@ -48,6 +56,7 @@ interface IGenerateResponseData {
     data: IGenerateUserChartData[];
   };
 }
+
 /**
  * Builds messages find query selector.
  */
@@ -286,15 +295,17 @@ export const generateResponseData = async (
   const trend = generateChartData(responsData, 7, duration, startTime);
 
   // Average response time for all messages
-  const time = allResponseTime / responsData.length;
+  const time = Math.floor(allResponseTime / responsData.length);
 
   const teamMembers: any = [];
 
   const userIds = _.uniq(_.pluck(responsData, 'userId'));
 
   for (const userId of userIds) {
+    const { responseTime, count, summaries } = responseUserData[userId];
+
     // Average response time for users.
-    const avgResTime = responseUserData[userId].responseTime / responseUserData[userId].count;
+    const avgResTime = Math.floor(responseTime / count);
 
     // preparing each team member's chart data
     teamMembers.push({
@@ -304,8 +315,8 @@ export const generateResponseData = async (
         duration,
         startTime,
       }),
-
       time: avgResTime,
+      summaries,
     });
   }
 
