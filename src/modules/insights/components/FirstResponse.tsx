@@ -21,7 +21,7 @@ type Props = {
   teamMembers?: IChartParams[];
   time?: number;
   isLoading: boolean;
-  summaries: any;
+  summaries: number[];
 };
 
 class FirstResponse extends React.Component<Props> {

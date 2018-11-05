@@ -4,20 +4,26 @@ import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import { ResponseReport, VolumeReport } from '../components';
 import { queries } from '../graphql';
-import { IParams, IParamsWithType } from '../types';
+import {
+  IParams,
+  IParamsWithType,
+  IQueryParams,
+  MainQueryResponse,
+  PieChartQueryResponse,
+  PunchCardQueryResponse
+} from '../types';
 
 type Props = {
   history: any;
   type: string;
-
-  queryParams: any;
+  queryParams: IQueryParams;
 };
 
 type FinalProps = {
-  volumePieChartQuery: any;
+  volumePieChartQuery: PieChartQueryResponse;
   brandsQuery: BrandsQueryResponse;
-  punchCardQuery: any;
-  mainQuery: any;
+  punchCardQuery: PunchCardQueryResponse;
+  mainQuery: MainQueryResponse;
 } & Props;
 
 const VolumenAndResponseReportContainer = (props: FinalProps) => {
