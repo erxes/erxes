@@ -7,7 +7,9 @@ import { Box, Group, MiddleContent, Title } from '../styles';
 import { ProjectVersions, Version } from '../types';
 
 class Status extends React.Component<{ versions: ProjectVersions }> {
-  renderData(title: string, version: Version) {
+  renderData(title: string, version?: Version) {
+    const ver = version || ({} as Version);
+
     return (
       <Box>
         <Title>{__(title)}</Title>
@@ -17,19 +19,19 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
             <Icon icon="information" /> {__('Info')}
           </span>
           <div>
-            <b>{__('Package version')}</b> - {version.packageVersion}
+            <b>{__('Package version')}</b> - {ver.packageVersion}
           </div>
           <div>
-            <b>{__('Branch name')}</b> - {version.branch}
+            <b>{__('Branch name')}</b> - {ver.branch}
           </div>
           <div>
-            <b>{__('Sha')}</b> - {version.sha}
+            <b>{__('Sha')}</b> - {ver.sha}
           </div>
           <div>
             <b>
               {__('Abbreviated')} {__('Sha')}
             </b>{' '}
-            - {version.abbreviatedSha}{' '}
+            - {ver.abbreviatedSha}{' '}
           </div>
         </Group>
         <Group>
@@ -37,13 +39,13 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
             <Icon icon="wallclock" /> Last commit{' '}
           </span>
           <div>
-            <b>{__('Message')}</b> - {version.lastCommitMessage}
+            <b>{__('Message')}</b> - {ver.lastCommitMessage}
           </div>
           <div>
-            <b>{__('User')}</b> - {version.lastCommittedUser}
+            <b>{__('User')}</b> - {ver.lastCommittedUser}
           </div>
           <div>
-            <b>{__('Date')}</b> - {version.lastCommittedDate}
+            <b>{__('Date')}</b> - {ver.lastCommittedDate}
           </div>
         </Group>
       </Box>
@@ -57,6 +59,7 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
     ];
 
     const { versions } = this.props;
+
     const {
       erxesVersion,
       apiVersion,
