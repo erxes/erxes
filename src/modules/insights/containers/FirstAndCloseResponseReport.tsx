@@ -4,7 +4,11 @@ import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import { FirstResponse, ResponseCloseReport } from '../components';
 import { queries } from '../graphql';
-import { IParamsWithType } from '../types';
+import {
+  FirstResponseQueryResponse,
+  IParamsWithType,
+  ResponseCloseQueryResponse
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -13,8 +17,8 @@ type Props = {
 };
 
 type FinalProps = {
-  firstResponseQuery: any;
-  responseCloseQuery: any;
+  firstResponseQuery: FirstResponseQueryResponse;
+  responseCloseQuery: ResponseCloseQueryResponse;
   brandsQuery: BrandsQueryResponse;
 } & Props;
 
@@ -46,7 +50,8 @@ const FirstAndCloseResponseReportContainer = (props: FinalProps) => {
     time: data.time,
     teamMembers: data.teamMembers || [],
     brands: brandsQuery.brands || [],
-    isLoading: brandsQuery.loading || loading
+    isLoading: brandsQuery.loading || loading,
+    summaries: data.summaries || []
   };
 
   if (type === 'close') {

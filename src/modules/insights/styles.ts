@@ -95,15 +95,6 @@ const LoaderWrapper = ChartWrapper.extend`
   padding: ${dimensions.coreSpacing * 2}px;
 `;
 
-const SummaryItem = styled.div`
-  text-align: center;
-  border-radius: 5px;
-  margin-bottom: 30px;
-  padding: 12px;
-  background: ${colors.bgLight};
-  box-shadow: 0 3px 15px 0 ${rgba(colors.colorBlack, 0.2)};
-`;
-
 const SummaryTitle = styled.div`
   margin-bottom: 5px;
   text-transform: uppercase;
@@ -112,6 +103,32 @@ const SummaryTitle = styled.div`
 const SummaryCount = styled.span`
   font-weight: bold;
   font-size: ${typography.fontSizeHeading5}px;
+`;
+
+const SummaryItem = styledTS<{ isSmall?: boolean }>(styled.div)`
+  text-align: center;
+  border-radius: 5px;
+  margin-bottom: 30px;
+  padding: 12px;
+  background: ${colors.bgLight};
+  box-shadow: 0 3px 15px 0 ${rgba(colors.colorBlack, 0.2)};
+
+  ${props =>
+    props &&
+    props.isSmall &&
+    `
+    margin-bottom: 12px;
+    padding: 8px;
+    line-height: ${typography.fontSizeHeading7}px;
+
+    span {
+      font-size: ${typography.fontSizeHeading7}px!important;
+    }
+  
+    div {
+      margin-bottom: 0px!important;
+    }
+  `}
 `;
 
 const InsightUserData = styled.div`

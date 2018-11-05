@@ -5,24 +5,31 @@ import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import {
+  FlexRow,
   InsightContent,
   InsightRow,
   InsightTitle,
   InsightWrapper,
   LoaderWrapper
 } from '../styles';
-import { IChartParams, InsightParams, IQueryParams } from '../types';
+import { IChartParams, InsightData, IQueryParams, SummaryData } from '../types';
 import { Chart, Filter, Insights, PunchCard, Sidebar, Summary } from './';
+
+type loadingType = {
+  punch: boolean;
+  main: boolean;
+  insights: boolean;
+};
 
 type Props = {
   brands: IBrand[];
   trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  punch?: any;
-  summary?: any;
-  loading?: any;
-  insights?: InsightParams[];
+  punch: number[][];
+  summary: SummaryData[];
+  loading: loadingType;
+  insights: InsightData;
 };
 
 class VolumeReport extends React.Component<Props, { width: number }> {
@@ -117,7 +124,13 @@ class VolumeReport extends React.Component<Props, { width: number }> {
 
         <InsightRow>
           {this.renderTitle('Insights')}
-          <Insights loading={loading.insights} data={insights || []} />
+          <FlexRow>
+            <Insights
+              loading={loading.insights}
+              data={insights.integration || []}
+            />
+            <Insights loading={loading.insights} data={insights.tag || []} />
+          </FlexRow>
         </InsightRow>
       </InsightContent>
     );
