@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ChartWrapper } from '../styles';
 
 type Props = {
-  data: any;
+  data: number[][];
   width: number;
 };
 

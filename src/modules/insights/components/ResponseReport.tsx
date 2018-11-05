@@ -11,7 +11,7 @@ import {
   InsightWrapper,
   LoaderWrapper
 } from '../styles';
-import { IChartParams, IQueryParams } from '../types';
+import { IChartParams, IQueryParams, SummaryData } from '../types';
 import { Chart, Filter, PunchCard, Sidebar, Summary, TeamMembers } from './';
 
 type Props = {
@@ -19,10 +19,10 @@ type Props = {
   trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  teamMembers?: IChartParams[];
-  punch?: any;
-  summary?: any;
-  loading?: any;
+  teamMembers: IChartParams[];
+  punch: number[][];
+  summary: SummaryData[];
+  loading: { main: boolean; punch: boolean };
 };
 
 class ResponseReport extends React.Component<Props, { width: number }> {
