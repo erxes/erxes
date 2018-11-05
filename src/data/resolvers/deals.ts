@@ -85,5 +85,5 @@ export default {
 
   async stage(deal: IDealDocument) {
     return DealStages.findOne({ _id: deal.stageId });
-  }
+  },
 };
