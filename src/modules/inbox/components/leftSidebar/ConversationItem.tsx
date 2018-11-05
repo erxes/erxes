@@ -5,8 +5,8 @@ import strip from 'strip';
 import { withCurrentUser } from 'modules/auth/containers';
 import {
   FormControl,
+  IntegrationIcon,
   NameCard,
-  SvgIcon,
   Tags,
   Tip
 } from 'modules/common/components';
@@ -26,7 +26,6 @@ import {
   MessageContent,
   RowContent,
   RowItem,
-  RowText,
   SmallText,
   SmallTextOneLine
 } from './styles';
@@ -107,21 +106,33 @@ class ConversationItem extends React.Component<Props> {
       conversation.readUserIds &&
       conversation.readUserIds.indexOf(currentUser._id) > -1;
 
+    const isIdle =
+      integration.kind !== 'form' &&
+      conversation.status !== 'closed' &&
+      idleTime >= 1;
+
     return (
       <RowItem
         onClick={this.onClick}
         isActive={isActive}
         isRead={isRead}
-        isIdle={idleTime >= 1}
-        kind={integration.kind}
-        status={conversation.status}
+        isIdle={isIdle}
       >
         <RowContent isChecked={isChecked}>
           {this.renderCheckbox()}
           <FlexContent>
             <MainInfo>
               {isExistingCustomer && (
-                <NameCard.Avatar size={40} customer={customer} />
+                <NameCard.Avatar
+                  size={40}
+                  customer={customer}
+                  icon={
+                    <IntegrationIcon
+                      integration={integration}
+                      facebookData={conversation.facebookData}
+                    />
+                  }
+                />
               )}
               <FlexContent>
                 <CustomerName>
@@ -145,15 +156,7 @@ class ConversationItem extends React.Component<Props> {
         </RowContent>
 
         <SmallText>
-          <RowText>
-            {moment(updatedAt || createdAt).fromNow()}
-            <SvgIcon
-              integration={integration}
-              customer={customer}
-              facebookData={conversation.facebookData}
-              twitterData={conversation.twitterData}
-            />
-          </RowText>
+          {moment(updatedAt || createdAt).fromNow()}
 
           {assignedUser && (
             <AssigneeWrapper>

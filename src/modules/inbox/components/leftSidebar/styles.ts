@@ -59,7 +59,7 @@ const FlexContent = styled.div`
   transition: all ease 0.3s;
 
   .tags {
-    margin-top: 10px;
+    margin-top: ${dimensions.unitSpacing - 3}px;
   }
 `;
 
@@ -94,11 +94,6 @@ const SmallText = styled.div`
   flex-shrink: 0;
 `;
 
-const RowText = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
 const SmallTextOneLine = SmallText.extend`
   max-height: ${dimensions.coreSpacing}px;
   overflow: hidden;
@@ -108,7 +103,7 @@ const SmallTextOneLine = SmallText.extend`
 `;
 
 const MessageContent = styled.div`
-  margin-top: ${dimensions.unitSpacing}px;
+  margin-top: ${dimensions.unitSpacing - 3}px;
   word-break: break-word;
   overflow: hidden;
   word-wrap: break-word;
@@ -122,8 +117,6 @@ const RowItem = styledTS<{
   isActive?: boolean;
   isRead?: boolean;
   isIdle?: boolean;
-  kind?: string;
-  status?: string;
 }>(styled.li)`
   padding: ${dimensions.coreSpacing}px;
   display: flex;
@@ -131,13 +124,7 @@ const RowItem = styledTS<{
   flex-direction: row;
   border-bottom: 1px solid ${colors.borderPrimary};
   transition: all ease 0.3s;
-  background: ${props => {
-    if (props.isActive) {
-      return colors.bgActive;
-    }
-
-    return null;
-  }};
+  background: ${props => (props.isActive ? colors.bgActive : null)};
 
   ${props =>
     !props.isRead &&
@@ -150,38 +137,22 @@ const RowItem = styledTS<{
     `};
   &:hover {
     background: ${props =>
-      !props.isRead || props.isActive || props.isIdle ? '' : colors.bgLight};
+      !props.isRead || props.isActive ? '' : colors.bgLight};
     cursor: pointer;
   }
 
   &:after {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      border: 6px solid transparent;
-      border-right-color: ${props => {
-        if (
-          props.isIdle &&
-          props.kind !== 'form' &&
-          props.status !== 'closed'
-        ) {
-          return colors.colorCoreRed;
-        }
-
-        return null;
-      }};
-      border-top-color: ${props => {
-        if (
-          props.isIdle &&
-          props.kind !== 'form' &&
-          props.status !== 'closed'
-        ) {
-          return colors.colorCoreRed;
-        }
-
-        return null;
-      }};
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border: 5px solid transparent;
+    ${props =>
+      props.isIdle &&
+      css`
+        border-right-color: ${colors.colorCoreRed};
+        border-bottom-color: ${colors.colorCoreRed};
+      `};
   }
 `;
 
@@ -209,6 +180,5 @@ export {
   SmallTextOneLine,
   MessageContent,
   AssigneeImg,
-  AssigneeWrapper,
-  RowText
+  AssigneeWrapper
 };
