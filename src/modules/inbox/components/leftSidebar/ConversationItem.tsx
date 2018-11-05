@@ -6,6 +6,7 @@ import { withCurrentUser } from 'modules/auth/containers';
 import {
   FormControl,
   IntegrationIcon,
+  NameCard,
   Tags,
   Tip
 } from 'modules/common/components';
@@ -105,24 +106,32 @@ class ConversationItem extends React.Component<Props> {
       conversation.readUserIds &&
       conversation.readUserIds.indexOf(currentUser._id) > -1;
 
+    const isIdle =
+      integration.kind !== 'form' &&
+      conversation.status !== 'closed' &&
+      idleTime >= 1;
+
     return (
       <RowItem
         onClick={this.onClick}
         isActive={isActive}
         isRead={isRead}
-        isIdle={idleTime >= 1}
+        isIdle={isIdle}
       >
         <RowContent isChecked={isChecked}>
           {this.renderCheckbox()}
           <FlexContent>
             <MainInfo>
               {isExistingCustomer && (
-                <IntegrationIcon
+                <NameCard.Avatar
                   size={40}
-                  integration={integration}
                   customer={customer}
-                  facebookData={conversation.facebookData}
-                  twitterData={conversation.twitterData}
+                  icon={
+                    <IntegrationIcon
+                      integration={integration}
+                      facebookData={conversation.facebookData}
+                    />
+                  }
                 />
               )}
               <FlexContent>
