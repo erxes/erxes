@@ -1,36 +1,34 @@
 import { Button } from 'modules/common/components';
-import {
-  slideDown,
-  slideLeft,
-  slideRight
-} from 'modules/common/utils/animations';
-import { Messenger, MessengerPreview } from 'modules/engage/styles';
+import { slideRight } from 'modules/common/utils/animations';
+import { Messenger, WebPreview } from 'modules/engage/styles';
 import { WidgetPreviewStyled } from 'modules/settings/integrations/components/messenger/widgetPreview/styles';
 import { LogoContainer } from 'modules/settings/styles';
 import * as React from 'react';
 import {
   BodyContent,
+  CallOutBody,
   CenterContainer,
   DropdownContent,
   Embedded,
-  FormContainer,
   OverlayTrigger,
+  PopUpContainer,
   PreviewBody,
+  PreviewContainer,
   PreviewTitle,
-  PreviewWrapper,
-  SlideLeftContent
+  SlideLeftContent,
+  SlideRightContent
 } from './styles';
 
-export const ShoutBox = MessengerPreview.extend`
+export const ShoutBox = WebPreview.extend`
   height: 100%;
-  min-height: 570px;
   width: auto;
   margin-left: 0;
 `;
 
 const WidgetPreview = WidgetPreviewStyled.extend`
   width: 100%;
-  max-height: 500px;
+  border-radius: 10px;
+  max-height: 100%;
 `;
 
 const Widget = Messenger.extend`
@@ -41,34 +39,7 @@ const Widget = Messenger.extend`
     rgba(255, 255, 255, 0.3) 60%,
     #eee 100%
   );
-`;
-
-const Container = CenterContainer.extend`
-  align-items: inherit;
-  display: block;
-`;
-
-const Dropdown = DropdownContent.extend`
-  animation: ${slideDown} 0.5s linear;
-  position: relative;
-  transition: all 0.2s linear;
-  flex: inherit;
-  border-bottom-style: solid;
-  border-width: 2px;
-`;
-
-const SlideLeft = SlideLeftContent.extend`
-  animation: ${slideLeft} 0.5s linear;
-`;
-
-const SlideRightContent = SlideLeftContent.extend`
-  right: 0;
-  left: auto;
-`;
-
-const SlideRight = SlideRightContent.extend`
-  animation: ${slideRight} 0.5s linear;
-  box-shadow: -3px 0px 5px rgba(0, 0, 0, 0.25);
+  max-height: 100%;
 `;
 
 type Props = {
@@ -84,45 +55,58 @@ type Props = {
 };
 
 class CommonPreview extends React.Component<Props, {}> {
-  renderContent() {
-    const {
-      title,
-      theme,
-      color,
-      btnText,
-      bodyValue,
-      btnStyle,
-      image,
-      children
-    } = this.props;
+  renderCallOutBody() {
+    const { image, bodyValue } = this.props;
+
+    if (!image || !bodyValue) {
+      return null;
+    }
 
     return (
-      <PreviewWrapper>
+      <CallOutBody>
+        {image && <img src={image} alt={image} />}
+        {bodyValue && bodyValue}
+      </CallOutBody>
+    );
+  }
+
+  renderButton() {
+    const { btnStyle, btnText, theme, color } = this.props;
+
+    if (!btnText) {
+      return null;
+    }
+
+    return (
+      <Button
+        ignoreTrans={true}
+        btnStyle={btnStyle}
+        style={{ backgroundColor: theme ? theme : color }}
+      >
+        {btnText}
+      </Button>
+    );
+  }
+
+  renderContent() {
+    const { title, theme, color, children } = this.props;
+
+    return (
+      <React.Fragment>
         <PreviewTitle style={{ backgroundColor: theme ? theme : color }}>
-          <span>{title}</span>
+          <div>{title}</div>
         </PreviewTitle>
 
         <PreviewBody embedded="embedded">
-          <div>
-            <img src={image} alt={image} />
-          </div>
-          <BodyContent>
-            <p>{bodyValue}</p>
+          {this.renderCallOutBody()}
 
+          <BodyContent>
             {children}
 
-            {btnText && (
-              <Button
-                ignoreTrans={true}
-                btnStyle={btnStyle}
-                style={{ backgroundColor: theme ? theme : color }}
-              >
-                {btnText}
-              </Button>
-            )}
+            {this.renderButton()}
           </BodyContent>
         </PreviewBody>
-      </PreviewWrapper>
+      </React.Fragment>
     );
   }
 
@@ -148,41 +132,41 @@ class CommonPreview extends React.Component<Props, {}> {
       return (
         <CenterContainer>
           <OverlayTrigger />
-          <FormContainer>{this.renderContent()}</FormContainer>
+          <PopUpContainer>{this.renderContent()}</PopUpContainer>
         </CenterContainer>
       );
     }
 
     if (type === 'dropdown') {
       return (
-        <Container>
-          <Dropdown style={{ borderColor: theme ? theme : color }}>
+        <PreviewContainer>
+          <DropdownContent style={{ borderColor: theme ? theme : color }}>
             {this.renderContent()}
-          </Dropdown>
-        </Container>
+          </DropdownContent>
+        </PreviewContainer>
       );
     }
 
     if (type === 'slideInLeft') {
       return (
-        <CenterContainer>
-          <SlideLeft>{this.renderContent()}</SlideLeft>
-        </CenterContainer>
+        <PreviewContainer>
+          <SlideLeftContent>{this.renderContent()}</SlideLeftContent>
+        </PreviewContainer>
       );
     }
 
     if (type === 'slideInRight') {
       return (
-        <CenterContainer>
-          <SlideRight>{this.renderContent()}</SlideRight>
-        </CenterContainer>
+        <PreviewContainer>
+          <SlideRightContent>{this.renderContent()}</SlideRightContent>
+        </PreviewContainer>
       );
     }
 
     return (
-      <Container>
+      <PreviewContainer>
         <Embedded>{this.renderContent()}</Embedded>
-      </Container>
+      </PreviewContainer>
     );
   }
 }

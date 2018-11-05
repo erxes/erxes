@@ -69,7 +69,6 @@ type State = {
   adminEmailContent?: string;
   thankContent?: string;
   redirectUrl?: string;
-  preview?: string;
   carousel?: string;
 };
 
@@ -206,7 +205,6 @@ class Form extends React.Component<Props, State> {
       logoPreviewUrl,
       thankContent,
       fields,
-      preview,
       carousel,
       language,
       title,
@@ -243,7 +241,6 @@ class Form extends React.Component<Props, State> {
               type={type}
               calloutTitle={calloutTitle}
               calloutBtnText={calloutBtnText}
-              bodyValue={bodyValue}
               color={color}
               theme={theme}
             />
@@ -317,7 +314,6 @@ class Form extends React.Component<Props, State> {
               theme={theme}
               image={logoPreviewUrl}
               fields={fields}
-              preview={preview || 'desktop'}
               thankContent={thankContent}
               skip={isSkip}
               carousel={carousel || constant}

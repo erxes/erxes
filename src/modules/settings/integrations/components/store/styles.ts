@@ -34,7 +34,8 @@ const Box = styledTS<{ isInMessenger: boolean }>(styled.div)`
   }
 `;
 
-const Type = styled.div`
+const Type = styled.span`
+  display: block;
   color: ${colors.colorCoreGray};
   padding-top: ${dimensions.coreSpacing - 5}px;
 `;
