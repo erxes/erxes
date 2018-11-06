@@ -7,19 +7,35 @@ const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
 
 const ErxesTopbar = styled.div`
-  overflow: hidden;
-  width: 100%;
+  transition: height 0.25s ease-in-out;
+  background-image: url(https://s3.amazonaws.com/erxes/pattern.png);
+  background-repeat: repeat;
+  background-size: cover;
   position: relative;
-  text-align: center;
-  flex-shrink: 0;
-`;
+  z-index: 10;
+  box-shadow: 0 4px 6px 0 ${rgba(colors.colorBlack, 0.1)};
 
-const TopbarButton = styled.div`
-  left: ${unitSpace};
+  &:before {
+    background: url(https://s3.amazonaws.com/erxes/radial.png) left top
+      no-repeat;
+    background-size: cover;
+    bottom: 0;
+    content: '';
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
 `;
 
 const ErxesMiddle = styled.div`
-  display: inline-block;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-around;
+  min-height: 70px;
+  width: auto;
+  height: auto;
 `;
 
 const ErxesStaffProfile = styled.div`
@@ -159,16 +175,16 @@ const StateSpan = styledTS<{ state: boolean }>(styled.span)`
 
 const WidgetPreviewStyled = styled.div`
   font-family: 'Roboto', sans-serif;
-  max-height: 460px;
-  width: 340px;
-  border-radius: 4px;
-  background: ${colors.colorWhite};
-  color: ${colors.colorWhite};
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 2px 15px 0 ${rgba(colors.colorBlack, 0.14)},
-    0 1px 6px 0 ${rgba(colors.colorBlack, 0.06)};
+  max-height: 720px;
+  width: 380px;
+  border-radius: ${dimensions.unitSpacing}px;
+  border-bottom-right-radius: 25px;
+  background: ${colors.colorWhite};
+  color: ${colors.colorWhite};
+  box-shadow: 0 2px 16px 1px ${rgba(colors.colorBlack, 0.2)};
 `;
 
 export {
@@ -184,7 +200,6 @@ export {
   ErxesMessagesList,
   FromCustomer,
   StateSpan,
-  TopbarButton,
   ErxesStaffName,
   ErxesStaffProfile,
   WidgetPreviewStyled

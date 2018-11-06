@@ -298,6 +298,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 isOnline={isOnline}
                 wallpaper={wallpaper}
                 color={color}
+                brandId={brandId}
                 logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
               />

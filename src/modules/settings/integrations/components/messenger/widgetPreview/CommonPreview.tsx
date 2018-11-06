@@ -15,6 +15,7 @@ type Props = {
   supporterIds?: string[];
   isOnline: boolean;
   logoPreviewUrl?: string;
+  brandId?: string;
 };
 
 class CommonPreview extends React.Component<Props> {
@@ -27,7 +28,8 @@ class CommonPreview extends React.Component<Props> {
       isOnline,
       supporterIds,
       teamMembers,
-      message
+      message,
+      brandId
     } = this.props;
 
     return (
@@ -41,6 +43,7 @@ class CommonPreview extends React.Component<Props> {
             welcomeMessage={message.welcome}
             awayMessage={message.away}
             isOnline={isOnline}
+            brandId={brandId}
           />
 
           <LogoContainer
