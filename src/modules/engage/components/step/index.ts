@@ -2,5 +2,5 @@ import ChannelStep from './ChannelStep';
 import ConditionStep from './ConditionStep';
 import MessageStep from './MessageStep';
 import SegmentStep from './SegmentStep';
-
-export { ChannelStep, MessageStep, SegmentStep, ConditionStep };
+import TagStep from './TagStep';
+export { ChannelStep, MessageStep, SegmentStep, TagStep, ConditionStep };

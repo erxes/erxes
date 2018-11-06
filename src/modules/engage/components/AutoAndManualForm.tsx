@@ -9,6 +9,7 @@ import { Wrapper } from 'modules/layout/components';
 import { ISegment, ISegmentDoc } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { ITag } from 'modules/tags/types';
 import * as React from 'react';
 import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IBreadCrumbItem } from '../../common/types';
@@ -19,19 +20,23 @@ import {
   IEngageMessenger,
   IEngageScheduleDate
 } from '../types';
-import { ChannelStep, MessageStep, SegmentStep } from './step';
+import { ChannelStep, MessageStep, SegmentStep, TagStep } from './step';
 
 type Props = {
   message?: IEngageMessage;
   brands: IBrand[];
   users: IUser[];
   segments: ISegment[];
+  tags: ITag[];
   headSegments: ISegment[];
   segmentFields: ISegment[];
+  tagFields: ITag[];
   templates: IEmailTemplate[];
   segmentAdd: (params: { doc: ISegmentDoc }) => void;
+  // tagAdd: (params: { doc: ITag }) => void;
   customerCounts?: IActivityLogForMonth[];
-  count: (segment: ISegmentDoc) => void;
+  segmentCount: (segment: ISegmentDoc) => void;
+  tagCount: (tag: ITag) => void;
   kind: string;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
@@ -47,6 +52,7 @@ type State = {
   method: string;
   title: string;
   segmentId: string;
+  tagId: string;
   content: string;
   fromUserId: string;
   messenger?: IEngageMessenger;
@@ -70,6 +76,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       method: message.method || 'email',
       title: message.title || '',
       segmentId: message.segmentId || '',
+      tagId: message.tagId || '',
       content,
       fromUserId: message.fromUserId,
       messenger: message.messenger,
@@ -169,8 +176,17 @@ class AutoAndManualForm extends React.Component<Props, State> {
               segmentFields={this.props.segmentFields}
               segmentAdd={this.props.segmentAdd}
               counts={this.props.customerCounts}
-              count={this.props.count}
+              count={this.props.segmentCount}
               segmentId={this.state.segmentId}
+            />
+
+            <TagStep
+              onChange={this.changeState}
+              tags={this.props.tags}
+              tagFields={this.props.tagFields}
+              counts={this.props.customerCounts}
+              count={this.props.tagCount}
+              tagId={this.state.tagId}
             />
           </Step>
 

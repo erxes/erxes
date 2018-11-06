@@ -49,6 +49,7 @@ export interface IEngageMessageDoc {
   kind?: string;
   type?: string;
   segmentId?: string;
+  tagId?: string;
   customerIds?: string[];
   title: string;
   fromUserId?: string;

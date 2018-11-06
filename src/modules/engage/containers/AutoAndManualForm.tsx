@@ -15,6 +15,7 @@ import {
 } from '../../segments/types';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
 import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
+import { TagsQueryResponse } from '../../tags/types';
 import { AutoAndManualForm } from '../components';
 import FormBase from '../components/FormBase';
 import { mutations, queries } from '../graphql';
@@ -29,6 +30,7 @@ type Props = {
 
 type FinalProps = {
   segmentsQuery: SegmentsQueryResponse;
+  tagsQuery: TagsQueryResponse;
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   customerCountsQuery: CountQueryResponse;
   headSegmentsQuery: HeadSegmentsQueryResponse;
@@ -41,6 +43,7 @@ type FinalProps = {
 const AutoAndManualFormContainer = (props: FinalProps) => {
   const {
     segmentsQuery,
+    tagsQuery,
     headSegmentsQuery,
     combinedFieldsQuery,
     segmentsAdd,
@@ -49,7 +52,8 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
   } = props;
 
   const customerCounts = customerCountsQuery.customerCounts || {
-    bySegment: {}
+    bySegment: {},
+    byTag: {}
   };
 
   const segmentFields = combinedFieldsQuery.fieldsCombinedByContentType
@@ -86,6 +90,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     segmentFields,
     segmentAdd,
     segments: segmentsQuery.segments || [],
+    tags: tagsQuery.tags || [],
     templates: emailTemplatesQuery.emailTemplates || [],
     customerCounts: customerCounts.bySegment || {},
     count
@@ -106,6 +111,9 @@ export default withFormMutations<Props>(
       }),
       graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
         name: 'segmentsQuery'
+      }),
+      graphql<Props, TagsQueryResponse>(gql(queries.tags), {
+        name: 'tagsQuery'
       }),
       graphql<Props, CountQueryResponse, { only: string }>(
         gql(queries.customerCounts),

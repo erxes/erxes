@@ -88,6 +88,22 @@ const WebPreview = styled.div`
 const MessengerPreview = WebPreview.extend`
   min-height: 500px;
 `;
+const Tagli = styledTS<{ chosen: boolean }>(styled.li)`
+  list-style-type: none;
+  text-align: left;
+  display: list-item;
+  background-color: ${props =>
+    props.chosen ? colors.borderPrimary : 'transparent'};
+  }
+  a {
+    &:focus {
+      outline: none;
+      text-decoration: none;
+    }
+    outline: none;
+    text-decoration: none;
+  }
+`;
 
 const Segmentli = styledTS<{ chosen: boolean }>(styled.li)`
   list-style-type: none;
@@ -225,6 +241,7 @@ export {
   Messenger,
   MessengerPreview,
   Segmentli,
+  Tagli,
   Recipients,
   Recipient,
   StepContent,

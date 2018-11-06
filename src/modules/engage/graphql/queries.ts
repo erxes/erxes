@@ -176,6 +176,21 @@ const segments = `
     }
   }
 `;
+const tagFields = `
+  _id
+  name
+  type
+  colorCode
+  createdAt
+`;
+
+const tags = `
+  query tags {
+    tags(type: "engageMessage") {
+      ${tagFields}
+    }
+  }
+`;
 
 const brands = `
   query brands {
@@ -240,6 +255,7 @@ export default {
   userDetail,
   segments,
   brands,
+  tags,
   emailTemplates,
   customerCounts,
   segmentDetail,
