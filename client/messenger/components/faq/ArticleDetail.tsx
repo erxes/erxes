@@ -3,19 +3,23 @@ import * as React from "react";
 import { iconLeft } from "../../../icons/Icons";
 import { __ } from "../../../utils";
 import { TopBar } from "../../containers";
-import { IFaqArticle } from "../../types";
+import { IFaqArticle, IFaqCategory } from "../../types";
 
 type Props = {
   article: IFaqArticle | null;
-  goToArticles: () => void;
+  goToCategory: (category?: IFaqCategory) => void;
 };
 
-export default function ArticleDetail({ article, goToArticles }: Props) {
+export default function ArticleDetail({ article, goToCategory }: Props) {
   if (!article) {
     return <div className="loader bigger" />;
   }
 
   const { createdDate, title, summary, content } = article;
+
+  const onClick = () => {
+    goToCategory();
+  };
 
   const renderHead = () => {
     return (
@@ -30,7 +34,7 @@ export default function ArticleDetail({ article, goToArticles }: Props) {
       <TopBar
         middle={renderHead()}
         buttonIcon={iconLeft}
-        onLeftButtonClick={goToArticles}
+        onLeftButtonClick={onClick}
       />
       <div className="erxes-content slide-in">
         <div className="erxes-article-content">

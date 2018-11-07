@@ -4,7 +4,8 @@ import Articles from "./Articles";
 import Categories from "./Categories";
 import Category from "./Category";
 import CategoryDetail from "./CategoryDetail";
-import Faq from "./Faq";
+import FaqCategories from "./FaqCategories";
+import SearchBar from "./SearchBar";
 
 export {
   Article,
@@ -13,5 +14,6 @@ export {
   Categories,
   Category,
   CategoryDetail,
-  Faq
+  FaqCategories,
+  SearchBar
 };

@@ -11,8 +11,8 @@ import {
 } from "../../types";
 import { __ } from "../../utils";
 import { Integrations, TopBar } from "../containers";
-import { Categories as FaqCategories } from "../containers/faq";
 import { SocialLink, Supporters } from "./common";
+import { FaqCategories } from "./faq";
 
 type Props = {
   supporters: IUser[];
@@ -128,6 +128,7 @@ class Home extends React.Component<Props, State> {
 
   render() {
     const { messengerData } = this.props;
+    const topicId = messengerData.knowledgeBaseTopicId;
 
     return (
       <div
@@ -137,7 +138,7 @@ class Home extends React.Component<Props, State> {
         <TopBar middle={this.renderHead()} />
         <div
           className={classNames("erxes-home-content", {
-            tabbed: messengerData.knowledgeBaseTopicId
+            tabbed: topicId
           })}
         >
           <RTG.CSSTransition
@@ -158,8 +159,8 @@ class Home extends React.Component<Props, State> {
             classNames="slide"
             unmountOnExit={true}
           >
-            <div className="erxes-home-item">
-              <FaqCategories topicId={messengerData.knowledgeBaseTopicId} />
+            <div className="erxes-home-item seperate">
+              <FaqCategories topicId={topicId} />
             </div>
           </RTG.CSSTransition>
         </div>

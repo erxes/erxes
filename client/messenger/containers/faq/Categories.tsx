@@ -4,6 +4,7 @@ import { ChildProps, graphql } from "react-apollo";
 import { Categories as DumbCategories } from "../../components/faq";
 import queries from "../../graphql";
 import { IFaqTopic } from "../../types";
+import { Articles } from "./";
 
 const Categories = (props: ChildProps<{}, QueryResponse>) => {
   const { data } = props;
@@ -27,6 +28,7 @@ type QueryResponse = {
 
 type Props = {
   topicId?: string;
+  searchString: string;
 };
 
 const CategoriesWithData = graphql<Props, QueryResponse>(
@@ -41,4 +43,12 @@ const CategoriesWithData = graphql<Props, QueryResponse>(
   }
 )(Categories);
 
-export default CategoriesWithData;
+const WithSearch = (props: Props) => {
+  if (props.searchString) {
+    return <Articles {...props} />;
+  }
+
+  return <CategoriesWithData {...props} />;
+};
+
+export default WithSearch;

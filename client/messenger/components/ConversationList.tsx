@@ -20,7 +20,7 @@ function ConversationList(props: Props) {
   } = props;
 
   if (loading) {
-    return <div className="loader bigger" />;
+    return <div className="loader" />;
   }
 
   const createButton = () => {

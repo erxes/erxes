@@ -10,7 +10,9 @@ type Props = {
 const container = (props: Props) => {
   return (
     <AppConsumer>
-      {({ goToCategory }) => <Category {...props} onClick={goToCategory} />}
+      {({ goToFaqCategory }) => (
+        <Category {...props} onClick={goToFaqCategory} />
+      )}
     </AppConsumer>
   );
 };
