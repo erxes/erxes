@@ -9,6 +9,7 @@
       "check-format",
       "allow-leading-underscore"
     ],
+    "no-implicit-dependencies": [true, "dev"],
     "max-classes-per-file": [true, 5]
   }
 }
