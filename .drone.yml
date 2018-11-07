@@ -5,14 +5,32 @@ pipeline:
       - sleep 15
       - mongo --host mongo
 
-  build:
+  install:
+    image: node:8-slim
+    commands:
+      - node -v
+      - npm -v
+      - apt-get update && apt-get install -y python build-essential
+      - yarn --version
+      - yarn config set cache-folder .yarn-cache
+      - yarn install
+
+  testing:
     image: node:8-slim
     environment:
       - TEST_MONGO_URL=mongodb://mongo/test
     commands:
-      - apt-get update && apt-get install -y python build-essential
-      - yarn install
       - yarn test
+
+  linting:
+    image: node:8-slim
+    commands:
+      - yarn lint
+
+  typescript:
+    image: node:8-slim
+    commands:
+      - yarn tsc
 
 services:
   mongo:
