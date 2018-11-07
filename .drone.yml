@@ -1,11 +1,4 @@
 pipeline:
-  restore-cache:
-    image: drillster/drone-volume-cache
-    restore: true
-    mount:
-      - ./.yarn-cache
-      - ./node_modules
-
   ping:
     image: mongo:3.4.4
     commands:
