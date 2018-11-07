@@ -11,7 +11,7 @@ import DealBoard from './dealBoards';
 import Deal from './deals';
 import DealStage from './dealStages';
 import EngageMessage from './engage';
-import { Field, FieldsGroup } from './field';
+import { field, fieldsGroup } from './field';
 import Form from './forms';
 import ImportHistory from './importHistory';
 import Integration from './integration';
@@ -57,8 +57,8 @@ const resolvers: any = {
   ActivityLog,
   ActivityLogForMonth,
   Form,
-  FieldsGroup,
-  Field,
+  FieldsGroup: fieldsGroup,
+  Field: field,
   ImportHistory,
 };
 
