@@ -20,7 +20,7 @@
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write --print-width 120 --single-quote --trailing-comma all 'src/**/*.ts'",
     "precommit": "lint-staged",
-    "test": "jest --runInBand --no-cache --forceExit",
+    "test": "jest --runInBand --forceExit",
     "loadInitialData": "mongorestore --db erxes ./initialData",
     "customCommand": "ts-node ./src/commands/custom.ts",
     "initProject": "ts-node ./src/commands/initProject.ts",
