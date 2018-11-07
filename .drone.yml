@@ -15,13 +15,6 @@ pipeline:
       - yarn config set cache-folder .yarn-cache
       - yarn install
 
-  testing:
-    image: node:8-slim
-    environment:
-      - TEST_MONGO_URL=mongodb://mongo/test
-    commands:
-      - yarn test
-
   linting:
     image: node:8-slim
     commands:
@@ -31,6 +24,13 @@ pipeline:
     image: node:8-slim
     commands:
       - yarn tsc
+
+  testing:
+    image: node:8-slim
+    environment:
+      - TEST_MONGO_URL=mongodb://mongo/test
+    commands:
+      - yarn test
 
 services:
   mongo:
