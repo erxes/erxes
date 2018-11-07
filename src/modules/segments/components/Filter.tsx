@@ -72,6 +72,11 @@ class Segments extends React.Component<Props> {
     );
   }
 
+  onSegmentClick(segmentId) {
+    const { setSegment } = this.props;
+    setSegment(segmentId);
+  }
+
   renderData() {
     const { counts, segments, currentSegment, setSegment } = this.props;
     const orderedSegments: ISegment[] = [];
@@ -81,8 +86,6 @@ class Segments extends React.Component<Props> {
         orderedSegments.push(segment, ...segment.getSubSegments);
       }
     });
-
-    const onClick = segment => setSegment(segment._id);
 
     return (
       <SidebarList>
@@ -94,7 +97,7 @@ class Segments extends React.Component<Props> {
             <a
               tabIndex={0}
               className={currentSegment === segment._id ? 'active' : ''}
-              onClick={onClick}
+              onClick={this.onSegmentClick.bind(this, segment._id)}
             >
               {segment.subOf ? '\u00a0\u00a0' : null}
               <Icon

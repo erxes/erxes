@@ -13,12 +13,8 @@ const listParamsValue = `
 `;
 
 const pieChart = `
-  query insights($brandId: String, $startDate: String, $endDate: String) {
-    insights(brandId: $brandId, startDate: $startDate, endDate: $endDate) {
-      id
-      label
-      value
-    }
+  query insights(${listParamsDef}) {
+    insights(${listParamsValue})
   }
 `;
 

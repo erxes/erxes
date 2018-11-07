@@ -56,6 +56,7 @@ export default `
   }
   customer {
     _id
+    avatar
     firstName
     lastName
     primaryEmail

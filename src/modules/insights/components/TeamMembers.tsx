@@ -1,6 +1,7 @@
 import { Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { Col, Row } from 'react-bootstrap';
+import { Summary } from '.';
 import {
   FullName,
   InsightUserData,
@@ -22,6 +23,10 @@ class TeamMembers extends React.Component<Props> {
 
     return (
       <Col sm={6} key={index}>
+        {userData.summaries ? (
+          <Summary isSmall={true} loading={false} data={userData.summaries} />
+        ) : null}
+
         <InsightUserData>
           <UserProfile>
             <a>

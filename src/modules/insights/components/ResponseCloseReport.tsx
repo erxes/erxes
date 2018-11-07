@@ -18,7 +18,7 @@ type Props = {
   trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  teamMembers?: IChartParams[];
+  teamMembers: IChartParams[];
   time?: number;
   isLoading?: boolean;
 };

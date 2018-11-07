@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { Messenger, MessengerPreview } from 'modules/engage/styles';
+import { Messenger, WebPreview } from 'modules/engage/styles';
 import { IMessagesItem } from 'modules/settings/integrations/types';
 import { LogoContainer } from 'modules/settings/styles';
 import * as React from 'react';
@@ -33,7 +33,7 @@ class CommonPreview extends React.Component<Props> {
     } = this.props;
 
     return (
-      <MessengerPreview>
+      <WebPreview>
         <Messenger>
           <WidgetPreview
             color={color}
@@ -56,7 +56,7 @@ class CommonPreview extends React.Component<Props> {
             )}
           />
         </Messenger>
-      </MessengerPreview>
+      </WebPreview>
     );
   }
 }
