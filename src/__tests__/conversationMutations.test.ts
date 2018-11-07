@@ -10,7 +10,7 @@ import {
   userFactory,
 } from '../db/factories';
 import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
-import { TwitMap } from '../trackers/twitter';
+import { twitMap } from '../trackers/twitter';
 import { twitRequest } from '../trackers/twitterTracker';
 
 const toJSON = value => {
@@ -106,7 +106,7 @@ describe('Conversation message mutations', () => {
   test('Tweet conversation', async () => {
     const twit = {};
 
-    TwitMap[_integrationTwitter._id] = twit;
+    twitMap[_integrationTwitter._id] = twit;
 
     const args = {
       integrationId: _integrationTwitter._id,
@@ -148,7 +148,7 @@ describe('Conversation message mutations', () => {
       id: '123',
     };
 
-    TwitMap[_integrationTwitter._id] = twit;
+    twitMap[_integrationTwitter._id] = twit;
 
     // mock twitter request
     const sandbox = sinon.sandbox.create();
@@ -198,7 +198,7 @@ describe('Conversation message mutations', () => {
       id: '123',
     };
 
-    TwitMap[_integrationTwitter._id] = twit;
+    twitMap[_integrationTwitter._id] = twit;
 
     // mock twitter request
     const sandbox = sinon.sandbox.create();

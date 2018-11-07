@@ -301,10 +301,12 @@ class Topic {
 
 articleSchema.loadClass(Article);
 
+// tslint:disable-next-line
 export const KnowledgeBaseArticles = model<IArticleDocument, IArticleModel>('knowledgebase_articles', articleSchema);
 
 categorySchema.loadClass(Category);
 
+// tslint:disable-next-line
 export const KnowledgeBaseCategories = model<ICategoryDocument, ICategoryModel>(
   'knowledgebase_categories',
   categorySchema,
@@ -312,4 +314,5 @@ export const KnowledgeBaseCategories = model<ICategoryDocument, ICategoryModel>(
 
 topicSchema.loadClass(Topic);
 
+// tslint:disable-next-line
 export const KnowledgeBaseTopics = model<ITopicDocument, ITopicModel>('knowledgebase_topics', topicSchema);

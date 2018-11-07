@@ -112,6 +112,7 @@ class Form {
 
 formSchema.loadClass(Form);
 
+// tslint:disable-next-line
 const Forms = model<IFormDocument, IFormModel>('forms', formSchema);
 
 export default Forms;

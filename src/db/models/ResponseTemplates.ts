@@ -33,6 +33,7 @@ class ResponseTemplate {
 
 responseTemplateSchema.loadClass(ResponseTemplate);
 
+// tslint:disable-next-line
 const ResponseTemplates = model<IResponseTemplateDocument, IResponseTemplateModel>(
   'response_templates',
   responseTemplateSchema,

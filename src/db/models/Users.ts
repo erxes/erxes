@@ -376,6 +376,7 @@ class User {
 
 userSchema.loadClass(User);
 
+// tslint:disable-next-line
 const Users = model<IUserDocument, IUserModel>('users', userSchema);
 
 export default Users;

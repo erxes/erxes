@@ -226,6 +226,7 @@ class Company {
 
 companySchema.loadClass(Company);
 
+// tslint:disable-next-line
 const Companies = model<ICompanyDocument, ICompanyModel>('companies', companySchema);
 
 export default Companies;

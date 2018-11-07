@@ -42,6 +42,7 @@ class Segment {
 
 segmentSchema.loadClass(Segment);
 
+// tslint:disable-next-line
 const Segments = model<ISegmentDocument, ISegmentModel>('segments', segmentSchema);
 
 export default Segments;

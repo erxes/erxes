@@ -172,6 +172,7 @@ class Tag {
 
 tagSchema.loadClass(Tag);
 
+// tslint:disable-next-line
 const Tags = model<ITagDocument, ITagModel>('tags', tagSchema);
 
 export default Tags;
