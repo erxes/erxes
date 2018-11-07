@@ -1,0 +1,27 @@
+pipeline:
+  restore-cache:
+    image: drillster/drone-volume-cache
+    restore: true
+    mount:
+      - ./.yarn-cache
+      - ./node_modules
+
+  ping:
+    image: mongo:3.4.4
+    commands:
+      - sleep 15
+      - mongo --host mongo
+
+  build:
+    image: node:8-slim
+    environment:
+      - TEST_MONGO_URL=mongodb://mongo/test
+    commands:
+      - apt-get update && apt-get install -y python build-essential
+      - yarn install
+      - yarn test
+
+services:
+  mongo:
+      image: mongo:3.4.4
+      command: [ --smallfiles ]
