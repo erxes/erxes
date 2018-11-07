@@ -17,6 +17,7 @@ const PageHeader = styled.div`
   display: flex;
   align-items: center;
   z-index: 2;
+  padding-left: ${dimensions.coreSpacing}px;
 `;
 
 function Header({ breadcrumb, queryParams, submenu }: Props) {

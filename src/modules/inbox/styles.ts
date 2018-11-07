@@ -91,6 +91,7 @@ const RespondBoxStyled = styledTS<{
   background: ${props =>
     props.isInternal ? colors.bgInternal : colors.colorWhite};
   filter: ${props => props.isInactive && 'blur(2px)'};
+  z-index: -1; 
 `;
 
 const ResponseTemplateStyled = styled.div`

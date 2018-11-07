@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
-import { Contents } from 'modules/layout/styles';
+import { AdditionalSidebar, Contents } from 'modules/layout/styles';
 import * as React from 'react';
 import { ConversationDetail } from '../containers/conversationDetail';
 import { Sidebar } from '../containers/leftSidebar';
@@ -21,6 +21,7 @@ function Inbox({ currentConversationId, queryParams }: Props) {
         breadcrumb={breadcrumb}
         submenu={menuInbox}
       />
+      <AdditionalSidebar>sidebar</AdditionalSidebar>
       <Sidebar
         queryParams={queryParams}
         currentConversationId={currentConversationId}

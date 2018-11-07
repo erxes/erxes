@@ -33,8 +33,7 @@ const MainWrapper = styled.div`
 const Contents = styled.div`
   display: flex;
   flex: 1;
-  margin: ${dimensions.coreSpacing}px;
-  margin-right: 0;
+  margin: ${dimensions.unitSpacing}px;
   max-height: 100%;
 
   @-moz-document url-prefix() {
@@ -47,9 +46,7 @@ const MainContent = styledTS<{ transparent?: boolean }>(styled.section)`
   display: flex;
   flex-direction: column;
   min-width: 480px;
-  box-shadow: ${props =>
-    !props.transparent && `0 0 8px 1px ${colors.shadowPrimary}`};
-  margin-right: ${dimensions.coreSpacing}px;
+  border-right: 1px solid ${colors.borderPrimary};
 `;
 
 const ContentSpace = styled.div`
@@ -109,10 +106,15 @@ const SideContent = styledTS<{
   flex-shrink: 0;
   width: ${props => (props.wide ? '360px' : '300px')};
   flex: ${props => (props.half ? '1' : 'none')};
-  margin-right: ${dimensions.coreSpacing}px;
   background: ${props => (props.full ? colors.colorWhite : 'none')};
-  box-shadow: ${props =>
-    props.full ? `0 0 8px 1px ${colors.shadowPrimary}` : 'none'};
+  border-right: 1px solid ${colors.borderPrimary};
+`;
+
+const AdditionalSidebar = styled.div`
+  width: 200px;
+  background: ${colors.bgLight}
+  border: 1px solid ${colors.borderPrimary};
+  box-shadow: 0 0 8px 1px ${colors.shadowPrimary} inset;
 `;
 
 const SidebarHeader = styledTS<{
@@ -477,6 +479,7 @@ export {
   SidebarToggle,
   SidebarCounter,
   SidebarFlexRow,
+  AdditionalSidebar,
   HelperButtons,
   SidebarTitle,
   UserHelper,
