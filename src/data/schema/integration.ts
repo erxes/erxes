@@ -20,6 +20,14 @@ export const types = `
     channels: [Channel]
   }
 
+  type IntegrationAccount {
+    _id: String!
+    kind: String!
+    token: String!
+    accountName: String
+    accountId: String!
+  }
+
   type integrationsTotalCount {
     total: Int
     byTag: JSON
@@ -102,6 +110,7 @@ export const queries = `
   integrationGetGoogleAccessToken(code: String): JSON
   integrationFacebookAppsList: [JSON]
   integrationFacebookPagesList(appId: String): [JSON]
+  integrationLinkedAccounts: IntegrationAccount
 `;
 
 export const mutations = `
@@ -168,4 +177,6 @@ export const mutations = `
     bcc: String,
     attachments: [String],
   ): GmailResponseData
+
+  integrationsDelinkAccount(_id: String!): String
 `;

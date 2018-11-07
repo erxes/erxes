@@ -7,8 +7,11 @@ import {
   IFormData,
   IGmailData,
   IIntegration,
+  IIntegrationAccount,
+  IIntegrationAccountDocument,
   IIntegrationDocument,
   IMessengerData,
+  integrationAccountsSchema,
   integrationSchema,
   ITwitterData,
   IUiOptions,
@@ -256,4 +259,39 @@ integrationSchema.loadClass(Integration);
 
 const Integrations = model<IIntegrationDocument, IIntegrationModel>('integrations', integrationSchema);
 
-export default Integrations;
+interface IIntegrationAccountModel extends Model<IIntegrationAccountDocument> {
+  createAccount(doc: IIntegrationAccount): Promise<IIntegrationAccountDocument>;
+  removeAccount(_id: string): void;
+}
+
+class IntegrationAccount {
+  /**
+   * Create an integration account
+   */
+  public static async createAccount(doc: IIntegrationAccount) {
+    const { accountId } = doc;
+
+    const prevEntry = await IntegrationAccounts.findOne({ accountId });
+
+    if (prevEntry) {
+      throw new Error('Account already exists');
+    }
+
+    return IntegrationAccounts.create(doc);
+  }
+  /**
+   * Remove integration account
+   */
+  public static removeAccount(_id) {
+    return IntegrationAccounts.remove({ _id });
+  }
+}
+
+integrationAccountsSchema.loadClass(IntegrationAccount);
+
+const IntegrationAccounts = model<IIntegrationAccountDocument, IIntegrationAccountModel>(
+  'integration_accounts',
+  integrationAccountsSchema,
+);
+
+export { Integrations, IntegrationAccounts };

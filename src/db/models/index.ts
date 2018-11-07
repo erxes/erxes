@@ -12,7 +12,7 @@ import EngageMessages from './Engages';
 import { Fields, FieldsGroups } from './Fields';
 import Forms from './Forms';
 import ImportHistory from './ImportHistory';
-import Integrations from './Integrations';
+import { IntegrationAccounts, Integrations } from './Integrations';
 import InternalNotes from './InternalNotes';
 import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from './KnowledgeBase';
 import MessengerApps from './MessengerApps';
@@ -30,6 +30,7 @@ export {
   EmailTemplates,
   Brands,
   Integrations,
+  IntegrationAccounts,
   Forms,
   EngageMessages,
   Tags,
