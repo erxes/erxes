@@ -1,5 +1,6 @@
 import { Button, Icon, Label, Tags } from 'modules/common/components';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
+import { IAttachmentPreview } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { AssignBoxPopover } from 'modules/inbox/components';
 import { Resolver, Tagger } from 'modules/inbox/containers';
@@ -47,7 +48,7 @@ type Props = {
 };
 
 type State = {
-  attachmentPreview: any;
+  attachmentPreview: IAttachmentPreview;
 };
 
 export default class WorkArea extends React.Component<Props, State> {
@@ -56,7 +57,7 @@ export default class WorkArea extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { attachmentPreview: {} };
+    this.state = { attachmentPreview: null };
 
     this.node = React.createRef();
   }

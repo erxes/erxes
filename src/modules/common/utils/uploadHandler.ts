@@ -1,4 +1,31 @@
-const uploadHandler = params => {
+type FileInfo = {
+  name: string;
+  size: number;
+  type: string;
+};
+
+type AfterUploadParams = {
+  status: 'ok' | 'error';
+  response: any;
+  fileInfo: FileInfo;
+};
+
+type AfterReadParams = {
+  result: any;
+  fileInfo: FileInfo;
+};
+
+type Params = {
+  files: FileList | null;
+  beforeUpload: () => void;
+  afterUpload: (params: AfterUploadParams) => void;
+  afterRead?: (params: AfterReadParams) => void;
+  url?: string;
+  responseType?: string;
+  extraFormData?: Array<{ key: string; value: string }>;
+};
+
+const uploadHandler = (params: Params) => {
   const { REACT_APP_API_URL } = process.env;
 
   const {
@@ -11,11 +38,18 @@ const uploadHandler = params => {
     extraFormData = []
   } = params;
 
+  if (!files) {
+    return;
+  }
+
   if (files.length === 0) {
     return;
   }
 
-  for (const file of files) {
+  for (let i = 0; i < files.length; i++) {
+    // tslint:disable-line
+    const file = files[i];
+
     // initiate upload file reader
     const uploadReader = new FileReader();
 
@@ -49,9 +83,13 @@ const uploadHandler = params => {
         })
 
         .then(response => {
+          if (!response.ok) {
+            return afterUpload({ status: 'error', response, fileInfo });
+          }
+
           // after upload
           if (afterUpload) {
-            afterUpload({ response, fileInfo });
+            afterUpload({ status: 'ok', response, fileInfo });
           }
         })
 
