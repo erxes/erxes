@@ -85,8 +85,7 @@
     "compress": "gzip -5 --keep -r build/static/js",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
-    "storybook": "start-storybook -p 9009 -s public",
-    "build-storybook": "build-storybook -s public",
+    "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "postinstall": "opencollective postinstall"
   },
   "devDependencies": {
