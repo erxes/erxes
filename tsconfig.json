@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
     "sourceMap": true,
     "module": "commonjs",
       "lib": [
@@ -15,4 +16,5 @@
     "strict": true
   },
   "include": ["client"],
+  "exclude": ["node_modules", "dist"]
 }
