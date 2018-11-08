@@ -46,8 +46,8 @@ const uploadHandler = (params: Params) => {
     return;
   }
 
+  // tslint:disable-next-line
   for (let i = 0; i < files.length; i++) {
-    // tslint:disable-line
     const file = files[i];
 
     // initiate upload file reader
