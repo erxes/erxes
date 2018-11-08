@@ -26,7 +26,7 @@
     "build": "yarn build-webpack && yarn build-server",
     "build-server": "tsc --project tsconfig.server.json && cp -r ./server/views/ ./dist/views",
     "build-webpack": "webpack --mode production --config=webpack.prod.config.js",
-    "lint": "tslint 'client/**/*.ts'",
+    "lint": "tslint 'client/**/*.@(ts|tsx)'",
     "format": "prettier --write 'client/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
     "start": "node dist"

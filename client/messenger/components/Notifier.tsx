@@ -4,7 +4,7 @@ import * as RTG from "react-transition-group";
 import * as striptags from "striptags";
 import { EngageMessage } from "../components";
 import { User } from "../components/common";
-import { IMessage, IEngageData } from "../types";
+import { IEngageData, IMessage } from "../types";
 
 type Props = {
   message: IMessage;
@@ -59,7 +59,7 @@ class Notifier extends React.Component<Props> {
         appear={true}
         timeout={300}
         classNames="scale-in"
-        unmountOnExit
+        unmountOnExit={true}
       >
         <div
           className={classes}

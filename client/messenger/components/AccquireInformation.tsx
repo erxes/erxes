@@ -102,7 +102,7 @@ class AccquireInformation extends React.Component<Props, State> {
               onChange={this.onValueChange}
               placeholder={placeholder ? placeholder.toString() : ""}
               type={type === "email" ? "text" : "tel"}
-              autoFocus
+              autoFocus={true}
             />
 
             <button
