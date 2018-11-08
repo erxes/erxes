@@ -72,11 +72,7 @@ const uploadHandler = (params: Params) => {
       fetch(url, {
         method: 'post',
         body: formData,
-        headers: {
-          'x-token': localStorage.getItem('erxesLoginToken') || '',
-          'x-refresh-token':
-            localStorage.getItem('erxesLoginRefreshToken') || ''
-        }
+        credentials: 'include'
       })
         .then(response => {
           return response[responseType]();
