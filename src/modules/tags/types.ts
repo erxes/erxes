@@ -46,6 +46,11 @@ export type MutationVariables = {
 };
 
 export type AddMutationResponse = {
+  tagsAdd: (
+    params: {
+      variables: MutationVariables;
+    }
+  ) => Promise<any>;
   addMutation: (params: { variables: MutationVariables }) => Promise<any>;
 };
 

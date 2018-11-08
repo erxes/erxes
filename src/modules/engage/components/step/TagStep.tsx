@@ -1,11 +1,11 @@
-import { FormControl, Icon } from 'modules/common/components';
+import { Icon } from 'modules/common/components';
 import { FlexItem } from 'modules/common/components/step/styles';
 import { colors, dimensions } from 'modules/common/styles';
+import { __ } from 'modules/common/utils';
 import { ITag } from 'modules/tags/types';
-import { ITagField } from 'modules/tags/types';
 import * as React from 'react';
 import styled from 'styled-components';
-import { Tags, TagsForm } from '..';
+import { Tags } from '..';
 
 const TagContainer = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -19,13 +19,13 @@ const CustomerCounts = styled.div`
 `;
 
 type Props = {
-  onChange: (name: 'tagId', value: string) => void;
+  // onChange: (name: 'tagId', value: string) => void;
   tags: ITag[];
-  tagFields: ITagField[];
+  // tagFields: ITagField[];
   // tagAdd: (params: ITag) => void;
-  counts: any;
-  count: (tag: ITag) => void;
-  tagId: string;
+  tagCounts: any;
+  // count: (tag: ITag) => void;
+  // tagId: string;
 };
 
 type State = {
@@ -38,7 +38,8 @@ class TagStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      tagId: props.tagId || '',
+      tagId: '',
+      // tagId: props.tagId || '',
       createTag: false
     };
   }
@@ -53,24 +54,24 @@ class TagStep extends React.Component<Props, State> {
 
   changeTag = tagId => {
     this.setState({ tagId });
-    this.props.onChange('tagId', tagId);
+    // this.props.onChange('tagId', tagId);
   };
 
-  renderTags(show) {
-    if (!show) {
-      return (
-        <TagContainer>
-          <Tags
-            tags={this.props.tags}
-            changeTags={this.changeTag}
-            counts={this.props.counts}
-            defaultValue={this.state.tagId}
-          />
-        </TagContainer>
-      );
-    }
-
-    return null;
+  renderTags() {
+    // tslint:disable-next-line:no-console
+    console.log('tagcount');
+    // tslint:disable-next-line:no-console
+    console.log(this.props.tagCounts);
+    return (
+      <TagContainer>
+        <Tags
+          tags={this.props.tags}
+          changeTags={this.changeTag}
+          counts={this.props.tagCounts}
+          defaultValue={this.state.tagId}
+        />
+      </TagContainer>
+    );
   }
 
   render() {
@@ -78,15 +79,18 @@ class TagStep extends React.Component<Props, State> {
     const onChange = () => this.createTag(false);
     const onChangeTag = () => this.createTag(true);
     this.props.tags.map(tag => tag.name);
+
     return (
       <FlexItem>
         <FlexItem direction="column" overflow="auto">
-          {this.renderTags(show)}
+          {this.renderTags()}
         </FlexItem>
         <FlexItem direction="column" v="center" h="center">
           <CustomerCounts>
             <Icon icon="users" size={50} />
-            <p>{this.props.counts[this.state.tagId] || 0}</p>
+            <p>
+              {this.props.tagCounts[this.state.tagId] || 0} {__('customers')}
+            </p>
           </CustomerCounts>
         </FlexItem>
       </FlexItem>

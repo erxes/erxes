@@ -9,6 +9,8 @@ import MessengerPreview from './MessengerPreview';
 import Segments from './Segments';
 import SegmentsForm from './SegmentsForm';
 import Sidebar from './Sidebar';
+import SegmentStep from './step/SegmentStep';
+import TagStep from './step/TagStep';
 import Tags from './Tags';
 import TagsForm from './TagsForm';
 import VisitorForm from './VisitorForm';
@@ -25,8 +27,10 @@ export {
   AutoAndManualForm,
   Segments,
   SegmentsForm,
+  SegmentStep,
   Tags,
   TagsForm,
+  TagStep,
   MessengerForm,
   EmailForm,
   EmailStatistics

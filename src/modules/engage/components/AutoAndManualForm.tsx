@@ -13,6 +13,7 @@ import { ITag } from 'modules/tags/types';
 import * as React from 'react';
 import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IBreadCrumbItem } from '../../common/types';
+import { SegmentStep, TagStep } from '../containers';
 import {
   IEngageEmail,
   IEngageMessage,
@@ -20,7 +21,7 @@ import {
   IEngageMessenger,
   IEngageScheduleDate
 } from '../types';
-import { ChannelStep, MessageStep, SegmentStep, TagStep } from './step';
+import { ChannelStep, ChooseStep, MessageStep } from './step';
 
 type Props = {
   message?: IEngageMessage;
@@ -169,25 +170,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"
           >
-            <SegmentStep
-              onChange={this.changeState}
-              segments={this.props.segments}
-              headSegments={this.props.headSegments}
-              segmentFields={this.props.segmentFields}
-              segmentAdd={this.props.segmentAdd}
-              counts={this.props.customerCounts}
-              count={this.props.segmentCount}
-              segmentId={this.state.segmentId}
-            />
-
-            <TagStep
-              onChange={this.changeState}
-              tags={this.props.tags}
-              tagFields={this.props.tagFields}
-              counts={this.props.customerCounts}
-              count={this.props.tagCount}
-              tagId={this.state.tagId}
-            />
+            <ChooseStep />
+            <TagStep />
           </Step>
 
           <Step

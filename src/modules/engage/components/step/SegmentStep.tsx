@@ -68,7 +68,7 @@ class SegmentStep extends React.Component<Props, State> {
 
   changeSegment = segmentId => {
     this.setState({ segmentId });
-    this.props.onChange('segmentId', segmentId);
+    // this.props.onChange('segmentId', segmentId);
   };
 
   renderSegments(show) {
@@ -96,28 +96,6 @@ class SegmentStep extends React.Component<Props, State> {
     return (
       <FlexItem>
         <FlexItem direction="column" overflow="auto">
-          <RadioContainer>
-            <FormControl
-              componentClass="radio"
-              onChange={onChange}
-              name="createSegment"
-              value={false}
-              checked={this.state.createSegment === false}
-            >
-              {__('Choose segment')}
-            </FormControl>
-
-            <FormControl
-              componentClass="radio"
-              onChange={onChangeSegment}
-              name="createSegment"
-              checked={this.state.createSegment === true}
-              value={true}
-            >
-              {__('Create segment')}
-            </FormControl>
-          </RadioContainer>
-
           {this.renderSegments(show)}
 
           <Show show={show}>

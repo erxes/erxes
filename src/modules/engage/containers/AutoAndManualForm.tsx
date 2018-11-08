@@ -29,56 +29,14 @@ type Props = {
 };
 
 type FinalProps = {
-  segmentsQuery: SegmentsQueryResponse;
-  tagsQuery: TagsQueryResponse;
   emailTemplatesQuery: EmailTemplatesQueryResponse;
-  customerCountsQuery: CountQueryResponse;
-  headSegmentsQuery: HeadSegmentsQueryResponse;
-  combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
   users: IUser[];
   save: (doc: IEngageMessageDoc) => Promise<any>;
 } & Props &
   AddMutationResponse;
 
 const AutoAndManualFormContainer = (props: FinalProps) => {
-  const {
-    segmentsQuery,
-    tagsQuery,
-    headSegmentsQuery,
-    combinedFieldsQuery,
-    segmentsAdd,
-    emailTemplatesQuery,
-    customerCountsQuery
-  } = props;
-
-  const customerCounts = customerCountsQuery.customerCounts || {
-    bySegment: {},
-    byTag: {}
-  };
-
-  const segmentFields = combinedFieldsQuery.fieldsCombinedByContentType
-    ? combinedFieldsQuery.fieldsCombinedByContentType.map(
-        ({ name, label }) => ({
-          _id: name,
-          title: label,
-          selectedBy: 'none'
-        })
-      )
-    : [];
-
-  const count = segment => {
-    customerCountsQuery.refetch({
-      byFakeSegment: segment
-    });
-  };
-
-  const segmentAdd = ({ doc }) => {
-    segmentsAdd({ variables: { ...doc } }).then(() => {
-      segmentsQuery.refetch();
-      customerCountsQuery.refetch();
-      Alert.success('Success');
-    });
-  };
+  const { emailTemplatesQuery } = props;
 
   if (emailTemplatesQuery.loading) {
     return null;
@@ -86,14 +44,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    headSegments: headSegmentsQuery.segmentsGetHeads || [],
-    segmentFields,
-    segmentAdd,
-    segments: segmentsQuery.segments || [],
-    tags: tagsQuery.tags || [],
-    templates: emailTemplatesQuery.emailTemplates || [],
-    customerCounts: customerCounts.bySegment || {},
-    count
+    templates: emailTemplatesQuery.emailTemplates || []
   };
 
   const content = formProps => (
@@ -108,35 +59,7 @@ export default withFormMutations<Props>(
     compose(
       graphql<Props, EmailTemplatesQueryResponse>(gql(queries.emailTemplates), {
         name: 'emailTemplatesQuery'
-      }),
-      graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
-        name: 'segmentsQuery'
-      }),
-      graphql<Props, TagsQueryResponse>(gql(queries.tags), {
-        name: 'tagsQuery'
-      }),
-      graphql<Props, CountQueryResponse, { only: string }>(
-        gql(queries.customerCounts),
-        {
-          name: 'customerCountsQuery',
-          options: {
-            variables: {
-              only: 'bySegment'
-            }
-          }
-        }
-      ),
-      graphql<Props, HeadSegmentsQueryResponse>(gql(queries.headSegments), {
-        name: 'headSegmentsQuery'
-      }),
-      graphql<Props, FieldsCombinedByTypeQueryResponse>(
-        gql(queries.combinedFields),
-        { name: 'combinedFieldsQuery' }
-      ),
-      graphql<Props, AddMutationResponse, AddMutationVariables>(
-        gql(mutations.segmentsAdd),
-        { name: 'segmentsAdd' }
-      )
+      })
     )(AutoAndManualFormContainer)
   )
 );

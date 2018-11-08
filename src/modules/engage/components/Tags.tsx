@@ -43,7 +43,6 @@ class Tags extends React.Component<Props, State> {
   renderItems(orderedTags) {
     const { counts } = this.props;
 
-    // Show empty state when no tags returned
     if (orderedTags.length === 0) {
       return <EmptyState icon="piechart" text="No tags" size="small" />;
     }
@@ -51,7 +50,6 @@ class Tags extends React.Component<Props, State> {
     return orderedTags.map(tag => (
       <Tagli key={tag._id} chosen={this.state.chosenTag === tag._id}>
         <a tabIndex={0} onClick={this.onClickTag.bind(this, tag._id)}>
-          {tag.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
           <Icon icon="piechart icon" style={{ color: tag.colorCode }} />
           {tag.name}
           <SidebarCounter>{counts[tag._id]}</SidebarCounter>
