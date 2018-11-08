@@ -27,6 +27,11 @@ function IntegrationsSidebar(props) {
               {__('App store')}
             </NavLink>
           </li>
+          <li>
+            <NavLink activeClassName="active" to="/settings/linkedAccounts">
+              {__('Linked Accounts')}
+            </NavLink>
+          </li>
         </SidebarList>
       </Sidebar.Section>
     </Sidebar>
