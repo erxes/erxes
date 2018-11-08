@@ -68,7 +68,7 @@ class SegmentStep extends React.Component<Props, State> {
 
   changeSegment = segmentId => {
     this.setState({ segmentId });
-    // this.props.onChange('segmentId', segmentId);
+    this.props.onChange('segmentId', segmentId);
   };
 
   renderSegments(show) {
