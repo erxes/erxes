@@ -12,7 +12,7 @@ import { userMiddleware } from './auth';
 import schema from './data';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
 import { pubsub } from './data/resolvers/subscriptions';
-import { importXlsFile, uploadFile } from './data/utils';
+import { checkFile, importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Customers } from './db/models';
 import { init } from './startup';
@@ -45,10 +45,46 @@ app.get('/status', async (_req, res) => {
 app.post('/upload-file', async (req, res) => {
   const form = new formidable.IncomingForm();
 
-  form.parse(req, async (_err, _fields, response) => {
-    const url = await uploadFile(response.file);
+  form.parse(req, async (_error, _fields, response) => {
+    const status = await checkFile(response.file);
 
-    return res.end(url);
+    if (status === 'ok') {
+      try {
+        const url = await uploadFile(response.file);
+        return res.end(url);
+      } catch (e) {
+        return res.status(500).send(e.message);
+      }
+    }
+
+    return res.status(500).send(status);
+  });
+});
+
+// file import
+app.post('/import-file', (req: any, res) => {
+  const form = new formidable.IncomingForm();
+
+  // require login
+  if (!req.user) {
+    return res.end('foribidden');
+  }
+
+  form.parse(req, async (_err, fields: any, response) => {
+    const status = await checkFile(response.file);
+
+    // if file is not ok then send error
+    if (status !== 'ok') {
+      return res.json(status);
+    }
+
+    importXlsFile(response.file, fields.type, { user: req.user })
+      .then(result => {
+        res.json(result);
+      })
+      .catch(e => {
+        res.json(e);
+      });
   });
 });
 
@@ -61,21 +97,6 @@ app.get('/unsubscribe', async (req, res) => {
   }
 
   res.end();
-});
-
-// file import
-app.post('/import-file', (req: any, res) => {
-  const form = new formidable.IncomingForm();
-
-  form.parse(req, (_err, fields: any, response) => {
-    importXlsFile(response.file, fields.type, { user: req.user })
-      .then(result => {
-        res.json(result);
-      })
-      .catch(e => {
-        res.json(e);
-      });
-  });
 });
 
 // Wrap the Express server
