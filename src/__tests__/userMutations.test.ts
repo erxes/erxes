@@ -83,19 +83,16 @@ describe('User mutations', () => {
   test('Login', async () => {
     const mutation = `
       mutation login($email: String! $password: String!) {
-        login(email: $email password: $password) {
-          token
-          refreshToken
-        }
+        login(email: $email password: $password)
       }
     `;
 
-    const user = await graphqlRequest(mutation, 'login', {
+    const response = await graphqlRequest(mutation, 'login', {
       email: _user.email,
       password: 'pass',
     });
 
-    expect(user.token).toBeDefined();
+    expect(response).toBe('loggedIn');
   });
 
   test('Forgot password', async () => {

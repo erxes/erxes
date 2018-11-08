@@ -1,4 +1,5 @@
 import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
@@ -20,6 +21,8 @@ import { init } from './startup';
 // load environment variables
 dotenv.config();
 
+const { MAIN_APP_DOMAIN } = process.env;
+
 // connect to mongo database
 connect();
 
@@ -27,12 +30,24 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cookieParser());
 
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: MAIN_APP_DOMAIN,
+  }),
+);
 
 app.use(userMiddleware);
 
-app.use('/graphql', graphqlExpress((req: any) => ({ schema, context: { user: req.user } })));
+app.use(
+  '/graphql',
+  graphqlExpress((req: any, res) => ({
+    schema,
+    context: { user: req.user, res },
+  })),
+);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 

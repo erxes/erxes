@@ -51,11 +51,6 @@ export const types = `
     getNotificationByEmail: Boolean
   }
 
-  type AuthPayload {
-    token: String!
-    refreshToken: String!
-  }
-
   type UserConversationListResponse {
     list: [Conversation],
     totalCount: Float,
@@ -82,7 +77,8 @@ const commonParams = `
 `;
 
 export const mutations = `
-  login(email: String!, password: String!): AuthPayload!
+  login(email: String!, password: String!): String 
+  logout: String
   forgotPassword(email: String!): String!
   resetPassword(token: String!, newPassword: String!): String
   usersAdd(${commonParams}): User
