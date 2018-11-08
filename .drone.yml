@@ -6,11 +6,10 @@ pipeline:
       - mongo --host mongo
 
   install:
-    image: node:8-slim
+    image: goharbor.erxes.io/erxes/runner:latest
     commands:
       - node -v
       - npm -v
-      - apt-get update && apt-get install -y python build-essential
       - yarn --version
       - yarn config set cache-folder .yarn-cache
       - yarn install
