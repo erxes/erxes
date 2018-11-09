@@ -25,7 +25,6 @@ pipeline:
     secrets: [ docker_username, docker_password ]
     tags:
       - ${DRONE_BRANCH}-latest
-      - latest-${DRONE_COMMIT}
     when:
       branch: develop
       event: push
