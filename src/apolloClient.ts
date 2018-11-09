@@ -11,13 +11,12 @@ import { Alert } from 'modules/common/utils';
 export const getEnv = () => {
   const wenv = (window as any).env || {};
 
+  const getItem = name => process.env[name] || wenv[name];
+
   return {
-    REACT_APP_API_URL: process.env.REACT_APP_API_URL || wenv.REACT_APP_API_URL,
-    REACT_APP_API_SUBSCRIPTION_URL:
-      process.env.REACT_APP_API_SUBSCRIPTION_URL ||
-      wenv.REACT_APP_API_SUBSCRIPTION_URL,
-    REACT_APP_CDN_HOST:
-      process.env.REACT_APP_CDN_HOST || wenv.REACT_APP_CDN_HOST
+    REACT_APP_API_URL: getItem('REACT_APP_API_URL'),
+    REACT_APP_API_SUBSCRIPTION_URL: getItem('REACT_APP_API_SUBSCRIPTION_URL'),
+    REACT_APP_CDN_HOST: getItem('REACT_APP_CDN_HOST')
   };
 };
 
