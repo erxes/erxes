@@ -2,6 +2,11 @@ export interface ITagField {
   _id: string;
 }
 
+export interface ITagDoc {
+  type: string;
+  name: string;
+  colorCode: string;
+}
 export interface ITag {
   _id: string;
   type: string;

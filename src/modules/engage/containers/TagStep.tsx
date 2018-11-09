@@ -17,7 +17,10 @@ import { TagStep } from '../components';
 import { queries } from '../graphql';
 import { TagCountQueryResponse } from '../types';
 
-type Props = {};
+type Props = {
+  onChange: (name: 'tagId', value: string) => void;
+  tagId: string;
+};
 
 type FinalProps = {
   tagsQuery: TagsQueryResponse;
@@ -54,7 +57,7 @@ const TagStepContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    tagsAdd,
+    tagAdd,
     tags: tagsQuery.tags || [],
     tagCounts: tagsCounts.byTag || {}
   };
