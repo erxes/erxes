@@ -4,6 +4,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import { generateRandomColorCode } from 'modules/common/utils';
 import { ContentSpace, FlexContent, FlexItem } from 'modules/layout/styles';
 import AddConditionButton from 'modules/segments/components/AddConditionButton';
 import Conditions from 'modules/segments/components/Conditions';
@@ -42,12 +43,6 @@ type State = {
 };
 
 class SegmentsForm extends React.Component<Props, State> {
-  static generateRandomColorCode() {
-    return `#${Math.random()
-      .toString(16)
-      .slice(2, 8)}`;
-  }
-
   constructor(props: Props) {
     super(props);
 
@@ -55,7 +50,7 @@ class SegmentsForm extends React.Component<Props, State> {
       name: '',
       description: '',
       subOf: '',
-      color: SegmentsForm.generateRandomColorCode(),
+      color: generateRandomColorCode(),
       conditions: [],
       connector: 'any'
     };
