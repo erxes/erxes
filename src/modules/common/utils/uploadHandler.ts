@@ -1,3 +1,5 @@
+import { getEnv } from 'apolloClient';
+
 type FileInfo = {
   name: string;
   size: number;
@@ -26,7 +28,7 @@ type Params = {
 };
 
 const uploadHandler = (params: Params) => {
-  const { REACT_APP_API_URL } = process.env;
+  const { REACT_APP_API_URL } = getEnv();
 
   const {
     files,

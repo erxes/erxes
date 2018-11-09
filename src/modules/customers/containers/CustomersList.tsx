@@ -1,4 +1,5 @@
 import client from 'apolloClient';
+import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import { __, Alert, uploadHandler, withProps } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
@@ -118,10 +119,12 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     const handleXlsUpload = e => {
       const xlsFile = e.target.files;
 
+      const { REACT_APP_API_URL } = getEnv();
+
       uploadHandler({
         files: xlsFile,
         extraFormData: [{ key: 'type', value: 'customers' }],
-        url: `${process.env.REACT_APP_API_URL}/import-file`,
+        url: `${REACT_APP_API_URL}/import-file`,
         responseType: 'json',
         beforeUpload: () => {
           this.setState({ loading: true });

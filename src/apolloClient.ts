@@ -7,7 +7,21 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 import { Alert } from 'modules/common/utils';
 
-const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = process.env;
+// get env config from process.env or window.env
+export const getEnv = () => {
+  const wenv = (window as any).env || {};
+
+  return {
+    REACT_APP_API_URL: process.env.REACT_APP_API_URL || wenv.REACT_APP_API_URL,
+    REACT_APP_API_SUBSCRIPTION_URL:
+      process.env.REACT_APP_API_SUBSCRIPTION_URL ||
+      wenv.REACT_APP_API_SUBSCRIPTION_URL,
+    REACT_APP_CDN_HOST:
+      process.env.REACT_APP_CDN_HOST || wenv.REACT_APP_CDN_HOST
+  };
+};
+
+const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = getEnv();
 
 // Create an http link:
 const httpLink = createHttpLink({
