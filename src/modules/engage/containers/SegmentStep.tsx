@@ -15,7 +15,8 @@ import FormBase from '../components/FormBase';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  kind?: string;
+  onChange: (name: 'segmentId', value: string) => void;
+  segmentId: string;
 };
 
 type FinalProps = {
@@ -74,9 +75,7 @@ const SegmentStepContainer = (props: FinalProps) => {
     count
   };
 
-  const content = formProps => <SegmentStep {...updatedProps} {...formProps} />;
-
-  return <FormBase kind={props.kind || ''} content={content} />;
+  return <SegmentStep {...updatedProps} />;
 };
 
 export default withProps<Props>(

@@ -35,8 +35,8 @@ class Segments extends React.Component<Props, State> {
       this.setState({ chosenSegment: '' });
       this.props.changeSegments('');
     } else {
-      this.props.changeSegments(segmentId);
       this.setState({ chosenSegment: segmentId });
+      this.props.changeSegments(segmentId);
     }
   };
 

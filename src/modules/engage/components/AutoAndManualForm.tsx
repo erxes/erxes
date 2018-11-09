@@ -171,7 +171,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
             title="Who is this message for?"
           >
             <ChooseStep />
-            <TagStep />
+            <SegmentStep
+              onChange={this.changeState}
+              segmentId={this.state.segmentId}
+            />
           </Step>
 
           <Step
