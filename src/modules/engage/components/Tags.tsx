@@ -50,7 +50,7 @@ class Tags extends React.Component<Props, State> {
     return orderedTags.map(tag => (
       <Tagli key={tag._id} chosen={this.state.chosenTag === tag._id}>
         <a tabIndex={0} onClick={this.onClickTag.bind(this, tag._id)}>
-          <Icon icon="piechart icon" style={{ color: tag.colorCode }} />
+          <Icon icon="tag icon" style={{ color: tag.colorCode }} />
           {tag.name}
           <SidebarCounter>{counts[tag._id]}</SidebarCounter>
         </a>
