@@ -29,3 +29,19 @@ pipeline:
       branch: develop
       event: push
       status: success
+
+  docker:
+    image: plugins/docker
+    repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    dockerfile: Dockerfile
+    secrets:
+      - source: docker_hub_username
+        target: docker_username
+      - source: docker_hub_password
+        target: docker_password
+    tags:
+      - ${DRONE_BRANCH}-latest
+    when:
+      branch: [ develop, master ]
+      event: push
+      status: success
