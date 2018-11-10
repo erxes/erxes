@@ -12,11 +12,12 @@ const RadioContainer = styled.div`
   }
 `;
 
-type Props = {};
+type Props = {
+  onSelectOperation: (name: 'operation') => void;
+};
 
 type State = {
-  createSegment: boolean;
-  createTag: boolean;
+  operation: string;
 };
 
 class ChooseStep extends React.Component<Props, State> {
@@ -24,53 +25,57 @@ class ChooseStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      // segmentId: props.segmentId || '',
-      // tagId: props.tagId || '',
-      createSegment: false,
-      createTag: false
+      operation: 'renderSegment'
     };
   }
 
-  createSegment = createSegment => {
-    this.setState({ createSegment });
-  };
-
-  createTag = createTag => {
-    this.setState({ createTag });
+  changeOperation = operation => {
+    this.setState({ operation });
+    this.props.onSelectOperation(operation);
   };
 
   render() {
+    // TODO: is there any better way to do this?
+    const renderSegment = () => this.changeOperation('renderSegment');
+    const createSegment = () => this.changeOperation('createSegment');
+    const renderTag = () => this.changeOperation('renderTag');
+    const createTag = () => this.changeOperation('createTag');
+
     return (
       <RadioContainer>
         <FormControl
           componentClass="radio"
           value={false}
-          name="choice"
-          checked={this.state.createSegment === false}
+          name="operation"
+          onChange={renderSegment}
+          checked={this.state.operation === 'renderSegment'}
         >
           {__('Choose segment')}
         </FormControl>
         <FormControl
           componentClass="radio"
           value={false}
-          name="choice"
-          checked={this.state.createSegment === true}
+          name="operation"
+          onChange={createSegment}
+          checked={this.state.operation === 'createSegment'}
         >
           {__('Create segment')}
         </FormControl>
         <FormControl
           componentClass="radio"
           value={false}
-          name="choice"
-          checked={this.state.createTag === false}
+          name="operation"
+          onChange={renderTag}
+          checked={this.state.operation === 'renderTag'}
         >
           {__('Choose tag')}
         </FormControl>
         <FormControl
           componentClass="radio"
           value={false}
-          name="choice"
-          checked={this.state.createTag === true}
+          name="operation"
+          onChange={createTag}
+          checked={this.state.operation === 'createTag'}
         >
           {__('Create tag')}
         </FormControl>

@@ -17,6 +17,7 @@ import { mutations, queries } from '../graphql';
 type Props = {
   onChange: (name: 'segmentId', value: string) => void;
   segmentId: string;
+  operation: string;
 };
 
 type FinalProps = {

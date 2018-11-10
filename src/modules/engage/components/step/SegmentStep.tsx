@@ -41,11 +41,11 @@ type Props = {
   counts: any;
   count: (segment: ISegmentDoc) => void;
   segmentId: string;
+  operation: string;
 };
 
 type State = {
   segmentId: string;
-  createSegment: boolean;
 };
 
 class SegmentStep extends React.Component<Props, State> {
@@ -53,14 +53,11 @@ class SegmentStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      segmentId: props.segmentId || '',
-      createSegment: false
+      segmentId: props.segmentId || ''
     };
   }
 
   createSegment = createSegment => {
-    this.setState({ createSegment });
-
     if (createSegment === true) {
       this.changeSegment('');
     }
@@ -89,9 +86,7 @@ class SegmentStep extends React.Component<Props, State> {
   }
 
   render() {
-    const show = this.state.createSegment;
-    const onChange = () => this.createSegment(false);
-    const onChangeSegment = () => this.createSegment(true);
+    const show = this.props.operation === 'createSegment';
 
     return (
       <FlexItem>

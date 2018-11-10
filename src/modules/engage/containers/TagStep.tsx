@@ -20,6 +20,7 @@ import { TagCountQueryResponse } from '../types';
 type Props = {
   onChange: (name: 'tagId', value: string) => void;
   tagId: string;
+  operation: string;
 };
 
 type FinalProps = {
@@ -36,17 +37,18 @@ const TagStepContainer = (props: FinalProps) => {
     byTag: {}
   };
 
-  /*
   const tagFields = tagsFields.fieldsCombinedByContentType
-    ? tagsFields.fieldsCombinedByContentType.map(
-        ({ name, label}) => ({
-          _id: name,
-          title: label,
-          selectedBy: "none"
-        })
-      )
+    ? tagsFields.fieldsCombinedByContentType.map(({ name, label }) => ({
+        _id: name,
+        title: label,
+        selectedBy: 'none'
+      }))
     : [];
-  */
+
+  const count = tag => {
+    tagsCountsQuery.refetch();
+  };
+
   const tagAdd = ({ doc }) => {
     tagsAdd({ variables: { ...doc } }).then(() => {
       tagsQuery.refetch();
@@ -59,7 +61,9 @@ const TagStepContainer = (props: FinalProps) => {
     ...props,
     tagAdd,
     tags: tagsQuery.tags || [],
-    tagCounts: tagsCounts.byTag || {}
+    tagCounts: tagsCounts.byTag || {},
+    tagFields,
+    count
   };
 
   return <TagStep {...updatedProps} />;
@@ -81,6 +85,9 @@ export default withProps<Props>(
         }
       }
     ),
+    graphql<Props, FieldsCombinedByTypeQueryResponse>(gql(queries.headTags), {
+      name: 'tagsFields'
+    }),
     graphql<Props, AddMutationResponse, MutationVariables>(
       gql(tagMutations.add),
       { name: 'tagsAdd' }

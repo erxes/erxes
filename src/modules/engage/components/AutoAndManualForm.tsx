@@ -27,14 +27,7 @@ type Props = {
   message?: IEngageMessage;
   brands: IBrand[];
   users: IUser[];
-  segments: ISegment[];
-  tags: ITag[];
-  headSegments: ISegment[];
-  segmentFields: ISegment[];
-  tagFields: ITag[];
   templates: IEmailTemplate[];
-  segmentAdd: (params: { doc: ISegmentDoc }) => void;
-  // tagAdd: (params: { doc: ITag }) => void;
   customerCounts?: IActivityLogForMonth[];
   segmentCount: (segment: ISegmentDoc) => void;
   tagCount: (tag: ITag) => void;
@@ -54,6 +47,7 @@ type State = {
   title: string;
   segmentId: string;
   tagId: string;
+  operation: string;
   content: string;
   fromUserId: string;
   messenger?: IEngageMessenger;
@@ -78,6 +72,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       title: message.title || '',
       segmentId: message.segmentId || '',
       tagId: message.tagId || '',
+      operation: 'renderSegment',
       content,
       fromUserId: message.fromUserId,
       messenger: message.messenger,
@@ -89,7 +84,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
   changeState = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
   };
-
   save = (type: string): Promise<any> | void => {
     const doc = {
       segmentId: this.state.segmentId,
@@ -129,6 +123,45 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
   };
 
+  renderSegmentStep() {
+    /**
+     * It will render SegmentStep section when operation argument to do so.
+     * Please check the following if statements.
+     */
+    if (
+      this.state.operation === 'createSegment' ||
+      this.state.operation === 'renderSegment'
+    ) {
+      return (
+        <SegmentStep
+          onChange={this.changeState}
+          operation={this.state.operation}
+          segmentId={this.state.segmentId}
+        />
+      );
+    }
+    return null;
+  }
+
+  renderTagStep() {
+    /**
+     * It will render TagStep section when operation is "renderTag" or "createTag"
+     */
+    if (
+      this.state.operation === 'createTag' ||
+      this.state.operation === 'renderTag'
+    ) {
+      return (
+        <TagStep
+          onChange={this.changeState}
+          operation={this.state.operation}
+          tagId={this.state.tagId}
+        />
+      );
+    }
+    return null;
+  }
+
   render() {
     const { renderTitle } = this.props;
 
@@ -142,8 +175,15 @@ class AutoAndManualForm extends React.Component<Props, State> {
       scheduleDate
     } = this.state;
 
-    const onChange = e =>
+    const onChange = e => {
       this.changeState('title', (e.target as HTMLInputElement).value);
+    };
+    const onSelectOperation = operation => {
+      this.changeState('operation', operation);
+    };
+    const renderSegmentSection =
+      this.state.operation === 'renderSegment' ||
+      this.state.operation === 'createSegment';
 
     return (
       <StepWrapper>
@@ -170,11 +210,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"
           >
-            <ChooseStep />
-            <SegmentStep
-              onChange={this.changeState}
-              segmentId={this.state.segmentId}
-            />
+            <ChooseStep onSelectOperation={onSelectOperation} />
+            {this.renderSegmentStep()}
+            {this.renderTagStep()}
           </Step>
 
           <Step

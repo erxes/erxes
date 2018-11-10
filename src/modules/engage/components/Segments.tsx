@@ -56,7 +56,7 @@ class Segments extends React.Component<Props, State> {
           {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
           <Icon icon="piechart icon" style={{ color: segment.color }} />
           {segment.name}
-          <SidebarCounter>{counts[segment._id]}</SidebarCounter>
+          <SidebarCounter>{counts[segment._id] || 0}</SidebarCounter>
         </a>
       </Segmentli>
     ));

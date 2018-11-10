@@ -211,7 +211,13 @@ const segmentDetail = `
     }
   }
 `;
-
+const headTags = `
+  query headTags {
+    tagsFields {
+      ${tagFields}
+    }
+  }
+`;
 const headSegments = `
   query headSegments {
     segmentsGetHeads {
@@ -260,6 +266,7 @@ export default {
   customerCounts,
   segmentDetail,
   headSegments,
+  headTags,
   combinedFields,
   kindCounts,
   statusCounts,

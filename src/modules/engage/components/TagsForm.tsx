@@ -19,6 +19,7 @@ type Props = {
   fields: ITagField[];
   create: (params: { doc: ITagDoc }) => void;
   createTag: (value: boolean) => void;
+  count: (tag: ITagDoc) => void;
 };
 
 type State = {
