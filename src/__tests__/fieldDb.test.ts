@@ -238,16 +238,16 @@ describe('Fields', () => {
     // required =====
     _field.isRequired = true;
     await changeValidation(null);
-    expectValid('value');
+    await expectValid('value');
 
     // email =====
     await changeValidation('email');
-    expectValid('email@gmail.com');
+    await expectValid('email@gmail.com');
 
     // number =====
     await changeValidation('number');
-    expectValid('2.333');
-    expectValid('2');
+    await expectValid('2.333');
+    await expectValid('2');
 
     // date =====
     // date values must be convert to date object
