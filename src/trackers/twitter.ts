@@ -296,7 +296,7 @@ export const createOrUpdateTimelineConversation = async (integrationId: string, 
 export const saveTimelineInformation = async (integration: IIntegrationDocument, data: any) => {
   console.log('Received timeline information .........'); // eslint-disable-line
 
-  const twit = TwitMap[integration._id];
+  const twit = twitMap[integration._id];
   const tweets = await findParentTweets(twit, data, [data]);
 
   // find base tweet
@@ -362,7 +362,7 @@ export const receiveTimelineInformation = async (integration: IIntegrationDocume
 };
 
 // save twit instances by integration id
-export const TwitMap = {};
+export const twitMap = {};
 
 /*
  * Post reply to twitter
@@ -384,7 +384,7 @@ export const tweetReply = async ({
 
   const integrationId = conversation.integrationId;
 
-  const twit = TwitMap[integrationId];
+  const twit = twitMap[integrationId];
   const twitterData = conversation.twitterData;
 
   // send direct message
@@ -422,7 +422,7 @@ const updateTwitterData = async ({ twit, tweetId }: { twit: any; tweetId: string
  * Tweet
  */
 export const tweet = async ({ integrationId, text }: { integrationId: string; text: string }) => {
-  const twit = TwitMap[integrationId];
+  const twit = twitMap[integrationId];
 
   // send reply
   return twitRequest.post(twit, 'statuses/update', {
@@ -434,7 +434,7 @@ export const tweet = async ({ integrationId, text }: { integrationId: string; te
  * Retweet
  */
 export const retweet = async ({ integrationId, id }: { integrationId: string; id: string }) => {
-  const twit = TwitMap[integrationId];
+  const twit = twitMap[integrationId];
 
   const response: any = await twitRequest.post(twit, 'statuses/retweet/:id', {
     id,
@@ -450,7 +450,7 @@ export const retweet = async ({ integrationId, id }: { integrationId: string; id
  * Favorite
  */
 export const favorite = async ({ integrationId, id }: { integrationId: string; id: string }) => {
-  const twit = TwitMap[integrationId];
+  const twit = twitMap[integrationId];
 
   const response: any = await twitRequest.post(twit, 'favorites/create', {
     id,

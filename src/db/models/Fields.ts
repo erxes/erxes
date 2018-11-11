@@ -320,8 +320,10 @@ class FieldGroup {
 
 fieldGroupSchema.loadClass(FieldGroup);
 
+// tslint:disable-next-line
 export const FieldsGroups = model<IFieldGroupDocument, IFieldGroupModel>('fields_groups', fieldGroupSchema);
 
 fieldSchema.loadClass(Field);
 
+// tslint:disable-next-line
 export const Fields = model<IFieldDocument, IFieldModel>('fields', fieldSchema);

@@ -50,6 +50,7 @@ class ImportHistory {
 
 importHistorySchema.loadClass(ImportHistory);
 
+// tslint:disable-next-line
 const ImportHistories = model<IImportHistoryDocument, IImportHistoryModel>('import_history', importHistorySchema);
 
 export default ImportHistories;

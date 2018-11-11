@@ -197,6 +197,7 @@ class Message {
 
 engageMessageSchema.loadClass(Message);
 
+// tslint:disable-next-line
 const EngageMessages = model<IEngageMessageDocument, IEngageMessageModel>('engage_messages', engageMessageSchema);
 
 export default EngageMessages;

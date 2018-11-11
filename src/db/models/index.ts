@@ -20,11 +20,13 @@ import { NotificationConfigurations, Notifications } from './Notifications';
 import Products from './Products';
 import ResponseTemplates from './ResponseTemplates';
 import Segments from './Segments';
+import Session from './Session';
 import Tags from './Tags';
 import Users from './Users';
 
 export {
   Users,
+  Session,
   Channels,
   ResponseTemplates,
   EmailTemplates,

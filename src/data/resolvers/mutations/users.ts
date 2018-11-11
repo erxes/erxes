@@ -16,8 +16,37 @@ const userMutations = {
   /*
    * Login
    */
-  login(_root, args: { email: string; password: string }) {
-    return Users.login(args);
+  async login(_root, args: { email: string; password: string }, { res }) {
+    const response = await Users.login(args);
+
+    const { token } = response;
+
+    const oneDay = 1 * 24 * 3600 * 1000; // 1 day
+
+    const cookieOptions = {
+      httpOnly: true,
+      expires: new Date(Date.now() + oneDay),
+      maxAge: oneDay,
+      secure: false,
+    };
+
+    const { NODE_ENV } = process.env;
+
+    if (NODE_ENV === 'production') {
+      cookieOptions.secure = true;
+    }
+
+    res.cookie('auth-token', token, cookieOptions);
+
+    return 'loggedIn';
+  },
+
+  async logout(_root, _args, { user, res }) {
+    const response = await Users.logout(user);
+
+    res.clearCookie('auth-token');
+
+    return response;
   },
 
   /*

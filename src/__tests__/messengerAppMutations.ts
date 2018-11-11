@@ -107,7 +107,7 @@ describe('mutations', () => {
   });
 
   test('Remove', async () => {
-    const app = await messengerAppFactory({ credentials: { integrationId: '_id', formId: '_id' } });
+    const app = await messengerAppFactory({ credentials: { integrationId: '_id', formCode: 'code' } });
 
     const mutation = `
       mutation messengerAppsRemove($_id: String!) {

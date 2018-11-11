@@ -330,12 +330,16 @@ pipelineSchema.loadClass(Pipeline);
 stageSchema.loadClass(Stage);
 dealSchema.loadClass(Deal);
 
+// tslint:disable-next-line
 const DealBoards = model<IBoardDocument, IBoardModel>('deal_boards', boardSchema);
 
+// tslint:disable-next-line
 const DealPipelines = model<IPipelineDocument, IPipelineModel>('deal_pipelines', pipelineSchema);
 
+// tslint:disable-next-line
 const DealStages = model<IStageDocument, IStageModel>('deal_stages', stageSchema);
 
+// tslint:disable-next-line
 const Deals = model<IDealDocument, IDealModel>('deals', dealSchema);
 
 export { DealBoards, DealPipelines, DealStages, Deals };

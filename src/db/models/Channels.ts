@@ -44,6 +44,7 @@ class Channel {
 
 channelSchema.loadClass(Channel);
 
+// tslint:disable-next-line
 const Channels = model<IChannelDocument, IChannelModel>('channels', channelSchema);
 
 export default Channels;

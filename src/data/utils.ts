@@ -1,10 +1,50 @@
 import * as AWS from 'aws-sdk';
+import * as fileType from 'file-type';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Companies, Customers, Notifications, Users } from '../db/models';
 import { IUserDocument } from '../db/models/definitions/users';
+
+/*
+ * Check that given file is not harmful
+ */
+export const checkFile = async file => {
+  const { size } = file;
+
+  // 20mb
+  if (size > 20000000) {
+    return 'Too large file';
+  }
+
+  // read file
+  const buffer = await fs.readFileSync(file.path);
+
+  // determine file type using magic numbers
+  const ft = fileType(buffer);
+
+  if (!ft) {
+    return 'Invalid file';
+  }
+
+  const { mime } = ft;
+
+  if (
+    ![
+      'image/png',
+      'image/jpeg',
+      'image/jpg',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/pdf',
+    ].includes(mime)
+  ) {
+    return 'Invalid file';
+  }
+
+  return 'ok';
+};
 
 /*
  * Save binary data to amazon s3
