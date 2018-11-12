@@ -9,22 +9,30 @@ import {
 import { ModalFooter } from '../../../../common/styles/main';
 import { __ } from '../../../../common/utils';
 import { IBrand } from '../../../brands/types';
+import { ILinkedAccount } from '../../../linkedAccounts/types';
 import { IFacebookApp, IPages } from '../../types';
 
 type Props = {
   save: (
     params: { name: string; brandId: string; appId: string; pageIds: string[] }
   ) => void;
-  onAppSelect: (appId: string) => void;
+  onAppSelect: (doc: { appId?: string; accountId?: string }) => void;
   brands: IBrand[];
   apps: IFacebookApp[];
   pages: IPages[];
+  accounts: ILinkedAccount[];
 };
 
 class Facebook extends React.Component<Props> {
   onAppChange = () => {
     const appId = (document.getElementById('app') as HTMLInputElement).value;
-    this.props.onAppSelect(appId);
+    this.props.onAppSelect({ appId });
+  };
+
+  onAccChange = () => {
+    const accountId = (document.getElementById('acc') as HTMLInputElement)
+      .value;
+    this.props.onAppSelect({ accountId });
   };
 
   collectCheckboxValues(name) {
@@ -56,7 +64,7 @@ class Facebook extends React.Component<Props> {
   };
 
   render() {
-    const { apps, pages, brands } = this.props;
+    const { apps, pages, brands, accounts } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -82,6 +90,25 @@ class Facebook extends React.Component<Props> {
             {apps.map((app, index) => (
               <option key={`app${index}`} value={app.id}>
                 {app.name}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Linked Accounts</ControlLabel>
+
+          <FormControl
+            componentClass="select"
+            placeholder={__('Select account')}
+            onChange={this.onAccChange}
+            id="acc"
+          >
+            <option value="">Select account ...</option>
+
+            {accounts.map((account, index) => (
+              <option key={`account${index}`} value={account._id}>
+                {account.accountName}
               </option>
             ))}
           </FormControl>

@@ -10,6 +10,7 @@ import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/integrations/components/Sidebar';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
+import { BarItems } from '../../../layout/styles';
 import { ILinkedAccount } from '../types';
 
 type Props = {
@@ -94,8 +95,19 @@ class List extends React.Component<Props> {
   render() {
     const breadcrumb = [{ title: __('App store') }];
 
+    const actionBarRight = (
+      <BarItems>
+        <Button size="small" icon="cancel-1">
+          Link Facebook Account
+        </Button>
+      </BarItems>
+    );
+
+    const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+
     return (
       <Wrapper
+        actionBar={actionBar}
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
