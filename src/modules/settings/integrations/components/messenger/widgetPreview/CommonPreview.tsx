@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { Messenger, WebPreview } from 'modules/engage/styles';
+import { IBrand } from 'modules/settings/brands/types';
 import { IMessagesItem } from 'modules/settings/integrations/types';
 import { LogoContainer } from 'modules/settings/styles';
 import * as React from 'react';
@@ -16,6 +17,7 @@ type Props = {
   isOnline: boolean;
   logoPreviewUrl?: string;
   brandId?: string;
+  brands?: IBrand[];
 };
 
 class CommonPreview extends React.Component<Props> {
@@ -29,7 +31,8 @@ class CommonPreview extends React.Component<Props> {
       supporterIds,
       teamMembers,
       message,
-      brandId
+      brandId,
+      brands
     } = this.props;
 
     return (
@@ -44,6 +47,7 @@ class CommonPreview extends React.Component<Props> {
             awayMessage={message.away}
             isOnline={isOnline}
             brandId={brandId}
+            brands={brands}
           />
 
           <LogoContainer

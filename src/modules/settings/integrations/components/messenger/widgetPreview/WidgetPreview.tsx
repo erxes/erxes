@@ -1,6 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import {
   ErxesAvatar,
@@ -30,6 +31,7 @@ type Props = {
   isOnline?: boolean;
   prevHeight?: number;
   brandId?: string;
+  brands?: IBrand[];
 };
 
 type State = {
@@ -63,6 +65,27 @@ class WidgetPreview extends React.Component<Props, State> {
     );
   }
 
+  renderTitle() {
+    const { brands = [], brandId } = this.props;
+    let currentBrand = {};
+
+    brands.map(brand => {
+      if (brand._id !== brandId) {
+        return null;
+      }
+
+      return (currentBrand = brand);
+    });
+    // tslint:disable-next-line:no-console
+    console.log(currentBrand > 0, currentBrand);
+    return (
+      <div className="erxes-topbar-title">
+        {/* <div>{currentBrand > 0 ? currentBrand.name}</div>
+        <span>{currentBrand.description}</span> */}
+      </div>
+    );
+  }
+
   render() {
     const {
       color,
@@ -72,7 +95,8 @@ class WidgetPreview extends React.Component<Props, State> {
       welcomeMessage,
       awayMessage,
       isOnline,
-      brandId
+      brandId,
+      brands
     } = this.props;
 
     let avatar = [
@@ -107,13 +131,6 @@ class WidgetPreview extends React.Component<Props, State> {
 
     const backgroundClasses = `background-${wallpaper}`;
 
-    const title = (
-      <div className="erxes-topbar-title">
-        <div>{__('Contact')}</div>
-        <span>{__('Give us your contact information')}</span>
-      </div>
-    );
-
     return (
       <WidgetPreviewStyled>
         <ErxesTopbar
@@ -129,7 +146,7 @@ class WidgetPreview extends React.Component<Props, State> {
               </ErxesState>
             </ErxesStaffProfile> */}
             {this.renderLeftButton()}
-            <div>{title}</div>
+            <div>{this.renderTitle()}</div>
             {this.renderRightButton()}
           </ErxesMiddle>
         </ErxesTopbar>
@@ -153,7 +170,7 @@ class WidgetPreview extends React.Component<Props, State> {
         </ErxesMessagesList>
 
         <ErxesMessageSender>
-          <span>{__('Write a reply ...')}</span>
+          <span>{__('Send a message ...')}</span>
         </ErxesMessageSender>
       </WidgetPreviewStyled>
     );

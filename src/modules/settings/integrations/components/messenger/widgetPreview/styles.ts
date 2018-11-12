@@ -72,12 +72,12 @@ const ErxesState = styled.div`
 `;
 
 const ErxesSpacialMessage = styled.li`
-  padding: 18px;
-  border-radius: 4px;
-  border: 1px solid ${colors.colorShadowGray};
-  background: ${colors.colorWhite};
-  color: ${colors.colorCoreGray};
+  background-color: ${colors.colorShadowGray};
+  border-radius: 10px;
+  box-shadow: 0 1px 1px 0 ${rgba(colors.colorBlack, 0.2)};
+  color: ${colors.textSecondary};
   margin-bottom: ${coreSpace};
+  padding: ${coreSpace};
 `;
 
 const ErxesAvatar = styled.div`
