@@ -53,7 +53,6 @@ const PreviewContent = styledTS<{ isFullmessage: boolean }>(styled.div)`
 `;
 
 const Messenger = styled.div`
-  width: 300px;
   position: absolute;
   right: ${coreSpace};
   bottom: ${coreSpace};

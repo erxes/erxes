@@ -18,7 +18,7 @@ import {
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { LANGUAGES } from '../../constants';
-import { Appearance, Availability, Intro, Options } from './steps';
+import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 
 type Props = {
@@ -242,8 +242,8 @@ class CreateMessenger extends React.Component<Props, State> {
 
         <Row>
           <Steps active={activeStep}>
-            <Step img="/images/icons/erxes-16.svg" title="Intro">
-              <Intro
+            <Step img="/images/icons/erxes-09.svg" title="Greeting">
+              <Greeting
                 teamMembers={this.props.teamMembers}
                 onChange={this.onChange}
                 supporterIds={supporterIds}
@@ -252,6 +252,14 @@ class CreateMessenger extends React.Component<Props, State> {
                 languageCode={languageCode}
                 twitter={twitter}
                 youtube={youtube}
+              />
+            </Step>
+
+            <Step img="/images/icons/erxes-16.svg" title="Intro">
+              <Intro
+                onChange={this.onChange}
+                messages={messages}
+                languageCode={languageCode}
               />
             </Step>
 

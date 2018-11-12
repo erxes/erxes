@@ -36,6 +36,78 @@ const ErxesMiddle = styled.div`
   min-height: 70px;
   width: auto;
   height: auto;
+
+  .topbar-button {
+    transition: background 0.3s ease-in-out;
+    background: none;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    display: block;
+    height: 40px;
+    line-height: 40px;
+    outline: none;
+    text-align: center;
+    position: absolute;
+    top: 15px;
+    width: 40px;
+    z-index: 100;
+    color: ${colors.colorWhite};
+
+    &:hover {
+      background-color: ${rgba(colors.colorBlack, 0.2)};
+    }
+  }
+
+  .left {
+    left: 15px;
+  }
+
+  .right {
+    right: 15px;
+  }
+`;
+
+const ErxesMiddleTitle = styled.div`
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-shrink: 0;
+  height: 100%;
+  justify-content: center;
+  transition-property: background, opacity;
+`;
+
+const ErxesTopbarMiddle = styled.div`
+  padding: 20px 60px 20px 65px;
+`;
+
+const WelcomeInfo = styled.div`
+  h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0 0 10px;
+    padding-right: 50px;
+  }
+
+  span {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+    line-height: 21px;
+  }
+`;
+
+const ErxesSupporters = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+
+  img {
+    border-radius: 22px;
+    display: block;
+    height: 40px;
+    width: 40px;
+  }
 `;
 
 const ErxesStaffProfile = styled.div`
@@ -191,7 +263,9 @@ export {
   ErxesMiddle,
   ErxesTopbar,
   ErxesState,
+  ErxesSupporters,
   ErxesMessage,
+  ErxesMiddleTitle,
   ErxesSpacialMessage,
   ErxesAvatar,
   ErxesDate,
@@ -200,7 +274,9 @@ export {
   ErxesMessagesList,
   FromCustomer,
   StateSpan,
+  ErxesTopbarMiddle,
   ErxesStaffName,
   ErxesStaffProfile,
+  WelcomeInfo,
   WidgetPreviewStyled
 };

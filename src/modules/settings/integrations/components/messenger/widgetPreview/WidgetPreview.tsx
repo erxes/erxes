@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { Icon } from 'modules/common/components';
+import { Icon, Tip } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
@@ -11,13 +11,17 @@ import {
   ErxesMessageSender,
   ErxesMessagesList,
   ErxesMiddle,
+  ErxesMiddleTitle,
   ErxesSpacialMessage,
   ErxesStaffName,
   ErxesStaffProfile,
   ErxesState,
+  ErxesSupporters,
   ErxesTopbar,
+  ErxesTopbarMiddle,
   FromCustomer,
   StateSpan,
+  WelcomeInfo,
   WidgetPreviewStyled
 } from './styles';
 
@@ -65,44 +69,28 @@ class WidgetPreview extends React.Component<Props, State> {
     );
   }
 
-  renderTitle() {
-    const { brands = [], brandId } = this.props;
-    let currentBrand = {};
+  renderName(currentBrand) {
+    if (!currentBrand) {
+      return null;
+    }
 
-    brands.map(brand => {
-      if (brand._id !== brandId) {
-        return null;
-      }
-
-      return (currentBrand = brand);
-    });
-    // tslint:disable-next-line:no-console
-    console.log(currentBrand > 0, currentBrand);
-    return (
-      <div className="erxes-topbar-title">
-        {/* <div>{currentBrand > 0 ? currentBrand.name}</div>
-        <span>{currentBrand.description}</span> */}
-      </div>
-    );
+    return <h3>{currentBrand.name}</h3>;
   }
 
-  render() {
-    const {
-      color,
-      wallpaper,
-      users,
-      supporterIds,
-      welcomeMessage,
-      awayMessage,
-      isOnline,
-      brandId,
-      brands
-    } = this.props;
+  renderDesc(currentBrand) {
+    if (!currentBrand) {
+      return null;
+    }
 
+    return <span>{currentBrand.description}</span>;
+  }
+
+  renderTitle() {
+    const { brands = [], brandId, users, supporterIds } = this.props;
+    let currentBrand = {};
     let avatar = [
       <img key="1" src="/images/avatar-colored.svg" alt="avatar" />
     ];
-    let fullName = 'Support staff';
 
     const supporters = users.filter(user =>
       (supporterIds || []).includes(user._id || '')
@@ -112,15 +100,43 @@ class WidgetPreview extends React.Component<Props, State> {
       avatar = supporters.map(u => {
         const details = u.details || {};
 
-        return <img key={u._id} src={details.avatar} alt={details.fullName} />;
+        return (
+          <Tip key={u._id} text={details.fullName}>
+            <img src={details.avatar} alt={details.fullName} />
+          </Tip>
+        );
       });
     }
 
-    if ((supporterIds || []).length > 0) {
-      fullName = supporters
-        .map(user => user.details && user.details.fullName)
-        .join(', ');
-    }
+    brands.map(brand => {
+      if (brand._id !== brandId) {
+        return null;
+      }
+
+      return (currentBrand = brand);
+    });
+
+    return (
+      <ErxesTopbarMiddle>
+        <WelcomeInfo>
+          {this.renderName(currentBrand)}
+          {this.renderDesc(currentBrand)}
+        </WelcomeInfo>
+        <ErxesSupporters>{avatar}</ErxesSupporters>
+      </ErxesTopbarMiddle>
+    );
+  }
+
+  render() {
+    const {
+      color,
+      wallpaper,
+      welcomeMessage,
+      awayMessage,
+      isOnline,
+      brandId,
+      brands
+    } = this.props;
 
     const renderMessage = message => {
       if (!message) {
@@ -146,7 +162,7 @@ class WidgetPreview extends React.Component<Props, State> {
               </ErxesState>
             </ErxesStaffProfile> */}
             {this.renderLeftButton()}
-            <div>{this.renderTitle()}</div>
+            <ErxesMiddleTitle>{this.renderTitle()}</ErxesMiddleTitle>
             {this.renderRightButton()}
           </ErxesMiddle>
         </ErxesTopbar>
