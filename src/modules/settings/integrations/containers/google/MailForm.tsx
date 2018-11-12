@@ -4,6 +4,7 @@ import { Alert, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { IAttachmentPreview } from '../../../../common/types';
 import { MailForm } from '../../components/google';
 import {
   IntegrationsQueryResponse,
@@ -17,7 +18,7 @@ type Props = {
   contentTypeId: string;
   toEmail?: string;
   toEmails?: string[];
-  setAttachmentPreview?: (data: string | null) => void;
+  setAttachmentPreview?: (data: IAttachmentPreview) => void;
   attachmentPreview: { name: string; data: string; type: string };
   closeModal?: () => void;
 };

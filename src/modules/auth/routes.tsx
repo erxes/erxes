@@ -1,6 +1,6 @@
 import queryString from 'query-string';
 import * as React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { AuthLayout } from '../layout/components';
 import { ForgotPassword, ResetPassword, SignIn } from './containers';
 
@@ -14,12 +14,11 @@ const resetPassword = ({ location }) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route path="/" component={home} />
-      <Route path="/sign-in" component={signIn} />
-      <Route path="/forgot-password" component={forgotPassword} />
-      <Route path="/reset-password" component={resetPassword} />
-    </React.Fragment>
+    <Switch>
+      <Route path="/forgot-password" exact={true} component={forgotPassword} />
+      <Route path="/reset-password" exact={true} component={resetPassword} />
+      <Route path="*" component={signIn} />
+    </Switch>
   );
 };
 

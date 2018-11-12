@@ -1,0 +1,19 @@
+pipeline:
+  install:
+    image: node:8-slim
+    commands:
+      - node -v
+      - npm -v
+      - yarn --version
+      - yarn config set cache-folder .yarn-cache
+      - yarn install
+
+  linting:
+    image: node:8-slim
+    commands:
+      - yarn lint
+
+  typescript:
+    image: node:8-slim
+    commands:
+      - yarn tsc

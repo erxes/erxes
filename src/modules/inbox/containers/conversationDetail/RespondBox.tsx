@@ -1,6 +1,7 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
+import { IAttachmentPreview } from 'modules/common/types';
 import { RespondBox } from 'modules/inbox/components/conversationDetail';
 import { queries } from 'modules/inbox/graphql';
 import * as React from 'react';
@@ -21,7 +22,7 @@ type Props = {
       callback: (error: Error) => void;
     }
   ) => void;
-  setAttachmentPreview: (attachmentPreview) => void;
+  setAttachmentPreview: (attachmentPreview: IAttachmentPreview) => void;
 };
 
 type FinalProps = {

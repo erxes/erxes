@@ -1,5 +1,5 @@
 import { Spinner } from 'modules/common/components';
-import { uploadHandler } from 'modules/common/utils';
+import { Alert, uploadHandler } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
 import { IAttachment } from '../types';
@@ -52,12 +52,18 @@ class Uploader extends React.Component<Props, State> {
         });
       },
 
-      afterUpload: ({ response, fileInfo }) => {
+      afterUpload: ({ status, response, fileInfo }) => {
+        if (status !== 'ok') {
+          Alert.error(response);
+          return this.setState({ loading: false });
+        }
+
+        Alert.info('Success');
+
         // set attachments
-        const attachments = [
-          ...this.state.attachments,
-          { url: response, ...fileInfo }
-        ];
+        const attachment = { url: response, ...fileInfo };
+
+        const attachments = [...this.state.attachments, attachment];
 
         this.props.onChange(attachments);
 
