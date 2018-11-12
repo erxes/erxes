@@ -21,11 +21,11 @@ export const types = `
   }
 
   type IntegrationAccount {
-    _id: String!
-    kind: String!
-    token: String!
+    _id: String
+    kind: String
+    token: String
     accountName: String
-    accountId: String!
+    accountId: String
   }
 
   type integrationsTotalCount {
@@ -109,8 +109,8 @@ export const queries = `
   integrationGetGoogleAuthUrl(service: String): String
   integrationGetGoogleAccessToken(code: String): JSON
   integrationFacebookAppsList: [JSON]
-  integrationFacebookPagesList(appId: String): [JSON]
-  integrationLinkedAccounts: IntegrationAccount
+  integrationFacebookPagesList(appId: String, accountId: String): [JSON]
+  integrationLinkedAccounts: [IntegrationAccount]
 `;
 
 export const mutations = `

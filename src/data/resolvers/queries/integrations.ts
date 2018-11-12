@@ -184,7 +184,7 @@ const integrationQueries = {
    * Get facebook pages by appId or linked account id
    */
 
-  async integrationLinkedAccounts(_root) {
+  async integrationLinkedAccounts(_root, {}) {
     return IntegrationAccounts.find({});
   },
 };
