@@ -8,7 +8,7 @@ import { IBrowserInfo } from "./types";
 export const getBrowserInfo = async () => {
   let location;
   try {
-    const response = await fetch("http://ip-api.com/json");
+    const response = await fetch("https://json.geoiplookup.io/api");
 
     location = await response.json();
   } catch (e) {
@@ -23,10 +23,10 @@ export const getBrowserInfo = async () => {
   }
 
   return {
-    remoteAddress: location.query,
-    region: location.regionName,
+    remoteAddress: location.ip,
+    region: location.region,
     city: location.city,
-    country: location.country,
+    country: location.country_name,
     url: window.location.pathname,
     hostname: window.location.origin,
     language: navigator.language,
