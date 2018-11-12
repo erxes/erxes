@@ -1,4 +1,4 @@
-declare const MAIN_API_URL: string;
+import { getEnv } from "./utils";
 
 type FileInfo = {
   name: string;
@@ -29,6 +29,8 @@ const uploadHandler = (params: UploaderParams) => {
     // for preview purpose
     afterRead
   } = params;
+
+  const { MAIN_API_URL } = getEnv();
 
   const url = `${MAIN_API_URL}/upload-file`;
 

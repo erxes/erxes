@@ -1,3 +1,9 @@
+export type ENV = {
+  MAIN_API_URL: string;
+  API_GRAPHQL_URL: string;
+  API_SUBSCRIPTIONS_URL: string;
+};
+
 export interface IUserDetails {
   avatar: string;
   fullName: string;

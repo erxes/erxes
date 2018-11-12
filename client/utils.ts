@@ -1,18 +1,18 @@
-/* global FileReader */
 import T from "i18n-react";
 import * as moment from "moment";
 import "moment/locale/mn";
 import translation from "../locales";
-import { IBrowserInfo } from "./types";
+import { ENV, IBrowserInfo } from "./types";
 
 export const getBrowserInfo = async () => {
   let location;
+
   try {
     const response = await fetch("https://json.geoiplookup.io/api");
 
     location = await response.json();
   } catch (e) {
-    console.log(e.message); // eslint-disable-line
+    console.log(e.message);
 
     location = {
       city: "",
@@ -114,4 +114,30 @@ export const scrollTo = (element: any, to: number, duration: number) => {
   };
 
   animateScroll();
+};
+
+export const getEnv = (): ENV => {
+  return (window as any).erxesEnv;
+};
+
+/*
+ * Generate <host>/<integration kind> from <host>/<integration kind>Widget.bundle.js
+ */
+export const generateIntegrationUrl = (integrationKind: string): string => {
+  const script =
+    document.currentScript ||
+    (() => {
+      const scripts = document.getElementsByTagName("script");
+
+      return scripts[scripts.length - 1];
+    })();
+
+  if (script && script instanceof HTMLScriptElement) {
+    return script.src.replace(
+      `/build/${integrationKind}Widget.bundle.js`,
+      `/${integrationKind}`
+    );
+  }
+
+  return "";
 };

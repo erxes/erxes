@@ -1,13 +1,4 @@
 var path = require('path');
-var webpack = require('webpack');
-var dotenv = require('dotenv');
-
-dotenv.config();
-
-var ROOT_URL = process.env.ROOT_URL;
-var API_SUBSCRIPTIONS_URL = process.env.API_SUBSCRIPTIONS_URL;
-var API_GRAPHQL_URL = process.env.API_GRAPHQL_URL;
-var MAIN_API_URL = process.env.MAIN_API_URL;
 
 module.exports = {
   entry: {
@@ -60,13 +51,4 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.json'],
   },
-
-  plugins: [
-    new webpack.DefinePlugin({
-      ROOT_URL: JSON.stringify(ROOT_URL),
-      API_SUBSCRIPTIONS_URL: JSON.stringify(API_SUBSCRIPTIONS_URL),
-      API_GRAPHQL_URL: JSON.stringify(API_GRAPHQL_URL),
-      MAIN_API_URL: JSON.stringify(MAIN_API_URL),
-    }),
-  ],
 };
