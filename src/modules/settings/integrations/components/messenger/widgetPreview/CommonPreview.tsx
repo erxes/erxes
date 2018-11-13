@@ -1,9 +1,9 @@
 import { IUser } from 'modules/auth/types';
-import { Messenger, WebPreview } from 'modules/engage/styles';
+import { WebPreview } from 'modules/engage/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import { IMessagesItem } from 'modules/settings/integrations/types';
-import { LogoContainer } from 'modules/settings/styles';
 import * as React from 'react';
+import { Launcher, Messenger } from './styles';
 import WidgetPreview from './WidgetPreview';
 
 type Props = {
@@ -50,7 +50,7 @@ class CommonPreview extends React.Component<Props> {
             brands={brands}
           />
 
-          <LogoContainer
+          <Launcher
             style={Object.assign(
               {
                 backgroundColor: color,

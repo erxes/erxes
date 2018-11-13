@@ -87,7 +87,7 @@ class CreateMessenger extends React.Component<Props, State> {
       })),
       logo: uiOptions.logo || '',
       logoPreviewStyle: {},
-      logoPreviewUrl: uiOptions.logo || '',
+      logoPreviewUrl: uiOptions.logo || '/images/erxes.png',
       facebook: links.facebook || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',

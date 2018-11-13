@@ -86,7 +86,7 @@ class WidgetPreview extends React.Component<Props, State> {
   }
 
   renderTitle() {
-    const { brands = [], brandId, users, supporterIds } = this.props;
+    const { brands = [], brandId, users, isOnline, supporterIds } = this.props;
     let currentBrand = {};
     let avatar = [
       <img key="1" src="/images/avatar-colored.svg" alt="avatar" />
@@ -101,9 +101,12 @@ class WidgetPreview extends React.Component<Props, State> {
         const details = u.details || {};
 
         return (
-          <Tip key={u._id} text={details.fullName}>
-            <img src={details.avatar} alt={details.fullName} />
-          </Tip>
+          <ErxesStaffProfile key={u._id}>
+            <Tip text={details.fullName} placement="top">
+              <img src={details.avatar} alt={details.fullName} />
+            </Tip>
+            <StateSpan state={isOnline || false} />
+          </ErxesStaffProfile>
         );
       });
     }
@@ -133,9 +136,7 @@ class WidgetPreview extends React.Component<Props, State> {
       wallpaper,
       welcomeMessage,
       awayMessage,
-      isOnline,
-      brandId,
-      brands
+      isOnline
     } = this.props;
 
     const renderMessage = message => {
@@ -153,14 +154,6 @@ class WidgetPreview extends React.Component<Props, State> {
           style={{ backgroundColor: color, height: this.state.headHeight }}
         >
           <ErxesMiddle>
-            {/* <ErxesStaffProfile>
-              {avatar}
-              <ErxesStaffName>{fullName}</ErxesStaffName>
-              <ErxesState>
-                <StateSpan state={isOnline || false} />
-                {isOnline ? __('Online') : __('Offline')}
-              </ErxesState>
-            </ErxesStaffProfile> */}
             {this.renderLeftButton()}
             <ErxesMiddleTitle>{this.renderTitle()}</ErxesMiddleTitle>
             {this.renderRightButton()}

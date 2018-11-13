@@ -1,5 +1,6 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import { LogoContainer } from 'modules/settings/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -111,19 +112,7 @@ const ErxesSupporters = styled.div`
 `;
 
 const ErxesStaffProfile = styled.div`
-  padding: ${unitSpace} 0;
-  text-align: left;
-  line-height: 15px;
-
-  img {
-    float: left;
-    width: 30px;
-    height: 30px;
-    border-radius: ${coreSpace};
-    border: 1px solid ${colors.colorWhite};
-    margin-left: -10px;
-    overflow: hidden;
-  }
+  position: relative;
 `;
 
 const ErxesStaffName = styled.div`
@@ -144,7 +133,7 @@ const ErxesState = styled.div`
 `;
 
 const ErxesSpacialMessage = styled.li`
-  background-color: ${colors.colorShadowGray};
+  background-color: #eaebed;
   border-radius: 10px;
   box-shadow: 0 1px 1px 0 ${rgba(colors.colorBlack, 0.2)};
   color: ${colors.textSecondary};
@@ -153,13 +142,13 @@ const ErxesSpacialMessage = styled.li`
 `;
 
 const ErxesAvatar = styled.div`
-  width: 30px;
-  height: 30px;
-  border-radius: ${dimensions.headerSpacing}%;
+  border-radius: 50%;
+  bottom: ${coreSpace};
+  height: 40px;
+  left: 0;
   overflow: hidden;
   position: absolute;
-  left: 0;
-  bottom: ${coreSpace};
+  width: 40px;
 
   img {
     width: 100%;
@@ -199,21 +188,23 @@ const ErxesMessagesList = styled.ul`
 `;
 
 const ErxesMessage = styled.div`
-  padding: ${unitSpace} 12px;
-  background-color: ${colors.borderPrimary};
-  border-radius: 4px;
-  position: relative;
-  margin: 0 ${coreSpace} 5px 40px;
+  background-color: #eaebed;
+  border-radius: ${coreSpace};
+  border-bottom-left-radius: 2px;
+  box-shadow: 0 1px 1px 0 ${rgba(colors.colorBlack, 0.2)};
+  color: #686868;
   display: inline-block;
-  word-break: break-word;
-  color: ${colors.colorCoreGray};
+  margin: 0 ${coreSpace} 5px 50px;
+  padding: 12px ${coreSpace};
+  position: relative;
   text-align: left;
+  word-break: break-word;
 `;
 
 const ErxesDate = styled.div`
   font-size: ${unitSpace};
   color: ${colors.colorCoreGray};
-  margin-left: 40px;
+  margin-left: ${dimensions.headerSpacing}px;
 `;
 
 const ErxesMessageSender = styled.div`
@@ -229,34 +220,58 @@ const ErxesFromCustomer = styled.li`
 `;
 
 const FromCustomer = ErxesMessage.extend`
+  border-bottom-left-radius: ${coreSpace};
+  border-top-right-radius: 2px;
+  color: #fff;
   margin: 0 0 5px ${coreSpace};
   text-align: right;
-  color: ${colors.colorWhite};
 `;
 
 const StateSpan = styledTS<{ state: boolean }>(styled.span)`
-  width: 6px;
-  height: 6px;
-  border-radius: 3px;
+  border-radius: 10px;
   display: inline-block;
+  height: 8px;
   margin-bottom: 1px;
-  margin-right: 3px;
+  width: 8px;
+  bottom: 2px;
+  position: absolute;
+  right: 2px;
+  z-index: 2;
   background-color: ${props =>
     props.state ? colors.colorCoreGreen : colors.colorLightGray};
 `;
 
 const WidgetPreviewStyled = styled.div`
-  font-family: 'Roboto', sans-serif;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  max-height: 720px;
-  width: 380px;
-  border-radius: ${dimensions.unitSpacing}px;
-  border-bottom-right-radius: 25px;
   background: ${colors.colorWhite};
   color: ${colors.colorWhite};
+  border-radius: ${dimensions.unitSpacing}px;
+  border-bottom-right-radius: 25px;
+  bottom: 70px;
   box-shadow: 0 2px 16px 1px ${rgba(colors.colorBlack, 0.2)};
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 95px);
+  max-height: 720px;
+  overflow: hidden;
+  position: absolute;
+  right: 8px;
+  width: 380px;
+  z-index: 2;
+`;
+
+const Messenger = styled.div`
+  box-sizing: border-box;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+`;
+
+const Launcher = LogoContainer.extend`
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  transition: box-shadow 0.3s ease-in-out, background-image 0.3s ease-in;
+  animation: pop 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
 `;
 
 export {
@@ -278,5 +293,7 @@ export {
   ErxesStaffName,
   ErxesStaffProfile,
   WelcomeInfo,
-  WidgetPreviewStyled
+  WidgetPreviewStyled,
+  Messenger,
+  Launcher
 };

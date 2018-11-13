@@ -20,8 +20,6 @@ type Props = {
 };
 
 type State = {
-  supporters?: any;
-  languageCode?: string;
   messages: IMessages;
 };
 
@@ -35,11 +33,6 @@ class Intro extends React.Component<Props, State> {
       messages
     };
   }
-
-  onInputChange = <T extends keyof State>(name: any, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
-    this.props.onChange(name, value);
-  };
 
   onMessageChange = (name, value) => {
     const messages = { ...this.state.messages };
@@ -55,12 +48,6 @@ class Intro extends React.Component<Props, State> {
     const { languageCode } = this.props;
     const message = this.state.messages[languageCode];
 
-    const languageOnChange = e =>
-      this.onInputChange(
-        'languageCode',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
     const welcomeOnChange = e =>
       this.onMessageChange('welcome', (e.target as HTMLInputElement).value);
 
@@ -73,24 +60,6 @@ class Intro extends React.Component<Props, State> {
     return (
       <FlexItem>
         <LeftItem>
-          <FormGroup>
-            <ControlLabel>Language</ControlLabel>
-
-            <FormControl
-              componentClass="select"
-              id="languageCode"
-              defaultValue={this.props.languageCode}
-              onChange={languageOnChange}
-            >
-              <option />
-              {LANGUAGES.map((item, index) => (
-                <option key={index} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
-
           <SubHeading>{__('Online messaging')}</SubHeading>
 
           <FormGroup>
