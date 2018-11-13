@@ -19,7 +19,7 @@ interface IActionPerformerDocument extends IActionPerformer, Document {
 export interface IActivity {
   type: string;
   action: string;
-  content: string;
+  content?: string;
   id?: string;
 }
 
@@ -98,7 +98,8 @@ const activitySchema = new Schema(
       enum: ACTIVITY_ACTIONS.ALL
     }),
     content: field({
-      type: String
+      type: String,
+      optional: true
     }),
     id: field({
       type: String
