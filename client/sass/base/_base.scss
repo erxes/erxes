@@ -26,11 +26,6 @@ body {
   textarea {
     font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
   }
-
-  &.opened .erxes-form {
-    @include prefix((opacity: 1), webkit moz ms o);
-    visibility: visible;
-  }
 }
 
 .icon {
