@@ -4,6 +4,12 @@ erxes is an open source growth marketing platform. Marketing, sales, and custome
 
 <a href="https://demohome.erxes.io/">View demo</a> <b>| </b> <a href="https://github.com/erxes/erxes-widgets/archive/master.zip">Download ZIP </a> <b> | </b> <a href="https://erxes.slack.com">Join us on Slack</a>
 
+
+## Status  <br>
+
+![Build Status](https://drone.erxes.io/api/badges/erxes/erxes-widgets/status.svg)
+[![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes-widgets/badge.svg)](https://snyk.io/test/github/erxes/erxes-widgets)
+
 ## Running the server
 
 #### 1. Node (version >= 4) and NPM need to be installed.
