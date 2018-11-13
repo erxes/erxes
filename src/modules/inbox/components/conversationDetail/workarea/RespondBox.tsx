@@ -19,6 +19,7 @@ import {
   RespondBoxStyled
 } from 'modules/inbox/styles';
 
+import { IAttachmentPreview } from 'modules/common/types';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
@@ -31,7 +32,7 @@ type Props = {
     message: AddMessageMutationVariables,
     callback: (error: Error) => void
   ) => void;
-  setAttachmentPreview?: (data: string | null) => void;
+  setAttachmentPreview?: (data: IAttachmentPreview) => void;
   responseTemplates: IResponseTemplate[];
   teamMembers: IUser[];
 };

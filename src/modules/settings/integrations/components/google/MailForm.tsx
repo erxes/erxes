@@ -11,6 +11,7 @@ import {
   ErxesEditor,
   toHTML
 } from 'modules/common/components/editor/Editor';
+import { IAttachmentPreview } from 'modules/common/types';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
 import {
   AttachmentIndicator,
@@ -33,7 +34,7 @@ type Props = {
   integrations: IIntegration[];
   toEmail?: string;
   toEmails?: string[];
-  setAttachmentPreview?: (data: string | null) => void;
+  setAttachmentPreview?: (data: IAttachmentPreview) => void;
   attachmentPreview: { name: string; data: string; type: string };
   closeModal?: () => void;
 
