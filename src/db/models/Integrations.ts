@@ -162,9 +162,7 @@ class Integration {
       }
 
       for (const pageId of pageIds) {
-        const pageToken = await graphRequest.post(`${pageId}?fields=access_token`, fbAccount.token, {
-          subscribed_fields: ['conversations', 'messages', 'feed'],
-        });
+        const pageToken = await graphRequest.get(`${pageId}?fields=access_token`, fbAccount.token);
 
         await graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
           subscribed_fields: ['conversations', 'messages', 'feed'],
