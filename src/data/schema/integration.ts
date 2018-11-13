@@ -152,6 +152,7 @@ export const mutations = `
     name: String!,
     appId: String,
     accId: String,
+    kind: String,
     pageIds: [String!]!,
   ): Integration
 

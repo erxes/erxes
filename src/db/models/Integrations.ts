@@ -3,6 +3,7 @@ import 'mongoose-type-email';
 import { ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from '../../data/constants';
 import { graphRequest } from '../../trackers/facebookTracker';
+import { sendPostRequest } from '../connection';
 import {
   IFacebookData,
   IFormData,
@@ -147,25 +148,36 @@ class Integration {
     facebookData: IFacebookData;
   }) {
     if (kind === 'acc') {
-      const { INTEGRATION_ENDPOINT_URL } = process.env;
+      const { INTEGRATION_ENDPOINT_URL, FACEBOOK_APP_ID, DOMAIN } = process.env;
 
-      if (!INTEGRATION_ENDPOINT_URL) {
+      if (!INTEGRATION_ENDPOINT_URL || !FACEBOOK_APP_ID || !DOMAIN) {
         throw new Error('Please configure endpoint');
       }
 
       const { pageIds, accId } = facebookData;
 
-      const fbAccount = await IntegrationAccounts.findOne({ accountId: accId });
+      const fbAccount = await IntegrationAccounts.findOne({ _id: accId });
 
       if (!fbAccount) {
         throw new Error('Linked facebook account not found');
       }
 
       for (const pageId of pageIds) {
-        const pageToken = await graphRequest.get(`${pageId}?fields=access_token`, fbAccount.token);
+        const pageInfo: any = await graphRequest.get(`${pageId}?fields=id,access_token`, fbAccount.token);
 
-        await graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
+        const pageToken = pageInfo.access_token;
+
+        const res: any = await graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
           subscribed_fields: ['conversations', 'messages', 'feed'],
+        });
+
+        if (res.success !== true) {
+          throw new Error('Couldnt subscribe page');
+        }
+
+        await sendPostRequest(`${INTEGRATION_ENDPOINT_URL}/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, {
+          endPoint: DOMAIN,
+          pageId: pageInfo.id,
         });
       }
     }
