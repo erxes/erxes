@@ -6,6 +6,7 @@ export interface IQueryParams {
 }
 
 export interface IParams {
+  type: string;
   queryParams: IQueryParams;
 }
 
