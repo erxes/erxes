@@ -117,7 +117,7 @@ export const renderDealDate = (date, format = 'YYYY-MM-DD') => {
 
   return (
     <Tip text={moment(date).format(format)}>
-      <DealDate>{moment(date).fromNow()}</DealDate>
+      <DealDate>{moment(date).format('lll')}</DealDate>
     </Tip>
   );
 };

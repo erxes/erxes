@@ -40,7 +40,7 @@ export default class DealItem extends React.PureComponent<
       return null;
     }
 
-    return <Date>{moment(date).fromNow()}</Date>;
+    return <Date>{moment(date).format('MMM D, h:mm a')}</Date>;
   }
 
   toggleForm = () => {
