@@ -1,5 +1,5 @@
 import { GraphQLScalarType } from 'graphql';
-import { Kind } from 'graphql/language';
+import { Kind } from 'graphql/language'; // tslint:disable-line
 
 function jSONidentity(value: any) {
   return value;

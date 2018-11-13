@@ -13,6 +13,7 @@ class MessengerApp {
 
 messengerAppSchema.loadClass(MessengerApp);
 
+// tslint:disable-next-line
 const MessengerApps = model<IMessengerAppDocument, IMessengerAppModel>('messenger_apps', messengerAppSchema);
 
 export default MessengerApps;

@@ -1,4 +1,4 @@
-import { dateType } from 'aws-sdk/clients/sts';
+import { dateType } from 'aws-sdk/clients/sts'; // tslint:disable-line
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import {
@@ -35,6 +35,7 @@ import {
   KnowledgeBaseArticles,
   KnowledgeBaseCategories,
   KnowledgeBaseTopics,
+  MessengerApps,
   NotificationConfigurations,
   Notifications,
   Products,
@@ -43,6 +44,7 @@ import {
   Tags,
   Users,
 } from './models';
+import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
 import { IUserDocument } from './models/definitions/users';
 
 interface IUserFactoryInput {
@@ -289,6 +291,7 @@ interface ICustomerFactoryInput {
   primaryPhone?: string;
   emails?: string[];
   phones?: string[];
+  doNotDisturb?: string;
   leadStatus?: string;
   lifecycleState?: string;
   messengerData?: any;
@@ -769,3 +772,17 @@ export const importHistoryFactory = async (params: IImportHistoryFactoryInput) =
 
   return ImportHistory.create({ ...doc, ...params, userId: user._id });
 };
+
+interface IMessengerApp {
+  name?: string;
+  kind?: string;
+  credentials: IMessengerAppCrendentials;
+}
+
+export function messengerAppFactory(params: IMessengerApp) {
+  return MessengerApps.create({
+    name: params.name || faker.random.word(),
+    kind: params.kind || 'knowledgebase',
+    credentials: params.credentials,
+  });
+}

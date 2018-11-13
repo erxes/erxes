@@ -73,6 +73,7 @@ class Notification {
 
 notificationSchema.loadClass(Notification);
 
+// tslint:disable-next-line
 export const Notifications = model<INotificationDocument, INotificationModel>('notifications', notificationSchema);
 
 interface IConfigModel extends Model<IConfigDocument> {
@@ -114,4 +115,5 @@ class Configuration {
 
 configSchema.loadClass(Configuration);
 
+// tslint:disable-next-line
 export const NotificationConfigurations = model<IConfigDocument, IConfigModel>('notification_configs', configSchema);

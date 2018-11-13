@@ -3,6 +3,8 @@ export const types = `
     _id: String!
     kind: String!
     name: String!
+    showInInbox: Boolean
+    credentials: JSON
   }
 `;
 
@@ -11,6 +13,9 @@ export const queries = `
 `;
 
 export const mutations = `
-  messengerAppsAdd(kind: String!, name: String!, credentials: JSON): MessengerApp
-  messengerAppsExecute(_id: String!, conversationId: String!): String
+  messengerAppsAddGoogleMeet(name: String!, credentials: JSON): MessengerApp
+  messengerAppsAddKnowledgebase(name: String!, integrationId: String!, topicId: String!): MessengerApp
+  messengerAppsAddLead(name: String!, integrationId: String!, formId: String!): MessengerApp
+  messengerAppsRemove(_id: String!): String
+  messengerAppsExecuteGoogleMeet(_id: String!, conversationId: String!): String
 `;

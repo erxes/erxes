@@ -295,6 +295,7 @@ class Customer {
 
 customerSchema.loadClass(Customer);
 
+// tslint:disable-next-line
 const Customers = model<ICustomerDocument, ICustomerModel>('customers', customerSchema);
 
 export default Customers;

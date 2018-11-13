@@ -31,11 +31,19 @@ const handleMessage = async message => {
 
   const mailId = headers.find(header => header.name === 'Mailmessageid');
 
+  const customerId = headers.find(header => header.name === 'Customerid');
+
+  const mailHeaders = {
+    engageMessageId: engageMessageId.value,
+    mailId: mailId.value,
+    customerId: customerId.value,
+  };
+
   const type = eventType.toLowerCase();
 
   await EngageMessages.updateStats(engageMessageId.value, type);
 
-  await EngageMessages.changeDeliveryReportStatus(engageMessageId.value, mailId.value, type);
+  await EngageMessages.changeDeliveryReportStatus(mailHeaders, type);
 };
 
 export const trackEngages = expressApp => {

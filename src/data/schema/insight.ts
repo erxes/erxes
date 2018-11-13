@@ -1,10 +1,4 @@
-export const types = `
-  type InsightData {
-    id: String
-    label: String
-    value: Int
-  }
-`;
+export const types = ``;
 
 const params = `
   integrationType: String,
@@ -14,7 +8,7 @@ const params = `
 `;
 
 export const queries = `
-  insights(brandId: String, startDate: String, endDate: String): [InsightData]
+  insights(${params}): JSON
   insightsPunchCard(type: String, integrationType: String, brandId: String, endDate: String): JSON
   insightsMain(type: String, ${params}): JSON
   insightsFirstResponse(${params}): JSON

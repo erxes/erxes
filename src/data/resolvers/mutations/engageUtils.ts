@@ -58,12 +58,16 @@ const findCustomers = async ({
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
 
+  const doNotDisturbQuery = {
+    $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }],
+  };
+
   if (segmentId) {
     const segment = await Segments.findOne({ _id: segmentId });
-    customerQuery = QueryBuilder.segments(segment);
+    customerQuery = await QueryBuilder.segments(segment);
   }
 
-  return Customers.find(customerQuery);
+  return Customers.find({ ...customerQuery, ...doNotDisturbQuery });
 };
 
 /**
@@ -78,7 +82,7 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
 
   const { templateId, subject, content, attachments = [] } = message.email.toJSON();
 
-  const { AWS_SES_CONFIG_SET } = process.env;
+  const { AWS_SES_CONFIG_SET, AWS_ENDPOINT } = process.env;
 
   const user = await Users.findOne({ _id: fromUserId });
 
@@ -106,6 +110,11 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
     if (template) {
       replacedContent = template.content.replace(EMAIL_CONTENT_PLACEHOLDER, replacedContent);
     }
+
+    // Add unsubscribe link ========
+    const unSubscribeUrl = `${AWS_ENDPOINT}/unsubscribe/?cid=${customer._id}`;
+
+    replacedContent += `<div style="padding: 10px"> <a style="text-decoration: underline;color: #0068a5;" rel="noopener" target="_blank" href="${unSubscribeUrl}">Unsubscribe</a> </div>`;
 
     const mailMessageId = Random.id();
 
@@ -135,6 +144,7 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
       headers: {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET,
         EngageMessageId: message._id,
+        CustomerId: customer._id,
         MailMessageId: mailMessageId,
       },
     });
@@ -202,6 +212,9 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
   }
 };
 
+/*
+ *  Send engage messages
+ */
 export const send = message => {
   const { method, kind } = message;
 
@@ -214,6 +227,12 @@ export const send = message => {
     return sendViaMessenger(message);
   }
 };
+
+/*
+ * Handle engage unsubscribe request
+ */
+export const handleEngageUnSubscribe = (query: { cid: string }) =>
+  Customers.update({ _id: query.cid }, { $set: { doNotDisturb: 'Yes' } });
 
 export default {
   replaceKeys,

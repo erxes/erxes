@@ -49,6 +49,7 @@ class Product {
 
 productSchema.loadClass(Product);
 
+// tslint:disable-next-line
 const Products = model<IProductDocument, IProductModel>('products', productSchema);
 
 export default Products;

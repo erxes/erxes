@@ -6,11 +6,16 @@ import { userFactory } from './factories';
 
 dotenv.config();
 
-const { MONGO_URL = '' } = process.env;
+const { NODE_ENV, MONGO_URL = '' } = process.env;
 
 mongoose.Promise = global.Promise;
 
 mongoose.connection
+  .on('connected', () => {
+    if (NODE_ENV !== 'test') {
+      console.log(`Connected to the database: ${MONGO_URL}`);
+    }
+  })
   .on('disconnected', () => {
     console.log(`Disconnected from the database: ${MONGO_URL}`);
   })
@@ -33,7 +38,14 @@ export const graphqlRequest = async (mutation: string = '', name: string = '', a
   const user = await userFactory({});
   const rootValue = {};
   const _schema: any = schema;
-  const response: any = await graphql(_schema, mutation, rootValue, context || { user }, args);
+
+  const res = {
+    cookie: () => {
+      return 'cookie';
+    },
+  };
+
+  const response: any = await graphql(_schema, mutation, rootValue, context || { user, res }, args);
 
   if (response.errors || !response.data) {
     throw response.errors;

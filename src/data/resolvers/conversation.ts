@@ -2,6 +2,15 @@ import { ConversationMessages, Customers, Integrations, Tags, Users } from '../.
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 
 export default {
+  /**
+   * Get idle time in minutes
+   */
+  idleTime(conversation: IConversationDocument) {
+    const now = new Date();
+
+    return (now.getTime() - conversation.updatedAt.getTime()) / (1000 * 60);
+  },
+
   customer(conversation: IConversationDocument) {
     return Customers.findOne({ _id: conversation.customerId });
   },

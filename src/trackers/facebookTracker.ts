@@ -65,7 +65,7 @@ export const trackIntegrations = expressApp => {
  */
 export const findPostComments = async (accessToken: string, postId: string, comments: any) => {
   const postComments: any = await graphRequest.get(
-    `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url`,
+    `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url&limit=3000`,
     accessToken,
   );
 

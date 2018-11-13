@@ -129,6 +129,7 @@ class InternalNote {
 
 internalNoteSchema.loadClass(InternalNote);
 
+// tslint:disable-next-line
 const InternalNotes = model<IInternalNoteDocument, IInternalNoteModel>('internal_notes', internalNoteSchema);
 
 export default InternalNotes;

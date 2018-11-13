@@ -69,6 +69,7 @@ export const types = `
     readUserIds: [String]
     createdAt: Date
     updatedAt: Date
+    idleTime: Float
     status: String
     messageCount: Int
     number: Int

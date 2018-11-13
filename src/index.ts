@@ -1,4 +1,5 @@
 import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
@@ -10,14 +11,17 @@ import * as path from 'path';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { userMiddleware } from './auth';
 import schema from './data';
+import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
 import { pubsub } from './data/resolvers/subscriptions';
-import { importXlsFile, uploadFile } from './data/utils';
+import { checkFile, importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Customers } from './db/models';
 import { init } from './startup';
 
 // load environment variables
 dotenv.config();
+
+const { MAIN_APP_DOMAIN } = process.env;
 
 // connect to mongo database
 connect();
@@ -26,12 +30,24 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cookieParser());
 
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: MAIN_APP_DOMAIN,
+  }),
+);
 
 app.use(userMiddleware);
 
-app.use('/graphql', graphqlExpress((req: any) => ({ schema, context: { user: req.user } })));
+app.use(
+  '/graphql',
+  graphqlExpress((req: any, res) => ({
+    schema,
+    context: { user: req.user, res },
+  })),
+);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
@@ -44,10 +60,19 @@ app.get('/status', async (_req, res) => {
 app.post('/upload-file', async (req, res) => {
   const form = new formidable.IncomingForm();
 
-  form.parse(req, async (_err, _fields, response) => {
-    const url = await uploadFile(response.file);
+  form.parse(req, async (_error, _fields, response) => {
+    const status = await checkFile(response.file);
 
-    return res.end(url);
+    if (status === 'ok') {
+      try {
+        const url = await uploadFile(response.file);
+        return res.end(url);
+      } catch (e) {
+        return res.status(500).send(e.message);
+      }
+    }
+
+    return res.status(500).send(status);
   });
 });
 
@@ -55,7 +80,19 @@ app.post('/upload-file', async (req, res) => {
 app.post('/import-file', (req: any, res) => {
   const form = new formidable.IncomingForm();
 
-  form.parse(req, (_err, fields: any, response) => {
+  // require login
+  if (!req.user) {
+    return res.end('foribidden');
+  }
+
+  form.parse(req, async (_err, fields: any, response) => {
+    const status = await checkFile(response.file);
+
+    // if file is not ok then send error
+    if (status !== 'ok') {
+      return res.json(status);
+    }
+
     importXlsFile(response.file, fields.type, { user: req.user })
       .then(result => {
         res.json(result);
@@ -64,6 +101,17 @@ app.post('/import-file', (req: any, res) => {
         res.json(e);
       });
   });
+});
+
+// engage unsubscribe
+app.get('/unsubscribe', async (req, res) => {
+  const unsubscribed = await handleEngageUnSubscribe(req.query);
+
+  if (unsubscribed) {
+    res.end('Unsubscribed');
+  }
+
+  res.end();
 });
 
 // Wrap the Express server
