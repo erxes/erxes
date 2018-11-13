@@ -17,7 +17,7 @@ pipeline:
     image: node:8-slim
     commands:
       - yarn tsc
-	
+
   publish:
     image: plugins/docker
     repo: goharbor.erxes.io/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
