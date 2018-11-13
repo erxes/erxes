@@ -5,6 +5,7 @@ import { ConversationList } from 'modules/inbox/containers/leftSidebar';
 import { queries } from 'modules/inbox/graphql';
 import { PopoverButton } from 'modules/inbox/styles';
 import { Sidebar } from 'modules/layout/components';
+import { AdditionalSidebar } from 'modules/layout/styles';
 import { TAG_TYPES } from 'modules/tags/constants';
 import * as React from 'react';
 import { IConversation } from '../../types';
@@ -145,21 +146,24 @@ class LeftSidebar extends React.Component<Props, {}> {
     } = this.props;
 
     return (
-      <Sidebar
-        wide={true}
-        full={true}
-        header={this.renderSidebarHeader()}
-        footer={this.renderSidebarFooter()}
-      >
-        <ConversationList
-          currentConversationId={currentConversationId}
-          totalCount={totalCount}
-          history={history}
-          queryParams={queryParams}
-          toggleRowCheckbox={toggleBulk}
-          selectedConversations={bulk}
-        />
-      </Sidebar>
+      <>
+        <AdditionalSidebar>sidebar</AdditionalSidebar>
+        <Sidebar
+          wide={true}
+          full={true}
+          header={this.renderSidebarHeader()}
+          footer={this.renderSidebarFooter()}
+        >
+          <ConversationList
+            currentConversationId={currentConversationId}
+            totalCount={totalCount}
+            history={history}
+            queryParams={queryParams}
+            toggleRowCheckbox={toggleBulk}
+            selectedConversations={bulk}
+          />
+        </Sidebar>
+      </>
     );
   }
 }

@@ -33,7 +33,8 @@ const MainWrapper = styled.div`
 const Contents = styled.div`
   display: flex;
   flex: 1;
-  margin: ${dimensions.unitSpacing}px;
+  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px
+    ${dimensions.unitSpacing}px;
   max-height: 100%;
 
   @-moz-document url-prefix() {
@@ -47,6 +48,7 @@ const MainContent = styledTS<{ transparent?: boolean }>(styled.section)`
   flex-direction: column;
   min-width: 480px;
   border-right: 1px solid ${colors.borderPrimary};
+  margin-right: ${dimensions.unitSpacing}px;
 `;
 
 const ContentSpace = styled.div`
@@ -108,13 +110,13 @@ const SideContent = styledTS<{
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
   border-right: 1px solid ${colors.borderPrimary};
+  margin-right: ${dimensions.unitSpacing}px;
 `;
 
 const AdditionalSidebar = styled.div`
   width: 200px;
   background: ${colors.bgLight}
-  border: 1px solid ${colors.borderPrimary};
-  box-shadow: 0 0 8px 1px ${colors.shadowPrimary} inset;
+  border-right: 1px solid ${colors.borderPrimary};
 `;
 
 const SidebarHeader = styledTS<{
@@ -162,7 +164,7 @@ const SidebarBox = styledTS<{
   full?: boolean;
 }>(styled.div)`
   background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
-  margin-bottom: ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 8px 1px ${colors.shadowPrimary}`};
   padding-bottom: ${props =>

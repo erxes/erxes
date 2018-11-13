@@ -21,7 +21,6 @@ function Inbox({ currentConversationId, queryParams }: Props) {
         breadcrumb={breadcrumb}
         submenu={menuInbox}
       />
-      <AdditionalSidebar>sidebar</AdditionalSidebar>
       <Sidebar
         queryParams={queryParams}
         currentConversationId={currentConversationId}
