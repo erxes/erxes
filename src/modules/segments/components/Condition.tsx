@@ -34,7 +34,7 @@ class Condition extends React.Component<Props, State> {
 
     // Changing current operator when the type is changed
     if (name === 'type' && typeof value === 'string') {
-      states.operator = operators[value][0].value || '';
+      states.operator = operators.string[0].value || '';
     }
 
     this.setState(states, () => {
