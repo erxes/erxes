@@ -82,7 +82,7 @@
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "compress": "gzip -5 --keep -r build/static/js",
-    "test": "react-scripts-ts test --env=jsdom",
+    "test": "snyk test && react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "postinstall": "opencollective postinstall"
@@ -100,7 +100,8 @@
     "lint-staged": "^4.3.0",
     "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
-    "typescript": "^3.0.3"
+    "typescript": "^3.0.3",
+    "snyk": "^1.108.2"
   },
   "browserslist": [
     ">0.2%",
