@@ -2,6 +2,7 @@ import { Model, model } from 'mongoose';
 import 'mongoose-type-email';
 import { ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from '../../data/constants';
+import { graphRequest } from '../../trackers/facebookTracker';
 import {
   IFacebookData,
   IFormData,
@@ -48,9 +49,11 @@ interface IIntegrationModel extends Model<IIntegrationDocument> {
     name,
     brandId,
     facebookData,
+    kind,
   }: {
     name: string;
     brandId: string;
+    kind: string;
     facebookData: IFacebookData;
   }): Promise<IIntegrationDocument>;
 
@@ -132,15 +135,43 @@ class Integration {
   /**
    * Create facebook integration
    */
-  public static createFacebookIntegration({
+  public static async createFacebookIntegration({
     name,
     brandId,
+    kind,
     facebookData,
   }: {
     name: string;
     brandId: string;
+    kind: string;
     facebookData: IFacebookData;
   }) {
+    if (kind === 'acc') {
+      const { INTEGRATION_ENDPOINT_URL } = process.env;
+
+      if (!INTEGRATION_ENDPOINT_URL) {
+        throw new Error('Please configure endpoint');
+      }
+
+      const { pageIds, accId } = facebookData;
+
+      const fbAccount = await IntegrationAccounts.findOne({ accountId: accId });
+
+      if (!fbAccount) {
+        throw new Error('Linked facebook account not found');
+      }
+
+      for (const pageId of pageIds) {
+        const pageToken = await graphRequest.post(`${pageId}?fields=access_token`, fbAccount.token, {
+          subscribed_fields: ['conversations', 'messages', 'feed'],
+        });
+
+        await graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
+          subscribed_fields: ['conversations', 'messages', 'feed'],
+        });
+      }
+    }
+
     return this.createIntegration({
       name,
       brandId,

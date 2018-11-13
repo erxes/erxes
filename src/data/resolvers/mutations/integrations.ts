@@ -77,13 +77,22 @@ const integrationMutations = {
    */
   async integrationsCreateFacebookIntegration(
     _root,
-    { name, brandId, appId, pageIds }: { name: string; brandId: string; appId: string; pageIds: string[] },
+    {
+      name,
+      brandId,
+      appId,
+      pageIds,
+      kind,
+      accId,
+    }: { name: string; brandId: string; appId?: string; pageIds: string[]; kind: string; accId?: string },
   ) {
     return Integrations.createFacebookIntegration({
       name,
+      kind,
       brandId,
       facebookData: {
         appId,
+        accId,
         pageIds,
       },
     });

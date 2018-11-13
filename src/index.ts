@@ -65,12 +65,12 @@ app.get('/unsubscribe', async (req, res) => {
   res.end();
 });
 
+const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET } = process.env;
+
 const conf = {
-  client_id: '700381116804195',
-  client_secret: '198eae60055634e5cefb5fa00053260c',
+  client_id: FACEBOOK_APP_ID,
+  client_secret: FACEBOOK_APP_SECRET,
   scope: 'manage_pages, pages_show_list',
-  // You have to set http://localhost:3000/ as your website
-  // using Settings -> Add platform -> Website
   redirect_uri: 'https://2e7201ab.ngrok.io/fblogin',
 };
 
@@ -210,12 +210,6 @@ server.listen(PORT, () => {
 });
 
 if (process.env.NODE_ENV === 'development') {
-  // graphRequest.post(
-  //   '2084915485108240/subscribed_apps',
-  //   'EAAJ8ZCiZBsrGMBADhSv4KmPWlzw32yLreUH2FAKUo2caGTtnyHMXXhZCKrUxg3XpuRXVtD1CCb5zsFuNpR9ZCVw3ZBxx2ZCpdVPAENqyDntsKn25QZAwMqMXkr3FgZCMeiLxgZBqiaDDxoLBYujZCH5FCIN63GCsL3JKbNMZCZCY8xtlEGSaTf56MU4f7k2wCWN2Rc9TpPXaPCq76QZDZD',
-  //   { subscribed_fields: ['conversations', 'messages', 'feed'] }
-  // );
-
   app.use(
     '/graphiql',
     graphiqlExpress({

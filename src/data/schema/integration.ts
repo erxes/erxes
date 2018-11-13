@@ -150,7 +150,8 @@ export const mutations = `
   integrationsCreateFacebookIntegration(
     brandId: String!,
     name: String!,
-    appId: String!,
+    appId: String,
+    accId: String,
     pageIds: [String!]!,
   ): Integration
 
