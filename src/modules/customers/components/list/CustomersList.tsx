@@ -21,6 +21,7 @@ import { Widget } from '../../../engage/containers';
 import { Wrapper } from '../../../layout/components';
 import { BarItems } from '../../../layout/styles';
 import { ManageColumns } from '../../../settings/properties/containers';
+import { IConfigColumn } from '../../../settings/properties/types';
 import { TaggerPopover } from '../../../tags/components';
 import { CustomerForm } from '../../containers';
 import { ICustomer } from '../../types';
@@ -30,7 +31,7 @@ import Sidebar from './Sidebar';
 interface IProps extends IRouterProps {
   customers: ICustomer[];
   totalCount: number;
-  columnsConfig: any;
+  columnsConfig: IConfigColumn[];
   integrations: string[];
   bulk: any[];
   isAllSelected: boolean;
@@ -68,19 +69,15 @@ class CustomersList extends React.Component<IProps, State> {
     this.state = {
       searchValue: this.props.searchValue
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.removeCustomers = this.removeCustomers.bind(this);
-    this.search = this.search.bind(this);
   }
 
-  onChange() {
+  onChange = () => {
     const { toggleAll, customers } = this.props;
 
     toggleAll(customers, 'customers');
-  }
+  };
 
-  removeCustomers(customers) {
+  removeCustomers = customers => {
     const customerIds: string[] = [];
 
     customers.forEach(customer => {
@@ -90,7 +87,7 @@ class CustomersList extends React.Component<IProps, State> {
     const { removeCustomers, emptyBulk } = this.props;
 
     removeCustomers({ customerIds }, emptyBulk);
-  }
+  };
 
   renderContent() {
     const {
@@ -103,7 +100,7 @@ class CustomersList extends React.Component<IProps, State> {
     } = this.props;
 
     return (
-      <Table whiteSpace="nowrap" hover bordered>
+      <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
           <tr>
             <th>
@@ -138,8 +135,10 @@ class CustomersList extends React.Component<IProps, State> {
     );
   }
 
-  search(e) {
-    if (this.timer) clearTimeout(this.timer);
+  search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
     const { history } = this.props;
     const searchValue = e.target.value;
 
@@ -148,7 +147,7 @@ class CustomersList extends React.Component<IProps, State> {
     this.timer = setTimeout(() => {
       router.setParams(history, { searchValue });
     }, 500);
-  }
+  };
 
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
@@ -184,20 +183,39 @@ class CustomersList extends React.Component<IProps, State> {
       <DateFilter queryParams={queryParams} history={history} />
     );
 
+    const manageColumns = props => {
+      return (
+        <ManageColumns
+          {...props}
+          contentType="customer"
+          location={location}
+          history={history}
+        />
+      );
+    };
+
+    const customerForm = props => {
+      return <CustomerForm {...props} size="lg" queryParams={queryParams} />;
+    };
+
+    const customersMerge = props => {
+      return <CustomersMerge {...props} objects={bulk} save={mergeCustomers} />;
+    };
+
     const actionBarRight = (
       <BarItems>
         <FormControl
           type="text"
           placeholder={__('Type to search')}
-          onChange={e => this.search(e)}
+          onChange={this.search}
           value={this.state.searchValue}
-          autoFocus
-          onFocus={e => this.moveCursorAtTheEnd(e)}
+          autoFocus={true}
+          onFocus={this.moveCursorAtTheEnd}
         />
 
         {dateFilter}
 
-        <Dropdown id="dropdown-engage" pullRight>
+        <Dropdown id="dropdown-engage" pullRight={true}>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
               {__('Customize ')} <Icon icon="downarrow" />
@@ -208,14 +226,7 @@ class CustomersList extends React.Component<IProps, State> {
               <ModalTrigger
                 title="Manage Columns"
                 trigger={editColumns}
-                content={props => (
-                  <ManageColumns
-                    {...props}
-                    contentType="customer"
-                    location={location}
-                    history={history}
-                  />
-                )}
+                content={manageColumns}
               />
             </li>
             <li>
@@ -224,7 +235,7 @@ class CustomersList extends React.Component<IProps, State> {
               </Link>
             </li>
             <li>
-              <a onClick={() => exportCustomers(bulk)}>
+              <a onClick={exportCustomers.bind(this, bulk)}>
                 {__('Export customers')}
               </a>
             </li>
@@ -234,7 +245,7 @@ class CustomersList extends React.Component<IProps, State> {
                   {__('Import customers')}
                   <input
                     type="file"
-                    onChange={e => handleXlsUpload(e)}
+                    onChange={handleXlsUpload}
                     style={{ display: 'none' }}
                     accept=".xlsx, .xls"
                   />
@@ -248,9 +259,7 @@ class CustomersList extends React.Component<IProps, State> {
           title="New customer"
           trigger={addTrigger}
           size="lg"
-          content={props => (
-            <CustomerForm {...props} size="lg" queryParams={queryParams} />
-          )}
+          content={customerForm}
         />
       </BarItems>
     );
@@ -270,6 +279,11 @@ class CustomersList extends React.Component<IProps, State> {
         </Button>
       );
 
+      const onClick = () =>
+        confirm().then(() => {
+          this.removeCustomers(bulk);
+        });
+
       actionBarLeft = (
         <BarItems>
           <Widget customers={bulk} emptyBulk={emptyBulk} />
@@ -285,24 +299,14 @@ class CustomersList extends React.Component<IProps, State> {
               title="Merge Customers"
               size="lg"
               trigger={mergeButton}
-              content={props => (
-                <CustomersMerge
-                  {...props}
-                  objects={bulk}
-                  save={mergeCustomers}
-                />
-              )}
+              content={customersMerge}
             />
           )}
           <Button
             btnStyle="danger"
             size="small"
             icon="cancel-1"
-            onClick={() =>
-              confirm().then(() => {
-                this.removeCustomers(bulk);
-              })
-            }
+            onClick={onClick}
           >
             Remove
           </Button>

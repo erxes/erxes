@@ -28,14 +28,7 @@ type Props = {
 };
 
 class Properties extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderProperties = this.renderProperties.bind(this);
-    this.renderActionBar = this.renderActionBar.bind(this);
-  }
-
-  renderProperties() {
+  renderProperties = () => {
     const {
       fieldsGroups,
       queryParams,
@@ -69,16 +62,38 @@ class Properties extends React.Component<Props> {
         })}
       </PropertyList>
     );
-  }
+  };
 
-  renderActionBar() {
+  renderActionBar = () => {
     const { queryParams, fieldsGroups } = this.props;
 
     const addGroup = <MenuItem>{__('Add group')}</MenuItem>;
     const addField = <MenuItem>{__('Add Property')}</MenuItem>;
 
+    const groupContent = props => (
+      <PropertyGroupForm {...props} queryParams={queryParams} />
+    );
+
+    const propertyContent = modalProps => {
+      if (fieldsGroups.length === 0) {
+        return <div>{__('Please add property Group first')}!</div>;
+      }
+
+      return (
+        <PropertyForm
+          {...modalProps}
+          {...this.props}
+          queryParams={queryParams}
+        />
+      );
+    };
+
     return (
-      <Dropdown id="dropdown-knowledgebase" className="quick-button" pullRight>
+      <Dropdown
+        id="dropdown-knowledgebase"
+        className="quick-button"
+        pullRight={true}
+      >
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="add">
             {__('Add Group & Field ')} <Icon icon="downarrow" />
@@ -88,31 +103,17 @@ class Properties extends React.Component<Props> {
           <ModalTrigger
             title="Add Group"
             trigger={addGroup}
-            content={props => (
-              <PropertyGroupForm {...props} queryParams={queryParams} />
-            )}
+            content={groupContent}
           />
           <ModalTrigger
             title="Add Property"
             trigger={addField}
-            content={modalProps => {
-              if (fieldsGroups.length === 0) {
-                return <div>{__('Please add property Group first')}!</div>;
-              }
-
-              return (
-                <PropertyForm
-                  {...modalProps}
-                  {...this.props}
-                  queryParams={queryParams}
-                />
-              );
-            }}
+            content={propertyContent}
           />
         </Dropdown.Menu>
       </Dropdown>
     );
-  }
+  };
 
   render() {
     const { currentType } = this.props;

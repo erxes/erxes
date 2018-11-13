@@ -11,15 +11,29 @@ import {
 type Props = {
   data: any;
   loading: boolean;
+  isSmall?: boolean;
 };
 
 class Summary extends React.Component<Props> {
-  renderSummary(sum) {
+  renderSummary(item, index) {
+    if (typeof item === 'number') {
+      return (
+        <Col sm={3} key={Math.random()}>
+          <SummaryItem isSmall={this.props.isSmall}>
+            <SummaryTitle>
+              {index === 3 ? '4++' : `${index} - ${index + 1}`}
+            </SummaryTitle>
+            <SummaryCount>{item}</SummaryCount>
+          </SummaryItem>
+        </Col>
+      );
+    }
+
     return (
       <Col sm={3} key={Math.random()}>
         <SummaryItem>
-          <SummaryTitle>{sum.title}</SummaryTitle>
-          <SummaryCount>{sum.count}</SummaryCount>
+          <SummaryTitle>{item.title}</SummaryTitle>
+          <SummaryCount>{item.count}</SummaryCount>
         </SummaryItem>
       </Col>
     );
@@ -31,12 +45,16 @@ class Summary extends React.Component<Props> {
     if (loading) {
       return (
         <LoaderWrapper>
-          <Spinner objective />
+          <Spinner objective={true} />
         </LoaderWrapper>
       );
     }
 
-    return <Row>{data.map(detail => this.renderSummary(detail))}</Row>;
+    return (
+      <Row>
+        {data.map((detail, index) => this.renderSummary(detail, index))}
+      </Row>
+    );
   }
 }
 

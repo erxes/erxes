@@ -23,25 +23,19 @@ type Doc = {
 type Props = {
   products: IProduct[];
   productsCount: number;
-  remove: (_id: string) => void;
+  remove: (productId: string) => void;
   save: (doc: Doc, callback: () => void, product?: IProduct) => void;
   loading: boolean;
 };
 
 class List extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderRow = this.renderRow.bind(this);
-  }
-
-  renderRow() {
+  renderRow = () => {
     const { products, remove, save } = this.props;
 
     return products.map(product => (
       <Row key={product._id} product={product} remove={remove} save={save} />
     ));
-  }
+  };
 
   render() {
     const { save, productsCount, loading } = this.props;
@@ -57,11 +51,13 @@ class List extends React.Component<Props> {
       </Button>
     );
 
+    const modalContent = props => <Form {...props} save={save} />;
+
     const actionBarRight = (
       <ModalTrigger
         title="Add Product / Service"
         trigger={trigger}
-        content={props => <Form {...props} save={save} />}
+        content={modalContent}
       />
     );
 

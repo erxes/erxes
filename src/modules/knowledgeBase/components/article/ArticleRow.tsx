@@ -24,22 +24,15 @@ type Props = {
   queryParams: any;
   currentCategoryId: string;
   topicIds: string;
-  remove: (_id: string) => void;
+  remove: (articleId: string) => void;
 };
 
 class ArticleRow extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.remove = this.remove.bind(this);
-    this.renderEditAction = this.renderEditAction.bind(this);
-  }
-
-  remove() {
+  remove = () => {
     this.props.remove(this.props.article._id);
-  }
+  };
 
-  renderEditAction(editTrigger) {
+  renderEditAction = editTrigger => {
     const { article, queryParams, currentCategoryId, topicIds } = this.props;
 
     const editButton = (
@@ -50,23 +43,25 @@ class ArticleRow extends React.Component<Props> {
       </Button>
     );
 
+    const content = props => (
+      <ArticleForm
+        {...props}
+        article={article}
+        queryParams={queryParams}
+        currentCategoryId={currentCategoryId}
+        topicIds={topicIds}
+      />
+    );
+
     return (
       <ModalTrigger
         size="large"
         title="Edit"
         trigger={editTrigger ? editTrigger : editButton}
-        content={props => (
-          <ArticleForm
-            {...props}
-            article={article}
-            queryParams={queryParams}
-            currentCategoryId={currentCategoryId}
-            topicIds={topicIds}
-          />
-        )}
+        content={content}
       />
     );
-  }
+  };
 
   render() {
     const { article } = this.props;

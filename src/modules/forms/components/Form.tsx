@@ -49,7 +49,6 @@ type State = {
   formTitle?: string;
   bodyValue?: string;
   formDesc?: string;
-  thankContent?: string;
   formBtnText?: string;
   calloutBtnText?: string;
   theme: string;
@@ -68,18 +67,14 @@ type State = {
   adminEmails?: string[];
   adminEmailTitle?: string;
   adminEmailContent?: string;
+  thankContent?: string;
   redirectUrl?: string;
-  preview?: string;
   carousel?: string;
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    this.onChange = this.onChange.bind(this);
-    this.renderSaveButton = this.renderSaveButton.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
 
     const integration = props.integration || ({} as IFormIntegration);
 
@@ -90,7 +85,18 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       activeStep: 1,
+
       type: formData.loadType || 'shoutbox',
+      successAction: formData.successAction || '',
+      fromEmail: formData.fromEmail || '',
+      userEmailTitle: formData.userEmailTitle || '',
+      userEmailContent: formData.userEmailContent || '',
+      adminEmails: formData.adminEmails || [],
+      adminEmailTitle: formData.adminEmailTitle || '',
+      adminEmailContent: formData.adminEmailContent || '',
+      thankContent: formData.thankContent || 'Thank you.',
+      redirectUrl: formData.redirectUrl || '',
+
       brand: integration.brandId,
       language: integration.languageCode,
       title: integration.name,
@@ -98,7 +104,6 @@ class Form extends React.Component<Props, State> {
       formTitle: form.title || 'Contact',
       bodyValue: callout.body || '',
       formDesc: form.description || '',
-      thankContent: formData.thankContent || 'Thank you.',
       formBtnText: form.buttonText || 'Send',
       calloutBtnText: callout.buttonText || 'Start',
       color: '',
@@ -112,7 +117,7 @@ class Form extends React.Component<Props, State> {
     };
   }
 
-  handleSubmit(e: React.FormEvent) {
+  handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const { brand, calloutTitle, title } = this.state;
@@ -156,9 +161,9 @@ class Form extends React.Component<Props, State> {
       },
       fields: this.state.fields
     });
-  }
+  };
 
-  renderSaveButton() {
+  renderSaveButton = () => {
     const cancelButton = (
       <Link to="/forms">
         <Button btnStyle="simple" size="small" icon="cancel-1">
@@ -180,11 +185,11 @@ class Form extends React.Component<Props, State> {
         </Button>
       </Button.Group>
     );
-  }
+  };
 
-  onChange<T extends keyof State>(key: T, value: State[T]) {
+  onChange = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
-  }
+  };
 
   render() {
     const {
@@ -200,7 +205,6 @@ class Form extends React.Component<Props, State> {
       logoPreviewUrl,
       thankContent,
       fields,
-      preview,
       carousel,
       language,
       title,
@@ -216,19 +220,17 @@ class Form extends React.Component<Props, State> {
     const breadcrumb = [{ title: __('Leads'), link: '/forms' }];
     const constant = isSkip ? 'form' : 'callout';
 
+    const onChange = e =>
+      this.onChange('title', (e.currentTarget as HTMLInputElement).value);
+
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
-            required
-            onChange={e =>
-              this.onChange(
-                'title',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            required={true}
+            onChange={onChange}
             defaultValue={title}
           />
         </TitleContainer>
@@ -239,7 +241,6 @@ class Form extends React.Component<Props, State> {
               type={type}
               calloutTitle={calloutTitle}
               calloutBtnText={calloutBtnText}
-              bodyValue={bodyValue}
               color={color}
               theme={theme}
             />
@@ -313,7 +314,6 @@ class Form extends React.Component<Props, State> {
               theme={theme}
               image={logoPreviewUrl}
               fields={fields}
-              preview={preview || 'desktop'}
               thankContent={thankContent}
               skip={isSkip}
               carousel={carousel || constant}

@@ -24,15 +24,7 @@ type Props = {
 };
 
 class Availability extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onOnlineHoursChange = this.onOnlineHoursChange.bind(this);
-    this.onSelectChange = this.onSelectChange.bind(this);
-    this.onChangeFunction = this.onChangeFunction.bind(this);
-  }
-
-  onSelectChange(e, name) {
+  onSelectChange = (e, name) => {
     let value = '';
 
     if (e) {
@@ -41,17 +33,17 @@ class Availability extends React.Component<Props> {
 
     this.setState({ [name]: value });
     this.props.onChange(name, value);
-  }
+  };
 
-  onChangeFunction(name, value) {
+  onChangeFunction = (name, value) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
-  }
+  };
 
-  onOnlineHoursChange(onlineHours) {
+  onOnlineHoursChange = onlineHours => {
     this.setState({ onlineHours });
     this.props.onChange('onlineHours', onlineHours);
-  }
+  };
 
   renderOnlineHours() {
     if (this.props.availabilityMethod === 'manual') {
@@ -71,6 +63,8 @@ class Availability extends React.Component<Props> {
       return null;
     }
 
+    const onChange = e => this.onChangeFunction('isOnline', e.target.checked);
+
     return (
       <FormGroup>
         <ControlLabel>Visible online to visitor or customer</ControlLabel>
@@ -78,7 +72,7 @@ class Availability extends React.Component<Props> {
           <Toggle
             className="wide"
             checked={this.props.isOnline}
-            onChange={e => this.onChangeFunction('isOnline', e.target.checked)}
+            onChange={onChange}
             icons={{
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
@@ -90,6 +84,14 @@ class Availability extends React.Component<Props> {
   }
 
   render() {
+    const onChange = e =>
+      this.onChangeFunction(
+        'availabilityMethod',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const timezoneOnChange = e => this.onSelectChange(e, 'timezone');
+
     return (
       <FlexItem>
         <LeftItem>
@@ -98,14 +100,8 @@ class Availability extends React.Component<Props> {
               value="manual"
               componentClass="radio"
               checked={this.props.availabilityMethod === 'manual'}
-              onChange={(e: React.FormEvent<HTMLElement>) => {
-                const target = e.currentTarget as HTMLInputElement;
-                return this.onChangeFunction(
-                  'availabilityMethod',
-                  target.value
-                );
-              }}
-              inline
+              onChange={onChange}
+              inline={true}
             >
               {__('Turn online/offline manually')}
             </FormControl>
@@ -114,11 +110,8 @@ class Availability extends React.Component<Props> {
               value="auto"
               componentClass="radio"
               checked={this.props.availabilityMethod === 'auto'}
-              onChange={(e: React.FormEvent<HTMLElement>) => {
-                const target = e.currentTarget as HTMLInputElement;
-                this.onChangeFunction('availabilityMethod', target.value);
-              }}
-              inline
+              onChange={onChange}
+              inline={true}
             >
               {__('Set to follow your schedule')}
             </FormControl>
@@ -133,7 +126,7 @@ class Availability extends React.Component<Props> {
             <Select
               value={this.props.timezone}
               options={timezones}
-              onChange={e => this.onSelectChange(e, 'timezone')}
+              onChange={timezoneOnChange}
               clearable={false}
             />
           </FormGroup>

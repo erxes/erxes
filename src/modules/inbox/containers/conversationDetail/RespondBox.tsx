@@ -1,37 +1,43 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
+import { IAttachmentPreview } from 'modules/common/types';
 import { RespondBox } from 'modules/inbox/components/conversationDetail';
 import { queries } from 'modules/inbox/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
-import { IConversation } from '../../types';
-import { IAddMessage } from './WorkArea';
+import { withProps } from '../../../common/utils';
+import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
+import { UsersQueryResponse } from '../../../settings/team/types';
+import { AddMessageMutationVariables, IConversation } from '../../types';
 
 type Props = {
   conversation: IConversation;
-  responseTemplatesQuery: any;
-  usersQuery: any;
   addMessage: (
     doc: {
-      variables: IAddMessage;
+      variables: AddMessageMutationVariables;
       optimisticResponse: any;
       kind: string;
       callback: (error: Error) => void;
     }
   ) => void;
-  currentUser: IUser;
+  setAttachmentPreview: (attachmentPreview: IAttachmentPreview) => void;
 };
+
+type FinalProps = {
+  responseTemplatesQuery: ResponseTemplatesQueryResponse;
+  usersQuery: UsersQueryResponse;
+} & Props & { currentUser: IUser };
 
 interface ITeamMembers {
   _id: string;
   name: string;
-  title: string;
-  avatar: string;
+  title?: string;
+  avatar?: string;
 }
 
-const RespondBoxContainer = (props: Props) => {
+const RespondBoxContainer = (props: FinalProps) => {
   const {
     conversation,
     usersQuery,
@@ -41,7 +47,7 @@ const RespondBoxContainer = (props: Props) => {
   } = props;
 
   const sendMessage = (
-    variables: IAddMessage,
+    variables: AddMessageMutationVariables,
     callback: (error: Error) => void
   ) => {
     const { conversationId, content, attachments, internal } = variables;
@@ -87,8 +93,8 @@ const RespondBoxContainer = (props: Props) => {
     teamMembers.push({
       _id: user._id,
       name: user.username,
-      title: user.details.position,
-      avatar: user.details.avatar
+      title: user.details && user.details.position,
+      avatar: user.details && user.details.avatar
     });
   }
 
@@ -101,18 +107,28 @@ const RespondBoxContainer = (props: Props) => {
 
   return <RespondBox {...updatedProps} />;
 };
+const WithQuery = withProps<Props & { currentUser: IUser }>(
+  compose(
+    graphql<Props, UsersQueryResponse>(gql(queries.userList), {
+      name: 'usersQuery'
+    }),
+    graphql<Props, ResponseTemplatesQueryResponse>(
+      gql(queries.responseTemplateList),
+      {
+        name: 'responseTemplatesQuery'
+      }
+    )
+  )(RespondBoxContainer)
+);
 
-const WithQuery = compose(
-  graphql(gql(queries.userList), { name: 'usersQuery' }),
-  graphql(gql(queries.responseTemplateList), {
-    name: 'responseTemplatesQuery'
-  })
-)(RespondBoxContainer);
+// TODO: Context currentUser must be required not optional
 
-const WithConsumer = props => {
+const WithConsumer = (props: Props) => {
   return (
     <AppConsumer>
-      {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}
+      {({ currentUser }) => (
+        <WithQuery {...props} currentUser={currentUser || ({} as IUser)} />
+      )}
     </AppConsumer>
   );
 };

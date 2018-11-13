@@ -1,4 +1,5 @@
 import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { AuthBox } from '../styles';
 
@@ -11,24 +12,21 @@ class ResetPassword extends React.Component<Props, { newPassword: string }> {
     super(props);
 
     this.state = { newPassword: '' };
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
 
-  handleSubmit(e) {
+  handleSubmit = e => {
     e.preventDefault();
 
     this.props.resetPassword(this.state.newPassword);
-  }
+  };
 
-  handlePasswordChange(e) {
+  handlePasswordChange = e => {
     e.preventDefault();
 
     this.setState({ newPassword: e.target.value });
-  }
+  };
 
   render() {
-    const { __ } = this.context;
     return (
       <AuthBox>
         <h2>{__('Set your new password')}</h2>
@@ -37,11 +35,11 @@ class ResetPassword extends React.Component<Props, { newPassword: string }> {
             <FormControl
               type="password"
               placeholder={__('new password')}
-              required
+              required={true}
               onChange={this.handlePasswordChange}
             />
           </FormGroup>
-          <Button btnStyle="success" type="submit" block>
+          <Button btnStyle="success" type="submit" block={true}>
             Change password
           </Button>
         </form>

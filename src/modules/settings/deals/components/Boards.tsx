@@ -9,7 +9,7 @@ import { BoardForm, BoardRow } from './';
 type Props = {
   currentBoardId?: string;
   boards: IBoard[];
-  remove: (_id: string) => void;
+  remove: (boardId: string) => void;
   save: (
     params: { doc: { name: string } },
     callback: () => void,
@@ -19,13 +19,7 @@ type Props = {
 };
 
 class Boards extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.renderItems = this.renderItems.bind(this);
-  }
-
-  renderItems() {
+  renderItems = () => {
     const { boards, remove, save, currentBoardId } = this.props;
 
     return boards.map(board => (
@@ -37,7 +31,7 @@ class Boards extends React.Component<Props, {}> {
         save={save}
       />
     ));
-  }
+  };
 
   renderBoardForm(props) {
     return <BoardForm {...props} />;
@@ -55,17 +49,15 @@ class Boards extends React.Component<Props, {}> {
       </HelperButtons>
     );
 
+    const content = props => {
+      return this.renderBoardForm({ ...props, save });
+    };
+
     return (
-      <Header uppercase>
+      <Header uppercase={true}>
         {__('Board')}
 
-        <ModalTrigger
-          title="New Board"
-          trigger={addBoard}
-          content={props => {
-            return this.renderBoardForm({ ...props, save });
-          }}
-        />
+        <ModalTrigger title="New Board" trigger={addBoard} content={content} />
       </Header>
     );
   }
@@ -74,14 +66,14 @@ class Boards extends React.Component<Props, {}> {
     const { loading, boards } = this.props;
 
     return (
-      <Sidebar header={this.renderSidebarHeader()} full>
+      <Sidebar header={this.renderSidebarHeader()} full={true}>
         <DataWithLoader
           data={<List>{this.renderItems()}</List>}
           loading={loading}
           count={boards.length}
           emptyText="There is no board"
           emptyImage="/images/robots/robot-05.svg"
-          objective
+          objective={true}
         />
       </Sidebar>
     );

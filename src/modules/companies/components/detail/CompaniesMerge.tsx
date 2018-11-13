@@ -38,13 +38,9 @@ class CompaniesMerge extends React.Component<Props, State> {
     this.state = {
       selectedValues: {}
     };
-
-    this.renderCompany = this.renderCompany.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.save = this.save.bind(this);
   }
 
-  save(e) {
+  save = e => {
     e.preventDefault();
     const { objects } = this.props;
     const selectedValues = { ...this.state.selectedValues };
@@ -70,21 +66,29 @@ class CompaniesMerge extends React.Component<Props, State> {
         this.props.closeModal();
       }
     });
-  }
+  };
 
-  handleChange(type, key, value) {
+  handleChange = (type, key, value) => {
     const selectedValues = { ...this.state.selectedValues };
 
     if (type === 'add') {
       selectedValues[key] = value;
+
+      if (key === 'links') {
+        const links = Object.assign(
+          { ...this.state.selectedValues.links },
+          value
+        );
+        selectedValues[key] = links;
+      }
     } else {
       delete selectedValues[key];
     }
 
     this.setState({ selectedValues });
-  }
+  };
 
-  renderCompany(company, icon) {
+  renderCompany = (company, icon) => {
     const properties = COMPANY_INFO.ALL.concat(COMPANY_DATAS.ALL);
 
     return (
@@ -94,26 +98,24 @@ class CompaniesMerge extends React.Component<Props, State> {
           {properties.map(info => {
             const key = info.field;
 
-            if (!company[key]) return null;
+            if (!company[key]) {
+              return null;
+            }
 
-            if (info.field === 'links')
+            if (info.field === 'links') {
               return this.renderLinks(company[key], icon);
+            }
 
             return this.renderCompanyProperties(key, company[key], icon);
           })}
         </ul>
       </React.Fragment>
     );
-  }
+  };
 
   renderCompanyProperties(key, value, icon) {
     return (
-      <li
-        key={key}
-        onClick={() => {
-          this.handleChange(icon, key, value);
-        }}
-      >
+      <li key={key} onClick={this.handleChange.bind(this, icon, key, value)}>
         {this.renderTitle(key)}
         {this.renderValue(key, value)}
 
@@ -128,7 +130,7 @@ class CompaniesMerge extends React.Component<Props, State> {
     return <InfoTitle>{title}:</InfoTitle>;
   }
 
-  renderValue(field, value) {
+  renderValue = (field, value) => {
     switch (field) {
       case 'owner':
         return this.renderOwner(value);
@@ -140,7 +142,7 @@ class CompaniesMerge extends React.Component<Props, State> {
       default:
         return <InfoDetail>{value}</InfoDetail>;
     }
-  }
+  };
 
   renderOwner(data) {
     return (
@@ -167,16 +169,16 @@ class CompaniesMerge extends React.Component<Props, State> {
       const field = info.field;
       const value = data[field];
 
-      if (!data[field]) return null;
+      if (!data[field]) {
+        return null;
+      }
 
       return (
         <li
           key={field}
-          onClick={() => {
-            const links = { ...selectedValues.links, [field]: value };
-
-            return this.handleChange(icon, `links`, links);
-          }}
+          onClick={this.handleChange.bind(this, icon, `links`, {
+            [field]: value
+          })}
         >
           <InfoTitle>{info.label}:</InfoTitle>
           <InfoDetail>{value}</InfoDetail>
@@ -206,11 +208,7 @@ class CompaniesMerge extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={() => closeModal()}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Cancel
           </Button>
           <Button type="submit" btnStyle="success" icon="checked-1">

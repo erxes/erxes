@@ -40,7 +40,9 @@ type Props = {
 
 class Top extends React.Component<Props> {
   renderAmount(amount) {
-    if (Object.keys(amount).length === 0) return null;
+    if (Object.keys(amount).length === 0) {
+      return null;
+    }
 
     return (
       <HeaderContentSmall>
@@ -54,15 +56,15 @@ class Top extends React.Component<Props> {
     );
   }
 
+  onChangeStage = stageId => {
+    this.props.onChangeField('stageId', stageId);
+  };
+
   renderDealMove() {
     const { deal, stageId, onChangeField } = this.props;
 
     return (
-      <Move
-        deal={deal}
-        stageId={stageId}
-        onChangeStage={stgId => onChangeField('stageId', stgId)}
-      />
+      <Move deal={deal} stageId={stageId} onChangeStage={this.onChangeStage} />
     );
   }
 
@@ -90,6 +92,17 @@ class Top extends React.Component<Props> {
       <SelectOption className="simple-option">{content(option)}</SelectOption>
     );
 
+    const nameOnChange = e =>
+      onChangeField('name', (e.target as HTMLInputElement).value);
+
+    const dateOnChange = date => onChangeField('closeDate', date);
+
+    const descriptionOnChange = e =>
+      onChangeField('description', (e.target as HTMLInputElement).value);
+
+    const userOnChange = usrs =>
+      onChangeField('assignedUserIds', usrs.map(user => user.value));
+
     return (
       <React.Fragment>
         <HeaderRow>
@@ -97,10 +110,8 @@ class Top extends React.Component<Props> {
             <ControlLabel>Name</ControlLabel>
             <FormControl
               defaultValue={name}
-              required
-              onChange={e =>
-                onChangeField('name', (e.target as HTMLInputElement).value)
-              }
+              required={true}
+              onChange={nameOnChange}
             />
           </HeaderContent>
 
@@ -118,8 +129,8 @@ class Top extends React.Component<Props> {
                 dateFormat="YYYY/MM/DD"
                 timeFormat={false}
                 value={closeDate}
-                closeOnSelect
-                onChange={date => onChangeField('closeDate', date)}
+                closeOnSelect={true}
+                onChange={dateOnChange}
               />
             </FormGroup>
           </HeaderContentSmall>
@@ -132,12 +143,7 @@ class Top extends React.Component<Props> {
               <FormControl
                 componentClass="textarea"
                 defaultValue={description}
-                onChange={e =>
-                  onChangeField(
-                    'description',
-                    (e.target as HTMLInputElement).value
-                  )
-                }
+                onChange={descriptionOnChange}
               />
             </FormGroup>
           </Left>
@@ -147,14 +153,12 @@ class Top extends React.Component<Props> {
               <Select
                 placeholder={__('Choose users')}
                 value={assignedUserIds}
-                onChange={usrs =>
-                  onChangeField('assignedUserIds', usrs.map(user => user.value))
-                }
+                onChange={userOnChange}
                 optionRenderer={userOption}
                 valueRenderer={userValue}
                 removeSelected={true}
                 options={selectUserOptions(users)}
-                multi
+                multi={true}
               />
             </FormGroup>
           </Right>

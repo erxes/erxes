@@ -3,8 +3,7 @@ import { rgba } from 'modules/common/styles/color';
 import { BoxRoot } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { ShoutBox } from './preview/CommonPreview';
-import { PreviewBody } from './preview/styles';
+import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
@@ -93,8 +92,8 @@ const ImageContent = styled.div`
     visibility: hidden;
     cursor: pointer;
     position: absolute;
-    right: 140px;
-    top: ${Space};
+    right: 5%;
+    top: ${dimensions.coreSpacing}px;
     width: ${Space};
     border-radius: ${Space};
     text-align: center;
@@ -181,10 +180,6 @@ const DesktopPreview = styled.div`
   flex: 1;
   padding-top: ${dimensions.headerSpacing - 20}px;
   margin-top: ${dimensions.coreSpacing}px;
-
-  ${PreviewBody} {
-    max-height: 270px;
-  }
 `;
 
 const MobilePreview = styled.div`
@@ -195,12 +190,17 @@ const MobilePreview = styled.div`
   padding: 90px ${dimensions.coreSpacing}px;
   margin-top: ${dimensions.coreSpacing}px;
 
-  ${PreviewBody} {
-    max-height: 320px;
+  ${PreviewContainer} {
+    overflow: hidden;
   }
 
-  ${ShoutBox} {
-    min-height: 470px;
+  ${SlideLeftContent} {
+    width: 100%;
+  }
+
+  ${Embedded} {
+    width: 100%;
+    left: 0;
   }
 `;
 

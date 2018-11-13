@@ -1,26 +1,29 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, router } from 'modules/common/utils';
+import { __, Alert, router, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Histories } from '../components';
 import { mutations, queries } from '../graphql';
+import { ImportHistoriesQueryResponse, RemoveMutationResponse } from '../types';
 
-interface IProps extends IRouterProps {
+type Props = {
   queryParams: any;
-  historiesQuery: any;
-  importHistoriesRemove: (
-    params: { variables: { _id: string } }
-  ) => Promise<any>;
-}
+};
+
+type FinalProps = {
+  historiesQuery: ImportHistoriesQueryResponse;
+} & Props &
+  IRouterProps &
+  RemoveMutationResponse;
 
 type State = {
   loading: boolean;
 };
 
-class HistoriesContainer extends React.Component<IProps, State> {
-  constructor(props: IProps) {
+class HistoriesContainer extends React.Component<FinalProps, State> {
+  constructor(props: FinalProps) {
     super(props);
 
     this.state = {
@@ -37,11 +40,11 @@ class HistoriesContainer extends React.Component<IProps, State> {
 
     const currentType = router.getParam(history, 'type');
 
-    const removeHistory = _id => {
+    const removeHistory = historyId => {
       this.setState({ loading: true });
 
       importHistoriesRemove({
-        variables: { _id }
+        variables: { _id: historyId }
       })
         .then(() => {
           Alert.success(__('Successfully Removed all customers'));
@@ -64,20 +67,28 @@ class HistoriesContainer extends React.Component<IProps, State> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.histories), {
-    name: 'historiesQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      fetchPolicy: 'network-only',
-      variables: {
-        type: queryParams.type || 'customer'
+export default withProps<Props>(
+  compose(
+    graphql<Props, ImportHistoriesQueryResponse, { type: string }>(
+      gql(queries.histories),
+      {
+        name: 'historiesQuery',
+        options: ({ queryParams }) => ({
+          fetchPolicy: 'network-only',
+          variables: {
+            type: queryParams.type || 'customer'
+          }
+        })
       }
-    })
-  }),
-  graphql(gql(mutations.importHistoriesRemove), {
-    name: 'importHistoriesRemove',
-    options: {
-      refetchQueries: ['importHistories']
-    }
-  })
-)(withRouter<IProps>(HistoriesContainer));
+    ),
+    graphql<Props, RemoveMutationResponse, { _id: string }>(
+      gql(mutations.importHistoriesRemove),
+      {
+        name: 'importHistoriesRemove',
+        options: {
+          refetchQueries: ['importHistories']
+        }
+      }
+    )
+  )(withRouter<FinalProps>(HistoriesContainer))
+);

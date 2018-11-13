@@ -41,11 +41,10 @@ type Props = {
 
 class ChannelStep extends React.Component<Props> {
   renderBox(name, icon, desc) {
+    const onClick = () => this.props.onChange('method', name);
+
     return (
-      <Box
-        selected={this.props.method === name}
-        onClick={() => this.props.onChange('method', name)}
-      >
+      <Box selected={this.props.method === name} onClick={onClick}>
         <Icon icon={icon} />
         <span>{__(name)}</span>
         <p>{__(desc)}</p>
@@ -55,7 +54,7 @@ class ChannelStep extends React.Component<Props> {
 
   render() {
     return (
-      <FullContent center>
+      <FullContent center={true}>
         {this.renderBox(
           METHODS.EMAIL,
           'email-1',

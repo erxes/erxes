@@ -6,10 +6,10 @@ import { ConversationItems } from './styles';
 
 type Props = {
   conversations: IConversation[];
-  currentConversationId: string;
-  selectedIds?: string[];
+  currentConversationId?: string;
+  selectedConversations?: IConversation[];
   onChangeConversation: (conversation: IConversation) => void;
-  toggleRowCheckbox: (conversation: IConversation, checked: boolean) => void;
+  toggleRowCheckbox: (conversation: IConversation[], checked: boolean) => void;
   loading: boolean;
   totalCount: number;
 };
@@ -19,7 +19,7 @@ export default class ConversationList extends React.Component<Props> {
     const {
       conversations,
       currentConversationId,
-      selectedIds,
+      selectedConversations,
       onChangeConversation,
       toggleRowCheckbox,
       loading,
@@ -35,7 +35,9 @@ export default class ConversationList extends React.Component<Props> {
               conversation={conv}
               toggleCheckbox={toggleRowCheckbox}
               onClick={onChangeConversation}
-              selectedIds={selectedIds}
+              selectedIds={(selectedConversations || []).map(
+                conversation => conversation._id
+              )}
               currentConversationId={currentConversationId}
             />
           ))}

@@ -44,14 +44,9 @@ class CustomersMerge extends React.Component<Props, State> {
     this.state = {
       selectedValues: {}
     };
-
-    this.renderCustomer = this.renderCustomer.bind(this);
-    this.renderLinks = this.renderLinks.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.save = this.save.bind(this);
   }
 
-  save(e: React.FormEvent) {
+  save = (e: React.FormEvent) => {
     e.preventDefault();
     const { objects } = this.props;
     const selectedValues = { ...this.state.selectedValues };
@@ -70,21 +65,33 @@ class CustomersMerge extends React.Component<Props, State> {
         this.props.closeModal();
       }
     });
-  }
+  };
 
-  handleChange(type: string, key: string, value: string | ICustomerLinks) {
+  handleChange = (
+    type: string,
+    key: string,
+    value: string | ICustomerLinks
+  ) => {
     const selectedValues = { ...this.state.selectedValues };
 
     if (type === 'add') {
       selectedValues[key] = value;
+
+      if (key === 'links') {
+        const links = Object.assign(
+          { ...this.state.selectedValues.links },
+          value
+        );
+        selectedValues[key] = links;
+      }
     } else {
       delete selectedValues[key];
     }
 
     this.setState({ selectedValues });
-  }
+  };
 
-  renderCustomer(customer: ICustomerDoc, icon: string) {
+  renderCustomer = (customer: ICustomerDoc, icon: string) => {
     const properties = CUSTOMER_BASIC_INFO.ALL.concat(CUSTOMER_DATAS.ALL);
 
     return (
@@ -94,26 +101,24 @@ class CustomersMerge extends React.Component<Props, State> {
           {properties.map(info => {
             const key = info.field;
 
-            if (!customer[key]) return null;
+            if (!customer[key]) {
+              return null;
+            }
 
-            if (info.field === 'links')
+            if (info.field === 'links') {
               return this.renderLinks(customer[key], icon);
+            }
 
             return this.renderCustomerProperties(key, customer[key], icon);
           })}
         </ul>
       </React.Fragment>
     );
-  }
+  };
 
   renderCustomerProperties(key: string, value: string, icon: string) {
     return (
-      <li
-        key={key}
-        onClick={() => {
-          this.handleChange(icon, key, value);
-        }}
-      >
+      <li key={key} onClick={this.handleChange.bind(this, icon, key, value)}>
         {this.renderTitle(key)}
         {this.renderValue(key, value)}
 
@@ -206,23 +211,21 @@ class CustomersMerge extends React.Component<Props, State> {
     );
   }
 
-  renderLinks(data: ICustomerLinks, icon: string) {
-    const { selectedValues } = this.state;
-
+  renderLinks = (data: ICustomerLinks, icon: string) => {
     return CUSTOMER_LINKS.ALL.map(info => {
       const field = info.field;
       const value = data[field];
 
-      if (!data[field]) return null;
+      if (!data[field]) {
+        return null;
+      }
 
       return (
         <li
           key={field}
-          onClick={() => {
-            const links = { ...selectedValues.links, [field]: value };
-
-            return this.handleChange(icon, `links`, links);
-          }}
+          onClick={this.handleChange.bind(this, icon, `links`, {
+            [field]: value
+          })}
         >
           <InfoTitle>{info.label}:</InfoTitle>
           <InfoDetail>{value}</InfoDetail>
@@ -230,11 +233,11 @@ class CustomersMerge extends React.Component<Props, State> {
         </li>
       );
     });
-  }
+  };
 
   render() {
     const { selectedValues } = this.state;
-    const { objects } = this.props;
+    const { objects, closeModal } = this.props;
     const [customer1, customer2] = objects;
 
     return (
@@ -252,11 +255,7 @@ class CustomersMerge extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={() => this.props.closeModal()}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Cancel
           </Button>
           <Button type="submit" btnStyle="success" icon="checked-1">

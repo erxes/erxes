@@ -67,14 +67,6 @@ class CompanyForm extends React.Component<Props, State> {
       users: [],
       avatar: company.avatar
     };
-
-    this.action = this.action.bind(this);
-    this.renderFormGroup = this.renderFormGroup.bind(this);
-    this.handleCompanySearch = this.handleCompanySearch.bind(this);
-    this.handleUserSearch = this.handleUserSearch.bind(this);
-    this.handleSelect = this.handleSelect.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.onAvatarUpload = this.onAvatarUpload.bind(this);
   }
 
   componentDidMount() {
@@ -89,7 +81,7 @@ class CompanyForm extends React.Component<Props, State> {
     return (document.getElementById(id) as HTMLInputElement).value;
   }
 
-  action(e) {
+  action = e => {
     const {
       names,
       primaryName,
@@ -131,11 +123,11 @@ class CompanyForm extends React.Component<Props, State> {
     });
 
     this.props.closeModal();
-  }
+  };
 
-  onAvatarUpload(url: string) {
+  onAvatarUpload = (url: string) => {
     this.setState({ avatar: url });
-  }
+  };
 
   generateCompanyParams(companies) {
     return companies.map(company => ({
@@ -158,50 +150,51 @@ class CompanyForm extends React.Component<Props, State> {
     }));
   }
 
-  handleSelect<T extends keyof State>(
-    selectedOption: { value: State[T] },
-    name: T
-  ) {
+  handleSelect = <T extends keyof State>(
+    name: T,
+    selectedOption: { value: State[T] }
+  ) => {
     this.setState({
       [name]: selectedOption ? selectedOption.value : null
     } as Pick<State, keyof State>);
-  }
+  };
 
   /*
    * Used filterOptions={(options) => options} in component to solve
    * `react-select leaving out a particular option` issue
    */
-  handleCompanySearch(value) {
+  handleCompanySearch = value => {
     if (value) {
       searchCompany(value, companies => this.setState({ companies }));
     }
-  }
+  };
 
-  handleUserSearch(value) {
+  handleUserSearch = value => {
     if (value) {
       searchUser(value, users => this.setState({ users }));
     }
-  }
+  };
 
-  renderFormGroup(label, props) {
+  renderFormGroup = (label, props) => {
     return (
       <FormGroup>
         <ControlLabel>{label}</ControlLabel>
         <FormControl {...props} />
       </FormGroup>
     );
-  }
+  };
 
-  onChange(
-    { options, selectedOption }: { options: string[]; selectedOption: string },
+  onChange = (
     optionsName: string,
-    optionName: string
-  ) {
+    optionName: string,
+    { options, selectedOption }: { options: string[]; selectedOption: string }
+  ) => {
     this.setState({ [optionsName]: options, [optionName]: selectedOption });
-  }
+  };
 
   render() {
     const company = this.props.company || ({} as ICompany);
+    const { closeModal } = this.props;
 
     const {
       links = {},
@@ -215,8 +208,12 @@ class CompanyForm extends React.Component<Props, State> {
 
     const { parentCompanyId, ownerId, companies, users } = this.state;
 
+    const filterOptions = options => {
+      return options;
+    };
+
     return (
-      <form onSubmit={e => this.action(e)}>
+      <form onSubmit={this.action}>
         <AvatarUpload
           avatar={company.avatar}
           onAvatarUpload={this.onAvatarUpload}
@@ -231,7 +228,7 @@ class CompanyForm extends React.Component<Props, State> {
                 options={names || []}
                 placeholder="Primary name"
                 buttonText="Add name"
-                onChange={obj => this.onChange(obj, 'names', 'primaryName')}
+                onChange={this.onChange.bind(this, 'names', 'primaryName')}
               />
             </FormGroup>
 
@@ -246,10 +243,10 @@ class CompanyForm extends React.Component<Props, State> {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search"
-                onFocus={() => this.handleUserSearch(' ')}
+                onFocus={this.handleUserSearch.bind(this, ' ')}
                 onInputChange={this.handleUserSearch}
-                filterOptions={options => options}
-                onChange={option => this.handleSelect(option, 'ownerId')}
+                filterOptions={filterOptions}
+                onChange={this.handleSelect.bind(this, 'ownerId')}
                 value={ownerId}
                 options={this.generateUserParams(users)}
               />
@@ -262,7 +259,7 @@ class CompanyForm extends React.Component<Props, State> {
                 options={emails || []}
                 placeholder="Primary Email"
                 buttonText="Add email"
-                onChange={obj => this.onChange(obj, 'emails', 'primaryEmail')}
+                onChange={this.onChange.bind(this, 'emails', 'primaryEmail')}
               />
             </FormGroup>
 
@@ -289,12 +286,10 @@ class CompanyForm extends React.Component<Props, State> {
               <ControlLabel>Parent Company</ControlLabel>
               <Select
                 placeholder={__('Search')}
-                onFocus={() => this.handleCompanySearch(' ')}
+                onFocus={this.handleCompanySearch.bind(this, ' ')}
                 onInputChange={this.handleCompanySearch}
-                filterOptions={options => options}
-                onChange={option =>
-                  this.handleSelect(option, 'parentCompanyId')
-                }
+                filterOptions={filterOptions}
+                onChange={this.handleSelect.bind(this, 'parentCompanyId')}
                 value={parentCompanyId}
                 options={this.generateCompanyParams(companies)}
               />
@@ -317,7 +312,7 @@ class CompanyForm extends React.Component<Props, State> {
                 options={phones || []}
                 placeholder="Primary phone"
                 buttonText="Add phone"
-                onChange={obj => this.onChange(obj, 'phones', 'primaryPhone')}
+                onChange={this.onChange.bind(this, 'phones', 'primaryPhone')}
               />
             </FormGroup>
 
@@ -383,13 +378,7 @@ class CompanyForm extends React.Component<Props, State> {
         </FormWrapper>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={() => {
-              this.props.closeModal();
-            }}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Close
           </Button>
 

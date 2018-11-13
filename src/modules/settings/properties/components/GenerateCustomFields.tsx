@@ -1,4 +1,4 @@
-import { Button } from 'modules/common/components';
+import { Button, EmptyState } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import * as React from 'react';
@@ -26,11 +26,6 @@ class GenerateGroup extends React.Component<Props, State> {
       editing: false,
       data: props.data
     };
-
-    this.toggleEditing = this.toggleEditing.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.save = this.save.bind(this);
-    this.cancelEditing = this.cancelEditing.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -39,35 +34,37 @@ class GenerateGroup extends React.Component<Props, State> {
     }
   }
 
-  save() {
+  save = () => {
     const { data } = this.state;
     const { save } = this.props;
 
     save(data, error => {
-      if (error) return Alert.error(error.message);
+      if (error) {
+        return Alert.error(error.message);
+      }
 
       this.cancelEditing();
 
       return Alert.success('Success');
     });
-  }
+  };
 
-  toggleEditing() {
+  toggleEditing = () => {
     this.setState({ editing: true });
-  }
+  };
 
-  cancelEditing() {
+  cancelEditing = () => {
     this.setState({
       editing: false
     });
-  }
+  };
 
-  onChange({ _id, value }) {
+  onChange = ({ _id, value }) => {
     const { data } = this.state;
 
     this.setState({ data: { ...data, [_id]: value } });
     this.toggleEditing();
-  }
+  };
 
   renderButtons() {
     if (!this.state.editing) {
@@ -96,36 +93,53 @@ class GenerateGroup extends React.Component<Props, State> {
     );
   }
 
+  onValueChange = ({ _id, value }) => {
+    return this.onChange({ _id, value });
+  };
+
+  renderContent() {
+    const { fieldGroup } = this.props;
+    const { data } = this.state;
+
+    if (!fieldGroup) {
+      return <EmptyState icon="information" text="Empty" size="small" />;
+    }
+
+    return (
+      <SidebarContent>
+        {fieldGroup.fields.map((field, index) => {
+          if (!field.isVisible) {
+            return null;
+          }
+
+          return (
+            <GenerateField
+              field={field}
+              key={index}
+              onValueChange={this.onValueChange}
+              defaultValue={data[field._id] || ''}
+            />
+          );
+        })}
+      </SidebarContent>
+    );
+  }
+
   render() {
     const { Section } = Sidebar;
     const { Title } = Section;
 
     const { fieldGroup } = this.props;
-    const { data } = this.state;
 
-    if (!fieldGroup.isVisible) return null;
+    if (!fieldGroup.isVisible) {
+      return null;
+    }
 
     return (
       <Section>
         <Title>{fieldGroup.name}</Title>
 
-        <SidebarContent>
-          {fieldGroup.fields.map((field, index) => {
-            if (!field.isVisible) return null;
-
-            return (
-              <GenerateField
-                field={field}
-                key={index}
-                onValueChange={({ _id, value }) =>
-                  this.onChange({ _id, value })
-                }
-                defaultValue={data[field._id] || ''}
-              />
-            );
-          })}
-        </SidebarContent>
-
+        {this.renderContent()}
         {this.renderButtons()}
       </Section>
     );
@@ -140,13 +154,7 @@ type GroupsProps = {
 };
 
 class GenerateGroups extends React.Component<GroupsProps> {
-  constructor(props) {
-    super(props);
-
-    this.saveGroup = this.saveGroup.bind(this);
-  }
-
-  saveGroup(groupData, callback) {
+  saveGroup = (groupData, callback) => {
     const { customFieldsData, save } = this.props;
 
     const updatedData = {
@@ -155,7 +163,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
     };
 
     save({ customFieldsData: updatedData }, callback);
-  }
+  };
 
   render() {
     const { loading, fieldsGroups, customFieldsData } = this.props;

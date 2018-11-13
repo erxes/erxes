@@ -14,6 +14,10 @@ interface IProps extends IRouterProps {
 function IntegrationFilter({ history, counts }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;
 
+  const onClick = kind => {
+    router.setParams(history, { integrationType: kind });
+  };
+
   const data = (
     <SidebarList>
       {KIND_CHOICES.ALL_LIST.map((kind, index) => (
@@ -25,9 +29,7 @@ function IntegrationFilter({ history, counts }: IProps) {
                 ? 'active'
                 : ''
             }
-            onClick={() => {
-              router.setParams(history, { integrationType: kind });
-            }}
+            onClick={onClick.bind(null, kind)}
           >
             {kind}
             <SidebarCounter>{counts[kind]}</SidebarCounter>
@@ -39,7 +41,7 @@ function IntegrationFilter({ history, counts }: IProps) {
 
   return (
     <Section>
-      <Header uppercase>{__('Filter by integrations')}</Header>
+      <Header uppercase={true}>{__('Filter by integrations')}</Header>
 
       <DataWithLoader
         data={data}

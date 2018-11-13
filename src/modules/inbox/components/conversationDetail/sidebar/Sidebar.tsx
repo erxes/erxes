@@ -17,9 +17,13 @@ import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
 import { PortableDeals } from 'modules/deals/containers';
 import { Sidebar } from 'modules/layout/components';
-import { SidebarToggle } from 'modules/layout/styles';
 import * as React from 'react';
-import { Actions, BasicInfo, SectionContainer } from './styles';
+import {
+  Actions,
+  BasicInfo,
+  SectionContainer,
+  SidebarCollapse
+} from './styles';
 
 import { __ } from 'modules/common/utils';
 import { Contacts } from 'modules/companies/components';
@@ -48,26 +52,24 @@ class Box extends React.Component<BoxProps, BoxState> {
     this.state = {
       isOpen: props.isOpen
     };
-
-    this.toggle = this.toggle.bind(this);
   }
 
-  toggle() {
+  toggle = () => {
     const { name, toggle } = this.props;
     const { isOpen } = this.state;
 
     this.setState({ isOpen: !isOpen });
 
     toggle({ name, isOpen: !isOpen });
-  }
+  };
 
   renderDropBtn() {
-    const icon = this.state.isOpen ? 'uparrow-2' : 'downarrow';
+    const icon = this.state.isOpen ? 'downarrow' : 'rightarrow-2';
 
     return (
-      <SidebarToggle inverse={!this.state.isOpen} onClick={this.toggle}>
+      <SidebarCollapse onClick={this.toggle}>
         <Icon icon={icon} />
-      </SidebarToggle>
+      </SidebarCollapse>
     );
   }
 
@@ -128,31 +130,33 @@ class Index extends React.Component<IndexProps, IndexState> {
       currentSubTab: 'details',
       attachmentPreview: null
     };
-
-    this.onTabClick = this.onTabClick.bind(this);
-    this.onSubtabClick = this.onSubtabClick.bind(this);
   }
 
-  onTabClick(currentTab) {
+  onTabClick = currentTab => {
     this.setState({ currentTab });
-  }
+  };
 
-  onSubtabClick(currentSubTab) {
+  onSubtabClick = currentSubTab => {
     this.setState({ currentSubTab });
-  }
+  };
 
   setAttachmentPreview = attachmentPreview => {
     this.setState({ attachmentPreview });
   };
 
-  renderMessengerData({ customer, kind, config, toggleSection }: IRenderData) {
+  renderMessengerData = ({
+    customer,
+    kind,
+    config,
+    toggleSection
+  }: IRenderData) => {
     if (kind !== 'messenger') {
       return null;
     }
 
     return (
       <Box
-        title={__('Messenger data') as string}
+        title={__('Messenger data')}
         name="showMessengerData"
         isOpen={config.showMessengerData || false}
         toggle={toggleSection}
@@ -160,21 +164,21 @@ class Index extends React.Component<IndexProps, IndexState> {
         <MessengerSection customer={customer} />
       </Box>
     );
-  }
+  };
 
-  renderDeviceProperties({
+  renderDeviceProperties = ({
     customer,
     kind,
     config,
     toggleSection
-  }: IRenderData) {
+  }: IRenderData) => {
     if (!(kind === 'messenger' || kind === 'form')) {
       return null;
     }
 
     return (
       <Box
-        title={__('Device properties') as string}
+        title={__('Device properties')}
         name="showDeviceProperties"
         isOpen={config.showDeviceProperties || false}
         toggle={toggleSection}
@@ -182,38 +186,44 @@ class Index extends React.Component<IndexProps, IndexState> {
         <DevicePropertiesSection customer={customer} />
       </Box>
     );
-  }
+  };
 
   renderActions() {
     const { customer } = this.props;
+    const { primaryPhone, primaryEmail } = customer;
+
+    const content = props => (
+      <MailForm
+        {...props}
+        contentType="customer"
+        contentTypeId={customer._id}
+        toEmail={primaryEmail}
+        setAttachmentPreview={this.setAttachmentPreview}
+        attachmentPreview={this.state.attachmentPreview}
+        refetchQueries={['activityLogsCustomer']}
+      />
+    );
 
     return (
       <Actions>
         <ModalTrigger
           title="Edit basic info"
           trigger={
-            <a>
-              <Button size="small">{__('Email')}</Button>
-            </a>
+            <Button disabled={primaryEmail ? false : true} size="small">
+              {__('Email')}
+            </Button>
           }
           size="lg"
-          content={props => (
-            <MailForm
-              {...props}
-              contentType="customer"
-              contentTypeId={customer._id}
-              toEmail={customer.primaryEmail}
-              setAttachmentPreview={this.setAttachmentPreview}
-              attachmentPreview={this.state.attachmentPreview}
-              refetchQueries={['activityLogsCustomer']}
-            />
-          )}
+          content={content}
         />
-        <a href={`tel:${customer.primaryPhone}`}>
-          <Button size="small">{__('Call')}</Button>
-        </a>
-
-        <ActionSection customer={customer} isSmall />
+        <Button
+          href={primaryPhone && `tel:${primaryPhone}`}
+          size="small"
+          disabled={primaryPhone ? false : true}
+        >
+          {__('Call')}
+        </Button>
+        <ActionSection customer={customer} isSmall={true} />
       </Actions>
     );
   }
@@ -251,6 +261,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             toggle={toggleSection}
           >
             <TaggerSection
+              isOpen={config.showTags}
               data={customer}
               type="customer"
               refetchQueries={taggerRefetchQueries}
@@ -294,7 +305,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showDeals || false}
           toggle={toggleSection}
         >
-          <PortableDeals customerId={customer._id} />
+          <PortableDeals customerId={customer._id} isOpen={config.showDeals} />
         </Box>
       </React.Fragment>
     );
@@ -305,29 +316,37 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { customer, config, toggleSection } = this.props;
 
     if (currentTab === 'customer') {
+      const detailsOnClick = () => this.onSubtabClick('details');
+      const activityOnClick = () => this.onSubtabClick('activity');
+      const relatedOnClick = () => this.onSubtabClick('related');
+
       return (
         <React.Fragment>
           <BasicInfo>
-            <InfoSection customer={customer} showUserStatus showUserPosition />
+            <InfoSection
+              customer={customer}
+              showUserStatus={true}
+              showUserPosition={true}
+            />
           </BasicInfo>
           {this.renderActions()}
 
-          <Tabs full>
+          <Tabs full={true}>
             <TabTitle
               className={currentSubTab === 'details' ? 'active' : ''}
-              onClick={() => this.onSubtabClick('details')}
+              onClick={detailsOnClick}
             >
               {__('Details')}
             </TabTitle>
             <TabTitle
               className={currentSubTab === 'activity' ? 'active' : ''}
-              onClick={() => this.onSubtabClick('activity')}
+              onClick={activityOnClick}
             >
               {__('Activity')}
             </TabTitle>
             <TabTitle
               className={currentSubTab === 'related' ? 'active' : ''}
-              onClick={() => this.onSubtabClick('related')}
+              onClick={relatedOnClick}
             >
               {__('Related')}
             </TabTitle>
@@ -345,7 +364,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showCompanies || false}
           toggle={toggleSection}
         >
-          <CompanyAssociate data={customer} />
+          <CompanyAssociate isOpen={config.showCompanies} data={customer} />
         </Box>
 
         <Box
@@ -362,19 +381,21 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   render() {
     const { currentTab } = this.state;
+    const customerOnClick = () => this.onTabClick('customer');
+    const companyOnClick = () => this.onTabClick('company');
 
     return (
-      <Sidebar full>
-        <Tabs full>
+      <Sidebar full={true}>
+        <Tabs full={true}>
           <TabTitle
             className={currentTab === 'customer' ? 'active' : ''}
-            onClick={() => this.onTabClick('customer')}
+            onClick={customerOnClick}
           >
             {__('CUSTOMER')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'company' ? 'active' : ''}
-            onClick={() => this.onTabClick('company')}
+            onClick={companyOnClick}
           >
             {__('COMPANY')}
           </TabTitle>

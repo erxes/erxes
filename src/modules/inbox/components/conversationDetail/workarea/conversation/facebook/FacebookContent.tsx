@@ -1,5 +1,6 @@
 import { ImageWithPreview } from 'modules/common/components';
 import * as React from 'react';
+import * as xss from 'xss';
 import { ImageContainer } from './styles';
 
 type Props = {
@@ -8,7 +9,7 @@ type Props = {
   link?: string;
   images?: string[];
   commentVideo?: string;
-  scrollBottom: () => void;
+  scrollBottom?: () => void;
 };
 
 export default class FacebookContent extends React.Component<Props, {}> {
@@ -41,7 +42,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
             alt={image}
             src={image}
             onLoad={scrollBottom}
-            full
+            full={true}
           />
         ))}
       </ImageContainer>
@@ -66,7 +67,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
           height="280"
           scrolling="no"
           frameBorder="0"
-          allowFullScreen
+          allowFullScreen={true}
         />
       );
     }
@@ -77,7 +78,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
       link.endsWith('.jpeg')
     ) {
       return (
-        <ImageContainer isComment>
+        <ImageContainer isComment={true}>
           <ImageWithPreview alt={link} src={link} onLoad={scrollBottom} />
         </ImageContainer>
       );
@@ -92,7 +93,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
           height="280"
           scrolling="no"
           frameBorder="0"
-          allowFullScreen
+          allowFullScreen={true}
         />
       );
     }
@@ -113,7 +114,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
         {this.renderFiles(link)}
         <p
           dangerouslySetInnerHTML={{
-            __html: content
+            __html: xss(content)
           }}
         />
       </React.Fragment>

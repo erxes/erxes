@@ -44,12 +44,9 @@ class PropertyGroupForm extends React.Component<Props, State> {
       isVisible,
       action
     };
-
-    this.onSubmit = this.onSubmit.bind(this);
-    this.visibleHandler = this.visibleHandler.bind(this);
   }
 
-  onSubmit(e) {
+  onSubmit = e => {
     e.preventDefault();
 
     const { isVisible } = this.state;
@@ -69,13 +66,13 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
 
     this.props.closeModal();
-  }
+  };
 
-  visibleHandler(e) {
+  visibleHandler = e => {
     const isVisible = e.target.checked;
 
     this.setState({ isVisible });
-  }
+  };
 
   render() {
     const { group = { name: '' } } = this.props;
@@ -87,8 +84,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <FormControl
             type="text"
             id="name"
-            autoFocus
-            required
+            autoFocus={true}
+            required={true}
             defaultValue={group.name || ''}
           />
         </FormGroup>
@@ -98,7 +95,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <FormControl
             type="text"
             id="description"
-            required
+            required={true}
             defaultValue={group.name || ''}
           />
         </FormGroup>

@@ -26,7 +26,7 @@ import { IChannel } from 'modules/settings/channels/types';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { IActivityLogsUser } from '../../../../activityLogs/types';
+import { IActivityLogForMonth } from '../../../../activityLogs/types';
 import { IConversation } from '../../../../inbox/types';
 import LeftSidebar from './LeftSidebar';
 
@@ -34,7 +34,7 @@ type Props = {
   user: IUser;
   channels: IChannel[];
   loadingLogs: boolean;
-  activityLogsUser: IActivityLogsUser[];
+  activityLogsUser: IActivityLogForMonth[];
   participatedConversations: IConversation[];
   totalConversationCount: number;
   renderEditForm: (
@@ -51,14 +51,11 @@ class UserDetails extends React.Component<Props, State> {
     super(props);
 
     this.state = { currentTab: 'conversation' };
-
-    this.renderTabContent = this.renderTabContent.bind(this);
-    this.onTabClick = this.onTabClick.bind(this);
   }
 
-  onTabClick(currentTab) {
+  onTabClick = currentTab => {
     this.setState({ currentTab });
-  }
+  };
 
   renderConversation(conversation, user) {
     const details = user.details || {};
@@ -95,7 +92,7 @@ class UserDetails extends React.Component<Props, State> {
     );
   }
 
-  renderTabContent() {
+  renderTabContent = () => {
     const { currentTab } = this.state;
 
     const {
@@ -138,7 +135,7 @@ class UserDetails extends React.Component<Props, State> {
         />
       </ActivityContent>
     );
-  }
+  };
 
   render() {
     const { user, channels, renderEditForm } = this.props;
@@ -149,6 +146,9 @@ class UserDetails extends React.Component<Props, State> {
       { title: 'Users', link: '/settings/team' },
       { title: details.fullName || 'N/A' }
     ];
+
+    const conversationClick = () => this.onTabClick('conversation');
+    const notesClick = () => this.onTabClick('notes');
 
     const content = (
       <div>
@@ -162,16 +162,16 @@ class UserDetails extends React.Component<Props, State> {
           <NoteForm contentType="user" contentTypeId={user._id} />
         </WhiteBoxRoot>
 
-        <Tabs grayBorder>
+        <Tabs grayBorder={true}>
           <TabTitle
             className={currentTab === 'conversation' ? 'active' : ''}
-            onClick={() => this.onTabClick('conversation')}
+            onClick={conversationClick}
           >
             {__('Conversation')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
-            onClick={() => this.onTabClick('notes')}
+            onClick={notesClick}
           >
             {__('Notes')}
           </TabTitle>

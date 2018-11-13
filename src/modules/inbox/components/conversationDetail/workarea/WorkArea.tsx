@@ -1,5 +1,6 @@
 import { Button, Icon, Label, Tags } from 'modules/common/components';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
+import { IAttachmentPreview } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { AssignBoxPopover } from 'modules/inbox/components';
 import { Resolver, Tagger } from 'modules/inbox/containers';
@@ -15,8 +16,11 @@ import { Wrapper } from 'modules/layout/components';
 import { ContenFooter, ContentBox } from 'modules/layout/styles';
 import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
-import { IAddMessage } from '../../../containers/conversationDetail/WorkArea';
-import { IConversation, IMessage } from '../../../types';
+import {
+  AddMessageMutationVariables,
+  IConversation,
+  IMessage
+} from '../../../types';
 import Conversation from './conversation/Conversation';
 import Participators from './Participators';
 
@@ -35,7 +39,7 @@ type Props = {
       callback,
       kind
     }: {
-      variables: IAddMessage;
+      variables: AddMessageMutationVariables;
       optimisticResponse: any;
       callback?: (e?) => void;
       kind: string;
@@ -44,7 +48,7 @@ type Props = {
 };
 
 type State = {
-  attachmentPreview: any;
+  attachmentPreview: IAttachmentPreview;
 };
 
 export default class WorkArea extends React.Component<Props, State> {
@@ -53,12 +57,9 @@ export default class WorkArea extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { attachmentPreview: {} };
+    this.state = { attachmentPreview: null };
 
     this.node = React.createRef();
-    this.setAttachmentPreview = this.setAttachmentPreview.bind(this);
-    this.scrollBottom = this.scrollBottom.bind(this);
-    this.onScroll = this.onScroll.bind(this);
   }
 
   componentDidMount() {
@@ -104,22 +105,24 @@ export default class WorkArea extends React.Component<Props, State> {
     return;
   }
 
-  onScroll() {
+  onScroll = () => {
     const { current } = this.node;
     const { loadMoreMessages } = this.props;
 
-    if (current.scrollTop === 0) loadMoreMessages();
-  }
+    if (current.scrollTop === 0) {
+      loadMoreMessages();
+    }
+  };
 
-  scrollBottom() {
+  scrollBottom = () => {
     const { current } = this.node;
 
     current.scrollTop = current.scrollHeight;
-  }
+  };
 
-  setAttachmentPreview(attachmentPreview) {
+  setAttachmentPreview = attachmentPreview => {
     this.setState({ attachmentPreview });
-  }
+  };
 
   render() {
     const {

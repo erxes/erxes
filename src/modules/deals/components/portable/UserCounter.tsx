@@ -12,12 +12,11 @@ class UserCounter extends React.Component<Props, { show: boolean }> {
     super(props);
 
     this.state = { show: false };
-    this.showOthers = this.showOthers.bind(this);
   }
 
-  showOthers() {
+  showOthers = () => {
     this.setState({ show: true });
-  }
+  };
 
   renderUserItem(item) {
     return (
@@ -50,7 +49,9 @@ class UserCounter extends React.Component<Props, { show: boolean }> {
     const { users } = this.props;
     const length = users.length;
 
-    if (length === 0) return null;
+    if (length === 0) {
+      return null;
+    }
 
     return (
       <UserCounterContainer>

@@ -101,11 +101,23 @@ const integrations = `
   }
 `;
 
+const messengerApps = `
+  query messengerApps($kind: String) {
+    messengerApps(kind: $kind) {
+      _id
+      kind
+      name
+      showInInbox
+    }
+  }
+`;
+
 export default {
   users,
   brands,
   integrationDetail,
   integrationTotalCount,
   integrationGetGoogleAuthUrl,
-  integrations
+  integrations,
+  messengerApps
 };

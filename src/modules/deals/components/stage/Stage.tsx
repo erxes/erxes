@@ -18,7 +18,7 @@ import DealList from './DealList';
 
 type Props = {
   index: number;
-  stage: IStage;
+  stage?: IStage;
   length: number;
   deals: IDeal[];
   addDeal: (name: string, callback: () => void) => void;
@@ -36,12 +36,10 @@ export default class Stage extends React.Component<Props> {
       </StageFooter>
     );
 
+    const content = props => <DealAddForm {...props} add={addDeal} />;
+
     return (
-      <ModalTrigger
-        title="Add a deal"
-        trigger={trigger}
-        content={props => <DealAddForm {...props} add={addDeal} />}
-      />
+      <ModalTrigger title="Add a deal" trigger={trigger} content={content} />
     );
   }
 
@@ -60,6 +58,10 @@ export default class Stage extends React.Component<Props> {
 
   render() {
     const { index, stage, deals } = this.props;
+
+    if (!stage) {
+      return null;
+    }
 
     return (
       <Draggable draggableId={stage.name} index={index}>

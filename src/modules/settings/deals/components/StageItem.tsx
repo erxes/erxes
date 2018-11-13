@@ -6,8 +6,8 @@ import { IStage } from '../types';
 
 type Props = {
   stage: IStage;
-  remove: (_id: string) => void;
-  onChange: (_id: string, e: any) => void;
+  remove: (stageId: string) => void;
+  onChange: (stageId: string, e: any) => void;
   onKeyPress: (e: any) => void;
 };
 
@@ -23,7 +23,7 @@ class StageItem extends React.Component<Props, {}> {
           type="text"
           placeholder="Stage name"
           onKeyPress={onKeyPress}
-          autoFocus
+          autoFocus={true}
           name="name"
           onChange={onChange.bind(this, stage._id)}
         />

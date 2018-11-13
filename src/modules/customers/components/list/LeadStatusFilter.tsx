@@ -16,28 +16,25 @@ interface IProps extends IRouterProps {
 }
 
 class LeadStatusFilter extends React.Component<IProps> {
-  constructor(props, context) {
-    super(props, context);
-
-    this.renderCounts = this.renderCounts.bind(this);
-  }
-
-  renderCounts() {
+  renderCounts = () => {
     const { history, counts } = this.props;
     const { Section } = Wrapper.Sidebar;
     const paramKey = 'leadStatus';
+
+    const onClear = () => {
+      router.setParams(history, { leadStatus: null });
+    };
+
+    const onClick = (key, value) => {
+      router.setParams(history, { [key]: value });
+    };
 
     return (
       <Section collapsible={true}>
         <Section.Title>{__('Filter by lead status')}</Section.Title>
         <Section.QuickButtons>
           {router.getParam(history, 'leadStatus') ? (
-            <a
-              tabIndex={0}
-              onClick={() => {
-                router.setParams(history, { leadStatus: null });
-              }}
-            >
+            <a tabIndex={0} onClick={onClear}>
               <Icon icon="cancel-1" />
             </a>
           ) : null}
@@ -55,9 +52,7 @@ class LeadStatusFilter extends React.Component<IProps> {
                           ? 'active'
                           : ''
                       }
-                      onClick={() => {
-                        router.setParams(history, { [paramKey]: value });
-                      }}
+                      onClick={onClick.bind(this, paramKey, value)}
                     >
                       {label}
                       <SidebarCounter>
@@ -72,7 +67,7 @@ class LeadStatusFilter extends React.Component<IProps> {
         </div>
       </Section>
     );
-  }
+  };
 
   render() {
     return (

@@ -1,6 +1,11 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
-import { ICustomer, ICustomerDoc } from 'modules/customers/types';
+import { Alert, withProps } from 'modules/common/utils';
+import {
+  AddMutationResponse,
+  EditMutationResponse,
+  ICustomer,
+  ICustomerDoc
+} from 'modules/customers/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CustomerForm } from '../components';
@@ -9,11 +14,11 @@ import { mutations } from '../graphql';
 type Props = {
   customer: ICustomer;
   closeModal: () => void;
-  customersEdit: (params: { variables: ICustomer }) => Promise<any>;
-  customersAdd: (params: { variables: ICustomerDoc }) => Promise<any>;
 };
 
-const CustomerFormContainer = (props: Props) => {
+type FinalProps = Props & EditMutationResponse & AddMutationResponse;
+
+const CustomerFormContainer = (props: FinalProps) => {
   const { customersEdit, customer, customersAdd } = props;
 
   let action = ({ doc }) => {
@@ -57,13 +62,21 @@ const options = () => {
   };
 };
 
-export default compose(
-  graphql(gql(mutations.customersEdit), {
-    name: 'customersEdit',
-    options
-  }),
-  graphql(gql(mutations.customersAdd), {
-    name: 'customersAdd',
-    options
-  })
-)(CustomerFormContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, EditMutationResponse, ICustomer>(
+      gql(mutations.customersEdit),
+      {
+        name: 'customersEdit',
+        options
+      }
+    ),
+    graphql<Props, AddMutationResponse, ICustomerDoc>(
+      gql(mutations.customersAdd),
+      {
+        name: 'customersAdd',
+        options
+      }
+    )
+  )(CustomerFormContainer)
+);

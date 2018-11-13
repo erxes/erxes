@@ -16,8 +16,16 @@ function Title({ children }: { children: React.ReactNode }) {
   return <SidebarTitle>{children}</SidebarTitle>;
 }
 
-function QuickButtons({ children }: { children: React.ReactNode }) {
-  return <HelperButtons>{children}</HelperButtons>;
+function QuickButtons({
+  children,
+  isSidebarOpen
+}: {
+  children: React.ReactNode;
+  isSidebarOpen?: boolean;
+}) {
+  return (
+    <HelperButtons isSidebarOpen={isSidebarOpen}>{children}</HelperButtons>
+  );
 }
 
 type Props = {
@@ -44,19 +52,16 @@ class Section extends React.Component<Props, State> {
     super(props);
 
     this.state = { collapse: false, maxHeight: 240 };
-
-    this.toggleCollapse = this.toggleCollapse.bind(this);
-    this.renderCollapseButton = this.renderCollapseButton.bind(this);
   }
 
-  toggleCollapse() {
+  toggleCollapse = () => {
     this.setState({
       collapse: !this.state.collapse,
       maxHeight: this.state.collapse ? 240 : this.node.clientHeight + 20
     });
-  }
+  };
 
-  renderCollapseButton() {
+  renderCollapseButton = () => {
     const icon = this.state.collapse ? 'uparrow-2' : 'downarrow';
 
     return (
@@ -64,13 +69,17 @@ class Section extends React.Component<Props, State> {
         <Icon icon={icon} />
       </SidebarToggle>
     );
-  }
+  };
 
   render() {
     const { children, collapsible, noShadow, noBackground, full } = this.props;
 
     const height = {
       maxHeight: collapsible ? this.state.maxHeight : undefined
+    };
+
+    const innerRef = node => {
+      this.node = node;
     };
 
     return (
@@ -81,13 +90,7 @@ class Section extends React.Component<Props, State> {
         noBackground={noBackground}
         full={full}
       >
-        <BoxContent
-          innerRef={node => {
-            this.node = node;
-          }}
-        >
-          {children}
-        </BoxContent>
+        <BoxContent innerRef={innerRef}>{children}</BoxContent>
         {collapsible ? this.renderCollapseButton() : null}
       </SidebarBox>
     );

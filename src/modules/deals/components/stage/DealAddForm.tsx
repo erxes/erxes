@@ -23,26 +23,25 @@ class DealAddForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onChangeName = this.onChangeName.bind(this);
-
     this.state = {
       disabled: false,
       name: ''
     };
   }
 
-  onChangeName(e: React.FormEvent<HTMLElement>) {
+  onChangeName = (e: React.FormEvent<HTMLElement>) => {
     this.setState({ name: (e.currentTarget as HTMLInputElement).value });
-  }
+  };
 
-  onSubmit(e) {
+  onSubmit = e => {
     e.preventDefault();
 
     const { name } = this.state;
     const { add, closeModal } = this.props;
 
-    if (!name) return Alert.error(__('Enter name'));
+    if (!name) {
+      return Alert.error(__('Enter name'));
+    }
 
     // before save, disable save button
     this.setState({ disabled: true });
@@ -53,15 +52,15 @@ class DealAddForm extends React.Component<Props, State> {
 
       closeModal();
     });
-  }
+  };
 
   render() {
     return (
-      <AddContainer onSubmit={e => this.onSubmit(e)}>
+      <AddContainer onSubmit={this.onSubmit}>
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
-            <FormControl autoFocus onChange={this.onChangeName} />
+            <FormControl autoFocus={true} onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
 

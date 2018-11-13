@@ -30,7 +30,7 @@ erxes is an open source growth marketing platform. Marketing, sales, and custome
 ## Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
-<a href="https://github.com/erxes/erxes/graphs/contributors"><img src="https://opencollective.com/erxes/contributors.svg?width=890" /></a>
+<a href="graphs/contributors"><img src="https://opencollective.com/erxes/contributors.svg?width=890" /></a>
 
 
 ## Backers

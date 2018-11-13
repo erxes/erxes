@@ -19,7 +19,7 @@ import { IDeal } from '../../types';
 type Props = {
   deal: IDeal;
   onAdd: (stageId: string, deal: IDeal) => void;
-  onRemove: (_id: string, stageId: string) => void;
+  onRemove: (dealId: string, stageId: string) => void;
   onUpdate: (deal: IDeal) => void;
 };
 
@@ -27,21 +27,23 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
   renderFormTrigger = (trigger: React.ReactNode) => {
     const { deal, onAdd, onRemove, onUpdate } = this.props;
 
+    const content = props => (
+      <EditForm
+        {...props}
+        stageId={deal.stageId}
+        dealId={deal._id}
+        onAdd={onAdd}
+        onRemove={onRemove}
+        onUpdate={onUpdate}
+      />
+    );
+
     return (
       <ModalTrigger
         title="Edit deal"
         trigger={trigger}
         size="lg"
-        content={props => (
-          <EditForm
-            {...props}
-            stageId={deal.stageId}
-            dealId={deal._id}
-            onAdd={onAdd}
-            onRemove={onRemove}
-            onUpdate={onUpdate}
-          />
-        )}
+        content={content}
       />
     );
   };
@@ -88,7 +90,11 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
             </ItemList>
             <ItemList>
               <Items color="#F7CE53" items={deal.customers || []} />
-              <Items color="#F7CE53" uppercase items={deal.companies || []} />
+              <Items
+                color="#F7CE53"
+                uppercase={true}
+                items={deal.companies || []}
+              />
             </ItemList>
             {renderDealAmount(deal.amount || {})}
           </FooterContent>

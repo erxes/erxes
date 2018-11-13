@@ -17,6 +17,10 @@ interface IProps extends IRouterProps {
 function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
   const { Section } = Wrapper.Sidebar;
 
+  const onClick = () => {
+    router.setParams(history, { tag: null });
+  };
+
   return (
     <Section collapsible={tags.length > 5}>
       <Section.Title>{__('Filter by tags')}</Section.Title>
@@ -27,12 +31,7 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
         </Link>
 
         {router.getParam(history, 'tag') ? (
-          <a
-            tabIndex={0}
-            onClick={() => {
-              router.setParams(history, { tag: null });
-            }}
-          >
+          <a tabIndex={0} onClick={onClick}>
             <Icon icon="cancel-1" />
           </a>
         ) : null}

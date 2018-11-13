@@ -33,7 +33,7 @@ export default class FormMessage extends React.Component<Props, {}> {
 
     return (
       <FormTable>
-        <Table striped>
+        <Table striped={true}>
           <thead>
             <tr>
               <th className="text-center" colSpan={2}>

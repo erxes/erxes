@@ -64,20 +64,24 @@ class DealMove extends React.Component<Props, State> {
 
     let isPass = true;
 
+    const onClick = s => onChangeStage && onChangeStage(s._id);
+
     return (
       <Stages>
         {stages.map(s => {
           const item = (
             <StageItem key={s._id} isPass={isPass}>
               <Tip text={s.name}>
-                <a onClick={() => onChangeStage && onChangeStage(s._id)}>
+                <a onClick={onClick}>
                   <Icon icon="checked-1" />
                 </a>
               </Tip>
             </StageItem>
           );
 
-          if (s._id === stageId) isPass = false;
+          if (s._id === stageId) {
+            isPass = false;
+          }
 
           return item;
         })}
@@ -86,7 +90,9 @@ class DealMove extends React.Component<Props, State> {
   }
 
   renderDealSelect() {
-    if (!this.state.show) return null;
+    if (!this.state.show) {
+      return null;
+    }
 
     const { stageId, onChangeStage } = this.props;
     const { boardId, pipelineId } = this.state;
@@ -96,7 +102,7 @@ class DealMove extends React.Component<Props, State> {
         stageId={stageId}
         boardId={boardId}
         pipelineId={pipelineId}
-        callback={() => this.toggleForm()}
+        callback={this.toggleForm}
         onChangeStage={onChangeStage}
         onChangePipeline={this.onChangePipeline}
         onChangeBoard={this.onChangeBoard}

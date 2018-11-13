@@ -1,5 +1,6 @@
 import { Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
@@ -10,7 +11,7 @@ import {
   InsightWrapper,
   LoaderWrapper
 } from '../styles';
-import { IChartParams, IQueryParams } from '../types';
+import { IChartParams, IQueryParams, SummaryData } from '../types';
 import { Chart, Filter, PunchCard, Sidebar, Summary, TeamMembers } from './';
 
 type Props = {
@@ -18,10 +19,10 @@ type Props = {
   trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  teamMembers?: IChartParams[];
-  punch?: any;
-  summary?: any;
-  loading?: any;
+  teamMembers: IChartParams[];
+  punch: number[][];
+  summary: SummaryData[];
+  loading: { main: boolean; punch: boolean };
 };
 
 class ResponseReport extends React.Component<Props, { width: number }> {
@@ -59,13 +60,13 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderTrend(name, loading, trend, width) {
+  renderTrend(name, loading, trend) {
+    const innerRef = node => {
+      this.wrapper = node;
+    };
+
     return (
-      <InsightRow
-        innerRef={node => {
-          this.wrapper = node;
-        }}
-      >
+      <InsightRow innerRef={innerRef}>
         {this.renderTitle(name)}
         <Chart loading={loading.main} height={360} data={trend} />
       </InsightRow>
@@ -75,7 +76,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
   renderPunchCard(loading, punch, width) {
     let content = (
       <LoaderWrapper>
-        <Spinner objective />
+        <Spinner objective={true} />
       </LoaderWrapper>
     );
 
@@ -110,7 +111,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
           <Summary loading={loading.main} data={summary} />
         </InsightRow>
 
-        {this.renderTrend('Response Trend', loading, trend, width)}
+        {this.renderTrend('Response Trend', loading, trend)}
 
         {this.renderPunchCard(loading, punch, width)}
 
@@ -136,7 +137,12 @@ class ResponseReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={this.renderBreadCrumnb()} />}
+        header={
+          <Wrapper.Header
+            breadcrumb={this.renderBreadCrumnb()}
+            submenu={menuInbox}
+          />
+        }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

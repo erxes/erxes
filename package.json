@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.9.12",
+  "version": "0.9.13",
   "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
@@ -16,8 +16,8 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "@nivo/line": "^0.33.0",
-    "@nivo/pie": "^0.33.0",
+    "@nivo/line": "0.35.0",
+    "@nivo/pie": "0.35.0",
     "add-graphql-subscriptions": "^1.0.1",
     "apollo-cache-inmemory": "^1.1.5",
     "apollo-client": "^2.3.7",
@@ -37,7 +37,7 @@
     "draft-js-export-html": "^1.2.0",
     "draft-js-plugins-editor": "^2.0.3",
     "emotion": "^9.2.12",
-    "erxes-icon": "^1.0.3",
+    "erxes-icon": "^1.0.9",
     "fuzzysearch-highlight": "^1.0.3",
     "graphql": "^0.12.3",
     "graphql-tag": "^2.6.1",
@@ -55,7 +55,6 @@
     "react-markdown": "^3.3.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
-    "react-scripts-ts": "^2.17.0",
     "react-select-plus": "^1.0.0-rc.5",
     "react-toggle": "^4.0.2",
     "scriptjs": "^2.5.8",
@@ -83,10 +82,9 @@
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "compress": "gzip -5 --keep -r build/static/js",
-    "test": "react-scripts-ts test --env=jsdom",
+    "test": "snyk test && react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
-    "storybook": "start-storybook -p 9009 -s public",
-    "build-storybook": "build-storybook -s public",
+    "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "postinstall": "opencollective postinstall"
   },
   "devDependencies": {
@@ -97,10 +95,18 @@
     "@types/react-router": "^4.0.30",
     "@types/react-router-dom": "^4.3.0",
     "@types/styled-components": "^3.0.0",
+    "react-scripts-ts": "4.0.8",
     "husky": "^0.14.3",
     "lint-staged": "^4.3.0",
     "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
-    "typescript": "^3.0.3"
-  }
+    "typescript": "^3.0.3",
+    "snyk": "^1.108.2"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

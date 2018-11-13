@@ -56,13 +56,9 @@ class ArticleForm extends React.Component<Props, State> {
         article.content || ''
       )
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.getContent = this.getContent.bind(this);
-    this.save = this.save.bind(this);
   }
 
-  save(e) {
+  save = e => {
     e.preventDefault();
 
     this.props.save(
@@ -70,7 +66,7 @@ class ArticleForm extends React.Component<Props, State> {
       () => this.props.closeModal(),
       this.props.article
     );
-  }
+  };
 
   getCurrentStatus() {
     const { article } = this.props;
@@ -98,19 +94,23 @@ class ArticleForm extends React.Component<Props, State> {
     };
   }
 
-  getContent(editorState) {
+  getContent = editorState => {
     return toHTML(editorState);
-  }
+  };
 
-  onChange(editorState) {
+  onChange = editorState => {
     this.setState({ editorState });
-  }
+  };
 
   renderContent(article) {
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChange,
       defaultValue: article.content
+    };
+
+    const onChange = e => {
+      this.setState({ status: (e.target as HTMLInputElement).value });
     };
 
     return (
@@ -121,7 +121,7 @@ class ArticleForm extends React.Component<Props, State> {
             id="knowledgebase-article-title"
             type="text"
             defaultValue={article.title}
-            required
+            required={true}
           />
         </FormGroup>
 
@@ -136,7 +136,7 @@ class ArticleForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <ErxesEditor bordered {...props} />
+          <ErxesEditor bordered={true} {...props} />
         </FormGroup>
 
         <FormGroup>
@@ -145,9 +145,7 @@ class ArticleForm extends React.Component<Props, State> {
             id="knowledgebase-article-status"
             componentClass="select"
             placeholder={__('select')}
-            onChange={e => {
-              this.setState({ status: (e.target as HTMLInputElement).value });
-            }}
+            onChange={onChange}
             value={this.state.status}
           >
             {[{ value: 'draft' }, { value: 'publish' }].map(op => (

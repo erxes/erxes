@@ -11,11 +11,22 @@ type Props = {
   name: string;
   companies?: ICompany[];
   onSelect: (companies: ICompany[]) => void;
+  isOpen?: boolean;
 };
 
-function CompanySection({ name, companies = [], onSelect }: Props) {
+function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
+
+  const renderCompanyChooser = props => {
+    return (
+      <CompanyChooser
+        {...props}
+        data={{ name, companies }}
+        onSelect={onSelect}
+      />
+    );
+  };
 
   const companyTrigger = (
     <a>
@@ -28,13 +39,7 @@ function CompanySection({ name, companies = [], onSelect }: Props) {
       title="Associate"
       trigger={companyTrigger}
       size="lg"
-      content={props => (
-        <CompanyChooser
-          {...props}
-          data={{ name, companies }}
-          onSelect={onSelect}
-        />
-      )}
+      content={renderCompanyChooser}
     />
   );
 
@@ -63,7 +68,7 @@ function CompanySection({ name, companies = [], onSelect }: Props) {
     <Section>
       <Title>{__('Companies')}</Title>
 
-      <QuickButtons>{quickButtons}</QuickButtons>
+      <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
 
       {content}
     </Section>

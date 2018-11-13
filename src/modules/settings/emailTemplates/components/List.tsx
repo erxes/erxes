@@ -24,11 +24,9 @@ const IframePreview = styled.div`
 `;
 
 class EmailTemplateList extends React.Component<ICommonListProps> {
-  constructor(props) {
-    super(props);
-
-    this.renderContent = this.renderContent.bind(this);
-  }
+  renderForm = props => {
+    return <Form {...props} />;
+  };
 
   renderRows({ objects }) {
     return objects.map((object, index) => (
@@ -43,13 +41,13 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
         <RowActions
           {...this.props}
           object={object}
-          renderForm={props => <Form {...props} />}
+          renderForm={this.renderForm}
         />
       </tr>
     ));
   }
 
-  renderContent(props) {
+  renderContent = props => {
     return (
       <Table>
         <thead>
@@ -62,7 +60,7 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
         <tbody>{this.renderRows(props)}</tbody>
       </Table>
     );
-  }
+  };
 
   render() {
     return (
@@ -72,7 +70,7 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
           { title: __('Settings'), link: '/settings' },
           { title: __('Email templates') }
         ]}
-        renderForm={props => <Form {...props} />}
+        renderForm={this.renderForm}
         renderContent={this.renderContent}
         {...this.props}
       />

@@ -18,24 +18,17 @@ type Props = {
 };
 
 class ChooseBrand extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.handleBrandChange = this.handleBrandChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
   updateInstallCodeValue(brandId) {
     if (brandId) {
       this.props.brands.find(brand => brand._id === brandId);
     }
   }
 
-  handleBrandChange(e) {
+  handleBrandChange = e => {
     this.updateInstallCodeValue(e.target.value);
-  }
+  };
 
-  handleSubmit(e) {
+  handleSubmit = e => {
     e.preventDefault();
 
     if (this.props.closeModal) {
@@ -48,7 +41,7 @@ class ChooseBrand extends React.Component<Props> {
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value
     });
-  }
+  };
 
   render() {
     const integration = this.props.integration;
@@ -61,7 +54,7 @@ class ChooseBrand extends React.Component<Props> {
             id="integration-name"
             type="text"
             defaultValue={integration.name}
-            required
+            required={true}
           />
         </FormGroup>
 

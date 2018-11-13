@@ -27,20 +27,12 @@ type Props = {
 };
 
 class ChannelRow extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderMember = this.renderMember.bind(this);
-    this.remove = this.remove.bind(this);
-    this.renderEditAction = this.renderEditAction.bind(this);
-  }
-
-  remove() {
+  remove = () => {
     const { remove, channel } = this.props;
     remove(channel._id);
-  }
+  };
 
-  renderEditAction() {
+  renderEditAction = () => {
     const { channel, save, members } = this.props;
 
     const editTrigger = (
@@ -51,23 +43,16 @@ class ChannelRow extends React.Component<Props, {}> {
       </Button>
     );
 
-    return (
-      <ModalTrigger
-        title="Edit"
-        trigger={editTrigger}
-        content={props => (
-          <ChannelForm
-            {...props}
-            save={save}
-            members={members}
-            channel={channel}
-          />
-        )}
-      />
+    const content = props => (
+      <ChannelForm {...props} save={save} members={members} channel={channel} />
     );
-  }
 
-  renderMember(member) {
+    return (
+      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
+    );
+  };
+
+  renderMember = member => {
     return (
       <Tip key={member._id} text={member.details.fullName} placement="top">
         <MemberImg
@@ -79,7 +64,7 @@ class ChannelRow extends React.Component<Props, {}> {
         />
       </Tip>
     );
-  }
+  };
 
   renderMembers() {
     const { channel, members } = this.props;

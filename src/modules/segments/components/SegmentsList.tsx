@@ -14,12 +14,16 @@ import { ISegment } from '../types';
 type Props = {
   contentType?: string;
   segments: ISegment[];
-  removeSegment: (_id: string) => void;
+  removeSegment: (segmentId: string) => void;
 };
 
 class SegmentsList extends React.Component<Props> {
   renderActionButtons(segment) {
     const { contentType, removeSegment } = this.props;
+
+    const onClick = () => {
+      removeSegment(segment._id);
+    };
 
     return (
       <ActionButtons>
@@ -29,13 +33,7 @@ class SegmentsList extends React.Component<Props> {
           </Link>
         </Tip>
         <Tip text={__('Delete')}>
-          <Button
-            btnStyle="link"
-            onClick={() => {
-              removeSegment(segment._id);
-            }}
-            icon="cancel-1"
-          />
+          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
         </Tip>
       </ActionButtons>
     );

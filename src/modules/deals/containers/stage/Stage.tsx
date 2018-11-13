@@ -1,31 +1,43 @@
 import gql from 'graphql-tag';
-import { __, Alert } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { Stage } from 'modules/deals/components/stage';
 import { mutations, queries } from 'modules/deals/graphql';
-import { IDeal, IStage, SaveDealMutation } from 'modules/deals/types';
+import {
+  IDeal,
+  IDealParams,
+  IStage,
+  SaveDealMutation
+} from 'modules/deals/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PipelineConsumer } from '../PipelineContext';
 
-type BaseProps = {
+type WrapperProps = {
+  stage?: IStage;
   index: number;
-  stage: IStage;
   deals: IDeal[];
   length: number;
 };
 
-type Props = {
-  addMutation: SaveDealMutation;
+type StageProps = {
   onAddDeal: (stageId: string, deal: IDeal) => void;
-};
+} & WrapperProps;
 
-class StageContainer extends React.Component<Props & BaseProps, {}> {
+type FinalStageProps = {
+  addMutation: SaveDealMutation;
+} & StageProps;
+
+class StageContainer extends React.Component<FinalStageProps, {}> {
   render() {
     const { onAddDeal, stage, addMutation } = this.props;
 
     // create deal
     const addDeal = (name: string, callback) => {
-      addMutation({ variables: { name, stageId: stage._id } })
+      if (!stage) {
+        return null;
+      }
+
+      return addMutation({ variables: { name, stageId: stage._id } })
         .then(({ data: { dealsAdd } }) => {
           Alert.success(__('Successfully saved.'));
 
@@ -47,22 +59,27 @@ class StageContainer extends React.Component<Props & BaseProps, {}> {
   }
 }
 
-const WithMutation = compose(
-  // mutation
-  graphql(gql(mutations.dealsAdd), {
-    name: 'addMutation',
-    options: ({ stage }: { stage: IStage }) => ({
-      refetchQueries: [
-        {
-          query: gql(queries.stageDetail),
-          variables: { _id: stage._id }
-        }
-      ]
-    })
-  })
-)(StageContainer);
+const WithMutation = withProps<StageProps>(
+  compose(
+    // mutation
+    graphql<StageProps, SaveDealMutation, IDealParams>(
+      gql(mutations.dealsAdd),
+      {
+        name: 'addMutation',
+        options: ({ stage }) => ({
+          refetchQueries: [
+            {
+              query: gql(queries.stageDetail),
+              variables: { _id: stage && stage._id }
+            }
+          ]
+        })
+      }
+    )
+  )(StageContainer)
+);
 
-export default (props: BaseProps) => {
+export default (props: WrapperProps) => {
   return (
     <PipelineConsumer>
       {({ onAddDeal }) => {

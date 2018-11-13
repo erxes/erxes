@@ -4,10 +4,11 @@ import { FlexItem } from 'modules/companies/styles';
 import { ICustomer } from 'modules/customers/types';
 import * as moment from 'moment';
 import * as React from 'react';
+import { IConfigColumn } from '../../../settings/properties/types';
 
 type Props = {
   customer: ICustomer;
-  columnsConfig: any[];
+  columnsConfig: IConfigColumn[];
   history: any;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
@@ -87,12 +88,12 @@ function CustomerRow({
     e.stopPropagation();
   };
 
+  const onTrClick = () => {
+    history.push(`/customers/details/${customer._id}`);
+  };
+
   return (
-    <tr
-      onClick={() => {
-        history.push(`/customers/details/${customer._id}`);
-      }}
-    >
+    <tr onClick={onTrClick}>
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}

@@ -6,21 +6,27 @@ import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constan
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { FieldsGroupsQueryResponse } from '../../../settings/properties/types';
 import { mutations } from '../../graphql';
-import { ICompany } from '../../types';
+import { EditMutationResponse, ICompany } from '../../types';
 
 type Props = {
   company: ICompany;
-  companiesEdit: (params: { variables: ICompany }) => Promise<any>;
-  fieldsGroupsQuery: any;
+  loading?: boolean;
 };
 
-const CustomFieldsSection = (props: Props) => {
-  const { company, companiesEdit, fieldsGroupsQuery } = props;
+type FinalProps = {
+  fieldsGroupsQuery: FieldsGroupsQueryResponse;
+} & Props &
+  EditMutationResponse;
+
+const CustomFieldsSection = (props: FinalProps) => {
+  const { loading, company, companiesEdit, fieldsGroupsQuery } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
-      <Sidebar full>
+      <Sidebar full={true}>
         <Spinner />
       </Sidebar>
     );
@@ -42,6 +48,7 @@ const CustomFieldsSection = (props: Props) => {
 
   const updatedProps = {
     save,
+    loading,
     customFieldsData: company.customFieldsData || {},
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
   };
@@ -53,18 +60,25 @@ const options = () => ({
   refetchQueries: ['companDetail']
 });
 
-export default compose(
-  graphql(gql(fieldQueries.fieldsGroups), {
-    name: 'fieldsGroupsQuery',
-    options: () => ({
-      variables: {
-        contentType: FIELDS_GROUPS_CONTENT_TYPES.COMPANY
+export default withProps<Props>(
+  compose(
+    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
+      gql(fieldQueries.fieldsGroups),
+      {
+        name: 'fieldsGroupsQuery',
+        options: () => ({
+          variables: {
+            contentType: FIELDS_GROUPS_CONTENT_TYPES.COMPANY
+          }
+        })
       }
-    })
-  }),
-  // mutations
-  graphql(gql(mutations.companiesEdit), {
-    name: 'companiesEdit',
-    options
-  })
-)(CustomFieldsSection);
+    ),
+    graphql<Props, EditMutationResponse, ICompany>(
+      gql(mutations.companiesEdit),
+      {
+        name: 'companiesEdit',
+        options
+      }
+    )
+  )(CustomFieldsSection)
+);

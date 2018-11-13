@@ -1,48 +1,35 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { TwitterMessage } from 'modules/inbox/components/conversationDetail';
 import { mutations, queries } from 'modules/inbox/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IMessage } from '../../types';
-import { IAddMessage } from './WorkArea';
+import {
+  AddMessageMutationVariables,
+  FavoriteTweetMutationResponse,
+  FavoriteTweetMutationVariables,
+  IMessage,
+  ReplyTweetMutationResponse,
+  RetweetMutationResponse,
+  RetweetMutationVariables,
+  TweetMutationResponse,
+  TweetMutationVariables
+} from '../../types';
 
 type Props = {
-  replyTweetMutation: (
-    doc: {
-      variables: IAddMessage;
-    }
-  ) => Promise<any>;
-
-  favoriteTweetMutation: (
-    doc: { variables: { integrationId: string; id: string } }
-  ) => Promise<any>;
-
   currentConversationId: string;
-
-  retweetMutation: (
-    doc: {
-      variables: {
-        integrationId: string;
-        id: string;
-      };
-    }
-  ) => Promise<any>;
-
-  tweetMutation: (
-    doc: {
-      variables: {
-        integrationId: string;
-        text: string;
-      };
-    }
-  ) => Promise<any>;
   scrollBottom: () => void;
   message: IMessage;
   integrationId: string;
 };
 
-const TwitterMessageContainer = (props: Props) => {
+type FinalProps = Props &
+  ReplyTweetMutationResponse &
+  FavoriteTweetMutationResponse &
+  RetweetMutationResponse &
+  TweetMutationResponse;
+
+const TwitterMessageContainer = (props: FinalProps) => {
   const {
     replyTweetMutation,
     favoriteTweetMutation,
@@ -51,7 +38,7 @@ const TwitterMessageContainer = (props: Props) => {
     currentConversationId
   } = props;
 
-  const replyTweet = (variables: IAddMessage, callback) => {
+  const replyTweet = (variables: AddMessageMutationVariables, callback) => {
     replyTweetMutation({ variables })
       .then(() => {
         callback();
@@ -113,39 +100,54 @@ const TwitterMessageContainer = (props: Props) => {
   return <TwitterMessage {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(mutations.favoriteTweet), {
-    name: 'favoriteTweetMutation',
-    options: ({ currentConversationId }: { currentConversationId: string }) => {
-      return {
-        refetchQueries: [
-          {
-            query: gql`
-              ${queries.conversationDetail}
-            `,
-            variables: { _id: currentConversationId }
-          }
-        ]
-      };
-    }
-  }),
-  graphql(gql(mutations.retweetTweet), {
-    name: 'retweetMutation',
-    options: ({ currentConversationId }: { currentConversationId: string }) => {
-      return {
-        refetchQueries: [
-          {
-            query: gql`
-              ${queries.conversationDetail}
-            `,
-            variables: { _id: currentConversationId }
-          }
-        ]
-      };
-    }
-  }),
-  graphql(gql(mutations.conversationMessageAdd), {
-    name: 'replyTweetMutation'
-  }),
-  graphql(gql(mutations.tweet), { name: 'tweetMutation' })
-)(TwitterMessageContainer);
+export default withProps<Props>(
+  compose(
+    graphql<
+      Props,
+      FavoriteTweetMutationResponse,
+      FavoriteTweetMutationVariables
+    >(gql(mutations.favoriteTweet), {
+      name: 'favoriteTweetMutation',
+      options: ({ currentConversationId }) => {
+        return {
+          refetchQueries: [
+            {
+              query: gql`
+                ${queries.conversationDetail}
+              `,
+              variables: { _id: currentConversationId }
+            }
+          ]
+        };
+      }
+    }),
+    graphql<Props, RetweetMutationResponse, RetweetMutationVariables>(
+      gql(mutations.retweetTweet),
+      {
+        name: 'retweetMutation',
+        options: ({ currentConversationId }) => {
+          return {
+            refetchQueries: [
+              {
+                query: gql`
+                  ${queries.conversationDetail}
+                `,
+                variables: { _id: currentConversationId }
+              }
+            ]
+          };
+        }
+      }
+    ),
+    graphql<Props, ReplyTweetMutationResponse, AddMessageMutationVariables>(
+      gql(mutations.conversationMessageAdd),
+      {
+        name: 'replyTweetMutation'
+      }
+    ),
+    graphql<Props, TweetMutationResponse, TweetMutationVariables>(
+      gql(mutations.tweet),
+      { name: 'tweetMutation' }
+    )
+  )(TwitterMessageContainer)
+);

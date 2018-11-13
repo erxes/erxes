@@ -18,28 +18,32 @@ function Brands({ history, counts, brands, loading }: IProps) {
 
   const data = (
     <SidebarList>
-      {brands.map(brand => (
-        <li key={brand._id}>
-          <a
-            tabIndex={0}
-            className={
-              router.getParam(history, 'brand') === brand._id ? 'active' : ''
-            }
-            onClick={() => {
-              router.setParams(history, { brand: brand._id });
-            }}
-          >
-            {brand.name}
-            <SidebarCounter>{counts[brand._id]}</SidebarCounter>
-          </a>
-        </li>
-      ))}
+      {brands.map(brand => {
+        const onClick = () => {
+          router.setParams(history, { brand: brand._id });
+        };
+
+        return (
+          <li key={brand._id}>
+            <a
+              tabIndex={0}
+              className={
+                router.getParam(history, 'brand') === brand._id ? 'active' : ''
+              }
+              onClick={onClick}
+            >
+              {brand.name}
+              <SidebarCounter>{counts[brand._id]}</SidebarCounter>
+            </a>
+          </li>
+        );
+      })}
     </SidebarList>
   );
 
   return (
     <Section collapsible={brands.length > 5}>
-      <Header uppercase>{__('Filter by brand')}</Header>
+      <Header uppercase={true}>{__('Filter by brand')}</Header>
 
       <DataWithLoader
         data={data}

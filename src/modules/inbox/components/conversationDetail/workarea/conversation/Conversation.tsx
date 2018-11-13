@@ -1,4 +1,5 @@
 import { Spinner } from 'modules/common/components';
+import { IAttachmentPreview } from 'modules/common/types';
 import * as React from 'react';
 import styled from 'styled-components';
 import { IConversation, IMessage } from '../../../../types';
@@ -10,7 +11,7 @@ import { TwitterConversation } from './twitter';
 type Props = {
   conversation: IConversation;
   conversationMessages: IMessage[];
-  attachmentPreview: { name: string; data: string; type: string };
+  attachmentPreview: IAttachmentPreview;
   scrollBottom: () => void;
   loading: boolean;
 };
@@ -65,7 +66,7 @@ class Conversation extends React.Component<Props, {}> {
     }
 
     if ((kind === 'facebook' || kind === 'twitter') && loading) {
-      return <Spinner objective />;
+      return <Spinner objective={true} />;
     }
 
     const twitterData = conversation.twitterData;

@@ -8,7 +8,7 @@ type Props = {
   queryParams: any;
   currentCategoryId: string;
   topicIds: string;
-  remove: (_id: string) => void;
+  remove: (articleId: string) => void;
   loading: boolean;
 };
 
@@ -44,7 +44,7 @@ class ArticleList extends React.Component<Props> {
           count={articles.length}
           emptyText="There is no article"
           emptyImage="/images/robots/robot-05.svg"
-          objective
+          objective={true}
           data={this.renderArticles()}
         />
       </React.Fragment>

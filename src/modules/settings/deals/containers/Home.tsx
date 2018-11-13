@@ -7,6 +7,7 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Home } from '../components';
 import { queries } from '../graphql';
+import { BoardsGetLastQueryResponse } from '../types';
 
 type HomeContainerProps = {
   history?: any;
@@ -28,7 +29,7 @@ class HomeContainer extends React.Component<HomeContainerProps> {
 }
 
 type LastBoardProps = {
-  boardGetLastQuery: any;
+  boardGetLastQuery: BoardsGetLastQueryResponse;
 };
 
 // Getting lastBoard id to currentBoard
@@ -36,7 +37,7 @@ const LastBoard = (props: LastBoardProps) => {
   const { boardGetLastQuery } = props;
 
   if (boardGetLastQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const lastBoard = boardGetLastQuery.dealBoardGetLast || {};

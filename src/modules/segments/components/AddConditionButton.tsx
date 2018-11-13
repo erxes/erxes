@@ -12,13 +12,7 @@ type Props = {
 class AddConditionButton extends React.Component<Props> {
   private overlayTrigger;
 
-  constructor(props) {
-    super(props);
-
-    this.addCondition = this.addCondition.bind(this);
-  }
-
-  addCondition(items, id) {
+  addCondition = (items, id) => {
     const [type] = Object.keys(types);
     const [operator] = operators[type];
 
@@ -31,7 +25,7 @@ class AddConditionButton extends React.Component<Props> {
     });
 
     this.overlayTrigger.hide();
-  }
+  };
 
   renderPopover() {
     return (
@@ -55,7 +49,7 @@ class AddConditionButton extends React.Component<Props> {
         placement="bottom"
         overlay={this.renderPopover()}
         container={this}
-        rootClose
+        rootClose={true}
       >
         <Button btnStyle="success" icon="add">
           Add a condition

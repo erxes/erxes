@@ -15,19 +15,13 @@ type Props = {
 };
 
 class Calendar extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleSubmit(e) {
+  handleSubmit = e => {
     e.preventDefault();
 
     this.props.save({
       name: (document.getElementById('name') as HTMLInputElement).value
     });
-  }
+  };
 
   render() {
     const content = (
@@ -36,7 +30,7 @@ class Calendar extends React.Component<Props> {
           <FormGroup>
             <ControlLabel>Name</ControlLabel>
 
-            <FormControl id="name" type="text" required />
+            <FormControl id="name" type="text" required={true} />
           </FormGroup>
 
           <ModalFooter>

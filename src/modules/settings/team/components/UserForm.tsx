@@ -25,12 +25,6 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
   constructor(props) {
     super(props);
 
-    this.onAvatarUpload = this.onAvatarUpload.bind(this);
-    this.generateChannelsParams = this.generateChannelsParams.bind(this);
-    this.collectValues = this.collectValues.bind(this);
-    this.renderContent = this.renderContent.bind(this);
-    this.generateDoc = this.generateDoc.bind(this);
-
     const user = props.object || { details: {} };
     const defaultAvatar = '/images/avatar-colored.svg';
 
@@ -40,24 +34,28 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     };
   }
 
-  onAvatarUpload(url) {
+  onAvatarUpload = url => {
     this.setState({ avatar: url });
-  }
+  };
 
-  generateChannelsParams(channels) {
+  generateChannelsParams = channels => {
     return channels.map(channel => ({
       value: channel._id,
       label: channel.name
     }));
-  }
+  };
 
-  collectValues(items) {
+  collectValues = items => {
     return items.map(item => item.value);
-  }
+  };
 
   renderChannels() {
     const self = this;
     const { channels } = this.props;
+
+    const onChange = items => {
+      self.setState({ selectedChannels: items });
+    };
 
     return (
       <FormGroup>
@@ -68,10 +66,8 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
           placeholder={__('Choose channels')}
           value={self.state.selectedChannels}
           options={self.generateChannelsParams(channels)}
-          onChange={items => {
-            self.setState({ selectedChannels: items });
-          }}
-          multi
+          onChange={onChange}
+          multi={true}
         />
       </FormGroup>
     );
@@ -81,7 +77,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     return (document.getElementById(id) as HTMLInputElement).value;
   }
 
-  generateDoc() {
+  generateDoc = () => {
     const doc = {
       username: this.getInputElementValue('username'),
       email: this.getInputElementValue('email'),
@@ -107,9 +103,9 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
       }
     };
     return { doc };
-  }
+  };
 
-  renderContent() {
+  renderContent = () => {
     const { object } = this.props;
     const user = object || { details: {} };
 
@@ -145,7 +141,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
       </div>
     );
-  }
+  };
 
   render() {
     return (

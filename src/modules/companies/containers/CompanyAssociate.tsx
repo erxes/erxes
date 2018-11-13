@@ -1,25 +1,24 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { mutations as customerMutations } from 'modules/customers/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { ICustomer } from '../../customers/types';
 import { CompanySection } from '../components';
+import {
+  CustomersEditCompaniesMutationResponse,
+  CustomersEditCompaniesMutationVariables
+} from '../types';
 
 type Props = {
-  customersEditCompanies: (
-    params: {
-      variables: {
-        _id: string;
-        companyIds: string[];
-      };
-    }
-  ) => Promise<any>;
-  data: any;
+  data: ICustomer;
+  isOpen?: boolean;
 };
 
-const CompanyAssociate = (props: Props) => {
-  const { customersEditCompanies, data } = props;
+type FinalProps = Props & CustomersEditCompaniesMutationResponse;
 
+const CompanyAssociate = (props: FinalProps) => {
+  const { customersEditCompanies, data } = props;
   const save = companies => {
     customersEditCompanies({
       variables: {
@@ -37,7 +36,7 @@ const CompanyAssociate = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    name: data.name,
+    name: data.firstName,
     companies: data.companies,
     onSelect: companies => save(companies)
   };
@@ -45,11 +44,17 @@ const CompanyAssociate = (props: Props) => {
   return <CompanySection {...extendedProps} />;
 };
 
-export default compose(
-  graphql(gql(customerMutations.customersEditCompanies), {
-    name: 'customersEditCompanies',
-    options: () => ({
-      refetchQueries: ['customerDetail']
+export default withProps<Props>(
+  compose(
+    graphql<
+      {},
+      CustomersEditCompaniesMutationResponse,
+      CustomersEditCompaniesMutationVariables
+    >(gql(customerMutations.customersEditCompanies), {
+      name: 'customersEditCompanies',
+      options: () => ({
+        refetchQueries: ['customerDetail']
+      })
     })
-  })
-)(CompanyAssociate);
+  )(CompanyAssociate)
+);

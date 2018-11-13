@@ -1,20 +1,26 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { ConversationDetail } from 'modules/inbox/components/conversationDetail';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
+import {
+  ConversationDetailQueryResponse,
+  MarkAsReadMutationResponse
+} from '../../types';
 
 type Props = {
-  detailQuery: any;
   currentId: string;
-  markAsReadMutation: (doc: { variables: { _id: string } }) => Promise<any>;
-  currentUser: IUser;
 };
 
-class DetailContainer extends React.Component<Props> {
+type FinalProps = {
+  detailQuery: ConversationDetailQueryResponse;
+} & Props &
+  MarkAsReadMutationResponse & { currentUser: IUser };
+
+class DetailContainer extends React.Component<FinalProps> {
   private prevSubscriptions;
 
   constructor(props) {
@@ -89,7 +95,7 @@ class DetailContainer extends React.Component<Props> {
   render() {
     const {
       currentId,
-      detailQuery = {},
+      detailQuery,
       markAsReadMutation,
       currentUser
     } = this.props;
@@ -121,34 +127,44 @@ class DetailContainer extends React.Component<Props> {
   }
 }
 
-const WithQuery = compose(
-  graphql(gql(queries.conversationDetail), {
-    name: 'detailQuery',
-    options: ({ currentId }: { currentId: string }) => ({
-      variables: { _id: currentId },
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(mutations.markAsRead), {
-    name: 'markAsReadMutation',
-    options: ({ currentId }: { currentId: string }) => {
-      return {
-        refetchQueries: [
-          {
-            query: gql(queries.conversationDetailMarkAsRead),
-            variables: { _id: currentId }
-          },
-          { query: gql(queries.unreadConversationsCount) }
-        ]
-      };
-    }
-  })
-)(DetailContainer);
+const WithQuery = withProps<Props & { currentUser: IUser }>(
+  compose(
+    graphql<Props, ConversationDetailQueryResponse, { _id: string }>(
+      gql(queries.conversationDetail),
+      {
+        name: 'detailQuery',
+        options: ({ currentId }) => ({
+          variables: { _id: currentId },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, MarkAsReadMutationResponse, { _id: string }>(
+      gql(mutations.markAsRead),
+      {
+        name: 'markAsReadMutation',
+        options: ({ currentId }) => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(queries.conversationDetailMarkAsRead),
+                variables: { _id: currentId }
+              },
+              { query: gql(queries.unreadConversationsCount) }
+            ]
+          };
+        }
+      }
+    )
+  )(DetailContainer)
+);
 
-const WithConsumer = props => {
+const WithConsumer = (props: Props) => {
   return (
     <AppConsumer>
-      {({ currentUser }) => <WithQuery {...props} currentUser={currentUser} />}
+      {({ currentUser }) => (
+        <WithQuery {...props} currentUser={currentUser || ({} as IUser)} />
+      )}
     </AppConsumer>
   );
 };

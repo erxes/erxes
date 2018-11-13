@@ -1,6 +1,8 @@
+import { IActivityLogForMonth } from '../activityLogs/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
+import { IProduct } from '../settings/productService/types';
 
 export interface ICommonState {
   [key: string]: {
@@ -27,6 +29,7 @@ export interface IStage {
   index?: number;
   itemId?: string;
   amount?: any;
+  deals?: IDeal[];
 }
 
 export interface IDeal {
@@ -99,9 +102,69 @@ export interface IStageMap {
   [key: string]: IStage;
 }
 
+export type DealsQueryResponse = {
+  deals: IDeal[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type DealDetailQueryResponse = {
+  dealDetail: IDeal;
+  loading: boolean;
+};
+
+export type BoardsQueryResponse = {
+  dealBoards: IBoard[];
+  loading: boolean;
+};
+
+export type PipelinesQueryResponse = {
+  dealPipelines: IPipeline[];
+  loading: boolean;
+  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
+};
+
+export type StagesQueryResponse = {
+  dealStages: IStage[];
+  loading: boolean;
+  refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
+};
+
 export type SaveDealMutation = ({ variables: IDealParams }) => Promise<any>;
+
+export type RemoveDealVariables = {
+  _id: string;
+};
+
 export type RemoveDealMutation = (
-  {
-    variables: { _id: string }
-  }
+  { variables: RemoveDealVariables }
 ) => Promise<any>;
+
+export type BoardsGetLastQueryResponse = {
+  dealBoardGetLast: IBoard;
+  loading: boolean;
+};
+
+export type BoardDetailQueryResponse = {
+  dealBoardDetail: IBoard;
+};
+
+export type PipelineDetailQueryResponse = {
+  dealPipelineDetail: IPipeline;
+  loading: boolean;
+};
+
+export type ActivityLogQueryResponse = {
+  activityLogsDeal: IActivityLogForMonth[];
+  loading: boolean;
+};
+
+export type ProductsQueryResponse = {
+  loading: boolean;
+  refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
+  products: IProduct[];
+};
+
+export type ProductAddMutationResponse = {
+  productAdd: (params: { variables: IProduct }) => Promise<void>;
+};

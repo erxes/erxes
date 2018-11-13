@@ -34,11 +34,9 @@ class FilterByParams extends React.Component<IProps, State> {
     this.state = {
       key: ''
     };
-
-    this.filterItems = this.filterItems.bind(this);
   }
 
-  filterItems(e) {
+  filterItems = e => {
     this.setState({ key: e.target.value });
 
     const { update } = this.props;
@@ -46,7 +44,7 @@ class FilterByParams extends React.Component<IProps, State> {
     if (update) {
       update();
     }
-  }
+  };
 
   renderItems() {
     const { history, fields, counts, paramKey, icon, searchable } = this.props;
@@ -66,6 +64,10 @@ class FilterByParams extends React.Component<IProps, State> {
               return false;
             }
 
+            const onClick = () => {
+              router.setParams(history, { [paramKey]: field._id });
+            };
+
             return (
               <li key={field._id}>
                 <a
@@ -75,9 +77,7 @@ class FilterByParams extends React.Component<IProps, State> {
                       ? 'active'
                       : ''
                   }
-                  onClick={() => {
-                    router.setParams(history, { [paramKey]: field._id });
-                  }}
+                  onClick={onClick}
                 >
                   {icon ? (
                     <Icon icon={icon} style={{ color: field.colorCode }} />

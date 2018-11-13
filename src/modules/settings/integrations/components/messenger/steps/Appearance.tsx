@@ -47,17 +47,14 @@ class Appearance extends React.Component<Props, State> {
       logo: {},
       logoPreviewUrl: {}
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.handleLogoChange = this.handleLogoChange.bind(this);
   }
 
-  onChange<T extends keyof State>(name: T, value: State[T]) {
+  onChange = <T extends keyof State>(name: T, value: State[T]) => {
     this.props.onChange(name, value);
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  handleLogoChange(e) {
+  handleLogoChange = e => {
     const imageFile = e.target.files;
 
     uploadHandler({
@@ -76,16 +73,18 @@ class Appearance extends React.Component<Props, State> {
         this.onChange('logoPreviewUrl', result);
       }
     });
-  }
+  };
 
   renderWallpaperSelect(value) {
     const isSelected = this.state.wallpaper === value;
     const selectorClass = classnames({ selected: isSelected });
 
+    const onClick = () => this.onChange('wallpaper', value);
+
     return (
       <BackgroundSelector
         className={selectorClass}
-        onClick={() => this.onChange('wallpaper', value)}
+        onClick={onClick}
         style={{ borderColor: isSelected ? this.state.color : 'transparent' }}
       >
         <div className={`background-${value}`} />
@@ -103,12 +102,11 @@ class Appearance extends React.Component<Props, State> {
   }
 
   render() {
+    const onChange = e => this.onChange('color', e.hex);
+
     const popoverTop = (
       <Popover id="color-picker">
-        <ChromePicker
-          color={this.state.color}
-          onChange={e => this.onChange('color', e.hex)}
-        />
+        <ChromePicker color={this.state.color} onChange={onChange} />
       </Popover>
     );
 
@@ -119,7 +117,7 @@ class Appearance extends React.Component<Props, State> {
             <SubHeading>{__('Choose a custom color')}</SubHeading>
             <OverlayTrigger
               trigger="click"
-              rootClose
+              rootClose={true}
               placement="bottom"
               overlay={popoverTop}
             >

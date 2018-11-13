@@ -1,21 +1,30 @@
 import gql from 'graphql-tag';
-import { router as routerUtils } from 'modules/common/utils';
+import { router as routerUtils, withProps } from 'modules/common/utils';
 import { ConversationList } from 'modules/inbox/components/leftSidebar';
 import { queries, subscriptions } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IConversation } from '../../types';
+import {
+  ConversationsQueryResponse,
+  ConvesationsQueryVariables,
+  IConversation
+} from '../../types';
 
 type Props = {
   history: any;
-  conversationsQuery: any;
-  currentConversationId: string;
-  toggleRowCheckbox: (conversation: IConversation, checked: boolean) => void;
+  currentConversationId?: string;
+  toggleRowCheckbox: (conversation: IConversation[], checked: boolean) => void;
+  selectedConversations: IConversation[];
   totalCount: number;
+  queryParams: any;
 };
 
-class ConversationListContainer extends React.Component<Props> {
+type FinalProps = {
+  conversationsQuery: ConversationsQueryResponse;
+} & Props;
+
+class ConversationListContainer extends React.Component<FinalProps> {
   componentWillMount() {
     const { conversationsQuery } = this.props;
 
@@ -48,12 +57,19 @@ class ConversationListContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.sidebarConversations), {
-    name: 'conversationsQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: generateParams(queryParams),
-      fetchPolicy: 'network-only'
-    })
-  })
-)(ConversationListContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, ConversationsQueryResponse, ConvesationsQueryVariables>(
+      gql(queries.sidebarConversations),
+      {
+        name: 'conversationsQuery',
+        options: ({ queryParams }) => ({
+          variables: generateParams(queryParams),
+          fetchPolicy: 'network-only',
+          // every minute
+          pollInterval: 60000
+        })
+      }
+    )
+  )(ConversationListContainer)
+);

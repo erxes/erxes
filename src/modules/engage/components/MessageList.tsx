@@ -29,17 +29,11 @@ type Props = {
 };
 
 class List extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange() {
+  onChange = () => {
     const { toggleAll, messages } = this.props;
 
     toggleAll(messages, 'engageMessages');
-  }
+  };
 
   renderTagger() {
     const { bulk, emptyBulk } = this.props;
@@ -76,7 +70,7 @@ class List extends React.Component<Props> {
     } = this.props;
 
     const actionBarRight = (
-      <Dropdown id="dropdown-engage" pullRight>
+      <Dropdown id="dropdown-engage" pullRight={true}>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="add">
             {__('New message')} <Icon icon="downarrow" />
@@ -108,7 +102,7 @@ class List extends React.Component<Props> {
     );
 
     const mainContent = (
-      <Table whiteSpace="nowrap" hover bordered>
+      <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
           <tr>
             <th>

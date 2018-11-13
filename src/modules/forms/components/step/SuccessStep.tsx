@@ -9,24 +9,24 @@ import { IFormData } from '../../../settings/integrations/types';
 import { SuccessPreview } from './preview';
 import { FlexItem } from './style';
 
+type Name =
+  | 'successAction'
+  | 'fromEmail'
+  | 'userEmailTitle'
+  | 'userEmailContent'
+  | 'adminEmails'
+  | 'adminEmailTitle'
+  | 'adminEmailContent'
+  | 'redirectUrl'
+  | 'thankContent';
+
 type Props = {
   type: string;
   color: string;
   theme: string;
   thankContent?: string;
   successAction?: string;
-  onChange: (
-    name:
-      | 'successAction'
-      | 'fromEmail'
-      | 'userEmailTitle'
-      | 'userEmailContent'
-      | 'adminEmails'
-      | 'adminEmailTitle'
-      | 'redirectUrl'
-      | 'thankContent',
-    value: string
-  ) => void;
+  onChange: (name: Name, value: string) => void;
   formData?: IFormData;
 };
 
@@ -43,12 +43,9 @@ class SuccessStep extends React.Component<Props, State> {
     this.state = {
       successAction: formData.successAction || 'onPage'
     };
-
-    this.onChangeFunction = this.onChangeFunction.bind(this);
-    this.handleSuccessActionChange = this.handleSuccessActionChange.bind(this);
   }
 
-  handleSuccessActionChange() {
+  handleSuccessActionChange = () => {
     const element = document.getElementById(
       'successAction'
     ) as HTMLInputElement;
@@ -56,15 +53,53 @@ class SuccessStep extends React.Component<Props, State> {
 
     this.setState({ successAction: value });
     this.props.onChange('successAction', value);
-  }
+  };
 
-  onChangeFunction(name: any, value: string) {
+  onChangeFunction = (name: Name, value: string) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
-  }
+  };
 
   renderEmailFields(formData: IFormData) {
-    if (this.state.successAction !== 'email') return null;
+    if (this.state.successAction !== 'email') {
+      return null;
+    }
+
+    const fromEmailOnChange = e =>
+      this.onChangeFunction(
+        'fromEmail',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const userEmailTitle = e =>
+      this.onChangeFunction(
+        'userEmailTitle',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const userEmailContent = e =>
+      this.onChangeFunction(
+        'userEmailContent',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const adminEmails = e =>
+      this.onChangeFunction(
+        'adminEmails',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const adminEmailTitle = e =>
+      this.onChangeFunction(
+        'adminEmailTitle',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const adminEmailContent = e =>
+      this.onChangeFunction(
+        'adminEmailContent',
+        (e.currentTarget as HTMLInputElement).value
+      );
 
     return (
       <div>
@@ -74,12 +109,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             id="fromEmail"
             defaultValue={formData.fromEmail}
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction(
-                'fromEmail',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={fromEmailOnChange}
           />
         </FormGroup>
 
@@ -89,12 +119,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             id="userEmailTitle"
             defaultValue={formData.userEmailTitle}
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction(
-                'userEmailTitle',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={userEmailTitle}
           />
         </FormGroup>
 
@@ -105,12 +130,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             defaultValue={formData.userEmailContent}
             id="userEmailContent"
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction(
-                'userEmailContent',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={userEmailContent}
           />
         </FormGroup>
 
@@ -120,14 +140,9 @@ class SuccessStep extends React.Component<Props, State> {
             id="adminEmails"
             type="text"
             defaultValue={
-              formData.adminEmails ? formData.adminEmails.join(',') : []
+              formData.adminEmails ? formData.adminEmails.join(',') : ''
             }
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction(
-                'adminEmails',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={adminEmails}
           />
         </FormGroup>
 
@@ -137,12 +152,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             defaultValue={formData.adminEmailTitle}
             id="adminEmailTitle"
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction(
-                'adminEmailTitle',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={adminEmailTitle}
           />
         </FormGroup>
 
@@ -153,12 +163,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             defaultValue={formData.adminEmailContent}
             id="adminEmailContent"
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction(
-                'adminEmailContent',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={adminEmailContent}
           />
         </FormGroup>
       </div>
@@ -166,7 +171,15 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderRedirectUrl(formData) {
-    if (this.state.successAction !== 'redirect') return null;
+    if (this.state.successAction !== 'redirect') {
+      return null;
+    }
+
+    const onChange = e =>
+      this.onChangeFunction(
+        'redirectUrl',
+        (e.currentTarget as HTMLInputElement).value
+      );
 
     return (
       <div>
@@ -176,12 +189,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             defaultValue={formData.redirectUrl}
             id="redirectUrl"
-            onChange={(e: React.FormEvent<HTMLElement>) =>
-              this.onChangeFunction(
-                'redirectUrl',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            onChange={onChange}
           />
         </FormGroup>
       </div>
@@ -192,7 +200,15 @@ class SuccessStep extends React.Component<Props, State> {
     const { thankContent } = this.props;
     const { successAction } = this.state;
 
-    if (successAction !== 'onPage') return null;
+    const onChange = e =>
+      this.onChangeFunction(
+        'thankContent',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    if (successAction !== 'onPage') {
+      return null;
+    }
 
     return (
       <FormGroup>
@@ -202,12 +218,7 @@ class SuccessStep extends React.Component<Props, State> {
           type="text"
           componentClass="textarea"
           defaultValue={thankContent}
-          onChange={(e: React.FormEvent<HTMLElement>) =>
-            this.onChangeFunction(
-              'thankContent',
-              (e.currentTarget as HTMLInputElement).value
-            )
-          }
+          onChange={onChange}
         />
       </FormGroup>
     );

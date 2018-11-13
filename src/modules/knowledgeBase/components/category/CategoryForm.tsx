@@ -43,13 +43,9 @@ class CategoryForm extends React.Component<Props, State> {
     this.state = {
       selectedIcon: this.getSelectedIcon()
     };
-
-    this.renderOption = this.renderOption.bind(this);
-    this.onChangeIcon = this.onChangeIcon.bind(this);
-    this.save = this.save.bind(this);
   }
 
-  save(e) {
+  save = e => {
     e.preventDefault();
 
     this.props.save(
@@ -57,27 +53,27 @@ class CategoryForm extends React.Component<Props, State> {
       () => this.props.closeModal(),
       this.props.category
     );
-  }
+  };
 
   getSelectedIcon() {
     const { category } = this.props;
     return (category && category.icon) || '';
   }
 
-  onChangeIcon(obj) {
+  onChangeIcon = obj => {
     this.setState({
       selectedIcon: obj.value
     });
-  }
+  };
 
-  renderOption(option) {
+  renderOption = option => {
     return (
       <div className="icon-option">
         <Icon icon={option.value} />
         {option.label}
       </div>
     );
-  }
+  };
 
   generateDoc() {
     const { category, currentTopicId } = this.props;
@@ -108,7 +104,7 @@ class CategoryForm extends React.Component<Props, State> {
             id="knowledgebase-category-title"
             type="text"
             defaultValue={category.title}
-            required
+            required={true}
           />
         </FormGroup>
 

@@ -10,6 +10,12 @@ export interface IAttachment {
   url: string;
 }
 
+export type IAttachmentPreview = {
+  name: string;
+  type: string;
+  data: string;
+} | null;
+
 export interface IBreadCrumbItem {
   title: string;
   link?: string;
@@ -18,4 +24,8 @@ export interface IBreadCrumbItem {
 export interface ISubMenuItem {
   title: string;
   link?: string;
+}
+
+export interface IQueryParams {
+  [key: string]: string;
 }

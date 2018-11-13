@@ -10,6 +10,7 @@ const TabContainer = styledTS<{ grayBorder?: boolean; full?: boolean }>(
   margin-bottom: ${dimensions.coreSpacing}px;
   display: flex;
   justify-content: ${props => props.full && 'space-evenly'};
+  flex-shrink: 0;
 `;
 
 const TabCaption = styled.span`

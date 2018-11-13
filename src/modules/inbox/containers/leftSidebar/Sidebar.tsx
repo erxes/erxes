@@ -7,17 +7,20 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../../common/types';
+import { withProps } from '../../../common/utils';
+import { ConversationsTotalCountQueryResponse } from '../../types';
 
-interface IProps extends IRouterProps {
+type Props = {
   queryParams: any;
   currentConversationId?: string;
-}
-
-type QueryResponse = {
-  totalCountQuery: any;
 };
 
-class Sidebar extends React.Component<IProps & QueryResponse> {
+type FinalProps = {
+  totalCountQuery: ConversationsTotalCountQueryResponse;
+} & Props &
+  IRouterProps;
+
+class Sidebar extends React.Component<FinalProps> {
   render() {
     const { totalCountQuery } = this.props;
 
@@ -34,13 +37,11 @@ class Sidebar extends React.Component<IProps & QueryResponse> {
       totalCount
     };
 
-    return (
-      <Bulk
-        content={props => {
-          return <DumbSidebar {...updatedProps} {...props} />;
-        }}
-      />
-    );
+    const content = props => {
+      return <DumbSidebar {...updatedProps} {...props} />;
+    };
+
+    return <Bulk content={content} />;
   }
 }
 
@@ -49,14 +50,17 @@ const generateOptions = queryParams => ({
   limit: queryParams.limit || 10
 });
 
-const WithData = compose(
-  graphql(gql(queries.totalConversationsCount), {
-    name: 'totalCountQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      notifyOnNetworkStatusChange: true,
-      variables: generateOptions(queryParams)
-    })
-  })
-)(Sidebar);
-
-export default withRouter<IProps>(WithData);
+export default withProps<Props>(
+  compose(
+    graphql<Props, ConversationsTotalCountQueryResponse>(
+      gql(queries.totalConversationsCount),
+      {
+        name: 'totalCountQuery',
+        options: ({ queryParams }) => ({
+          notifyOnNetworkStatusChange: true,
+          variables: generateOptions(queryParams)
+        })
+      }
+    )
+  )(withRouter<FinalProps>(Sidebar))
+);

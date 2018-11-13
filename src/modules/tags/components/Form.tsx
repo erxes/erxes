@@ -31,13 +31,9 @@ class Form extends React.Component<Props, State> {
       name: tag ? tag.name : '',
       colorCode: tag ? tag.colorCode : generateRandomColorCode()
     };
-
-    this.submit = this.submit.bind(this);
-    this.handleName = this.handleName.bind(this);
-    this.handleColorCode = this.handleColorCode.bind(this);
   }
 
-  submit(e) {
+  submit = e => {
     e.preventDefault();
 
     const { tag, type, save, closeModal } = this.props;
@@ -50,15 +46,15 @@ class Form extends React.Component<Props, State> {
         closeModal();
       }
     });
-  }
+  };
 
-  handleName(e) {
+  handleName = e => {
     this.setState({ name: e.target.value });
-  }
+  };
 
-  handleColorCode(e) {
+  handleColorCode = e => {
     this.setState({ colorCode: e.target.value });
-  }
+  };
 
   render() {
     const { name, colorCode } = this.state;
@@ -71,7 +67,7 @@ class Form extends React.Component<Props, State> {
             type="text"
             value={name}
             onChange={this.handleName}
-            required
+            required={true}
             id="name"
           />
         </FormGroup>

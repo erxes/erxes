@@ -4,28 +4,32 @@ import { Route } from 'react-router-dom';
 import { UserList } from './containers';
 import { UserDetail } from './containers';
 
+const team = ({ history, location }) => {
+  const queryParams = queryString.parse(location.search);
+  return <UserList queryParams={queryParams} history={history} />;
+};
+
+const userDetail = ({ match, location }) => {
+  const queryParams = queryString.parse(location.search);
+  const id = match.params.id;
+
+  return <UserDetail _id={id} queryParams={queryParams} />;
+};
+
 const routes = () => (
   <React.Fragment>
     <Route
       path="/settings/team/"
-      exact
+      exact={true}
       key="/settings/team/"
-      component={({ history, location }) => {
-        const queryParams = queryString.parse(location.search);
-        return <UserList queryParams={queryParams} history={history} />;
-      }}
+      component={team}
     />
 
     <Route
       key="/settings/team/details/:id"
-      exact
+      exact={true}
       path="/settings/team/details/:id"
-      component={({ match, location }) => {
-        const queryParams = queryString.parse(location.search);
-        const id = match.params.id;
-
-        return <UserDetail _id={id} queryParams={queryParams} />;
-      }}
+      component={userDetail}
     />
   </React.Fragment>
 );

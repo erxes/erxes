@@ -10,30 +10,23 @@ type Props = {
   topicIds: string;
   category: ICategory;
   articlesCount: number;
-  remove: (_id: string) => void;
+  remove: (categoryId: string) => void;
   isActive: boolean;
 };
 
 class CategoryRow extends React.Component<Props> {
   private size;
 
-  constructor(props: Props) {
-    super(props);
-
-    this.remove = this.remove.bind(this);
-    this.renderEditAction = this.renderEditAction.bind(this);
-  }
-
-  remove() {
+  remove = () => {
     const { remove, category } = this.props;
     remove(category._id);
-  }
+  };
 
   renderEditForm(props) {
     return <CategoryForm {...props} />;
   }
 
-  renderEditAction() {
+  renderEditAction = () => {
     const { category, topicIds } = this.props;
 
     const editTrigger = (
@@ -44,17 +37,19 @@ class CategoryRow extends React.Component<Props> {
       </Button>
     );
 
+    const content = props => {
+      return this.renderEditForm({ ...props, category, topicIds });
+    };
+
     return (
       <ModalTrigger
         size={this.size}
         title="Edit"
         trigger={editTrigger}
-        content={props => {
-          return this.renderEditForm({ ...props, category, topicIds });
-        }}
+        content={content}
       />
     );
-  }
+  };
 
   render() {
     const { category, isActive } = this.props;

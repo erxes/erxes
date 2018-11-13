@@ -59,21 +59,15 @@ class SegmentsForm extends React.Component<Props, State> {
       conditions: [],
       connector: 'any'
     };
-
-    this.addCondition = this.addCondition.bind(this);
-    this.changeCondition = this.changeCondition.bind(this);
-    this.removeCondition = this.removeCondition.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.save = this.save.bind(this);
   }
 
-  addCondition(condition) {
+  addCondition = condition => {
     this.setState({
       conditions: [...this.state.conditions, condition]
     });
-  }
+  };
 
-  changeCondition(condition) {
+  changeCondition = condition => {
     this.setState({
       conditions: this.state.conditions.map(
         c => (c.field === condition.field ? condition : c)
@@ -90,19 +84,19 @@ class SegmentsForm extends React.Component<Props, State> {
     };
 
     this.props.count(segment);
-  }
+  };
 
-  removeCondition(conditionField) {
+  removeCondition = conditionField => {
     this.setState({
       conditions: this.state.conditions.filter(c => c.field !== conditionField)
     });
-  }
+  };
 
-  handleChange<T extends keyof State>(name: T, value: State[T]) {
+  handleChange = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  save(e) {
+  save = e => {
     e.preventDefault();
 
     const {
@@ -124,7 +118,7 @@ class SegmentsForm extends React.Component<Props, State> {
 
     this.props.create(params);
     this.props.createSegment(false);
-  }
+  };
 
   renderConditions() {
     const { fields } = this.props;
@@ -135,6 +129,9 @@ class SegmentsForm extends React.Component<Props, State> {
       field => selectedFieldIds.indexOf(field._id) < 0
     );
 
+    const connectorOnChange = e =>
+      this.handleChange('connector', (e.target as HTMLInputElement).value);
+
     return (
       <ConditionWrapper>
         <FormGroup>
@@ -142,12 +139,7 @@ class SegmentsForm extends React.Component<Props, State> {
           <FormControl
             componentClass="select"
             value={this.state.connector}
-            onChange={e =>
-              this.handleChange(
-                'connector',
-                (e.target as HTMLInputElement).value
-              )
-            }
+            onChange={connectorOnChange}
           >
             <option value="any">any</option>
             <option value="all">all</option>
@@ -173,6 +165,18 @@ class SegmentsForm extends React.Component<Props, State> {
   }
 
   renderForm() {
+    const onChangeName = e =>
+      this.handleChange('name', (e.target as HTMLInputElement).value);
+
+    const onChangeDesc = e =>
+      this.handleChange('description', (e.target as HTMLInputElement).value);
+
+    const onChangeSubOf = e =>
+      this.handleChange('subOf', (e.target as HTMLInputElement).value);
+
+    const onChangeColor = e =>
+      this.handleChange('color', (e.target as HTMLInputElement).value);
+
     return (
       <FlexContent>
         <FlexItem>
@@ -181,14 +185,9 @@ class SegmentsForm extends React.Component<Props, State> {
               <ControlLabel>Name</ControlLabel>
               <FormControl
                 type="text"
-                required
+                required={true}
                 value={this.state.name}
-                onChange={e =>
-                  this.handleChange(
-                    'name',
-                    (e.target as HTMLInputElement).value
-                  )
-                }
+                onChange={onChangeName}
               />
             </FormGroup>
 
@@ -197,12 +196,7 @@ class SegmentsForm extends React.Component<Props, State> {
               <FormControl
                 type="text"
                 value={this.state.description || ''}
-                onChange={e =>
-                  this.handleChange(
-                    'description',
-                    (e.target as HTMLInputElement).value
-                  )
-                }
+                onChange={onChangeDesc}
               />
             </FormGroup>
 
@@ -211,12 +205,7 @@ class SegmentsForm extends React.Component<Props, State> {
               <FormControl
                 componentClass="select"
                 value={this.state.subOf || ''}
-                onChange={e =>
-                  this.handleChange(
-                    'subOf',
-                    (e.target as HTMLInputElement).value
-                  )
-                }
+                onChange={onChangeSubOf}
               >
                 <option value="">[not selected]</option>
                 {this.props.headSegments.map(segment => (
@@ -232,12 +221,7 @@ class SegmentsForm extends React.Component<Props, State> {
               <FormControl
                 type="color"
                 value={this.state.color}
-                onChange={(e: React.FormEvent<HTMLElement>) =>
-                  this.handleChange(
-                    'color',
-                    (e.target as HTMLInputElement).value
-                  )
-                }
+                onChange={onChangeColor}
               />
             </FormGroup>
 

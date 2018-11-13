@@ -15,6 +15,7 @@ import {
 } from 'modules/common/components/editor/Editor';
 import * as React from 'react';
 import strip from 'strip';
+import * as xss from 'xss';
 
 import {
   ResponseSuggestionItem,
@@ -124,21 +125,23 @@ class TemplateList extends React.Component<TemplateListProps, {}> {
             style.color = '#ffffff';
           }
 
+          const onClick = () => onSelect(index);
+
           return (
             <ResponseSuggestionItem
               key={template._id}
-              onClick={() => onSelect(index)}
+              onClick={onClick}
               style={style}
             >
               <span
                 style={{ fontWeight: 'bold' }}
                 dangerouslySetInnerHTML={{
-                  __html: highlighter(searchText, template.name)
+                  __html: xss(highlighter(searchText, template.name))
                 }}
               />
               <span
                 dangerouslySetInnerHTML={{
-                  __html: highlighter(searchText, strip(template.content))
+                  __html: xss(highlighter(searchText, strip(template.content)))
                 }}
               />
             </ResponseSuggestionItem>
@@ -165,19 +168,6 @@ export default class Editor extends React.Component<EditorProps, State> {
     this.mentionPlugin = createMentionPlugin({
       mentionPrefix: '@'
     });
-
-    this.onChange = this.onChange.bind(this);
-    this.keyBindingFn = this.keyBindingFn.bind(this);
-    this.onSearchChange = this.onSearchChange.bind(this);
-    this.onAddMention = this.onAddMention.bind(this);
-    this.getContent = this.getContent.bind(this);
-
-    this.getTemplatesState = this.getTemplatesState.bind(this);
-    this.onTemplatesStateChange = this.onTemplatesStateChange.bind(this);
-    this.onSelectTemplate = this.onSelectTemplate.bind(this);
-    this.onArrow = this.onArrow.bind(this);
-    this.onUpArrow = this.onUpArrow.bind(this);
-    this.onDownArrow = this.onDownArrow.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -196,7 +186,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     }
   }
 
-  onChange(editorState) {
+  onChange = editorState => {
     this.setState({ editorState });
 
     this.props.onChange(this.getContent(editorState));
@@ -204,13 +194,13 @@ export default class Editor extends React.Component<EditorProps, State> {
     window.requestAnimationFrame(() => {
       this.onTemplatesStateChange(this.getTemplatesState());
     });
-  }
+  };
 
-  onTemplatesStateChange(templatesState) {
+  onTemplatesStateChange = templatesState => {
     this.setState({ templatesState });
-  }
+  };
 
-  getTemplatesState(invalidate: boolean = true) {
+  getTemplatesState = (invalidate: boolean = true) => {
     if (!invalidate) {
       return this.state.templatesState;
     }
@@ -243,9 +233,9 @@ export default class Editor extends React.Component<EditorProps, State> {
     }
 
     return null;
-  }
+  };
 
-  onSelectTemplate(index?: number) {
+  onSelectTemplate = (index?: number) => {
     const { templatesState } = this.state;
     const { templates, selectedIndex } = templatesState;
     const selectedTemplate = templates[index || selectedIndex];
@@ -272,9 +262,9 @@ export default class Editor extends React.Component<EditorProps, State> {
     editorState = EditorState.moveFocusToEnd(es);
 
     return this.setState({ editorState, templatesState: null });
-  }
+  };
 
-  onArrow(e: KeyboardEvent, nudgeAmount: number) {
+  onArrow = (e: KeyboardEvent, nudgeAmount: number) => {
     const templatesState = this.getTemplatesState(false);
 
     if (!templatesState) {
@@ -286,15 +276,15 @@ export default class Editor extends React.Component<EditorProps, State> {
     templatesState.selectedIndex += nudgeAmount;
 
     this.onTemplatesStateChange(templatesState);
-  }
+  };
 
-  onUpArrow(e: KeyboardEvent) {
+  onUpArrow = (e: KeyboardEvent) => {
     this.onArrow(e, -1);
-  }
+  };
 
-  onDownArrow(e: KeyboardEvent) {
+  onDownArrow = (e: KeyboardEvent) => {
     this.onArrow(e, 1);
-  }
+  };
 
   // Render response templates suggestions
   renderTemplates() {
@@ -313,16 +303,16 @@ export default class Editor extends React.Component<EditorProps, State> {
     );
   }
 
-  onSearchChange({ value }) {
+  onSearchChange = ({ value }) => {
     this.setState({
       suggestions: defaultSuggestionsFilter(
         value,
         this.props.mentions.toArray()
       )
     });
-  }
+  };
 
-  onAddMention(object) {
+  onAddMention = object => {
     const mention = extractEntries(object);
 
     const collectedMentions = this.state.collectedMentions;
@@ -330,9 +320,9 @@ export default class Editor extends React.Component<EditorProps, State> {
     collectedMentions.push(mention);
 
     this.setState({ collectedMentions });
-  }
+  };
 
-  getContent(editorState: EditorState) {
+  getContent = (editorState: EditorState) => {
     let content = toHTML(editorState);
 
     // some mentioned people may have been deleted
@@ -360,9 +350,9 @@ export default class Editor extends React.Component<EditorProps, State> {
     this.props.onAddMention(finalMentions.map(mention => mention._id));
 
     return content;
-  }
+  };
 
-  keyBindingFn(e) {
+  keyBindingFn = e => {
     // handle new line
     if (e.key === 'Enter' && e.shiftKey) {
       return getDefaultKeyBinding(e);
@@ -395,7 +385,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     }
 
     return getDefaultKeyBinding(e);
-  }
+  };
 
   render() {
     const { MentionSuggestions } = this.mentionPlugin;

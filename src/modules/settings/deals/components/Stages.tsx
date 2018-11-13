@@ -10,32 +10,23 @@ type Props = {
 };
 
 class Stages extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onChange = this.onChange.bind(this);
-    this.add = this.add.bind(this);
-    this.remove = this.remove.bind(this);
-    this.onStageInputKeyPress = this.onStageInputKeyPress.bind(this);
-  }
-
   componentDidMount() {
     if (this.props.stages.length === 0) {
       this.add();
     }
   }
 
-  onChange(_id, e) {
+  onChange = (stageId, e) => {
     const { name, value } = e.target;
     const { stages, onChangeStages } = this.props;
 
-    const stage = stages.find(s => s._id === _id);
+    const stage = stages.find(s => s._id === stageId);
     stage[name] = value;
 
     onChangeStages(stages);
-  }
+  };
 
-  add() {
+  add = () => {
     const { stages, onChangeStages } = this.props;
 
     stages.push({
@@ -44,22 +35,22 @@ class Stages extends React.Component<Props, {}> {
     });
 
     onChangeStages(stages);
-  }
+  };
 
-  remove(_id) {
+  remove = stageId => {
     const { stages, onChangeStages } = this.props;
 
-    const remainedStages = stages.filter(stage => stage._id !== _id);
+    const remainedStages = stages.filter(stage => stage._id !== stageId);
 
     onChangeStages(remainedStages);
-  }
+  };
 
-  onStageInputKeyPress(e) {
+  onStageInputKeyPress = e => {
     if (e.key === 'Enter') {
       this.add();
       e.preventDefault();
     }
-  }
+  };
 
   render() {
     const child = stage => (

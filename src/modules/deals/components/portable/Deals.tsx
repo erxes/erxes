@@ -12,6 +12,7 @@ type Props = {
   companyId?: string;
   saveDeal: (doc: IDealParams, callback: () => void, deal?: IDeal) => void;
   onChangeDeals: () => void;
+  isOpen?: boolean;
 };
 
 class PortableDeals extends React.Component<Props> {
@@ -37,7 +38,7 @@ class PortableDeals extends React.Component<Props> {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const { saveDeal, customerId, companyId } = this.props;
+    const { saveDeal, customerId, companyId, isOpen } = this.props;
 
     const trigger = (
       <a>
@@ -45,27 +46,25 @@ class PortableDeals extends React.Component<Props> {
       </a>
     );
 
-    const quickButtons = (
-      <ModalTrigger
-        title="Add a deal"
-        trigger={trigger}
-        content={props => (
-          <AddDeal
-            {...props}
-            saveDeal={saveDeal}
-            customerId={customerId}
-            companyId={companyId}
-            showSelect
-          />
-        )}
+    const content = props => (
+      <AddDeal
+        {...props}
+        saveDeal={saveDeal}
+        customerId={customerId}
+        companyId={companyId}
+        showSelect={true}
       />
+    );
+
+    const quickButtons = (
+      <ModalTrigger title="Add a deal" trigger={trigger} content={content} />
     );
 
     return (
       <Section>
         <Title>{__('Deals')}</Title>
 
-        <QuickButtons>{quickButtons}</QuickButtons>
+        <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
 
         <SectionContainer>{this.renderDeals()}</SectionContainer>
       </Section>

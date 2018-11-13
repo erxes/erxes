@@ -8,19 +8,21 @@ import {
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { CenterContent, ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { IBrandDoc } from 'modules/settings/brands/types';
+import { IChannelDoc } from 'modules/settings/channels/types';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import { BrandName, IntegrationName } from '../../styles';
 import { IIntegration } from '../../types';
 
 type Props = {
-  current: any;
+  current: IChannelDoc | IBrandDoc;
   save: (ids: string[]) => void;
   search: (searchValue: string, check?: boolean) => void;
   allIntegrations: IIntegration[];
   perPage: number;
   clearState: () => void;
-  closeModal: () => void;
+  closeModal?: () => void;
   renderConfirm?: (
     integration: IIntegration,
     actionTrigger: React.ReactNode,
@@ -48,14 +50,9 @@ class ManageIntegrations extends React.Component<Props, State> {
       hasMore: true,
       searchValue: ''
     };
-
-    this.save = this.save.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.search = this.search.bind(this);
-    this.loadMore = this.loadMore.bind(this);
   }
 
-  save() {
+  save = () => {
     const { selectedIntegrations } = this.state;
     const ids: string[] = [];
 
@@ -64,8 +61,11 @@ class ManageIntegrations extends React.Component<Props, State> {
     });
 
     this.props.save(ids);
-    this.props.closeModal();
-  }
+
+    if (this.props.closeModal) {
+      this.props.closeModal();
+    }
+  };
 
   componentWillUnmount() {
     this.props.clearState();
@@ -77,8 +77,10 @@ class ManageIntegrations extends React.Component<Props, State> {
     this.setState({ hasMore: allIntegrations.length === perPage });
   }
 
-  search(e) {
-    if (this.timer) clearTimeout(this.timer);
+  search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
 
     const { search } = this.props;
     const value = e.target.value;
@@ -87,12 +89,12 @@ class ManageIntegrations extends React.Component<Props, State> {
       search(value);
       this.setState({ searchValue: value });
     }, 500);
-  }
+  };
 
-  loadMore() {
+  loadMore = () => {
     this.setState({ hasMore: false });
     this.props.search(this.state.searchValue, true);
-  }
+  };
 
   getTypeName(integration) {
     const kind = integration.kind;
@@ -100,9 +102,9 @@ class ManageIntegrations extends React.Component<Props, State> {
 
     if (kind === KIND_CHOICES.FORM) {
       type = 'form';
-    } else if (KIND_CHOICES.TWITTER) {
+    } else if (kind === KIND_CHOICES.TWITTER) {
       type = 'twitter';
-    } else if (KIND_CHOICES.FACEBOOK) {
+    } else if (kind === KIND_CHOICES.FACEBOOK) {
       type = 'facebook';
     }
 
@@ -115,16 +117,16 @@ class ManageIntegrations extends React.Component<Props, State> {
 
     if (kind === KIND_CHOICES.FORM) {
       icon = 'form';
-    } else if (KIND_CHOICES.TWITTER) {
+    } else if (kind === KIND_CHOICES.TWITTER) {
       icon = 'twitter';
-    } else if (KIND_CHOICES.FACEBOOK) {
+    } else if (kind === KIND_CHOICES.FACEBOOK) {
       icon = 'facebook';
     }
 
     return icon;
   }
 
-  handleChange(type, integration) {
+  handleChange = (type, integration) => {
     const { selectedIntegrations } = this.state;
 
     if (type === 'add') {
@@ -138,22 +140,21 @@ class ManageIntegrations extends React.Component<Props, State> {
         item => item !== integration
       )
     });
-  }
+  };
 
   renderRowContent(integration, icon) {
     const brand = integration.brand || {};
     const { renderConfirm } = this.props;
 
+    const onClick = () => this.handleChange(icon, integration);
+
     const actionTrigger = (
-      <li
-        key={integration._id}
-        onClick={() => this.handleChange(icon, integration)}
-      >
+      <li key={integration._id} onClick={onClick}>
         <IntegrationName>{integration.name}</IntegrationName>
         <Tip text={this.getTypeName(integration)}>
           <Label
             className={`label-${this.getTypeName(integration)} round`}
-            ignoreTrans
+            ignoreTrans={true}
           >
             <Icon icon={this.getIconByKind(integration)} />
           </Label>
@@ -171,7 +172,7 @@ class ManageIntegrations extends React.Component<Props, State> {
         this.handleChange
       );
 
-      if (confirm) {
+      if (confirm !== undefined) {
         return confirm;
       }
     }
@@ -202,7 +203,7 @@ class ManageIntegrations extends React.Component<Props, State> {
           <Column>
             <FormControl
               placeholder={__('Type to search')}
-              onChange={e => this.search(e)}
+              onChange={this.search}
             />
             <ul>
               {allIntegrations.map(integration =>
@@ -223,7 +224,7 @@ class ManageIntegrations extends React.Component<Props, State> {
             </ul>
           </Column>
           <Column>
-            <Title full>
+            <Title full={true}>
               {current.name}
               &apos;s integration
               <span>({selectedIntegrations.length})</span>

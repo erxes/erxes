@@ -1,21 +1,32 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { BrandsQueryResponse } from '../../settings/brands/types';
 import { ResponseReport, VolumeReport } from '../components';
 import { queries } from '../graphql';
-import { IParams, IParamsWithType } from '../types';
+import {
+  IParams,
+  IParamsWithType,
+  IQueryParams,
+  MainQueryResponse,
+  PieChartQueryResponse,
+  PunchCardQueryResponse
+} from '../types';
 
-interface IProps {
+type Props = {
   history: any;
   type: string;
-  volumePieChartQuery: any;
-  brandsQuery: any;
-  punchCardQuery: any;
-  mainQuery: any;
-  queryParams: any;
-}
+  queryParams: IQueryParams;
+};
 
-const VolumenAndResponseReportContainer = (props: IProps) => {
+type FinalProps = {
+  volumePieChartQuery: PieChartQueryResponse;
+  brandsQuery: BrandsQueryResponse;
+  punchCardQuery: PunchCardQueryResponse;
+  mainQuery: MainQueryResponse;
+} & Props;
+
+const VolumenAndResponseReportContainer = (props: FinalProps) => {
   const {
     type,
     volumePieChartQuery,
@@ -45,7 +56,7 @@ const VolumenAndResponseReportContainer = (props: IProps) => {
   if (type === 'volume') {
     const volumeProps = {
       ...extendedProps,
-      insights: volumePieChartQuery.insights || []
+      insights: volumePieChartQuery.insights || {}
     };
 
     return <VolumeReport {...volumeProps} />;
@@ -67,6 +78,7 @@ export default compose(
       fetchPolicy: 'network-only',
       variables: {
         brandId: queryParams.brandId,
+        integrationType: queryParams.integrationType,
         endDate: queryParams.endDate,
         startDate: queryParams.startDate
       }
@@ -98,5 +110,7 @@ export default compose(
       }
     })
   }),
-  graphql(gql(queries.brands), { name: 'brandsQuery' })
+  graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
+    name: 'brandsQuery'
+  })
 )(VolumenAndResponseReportContainer);

@@ -39,18 +39,20 @@ class Brands extends React.Component<Props, {}> {
       </Button>
     );
 
+    const content = props => (
+      <ManageIntegrations
+        {...props}
+        queryParams={queryParams}
+        currentBrand={currentBrand}
+      />
+    );
+
     const rightActionBar = currentBrand._id && (
       <ModalTrigger
         title="Manage Integration"
         trigger={trigger}
         size="lg"
-        content={props => (
-          <ManageIntegrations
-            {...props}
-            queryParams={queryParams}
-            currentBrand={currentBrand}
-          />
-        )}
+        content={content}
       />
     );
 

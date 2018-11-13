@@ -17,7 +17,7 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 import { CompaniesMerge } from '..';
 import { IRouterProps } from '../../../common/types';
-import { ITag } from '../../../tags/types';
+import { IConfigColumn } from '../../../settings/properties/types';
 import { CompanyForm } from '../../containers';
 import { ICompany } from '../../types';
 import CompanyRow from './CompanyRow';
@@ -25,7 +25,7 @@ import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   companies: ICompany[];
-  columnsConfig: any;
+  columnsConfig: IConfigColumn[];
   loading: boolean;
   searchValue: string;
   totalCount: number;
@@ -35,7 +35,10 @@ interface IProps extends IRouterProps {
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
-  removeCompanies: (doc: { companyIds: string[] }) => void;
+  removeCompanies: (
+    doc: { companyIds: string[] },
+    emptyBulk: () => void
+  ) => void;
   mergeCompanies: () => void;
   queryParams: any;
 }
@@ -53,19 +56,17 @@ class CompaniesList extends React.Component<IProps, State> {
     this.state = {
       searchValue: this.props.searchValue
     };
-
-    this.onChange = this.onChange.bind(this);
-    this.search = this.search.bind(this);
-    this.removeCompanies = this.removeCompanies.bind(this);
   }
 
-  onChange() {
+  onChange = () => {
     const { toggleAll, companies } = this.props;
     toggleAll(companies, 'companies');
-  }
+  };
 
-  search(e) {
-    if (this.timer) clearTimeout(this.timer);
+  search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
 
     const { history } = this.props;
     const searchValue = e.target.value;
@@ -74,23 +75,23 @@ class CompaniesList extends React.Component<IProps, State> {
     this.timer = setTimeout(() => {
       router.setParams(history, { searchValue });
     }, 500);
-  }
+  };
 
-  removeCompanies(companies) {
+  removeCompanies = companies => {
     const companyIds: string[] = [];
 
     companies.forEach(company => {
       companyIds.push(company._id);
     });
 
-    this.props.removeCompanies({ companyIds });
-  }
+    this.props.removeCompanies({ companyIds }, this.props.emptyBulk);
+  };
 
-  moveCursorAtTheEnd(e) {
+  moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
-  }
+  };
 
   render() {
     const {
@@ -110,7 +111,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
     const mainContent = (
       <CompaniesTableWrapper>
-        <Table whiteSpace="nowrap" bordered hover>
+        <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
             <tr>
               <th>
@@ -165,12 +166,21 @@ class CompaniesList extends React.Component<IProps, State> {
 
     let actionBarLeft: React.ReactNode;
 
+    const companiesMerge = props => {
+      return <CompaniesMerge {...props} objects={bulk} save={mergeCompanies} />;
+    };
+
     if (bulk.length > 0) {
       const tagButton = (
         <Button btnStyle="simple" size="small" icon="downarrow">
           Tag
         </Button>
       );
+
+      const onClick = () =>
+        confirm().then(() => {
+          this.removeCompanies(bulk);
+        });
 
       actionBarLeft = (
         <BarItems>
@@ -186,13 +196,7 @@ class CompaniesList extends React.Component<IProps, State> {
               title="Merge Companies"
               size="lg"
               trigger={mergeButton}
-              content={props => (
-                <CompaniesMerge
-                  {...props}
-                  objects={bulk}
-                  save={mergeCompanies}
-                />
-              )}
+              content={companiesMerge}
             />
           )}
 
@@ -200,11 +204,7 @@ class CompaniesList extends React.Component<IProps, State> {
             btnStyle="danger"
             size="small"
             icon="cancel-1"
-            onClick={() =>
-              confirm().then(() => {
-                this.removeCompanies(bulk);
-              })
-            }
+            onClick={onClick}
           >
             Remove
           </Button>
@@ -212,35 +212,41 @@ class CompaniesList extends React.Component<IProps, State> {
       );
     }
 
+    const manageColumns = props => {
+      return (
+        <ManageColumns
+          {...props}
+          location={location}
+          history={history}
+          contentType="company"
+        />
+      );
+    };
+
+    const companyForm = props => {
+      return <CompanyForm {...props} queryParams={queryParams} />;
+    };
+
     const actionBarRight = (
       <BarItems>
         <FormControl
           type="text"
           placeholder={__('Type to search')}
-          onChange={e => this.search(e)}
+          onChange={this.search}
           value={this.state.searchValue}
-          autoFocus
-          onFocus={e => this.moveCursorAtTheEnd(e)}
+          autoFocus={true}
+          onFocus={this.moveCursorAtTheEnd}
         />
         <ModalTrigger
           title="Choose which column you see"
           trigger={editColumns}
-          content={props => (
-            <ManageColumns
-              {...props}
-              location={location}
-              history={history}
-              contentType="company"
-            />
-          )}
+          content={manageColumns}
         />
         <ModalTrigger
           title="New company"
           trigger={addTrigger}
           size="lg"
-          content={props => (
-            <CompanyForm {...props} queryParams={queryParams} />
-          )}
+          content={companyForm}
         />
       </BarItems>
     );

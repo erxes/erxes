@@ -167,15 +167,13 @@ const LeftItem = styledTS<{ deactive?: boolean }>(styled.div)`
 
 const Preview = styledTS<{ fullHeight?: boolean }>(styled.div)`
   flex: 1;
-  display: flex;
-  flex-direction: column;
   border-left: 1px solid ${colors.borderPrimary};
   padding: ${props => !props.fullHeight && '20px'};
   background: url('/images/previews/preview.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
   height: ${props => props.fullHeight && '100%'};
-  overflow: auto;
+  overflow: hidden;
 `;
 
 export {

@@ -32,19 +32,13 @@ class PropertyRow extends React.Component<Props, State> {
     this.state = {
       collapse: true
     };
-
-    this.renderTable = this.renderTable.bind(this);
-    this.renderTableRow = this.renderTableRow.bind(this);
-    this.renderActionButtons = this.renderActionButtons.bind(this);
-    this.handleCollapse = this.handleCollapse.bind(this);
-    this.visibleHandler = this.visibleHandler.bind(this);
   }
 
-  handleCollapse() {
+  handleCollapse = () => {
     this.setState({ collapse: !this.state.collapse });
-  }
+  };
 
-  visibleHandler(e, property) {
+  visibleHandler = (e, property) => {
     if (property.isDefinedByErxes) {
       return Alert.error(__('You cannot update this property'));
     }
@@ -52,10 +46,17 @@ class PropertyRow extends React.Component<Props, State> {
     const isVisible = e.target.checked;
 
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
-  }
+  };
 
-  renderActionButtons(data, remove, content) {
-    if (data.isDefinedByErxes) return null;
+  renderActionButtons = (data, remove, content) => {
+    if (data.isDefinedByErxes) {
+      return null;
+    }
+
+    const onClick = () =>
+      confirm().then(() => {
+        remove({ _id: data._id });
+      });
 
     return (
       <ActionButtons>
@@ -64,21 +65,15 @@ class PropertyRow extends React.Component<Props, State> {
           trigger={<Button btnStyle="link" icon="edit" />}
           content={content}
         />
-        <Button
-          btnStyle="link"
-          icon="cancel-1"
-          onClick={() =>
-            confirm().then(() => {
-              remove({ _id: data._id });
-            })
-          }
-        />
+        <Button btnStyle="link" icon="cancel-1" onClick={onClick} />
       </ActionButtons>
     );
-  }
+  };
 
-  renderTableRow(field) {
+  renderTableRow = field => {
     const { removeProperty, queryParams } = this.props;
+
+    const onChange = e => this.visibleHandler(e, field);
 
     return (
       <tr key={field._id}>
@@ -98,7 +93,7 @@ class PropertyRow extends React.Component<Props, State> {
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
             }}
-            onChange={e => this.visibleHandler(e, field)}
+            onChange={onChange}
           />
         </td>
         <td>
@@ -108,9 +103,9 @@ class PropertyRow extends React.Component<Props, State> {
         </td>
       </tr>
     );
-  }
+  };
 
-  renderTable(fields) {
+  renderTable = fields => {
     if (fields.length === 0) {
       return (
         <EmptyState
@@ -121,7 +116,7 @@ class PropertyRow extends React.Component<Props, State> {
     }
 
     return (
-      <Table hover>
+      <Table hover={true}>
         <thead>
           <tr>
             <th>{__('Name')}</th>
@@ -133,7 +128,7 @@ class PropertyRow extends React.Component<Props, State> {
         <tbody>{fields.map(field => this.renderTableRow(field))}</tbody>
       </Table>
     );
-  }
+  };
 
   render() {
     const { group, removePropertyGroup, queryParams } = this.props;

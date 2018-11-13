@@ -1,10 +1,6 @@
 import { graphql } from 'react-apollo';
 
-type Props = {
-  query?: any;
-};
-
-const ChipText = (props: Props) => {
+const ChipText = (props: any) => {
   const { query } = props;
 
   if (query.loading) {

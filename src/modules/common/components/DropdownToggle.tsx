@@ -7,13 +7,7 @@ type Props = {
 };
 
 class DropdownToggle extends React.Component<Props> {
-  constructor(props, context) {
-    super(props, context);
-
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  handleClick(e) {
+  handleClick = e => {
     e.preventDefault();
 
     const { onClick } = this.props;
@@ -21,7 +15,7 @@ class DropdownToggle extends React.Component<Props> {
     if (onClick) {
       onClick(e);
     }
-  }
+  };
 
   render() {
     return <div onClick={this.handleClick}>{this.props.children}</div>;

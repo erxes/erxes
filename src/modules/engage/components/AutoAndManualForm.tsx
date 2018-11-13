@@ -10,6 +10,7 @@ import { ISegment, ISegmentDoc } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import * as React from 'react';
+import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IBreadCrumbItem } from '../../common/types';
 import {
   IEngageEmail,
@@ -29,7 +30,7 @@ type Props = {
   segmentFields: ISegment[];
   templates: IEmailTemplate[];
   segmentAdd: (params: { doc: ISegmentDoc }) => void;
-  customerCounts?: any;
+  customerCounts?: IActivityLogForMonth[];
   count: (segment: ISegmentDoc) => void;
   kind: string;
   save: (doc: IEngageMessageDoc) => Promise<any>;
@@ -58,9 +59,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
     super(props);
 
     const message = props.message || {};
+    const messenger = message.messenger || {};
+    const email = message.email || {};
 
-    let content = message.messenger ? message.messenger.content : '';
-    content = message.email ? message.email.content : content;
+    const content = messenger.content ? messenger.content : email.content || '';
 
     this.state = {
       activeStep: 1,
@@ -74,18 +76,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
       email: message.email,
       scheduleDate: message.scheduleDate
     };
-
-    this.save = this.save.bind(this);
-    this.changeState = this.changeState.bind(this);
   }
 
-  changeState<T extends keyof State>(key: T, value: State[T]) {
+  changeState = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  save(type: string, e: React.MouseEvent<Element>): Promise<any> | void {
-    e.preventDefault();
-
+  save = (type: string): Promise<any> | void => {
     const doc = {
       segmentId: this.state.segmentId,
       title: this.state.title,
@@ -122,7 +119,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     if (response.status === 'ok' && response.doc) {
       return this.props.save(response.doc);
     }
-  }
+  };
 
   render() {
     const { renderTitle } = this.props;
@@ -137,6 +134,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       scheduleDate
     } = this.state;
 
+    const onChange = e =>
+      this.changeState('title', (e.target as HTMLInputElement).value);
+
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={renderTitle()} />
@@ -144,10 +144,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
-            required
-            onChange={e =>
-              this.changeState('title', (e.target as HTMLInputElement).value)
-            }
+            required={true}
+            onChange={onChange}
             defaultValue={this.state.title}
           />
         </TitleContainer>
@@ -179,7 +177,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
           <Step
             img="/images/icons/erxes-08.svg"
             title="Compose your message"
-            save={this.save}
+            save={this.save.bind(
+              this,
+              this.props.kind === 'manual' ? 'live' : 'draft'
+            )}
             message={this.props.message}
           >
             <MessageStep

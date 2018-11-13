@@ -1,5 +1,34 @@
-const uploadHandler = params => {
-  const { REACT_APP_API_URL } = process.env;
+import { getEnv } from 'apolloClient';
+
+type FileInfo = {
+  name: string;
+  size: number;
+  type: string;
+};
+
+type AfterUploadParams = {
+  status: 'ok' | 'error';
+  response: any;
+  fileInfo: FileInfo;
+};
+
+type AfterReadParams = {
+  result: any;
+  fileInfo: FileInfo;
+};
+
+type Params = {
+  files: FileList | null;
+  beforeUpload: () => void;
+  afterUpload: (params: AfterUploadParams) => void;
+  afterRead?: (params: AfterReadParams) => void;
+  url?: string;
+  responseType?: string;
+  extraFormData?: Array<{ key: string; value: string }>;
+};
+
+const uploadHandler = (params: Params) => {
+  const { REACT_APP_API_URL } = getEnv();
 
   const {
     files,
@@ -11,9 +40,18 @@ const uploadHandler = params => {
     extraFormData = []
   } = params;
 
-  if (files.length === 0) return;
+  if (!files) {
+    return;
+  }
 
-  for (const file of files) {
+  if (files.length === 0) {
+    return;
+  }
+
+  // tslint:disable-next-line
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+
     // initiate upload file reader
     const uploadReader = new FileReader();
 
@@ -36,25 +74,25 @@ const uploadHandler = params => {
       fetch(url, {
         method: 'post',
         body: formData,
-        headers: {
-          'x-token': localStorage.getItem('erxesLoginToken') || '',
-          'x-refresh-token':
-            localStorage.getItem('erxesLoginRefreshToken') || ''
-        }
+        credentials: 'include'
       })
         .then(response => {
           return response[responseType]();
         })
 
         .then(response => {
+          if (!response.ok) {
+            return afterUpload({ status: 'error', response, fileInfo });
+          }
+
           // after upload
           if (afterUpload) {
-            afterUpload({ response, fileInfo });
+            afterUpload({ status: 'ok', response, fileInfo });
           }
         })
 
         .catch(e => {
-          console.log(e); // eslint-disable-line
+          console.log(e); // tslint:disable-line
         });
     };
 

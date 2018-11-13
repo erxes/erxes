@@ -25,10 +25,6 @@ class ProductForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.addProductItem = this.addProductItem.bind(this);
-    this.removeProductItem = this.removeProductItem.bind(this);
-    this.updateTotal = this.updateTotal.bind(this);
-
     this.state = {
       total: {},
       discount: {},
@@ -45,7 +41,7 @@ class ProductForm extends React.Component<Props, State> {
     }
   }
 
-  addProductItem() {
+  addProductItem = () => {
     const { productsData, onChangeProductsData } = this.props;
 
     productsData.push({
@@ -60,19 +56,19 @@ class ProductForm extends React.Component<Props, State> {
     });
 
     onChangeProductsData(productsData);
-  }
+  };
 
-  removeProductItem(_id) {
+  removeProductItem = productId => {
     const { productsData, onChangeProductsData } = this.props;
 
-    const removedProductsData = productsData.filter(p => p._id !== _id);
+    const removedProductsData = productsData.filter(p => p._id !== productId);
 
     onChangeProductsData(removedProductsData);
 
     this.updateTotal();
-  }
+  };
 
-  updateTotal() {
+  updateTotal = () => {
     const { productsData } = this.props;
 
     const total = {};
@@ -94,7 +90,7 @@ class ProductForm extends React.Component<Props, State> {
     });
 
     this.setState({ total, tax, discount });
-  }
+  };
 
   renderTotal(value) {
     return Object.keys(value).map(key => (
@@ -134,6 +130,11 @@ class ProductForm extends React.Component<Props, State> {
   render() {
     const { total, tax, discount } = this.state;
     const { saveProductsData } = this.props;
+
+    const onClick = () => {
+      saveProductsData();
+      this.props.closeModal();
+    };
 
     return (
       <FormContainer>
@@ -185,20 +186,13 @@ class ProductForm extends React.Component<Props, State> {
           <ModalFooter>
             <Button
               btnStyle="simple"
-              onClick={() => this.props.closeModal()}
+              onClick={this.props.closeModal}
               icon="cancel-1"
             >
               Close
             </Button>
 
-            <Button
-              btnStyle="success"
-              onClick={() => {
-                saveProductsData();
-                this.props.closeModal();
-              }}
-              icon="checked-1"
-            >
+            <Button btnStyle="success" onClick={onClick} icon="checked-1">
               Save
             </Button>
           </ModalFooter>

@@ -1,9 +1,13 @@
-import { confirm } from 'modules/common/utils';
+import { confirm, withProps } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose } from 'react-apollo';
 
-const commonListComposer = options => {
+interface IRemoveMutationVariables {
+  _id: string;
+}
+
+function commonListComposer<ComponentProps>(options) {
   const {
     name,
     gqlListQuery,
@@ -18,12 +22,12 @@ const commonListComposer = options => {
     totalCountQuery: any;
     listQuery: any;
     history: any;
-    addMutation: ({ variables: any }) => Promise<any>;
-    editMutation: ({ variables: any }) => Promise<any>;
+    addMutation: ({ variables }: { variables: any }) => Promise<any>;
+    editMutation: ({ variables }: { variables: any }) => Promise<any>;
     removeMutation: (
       {
-        variables: { _id: string }
-      }
+        variables: { _id }
+      }: { variables: IRemoveMutationVariables }
     ) => Promise<any>;
   };
 
@@ -42,10 +46,10 @@ const commonListComposer = options => {
     const objects = listQuery[name] || [];
 
     // remove action
-    const remove = _id => {
+    const remove = id => {
       confirm().then(() => {
         removeMutation({
-          variables: { _id }
+          variables: { _id: id }
         })
           .then(() => {
             // update queries
@@ -102,20 +106,24 @@ const commonListComposer = options => {
   };
 
   if (gqlAddMutation) {
-    return compose(
-      gqlListQuery,
-      gqlTotalCountQuery,
-      // mutations
-      gqlAddMutation,
-      gqlEditMutation,
-      gqlRemoveMutation
-    )(ListContainer);
+    return withProps<ComponentProps>(
+      compose(
+        gqlListQuery,
+        gqlTotalCountQuery,
+        // mutations
+        gqlAddMutation,
+        gqlEditMutation,
+        gqlRemoveMutation
+      )(ListContainer)
+    );
   }
 
-  return compose(
-    gqlListQuery,
-    gqlTotalCountQuery
-  )(ListContainer);
-};
+  return withProps<ComponentProps>(
+    compose(
+      gqlListQuery,
+      gqlTotalCountQuery
+    )(ListContainer)
+  );
+}
 
 export default commonListComposer;

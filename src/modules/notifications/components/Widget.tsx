@@ -9,23 +9,17 @@ class Widget extends React.Component<
   { unreadCount: number },
   { activeFirst: boolean }
 > {
-  constructor(props) {
-    super(props);
-
-    this.update = this.update.bind(this);
-  }
-
-  update() {
+  update = () => {
     // rerender component
     this.forceUpdate();
-  }
+  };
 
   renderUnreadCount() {
     const { unreadCount } = this.props;
 
     if (unreadCount && unreadCount !== 0) {
       return (
-        <Label shake lblStyle="danger" ignoreTrans>
+        <Label shake={true} lblStyle="danger" ignoreTrans={true}>
           {unreadCount}
         </Label>
       );
@@ -45,7 +39,7 @@ class Widget extends React.Component<
     return (
       <OverlayTrigger
         trigger="click"
-        rootClose
+        rootClose={true}
         placement="bottom"
         containerPadding={20}
         overlay={popoverNotification}

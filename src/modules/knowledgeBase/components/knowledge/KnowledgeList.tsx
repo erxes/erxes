@@ -30,7 +30,7 @@ type Props = {
     callback: () => void,
     object: any
   ) => void;
-  remove: (_id: string) => void;
+  remove: (knowledgeBaseId: string) => void;
 };
 
 class KnowledgeList extends React.Component<Props> {
@@ -73,13 +73,15 @@ class KnowledgeList extends React.Component<Props> {
       </HelperButtons>
     );
 
+    const content = props => <KnowledgeForm {...props} save={save} />;
+
     return (
-      <Header uppercase>
+      <Header uppercase={true}>
         {__('Knowledge base')}
         <ModalTrigger
           title="Add Knowledge base"
           trigger={trigger}
-          content={props => <KnowledgeForm {...props} save={save} />}
+          content={content}
         />
       </Header>
     );
@@ -89,14 +91,14 @@ class KnowledgeList extends React.Component<Props> {
     const { topics, loading } = this.props;
 
     return (
-      <Sidebar full wide header={this.renderSidebarHeader()}>
+      <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
         <DataWithLoader
           data={this.renderTopics()}
           loading={loading}
           count={topics.length}
           emptyText="There is no knowledge base"
           emptyImage="/images/robots/robot-05.svg"
-          objective
+          objective={true}
         />
       </Sidebar>
     );

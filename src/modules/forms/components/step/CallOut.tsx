@@ -59,20 +59,14 @@ class CallOut extends React.Component<Props, State> {
       logoPreviewStyle: {},
       defaultValue
     };
-
-    this.onChangeFunction = this.onChangeFunction.bind(this);
-    this.onChangeState = this.onChangeState.bind(this);
-    this.footerActions = this.footerActions.bind(this);
-    this.handleImage = this.handleImage.bind(this);
-    this.removeImage = this.removeImage.bind(this);
   }
 
-  onChangeFunction<T extends keyof State>(name: T, value: State[T]) {
+  onChangeFunction = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
     this.props.onChange(name, value);
-  }
+  };
 
-  onChangeState<T extends keyof State>(name: T, value: boolean) {
+  onChangeState = <T extends keyof State>(name: T, value: boolean) => {
     this.setState(state => ({
       defaultValue: {
         ...state.defaultValue,
@@ -80,14 +74,14 @@ class CallOut extends React.Component<Props, State> {
       }
     }));
     this.props.onChange(name, value);
-  }
+  };
 
-  removeImage(value: string) {
+  removeImage = (value: string) => {
     this.setState({ logoPreviewUrl: '' });
     this.props.onChange('logoPreviewUrl', value);
-  }
+  };
 
-  handleImage(e: React.FormEvent<HTMLInputElement>) {
+  handleImage = (e: React.FormEvent<HTMLInputElement>) => {
     const imageFile = e.currentTarget.files;
 
     uploadHandler({
@@ -109,38 +103,35 @@ class CallOut extends React.Component<Props, State> {
         this.props.onChange('logoPreviewUrl', result);
       }
     });
-  }
+  };
 
   renderUploadImage() {
     const { image, skip } = this.props;
 
+    const onChange = (e: React.FormEvent<HTMLInputElement>) =>
+      this.handleImage(e);
+    const onClick = (e: React.MouseEvent<HTMLElement>) =>
+      this.removeImage((e.currentTarget as HTMLInputElement).value);
+
     if (!image) {
-      return (
-        <input
-          type="file"
-          onChange={(e: React.FormEvent<HTMLInputElement>) =>
-            this.handleImage(e)
-          }
-          disabled={skip}
-        />
-      );
+      return <input type="file" onChange={onChange} disabled={skip} />;
     }
 
     return (
       <React.Fragment>
         <img src={image} alt="previewImage" />
-        <Icon
-          icon="cancel-1"
-          size={15}
-          onClick={(e: React.MouseEvent<HTMLElement>) =>
-            this.removeImage((e.currentTarget as HTMLInputElement).value)
-          }
-        />
+        <Icon icon="cancel-1" size={15} onClick={onClick} />
       </React.Fragment>
     );
   }
 
-  footerActions() {
+  footerActions = () => {
+    const onChange = e =>
+      this.onChangeState(
+        'isSkip',
+        (e.currentTarget as HTMLInputElement).checked
+      );
+
     return (
       <ActionBar
         right={
@@ -148,22 +139,35 @@ class CallOut extends React.Component<Props, State> {
             checked={this.props.skip || false}
             id="isSkip"
             componentClass="checkbox"
-            onChange={e =>
-              this.onChangeState(
-                'isSkip',
-                (e.currentTarget as HTMLInputElement).checked
-              )
-            }
+            onChange={onChange}
           >
             {__('Skip callOut')}
           </FormControl>
         }
       />
     );
-  }
+  };
 
   render() {
     const { skip } = this.props;
+
+    const onChangeTitle = (e: React.FormEvent<HTMLElement>) =>
+      this.onChangeFunction(
+        'calloutTitle',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const onChangeBody = e =>
+      this.onChangeFunction(
+        'bodyValue',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const onChangeBtnText = e =>
+      this.onChangeFunction(
+        'calloutBtnText',
+        (e.currentTarget as HTMLInputElement).value
+      );
 
     return (
       <FlexItem>
@@ -176,12 +180,7 @@ class CallOut extends React.Component<Props, State> {
                 type="text"
                 value={this.props.calloutTitle}
                 disabled={skip}
-                onChange={(e: React.FormEvent<HTMLElement>) =>
-                  this.onChangeFunction(
-                    'calloutTitle',
-                    (e.currentTarget as HTMLInputElement).value
-                  )
-                }
+                onChange={onChangeTitle}
               />
             </FormGroup>
 
@@ -189,15 +188,10 @@ class CallOut extends React.Component<Props, State> {
               <ControlLabel>Callout body</ControlLabel>
               <FormControl
                 id="callout-body"
-                type="text"
+                componentClass="textarea"
                 value={this.props.bodyValue}
                 disabled={skip}
-                onChange={e =>
-                  this.onChangeFunction(
-                    'bodyValue',
-                    (e.currentTarget as HTMLInputElement).value
-                  )
-                }
+                onChange={onChangeBody}
               />
             </FormGroup>
 
@@ -207,12 +201,7 @@ class CallOut extends React.Component<Props, State> {
                 id="callout-btn-text"
                 value={this.props.calloutBtnText}
                 disabled={skip}
-                onChange={e =>
-                  this.onChangeFunction(
-                    'calloutBtnText',
-                    (e.currentTarget as HTMLInputElement).value
-                  )
-                }
+                onChange={onChangeBtnText}
               />
             </FormGroup>
 

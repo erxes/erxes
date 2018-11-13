@@ -23,24 +23,18 @@ type Props = {
   isAllSelected: boolean;
   emptyBulk: () => void;
   totalCount: number;
-  tagsCount: any;
+  tagsCount: { [key: string]: number };
   toggleBulk: (target: IFormIntegration, toAdd: boolean) => void;
   toggleAll: (bulk: IFormIntegration[], name: string) => void;
   loading: boolean;
-  remove: (_id: string, callback: (error: Error) => void) => void;
+  remove: (integrationId: string, callback: (error: Error) => void) => void;
 };
 
 class List extends React.Component<Props, {}> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange() {
+  onChange = () => {
     const { toggleAll, integrations } = this.props;
     toggleAll(integrations, 'integrations');
-  }
+  };
 
   renderRow() {
     const { integrations, remove, bulk, toggleBulk } = this.props;
@@ -112,7 +106,7 @@ class List extends React.Component<Props, {}> {
     );
 
     const content = (
-      <Table whiteSpace="nowrap" hover>
+      <Table whiteSpace="nowrap" hover={true}>
         <thead>
           <tr>
             <th>

@@ -1,37 +1,42 @@
 import client from 'apolloClient';
+import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { __, Alert, uploadHandler } from 'modules/common/utils';
+import { __, Alert, uploadHandler, withProps } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Bulk } from '../../common/components';
 import { IRouterProps } from '../../common/types';
+import { ListConfigQueryResponse } from '../../companies/types';
 import { CustomersList } from '../components';
 import { mutations, queries } from '../graphql';
+import {
+  ListQueryVariables,
+  MainQueryResponse,
+  MergeMutationResponse,
+  MergeMutationVariables,
+  RemoveMutationResponse,
+  RemoveMutationVariables
+} from '../types';
 
-interface IProps extends IRouterProps {
-  customersMainQuery: any;
-  customersListConfigQuery: any;
-  customersRemove: (
-    params: { variables: { customerIds: string[] } }
-  ) => Promise<void>;
-  customersMerge: (
-    params: {
-      variables: {
-        customerIds: string[];
-        customerFields: any;
-      };
-    }
-  ) => Promise<void>;
+type Props = {
   queryParams: any;
-}
+};
+
+type FinalProps = {
+  customersMainQuery: MainQueryResponse;
+  customersListConfigQuery: ListConfigQueryResponse;
+} & Props &
+  RemoveMutationResponse &
+  MergeMutationResponse &
+  IRouterProps;
 
 type State = {
   loading: boolean;
 };
 
-class CustomerListContainer extends React.Component<IProps, State> {
+class CustomerListContainer extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
@@ -114,11 +119,12 @@ class CustomerListContainer extends React.Component<IProps, State> {
     const handleXlsUpload = e => {
       const xlsFile = e.target.files;
 
+      const { REACT_APP_API_URL } = getEnv();
+
       uploadHandler({
-        type: 'import',
         files: xlsFile,
         extraFormData: [{ key: 'type', value: 'customers' }],
-        url: `${process.env.REACT_APP_API_URL}/import-file`,
+        url: `${REACT_APP_API_URL}/import-file`,
         responseType: 'json',
         beforeUpload: () => {
           this.setState({ loading: true });
@@ -158,14 +164,15 @@ class CustomerListContainer extends React.Component<IProps, State> {
       removeCustomers
     };
 
-    return (
-      <Bulk
-        content={props => <CustomersList {...updatedProps} {...props} />}
-        refetch={() => {
-          this.props.customersMainQuery.refetch();
-        }}
-      />
-    );
+    const content = props => {
+      return <CustomersList {...updatedProps} {...props} />;
+    };
+
+    const refetch = () => {
+      this.props.customersMainQuery.refetch();
+    };
+
+    return <Bulk content={content} refetch={refetch} />;
   }
 }
 
@@ -189,29 +196,43 @@ const generateParams = ({ queryParams }) => {
   };
 };
 
-export default compose(
-  graphql(gql(queries.customersMain), {
-    name: 'customersMainQuery',
-    options: ({ queryParams }: { queryParams: any }) => ({
-      variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(queries.customersListConfig), {
-    name: 'customersListConfigQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
+export default withProps<Props>(
+  compose(
+    graphql<Props, MainQueryResponse, ListQueryVariables>(
+      gql(queries.customersMain),
+      {
+        name: 'customersMainQuery',
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, ListConfigQueryResponse, {}>(
+      gql(queries.customersListConfig),
+      {
+        name: 'customersListConfigQuery',
+        options: () => ({
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
 
-  // mutations
-  graphql(gql(mutations.customersRemove), {
-    name: 'customersRemove'
-  }),
-  graphql(gql(mutations.customersMerge), {
-    name: 'customersMerge',
-    options: props => ({
-      refetchQueries: ['customersMain', 'customerCounts']
-    })
-  })
-)(withRouter<IRouterProps>(CustomerListContainer));
+    // mutations
+    graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
+      gql(mutations.customersRemove),
+      {
+        name: 'customersRemove'
+      }
+    ),
+    graphql<Props, MergeMutationResponse, MergeMutationVariables>(
+      gql(mutations.customersMerge),
+      {
+        name: 'customersMerge',
+        options: {
+          refetchQueries: ['customersMain', 'customerCounts']
+        }
+      }
+    )
+  )(withRouter<IRouterProps>(CustomerListContainer))
+);

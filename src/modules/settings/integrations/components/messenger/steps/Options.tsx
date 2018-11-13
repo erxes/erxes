@@ -1,8 +1,4 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import { ControlLabel, FormGroup } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
@@ -17,44 +13,27 @@ type Props = {
   brandId?: string;
   brands?: IBrand[];
   notifyCustomer?: boolean;
-  showFaq?: boolean;
 };
 
 class Options extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onChangeFunction = this.onChangeFunction.bind(this);
-  }
-
-  onChangeFunction(name, value) {
+  onChangeFunction = (name, value) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
-  }
+  };
 
   render() {
+    const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
+    const notifyCustomerChange = e =>
+      this.onChangeFunction('notifyCustomer', e.target.checked);
+
     return (
       <FlexItem>
         <LeftItem>
           <SelectBrand
             brands={this.props.brands || []}
             defaultValue={this.props.brandId}
-            onChange={e => this.onChangeFunction('brandId', e.target.value)}
+            onChange={brandOnChange}
           />
-
-          <FormGroup>
-            <ControlLabel>Show FAQ</ControlLabel>
-
-            <FormControl
-              checked={this.props.showFaq || false}
-              componentClass="checkbox"
-              onChange={(e: React.FormEvent<HTMLElement>) => {
-                const target = e.currentTarget as HTMLInputElement;
-
-                return this.onChangeFunction('showFaq', target.checked);
-              }}
-            />
-          </FormGroup>
 
           <FormGroup>
             <ControlLabel>Notify customer</ControlLabel>
@@ -62,9 +41,7 @@ class Options extends React.Component<Props> {
               <Toggle
                 className="wide"
                 checked={this.props.notifyCustomer}
-                onChange={e =>
-                  this.onChangeFunction('notifyCustomer', e.target.checked)
-                }
+                onChange={notifyCustomerChange}
                 icons={{
                   checked: <span>Yes</span>,
                   unchecked: <span>No</span>

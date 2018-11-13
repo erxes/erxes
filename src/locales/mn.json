@@ -661,7 +661,14 @@
   "Choose schedule month": "Цагын хуваарь сар сонгоно уу",
   "Won": "Ялсан",
   "Lost": "Алдсан",
+  "App store": "Интеграцийн дэлгүүр",
+  "App store menu": "Интеграцийн цэс",
   "In Progress": "Идэвхитэй",
   "It`s size exceeds the limit 10mb": "Хэмжээ 10mb-аас хэтэрсэн байна",
-  "Congrats! Your email sent successfully!": "Баяр хүргье! Таны и-мэйл амжилттай илгээгдлээ."
+  "Congrats! Your email sent successfully!": "Баяр хүргье! Таны и-мэйл амжилттай илгээгдлээ.",
+  "Works with messenger": "Чаттай хосолж ажиллана",
+  "Knowledge base topic": "Мэдлэгийн сангийн гарчиг",
+  "Package version": "Сангийн хувилбар",
+  "Branch name": "Салбарын нэр",
+  "Abbreviated": "Товчилсон"
 }

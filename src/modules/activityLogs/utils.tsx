@@ -70,8 +70,12 @@ export default class {
    * @param {Ojbect} queryData - The query received from the back end
    */
   constructor({ activities, user, target, type }: Props) {
-    if (type === 'conversations') this.type = 'conversation-create';
-    if (type === 'notes') this.type = 'internal_note-create';
+    if (type === 'conversations') {
+      this.type = 'conversation-create';
+    }
+    if (type === 'notes') {
+      this.type = 'internal_note-create';
+    }
 
     this.queryData = activities;
 
@@ -97,7 +101,9 @@ export default class {
     };
 
     for (const item of list) {
-      if (this.type && this.type !== item.action) continue;
+      if (this.type && this.type !== item.action) {
+        continue;
+      }
 
       const iconAndColor = this._getIconAndColor(item.action);
       const hasContent =
@@ -138,8 +144,11 @@ export default class {
    * @return {String} return String
    */
   _getUserName(by) {
-    if (by._id === this.currentUser._id) return 'You';
-    else return by.details.fullName;
+    if (by._id === this.currentUser._id) {
+      return 'You';
+    } else {
+      return by.details.fullName;
+    }
   }
 
   /**

@@ -18,14 +18,7 @@ type Props = {
 };
 
 class ResponseTemplateModal extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.onSave = this.onSave.bind(this);
-    this.renderForm = this.renderForm.bind(this);
-  }
-
-  onSave() {
+  onSave = () => {
     const doc = {
       brandId: (document.getElementById(
         'template-brand-id'
@@ -34,9 +27,9 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
     };
 
     this.props.onSave(doc.brandId, doc.name);
-  }
+  };
 
-  renderForm() {
+  renderForm = () => {
     const { brands, brandId } = this.props;
 
     return (
@@ -60,7 +53,7 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
 
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <FormControl id="template-name" type="text" required />
+          <FormControl id="template-name" type="text" required={true} />
         </FormGroup>
 
         <ModalFooter>
@@ -70,7 +63,7 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
         </ModalFooter>
       </React.Fragment>
     );
-  }
+  };
 
   render() {
     const { trigger } = this.props;

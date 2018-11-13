@@ -23,12 +23,10 @@ class Widget extends React.Component<Props> {
       </Button>
     );
 
+    const content = props => <WidgetForm {...this.props} {...props} />;
+
     return (
-      <ModalTrigger
-        title="New message"
-        trigger={trigger}
-        content={props => <WidgetForm {...this.props} {...props} />}
-      />
+      <ModalTrigger title="New message" trigger={trigger} content={content} />
     );
   }
 }

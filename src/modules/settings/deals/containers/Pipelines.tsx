@@ -1,43 +1,35 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { __, Alert, confirm } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Pipelines } from '../components';
 import { mutations, queries } from '../graphql';
-import { IPipeline, IStage } from '../types';
+import {
+  AddPipelineMutationResponse,
+  AddPipelineMutationVariables,
+  EditPipelineMutationResponse,
+  EditPipelineMutationVariables,
+  PipelineQueryResponse,
+  RemovePipelineMutationResponse,
+  RemovePipelineMutationVariables,
+  UpdateOrderPipelineMutationResponse,
+  UpdateOrderPipelineMutationVariables
+} from '../types';
 
 type Props = {
   boardId: string;
-  pipelinesQuery: any;
-
-  addPipelineMutation: (
-    params: {
-      variables: {
-        name: string;
-        boardId: string;
-        stages: IStage[];
-      };
-    }
-  ) => Promise<any>;
-  editPipelineMutation: (
-    params: {
-      variables: {
-        name: string;
-        boardId: string;
-        stages: IStage[];
-      };
-    }
-  ) => Promise<any>;
-  removePipelineMutation: (
-    params: { variables: { _id: string } }
-  ) => Promise<any>;
-  pipelinesUpdateOrderMutation: (
-    params: { variables: { orders: IPipeline[] } }
-  ) => Promise<any>;
 };
 
-class PipelinesContainer extends React.Component<Props> {
+type FinalProps = {
+  pipelinesQuery: PipelineQueryResponse;
+} & Props &
+  AddPipelineMutationResponse &
+  EditPipelineMutationResponse &
+  RemovePipelineMutationResponse &
+  UpdateOrderPipelineMutationResponse;
+
+class PipelinesContainer extends React.Component<FinalProps> {
   render() {
     const {
       pipelinesQuery,
@@ -54,10 +46,10 @@ class PipelinesContainer extends React.Component<Props> {
     const pipelines = pipelinesQuery.dealPipelines;
 
     // remove action
-    const remove = _id => {
+    const remove = pipelineId => {
       confirm().then(() => {
         removePipelineMutation({
-          variables: { _id }
+          variables: { _id: pipelineId }
         })
           .then(() => {
             pipelinesQuery.refetch();
@@ -116,24 +108,43 @@ class PipelinesContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(queries.pipelines), {
-    name: 'pipelinesQuery',
-    options: ({ boardId = '' }: { boardId: string }) => ({
-      variables: { boardId },
-      fetchPolicy: 'network-only'
+export default withProps<Props>(
+  compose(
+    graphql<Props, PipelineQueryResponse, { boardId: string }>(
+      gql(queries.pipelines),
+      {
+        name: 'pipelinesQuery',
+        options: ({ boardId = '' }: { boardId: string }) => ({
+          variables: { boardId },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, AddPipelineMutationResponse, AddPipelineMutationVariables>(
+      gql(mutations.pipelineAdd),
+      {
+        name: 'addPipelineMutation'
+      }
+    ),
+    graphql<Props, EditPipelineMutationResponse, EditPipelineMutationVariables>(
+      gql(mutations.pipelineEdit),
+      {
+        name: 'editPipelineMutation'
+      }
+    ),
+    graphql<
+      Props,
+      RemovePipelineMutationResponse,
+      RemovePipelineMutationVariables
+    >(gql(mutations.pipelineRemove), {
+      name: 'removePipelineMutation'
+    }),
+    graphql<
+      Props,
+      UpdateOrderPipelineMutationResponse,
+      UpdateOrderPipelineMutationVariables
+    >(gql(mutations.pipelinesUpdateOrder), {
+      name: 'pipelinesUpdateOrderMutation'
     })
-  }),
-  graphql(gql(mutations.pipelineAdd), {
-    name: 'addPipelineMutation'
-  }),
-  graphql(gql(mutations.pipelineEdit), {
-    name: 'editPipelineMutation'
-  }),
-  graphql(gql(mutations.pipelineRemove), {
-    name: 'removePipelineMutation'
-  }),
-  graphql(gql(mutations.pipelinesUpdateOrder), {
-    name: 'pipelinesUpdateOrderMutation'
-  })
-)(PipelinesContainer);
+  )(PipelinesContainer)
+);

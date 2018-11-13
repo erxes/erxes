@@ -5,12 +5,17 @@ import * as React from 'react';
 
 type Props = {
   history?: any;
-  removeHistory: (_id: string) => void;
+  removeHistory: (historyId: string) => void;
 };
 
 function HistoryRow({ history, removeHistory }: Props) {
   const { user = {} } = history;
   const { details = {} } = user;
+
+  const onClick = () =>
+    confirm().then(() => {
+      removeHistory(history._id);
+    });
 
   return (
     <tr>
@@ -20,15 +25,7 @@ function HistoryRow({ history, removeHistory }: Props) {
       <td>{moment(history.date).format('lll')}</td>
       <td>{details.fullName || '-'}</td>
       <td>
-        <Button
-          btnStyle="link"
-          icon="cancel-1"
-          onClick={() =>
-            confirm().then(() => {
-              removeHistory(history._id);
-            })
-          }
-        />
+        <Button btnStyle="link" icon="cancel-1" onClick={onClick} />
       </td>
     </tr>
   );

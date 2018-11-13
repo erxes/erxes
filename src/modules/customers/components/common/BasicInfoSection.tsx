@@ -25,7 +25,7 @@ class BasicInfo extends React.Component<Props> {
         <Action>
           <ActionSection customer={customer} />
         </Action>
-        <DetailInfo customer={customer} hasEmailAndPhone />
+        <DetailInfo customer={customer} hasPosition={true} />
       </Section>
     );
   }

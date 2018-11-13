@@ -661,5 +661,14 @@
   "Choose schedule month": "Choose schedule month",
   "Won": "Won",
   "Lost": "Lost",
-  "In Progress": "In Progress"
+  "App store": "App store",
+  "App store menu": "App store menu",
+  "In Progress": "In Progress",
+  "It`s size exceeds the limit 10mb": "It`s size exceeds the limit 10mb",
+  "Congrats! Your email sent successfully!": "Congrats! Your email sent successfully!",
+  "Works with messenger": "Works with messenger",
+  "Knowledge base topic": "Knowledge base topic",
+  "Package version": "Package version",
+  "Branch name": "Branch name",
+  "Abbreviated": "Abbreviated"
 }

@@ -27,7 +27,7 @@ class Scheduler extends React.Component<Props, State> {
     this.state = { scheduleDate: props.scheduleDate };
   }
 
-  changeSchedule(key, value) {
+  changeSchedule = (key, value) => {
     const scheduleDate = { ...this.state.scheduleDate };
 
     scheduleDate[key] = value;
@@ -35,12 +35,12 @@ class Scheduler extends React.Component<Props, State> {
     this.setState({ scheduleDate });
 
     this.props.onChange('scheduleDate', scheduleDate);
-  }
+  };
 
-  generateOptions(number) {
+  generateOptions(length) {
     const options: React.ReactNode[] = [];
 
-    for (let i = 1; i <= number; i++) {
+    for (let i = 1; i <= length; i++) {
       options.push(
         <option key={i} value={i}>
           {i}
@@ -58,16 +58,13 @@ class Scheduler extends React.Component<Props, State> {
       return null;
     }
 
+    const onChange = e =>
+      this.changeSchedule('month', (e.target as HTMLInputElement).value);
+
     return (
       <React.Fragment>
         <ControlLabel>Choose month:</ControlLabel>
-        <FormControl
-          componentClass="select"
-          value={month}
-          onChange={e =>
-            this.changeSchedule('month', (e.target as HTMLInputElement).value)
-          }
-        >
+        <FormControl componentClass="select" value={month} onChange={onChange}>
           <option /> {this.generateOptions(12)}
         </FormControl>
       </React.Fragment>
@@ -81,16 +78,13 @@ class Scheduler extends React.Component<Props, State> {
       return null;
     }
 
+    const onChange = e =>
+      this.changeSchedule('day', (e.target as HTMLInputElement).value);
+
     return (
       <React.Fragment>
         <ControlLabel>Choose day:</ControlLabel>
-        <FormControl
-          componentClass="select"
-          value={day}
-          onChange={e =>
-            this.changeSchedule('day', (e.target as HTMLInputElement).value)
-          }
-        >
+        <FormControl componentClass="select" value={day} onChange={onChange}>
           <option /> {this.generateOptions(31)}
         </FormControl>
       </React.Fragment>
@@ -105,16 +99,14 @@ class Scheduler extends React.Component<Props, State> {
       timeFormat: 'HH:mm'
     };
 
+    const onChange = e =>
+      this.changeSchedule('type', (e.target as HTMLInputElement).value);
+    const onChangeSchedule = e => this.changeSchedule('time', e);
+
     return (
       <FormGroup>
         <ControlLabel>Schedule:</ControlLabel>
-        <FormControl
-          componentClass="select"
-          value={type}
-          onChange={e =>
-            this.changeSchedule('type', (e.target as HTMLInputElement).value)
-          }
-        >
+        <FormControl componentClass="select" value={type} onChange={onChange}>
           <option />{' '}
           {SCHEDULE_TYPES.map(scheduleType => (
             <option key={scheduleType.value} value={scheduleType.value}>
@@ -132,7 +124,7 @@ class Scheduler extends React.Component<Props, State> {
           <Datetime
             {...props}
             value={time}
-            onChange={e => this.changeSchedule('time', e)}
+            onChange={onChangeSchedule}
             dateFormat={false}
             inputProps={{ placeholder: 'Click to choose time' }}
           />

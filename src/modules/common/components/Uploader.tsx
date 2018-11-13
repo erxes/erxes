@@ -1,5 +1,5 @@
 import { Spinner } from 'modules/common/components';
-import { uploadHandler } from 'modules/common/utils';
+import { Alert, uploadHandler } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
 import { IAttachment } from '../types';
@@ -37,11 +37,9 @@ class Uploader extends React.Component<Props, State> {
       loading: false,
       attachmentPreviewStyle: {}
     };
-
-    this.handleFileInput = this.handleFileInput.bind(this);
   }
 
-  handleFileInput(e) {
+  handleFileInput = e => {
     const files = e.target.files;
 
     uploadHandler({
@@ -54,12 +52,18 @@ class Uploader extends React.Component<Props, State> {
         });
       },
 
-      afterUpload: ({ response, fileInfo }) => {
+      afterUpload: ({ status, response, fileInfo }) => {
+        if (status !== 'ok') {
+          Alert.error(response);
+          return this.setState({ loading: false });
+        }
+
+        Alert.info('Success');
+
         // set attachments
-        const attachments = [
-          ...this.state.attachments,
-          { url: response, ...fileInfo }
-        ];
+        const attachment = { url: response, ...fileInfo };
+
+        const attachments = [...this.state.attachments, attachment];
 
         this.props.onChange(attachments);
 
@@ -70,9 +74,9 @@ class Uploader extends React.Component<Props, State> {
         });
       }
     });
-  }
+  };
 
-  removeAttachment(e) {
+  removeAttachment = e => {
     const attachments = [...this.state.attachments];
 
     const index = attachments.indexOf(e);
@@ -82,7 +86,7 @@ class Uploader extends React.Component<Props, State> {
     this.setState({ attachments });
 
     this.props.onChange(attachments);
-  }
+  };
 
   render() {
     const { loading, attachments, attachmentPreviewStyle } = this.state;
@@ -95,11 +99,11 @@ class Uploader extends React.Component<Props, State> {
             alt="attachment"
             src="/images/attach.svg"
             style={attachmentPreviewStyle}
-            onClick={e => this.removeAttachment(e)}
+            onClick={this.removeAttachment}
           />
         ))}
         {loading && <Spinner />}
-        <input type="file" multiple onChange={this.handleFileInput} />
+        <input type="file" multiple={true} onChange={this.handleFileInput} />
       </Attachment>
     );
   }

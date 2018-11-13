@@ -39,18 +39,20 @@ class Channels extends React.Component<Props, {}> {
       </Button>
     );
 
+    const content = props => (
+      <ManageIntegrations
+        {...props}
+        queryParams={queryParams}
+        currentChannel={currentChannel}
+      />
+    );
+
     const rightActionBar = currentChannel._id && (
       <ModalTrigger
         title="Manage Integration"
         trigger={trigger}
         size="lg"
-        content={props => (
-          <ManageIntegrations
-            {...props}
-            queryParams={queryParams}
-            currentChannel={currentChannel}
-          />
-        )}
+        content={content}
       />
     );
 

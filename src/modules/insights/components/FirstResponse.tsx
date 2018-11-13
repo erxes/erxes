@@ -1,4 +1,5 @@
 import { __ } from 'modules/common/utils';
+import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
@@ -10,7 +11,7 @@ import {
 } from '../styles';
 import { IChartParams, IQueryParams } from '../types';
 import { convertTime } from '../utils';
-import { Chart, Filter, Sidebar, TeamMembers } from './';
+import { Chart, Filter, Sidebar, Summary, TeamMembers } from './';
 
 type Props = {
   brands: IBrand[];
@@ -19,7 +20,8 @@ type Props = {
   history: any;
   teamMembers?: IChartParams[];
   time?: number;
-  isLoading?: boolean;
+  isLoading: boolean;
+  summaries: number[];
 };
 
 class FirstResponse extends React.Component<Props> {
@@ -33,7 +35,7 @@ class FirstResponse extends React.Component<Props> {
   }
 
   renderCharts() {
-    const { trend, teamMembers, time, isLoading } = this.props;
+    const { trend, teamMembers, time, isLoading, summaries } = this.props;
 
     return (
       <InsightContent>
@@ -42,6 +44,9 @@ class FirstResponse extends React.Component<Props> {
             'Daily First Response Resolve Rate',
             convertTime(time)
           )}
+
+          <Summary loading={isLoading} data={summaries} />
+
           <Chart loading={isLoading} height={300} data={trend} />
         </InsightRow>
 
@@ -50,7 +55,7 @@ class FirstResponse extends React.Component<Props> {
             'Daily First Response Resolve Rate by Team Members',
             convertTime(time)
           )}
-          <TeamMembers loading={isLoading || false} datas={teamMembers || []} />
+          <TeamMembers loading={isLoading} datas={teamMembers || []} />
         </InsightRow>
       </InsightContent>
     );
@@ -77,7 +82,12 @@ class FirstResponse extends React.Component<Props> {
   render() {
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={this.renderBreadCrumnb()} />}
+        header={
+          <Wrapper.Header
+            breadcrumb={this.renderBreadCrumnb()}
+            submenu={menuInbox}
+          />
+        }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

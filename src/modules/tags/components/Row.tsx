@@ -32,6 +32,10 @@ function Row({ tag, type, count, remove, save }: Props) {
     </Button>
   );
 
+  const content = props => (
+    <Form {...props} type={type} tag={tag} save={save} />
+  );
+
   return (
     <tr>
       <td>
@@ -43,9 +47,7 @@ function Row({ tag, type, count, remove, save }: Props) {
           <ModalTrigger
             title="Edit response"
             trigger={editTrigger}
-            content={props => (
-              <Form {...props} type={type} tag={tag} save={save} />
-            )}
+            content={content}
           />
 
           <Tip text={__('Delete')}>

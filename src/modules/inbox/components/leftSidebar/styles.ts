@@ -59,7 +59,7 @@ const FlexContent = styled.div`
   transition: all ease 0.3s;
 
   .tags {
-    margin-top: 10px;
+    margin-top: ${dimensions.unitSpacing - 3}px;
   }
 `;
 
@@ -103,7 +103,7 @@ const SmallTextOneLine = SmallText.extend`
 `;
 
 const MessageContent = styled.div`
-  margin-top: ${dimensions.unitSpacing}px;
+  margin-top: ${dimensions.unitSpacing - 3}px;
   word-break: break-word;
   overflow: hidden;
   word-wrap: break-word;
@@ -113,14 +113,18 @@ const MessageContent = styled.div`
   max-height: 18px;
 `;
 
-const RowItem = styledTS<{ isActive?: boolean; isRead?: boolean }>(styled.li)`
+const RowItem = styledTS<{
+  isActive?: boolean;
+  isRead?: boolean;
+  isIdle?: boolean;
+}>(styled.li)`
   padding: ${dimensions.coreSpacing}px;
   display: flex;
+  position: relative;
   flex-direction: row;
   border-bottom: 1px solid ${colors.borderPrimary};
   transition: all ease 0.3s;
-
-  background: ${props => props.isActive && colors.bgActive};
+  background: ${props => (props.isActive ? colors.bgActive : null)};
 
   ${props =>
     !props.isRead &&
@@ -135,6 +139,20 @@ const RowItem = styledTS<{ isActive?: boolean; isRead?: boolean }>(styled.li)`
     background: ${props =>
       !props.isRead || props.isActive ? '' : colors.bgLight};
     cursor: pointer;
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border: 5px solid transparent;
+    ${props =>
+      props.isIdle &&
+      css`
+        border-right-color: ${colors.colorCoreRed};
+        border-bottom-color: ${colors.colorCoreRed};
+      `};
   }
 `;
 

@@ -1,22 +1,29 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { Alert, confirm } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import { IntegrationList } from 'modules/settings/integrations/components/common';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { IntegrationsQueryResponse, RemoveMutationResponse } from '../../types';
 import { integrationsListParams } from '../utils';
 
 type Props = {
-  integrationsQuery: any;
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  queryParams: any;
+  kind?: string | null;
+  variables?: { brandId?: string; channelId?: string };
 };
 
-const IntegrationListContainer = (props: Props) => {
+type FinalProps = {
+  integrationsQuery: IntegrationsQueryResponse;
+} & Props &
+  RemoveMutationResponse;
+
+const IntegrationListContainer = (props: FinalProps) => {
   const { integrationsQuery, removeMutation } = props;
 
   if (integrationsQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const integrations = integrationsQuery.integrations || [];
@@ -44,46 +51,40 @@ const IntegrationListContainer = (props: Props) => {
   return <IntegrationList {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.integrations), {
-    name: 'integrationsQuery',
-    options: ({
-      queryParams,
-      kind,
-      variables
-    }: {
-      queryParams: any;
-      kind: string;
-      variables: any;
-    }) => {
-      return {
-        notifyOnNetworkStatusChange: true,
-        variables: {
-          ...variables,
-          ...integrationsListParams(queryParams || {}),
-          kind
-        },
-        fetchPolicy: 'network-only'
-      };
-    }
-  }),
-  graphql(gql(mutations.integrationsRemove), {
-    name: 'removeMutation',
-    options: ({ queryParams, kind }: { queryParams: any; kind: string }) => {
-      return {
-        refetchQueries: [
-          {
-            query: gql(queries.integrations),
-            variables: {
-              ...integrationsListParams(queryParams || {}),
-              kind
-            }
+export default withProps<Props>(
+  compose(
+    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
+      name: 'integrationsQuery',
+      options: ({ queryParams, kind, variables }) => {
+        return {
+          notifyOnNetworkStatusChange: true,
+          variables: {
+            ...variables,
+            ...integrationsListParams(queryParams || {}),
+            kind
           },
-          {
-            query: gql(queries.integrationTotalCount)
-          }
-        ]
-      };
-    }
-  })
-)(IntegrationListContainer);
+          fetchPolicy: 'network-only'
+        };
+      }
+    }),
+    graphql<Props, RemoveMutationResponse>(gql(mutations.integrationsRemove), {
+      name: 'removeMutation',
+      options: ({ queryParams, kind }) => {
+        return {
+          refetchQueries: [
+            {
+              query: gql(queries.integrations),
+              variables: {
+                ...integrationsListParams(queryParams || {}),
+                kind
+              }
+            },
+            {
+              query: gql(queries.integrationTotalCount)
+            }
+          ]
+        };
+      }
+    })
+  )(IntegrationListContainer)
+);

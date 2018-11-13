@@ -16,7 +16,7 @@ type Props = {
   users: IUser[];
   addDeal: (doc: IDealParams, callback: () => void) => void;
   saveDeal: (doc: IDealParams, callback: () => void) => void;
-  removeDeal: (_id: string, callback: () => void) => void;
+  removeDeal: (dealId: string, callback: () => void) => void;
   closeModal: () => void;
 };
 
@@ -37,12 +37,6 @@ class DealEditForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.onChangeField = this.onChangeField.bind(this);
-    this.saveProductsData = this.saveProductsData.bind(this);
-    this.save = this.save.bind(this);
-    this.copy = this.copy.bind(this);
-    this.remove = this.remove.bind(this);
-
     const deal = props.deal;
 
     this.state = {
@@ -61,11 +55,11 @@ class DealEditForm extends React.Component<Props, State> {
     };
   }
 
-  onChangeField<T extends keyof State>(name: T, value: State[T]) {
+  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  saveProductsData() {
+  saveProductsData = () => {
     const { productsData } = this.state;
     const products: IProduct[] = [];
     const amount: any = {};
@@ -77,8 +71,11 @@ class DealEditForm extends React.Component<Props, State> {
       if (data.product) {
         if (data.currency) {
           // calculating deal amount
-          if (!amount[data.currency]) amount[data.currency] = data.amount || 0;
-          else amount[data.currency] += data.amount || 0;
+          if (!amount[data.currency]) {
+            amount[data.currency] = data.amount || 0;
+          } else {
+            amount[data.currency] += data.amount || 0;
+          }
         }
 
         // collecting data for ItemCounter component
@@ -91,9 +88,9 @@ class DealEditForm extends React.Component<Props, State> {
     });
 
     this.setState({ productsData: filteredProductsData, products, amount });
-  }
+  };
 
-  save() {
+  save = () => {
     const {
       name,
       description,
@@ -107,10 +104,13 @@ class DealEditForm extends React.Component<Props, State> {
 
     const { closeModal, saveDeal } = this.props;
 
-    if (!name) return Alert.error(__('Enter name'));
+    if (!name) {
+      return Alert.error(__('Enter name'));
+    }
 
-    if (productsData.length === 0)
+    if (productsData.length === 0) {
       return Alert.error(__('Please, select product & service'));
+    }
 
     const doc = {
       name,
@@ -126,15 +126,15 @@ class DealEditForm extends React.Component<Props, State> {
     saveDeal(doc, () => {
       closeModal();
     });
-  }
+  };
 
-  remove(id) {
+  remove = id => {
     const { removeDeal, closeModal } = this.props;
 
     removeDeal(id, () => closeModal());
-  }
+  };
 
-  copy() {
+  copy = () => {
     const { deal, closeModal, addDeal } = this.props;
 
     // copied doc
@@ -146,7 +146,7 @@ class DealEditForm extends React.Component<Props, State> {
     };
 
     addDeal(doc, () => closeModal && closeModal());
-  }
+  };
 
   renderFormContent() {
     const { deal, users } = this.props;

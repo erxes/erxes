@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import {
   Button,
   ControlLabel,
@@ -40,7 +41,7 @@ type Props = {
     callback: () => void,
     topic: ITopic
   ) => void;
-  remove?: (_id: string) => void;
+  remove?: (knowledgeBaseId: string) => void;
   closeModal: () => void;
 };
 
@@ -52,14 +53,13 @@ type State = {
 
 class KnowledgeForm extends React.Component<Props, State> {
   static installCodeIncludeScript() {
+    const { REACT_APP_CDN_HOST } = getEnv();
+
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${
-          process.env.REACT_APP_CDN_HOST
-        }/knowledgeBaseWidget.bundle.js";
+        script.src = "${REACT_APP_CDN_HOST}/knowledgeBaseWidget.bundle.js";
         script.async = true;
-
         var entry = document.getElementsByTagName('script')[0];
         entry.parentNode.insertBefore(script, entry);
       })();
@@ -82,8 +82,8 @@ class KnowledgeForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    let code = '',
-      color = colors.colorPrimary;
+    let code = '';
+    let color = colors.colorPrimary;
 
     // showed install code automatically in edit mode
     if (props.topic) {
@@ -96,18 +96,13 @@ class KnowledgeForm extends React.Component<Props, State> {
       code,
       color
     };
-
-    this.handleBrandChange = this.handleBrandChange.bind(this);
-    this.onColorChange = this.onColorChange.bind(this);
-    this.save = this.save.bind(this);
-    this.remove = this.remove.bind(this);
   }
 
-  onColorChange(e) {
+  onColorChange = e => {
     this.setState({ color: e.hex });
-  }
+  };
 
-  save(e) {
+  save = e => {
     e.preventDefault();
 
     this.props.save(
@@ -115,28 +110,27 @@ class KnowledgeForm extends React.Component<Props, State> {
       () => this.props.closeModal(),
       this.props.topic
     );
-  }
+  };
 
-  remove() {
+  remove = () => {
     const { remove, topic } = this.props;
 
     if (remove) {
       remove(topic._id);
     }
-  }
+  };
 
   renderInstallCode() {
     if (this.props.topic && this.props.topic._id) {
+      const onCopy = () => this.setState({ copied: true });
+
       return (
         <FormGroup>
           <ControlLabel>Install code</ControlLabel>
           <MarkdownWrapper>
             <ReactMarkdown source={this.state.code} />
             {this.state.code ? (
-              <CopyToClipboard
-                text={this.state.code}
-                onCopy={() => this.setState({ copied: true })}
-              >
+              <CopyToClipboard text={this.state.code} onCopy={onCopy}>
                 <Button size="small" btnStyle="primary" icon="copy">
                   {this.state.copied ? 'Copied' : 'Copy to clipboard'}
                 </Button>
@@ -152,12 +146,12 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
   }
 
-  handleBrandChange() {
+  handleBrandChange = () => {
     if (this.props.topic && this.props.topic._id) {
       const code = KnowledgeForm.getInstallCode(this.props.topic._id);
       this.setState({ code, copied: false });
     }
-  }
+  };
 
   generateDoc() {
     const { topic } = this.props;
@@ -204,7 +198,7 @@ class KnowledgeForm extends React.Component<Props, State> {
             id="knowledgebase-title"
             type="text"
             defaultValue={topic.title}
-            required
+            required={true}
           />
         </FormGroup>
 
@@ -230,14 +224,14 @@ class KnowledgeForm extends React.Component<Props, State> {
           <div>
             <OverlayTrigger
               trigger="click"
-              rootClose
+              rootClose={true}
               placement="bottom"
               overlay={popoverTop}
             >
-              <ColorPick full>
+              <ColorPick full={true}>
                 <ColorPicker
                   style={{ backgroundColor: this.state.color }}
-                  full
+                  full={true}
                 />
               </ColorPick>
             </OverlayTrigger>

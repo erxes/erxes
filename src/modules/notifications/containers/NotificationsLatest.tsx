@@ -1,20 +1,25 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { NotificationsLatest } from '../components';
 import { mutations, queries } from '../graphql';
+import {
+  MarkAsReadMutationResponse,
+  NotificationsQueryResponse
+} from '../types';
 
 type Props = {
-  notificationsQuery: any;
-  notificationsMarkAsReadMutation: (
-    params: { variables: { _ids: string[] } }
-  ) => Promise<any>;
   update?: () => void;
 };
 
-class NotificationsLatestContainer extends React.Component<Props> {
+type FinalProps = {
+  notificationsQuery: NotificationsQueryResponse;
+} & Props &
+  MarkAsReadMutationResponse;
+
+class NotificationsLatestContainer extends React.Component<FinalProps> {
   render() {
     const {
       notificationsQuery,
@@ -23,11 +28,11 @@ class NotificationsLatestContainer extends React.Component<Props> {
     } = this.props;
 
     if (notificationsQuery.loading) {
-      return <Spinner objective />;
+      return <Spinner objective={true} />;
     }
 
-    const markAsRead = _ids => {
-      notificationsMarkAsReadMutation({ variables: { _ids } })
+    const markAsRead = notificationIds => {
+      notificationsMarkAsReadMutation({ variables: { _ids: notificationIds } })
         .then(() => {
           notificationsQuery.refetch();
           Alert.success('Notification have been seen');
@@ -49,17 +54,29 @@ class NotificationsLatestContainer extends React.Component<Props> {
   }
 }
 
-export default compose(
-  graphql(gql(mutations.markAsRead), {
-    name: 'notificationsMarkAsReadMutation'
-  }),
-  graphql(gql(queries.notifications), {
-    name: 'notificationsQuery',
-    options: () => ({
-      variables: {
-        limit: 10,
-        requireRead: false
+export default withProps<Props>(
+  compose(
+    graphql<Props, MarkAsReadMutationResponse, { _ids: string[] }>(
+      gql(mutations.markAsRead),
+      {
+        name: 'notificationsMarkAsReadMutation',
+        options: {
+          refetchQueries: () => ['notificationCounts']
+        }
       }
+    ),
+    graphql<
+      Props,
+      NotificationsQueryResponse,
+      { limit: number; requireRead: boolean }
+    >(gql(queries.notifications), {
+      name: 'notificationsQuery',
+      options: () => ({
+        variables: {
+          limit: 10,
+          requireRead: false
+        }
+      })
     })
-  })
-)(NotificationsLatestContainer);
+  )(NotificationsLatestContainer)
+);

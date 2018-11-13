@@ -10,6 +10,7 @@ type Props = {
   data: any;
   type: string;
   refetchQueries?: any[];
+  isOpen?: boolean;
 };
 
 type State = {
@@ -23,17 +24,15 @@ class TaggerSection extends React.Component<Props, State> {
     this.state = {
       isTaggerVisible: false
     };
-
-    this.toggleTagger = this.toggleTagger.bind(this);
   }
 
-  toggleTagger(e) {
+  toggleTagger = e => {
     e.preventDefault();
 
     const { isTaggerVisible } = this.state;
 
     this.setState({ isTaggerVisible: !isTaggerVisible });
-  }
+  };
 
   renderTags(tags) {
     if (!tags.length) {
@@ -52,7 +51,7 @@ class TaggerSection extends React.Component<Props, State> {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const { data, type, refetchQueries } = this.props;
+    const { data, type, refetchQueries, isOpen } = this.props;
     const tags = data.getTags || [];
 
     const quickButtons = (
@@ -65,7 +64,7 @@ class TaggerSection extends React.Component<Props, State> {
       <Section>
         <Title>{__('Tags')}</Title>
 
-        <QuickButtons>{quickButtons}</QuickButtons>
+        <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
 
         <Collapse in={this.state.isTaggerVisible}>
           <div>

@@ -26,29 +26,25 @@ class Condition extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.handleInputValue = this.handleInputValue.bind(this);
-    this.handleValue = this.handleValue.bind(this);
-    this.removeCondition = this.removeCondition.bind(this);
-
     this.state = this.props.condition;
   }
 
-  handleInputValue<T extends keyof State>(name: T, value: State[T]) {
+  handleInputValue = <T extends keyof State>(name: T, value: State[T]) => {
     const states = { [name]: value } as Pick<State, keyof State>;
 
     // Changing current operator when the type is changed
     if (name === 'type' && typeof value === 'string') {
-      states.operator = operators[value][0].value || '';
+      states.operator = operators.string[0].value || '';
     }
 
     this.setState(states, () => {
       const { changeCondition } = this.props;
       debounce(() => changeCondition(this.state), 350)();
     });
-  }
+  };
 
   // changeCondition will be fired after 350ms
-  handleValue(e) {
+  handleValue = e => {
     e.preventDefault();
 
     const val = e.target.value;
@@ -59,11 +55,11 @@ class Condition extends React.Component<Props, State> {
       // debounce text input
       debounce(() => changeCondition(this.state), 350)();
     });
-  }
+  };
 
-  removeCondition() {
+  removeCondition = () => {
     this.props.removeCondition(this.props.condition.field);
-  }
+  };
 
   renderInput() {
     const { type, value } = this.state;
@@ -79,17 +75,15 @@ class Condition extends React.Component<Props, State> {
   }
 
   renderSelect(name, value, obj) {
+    const onChange = e =>
+      this.handleInputValue(name, (e.currentTarget as HTMLInputElement).value);
+
     return (
       <FormControl
         componentClass="select"
         placeholder={__('select')}
         value={value}
-        onChange={e =>
-          this.handleInputValue(
-            name,
-            (e.currentTarget as HTMLInputElement).value
-          )
-        }
+        onChange={onChange}
       >
         {Object.keys(obj).map(key => (
           <option value={key} key={key}>
@@ -128,17 +122,18 @@ class Condition extends React.Component<Props, State> {
   }
 
   renderOperator() {
+    const onChange = e =>
+      this.handleInputValue(
+        'operator',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
     return (
       <FormControl
         componentClass="select"
         placeholder={__('select')}
         value={this.state.operator}
-        onChange={e =>
-          this.handleInputValue(
-            'operator',
-            (e.currentTarget as HTMLInputElement).value
-          )
-        }
+        onChange={onChange}
       >
         {operators[this.state.type].map(c => (
           <option value={c.value} key={c.value}>
@@ -156,7 +151,9 @@ class Condition extends React.Component<Props, State> {
 
     return (
       <ConditionItem>
-        <ControlLabel ignoreTrans>{field ? field.title : ''}</ControlLabel>
+        <ControlLabel ignoreTrans={true}>
+          {field ? field.title : ''}
+        </ControlLabel>
         <br />
         <FlexContent>
           <FlexItem>

@@ -3,7 +3,7 @@ import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
-import { IConfigColumn, IContentTypeFields } from '../types';
+import { FieldsCombinedByType, IConfigColumn } from '../types';
 
 const Header = styled.div`
   display: flex;
@@ -33,31 +33,27 @@ const Child = styled.div`
 `;
 
 type Props = {
-  fields: IContentTypeFields[];
+  fields: FieldsCombinedByType[];
   config: IConfigColumn[];
   save: (columnsConfig: IConfigColumn[]) => void;
   closeModal: () => void;
 };
 
 type State = {
-  fields: IContentTypeFields[];
+  fields: FieldsCombinedByType[];
 };
 
 class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onChangeFields = this.onChangeFields.bind(this);
-
     this.state = {
       fields: props.fields
     };
   }
 
-  onSubmit(e) {
+  onSubmit = e => {
     e.preventDefault();
-
     const columnsConfig: IConfigColumn[] = [];
 
     this.state.fields.forEach((field, index) => {
@@ -73,11 +69,12 @@ class ManageColumns extends React.Component<Props, State> {
     });
 
     this.props.save(columnsConfig);
-  }
+    this.props.closeModal();
+  };
 
-  onChangeFields(fields) {
+  onChangeFields = fields => {
     this.setState({ fields });
-  }
+  };
 
   render() {
     const { config: configArr } = this.props;
@@ -125,12 +122,7 @@ class ManageColumns extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button
-            type="submit"
-            onClick={this.props.closeModal}
-            btnStyle="success"
-            icon="checked-1"
-          >
+          <Button type="submit" btnStyle="success" icon="checked-1">
             Submit
           </Button>
         </Footer>

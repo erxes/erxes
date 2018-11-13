@@ -1,10 +1,16 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { IAttachmentPreview } from '../../../../common/types';
 import { MailForm } from '../../components/google';
+import {
+  IntegrationsQueryResponse,
+  SendGmailMutationResponse,
+  SendGmailMutationVariables
+} from '../../types';
 
 type Props = {
   refetchQueries: string[];
@@ -12,25 +18,17 @@ type Props = {
   contentTypeId: string;
   toEmail?: string;
   toEmails?: string[];
-  gmailIntegrationsQuery: any;
-  setAttachmentPreview?: (data: string | null) => void;
+  setAttachmentPreview?: (data: IAttachmentPreview) => void;
   attachmentPreview: { name: string; data: string; type: string };
   closeModal?: () => void;
-  integrationsSendGmail: (
-    params: {
-      variables: {
-        cc?: string;
-        bcc?: string;
-        toEmails?: string;
-        subject?: string;
-        body: string;
-        integrationId?: string;
-      };
-    }
-  ) => Promise<any>;
 };
 
-const MailFormContainer = (props: Props) => {
+type FinalProps = {
+  gmailIntegrationsQuery: IntegrationsQueryResponse;
+} & Props &
+  SendGmailMutationResponse;
+
+const MailFormContainer = (props: FinalProps) => {
   const {
     integrationsSendGmail,
     contentType,
@@ -40,7 +38,7 @@ const MailFormContainer = (props: Props) => {
   } = props;
 
   if (gmailIntegrationsQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const integrations = gmailIntegrationsQuery.integrations || [];
@@ -71,22 +69,30 @@ const MailFormContainer = (props: Props) => {
   );
 };
 
-export default compose(
-  graphql(gql(mutations.integrationsSendGmail), {
-    name: 'integrationsSendGmail',
-    options: ({ refetchQueries }: { refetchQueries: string[] }) => ({
-      refetchQueries
-    })
-  }),
-  graphql(gql(queries.integrations), {
-    name: 'gmailIntegrationsQuery',
-    options: () => {
-      return {
-        variables: {
-          kind: 'gmail'
-        },
-        fetchPolicy: 'network-only'
-      };
-    }
-  })
-)(MailFormContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, SendGmailMutationResponse, SendGmailMutationVariables>(
+      gql(mutations.integrationsSendGmail),
+      {
+        name: 'integrationsSendGmail',
+        options: ({ refetchQueries }: { refetchQueries: string[] }) => ({
+          refetchQueries
+        })
+      }
+    ),
+    graphql<Props, IntegrationsQueryResponse, { kind: string }>(
+      gql(queries.integrations),
+      {
+        name: 'gmailIntegrationsQuery',
+        options: () => {
+          return {
+            variables: {
+              kind: 'gmail'
+            },
+            fetchPolicy: 'network-only'
+          };
+        }
+      }
+    )
+  )(MailFormContainer)
+);

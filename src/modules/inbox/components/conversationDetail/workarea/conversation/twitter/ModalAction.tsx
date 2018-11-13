@@ -8,8 +8,7 @@ import { colors } from 'modules/common/styles';
 import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IAddMessage } from '../../../../../containers/conversationDetail/WorkArea';
-import { IMessage } from '../../../../../types';
+import { AddMessageMutationVariables, IMessage } from '../../../../../types';
 
 const Footer = styled.div`
   text-align: right;
@@ -25,7 +24,10 @@ const Char = styledTS<{ count?: number }>(styled.b)`
 `;
 
 type Props = {
-  replyTweet?: (data: IAddMessage, callback: () => void) => void;
+  replyTweet?: (
+    data: AddMessageMutationVariables,
+    callback: () => void
+  ) => void;
   tweet?: (
     data: {
       integrationId: string;
@@ -59,26 +61,25 @@ class ModalAction extends React.Component<Props, State> {
       tweet: '',
       characterCount: this.getCharacterCount(this.getContent())
     };
-
-    this.doAction = this.doAction.bind(this);
-    this.onTweetContentChange = this.onTweetContentChange.bind(this);
   }
 
   getCharacterCount(character?: string) {
     const maxChar = 280;
 
-    if (!character) return maxChar;
+    if (!character) {
+      return maxChar;
+    }
 
     return maxChar - character.length;
   }
 
-  onTweetContentChange(e: React.FormEvent<HTMLElement>) {
+  onTweetContentChange = (e: React.FormEvent<HTMLElement>) => {
     const tweetContent = (e.target as HTMLInputElement).value;
     this.setState({
       tweet: tweetContent,
       characterCount: this.getCharacterCount(tweetContent)
     });
-  }
+  };
 
   getContent() {
     const { type, parentMessage } = this.props;
@@ -108,7 +109,7 @@ class ModalAction extends React.Component<Props, State> {
     return `@${screenName} `;
   }
 
-  doAction(e: React.FormEvent) {
+  doAction = (e: React.FormEvent) => {
     e.preventDefault();
 
     const {
@@ -120,7 +121,9 @@ class ModalAction extends React.Component<Props, State> {
     } = this.props;
     const twitterData = parentMessage.twitterData;
 
-    if (!twitterData) return null;
+    if (!twitterData) {
+      return null;
+    }
 
     const id = twitterData.id_str;
 
@@ -161,7 +164,7 @@ class ModalAction extends React.Component<Props, State> {
         this.props.closeModal();
       })
     );
-  }
+  };
 
   render() {
     const { type } = this.props;
@@ -177,21 +180,19 @@ class ModalAction extends React.Component<Props, State> {
           </TweetInfo>
 
           <FormControl
-            autoFocus
+            autoFocus={true}
             componentClass="textarea"
             disabled={type === 'retweet'}
             onChange={this.onTweetContentChange}
             defaultValue={this.getContent()}
-            required
+            required={true}
           />
         </FormGroup>
 
         <Footer>
           <Button
             btnStyle="simple"
-            onClick={() => {
-              this.props.closeModal();
-            }}
+            onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Close

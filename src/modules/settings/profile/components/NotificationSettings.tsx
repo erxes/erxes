@@ -1,12 +1,15 @@
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Toggle from 'react-toggle';
+import {
+  NotificationConfig,
+  NotificationModule
+} from '../../../notifications/types';
 import { InlineItems, ModuleBox, SubHeading, SubItem } from '../../styles';
-import { IConfig, IModules } from '../types';
 
 type Props = {
-  modules: IModules[];
-  configs: IConfig[];
+  modules: NotificationModule[];
+  configs: NotificationConfig[];
   // save notification configurations
   saveNotificationConfigurations: (
     notify: { notifType: string; isAllowed: boolean }
@@ -18,27 +21,18 @@ type Props = {
 };
 
 class NotificationSettings extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    // on notif type change
-    this.onTypeChange = this.onTypeChange.bind(this);
-
-    this.onEmailConfigChange = this.onEmailConfigChange.bind(this);
-  }
-
-  onTypeChange(e) {
+  onTypeChange = e => {
     // save config
     this.props.saveNotificationConfigurations({
       notifType: e.target.value,
       isAllowed: e.target.checked
     });
-  }
+  };
 
-  onEmailConfigChange(e) {
+  onEmailConfigChange = e => {
     // save get notification by email config
     this.props.configGetNotificationByEmail({ isAllowed: e.target.checked });
-  }
+  };
 
   isChecked(notifType) {
     const oldEntry = this.props.configs.find(

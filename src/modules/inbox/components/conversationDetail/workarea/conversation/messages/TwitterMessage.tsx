@@ -15,8 +15,9 @@ const TwitterMessage = (props: Props) => {
     !message.customer.twitterData ||
     (!conversationFirstMessage.customer ||
       !conversationFirstMessage.customer.twitterData)
-  )
+  ) {
     return null;
+  }
 
   const firstTwitterData = conversationFirstMessage.customer.twitterData;
   const currentTwitterData = message.customer.twitterData;

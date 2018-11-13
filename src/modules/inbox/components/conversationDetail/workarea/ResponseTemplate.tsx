@@ -23,8 +23,10 @@ import { Link } from 'react-router-dom';
 import strip from 'strip';
 import { IAttachment } from '../../../../common/types';
 import { IBrand } from '../../../../settings/brands/types';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
-import { ISaveResponseTemplate } from '../../../containers/conversationDetail/ResponseTemplate';
+import {
+  IResponseTemplate,
+  SaveResponsTemplateMutationVariables
+} from '../../../../settings/responseTemplates/types';
 import ResponseTemplateModal from './ResponseTemplateModal';
 
 type Props = {
@@ -32,7 +34,7 @@ type Props = {
   responseTemplates: IResponseTemplate[];
   onSelect: (responseTemplate?: IResponseTemplate) => void;
   saveResponseTemplate: (
-    doc: ISaveResponseTemplate,
+    doc: SaveResponsTemplateMutationVariables,
     callback: (error?: Error) => void
   ) => void;
 
@@ -58,12 +60,6 @@ class ResponseTemplate extends React.Component<Props, State> {
       brandId: props.brandId,
       options: this.filterByBrand(props.brandId)
     };
-
-    this.onSelect = this.onSelect.bind(this);
-    this.onSave = this.onSave.bind(this);
-    this.filterItems = this.filterItems.bind(this);
-    this.onFilter = this.onFilter.bind(this);
-    this.filterByBrand = this.filterByBrand.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -82,7 +78,7 @@ class ResponseTemplate extends React.Component<Props, State> {
     }
   }
 
-  onSave(brandId: string, name: string) {
+  onSave = (brandId: string, name: string) => {
     const doc = {
       brandId,
       name,
@@ -91,7 +87,9 @@ class ResponseTemplate extends React.Component<Props, State> {
     };
 
     this.props.saveResponseTemplate(doc, error => {
-      if (error) return Alert.error(error.message);
+      if (error) {
+        return Alert.error(error.message);
+      }
 
       Alert.success('Congrats');
 
@@ -99,9 +97,9 @@ class ResponseTemplate extends React.Component<Props, State> {
 
       return element.click();
     });
-  }
+  };
 
-  onSelect(responseTemplateId: string) {
+  onSelect = (responseTemplateId: string) => {
     const { responseTemplates, onSelect } = this.props;
 
     // find response template using event key
@@ -113,22 +111,22 @@ class ResponseTemplate extends React.Component<Props, State> {
     this.overlayRef.hide();
 
     return onSelect && onSelect(responseTemplate);
-  }
+  };
 
-  onFilter(e: React.FormEvent<HTMLElement>) {
+  onFilter = (e: React.FormEvent<HTMLElement>) => {
     const options = this.filterByBrand((e.target as HTMLInputElement).value);
     this.setState({ options, brandId: (e.target as HTMLInputElement).value });
-  }
+  };
 
-  filterByBrand(brandId) {
+  filterByBrand = brandId => {
     return this.props.responseTemplates.filter(
       option => option.brandId === brandId
     );
-  }
+  };
 
-  filterItems(e: React.FormEvent<HTMLElement>) {
+  filterItems = (e: React.FormEvent<HTMLElement>) => {
     this.setState({ key: (e.target as HTMLInputElement).value });
-  }
+  };
 
   renderItems() {
     const { options, key } = this.state;
@@ -147,8 +145,10 @@ class ResponseTemplate extends React.Component<Props, State> {
         return false;
       }
 
+      const onClick = () => this.onSelect(item._id);
+
       return (
-        <li key={item._id} onClick={() => this.onSelect(item._id)}>
+        <li key={item._id} onClick={onClick}>
           <TemplateTitle>{item.name}</TemplateTitle>
           <TemplateContent>{strip(item.content)}</TemplateContent>
         </li>
@@ -180,7 +180,7 @@ class ResponseTemplate extends React.Component<Props, State> {
                 type="text"
                 placeholder={__('Search') as string}
                 onChange={this.filterItems}
-                autoFocus
+                autoFocus={true}
               />
             </InlineColumn>
             <InlineColumn>
@@ -204,7 +204,7 @@ class ResponseTemplate extends React.Component<Props, State> {
           <PopoverList>{this.renderItems()}</PopoverList>
         </PopoverBody>
         <PopoverFooter>
-          <PopoverList center>
+          <PopoverList center={true}>
             <li>
               <Link to="/settings/response-templates">
                 {__('Manage templates')}
@@ -221,7 +221,7 @@ class ResponseTemplate extends React.Component<Props, State> {
           trigger="click"
           placement="top"
           overlay={popover}
-          rootClose
+          rootClose={true}
           ref={overlayTrigger => {
             this.overlayRef = overlayTrigger;
           }}

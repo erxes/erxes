@@ -16,28 +16,25 @@ interface IProps extends IRouterProps {
 }
 
 class LifecycleStateFilter extends React.Component<IProps> {
-  constructor(props, context) {
-    super(props, context);
-
-    this.renderCounts = this.renderCounts.bind(this);
-  }
-
-  renderCounts() {
+  renderCounts = () => {
     const { history, counts } = this.props;
     const { Section } = Wrapper.Sidebar;
     const paramKey = 'lifecycleState';
+
+    const onClear = () => {
+      router.setParams(history, { lifecycleState: null });
+    };
+
+    const onClick = (key, value) => {
+      router.setParams(history, { [key]: value });
+    };
 
     return (
       <Section collapsible={true}>
         <Section.Title>{__('Filter by lifecycle states')}</Section.Title>
         <Section.QuickButtons>
           {router.getParam(history, 'lifecycleState') ? (
-            <a
-              tabIndex={0}
-              onClick={() => {
-                router.setParams(history, { lifecycleState: null });
-              }}
-            >
+            <a tabIndex={0} onClick={onClear}>
               <Icon icon="cancel-1" />
             </a>
           ) : null}
@@ -55,9 +52,7 @@ class LifecycleStateFilter extends React.Component<IProps> {
                           ? 'active'
                           : ''
                       }
-                      onClick={() => {
-                        router.setParams(history, { [paramKey]: value });
-                      }}
+                      onClick={onClick.bind(this, paramKey, value)}
                     >
                       {label}
                       <SidebarCounter>
@@ -72,7 +67,7 @@ class LifecycleStateFilter extends React.Component<IProps> {
         </div>
       </Section>
     );
-  }
+  };
 
   render() {
     return (

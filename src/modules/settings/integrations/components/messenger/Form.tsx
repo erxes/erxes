@@ -55,16 +55,12 @@ type State = {
   facebook: string;
   twitter: string;
   youtube: string;
-  showFaq: boolean;
   messages: IMessages;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    this.onChange = this.onChange.bind(this);
-    this.save = this.save.bind(this);
 
     const integration = props.integration || ({} as IIntegration);
     const languageCode = integration.languageCode || 'en';
@@ -95,7 +91,6 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook: links.facebook || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
-      showFaq: configData.showFaq || false,
       messages: { ...this.generateMessages(messages) }
     };
   }
@@ -122,11 +117,11 @@ class CreateMessenger extends React.Component<Props, State> {
     return messages;
   }
 
-  onChange<T extends keyof State>(key: T, value: State[T]) {
+  onChange = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
-  }
+  };
 
-  save(e) {
+  save = e => {
     e.preventDefault();
 
     const {
@@ -164,7 +159,6 @@ class CreateMessenger extends React.Component<Props, State> {
         timezone: this.state.timezone,
         onlineHours: this.state.onlineHours,
         supporterIds: this.state.supporterIds,
-        showFaq: this.state.showFaq,
         messages,
         links
       },
@@ -174,7 +168,7 @@ class CreateMessenger extends React.Component<Props, State> {
         logo: this.state.logo
       }
     });
-  }
+  };
 
   renderButtons() {
     const cancelButton = (
@@ -219,7 +213,6 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook,
       twitter,
       youtube,
-      showFaq,
       messages
     } = this.state;
 
@@ -231,6 +224,9 @@ class CreateMessenger extends React.Component<Props, State> {
       { title: __('Messenger') }
     ];
 
+    const onChange = e =>
+      this.onChange('title', (e.currentTarget as HTMLInputElement).value);
+
     return (
       <StepWrapper>
         <Wrapper.Header breadcrumb={breadcrumb} />
@@ -238,13 +234,8 @@ class CreateMessenger extends React.Component<Props, State> {
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
-            required
-            onChange={e =>
-              this.onChange(
-                'title',
-                (e.currentTarget as HTMLInputElement).value
-              )
-            }
+            required={true}
+            onChange={onChange}
             defaultValue={title}
           />
         </TitleContainer>
@@ -293,13 +284,12 @@ class CreateMessenger extends React.Component<Props, State> {
                 brands={this.props.brands}
                 brandId={brandId}
                 notifyCustomer={notifyCustomer}
-                showFaq={showFaq}
               />
             </Step>
           </Steps>
 
           <MessengerPreview>
-            <Preview fullHeight>
+            <Preview fullHeight={true}>
               <CommonPreview
                 onChange={this.onChange}
                 teamMembers={this.props.teamMembers}

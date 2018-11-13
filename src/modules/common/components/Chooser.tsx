@@ -44,17 +44,12 @@ class CommonChooser extends React.Component<Props, State> {
       loadmore: true,
       searchValue: ''
     };
-
-    this.onSelect = this.onSelect.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.search = this.search.bind(this);
-    this.loadMore = this.loadMore.bind(this);
   }
 
-  onSelect() {
+  onSelect = () => {
     this.props.onSelect(this.state.datas);
     this.props.closeModal();
-  }
+  };
 
   componentWillUnmount() {
     this.props.clearState();
@@ -66,7 +61,7 @@ class CommonChooser extends React.Component<Props, State> {
     this.setState({ loadmore: datas.length === perPage });
   }
 
-  handleChange(type, data) {
+  handleChange = (type, data) => {
     const { datas } = this.state;
 
     if (type === 'add') {
@@ -78,10 +73,12 @@ class CommonChooser extends React.Component<Props, State> {
     } else {
       this.setState({ datas: datas.filter(item => item !== data) });
     }
-  }
+  };
 
-  search(e) {
-    if (this.timer) clearTimeout(this.timer);
+  search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
 
     const { search } = this.props;
     const value = e.target.value;
@@ -90,20 +87,22 @@ class CommonChooser extends React.Component<Props, State> {
       search(value);
       this.setState({ searchValue: value });
     }, 500);
-  }
+  };
 
-  loadMore() {
+  loadMore = () => {
     this.setState({ loadmore: false });
     this.props.search(this.state.searchValue, true);
-  }
+  };
 
   renderRow(data, icon) {
     if (icon === 'add' && this.state.datas.some(e => e._id === data._id)) {
       return null;
     }
 
+    const onClick = () => this.handleChange(icon, data);
+
     return (
-      <li key={data._id} onClick={() => this.handleChange(icon, data)}>
+      <li key={data._id} onClick={onClick}>
         {this.props.renderName(data)}
         <Icon icon={icon} />
       </li>
@@ -123,7 +122,7 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   render() {
-    const { renderForm, datas, title, data } = this.props;
+    const { renderForm, datas, title, data, closeModal } = this.props;
     const selectedDatas = this.state.datas;
 
     const addTrigger = (
@@ -139,7 +138,7 @@ class CommonChooser extends React.Component<Props, State> {
           <Column>
             <FormControl
               placeholder={__('Type to search')}
-              onChange={e => this.search(e)}
+              onChange={this.search}
             />
             <ul>
               {datas.map(dataItem => this.renderRow(dataItem, 'add'))}
@@ -175,11 +174,7 @@ class CommonChooser extends React.Component<Props, State> {
               content={renderForm}
             />
             <div>
-              <Button
-                btnStyle="simple"
-                onClick={() => this.props.closeModal()}
-                icon="cancel-1"
-              >
+              <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
                 Cancel
               </Button>
               <Button

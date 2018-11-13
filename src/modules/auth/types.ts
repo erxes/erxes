@@ -38,3 +38,45 @@ export interface IUser extends IUserDoc {
   role: string;
   emailSignatures?: IEmailSignature[];
 }
+
+export type ForgotPasswordMutationVariables = {
+  email: string;
+  callback: (e: Error) => void;
+};
+
+export type ForgotPasswordMutationResponse = {
+  forgotPasswordMutation: (
+    params: {
+      variables: ForgotPasswordMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type ResetPasswordMutationVariables = {
+  newPassword: string;
+  token: string;
+};
+
+export type ResetPasswordMutationResponse = {
+  resetPasswordMutation: (
+    params: { variables: ResetPasswordMutationVariables }
+  ) => Promise<any>;
+};
+
+export type LoginMutationVariables = {
+  email: string;
+  password: string;
+};
+
+export type LoginMutationResponse = {
+  loginMutation: (
+    params: {
+      variables: LoginMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type CurrentUserQueryResponse = {
+  currentUser: IUser;
+  loading: boolean;
+};

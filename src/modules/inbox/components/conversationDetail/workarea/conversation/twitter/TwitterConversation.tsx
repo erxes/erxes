@@ -22,14 +22,7 @@ const List = styledTS<{ isRoot?: boolean }>(styled.ul)`
 `;
 
 class TwitterConversation extends React.Component<Props, {}> {
-  constructor(props) {
-    super(props);
-
-    this.formatMessages = this.formatMessages.bind(this);
-    this.renderTweets = this.renderTweets.bind(this);
-  }
-
-  formatMessages(messages: IMessage[], parent: string | null) {
+  formatMessages = (messages: IMessage[], parent: string | null) => {
     const array: INestedMessage[] = [];
 
     messages.forEach(msg => {
@@ -52,17 +45,17 @@ class TwitterConversation extends React.Component<Props, {}> {
     });
 
     return array;
-  }
+  };
 
-  renderChildren(children: INestedMessage[], integrationId: string) {
+  renderChildren = (children: INestedMessage[], integrationId: string) => {
     if (!children) {
       return null;
     }
 
     return <List>{this.renderTweets(children, integrationId)}</List>;
-  }
+  };
 
-  renderTweets(messages: INestedMessage[], integrationId: string) {
+  renderTweets = (messages: INestedMessage[], integrationId: string) => {
     const { scrollBottom } = this.props;
 
     return messages.map(message => {
@@ -78,7 +71,7 @@ class TwitterConversation extends React.Component<Props, {}> {
         </li>
       );
     });
-  }
+  };
 
   renderInternals(messages: IMessage[]) {
     return messages.filter(message => !message.twitterData).map(message => {
@@ -109,7 +102,9 @@ class TwitterConversation extends React.Component<Props, {}> {
 
     return (
       <React.Fragment>
-        <List isRoot>{this.renderTweets(nestedMessages, integrationId)}</List>
+        <List isRoot={true}>
+          {this.renderTweets(nestedMessages, integrationId)}
+        </List>
         {this.renderInternals(messages)}
       </React.Fragment>
     );

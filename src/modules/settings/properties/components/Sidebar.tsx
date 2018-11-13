@@ -11,18 +11,12 @@ type Props = {
 };
 
 class Sidebar extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderSidebarHeader = this.renderSidebarHeader.bind(this);
-  }
-
-  renderSidebarHeader() {
+  renderSidebarHeader = () => {
     const { title } = this.props;
     const { Header } = LeftSidebar;
 
-    return <Header uppercase>{__(title)}</Header>;
-  }
+    return <Header uppercase={true}>{__(title)}</Header>;
+  };
 
   getClassName(type) {
     const { currentType } = this.props;

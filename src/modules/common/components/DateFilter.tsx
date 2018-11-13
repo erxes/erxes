@@ -117,12 +117,6 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
 
     this.state = state;
-
-    this.renderPopover = this.renderPopover.bind(this);
-    this.refetchCountQuery = this.refetchCountQuery.bind(this);
-    this.renderCount = this.renderCount.bind(this);
-    this.onDateChange = this.onDateChange.bind(this);
-    this.filterByDate = this.filterByDate.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -135,11 +129,13 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
   }
 
-  onDateChange<T extends keyof State>(type: T, date: State[T]) {
-    this.setState({ [type]: date } as Pick<State, keyof State>);
-  }
+  onDateChange = <T extends keyof State>(type: T, date: State[T]) => {
+    if (typeof date !== 'string') {
+      this.setState({ [type]: date } as Pick<State, keyof State>);
+    }
+  };
 
-  refetchCountQuery() {
+  refetchCountQuery = () => {
     const { client, queryParams, countQuery, countQueryParam } = this.props;
 
     if (!countQuery || !countQueryParam) {
@@ -157,9 +153,9 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
           totalCount: data[countQueryParam]
         });
       });
-  }
+  };
 
-  filterByDate() {
+  filterByDate = () => {
     const { startDate, endDate } = this.state;
 
     const formattedStartDate = moment(startDate).format(format);
@@ -173,9 +169,9 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     if (this.props.countQuery) {
       this.refetchCountQuery();
     }
-  }
+  };
 
-  renderCount() {
+  renderCount = () => {
     const { totalCount } = this.state;
 
     if (this.props.countQuery) {
@@ -191,14 +187,26 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     }
 
     return null;
-  }
+  };
 
-  renderPopover() {
+  renderPopover = () => {
     const props = {
       inputProps: { placeholder: __('Select a date') },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD',
       closeOnSelect: true
+    };
+
+    const onChangeStart = date => {
+      if (typeof date !== 'string') {
+        this.onDateChange('startDate', date.toDate());
+      }
+    };
+
+    const onChangeEnd = date => {
+      if (typeof date !== 'string') {
+        this.onDateChange('endDate', date.toDate());
+      }
     };
 
     return (
@@ -209,11 +217,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
               <Datetime
                 {...props}
                 value={this.state.startDate}
-                onChange={date => {
-                  if (typeof date !== 'string') {
-                    this.onDateChange('startDate', date.toDate());
-                  }
-                }}
+                onChange={onChangeStart}
               />
             </FlexItem>
 
@@ -221,11 +225,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
               <Datetime
                 {...props}
                 value={this.state.endDate}
-                onChange={date => {
-                  if (typeof date !== 'string') {
-                    this.onDateChange('endDate', date.toDate());
-                  }
-                }}
+                onChange={onChangeEnd}
               />
             </FlexItem>
           </FlexRow>
@@ -233,14 +233,14 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
           {this.renderCount()}
 
           <FlexRow>
-            <Button btnStyle="simple" onClick={() => this.filterByDate()}>
+            <Button btnStyle="simple" onClick={this.filterByDate}>
               Filter
             </Button>
           </FlexRow>
         </DateFilters>
       </Popover>
     );
-  }
+  };
 
   render() {
     return (
@@ -249,8 +249,8 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
         placement="bottom"
         overlay={this.renderPopover()}
         container={this}
-        shouldUpdatePosition
-        rootClose
+        shouldUpdatePosition={true}
+        rootClose={true}
       >
         <PopoverButton>
           {__('Date')} <Icon icon="downarrow" />

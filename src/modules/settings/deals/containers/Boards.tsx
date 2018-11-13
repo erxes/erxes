@@ -1,23 +1,33 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, confirm } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import { STORAGE_BOARD_KEY } from 'modules/deals/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Boards } from '../components';
 import { mutations, queries } from '../graphql';
+import {
+  AddBoardMutationResponse,
+  BoardsQueryResponse,
+  EditBoardMutationResponse,
+  RemoveBoardMutationResponse
+} from '../types';
 
-interface IProps extends IRouterProps {
-  history: any;
-  boardsQuery: any;
+type Props = {
+  history?: any;
   currentBoardId?: string;
-  addMutation: (params: { variables: { name: string } }) => Promise<any>;
-  editMutation: (params: { variables: { name: string } }) => Promise<any>;
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
-}
+};
 
-class BoardsContainer extends React.Component<IProps> {
+type FinalProps = {
+  boardsQuery: any;
+} & Props &
+  IRouterProps &
+  AddBoardMutationResponse &
+  EditBoardMutationResponse &
+  RemoveBoardMutationResponse;
+
+class BoardsContainer extends React.Component<FinalProps> {
   render() {
     const {
       history,
@@ -30,14 +40,14 @@ class BoardsContainer extends React.Component<IProps> {
     const boards = boardsQuery.dealBoards || [];
 
     // remove action
-    const remove = _id => {
+    const remove = boardId => {
       confirm().then(() => {
         removeMutation({
-          variables: { _id }
+          variables: { _id: boardId }
         })
           .then(() => {
             // if deleted board is default board
-            if (localStorage.getItem(STORAGE_BOARD_KEY) === _id) {
+            if (localStorage.getItem(STORAGE_BOARD_KEY) === boardId) {
               localStorage.removeItem(STORAGE_BOARD_KEY);
             }
 
@@ -89,20 +99,25 @@ const generateOptions = () => ({
   refetchQueries: ['dealBoards', 'dealBoardGetLast', 'dealPipelines']
 });
 
-export default compose(
-  graphql(gql(queries.boards), {
-    name: 'boardsQuery'
-  }),
-  graphql(gql(mutations.boardAdd), {
-    name: 'addMutation',
-    options: generateOptions()
-  }),
-  graphql(gql(mutations.boardEdit), {
-    name: 'editMutation',
-    options: generateOptions()
-  }),
-  graphql(gql(mutations.boardRemove), {
-    name: 'removeMutation',
-    options: generateOptions()
-  })
-)(withRouter<IProps>(BoardsContainer));
+export default withProps<Props>(
+  compose(
+    graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
+      name: 'boardsQuery'
+    }),
+    graphql<Props, AddBoardMutationResponse, {}>(gql(mutations.boardAdd), {
+      name: 'addMutation',
+      options: generateOptions()
+    }),
+    graphql<Props, EditBoardMutationResponse, {}>(gql(mutations.boardEdit), {
+      name: 'editMutation',
+      options: generateOptions()
+    }),
+    graphql<Props, RemoveBoardMutationResponse, {}>(
+      gql(mutations.boardRemove),
+      {
+        name: 'removeMutation',
+        options: generateOptions()
+      }
+    )
+  )(withRouter<FinalProps>(BoardsContainer))
+);

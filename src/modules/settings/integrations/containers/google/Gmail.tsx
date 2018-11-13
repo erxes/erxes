@@ -1,23 +1,30 @@
 import gql from 'graphql-tag';
-import { queries } from 'modules/auth/graphql';
 import { Spinner } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { queries as brandsQueries } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { BrandsQueryResponse } from '../../../brands/types';
 import { Gmail } from '../../components/google';
 import { mutations, queries as integrationsQueries } from '../../graphql';
+import {
+  CreateGmailMutationResponse,
+  GetGoogleAuthUrlQueryResponse
+} from '../../types';
 
 type Props = {
   type: string;
   history: any;
   queryParams: any;
-  googleAuthUrlQuery: any;
-  saveMutation: (params: { variables: { code: string } }) => Promise<any>;
-  brandsQuery: any;
 };
 
-const GmailContainer = (props: Props) => {
+type FinalProps = {
+  brandsQuery: BrandsQueryResponse;
+  googleAuthUrlQuery: GetGoogleAuthUrlQueryResponse;
+} & Props &
+  CreateGmailMutationResponse;
+
+const GmailContainer = (props: FinalProps) => {
   const {
     history,
     type,
@@ -28,7 +35,7 @@ const GmailContainer = (props: Props) => {
   } = props;
 
   if (brandsQuery.loading) {
-    return <Spinner objective />;
+    return <Spinner objective={true} />;
   }
 
   const authUrl =
@@ -59,18 +66,28 @@ const GmailContainer = (props: Props) => {
   return <Gmail save={save} brands={brands} />;
 };
 
-export default compose(
-  graphql(gql(brandsQueries.brands), {
-    name: 'brandsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(integrationsQueries.integrationGetGoogleAuthUrl), {
-    name: 'googleAuthUrlQuery',
-    options: () => ({
-      variables: { service: 'gmail' }
-    })
-  }),
-  graphql(gql(mutations.integrationsCreateGmail), { name: 'saveMutation' })
-)(GmailContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, BrandsQueryResponse>(gql(brandsQueries.brands), {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, GetGoogleAuthUrlQueryResponse, { service: string }>(
+      gql(integrationsQueries.integrationGetGoogleAuthUrl),
+      {
+        name: 'googleAuthUrlQuery',
+        options: () => ({
+          variables: { service: 'gmail' }
+        })
+      }
+    ),
+    graphql<Props, CreateGmailMutationResponse, { code: string }>(
+      gql(mutations.integrationsCreateGmail),
+      {
+        name: 'saveMutation'
+      }
+    )
+  )(GmailContainer)
+);

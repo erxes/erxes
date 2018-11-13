@@ -10,18 +10,12 @@ type Props = {
   queryParams: any;
   currentType: string;
   histories: IImportHistory[];
-  removeHistory: (_id: string) => void;
+  removeHistory: (historyId: string) => void;
   loading: boolean;
 };
 
 class Histories extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.renderHistories = this.renderHistories.bind(this);
-  }
-
-  renderHistories() {
+  renderHistories = () => {
     const { histories, removeHistory } = this.props;
 
     return (
@@ -49,7 +43,7 @@ class Histories extends React.Component<Props> {
         </tbody>
       </Table>
     );
-  }
+  };
 
   render() {
     const { currentType, histories, loading } = this.props;

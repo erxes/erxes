@@ -26,14 +26,12 @@ class Tab extends React.Component<Props, { currentTab: string }> {
   constructor(props) {
     super(props);
 
-    this.onTabClick = this.onTabClick.bind(this);
-
     this.state = { currentTab: 'activity' };
   }
 
-  onTabClick(currentTab) {
+  onTabClick = currentTab => {
     this.setState({ currentTab });
-  }
+  };
 
   renderTabContent() {
     const { currentTab } = this.state;
@@ -65,6 +63,9 @@ class Tab extends React.Component<Props, { currentTab: string }> {
     const { deal } = this.props;
     const { currentTab } = this.state;
 
+    const activityTabClick = () => this.onTabClick('activity');
+    const notesTabClick = () => this.onTabClick('notes');
+
     return (
       <Left>
         <WhiteBox>
@@ -76,17 +77,17 @@ class Tab extends React.Component<Props, { currentTab: string }> {
 
           <NoteForm contentType="deal" contentTypeId={deal && deal._id} />
         </WhiteBox>
-        <Tabs grayBorder>
+        <Tabs grayBorder={true}>
           <TabTitle
             className={currentTab === 'activity' ? 'active' : ''}
-            onClick={() => this.onTabClick('activity')}
+            onClick={activityTabClick}
           >
             {__('Activity')}
           </TabTitle>
 
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
-            onClick={() => this.onTabClick('notes')}
+            onClick={notesTabClick}
           >
             {__('Notes')}
           </TabTitle>

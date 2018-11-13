@@ -7,7 +7,8 @@ import {
   FormControl,
   IntegrationIcon,
   NameCard,
-  Tags
+  Tags,
+  Tip
 } from 'modules/common/components';
 
 import { IUser } from '../../../auth/types';
@@ -40,27 +41,19 @@ type Props = {
 };
 
 class ConversationItem extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onClick = this.onClick.bind(this);
-    this.onClickCheckBox = this.onClickCheckBox.bind(this);
-    this.toggleCheckbox = this.toggleCheckbox.bind(this);
-  }
-
-  toggleCheckbox(e: React.FormEvent<HTMLElement>) {
+  toggleCheckbox = (e: React.FormEvent<HTMLElement>) => {
     const { toggleCheckbox, conversation } = this.props;
 
-    toggleCheckbox(conversation, (e.currentTarget as HTMLInputElement).checked);
-  }
+    toggleCheckbox(conversation, (e.target as HTMLInputElement).checked);
+  };
 
-  onClick(e: React.MouseEvent) {
+  onClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
     const { onClick, conversation } = this.props;
 
     onClick(conversation);
-  }
+  };
 
   renderCheckbox() {
     if (!this.props.toggleCheckbox) {
@@ -74,9 +67,9 @@ class ConversationItem extends React.Component<Props> {
     );
   }
 
-  onClickCheckBox(e: React.MouseEvent) {
+  onClickCheckBox = (e: React.MouseEvent) => {
     e.stopPropagation();
-  }
+  };
 
   renderFullName(visitor: { [key: string]: any }) {
     if (visitor.firstName || visitor.lastName) {
@@ -98,9 +91,8 @@ class ConversationItem extends React.Component<Props> {
 
   render() {
     const { currentUser } = this.props;
-
     const { conversation, isActive, selectedIds = [] } = this.props;
-    const { createdAt, updatedAt, content } = conversation;
+    const { createdAt, updatedAt, idleTime, content } = conversation;
     const customer = conversation.customer || ({} as ICustomer);
     const integration = conversation.integration || ({} as IIntegration);
     const brand = integration.brand || ({} as IBrand);
@@ -109,12 +101,23 @@ class ConversationItem extends React.Component<Props> {
     const assignedUser = conversation.assignedUser;
     const isExistingCustomer = customer && customer._id;
     const isChecked = selectedIds.includes(conversation._id);
+
     const isRead =
       conversation.readUserIds &&
       conversation.readUserIds.indexOf(currentUser._id) > -1;
 
+    const isIdle =
+      integration.kind !== 'form' &&
+      conversation.status !== 'closed' &&
+      idleTime >= 1;
+
     return (
-      <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
+      <RowItem
+        onClick={this.onClick}
+        isActive={isActive}
+        isRead={isRead}
+        isIdle={isIdle}
+      >
         <RowContent isChecked={isChecked}>
           {this.renderCheckbox()}
           <FlexContent>
@@ -126,9 +129,7 @@ class ConversationItem extends React.Component<Props> {
                   icon={
                     <IntegrationIcon
                       integration={integration}
-                      customer={customer}
                       facebookData={conversation.facebookData}
-                      twitterData={conversation.twitterData}
                     />
                   }
                 />
@@ -159,13 +160,19 @@ class ConversationItem extends React.Component<Props> {
 
           {assignedUser && (
             <AssigneeWrapper>
-              <AssigneeImg
-                src={
-                  assignedUser.details
-                    ? assignedUser.details.avatar
-                    : '/images/avatar-colored.svg'
-                }
-              />
+              <Tip
+                key={assignedUser._id}
+                placement="top"
+                text={assignedUser.details && assignedUser.details.fullName}
+              >
+                <AssigneeImg
+                  src={
+                    assignedUser.details
+                      ? assignedUser.details.avatar
+                      : '/images/avatar-colored.svg'
+                  }
+                />
+              </Tip>
             </AssigneeWrapper>
           )}
         </SmallText>

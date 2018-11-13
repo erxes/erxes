@@ -1,3 +1,4 @@
+import { Icon, Tabs, TabTitle } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IField } from 'modules/settings/properties/types';
 import * as React from 'react';
@@ -9,8 +10,7 @@ import {
   FlexItem,
   FullPreview,
   MobilePreview,
-  TabletPreview,
-  Tabs
+  TabletPreview
 } from './style';
 
 type Props = {
@@ -24,44 +24,46 @@ type Props = {
   color: string;
   theme: string;
   image?: string;
-  preview: string;
-  onChange: (name: 'preview' | 'carousel', value: string) => void;
+  onChange: (name: 'carousel', value: string) => void;
   fields?: IField[];
   carousel: string;
   thankContent?: string;
   skip?: boolean;
 };
 
-class FullPreviewStep extends React.Component<Props, {}> {
-  renderTabs(name: string, value: string) {
-    return (
-      <Tabs
-        selected={this.props.preview === value}
-        onClick={() => this.onChange(value)}
-      >
-        {__(name)}
-      </Tabs>
-    );
+type State = {
+  currentTab: string;
+};
+
+class FullPreviewStep extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      currentTab: 'desktop'
+    };
   }
 
-  carouseItems(name: string, value: string) {
+  carouseItems = (name: string, value: string) => {
+    const onClick = () => this.onChangePreview(value);
+
     return (
       <CarouselInner selected={this.props.carousel === value}>
         <li>
-          <span onClick={() => this.onChangePreview(value)} />
+          <span onClick={onClick} />
         </li>
         <span>{__(name)}</span>
       </CarouselInner>
     );
-  }
+  };
 
-  onChange(value: string) {
-    this.props.onChange('preview', value || 'mobile');
-  }
+  onChangeTab = (currentTab: string) => {
+    this.setState({ currentTab });
+  };
 
-  onChangePreview(value: string) {
+  onChangePreview = (value: string) => {
     return this.props.onChange('carousel', value);
-  }
+  };
 
   renderPreview() {
     const { carousel } = this.props;
@@ -78,13 +80,13 @@ class FullPreviewStep extends React.Component<Props, {}> {
   }
 
   renderResolutionPreview() {
-    const { preview } = this.props;
+    const { currentTab } = this.state;
 
-    if (preview === 'desktop') {
+    if (currentTab === 'desktop') {
       return <DesktopPreview>{this.renderPreview()}</DesktopPreview>;
     }
 
-    if (preview === 'tablet') {
+    if (currentTab === 'tablet') {
       return <TabletPreview>{this.renderPreview()}</TabletPreview>;
     }
 
@@ -92,15 +94,33 @@ class FullPreviewStep extends React.Component<Props, {}> {
   }
 
   render() {
+    const { currentTab } = this.state;
+
     return (
       <FlexItem>
         <FullPreview>
-          <div>
-            {this.renderTabs('Desktop', 'desktop')}
-            {this.renderTabs('Tablet', 'tablet')}
-            {this.renderTabs('Mobile', 'mobile')}
-          </div>
+          <Tabs full={true}>
+            <TabTitle
+              className={currentTab === 'desktop' ? 'active' : ''}
+              onClick={this.onChangeTab.bind(this, 'desktop')}
+            >
+              <Icon icon="laptop" /> {__('Desktop')}
+            </TabTitle>
+            <TabTitle
+              className={currentTab === 'tablet' ? 'active' : ''}
+              onClick={this.onChangeTab.bind(this, 'tablet')}
+            >
+              <Icon icon="paste" /> {__('Tablet')}
+            </TabTitle>
+            <TabTitle
+              className={currentTab === 'mobile' ? 'active' : ''}
+              onClick={this.onChangeTab.bind(this, 'mobile')}
+            >
+              <Icon icon="devices" /> {__('Mobile')}
+            </TabTitle>
+          </Tabs>
           {this.renderResolutionPreview()}
+
           <CarouselSteps>
             {!this.props.skip && this.carouseItems('CallOut', 'callout')}
             {this.carouseItems('Form', 'form')}

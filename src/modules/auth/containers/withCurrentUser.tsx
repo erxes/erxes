@@ -1,10 +1,12 @@
 import gql from 'graphql-tag';
+import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
+import { CurrentUserQueryResponse } from '../types';
 
 type Props = {
-  currentUserQuery: any;
+  currentUserQuery: CurrentUserQueryResponse;
 };
 
 const withCurrentUser = Component => {
@@ -23,11 +25,13 @@ const withCurrentUser = Component => {
     return <Component {...updatedProps} />;
   };
 
-  return compose(
-    graphql(gql(queries.currentUser), {
-      name: 'currentUserQuery'
-    })
-  )(Container);
+  return withProps<{}>(
+    compose(
+      graphql<{}, CurrentUserQueryResponse>(gql(queries.currentUser), {
+        name: 'currentUserQuery'
+      })
+    )(Container)
+  );
 };
 
 export default withCurrentUser;

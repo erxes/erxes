@@ -21,12 +21,10 @@ function List({ tags, type, remove, save }: Props) {
     </Button>
   );
 
+  const modalContent = props => <Form {...props} type={type} save={save} />;
+
   const actionBarRight = (
-    <ModalTrigger
-      title="Add tag"
-      trigger={trigger}
-      content={props => <Form {...props} type={type} save={save} />}
-    />
+    <ModalTrigger title="Add tag" trigger={trigger} content={modalContent} />
   );
 
   const actionBar = <Wrapper.ActionBar right={actionBarRight} />;

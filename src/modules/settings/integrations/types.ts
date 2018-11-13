@@ -1,6 +1,13 @@
-import { IForm } from 'modules/forms/types';
+import { IForm, IFormIntegration } from 'modules/forms/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
+
+export interface IGoogleCredentials {
+  access_token: string;
+  scope: string;
+  token_type: string;
+  expiry_date: number;
+}
 
 export interface IMessengerApp {
   _id: string;
@@ -50,7 +57,6 @@ export interface IMessengerData {
   isOnline?: boolean;
   timezone?: string;
   onlineHours?: IOnlineHour[];
-  showFaq?: boolean;
   links?: ILink;
 }
 
@@ -105,3 +111,259 @@ export interface IIntegration {
   brand: IBrand;
   channels: IChannel[];
 }
+
+// query types
+export type QueryVariables = {
+  page?: number;
+  perPage?: number;
+  searchValue?: string;
+};
+
+export type IntegrationsQueryResponse = {
+  integrations: IIntegration[];
+  loading: boolean;
+  refetch: (variables?: QueryVariables) => void;
+};
+
+export type LeadsQueryResponse = {
+  forms: IForm[];
+  loading: boolean;
+  refetch: (variables?: QueryVariables) => void;
+};
+
+export type IntegrationDetailQueryResponse = {
+  integrationDetail: IIntegration;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type FacebookAppsListQueryResponse = {
+  integrationFacebookAppsList: IFacebookApp[];
+  refetch: () => void;
+  loading: boolean;
+};
+
+type By = { [key: string]: number };
+
+export type ByKind = {
+  messenger: number;
+  form: number;
+  twitter: number;
+  facebook: number;
+  gmail: number;
+};
+
+type IntegrationsCount = {
+  total: number;
+  byTag: By;
+  byChannel: By;
+  byBrand: By;
+  byKind: ByKind;
+};
+
+export type IntegrationsCountQueryResponse = {
+  integrationsTotalCount: IntegrationsCount;
+  loading: boolean;
+};
+
+export type FormIntegrationDetailQueryResponse = {
+  integrationDetail: IFormIntegration;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type GetGoogleAuthUrlQueryResponse = {
+  integrationGetGoogleAuthUrl: string;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type GetGoogleAccessTokenQueryResponse = {
+  integrationGetGoogleAccessToken: string;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type GetTwitterAuthUrlQueryResponse = {
+  integrationGetTwitterAuthUrl: string;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type GoogleAccessTokenQueryResponse = {
+  integrationGetGoogleAccessToken: IGoogleCredentials;
+  loading: boolean;
+  refetch: () => void;
+};
+
+// mutation types
+
+export type SaveMessengerMutationVariables = {
+  name: string;
+  brandId: string;
+  languageCode: string;
+};
+
+export type SaveMessengerMutationResponse = {
+  saveMessengerMutation: (
+    params: {
+      variables: SaveMessengerMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type SaveMessengerAppearanceMutationResponse = {
+  saveAppearanceMutation: (
+    params: { variables: { _id: string; uiOptions: IUiOptions } }
+  ) => void;
+};
+
+export type SaveMessengerConfigsMutationResponse = {
+  saveConfigsMutation: (
+    params: { variables: { _id: string; messengerData: IMessengerData } }
+  ) => any;
+};
+
+export type TwitterAuthParams = {
+  oauth_token: string;
+  oauth_verifier: string;
+};
+
+export type SaveTwitterMutationResponse = {
+  saveMutation: (
+    params: { variables: { brandId: string; queryParams: TwitterAuthParams } }
+  ) => Promise<any>;
+};
+
+export type EditMessengerMutationVariables = {
+  _id: string;
+  name: string;
+  brandId: string;
+  languageCode: string;
+};
+
+export type EditMessengerMutationResponse = {
+  editMessengerMutation: (
+    params: {
+      variables: EditMessengerMutationVariables;
+    }
+  ) => any;
+};
+
+export type CreateGmailMutationResponse = {
+  saveMutation: (params: { variables: { code: string } }) => Promise<any>;
+};
+
+export type SendGmailMutationVariables = {
+  cc?: string;
+  bcc?: string;
+  toEmails?: string;
+  subject?: string;
+  body: string;
+  integrationId?: string;
+};
+
+export type SendGmailMutationResponse = {
+  integrationsSendGmail: (
+    params: {
+      variables: SendGmailMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type CreateFacebookMutationVariables = {
+  name: string;
+  brandId: string;
+  appId: string;
+  pageIds: string[];
+};
+
+export type MessengerAppsAddGoogleMeetMutationVariables = {
+  name: string;
+  credentials: object;
+};
+
+export type messengerAppsAddGoogleMeetMutationResponse = {
+  saveMutation: (
+    params: { variables: MessengerAppsAddGoogleMeetMutationVariables }
+  ) => Promise<any>;
+};
+
+export type MessengerAppsAddLeadMutationVariables = {
+  name: string;
+  integrationId: string;
+  formId: string;
+};
+
+export type MessengerAppsAddLeadMutationResponse = {
+  saveMutation: (
+    params: { variables: MessengerAppsAddLeadMutationVariables }
+  ) => Promise<any>;
+};
+
+export type messengerAppsAddKnowledgebaseVariables = {
+  name: string;
+  integrationId: string;
+  topicId: string;
+};
+
+export type messengerAppsAddKnowledgebaseMutationResponse = {
+  saveMutation: (
+    params: { variables: messengerAppsAddKnowledgebaseVariables }
+  ) => Promise<any>;
+};
+
+export type CreateFacebookMutationResponse = {
+  saveMutation: (
+    params: {
+      variables: CreateFacebookMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type AddIntegrationMutationVariables = {
+  formData: IFormData;
+  brandId: string;
+  name: string;
+  languageCode: string;
+  formId: string;
+};
+
+export type AddIntegrationMutationResponse = {
+  addIntegrationMutation: (
+    params: {
+      variables: AddIntegrationMutationVariables;
+    }
+  ) => Promise<void>;
+};
+
+export type EditIntegrationMutationVariables = {
+  _id: string;
+  formData: IFormData;
+  brandId: string;
+  name: string;
+  languageCode: string;
+  formId: string;
+};
+
+export type EditIntegrationMutationResponse = {
+  editIntegrationMutation: (
+    params: {
+      variables: EditIntegrationMutationVariables;
+    }
+  ) => Promise<void>;
+};
+
+export type RemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type MessengerAppsQueryResponse = {
+  messengerApps: IMessengerApp[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type MessengerAppsRemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};

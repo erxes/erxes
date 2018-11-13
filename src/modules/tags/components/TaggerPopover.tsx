@@ -26,7 +26,7 @@ function TaggerPopover(props: Props) {
       placement="bottom"
       overlay={popover}
       container={container}
-      rootClose
+      rootClose={true}
     >
       {trigger}
     </OverlayTrigger>

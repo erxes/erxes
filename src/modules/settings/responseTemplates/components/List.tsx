@@ -6,13 +6,11 @@ import { ICommonListProps } from '../../common/types';
 import { Form } from '../containers';
 
 class ResponseTemplateList extends React.Component<ICommonListProps> {
-  constructor(props) {
-    super(props);
+  renderForm = props => {
+    return <Form {...props} />;
+  };
 
-    this.renderContent = this.renderContent.bind(this);
-  }
-
-  renderRows({ objects }) {
+  renderRows = ({ objects }) => {
     return objects.map((object, index) => {
       const brand = object.brand || {};
 
@@ -23,14 +21,14 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
           <RowActions
             {...this.props}
             object={object}
-            renderForm={props => <Form {...props} />}
+            renderForm={this.renderForm}
           />
         </tr>
       );
     });
-  }
+  };
 
-  renderContent(props) {
+  renderContent = props => {
     return (
       <Table>
         <thead>
@@ -43,7 +41,7 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
         <tbody>{this.renderRows(props)}</tbody>
       </Table>
     );
-  }
+  };
 
   render() {
     return (
@@ -53,7 +51,7 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
           { title: __('Settings'), link: '/settings' },
           { title: __('Response templates') }
         ]}
-        renderForm={props => <Form {...props} />}
+        renderForm={this.renderForm}
         renderContent={this.renderContent}
         {...this.props}
       />

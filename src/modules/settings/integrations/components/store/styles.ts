@@ -19,8 +19,9 @@ const IntegrationRow = styled.div`
   display: flex;
 `;
 
-const Box = styled.div`
+const Box = styledTS<{ isInMessenger: boolean }>(styled.div)`
   padding: 30px;
+  padding-bottom: ${props => props.isInMessenger && '20px'};
   border: 1px solid ${colors.borderPrimary};
   border-radius: 2px;
   flex: 1;
@@ -31,6 +32,12 @@ const Box = styled.div`
     cursor: pointer;
     border-color: ${colors.colorCoreTeal};
   }
+`;
+
+const Type = styled.span`
+  display: block;
+  color: ${colors.colorCoreGray};
+  padding-top: ${dimensions.coreSpacing - 5}px;
 `;
 
 const IntegrationItem = styledTS(styled.div)`
@@ -65,7 +72,7 @@ const IntegrationItem = styledTS(styled.div)`
   }
 
   > a {
-    font-weight: bold;
+    font-weight: 500;
     position: absolute;
     right: 30px;
     top: 70px;
@@ -93,7 +100,7 @@ const IntegrationItem = styledTS(styled.div)`
 
 const CollapsibleContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 5px;
   background: ${collapsibleBackground};
   transition: height ease 0.3s;
 `;
@@ -103,5 +110,6 @@ export {
   IntegrationRow,
   IntegrationItem,
   CollapsibleContent,
-  Box
+  Box,
+  Type
 };

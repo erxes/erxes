@@ -13,17 +13,13 @@ type Props = {
 };
 
 class SortableList extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.onDragEnd = this.onDragEnd.bind(this);
-  }
-
-  onDragEnd(result) {
+  onDragEnd = result => {
     const { destination, source } = result;
 
     // dropped outside the list
-    if (!destination) return;
+    if (!destination) {
+      return;
+    }
 
     if (destination.index === source.index) {
       return;
@@ -34,12 +30,14 @@ class SortableList extends React.Component<Props> {
     const reorderedFields = reorder(fields, source.index, destination.index);
 
     onChangeFields(reorderedFields);
-  }
+  };
 
   renderDragHandler() {
     const { showDragHandler = true } = this.props;
 
-    if (!showDragHandler) return null;
+    if (!showDragHandler) {
+      return null;
+    }
 
     return (
       <DragHandler>

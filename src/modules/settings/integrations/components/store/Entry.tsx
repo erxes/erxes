@@ -1,19 +1,27 @@
-import { Icon, ModalTrigger, Tip } from 'modules/common/components';
+import { Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Box, IntegrationItem } from './styles';
+import KnowledgeBase from '../../containers/knowledgebase/Form';
+import Lead from '../../containers/lead/Form';
+import { Box, IntegrationItem, Type } from './styles';
 
 type Props = {
   integration: any;
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
-  totalCount: number;
+  totalCount: {
+    messenger: number;
+    form: number;
+    twitter: number;
+    facebook: number;
+    gmail: number;
+  };
 };
 
 class Entry extends React.Component<Props> {
-  getCount(kind) {
+  getCount = kind => {
     const { totalCount } = this.props;
     const countByKind = totalCount[kind];
 
@@ -22,7 +30,7 @@ class Entry extends React.Component<Props> {
     }
 
     return <span>({countByKind})</span>;
-  }
+  };
 
   renderCreate(createUrl, createModal) {
     if (!createUrl && !createModal) {
@@ -32,11 +40,37 @@ class Entry extends React.Component<Props> {
     if (createModal === 'facebook') {
       const trigger = <a>+ {__('Add')}</a>;
 
+      const content = props => <Facebook {...props} />;
+
       return (
         <ModalTrigger
           title="Add facebook page"
           trigger={trigger}
-          content={props => <Facebook {...props} />}
+          content={content}
+        />
+      );
+    }
+
+    if (createModal === 'lead') {
+      const trigger = <a>+ {__('Add')}</a>;
+
+      const content = props => <Lead {...props} />;
+
+      return (
+        <ModalTrigger title="Add lead" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === 'knowledgeBase') {
+      const trigger = <a>+ {__('Add')}</a>;
+
+      const content = props => <KnowledgeBase {...props} />;
+
+      return (
+        <ModalTrigger
+          title="Add knowledgeBase"
+          trigger={trigger}
+          content={content}
         />
       );
     }
@@ -44,33 +78,39 @@ class Entry extends React.Component<Props> {
     return <Link to={createUrl}>+ {__('Add')}</Link>;
   }
 
-  renderType(inMessenger) {
-    if (!inMessenger) {
+  renderType = type => {
+    if (!type) {
       return null;
     }
 
     return (
-      <Tip text="Works in messenger">
-        <Icon icon="chat" />
-      </Tip>
+      <Type>
+        <Icon icon="chat" /> {__('Works with messenger')}
+      </Type>
     );
-  }
+  };
+
+  BoxOnClick = () => {
+    return this.props.toggleBox(this.props.integration.kind);
+  };
 
   render() {
-    const { integration, getClassName, toggleBox } = this.props;
+    const { integration, getClassName } = this.props;
 
     return (
       <IntegrationItem
         key={integration.name}
         className={getClassName(integration.kind)}
       >
-        <Box onClick={() => toggleBox(integration.kind)}>
+        <Box onClick={this.BoxOnClick} isInMessenger={integration.inMessenger}>
           <img alt="logo" src={integration.logo} />
           <h5>
             {integration.name} {this.getCount(integration.kind)}{' '}
-            {this.renderType(integration.isMessenger)}
           </h5>
-          <p>{integration.description}</p>
+          <p>
+            {integration.description}
+            {this.renderType(integration.inMessenger)}
+          </p>
         </Box>
         {this.renderCreate(integration.createUrl, integration.createModal)}
       </IntegrationItem>

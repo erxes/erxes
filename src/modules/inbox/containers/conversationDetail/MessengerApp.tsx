@@ -1,21 +1,30 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { MessengerApp } from 'modules/inbox/components/conversationDetail';
-import { mutations, queries } from 'modules/inbox/graphql';
-import { IMessengerApp } from 'modules/settings/integrations/types';
+import { mutations } from 'modules/inbox/graphql';
+import { queries as integrationQueries } from 'modules/settings/integrations/graphql';
+import {
+  IMessengerApp,
+  MessengerAppsQueryResponse
+} from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IConversation } from '../../types';
+import {
+  ExecuteAppMutationResponse,
+  ExecuteAppMutationVariables,
+  IConversation
+} from '../../types';
 
 type Props = {
   conversation: IConversation;
-  messengerAppsQuery: any;
-  executeAppMutation: (
-    doc: { variables: { _id: string; conversationId: string } }
-  ) => Promise<any>;
 };
 
-const MessengerAppContainer = (props: Props) => {
+type FinalProps = {
+  messengerAppsQuery: MessengerAppsQueryResponse;
+} & Props &
+  ExecuteAppMutationResponse;
+
+const MessengerAppContainer = (props: FinalProps) => {
   const { conversation, messengerAppsQuery, executeAppMutation } = props;
 
   if (messengerAppsQuery.loading) {
@@ -23,7 +32,9 @@ const MessengerAppContainer = (props: Props) => {
   }
 
   const onSelect = (app?: IMessengerApp) => {
-    if (!app) return null;
+    if (!app) {
+      return null;
+    }
 
     const variables = {
       _id: app._id,
@@ -44,14 +55,23 @@ const MessengerAppContainer = (props: Props) => {
   return <MessengerApp {...updatedProps} />;
 };
 
-export default compose(
-  graphql(gql(queries.messengerApps), {
-    name: 'messengerAppsQuery',
-    options: () => ({
-      fetchPolicy: 'network-only'
-    })
-  }),
-  graphql(gql(mutations.executeApp), {
-    name: 'executeAppMutation'
-  })
-)(MessengerAppContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, MessengerAppsQueryResponse>(
+      gql(integrationQueries.messengerApps),
+      {
+        name: 'messengerAppsQuery',
+        options: () => ({
+          variables: { kind: 'googleMeet' },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, ExecuteAppMutationResponse, ExecuteAppMutationVariables>(
+      gql(mutations.executeApp),
+      {
+        name: 'executeAppMutation'
+      }
+    )
+  )(MessengerAppContainer)
+);

@@ -11,6 +11,7 @@ import {
   ErxesEditor,
   toHTML
 } from 'modules/common/components/editor/Editor';
+import { IAttachmentPreview } from 'modules/common/types';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
 import {
   AttachmentIndicator,
@@ -33,7 +34,7 @@ type Props = {
   integrations: IIntegration[];
   toEmail?: string;
   toEmails?: string[];
-  setAttachmentPreview?: (data: string | null) => void;
+  setAttachmentPreview?: (data: IAttachmentPreview) => void;
   attachmentPreview: { name: string; data: string; type: string };
   closeModal?: () => void;
 
@@ -116,7 +117,9 @@ class MailForm extends React.Component<Props, State> {
     uploadHandler({
       files,
 
-      beforeUpload: () => {},
+      beforeUpload: () => {
+        return;
+      },
 
       afterUpload: ({ response, fileInfo }) => {
         if (this.state.totalFileSize > 10368000) {
@@ -186,13 +189,14 @@ class MailForm extends React.Component<Props, State> {
   renderToEmails() {
     const { toEmails = [] } = this.props;
 
+    const onChange = e =>
+      this.onChange('toEmails', (e.target as HTMLInputElement).value);
+
     if (toEmails.length > 0) {
       return (
         <FormControl
           componentClass="select"
-          onChange={e =>
-            this.onChange('toEmails', (e.target as HTMLInputElement).value)
-          }
+          onChange={onChange}
           value={this.state.toEmails}
         >
           <option />
@@ -208,9 +212,7 @@ class MailForm extends React.Component<Props, State> {
     return (
       <FormControl
         type="text"
-        onChange={e =>
-          this.onChange('toEmails', (e.target as HTMLInputElement).value)
-        }
+        onChange={onChange}
         value={this.state.toEmails}
       />
     );
@@ -221,16 +223,13 @@ class MailForm extends React.Component<Props, State> {
       return null;
     }
 
+    const onChange = e =>
+      this.onChange('cc', (e.target as HTMLInputElement).value);
+
     return (
       <ControlWrapper>
         <span>Cc</span>
-        <FormControl
-          type="text"
-          value={this.state.cc}
-          onChange={e =>
-            this.onChange('cc', (e.target as HTMLInputElement).value)
-          }
-        />
+        <FormControl type="text" value={this.state.cc} onChange={onChange} />
       </ControlWrapper>
     );
   }
@@ -240,16 +239,13 @@ class MailForm extends React.Component<Props, State> {
       return null;
     }
 
+    const onChange = e =>
+      this.onChange('bcc', (e.target as HTMLInputElement).value);
+
     return (
       <ControlWrapper>
         <span>Bcc</span>
-        <FormControl
-          type="text"
-          onChange={e =>
-            this.onChange('bcc', (e.target as HTMLInputElement).value)
-          }
-          value={this.state.bcc}
-        />
+        <FormControl type="text" onChange={onChange} value={this.state.bcc} />
       </ControlWrapper>
     );
   }
@@ -276,18 +272,14 @@ class MailForm extends React.Component<Props, State> {
       return null;
     }
 
+    const onClick = attachment => this.removeImage(attachment);
+
     return (
       <AttachmentIndicator>
         {attachments.map((attachment, index) => (
           <AttachmentContainer key={index}>
             <FileName>{attachment}</FileName>
-            <Icon
-              icon="cancel-1"
-              size={18}
-              onClick={(e: React.MouseEvent<HTMLElement>) =>
-                this.removeImage(attachment)
-              }
-            />
+            <Icon icon="cancel-1" size={18} onClick={onClick} />
           </AttachmentContainer>
         ))}
       </AttachmentIndicator>
@@ -305,9 +297,7 @@ class MailForm extends React.Component<Props, State> {
       <Button
         btnStyle="simple"
         size="small"
-        onClick={() => {
-          closeModal();
-        }}
+        onClick={closeModal}
         icon="cancel-1"
       >
         Close
@@ -357,6 +347,13 @@ class MailForm extends React.Component<Props, State> {
       onChange: this.changeContent
     };
 
+    const onClickIsCC = () => this.onClick('isCc');
+    const onClickIsBCC = () => this.onClick('isBcc');
+    const formOnChange = e =>
+      this.onChange('from', (e.target as HTMLInputElement).value);
+    const textOnChange = e =>
+      this.onChange('subject', (e.target as HTMLInputElement).value);
+
     return (
       <MailEditorWrapper>
         <ControlWrapper>
@@ -364,16 +361,10 @@ class MailForm extends React.Component<Props, State> {
           {this.renderToEmails()}
 
           <LeftSection>
-            <Resipients
-              onClick={() => this.onClick('isCc')}
-              isActive={this.state.isCc}
-            >
+            <Resipients onClick={onClickIsCC} isActive={this.state.isCc}>
               Cc
             </Resipients>
-            <Resipients
-              onClick={() => this.onClick('isBcc')}
-              isActive={this.state.isBcc}
-            >
+            <Resipients onClick={onClickIsBCC} isActive={this.state.isBcc}>
               Bcc
             </Resipients>
           </LeftSection>
@@ -385,9 +376,7 @@ class MailForm extends React.Component<Props, State> {
           <span>From</span>
           <FormControl
             componentClass="select"
-            onChange={e =>
-              this.onChange('from', (e.target as HTMLInputElement).value)
-            }
+            onChange={formOnChange}
             value={this.state.from}
           >
             <option />
@@ -398,9 +387,7 @@ class MailForm extends React.Component<Props, State> {
         <ControlWrapper>
           <FormControl
             type="text"
-            onChange={e =>
-              this.onChange('subject', (e.target as HTMLInputElement).value)
-            }
+            onChange={textOnChange}
             placeholder="Subject"
             value={this.state.subject}
           />

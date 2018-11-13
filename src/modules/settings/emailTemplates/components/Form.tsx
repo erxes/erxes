@@ -42,7 +42,7 @@ class Form extends React.Component<Props & ICommonFormProps, {}> {
             id="template-name"
             defaultValue={object.name}
             type="text"
-            required
+            required={true}
           />
         </FormGroup>
 

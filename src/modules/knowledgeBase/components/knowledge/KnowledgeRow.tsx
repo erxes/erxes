@@ -17,7 +17,7 @@ type Props = {
   currentCategoryId: string;
   topic: ITopic;
   articlesCount: number;
-  remove: (_id: string) => void;
+  remove: (knowledgeBaseId: string) => void;
 
   save: (
     params: {
@@ -46,7 +46,9 @@ const collapse = (id: string, click?: boolean, isCurrent?: boolean) => {
   const data = localStorage.getItem(STORAGE_KEY);
   let values: string[] = [];
 
-  if (data) values = JSON.parse(data);
+  if (data) {
+    values = JSON.parse(data);
+  }
 
   if (click) {
     values.includes(id)
@@ -64,14 +66,13 @@ class KnowledgeRow extends React.Component<Props, State> {
     super(props);
 
     this.state = { detailed: collapse(props.topic._id) };
-    this.toggle = this.toggle.bind(this);
   }
 
-  toggle() {
+  toggle = () => {
     const { topic } = this.props;
 
     this.setState({ detailed: collapse(topic._id, true) });
-  }
+  };
 
   componentWillReceiveProps(nextProps) {
     const { categories } = this.props.topic;
@@ -87,9 +88,17 @@ class KnowledgeRow extends React.Component<Props, State> {
     const addCategory = <MenuItem>{__('Add category')}</MenuItem>;
     const manageTopic = <MenuItem>{__('Manage Knowledge Base')}</MenuItem>;
 
+    const content = props => (
+      <KnowledgeForm {...props} save={save} topic={topic} remove={remove} />
+    );
+
+    const categoryContent = props => (
+      <CategoryForm {...props} topicIds={topic._id} />
+    );
+
     return (
       <RowActions>
-        <Dropdown id="dropdown-knowledgebase" pullRight>
+        <Dropdown id="dropdown-knowledgebase" pullRight={true}>
           <DropdownToggle bsRole="toggle">
             <Icon icon="settings" />
           </DropdownToggle>
@@ -97,21 +106,12 @@ class KnowledgeRow extends React.Component<Props, State> {
             <ModalTrigger
               title="Manage Knowledge Base"
               trigger={manageTopic}
-              content={props => (
-                <KnowledgeForm
-                  {...props}
-                  save={save}
-                  topic={topic}
-                  remove={remove}
-                />
-              )}
+              content={content}
             />
             <ModalTrigger
               title="Add Category"
               trigger={addCategory}
-              content={props => (
-                <CategoryForm {...props} topicIds={topic._id} />
-              )}
+              content={categoryContent}
             />
           </Dropdown.Menu>
         </Dropdown>
