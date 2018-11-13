@@ -23,7 +23,8 @@ export interface ITwitterData {
 export interface ITwitterDataDocument extends ITwitterData, Document {}
 
 export interface IFacebookData {
-  appId: string;
+  appId?: string;
+  accId?: string;
   pageIds: string[];
 }
 
