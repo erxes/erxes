@@ -1,6 +1,5 @@
 import * as React from "react";
 import { SearchBar } from "../components";
-import { IKbCategory } from "../types";
 import { AppConsumer } from "./AppContext";
 
 type Props = {

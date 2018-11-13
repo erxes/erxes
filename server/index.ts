@@ -20,30 +20,31 @@ app.set("views", path.join(__dirname, "views"));
 app.use("/build", express.static(path.join(__dirname, "../static")));
 app.use("/static", express.static("public"));
 
+const getEnv = () => {
+  const { MAIN_API_URL, API_GRAPHQL_URL, API_SUBSCRIPTIONS_URL } = process.env;
+
+  return JSON.stringify({
+    MAIN_API_URL,
+    API_GRAPHQL_URL,
+    API_SUBSCRIPTIONS_URL
+  });
+};
+
 // routes
 app.get("/messenger", (req, res) => {
-  res.render("widget", { type: "messenger" });
-});
-
-// remove this code after replacing all scripts
-app.get("/inapp", (req, res) => {
-  res.render("widget", { type: "messenger" });
-});
-
-app.get("/chat", (req, res) => {
-  res.render("widget", { type: "messenger" });
+  res.render("widget", { type: "messenger", env: getEnv() });
 });
 
 app.get("/form", (req, res) => {
-  res.render("widget", { type: "form" });
+  res.render("widget", { type: "form", env: getEnv() });
+});
+
+app.get("/knowledgebase", (req, res) => {
+  res.render("widget", { type: "knowledgebase", env: getEnv() });
 });
 
 app.get("/test", (req, res) => {
   res.render("widget-test");
-});
-
-app.get("/knowledgebase", (req, res) => {
-  res.render("widget", { type: "knowledgebase" });
 });
 
 const port = process.env.PORT || 3200;

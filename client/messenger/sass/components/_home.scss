@@ -2,7 +2,7 @@ $shadow-black: rgba(0, 0, 0, .1);
 
 .erxes-home-container {
   flex: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   .integration-box {
     animation-delay: .4s;
@@ -36,22 +36,32 @@ $shadow-black: rgba(0, 0, 0, .1);
     right: 0;
     top: 0;
 
-
     .erxes-middle {
       justify-content: flex-start;
     }
   }
 
   .erxes-home-content {
+    height: 100%;
     margin-top: -40px;
     position: relative;
     z-index: 11;
 
     .erxes-home-item {
+      bottom: 0;
       left: 0;
       position: absolute;
       right: 0;
       top: 0;
+    }
+
+    &.tabbed {
+      margin-top: 0;
+    }
+
+    .scroll-wrapper {
+      height: calc(100% - 60px);
+      overflow: auto;
     }
   }
 }

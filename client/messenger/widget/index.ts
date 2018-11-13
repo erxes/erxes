@@ -1,6 +1,3 @@
-declare const ROOT_URL: string;
-declare const window: any;
-
 /*
  * Messenger message's embeddable script
  */
@@ -8,12 +5,9 @@ declare const window: any;
 // css
 import "./index.css";
 
-import { sendEvent } from "../../core";
-import { getBrowserInfo } from "../../utils";
+import { generateIntegrationUrl, getBrowserInfo } from "../../utils";
 
-window.Erxes = {
-  sendEvent
-};
+declare const window: any;
 
 // check is mobile
 const isMobile =
@@ -24,6 +18,7 @@ const isMobile =
 let viewportMeta: any;
 let newViewportMeta: any;
 let hideDelayTimer: any;
+
 const delay = 350;
 
 if (isMobile) {
@@ -46,6 +41,7 @@ function revertViewPort() {
   if (newViewportMeta) {
     document.getElementsByTagName("head")[0].removeChild(newViewportMeta);
   }
+
   if (viewportMeta) {
     document.getElementsByTagName("head")[0].appendChild(viewportMeta);
   }
@@ -81,7 +77,7 @@ erxesContainer.className = "erxes-messenger-hidden";
 const iframe = document.createElement("iframe");
 
 iframe.id = iframeId;
-iframe.src = `${ROOT_URL}/messenger`;
+iframe.src = generateIntegrationUrl("messenger");
 iframe.style.display = "none";
 
 erxesContainer.appendChild(iframe);

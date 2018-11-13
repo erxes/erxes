@@ -20,7 +20,9 @@ class MessengerContainer extends React.Component<
 
     return (
       <AppConsumer>
-        {({ activeRoute }) => {
+        {({ activeRoute, getMessengerData }) => {
+          const topicId = getMessengerData().knowledgeBaseTopicId;
+
           return (
             <DumbMessenger
               activeRoute={activeRoute}

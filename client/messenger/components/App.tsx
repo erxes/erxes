@@ -25,9 +25,9 @@ export default class App extends React.Component<Props> {
         <RTG.CSSTransition
           in={isMessengerVisible}
           appear={true}
-          timeout={400}
+          timeout={300}
           classNames="scale-in"
-          unmountOnExit
+          unmountOnExit={true}
         >
           <div className="erxes-messenger">
             <Messenger />

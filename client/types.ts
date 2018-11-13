@@ -1,3 +1,9 @@
+export type ENV = {
+  MAIN_API_URL: string;
+  API_GRAPHQL_URL: string;
+  API_SUBSCRIPTIONS_URL: string;
+};
+
 export interface IUserDetails {
   avatar: string;
   fullName: string;
@@ -20,9 +26,7 @@ export interface IUserLinks {
   website: string;
 }
 
-export interface IParticipator {
-  _id: string;
-  details?: IUserDetails;
+export interface IParticipator extends IUser {
   links: IUserLinks;
 }
 
@@ -42,6 +46,10 @@ export interface IBrowserInfo {
   url?: string;
   city?: string;
   country?: string;
+  remoteAddress?: string;
+  region?: string;
+  hostname?: string;
+  userAgent?: string;
 }
 
 export interface IEmailParams {
@@ -88,7 +96,8 @@ export interface IIntegrationMessengerDataMessagesItem {
 export interface IIntegrationMessengerData {
   supporterIds: string[];
   notifyCustomer: boolean;
-  showFaq: boolean;
+  knowledgeBaseTopicId: string;
+  formCode: string;
   availabilityMethod: string;
   isOnline: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
@@ -103,7 +112,7 @@ export interface IIntegrationFormData {
   fromEmail?: string;
   userEmailTitle?: string;
   userEmailContent?: string;
-  adminEmails?: string;
+  adminEmails?: string[];
   adminEmailTitle?: string;
   adminEmailContent?: string;
   thankContent?: string;

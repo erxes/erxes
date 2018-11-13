@@ -4,6 +4,10 @@
   }
 }
 
+.react-datepicker-wrapper {
+  display: block;
+}
+
 .react-datepicker {
   border-color: $border-color !important;
   box-shadow: 0 5px 15px -3px rgba($black, .15);
@@ -11,7 +15,7 @@
   .react-datepicker__day--selected,
   .react-datepicker__day--keyboard-selected {
     background-color: $main-color;
-    border-radius: $border-radius;
+    border-radius: $border-radius / 2;
 
     &:hover {
       background-color: darken($main-color, 10%);

@@ -14,11 +14,25 @@ class Callout extends React.Component<Props> {
     this.props.setHeight();
   }
 
+  renderFeaturedImage(image: string, title: string) {
+    if (!image) {
+      return null;
+    }
+
+    return <img onLoad={this.props.setHeight} src={image} alt={title} />;
+  }
+
   render() {
     const { configs, onSubmit, color } = this.props;
-
-    const defaultConfig = { skip: false, title: "", buttonText: "", body: "" };
-    const { skip, title = "", buttonText, body } = configs || defaultConfig;
+    const defaultConfig = {
+      skip: false,
+      title: "",
+      buttonText: "",
+      body: "",
+      featuredImage: ""
+    };
+    const { skip, title = "", buttonText, body, featuredImage = "" } =
+      configs || defaultConfig;
 
     if (skip) {
       return null;
@@ -29,11 +43,14 @@ class Callout extends React.Component<Props> {
         <TopBar title={title} color={color} />
 
         <div className="erxes-form-content">
-          <div className="erxes-callout-body">{body}</div>
+          <div className="erxes-callout-body">
+            {this.renderFeaturedImage(featuredImage, title)}
+            {body}
+          </div>
           <button
             style={{ background: color }}
             type="button"
-            className="btn btn-block"
+            className="erxes-button btn-block"
             onClick={onSubmit}
           >
             {buttonText}

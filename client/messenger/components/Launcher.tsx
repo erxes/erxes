@@ -50,7 +50,7 @@ function Launcher(props: Props) {
   };
 
   return (
-    <React.Fragment>
+    <>
       <div
         className={launcherClasses}
         onClick={clickHandler}
@@ -65,7 +65,7 @@ function Launcher(props: Props) {
       </div>
 
       {renderNotifier()}
-    </React.Fragment>
+    </>
   );
 }
 

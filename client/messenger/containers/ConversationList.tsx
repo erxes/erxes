@@ -11,7 +11,7 @@ type QueryResponse = {
   conversations: IConversation[];
 };
 
-class ConversationList extends React.Component<
+class ConversationList extends React.PureComponent<
   ChildProps<{}, QueryResponse>,
   {}
 > {

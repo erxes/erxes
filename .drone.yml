@@ -1,0 +1,47 @@
+pipeline:
+  install:
+    image: node:8-slim
+    commands:
+      - node -v
+      - npm -v
+      - yarn --version
+      - yarn config set cache-folder .yarn-cache
+      - yarn install
+
+  linting:
+    image: node:8-slim
+    commands:
+      - yarn lint
+
+  typescript:
+    image: node:8-slim
+    commands:
+      - yarn tsc
+  publish:
+    image: plugins/docker
+    repo: goharbor.erxes.io/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    registry: goharbor.erxes.io
+    dockerfile: Dockerfile
+    secrets: [ docker_username, docker_password ]
+    tags:
+      - ${DRONE_BRANCH}-latest
+    when:
+      branch: develop
+      event: push
+      status: success
+
+  docker:
+    image: plugins/docker
+    repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    dockerfile: Dockerfile
+    secrets:
+      - source: docker_hub_username
+        target: docker_username
+      - source: docker_hub_password
+        target: docker_password
+    tags:
+      - ${DRONE_BRANCH}-latest
+    when:
+      branch: [ develop, master ]
+      event: push
+      status: success

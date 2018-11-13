@@ -35,7 +35,7 @@ function ConversationItem({
 
   return (
     <li
-      className={classNames("erxes-conversation-item", {
+      className={classNames("erxes-list-item", {
         unread: notificationCount > 0
       })}
       onClick={() => {

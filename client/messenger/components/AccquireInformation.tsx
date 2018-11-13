@@ -75,7 +75,7 @@ class AccquireInformation extends React.Component<Props, State> {
       type === "email" ? __("email@domain.com") : __("phone number");
 
     return (
-      <React.Fragment>
+      <>
         <TopBar middle={title} />
 
         <div className="accquire-information slide-in">
@@ -102,7 +102,7 @@ class AccquireInformation extends React.Component<Props, State> {
               onChange={this.onValueChange}
               placeholder={placeholder ? placeholder.toString() : ""}
               type={type === "email" ? "text" : "tel"}
-              autoFocus
+              autoFocus={true}
             />
 
             <button
@@ -114,7 +114,7 @@ class AccquireInformation extends React.Component<Props, State> {
             </button>
           </form>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }

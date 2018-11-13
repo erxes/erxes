@@ -1,16 +1,13 @@
-/* global ROOT_URL */
-
 /*
  * Form's embeddable script
  */
 
-declare const ROOT_URL: string;
 declare const window: any;
 
 // css
 import "./index.css";
 
-import { getBrowserInfo } from "../../utils";
+import { generateIntegrationUrl, getBrowserInfo } from "../../utils";
 
 // add meta to head
 const meta = document.createElement("meta");
@@ -38,7 +35,7 @@ const createIframe = (setting: Setting) => {
   const iframe = document.createElement("iframe");
 
   iframe.id = iframeId;
-  iframe.src = `${ROOT_URL}/form`;
+  iframe.src = generateIntegrationUrl("form");
   iframe.style.display = "none";
   iframe.style.width = "100%";
   iframe.style.margin = "0 auto";
@@ -111,6 +108,8 @@ window.addEventListener("message", async (event: MessageEvent) => {
       const selector = `[data-erxes-modal="${setting.form_id}"]`;
       const elements = document.querySelectorAll(selector);
 
+      // Using for instead of for to get correct element
+      // tslint:disable-next-line
       for (let i = 0; i < elements.length; i++) {
         const elm = elements[i];
 

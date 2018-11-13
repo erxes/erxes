@@ -15,13 +15,15 @@ import {
   setLocalStorageItem
 } from "../connection";
 import graphqlTypes from "../graphql";
-import { IAttachment, IMessage } from "../types";
+import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from "../types";
 
 interface IState {
   lastUnreadMessage?: IMessage;
   isMessengerVisible: boolean;
   activeRoute: string | "";
   activeConversation: string | null;
+  activeFaqCategory: IFaqCategory | null;
+  activeFaqArticle: IFaqArticle | null;
   isAttachingFile: boolean;
   isBrowserInfoSaved: boolean;
   headHeight: number;
@@ -39,6 +41,8 @@ interface IStore extends IState {
   changeRoute: (route: string) => void;
   changeConversation: (converstionId: string) => void;
   goToConversation: (conversationId: string) => void;
+  goToFaqCategory: (category?: IFaqCategory) => void;
+  goToFaqArticle: (article: IFaqArticle) => void;
   goToConversationList: () => void;
   openLastConversation: () => void;
   saveGetNotified: (doc: { type: string; value: string }) => void;
@@ -70,6 +74,8 @@ export class AppProvider extends React.Component<{}, IState> {
       isMessengerVisible: false,
       activeRoute,
       activeConversation: null,
+      activeFaqCategory: null,
+      activeFaqArticle: null,
       isAttachingFile: false,
       isBrowserInfoSaved: false,
       headHeight: 200
@@ -96,6 +102,10 @@ export class AppProvider extends React.Component<{}, IState> {
 
   getMessengerData = () => {
     return connection.data.messengerData || {};
+  };
+
+  isOnline = () => {
+    return this.getMessengerData().isOnline;
   };
 
   isSmallContainer = () => {
@@ -198,6 +208,25 @@ export class AppProvider extends React.Component<{}, IState> {
     this.readMessages(conversationId);
   };
 
+  goToFaqCategory = (category?: IFaqCategory) => {
+    const { activeFaqCategory } = this.state;
+    if (category) {
+      this.setState({ activeFaqCategory: category });
+    }
+
+    this.setState({
+      activeRoute:
+        activeFaqCategory || category ? "faqCategory" : "conversationList"
+    });
+  };
+
+  goToFaqArticle = (article: IFaqArticle) => {
+    this.setState({
+      activeRoute: "faqArticle",
+      activeFaqArticle: article
+    });
+  };
+
   goToConversationList = () => {
     // reset current conversation
     this.changeConversation("");
@@ -272,7 +301,7 @@ export class AppProvider extends React.Component<{}, IState> {
     setLocalStorageItem("getNotifiedValue", "");
     setLocalStorageItem("lastConversationId", "");
     setLocalStorageItem("customerId", "");
-
+    this.toggle(true);
     window.location.reload();
   };
 
@@ -434,6 +463,8 @@ export class AppProvider extends React.Component<{}, IState> {
           changeRoute: this.changeRoute,
           changeConversation: this.changeConversation,
           goToConversation: this.goToConversation,
+          goToFaqCategory: this.goToFaqCategory,
+          goToFaqArticle: this.goToFaqArticle,
           goToConversationList: this.goToConversationList,
           openLastConversation: this.openLastConversation,
           saveGetNotified: this.saveGetNotified,

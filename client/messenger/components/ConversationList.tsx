@@ -20,12 +20,12 @@ function ConversationList(props: Props) {
   } = props;
 
   if (loading) {
-    return <div className="loader bigger" />;
+    return <div className="loader" />;
   }
 
   const createButton = () => {
     return (
-      <li onClick={createConversation} className="erxes-conversation-item">
+      <li onClick={createConversation} className="erxes-list-item">
         <div className="erxes-left-side">
           <span>{iconPlus}</span>
         </div>

@@ -1,15 +1,8 @@
-import gql from "graphql-tag";
 import * as React from "react";
-import client from "../../apollo-client";
 import { IEmailParams, IIntegration, IIntegrationFormData } from "../../types";
 import { connection } from "../connection";
-import {
-  increaseViewCountMutation,
-  saveFormMutation,
-  sendEmailMutation
-} from "../graphql";
-import { ICurrentStatus, IForm } from "../types";
-import { postMessage } from "./utils";
+import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from "../types";
+import { increaseViewCount, postMessage, saveForm, sendEmail } from "./utils";
 
 interface IState {
   isPopupVisible: boolean;
@@ -24,7 +17,7 @@ interface IStore extends IState {
   toggleShoutbox: (isVisible?: boolean) => void;
   showPopup: () => void;
   closePopup: () => void;
-  saveForm: (doc: any) => void;
+  save: (doc: IFormDoc) => void;
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight: () => void;
@@ -90,26 +83,12 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   /*
-   * Increasing view count
-   */
-  increaseViewCount = () => {
-    const form = this.getForm();
-
-    return client.mutate({
-      mutation: gql(increaseViewCountMutation),
-      variables: {
-        formId: form._id
-      }
-    });
-  };
-
-  /*
    * Toggle circle button. Hide callout and show or hide form
    */
   toggleShoutbox = (isVisible?: boolean) => {
     if (!isVisible) {
       // Increasing view count
-      this.increaseViewCount();
+      increaseViewCount(this.getForm()._id);
     }
 
     this.setState({
@@ -151,41 +130,20 @@ export class AppProvider extends React.Component<{}, IState> {
     });
 
     // Increasing view count
-    this.increaseViewCount();
+    increaseViewCount(this.getForm()._id);
   };
 
   /*
    * Save user submissions
    */
-  saveForm = (doc: any) => {
-    const submissions = Object.keys(doc).map(fieldId => {
-      const { value, text, type, validation } = doc[fieldId];
-
-      return {
-        _id: fieldId,
-        type,
-        text,
-        value,
-        validation
-      };
-    });
-
-    const integration = this.getIntegration();
-    const form = this.getForm();
-
-    client
-      .mutate({
-        mutation: gql(saveFormMutation),
-        variables: {
-          integrationId: integration._id,
-          formId: form._id,
-          browserInfo: connection.browserInfo,
-          submissions
-        }
-      })
-
-      .then(({ data: { saveForm } }: any) => {
-        const { status, errors } = saveForm;
+  save = (doc: IFormDoc) => {
+    saveForm({
+      doc,
+      browserInfo: connection.browserInfo,
+      integrationId: this.getIntegration()._id,
+      formId: this.getForm()._id,
+      saveCallback: (response: ISaveFormResponse) => {
+        const { status, errors } = response;
 
         this.setState({
           currentStatus: {
@@ -193,29 +151,14 @@ export class AppProvider extends React.Component<{}, IState> {
             errors
           }
         });
-      });
+      }
+    });
   };
-
   /*
    * Redisplay form component after submission
    */
   createNew = () => {
     this.setState({ currentStatus: { status: "INITIAL" } });
-  };
-
-  /*
-   * Send email to submitted user after successfull submission
-   */
-  sendEmail = ({ toEmails, fromEmail, title, content }: IEmailParams) => {
-    client.mutate({
-      mutation: gql(sendEmailMutation),
-      variables: {
-        toEmails,
-        fromEmail,
-        title,
-        content
-      }
-    });
   };
 
   setHeight = () => {
@@ -255,9 +198,9 @@ export class AppProvider extends React.Component<{}, IState> {
           toggleShoutbox: this.toggleShoutbox,
           showPopup: this.showPopup,
           closePopup: this.closePopup,
-          saveForm: this.saveForm,
+          save: this.save,
           createNew: this.createNew,
-          sendEmail: this.sendEmail,
+          sendEmail,
           setHeight: this.setHeight,
           getIntegration: this.getIntegration,
           getForm: this.getForm,
