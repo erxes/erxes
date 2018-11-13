@@ -10,12 +10,14 @@ import { ModalFooter } from '../../../../common/styles/main';
 import { __ } from '../../../../common/utils';
 import { IBrand } from '../../../brands/types';
 import { ILinkedAccount } from '../../../linkedAccounts/types';
-import { IFacebookApp, IPages } from '../../types';
+import {
+  CreateFacebookMutationVariables,
+  IFacebookApp,
+  IPages
+} from '../../types';
 
 type Props = {
-  save: (
-    params: { name: string; brandId: string; appId: string; pageIds: string[] }
-  ) => void;
+  save: (params: CreateFacebookMutationVariables) => void;
   onAppSelect: (doc: { appId?: string; accountId?: string }) => void;
   brands: IBrand[];
   apps: IFacebookApp[];
@@ -23,15 +25,25 @@ type Props = {
   accounts: ILinkedAccount[];
 };
 
-class Facebook extends React.Component<Props> {
+class Facebook extends React.Component<Props, { kind: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      kind: 'app'
+    };
+  }
   onAppChange = () => {
     const appId = (document.getElementById('app') as HTMLInputElement).value;
+    this.setState({ kind: 'app' });
     this.props.onAppSelect({ appId });
   };
 
   onAccChange = () => {
     const accountId = (document.getElementById('acc') as HTMLInputElement)
       .value;
+
+    this.setState({ kind: 'acc' });
     this.props.onAppSelect({ accountId });
   };
 
@@ -54,13 +66,21 @@ class Facebook extends React.Component<Props> {
   handleSubmit = e => {
     e.preventDefault();
 
-    this.props.save({
+    const doc: CreateFacebookMutationVariables = {
       name: (document.getElementById('name') as HTMLInputElement).value,
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value,
-      appId: (document.getElementById('app') as HTMLInputElement).value,
+      kind: this.state.kind,
       pageIds: this.collectCheckboxValues('pages')
-    });
+    };
+
+    doc.appId = (document.getElementById('app') as HTMLInputElement).value;
+
+    if (this.state.kind === 'acc') {
+      doc.accId = (document.getElementById('acc') as HTMLInputElement).value;
+    }
+
+    this.props.save(doc);
   };
 
   render() {

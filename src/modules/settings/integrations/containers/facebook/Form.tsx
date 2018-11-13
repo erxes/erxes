@@ -143,14 +143,18 @@ export default withProps<Props>(
         mutation integrationsCreateFacebookIntegration(
           $brandId: String!
           $name: String!
-          $appId: String!
+          $appId: String
+          $accId: String
           $pageIds: [String!]!
+          $kind: String
         ) {
           integrationsCreateFacebookIntegration(
             brandId: $brandId
             name: $name
             appId: $appId
             pageIds: $pageIds
+            kind: $kind
+            accId: $accId
           ) {
             _id
           }
