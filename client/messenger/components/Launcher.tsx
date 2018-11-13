@@ -14,7 +14,6 @@ type Props = {
 };
 
 function Launcher(props: Props) {
-  let textInput: any = null;
   const {
     isMessengerVisible,
     isBrowserInfoSaved,
@@ -25,9 +24,6 @@ function Launcher(props: Props) {
   } = props;
 
   const clickHandler = () => {
-    if (textInput) {
-      console.log(textInput.getBoundingClientRect());
-    }
     onClick(isMessengerVisible);
   };
 
@@ -56,9 +52,6 @@ function Launcher(props: Props) {
   return (
     <>
       <div
-        ref={node => {
-          textInput = node;
-        }}
         className={launcherClasses}
         onClick={clickHandler}
         style={{
