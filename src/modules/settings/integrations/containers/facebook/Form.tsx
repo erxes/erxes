@@ -70,8 +70,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
     const brands = brandsQuery.brands;
     const accounts = accountsQuery.accounts || [];
-    // tslint:disable-next-line
-    console.log(accounts);
+
     const save = variables => {
       saveMutation({ variables })
         .then(() => {
@@ -122,18 +121,14 @@ export default withProps<Props>(
         mutation integrationsCreateFacebookIntegration(
           $brandId: String!
           $name: String!
-          $appId: String
-          $accId: String
+          $accountId: String!
           $pageIds: [String!]!
-          $kind: String
         ) {
           integrationsCreateFacebookIntegration(
             brandId: $brandId
             name: $name
-            appId: $appId
             pageIds: $pageIds
-            kind: $kind
-            accId: $accId
+            accountId: $accountId
           ) {
             _id
           }
