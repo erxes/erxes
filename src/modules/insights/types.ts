@@ -49,6 +49,14 @@ export type MainQueryResponse = {
   loading: boolean;
 };
 
+export type SummaryQueryResponse = {
+  insightsConversation: {
+    summary: SummaryData[];
+    trend: IChartParams[];
+  };
+  loading: boolean;
+};
+
 export type PieChartQueryResponse = {
   insights: { tag: IPieChartData[]; integration: IPieChartData[] };
   loading: boolean;

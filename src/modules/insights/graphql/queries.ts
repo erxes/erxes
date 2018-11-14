@@ -44,6 +44,12 @@ const responseClose = `
   }
 `;
 
+const responseSummary = `
+  query insightsConversation(${listParamsDef}) {
+    insightsConversation(${listParamsValue})
+  }
+`;
+
 const brands = `
   query brands {
     brands {
@@ -59,5 +65,6 @@ export default {
   punchCard,
   firstResponse,
   responseClose,
+  responseSummary,
   brands
 };

@@ -28,6 +28,11 @@ function Sidebar() {
             </NavLink>
           </li>
           <li>
+            <NavLink activeClassName="active" to="/insights/summary-report">
+              {__('Volume Report By Customer')}
+            </NavLink>
+          </li>
+          <li>
             <NavLink
               activeClassName="active"
               to="/insights/response-close-report"

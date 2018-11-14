@@ -8,6 +8,7 @@ import ResponseCloseReport from './ResponseCloseReport';
 import ResponseReport from './ResponseReport';
 import Sidebar from './Sidebar';
 import Summary from './Summary';
+import SummaryReport from './SummaryReport';
 import TeamMembers from './TeamMembers';
 import VolumeReport from './VolumeReport';
 
@@ -20,6 +21,7 @@ export {
   Filter,
   Chart,
   Summary,
+  SummaryReport,
   VolumeReport,
   ResponseReport,
   FirstResponse,
