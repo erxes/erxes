@@ -172,7 +172,7 @@ class ManageIntegrations extends React.Component<Props, State> {
         this.handleChange
       );
 
-      if (confirm) {
+      if (confirm !== undefined) {
         return confirm;
       }
     }

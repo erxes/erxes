@@ -1,4 +1,5 @@
 import { Button, FormControl, FormGroup } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { AuthBox } from '../styles';
 
@@ -26,7 +27,6 @@ class ResetPassword extends React.Component<Props, { newPassword: string }> {
   };
 
   render() {
-    const { __ } = this.context;
     return (
       <AuthBox>
         <h2>{__('Set your new password')}</h2>

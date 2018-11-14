@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import { Button, EmptyState } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { MarkdownWrapper } from 'modules/settings/styles';
@@ -17,12 +18,12 @@ type State = {
 };
 
 const installCodeIncludeScript = (type: string) => {
+  const { REACT_APP_CDN_HOST } = getEnv();
+
   return `
     (function() {
       var script = document.createElement('script');
-      script.src = "${
-        process.env.REACT_APP_CDN_HOST
-      }/build/${type}Widget.bundle.js";
+      script.src = "${REACT_APP_CDN_HOST}/build/${type}Widget.bundle.js";
       script.async = true;
 
       var entry = document.getElementsByTagName('script')[0];

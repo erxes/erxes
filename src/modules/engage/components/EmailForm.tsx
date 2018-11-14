@@ -141,7 +141,7 @@ class EmailForm extends React.Component<Props, State> {
     return (
       <PreviewContainer
         dangerouslySetInnerHTML={{
-          __html: xss(this.state.currentTemplate)
+          __html: this.state.currentTemplate
         }}
       />
     );
