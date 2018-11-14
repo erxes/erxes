@@ -109,7 +109,7 @@ export const queries = `
   integrationGetGoogleAuthUrl(service: String): String
   integrationGetGoogleAccessToken(code: String): JSON
   integrationFacebookAppsList: [JSON]
-  integrationFacebookPagesList(appId: String, accountId: String): [JSON]
+  integrationFacebookPagesList(accountId: String): [JSON]
   integrationLinkedAccounts: [IntegrationAccount]
 `;
 
@@ -150,9 +150,7 @@ export const mutations = `
   integrationsCreateFacebookIntegration(
     brandId: String!,
     name: String!,
-    appId: String,
-    accId: String,
-    kind: String,
+    accountId: String!,
     pageIds: [String!]!,
   ): Integration
 
@@ -179,6 +177,4 @@ export const mutations = `
     bcc: String,
     attachments: [String],
   ): GmailResponseData
-
-  integrationsDelinkAccount(_id: String!): String
 `;

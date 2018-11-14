@@ -1,3 +1,4 @@
+import accounts from './accounts';
 import activityLogs from './activityLogs';
 import brands from './brands';
 import channels from './channels';
@@ -24,6 +25,7 @@ import users from './users';
 
 export default {
   ...users,
+  ...accounts,
   ...conversations,
   ...tags,
   ...engages,

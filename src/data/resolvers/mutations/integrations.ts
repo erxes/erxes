@@ -1,6 +1,6 @@
 import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
-import { IMessengerIntegration, IntegrationAccounts } from '../../../db/models/Integrations';
+import { IMessengerIntegration } from '../../../db/models/Integrations';
 import { getGmailUserProfile, sendGmail } from '../../../trackers/gmail';
 import { getAccessToken } from '../../../trackers/googleTracker';
 import { socUtils } from '../../../trackers/twitterTracker';
@@ -77,22 +77,13 @@ const integrationMutations = {
    */
   async integrationsCreateFacebookIntegration(
     _root,
-    {
-      name,
-      brandId,
-      appId,
-      pageIds,
-      kind,
-      accId,
-    }: { name: string; brandId: string; appId?: string; pageIds: string[]; kind: string; accId?: string },
+    { name, brandId, pageIds, accountId }: { name: string; brandId: string; pageIds: string[]; accountId: string },
   ) {
     return Integrations.createFacebookIntegration({
       name,
-      kind,
       brandId,
       facebookData: {
-        appId,
-        accId,
+        accountId,
         pageIds,
       },
     });
@@ -142,13 +133,6 @@ const integrationMutations = {
   integrationsSendGmail(_root, args, { user }) {
     return sendGmail(args, user._id);
   },
-
-  /**
-   * Delink integrations account
-   */
-  integrationsDelinkAccount(_root, { _id }: { _id: string }) {
-    return IntegrationAccounts.removeAccount(_id);
-  },
 };
 
 requireLogin(integrationMutations, 'integrationsCreateMessengerIntegration');
@@ -162,6 +146,5 @@ requireLogin(integrationMutations, 'integrationsCreateFacebookIntegration');
 requireLogin(integrationMutations, 'integrationsCreateGmailIntegration');
 requireLogin(integrationMutations, 'integrationsSendGmail');
 requireAdmin(integrationMutations, 'integrationsRemove');
-requireLogin(integrationMutations, 'integrationsDelinkAccount');
 
 export default integrationMutations;

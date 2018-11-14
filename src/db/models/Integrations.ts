@@ -47,11 +47,9 @@ interface IIntegrationModel extends Model<IIntegrationDocument> {
     name,
     brandId,
     facebookData,
-    kind,
   }: {
     name: string;
     brandId: string;
-    kind: string;
     facebookData: IFacebookData;
   }): Promise<IIntegrationDocument>;
 
@@ -136,47 +134,43 @@ class Integration {
   public static async createFacebookIntegration({
     name,
     brandId,
-    kind,
     facebookData,
   }: {
     name: string;
     brandId: string;
-    kind: string;
     facebookData: IFacebookData;
   }) {
-    if (kind === 'acc') {
-      const { INTEGRATION_ENDPOINT_URL, FACEBOOK_APP_ID, DOMAIN } = process.env;
+    const { INTEGRATION_ENDPOINT_URL, FACEBOOK_APP_ID, DOMAIN } = process.env;
 
-      if (!INTEGRATION_ENDPOINT_URL || !FACEBOOK_APP_ID || !DOMAIN) {
-        throw new Error('Please configure endpoint');
+    if (!INTEGRATION_ENDPOINT_URL || !FACEBOOK_APP_ID || !DOMAIN) {
+      throw new Error('Please configure endpoint');
+    }
+
+    const { pageIds, accountId } = facebookData;
+
+    const fbAccount = await Accounts.findOne({ _id: accountId });
+
+    if (!fbAccount) {
+      throw new Error('Linked facebook account not found');
+    }
+
+    for (const pageId of pageIds) {
+      const pageInfo: any = await graphRequest.get(`${pageId}?fields=id,access_token`, fbAccount.token);
+
+      const pageToken = pageInfo.access_token;
+
+      const res: any = await graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
+        subscribed_fields: ['conversations', 'messages', 'feed'],
+      });
+
+      if (res.success !== true) {
+        throw new Error('Couldnt subscribe page');
       }
 
-      const { pageIds, accountId } = facebookData;
-
-      const fbAccount = await Accounts.findOne({ _id: accountId });
-
-      if (!fbAccount) {
-        throw new Error('Linked facebook account not found');
-      }
-
-      for (const pageId of pageIds) {
-        const pageInfo: any = await graphRequest.get(`${pageId}?fields=id,access_token`, fbAccount.token);
-
-        const pageToken = pageInfo.access_token;
-
-        const res: any = await graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-          subscribed_fields: ['conversations', 'messages', 'feed'],
-        });
-
-        if (res.success !== true) {
-          throw new Error('Couldnt subscribe page');
-        }
-
-        await sendPostRequest(`${INTEGRATION_ENDPOINT_URL}/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, {
-          endPoint: DOMAIN,
-          pageId: pageInfo.id,
-        });
-      }
+      await sendPostRequest(`${INTEGRATION_ENDPOINT_URL}/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, {
+        endPoint: DOMAIN,
+        pageId: pageInfo.id,
+      });
     }
 
     return this.createIntegration({

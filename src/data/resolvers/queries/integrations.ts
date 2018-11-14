@@ -1,4 +1,4 @@
-import { Brands, Channels, IntegrationAccounts, Integrations, Tags } from '../../../db/models';
+import { Accounts, Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { getConfig, getPageList } from '../../../trackers/facebook';
 import { getAccessToken, getAuthorizeUrl } from '../../../trackers/googleTracker';
 
@@ -155,37 +155,16 @@ const integrationQueries = {
   /**
    * Get facebook pages by appId or linked account id
    */
-  async integrationFacebookPagesList(_root, { appId, accountId }: { appId: string; accountId: string }) {
-    if (accountId) {
-      const account = await IntegrationAccounts.findOne({ _id: accountId });
+  async integrationFacebookPagesList(_root, { accountId }: { accountId: string }) {
+    const account = await Accounts.findOne({ _id: accountId });
 
-      if (!account) {
-        throw new Error('Account not found');
-      }
-
-      const accessToken = account.token;
-
-      return getPageList(accessToken);
+    if (!account) {
+      throw new Error('Account not found');
     }
 
-    // const app = getConfig().find( app => app.id === appId );
-    const app = getConfig().find(data => {
-      return data.id === appId;
-    });
+    const accessToken = account.token;
 
-    if (!app) {
-      return [];
-    }
-
-    return getPageList(app.accessToken);
-  },
-
-  /**
-   * Get facebook pages by appId or linked account id
-   */
-
-  async integrationLinkedAccounts(_root, {}) {
-    return IntegrationAccounts.find({});
+    return getPageList(accessToken);
   },
 };
 
