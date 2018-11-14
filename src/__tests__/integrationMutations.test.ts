@@ -1,7 +1,9 @@
 import * as faker from 'faker';
+import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, integrationFactory, userFactory } from '../db/factories';
+import { accountFactory, brandFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Integrations, Users } from '../db/models';
+import * as facebookTracker from '../trackers/facebookTracker';
 import { socUtils } from '../trackers/twitterTracker';
 
 describe('mutations', () => {
@@ -279,24 +281,33 @@ describe('mutations', () => {
   });
 
   test('Create facebook integration', async () => {
+    const account = await accountFactory({});
     const args = {
       brandId: _brand._id,
       name: _integration.name,
-      appId: 'fakeAppId',
+      accountId: account._id,
       pageIds: ['fakePageIds'],
     };
+
+    sinon.stub(facebookTracker, 'getPageInfo').callsFake(() => {
+      return { id: '456', access_token: '123' };
+    });
+
+    sinon.stub(facebookTracker, 'subscribePage').callsFake(() => {
+      return { success: true };
+    });
 
     const mutation = `
       mutation integrationsCreateFacebookIntegration(
         $brandId: String!
         $name: String!
-        $appId: String!
+        $accountId: String!
         $pageIds: [String!]!
       ) {
         integrationsCreateFacebookIntegration(
           brandId: $brandId
           name: $name
-          appId: $appId
+          accountId: $accountId
           pageIds: $pageIds
         ) {
           brandId
@@ -310,7 +321,7 @@ describe('mutations', () => {
 
     expect(facebookIntegration.brandId).toBe(args.brandId);
     expect(facebookIntegration.name).toBe(args.name);
-    expect(facebookIntegration.facebookData.appId).toBe(args.appId);
+    expect(facebookIntegration.facebookData.accountId).toBe(account._id);
     expect(facebookIntegration.facebookData.pageIds).toEqual(expect.arrayContaining(args.pageIds));
   });
 
