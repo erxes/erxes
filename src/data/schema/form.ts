@@ -26,7 +26,7 @@ export const types = `
 `;
 
 const commonFields = `
-  title: String!,
+  title: String,
   description: String,
   buttonText: String,
   themeColor: String,
