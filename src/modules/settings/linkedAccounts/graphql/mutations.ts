@@ -1,6 +1,6 @@
 const delinkAccount = `
-    mutation integrationsDelinkAccount($_id: String!) {
-        integrationsDelinkAccount(_id: $_id)
+    mutation removeAccount($_id: String!) {
+        removeAccount(_id: $_id)
     }
 `;
 

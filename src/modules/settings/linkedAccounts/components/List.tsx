@@ -10,11 +10,12 @@ import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/integrations/components/Sidebar';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { BarItems } from '../../../layout/styles';
-import { ILinkedAccount } from '../types';
+import { IAccount } from '../types';
 
 type Props = {
-  accounts: ILinkedAccount[];
+  accounts: IAccount[];
   delink: (accountId: string) => void;
 };
 
@@ -49,10 +50,17 @@ class List extends React.Component<Props> {
     return 'default';
   }
 
+  onRedirect() {
+    const { REACT_APP_API_URL } = process.env;
+    const url = `${REACT_APP_API_URL}/fblogin`;
+
+    window.location.replace(url);
+  }
+
   renderRow(account) {
     return (
       <tr key={account._id}>
-        <td> {account.accountName}</td>
+        <td> {account.name}</td>
         <td>
           <Label className={`label-${this.getTypeName(account.kind)}`}>
             {account.kind}
@@ -97,7 +105,7 @@ class List extends React.Component<Props> {
 
     const actionBarRight = (
       <BarItems>
-        <Button size="small" icon="cancel-1">
+        <Button size="small" icon="cancel-1" onClick={this.onRedirect}>
           Link Facebook Account
         </Button>
       </BarItems>

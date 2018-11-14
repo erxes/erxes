@@ -274,9 +274,7 @@ export type SendGmailMutationResponse = {
 export type CreateFacebookMutationVariables = {
   name: string;
   brandId: string;
-  kind: string;
-  accId?: string;
-  appId?: string;
+  accountId: string;
   pageIds: string[];
 };
 

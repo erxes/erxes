@@ -1,12 +1,12 @@
-const linkedAccounts = `
-    query integrationLinkedAccounts {
-        integrationLinkedAccounts {
-            _id
-            accountName
-            accountId
-            kind
-        }
+const accounts = `
+  query accounts {
+    accounts {
+        _id
+        name
+        id
+        kind
     }
+  }
 `;
 
-export default { linkedAccounts };
+export default { accounts };

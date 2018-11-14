@@ -4,18 +4,18 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
-import { LinkedAccountsQueryResponse, RemoveMutationResponse } from '../types';
+import { AccountsQueryResponse, RemoveMutationResponse } from '../types';
 
 type Props = {
-  accountsQuery: LinkedAccountsQueryResponse;
+  accountsQuery: AccountsQueryResponse;
 } & RemoveMutationResponse;
 
 class ListContainer extends React.Component<Props> {
   render() {
-    const { accountsQuery, integrationsDelinkAccount } = this.props;
+    const { accountsQuery, removeAccount } = this.props;
 
     const delink = (accountId: string) => {
-      integrationsDelinkAccount({
+      removeAccount({
         variables: { _id: accountId }
       })
         .then(() => {
@@ -27,7 +27,7 @@ class ListContainer extends React.Component<Props> {
     };
 
     const updatedProps = {
-      accounts: accountsQuery.integrationLinkedAccounts || [],
+      accounts: accountsQuery.accounts || [],
       delink
     };
 
@@ -37,7 +37,7 @@ class ListContainer extends React.Component<Props> {
 
 export default withProps<{}>(
   compose(
-    graphql<Props, LinkedAccountsQueryResponse>(gql(queries.linkedAccounts), {
+    graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
       name: 'accountsQuery'
     }),
     graphql<Props, RemoveMutationResponse, { _id: string }>(

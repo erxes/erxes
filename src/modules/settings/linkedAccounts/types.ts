@@ -1,14 +1,14 @@
-export interface ILinkedAccount {
+export interface IAccount {
   _id: string;
-  accountId: string;
-  accountName: string;
+  name: string;
   kind: string;
+  id: string;
 }
 
 // query types
 
-export type LinkedAccountsQueryResponse = {
-  integrationLinkedAccounts: ILinkedAccount[];
+export type AccountsQueryResponse = {
+  accounts: IAccount[];
   loading: boolean;
   refetch: () => void;
 };
@@ -16,7 +16,5 @@ export type LinkedAccountsQueryResponse = {
 // mutation types
 
 export type RemoveMutationResponse = {
-  integrationsDelinkAccount: (
-    params: { variables: { _id: string } }
-  ) => Promise<any>;
+  removeAccount: (params: { variables: { _id: string } }) => Promise<any>;
 };
