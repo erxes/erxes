@@ -5,6 +5,7 @@ import { FieldPreview } from './';
 
 type Props = {
   fields?: IField[];
+  formDesc?: string;
   onFieldEdit?: (field: IField) => void;
   onChange: (name: string, fields: any) => void;
 };
@@ -45,6 +46,14 @@ class FormFieldPreview extends React.Component<Props, State> {
     this.props.onChange('fields', this.state.fields || []);
   };
 
+  renderFormDesc() {
+    if (!this.props.formDesc) {
+      return null;
+    }
+
+    return <p>{this.props.formDesc}</p>;
+  }
+
   render() {
     const child = field => {
       return (
@@ -57,11 +66,14 @@ class FormFieldPreview extends React.Component<Props, State> {
     };
 
     return (
-      <SortableList
-        child={child}
-        fields={this.state.fields || []}
-        onChangeFields={this.onChangeFields}
-      />
+      <React.Fragment>
+        {this.renderFormDesc()}
+        <SortableList
+          child={child}
+          fields={this.state.fields || []}
+          onChangeFields={this.onChangeFields}
+        />
+      </React.Fragment>
     );
   }
 }

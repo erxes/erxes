@@ -2,9 +2,9 @@ import _ from 'lodash';
 import { FormControl, NameCard, Tags } from 'modules/common/components';
 import { FlexItem } from 'modules/companies/styles';
 import { ICustomer } from 'modules/customers/types';
+import { IConfigColumn } from 'modules/settings/properties/types';
 import * as moment from 'moment';
 import * as React from 'react';
-import { IConfigColumn } from '../../../settings/properties/types';
 
 type Props = {
   customer: ICustomer;
