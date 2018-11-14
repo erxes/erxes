@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { Model, model } from 'mongoose';
 import * as sha256 from 'sha256';
+import { Session } from '.';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument, userSchema } from './definitions/users';
 
 const SALT_WORK_FACTOR = 10;
@@ -55,6 +56,7 @@ interface IUserModel extends Model<IUserDocument> {
   refreshTokens(refreshToken: string): { token: string; refreshToken: string; user: IUserDocument };
 
   login({ email, password }: { email: string; password?: string }): { token: string; refreshToken: string };
+  logout(user: IUserDocument): string;
 }
 
 class User {
@@ -302,7 +304,7 @@ class User {
       isOwner: _user.isOwner,
     };
 
-    const createToken = await jwt.sign({ user }, secret, { expiresIn: '20m' });
+    const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
 
     const createRefreshToken = await jwt.sign({ user }, secret, {
       expiresIn: '7d',
@@ -372,10 +374,19 @@ class User {
       refreshToken,
     };
   }
+
+  public static logout(user) {
+    Session.create({
+      invalidToken: user && user.loginToken,
+    });
+
+    return 'loggedOut';
+  }
 }
 
 userSchema.loadClass(User);
 
+// tslint:disable-next-line
 const Users = model<IUserDocument, IUserModel>('users', userSchema);
 
 export default Users;

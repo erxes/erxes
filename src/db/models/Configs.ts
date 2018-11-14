@@ -24,6 +24,7 @@ class Config {
 
 configSchema.loadClass(Config);
 
+// tslint:disable-next-line
 const Configs = model<IConfigDocument, IConfigModel>('configs', configSchema);
 
 export default Configs;

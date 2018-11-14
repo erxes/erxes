@@ -2,7 +2,7 @@ import * as sinon from 'sinon';
 import * as Twit from 'twit';
 import { conversationFactory, customerFactory, integrationFactory } from '../../db/factories';
 import { ConversationMessages, Conversations, Customers, Integrations } from '../../db/models';
-import { tweetReply, TwitMap } from '../../trackers/twitter';
+import { tweetReply, twitMap } from '../../trackers/twitter';
 import { twitRequest } from '../../trackers/twitterTracker';
 
 describe('twitter integration', () => {
@@ -26,7 +26,7 @@ describe('twitter integration', () => {
     });
 
     // save twit instance
-    TwitMap[_integration._id] = twit;
+    twitMap[_integration._id] = twit;
 
     // twit.post
     postMock = stub = sandbox.stub(twitRequest, 'post').callsFake(() => {

@@ -1,4 +1,4 @@
-import { dateType } from 'aws-sdk/clients/sts';
+import { dateType } from 'aws-sdk/clients/sts'; // tslint:disable-line
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import {

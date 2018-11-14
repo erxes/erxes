@@ -9,7 +9,7 @@ interface IImportHistoryModel extends Model<IImportHistoryDocument> {
 }
 
 class ImportHistory {
-  /* 
+  /*
    * Create new history
    */
   public static async createHistory(doc: IImportHistory, user: IUserDocument) {
@@ -50,6 +50,7 @@ class ImportHistory {
 
 importHistorySchema.loadClass(ImportHistory);
 
+// tslint:disable-next-line
 const ImportHistories = model<IImportHistoryDocument, IImportHistoryModel>('import_history', importHistorySchema);
 
 export default ImportHistories;

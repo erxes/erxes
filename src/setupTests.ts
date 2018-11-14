@@ -1,12 +1,18 @@
+import * as dotenv from 'dotenv';
 import mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
 
+// load environment variables
+dotenv.config();
+
 beforeAll(() => {
-  const DB_URI = `mongodb://localhost/test`;
+  jest.setTimeout(10000);
+
+  const { TEST_MONGO_URL } = process.env;
 
   return mongoose.connect(
-    DB_URI,
+    TEST_MONGO_URL || 'mongodb://localhost/test',
     { useMongoClient: true },
   );
 });

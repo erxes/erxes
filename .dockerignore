@@ -1,0 +1,5 @@
+.gitignore
+*.md
+scripts
+*.yml
+initialData

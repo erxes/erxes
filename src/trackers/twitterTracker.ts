@@ -3,7 +3,7 @@ import * as Twit from 'twit';
 import { INTEGRATION_KIND_CHOICES } from '../data/constants';
 import { Integrations } from '../db/models';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
-import { receiveDirectMessageInformation, receiveTimelineInformation, TwitMap } from './twitter';
+import { receiveDirectMessageInformation, receiveTimelineInformation, twitMap } from './twitter';
 
 const trackIntegration = (integration: IIntegrationDocument) => {
   const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET } = process.env;
@@ -25,7 +25,7 @@ const trackIntegration = (integration: IIntegrationDocument) => {
   });
 
   // save twit instance
-  TwitMap[integration._id] = twit;
+  twitMap[integration._id] = twit;
 
   // create stream
   const stream = twit.stream('user');

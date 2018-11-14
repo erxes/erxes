@@ -349,6 +349,7 @@ class ActivityLog {
 
 activityLogSchema.loadClass(ActivityLog);
 
+// tslint:disable-next-line
 const ActivityLogs = model<IActivityLogDocument, IActivityLogModel>('activity_logs', activityLogSchema);
 
 export default ActivityLogs;

@@ -39,7 +39,14 @@ export const graphqlRequest = async (mutation: string = '', name: string = '', a
   const user = await userFactory({});
   const rootValue = {};
   const _schema: any = schema;
-  const response: any = await graphql(_schema, mutation, rootValue, context || { user }, args);
+
+  const res = {
+    cookie: () => {
+      return 'cookie';
+    },
+  };
+
+  const response: any = await graphql(_schema, mutation, rootValue, context || { user, res }, args);
 
   if (response.errors || !response.data) {
     throw response.errors;

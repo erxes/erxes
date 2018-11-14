@@ -76,6 +76,7 @@ class Brand {
 
 brandSchema.loadClass(Brand);
 
+// tslint:disable-next-line
 const Brands = model<IBrandDocument, IBrandModel>('brands', brandSchema);
 
 export default Brands;

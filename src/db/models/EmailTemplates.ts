@@ -33,6 +33,7 @@ class EmailTemplate {
 
 emailTemplateSchema.loadClass(EmailTemplate);
 
+// tslint:disable-next-line
 const EmailTemplates = model<IEmailTemplateDocument, IEmailTemplateModel>('email_templates', emailTemplateSchema);
 
 export default EmailTemplates;

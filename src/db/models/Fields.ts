@@ -33,7 +33,7 @@ interface IFieldModel extends Model<IFieldDocument> {
 }
 
 class Field {
-  /* 
+  /*
    * Check if Group is defined by erxes by default
    */
   public static async checkIsDefinedByErxes(_id: string) {
@@ -45,7 +45,7 @@ class Field {
     }
   }
 
-  /* 
+  /*
    * Create new field
    */
   public static async createField({ contentType, contentTypeId, groupId, ...fields }: IField) {
@@ -227,7 +227,7 @@ interface IFieldGroupModel extends Model<IFieldGroupDocument> {
 }
 
 class FieldGroup {
-  /* 
+  /*
    * Check if Group is defined by erxes by default
    */
   public static async checkIsDefinedByErxes(_id: string) {
@@ -239,7 +239,7 @@ class FieldGroup {
     }
   }
 
-  /* 
+  /*
    * Create new field group
    */
   public static async createGroup(doc: IFieldGroup) {
@@ -320,8 +320,10 @@ class FieldGroup {
 
 fieldGroupSchema.loadClass(FieldGroup);
 
+// tslint:disable-next-line
 export const FieldsGroups = model<IFieldGroupDocument, IFieldGroupModel>('fields_groups', fieldGroupSchema);
 
 fieldSchema.loadClass(Field);
 
+// tslint:disable-next-line
 export const Fields = model<IFieldDocument, IFieldModel>('fields', fieldSchema);

@@ -1,4 +1,5 @@
 import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
@@ -13,7 +14,7 @@ import { userMiddleware } from './auth';
 import schema from './data';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
 import { pubsub } from './data/resolvers/subscriptions';
-import { importXlsFile, uploadFile } from './data/utils';
+import { checkFile, importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Accounts, Customers } from './db/models';
 import { init } from './startup';
@@ -22,6 +23,8 @@ import { graphRequest } from './trackers/facebookTracker';
 // load environment variables
 dotenv.config();
 
+const { MAIN_APP_DOMAIN } = process.env;
+
 // connect to mongo database
 connect();
 
@@ -29,12 +32,24 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cookieParser());
 
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: MAIN_APP_DOMAIN,
+  }),
+);
 
 app.use(userMiddleware);
 
-app.use('/graphql', graphqlExpress((req: any) => ({ schema, context: { user: req.user } })));
+app.use(
+  '/graphql',
+  graphqlExpress((req: any, res) => ({
+    schema,
+    context: { user: req.user, res },
+  })),
+);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
@@ -47,26 +62,51 @@ app.get('/status', async (_req, res) => {
 app.post('/upload-file', async (req, res) => {
   const form = new formidable.IncomingForm();
 
-  form.parse(req, async (_err, _fields, response) => {
-    const url = await uploadFile(response.file);
+  form.parse(req, async (_error, _fields, response) => {
+    const status = await checkFile(response.file);
 
-    return res.end(url);
+    if (status === 'ok') {
+      try {
+        const url = await uploadFile(response.file);
+        return res.end(url);
+      } catch (e) {
+        return res.status(500).send(e.message);
+      }
+    }
+
+    return res.status(500).send(status);
   });
 });
 
-// engage unsubscribe
-app.get('/unsubscribe', async (req, res) => {
-  const unsubscribed = await handleEngageUnSubscribe(req.query);
+// file import
+app.post('/import-file', (req: any, res) => {
+  const form = new formidable.IncomingForm();
 
-  if (unsubscribed) {
-    res.end('Unsubscribed');
+  // require login
+  if (!req.user) {
+    return res.end('foribidden');
   }
 
-  res.end();
+  form.parse(req, async (_err, fields: any, response) => {
+    const status = await checkFile(response.file);
+
+    // if file is not ok then send error
+    if (status !== 'ok') {
+      return res.json(status);
+    }
+
+    importXlsFile(response.file, fields.type, { user: req.user })
+      .then(result => {
+        res.json(result);
+      })
+      .catch(e => {
+        res.json(e);
+      });
+  });
 });
 
 app.get('/fblogin', (req, res) => {
-  const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, MAIN_APP_DOMAIN, DOMAIN } = process.env;
+  const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, DOMAIN } = process.env;
 
   const conf = {
     client_id: FACEBOOK_APP_ID,
@@ -123,19 +163,15 @@ app.get('/fblogin', (req, res) => {
   }
 });
 
-// file import
-app.post('/import-file', (req: any, res) => {
-  const form = new formidable.IncomingForm();
+// engage unsubscribe
+app.get('/unsubscribe', async (req, res) => {
+  const unsubscribed = await handleEngageUnSubscribe(req.query);
 
-  form.parse(req, (_err, fields: any, response) => {
-    importXlsFile(response.file, fields.type, { user: req.user })
-      .then(result => {
-        res.json(result);
-      })
-      .catch(e => {
-        res.json(e);
-      });
-  });
+  if (unsubscribed) {
+    res.end('Unsubscribed');
+  }
+
+  res.end();
 });
 
 // Wrap the Express server
