@@ -111,7 +111,8 @@ app.get('/fblogin', (req, res) => {
   const conf = {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
-    scope: 'manage_pages, pages_show_list',
+    scope:
+      'manage_pages, pages_show_list, pages_messaging, publish_pages, pages_messaging_phone_number, pages_messaging_subscriptions',
     redirect_uri: `${DOMAIN}/fblogin`,
   };
 
@@ -156,7 +157,6 @@ app.get('/fblogin', (req, res) => {
           uid: userAccount.id,
         });
 
-        res.end();
         res.redirect(`${MAIN_APP_DOMAIN}/settings/integrations?fbAuthorized=true`);
       },
     );
