@@ -6,7 +6,6 @@ import {
 } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { LANGUAGES } from 'modules/settings/general/constants';
 import { IMessages } from 'modules/settings/integrations/types';
 import { SubHeading } from 'modules/settings/styles';
 import * as React from 'react';
@@ -96,12 +95,6 @@ class Greeting extends React.Component<Props, State> {
     const { facebook, twitter, youtube, languageCode } = this.props;
     const message = this.state.messages[languageCode];
 
-    const languageOnChange = e =>
-      this.onInputChange(
-        'languageCode',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
     const greetingTitle = e =>
       this.onGreetingsChange('title', (e.target as HTMLInputElement).value);
 
@@ -120,24 +113,6 @@ class Greeting extends React.Component<Props, State> {
     return (
       <FlexItem>
         <LeftItem>
-          <FormGroup>
-            <ControlLabel>Language</ControlLabel>
-
-            <FormControl
-              componentClass="select"
-              id="languageCode"
-              defaultValue={this.props.languageCode}
-              onChange={languageOnChange}
-            >
-              <option />
-              {LANGUAGES.map((item, index) => (
-                <option key={index} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </FormControl>
-          </FormGroup>
-
           <FormGroup>
             <ControlLabel>Greeting title</ControlLabel>
 

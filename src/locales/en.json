@@ -143,6 +143,7 @@
   "simple": "simple",
   "custom": "custom",
   "default": "default",
+  "default language": "default language",
   "primary": "primary",
   "Content": "Content",
   "Save & draft": "Save & draft",

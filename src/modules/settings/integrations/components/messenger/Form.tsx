@@ -242,6 +242,16 @@ class CreateMessenger extends React.Component<Props, State> {
 
         <Row>
           <Steps active={activeStep}>
+            <Step img="/images/icons/erxes-06.svg" title="Default Settings">
+              <Options
+                onChange={this.onChange}
+                brands={this.props.brands}
+                brandId={brandId}
+                notifyCustomer={notifyCustomer}
+                languageCode={languageCode}
+              />
+            </Step>
+
             <Step img="/images/icons/erxes-09.svg" title="Greeting">
               <Greeting
                 teamMembers={this.props.teamMembers}
@@ -273,25 +283,16 @@ class CreateMessenger extends React.Component<Props, State> {
               />
             </Step>
 
-            <Step img="/images/icons/erxes-04.svg" title="Appearance">
+            <Step
+              img="/images/icons/erxes-04.svg"
+              title="Appearance"
+              nextButton={this.renderButtons()}
+            >
               <Appearance
                 onChange={this.onChange}
                 color={color}
                 logoPreviewUrl={logoPreviewUrl}
                 wallpaper={wallpaper}
-              />
-            </Step>
-
-            <Step
-              img="/images/icons/erxes-06.svg"
-              title="Options"
-              nextButton={this.renderButtons()}
-            >
-              <Options
-                onChange={this.onChange}
-                brands={this.props.brands}
-                brandId={brandId}
-                notifyCustomer={notifyCustomer}
               />
             </Step>
           </Steps>
