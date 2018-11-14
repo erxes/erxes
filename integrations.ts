@@ -23,8 +23,7 @@ export interface ITwitterData {
 export interface ITwitterDataDocument extends ITwitterData, Document {}
 
 export interface IFacebookData {
-  appId?: string;
-  accId?: string;
+  accountId?: string;
   pageIds: string[];
 }
 
@@ -142,7 +141,7 @@ const twitterSchema = new Schema(
 
 const facebookSchema = new Schema(
   {
-    appId: {
+    accountId: {
       type: String,
     },
     pageIds: {
@@ -281,27 +280,4 @@ export const integrationSchema = new Schema({
   facebookData: field({ type: facebookSchema }),
   gmailData: field({ type: gmailSchema }),
   uiOptions: field({ type: uiOptionsSchema }),
-});
-
-export interface IIntegrationAccount {
-  kind: string;
-  token: string;
-  accountName: string;
-  accountId: string;
-}
-
-export interface IIntegrationAccountDocument extends IIntegrationAccount, Document {
-  _id: string;
-}
-
-export const integrationAccountsSchema = new Schema({
-  _id: field({ pkey: true }),
-  kind: field({
-    type: String,
-  }),
-  token: field({
-    type: String,
-  }),
-  accountName: field({ type: String }),
-  accountId: field({ type: String }),
 });
