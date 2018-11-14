@@ -143,7 +143,7 @@ class Integration {
     const { INTEGRATION_ENDPOINT_URL, FACEBOOK_APP_ID, DOMAIN } = process.env;
 
     if (!INTEGRATION_ENDPOINT_URL || !FACEBOOK_APP_ID || !DOMAIN) {
-      throw new Error('Please configure endpoint');
+      throw new Error('Invalid configuration');
     }
 
     const { pageIds, accountId } = facebookData;
