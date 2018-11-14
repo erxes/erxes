@@ -694,7 +694,10 @@ export class SaveWebhookResponse {
  * Receive per app webhook response
  */
 export const receiveWebhookResponse = async data => {
-  const integrations = await Integrations.find({ kind: INTEGRATION_KIND_CHOICES.FACEBOOK });
+  const integrations = await Integrations.find({
+    kind: INTEGRATION_KIND_CHOICES.FACEBOOK,
+    'facebookData.accountId': { $exists: true },
+  });
 
   for (const integration of integrations) {
     const { facebookData } = integration;
