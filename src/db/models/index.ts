@@ -1,3 +1,4 @@
+import Accounts from './Accounts';
 import ActivityLogs from './ActivityLogs';
 import Brands from './Brands';
 import Channels from './Channels';
@@ -12,7 +13,7 @@ import EngageMessages from './Engages';
 import { Fields, FieldsGroups } from './Fields';
 import Forms from './Forms';
 import ImportHistory from './ImportHistory';
-import { IntegrationAccounts, Integrations } from './Integrations';
+import Integrations from './Integrations';
 import InternalNotes from './InternalNotes';
 import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from './KnowledgeBase';
 import MessengerApps from './MessengerApps';
@@ -30,7 +31,7 @@ export {
   EmailTemplates,
   Brands,
   Integrations,
-  IntegrationAccounts,
+  Accounts,
   Forms,
   EngageMessages,
   Tags,

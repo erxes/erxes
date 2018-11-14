@@ -15,7 +15,7 @@ import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils'
 import { pubsub } from './data/resolvers/subscriptions';
 import { importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
-import { Customers, IntegrationAccounts } from './db/models';
+import { Accounts, Customers } from './db/models';
 import { init } from './startup';
 import { graphRequest } from './trackers/facebookTracker';
 
@@ -65,16 +65,16 @@ app.get('/unsubscribe', async (req, res) => {
   res.end();
 });
 
-const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET } = process.env;
-
-const conf = {
-  client_id: FACEBOOK_APP_ID,
-  client_secret: FACEBOOK_APP_SECRET,
-  scope: 'manage_pages, pages_show_list',
-  redirect_uri: 'https://2e7201ab.ngrok.io/fblogin',
-};
-
 app.get('/fblogin', (req, res) => {
+  const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, DOMAIN, MAIN_APP_DOMAIN } = process.env;
+
+  const conf = {
+    client_id: FACEBOOK_APP_ID,
+    client_secret: FACEBOOK_APP_SECRET,
+    scope: 'manage_pages, pages_show_list',
+    redirect_uri: `${DOMAIN}/fblogin`,
+  };
+
   // we don't have a code yet
   // so we'll redirect to the oauth dialog
   if (!req.query.code) {
@@ -105,12 +105,11 @@ app.get('/fblogin', (req, res) => {
         code: req.query.code,
       },
       async (_err, facebookRes) => {
-        const { MAIN_APP_DOMAIN } = process.env;
         const { access_token } = facebookRes;
         const userAccount: any = await graphRequest.get('me?fields=id,first_name,last_name', access_token);
         const accountName = `${userAccount.first_name} ${userAccount.last_name}`;
 
-        await IntegrationAccounts.createAccount({
+        await Accounts.createAccount({
           token: access_token,
           accountName,
           kind: 'facebook',

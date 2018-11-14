@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import 'mongoose-type-email';
-import { ConversationMessages, Conversations, Customers, Forms } from '.';
+import { Accounts, ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from '../../data/constants';
 import { graphRequest } from '../../trackers/facebookTracker';
 import { sendPostRequest } from '../connection';
@@ -9,11 +9,8 @@ import {
   IFormData,
   IGmailData,
   IIntegration,
-  IIntegrationAccount,
-  IIntegrationAccountDocument,
   IIntegrationDocument,
   IMessengerData,
-  integrationAccountsSchema,
   integrationSchema,
   ITwitterData,
   IUiOptions,
@@ -154,9 +151,9 @@ class Integration {
         throw new Error('Please configure endpoint');
       }
 
-      const { pageIds, accId } = facebookData;
+      const { pageIds, accountId } = facebookData;
 
-      const fbAccount = await IntegrationAccounts.findOne({ _id: accId });
+      const fbAccount = await Accounts.findOne({ _id: accountId });
 
       if (!fbAccount) {
         throw new Error('Linked facebook account not found');
@@ -300,39 +297,4 @@ integrationSchema.loadClass(Integration);
 
 const Integrations = model<IIntegrationDocument, IIntegrationModel>('integrations', integrationSchema);
 
-interface IIntegrationAccountModel extends Model<IIntegrationAccountDocument> {
-  createAccount(doc: IIntegrationAccount): Promise<IIntegrationAccountDocument>;
-  removeAccount(_id: string): void;
-}
-
-class IntegrationAccount {
-  /**
-   * Create an integration account
-   */
-  public static async createAccount(doc: IIntegrationAccount) {
-    const { accountId } = doc;
-
-    const prevEntry = await IntegrationAccounts.findOne({ accountId });
-
-    if (prevEntry) {
-      throw new Error('Account already exists');
-    }
-
-    return IntegrationAccounts.create(doc);
-  }
-  /**
-   * Remove integration account
-   */
-  public static removeAccount(_id) {
-    return IntegrationAccounts.remove({ _id });
-  }
-}
-
-integrationAccountsSchema.loadClass(IntegrationAccount);
-
-const IntegrationAccounts = model<IIntegrationAccountDocument, IIntegrationAccountModel>(
-  'integration_accounts',
-  integrationAccountsSchema,
-);
-
-export { Integrations, IntegrationAccounts };
+export default Integrations;

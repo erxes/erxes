@@ -1,4 +1,4 @@
-import { ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
+import { Accounts, ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
 
 import { publishClientMessage, publishMessage } from '../data/resolvers/mutations/conversations';
 
@@ -693,17 +693,24 @@ export class SaveWebhookResponse {
 /*
  * Receive per app webhook response
  */
-export const receiveWebhookResponse = async (app, data) => {
-  const selector = {
-    kind: INTEGRATION_KIND_CHOICES.FACEBOOK,
-    'facebookData.appId': app.id,
-  };
-
-  const integrations = await Integrations.find(selector);
+export const receiveWebhookResponse = async data => {
+  const integrations = await Integrations.find({ kind: INTEGRATION_KIND_CHOICES.FACEBOOK });
 
   for (const integration of integrations) {
+    const { facebookData } = integration;
+
+    if (!facebookData) {
+      throw new Error('Could not find integrations facebookData');
+    }
+
+    const account = await Accounts.findOne({ _id: facebookData.accountId });
+
+    if (!account) {
+      throw new Error('Could not find account');
+    }
+
     // when new message or other kind of activity in page
-    const saveWebhookResponse = new SaveWebhookResponse(app.accessToken, integration, data);
+    const saveWebhookResponse = new SaveWebhookResponse(account.token, integration, data);
 
     await saveWebhookResponse.start();
   }
@@ -717,7 +724,6 @@ export const facebookReply = async (
   msg: IFacebookReply,
   message: IMessageDocument,
 ) => {
-  const FACEBOOK_APPS = getConfig();
   const { attachment, commentId, text } = msg;
   const msgObj: any = {};
 
@@ -729,18 +735,20 @@ export const facebookReply = async (
     throw new Error('facebookReply: Integration not found');
   }
 
-  const appId = integration.facebookData.appId;
-
-  const app = FACEBOOK_APPS.find(a => a.id === appId);
-
   if (!conversation.facebookData) {
     throw new Error("facebookReply: Conversation doesn't have facebookData");
+  }
+
+  const account = await Accounts.findOne({ _id: integration.facebookData.accountId });
+
+  if (!account) {
+    throw new Error('facebookReply: Account not found');
   }
 
   // page access token
   const response: any = await graphRequest.get(
     `${conversation.facebookData.pageId}/?fields=access_token`,
-    app.accessToken,
+    account.token,
   );
 
   // messenger reply

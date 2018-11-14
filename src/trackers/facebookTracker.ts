@@ -1,5 +1,5 @@
 import * as graph from 'fbgraph';
-import { getConfig, receiveWebhookResponse } from './facebook';
+import { receiveWebhookResponse } from './facebook';
 
 /*
  * Common graph api request wrapper
@@ -9,6 +9,7 @@ export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
+    graph.setVersion('3.2');
 
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
@@ -34,30 +35,30 @@ export const graphRequest = {
  * Listen for facebook webhook response
  */
 export const trackIntegrations = expressApp => {
-  for (const app of getConfig()) {
-    expressApp.get(`/service/facebook/${app.id}/webhook-callback`, (req, res) => {
-      const query = req.query;
+  const { FACEBOOK_APP_ID } = process.env;
 
-      // when the endpoint is registered as a webhook, it must echo back
-      // the 'hub.challenge' value it receives in the query arguments
-      if (query['hub.mode'] === 'subscribe' && query['hub.challenge']) {
-        if (query['hub.verify_token'] !== app.verifyToken) {
-          res.end('Verification token mismatch');
-        }
+  expressApp.get(`/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, (req, res) => {
+    const query = req.query;
 
-        res.end(query['hub.challenge']);
+    // when the endpoint is registered as a webhook, it must echo back
+    // the 'hub.challenge' value it receives in the query arguments
+    if (query['hub.mode'] === 'subscribe' && query['hub.challenge']) {
+      if (query['hub.verify_token'] !== FACEBOOK_APP_ID) {
+        res.end('Verification token mismatch');
       }
-    });
 
-    expressApp.post(`/service/facebook/${app.id}/webhook-callback`, (req, res) => {
-      res.statusCode = 200;
+      res.end(query['hub.challenge']);
+    }
+  });
 
-      // receive per app webhook response
-      receiveWebhookResponse(app, req.body);
+  expressApp.post(`/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, (req, res) => {
+    res.statusCode = 200;
 
-      res.end('success');
-    });
-  }
+    // receive per app webhook response
+    receiveWebhookResponse(req.body);
+
+    res.end('success');
+  });
 };
 
 /*
