@@ -228,6 +228,12 @@ const insightQueries = {
             if (userMessage && clientMessage) {
               responseTime += (userMessage.createdAt.getTime() - clientMessage.createdAt.getTime()) / 1000;
               count += 1;
+
+              if (userMessage.createdAt.getTime() < clientMessage.createdAt.getTime()) {
+                console.log(userMessage);
+                console.log(' -------------------------- ');
+                console.log(clientMessage);
+              }
             }
 
             conversationIds.push(conversationId);
@@ -268,21 +274,16 @@ const insightQueries = {
   /**
    * Calculates average first response time for each team members.
    */
-  async insightsFirstResponse(_root, { integrationType, brandId, startDate, endDate }: IListArgs) {
+  async insightsFirstResponse(_root, { startDate, endDate }: IListArgs) {
     const { start, end } = fixDates(startDate, endDate);
     const { duration, startTime } = generateDuration({ start, end });
 
-    const messageSelector = await generateMessageSelector(
-      brandId,
-      integrationType,
-      // conversation selector
-      {
-        messageCount: { $gt: 2 },
-        createdAt: { $gte: start, $lte: end },
-      },
-      // message selector
-      { createdAt: { $ne: null } },
-    );
+    const conversationSelector = {
+      firstRespondedUserId: { $exists: true },
+      firstRespondedDate: { $exists: true },
+      messageCount: { $gt: 1 },
+      createdAt: { $gte: start, $lte: end },
+    };
 
     const insightData = { teamMembers: [], trend: [] };
 
@@ -294,41 +295,29 @@ const insightQueries = {
 
     let allResponseTime = 0;
 
-    // If conversation was found that above search criteria.
-    if (!(messageSelector.conversationId && messageSelector.conversationId.$in)) {
+    const conversations = await Conversations.find(conversationSelector);
+
+    if (conversations.length < 1) {
       return insightData;
     }
 
-    const conversationIds = messageSelector.conversationId.$in;
     const summaries = [0, 0, 0, 0];
 
     // Processes total first response time for each users.
-    for (const conversationId of conversationIds) {
-      // Client first response message
-      const clientMessage = await ConversationMessages.findOne({
-        ...messageSelector,
-        conversationId,
-        userId: null,
-      }).sort({ createdAt: 1 });
-
-      // First message that answered to a conversation
-      const userMessage = await ConversationMessages.findOne({
-        ...messageSelector,
-        conversationId,
-        userId: { $ne: null },
-      }).sort({ createdAt: 1 });
+    for (const conversation of conversations) {
+      const { firstRespondedUserId, firstRespondedDate, createdAt } = conversation;
 
       let responseTime = 0;
 
       // checking wheter or not this is actual conversation
-      if (userMessage && clientMessage) {
-        responseTime = userMessage.createdAt.getTime() - clientMessage.createdAt.getTime();
+      if (firstRespondedDate && firstRespondedUserId) {
+        responseTime = createdAt.getTime() - firstRespondedDate.getTime();
         responseTime = Math.abs(responseTime / 1000);
 
-        const userId = userMessage.userId || '';
+        const userId = firstRespondedUserId;
 
         // collecting each user's respond information
-        firstResponseData.push({ createdAt: userMessage.createdAt, userId, responseTime });
+        firstResponseData.push({ createdAt: firstRespondedDate, userId, responseTime });
 
         allResponseTime += responseTime;
 
