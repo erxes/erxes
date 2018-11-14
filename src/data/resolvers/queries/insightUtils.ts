@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import * as _ from 'underscore';
 import { Conversations, Integrations, Users } from '../../../db/models';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
-import { IConversationDocument } from '../../../db/models/definitions/conversations';
+import { IConversation, IConversationDocument } from '../../../db/models/definitions/conversations';
 
 interface IMessageSelector {
   userId?: string;
@@ -58,6 +58,32 @@ interface IGenerateResponseData {
 }
 
 /**
+ * Find conversations.
+ */
+export const findConversations = async (
+  args: IIntegrationSelector,
+  conversationSelector: any,
+): Promise<IConversation[]> => {
+  const integrationSelector: IIntegrationSelector = {};
+  const { kind, brandId } = args;
+
+  if (brandId) {
+    integrationSelector.brandId = brandId;
+  }
+
+  if (kind) {
+    integrationSelector.kind = kind;
+  }
+
+  const integrationIds = await Integrations.find(integrationSelector).select('_id');
+
+  return Conversations.find({
+    ...conversationSelector,
+    integrationId: { $in: integrationIds },
+  });
+};
+
+/**
  * Builds messages find query selector.
  */
 export const generateMessageSelector = async (
@@ -107,7 +133,7 @@ export const generateMessageSelector = async (
  * by given duration and loop count for chart data.
  */
 export const generateChartData = (
-  collection: IMessageDocument[],
+  collection: any,
   loopCount: number,
   duration: number,
   startTime: number,
@@ -268,7 +294,7 @@ export const generateDuration = ({ start, end }: { start: Date; end: Date }): IG
   };
 };
 
-/* 
+/*
  * Determines user or client
  */
 export const generateUserSelector = (type: string): any => {

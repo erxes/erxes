@@ -4,6 +4,7 @@ import { ConversationMessages, Conversations, Integrations, Tags } from '../../.
 import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import {
+  findConversations,
   fixDate,
   fixDates,
   formatTime,
@@ -115,7 +116,8 @@ const insightQueries = {
   /**
    * Counts conversations by each hours in each days.
    */
-  async insightsPunchCard(_root, { type, integrationType, brandId, endDate }: IListArgs) {
+  async insightsPunchCard(_root, args: IListArgs) {
+    const { type, integrationType, brandId, endDate } = args;
     // check & convert endDate's value
     const end = moment(fixDate(endDate)).format('YYYY-MM-DD');
     const start = moment(end).add(-7, 'days');
@@ -173,7 +175,8 @@ const insightQueries = {
   /**
    * Sends combined charting data for trends, summaries and team members.
    */
-  async insightsMain(_root, { type, integrationType, brandId, startDate, endDate }: IListArgs) {
+  async insightsMain(_root, args: IListArgs) {
+    const { type, integrationType, brandId, startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
     const { duration, startTime } = generateDuration({ start, end });
 
@@ -226,13 +229,12 @@ const insightQueries = {
             }).sort({ createdAt: 1 });
 
             if (userMessage && clientMessage) {
-              responseTime += (userMessage.createdAt.getTime() - clientMessage.createdAt.getTime()) / 1000;
-              count += 1;
+              const userTime = userMessage.createdAt.getTime();
+              const clientTime = clientMessage.createdAt.getTime();
 
-              if (userMessage.createdAt.getTime() < clientMessage.createdAt.getTime()) {
-                console.log(userMessage);
-                console.log(' -------------------------- ');
-                console.log(clientMessage);
+              if (userTime > clientTime) {
+                responseTime += (userTime - clientTime) / 1000;
+                count += 1;
               }
             }
 
@@ -265,6 +267,40 @@ const insightQueries = {
       insightData.summary.push({
         title: summary.title,
         count: await ConversationMessages.count(messageSelector),
+      });
+    }
+
+    return insightData;
+  },
+
+  /**
+   * Sends combined charting data for trends and summaries.
+   */
+  async insightsConversation(_root, args: IListArgs) {
+    const { integrationType, brandId, startDate, endDate } = args;
+    const { start, end } = fixDates(startDate, endDate);
+    const { duration, startTime } = generateDuration({ start, end });
+
+    const conversationSelector = { createdAt: { $gt: start, $lte: end } };
+    const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
+
+    const insightData: any = {
+      summary: [],
+      trend: generateChartData(conversations, 7, duration, startTime),
+    };
+
+    const summaries = generateTimeIntervals(start, end);
+
+    // finds a respective message counts for different time intervals.
+    for (const summary of summaries) {
+      conversationSelector.createdAt = {
+        $gt: formatTime(summary.start),
+        $lte: formatTime(summary.end),
+      };
+
+      insightData.summary.push({
+        title: summary.title,
+        count: await Conversations.count(conversationSelector),
       });
     }
 
@@ -345,7 +381,8 @@ const insightQueries = {
   /**
    * Calculates average response close time for each team members.
    */
-  async insightsResponseClose(_root, { integrationType, brandId, startDate, endDate }: IListArgs) {
+  async insightsResponseClose(_root, args: IListArgs) {
+    const { integrationType, brandId, startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
     const { duration, startTime } = generateDuration({ start, end });
 
@@ -355,21 +392,7 @@ const insightQueries = {
       closedUserId: { $ne: null },
     };
 
-    const integrationSelector: any = {};
-
-    if (brandId) {
-      integrationSelector.brandId = brandId;
-    }
-
-    if (integrationType) {
-      integrationSelector.kind = integrationType;
-    }
-
-    const integrationIds = await Integrations.find(integrationSelector).select('_id');
-    const conversations = await Conversations.find({
-      ...conversationSelector,
-      integrationId: { $in: integrationIds },
-    });
+    const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
 
     const insightData = { teamMembers: [], trend: [] };
 

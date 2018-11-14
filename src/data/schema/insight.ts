@@ -11,6 +11,7 @@ export const queries = `
   insights(${params}): JSON
   insightsPunchCard(type: String, integrationType: String, brandId: String, endDate: String): JSON
   insightsMain(type: String, ${params}): JSON
+  insightsConversation(${params}): JSON
   insightsFirstResponse(${params}): JSON
   insightsResponseClose(${params}): JSON
 `;
