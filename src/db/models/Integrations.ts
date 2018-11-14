@@ -2,7 +2,7 @@ import { Model, model } from 'mongoose';
 import 'mongoose-type-email';
 import { Accounts, ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from '../../data/constants';
-import { graphRequest } from '../../trackers/facebookTracker';
+import { getPageInfo, subscribePage } from '../../trackers/facebookTracker';
 import { sendPostRequest } from '../connection';
 import {
   IFacebookData,
@@ -148,20 +148,18 @@ class Integration {
 
     const { pageIds, accountId } = facebookData;
 
-    const fbAccount = await Accounts.findOne({ _id: accountId });
+    const account = await Accounts.findOne({ _id: accountId });
 
-    if (!fbAccount) {
-      throw new Error('Linked facebook account not found');
+    if (!account) {
+      throw new Error('Account not found');
     }
 
     for (const pageId of pageIds) {
-      const pageInfo: any = await graphRequest.get(`${pageId}?fields=id,access_token`, fbAccount.token);
+      const pageInfo = await getPageInfo(pageId, account.token);
 
       const pageToken = pageInfo.access_token;
 
-      const res: any = await graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-        subscribed_fields: ['conversations', 'messages', 'feed'],
-      });
+      const res = await subscribePage(pageId, pageToken);
 
       if (res.success !== true) {
         throw new Error('Couldnt subscribe page');

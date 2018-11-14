@@ -153,7 +153,7 @@ const integrationQueries = {
   },
 
   /**
-   * Get facebook pages by appId or linked account id
+   * Get facebook pages by account id
    */
   async integrationFacebookPagesList(_root, { accountId }: { accountId: string }) {
     const account = await Accounts.findOne({ _id: accountId });

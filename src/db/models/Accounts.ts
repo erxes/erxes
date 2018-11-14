@@ -1,12 +1,12 @@
 import { Model, model } from 'mongoose';
 import { accountSchema, IAccount, IAccountDocument } from './definitions/accounts';
 
-interface IIntegrationAccountModel extends Model<IAccountDocument> {
+interface IAccountModel extends Model<IAccountDocument> {
   createAccount(doc: IAccount): Promise<IAccountDocument>;
   removeAccount(_id: string): void;
 }
 
-class IntegrationAccount {
+class Account {
   /**
    * Create an integration account
    */
@@ -29,8 +29,8 @@ class IntegrationAccount {
   }
 }
 
-accountSchema.loadClass(IntegrationAccount);
+accountSchema.loadClass(Account);
 
-const Accounts = model<IAccountDocument, IIntegrationAccountModel>('accounts', accountSchema);
+const Accounts = model<IAccountDocument, IAccountModel>('accounts', accountSchema);
 
 export default Accounts;

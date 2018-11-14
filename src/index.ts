@@ -3,7 +3,6 @@ import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
-import * as graph from 'fbgraph';
 import * as formidable from 'formidable';
 import { execute, subscribe } from 'graphql';
 import { graphiqlExpress, graphqlExpress } from 'graphql-server-express';
@@ -16,9 +15,8 @@ import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils'
 import { pubsub } from './data/resolvers/subscriptions';
 import { checkFile, importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
-import { Accounts, Customers } from './db/models';
+import { Customers } from './db/models';
 import { init } from './startup';
-import { graphRequest } from './trackers/facebookTracker';
 
 // load environment variables
 dotenv.config();
@@ -103,64 +101,6 @@ app.post('/import-file', (req: any, res) => {
         res.json(e);
       });
   });
-});
-
-app.get('/fblogin', (req, res) => {
-  const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, DOMAIN } = process.env;
-
-  const conf = {
-    client_id: FACEBOOK_APP_ID,
-    client_secret: FACEBOOK_APP_SECRET,
-    scope:
-      'manage_pages, pages_show_list, pages_messaging, publish_pages, pages_messaging_phone_number, pages_messaging_subscriptions',
-    redirect_uri: `${DOMAIN}/fblogin`,
-  };
-
-  // we don't have a code yet
-  // so we'll redirect to the oauth dialog
-  if (!req.query.code) {
-    const authUrl = graph.getOauthUrl({
-      client_id: conf.client_id,
-      redirect_uri: conf.redirect_uri,
-      scope: conf.scope,
-    });
-
-    if (!req.query.error) {
-      // checks whether a user denied the app facebook login/permissions
-      res.redirect(authUrl);
-    } else {
-      // req.query.error == 'access_denied'
-      res.send('access denied');
-    }
-  }
-  // If this branch executes user is already being redirected back with
-  // code (whatever that is)
-  else {
-    // code is set
-    // we'll send that and get the access token
-    graph.authorize(
-      {
-        client_id: conf.client_id,
-        redirect_uri: conf.redirect_uri,
-        client_secret: conf.client_secret,
-        code: req.query.code,
-      },
-      async (_err, facebookRes) => {
-        const { access_token } = facebookRes;
-        const userAccount: any = await graphRequest.get('me?fields=id,first_name,last_name', access_token);
-        const name = `${userAccount.first_name} ${userAccount.last_name}`;
-
-        await Accounts.createAccount({
-          token: access_token,
-          name,
-          kind: 'facebook',
-          uid: userAccount.id,
-        });
-
-        res.redirect(`${MAIN_APP_DOMAIN}/settings/integrations?fbAuthorized=true`);
-      },
-    );
-  }
 });
 
 // engage unsubscribe
