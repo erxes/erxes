@@ -66,7 +66,7 @@ app.get('/unsubscribe', async (req, res) => {
 });
 
 app.get('/fblogin', (req, res) => {
-  const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, DOMAIN, MAIN_APP_DOMAIN } = process.env;
+  const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, MAIN_APP_DOMAIN, DOMAIN } = process.env;
 
   const conf = {
     client_id: FACEBOOK_APP_ID,
@@ -107,13 +107,13 @@ app.get('/fblogin', (req, res) => {
       async (_err, facebookRes) => {
         const { access_token } = facebookRes;
         const userAccount: any = await graphRequest.get('me?fields=id,first_name,last_name', access_token);
-        const accountName = `${userAccount.first_name} ${userAccount.last_name}`;
+        const name = `${userAccount.first_name} ${userAccount.last_name}`;
 
         await Accounts.createAccount({
           token: access_token,
-          accountName,
+          name,
           kind: 'facebook',
-          accountId: userAccount.id,
+          uid: userAccount.id,
         });
 
         res.end();

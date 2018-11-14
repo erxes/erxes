@@ -11,9 +11,9 @@ class IntegrationAccount {
    * Create an integration account
    */
   public static async createAccount(doc: IAccount) {
-    const { accountId } = doc;
+    const { uid } = doc;
 
-    const prevEntry = await Accounts.findOne({ accountId });
+    const prevEntry = await Accounts.findOne({ uid });
 
     if (prevEntry) {
       throw new Error('Account already exists');
@@ -31,6 +31,6 @@ class IntegrationAccount {
 
 accountSchema.loadClass(IntegrationAccount);
 
-const Accounts = model<IAccountDocument, IIntegrationAccountModel>('integration_accounts', accountSchema);
+const Accounts = model<IAccountDocument, IIntegrationAccountModel>('accounts', accountSchema);
 
 export default Accounts;

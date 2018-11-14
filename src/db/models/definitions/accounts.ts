@@ -4,8 +4,8 @@ import { field } from '../utils';
 export interface IAccount {
   kind: string;
   token: string;
-  accountName: string;
-  accountId: string;
+  name: string;
+  uid: string;
 }
 
 export interface IAccountDocument extends IAccount, Document {
@@ -21,5 +21,5 @@ export const accountSchema = new Schema({
     type: String,
   }),
   name: field({ type: String }),
-  id: field({ type: String }),
+  uid: field({ type: String }),
 });

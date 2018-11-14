@@ -1,5 +1,6 @@
 export const types = `
   type Account {
+    _id: String
     kind: String
     name: String
     id: String
