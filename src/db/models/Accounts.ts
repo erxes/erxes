@@ -16,7 +16,7 @@ class IntegrationAccount {
     const prevEntry = await Accounts.findOne({ uid });
 
     if (prevEntry) {
-      throw new Error('Account already exists');
+      return null;
     }
 
     return Accounts.create(doc);
