@@ -43,9 +43,9 @@ export default withProps<{}>(
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.delinkAccount),
       {
-        name: 'integrationsDelinkAccount',
+        name: 'removeAccount',
         options: {
-          refetchQueries: ['accountsQuery']
+          refetchQueries: ['accounts']
         }
       }
     )
