@@ -15,7 +15,7 @@ const commonFormParams = `
 `;
 
 const commonParamsDef = `
-  $title: String!,
+  $title: String,
   $description: String,
   $buttonText: String,
   $themeColor: String,

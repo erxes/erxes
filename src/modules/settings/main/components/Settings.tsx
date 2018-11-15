@@ -25,11 +25,6 @@ class Settings extends React.Component {
           <RowTitle className="secondRow">{__('General Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'Status',
-              '/images/icons/erxes-06.svg',
-              '/settings/status'
-            )}
-            {this.renderBox(
               'Account default',
               '/images/icons/erxes-16.svg',
               '/settings/general'
@@ -48,6 +43,11 @@ class Settings extends React.Component {
               'Import histories',
               '/images/icons/erxes-12.svg',
               '/settings/importHistories'
+            )}
+            {this.renderBox(
+              'Status',
+              '/images/icons/erxes-06.svg',
+              '/settings/status'
             )}
           </div>
         </Row>
