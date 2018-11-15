@@ -4,7 +4,8 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Spinner
 } from '../../../../common/components';
 import { ModalFooter } from '../../../../common/styles/main';
 import { __ } from '../../../../common/utils';
@@ -24,7 +25,14 @@ type Props = {
   closeModal: () => void;
 };
 
-class Facebook extends React.Component<Props, { kind: string }> {
+class Facebook extends React.Component<Props, { loading: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      loading: false
+    };
+  }
   onAccChange = () => {
     const accountId = (document.getElementById('acc') as HTMLInputElement)
       .value;
@@ -59,7 +67,13 @@ class Facebook extends React.Component<Props, { kind: string }> {
       pageIds: this.collectCheckboxValues('pages')
     };
 
-    this.props.save(doc, this.props.closeModal);
+    const callback = () => {
+      this.setState({ loading: false }, () => this.props.closeModal());
+    };
+
+    this.setState({ loading: true });
+
+    this.props.save(doc, callback);
   };
 
   render() {
@@ -67,6 +81,7 @@ class Facebook extends React.Component<Props, { kind: string }> {
 
     return (
       <form onSubmit={this.handleSubmit}>
+        {this.state.loading && <Spinner />}
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
