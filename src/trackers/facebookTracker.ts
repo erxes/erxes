@@ -23,11 +23,11 @@ export const graphRequest = {
     });
   },
 
-  get(...args) {
+  get(...args): any {
     return this.base('get', ...args);
   },
 
-  post(...args) {
+  post(...args): any {
     return this.base('post', ...args);
   },
 };
@@ -105,7 +105,12 @@ export const trackFbLogin = expressApp => {
       },
       async (_err, facebookRes) => {
         const { access_token } = facebookRes;
-        const userAccount: any = await graphRequest.get('me?fields=id,first_name,last_name', access_token);
+
+        const userAccount: { id: string; first_name: string; last_name: string } = await graphRequest.get(
+          'me?fields=id,first_name,last_name',
+          access_token,
+        );
+
         const name = `${userAccount.first_name} ${userAccount.last_name}`;
 
         await Accounts.createAccount({
@@ -121,11 +126,22 @@ export const trackFbLogin = expressApp => {
   });
 };
 
+interface IComment {
+  id: string;
+  from: { name: string; id: string };
+  message: string;
+  attachment_url: string;
+}
+
+interface IComments {
+  data: IComment[];
+}
+
 /*
  * Find post comments using postId
  */
-export const findPostComments = async (accessToken: string, postId: string, comments: any) => {
-  const postComments: any = await graphRequest.get(
+export const findPostComments = async (accessToken: string, postId: string, comments: IComment[]) => {
+  const postComments: IComments = await graphRequest.get(
     `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url&limit=3000`,
     accessToken,
   );
@@ -145,11 +161,11 @@ export const getPageInfo = async (
   pageId: string,
   userAccessToken: string,
 ): Promise<{ access_token: string; id: string }> => {
-  return graphRequest.get(`${pageId}?fields=id,access_token`, userAccessToken) as any;
+  return graphRequest.get(`${pageId}?fields=id,access_token`, userAccessToken);
 };
 
 export const subscribePage = async (pageId, pageToken): Promise<{ success: true } | any> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
     subscribed_fields: ['conversations', 'messages', 'feed'],
-  }) as any;
+  });
 };
