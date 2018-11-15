@@ -101,7 +101,7 @@ class Form extends React.Component<Props, State> {
       language: integration.languageCode,
       title: integration.name,
       calloutTitle: callout.title || 'Title',
-      formTitle: form.title || 'Contact',
+      formTitle: form.title || '',
       bodyValue: callout.body || '',
       formDesc: form.description || '',
       formBtnText: form.buttonText || 'Send',
