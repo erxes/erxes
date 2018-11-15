@@ -36,10 +36,10 @@ class FormPreview extends React.Component<Props, {}> {
         color={color}
         btnText={formBtnText}
         btnStyle="primary"
-        bodyValue={formDesc}
         type={type}
       >
         <FormFieldPreview
+          formDesc={formDesc}
           fields={fields}
           onFieldEdit={onFieldEdit}
           onChange={onChange}
