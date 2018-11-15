@@ -3,7 +3,6 @@ import 'mongoose-type-email';
 import { Accounts, ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from '../../data/constants';
 import { getPageInfo, subscribePage } from '../../trackers/facebookTracker';
-import { sendPostRequest } from '../connection';
 import {
   IFacebookData,
   IFormData,
@@ -140,9 +139,9 @@ class Integration {
     brandId: string;
     facebookData: IFacebookData;
   }) {
-    const { INTEGRATION_ENDPOINT_URL, FACEBOOK_APP_ID, DOMAIN } = process.env;
+    const { FACEBOOK_APP_ID, DOMAIN } = process.env;
 
-    if (!INTEGRATION_ENDPOINT_URL || !FACEBOOK_APP_ID || !DOMAIN) {
+    if (!FACEBOOK_APP_ID || !DOMAIN) {
       throw new Error('Invalid configuration');
     }
 
@@ -164,11 +163,6 @@ class Integration {
       if (res.success !== true) {
         throw new Error('Couldnt subscribe page');
       }
-
-      await sendPostRequest(`${INTEGRATION_ENDPOINT_URL}/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, {
-        endPoint: DOMAIN,
-        pageId: pageInfo.id,
-      });
     }
 
     return this.createIntegration({

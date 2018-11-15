@@ -128,6 +128,7 @@ export const trackFbLogin = expressApp => {
 
 interface IComment {
   id: string;
+  parent?: { id: string };
   from: { name: string; id: string };
   message: string;
   attachment_url: string;

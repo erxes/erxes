@@ -1,3 +1,4 @@
+import { sendPostRequest } from '../../../db/connection';
 import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
@@ -79,7 +80,7 @@ const integrationMutations = {
     _root,
     { name, brandId, pageIds, accountId }: { name: string; brandId: string; pageIds: string[]; accountId: string },
   ) {
-    return Integrations.createFacebookIntegration({
+    const integration = Integrations.createFacebookIntegration({
       name,
       brandId,
       facebookData: {
@@ -87,6 +88,19 @@ const integrationMutations = {
         pageIds,
       },
     });
+
+    const { INTEGRATION_ENDPOINT_URL, FACEBOOK_APP_ID, DOMAIN } = process.env;
+
+    if (INTEGRATION_ENDPOINT_URL) {
+      for (const pageId of pageIds) {
+        await sendPostRequest(`${INTEGRATION_ENDPOINT_URL}/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, {
+          endPoint: DOMAIN || '',
+          pageId,
+        });
+      }
+    }
+
+    return integration;
   },
 
   /**
