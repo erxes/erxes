@@ -10,18 +10,18 @@ import { ModalFooter } from '../../../../common/styles/main';
 import { __ } from '../../../../common/utils';
 import { IBrand } from '../../../brands/types';
 import { IAccount } from '../../../linkedAccounts/types';
-import {
-  CreateFacebookMutationVariables,
-  IFacebookApp,
-  IPages
-} from '../../types';
+import { CreateFacebookMutationVariables, IPages } from '../../types';
 
 type Props = {
-  save: (params: CreateFacebookMutationVariables) => void;
+  save: (
+    params: CreateFacebookMutationVariables,
+    callback?: () => void
+  ) => void;
   onAccSelect: (doc: { appId?: string; accountId?: string }) => void;
   brands: IBrand[];
   pages: IPages[];
   accounts: IAccount[];
+  closeModal: () => void;
 };
 
 class Facebook extends React.Component<Props, { kind: string }> {
@@ -59,7 +59,7 @@ class Facebook extends React.Component<Props, { kind: string }> {
       pageIds: this.collectCheckboxValues('pages')
     };
 
-    this.props.save(doc);
+    this.props.save(doc, this.props.closeModal);
   };
 
   render() {

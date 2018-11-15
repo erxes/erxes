@@ -18,6 +18,7 @@ import {
 type Props = {
   client: any;
   type?: string;
+  closeModal: () => void;
 };
 
 type FinalProps = {
@@ -62,7 +63,13 @@ class FacebookContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { history, brandsQuery, saveMutation, accountsQuery } = this.props;
+    const {
+      history,
+      brandsQuery,
+      saveMutation,
+      accountsQuery,
+      closeModal
+    } = this.props;
 
     if (brandsQuery.loading) {
       return <Spinner objective={true} />;
@@ -71,10 +78,11 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     const brands = brandsQuery.brands;
     const accounts = accountsQuery.accounts || [];
 
-    const save = variables => {
+    const save = (variables, callback) => {
       saveMutation({ variables })
         .then(() => {
           Alert.success('Congrats');
+          callback();
           history.push('/settings/integrations');
         })
         .catch(e => {
@@ -83,6 +91,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     };
 
     const updatedProps = {
+      closeModal,
       brands,
       pages: this.state.pages,
       onAccSelect: this.onAccSelect,
