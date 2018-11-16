@@ -20,7 +20,7 @@ describe('facebook integration common tests', () => {
       facebookData: { appId: app.id },
     });
 
-    await receiveWebhookResponse(app, {});
+    await receiveWebhookResponse({});
   });
 
   test('get page list', async () => {
