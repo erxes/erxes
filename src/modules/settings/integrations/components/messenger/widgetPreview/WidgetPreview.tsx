@@ -34,6 +34,7 @@ type Props = {
   prevHeight?: number;
   brandId?: string;
   brands?: IBrand[];
+  isGreeting?: boolean;
 };
 
 type State = {
@@ -128,13 +129,14 @@ class WidgetPreview extends React.Component<Props, State> {
     );
   }
 
-  render() {
+  renderContent() {
     const {
       color,
       wallpaper,
       welcomeMessage,
       awayMessage,
-      isOnline
+      isOnline,
+      isGreeting
     } = this.props;
 
     const renderMessage = message => {
@@ -146,8 +148,22 @@ class WidgetPreview extends React.Component<Props, State> {
 
     const backgroundClasses = `background-${wallpaper}`;
 
+    if (isGreeting) {
+      return (
+        <ErxesTopbar
+          style={{ backgroundColor: color, height: this.state.headHeight }}
+        >
+          <ErxesMiddle>
+            {this.renderLeftButton()}
+            <ErxesMiddleTitle>{this.renderTitle()}</ErxesMiddleTitle>
+            {this.renderRightButton()}
+          </ErxesMiddle>
+        </ErxesTopbar>
+      );
+    }
+
     return (
-      <WidgetPreviewStyled>
+      <React.Fragment>
         <ErxesTopbar
           style={{ backgroundColor: color, height: this.state.headHeight }}
         >
@@ -179,8 +195,12 @@ class WidgetPreview extends React.Component<Props, State> {
         <ErxesMessageSender>
           <span>{__('Send a message ...')}</span>
         </ErxesMessageSender>
-      </WidgetPreviewStyled>
+      </React.Fragment>
     );
+  }
+
+  render() {
+    return <WidgetPreviewStyled>{this.renderContent()}</WidgetPreviewStyled>;
   }
 }
 

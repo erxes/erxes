@@ -56,6 +56,7 @@ type State = {
   twitter: string;
   youtube: string;
   messages: IMessages;
+  isStepActive: boolean;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -91,7 +92,8 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook: links.facebook || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
-      messages: { ...this.generateMessages(messages) }
+      messages: { ...this.generateMessages(messages) },
+      isStepActive: false
     };
   }
 
@@ -170,6 +172,12 @@ class CreateMessenger extends React.Component<Props, State> {
     });
   };
 
+  onStepClick = () => {
+    // tslint:disable-next-line:no-console
+    console.log(this.state.isStepActive);
+    this.setState({ isStepActive: true });
+  };
+
   renderButtons() {
     const cancelButton = (
       <Link to="/settings/integrations">
@@ -213,9 +221,11 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook,
       twitter,
       youtube,
-      messages
+      messages,
+      isStepActive
     } = this.state;
-
+    // tslint:disable-next-line:no-console
+    console.log(isStepActive);
     const message = messages[languageCode];
 
     const breadcrumb = [
@@ -252,7 +262,11 @@ class CreateMessenger extends React.Component<Props, State> {
               />
             </Step>
 
-            <Step img="/images/icons/erxes-09.svg" title="Greeting">
+            <Step
+              img="/images/icons/erxes-09.svg"
+              title="Greeting"
+              onClick={this.onStepClick}
+            >
               <Greeting
                 teamMembers={this.props.teamMembers}
                 onChange={this.onChange}
@@ -311,6 +325,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 brandId={brandId}
                 logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
+                isStepActive={isStepActive}
               />
             </Preview>
           </MessengerPreview>

@@ -18,6 +18,7 @@ type Props = {
   logoPreviewUrl?: string;
   brandId?: string;
   brands?: IBrand[];
+  isStepActive?: boolean;
 };
 
 class CommonPreview extends React.Component<Props> {
@@ -32,7 +33,8 @@ class CommonPreview extends React.Component<Props> {
       teamMembers,
       message,
       brandId,
-      brands
+      brands,
+      isStepActive
     } = this.props;
 
     return (
@@ -48,6 +50,7 @@ class CommonPreview extends React.Component<Props> {
             isOnline={isOnline}
             brandId={brandId}
             brands={brands}
+            isGreeting={isStepActive}
           />
 
           <Launcher
