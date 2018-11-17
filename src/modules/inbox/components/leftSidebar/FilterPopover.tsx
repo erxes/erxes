@@ -3,21 +3,17 @@ import gql from 'graphql-tag';
 import { FilterByParams, Icon, Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
-import { PopoverButton } from 'modules/inbox/styles';
 import { generateParams } from 'modules/inbox/utils';
 import * as React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { GroupTitle } from './styles';
 
 type Props = {
   query?: { queryName: string; dataName: string; variables?: any };
   fields?: any[];
-  popoverTitle: string;
-  buttonText: string;
+  groupText: string;
   counts: string;
   paramKey: string;
-  placement?: string;
   icon?: string;
-  searchable?: boolean;
   queryParams?: any;
 };
 
@@ -25,6 +21,7 @@ type State = {
   fields: any[];
   counts: any;
   loading: boolean;
+  isOpen: boolean;
 };
 
 export default class FilterPopover extends React.Component<Props, State> {
@@ -38,6 +35,7 @@ export default class FilterPopover extends React.Component<Props, State> {
     }
 
     this.state = {
+      isOpen: false,
       fields: props.fields || [],
       counts: {},
       loading
@@ -53,7 +51,7 @@ export default class FilterPopover extends React.Component<Props, State> {
     return this.state !== nextState;
   }
 
-  onClick = () => {
+  doQuery() {
     const { query, counts, queryParams } = this.props;
 
     // Fetching filter lists channels, brands, tags etc
@@ -79,53 +77,55 @@ export default class FilterPopover extends React.Component<Props, State> {
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         this.setState({ counts: data.conversationCounts[counts], loading });
       });
+  }
+
+  componentDidMount() {
+    if (this.state.isOpen) {
+      this.doQuery();
+    }
+  }
+
+  onClick = () => {
+    if (!this.state.isOpen) {
+      this.doQuery();
+    }
+
+    this.setState({ isOpen: !this.state.isOpen });
   };
 
   renderPopover = () => {
-    const { popoverTitle, paramKey, icon, searchable } = this.props;
+    const { paramKey, icon } = this.props;
     const { counts } = this.state;
     const { fields, loading } = this.state;
 
     if (loading) {
-      return (
-        <Popover id="filter-popover" title={__(popoverTitle)}>
-          <Spinner objective={true} />
-        </Popover>
-      );
+      return <Spinner objective={true} />;
     }
 
     return (
-      <Popover id="filter-popover" title={__(popoverTitle)}>
-        <FilterByParams
-          fields={fields}
-          paramKey={paramKey}
-          counts={counts}
-          icon={icon}
-          loading={false}
-          searchable={searchable}
-          update={this.update}
-        />
-      </Popover>
+      <FilterByParams
+        fields={fields}
+        paramKey={paramKey}
+        counts={counts}
+        icon={icon}
+        loading={false}
+        searchable={false}
+        update={this.update}
+      />
     );
   };
 
   render() {
-    const { buttonText, placement = 'bottom' } = this.props;
+    const { groupText } = this.props;
 
     return (
-      <OverlayTrigger
-        trigger="click"
-        placement={placement}
-        overlay={this.renderPopover()}
-        container={this}
-        shouldUpdatePosition={true}
-        rootClose={true}
-      >
-        <PopoverButton onClick={this.onClick}>
-          {__(buttonText)}
-          <Icon icon={placement === 'top' ? 'uparrow-2' : 'downarrow'} />
-        </PopoverButton>
-      </OverlayTrigger>
+      <>
+        <GroupTitle onClick={this.onClick}>
+          {__(groupText)}
+          <Icon icon="downarrow" />
+        </GroupTitle>
+        {this.state.isOpen && this.renderPopover()}
+      </>
     );
   }
 }

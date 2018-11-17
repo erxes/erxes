@@ -106,17 +106,11 @@ const SideContent = styledTS<{
   position: relative;
   flex-direction: column;
   flex-shrink: 0;
-  width: ${props => (props.wide ? '360px' : '300px')};
+  width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
   border-right: 1px solid ${colors.borderPrimary};
   margin-right: ${dimensions.unitSpacing}px;
-`;
-
-const AdditionalSidebar = styled.div`
-  width: 200px;
-  background: ${colors.bgLight}
-  border-right: 1px solid ${colors.borderPrimary};
 `;
 
 const SidebarHeader = styledTS<{
@@ -481,7 +475,6 @@ export {
   SidebarToggle,
   SidebarCounter,
   SidebarFlexRow,
-  AdditionalSidebar,
   HelperButtons,
   SidebarTitle,
   UserHelper,

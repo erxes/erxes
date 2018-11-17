@@ -5,14 +5,13 @@ import { ConversationList } from 'modules/inbox/containers/leftSidebar';
 import { queries } from 'modules/inbox/graphql';
 import { PopoverButton } from 'modules/inbox/styles';
 import { Sidebar } from 'modules/layout/components';
-import { AdditionalSidebar } from 'modules/layout/styles';
 import { TAG_TYPES } from 'modules/tags/constants';
 import * as React from 'react';
 import { IConversation } from '../../types';
 import AssignBoxPopover from '../assignBox/AssignBoxPopover';
 import FilterPopover from './FilterPopover';
 import StatusFilterPopover from './StatusFilterPopover';
-import { RightItems } from './styles';
+import { AdditionalSidebar, RightItems } from './styles';
 
 type Integrations = {
   _id: string;
@@ -61,18 +60,6 @@ class LeftSidebar extends React.Component<Props, {}> {
 
     return (
       <Sidebar.Header>
-        <FilterPopover
-          buttonText="# Channel"
-          popoverTitle="Filter by channel"
-          query={{
-            queryName: 'channelList',
-            dataName: 'channels'
-          }}
-          counts="byChannels"
-          paramKey="channelId"
-          queryParams={queryParams}
-          searchable={true}
-        />
         <DateFilter
           queryParams={queryParams}
           history={history}
@@ -88,34 +75,39 @@ class LeftSidebar extends React.Component<Props, {}> {
     return <React.Fragment>{this.renderSidebarActions()}</React.Fragment>;
   }
 
-  renderSidebarFooter() {
+  renderAdditionalSidebar() {
     const { integrations, queryParams } = this.props;
 
     return (
-      <Sidebar.Footer>
+      <AdditionalSidebar>
         <FilterPopover
-          buttonText="Brand"
+          groupText="Channels"
+          query={{
+            queryName: 'channelList',
+            dataName: 'channels'
+          }}
+          counts="byChannels"
+          paramKey="channelId"
+          queryParams={queryParams}
+        />
+        <FilterPopover
+          groupText="Brands"
           query={{ queryName: 'brandList', dataName: 'brands' }}
           counts="byBrands"
-          popoverTitle="Filter by brand"
-          placement="top"
           queryParams={queryParams}
           paramKey="brandId"
-          searchable={true}
         />
 
         <FilterPopover
-          buttonText="Integration"
+          groupText="Integrations"
           fields={integrations}
           queryParams={queryParams}
           counts="byIntegrationTypes"
           paramKey="integrationType"
-          popoverTitle="Filter by integrations"
-          placement="top"
         />
 
         <FilterPopover
-          buttonText="Tag"
+          groupText="Tags"
           query={{
             queryName: 'tagList',
             dataName: 'tags',
@@ -126,12 +118,9 @@ class LeftSidebar extends React.Component<Props, {}> {
           queryParams={queryParams}
           counts="byTags"
           paramKey="tag"
-          popoverTitle="Filter by tag"
-          placement="top"
           icon="tag"
-          searchable={true}
         />
-      </Sidebar.Footer>
+      </AdditionalSidebar>
     );
   }
 
@@ -147,13 +136,8 @@ class LeftSidebar extends React.Component<Props, {}> {
 
     return (
       <>
-        <AdditionalSidebar>sidebar</AdditionalSidebar>
-        <Sidebar
-          wide={true}
-          full={true}
-          header={this.renderSidebarHeader()}
-          footer={this.renderSidebarFooter()}
-        >
+        {this.renderAdditionalSidebar()}
+        <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>
           <ConversationList
             currentConversationId={currentConversationId}
             totalCount={totalCount}

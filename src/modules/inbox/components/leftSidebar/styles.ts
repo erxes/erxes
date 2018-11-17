@@ -167,6 +167,44 @@ const AssigneeWrapper = styled.div`
   justify-content: flex-end;
 `;
 
+const AdditionalSidebar = styled.div`
+  width: 200px;
+  background: ${colors.bgLight};
+  flex-shrink: 0;
+  border-right: 1px solid ${colors.borderPrimary};
+  padding: 10px 0;
+  overflow: auto;
+
+  ul > li > a {
+    padding: 5px 30px;
+  }
+`;
+
+const GroupTitle = styled.div`
+  font-weight: bold;
+  line-height: 32px;
+  padding: 0 20px;
+
+  i {
+    margin-left: 5px;
+    margin-right: 0;
+    font-size: 10px;
+    transition: all ease 0.3s;
+  }
+
+  &[aria-describedby] {
+    color: ${colors.colorSecondary};
+
+    i {
+      transform: rotate(180deg);
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 export {
   ConversationItems,
   RightItems,
@@ -180,5 +218,7 @@ export {
   SmallTextOneLine,
   MessageContent,
   AssigneeImg,
-  AssigneeWrapper
+  AssigneeWrapper,
+  AdditionalSidebar,
+  GroupTitle
 };
