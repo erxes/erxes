@@ -1,8 +1,11 @@
 import { Button } from 'modules/common/components';
 import { slideRight } from 'modules/common/utils/animations';
-import { Messenger, WebPreview } from 'modules/engage/styles';
-import { WidgetPreviewStyled } from 'modules/settings/integrations/components/messenger/widgetPreview/styles';
-import { LogoContainer } from 'modules/settings/styles';
+import { WebPreview } from 'modules/engage/styles';
+import {
+  Launcher,
+  Messenger,
+  WidgetPreviewStyled
+} from 'modules/settings/integrations/components/messenger/widgetPreview/styles';
 import * as React from 'react';
 import {
   BodyContent,
@@ -26,9 +29,10 @@ export const ShoutBox = WebPreview.extend`
 `;
 
 const WidgetPreview = WidgetPreviewStyled.extend`
-  width: 100%;
-  border-radius: 10px;
-  max-height: 100%;
+  height: auto;
+  bottom: 90px;
+  right: 25px;
+  max-height: calc(100% - 95px);
 `;
 
 const Widget = Messenger.extend`
@@ -40,6 +44,10 @@ const Widget = Messenger.extend`
     #eee 100%
   );
   max-height: 100%;
+`;
+
+const LauncherContainer = Launcher.extend`
+  position: absolute;
 `;
 
 type Props = {
@@ -58,7 +66,7 @@ class CommonPreview extends React.Component<Props, {}> {
   renderCallOutBody() {
     const { image, bodyValue } = this.props;
 
-    if (!image || !bodyValue) {
+    if (!image && !bodyValue) {
       return null;
     }
 
@@ -120,9 +128,11 @@ class CommonPreview extends React.Component<Props, {}> {
             <WidgetPreview className="type-default">
               {this.renderContent()}
             </WidgetPreview>
-            <LogoContainer style={{ backgroundColor: theme ? theme : color }}>
+            <LauncherContainer
+              style={{ backgroundColor: theme ? theme : color }}
+            >
               <span>1</span>
-            </LogoContainer>
+            </LauncherContainer>
           </Widget>
         </ShoutBox>
       );
