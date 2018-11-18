@@ -104,7 +104,7 @@ const ErxesStaffProfile = styled.div`
 
 const ErxesSupporters = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   padding-top: 10px;
 
   img {

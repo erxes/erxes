@@ -180,9 +180,10 @@ class WidgetPreview extends React.Component<Props, State> {
     } = this.props;
 
     const renderMessage = msg => {
-      if (!message) {
+      if (!msg) {
         return null;
       }
+
       return <ErxesSpacialMessage>{msg}</ErxesSpacialMessage>;
     };
 
