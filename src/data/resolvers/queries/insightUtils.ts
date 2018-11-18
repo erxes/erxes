@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import * as _ from 'underscore';
 import { Conversations, Integrations, Users } from '../../../db/models';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
-import { IConversation, IConversationDocument } from '../../../db/models/definitions/conversations';
+import { IConversationDocument } from '../../../db/models/definitions/conversations';
 
 interface IMessageSelector {
   userId?: string;
@@ -57,13 +57,21 @@ interface IGenerateResponseData {
   };
 }
 
+export interface IListArgs {
+  integrationType: string;
+  brandId: string;
+  startDate: string;
+  endDate: string;
+  type: string;
+}
+
 /**
  * Find conversations.
  */
 export const findConversations = async (
   args: IIntegrationSelector,
   conversationSelector: any,
-): Promise<IConversation[]> => {
+): Promise<IConversationDocument[]> => {
   const integrationSelector: IIntegrationSelector = {};
   const { kind, brandId } = args;
 
@@ -80,7 +88,7 @@ export const findConversations = async (
   return Conversations.find({
     ...conversationSelector,
     integrationId: { $in: integrationIds },
-  });
+  }).sort({ createdAt: 1 });
 };
 
 /**
@@ -132,8 +140,10 @@ export const generateMessageSelector = async (
  * Populates message collection into date range
  * by given duration and loop count for chart data.
  */
+type ChartDocs = IMessageDocument | IConversationDocument;
+
 export const generateChartData = (
-  collection: any,
+  collection: ChartDocs[],
   loopCount: number,
   duration: number,
   startTime: number,
@@ -267,13 +277,13 @@ export const fixDate = (value, defaultValue = new Date()): Date => {
   return defaultValue;
 };
 
-export const fixDates = (startValue: string, endValue: string): IFixDates => {
+export const fixDates = (startValue: string, endValue: string, count?: number): IFixDates => {
   // convert given value or get today
   const endDate = fixDate(endValue);
 
   const startDateDefaultValue = new Date(
     moment(endDate)
-      .add(-7, 'days')
+      .add(count ? count * -1 : -7, 'days')
       .toString(),
   );
 

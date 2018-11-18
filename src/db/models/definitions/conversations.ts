@@ -62,7 +62,6 @@ export interface IConversation {
   readUserIds?: string[];
 
   closedAt?: Date;
-  createdAt: Date;
   closedUserId?: string;
 
   status?: string;

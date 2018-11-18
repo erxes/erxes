@@ -281,9 +281,12 @@ const insightQueries = {
     const { start, end } = fixDates(startDate, endDate);
     const { duration, startTime } = generateDuration({ start, end });
 
-    const conversationSelector = { createdAt: { $gt: start, $lte: end } };
-    const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
+    const conversationSelector = {
+      createdAt: { $gt: start, $lte: end },
+      $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
+    };
 
+    const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
     const insightData: any = {
       summary: [],
       trend: generateChartData(conversations, 7, duration, startTime),
@@ -310,7 +313,8 @@ const insightQueries = {
   /**
    * Calculates average first response time for each team members.
    */
-  async insightsFirstResponse(_root, { startDate, endDate }: IListArgs) {
+  async insightsFirstResponse(_root, args: IListArgs) {
+    const { integrationType, brandId, startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
     const { duration, startTime } = generateDuration({ start, end });
 
@@ -331,7 +335,7 @@ const insightQueries = {
 
     let allResponseTime = 0;
 
-    const conversations = await Conversations.find(conversationSelector);
+    const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
 
     if (conversations.length < 1) {
       return insightData;
@@ -393,7 +397,6 @@ const insightQueries = {
     };
 
     const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
-
     const insightData = { teamMembers: [], trend: [] };
 
     // If conversation not found.
