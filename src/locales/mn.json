@@ -670,5 +670,10 @@
   "Knowledge base topic": "Мэдлэгийн сангийн гарчиг",
   "Package version": "Сангийн хувилбар",
   "Branch name": "Салбарын нэр",
-  "Abbreviated": "Товчилсон"
+  "Abbreviated": "Товчилсон",
+  "User": "Хэрэглэгч",
+  "Recent conversations": "Сүүлийн харилцааны түүхүүд",
+  "Start new conversation": "Шинэ харилцааны түүх эхлүүлэх",
+  "Talk with support staff": "Тусламжийн багтай харилцах",
+  "Send a message": "Захиа илгээх"
 }

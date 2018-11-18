@@ -282,7 +282,7 @@ class WidgetPreview extends React.Component<Props, State> {
         </ErxesMessagesList>
 
         <ErxesMessageSender>
-          <span>{__('Send a message ...')}</span>
+          <span>{__('Send a message')} ...</span>
         </ErxesMessageSender>
       </React.Fragment>
     );
