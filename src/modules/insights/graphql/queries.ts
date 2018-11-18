@@ -59,6 +59,24 @@ const brands = `
   }
 `;
 
+const insightVolumeReportExport = `
+  query insightVolumeReportExport($type: String, ${listParamsDef}) {
+    insightVolumeReportExport(type: $type, ${listParamsValue})
+  }
+`;
+
+const insightActivityReportExport = `
+  query insightActivityReportExport(${listParamsDef}) {
+    insightActivityReportExport(${listParamsValue})
+  }
+`;
+
+const insightFirstResponseReportExport = `
+  query insightFirstResponseReportExport($type: String, $userId: String, ${listParamsDef}) {
+    insightFirstResponseReportExport(type: $type, userId: $userId, ${listParamsValue})
+  }
+`;
+
 export default {
   main,
   pieChart,
@@ -66,5 +84,8 @@ export default {
   firstResponse,
   responseClose,
   responseSummary,
-  brands
+  brands,
+  insightVolumeReportExport,
+  insightActivityReportExport,
+  insightFirstResponseReportExport
 };

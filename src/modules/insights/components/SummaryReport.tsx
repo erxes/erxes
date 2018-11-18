@@ -8,11 +8,10 @@ import {
   InsightContent,
   InsightRow,
   InsightTitle,
-  InsightWrapper,
-  LoaderWrapper
+  InsightWrapper
 } from '../styles';
 import { IChartParams, IQueryParams, SummaryData } from '../types';
-import { Chart, Filter, PunchCard, Sidebar, Summary, TeamMembers } from './';
+import { Chart, Filter, Sidebar, Summary } from './';
 
 type Props = {
   brands: IBrand[];
@@ -61,25 +60,6 @@ class SummaryReport extends React.Component<Props, { width: number }> {
       <InsightRow innerRef={innerRef}>
         {this.renderTitle(name)}
         <Chart loading={loading.main} height={360} data={trend} />
-      </InsightRow>
-    );
-  }
-
-  renderPunchCard(loading, punch, width) {
-    let content = (
-      <LoaderWrapper>
-        <Spinner objective={true} />
-      </LoaderWrapper>
-    );
-
-    if (!loading.punch) {
-      content = <PunchCard data={punch} width={width} />;
-    }
-
-    return (
-      <InsightRow>
-        {this.renderTitle('Punch card')}
-        {content}
       </InsightRow>
     );
   }

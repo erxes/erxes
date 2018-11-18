@@ -1,4 +1,5 @@
 import Chart from './Chart';
+import ExportReport from './ExportReport';
 import Filter from './Filter';
 import FirstResponse from './FirstResponse';
 import InsightPage from './InsightPage';
@@ -25,5 +26,6 @@ export {
   VolumeReport,
   ResponseReport,
   FirstResponse,
+  ExportReport,
   ResponseCloseReport
 };

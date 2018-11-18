@@ -80,3 +80,14 @@ export type ResponseCloseQueryResponse = {
   };
   loading: boolean;
 };
+
+export type VolumeReportExportQueryResponse = {
+  insightVolumeReportExport: string;
+  loading: boolean;
+};
+
+export type ExportArgs = {
+  queryName: string;
+  type?: string;
+  userId?: string;
+};

@@ -45,6 +45,11 @@ function Sidebar() {
               {__('First Response Report')}
             </NavLink>
           </li>
+          <li>
+            <NavLink activeClassName="active" to="/insights/export-report">
+              {__('Export Report')}
+            </NavLink>
+          </li>
         </SidebarList>
       </WrapperSidebar.Section>
     </WrapperSidebar>
