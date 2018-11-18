@@ -11,7 +11,7 @@ type Props = {
   teamMembers: IUser[];
   color: string;
   logoPreviewStyle?: any;
-  message: IMessagesItem;
+  message?: IMessagesItem;
   wallpaper: string;
   supporterIds?: string[];
   isOnline: boolean;
@@ -19,6 +19,9 @@ type Props = {
   brandId?: string;
   brands?: IBrand[];
   isStepActive?: boolean;
+  facebook?: string;
+  twitter?: string;
+  youtube?: string;
 };
 
 class CommonPreview extends React.Component<Props> {
@@ -27,13 +30,8 @@ class CommonPreview extends React.Component<Props> {
       logoPreviewStyle,
       logoPreviewUrl,
       color,
-      wallpaper,
-      isOnline,
-      supporterIds,
       teamMembers,
       message,
-      brandId,
-      brands,
       isStepActive
     } = this.props;
 
@@ -41,15 +39,8 @@ class CommonPreview extends React.Component<Props> {
       <WebPreview>
         <Messenger>
           <WidgetPreview
-            color={color}
-            wallpaper={wallpaper}
+            {...this.props}
             users={teamMembers}
-            supporterIds={supporterIds}
-            welcomeMessage={message.welcome}
-            awayMessage={message.away}
-            isOnline={isOnline}
-            brandId={brandId}
-            brands={brands}
             isGreeting={isStepActive}
           />
 

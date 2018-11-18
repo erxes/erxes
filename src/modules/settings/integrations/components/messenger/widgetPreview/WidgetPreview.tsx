@@ -2,11 +2,16 @@ import { IUser } from 'modules/auth/types';
 import { Icon, Tip } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
+import { IMessagesItem } from 'modules/settings/integrations/types';
+import * as moment from 'moment';
 import * as React from 'react';
 import {
+  ContentBox,
   ErxesAvatar,
+  ErxesContent,
   ErxesDate,
   ErxesFromCustomer,
+  ErxesGreeting,
   ErxesMessage,
   ErxesMessageSender,
   ErxesMessagesList,
@@ -18,7 +23,13 @@ import {
   ErxesTopbar,
   ErxesTopbarMiddle,
   FromCustomer,
+  GreetingInfo,
+  LeftSide,
+  Links,
+  RightSide,
+  Socials,
   StateSpan,
+  Supporters,
   WelcomeInfo,
   WidgetPreviewStyled
 } from './styles';
@@ -28,13 +39,15 @@ type Props = {
   wallpaper: string;
   users: IUser[];
   supporterIds?: string[];
-  welcomeMessage?: string;
-  awayMessage?: string;
   isOnline?: boolean;
   prevHeight?: number;
   brandId?: string;
   brands?: IBrand[];
   isGreeting?: boolean;
+  facebook?: string;
+  twitter?: string;
+  youtube?: string;
+  message?: IMessagesItem;
 };
 
 type State = {
@@ -55,7 +68,7 @@ class WidgetPreview extends React.Component<Props, State> {
         className="topbar-button right fade-in"
         title="End conversation"
       >
-        <Icon icon="cancel" />
+        <Icon icon="cancel" size={11} />
       </a>
     );
   }
@@ -84,16 +97,16 @@ class WidgetPreview extends React.Component<Props, State> {
     return <span>{currentBrand.description}</span>;
   }
 
-  renderTitle() {
-    const { brands = [], brandId, users, isOnline, supporterIds } = this.props;
-    let currentBrand = {};
-    let avatar = [
-      <img key="1" src="/images/avatar-colored.svg" alt="avatar" />
-    ];
+  renderSupporters() {
+    const { isOnline, users, supporterIds } = this.props;
 
     const supporters = users.filter(user =>
       (supporterIds || []).includes(user._id || '')
     );
+
+    let avatar = [
+      <img key="1" src="/images/avatar-colored.svg" alt="avatar" />
+    ];
 
     if (supporters.length > 0) {
       avatar = supporters.map(u => {
@@ -110,6 +123,13 @@ class WidgetPreview extends React.Component<Props, State> {
       });
     }
 
+    return avatar;
+  }
+
+  renderTitle() {
+    const { brands = [], brandId } = this.props;
+    let currentBrand = {};
+
     brands.map(brand => {
       if (brand._id !== brandId) {
         return null;
@@ -124,8 +144,26 @@ class WidgetPreview extends React.Component<Props, State> {
           {this.renderName(currentBrand)}
           {this.renderDesc(currentBrand)}
         </WelcomeInfo>
-        <ErxesSupporters>{avatar}</ErxesSupporters>
+        <ErxesSupporters>{this.renderSupporters()}</ErxesSupporters>
       </ErxesTopbarMiddle>
+    );
+  }
+
+  renderLink(value, icon) {
+    let link = value;
+
+    if (!value) {
+      return null;
+    }
+
+    if (!value.includes('http')) {
+      link = 'https://'.concat(value);
+    }
+
+    return (
+      <a href={link} target="_blank">
+        <Icon icon={icon} size={18} />
+      </a>
     );
   }
 
@@ -133,32 +171,82 @@ class WidgetPreview extends React.Component<Props, State> {
     const {
       color,
       wallpaper,
-      welcomeMessage,
-      awayMessage,
+      message,
       isOnline,
-      isGreeting
+      isGreeting,
+      facebook,
+      twitter,
+      youtube
     } = this.props;
 
-    const renderMessage = message => {
+    const renderMessage = msg => {
       if (!message) {
         return null;
       }
-      return <ErxesSpacialMessage>{message}</ErxesSpacialMessage>;
+      return <ErxesSpacialMessage>{msg}</ErxesSpacialMessage>;
     };
 
     const backgroundClasses = `background-${wallpaper}`;
 
     if (isGreeting) {
       return (
-        <ErxesTopbar
-          style={{ backgroundColor: color, height: this.state.headHeight }}
-        >
-          <ErxesMiddle>
-            {this.renderLeftButton()}
-            <ErxesMiddleTitle>{this.renderTitle()}</ErxesMiddleTitle>
-            {this.renderRightButton()}
-          </ErxesMiddle>
-        </ErxesTopbar>
+        <React.Fragment>
+          <ErxesTopbar
+            style={{ backgroundColor: color, height: this.state.headHeight }}
+          >
+            <ErxesMiddle>
+              <ErxesGreeting>
+                <Links>
+                  <span>{moment(new Date()).format('lll')}</span>
+                  <Socials>
+                    {this.renderLink(facebook, 'facebook')}
+                    {this.renderLink(twitter, 'twitter')}
+                    {this.renderLink(youtube, 'youtube')}
+                  </Socials>
+                </Links>
+                <GreetingInfo>
+                  <h3>{message && message.greetings.title}</h3>
+                  <p>{message && message.greetings.message}</p>
+                </GreetingInfo>
+                <Supporters>{this.renderSupporters()}</Supporters>
+              </ErxesGreeting>
+              {this.renderRightButton()}
+            </ErxesMiddle>
+          </ErxesTopbar>
+
+          <ErxesContent>
+            <ContentBox>
+              <h4>{__('Recent conversations')}</h4>
+              <ul>
+                <li>
+                  <LeftSide>
+                    <span>
+                      <Icon icon="plus" />
+                    </span>
+                  </LeftSide>
+                  <RightSide>
+                    <span>{__('Start new conversation')}</span>
+                    <p>{__('Talk with support staff')}</p>
+                  </RightSide>
+                </li>
+                <li>
+                  <LeftSide>
+                    <img
+                      key="1"
+                      src="/images/avatar-colored.svg"
+                      alt="avatar"
+                    />
+                  </LeftSide>
+                  <RightSide>
+                    <div>{moment(new Date()).format('LT')}</div>
+                    <span>{__('User')}</span>
+                    <p>{__('We need your help!')}</p>
+                  </RightSide>
+                </li>
+              </ul>
+            </ContentBox>
+          </ErxesContent>
+        </React.Fragment>
       );
     }
 
@@ -175,7 +263,7 @@ class WidgetPreview extends React.Component<Props, State> {
         </ErxesTopbar>
 
         <ErxesMessagesList className={backgroundClasses}>
-          {isOnline && renderMessage(welcomeMessage)}
+          {isOnline && renderMessage(message && message.welcome)}
           <li>
             <ErxesAvatar>
               <img src="/images/avatar-colored.svg" alt="avatar" />
@@ -189,7 +277,7 @@ class WidgetPreview extends React.Component<Props, State> {
             </FromCustomer>
             <ErxesDate>{__('6 minutes ago')}</ErxesDate>
           </ErxesFromCustomer>
-          {!isOnline && renderMessage(awayMessage)}
+          {!isOnline && renderMessage(message && message.away)}
         </ErxesMessagesList>
 
         <ErxesMessageSender>

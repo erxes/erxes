@@ -71,6 +71,10 @@ class Greeting extends React.Component<Props, State> {
   };
 
   onTeamMembersChange = options => {
+    if (options.length > 3) {
+      return;
+    }
+
     this.setState({
       supporters: options,
       supporterIds: options.map(option => option.value)

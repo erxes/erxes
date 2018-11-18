@@ -56,7 +56,7 @@ type State = {
   twitter: string;
   youtube: string;
   messages: IMessages;
-  isStepActive: boolean;
+  isStepActive?: boolean;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -92,8 +92,7 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook: links.facebook || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
-      messages: { ...this.generateMessages(messages) },
-      isStepActive: false
+      messages: { ...this.generateMessages(messages) }
     };
   }
 
@@ -172,10 +171,12 @@ class CreateMessenger extends React.Component<Props, State> {
     });
   };
 
-  onStepClick = () => {
-    // tslint:disable-next-line:no-console
-    console.log(this.state.isStepActive);
-    this.setState({ isStepActive: true });
+  onStepClick = name => {
+    if (name !== 'greeting') {
+      return this.setState({ isStepActive: false });
+    }
+
+    return this.setState({ isStepActive: true });
   };
 
   renderButtons() {
@@ -224,8 +225,7 @@ class CreateMessenger extends React.Component<Props, State> {
       messages,
       isStepActive
     } = this.state;
-    // tslint:disable-next-line:no-console
-    console.log(isStepActive);
+
     const message = messages[languageCode];
 
     const breadcrumb = [
@@ -252,7 +252,11 @@ class CreateMessenger extends React.Component<Props, State> {
 
         <Row>
           <Steps active={activeStep}>
-            <Step img="/images/icons/erxes-06.svg" title="Default Settings">
+            <Step
+              img="/images/icons/erxes-06.svg"
+              title="Default Settings"
+              onClick={this.onStepClick.bind(null, 'default')}
+            >
               <Options
                 onChange={this.onChange}
                 brands={this.props.brands}
@@ -265,7 +269,7 @@ class CreateMessenger extends React.Component<Props, State> {
             <Step
               img="/images/icons/erxes-09.svg"
               title="Greeting"
-              onClick={this.onStepClick}
+              onClick={this.onStepClick.bind(null, 'greeting')}
             >
               <Greeting
                 teamMembers={this.props.teamMembers}
@@ -279,7 +283,11 @@ class CreateMessenger extends React.Component<Props, State> {
               />
             </Step>
 
-            <Step img="/images/icons/erxes-16.svg" title="Intro">
+            <Step
+              img="/images/icons/erxes-16.svg"
+              title="Intro"
+              onClick={this.onStepClick.bind(null, 'intro')}
+            >
               <Intro
                 onChange={this.onChange}
                 messages={messages}
@@ -287,7 +295,11 @@ class CreateMessenger extends React.Component<Props, State> {
               />
             </Step>
 
-            <Step img="/images/icons/erxes-03.svg" title="Hours & Availability">
+            <Step
+              img="/images/icons/erxes-03.svg"
+              title="Hours & Availability"
+              onClick={this.onStepClick.bind(null, 'hours')}
+            >
               <Availability
                 onChange={this.onChange}
                 isOnline={isOnline}
@@ -300,6 +312,7 @@ class CreateMessenger extends React.Component<Props, State> {
             <Step
               img="/images/icons/erxes-04.svg"
               title="Appearance"
+              onClick={this.onStepClick.bind(null, 'appearance')}
               nextButton={this.renderButtons()}
             >
               <Appearance
@@ -326,6 +339,9 @@ class CreateMessenger extends React.Component<Props, State> {
                 logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
                 isStepActive={isStepActive}
+                facebook={facebook}
+                twitter={twitter}
+                youtube={youtube}
               />
             </Preview>
           </MessengerPreview>
