@@ -30,7 +30,7 @@ const args = {
 };
 
 const toJSON = value => {
-  return JSON.stringify(value);
+  return JSON.stringify(value, Object.keys(value).sort());
 };
 
 describe('User mutations', () => {
