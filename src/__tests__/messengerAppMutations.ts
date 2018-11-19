@@ -117,7 +117,7 @@ describe('mutations', () => {
 
     await graphqlRequest(mutation, 'messengerAppsRemove', { _id: app._id }, context);
 
-    const count = await MessengerApps.find().count();
+    const count = await MessengerApps.find().countDocuments();
 
     expect(count).toBe(0);
   });

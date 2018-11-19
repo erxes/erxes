@@ -74,7 +74,7 @@ describe('engage messages model tests', () => {
   test('remove a message', async () => {
     await EngageMessages.removeEngageMessage(_message._id);
 
-    const messagesCounts = await EngageMessages.find({}).count();
+    const messagesCounts = await EngageMessages.find({}).countDocuments();
 
     expect(messagesCounts).toBe(0);
   });

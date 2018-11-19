@@ -30,7 +30,7 @@ interface ICountsByTag {
 
 // basic count helper
 const count = async (selector: {}): Promise<number> => {
-  const res = await EngageMessages.find(selector).count();
+  const res = await EngageMessages.find(selector).countDocuments();
   return Number(res);
 };
 
@@ -182,7 +182,7 @@ const engageQueries = {
    * Get all messages count. We will use it in pager
    */
   engageMessagesTotalCount(_root, args: IListArgs, { user }: { user: IUserDocument }) {
-    return EngageMessages.find(listQuery(args, user)).count();
+    return EngageMessages.find(listQuery(args, user)).countDocuments();
   },
 };
 

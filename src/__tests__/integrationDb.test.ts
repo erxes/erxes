@@ -250,10 +250,10 @@ describe('remove integration model method test', () => {
   test('test if remove form integration model method is working successfully', async () => {
     await Integrations.removeIntegration(_integration._id);
 
-    expect(await Integrations.find({}).count()).toEqual(0);
-    expect(await ConversationMessages.find({}).count()).toBe(0);
-    expect(await Forms.find({}).count()).toBe(0);
-    expect(await Fields.find({}).count()).toBe(0);
+    expect(await Integrations.find({}).countDocuments()).toEqual(0);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(0);
+    expect(await Forms.find({}).countDocuments()).toBe(0);
+    expect(await Fields.find({}).countDocuments()).toBe(0);
   });
 });
 

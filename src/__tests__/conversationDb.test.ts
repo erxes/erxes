@@ -30,7 +30,7 @@ describe('Conversation db', () => {
   });
 
   test('Create conversation', async () => {
-    const _number = (await Conversations.find().count()) + 1;
+    const _number = (await Conversations.find().countDocuments()) + 1;
     const conversation = await Conversations.createConversation({
       integrationId: 'test',
       content: _conversation.content,

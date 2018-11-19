@@ -152,7 +152,7 @@ describe('channel remove', () => {
   test('check if channel remove method is working successfully', async () => {
     await Channels.removeChannel(_channel._id);
 
-    const channelCount = await Channels.find({}).count();
+    const channelCount = await Channels.find({}).countDocuments();
 
     expect(channelCount).toBe(0);
   });

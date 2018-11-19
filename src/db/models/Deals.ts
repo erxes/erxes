@@ -86,7 +86,7 @@ class Board {
       throw new Error('Board not found');
     }
 
-    const count = await DealPipelines.find({ boardId: _id }).count();
+    const count = await DealPipelines.find({ boardId: _id }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a board");
@@ -156,7 +156,7 @@ class Pipeline {
       throw new Error('Pipeline not found');
     }
 
-    const count = await DealStages.find({ pipelineId: _id }).count();
+    const count = await DealStages.find({ pipelineId: _id }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a pipeline");
@@ -227,7 +227,7 @@ class Stage {
       throw new Error('Stage not found');
     }
 
-    const count = await Deals.find({ stageId: _id }).count();
+    const count = await Deals.find({ stageId: _id }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a stage");
@@ -251,7 +251,7 @@ class Deal {
    * Create a deal
    */
   public static async createDeal(doc: IDeal) {
-    const dealsCount = await Deals.find({ stageId: doc.stageId }).count();
+    const dealsCount = await Deals.find({ stageId: doc.stageId }).countDocuments();
 
     return Deals.create({
       ...doc,

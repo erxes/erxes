@@ -37,7 +37,7 @@ class Product {
 
     const count = await Deals.find({
       'productsData.productId': { $in: [_id] },
-    }).count();
+    }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a product");

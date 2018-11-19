@@ -285,7 +285,7 @@ describe('Fields mutations', () => {
     `;
 
     await graphqlRequest(mutation, 'fieldsGroupsRemove', { _id: _fieldGroup._id }, context);
-
+    console.log(await FieldsGroups.findOne({ _id: _fieldGroup._id }));
     expect(await FieldsGroups.findOne({ _id: _fieldGroup._id })).toBe(null);
   });
 

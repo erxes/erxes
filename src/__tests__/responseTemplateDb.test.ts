@@ -54,7 +54,7 @@ describe('Response template db', () => {
 
   test('Delete response template', async () => {
     await ResponseTemplates.removeResponseTemplate(_responseTemplate.id);
-    expect(await ResponseTemplates.findOne({ _id: _responseTemplate.id }).count()).toBe(0);
+    expect(await ResponseTemplates.findOne({ _id: _responseTemplate.id }).countDocuments()).toBe(0);
 
     try {
       await ResponseTemplates.removeResponseTemplate('test');

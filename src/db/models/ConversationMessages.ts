@@ -24,7 +24,7 @@ class Message {
 
     const messageCount = await Messages.find({
       conversationId: message.conversationId,
-    }).count();
+    }).countDocuments();
 
     await Conversations.update(
       { _id: message.conversationId },

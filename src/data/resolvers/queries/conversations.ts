@@ -15,7 +15,7 @@ interface IConversationRes {
 
 // count helper
 const count = async (query: any): Promise<number> => {
-  const result = await Conversations.find(query).count();
+  const result = await Conversations.find(query).countDocuments();
 
   return Number(result);
 };
@@ -136,7 +136,7 @@ const conversationQueries = {
    *  Get all conversation messages count. We will use it in pager
    */
   async conversationMessagesTotalCount(_root, { conversationId }: { conversationId: string }) {
-    return ConversationMessages.count({ conversationId });
+    return ConversationMessages.countDocuments({ conversationId });
   },
 
   /**
@@ -228,7 +228,7 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.find(qb.mainQuery()).count();
+    return Conversations.find(qb.mainQuery()).countDocuments();
   },
 
   /**
@@ -271,7 +271,7 @@ const conversationQueries = {
           userId: { $exists: false },
         },
       ],
-    }).count();
+    }).countDocuments();
   },
 };
 

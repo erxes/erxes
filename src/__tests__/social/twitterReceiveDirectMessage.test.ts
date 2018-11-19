@@ -56,7 +56,7 @@ describe('receive direct message response', () => {
     );
 
     // must not created new conversation
-    expect(await Conversations.find().count()).toBe(1);
+    expect(await Conversations.find().countDocuments()).toBe(1);
 
     const conversation = await Conversations.findOne({});
 
@@ -112,9 +112,9 @@ describe('receive direct message response', () => {
     // call action
     await receiveDirectMessageInformation(data, _integration);
 
-    expect(await Conversations.find().count()).toBe(1); // 1 conversation
-    expect(await Customers.find().count()).toBe(1); // 1 customer
-    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
+    expect(await Conversations.find().countDocuments()).toBe(1); // 1 conversation
+    expect(await Customers.find().countDocuments()).toBe(1); // 1 customer
+    expect(await ConversationMessages.find().countDocuments()).toBe(1); // 1 message
 
     let conv = await Conversations.findOne();
     const customer = await Customers.findOne();
@@ -160,7 +160,7 @@ describe('receive direct message response', () => {
     expect(customer.twitterData.id_str).toBe(data.sender_id_str);
 
     // 1 log
-    expect(await ActivityLogs.find().count()).toBe(1);
+    expect(await ActivityLogs.find().countDocuments()).toBe(1);
 
     // check message field values
     expect(message.createdAt).toBeDefined();
@@ -182,7 +182,7 @@ describe('receive direct message response', () => {
     await receiveDirectMessageInformation(data, _integration);
 
     // must not be created new conversation ==============
-    expect(await Conversations.find().count()).toBe(1);
+    expect(await Conversations.find().countDocuments()).toBe(1);
 
     // check conversation field updates
     conv = await Conversations.findOne();
@@ -195,10 +195,10 @@ describe('receive direct message response', () => {
     expect(conv.createdAt).not.toEqual(conv.updatedAt);
 
     // must not be created new customer ================
-    expect(await Customers.find().count()).toBe(1);
+    expect(await Customers.find().countDocuments()).toBe(1);
 
     // must be created new message ================
-    expect(await ConversationMessages.find().count()).toBe(2);
+    expect(await ConversationMessages.find().countDocuments()).toBe(2);
 
     const newMessage = await ConversationMessages.findOne({
       _id: { $ne: message._id },
@@ -224,8 +224,8 @@ describe('receive direct message response', () => {
     }
 
     // must be created new conversation ==============
-    expect(await Conversations.find({}).count()).toBe(2);
-    expect(await ConversationMessages.find({}).count()).toBe(3);
+    expect(await Conversations.find({}).countDocuments()).toBe(2);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(3);
     expect(conv._id).not.toBe(conversation._id);
 
     data.text = 'test';
@@ -239,8 +239,8 @@ describe('receive direct message response', () => {
     const { _id } = conversation;
 
     // must not be created new conversation ==============
-    expect(await Conversations.find({}).count()).toBe(2);
-    expect(await ConversationMessages.find({}).count()).toBe(4);
+    expect(await Conversations.find({}).countDocuments()).toBe(2);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(4);
     expect(conv._id).not.toBe(_id);
     expect(conversation._id).toBe(_id);
   });

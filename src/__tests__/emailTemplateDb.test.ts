@@ -38,7 +38,7 @@ describe('Email template db', () => {
   test('Delete email template', async () => {
     await EmailTemplates.removeEmailTemplate(_emailTemplate.id);
 
-    expect(await EmailTemplates.find({ _id: _emailTemplate.id }).count()).toBe(0);
+    expect(await EmailTemplates.find({ _id: _emailTemplate.id }).countDocuments()).toBe(0);
 
     try {
       await EmailTemplates.removeEmailTemplate('test');

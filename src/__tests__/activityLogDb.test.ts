@@ -225,12 +225,12 @@ describe('ActivityLogs model methods', () => {
     expect(activity).toBeDefined();
     expect(activity.coc.id).toBe(companyB._id);
 
-    expect(await ActivityLogs.find({}).count()).toBe(3);
+    expect(await ActivityLogs.find({}).countDocuments()).toBe(3);
 
     // test whether activity logs for this conversation is being duplicated or not ========
     await ActivityLogs.createConversationLog(conversation, customer);
 
-    expect(await ActivityLogs.find({}).count()).toBe(3);
+    expect(await ActivityLogs.find({}).countDocuments()).toBe(3);
   });
 
   test(`createCustomerRegistrationLog`, async () => {

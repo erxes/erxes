@@ -116,12 +116,12 @@ describe('test knowledge base models', () => {
 
       const topic = await KnowledgeBaseTopics.createDoc(doc, _user._id);
 
-      expect(await KnowledgeBaseTopics.find().count()).toBe(1);
+      expect(await KnowledgeBaseTopics.find().countDocuments()).toBe(1);
 
       await KnowledgeBaseTopics.removeDoc(topic._id);
 
-      expect(await KnowledgeBaseTopics.find().count()).toBe(0);
-      expect(await KnowledgeBaseCategories.find().count()).toBe(0);
+      expect(await KnowledgeBaseTopics.find().countDocuments()).toBe(0);
+      expect(await KnowledgeBaseCategories.find().countDocuments()).toBe(0);
     });
   });
 
@@ -251,11 +251,11 @@ describe('test knowledge base models', () => {
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
 
-      expect(await KnowledgeBaseCategories.find().count()).toBe(1);
+      expect(await KnowledgeBaseCategories.find().countDocuments()).toBe(1);
 
       await KnowledgeBaseCategories.removeDoc(category._id);
 
-      expect(await KnowledgeBaseCategories.find().count()).toBe(0);
+      expect(await KnowledgeBaseCategories.find().countDocuments()).toBe(0);
     });
   });
 
@@ -370,11 +370,11 @@ describe('test knowledge base models', () => {
 
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
 
-      expect(await KnowledgeBaseArticles.find().count()).toBe(1);
+      expect(await KnowledgeBaseArticles.find().countDocuments()).toBe(1);
 
       await KnowledgeBaseArticles.removeDoc(article._id);
 
-      expect(await KnowledgeBaseArticles.find().count()).toBe(0);
+      expect(await KnowledgeBaseArticles.find().countDocuments()).toBe(0);
     });
   });
 });

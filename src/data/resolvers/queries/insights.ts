@@ -58,7 +58,7 @@ const insightQueries = {
       const integrationIds = await Integrations.find({ ...integrationSelector, kind }).select('_id');
 
       // find conversation counts of given integrations
-      const value = await Conversations.count({
+      const value = await Conversations.countDocuments({
         ...conversationSelector,
         integrationId: { $in: integrationIds },
       });
@@ -66,7 +66,7 @@ const insightQueries = {
       if (kind === INTEGRATION_KIND_CHOICES.FACEBOOK) {
         const { FEED, MESSENGER } = FACEBOOK_DATA_KINDS;
 
-        const feedCount = await Conversations.count({
+        const feedCount = await Conversations.countDocuments({
           ...conversationSelector,
           integrationId: { $in: integrationIds },
           'facebookData.kind': FEED,
@@ -99,7 +99,7 @@ const insightQueries = {
       const integrationIds = await Integrations.find(integrationSelector).select('_id');
 
       // find conversation counts of given tag
-      const value = await Conversations.count({
+      const value = await Conversations.countDocuments({
         ...conversationSelector,
         integrationId: { $in: integrationIds },
         tagIds: tag._id,
@@ -266,7 +266,7 @@ const insightQueries = {
 
       insightData.summary.push({
         title: summary.title,
-        count: await ConversationMessages.count(messageSelector),
+        count: await ConversationMessages.countDocuments(messageSelector),
       });
     }
 
@@ -303,7 +303,7 @@ const insightQueries = {
 
       insightData.summary.push({
         title: summary.title,
-        count: await Conversations.count(conversationSelector),
+        count: await Conversations.countDocuments(conversationSelector),
       });
     }
 

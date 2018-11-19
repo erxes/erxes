@@ -111,8 +111,8 @@ describe('form remove', async () => {
 
     await Forms.removeForm(_form._id);
 
-    const formCount = await Forms.find({}).count();
-    const fieldsCount = await Fields.find({}).count();
+    const formCount = await Forms.find({}).countDocuments();
+    const fieldsCount = await Fields.find({}).countDocuments();
 
     expect(formCount).toBe(0);
     expect(fieldsCount).toBe(1);
@@ -149,12 +149,12 @@ describe('form duplication', () => {
     expect(duplicatedForm.code.length).toEqual(6);
     expect(duplicatedForm.createdUserId).toBe(_form.createdUserId);
 
-    const fieldsCount = await Fields.find({}).count();
+    const fieldsCount = await Fields.find({}).countDocuments();
 
     const duplicatedFieldsCount = await Fields.find({
       contentType: 'form',
       contentTypeId: duplicatedForm._id,
-    }).count();
+    }).countDocuments();
 
     expect(fieldsCount).toEqual(6);
     expect(duplicatedFieldsCount).toEqual(3);

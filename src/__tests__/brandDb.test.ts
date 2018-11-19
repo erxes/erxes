@@ -59,7 +59,7 @@ describe('Brands db', () => {
   test('Delete brand', async () => {
     await Brands.removeBrand(_brand.id);
 
-    expect(await Brands.findOne({ _id: _brand.id }).count()).toBe(0);
+    expect(await Brands.findOne({ _id: _brand.id }).countDocuments()).toBe(0);
 
     try {
       await Brands.removeBrand('test');

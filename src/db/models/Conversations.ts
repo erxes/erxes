@@ -63,7 +63,7 @@ class Conversation {
       ...doc,
       createdAt: now,
       updatedAt: now,
-      number: (await Conversations.find().count()) + 1,
+      number: (await Conversations.find().countDocuments()) + 1,
       messageCount: 0,
     });
   }

@@ -107,7 +107,7 @@ describe('Notification model tests', () => {
     // remove notification =================
     await Notifications.removeNotification(notificationObj._id);
 
-    expect(await Notifications.find({}).count()).toEqual(0);
+    expect(await Notifications.find({}).countDocuments()).toEqual(0);
   });
 
   test('sending notifications', () => {
