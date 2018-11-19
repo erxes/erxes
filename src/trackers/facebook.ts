@@ -124,8 +124,8 @@ export class SaveWebhookResponse {
   }
 
   /*
-  * Via page messenger
-  */
+   * Via page messenger
+   */
   public async viaMessengerEvent(entry) {
     for (const messagingEvent of entry.messaging) {
       // someone sent us a message
@@ -681,7 +681,7 @@ export class SaveWebhookResponse {
           item: 'comment',
           senderId: comment.from.id,
           senderName: comment.from.name,
-          parentId: comment.parent ? comment.parent.id : null,
+          parentId: comment.parent && comment.parent.id,
         },
       });
     }

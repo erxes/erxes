@@ -31,6 +31,7 @@ class Account {
 
 accountSchema.loadClass(Account);
 
+// tslint:disable-next-line
 const Accounts = model<IAccountDocument, IAccountModel>('accounts', accountSchema);
 
 export default Accounts;
