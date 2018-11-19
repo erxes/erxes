@@ -414,9 +414,8 @@ const updateTwitterData = async ({ twit, tweetId }: { twit: any; tweetId: string
 
   const selector = { 'twitterData.id_str': tweetId };
 
-  // TODO: need batamar's help
-  await Conversations.update(selector, { $set: { twitterData } });
-  await ConversationMessages.update(selector, { $set: { twitterData } });
+  await Conversations.updateOne(selector, { $set: { twitterData } });
+  await ConversationMessages.updateOne(selector, { $set: { twitterData } });
 };
 
 /*
