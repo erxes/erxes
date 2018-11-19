@@ -167,7 +167,7 @@ class Company {
         phones = phones.concat(companyPhones);
 
         // Removing company
-        await Companies.remove({ _id: companyId });
+        await Companies.deleteOne({ _id: companyId });
       }
     }
 
