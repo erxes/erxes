@@ -1,0 +1,11 @@
+FROM goharbor.erxes.io/erxes/runner:latest as build-deps
+WORKDIR /erxes-api/
+COPY package.json .
+RUN yarn
+COPY . .
+RUN cp .env.sample .env
+RUN yarn build
+RUN chown -R node:node /erxes-api
+USER node
+EXPOSE 3300
+CMD ["yarn", "start"]
