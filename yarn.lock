@@ -4056,7 +4056,7 @@ mongoose-type-email@^1.0.5:
   resolved "https://registry.yarnpkg.com/mongoose-type-email/-/mongoose-type-email-1.0.9.tgz#98d4abeed8c6c80a97913e0c6edb4bdf844507dd"
   integrity sha512-+TWzp/5QtvrjO/rJFqzp/TyYdeGSHCXpyC9RotSa4WtTnFsnVkrMi66CBtEadhQrqvFsGetj0dN8kfgdoWeprw==
 
-mongoose@^5.0.0:
+mongoose@^5.2.16:
   version "5.3.12"
   resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.3.12.tgz#810d011514a721e92c264cee816607b3f9eb9e82"
   integrity sha512-PjiYpvITCjOLe70gHMksjZU31AQlu9bgbqFWE0AQCtliGxtfo2ds1XcNTgqNVRbyrMA/w6lX0aqFEevF9+xqhQ==
