@@ -316,7 +316,7 @@ describe('ActivityLogs model methods', () => {
 
     const log = await ActivityLogs.createConversationLog(conversation, customer);
 
-    await ActivityLogs.update(
+    await ActivityLogs.updateOne(
       { _id: log._id },
       { $set: { coc: { id: customer._id, type: COC_CONTENT_TYPES.CUSTOMER } } },
     );
@@ -338,7 +338,7 @@ describe('ActivityLogs model methods', () => {
 
     const log = await ActivityLogs.createCompanyRegistrationLog(company, user);
 
-    await ActivityLogs.update(
+    await ActivityLogs.updateOne(
       { _id: log._id },
       { $set: { coc: { id: company._id, type: COC_CONTENT_TYPES.COMPANY } } },
     );

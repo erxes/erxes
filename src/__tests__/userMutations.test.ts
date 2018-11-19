@@ -118,7 +118,7 @@ describe('User mutations', () => {
     const token = 'token';
     const user = await userFactory({});
 
-    await Users.update(
+    await Users.updateOne(
       { _id: user._id },
       {
         $set: {

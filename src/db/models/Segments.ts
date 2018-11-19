@@ -21,7 +21,7 @@ class Segment {
    * Update segment
    */
   public static async updateSegment(_id: string, doc: ISegment) {
-    await Segments.update({ _id }, { $set: doc });
+    await Segments.updateOne({ _id }, { $set: doc });
 
     return Segments.findOne({ _id });
   }

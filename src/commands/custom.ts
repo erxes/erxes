@@ -20,7 +20,7 @@ export const customCommand = async () => {
     }).sort({ createdAt: 1 });
 
     if (message) {
-      await Conversations.update(
+      await Conversations.updateOne(
         { _id },
         {
           $set: {

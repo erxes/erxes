@@ -102,7 +102,7 @@ describe('facebook integration: get or create conversation', () => {
     expect(await ConversationMessages.find({}).countDocuments()).toBe(2);
 
     // close converstaion
-    await Conversations.update({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
+    await Conversations.updateMany({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
 
     // customer commented on closed converstaion ===========
     await saveWebhookResponse.getOrCreateConversation({
@@ -212,7 +212,7 @@ describe('facebook integration: get or create conversation', () => {
     expect(await ConversationMessages.countDocuments({ conversationId: conversationObj._id })).toBe(2);
 
     // close converstaion
-    await Conversations.update({ _id: conversationObj._id }, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
+    await Conversations.updateOne({ _id: conversationObj._id }, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
 
     // customer commented on closed converstaion ===========
     let message: any = await saveWebhookResponse.getOrCreateConversation({

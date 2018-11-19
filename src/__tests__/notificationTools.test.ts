@@ -54,7 +54,7 @@ describe('testings helper methods', () => {
     expect(notifications.length).toEqual(0);
 
     // Send notifications when there is config allowing it ====================
-    await NotificationConfigurations.update({}, { isAllowed: true }, { multi: true });
+    await NotificationConfigurations.updateMany({}, { isAllowed: true }, { multi: true });
 
     await utils.sendNotification(doc);
 

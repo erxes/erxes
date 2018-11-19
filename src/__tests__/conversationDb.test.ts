@@ -248,7 +248,7 @@ describe('Conversation db', () => {
     expect(nonAnweredMessage._id).toBeDefined();
 
     // admin messages =========
-    await ConversationMessages.update(
+    await ConversationMessages.updateMany(
       { conversationId: _conversation._id },
       { $set: { isCustomerRead: false, internal: false } },
     );
@@ -258,7 +258,7 @@ describe('Conversation db', () => {
     expect(adminMessages.length).toBe(1);
 
     // mark sent as read messages ==================
-    await ConversationMessages.update(
+    await ConversationMessages.updateMany(
       { conversationId: _conversation._id },
       { $unset: { isCustomerRead: 1 } },
       { multi: true },

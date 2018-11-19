@@ -72,7 +72,7 @@ class Conversation {
    * Reopens conversation
    */
   public static async reopen(_id: string) {
-    await Conversations.update(
+    await Conversations.updateOne(
       { _id },
       {
         $set: {
@@ -101,7 +101,7 @@ class Conversation {
       throw new Error(`User not found with id ${assignedUserId}`);
     }
 
-    await Conversations.update({ _id: { $in: conversationIds } }, { $set: { assignedUserId } }, { multi: true });
+    await Conversations.updateMany({ _id: { $in: conversationIds } }, { $set: { assignedUserId } }, { multi: true });
 
     return Conversations.find({ _id: { $in: conversationIds } });
   }
@@ -112,7 +112,11 @@ class Conversation {
   public static async unassignUserConversation(conversationIds: string[]) {
     await this.checkExistanceConversations(conversationIds);
 
-    await Conversations.update({ _id: { $in: conversationIds } }, { $unset: { assignedUserId: 1 } }, { multi: true });
+    await Conversations.updateMany(
+      { _id: { $in: conversationIds } },
+      { $unset: { assignedUserId: 1 } },
+      { multi: true },
+    );
 
     return Conversations.find({ _id: { $in: conversationIds } });
   }
@@ -129,7 +133,7 @@ class Conversation {
       closedUserId = userId;
     }
 
-    return Conversations.update(
+    return Conversations.updateMany(
       { _id: { $in: conversationIds } },
       { $set: { status, closedAt, closedUserId } },
       { multi: true },
@@ -150,12 +154,12 @@ class Conversation {
 
     // if current user is first one
     if (!readUserIds || readUserIds.length === 0) {
-      await Conversations.update({ _id }, { $set: { readUserIds: [userId] } });
+      await Conversations.updateOne({ _id }, { $set: { readUserIds: [userId] } });
     }
 
     // if current user is not in read users list then add it
     if (!readUserIds.includes(userId)) {
-      await Conversations.update({ _id }, { $push: { readUserIds: userId } });
+      await Conversations.updateOne({ _id }, { $push: { readUserIds: userId } });
     }
 
     return Conversations.findOne({ _id });
@@ -177,7 +181,7 @@ class Conversation {
    */
   public static addParticipatedUsers(conversationId: string, userId: string) {
     if (conversationId && userId) {
-      return Conversations.update(
+      return Conversations.updateOne(
         { _id: conversationId },
         {
           $addToSet: { participatedUserIds: userId },

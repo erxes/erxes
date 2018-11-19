@@ -76,11 +76,11 @@ export const tagObject = async ({
 
   removeIds = _.uniq(_.flatten(removeIds));
 
-  await Tags.update({ _id: { $in: removeIds } }, { $inc: { objectCount: -1 } }, { multi: true });
+  await Tags.updateMany({ _id: { $in: removeIds } }, { $inc: { objectCount: -1 } }, { multi: true });
 
-  await collection.update({ _id: { $in: objectIds } }, { $set: { tagIds } }, { multi: true });
+  await collection.updateMany({ _id: { $in: objectIds } }, { $set: { tagIds } }, { multi: true });
 
-  await Tags.update({ _id: { $in: tagIds } }, { $inc: { objectCount: 1 } }, { multi: true });
+  await Tags.updateMany({ _id: { $in: tagIds } }, { $inc: { objectCount: 1 } }, { multi: true });
 };
 
 class Tag {
@@ -110,7 +110,7 @@ class Tag {
       throw new Error('Tag duplicated');
     }
 
-    await Tags.update({ _id }, { $set: doc });
+    await Tags.updateOne({ _id }, { $set: doc });
 
     return Tags.findOne({ _id });
   }

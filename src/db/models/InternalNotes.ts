@@ -42,7 +42,7 @@ class InternalNote {
    * Update internalNote
    */
   public static async updateInternalNote(_id: string, doc: IInternalNote) {
-    await InternalNotes.update({ _id }, { $set: doc });
+    await InternalNotes.updateOne({ _id }, { $set: doc });
 
     return InternalNotes.findOne({ _id });
   }

@@ -132,7 +132,7 @@ describe('createOrUpdateTimelineConversation', () => {
     expect(await Customers.find({}).countDocuments()).toBe(1); // 1 customer
     expect(await ActivityLogs.find({}).countDocuments()).toBe(1); // 1 log
 
-    await Conversations.update({ _id: conversation._id }, { $set: { status: 'closed' } });
+    await Conversations.updateOne({ _id: conversation._id }, { $set: { status: 'closed' } });
 
     conversation = await Conversations.findOne();
 

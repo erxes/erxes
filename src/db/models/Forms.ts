@@ -51,7 +51,7 @@ class Form {
    * Updates a form document
    */
   public static async updateForm(_id: string, { title, description, buttonText, themeColor, callout }: IForm) {
-    await Forms.update(
+    await Forms.updateOne(
       { _id },
       { $set: { title, description, buttonText, themeColor, callout } },
       { runValidators: true },

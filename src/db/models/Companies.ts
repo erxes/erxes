@@ -99,7 +99,7 @@ class Company {
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
     }
 
-    await Companies.update({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
+    await Companies.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
 
     return Companies.findOne({ _id });
   }

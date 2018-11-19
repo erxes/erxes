@@ -47,7 +47,7 @@ class Brand {
   }
 
   public static async updateBrand(_id: string, fields: IBrand) {
-    await Brands.update({ _id }, { $set: { ...fields } });
+    await Brands.updateOne({ _id }, { $set: { ...fields } });
     return Brands.findOne({ _id });
   }
 
@@ -62,13 +62,13 @@ class Brand {
   }
 
   public static async updateEmailConfig(_id: string, emailConfig: IBrandEmailConfig) {
-    await Brands.update({ _id }, { $set: { emailConfig } });
+    await Brands.updateOne({ _id }, { $set: { emailConfig } });
 
     return Brands.findOne({ _id });
   }
 
   public static async manageIntegrations({ _id, integrationIds }: { _id: string; integrationIds: string[] }) {
-    await Integrations.update({ _id: { $in: integrationIds } }, { $set: { brandId: _id } }, { multi: true });
+    await Integrations.updateMany({ _id: { $in: integrationIds } }, { $set: { brandId: _id } }, { multi: true });
 
     return Integrations.find({ _id: { $in: integrationIds } });
   }

@@ -212,7 +212,7 @@ describe('receive direct message response', () => {
     expect(newMessage.content).toBe(data.text);
 
     // close converstaion
-    await Conversations.update({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
+    await Conversations.updateMany({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
 
     // direct message
     data.text = 'hi';

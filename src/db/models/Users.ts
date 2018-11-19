@@ -129,7 +129,7 @@ class User {
       delete doc.password;
     }
 
-    await Users.update({ _id }, { $set: doc });
+    await Users.updateOne({ _id }, { $set: doc });
 
     return Users.findOne({ _id });
   }
@@ -141,7 +141,7 @@ class User {
     // Checking duplicated email
     await this.checkDuplication(email, _id);
 
-    await Users.update({ _id }, { $set: { username, email, details, links } });
+    await Users.updateOne({ _id }, { $set: { username, email, details, links } });
 
     return Users.findOne({ _id });
   }
@@ -150,7 +150,7 @@ class User {
    * Update email signatures
    */
   public static async configEmailSignatures(_id: string, signatures: IEmailSignature[]) {
-    await Users.update({ _id }, { $set: { emailSignatures: signatures } });
+    await Users.updateOne({ _id }, { $set: { emailSignatures: signatures } });
 
     return Users.findOne({ _id });
   }
@@ -159,7 +159,7 @@ class User {
    * Config get notifications by emmail
    */
   public static async configGetNotificationByEmail(_id: string, isAllowed: boolean) {
-    await Users.update({ _id }, { $set: { getNotificationByEmail: isAllowed } });
+    await Users.updateOne({ _id }, { $set: { getNotificationByEmail: isAllowed } });
 
     return Users.findOne({ _id });
   }
@@ -168,7 +168,7 @@ class User {
    * Remove user
    */
   public static async removeUser(_id: string) {
-    await Users.update({ _id }, { $set: { isActive: false } });
+    await Users.updateOne({ _id }, { $set: { isActive: false } });
 
     return Users.findOne({ _id });
   }
