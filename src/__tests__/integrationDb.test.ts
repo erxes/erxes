@@ -470,6 +470,9 @@ describe('social integration test', () => {
       },
     };
 
+    process.env.FACEBOOK_APP_ID = '123321';
+    process.env.DOMAIN = 'qwqwe';
+
     sinon.stub(facebookTracker, 'getPageInfo').callsFake(() => {
       return { id: '456', access_token: '123' };
     });

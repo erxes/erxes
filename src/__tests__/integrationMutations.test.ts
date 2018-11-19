@@ -283,6 +283,8 @@ describe('mutations', () => {
   });
 
   test('Create facebook integration', async () => {
+    process.env.FACEBOOK_APP_ID = '123321';
+    process.env.DOMAIN = 'qwqwe';
     const account = await accountFactory({});
     const args = {
       brandId: _brand._id,
