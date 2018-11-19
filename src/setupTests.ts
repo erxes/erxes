@@ -13,7 +13,7 @@ beforeAll(() => {
 
   return mongoose.connect(
     TEST_MONGO_URL || 'mongodb://localhost/test',
-    { useMongoClient: true },
+    { useNewUrlParser: true },
   );
 });
 
