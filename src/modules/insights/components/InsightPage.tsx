@@ -1,36 +1,11 @@
 import { colors } from 'modules/common/styles';
-import { BoxRoot, FullContent } from 'modules/common/styles/main';
+import { FullContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import styledTS from 'styled-components-ts';
-
-const boxSize = 320;
-
-const Box = styledTS<{ selected?: boolean }>(BoxRoot.extend)`
-  width: ${boxSize}px;
-  border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
-
-  > a {
-    padding: 40px;
-  }
-
-  &:last-of-type {
-    margin-right: 0;
-  }
-
-  span {
-    font-weight: 500;
-  }
-
-  p {
-    margin: 10px 0 0;
-    font-size: 12px;
-    color: ${colors.colorCoreLightGray};
-  }
-`;
+import { Box } from '../styles';
 
 class InsightPage extends React.Component {
   renderBox(name, image, to, desc) {
