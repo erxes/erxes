@@ -190,7 +190,7 @@ describe('Customers mutations', () => {
     expect(customer.description).toBe(args.description);
     expect(customer.doNotDisturb).toBe(args.doNotDisturb);
     expect(customer.links).toEqual(args.links);
-    expect(customer.customFieldsData).toBe(null);
+    expect(customer.customFieldsData).toEqual({});
   });
 
   test('Edit company of customer', async () => {
