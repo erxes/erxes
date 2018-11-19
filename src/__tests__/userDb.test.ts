@@ -4,7 +4,7 @@ import { userFactory } from '../db/factories';
 import { Users } from '../db/models';
 
 beforeAll(() => {
-  Users.collection.ensureIndex({ email: 1 }, { unique: true });
+  Users.collection.createIndex({ email: 1 }, { unique: true });
 });
 
 describe('User db utils', () => {

@@ -26,7 +26,7 @@ mongoose.connection
 export function connect() {
   return mongoose.connect(
     MONGO_URL,
-    { useMongoClient: true },
+    { useNewUrlParser: true },
   );
 }
 
