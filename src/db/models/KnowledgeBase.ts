@@ -295,7 +295,7 @@ class Topic {
       }
     }
 
-    return KnowledgeBaseTopics.remove({ _id });
+    return KnowledgeBaseTopics.deleteOne({ _id });
   }
 }
 
