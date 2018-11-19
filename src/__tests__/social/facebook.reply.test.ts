@@ -104,7 +104,7 @@ describe('facebook integration: reply', () => {
     }));
 
     // mock message update
-    const mongoStub = sinon.stub(ConversationMessages, 'update').callsFake(() => {
+    const mongoStub = sinon.stub(ConversationMessages, 'updateOne').callsFake(() => {
       '';
     });
 
