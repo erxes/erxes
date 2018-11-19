@@ -1,5 +1,6 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import { BoxRoot } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -164,6 +165,29 @@ const FullName = styled.span`
   font-weight: bold;
 `;
 
+const Box = styledTS<{ selected?: boolean }>(BoxRoot.extend)`
+  width: 320px;
+  border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
+
+  > a {
+    padding: 40px;
+  }
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+
+  span {
+    font-weight: 500;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: ${colors.colorCoreLightGray};
+  }
+`;
+
 export {
   InsightWrapper,
   InsightRow,
@@ -179,5 +203,6 @@ export {
   SummaryCount,
   InsightUserData,
   UserProfile,
-  FullName
+  FullName,
+  Box
 };
