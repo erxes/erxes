@@ -291,6 +291,15 @@ export const COMPANY_BASIC_INFOS = [
   'doNotDisturb',
 ];
 
+export const INSIGHT_BASIC_INFOS = {
+  count: 'Conversations by customer count',
+  messageCount: 'Conversation message count',
+  resolvedCount: 'Resolved conversation',
+  averageResponseDuration: 'Average duration of total',
+  firstResponseDuration: 'Average duration of first response',
+  ALL: ['date', 'count', 'messageCount', 'resolvedCount', 'averageResponseDuration', 'firstResponseDuration'],
+};
+
 export const PROBABILITY = {
   TEN: '10%',
   TWENTY: '20%',

@@ -1,22 +1,34 @@
 import { connect, disconnect } from '../db/connection';
-import { Users } from '../db/models';
+import { ConversationMessages, Conversations } from '../db/models';
 
 export const customCommand = async () => {
   connect();
 
-  const users = await Users.find({});
+  const conversations = await Conversations.find({
+    firstRespondedUserId: null,
+    firstRespondedDate: null,
+    messageCount: { $gt: 1 },
+  })
+    .select('_id')
+    .sort({ createdAt: -1 });
 
-  for (const user of users) {
-    const { details } = user;
+  for (const { _id } of conversations) {
+    // First message that answered to a conversation
+    const message = await ConversationMessages.findOne({
+      conversationId: _id,
+      userId: { $ne: null },
+    }).sort({ createdAt: 1 });
 
-    if (details) {
-      const { fullName } = details;
-
-      if (fullName) {
-        const shortName = fullName.substr(0, 3);
-
-        await Users.update({ _id: user._id }, { $set: { shortName } });
-      }
+    if (message) {
+      await Conversations.update(
+        { _id },
+        {
+          $set: {
+            firstRespondedUserId: message.userId,
+            firstRespondedDate: message.createdAt,
+          },
+        },
+      );
     }
   }
 
