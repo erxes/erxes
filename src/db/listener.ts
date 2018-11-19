@@ -5,6 +5,7 @@ import { ActivityLogs, Companies, ConversationMessages, Conversations, Customers
 export const listenChangeConversation = async () => {
   try {
     await connect();
+
     ConversationMessages.watch().on('change', data => {
       const message = data.fullDocument;
       if (data.operationType === 'insert' && message) {
@@ -12,6 +13,7 @@ export const listenChangeConversation = async () => {
         publishMessage(message);
       }
     });
+
     Conversations.watch().on('change', data => {
       const conversation = data.fullDocument;
       if (data.operationType === 'insert' && conversation) {
@@ -24,12 +26,14 @@ export const listenChangeConversation = async () => {
         });
       }
     });
+
     Customers.watch().on('change', data => {
       const customer = data.fullDocument;
       if (data.operationType === 'insert' && customer) {
         ActivityLogs.createCustomerRegistrationLog(customer);
       }
     });
+
     Companies.watch().on('change', data => {
       const company = data.fullDocument;
       if (data.operationType === 'insert' && company) {
