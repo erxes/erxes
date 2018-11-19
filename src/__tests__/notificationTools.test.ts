@@ -16,7 +16,7 @@ describe('testings helper methods', () => {
   });
 
   afterEach(async () => {
-    await Users.remove({});
+    await Users.deleteMany({});
   });
 
   test('testing tools.sendNotification method', async () => {

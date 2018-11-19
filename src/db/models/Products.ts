@@ -43,7 +43,7 @@ class Product {
       throw new Error("Can't remove a product");
     }
 
-    return Products.remove({ _id });
+    return Products.deleteOne({ _id });
   }
 }
 

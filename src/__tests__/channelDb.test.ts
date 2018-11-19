@@ -23,9 +23,9 @@ describe('channel creation', () => {
   });
 
   afterEach(async () => {
-    await Channels.remove({});
-    await Users.remove({});
-    await Integrations.remove({});
+    await Channels.deleteMany({});
+    await Users.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test('check if channel is getting created successfully', async () => {
@@ -86,9 +86,9 @@ describe('channel update', () => {
    * After each test remove the test data
    */
   afterEach(async () => {
-    await Channels.remove({});
-    await Users.remove({});
-    await Integrations.remove({});
+    await Channels.deleteMany({});
+    await Users.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test(`check if Channel update method and
@@ -146,7 +146,7 @@ describe('channel remove', () => {
   });
 
   afterEach(async () => {
-    await Channels.remove({});
+    await Channels.deleteMany({});
   });
 
   test('check if channel remove method is working successfully', async () => {
@@ -160,7 +160,7 @@ describe('channel remove', () => {
 
 describe('test createdAtModifier', () => {
   afterEach(async () => {
-    await Channels.remove({});
+    await Channels.deleteMany({});
   });
 });
 
@@ -174,8 +174,8 @@ describe('db utils', () => {
   });
 
   afterEach(async () => {
-    await Users.remove({});
-    await Channels.remove({});
+    await Users.deleteMany({});
+    await Channels.deleteMany({});
   });
 
   test('updateUserChannels', async () => {

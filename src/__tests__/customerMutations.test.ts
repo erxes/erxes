@@ -85,8 +85,8 @@ describe('Customers mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
-    await Customers.remove({});
+    await Users.deleteMany({});
+    await Customers.deleteMany({});
   });
 
   test('Add customer', async () => {

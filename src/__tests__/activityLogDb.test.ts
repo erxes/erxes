@@ -17,8 +17,8 @@ import {
 
 describe('ActivityLogs model methods', () => {
   afterEach(async () => {
-    await ActivityLogs.remove({});
-    await Conversations.remove({});
+    await ActivityLogs.deleteMany({});
+    await Conversations.deleteMany({});
   });
 
   test(`check whether not setting 'user'

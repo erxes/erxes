@@ -68,10 +68,10 @@ describe('facebook integration: save webhook response', () => {
     postMock.restore();
 
     // clear previous datas
-    await Conversations.remove({});
-    await Customers.remove({});
-    await ConversationMessages.remove({});
-    await ActivityLogs.remove({});
+    await Conversations.deleteMany({});
+    await Customers.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await ActivityLogs.deleteMany({});
   });
 
   test('via messenger event', async () => {

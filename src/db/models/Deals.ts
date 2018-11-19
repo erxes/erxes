@@ -50,7 +50,7 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
     }
   }
 
-  return DealStages.remove({ pipelineId, _id: { $nin: validStageIds } });
+  return DealStages.deleteMany({ pipelineId, _id: { $nin: validStageIds } });
 };
 
 interface IBoardModel extends Model<IBoardDocument> {
@@ -92,7 +92,7 @@ class Board {
       throw new Error("Can't remove a board");
     }
 
-    return DealBoards.remove({ _id });
+    return DealBoards.deleteOne({ _id });
   }
 }
 
@@ -162,7 +162,7 @@ class Pipeline {
       throw new Error("Can't remove a pipeline");
     }
 
-    return DealPipelines.remove({ _id });
+    return DealPipelines.deleteOne({ _id });
   }
 }
 
@@ -233,7 +233,7 @@ class Stage {
       throw new Error("Can't remove a stage");
     }
 
-    return DealStages.remove({ _id });
+    return DealStages.deleteOne({ _id });
   }
 }
 

@@ -67,7 +67,7 @@ class Notification {
    * Remove a notification
    */
   public static removeNotification(_id: string) {
-    return Notifications.remove({ _id });
+    return Notifications.deleteOne({ _id });
   }
 }
 

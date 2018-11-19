@@ -48,11 +48,11 @@ describe('Conversation message mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Users.remove({});
-    await Integrations.remove({});
-    await Customers.remove({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Users.deleteMany({});
+    await Integrations.deleteMany({});
+    await Customers.deleteMany({});
 
     spy.mockRestore();
   });

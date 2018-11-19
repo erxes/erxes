@@ -13,8 +13,8 @@ describe('Test products model', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Products.remove({});
-    await Deals.remove({});
+    await Products.deleteMany({});
+    await Deals.deleteMany({});
   });
 
   test('Create product', async () => {

@@ -197,7 +197,7 @@ class Customer {
     await EngageMessages.removeCustomerEngages(customerId);
     await InternalNotes.removeCustomerInternalNotes(customerId);
 
-    return Customers.remove({ _id: customerId });
+    return Customers.deleteOne({ _id: customerId });
   }
 
   /**
@@ -241,7 +241,7 @@ class Customer {
         phones = [...phones, ...(customerObj.phones || [])];
 
         // Removing Customers
-        await Customers.remove({ _id: customerId });
+        await Customers.deleteOne({ _id: customerId });
       }
     }
 

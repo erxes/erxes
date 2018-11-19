@@ -38,7 +38,7 @@ class Channel {
   }
 
   public static removeChannel(_id: string) {
-    return Channels.remove({ _id });
+    return Channels.deleteOne({ _id });
   }
 }
 

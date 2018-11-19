@@ -113,7 +113,7 @@ class Article {
    * Removes KnowledgeBaseArticle document
    */
   public static removeDoc(_id: string) {
-    return KnowledgeBaseArticles.remove({ _id });
+    return KnowledgeBaseArticles.deleteOne({ _id });
   }
 }
 
@@ -220,10 +220,10 @@ class Category {
     }
 
     for (const articleId of category.articleIds || []) {
-      await KnowledgeBaseArticles.remove({ _id: articleId });
+      await KnowledgeBaseArticles.deleteOne({ _id: articleId });
     }
 
-    return KnowledgeBaseCategories.remove({ _id });
+    return KnowledgeBaseCategories.deleteOne({ _id });
   }
 }
 

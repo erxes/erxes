@@ -12,9 +12,9 @@ describe('Notification model tests', () => {
   });
 
   afterEach(async () => {
-    Notifications.remove({});
-    NotificationConfigurations.remove({});
-    Users.remove({});
+    Notifications.deleteMany({});
+    NotificationConfigurations.deleteMany({});
+    Users.deleteMany({});
   });
 
   test(`check whether Error('createdUser must be supplied') is being thrown as intended`, async () => {

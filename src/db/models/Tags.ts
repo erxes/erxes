@@ -137,7 +137,7 @@ class Tag {
       throw new Error("Can't remove a tag with tagged object(s)");
     }
 
-    return Tags.remove({ _id: { $in: ids } });
+    return Tags.deleteMany({ _id: { $in: ids } });
   }
 
   /**

@@ -129,7 +129,7 @@ class Company {
 
     await Customers.updateMany({ companyIds: { $in: [companyId] } }, { $pull: { companyIds: companyId } });
 
-    return Companies.remove({ _id: companyId });
+    return Companies.deleteOne({ _id: companyId });
   }
 
   /**

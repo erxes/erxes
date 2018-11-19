@@ -15,8 +15,8 @@ describe('mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await MessengerApps.remove({});
-    await Users.remove({});
+    await MessengerApps.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Add google meet', async () => {

@@ -210,10 +210,10 @@ class Integration {
     const conversations = await Conversations.find({ integrationId: _id }, { _id: true });
     const conversationIds = conversations.map(conv => conv._id);
 
-    await ConversationMessages.remove({
+    await ConversationMessages.deleteMany({
       conversationId: { $in: conversationIds },
     });
-    await Conversations.remove({ integrationId: _id });
+    await Conversations.deleteMany({ integrationId: _id });
 
     // Remove customers ==================
     const customers = await Customers.find({ integrationId: _id });
@@ -228,7 +228,7 @@ class Integration {
       await Forms.removeForm(integration.formId);
     }
 
-    return Integrations.remove({ _id });
+    return Integrations.deleteMany({ _id });
   }
 
   public static async createGmailIntegration({ name, brandId, gmailData }: IGmailParams) {

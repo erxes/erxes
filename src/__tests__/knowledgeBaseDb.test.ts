@@ -19,14 +19,14 @@ describe('test knowledge base models', () => {
   });
 
   afterAll(async () => {
-    await Users.remove({});
+    await Users.deleteMany({});
   });
 
   describe('KnowledgeBaseTopics', () => {
     afterEach(async () => {
-      await KnowledgeBaseTopics.remove({});
-      await Brands.remove({});
-      await KnowledgeBaseCategories.remove({});
+      await KnowledgeBaseTopics.deleteMany({});
+      await Brands.deleteMany({});
+      await KnowledgeBaseCategories.deleteMany({});
     });
 
     test(`check if Error('userId must be supplied')
@@ -127,8 +127,8 @@ describe('test knowledge base models', () => {
 
   describe('KnowledgeBaseCategories', () => {
     afterEach(async () => {
-      await KnowledgeBaseCategories.remove({});
-      await KnowledgeBaseArticles.remove({});
+      await KnowledgeBaseCategories.deleteMany({});
+      await KnowledgeBaseArticles.deleteMany({});
     });
 
     test(`expect Error('userId must be supplied') to be called as intended`, async () => {
@@ -261,7 +261,7 @@ describe('test knowledge base models', () => {
 
   describe('KnowledgeBaseArticles', () => {
     afterEach(async () => {
-      await KnowledgeBaseArticles.remove({});
+      await KnowledgeBaseArticles.deleteMany({});
     });
 
     test(`expect Error('userId must be supplied') to be called as intended`, async () => {

@@ -34,8 +34,8 @@ describe('Customers model tests', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Customers.remove({});
-    await ImportHistory.remove({});
+    await Customers.deleteMany({});
+    await ImportHistory.deleteMany({});
   });
 
   test('Create customer', async () => {
@@ -138,7 +138,7 @@ describe('Customers model tests', () => {
     }
 
     // remove previous duplicated entry
-    await Customers.remove({ _id: previousCustomer._id });
+    await Customers.deleteOne({ _id: previousCustomer._id });
 
     const customerObj = await Customers.updateCustomer(_customer._id, doc);
 

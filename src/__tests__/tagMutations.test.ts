@@ -38,9 +38,9 @@ describe('Test tags mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Tags.remove({});
-    await Users.remove({});
-    await EngageMessages.remove({});
+    await Tags.deleteMany({});
+    await Users.deleteMany({});
+    await EngageMessages.deleteMany({});
   });
 
   test('Add tag', async () => {

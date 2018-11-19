@@ -17,7 +17,7 @@ describe('User db utils', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
+    await Users.deleteMany({});
   });
 
   test('Create user', async () => {

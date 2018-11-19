@@ -19,9 +19,9 @@ describe('mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Channels.remove({});
-    await Integrations.remove({});
-    await Users.remove({});
+    await Channels.deleteMany({});
+    await Integrations.deleteMany({});
+    await Users.deleteMany({});
   });
 
   const commonParamDefs = `

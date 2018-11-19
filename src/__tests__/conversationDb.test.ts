@@ -24,9 +24,9 @@ describe('Conversation db', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Users.remove({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Create conversation', async () => {

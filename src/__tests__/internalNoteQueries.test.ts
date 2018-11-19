@@ -6,7 +6,7 @@ import { InternalNotes } from '../db/models';
 describe('internalNoteQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await InternalNotes.remove({});
+    await InternalNotes.deleteMany({});
   });
 
   test('Internal notes', async () => {

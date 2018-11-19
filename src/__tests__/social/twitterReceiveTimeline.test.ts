@@ -18,11 +18,11 @@ describe('createOrUpdateTimelineConversation', () => {
   });
 
   afterEach(async () => {
-    await Integrations.remove({});
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Customers.remove({});
-    await ActivityLogs.remove({});
+    await Integrations.deleteMany({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Customers.deleteMany({});
+    await ActivityLogs.deleteMany({});
   });
 
   const data = {

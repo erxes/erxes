@@ -16,8 +16,8 @@ describe('Test tags model', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Tags.remove({});
-    await EngageMessages.remove({});
+    await Tags.deleteMany({});
+    await EngageMessages.deleteMany({});
   });
 
   test('Validate unique tag', async () => {

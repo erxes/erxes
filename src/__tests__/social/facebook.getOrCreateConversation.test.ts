@@ -26,8 +26,8 @@ describe('facebook integration: get or create conversation', () => {
 
   afterEach(async () => {
     // clear
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
     mock.restore();
   });
 
@@ -444,7 +444,7 @@ describe('facebook integration: get or create conversation', () => {
     // must be false because we do have parent post
     expect(res).toBe(false);
 
-    await ConversationMessages.remove({ _id: parentPost._id });
+    await ConversationMessages.deleteOne({ _id: parentPost._id });
 
     mock.restore();
 

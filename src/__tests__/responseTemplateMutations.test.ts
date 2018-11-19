@@ -31,8 +31,8 @@ describe('Response template mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await ResponseTemplates.remove({});
-    await Users.remove({});
+    await ResponseTemplates.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Add response template', async () => {

@@ -49,9 +49,9 @@ describe('engageQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await EngageMessages.remove({});
-    await Users.remove({});
-    await Tags.remove({});
+    await EngageMessages.deleteMany({});
+    await Users.deleteMany({});
+    await Tags.deleteMany({});
   });
 
   test('Engage messages filtered by ids', async () => {

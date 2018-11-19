@@ -15,9 +15,9 @@ describe('activityLogs', () => {
   });
 
   afterEach(async () => {
-    await ActivityLogs.remove({});
-    await Customers.remove({});
-    await Segments.remove({});
+    await ActivityLogs.deleteMany({});
+    await Customers.deleteMany({});
+    await Segments.deleteMany({});
   });
 
   test('customerActivityLog', async () => {

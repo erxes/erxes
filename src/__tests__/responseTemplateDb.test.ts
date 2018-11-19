@@ -11,7 +11,7 @@ describe('Response template db', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await ResponseTemplates.remove({});
+    await ResponseTemplates.deleteMany({});
   });
 
   test('Create response template', async () => {

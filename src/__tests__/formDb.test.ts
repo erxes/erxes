@@ -12,8 +12,8 @@ describe('form creation', () => {
   });
 
   afterEach(async () => {
-    await Users.remove({});
-    await Forms.remove({});
+    await Users.deleteMany({});
+    await Forms.deleteMany({});
   });
 
   test(`testing if Error('createdUser must be supplied') is throwing as intended`, async () => {
@@ -65,8 +65,8 @@ describe('form update', () => {
   });
 
   afterEach(async () => {
-    await Users.remove({});
-    await Forms.remove({});
+    await Users.deleteMany({});
+    await Forms.deleteMany({});
   });
 
   test('check if form update method is working successfully', async () => {
@@ -93,9 +93,9 @@ describe('form remove', async () => {
   });
 
   afterEach(async () => {
-    await Forms.remove({});
-    await Fields.remove({});
-    await Customers.remove({});
+    await Forms.deleteMany({});
+    await Fields.deleteMany({});
+    await Customers.deleteMany({});
   });
 
   test('check if form removal is working successfully', async () => {
@@ -132,9 +132,9 @@ describe('form duplication', () => {
   });
 
   afterEach(async () => {
-    await Users.remove({});
-    await Fields.remove({});
-    await Forms.remove({});
+    await Users.deleteMany({});
+    await Fields.deleteMany({});
+    await Forms.deleteMany({});
   });
 
   test('test whether form duplication method is working successfully', async () => {

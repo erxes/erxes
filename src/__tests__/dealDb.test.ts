@@ -29,10 +29,10 @@ describe('Test deals model', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await DealBoards.remove({});
-    await DealPipelines.remove({});
-    await DealStages.remove({});
-    await Deals.remove({});
+    await DealBoards.deleteMany({});
+    await DealPipelines.deleteMany({});
+    await DealStages.deleteMany({});
+    await Deals.deleteMany({});
   });
 
   // Test deal board

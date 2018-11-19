@@ -13,8 +13,8 @@ describe('Brands db', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Brands.remove({});
-    await Users.remove({});
+    await Brands.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Generate code', async () => {

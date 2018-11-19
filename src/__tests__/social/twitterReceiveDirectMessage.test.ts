@@ -18,11 +18,11 @@ describe('receive direct message response', () => {
   });
 
   afterEach(async () => {
-    await Integrations.remove({});
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Customers.remove({});
-    await ActivityLogs.remove({});
+    await Integrations.deleteMany({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Customers.deleteMany({});
+    await ActivityLogs.deleteMany({});
   });
 
   test('reopen', async () => {
@@ -70,7 +70,7 @@ describe('receive direct message response', () => {
 
   test('main action', async () => {
     const integration = await integrationFactory({});
-    await Integrations.remove({ _id: integration._id });
+    await Integrations.deleteOne({ _id: integration._id });
     // try using non existing integration
     expect(await receiveDirectMessageInformation({}, integration)).toBe(null);
 

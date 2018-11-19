@@ -5,7 +5,7 @@ import { Tags } from '../db/models';
 describe('tagQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await Tags.remove({});
+    await Tags.deleteMany({});
   });
 
   test('Tags', async () => {

@@ -8,9 +8,9 @@ import { graphRequest } from '../../trackers/facebookTracker';
 describe('facebook integration: get or create conversation by feed info', () => {
   afterEach(async () => {
     // clear
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Customers.remove({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Customers.deleteMany({});
   });
 
   test('admin posts', async () => {
@@ -52,7 +52,7 @@ describe('facebook integration: get or create conversation by feed info', () => 
     expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
 
     // no message
-    await ConversationMessages.remove({});
+    await ConversationMessages.deleteMany({});
     value.message = '';
     expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
 

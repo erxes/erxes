@@ -65,9 +65,9 @@ class Form {
    */
   public static async removeForm(_id: string) {
     // remove fields
-    await Fields.remove({ contentType: 'form', contentTypeId: _id });
+    await Fields.deleteMany({ contentType: 'form', contentTypeId: _id });
 
-    return Forms.remove({ _id });
+    return Forms.deleteOne({ _id });
   }
 
   /**

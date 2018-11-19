@@ -213,8 +213,8 @@ class Conversation {
     // Removing conversations and conversation messages
     for (const conversation of conversations) {
       // Removing conversation message of conversation
-      await ConversationMessages.remove({ conversationId: conversation._id });
-      await Conversations.remove({ _id: conversation._id });
+      await ConversationMessages.deleteMany({ conversationId: conversation._id });
+      await Conversations.deleteMany({ _id: conversation._id });
     }
   }
 }

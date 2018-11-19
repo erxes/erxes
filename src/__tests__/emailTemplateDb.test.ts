@@ -11,7 +11,7 @@ describe('Email template db', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await EmailTemplates.remove({});
+    await EmailTemplates.deleteMany({});
   });
 
   test('Create email template', async () => {

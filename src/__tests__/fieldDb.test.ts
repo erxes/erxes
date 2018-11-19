@@ -15,9 +15,9 @@ describe('Fields', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Forms.remove({});
-    await Fields.remove({});
-    await FieldsGroups.remove({});
+    await Forms.deleteMany({});
+    await Fields.deleteMany({});
+    await FieldsGroups.deleteMany({});
   });
 
   test('createField() without contentTypeId', async () => {
@@ -311,7 +311,7 @@ describe('Fields groups', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await FieldsGroups.remove({});
+    await FieldsGroups.deleteMany({});
   });
 
   test('Create group', async () => {

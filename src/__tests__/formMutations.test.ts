@@ -36,8 +36,8 @@ describe('form and formField mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
-    await Forms.remove({});
+    await Users.deleteMany({});
+    await Forms.deleteMany({});
   });
 
   test('Add form', async () => {

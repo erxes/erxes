@@ -27,8 +27,8 @@ describe('Email template mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await EmailTemplates.remove({});
-    await Users.remove({});
+    await EmailTemplates.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Add email template', async () => {

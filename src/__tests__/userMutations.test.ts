@@ -75,9 +75,9 @@ describe('User mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
-    await Brands.remove({});
-    await Channels.remove({});
+    await Users.deleteMany({});
+    await Brands.deleteMany({});
+    await Channels.deleteMany({});
   });
 
   test('Login', async () => {
