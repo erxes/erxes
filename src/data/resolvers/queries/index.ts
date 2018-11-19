@@ -12,6 +12,7 @@ import engages from './engages';
 import { fieldQueries as fields, fieldsGroupQueries as fieldsgroups } from './fields';
 import forms from './forms';
 import importHistory from './importHistory';
+import insightExport from './insightExport';
 import insights from './insights';
 import integrations from './integrations';
 import internalNotes from './internalNotes';
@@ -42,6 +43,7 @@ export default {
   ...segments,
   ...conversations,
   ...insights,
+  ...insightExport,
   ...knowledgeBase,
   ...notifications,
   ...activityLogs,

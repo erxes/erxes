@@ -57,6 +57,40 @@ interface IGenerateResponseData {
   };
 }
 
+export interface IListArgs {
+  integrationType: string;
+  brandId: string;
+  startDate: string;
+  endDate: string;
+  type: string;
+}
+
+/**
+ * Find conversations.
+ */
+export const findConversations = async (
+  args: IIntegrationSelector,
+  conversationSelector: any,
+): Promise<IConversationDocument[]> => {
+  const integrationSelector: IIntegrationSelector = {};
+  const { kind, brandId } = args;
+
+  if (brandId) {
+    integrationSelector.brandId = brandId;
+  }
+
+  if (kind) {
+    integrationSelector.kind = kind;
+  }
+
+  const integrationIds = await Integrations.find(integrationSelector).select('_id');
+
+  return Conversations.find({
+    ...conversationSelector,
+    integrationId: { $in: integrationIds },
+  }).sort({ createdAt: 1 });
+};
+
 /**
  * Builds messages find query selector.
  */
@@ -106,8 +140,10 @@ export const generateMessageSelector = async (
  * Populates message collection into date range
  * by given duration and loop count for chart data.
  */
+type ChartDocs = IMessageDocument | IConversationDocument;
+
 export const generateChartData = (
-  collection: IMessageDocument[],
+  collection: ChartDocs[],
   loopCount: number,
   duration: number,
   startTime: number,
@@ -241,13 +277,13 @@ export const fixDate = (value, defaultValue = new Date()): Date => {
   return defaultValue;
 };
 
-export const fixDates = (startValue: string, endValue: string): IFixDates => {
+export const fixDates = (startValue: string, endValue: string, count?: number): IFixDates => {
   // convert given value or get today
   const endDate = fixDate(endValue);
 
   const startDateDefaultValue = new Date(
     moment(endDate)
-      .add(-7, 'days')
+      .add(count ? count * -1 : -7, 'days')
       .toString(),
   );
 
@@ -268,7 +304,7 @@ export const generateDuration = ({ start, end }: { start: Date; end: Date }): IG
   };
 };
 
-/* 
+/*
  * Determines user or client
  */
 export const generateUserSelector = (type: string): any => {

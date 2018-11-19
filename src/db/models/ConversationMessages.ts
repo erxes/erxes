@@ -75,8 +75,19 @@ class Message {
       throw new Error('Content is required');
     }
 
-    // setting conversation's content to last message
-    await Conversations.update({ _id: doc.conversationId }, { $set: { content } });
+    // setting conversation's content to last message & first responded user
+    const obj: {
+      content: string;
+      firstRespondedUserId?: string;
+      firstRespondedDate?: Date;
+    } = { content };
+
+    if (!conversation.firstRespondedUserId) {
+      obj.firstRespondedUserId = userId;
+      obj.firstRespondedDate = new Date();
+    }
+
+    await Conversations.update({ _id: doc.conversationId }, { $set: obj });
 
     return this.createMessage({ ...doc, userId });
   }
