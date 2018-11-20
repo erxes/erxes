@@ -298,7 +298,7 @@ class FieldGroup {
       await Fields.removeField(field._id);
     }
 
-    groupObj.remove();
+    await groupObj.remove();
 
     return _id;
   }
