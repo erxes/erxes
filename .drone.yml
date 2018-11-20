@@ -15,12 +15,12 @@ pipeline:
       - yarn install
 
   linting:
-    image: node:8-slim
+    image: node:10-slim
     commands:
       - yarn lint
 
   typescript:
-    image: node:8-slim
+    image: node:10-slim
     commands:
       - yarn tsc
 
