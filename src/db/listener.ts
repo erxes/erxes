@@ -8,6 +8,7 @@ export const listenChangeConversation = async () => {
 
     ConversationMessages.watch().on('change', data => {
       const message = data.fullDocument;
+
       if (data.operationType === 'insert' && message) {
         publishClientMessage(message);
         publishMessage(message);
@@ -16,6 +17,7 @@ export const listenChangeConversation = async () => {
 
     Conversations.watch().on('change', data => {
       const conversation = data.fullDocument;
+
       if (data.operationType === 'insert' && conversation) {
         Customers.findOne({
           _id: conversation.customerId,
@@ -29,6 +31,7 @@ export const listenChangeConversation = async () => {
 
     Customers.watch().on('change', data => {
       const customer = data.fullDocument;
+
       if (data.operationType === 'insert' && customer) {
         ActivityLogs.createCustomerRegistrationLog(customer);
       }
@@ -36,6 +39,7 @@ export const listenChangeConversation = async () => {
 
     Companies.watch().on('change', data => {
       const company = data.fullDocument;
+
       if (data.operationType === 'insert' && company) {
         ActivityLogs.createCompanyRegistrationLog(company);
       }
