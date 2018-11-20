@@ -117,7 +117,6 @@ class Field {
 
     // Removing field value from customer
     const index = `customFieldsData.${_id}`;
-    console.log(index);
     await Customers.updateMany({ [index]: { $exists: true } }, { $unset: { [index]: 1 } });
 
     return fieldObj.remove();
