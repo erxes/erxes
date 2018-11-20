@@ -7,7 +7,7 @@ mongoose.Promise = global.Promise;
 dotenv.config();
 
 beforeAll(() => {
-  jest.setTimeout(10000);
+  jest.setTimeout(30000);
 
   const { TEST_MONGO_URL } = process.env;
 
