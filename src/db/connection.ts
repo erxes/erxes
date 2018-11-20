@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import { graphql } from 'graphql';
 import mongoose = require('mongoose');
-import * as request from 'request';
 import schema from '../data/';
 import { userFactory } from './factories';
 
@@ -56,18 +55,3 @@ export const graphqlRequest = async (mutation: string = '', name: string = '', a
 
   return response.data[name];
 };
-
-export const sendPostRequest = (url: string, params: { [key: string]: string }) =>
-  new Promise((resolve, reject) =>
-    request.post(url, { form: params }, (error, response, body) => {
-      if (error) {
-        reject(error);
-      }
-
-      resolve({
-        body,
-        contentLength: response.headers['content-length'],
-        contentType: response.headers['content-type'],
-      });
-    }),
-  );
