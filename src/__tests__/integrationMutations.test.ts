@@ -1,12 +1,11 @@
 import * as faker from 'faker';
 import * as sinon from 'sinon';
-import * as dbConnection from '../db/connection';
+import * as utils from '../data/utils';
+import { graphqlRequest } from '../db/connection';
 import { accountFactory, brandFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Integrations, Users } from '../db/models';
 import * as facebookTracker from '../trackers/facebookTracker';
 import { socUtils } from '../trackers/twitterTracker';
-
-const { graphqlRequest } = dbConnection;
 
 describe('mutations', () => {
   let _integration;
@@ -301,7 +300,7 @@ describe('mutations', () => {
       return { success: true };
     });
 
-    sinon.stub(dbConnection, 'sendPostRequest').callsFake(() => {
+    sinon.stub(utils, 'sendPostRequest').callsFake(() => {
       return true;
     });
 
