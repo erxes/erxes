@@ -25,7 +25,7 @@ pipeline:
       - yarn tsc
 
   testing:
-    image: node:8-slim
+    image: node:10-slim
     environment:
       - TEST_MONGO_URL=mongodb://mongo/test
     commands:
