@@ -82,7 +82,7 @@ class Step extends React.Component<Props> {
   }
 
   renderNextButton() {
-    const { next } = this.props;
+    const { next, onClick } = this.props;
 
     if (!next) {
       return null;

@@ -64,11 +64,7 @@ const Messenger = styled.div`
 
 const WebPreview = styled.div`
   min-height: 100%;
-  flex: 1;
   position: relative;
-  width: calc(100% - ${coreSpace});
-  margin-left: auto;
-  margin-top: -1px;
   background: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0) 30%,

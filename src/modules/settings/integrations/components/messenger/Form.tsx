@@ -327,7 +327,6 @@ class CreateMessenger extends React.Component<Props, State> {
           <MessengerPreview>
             <Preview fullHeight={true}>
               <CommonPreview
-                onChange={this.onChange}
                 teamMembers={this.props.teamMembers}
                 message={message}
                 supporterIds={supporterIds}
@@ -338,7 +337,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 brandId={brandId}
                 logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
-                isStepActive={isStepActive}
+                isGreeting={isStepActive}
                 facebook={facebook}
                 twitter={twitter}
                 youtube={youtube}

@@ -3,11 +3,10 @@ import { WebPreview } from 'modules/engage/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import { IMessagesItem } from 'modules/settings/integrations/types';
 import * as React from 'react';
-import { Launcher, Messenger } from './styles';
-import WidgetPreview from './WidgetPreview';
+import { GreetingContent, TopBar, WidgetContent } from './';
+import { Launcher, WidgetPreviewStyled } from './styles';
 
 type Props = {
-  onChange: (key: any, value: string) => void;
   teamMembers: IUser[];
   color: string;
   logoPreviewStyle?: any;
@@ -18,42 +17,49 @@ type Props = {
   logoPreviewUrl?: string;
   brandId?: string;
   brands?: IBrand[];
-  isStepActive?: boolean;
+  isGreeting?: boolean;
   facebook?: string;
   twitter?: string;
   youtube?: string;
 };
 
 class CommonPreview extends React.Component<Props> {
+  renderContent() {
+    const { isGreeting, isOnline, color, wallpaper, message } = this.props;
+
+    if (isGreeting) {
+      return <GreetingContent />;
+    }
+
+    return (
+      <WidgetContent
+        color={color}
+        message={message}
+        isOnline={isOnline}
+        wallpaper={wallpaper}
+      />
+    );
+  }
+
   render() {
-    const {
-      logoPreviewStyle,
-      logoPreviewUrl,
-      color,
-      teamMembers,
-      message,
-      isStepActive
-    } = this.props;
+    const { logoPreviewStyle, logoPreviewUrl, color, isGreeting } = this.props;
 
     return (
       <WebPreview>
-        <Messenger>
-          <WidgetPreview
-            {...this.props}
-            users={teamMembers}
-            isGreeting={isStepActive}
-          />
+        <WidgetPreviewStyled>
+          <TopBar {...this.props} />
+          {this.renderContent()}
+        </WidgetPreviewStyled>
 
-          <Launcher
-            style={Object.assign(
-              {
-                backgroundColor: color,
-                backgroundImage: `url(${logoPreviewUrl})`
-              },
-              logoPreviewStyle
-            )}
-          />
-        </Messenger>
+        <Launcher
+          style={Object.assign(
+            {
+              backgroundColor: color,
+              backgroundImage: `url(${logoPreviewUrl})`
+            },
+            logoPreviewStyle
+          )}
+        />
       </WebPreview>
     );
   }

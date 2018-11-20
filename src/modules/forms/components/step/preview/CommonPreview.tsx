@@ -3,7 +3,6 @@ import { slideRight } from 'modules/common/utils/animations';
 import { WebPreview } from 'modules/engage/styles';
 import {
   Launcher,
-  Messenger,
   WidgetPreviewStyled
 } from 'modules/settings/integrations/components/messenger/widgetPreview/styles';
 import * as React from 'react';
@@ -35,16 +34,16 @@ const WidgetPreview = WidgetPreviewStyled.extend`
   max-height: calc(100% - 95px);
 `;
 
-const Widget = Messenger.extend`
-  animation: ${slideRight} 0.5s linear;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.3) 60%,
-    #eee 100%
-  );
-  max-height: 100%;
-`;
+// const Widget = Messenger.extend`
+//   animation: ${slideRight} 0.5s linear;
+//   background: linear-gradient(
+//     135deg,
+//     rgba(255, 255, 255, 0) 30%,
+//     rgba(255, 255, 255, 0.3) 60%,
+//     #eee 100%
+//   );
+//   max-height: 100%;
+// `;
 
 const LauncherContainer = Launcher.extend`
   position: absolute;
@@ -124,16 +123,12 @@ class CommonPreview extends React.Component<Props, {}> {
     if (type === 'shoutbox') {
       return (
         <ShoutBox>
-          <Widget>
-            <WidgetPreview className="type-default">
-              {this.renderContent()}
-            </WidgetPreview>
-            <LauncherContainer
-              style={{ backgroundColor: theme ? theme : color }}
-            >
-              <span>1</span>
-            </LauncherContainer>
-          </Widget>
+          <WidgetPreview className="type-default">
+            {this.renderContent()}
+          </WidgetPreview>
+          <LauncherContainer style={{ backgroundColor: theme ? theme : color }}>
+            <span>1</span>
+          </LauncherContainer>
         </ShoutBox>
       );
     }

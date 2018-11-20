@@ -6,132 +6,88 @@ import styledTS from 'styled-components-ts';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
+const messageBg = '#eaebed';
 
 const ErxesTopbar = styled.div`
-  transition: height 0.25s ease-in-out;
   background-image: url(https://s3.amazonaws.com/erxes/pattern.png);
-  background-repeat: repeat;
   background-size: cover;
-  position: relative;
-  z-index: 10;
   box-shadow: 0 4px 6px 0 ${rgba(colors.colorBlack, 0.1)};
-
-  &:before {
-    background: url(https://s3.amazonaws.com/erxes/radial.png) left top
-      no-repeat;
-    background-size: cover;
-    bottom: 0;
-    content: '';
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
+  min-height: 70px;
+  display: inline-table;
 `;
 
-const ErxesMiddle = styled.div`
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: space-around;
-  min-height: 70px;
-  width: auto;
-  height: auto;
+const TopBarIcon = styledTS<{ isLeft: boolean }>(styled.div)`
+  transition: background 0.3s ease-in-out;
+  border-radius: ${unitSpace};
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  color: ${colors.colorWhite};
+  position: absolute;
+  top: 15px;
+  left: ${props => props.isLeft && '15px'};
+  right: ${props => (props.isLeft ? '0px' : '15px')};
 
-  .topbar-button {
-    transition: background 0.3s ease-in-out;
-    background: none;
-    border: 0;
-    border-radius: 10px;
-    cursor: pointer;
-    display: block;
-    height: 40px;
-    line-height: 40px;
-    outline: none;
-    text-align: center;
-    position: absolute;
-    top: 15px;
-    width: 40px;
-    z-index: 100;
-    color: ${colors.colorWhite};
-
-    &:hover {
-      background-color: ${rgba(colors.colorBlack, 0.2)};
-    }
-  }
-
-  .left {
-    left: 15px;
-  }
-
-  .right {
-    right: 15px;
+  &:hover {
+    background-color: ${rgba(colors.colorBlack, 0.2)};
   }
 `;
 
 const ErxesMiddleTitle = styled.div`
-  align-items: center;
-  display: flex;
-  flex: 1;
-  flex-shrink: 0;
-  height: 100%;
-  justify-content: center;
-  transition-property: background, opacity;
-`;
+  padding: 20px 60px ${coreSpace} 65px;
 
-const ErxesTopbarMiddle = styled.div`
-  padding: 20px 60px 20px 65px;
-`;
-
-const WelcomeInfo = styled.div`
   h3 {
-    font-size: 20px;
+    font-size: ${coreSpace};
     font-weight: bold;
-    margin: 0 0 10px;
-    padding-right: 50px;
+    margin: 0 0 ${unitSpace};
+    padding-right: ${dimensions.headerSpacing}px;
+    line-height: 1.5;
   }
 
   span {
-    color: rgba(255, 255, 255, 0.8);
+    color: ${rgba(colors.colorWhite, 0.8)};
     font-size: 13px;
-    line-height: 21px;
   }
 `;
 
 const ErxesStaffProfile = styled.div`
   position: relative;
+  flex: 1;
+`;
+
+const StateSpan = styledTS<{ state: boolean }>(styled.span)`
+  border-radius: ${unitSpace};
+  height: 8px;
+  width: 8px;
+  bottom: 2px;
+  position: absolute;
+  right: 53%;
+  background-color: ${props =>
+    props.state ? colors.colorCoreGreen : colors.colorLightGray};
 `;
 
 const ErxesSupporters = styled.div`
+  padding-top: ${unitSpace};
   display: flex;
-  justify-content: space-evenly;
-  padding-top: 10px;
 
   img {
     border-radius: 22px;
-    display: block;
     height: 40px;
     width: 40px;
   }
 `;
 
 const Supporters = ErxesSupporters.extend`
-  justify-content: flex-start;
-
   ${ErxesStaffProfile} {
     margin-right: ${dimensions.unitSpacing}px;
+    flex: inherit;
   }
-`;
 
-const ErxesStaffName = styled.div`
-  font-size: ${typography.fontSizeBody}px;
-  font-weight: ${typography.fontWeightMedium};
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-top: 3px;
-  margin-left: 43px;
+  ${StateSpan} {
+    display: none;
+  }
 `;
 
 const ErxesState = styled.div`
@@ -141,8 +97,8 @@ const ErxesState = styled.div`
 `;
 
 const ErxesSpacialMessage = styled.li`
-  background-color: #eaebed;
-  border-radius: 10px;
+  background-color: ${messageBg};
+  border-radius: ${unitSpace};
   box-shadow: 0 1px 1px 0 ${rgba(colors.colorBlack, 0.2)};
   color: ${colors.textSecondary};
   margin-bottom: ${coreSpace};
@@ -152,11 +108,11 @@ const ErxesSpacialMessage = styled.li`
 const ErxesAvatar = styled.div`
   border-radius: 50%;
   bottom: ${coreSpace};
+  width: 40px;
   height: 40px;
   left: 0;
   overflow: hidden;
   position: absolute;
-  width: 40px;
 
   img {
     width: 100%;
@@ -165,16 +121,12 @@ const ErxesAvatar = styled.div`
 `;
 
 const ErxesMessagesList = styled.ul`
-  display: flex;
-  flex-direction: column;
   background-color: #faf9fb;
   overflow: auto;
-  padding: 20px;
+  padding: ${coreSpace};
   margin: 0;
   flex: 1;
   list-style: none;
-  background-repeat: repeat;
-  background-position: 0 0;
 
   &.background-1 {
     background-image: url('/images/patterns/bg-1.png');
@@ -191,12 +143,12 @@ const ErxesMessagesList = styled.ul`
 
   li {
     position: relative;
-    margin-bottom: 10px;
+    margin-bottom: ${unitSpace};
   }
 `;
 
 const ErxesMessage = styled.div`
-  background-color: #eaebed;
+  background-color: ${messageBg};
   border-radius: ${coreSpace};
   border-bottom-left-radius: 2px;
   box-shadow: 0 1px 1px 0 ${rgba(colors.colorBlack, 0.2)};
@@ -204,9 +156,6 @@ const ErxesMessage = styled.div`
   display: inline-block;
   margin: 0 ${coreSpace} 5px 50px;
   padding: 12px ${coreSpace};
-  position: relative;
-  text-align: left;
-  word-break: break-word;
 `;
 
 const ErxesDate = styled.div`
@@ -217,21 +166,18 @@ const ErxesDate = styled.div`
 
 const ErxesMessageSender = styled.div`
   overflow: hidden;
-  font-size: ${typography.fontSizeHeading8}px;
-  padding: 17px 30px;
+  font-size: 14px;
+  padding: ${coreSpace} 25px;
   color: ${colors.colorCoreGray};
   border-top: 1px solid ${colors.colorWhite};
+  box-shadow: 0 0 15px 0 ${rgba(colors.colorBlack, 0.1)};
+  z-index: 3;
 `;
 
 const ErxesGreeting = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: center;
-  overflow-wrap: break-word;
   padding: 25px 40px 45px;
   text-align: left;
-  word-wrap: break-word;
+  min-height: 174px;
 `;
 
 const ErxesFromCustomer = styled.li`
@@ -241,23 +187,9 @@ const ErxesFromCustomer = styled.li`
 const FromCustomer = ErxesMessage.extend`
   border-bottom-left-radius: ${coreSpace};
   border-top-right-radius: 2px;
-  color: #fff;
+  color: ${colors.colorWhite};
   margin: 0 0 5px ${coreSpace};
   text-align: right;
-`;
-
-const StateSpan = styledTS<{ state: boolean }>(styled.span)`
-  border-radius: 10px;
-  display: inline-block;
-  height: 8px;
-  margin-bottom: 1px;
-  width: 8px;
-  bottom: 2px;
-  position: absolute;
-  right: 2px;
-  z-index: 2;
-  background-color: ${props =>
-    props.state ? colors.colorCoreGreen : colors.colorLightGray};
 `;
 
 const WidgetPreviewStyled = styled.div`
@@ -278,17 +210,10 @@ const WidgetPreviewStyled = styled.div`
   z-index: 2;
 `;
 
-const Messenger = styled.div`
-  box-sizing: border-box;
-  font-size: 14px;
-  line-height: 1.5;
-  margin: 0;
-`;
-
 const Links = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: ${unitSpace};
 
   span {
     color: ${rgba(colors.colorWhite, 0.7)};
@@ -298,10 +223,8 @@ const Links = styled.div`
 
 const Launcher = LogoContainer.extend`
   position: fixed;
-  right: 20px;
-  bottom: 20px;
-  transition: box-shadow 0.3s ease-in-out, background-image 0.3s ease-in;
-  animation: pop 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  right: ${coreSpace};
+  bottom: ${coreSpace};
 `;
 
 const Socials = styled.div`
@@ -326,42 +249,43 @@ const Socials = styled.div`
 
 const GreetingInfo = styled.div`
   h3 {
-    font-size: ${dimensions.coreSpacing}px;
+    font-size: ${coreSpace};
     font-weight: bold;
-    margin: 0 0 ${dimensions.unitSpacing}px;
-    padding-right: ${dimensions.headerSpacing}px;
+    margin: 0 0 ${unitSpace};
+    padding: 5px 30px 5px 0;
+    padding-right: 30px;
+    line-height: 1.3;
   }
 
   p {
     color: ${rgba(colors.colorWhite, 0.8)};
     font-size: 13px;
-    line-height: 21px;
+    margin: 0;
   }
 `;
 
 const ErxesContent = styled.div`
   height: 100%;
   margin-top: -40px;
-  position: relative;
-  z-index: 11;
+  flex: 1;
+  overflow: auto;
 `;
 
 const LeftSide = styled.div`
   float: left;
   height: 42px;
-  margin: 20px 15px 20px 20px;
+  margin: ${coreSpace} 15px ${coreSpace} ${coreSpace};
   text-align: center;
   width: 40px;
 
   span {
-    align-items: center;
-    background: rgba(0, 0, 0, 0.04);
-    border: 1px solid #ddd;
-    border-radius: 21px;
-    box-sizing: border-box;
     display: flex;
-    height: 42px;
     justify-content: center;
+    align-items: center;
+    background: ${rgba(colors.colorBlack, 0.04)};
+    border: 1px solid ${colors.colorShadowGray};
+    border-radius: ${coreSpace};
+    height: 42px;
     width: 42px;
   }
 
@@ -372,10 +296,16 @@ const LeftSide = styled.div`
 
 const RightSide = styled.div`
   border-bottom: 1px solid ${colors.borderPrimary};
-  padding: 20px 20px 20px 0;
+  padding: ${coreSpace} ${coreSpace} ${coreSpace} 0;
+  margin-left: 75px;
+  font-size: 14px;
 
   p {
     color: ${colors.colorCoreGray};
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   > div {
@@ -398,25 +328,21 @@ const ContentBox = styled.div`
 
   h4 {
     font-weight: 500;
-    margin: 0 20px 15px;
+    margin: 0 ${coreSpace} 15px;
     font-size: 14px;
   }
 
   ul {
-    list-style: none;
     margin: 0;
     padding: 0;
 
     li {
-      transition: background 0.3s ease-in-out;
       overflow: hidden;
-      position: relative;
     }
   }
 `;
 
 export {
-  ErxesMiddle,
   ErxesTopbar,
   ErxesState,
   ErxesSupporters,
@@ -432,18 +358,15 @@ export {
   Supporters,
   FromCustomer,
   StateSpan,
-  ErxesTopbarMiddle,
-  ErxesStaffName,
   ErxesStaffProfile,
   ErxesContent,
-  WelcomeInfo,
   WidgetPreviewStyled,
   GreetingInfo,
-  Messenger,
   LeftSide,
   RightSide,
   ContentBox,
   Launcher,
   Links,
-  Socials
+  Socials,
+  TopBarIcon
 };
