@@ -13,7 +13,7 @@ class Config {
     const obj = await Configs.findOne({ code });
 
     if (obj) {
-      await Configs.update({ _id: obj._id }, { $set: { value } });
+      await Configs.updateOne({ _id: obj._id }, { $set: { value } });
 
       return Configs.findOne({ _id: obj._id });
     }

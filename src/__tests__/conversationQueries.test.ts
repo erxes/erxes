@@ -295,7 +295,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
+    await Users.updateOne({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
@@ -490,7 +490,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
+    await Users.updateOne({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
@@ -644,7 +644,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
+    await Users.updateOne({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 

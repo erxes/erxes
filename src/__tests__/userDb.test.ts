@@ -229,7 +229,7 @@ describe('User db utils', () => {
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
 
-    await Users.update(
+    await Users.updateOne(
       { _id: _user._id },
       {
         $set: {

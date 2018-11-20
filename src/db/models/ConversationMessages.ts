@@ -26,7 +26,7 @@ class Message {
       conversationId: message.conversationId,
     }).countDocuments();
 
-    await Conversations.update(
+    await Conversations.updateOne(
       { _id: message.conversationId },
       {
         $set: {
@@ -87,7 +87,7 @@ class Message {
       obj.firstRespondedDate = new Date();
     }
 
-    await Conversations.update({ _id: doc.conversationId }, { $set: obj });
+    await Conversations.updateOne({ _id: doc.conversationId }, { $set: obj });
 
     return this.createMessage({ ...doc, userId });
   }
@@ -120,7 +120,7 @@ class Message {
    * Mark sent messages as read
    */
   public static markSentAsReadMessages(conversationId: string) {
-    return Messages.update(
+    return Messages.updateMany(
       {
         conversationId,
         userId: { $exists: true },

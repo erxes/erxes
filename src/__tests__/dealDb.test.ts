@@ -63,7 +63,7 @@ describe('Test deals model', () => {
   test('Remove board', async () => {
     const doc = { boardId: 'boardId' };
 
-    await DealPipelines.update({}, { $set: doc });
+    await DealPipelines.updateMany({}, { $set: doc });
 
     const isDeleted = await DealBoards.removeBoard(board.id);
 
@@ -154,7 +154,7 @@ describe('Test deals model', () => {
   test('Remove pipeline', async () => {
     const doc = { pipelineId: 'pipelineId' };
 
-    await DealStages.update({}, { $set: doc });
+    await DealStages.updateMany({}, { $set: doc });
 
     const isDeleted = await DealPipelines.removePipeline(pipeline.id);
     expect(isDeleted).toBeTruthy();
@@ -229,7 +229,7 @@ describe('Test deals model', () => {
   });
 
   test('Remove stage', async () => {
-    await Deals.update({}, { $set: { stageId: 'stageId' } });
+    await Deals.updateMany({}, { $set: { stageId: 'stageId' } });
 
     const isDeleted = await DealStages.removeStage(stage.id);
 

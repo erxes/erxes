@@ -69,7 +69,7 @@ class Article {
       throw new Error('userId must be supplied');
     }
 
-    await KnowledgeBaseArticles.update(
+    await KnowledgeBaseArticles.updateOne(
       { _id },
       {
         $set: {
@@ -172,7 +172,7 @@ class Category {
       throw new Error('userId must be supplied');
     }
 
-    await KnowledgeBaseCategories.update(
+    await KnowledgeBaseCategories.updateOne(
       { _id },
       {
         $set: {
@@ -260,7 +260,7 @@ class Topic {
       throw new Error('userId must be supplied');
     }
 
-    await KnowledgeBaseTopics.update(
+    await KnowledgeBaseTopics.updateOne(
       { _id },
       {
         $set: {
@@ -295,7 +295,7 @@ class Topic {
       }
     }
 
-    return KnowledgeBaseTopics.remove({ _id });
+    return KnowledgeBaseTopics.deleteOne({ _id });
   }
 }
 

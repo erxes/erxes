@@ -232,7 +232,7 @@ export const send = message => {
  * Handle engage unsubscribe request
  */
 export const handleEngageUnSubscribe = (query: { cid: string }) =>
-  Customers.update({ _id: query.cid }, { $set: { doNotDisturb: 'Yes' } });
+  Customers.updateOne({ _id: query.cid }, { $set: { doNotDisturb: 'Yes' } });
 
 export default {
   replaceKeys,

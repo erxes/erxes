@@ -69,7 +69,7 @@
     "jsonwebtoken": "^8.1.0",
     "meteor-random": "^0.0.3",
     "moment": "^2.18.1",
-    "mongoose": "^5.0.0",
+    "mongoose": "^5.2.16",
     "mongoose-type-email": "^1.0.5",
     "node-schedule": "^1.2.5",
     "nodemailer": "^4.1.3",

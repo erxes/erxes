@@ -68,7 +68,7 @@ describe('Test products model', () => {
   });
 
   test('Remove product', async () => {
-    await Deals.update({ _id: deal._id }, { $set: { productsData: [] } });
+    await Deals.updateOne({ _id: deal._id }, { $set: { productsData: [] } });
     const isDeleted = await Products.removeProduct(product.id);
 
     expect(isDeleted).toBeTruthy();

@@ -145,7 +145,7 @@ class Customer {
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
     }
 
-    await Customers.update({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
+    await Customers.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
 
     return Customers.findOne({ _id });
   }
@@ -154,7 +154,7 @@ class Customer {
    * Mark customer as active
    */
   public static async markCustomerAsActive(customerId: string) {
-    await Customers.update({ _id: customerId }, { $set: { 'messengerData.isActive': true } });
+    await Customers.updateOne({ _id: customerId }, { $set: { 'messengerData.isActive': true } });
 
     return Customers.findOne({ _id: customerId });
   }

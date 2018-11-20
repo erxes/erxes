@@ -134,7 +134,7 @@ export const receiveDirectMessageInformation = async (data: any, integration: II
 
   if (conversation && conversation.status !== CONVERSATION_STATUSES.CLOSED) {
     // update some infos
-    await Conversations.update(
+    await Conversations.updateOne(
       { _id: conversation._id },
       {
         $set: {
@@ -218,7 +218,7 @@ export const createOrUpdateTimelineMessage = async (conversation: IConversationD
 
   // update
   if (prevMessage) {
-    await ConversationMessages.update(
+    await ConversationMessages.updateOne(
       { 'twitterData.id': data.id },
       {
         $set: {
@@ -266,7 +266,7 @@ export const createOrUpdateTimelineConversation = async (integrationId: string, 
 
   if (prevConversation && prevConversation.status !== CONVERSATION_STATUSES.CLOSED) {
     // update some infos
-    await Conversations.update(
+    await Conversations.updateOne(
       { 'twitterData.id': tweetObj.id },
       {
         $set: {
@@ -414,8 +414,8 @@ const updateTwitterData = async ({ twit, tweetId }: { twit: any; tweetId: string
 
   const selector = { 'twitterData.id_str': tweetId };
 
-  await Conversations.update(selector, { $set: { twitterData } });
-  await ConversationMessages.update(selector, { $set: { twitterData } });
+  await Conversations.updateOne(selector, { $set: { twitterData } });
+  await ConversationMessages.updateOne(selector, { $set: { twitterData } });
 };
 
 /*

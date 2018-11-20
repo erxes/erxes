@@ -20,7 +20,7 @@ class Product {
    * Update Product
    */
   public static async updateProduct(_id: string, doc: IProduct) {
-    await Products.update({ _id }, { $set: doc });
+    await Products.updateOne({ _id }, { $set: doc });
 
     return Products.findOne({ _id });
   }

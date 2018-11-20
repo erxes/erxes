@@ -124,7 +124,7 @@ describe('activityLogs', () => {
     expect(result[0].list[3].content).toBe(`${customer.firstName || ''} ${customer.lastName || ''}`);
 
     // change activity log 'createdAt' values ===================
-    await ActivityLogs.update(
+    await ActivityLogs.updateMany(
       {
         'activity.type': 'segment',
         'activity.action': 'create',
@@ -136,7 +136,7 @@ describe('activityLogs', () => {
       },
     );
 
-    await ActivityLogs.update(
+    await ActivityLogs.updateMany(
       {
         'activity.type': 'internal_note',
         'activity.action': 'create',
@@ -148,7 +148,7 @@ describe('activityLogs', () => {
       },
     );
 
-    await ActivityLogs.update(
+    await ActivityLogs.updateMany(
       {
         'activity.type': 'conversation',
         'activity.action': 'create',
@@ -160,7 +160,7 @@ describe('activityLogs', () => {
       },
     );
 
-    await ActivityLogs.update(
+    await ActivityLogs.updateMany(
       {
         'activity.type': 'customer',
         'activity.action': 'create',

@@ -29,7 +29,7 @@ class Notification {
       selector = { _id: { $in: ids } };
     }
 
-    return Notifications.update(selector, { $set: { isRead: true } }, { multi: true });
+    return Notifications.updateMany(selector, { $set: { isRead: true } }, { multi: true });
   }
 
   /**
@@ -58,7 +58,7 @@ class Notification {
    * Update a notification
    */
   public static async updateNotification(_id: string, doc: INotification) {
-    await Notifications.update({ _id }, doc);
+    await Notifications.updateOne({ _id }, doc);
 
     return Notifications.findOne({ _id });
   }
@@ -101,7 +101,7 @@ class Configuration {
 
     // If already inserted then raise error
     if (oldOne) {
-      await NotificationConfigurations.update({ _id: oldOne._id }, { $set: { isAllowed } });
+      await NotificationConfigurations.updateOne({ _id: oldOne._id }, { $set: { isAllowed } });
 
       return NotificationConfigurations.findOne({ _id: oldOne._id });
     }

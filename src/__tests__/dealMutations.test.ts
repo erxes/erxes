@@ -95,7 +95,7 @@ describe('Test deals mutations', () => {
 
   test('Remove board', async () => {
     // disconnect pipeline connected to board
-    await DealPipelines.update({}, { $set: { boardId: 'fakeBoardId' } });
+    await DealPipelines.updateMany({}, { $set: { boardId: 'fakeBoardId' } });
 
     const mutation = `
       mutation dealBoardsRemove($_id: String!) {
@@ -200,7 +200,7 @@ describe('Test deals mutations', () => {
 
   test('Remove pipeline', async () => {
     // disconnect stages connected to pipeline
-    await DealStages.update({}, { $set: { pipelineId: 'fakePipelineId' } });
+    await DealStages.updateMany({}, { $set: { pipelineId: 'fakePipelineId' } });
 
     const mutation = `
       mutation dealPipelinesRemove($_id: String!) {
@@ -302,7 +302,7 @@ describe('Test deals mutations', () => {
 
   test('Remove stage', async () => {
     // disconnect deals connected to stage
-    await Deals.update({}, { $set: { stageId: 'fakeStageId' } });
+    await Deals.updateMany({}, { $set: { stageId: 'fakeStageId' } });
 
     const mutation = `
       mutation dealStagesRemove($_id: String!) {

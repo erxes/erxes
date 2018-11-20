@@ -150,7 +150,7 @@ class Integration {
    * Update messenger integration document
    */
   public static async updateMessengerIntegration(_id: string, doc: IMessengerIntegration) {
-    await Integrations.update({ _id }, { $set: doc }, { runValidators: true });
+    await Integrations.updateOne({ _id }, { $set: doc }, { runValidators: true });
 
     return Integrations.findOne({ _id });
   }
@@ -159,7 +159,7 @@ class Integration {
    * Save messenger appearance data
    */
   public static async saveMessengerAppearanceData(_id: string, { color, wallpaper, logo }: IUiOptions) {
-    await Integrations.update({ _id }, { $set: { uiOptions: { color, wallpaper, logo } } }, { runValdatiors: true });
+    await Integrations.updateOne({ _id }, { $set: { uiOptions: { color, wallpaper, logo } } }, { runValdatiors: true });
 
     return Integrations.findOne({ _id });
   }
@@ -168,7 +168,7 @@ class Integration {
    * Saves messenger data to integration document
    */
   public static async saveMessengerConfigs(_id: string, messengerData: IMessengerData) {
-    await Integrations.update({ _id }, { $set: { messengerData } });
+    await Integrations.updateOne({ _id }, { $set: { messengerData } });
     return Integrations.findOne({ _id });
   }
 
@@ -191,7 +191,7 @@ class Integration {
   public static async updateFormIntegration(_id: string, { formData = {}, ...mainDoc }: IIntegration) {
     const doc = this.generateFormDoc(mainDoc, formData);
 
-    await Integrations.update({ _id }, { $set: doc }, { runValidators: true });
+    await Integrations.updateOne({ _id }, { $set: doc }, { runValidators: true });
 
     return Integrations.findOne({ _id });
   }
