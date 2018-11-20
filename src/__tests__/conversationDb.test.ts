@@ -214,7 +214,7 @@ describe('Conversation db', () => {
   test('Conversation mark as read', async () => {
     // first user read this conversation
     _conversation.readUserIds = '';
-    _conversation.save();
+    await _conversation.save();
 
     await Conversations.markAsReadConversation(_conversation._id, _user._id);
 
@@ -226,7 +226,7 @@ describe('Conversation db', () => {
       throw new Error('Conversation not found');
     }
 
-    expect(conversationObj.readUserIds[0]).toBe(_user._id);
+    expect(conversationObj.readUserIds).toContain(_user._id);
 
     const secondUser = await userFactory({});
 
