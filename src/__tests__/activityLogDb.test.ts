@@ -17,8 +17,8 @@ import {
 
 describe('ActivityLogs model methods', () => {
   afterEach(async () => {
-    await ActivityLogs.remove({});
-    await Conversations.remove({});
+    await ActivityLogs.deleteMany({});
+    await Conversations.deleteMany({});
   });
 
   test(`check whether not setting 'user'
@@ -225,12 +225,12 @@ describe('ActivityLogs model methods', () => {
     expect(activity).toBeDefined();
     expect(activity.coc.id).toBe(companyB._id);
 
-    expect(await ActivityLogs.find({}).count()).toBe(3);
+    expect(await ActivityLogs.find({}).countDocuments()).toBe(3);
 
     // test whether activity logs for this conversation is being duplicated or not ========
     await ActivityLogs.createConversationLog(conversation, customer);
 
-    expect(await ActivityLogs.find({}).count()).toBe(3);
+    expect(await ActivityLogs.find({}).countDocuments()).toBe(3);
   });
 
   test(`createCustomerRegistrationLog`, async () => {
@@ -316,7 +316,7 @@ describe('ActivityLogs model methods', () => {
 
     const log = await ActivityLogs.createConversationLog(conversation, customer);
 
-    await ActivityLogs.update(
+    await ActivityLogs.updateOne(
       { _id: log._id },
       { $set: { coc: { id: customer._id, type: COC_CONTENT_TYPES.CUSTOMER } } },
     );
@@ -338,7 +338,7 @@ describe('ActivityLogs model methods', () => {
 
     const log = await ActivityLogs.createCompanyRegistrationLog(company, user);
 
-    await ActivityLogs.update(
+    await ActivityLogs.updateOne(
       { _id: log._id },
       { $set: { coc: { id: company._id, type: COC_CONTENT_TYPES.COMPANY } } },
     );

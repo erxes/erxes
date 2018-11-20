@@ -15,8 +15,8 @@ describe('Import history mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await ImportHistory.remove({});
-    await Users.remove({});
+    await ImportHistory.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Remove import histories', async () => {

@@ -43,10 +43,10 @@ describe('dealQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await DealBoards.remove({});
-    await DealStages.remove({});
-    await DealPipelines.remove({});
-    await Deals.remove({});
+    await DealBoards.deleteMany({});
+    await DealStages.deleteMany({});
+    await DealPipelines.deleteMany({});
+    await Deals.deleteMany({});
   });
 
   test('Boards', async () => {

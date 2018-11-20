@@ -25,7 +25,7 @@ describe('test activityLogsCronJob', () => {
 
     await cronJobs.createActivityLogsFromSegments();
 
-    expect(await ActivityLogs.find().count()).toBe(1);
+    expect(await ActivityLogs.find().countDocuments()).toBe(1);
 
     const aLog = await ActivityLogs.findOne();
 
@@ -73,6 +73,6 @@ describe('test activityLogsCronJob', () => {
 
     await cronJobs.createActivityLogsFromSegments();
 
-    expect(await ActivityLogs.find().count()).toBe(2);
+    expect(await ActivityLogs.find().countDocuments()).toBe(2);
   });
 });

@@ -69,7 +69,7 @@
     "jsonwebtoken": "^8.1.0",
     "meteor-random": "^0.0.3",
     "moment": "^2.18.1",
-    "mongoose": "^4.9.2",
+    "mongoose": "^5.2.16",
     "mongoose-type-email": "^1.0.5",
     "node-schedule": "^1.2.5",
     "nodemailer": "^4.1.3",
@@ -83,6 +83,9 @@
     "underscore": "^1.8.3",
     "validator": "^9.0.0",
     "xlsx-populate": "^1.14.0"
+  },
+  "peerOptionalDependencies": {
+    "kerberos": "^1.0.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",

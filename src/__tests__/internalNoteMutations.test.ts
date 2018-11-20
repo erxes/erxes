@@ -17,8 +17,8 @@ describe('InternalNotes mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await InternalNotes.remove({});
-    await Users.remove({});
+    await InternalNotes.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Add internal note', async () => {

@@ -42,7 +42,7 @@ class InternalNote {
    * Update internalNote
    */
   public static async updateInternalNote(_id: string, doc: IInternalNote) {
-    await InternalNotes.update({ _id }, { $set: doc });
+    await InternalNotes.updateOne({ _id }, { $set: doc });
 
     return InternalNotes.findOne({ _id });
   }
@@ -86,8 +86,8 @@ class InternalNote {
    * Removing customers' internal notes
    */
   public static async removeCustomerInternalNotes(customerId: string) {
-    // Removing every internal ntoes of customer
-    return InternalNotes.remove({
+    // Removing every internal notes of customer
+    return InternalNotes.deleteMany({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerId,
     });
@@ -98,7 +98,7 @@ class InternalNote {
    */
   public static async removeCompanyInternalNotes(companyId: string) {
     // Removing every internal notes of company
-    return InternalNotes.remove({
+    return InternalNotes.deleteMany({
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyId,
     });

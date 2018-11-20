@@ -130,16 +130,16 @@ describe('engage message mutation tests', () => {
   afterEach(async () => {
     // Clearing test data
     _doc = null;
-    await Users.remove({});
-    await Tags.remove({});
-    await Brands.remove({});
-    await Segments.remove({});
-    await EngageMessages.remove({});
-    await EmailTemplates.remove({});
-    await Customers.remove({});
-    await Integrations.remove({});
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
+    await Users.deleteMany({});
+    await Tags.deleteMany({});
+    await Brands.deleteMany({});
+    await Segments.deleteMany({});
+    await EngageMessages.deleteMany({});
+    await EmailTemplates.deleteMany({});
+    await Customers.deleteMany({});
+    await Integrations.deleteMany({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
   });
 
   test('Engage utils send via messenger: integration not found', async () => {

@@ -22,23 +22,23 @@ class Channel {
   }
 
   public static async updateChannel(_id: string, doc: IChannel) {
-    await Channels.update({ _id }, { $set: doc }, { runValidators: true });
+    await Channels.updateOne({ _id }, { $set: doc }, { runValidators: true });
 
     return Channels.findOne({ _id });
   }
 
   public static async updateUserChannels(channelIds: string[], userId: string) {
     // remove from previous channels
-    await Channels.update({ memberIds: { $in: [userId] } }, { $pull: { memberIds: userId } }, { multi: true });
+    await Channels.updateMany({ memberIds: { $in: [userId] } }, { $pull: { memberIds: userId } }, { multi: true });
 
     // add to given channels
-    await Channels.update({ _id: { $in: channelIds } }, { $push: { memberIds: userId } }, { multi: true });
+    await Channels.updateMany({ _id: { $in: channelIds } }, { $push: { memberIds: userId } }, { multi: true });
 
     return Channels.find({ _id: { $in: channelIds } });
   }
 
   public static removeChannel(_id: string) {
-    return Channels.remove({ _id });
+    return Channels.deleteOne({ _id });
   }
 }
 

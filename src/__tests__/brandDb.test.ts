@@ -13,8 +13,8 @@ describe('Brands db', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Brands.remove({});
-    await Users.remove({});
+    await Brands.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Generate code', async () => {
@@ -59,7 +59,7 @@ describe('Brands db', () => {
   test('Delete brand', async () => {
     await Brands.removeBrand(_brand.id);
 
-    expect(await Brands.findOne({ _id: _brand.id }).count()).toBe(0);
+    expect(await Brands.findOne({ _id: _brand.id }).countDocuments()).toBe(0);
 
     try {
       await Brands.removeBrand('test');

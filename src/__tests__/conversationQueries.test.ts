@@ -153,12 +153,12 @@ describe('conversationQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Conversations.remove({});
-    await Users.remove({});
-    await Brands.remove({});
-    await Channels.remove({});
-    await Tags.remove({});
-    await Integrations.remove({});
+    await Conversations.deleteMany({});
+    await Users.deleteMany({});
+    await Brands.deleteMany({});
+    await Channels.deleteMany({});
+    await Tags.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test('Conversation messages with skip', async () => {
@@ -295,7 +295,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
+    await Users.updateOne({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
@@ -490,7 +490,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
+    await Users.updateOne({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
@@ -644,7 +644,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
+    await Users.updateOne({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 

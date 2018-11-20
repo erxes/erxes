@@ -75,9 +75,9 @@ describe('User mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
-    await Brands.remove({});
-    await Channels.remove({});
+    await Users.deleteMany({});
+    await Brands.deleteMany({});
+    await Channels.deleteMany({});
   });
 
   test('Login', async () => {
@@ -118,7 +118,7 @@ describe('User mutations', () => {
     const token = 'token';
     const user = await userFactory({});
 
-    await Users.update(
+    await Users.updateOne(
       { _id: user._id },
       {
         $set: {

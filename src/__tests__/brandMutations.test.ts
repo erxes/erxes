@@ -29,9 +29,9 @@ describe('Brands mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Brands.remove({});
-    await Users.remove({});
-    await Integrations.remove({});
+    await Brands.deleteMany({});
+    await Users.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test('Create brand', async () => {

@@ -28,7 +28,7 @@ describe('Test products mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Products.remove({});
+    await Products.deleteMany({});
   });
 
   test('Create product', async () => {

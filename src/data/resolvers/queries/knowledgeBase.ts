@@ -81,7 +81,7 @@ const knowledgeBaseQueries = {
   async knowledgeBaseArticlesTotalCount(_root, args: { categoryIds: string[] }) {
     const query = await articlesQuery(args);
 
-    return KnowledgeBaseArticles.find(query).count();
+    return KnowledgeBaseArticles.find(query).countDocuments();
   },
 
   /**
@@ -112,7 +112,7 @@ const knowledgeBaseQueries = {
   async knowledgeBaseCategoriesTotalCount(_root, args: { topicIds: string[] }) {
     const query = await categoriesQuery(args);
 
-    return KnowledgeBaseCategories.find(query).count();
+    return KnowledgeBaseCategories.find(query).countDocuments();
   },
 
   /**
@@ -141,7 +141,7 @@ const knowledgeBaseQueries = {
    * Total topic count
    */
   knowledgeBaseTopicsTotalCount() {
-    return KnowledgeBaseTopics.find({}).count();
+    return KnowledgeBaseTopics.find({}).countDocuments();
   },
 };
 

@@ -9,7 +9,7 @@ interface IImportHistoryModel extends Model<IImportHistoryDocument> {
 }
 
 class ImportHistory {
-  /* 
+  /*
    * Create new history
    */
   public static async createHistory(doc: IImportHistory, user: IUserDocument) {
@@ -42,7 +42,7 @@ class ImportHistory {
       await removeMethod(id);
     }
 
-    await ImportHistories.remove({ _id });
+    await ImportHistories.deleteOne({ _id });
 
     return _id;
   }

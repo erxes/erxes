@@ -40,10 +40,10 @@ describe('twitter integration', () => {
     // unwrap the spy
     postMock.restore();
 
-    await Conversations.remove({});
-    await Integrations.remove({});
-    await ConversationMessages.remove({});
-    await Customers.remove({});
+    await Conversations.deleteMany({});
+    await Integrations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Customers.deleteMany({});
   });
 
   test('direct message', async () => {

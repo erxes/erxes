@@ -8,9 +8,9 @@ import { graphRequest } from '../../trackers/facebookTracker';
 describe('facebook integration: get or create conversation by feed info', () => {
   afterEach(async () => {
     // clear
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Customers.remove({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Customers.deleteMany({});
   });
 
   test('admin posts', async () => {
@@ -32,7 +32,7 @@ describe('facebook integration: get or create conversation by feed info', () => 
     saveWebhookResponse.currentPageId = 'DFDFDFDFDFD';
 
     // must be 0 conversations
-    expect(await Conversations.find().count()).toBe(0);
+    expect(await Conversations.find().countDocuments()).toBe(0);
 
     const value: any = { from: { id: senderId, name: 'Facebook User' } };
 
@@ -52,7 +52,7 @@ describe('facebook integration: get or create conversation by feed info', () => 
     expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
 
     // no message
-    await ConversationMessages.remove({});
+    await ConversationMessages.deleteMany({});
     value.message = '';
     expect(await saveWebhookResponse.getOrCreateConversationByFeed(value)).toBe(null);
 
@@ -81,12 +81,12 @@ describe('facebook integration: get or create conversation by feed info', () => 
 
     await saveWebhookResponse.getOrCreateConversationByFeed(value);
 
-    expect(await Conversations.find().count()).toBe(1); // 1 conversation
-    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
-    expect(await Customers.find().count()).toBe(1); // 1 customer
+    expect(await Conversations.find().countDocuments()).toBe(1); // 1 conversation
+    expect(await ConversationMessages.find().countDocuments()).toBe(1); // 1 message
+    expect(await Customers.find().countDocuments()).toBe(1); // 1 customer
 
     // 1 logs
-    expect(await ActivityLogs.find({ 'activity.type': 'customer' }).count()).toBe(1);
+    expect(await ActivityLogs.find({ 'activity.type': 'customer' }).countDocuments()).toBe(1);
 
     const conversation = await Conversations.findOne();
 

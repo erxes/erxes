@@ -40,7 +40,7 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
     // edit
     if (prevEntry) {
       validStageIds.push(_id);
-      await DealStages.update({ _id }, { $set: doc });
+      await DealStages.updateOne({ _id }, { $set: doc });
 
       // create
     } else {
@@ -50,7 +50,7 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
     }
   }
 
-  return DealStages.remove({ pipelineId, _id: { $nin: validStageIds } });
+  return DealStages.deleteMany({ pipelineId, _id: { $nin: validStageIds } });
 };
 
 interface IBoardModel extends Model<IBoardDocument> {
@@ -71,7 +71,7 @@ class Board {
    * Update Board
    */
   public static async updateBoard(_id: string, doc: IBoard) {
-    await DealBoards.update({ _id }, { $set: doc });
+    await DealBoards.updateOne({ _id }, { $set: doc });
 
     return DealBoards.findOne({ _id });
   }
@@ -86,13 +86,13 @@ class Board {
       throw new Error('Board not found');
     }
 
-    const count = await DealPipelines.find({ boardId: _id }).count();
+    const count = await DealPipelines.find({ boardId: _id }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a board");
     }
 
-    return DealBoards.remove({ _id });
+    return DealBoards.deleteOne({ _id });
   }
 }
 
@@ -125,7 +125,7 @@ class Pipeline {
       await createOrUpdatePipelineStages(stages, _id);
     }
 
-    await DealPipelines.update({ _id }, { $set: doc });
+    await DealPipelines.updateOne({ _id }, { $set: doc });
 
     return DealPipelines.findOne({ _id });
   }
@@ -140,7 +140,7 @@ class Pipeline {
       ids.push(_id);
 
       // update each deals order
-      await DealPipelines.update({ _id }, { order });
+      await DealPipelines.updateOne({ _id }, { order });
     }
 
     return DealPipelines.find({ _id: { $in: ids } }).sort({ order: 1 });
@@ -156,13 +156,13 @@ class Pipeline {
       throw new Error('Pipeline not found');
     }
 
-    const count = await DealStages.find({ pipelineId: _id }).count();
+    const count = await DealStages.find({ pipelineId: _id }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a pipeline");
     }
 
-    return DealPipelines.remove({ _id });
+    return DealPipelines.deleteOne({ _id });
   }
 }
 
@@ -186,7 +186,7 @@ class Stage {
    * Update Stage
    */
   public static async updateStage(_id: string, doc: IStage) {
-    await DealStages.update({ _id }, { $set: doc });
+    await DealStages.updateOne({ _id }, { $set: doc });
 
     return DealStages.findOne({ _id });
   }
@@ -195,7 +195,7 @@ class Stage {
    * Change Stage
    */
   public static async changeStage(_id: string, pipelineId: string) {
-    await DealStages.update({ _id }, { $set: { pipelineId } });
+    await DealStages.updateOne({ _id }, { $set: { pipelineId } });
     await Deals.updateMany({ stageId: _id }, { $set: { pipelineId } });
 
     return DealStages.findOne({ _id });
@@ -206,12 +206,12 @@ class Stage {
    */
   public static async updateOrder(orders: IOrderInput[]) {
     const ids: string[] = [];
-
+    // TODO: need improvements?
     for (const { _id, order } of orders) {
       ids.push(_id);
 
       // update each deals order
-      await DealStages.update({ _id }, { order });
+      await DealStages.updateOne({ _id }, { order });
     }
 
     return DealStages.find({ _id: { $in: ids } }).sort({ order: 1 });
@@ -227,13 +227,13 @@ class Stage {
       throw new Error('Stage not found');
     }
 
-    const count = await Deals.find({ stageId: _id }).count();
+    const count = await Deals.find({ stageId: _id }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a stage");
     }
 
-    return DealStages.remove({ _id });
+    return DealStages.deleteOne({ _id });
   }
 }
 
@@ -251,7 +251,7 @@ class Deal {
    * Create a deal
    */
   public static async createDeal(doc: IDeal) {
-    const dealsCount = await Deals.find({ stageId: doc.stageId }).count();
+    const dealsCount = await Deals.find({ stageId: doc.stageId }).countDocuments();
 
     return Deals.create({
       ...doc,
@@ -264,7 +264,7 @@ class Deal {
    * Update Deal
    */
   public static async updateDeal(_id: string, doc: IDeal) {
-    await Deals.update({ _id }, { $set: doc });
+    await Deals.updateOne({ _id }, { $set: doc });
 
     return Deals.findOne({ _id });
   }
@@ -274,12 +274,12 @@ class Deal {
    */
   public static async updateOrder(stageId: string, orders: IOrderInput[]) {
     const ids: string[] = [];
-
+    // TODO: need improvements?
     for (const { _id, order } of orders) {
       ids.push(_id);
 
       // update each deals order
-      await Deals.update({ _id }, { stageId, order });
+      await Deals.updateOne({ _id }, { stageId, order });
     }
 
     return Deals.find({ _id: { $in: ids } }).sort({ order: 1 });

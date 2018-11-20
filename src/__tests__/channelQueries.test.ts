@@ -5,8 +5,8 @@ import { Channels, Users } from '../db/models';
 describe('channelQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await Channels.remove({});
-    await Users.remove({});
+    await Channels.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Channels', async () => {

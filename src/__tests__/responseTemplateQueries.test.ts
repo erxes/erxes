@@ -5,7 +5,7 @@ import { ResponseTemplates } from '../db/models';
 describe('responseTemplateQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await ResponseTemplates.remove({});
+    await ResponseTemplates.deleteMany({});
   });
 
   test('Response templates', async () => {
