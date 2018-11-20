@@ -84,6 +84,9 @@
     "validator": "^9.0.0",
     "xlsx-populate": "^1.14.0"
   },
+  "peerOptionalDependencies": {
+    "kerberos": "^1.0.0"
+  },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
     "@types/cors": "^2.8.4",
