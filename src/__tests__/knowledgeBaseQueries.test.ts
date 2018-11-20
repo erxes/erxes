@@ -5,9 +5,9 @@ import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } f
 describe('knowledgeBaseQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await KnowledgeBaseArticles.remove({});
-    await KnowledgeBaseCategories.remove({});
-    await KnowledgeBaseTopics.remove({});
+    await KnowledgeBaseArticles.deleteMany({});
+    await KnowledgeBaseCategories.deleteMany({});
+    await KnowledgeBaseTopics.deleteMany({});
   });
 
   test('Knowledge base topics', async () => {

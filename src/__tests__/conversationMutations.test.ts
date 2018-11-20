@@ -14,7 +14,8 @@ import { twitMap } from '../trackers/twitter';
 import { twitRequest } from '../trackers/twitterTracker';
 
 const toJSON = value => {
-  return JSON.stringify(value);
+  // sometimes object key order is different even though it has same value.
+  return JSON.stringify(value, Object.keys(value).sort());
 };
 
 const spy = jest.spyOn(utils, 'sendNotification');
@@ -47,11 +48,11 @@ describe('Conversation message mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Users.remove({});
-    await Integrations.remove({});
-    await Customers.remove({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Users.deleteMany({});
+    await Integrations.deleteMany({});
+    await Customers.deleteMany({});
 
     spy.mockRestore();
   });

@@ -5,7 +5,7 @@ import { Brands } from '../db/models';
 describe('brandQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await Brands.remove({});
+    await Brands.deleteMany({});
   });
 
   test('Brands', async () => {

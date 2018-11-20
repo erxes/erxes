@@ -64,7 +64,7 @@ const messengerAppMutations = {
    * Remove app
    */
   async messengerAppsRemove(_root, { _id }: { _id: string }) {
-    return MessengerApps.remove({ _id });
+    return MessengerApps.deleteOne({ _id });
   },
 
   /*

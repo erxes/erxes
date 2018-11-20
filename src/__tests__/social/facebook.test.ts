@@ -9,7 +9,7 @@ describe('facebook integration common tests', () => {
 
   afterEach(async () => {
     // clear
-    await Integrations.remove({});
+    await Integrations.deleteMany({});
   });
 
   test('receive web hook response', async () => {

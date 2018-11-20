@@ -18,11 +18,11 @@ describe('ActivityLog creation on Customer creation', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await ActivityLogs.remove({});
-    await Conversations.remove({});
-    await Customers.remove({});
-    await Companies.remove({});
-    await Deals.remove({});
+    await ActivityLogs.deleteMany({});
+    await Conversations.deleteMany({});
+    await Customers.deleteMany({});
+    await Companies.deleteMany({});
+    await Deals.deleteMany({});
   });
 
   test('Add conversation log', async () => {

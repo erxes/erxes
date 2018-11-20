@@ -294,7 +294,7 @@ class ActivityLog {
    */
   public static async removeCustomerActivityLog(customerId: string) {
     // Removing every activity log of customer
-    return ActivityLogs.remove({
+    return ActivityLogs.deleteMany({
       coc: { type: COC_CONTENT_TYPES.CUSTOMER, id: customerId },
     });
   }
@@ -304,7 +304,7 @@ class ActivityLog {
    */
   public static async removeCompanyActivityLog(companyId: string) {
     // Removing every activity log of company
-    return ActivityLogs.remove({
+    return ActivityLogs.deleteMany({
       coc: { type: COC_CONTENT_TYPES.COMPANY, id: companyId },
     });
   }

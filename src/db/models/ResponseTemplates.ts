@@ -12,7 +12,7 @@ class ResponseTemplate {
    * Update response template
    */
   public static async updateResponseTemplate(_id: string, fields: IResponseTemplate) {
-    await ResponseTemplates.update({ _id }, { $set: { ...fields } });
+    await ResponseTemplates.updateOne({ _id }, { $set: { ...fields } });
 
     return ResponseTemplates.findOne({ _id });
   }

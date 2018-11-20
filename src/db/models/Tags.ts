@@ -20,7 +20,7 @@ export const validateUniqueness = async (selector: any, name: string, type: stri
   }
 
   // can't update name & type same time more than one tags.
-  const count = await Tags.find(selector).count();
+  const count = await Tags.find(selector).countDocuments();
 
   if (selector && count > 1) {
     return false;
@@ -60,7 +60,7 @@ export const tagObject = async ({
   const prevTagsCount = await Tags.find({
     _id: { $in: tagIds },
     type: tagType,
-  }).count();
+  }).countDocuments();
 
   if (prevTagsCount !== tagIds.length) {
     throw new Error('Tag not found.');
@@ -76,11 +76,11 @@ export const tagObject = async ({
 
   removeIds = _.uniq(_.flatten(removeIds));
 
-  await Tags.update({ _id: { $in: removeIds } }, { $inc: { objectCount: -1 } }, { multi: true });
+  await Tags.updateMany({ _id: { $in: removeIds } }, { $inc: { objectCount: -1 } }, { multi: true });
 
-  await collection.update({ _id: { $in: objectIds } }, { $set: { tagIds } }, { multi: true });
+  await collection.updateMany({ _id: { $in: objectIds } }, { $set: { tagIds } }, { multi: true });
 
-  await Tags.update({ _id: { $in: tagIds } }, { $inc: { objectCount: 1 } }, { multi: true });
+  await Tags.updateMany({ _id: { $in: tagIds } }, { $inc: { objectCount: 1 } }, { multi: true });
 };
 
 class Tag {
@@ -110,7 +110,7 @@ class Tag {
       throw new Error('Tag duplicated');
     }
 
-    await Tags.update({ _id }, { $set: doc });
+    await Tags.updateOne({ _id }, { $set: doc });
 
     return Tags.findOne({ _id });
   }
@@ -119,7 +119,7 @@ class Tag {
    * Remove Tag
    */
   public static async removeTag(ids: string[]) {
-    const tagCount = await Tags.find({ _id: { $in: ids } }).count();
+    const tagCount = await Tags.find({ _id: { $in: ids } }).countDocuments();
 
     if (tagCount !== ids.length) {
       throw new Error('Tag not found');
@@ -127,17 +127,17 @@ class Tag {
 
     let count = 0;
 
-    count += await Customers.find({ tagIds: { $in: ids } }).count();
-    count += await Conversations.find({ tagIds: { $in: ids } }).count();
-    count += await EngageMessages.find({ tagIds: { $in: ids } }).count();
-    count += await Companies.find({ tagIds: { $in: ids } }).count();
-    count += await Integrations.find({ tagIds: { $in: ids } }).count();
+    count += await Customers.find({ tagIds: { $in: ids } }).countDocuments();
+    count += await Conversations.find({ tagIds: { $in: ids } }).countDocuments();
+    count += await EngageMessages.find({ tagIds: { $in: ids } }).countDocuments();
+    count += await Companies.find({ tagIds: { $in: ids } }).countDocuments();
+    count += await Integrations.find({ tagIds: { $in: ids } }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a tag with tagged object(s)");
     }
 
-    return Tags.remove({ _id: { $in: ids } });
+    return Tags.deleteMany({ _id: { $in: ids } });
   }
 
   /**

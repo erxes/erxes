@@ -18,10 +18,10 @@ describe('engage messages model tests', () => {
   });
 
   afterEach(async () => {
-    await Users.remove({});
-    await Segments.remove({});
-    await EngageMessages.remove({});
-    await Customers.remove({});
+    await Users.deleteMany({});
+    await Segments.deleteMany({});
+    await EngageMessages.deleteMany({});
+    await Customers.deleteMany({});
   });
 
   test('create messages', async () => {
@@ -74,7 +74,7 @@ describe('engage messages model tests', () => {
   test('remove a message', async () => {
     await EngageMessages.removeEngageMessage(_message._id);
 
-    const messagesCounts = await EngageMessages.find({}).count();
+    const messagesCounts = await EngageMessages.find({}).countDocuments();
 
     expect(messagesCounts).toBe(0);
   });

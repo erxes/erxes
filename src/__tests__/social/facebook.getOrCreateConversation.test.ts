@@ -26,8 +26,8 @@ describe('facebook integration: get or create conversation', () => {
 
   afterEach(async () => {
     // clear
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
     mock.restore();
   });
 
@@ -51,8 +51,8 @@ describe('facebook integration: get or create conversation', () => {
     sinon.stub(saveWebhookResponse, 'getOrCreateCustomer').callsFake(() => customerId);
 
     // check initial states
-    expect(await Conversations.find({}).count()).toBe(0);
-    expect(await ConversationMessages.find({}).count()).toBe(0);
+    expect(await Conversations.find({}).countDocuments()).toBe(0);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(0);
 
     const facebookData = {
       kind: FACEBOOK_DATA_KINDS.FEED,
@@ -76,8 +76,8 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     // must be created new conversation, new message
-    expect(await Conversations.find({}).count()).toBe(1);
-    expect(await ConversationMessages.find({}).count()).toBe(1);
+    expect(await Conversations.find({}).countDocuments()).toBe(1);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(1);
 
     let conversation = await Conversations.findOne({});
 
@@ -98,11 +98,11 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     // must not be created new conversation, new message
-    expect(await Conversations.find({}).count()).toBe(1);
-    expect(await ConversationMessages.find({}).count()).toBe(2);
+    expect(await Conversations.find({}).countDocuments()).toBe(1);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(2);
 
     // close converstaion
-    await Conversations.update({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
+    await Conversations.updateMany({}, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
 
     // customer commented on closed converstaion ===========
     await saveWebhookResponse.getOrCreateConversation({
@@ -115,7 +115,7 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     // must be created new conversation, new message
-    expect(await Conversations.find({}).count()).toBe(2);
+    expect(await Conversations.find({}).countDocuments()).toBe(2);
 
     // previous conversation must be stay intact
     conversation = await Conversations.findOne({ _id: conversation._id });
@@ -129,7 +129,7 @@ describe('facebook integration: get or create conversation', () => {
     // checking updatedAt field
     expect(conversation.createdAt).not.toEqual(conversation.updatedAt);
 
-    expect(await ConversationMessages.find({}).count()).toBe(3);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(3);
 
     // new post ===========
     filter.postId = '34424242444242';
@@ -144,8 +144,8 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     // must be created new conversation, new message
-    expect(await Conversations.find({}).count()).toBe(3);
-    expect(await ConversationMessages.find({}).count()).toBe(4);
+    expect(await Conversations.find({}).countDocuments()).toBe(3);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(4);
 
     const messengerFilter = {
       'facebookData.kind': FACEBOOK_DATA_KINDS.MESSENGER,
@@ -193,8 +193,8 @@ describe('facebook integration: get or create conversation', () => {
     }
 
     // must be created new conversation, new message
-    expect(await Conversations.find({}).count()).toBe(4);
-    expect(await ConversationMessages.find({}).count()).toBe(5);
+    expect(await Conversations.find({}).countDocuments()).toBe(4);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(5);
 
     // new conversation message ===========
     await saveWebhookResponse.getOrCreateConversation({
@@ -207,12 +207,12 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     // must not be created new conversation, new message
-    expect(await Conversations.find({}).count()).toBe(4);
-    expect(await ConversationMessages.find({}).count()).toBe(6);
-    expect(await ConversationMessages.count({ conversationId: conversationObj._id })).toBe(2);
+    expect(await Conversations.find({}).countDocuments()).toBe(4);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(6);
+    expect(await ConversationMessages.countDocuments({ conversationId: conversationObj._id })).toBe(2);
 
     // close converstaion
-    await Conversations.update({ _id: conversationObj._id }, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
+    await Conversations.updateOne({ _id: conversationObj._id }, { $set: { status: CONVERSATION_STATUSES.CLOSED } });
 
     // customer commented on closed converstaion ===========
     let message: any = await saveWebhookResponse.getOrCreateConversation({
@@ -225,8 +225,8 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     // must be created new conversation, new message
-    expect(await Conversations.find({}).count()).toBe(5);
-    expect(await ConversationMessages.find({}).count()).toBe(7);
+    expect(await Conversations.find({}).countDocuments()).toBe(5);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(7);
     message = await ConversationMessages.findOne({ _id: message });
     expect(conversationObj._id).not.toBe(message.conversationId);
 
@@ -241,8 +241,8 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     // must not be created new conversation, new message
-    expect(await Conversations.find({}).count()).toBe(5);
-    expect(await ConversationMessages.find({}).count()).toBe(8);
+    expect(await Conversations.find({}).countDocuments()).toBe(5);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(8);
     secondMessage = await ConversationMessages.findOne({ _id: secondMessage });
     expect(conversationObj._id).not.toBe(secondMessage.conversationId);
     expect(message.conversationId).toBe(secondMessage.conversationId);
@@ -444,7 +444,7 @@ describe('facebook integration: get or create conversation', () => {
     // must be false because we do have parent post
     expect(res).toBe(false);
 
-    await ConversationMessages.remove({ _id: parentPost._id });
+    await ConversationMessages.deleteOne({ _id: parentPost._id });
 
     mock.restore();
 

@@ -24,13 +24,13 @@ describe('Conversation db', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Users.remove({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Create conversation', async () => {
-    const _number = (await Conversations.find().count()) + 1;
+    const _number = (await Conversations.find().countDocuments()) + 1;
     const conversation = await Conversations.createConversation({
       integrationId: 'test',
       content: _conversation.content,
@@ -214,7 +214,7 @@ describe('Conversation db', () => {
   test('Conversation mark as read', async () => {
     // first user read this conversation
     _conversation.readUserIds = '';
-    _conversation.save();
+    await _conversation.save();
 
     await Conversations.markAsReadConversation(_conversation._id, _user._id);
 
@@ -226,7 +226,7 @@ describe('Conversation db', () => {
       throw new Error('Conversation not found');
     }
 
-    expect(conversationObj.readUserIds[0]).toBe(_user._id);
+    expect(conversationObj.readUserIds).toContain(_user._id);
 
     const secondUser = await userFactory({});
 
@@ -248,7 +248,7 @@ describe('Conversation db', () => {
     expect(nonAnweredMessage._id).toBeDefined();
 
     // admin messages =========
-    await ConversationMessages.update(
+    await ConversationMessages.updateMany(
       { conversationId: _conversation._id },
       { $set: { isCustomerRead: false, internal: false } },
     );
@@ -258,7 +258,7 @@ describe('Conversation db', () => {
     expect(adminMessages.length).toBe(1);
 
     // mark sent as read messages ==================
-    await ConversationMessages.update(
+    await ConversationMessages.updateMany(
       { conversationId: _conversation._id },
       { $unset: { isCustomerRead: 1 } },
       { multi: true },

@@ -12,9 +12,9 @@ describe('Notification model tests', () => {
   });
 
   afterEach(async () => {
-    Notifications.remove({});
-    NotificationConfigurations.remove({});
-    Users.remove({});
+    Notifications.deleteMany({});
+    NotificationConfigurations.deleteMany({});
+    Users.deleteMany({});
   });
 
   test(`check whether Error('createdUser must be supplied') is being thrown as intended`, async () => {
@@ -107,7 +107,7 @@ describe('Notification model tests', () => {
     // remove notification =================
     await Notifications.removeNotification(notificationObj._id);
 
-    expect(await Notifications.find({}).count()).toEqual(0);
+    expect(await Notifications.find({}).countDocuments()).toEqual(0);
   });
 
   test('sending notifications', () => {

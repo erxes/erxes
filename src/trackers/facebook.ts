@@ -226,7 +226,7 @@ export class SaveWebhookResponse {
       count = 1;
     }
 
-    return ConversationMessages.update(
+    return ConversationMessages.updateOne(
       { 'facebookData.postId': postId },
       { $inc: { 'facebookData.commentCount': count } },
     );
@@ -242,7 +242,7 @@ export class SaveWebhookResponse {
       count = 1;
     }
 
-    return ConversationMessages.update(selector, {
+    return ConversationMessages.updateMany(selector, {
       $inc: { 'facebookData.likeCount': count },
     });
   }
@@ -254,12 +254,12 @@ export class SaveWebhookResponse {
     const reactionField = `facebookData.reactions.${reactionType}`;
 
     if (type === 'add') {
-      return ConversationMessages.update(selector, {
+      return ConversationMessages.updateMany(selector, {
         $push: { [reactionField]: from },
       });
     }
 
-    return ConversationMessages.update(selector, {
+    return ConversationMessages.updateMany(selector, {
       $pull: { [reactionField]: { id: from.id } },
     });
   }
@@ -597,7 +597,7 @@ export class SaveWebhookResponse {
     });
 
     // updating conversation content
-    await Conversations.update({ _id: conversation._id }, { $set: { content } });
+    await Conversations.updateOne({ _id: conversation._id }, { $set: { content } });
 
     // notifying conversation inserted
     publishClientMessage(message);
@@ -779,7 +779,7 @@ export const facebookReply = async (
     });
 
     // save commentId in message object
-    await ConversationMessages.update({ _id: message._id }, { $set: { 'facebookData.messageId': res.message_id } });
+    await ConversationMessages.updateOne({ _id: message._id }, { $set: { 'facebookData.messageId': res.message_id } });
   }
 
   // feed reply
@@ -819,10 +819,10 @@ export const facebookReply = async (
     }
 
     // save commentId and parentId in message object
-    await ConversationMessages.update({ _id: message._id }, { $set: { facebookData } });
+    await ConversationMessages.updateOne({ _id: message._id }, { $set: { facebookData } });
 
     // finding parent post and increasing comment count
-    await ConversationMessages.update(
+    await ConversationMessages.updateMany(
       {
         'facebookData.isPost': true,
         conversationId: message.conversationId,

@@ -14,7 +14,7 @@ const responseTemplateQueries = {
    * Get all response templates count. We will use it in pager
    */
   responseTemplatesTotalCount() {
-    return ResponseTemplates.find({}).count();
+    return ResponseTemplates.find({}).countDocuments();
   },
 };
 

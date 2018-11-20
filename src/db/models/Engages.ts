@@ -51,7 +51,7 @@ class Message {
       throw new Error('Can not update manual message');
     }
 
-    await EngageMessages.update({ _id }, { $set: doc });
+    await EngageMessages.updateOne({ _id }, { $set: doc });
 
     return EngageMessages.findOne({ _id });
   }
@@ -60,7 +60,7 @@ class Message {
    * Engage message set live
    */
   public static async engageMessageSetLive(_id: string) {
-    await EngageMessages.update({ _id }, { $set: { isLive: true, isDraft: false } });
+    await EngageMessages.updateOne({ _id }, { $set: { isLive: true, isDraft: false } });
 
     return EngageMessages.findOne({ _id });
   }
@@ -69,7 +69,7 @@ class Message {
    * Engage message set pause
    */
   public static async engageMessageSetPause(_id: string) {
-    await EngageMessages.update({ _id }, { $set: { isLive: false } });
+    await EngageMessages.updateOne({ _id }, { $set: { isLive: false } });
 
     return EngageMessages.findOne({ _id });
   }
@@ -95,7 +95,7 @@ class Message {
    * Save matched customer ids
    */
   public static async setCustomerIds(_id: string, customers: ICustomerDocument[]) {
-    await EngageMessages.update({ _id }, { $set: { customerIds: customers.map(customer => customer._id) } });
+    await EngageMessages.updateOne({ _id }, { $set: { customerIds: customers.map(customer => customer._id) } });
 
     return EngageMessages.findOne({ _id });
   }
@@ -104,7 +104,7 @@ class Message {
    * Add new delivery report
    */
   public static async addNewDeliveryReport(_id: string, mailMessageId: string, customerId: string) {
-    await EngageMessages.update(
+    await EngageMessages.updateOne(
       { _id },
       {
         $set: {
@@ -131,10 +131,10 @@ class Message {
     }
 
     if (status === 'complaint' || status === 'bounce') {
-      await Customers.update({ _id: customer._id }, { $set: { doNotDisturb: 'Yes' } });
+      await Customers.updateOne({ _id: customer._id }, { $set: { doNotDisturb: 'Yes' } });
     }
 
-    await EngageMessages.update(
+    await EngageMessages.updateOne(
       { _id: engageMessageId },
       {
         $set: {
@@ -191,7 +191,7 @@ class Message {
    * Increase engage message stat by 1
    */
   public static async updateStats(engageMessageId: string, stat: string) {
-    return EngageMessages.update({ _id: engageMessageId }, { $inc: { [`stats.${stat}`]: 1 } });
+    return EngageMessages.updateOne({ _id: engageMessageId }, { $inc: { [`stats.${stat}`]: 1 } });
   }
 }
 

@@ -14,7 +14,7 @@ const emailTemplateQueries = {
    * Get all email templates count. We will use it in pager
    */
   emailTemplatesTotalCount() {
-    return EmailTemplates.find({}).count();
+    return EmailTemplates.find({}).countDocuments();
   },
 };
 

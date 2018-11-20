@@ -19,14 +19,14 @@ describe('test knowledge base models', () => {
   });
 
   afterAll(async () => {
-    await Users.remove({});
+    await Users.deleteMany({});
   });
 
   describe('KnowledgeBaseTopics', () => {
     afterEach(async () => {
-      await KnowledgeBaseTopics.remove({});
-      await Brands.remove({});
-      await KnowledgeBaseCategories.remove({});
+      await KnowledgeBaseTopics.deleteMany({});
+      await Brands.deleteMany({});
+      await KnowledgeBaseCategories.deleteMany({});
     });
 
     test(`check if Error('userId must be supplied')
@@ -116,19 +116,19 @@ describe('test knowledge base models', () => {
 
       const topic = await KnowledgeBaseTopics.createDoc(doc, _user._id);
 
-      expect(await KnowledgeBaseTopics.find().count()).toBe(1);
+      expect(await KnowledgeBaseTopics.find().countDocuments()).toBe(1);
 
       await KnowledgeBaseTopics.removeDoc(topic._id);
 
-      expect(await KnowledgeBaseTopics.find().count()).toBe(0);
-      expect(await KnowledgeBaseCategories.find().count()).toBe(0);
+      expect(await KnowledgeBaseTopics.find().countDocuments()).toBe(0);
+      expect(await KnowledgeBaseCategories.find().countDocuments()).toBe(0);
     });
   });
 
   describe('KnowledgeBaseCategories', () => {
     afterEach(async () => {
-      await KnowledgeBaseCategories.remove({});
-      await KnowledgeBaseArticles.remove({});
+      await KnowledgeBaseCategories.deleteMany({});
+      await KnowledgeBaseArticles.deleteMany({});
     });
 
     test(`expect Error('userId must be supplied') to be called as intended`, async () => {
@@ -251,17 +251,17 @@ describe('test knowledge base models', () => {
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
 
-      expect(await KnowledgeBaseCategories.find().count()).toBe(1);
+      expect(await KnowledgeBaseCategories.find().countDocuments()).toBe(1);
 
       await KnowledgeBaseCategories.removeDoc(category._id);
 
-      expect(await KnowledgeBaseCategories.find().count()).toBe(0);
+      expect(await KnowledgeBaseCategories.find().countDocuments()).toBe(0);
     });
   });
 
   describe('KnowledgeBaseArticles', () => {
     afterEach(async () => {
-      await KnowledgeBaseArticles.remove({});
+      await KnowledgeBaseArticles.deleteMany({});
     });
 
     test(`expect Error('userId must be supplied') to be called as intended`, async () => {
@@ -370,11 +370,11 @@ describe('test knowledge base models', () => {
 
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
 
-      expect(await KnowledgeBaseArticles.find().count()).toBe(1);
+      expect(await KnowledgeBaseArticles.find().countDocuments()).toBe(1);
 
       await KnowledgeBaseArticles.removeDoc(article._id);
 
-      expect(await KnowledgeBaseArticles.find().count()).toBe(0);
+      expect(await KnowledgeBaseArticles.find().countDocuments()).toBe(0);
     });
   });
 });

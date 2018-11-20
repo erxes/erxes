@@ -69,7 +69,7 @@ class Article {
       throw new Error('userId must be supplied');
     }
 
-    await KnowledgeBaseArticles.update(
+    await KnowledgeBaseArticles.updateOne(
       { _id },
       {
         $set: {
@@ -113,7 +113,7 @@ class Article {
    * Removes KnowledgeBaseArticle document
    */
   public static removeDoc(_id: string) {
-    return KnowledgeBaseArticles.remove({ _id });
+    return KnowledgeBaseArticles.deleteOne({ _id });
   }
 }
 
@@ -172,7 +172,7 @@ class Category {
       throw new Error('userId must be supplied');
     }
 
-    await KnowledgeBaseCategories.update(
+    await KnowledgeBaseCategories.updateOne(
       { _id },
       {
         $set: {
@@ -220,10 +220,10 @@ class Category {
     }
 
     for (const articleId of category.articleIds || []) {
-      await KnowledgeBaseArticles.remove({ _id: articleId });
+      await KnowledgeBaseArticles.deleteOne({ _id: articleId });
     }
 
-    return KnowledgeBaseCategories.remove({ _id });
+    return KnowledgeBaseCategories.deleteOne({ _id });
   }
 }
 
@@ -260,7 +260,7 @@ class Topic {
       throw new Error('userId must be supplied');
     }
 
-    await KnowledgeBaseTopics.update(
+    await KnowledgeBaseTopics.updateOne(
       { _id },
       {
         $set: {
@@ -295,7 +295,7 @@ class Topic {
       }
     }
 
-    return KnowledgeBaseTopics.remove({ _id });
+    return KnowledgeBaseTopics.deleteOne({ _id });
   }
 }
 

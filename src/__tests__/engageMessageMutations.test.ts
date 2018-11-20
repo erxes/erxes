@@ -29,10 +29,6 @@ import {
 } from '../db/models';
 import { awsRequests } from '../trackers/engageTracker';
 
-const toJSON = value => {
-  return JSON.stringify(value);
-};
-
 describe('engage message mutation tests', () => {
   let _message;
   let _user;
@@ -134,16 +130,16 @@ describe('engage message mutation tests', () => {
   afterEach(async () => {
     // Clearing test data
     _doc = null;
-    await Users.remove({});
-    await Tags.remove({});
-    await Brands.remove({});
-    await Segments.remove({});
-    await EngageMessages.remove({});
-    await EmailTemplates.remove({});
-    await Customers.remove({});
-    await Integrations.remove({});
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
+    await Users.deleteMany({});
+    await Tags.deleteMany({});
+    await Brands.deleteMany({});
+    await Segments.deleteMany({});
+    await EngageMessages.deleteMany({});
+    await EmailTemplates.deleteMany({});
+    await Customers.deleteMany({});
+    await Integrations.deleteMany({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
   });
 
   test('Engage utils send via messenger: integration not found', async () => {
@@ -250,7 +246,7 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
     expect(tags).toEqual(_doc.tagIds);
     expect(engageMessage.email.toJSON()).toEqual(_doc.email);
-    expect(toJSON(engageMessage.messenger)).toEqual(toJSON(_doc.messenger));
+    expect(engageMessage.messenger.toJSON()).toMatchObject(_doc.messenger);
     expect(engageMessage.deliveryReports).toEqual({});
     expect(engageMessage.scheduleDate.type).toEqual('year');
     expect(engageMessage.scheduleDate.month).toEqual('2');

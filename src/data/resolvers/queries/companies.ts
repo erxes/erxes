@@ -126,7 +126,7 @@ const count = async (query: any, args: ICountArgs) => {
 
   const findQuery = { ...selector, ...query };
 
-  return Companies.find(findQuery).count();
+  return Companies.find(findQuery).countDocuments();
 };
 
 const countBySegment = async (args: ICountArgs): Promise<ICountBy> => {
@@ -189,7 +189,7 @@ const companyQueries = {
     const sort = sortBuilder(params);
 
     const list = await paginate(Companies.find(selector).sort(sort), params);
-    const totalCount = await Companies.find(selector).count();
+    const totalCount = await Companies.find(selector).countDocuments();
 
     return { list, totalCount };
   },

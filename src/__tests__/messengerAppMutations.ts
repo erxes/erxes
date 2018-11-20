@@ -15,8 +15,8 @@ describe('mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await MessengerApps.remove({});
-    await Users.remove({});
+    await MessengerApps.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Add google meet', async () => {
@@ -117,7 +117,7 @@ describe('mutations', () => {
 
     await graphqlRequest(mutation, 'messengerAppsRemove', { _id: app._id }, context);
 
-    const count = await MessengerApps.find().count();
+    const count = await MessengerApps.find().countDocuments();
 
     expect(count).toBe(0);
   });

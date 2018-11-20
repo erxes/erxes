@@ -42,12 +42,12 @@ describe('Cronjob conversation send email', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Conversations.remove({});
-    await Users.remove({});
-    await Customers.remove({});
-    await Brands.remove({});
-    await Integrations.remove({});
-    await ConversationMessages.remove({});
+    await Conversations.deleteMany({});
+    await Users.deleteMany({});
+    await Customers.deleteMany({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
+    await ConversationMessages.deleteMany({});
   });
 
   test('Conversations utils', async () => {

@@ -146,7 +146,7 @@ const insightExportQueries = {
       );
 
       const conversationIds = _.pluck(filtered, '_id');
-      const messageCount = await ConversationMessages.count({ conversationId: { $in: conversationIds } });
+      const messageCount = await ConversationMessages.countDocuments({ conversationId: { $in: conversationIds } });
       const resolvedCount = filtered.filter(conv => (conv.status = 'closed')).length;
       const closedDuration: IDurationWithCount = { duration: 0, count: 0 };
       const firstDuration: IDurationWithCount = { duration: 0, count: 0 };

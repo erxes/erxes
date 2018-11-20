@@ -12,7 +12,7 @@ class EmailTemplate {
    * Update email template
    */
   public static async updateEmailTemplate(_id: string, fields: IEmailTemplate) {
-    await EmailTemplates.update({ _id }, { $set: fields });
+    await EmailTemplates.updateOne({ _id }, { $set: fields });
 
     return EmailTemplates.findOne({ _id });
   }

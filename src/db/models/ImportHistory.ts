@@ -42,7 +42,7 @@ class ImportHistory {
       await removeMethod(id);
     }
 
-    await ImportHistories.remove({ _id });
+    await ImportHistories.deleteOne({ _id });
 
     return _id;
   }

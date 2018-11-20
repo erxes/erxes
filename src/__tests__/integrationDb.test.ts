@@ -22,8 +22,8 @@ describe('messenger integration model add method', () => {
   });
 
   afterEach(async () => {
-    await Brands.remove({});
-    await Integrations.remove({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test('check if messenger integration create method is running successfully', async () => {
@@ -55,8 +55,8 @@ describe('messenger integration model edit method', () => {
   });
 
   afterEach(async () => {
-    await Brands.remove({});
-    await Integrations.remove({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test('check if messenger integration update method is running successfully', async () => {
@@ -86,10 +86,10 @@ describe('form integration create model test without formData', () => {
   });
 
   afterEach(async () => {
-    await Brands.remove({});
-    await Integrations.remove({});
-    await Users.remove({});
-    await Forms.remove({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
+    await Users.deleteMany({});
+    await Forms.deleteMany({});
   });
 
   test('check if create form integration test wihtout formData is throwing exception', async () => {
@@ -121,10 +121,10 @@ describe('create form integration', () => {
   });
 
   afterEach(async () => {
-    await Brands.remove({});
-    await Integrations.remove({});
-    await Users.remove({});
-    await Forms.remove({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
+    await Users.deleteMany({});
+    await Forms.deleteMany({});
   });
 
   test('test if create form integration is working successfully', async () => {
@@ -181,10 +181,10 @@ describe('edit form integration', () => {
   });
 
   afterEach(async () => {
-    await Brands.remove({});
-    await Integrations.remove({});
-    await Users.remove({});
-    await Forms.remove({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
+    await Users.deleteMany({});
+    await Forms.deleteMany({});
   });
 
   test('test if integration form update method is running successfully', async () => {
@@ -242,21 +242,21 @@ describe('remove integration model method test', () => {
   });
 
   afterEach(async () => {
-    await Brands.remove({});
-    await Integrations.remove({});
-    await Users.remove({});
-    await ConversationMessages.remove({});
-    await Forms.remove({});
-    await Fields.remove({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
+    await Users.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Forms.deleteMany({});
+    await Fields.deleteMany({});
   });
 
   test('test if remove form integration model method is working successfully', async () => {
     await Integrations.removeIntegration(_integration._id);
 
-    expect(await Integrations.find({}).count()).toEqual(0);
-    expect(await ConversationMessages.find({}).count()).toBe(0);
-    expect(await Forms.find({}).count()).toBe(0);
-    expect(await Fields.find({}).count()).toBe(0);
+    expect(await Integrations.find({}).countDocuments()).toEqual(0);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(0);
+    expect(await Forms.find({}).countDocuments()).toBe(0);
+    expect(await Fields.find({}).countDocuments()).toBe(0);
   });
 });
 
@@ -274,8 +274,8 @@ describe('save integration messenger appearance test', () => {
   });
 
   afterEach(async () => {
-    await Brands.remove({});
-    await Integrations.remove({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test('test if save integration messenger appearance method is working successfully', async () => {
@@ -311,8 +311,8 @@ describe('save integration messenger configurations test', () => {
   });
 
   afterEach(async () => {
-    await Brands.remove({});
-    await Integrations.remove({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test(`test if messenger integration save confiturations
@@ -424,8 +424,8 @@ describe('social integration test', () => {
   });
 
   afterEach(async () => {
-    await Brands.remove({});
-    await Integrations.remove({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test('create twitter integration', async () => {

@@ -82,7 +82,7 @@ const integrationQueries = {
     };
 
     const count = query => {
-      return Integrations.find(query).count();
+      return Integrations.find(query).countDocuments();
     };
 
     // Counting integrations by tag

@@ -15,9 +15,9 @@ describe('activityLogs', () => {
   });
 
   afterEach(async () => {
-    await ActivityLogs.remove({});
-    await Customers.remove({});
-    await Segments.remove({});
+    await ActivityLogs.deleteMany({});
+    await Customers.deleteMany({});
+    await Segments.deleteMany({});
   });
 
   test('customerActivityLog', async () => {
@@ -33,7 +33,7 @@ describe('activityLogs', () => {
       { user: _user },
     );
 
-    expect(await ActivityLogs.find({}).count()).toBe(1);
+    expect(await ActivityLogs.find({}).countDocuments()).toBe(1);
 
     // create conversation
     await mutations.activityLogsAddConversationLog(null, {
@@ -41,7 +41,7 @@ describe('activityLogs', () => {
       conversationId: _conversation._id,
     });
 
-    expect(await ActivityLogs.find({}).count()).toBe(2);
+    expect(await ActivityLogs.find({}).countDocuments()).toBe(2);
 
     // create internal note
     const internalNote = await mutations.internalNotesAdd(
@@ -54,7 +54,7 @@ describe('activityLogs', () => {
       { user: _user },
     );
 
-    expect(await ActivityLogs.find({}).count()).toBe(3);
+    expect(await ActivityLogs.find({}).countDocuments()).toBe(3);
 
     const nameEqualsConditions: any = [
       {
@@ -74,7 +74,7 @@ describe('activityLogs', () => {
     // create segment log
     await cronJobs.createActivityLogsFromSegments();
 
-    expect(await ActivityLogs.find({}).count()).toBe(4);
+    expect(await ActivityLogs.find({}).countDocuments()).toBe(4);
 
     const query = `
       query activityLogsCustomer($_id: String!) {
@@ -124,7 +124,7 @@ describe('activityLogs', () => {
     expect(result[0].list[3].content).toBe(`${customer.firstName || ''} ${customer.lastName || ''}`);
 
     // change activity log 'createdAt' values ===================
-    await ActivityLogs.update(
+    await ActivityLogs.updateMany(
       {
         'activity.type': 'segment',
         'activity.action': 'create',
@@ -136,7 +136,7 @@ describe('activityLogs', () => {
       },
     );
 
-    await ActivityLogs.update(
+    await ActivityLogs.updateMany(
       {
         'activity.type': 'internal_note',
         'activity.action': 'create',
@@ -148,7 +148,7 @@ describe('activityLogs', () => {
       },
     );
 
-    await ActivityLogs.update(
+    await ActivityLogs.updateMany(
       {
         'activity.type': 'conversation',
         'activity.action': 'create',
@@ -160,7 +160,7 @@ describe('activityLogs', () => {
       },
     );
 
-    await ActivityLogs.update(
+    await ActivityLogs.updateMany(
       {
         'activity.type': 'customer',
         'activity.action': 'create',

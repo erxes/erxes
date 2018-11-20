@@ -98,7 +98,7 @@ class Field {
   public static async updateField(_id: string, doc: IField) {
     await this.checkIsDefinedByErxes(_id);
 
-    await Fields.update({ _id }, { $set: doc });
+    await Fields.updateOne({ _id }, { $set: doc });
 
     return Fields.findOne({ _id });
   }
@@ -117,7 +117,6 @@ class Field {
 
     // Removing field value from customer
     const index = `customFieldsData.${_id}`;
-
     await Customers.updateMany({ [index]: { $exists: true } }, { $unset: { [index]: 1 } });
 
     return fieldObj.remove();
@@ -133,7 +132,7 @@ class Field {
       ids.push(_id);
 
       // update each fields order
-      await Fields.update({ _id }, { order });
+      await Fields.updateOne({ _id }, { order });
     }
 
     return Fields.find({ _id: { $in: ids } }).sort({ order: 1 });
@@ -211,7 +210,7 @@ class Field {
     await this.checkIsDefinedByErxes(_id);
 
     // Updating visible
-    await Fields.update({ _id }, { $set: { isVisible, lastUpdatedUserId } });
+    await Fields.updateOne({ _id }, { $set: { isVisible, lastUpdatedUserId } });
 
     return Fields.findOne({ _id });
   }
@@ -274,7 +273,7 @@ class FieldGroup {
     // Can not edit group that is defined by erxes
     await this.checkIsDefinedByErxes(_id);
 
-    await FieldsGroups.update({ _id }, { $set: doc });
+    await FieldsGroups.updateOne({ _id }, { $set: doc });
 
     return FieldsGroups.findOne({ _id });
   }
@@ -299,7 +298,7 @@ class FieldGroup {
       await Fields.removeField(field._id);
     }
 
-    groupObj.remove();
+    await groupObj.remove();
 
     return _id;
   }
@@ -312,7 +311,7 @@ class FieldGroup {
     await this.checkIsDefinedByErxes(_id);
 
     // Updating visible
-    await FieldsGroups.update({ _id }, { $set: { isVisible, lastUpdatedUserId } });
+    await FieldsGroups.updateOne({ _id }, { $set: { isVisible, lastUpdatedUserId } });
 
     return FieldsGroups.findOne({ _id });
   }

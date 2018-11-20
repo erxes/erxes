@@ -53,9 +53,9 @@ describe('mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
-    await Brands.remove({});
-    await Integrations.remove({});
+    await Users.deleteMany({});
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test('Create messenger integration', async () => {
