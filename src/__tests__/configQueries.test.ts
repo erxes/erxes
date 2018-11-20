@@ -2,7 +2,7 @@ import { graphqlRequest } from '../db/connection';
 import { configFactory } from '../db/factories';
 
 describe('configQueries', () => {
-  test('config detail', async () => {
+  it('config detail', async () => {
     const config = await configFactory();
 
     const args = { code: config.code };
