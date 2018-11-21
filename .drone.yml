@@ -6,7 +6,7 @@ pipeline:
       - mongo --host mongo
 
   install:
-    image: goharbor.erxes.io/erxes/runner:latest-10
+    image: goharbor.erxes.io/erxes/runner:latest
     commands:
       - node -v
       - npm -v
@@ -15,17 +15,17 @@ pipeline:
       - yarn install
 
   linting:
-    image: node:10-slim
+    image: node:8-slim
     commands:
       - yarn lint
 
   typescript:
-    image: node:10-slim
+    image: node:8-slim
     commands:
       - yarn tsc
 
   testing:
-    image: node:10-slim
+    image: node:8-slim
     environment:
       - TEST_MONGO_URL=mongodb://mongo/test
     commands:
