@@ -54,7 +54,7 @@ const ErxesMiddleTitle = styled.div`
 
 const ErxesStaffProfile = styled.div`
   position: relative;
-  flex: 1;
+  width: 33%;
 `;
 
 const StateSpan = styledTS<{ state: boolean }>(styled.span)`
@@ -63,7 +63,7 @@ const StateSpan = styledTS<{ state: boolean }>(styled.span)`
   width: 8px;
   bottom: 2px;
   position: absolute;
-  right: 53%;
+  right: 56%;
   background-color: ${props =>
     props.state ? colors.colorCoreGreen : colors.colorLightGray};
 `;
@@ -82,7 +82,7 @@ const ErxesSupporters = styled.div`
 const Supporters = ErxesSupporters.extend`
   ${ErxesStaffProfile} {
     margin-right: ${dimensions.unitSpacing}px;
-    flex: inherit;
+    width: auto;
   }
 
   ${StateSpan} {

@@ -42,7 +42,7 @@ class CommonPreview extends React.Component<Props> {
   }
 
   render() {
-    const { logoPreviewStyle, logoPreviewUrl, color, isGreeting } = this.props;
+    const { logoPreviewStyle, logoPreviewUrl, color } = this.props;
 
     return (
       <WebPreview>

@@ -1,10 +1,9 @@
 import { Button } from 'modules/common/components';
-import { slideRight } from 'modules/common/utils/animations';
-import { WebPreview } from 'modules/engage/styles';
 import {
-  Launcher,
-  WidgetPreviewStyled
-} from 'modules/settings/integrations/components/messenger/widgetPreview/styles';
+  LauncherContainer,
+  WebPreview,
+  WidgetPreview
+} from 'modules/engage/styles';
 import * as React from 'react';
 import {
   BodyContent,
@@ -25,28 +24,6 @@ export const ShoutBox = WebPreview.extend`
   height: 100%;
   width: auto;
   margin-left: 0;
-`;
-
-const WidgetPreview = WidgetPreviewStyled.extend`
-  height: auto;
-  bottom: 90px;
-  right: 25px;
-  max-height: calc(100% - 95px);
-`;
-
-// const Widget = Messenger.extend`
-//   animation: ${slideRight} 0.5s linear;
-//   background: linear-gradient(
-//     135deg,
-//     rgba(255, 255, 255, 0) 30%,
-//     rgba(255, 255, 255, 0.3) 60%,
-//     #eee 100%
-//   );
-//   max-height: 100%;
-// `;
-
-const LauncherContainer = Launcher.extend`
-  position: absolute;
 `;
 
 type Props = {
