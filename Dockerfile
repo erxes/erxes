@@ -1,7 +1,4 @@
-FROM node:8-slim as build-deps
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y rsync && \
-    rm -rf /var/lib/apt/lists/*
+FROM erxes/runner:latest as build-deps
 WORKDIR /erxes-widgets/
 COPY package.json .
 RUN yarn
