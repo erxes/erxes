@@ -49,6 +49,14 @@ export type MainQueryResponse = {
   loading: boolean;
 };
 
+export type SummaryQueryResponse = {
+  insightsConversation: {
+    summary: SummaryData[];
+    trend: IChartParams[];
+  };
+  loading: boolean;
+};
+
 export type PieChartQueryResponse = {
   insights: { tag: IPieChartData[]; integration: IPieChartData[] };
   loading: boolean;
@@ -71,4 +79,15 @@ export type ResponseCloseQueryResponse = {
     integration: IPieChartData[];
   };
   loading: boolean;
+};
+
+export type VolumeReportExportQueryResponse = {
+  insightVolumeReportExport: string;
+  loading: boolean;
+};
+
+export type ExportArgs = {
+  queryName: string;
+  type?: string;
+  userId?: string;
 };
