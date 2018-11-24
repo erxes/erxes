@@ -1,16 +1,16 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
+import { BrandsQueryResponse } from 'modules/settings/brands/types';
+import {
+  EditIntegrationMutationResponse,
+  EditIntegrationMutationVariables,
+  FormIntegrationDetailQueryResponse
+} from 'modules/settings/integrations/types';
 import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { BrandsQueryResponse } from '../../settings/brands/types';
-import {
-  EditIntegrationMutationResponse,
-  EditIntegrationMutationVariables,
-  FormIntegrationDetailQueryResponse
-} from '../../settings/integrations/types';
 import { Form } from '../components';
 import { mutations, queries } from '../graphql';
 import {
@@ -19,6 +19,7 @@ import {
   EditFieldMutationResponse,
   EditFieldMutationVariables,
   EditFormMutationResponse,
+  EditFormMutationVariables,
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
 } from '../types';
@@ -228,7 +229,7 @@ export default withProps<Props>(
         name: 'removeFieldMutation'
       }
     ),
-    graphql<Props, EditFormMutationResponse, EditFormMutationResponse>(
+    graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(
       gql(mutations.editForm),
       {
         name: 'editFormMutation'

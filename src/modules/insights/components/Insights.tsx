@@ -1,5 +1,5 @@
 import { ResponsivePie } from '@nivo/pie';
-import { Spinner } from 'modules/common/components';
+import { EmptyState, Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { ChartWrapper, FlexItem, LoaderWrapper } from '../styles';
 import { IPieChartData } from '../types';
@@ -18,6 +18,16 @@ class Insights extends React.Component<Props> {
         <LoaderWrapper>
           <Spinner objective={true} />
         </LoaderWrapper>
+      );
+    }
+
+    if (data.length === 0) {
+      return (
+        <FlexItem>
+          <ChartWrapper height={320}>
+            <EmptyState text="There is no data" size="full" icon="piechart" />
+          </ChartWrapper>
+        </FlexItem>
       );
     }
 

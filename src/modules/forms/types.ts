@@ -53,8 +53,11 @@ export type AddFormMutationResponse = {
 
 export type EditFormMutationVariables = {
   _id: string;
-  formId: string;
-  form: IForm;
+  title: string;
+  description: string;
+  buttonText: string;
+  themeColor: string;
+  callout: ICallout;
 };
 
 export type EditFormMutationResponse = {
