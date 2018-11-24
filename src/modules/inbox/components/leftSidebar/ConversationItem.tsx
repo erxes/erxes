@@ -108,6 +108,7 @@ class ConversationItem extends React.Component<Props> {
 
     const isIdle =
       integration.kind !== 'form' &&
+      integration.kind !== 'gmail' &&
       conversation.status !== 'closed' &&
       idleTime >= 1;
 

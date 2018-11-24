@@ -54,8 +54,6 @@ class FilterByParams extends React.Component<IProps, State> {
       return <EmptyState icon="clipboard-1" text="No templates" size="full" />;
     }
 
-    console.log('asdsdads'); // tslint:disable-line
-
     return (
       <PopoverContent>
         {searchable && <Filter onChange={this.filterItems} />}

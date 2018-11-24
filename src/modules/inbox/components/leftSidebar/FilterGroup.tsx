@@ -15,6 +15,9 @@ type Props = {
   paramKey: string;
   icon?: string;
   queryParams?: any;
+  isOpen: boolean;
+  toggleName: string;
+  toggle: (params: { name: string; isOpen: boolean }) => void;
 };
 
 type State = {
@@ -24,7 +27,7 @@ type State = {
   isOpen: boolean;
 };
 
-export default class FilterPopover extends React.Component<Props, State> {
+export default class FilterGroup extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -35,7 +38,7 @@ export default class FilterPopover extends React.Component<Props, State> {
     }
 
     this.state = {
-      isOpen: false,
+      isOpen: props.isOpen,
       fields: props.fields || [],
       counts: {},
       loading
@@ -91,6 +94,10 @@ export default class FilterPopover extends React.Component<Props, State> {
     }
 
     this.setState({ isOpen: !this.state.isOpen });
+
+    const { toggle, toggleName } = this.props;
+
+    toggle({ name: toggleName, isOpen: !this.state.isOpen });
   };
 
   renderPopover = () => {

@@ -167,16 +167,41 @@ const AssigneeWrapper = styled.div`
   justify-content: flex-end;
 `;
 
+const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  padding-left: ${props => props.isOpen && '200px'};
+  transition: padding 0.3s ease-in-out;
+  margin-right: 10px;
+  box-shadow: 0 0 5px 0 rgba(0,0,0,.08);
+
+  > section {
+    margin: 0;
+    box-shadow: none;
+    border-left: 1px solid ${colors.borderPrimary};
+  }
+`;
+
 const AdditionalSidebar = styled.div`
   width: 200px;
   background: ${colors.bgLight};
   flex-shrink: 0;
-  border-right: 1px solid ${colors.borderPrimary};
   padding: 10px 0;
   overflow: auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
 
   ul > li > a {
     padding: 5px 30px;
+  }
+`;
+
+const DropdownWrapper = styled.div`
+  > div {
+    margin-left: 20px;
   }
 `;
 
@@ -220,5 +245,7 @@ export {
   AssigneeImg,
   AssigneeWrapper,
   AdditionalSidebar,
-  GroupTitle
+  GroupTitle,
+  LeftContent,
+  DropdownWrapper
 };

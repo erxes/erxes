@@ -42,6 +42,7 @@
     "graphql": "^0.12.3",
     "graphql-tag": "^2.6.1",
     "i18n-react": "^0.6.4",
+    "juice": "^5.0.1",
     "moment": "^2.22.1",
     "query-string": "^5.0.0",
     "react": "^16.4.2",
@@ -57,6 +58,7 @@
     "react-router-dom": "^4.2.2",
     "react-select-plus": "^1.0.0-rc.5",
     "react-toggle": "^4.0.2",
+    "sanitize-html": "^1.19.1",
     "scriptjs": "^2.5.8",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
@@ -95,13 +97,13 @@
     "@types/react-router": "^4.0.30",
     "@types/react-router-dom": "^4.3.0",
     "@types/styled-components": "^3.0.0",
-    "react-scripts-ts": "4.0.8",
     "husky": "^0.14.3",
     "lint-staged": "^4.3.0",
     "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
-    "typescript": "^3.0.3",
-    "snyk": "^1.108.2"
+    "react-scripts-ts": "4.0.8",
+    "snyk": "^1.108.2",
+    "typescript": "^3.0.3"
   },
   "browserslist": [
     ">0.2%",

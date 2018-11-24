@@ -2,9 +2,11 @@ import { Spinner } from 'modules/common/components';
 import { IAttachmentPreview } from 'modules/common/types';
 import * as React from 'react';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { IConversation, IMessage } from '../../../../types';
 import AttachmentPreview from './AttachmentPreview';
 import { FacebookConversation } from './facebook';
+import { GmailConversation } from './gmail';
 import { Message } from './messages';
 import { TwitterConversation } from './twitter';
 
@@ -16,10 +18,11 @@ type Props = {
   loading: boolean;
 };
 
-const Wrapper = styled.div`
-  padding: 20px;
+const Wrapper = styledTS<{ isEmail?: boolean }>(styled.div)`
+  padding: ${props => (props.isEmail ? '0' : '20px')};
   overflow: hidden;
-  min-height: 80px;
+  min-height: 100%;
+  background: ${props => props.isEmail && '#fff'};
 
   > div:first-child {
     margin-top: 0;
@@ -74,6 +77,15 @@ class Conversation extends React.Component<Props, {}> {
     const isTweet = twitterData && !twitterData.isDirectMessage;
     const isFacebookPost = facebookData && facebookData.kind !== 'messenger';
 
+    if (conversation.gmailData) {
+      return (
+        <GmailConversation
+          conversation={conversation}
+          conversationMessages={conversationMessages}
+        />
+      );
+    }
+
     if (isTweet) {
       return (
         <TwitterConversation
@@ -101,10 +113,10 @@ class Conversation extends React.Component<Props, {}> {
   }
 
   render() {
-    const { attachmentPreview, scrollBottom } = this.props;
+    const { attachmentPreview, scrollBottom, conversation } = this.props;
 
     return (
-      <Wrapper>
+      <Wrapper isEmail={conversation.gmailData ? true : false}>
         {this.renderConversation()}
         <AttachmentPreview
           onLoad={scrollBottom}

@@ -47,7 +47,8 @@ const MainContent = styledTS<{ transparent?: boolean }>(styled.section)`
   display: flex;
   flex-direction: column;
   min-width: 480px;
-  border-right: 1px solid ${colors.borderPrimary};
+  box-shadow: ${props =>
+    !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
   margin-right: ${dimensions.unitSpacing}px;
 `;
 
@@ -111,6 +112,8 @@ const SideContent = styledTS<{
   background: ${props => (props.full ? colors.colorWhite : 'none')};
   border-right: 1px solid ${colors.borderPrimary};
   margin-right: ${dimensions.unitSpacing}px;
+  box-shadow: ${props =>
+    props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 `;
 
 const SidebarHeader = styledTS<{
@@ -160,7 +163,7 @@ const SidebarBox = styledTS<{
   background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.unitSpacing}px;
   box-shadow: ${props =>
-    props.noShadow ? 'none' : `0 0 8px 1px ${colors.shadowPrimary}`};
+    props.noShadow ? 'none' : `0 0 6px 1px ${colors.shadowPrimary}`};
   padding-bottom: ${props =>
     props.collapsible ? `${dimensions.unitSpacing}px` : '0'};
   position: ${props => (props.full ? 'initial' : 'relative')};
@@ -347,7 +350,7 @@ const FlexRightItem = styled.div`
 const WhiteBoxRoot = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
   background-color: ${colors.colorWhite};
-  box-shadow: 0 0 8px 1px ${colors.shadowPrimary};
+  box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
 `;
 
 const WhiteBox = WhiteBoxRoot.extend`

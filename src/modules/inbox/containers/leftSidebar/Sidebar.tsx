@@ -9,6 +9,7 @@ import { withRouter } from 'react-router';
 import { IRouterProps } from '../../../common/types';
 import { withProps } from '../../../common/utils';
 import { ConversationsTotalCountQueryResponse } from '../../types';
+import { getConfig, setConfig } from '../../utils';
 
 type Props = {
   queryParams: any;
@@ -20,9 +21,33 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
+const STORAGE_KEY = 'erxes_additional_sidebar_config';
+
 class Sidebar extends React.Component<FinalProps> {
+  toggleSidebar(isOpen: boolean) {
+    localStorage.setItem(STORAGE_KEY, isOpen ? 'open' : 'close');
+  }
+
+  toggle = ({ name, isOpen }: { name: string; isOpen: boolean }) => {
+    const config = getConfig(STORAGE_KEY);
+
+    config[name] = isOpen;
+
+    setConfig(STORAGE_KEY, config);
+  };
+
   render() {
     const { totalCountQuery } = this.props;
+
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      setConfig(STORAGE_KEY, {
+        showAddition: true,
+        showChannels: true,
+        showBrands: false,
+        showIntegrations: false,
+        showTags: false
+      });
+    }
 
     const integrations = INTEGRATIONS_TYPES.ALL_LIST.map(item => ({
       _id: item,
@@ -34,7 +59,9 @@ class Sidebar extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       integrations,
-      totalCount
+      totalCount,
+      config: getConfig(STORAGE_KEY),
+      toggle: this.toggle
     };
 
     const content = props => {

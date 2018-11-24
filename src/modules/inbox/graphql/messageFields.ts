@@ -45,6 +45,19 @@ export default `
     senderId
     senderName
   }
+  gmailData{
+    messageId
+    headerId
+    from
+    to
+    cc
+    bcc
+    reply
+    refrences
+    subject
+    textPlain
+    textHtml
+  }
   user {
     _id
     username

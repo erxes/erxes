@@ -1,4 +1,4 @@
-import { DateFilter, Icon } from 'modules/common/components';
+import { Button, DateFilter, Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Resolver, Tagger } from 'modules/inbox/containers';
 import { ConversationList } from 'modules/inbox/containers/leftSidebar';
@@ -9,9 +9,13 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import * as React from 'react';
 import { IConversation } from '../../types';
 import AssignBoxPopover from '../assignBox/AssignBoxPopover';
-import FilterPopover from './FilterPopover';
-import StatusFilterPopover from './StatusFilterPopover';
-import { AdditionalSidebar, RightItems } from './styles';
+import { FilterGroup, StatusFilterPopover } from './';
+import {
+  AdditionalSidebar,
+  DropdownWrapper,
+  LeftContent,
+  RightItems
+} from './styles';
 
 type Integrations = {
   _id: string;
@@ -28,9 +32,23 @@ type Props = {
   bulk: IConversation[];
   toggleBulk: (target: IConversation[], toggleAdd: boolean) => void;
   emptyBulk: () => void;
+  config: { [key: string]: boolean };
+  toggle: (params: { name: string; isOpen: boolean }) => void;
 };
 
-class LeftSidebar extends React.Component<Props, {}> {
+type State = {
+  isOpen: boolean;
+};
+
+class LeftSidebar extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isOpen: props.config.showAddition
+    };
+  }
+
   renderTrigger(text: string) {
     return (
       <PopoverButton>
@@ -38,6 +56,15 @@ class LeftSidebar extends React.Component<Props, {}> {
       </PopoverButton>
     );
   }
+
+  onToggle = () => {
+    const { toggle } = this.props;
+    const { isOpen } = this.state;
+
+    this.setState({ isOpen: !isOpen });
+
+    toggle({ name: 'showAddition', isOpen: !isOpen });
+  };
 
   renderSidebarActions() {
     const { queryParams, history, bulk, emptyBulk } = this.props;
@@ -60,13 +87,21 @@ class LeftSidebar extends React.Component<Props, {}> {
 
     return (
       <Sidebar.Header>
-        <DateFilter
-          queryParams={queryParams}
-          history={history}
-          countQuery={queries.totalConversationsCount}
-          countQueryParam="conversationsTotalCount"
+        <Button
+          btnStyle="simple"
+          size="small"
+          onClick={this.onToggle}
+          icon="levels"
         />
-        <StatusFilterPopover queryParams={queryParams} history={history} />
+        <DropdownWrapper>
+          <DateFilter
+            queryParams={queryParams}
+            history={history}
+            countQuery={queries.totalConversationsCount}
+            countQueryParam="conversationsTotalCount"
+          />
+          <StatusFilterPopover queryParams={queryParams} history={history} />
+        </DropdownWrapper>
       </Sidebar.Header>
     );
   }
@@ -76,11 +111,18 @@ class LeftSidebar extends React.Component<Props, {}> {
   }
 
   renderAdditionalSidebar() {
-    const { integrations, queryParams } = this.props;
+    const { integrations, queryParams, config, toggle } = this.props;
+
+    if (!this.state.isOpen) {
+      return null;
+    }
 
     return (
-      <AdditionalSidebar>
-        <FilterPopover
+      <>
+        <FilterGroup
+          isOpen={config.showChannels}
+          toggleName="showChannels"
+          toggle={toggle}
           groupText="Channels"
           query={{
             queryName: 'channelList',
@@ -90,7 +132,11 @@ class LeftSidebar extends React.Component<Props, {}> {
           paramKey="channelId"
           queryParams={queryParams}
         />
-        <FilterPopover
+
+        <FilterGroup
+          isOpen={config.showBrands}
+          toggleName="showBrands"
+          toggle={toggle}
           groupText="Brands"
           query={{ queryName: 'brandList', dataName: 'brands' }}
           counts="byBrands"
@@ -98,7 +144,10 @@ class LeftSidebar extends React.Component<Props, {}> {
           paramKey="brandId"
         />
 
-        <FilterPopover
+        <FilterGroup
+          isOpen={config.showIntegrations}
+          toggleName="showIntegrations"
+          toggle={toggle}
           groupText="Integrations"
           fields={integrations}
           queryParams={queryParams}
@@ -106,7 +155,10 @@ class LeftSidebar extends React.Component<Props, {}> {
           paramKey="integrationType"
         />
 
-        <FilterPopover
+        <FilterGroup
+          isOpen={config.showTags}
+          toggleName="showTags"
+          toggle={toggle}
           groupText="Tags"
           query={{
             queryName: 'tagList',
@@ -120,7 +172,7 @@ class LeftSidebar extends React.Component<Props, {}> {
           paramKey="tag"
           icon="tag"
         />
-      </AdditionalSidebar>
+      </>
     );
   }
 
@@ -135,8 +187,8 @@ class LeftSidebar extends React.Component<Props, {}> {
     } = this.props;
 
     return (
-      <>
-        {this.renderAdditionalSidebar()}
+      <LeftContent isOpen={this.state.isOpen}>
+        <AdditionalSidebar>{this.renderAdditionalSidebar()}</AdditionalSidebar>
         <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>
           <ConversationList
             currentConversationId={currentConversationId}
@@ -147,7 +199,7 @@ class LeftSidebar extends React.Component<Props, {}> {
             selectedConversations={bulk}
           />
         </Sidebar>
-      </>
+      </LeftContent>
     );
   }
 }

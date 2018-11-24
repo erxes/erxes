@@ -47,6 +47,28 @@ export interface IConversationFacebookData {
   pageId?: string;
 }
 
+export interface IGmailAttachment {
+  filename?: string;
+  mimeType?: string;
+  size: number;
+  attachmentId: string;
+}
+
+export interface IConversationGmailData {
+  messageId?: string;
+  headerId?: string;
+  from?: string;
+  to?: string;
+  cc?: string;
+  bcc?: string;
+  reply?: string;
+  refrences?: string;
+  subject?: string;
+  textPlain?: string;
+  textHtml?: string;
+  attachments?: IGmailAttachment[];
+}
+
 export interface IConversation {
   _id: string;
   content?: string;
@@ -69,6 +91,7 @@ export interface IConversation {
   number?: number;
   twitterData?: ITwitterData;
   facebookData?: IConversationFacebookData;
+  gmailData?: IConversationGmailData;
 
   integration: IIntegration;
   customer: ICustomer;
@@ -142,6 +165,7 @@ export interface IMessage {
   engageData?: IEngageData;
   facebookData?: IMessageFacebookData;
   twitterData?: ITwitterData;
+  gmailData?: IConversationGmailData;
 
   _id: string;
   user?: IUser;
