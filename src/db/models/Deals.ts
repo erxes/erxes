@@ -26,6 +26,16 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
   let order = 0;
 
   const validStageIds: string[] = [];
+  const bulkOpsPrevEntry: Array<{
+    updateOne: {
+      filter: { _id: string };
+      update: { $set: IStage };
+    };
+  }> = [];
+  const prevDealIds = stages.map(stage => stage._id);
+  // fetch stage from database
+  const prevEntries = await DealStages.find({ _id: { $in: prevDealIds } });
+  const prevEntriesIds = prevEntries.map(entry => entry._id);
 
   for (const stage of stages) {
     order++;
@@ -34,14 +44,21 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
 
     const _id = doc._id;
 
-    // fetch stage from database
-    const prevEntry = await DealStages.findOne({ _id });
+    const prevEntry = prevEntriesIds.includes(_id);
 
     // edit
     if (prevEntry) {
       validStageIds.push(_id);
-      await DealStages.update({ _id }, { $set: doc });
-
+      bulkOpsPrevEntry.push({
+        updateOne: {
+          filter: {
+            _id,
+          },
+          update: {
+            $set: doc,
+          },
+        },
+      });
       // create
     } else {
       delete doc._id;
@@ -49,8 +66,11 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
       validStageIds.push(createdStage._id);
     }
   }
+  if (bulkOpsPrevEntry.length > 0) {
+    await DealStages.bulkWrite(bulkOpsPrevEntry);
+  }
 
-  return DealStages.remove({ pipelineId, _id: { $nin: validStageIds } });
+  return DealStages.deleteMany({ pipelineId, _id: { $nin: validStageIds } });
 };
 
 interface IBoardModel extends Model<IBoardDocument> {
@@ -71,7 +91,7 @@ class Board {
    * Update Board
    */
   public static async updateBoard(_id: string, doc: IBoard) {
-    await DealBoards.update({ _id }, { $set: doc });
+    await DealBoards.updateOne({ _id }, { $set: doc });
 
     return DealBoards.findOne({ _id });
   }
@@ -86,13 +106,13 @@ class Board {
       throw new Error('Board not found');
     }
 
-    const count = await DealPipelines.find({ boardId: _id }).count();
+    const count = await DealPipelines.find({ boardId: _id }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a board");
     }
 
-    return DealBoards.remove({ _id });
+    return DealBoards.deleteOne({ _id });
   }
 }
 
@@ -125,7 +145,7 @@ class Pipeline {
       await createOrUpdatePipelineStages(stages, _id);
     }
 
-    await DealPipelines.update({ _id }, { $set: doc });
+    await DealPipelines.updateOne({ _id }, { $set: doc });
 
     return DealPipelines.findOne({ _id });
   }
@@ -136,11 +156,21 @@ class Pipeline {
   public static async updateOrder(orders: IOrderInput[]) {
     const ids: string[] = [];
 
+    const bulkOps: Array<{
+      updateOne: { filter: { _id: string }; update: { order: number } };
+    }> = [];
+
     for (const { _id, order } of orders) {
       ids.push(_id);
-
-      // update each deals order
-      await DealPipelines.update({ _id }, { order });
+      bulkOps.push({
+        updateOne: {
+          filter: { _id },
+          update: { order },
+        },
+      });
+    }
+    if (bulkOps) {
+      await DealPipelines.bulkWrite(bulkOps);
     }
 
     return DealPipelines.find({ _id: { $in: ids } }).sort({ order: 1 });
@@ -156,13 +186,13 @@ class Pipeline {
       throw new Error('Pipeline not found');
     }
 
-    const count = await DealStages.find({ pipelineId: _id }).count();
+    const count = await DealStages.find({ pipelineId: _id }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a pipeline");
     }
 
-    return DealPipelines.remove({ _id });
+    return DealPipelines.deleteOne({ _id });
   }
 }
 
@@ -186,7 +216,7 @@ class Stage {
    * Update Stage
    */
   public static async updateStage(_id: string, doc: IStage) {
-    await DealStages.update({ _id }, { $set: doc });
+    await DealStages.updateOne({ _id }, { $set: doc });
 
     return DealStages.findOne({ _id });
   }
@@ -195,7 +225,7 @@ class Stage {
    * Change Stage
    */
   public static async changeStage(_id: string, pipelineId: string) {
-    await DealStages.update({ _id }, { $set: { pipelineId } });
+    await DealStages.updateOne({ _id }, { $set: { pipelineId } });
     await Deals.updateMany({ stageId: _id }, { $set: { pipelineId } });
 
     return DealStages.findOne({ _id });
@@ -206,12 +236,20 @@ class Stage {
    */
   public static async updateOrder(orders: IOrderInput[]) {
     const ids: string[] = [];
-
+    const bulkOps: Array<{
+      updateOne: { filter: { _id: string }; update: { order: number } };
+    }> = [];
     for (const { _id, order } of orders) {
       ids.push(_id);
-
-      // update each deals order
-      await DealStages.update({ _id }, { order });
+      bulkOps.push({
+        updateOne: {
+          filter: { _id },
+          update: { order },
+        },
+      });
+    }
+    if (bulkOps) {
+      await DealStages.bulkWrite(bulkOps);
     }
 
     return DealStages.find({ _id: { $in: ids } }).sort({ order: 1 });
@@ -227,13 +265,13 @@ class Stage {
       throw new Error('Stage not found');
     }
 
-    const count = await Deals.find({ stageId: _id }).count();
+    const count = await Deals.find({ stageId: _id }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a stage");
     }
 
-    return DealStages.remove({ _id });
+    return DealStages.deleteOne({ _id });
   }
 }
 
@@ -251,7 +289,9 @@ class Deal {
    * Create a deal
    */
   public static async createDeal(doc: IDeal) {
-    const dealsCount = await Deals.find({ stageId: doc.stageId }).count();
+    const dealsCount = await Deals.find({
+      stageId: doc.stageId,
+    }).countDocuments();
 
     return Deals.create({
       ...doc,
@@ -264,7 +304,7 @@ class Deal {
    * Update Deal
    */
   public static async updateDeal(_id: string, doc: IDeal) {
-    await Deals.update({ _id }, { $set: doc });
+    await Deals.updateOne({ _id }, { $set: doc });
 
     return Deals.findOne({ _id });
   }
@@ -274,12 +314,27 @@ class Deal {
    */
   public static async updateOrder(stageId: string, orders: IOrderInput[]) {
     const ids: string[] = [];
+    const bulkOps: Array<{
+      updateOne: {
+        filter: { _id: string };
+        update: { stageId: string; order: number };
+      };
+    }> = [];
 
     for (const { _id, order } of orders) {
       ids.push(_id);
+      bulkOps.push({
+        updateOne: {
+          filter: { _id },
+          update: { stageId, order },
+        },
+      });
 
       // update each deals order
-      await Deals.update({ _id }, { stageId, order });
+    }
+
+    if (bulkOps) {
+      await Deals.bulkWrite(bulkOps);
     }
 
     return Deals.find({ _id: { $in: ids } }).sort({ order: 1 });
@@ -302,10 +357,9 @@ class Deal {
    * Change customer
    */
   public static async changeCustomer(newCustomerId: string, oldCustomerIds: string[]) {
-    for (const customerId of oldCustomerIds) {
-      await Deals.updateMany({ customerIds: { $in: [customerId] } }, { $addToSet: { customerIds: newCustomerId } });
-
-      await Deals.updateMany({ customerIds: { $in: [customerId] } }, { $pull: { customerIds: customerId } });
+    if (oldCustomerIds) {
+      await Deals.updateMany({ customerIds: { $in: oldCustomerIds } }, { $addToSet: { customerIds: newCustomerId } });
+      await Deals.updateMany({ customerIds: { $in: oldCustomerIds } }, { $pullAll: { customerIds: oldCustomerIds } });
     }
 
     return Deals.find({ customerIds: { $in: oldCustomerIds } });
@@ -315,10 +369,10 @@ class Deal {
    * Change company
    */
   public static async changeCompany(newCompanyId: string, oldCompanyIds: string[]) {
-    for (const companyId of oldCompanyIds) {
-      await Deals.updateMany({ companyIds: { $in: [companyId] } }, { $addToSet: { companyIds: newCompanyId } });
+    if (oldCompanyIds) {
+      await Deals.updateMany({ companyIds: { $in: oldCompanyIds } }, { $addToSet: { companyIds: newCompanyId } });
 
-      await Deals.updateMany({ companyIds: { $in: [companyId] } }, { $pull: { companyIds: companyId } });
+      await Deals.updateMany({ companyIds: { $in: oldCompanyIds } }, { $pullAll: { companyIds: oldCompanyIds } });
     }
 
     return Deals.find({ customerIds: { $in: oldCompanyIds } });

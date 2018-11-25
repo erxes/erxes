@@ -16,8 +16,8 @@ describe('Test tags model', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Tags.remove({});
-    await EngageMessages.remove({});
+    await Tags.deleteMany({});
+    await EngageMessages.deleteMany({});
   });
 
   test('Validate unique tag', async () => {
@@ -137,7 +137,7 @@ describe('Test tags model', () => {
   test("Can't remove a tag", async () => {
     expect.assertions(1);
     try {
-      await EngageMessages.update({ _id: _message._id }, { $set: { tagIds: [_tag._id] } });
+      await EngageMessages.updateMany({ _id: _message._id }, { $set: { tagIds: [_tag._id] } });
       await Tags.removeTag([_tag._id]);
     } catch (e) {
       expect(e.message).toEqual("Can't remove a tag with tagged object(s)");

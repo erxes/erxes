@@ -116,9 +116,9 @@ describe('customerQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Customers.remove({});
-    await Segments.remove({});
-    await Tags.remove({});
+    await Customers.deleteMany({});
+    await Segments.deleteMany({});
+    await Tags.deleteMany({});
   });
 
   test('Customers', async () => {

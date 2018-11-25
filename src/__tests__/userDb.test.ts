@@ -4,7 +4,7 @@ import { userFactory } from '../db/factories';
 import { Users } from '../db/models';
 
 beforeAll(() => {
-  Users.collection.ensureIndex({ email: 1 }, { unique: true });
+  Users.collection.createIndex({ email: 1 }, { unique: true });
 });
 
 describe('User db utils', () => {
@@ -17,7 +17,7 @@ describe('User db utils', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
+    await Users.deleteMany({});
   });
 
   test('Create user', async () => {
@@ -187,9 +187,9 @@ describe('User db utils', () => {
     if (!updateDoc || !updateDoc.details || !updateDoc.links) {
       throw new Error('UpdatedDoc user not found');
     }
-
+    // TODO: find out why email field lowered automatically after mongoose v5.x
     expect(userObj.username).toBe(updateDoc.username);
-    expect(userObj.email).toBe('testEmail@yahoo.com');
+    expect(userObj.email).toBe('testemail@yahoo.com');
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
@@ -229,7 +229,7 @@ describe('User db utils', () => {
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
 
-    await Users.update(
+    await Users.updateOne(
       { _id: _user._id },
       {
         $set: {

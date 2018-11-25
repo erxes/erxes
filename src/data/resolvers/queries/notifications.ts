@@ -54,7 +54,7 @@ const notificationQueries = {
       selector.isRead = false;
     }
 
-    return Notifications.find(selector).count();
+    return Notifications.find(selector).countDocuments();
   },
 
   /**

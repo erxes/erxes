@@ -8,6 +8,8 @@ dotenv.config();
 
 const { NODE_ENV, MONGO_URL = '' } = process.env;
 
+mongoose.set('useFindAndModify', false);
+
 mongoose.Promise = global.Promise;
 
 mongoose.connection
@@ -26,7 +28,7 @@ mongoose.connection
 export function connect() {
   return mongoose.connect(
     MONGO_URL,
-    { useMongoClient: true },
+    { useNewUrlParser: true },
   );
 }
 

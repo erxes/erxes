@@ -50,7 +50,7 @@ describe('Companies model tests', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Companies.remove({});
+    await Companies.deleteMany({});
   });
 
   test('Create company', async () => {
@@ -110,7 +110,7 @@ describe('Companies model tests', () => {
     }
 
     // remove previous duplicated entry
-    await Companies.remove({ _id: previousCompany._id });
+    await Companies.deleteOne({ _id: previousCompany._id });
 
     const companyObj = await Companies.updateCompany(_company._id, doc);
 

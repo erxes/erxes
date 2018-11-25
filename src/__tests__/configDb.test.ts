@@ -3,7 +3,7 @@ import { Configs } from '../db/models';
 describe('Test configs model', () => {
   afterEach(async () => {
     // Clearing test data
-    await Configs.remove({});
+    await Configs.deleteMany({});
   });
 
   test('Create or update config', async () => {

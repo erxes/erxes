@@ -61,9 +61,9 @@ describe('integrationQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Integrations.remove({});
-    await Channels.remove({});
-    await Brands.remove({});
+    await Integrations.deleteMany({});
+    await Channels.deleteMany({});
+    await Brands.deleteMany({});
   });
 
   test('Integrations', async () => {

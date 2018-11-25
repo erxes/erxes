@@ -27,6 +27,7 @@ interface IConversationModel extends Model<IConversationDocument> {
   newOrOpenConversation(): IConversationDocument[];
 
   addParticipatedUsers(conversationId: string, userId: string): Promise<IConversationDocument>;
+  addManyParticipatedUsers(conversationId: string, userId: string[]): Promise<IConversationDocument>;
 
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IConversationDocument[]>;
 
@@ -63,7 +64,7 @@ class Conversation {
       ...doc,
       createdAt: now,
       updatedAt: now,
-      number: (await Conversations.find().count()) + 1,
+      number: (await Conversations.find().countDocuments()) + 1,
       messageCount: 0,
     });
   }
@@ -72,7 +73,7 @@ class Conversation {
    * Reopens conversation
    */
   public static async reopen(_id: string) {
-    await Conversations.update(
+    await Conversations.updateOne(
       { _id },
       {
         $set: {
@@ -101,7 +102,7 @@ class Conversation {
       throw new Error(`User not found with id ${assignedUserId}`);
     }
 
-    await Conversations.update({ _id: { $in: conversationIds } }, { $set: { assignedUserId } }, { multi: true });
+    await Conversations.updateMany({ _id: { $in: conversationIds } }, { $set: { assignedUserId } }, { multi: true });
 
     return Conversations.find({ _id: { $in: conversationIds } });
   }
@@ -112,7 +113,11 @@ class Conversation {
   public static async unassignUserConversation(conversationIds: string[]) {
     await this.checkExistanceConversations(conversationIds);
 
-    await Conversations.update({ _id: { $in: conversationIds } }, { $unset: { assignedUserId: 1 } }, { multi: true });
+    await Conversations.updateMany(
+      { _id: { $in: conversationIds } },
+      { $unset: { assignedUserId: 1 } },
+      { multi: true },
+    );
 
     return Conversations.find({ _id: { $in: conversationIds } });
   }
@@ -129,7 +134,7 @@ class Conversation {
       closedUserId = userId;
     }
 
-    return Conversations.update(
+    return Conversations.updateMany(
       { _id: { $in: conversationIds } },
       { $set: { status, closedAt, closedUserId } },
       { multi: true },
@@ -150,12 +155,12 @@ class Conversation {
 
     // if current user is first one
     if (!readUserIds || readUserIds.length === 0) {
-      await Conversations.update({ _id }, { $set: { readUserIds: [userId] } });
+      await Conversations.updateOne({ _id }, { $set: { readUserIds: [userId] } });
     }
 
     // if current user is not in read users list then add it
     if (!readUserIds.includes(userId)) {
-      await Conversations.update({ _id }, { $push: { readUserIds: userId } });
+      await Conversations.updateOne({ _id }, { $push: { readUserIds: userId } });
     }
 
     return Conversations.findOne({ _id });
@@ -171,13 +176,25 @@ class Conversation {
       },
     });
   }
-
+  /**
+   * Add participated users
+   */
+  public static addManyParticipatedUsers(conversationId: string, userIds: string[]) {
+    if (conversationId && userIds) {
+      return Conversations.updateOne(
+        { _id: conversationId },
+        {
+          $addToSet: { participatedUserIds: { $each: userIds } },
+        },
+      );
+    }
+  }
   /**
    * Add participated user
    */
   public static addParticipatedUsers(conversationId: string, userId: string) {
     if (conversationId && userId) {
-      return Conversations.update(
+      return Conversations.updateOne(
         { _id: conversationId },
         {
           $addToSet: { participatedUserIds: userId },
@@ -190,12 +207,13 @@ class Conversation {
    * Transfers customers' conversations to another customer
    */
   public static async changeCustomer(newCustomerId: string, customerIds: string) {
-    for (const customerId of customerIds) {
-      // Updating every conversation and conversation messages of new customer
-      await ConversationMessages.updateMany({ customerId }, { $set: { customerId: newCustomerId } });
+    // Updating every conversation and conversation messages of new customer
+    await ConversationMessages.updateMany(
+      { customerId: { $in: customerIds } },
+      { $set: { customerId: newCustomerId } },
+    );
 
-      await Conversations.updateMany({ customerId }, { $set: { customerId: newCustomerId } });
-    }
+    await Conversations.updateMany({ customerId: { $in: customerIds } }, { $set: { customerId: newCustomerId } });
 
     // Returning updated list of conversation of new customer
     return Conversations.find({ customerId: newCustomerId });
@@ -211,11 +229,9 @@ class Conversation {
     });
 
     // Removing conversations and conversation messages
-    for (const conversation of conversations) {
-      // Removing conversation message of conversation
-      await ConversationMessages.remove({ conversationId: conversation._id });
-      await Conversations.remove({ _id: conversation._id });
-    }
+    const conversationIds = conversations.map(conv => conv._id);
+    await ConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await Conversations.deleteMany({ _id: { $in: conversationIds } });
   }
 }
 

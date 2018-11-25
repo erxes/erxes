@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { createScheduleRule } from '../trackers/engageScheduleTracker';
+import { createScheduleRule } from '../cronJobs/engages';
 
 describe('Engage tracker tests', async () => {
   test('Create schedule cron job by year', () => {

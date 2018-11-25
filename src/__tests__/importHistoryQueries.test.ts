@@ -5,7 +5,7 @@ import { ImportHistory } from '../db/models';
 describe('Import history queries', () => {
   afterEach(async () => {
     // Clearing test data
-    await ImportHistory.remove({});
+    await ImportHistory.deleteMany({});
   });
 
   test('Import histories', async () => {

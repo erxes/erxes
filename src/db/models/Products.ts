@@ -20,7 +20,7 @@ class Product {
    * Update Product
    */
   public static async updateProduct(_id: string, doc: IProduct) {
-    await Products.update({ _id }, { $set: doc });
+    await Products.updateOne({ _id }, { $set: doc });
 
     return Products.findOne({ _id });
   }
@@ -37,13 +37,13 @@ class Product {
 
     const count = await Deals.find({
       'productsData.productId': { $in: [_id] },
-    }).count();
+    }).countDocuments();
 
     if (count > 0) {
       throw new Error("Can't remove a product");
     }
 
-    return Products.remove({ _id });
+    return Products.deleteOne({ _id });
   }
 }
 

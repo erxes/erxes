@@ -40,9 +40,9 @@ describe('facebook integration: reply', () => {
     getMock.restore();
 
     // clear previous data
-    await Conversations.remove({});
-    await Integrations.remove({});
-    await ConversationMessages.remove({});
+    await Conversations.deleteMany({});
+    await Integrations.deleteMany({});
+    await ConversationMessages.deleteMany({});
   });
 
   test('messenger', async () => {
@@ -104,7 +104,7 @@ describe('facebook integration: reply', () => {
     }));
 
     // mock message update
-    const mongoStub = sinon.stub(ConversationMessages, 'update').callsFake(() => {
+    const mongoStub = sinon.stub(ConversationMessages, 'updateOne').callsFake(() => {
       '';
     });
 

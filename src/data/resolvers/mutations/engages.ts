@@ -1,6 +1,6 @@
+import { createSchedule, updateOrRemoveSchedule } from '../../../cronJobs/engages';
 import { EngageMessages, Users } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
-import { createSchedule, updateOrRemoveSchedule } from '../../../trackers/engageScheduleTracker';
 import { awsRequests } from '../../../trackers/engageTracker';
 import { MESSAGE_KINDS, METHODS } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
@@ -61,6 +61,7 @@ const engageMutations = {
    */
   engageMessageRemove(_root, { _id }: { _id: string }) {
     updateOrRemoveSchedule({ _id });
+
     return EngageMessages.removeEngageMessage(_id);
   },
 

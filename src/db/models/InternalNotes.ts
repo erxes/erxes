@@ -42,7 +42,7 @@ class InternalNote {
    * Update internalNote
    */
   public static async updateInternalNote(_id: string, doc: IInternalNote) {
-    await InternalNotes.update({ _id }, { $set: doc });
+    await InternalNotes.updateOne({ _id }, { $set: doc });
 
     return InternalNotes.findOne({ _id });
   }
@@ -64,16 +64,14 @@ class InternalNote {
    * Transfers customers' internal notes to another customer
    */
   public static async changeCustomer(newCustomerId: string, customerIds: string[]) {
-    for (const customerId of customerIds) {
-      // Updating every internal notes of customer
-      await InternalNotes.updateMany(
-        {
-          contentType: COC_CONTENT_TYPES.CUSTOMER,
-          contentTypeId: customerId,
-        },
-        { contentTypeId: newCustomerId },
-      );
-    }
+    // Updating every internal notes of customer
+    await InternalNotes.updateMany(
+      {
+        contentType: COC_CONTENT_TYPES.CUSTOMER,
+        contentTypeId: { $in: customerIds || [] },
+      },
+      { contentTypeId: newCustomerId },
+    );
 
     // Returning updated list of internal notes of new customer
     return InternalNotes.find({
@@ -86,8 +84,8 @@ class InternalNote {
    * Removing customers' internal notes
    */
   public static async removeCustomerInternalNotes(customerId: string) {
-    // Removing every internal ntoes of customer
-    return InternalNotes.remove({
+    // Removing every internal notes of customer
+    return InternalNotes.deleteMany({
       contentType: COC_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerId,
     });
@@ -98,7 +96,7 @@ class InternalNote {
    */
   public static async removeCompanyInternalNotes(companyId: string) {
     // Removing every internal notes of company
-    return InternalNotes.remove({
+    return InternalNotes.deleteMany({
       contentType: COC_CONTENT_TYPES.COMPANY,
       contentTypeId: companyId,
     });
@@ -108,16 +106,14 @@ class InternalNote {
    * Transfers companies' internal notes to another company
    */
   public static async changeCompany(newCompanyId: string, oldCompanyIds: string[]) {
-    for (const companyId of oldCompanyIds) {
-      // Updating every internal notes of company
-      await InternalNotes.updateMany(
-        {
-          contentType: COC_CONTENT_TYPES.COMPANY,
-          contentTypeId: companyId,
-        },
-        { contentTypeId: newCompanyId },
-      );
-    }
+    // Updating every internal notes of company
+    await InternalNotes.updateMany(
+      {
+        contentType: COC_CONTENT_TYPES.COMPANY,
+        contentTypeId: { $in: oldCompanyIds || [] },
+      },
+      { contentTypeId: newCompanyId },
+    );
 
     // Returning updated list of internal notes of new company
     return InternalNotes.find({

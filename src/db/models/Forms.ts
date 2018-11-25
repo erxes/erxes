@@ -51,7 +51,7 @@ class Form {
    * Updates a form document
    */
   public static async updateForm(_id: string, { title, description, buttonText, themeColor, callout }: IForm) {
-    await Forms.update(
+    await Forms.updateOne(
       { _id },
       { $set: { title, description, buttonText, themeColor, callout } },
       { runValidators: true },
@@ -65,9 +65,9 @@ class Form {
    */
   public static async removeForm(_id: string) {
     // remove fields
-    await Fields.remove({ contentType: 'form', contentTypeId: _id });
+    await Fields.deleteMany({ contentType: 'form', contentTypeId: _id });
 
-    return Forms.remove({ _id });
+    return Forms.deleteOne({ _id });
   }
 
   /**

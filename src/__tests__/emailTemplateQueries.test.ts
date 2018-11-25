@@ -5,7 +5,7 @@ import { EmailTemplates } from '../db/models';
 describe('emailTemplateQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await EmailTemplates.remove({});
+    await EmailTemplates.deleteMany({});
   });
 
   test('Email templates', async () => {

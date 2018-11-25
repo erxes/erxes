@@ -24,13 +24,13 @@ describe('Conversation db', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Users.remove({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Create conversation', async () => {
-    const _number = (await Conversations.find().count()) + 1;
+    const _number = (await Conversations.find().countDocuments()) + 1;
     const conversation = await Conversations.createConversation({
       integrationId: 'test',
       content: _conversation.content,
@@ -248,7 +248,7 @@ describe('Conversation db', () => {
     expect(nonAnweredMessage._id).toBeDefined();
 
     // admin messages =========
-    await ConversationMessages.update(
+    await ConversationMessages.updateMany(
       { conversationId: _conversation._id },
       { $set: { isCustomerRead: false, internal: false } },
     );
@@ -258,7 +258,7 @@ describe('Conversation db', () => {
     expect(adminMessages.length).toBe(1);
 
     // mark sent as read messages ==================
-    await ConversationMessages.update(
+    await ConversationMessages.updateMany(
       { conversationId: _conversation._id },
       { $unset: { isCustomerRead: 1 } },
       { multi: true },

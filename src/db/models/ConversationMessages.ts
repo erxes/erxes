@@ -24,9 +24,9 @@ class Message {
 
     const messageCount = await Messages.find({
       conversationId: message.conversationId,
-    }).count();
+    }).countDocuments();
 
-    await Conversations.update(
+    await Conversations.updateOne(
       { _id: message.conversationId },
       {
         $set: {
@@ -44,8 +44,8 @@ class Message {
     }
 
     // add mentioned users to participators
-    for (const userId of message.mentionedUserIds || []) {
-      await Conversations.addParticipatedUsers(message.conversationId, userId);
+    if (message.mentionedUserIds) {
+      await Conversations.addManyParticipatedUsers(message.conversationId, message.mentionedUserIds);
     }
 
     return message;
@@ -87,7 +87,7 @@ class Message {
       obj.firstRespondedDate = new Date();
     }
 
-    await Conversations.update({ _id: doc.conversationId }, { $set: obj });
+    await Conversations.updateOne({ _id: doc.conversationId }, { $set: obj });
 
     return this.createMessage({ ...doc, userId });
   }
@@ -120,7 +120,7 @@ class Message {
    * Mark sent messages as read
    */
   public static markSentAsReadMessages(conversationId: string) {
-    return Messages.update(
+    return Messages.updateMany(
       {
         conversationId,
         userId: { $exists: true },

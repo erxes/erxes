@@ -5,8 +5,8 @@ import { Conversations, Users } from '../db/models';
 describe('userQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
-    await Conversations.remove({});
+    await Users.deleteMany({});
+    await Conversations.deleteMany({});
   });
 
   test('Users', async () => {

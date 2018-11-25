@@ -16,8 +16,8 @@ describe('testing mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
-    await Notifications.remove({});
+    await Users.deleteMany({});
+    await Notifications.deleteMany({});
   });
 
   test('Save notification config', async () => {
