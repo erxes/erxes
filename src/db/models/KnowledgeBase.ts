@@ -219,8 +219,8 @@ class Category {
       throw new Error('Category not found');
     }
 
-    for (const articleId of category.articleIds || []) {
-      await KnowledgeBaseArticles.deleteOne({ _id: articleId });
+    if (category.articleIds) {
+      await KnowledgeBaseArticles.deleteMany({ _id: { $in: category.articleIds } });
     }
 
     return KnowledgeBaseCategories.deleteOne({ _id });
@@ -285,14 +285,11 @@ class Topic {
     }
 
     // remove child items ===========
-    for (const categoryId of topic.categoryIds || []) {
-      const category = await KnowledgeBaseCategories.findOne({
-        _id: categoryId,
-      });
-
-      if (category) {
-        await KnowledgeBaseCategories.removeDoc(categoryId);
-      }
+    const categories = await KnowledgeBaseCategories.find({
+      _id: { $in: topic.categoryIds },
+    });
+    for (const category of categories) {
+      await KnowledgeBaseCategories.removeDoc(category._id);
     }
 
     return KnowledgeBaseTopics.deleteOne({ _id });

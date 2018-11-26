@@ -193,11 +193,9 @@ class Company {
     });
 
     // Updating customer companies
-    for (const companyId of companyIds) {
-      await Customers.updateMany({ companyIds: { $in: [companyId] } }, { $push: { companyIds: company._id } });
+    await Customers.updateMany({ companyIds: { $in: companyIds } }, { $push: { companyIds: company._id } });
 
-      await Customers.updateMany({ companyIds: { $in: [companyId] } }, { $pull: { companyIds: companyId } });
-    }
+    await Customers.updateMany({ companyIds: { $in: companyIds } }, { $pullAll: { companyIds } });
 
     // Removing modules associated with current companies
     await ActivityLogs.changeCompany(company._id, companyIds);

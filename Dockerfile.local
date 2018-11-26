@@ -1,4 +1,4 @@
-FROM goharbor.erxes.io/erxes/runner:latest as build-deps
+FROM erxes/runner:latest
 WORKDIR /erxes-api/
 COPY package.json .
 RUN yarn

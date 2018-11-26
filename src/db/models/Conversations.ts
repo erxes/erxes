@@ -27,6 +27,7 @@ interface IConversationModel extends Model<IConversationDocument> {
   newOrOpenConversation(): IConversationDocument[];
 
   addParticipatedUsers(conversationId: string, userId: string): Promise<IConversationDocument>;
+  addManyParticipatedUsers(conversationId: string, userId: string[]): Promise<IConversationDocument>;
 
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IConversationDocument[]>;
 
@@ -175,7 +176,19 @@ class Conversation {
       },
     });
   }
-
+  /**
+   * Add participated users
+   */
+  public static addManyParticipatedUsers(conversationId: string, userIds: string[]) {
+    if (conversationId && userIds) {
+      return Conversations.updateOne(
+        { _id: conversationId },
+        {
+          $addToSet: { participatedUserIds: { $each: userIds } },
+        },
+      );
+    }
+  }
   /**
    * Add participated user
    */
@@ -194,12 +207,13 @@ class Conversation {
    * Transfers customers' conversations to another customer
    */
   public static async changeCustomer(newCustomerId: string, customerIds: string) {
-    for (const customerId of customerIds) {
-      // Updating every conversation and conversation messages of new customer
-      await ConversationMessages.updateMany({ customerId }, { $set: { customerId: newCustomerId } });
+    // Updating every conversation and conversation messages of new customer
+    await ConversationMessages.updateMany(
+      { customerId: { $in: customerIds } },
+      { $set: { customerId: newCustomerId } },
+    );
 
-      await Conversations.updateMany({ customerId }, { $set: { customerId: newCustomerId } });
-    }
+    await Conversations.updateMany({ customerId: { $in: customerIds } }, { $set: { customerId: newCustomerId } });
 
     // Returning updated list of conversation of new customer
     return Conversations.find({ customerId: newCustomerId });
@@ -215,11 +229,9 @@ class Conversation {
     });
 
     // Removing conversations and conversation messages
-    for (const conversation of conversations) {
-      // Removing conversation message of conversation
-      await ConversationMessages.deleteMany({ conversationId: conversation._id });
-      await Conversations.deleteMany({ _id: conversation._id });
-    }
+    const conversationIds = conversations.map(conv => conv._id);
+    await ConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await Conversations.deleteMany({ _id: { $in: conversationIds } });
   }
 }
 

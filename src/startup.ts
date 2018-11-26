@@ -31,5 +31,12 @@ export const init = async app => {
     listenChangeConversation();
   }
 
+  /* USE_REPLICATION=True means we are using replicaset, so we can
+   * use Collection.watch
+   */
+  if (USE_REPLICATION) {
+    listenChangeConversation();
+  }
+
   makeDirs();
 };

@@ -44,8 +44,8 @@ class Message {
     }
 
     // add mentioned users to participators
-    for (const userId of message.mentionedUserIds || []) {
-      await Conversations.addParticipatedUsers(message.conversationId, userId);
+    if (message.mentionedUserIds) {
+      await Conversations.addManyParticipatedUsers(message.conversationId, message.mentionedUserIds);
     }
 
     return message;

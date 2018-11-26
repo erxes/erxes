@@ -26,6 +26,16 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
   let order = 0;
 
   const validStageIds: string[] = [];
+  const bulkOpsPrevEntry: Array<{
+    updateOne: {
+      filter: { _id: string };
+      update: { $set: IStage };
+    };
+  }> = [];
+  const prevDealIds = stages.map(stage => stage._id);
+  // fetch stage from database
+  const prevEntries = await DealStages.find({ _id: { $in: prevDealIds } });
+  const prevEntriesIds = prevEntries.map(entry => entry._id);
 
   for (const stage of stages) {
     order++;
@@ -34,20 +44,31 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
 
     const _id = doc._id;
 
-    // fetch stage from database
-    const prevEntry = await DealStages.findOne({ _id });
+    const prevEntry = prevEntriesIds.includes(_id);
 
     // edit
     if (prevEntry) {
       validStageIds.push(_id);
-      await DealStages.updateOne({ _id }, { $set: doc });
 
+      bulkOpsPrevEntry.push({
+        updateOne: {
+          filter: {
+            _id,
+          },
+          update: {
+            $set: doc,
+          },
+        },
+      });
       // create
     } else {
       delete doc._id;
       const createdStage = await DealStages.createStage(doc);
       validStageIds.push(createdStage._id);
     }
+  }
+  if (bulkOpsPrevEntry.length > 0) {
+    await DealStages.bulkWrite(bulkOpsPrevEntry);
   }
 
   return DealStages.deleteMany({ pipelineId, _id: { $nin: validStageIds } });
@@ -136,11 +157,22 @@ class Pipeline {
   public static async updateOrder(orders: IOrderInput[]) {
     const ids: string[] = [];
 
+    const bulkOps: Array<{
+      updateOne: { filter: { _id: string }; update: { order: number } };
+    }> = [];
+
     for (const { _id, order } of orders) {
       ids.push(_id);
 
-      // update each deals order
-      await DealPipelines.updateOne({ _id }, { order });
+      bulkOps.push({
+        updateOne: {
+          filter: { _id },
+          update: { order },
+        },
+      });
+    }
+    if (bulkOps) {
+      await DealPipelines.bulkWrite(bulkOps);
     }
 
     return DealPipelines.find({ _id: { $in: ids } }).sort({ order: 1 });
@@ -206,12 +238,20 @@ class Stage {
    */
   public static async updateOrder(orders: IOrderInput[]) {
     const ids: string[] = [];
-    // TODO: need improvements?
+    const bulkOps: Array<{
+      updateOne: { filter: { _id: string }; update: { order: number } };
+    }> = [];
     for (const { _id, order } of orders) {
       ids.push(_id);
-
-      // update each deals order
-      await DealStages.updateOne({ _id }, { order });
+      bulkOps.push({
+        updateOne: {
+          filter: { _id },
+          update: { order },
+        },
+      });
+    }
+    if (bulkOps) {
+      await DealStages.bulkWrite(bulkOps);
     }
 
     return DealStages.find({ _id: { $in: ids } }).sort({ order: 1 });
@@ -251,7 +291,9 @@ class Deal {
    * Create a deal
    */
   public static async createDeal(doc: IDeal) {
-    const dealsCount = await Deals.find({ stageId: doc.stageId }).countDocuments();
+    const dealsCount = await Deals.find({
+      stageId: doc.stageId,
+    }).countDocuments();
 
     return Deals.create({
       ...doc,
@@ -274,12 +316,27 @@ class Deal {
    */
   public static async updateOrder(stageId: string, orders: IOrderInput[]) {
     const ids: string[] = [];
-    // TODO: need improvements?
+    const bulkOps: Array<{
+      updateOne: {
+        filter: { _id: string };
+        update: { stageId: string; order: number };
+      };
+    }> = [];
+
     for (const { _id, order } of orders) {
       ids.push(_id);
+      bulkOps.push({
+        updateOne: {
+          filter: { _id },
+          update: { stageId, order },
+        },
+      });
 
       // update each deals order
-      await Deals.updateOne({ _id }, { stageId, order });
+    }
+
+    if (bulkOps) {
+      await Deals.bulkWrite(bulkOps);
     }
 
     return Deals.find({ _id: { $in: ids } }).sort({ order: 1 });
@@ -302,10 +359,9 @@ class Deal {
    * Change customer
    */
   public static async changeCustomer(newCustomerId: string, oldCustomerIds: string[]) {
-    for (const customerId of oldCustomerIds) {
-      await Deals.updateMany({ customerIds: { $in: [customerId] } }, { $addToSet: { customerIds: newCustomerId } });
-
-      await Deals.updateMany({ customerIds: { $in: [customerId] } }, { $pull: { customerIds: customerId } });
+    if (oldCustomerIds) {
+      await Deals.updateMany({ customerIds: { $in: oldCustomerIds } }, { $addToSet: { customerIds: newCustomerId } });
+      await Deals.updateMany({ customerIds: { $in: oldCustomerIds } }, { $pullAll: { customerIds: oldCustomerIds } });
     }
 
     return Deals.find({ customerIds: { $in: oldCustomerIds } });
@@ -315,10 +371,10 @@ class Deal {
    * Change company
    */
   public static async changeCompany(newCompanyId: string, oldCompanyIds: string[]) {
-    for (const companyId of oldCompanyIds) {
-      await Deals.updateMany({ companyIds: { $in: [companyId] } }, { $addToSet: { companyIds: newCompanyId } });
+    if (oldCompanyIds) {
+      await Deals.updateMany({ companyIds: { $in: oldCompanyIds } }, { $addToSet: { companyIds: newCompanyId } });
 
-      await Deals.updateMany({ companyIds: { $in: [companyId] } }, { $pull: { companyIds: companyId } });
+      await Deals.updateMany({ companyIds: { $in: oldCompanyIds } }, { $pullAll: { companyIds: oldCompanyIds } });
     }
 
     return Deals.find({ customerIds: { $in: oldCompanyIds } });

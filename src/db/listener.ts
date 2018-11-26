@@ -15,17 +15,14 @@ export const listenChangeConversation = async () => {
       }
     });
 
-    Conversations.watch().on('change', data => {
+    Conversations.watch().on('change', async data => {
       const conversation = data.fullDocument;
 
       if (data.operationType === 'insert' && conversation) {
-        Customers.findOne({
-          _id: conversation.customerId,
-        }).then(doc => {
-          if (doc) {
-            ActivityLogs.createConversationLog(conversation, doc);
-          }
-        });
+        const customer = await Customers.findOne({ _id: conversation.customerId });
+        if (customer) {
+          ActivityLogs.createConversationLog(conversation, customer);
+        }
       }
     });
 
