@@ -1,4 +1,5 @@
 import * as AWS from 'aws-sdk';
+import * as EmailValidator from 'email-deep-validator';
 import * as fileType from 'file-type';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
@@ -376,8 +377,28 @@ export const sendPostRequest = (url: string, params: { [key: string]: string }) 
     }),
   );
 
+/**
+ * Validates email using MX record resolver
+ * @param email as String
+ */
+export const validateEmail = async email => {
+  const emailValidator = new EmailValidator();
+  const { validDomain, validMailbox } = await emailValidator.verify(email);
+
+  if (!validDomain) {
+    return false;
+  }
+
+  if (!validMailbox && validMailbox === null) {
+    return false;
+  }
+
+  return true;
+};
+
 export default {
   sendEmail,
+  validateEmail,
   sendNotification,
   readFile,
   createTransporter,

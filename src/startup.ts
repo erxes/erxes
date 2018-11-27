@@ -34,7 +34,7 @@ export const init = async app => {
   /* USE_REPLICATION=True means we are using replicaset, so we can
    * use Collection.watch
    */
-  if (USE_REPLICATION) {
+  if (USE_REPLICATION === 'true') {
     listenChangeConversation();
   }
 

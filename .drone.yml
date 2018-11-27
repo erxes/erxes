@@ -6,7 +6,7 @@ pipeline:
       - mongo --host mongo
 
   install:
-    image: goharbor.erxes.io/erxes/runner:latest
+    image: erxes/runner:latest
     commands:
       - node -v
       - npm -v
@@ -47,7 +47,7 @@ pipeline:
   docker:
     image: plugins/docker
     repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.local
     secrets:
       - source: docker_hub_username
         target: docker_username
