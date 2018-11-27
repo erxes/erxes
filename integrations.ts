@@ -15,9 +15,8 @@ export interface ILink {
 }
 
 export interface ITwitterData {
-  info?: any;
-  token?: string;
-  tokenSecret?: string;
+  accountId: string;
+  profileId: string;
 }
 
 export interface ITwitterDataDocument extends ITwitterData, Document {}
