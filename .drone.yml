@@ -6,7 +6,7 @@ pipeline:
       - mongo --host mongo
 
   install:
-    image: goharbor.erxes.io/erxes/runner:latest
+    image: erxes/runner:latest
     commands:
       - node -v
       - npm -v
