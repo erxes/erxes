@@ -13,7 +13,7 @@ export const types = `
 `;
 
 export const queries = `
-  accounts: [Account]
+  accounts(kind: String): [Account]
 `;
 
 export const mutations = `

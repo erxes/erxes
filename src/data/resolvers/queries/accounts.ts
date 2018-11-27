@@ -6,8 +6,8 @@ const accountQueries = {
    * Get linked social accounts
    */
 
-  async accounts(_root, {}) {
-    return Accounts.find({});
+  async accounts(_root, { kind }: { kind?: string }) {
+    return Accounts.find({ kind });
   },
 };
 
