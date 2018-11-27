@@ -109,16 +109,6 @@ class Integration {
     brandId: string;
     twitterData: ITwitterData;
   }) {
-    const prevEntry = await Integrations.findOne({
-      twitterData: { $exists: true },
-      'twitterData.info.id': twitterData.info.id,
-    });
-
-    // check duplication
-    if (prevEntry) {
-      throw new Error('Already added');
-    }
-
     return this.createIntegration({
       name,
       brandId,

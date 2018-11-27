@@ -46,11 +46,6 @@ export const types = `
     redirectUrl: String
   }
 
-  input TwitterIntegrationAuthParams {
-    oauth_token: String!
-    oauth_verifier: String!
-  }
-
   input MessengerOnlineHoursSchema {
     _id: String
     day: String
@@ -135,7 +130,7 @@ export const mutations = `
 
   integrationsCreateTwitterIntegration(
     brandId: String!,
-    queryParams: TwitterIntegrationAuthParams!
+    accountId: String!
   ): Integration
 
   integrationsCreateFacebookIntegration(

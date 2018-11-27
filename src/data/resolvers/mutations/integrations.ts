@@ -1,4 +1,4 @@
-import { Integrations } from '../../../db/models';
+import { Accounts, Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
 import { getGmailUserProfile, sendGmail } from '../../../trackers/gmail';
@@ -54,21 +54,24 @@ const integrationMutations = {
   /**
    * Create a new twitter integration
    */
-  async integrationsCreateTwitterIntegration(_root, { queryParams, brandId }: { queryParams: any; brandId: string }) {
-    const data: any = await socUtils.authenticate(queryParams);
+  async integrationsCreateTwitterIntegration(_root, { accountId, brandId }: { accountId: string; brandId: string }) {
+    const account = await Accounts.findOne({ _id: accountId });
+
+    if (!account) {
+      throw new Error('Account not found');
+    }
 
     const integration = await Integrations.createTwitterIntegration({
-      name: data.info.name,
+      name: account.name,
       brandId,
       twitterData: {
-        info: data.info,
-        token: data.tokens.auth.token,
-        tokenSecret: data.tokens.auth.token_secret,
+        profileId: account.uid,
+        accountId: account._id,
       },
     });
 
     // start tracking new twitter entries
-    socUtils.trackIntegration(integration);
+    socUtils.trackIntegration(account, integration);
 
     return integration;
   },

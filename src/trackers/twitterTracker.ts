@@ -1,18 +1,15 @@
 import { OAuth } from 'oauth';
 import * as Twit from 'twit';
 import { INTEGRATION_KIND_CHOICES } from '../data/constants';
-import { Integrations } from '../db/models';
+import { Accounts, Integrations } from '../db/models';
+import { IAccountDocument } from '../db/models/definitions/accounts';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { receiveDirectMessageInformation, receiveTimelineInformation, twitMap } from './twitter';
 
-const trackIntegration = (integration: IIntegrationDocument) => {
+const trackIntegration = (account: IAccountDocument, integration: IIntegrationDocument) => {
   const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET } = process.env;
 
   if (!TWITTER_CONSUMER_KEY || !TWITTER_CONSUMER_SECRET) {
-    return;
-  }
-
-  if (!integration.twitterData) {
     return;
   }
 
@@ -20,8 +17,8 @@ const trackIntegration = (integration: IIntegrationDocument) => {
   const twit = new Twit({
     consumer_key: TWITTER_CONSUMER_KEY,
     consumer_secret: TWITTER_CONSUMER_SECRET,
-    access_token: integration.twitterData.token,
-    access_token_secret: integration.twitterData.tokenSecret,
+    access_token: account.token,
+    access_token_secret: account.tokenSecret,
   });
 
   // save twit instance
@@ -97,7 +94,6 @@ const authenticate = async (queryParams: any) => {
         if (e) {
           return reject(e.message);
         }
-
         return resolve(JSON.parse(res));
       },
     ),
@@ -131,10 +127,22 @@ const getTwitterAuthorizeUrl = () =>
 /*
  * Track all twitter integrations for the first time
  */
-export const trackIntegrations = () => {
-  Integrations.find({ kind: INTEGRATION_KIND_CHOICES.TWITTER }).then(integrations => {
+export const trackIntegrations = async () => {
+  Integrations.find({ kind: INTEGRATION_KIND_CHOICES.TWITTER }).then(async integrations => {
     for (const integration of integrations) {
-      trackIntegration(integration);
+      const { twitterData } = integration;
+
+      if (!twitterData) {
+        return;
+      }
+
+      const account = await Accounts.findOne({ _id: twitterData.accountId });
+
+      if (!account) {
+        return;
+      }
+
+      trackIntegration(account, integration);
     }
   });
 };

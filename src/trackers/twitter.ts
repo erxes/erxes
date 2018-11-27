@@ -2,7 +2,7 @@ import { CONVERSATION_STATUSES } from '../data/constants';
 import { publishMessage } from '../data/resolvers/mutations/conversations';
 import { ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
 import { IConversationDocument } from '../db/models/definitions/conversations';
-import { IIntegrationDocument } from '../db/models/definitions/integrations';
+import { IIntegrationDocument, ITwitterData } from '../db/models/definitions/integrations';
 import { findParentTweets, twitRequest } from './twitterTracker';
 
 /*
@@ -326,8 +326,8 @@ export const receiveTimelineInformation = async (integration: IIntegrationDocume
     throw new Error('receiveTimelineInformation: Integration not found');
   }
 
-  const twitterData = integration.twitterData.toJSON();
-  const userId = twitterData.info.id;
+  const twitterData: ITwitterData = integration.twitterData.toJSON();
+  const userId = twitterData.profileId;
 
   // listen for mentioned tweets ================
   const isMentioned = data.entities.user_mentions.find(mention => mention.id === userId);

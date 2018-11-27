@@ -4,6 +4,7 @@ import { field } from '../utils';
 export interface IAccount {
   kind: string;
   token: string;
+  tokenSecret?: string;
   name: string;
   uid: string;
 }
@@ -19,6 +20,10 @@ export const accountSchema = new Schema({
   }),
   token: field({
     type: String,
+  }),
+  tokenSecret: field({
+    type: String,
+    optional: true,
   }),
   name: field({ type: String }),
   uid: field({ type: String }),
