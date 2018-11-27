@@ -33,6 +33,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
       loading: false
     };
   }
+
   onAccChange = () => {
     const accountId = (document.getElementById('acc') as HTMLInputElement)
       .value;

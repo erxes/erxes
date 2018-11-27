@@ -2,58 +2,46 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert, withProps } from 'modules/common/utils';
 import Twitter from 'modules/settings/integrations/components/twitter/Form';
+import { queries } from 'modules/settings/linkedAccounts/graphql';
+import { AccountsQueryResponse } from 'modules/settings/linkedAccounts/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../../brands/types';
-import {
-  GetTwitterAuthUrlQueryResponse,
-  SaveTwitterMutationResponse,
-  TwitterAuthParams
-} from '../../types';
+import { SaveTwitterMutationResponse } from '../../types';
 
-type Props = {
-  type: string;
-  history?: any;
-  queryParams?: any;
-};
+type Props = {};
 
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
-  twitterAuthUrlQuery: GetTwitterAuthUrlQueryResponse;
+  accountsQuery: AccountsQueryResponse;
 } & Props &
   SaveTwitterMutationResponse;
 
 const TwitterContainer = (props: FinalProps) => {
-  const {
-    brandsQuery,
-    twitterAuthUrlQuery,
-    history,
-    type,
-    queryParams,
-    saveMutation
-  } = props;
+  const { brandsQuery, saveMutation, accountsQuery } = props;
 
-  if (brandsQuery.loading || twitterAuthUrlQuery.loading) {
-    return <Spinner />;
-  }
-
-  if (type === 'link') {
-    window.location.href = twitterAuthUrlQuery.integrationGetTwitterAuthUrl;
+  if (brandsQuery.loading || accountsQuery.loading) {
     return <Spinner />;
   }
 
   const brands = brandsQuery.brands;
+  const accounts = accountsQuery.accounts || [];
 
-  const save = brandId => {
+  const save = ({
+    brandId,
+    accountId
+  }: {
+    brandId: string;
+    accountId: string;
+  }) => {
     saveMutation({
       variables: {
         brandId,
-        queryParams
+        accountId
       }
     })
       .then(() => {
         Alert.success('Congrats');
-        history.push('/settings/integrations');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -63,7 +51,8 @@ const TwitterContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     brands,
-    save
+    save,
+    accounts
   };
 
   return <Twitter {...updatedProps} />;
@@ -87,27 +76,24 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, GetTwitterAuthUrlQueryResponse>(
-      gql`
-        query integrationGetTwitterAuthUrl {
-          integrationGetTwitterAuthUrl
+    graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
+      name: 'accountsQuery',
+      options: {
+        variables: {
+          kind: 'twitter'
         }
-      `,
-      { name: 'twitterAuthUrlQuery' }
-    ),
+      }
+    }),
     graphql<
       Props,
       SaveTwitterMutationResponse,
-      { brandId: string; queryParams: TwitterAuthParams }
+      { brandId: string; accountId: string }
     >(
       gql`
-        mutation save(
-          $brandId: String!
-          $queryParams: TwitterIntegrationAuthParams!
-        ) {
+        mutation save($brandId: String!, $accountId: String!) {
           integrationsCreateTwitterIntegration(
             brandId: $brandId
-            queryParams: $queryParams
+            accountId: $accountId
           ) {
             _id
           }

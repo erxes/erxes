@@ -685,7 +685,7 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'twitter',
         logo: '/images/integrations/twitter.png',
-        createUrl: '/settings/integrations/twitter'
+        createModal: 'twitter'
       },
       {
         name: 'Messenger',

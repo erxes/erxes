@@ -1,3 +1,5 @@
+import { TwitterAuthParams } from '../integrations/types';
+
 export interface IAccount {
   _id: string;
   name: string;
@@ -17,4 +19,10 @@ export type AccountsQueryResponse = {
 
 export type RemoveMutationResponse = {
   removeAccount: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type LinkTwitterMutationResponse = {
+  accountsAddTwitter: (
+    { queryParams }: { queryParams: TwitterAuthParams }
+  ) => Promise<any>;
 };

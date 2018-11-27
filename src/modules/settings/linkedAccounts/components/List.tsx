@@ -16,6 +16,7 @@ import { IAccount } from '../types';
 
 type Props = {
   accounts: IAccount[];
+  twitterAuthUrl: string;
   delink: (accountId: string) => void;
 };
 
@@ -55,6 +56,12 @@ class List extends React.Component<Props> {
     const url = `${REACT_APP_API_URL}/fblogin`;
 
     window.location.replace(url);
+  }
+
+  onTwitterRedirect() {
+    const { twitterAuthUrl } = this.props;
+
+    window.location.href = twitterAuthUrl;
   }
 
   renderRow(account) {
@@ -106,6 +113,9 @@ class List extends React.Component<Props> {
     const actionBarRight = (
       <BarItems>
         <Button size="small" icon="cancel-1" onClick={this.onRedirect}>
+          Link Twitter Account
+        </Button>
+        <Button size="small" icon="cancel-1">
           Link Facebook Account
         </Button>
       </BarItems>

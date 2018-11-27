@@ -146,7 +146,12 @@ export default withProps<Props>(
       { name: 'saveMutation' }
     ),
     graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
-      name: 'accountsQuery'
+      name: 'accountsQuery',
+      options: {
+        variables: {
+          kind: 'facebook'
+        }
+      }
     }),
     withApollo
   )(withRouter<FinalProps>(FacebookContainer))

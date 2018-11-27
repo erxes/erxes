@@ -1,6 +1,6 @@
 const accounts = `
-  query accounts {
-    accounts {
+  query accounts($kind: String) {
+    accounts(kind: $kind) {
         _id
         name
         id
