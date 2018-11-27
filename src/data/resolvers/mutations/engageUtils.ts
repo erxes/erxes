@@ -58,8 +58,15 @@ const findCustomers = async ({
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
 
-  const doNotDisturbQuery = {
-    $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }],
+  const dndAndValidEmailQuery = {
+    $and: [
+      {
+        $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }],
+      },
+      {
+        $and: [{ hasValidEmail: true }, { hasValidEmail: { $exists: true } }],
+      },
+    ],
   };
 
   if (segmentId) {
@@ -67,7 +74,7 @@ const findCustomers = async ({
     customerQuery = await QueryBuilder.segments(segment);
   }
 
-  return Customers.find({ ...customerQuery, ...doNotDisturbQuery });
+  return Customers.find({ ...customerQuery, ...dndAndValidEmailQuery });
 };
 
 /**

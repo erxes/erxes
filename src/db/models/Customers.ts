@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { validateEmail } from '../../data/utils';
 import { ActivityLogs, Conversations, Deals, EngageMessages, Fields, InternalNotes } from './';
 import { CUSTOMER_BASIC_INFOS } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument, IFacebookData, ITwitterData } from './definitions/customers';
@@ -125,6 +126,11 @@ class Customer {
 
     // clean custom field values
     doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+    const isValid = await validateEmail(doc.primaryEmail);
+
+    if (doc.primaryEmail && isValid) {
+      doc.hasValidEmail = true;
+    }
 
     return Customers.create({
       createdAt: new Date(),
@@ -143,6 +149,11 @@ class Customer {
     if (doc.customFieldsData) {
       // clean custom field values
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+    }
+
+    if (doc.primaryEmail) {
+      const isValid = await validateEmail(doc.primaryEmail);
+      doc.hasValidEmail = isValid;
     }
 
     await Customers.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
