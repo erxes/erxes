@@ -13,7 +13,7 @@ describe('createOrUpdateTimelineConversation', () => {
 
   beforeEach(async () => {
     _integration = await integrationFactory({
-      twitterData: { info: { id: 1 } },
+      twitterData: { profileId: 1 },
     });
   });
 

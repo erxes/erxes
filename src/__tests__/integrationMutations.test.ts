@@ -236,12 +236,10 @@ describe('mutations', () => {
   });
 
   test('Create twitter integration', async () => {
+    const account = await accountFactory({});
     const args = {
       brandId: _brand._id,
-      queryParams: {
-        oauth_token: 'fakeOauthToken',
-        oauth_verifier: 'fakeOauthVerifier',
-      },
+      accountId: account._id,
     };
 
     const authenticateDoc = {
@@ -264,11 +262,11 @@ describe('mutations', () => {
     const mutation = `
       mutation integrationsCreateTwitterIntegration(
         $brandId: String!
-        $queryParams: TwitterIntegrationAuthParams!
+        $accountId: String!
       ) {
         integrationsCreateTwitterIntegration(
           brandId: $brandId
-          queryParams: $queryParams
+          accountId: $accountId
         ) {
           brandId
           twitterData
@@ -279,6 +277,7 @@ describe('mutations', () => {
     const twitterIntegration = await graphqlRequest(mutation, 'integrationsCreateTwitterIntegration', args, context);
 
     expect(twitterIntegration.brandId).toBe(args.brandId);
+    expect(twitterIntegration.twitterData.accountId).toBe(account._id);
   });
 
   test('Create facebook integration', async () => {
