@@ -51,18 +51,18 @@ class List extends React.Component<Props> {
     return 'default';
   }
 
-  onRedirect() {
+  onFacebookRedirect = () => {
     const { REACT_APP_API_URL } = process.env;
     const url = `${REACT_APP_API_URL}/fblogin`;
 
     window.location.replace(url);
-  }
+  };
 
-  onTwitterRedirect() {
+  onTwitterRedirect = () => {
     const { twitterAuthUrl } = this.props;
 
     window.location.href = twitterAuthUrl;
-  }
+  };
 
   renderRow(account) {
     return (
@@ -112,10 +112,10 @@ class List extends React.Component<Props> {
 
     const actionBarRight = (
       <BarItems>
-        <Button size="small" icon="cancel-1" onClick={this.onRedirect}>
+        <Button size="small" icon="cancel-1" onClick={this.onTwitterRedirect}>
           Link Twitter Account
         </Button>
-        <Button size="small" icon="cancel-1">
+        <Button size="small" icon="cancel-1" onClick={this.onFacebookRedirect}>
           Link Facebook Account
         </Button>
       </BarItems>

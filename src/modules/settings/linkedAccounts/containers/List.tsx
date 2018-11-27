@@ -17,12 +17,36 @@ import {
 type Props = {
   accountsQuery: AccountsQueryResponse;
   twitterAuthUrlQuery: GetTwitterAuthUrlQueryResponse;
+  queryParams: TwitterAuthParams;
+  history: any;
 } & RemoveMutationResponse &
   LinkTwitterMutationResponse;
 
 class ListContainer extends React.Component<Props> {
   render() {
-    const { accountsQuery, removeAccount, twitterAuthUrlQuery } = this.props;
+    const {
+      accountsQuery,
+      removeAccount,
+      twitterAuthUrlQuery,
+      queryParams,
+      accountsAddTwitter,
+      history
+    } = this.props;
+
+    if (
+      queryParams &&
+      (queryParams.oauth_token && queryParams.oauth_verifier)
+    ) {
+      accountsAddTwitter({ queryParams })
+        .then(() => {
+          history.push('/settings/linkedAccounts');
+          Alert.success('Success');
+        })
+        .catch(() => {
+          history.push('/settings/linkedAccounts');
+          Alert.error('Error');
+        });
+    }
 
     const delink = (accountId: string) => {
       removeAccount({
@@ -46,7 +70,10 @@ class ListContainer extends React.Component<Props> {
   }
 }
 
-export default withProps<{}>(
+export default withProps<{
+  queryParams: { [key: string]: string };
+  history: any;
+}>(
   compose(
     graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
       name: 'accountsQuery'
