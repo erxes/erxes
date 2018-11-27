@@ -125,13 +125,10 @@ export interface IMessengerApp {
 // Mongoose schemas ======================
 const twitterSchema = new Schema(
   {
-    info: {
+    profileId: {
       type: Object,
     },
-    token: {
-      type: String,
-    },
-    tokenSecret: {
+    accountId: {
       type: String,
     },
   },
