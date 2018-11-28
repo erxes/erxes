@@ -1,6 +1,6 @@
 import ConversationItem from './ConversationItem';
 import ConversationList from './ConversationList';
-import FilterGroup from './FilterGroup';
+import FilterToggler from './FilterToggler';
 import Sidebar from './Sidebar';
 import StatusFilterPopover from './StatusFilterPopover';
 
@@ -8,6 +8,6 @@ export {
   Sidebar,
   ConversationList,
   ConversationItem,
-  FilterGroup,
+  FilterToggler,
   StatusFilterPopover
 };

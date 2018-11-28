@@ -1,44 +1,33 @@
 import { EditorState } from 'draft-js';
-import {
-  Button,
-  FormControl,
-  Icon,
-  Spinner,
-  Tip
-} from 'modules/common/components';
+import { Button, FormControl, Icon, Tip } from 'modules/common/components';
 import {
   createStateFromHTML,
   ErxesEditor,
   toHTML
 } from 'modules/common/components/editor/Editor';
-import { IAttachmentPreview } from 'modules/common/types';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
-import {
-  AttachmentIndicator,
-  EditorActions,
-  FileName
-} from 'modules/inbox/styles';
+import { FileName } from 'modules/inbox/styles';
 import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import {
   AttachmentContainer,
-  AttachmentFile,
+  Attachments,
   ControlWrapper,
+  EditorFooter,
   LeftSection,
   MailEditorWrapper,
-  Preview,
-  Resipients
-} from '../../styles';
+  Resipients,
+  Rotate
+} from './styles';
 
 type Props = {
   integrations: IIntegration[];
   toEmail?: string;
   toEmails?: string[];
-  setAttachmentPreview?: (data: IAttachmentPreview) => void;
-  attachmentPreview: { name: string; data: string; type: string };
+  subject?: string;
   closeModal?: () => void;
 
-  save: (
+  send: (
     params: {
       cc?: string;
       bcc?: string;
@@ -47,7 +36,8 @@ type Props = {
       body: string;
       integrationId?: string;
       attachments: string[];
-    }
+    },
+    callback: () => void
   ) => void;
 };
 
@@ -65,6 +55,8 @@ type State = {
   integrations: IIntegration[];
   attachments: string[];
   totalFileSize: number;
+  attachmentPreview?: { name: string; data: string; type: string };
+  isSending: boolean;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -75,18 +67,23 @@ class MailForm extends React.Component<Props, State> {
       status: 'draft',
       isCc: false,
       isBcc: false,
+      isSending: false,
       content: '',
       cc: '',
       bcc: '',
       toEmails: props.toEmail || '',
       from: '',
-      subject: '',
+      subject: props.subject || '',
       attachments: [],
       totalFileSize: 0,
       integrations: props.integrations,
       editorState: createStateFromHTML(EditorState.createEmpty(), '')
     };
   }
+
+  setAttachmentPreview = attachmentPreview => {
+    this.setState({ attachmentPreview });
+  };
 
   getContent = editorState => {
     return toHTML(editorState);
@@ -104,15 +101,8 @@ class MailForm extends React.Component<Props, State> {
     this.onChange(name, !this.state[name]);
   };
 
-  removeImage = (value: string) => {
-    const { attachments } = this.state;
-
-    this.setState({ attachments: attachments.filter(item => item !== value) });
-  };
-
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
-    const { setAttachmentPreview } = this.props;
 
     uploadHandler({
       files,
@@ -132,17 +122,23 @@ class MailForm extends React.Component<Props, State> {
         });
 
         // remove preview
-        if (setAttachmentPreview) {
-          setAttachmentPreview(null);
-        }
+        this.setAttachmentPreview(null);
       },
 
       afterRead: ({ result, fileInfo }) => {
-        if (setAttachmentPreview) {
-          setAttachmentPreview(Object.assign({ data: result }, fileInfo));
-        }
+        this.setAttachmentPreview(Object.assign({ data: result }, fileInfo));
       }
     });
+  };
+
+  onAfterSend = () => {
+    this.cancelEditing();
+
+    const { closeModal } = this.props;
+
+    if (closeModal) {
+      closeModal();
+    }
   };
 
   onSend = () => {
@@ -151,23 +147,27 @@ class MailForm extends React.Component<Props, State> {
     const body = this.getContent(this.state.editorState);
     const integrationId = from;
 
-    this.props.save({
-      subject,
-      toEmails,
-      cc,
-      bcc,
-      body,
-      integrationId,
-      attachments
-    });
+    this.setState({ isSending: true });
 
-    this.cancelEditing();
+    this.props.send(
+      {
+        subject,
+        toEmails,
+        cc,
+        bcc,
+        body,
+        integrationId,
+        attachments
+      },
+      this.onAfterSend
+    );
   };
 
   cancelEditing = () => {
     this.setState({
       isCc: false,
       isBcc: false,
+      isSending: false,
       editorState: EditorState.createEmpty(),
       cc: '',
       bcc: '',
@@ -228,7 +228,7 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <ControlWrapper>
-        <span>Cc</span>
+        <span>Cc:</span>
         <FormControl type="text" value={this.state.cc} onChange={onChange} />
       </ControlWrapper>
     );
@@ -244,26 +244,19 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <ControlWrapper>
-        <span>Bcc</span>
+        <span>Bcc:</span>
         <FormControl type="text" onChange={onChange} value={this.state.bcc} />
       </ControlWrapper>
     );
   }
 
-  renderAttachmentPreview() {
-    const { attachmentPreview } = this.props;
+  onRemoveAttach = (attachment: string) => {
+    const { attachments } = this.state;
 
-    if (!attachmentPreview) {
-      return null;
-    }
-
-    return (
-      <Preview>
-        <AttachmentFile>{attachmentPreview.name}</AttachmentFile>
-        <Spinner />
-      </Preview>
-    );
-  }
+    this.setState({
+      attachments: attachments.filter(item => item !== attachment)
+    });
+  };
 
   renderAttachments() {
     const { attachments } = this.state;
@@ -272,17 +265,19 @@ class MailForm extends React.Component<Props, State> {
       return null;
     }
 
-    const onClick = attachment => this.removeImage(attachment);
-
     return (
-      <AttachmentIndicator>
+      <Attachments>
         {attachments.map((attachment, index) => (
           <AttachmentContainer key={index}>
             <FileName>{attachment}</FileName>
-            <Icon icon="cancel-1" size={18} onClick={onClick} />
+            <Icon
+              icon="cancel-1"
+              size={14}
+              onClick={this.onRemoveAttach.bind(this, attachment)}
+            />
           </AttachmentContainer>
         ))}
-      </AttachmentIndicator>
+      </Attachments>
     );
   }
 
@@ -295,7 +290,7 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <Button
-        btnStyle="simple"
+        btnStyle="danger"
         size="small"
         onClick={closeModal}
         icon="cancel-1"
@@ -306,38 +301,43 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderButtons() {
-    const { toEmails, from } = this.state;
+    const { toEmails, from, attachmentPreview, isSending } = this.state;
 
     const disabled = toEmails && from ? false : true;
 
     return (
-      <EditorActions>
-        <Tip text={__('Attach file')}>
-          <label>
-            <Icon icon="upload-2" />
-            <input type="file" onChange={this.handleFileInput} />
-          </label>
-        </Tip>
-
-        <Button
-          onClick={this.cancelEditing}
-          btnStyle="simple"
-          size="small"
-          icon="cancel-1"
-        >
-          Discard
-        </Button>
-        {this.renderCancelButton()}
-        <Button
-          disabled={disabled}
-          onClick={this.onSend}
-          btnStyle="success"
-          size="small"
-          icon="send"
-        >
-          Send
-        </Button>
-      </EditorActions>
+      <EditorFooter>
+        {attachmentPreview ? (
+          <Rotate />
+        ) : (
+          <Tip text={__('Attach file')}>
+            <label>
+              <Icon icon="upload-2" />
+              <input type="file" onChange={this.handleFileInput} />
+            </label>
+          </Tip>
+        )}
+        <div>
+          <Button
+            onClick={this.cancelEditing}
+            btnStyle="warning"
+            size="small"
+            icon="eraser-1"
+          >
+            Discard
+          </Button>
+          {this.renderCancelButton()}
+          <Button
+            disabled={disabled}
+            onClick={this.onSend}
+            btnStyle="success"
+            size="small"
+            icon="send"
+          >
+            {isSending ? 'Sending' : 'Send'}
+          </Button>
+        </div>
+      </EditorFooter>
     );
   }
 
@@ -357,7 +357,7 @@ class MailForm extends React.Component<Props, State> {
     return (
       <MailEditorWrapper>
         <ControlWrapper>
-          <span>To</span>
+          <span>To:</span>
           {this.renderToEmails()}
 
           <LeftSection>
@@ -373,7 +373,7 @@ class MailForm extends React.Component<Props, State> {
         {this.renderBCC()}
 
         <ControlWrapper>
-          <span>From</span>
+          <span>From:</span>
           <FormControl
             componentClass="select"
             onChange={formOnChange}
@@ -395,7 +395,6 @@ class MailForm extends React.Component<Props, State> {
 
         <ErxesEditor {...props} />
 
-        {this.renderAttachmentPreview()}
         {this.renderAttachments()}
         {this.renderButtons()}
       </MailEditorWrapper>

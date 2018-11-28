@@ -1,7 +1,11 @@
 import { Button, DateFilter, Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Resolver, Tagger } from 'modules/inbox/containers';
-import { ConversationList } from 'modules/inbox/containers/leftSidebar';
+import {
+  ConversationList,
+  FilterList,
+  FilterToggler
+} from 'modules/inbox/containers/leftSidebar';
 import { queries } from 'modules/inbox/graphql';
 import { PopoverButton } from 'modules/inbox/styles';
 import { Sidebar } from 'modules/layout/components';
@@ -9,7 +13,7 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import * as React from 'react';
 import { IConversation } from '../../types';
 import AssignBoxPopover from '../assignBox/AssignBoxPopover';
-import { FilterGroup, StatusFilterPopover } from './';
+import { StatusFilterPopover } from './';
 import {
   AdditionalSidebar,
   DropdownWrapper,
@@ -33,7 +37,7 @@ type Props = {
   toggleBulk: (target: IConversation[], toggleAdd: boolean) => void;
   emptyBulk: () => void;
   config: { [key: string]: boolean };
-  toggle: (params: { name: string; isOpen: boolean }) => void;
+  toggleSidebar: (params: { isOpen: boolean }) => void;
 };
 
 type State = {
@@ -57,13 +61,12 @@ class LeftSidebar extends React.Component<Props, State> {
     );
   }
 
-  onToggle = () => {
-    const { toggle } = this.props;
+  onToggleSidebar = () => {
+    const { toggleSidebar } = this.props;
     const { isOpen } = this.state;
 
     this.setState({ isOpen: !isOpen });
-
-    toggle({ name: 'showAddition', isOpen: !isOpen });
+    toggleSidebar({ isOpen: !isOpen });
   };
 
   renderSidebarActions() {
@@ -88,9 +91,9 @@ class LeftSidebar extends React.Component<Props, State> {
     return (
       <Sidebar.Header>
         <Button
-          btnStyle="simple"
+          btnStyle={this.state.isOpen ? 'default' : 'simple'}
           size="small"
-          onClick={this.onToggle}
+          onClick={this.onToggleSidebar}
           icon="levels"
         />
         <DropdownWrapper>
@@ -111,7 +114,7 @@ class LeftSidebar extends React.Component<Props, State> {
   }
 
   renderAdditionalSidebar() {
-    const { integrations, queryParams, config, toggle } = this.props;
+    const { integrations, queryParams } = this.props;
 
     if (!this.state.isOpen) {
       return null;
@@ -119,59 +122,51 @@ class LeftSidebar extends React.Component<Props, State> {
 
     return (
       <>
-        <FilterGroup
-          isOpen={config.showChannels}
-          toggleName="showChannels"
-          toggle={toggle}
-          groupText="Channels"
-          query={{
-            queryName: 'channelList',
-            dataName: 'channels'
-          }}
-          counts="byChannels"
-          paramKey="channelId"
-          queryParams={queryParams}
-        />
+        <FilterToggler groupText="Channels" toggleName="showChannels">
+          <FilterList
+            query={{
+              queryName: 'channelList',
+              dataName: 'channels'
+            }}
+            counts="byChannels"
+            paramKey="channelId"
+            queryParams={queryParams}
+          />
+        </FilterToggler>
 
-        <FilterGroup
-          isOpen={config.showBrands}
-          toggleName="showBrands"
-          toggle={toggle}
-          groupText="Brands"
-          query={{ queryName: 'brandList', dataName: 'brands' }}
-          counts="byBrands"
-          queryParams={queryParams}
-          paramKey="brandId"
-        />
+        <FilterToggler groupText="Brands" toggleName="showBrands">
+          <FilterList
+            query={{ queryName: 'brandList', dataName: 'brands' }}
+            counts="byBrands"
+            queryParams={queryParams}
+            paramKey="brandId"
+          />
+        </FilterToggler>
 
-        <FilterGroup
-          isOpen={config.showIntegrations}
-          toggleName="showIntegrations"
-          toggle={toggle}
-          groupText="Integrations"
-          fields={integrations}
-          queryParams={queryParams}
-          counts="byIntegrationTypes"
-          paramKey="integrationType"
-        />
+        <FilterToggler groupText="Integrations" toggleName="showIntegrations">
+          <FilterList
+            fields={integrations}
+            queryParams={queryParams}
+            counts="byIntegrationTypes"
+            paramKey="integrationType"
+          />
+        </FilterToggler>
 
-        <FilterGroup
-          isOpen={config.showTags}
-          toggleName="showTags"
-          toggle={toggle}
-          groupText="Tags"
-          query={{
-            queryName: 'tagList',
-            dataName: 'tags',
-            variables: {
-              type: TAG_TYPES.CONVERSATION
-            }
-          }}
-          queryParams={queryParams}
-          counts="byTags"
-          paramKey="tag"
-          icon="tag"
-        />
+        <FilterToggler groupText="Tags" toggleName="showTags">
+          <FilterList
+            query={{
+              queryName: 'tagList',
+              dataName: 'tags',
+              variables: {
+                type: TAG_TYPES.CONVERSATION
+              }
+            }}
+            queryParams={queryParams}
+            counts="byTags"
+            paramKey="tag"
+            icon="tag"
+          />
+        </FilterToggler>
       </>
     );
   }

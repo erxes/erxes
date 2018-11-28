@@ -19,7 +19,10 @@ const sendGmailFields = `
   $toEmails: String!,
   $cc: String,
   $bcc: String,
-  $attachments: [String]
+  $attachments: [String],
+  $headerId: String,
+  $references: String,
+  $threadId: String
 `;
 
 const sendGmailVariables = `
@@ -31,7 +34,10 @@ const sendGmailVariables = `
   toEmails: $toEmails,
   cc: $cc,
   bcc: $bcc,
-  attachments: $attachments
+  attachments: $attachments,
+  headerId: $headerId,
+  references: $references,
+  threadId: $threadId
 `;
 
 const integrationsCreateMessenger = `

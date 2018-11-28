@@ -54,6 +54,11 @@ export interface IGmailAttachment {
   attachmentId: string;
 }
 
+export interface IGmailDataAttachment {
+  data?: string;
+  size: number;
+}
+
 export interface IConversationGmailData {
   messageId?: string;
   headerId?: string;
@@ -62,7 +67,8 @@ export interface IConversationGmailData {
   cc?: string;
   bcc?: string;
   reply?: string;
-  refrences?: string;
+  references?: string;
+  threadId?: string;
   subject?: string;
   textPlain?: string;
   textHtml?: string;
@@ -166,6 +172,7 @@ export interface IMessage {
   facebookData?: IMessageFacebookData;
   twitterData?: ITwitterData;
   gmailData?: IConversationGmailData;
+  gmailDataAttachments?: IGmailDataAttachment[];
 
   _id: string;
   user?: IUser;

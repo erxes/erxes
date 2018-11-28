@@ -1,11 +1,8 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 
-const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
-  styled.div
-)`
- 
+const InternalMessages = styled.div`
+  padding: 0 20px 20px;
 `;
 
 const EmailItem = styled.div`
@@ -48,10 +45,36 @@ const Meta = styled.div`
   strong {
     display: block;
   }
+`;
 
-  > div {
-    margin-left: 13px;
+const Details = styled.div`
+  margin-left: 13px;
+  flex: 1;
+
+  span {
+    color: ${colors.textSecondary};
+    margin-right: 10px;
   }
 `;
 
-export { EmailItem, Subject, Meta, Content, MessageContent };
+const Date = styled.div`
+  margin: 0 10px;
+  font-size: 12px;
+  color: #666;
+`;
+
+const RightSide = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export {
+  EmailItem,
+  Subject,
+  Meta,
+  Date,
+  Details,
+  Content,
+  InternalMessages,
+  RightSide
+};

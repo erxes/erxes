@@ -24,14 +24,10 @@ type FinalProps = {
 const STORAGE_KEY = 'erxes_additional_sidebar_config';
 
 class Sidebar extends React.Component<FinalProps> {
-  toggleSidebar(isOpen: boolean) {
-    localStorage.setItem(STORAGE_KEY, isOpen ? 'open' : 'close');
-  }
-
-  toggle = ({ name, isOpen }: { name: string; isOpen: boolean }) => {
+  toggle = ({ isOpen }: { isOpen: boolean }) => {
     const config = getConfig(STORAGE_KEY);
 
-    config[name] = isOpen;
+    config.showAddition = isOpen;
 
     setConfig(STORAGE_KEY, config);
   };
@@ -40,13 +36,7 @@ class Sidebar extends React.Component<FinalProps> {
     const { totalCountQuery } = this.props;
 
     if (!localStorage.getItem(STORAGE_KEY)) {
-      setConfig(STORAGE_KEY, {
-        showAddition: true,
-        showChannels: true,
-        showBrands: false,
-        showIntegrations: false,
-        showTags: false
-      });
+      setConfig(STORAGE_KEY, { showAddition: true });
     }
 
     const integrations = INTEGRATIONS_TYPES.ALL_LIST.map(item => ({
@@ -61,7 +51,7 @@ class Sidebar extends React.Component<FinalProps> {
       integrations,
       totalCount,
       config: getConfig(STORAGE_KEY),
-      toggle: this.toggle
+      toggleSidebar: this.toggle
     };
 
     const content = props => {

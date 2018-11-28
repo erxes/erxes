@@ -45,7 +45,7 @@ export default `
     senderId
     senderName
   }
-  gmailData{
+  gmailData {
     messageId
     headerId
     from
@@ -53,10 +53,21 @@ export default `
     cc
     bcc
     reply
-    refrences
+    references
+    threadId
     subject
     textPlain
     textHtml
+    attachments {
+      filename
+      mimeType
+      size
+      attachmentId
+    }
+  }
+  gmailDataAttachments {
+    size
+    data
   }
   user {
     _id

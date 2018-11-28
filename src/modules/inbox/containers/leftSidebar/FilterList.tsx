@@ -1,33 +1,27 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { FilterByParams, Icon, Spinner } from 'modules/common/components';
+import { FilterByParams, Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
 import * as React from 'react';
-import { GroupTitle } from './styles';
 
 type Props = {
   query?: { queryName: string; dataName: string; variables?: any };
   fields?: any[];
-  groupText: string;
   counts: string;
   paramKey: string;
   icon?: string;
   queryParams?: any;
-  isOpen: boolean;
-  toggleName: string;
-  toggle: (params: { name: string; isOpen: boolean }) => void;
 };
 
 type State = {
   fields: any[];
   counts: any;
   loading: boolean;
-  isOpen: boolean;
 };
 
-export default class FilterGroup extends React.Component<Props, State> {
+export default class FilterGroup extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -38,20 +32,10 @@ export default class FilterGroup extends React.Component<Props, State> {
     }
 
     this.state = {
-      isOpen: props.isOpen,
       fields: props.fields || [],
       counts: {},
       loading
     };
-  }
-
-  // rerender component
-  update = () => {
-    this.forceUpdate();
-  };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.state !== nextState;
   }
 
   doQuery() {
@@ -83,27 +67,12 @@ export default class FilterGroup extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    if (this.state.isOpen) {
-      this.doQuery();
-    }
+    this.doQuery();
   }
 
-  onClick = () => {
-    if (!this.state.isOpen) {
-      this.doQuery();
-    }
-
-    this.setState({ isOpen: !this.state.isOpen });
-
-    const { toggle, toggleName } = this.props;
-
-    toggle({ name: toggleName, isOpen: !this.state.isOpen });
-  };
-
-  renderPopover = () => {
+  render() {
     const { paramKey, icon } = this.props;
-    const { counts } = this.state;
-    const { fields, loading } = this.state;
+    const { counts, fields, loading } = this.state;
 
     if (loading) {
       return <Spinner objective={true} />;
@@ -117,22 +86,7 @@ export default class FilterGroup extends React.Component<Props, State> {
         icon={icon}
         loading={false}
         searchable={false}
-        update={this.update}
       />
-    );
-  };
-
-  render() {
-    const { groupText } = this.props;
-
-    return (
-      <>
-        <GroupTitle onClick={this.onClick}>
-          {__(groupText)}
-          <Icon icon="downarrow" />
-        </GroupTitle>
-        {this.state.isOpen && this.renderPopover()}
-      </>
     );
   }
 }

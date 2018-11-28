@@ -179,15 +179,19 @@ const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
   > section {
     margin: 0;
     box-shadow: none;
-    border-left: 1px solid ${colors.borderPrimary};
+    border-left: ${props =>
+      props.isOpen && `1px solid ${colors.borderPrimary}`};;
   }
 `;
+
+const shadowColor = 'rgba(0,0,0,0.1)';
 
 const AdditionalSidebar = styled.div`
   width: 200px;
   background: ${colors.bgLight};
   flex-shrink: 0;
   padding: 10px 0;
+  box-shadow: inset -40px 0px 40px -40px ${shadowColor};
   overflow: auto;
   position: absolute;
   left: 0;
@@ -200,29 +204,28 @@ const AdditionalSidebar = styled.div`
 `;
 
 const DropdownWrapper = styled.div`
+  position: relative;
+
   > div {
-    margin-left: 20px;
+    padding-left: 20px;
   }
 `;
 
-const GroupTitle = styled.div`
+const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
   font-weight: bold;
   line-height: 32px;
   padding: 0 20px;
+  color: ${props => props.isOpen && colors.colorSecondary};
+  user-select: none;
+  transition: color ease 0.3s;
 
   i {
     margin-left: 5px;
     margin-right: 0;
     font-size: 10px;
+    display: inline-block;
     transition: all ease 0.3s;
-  }
-
-  &[aria-describedby] {
-    color: ${colors.colorSecondary};
-
-    i {
-      transform: rotate(180deg);
-    }
+    transform: ${props => props.isOpen && 'rotate(180deg)'};
   }
 
   &:hover {
