@@ -1,6 +1,11 @@
-import { ControlLabel, FormGroup } from 'modules/common/components';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { IBrand } from 'modules/settings/brands/types';
+import { LANGUAGES } from 'modules/settings/general/constants';
 import * as React from 'react';
 import Toggle from 'react-toggle';
 import { SelectBrand } from '../..';
@@ -12,16 +17,33 @@ type Props = {
   ) => void;
   brandId?: string;
   brands?: IBrand[];
+  languageCode: string;
   notifyCustomer?: boolean;
 };
 
-class Options extends React.Component<Props> {
+type State = {
+  supporters?: any;
+  languageCode?: string;
+};
+
+class Options extends React.Component<Props, State> {
   onChangeFunction = (name, value) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
   };
 
+  onInputChange = <T extends keyof State>(name: any, value: State[T]) => {
+    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.props.onChange(name, value);
+  };
+
   render() {
+    const languageOnChange = e =>
+      this.onInputChange(
+        'languageCode',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
     const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
     const notifyCustomerChange = e =>
       this.onChangeFunction('notifyCustomer', e.target.checked);
@@ -29,6 +51,24 @@ class Options extends React.Component<Props> {
     return (
       <FlexItem>
         <LeftItem>
+          <FormGroup>
+            <ControlLabel>Default Language</ControlLabel>
+
+            <FormControl
+              componentClass="select"
+              id="languageCode"
+              defaultValue={this.props.languageCode}
+              onChange={languageOnChange}
+            >
+              <option />
+              {LANGUAGES.map((item, index) => (
+                <option key={index} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+
           <SelectBrand
             brands={this.props.brands || []}
             defaultValue={this.props.brandId}

@@ -1,11 +1,14 @@
 import { IUser } from 'modules/auth/types';
 import { NameCard } from 'modules/common/components';
-import { WidgetPreviewStyled } from 'modules/settings/integrations/components/messenger/widgetPreview/styles';
-import { LogoContainer } from 'modules/settings/styles';
 import * as React from 'react';
 import strip from 'strip';
 import * as xss from 'xss';
-import { Messenger, PreviewContent, WebPreview } from '../styles';
+import {
+  LauncherContainer,
+  PreviewContent,
+  WebPreview,
+  WidgetPreview
+} from '../styles';
 
 type Props = {
   content?: string;
@@ -35,7 +38,7 @@ class MessengerPreview extends React.Component<Props, State> {
     }
 
     return (
-      <WidgetPreviewStyled className={classNames}>
+      <WidgetPreview className={classNames}>
         <NameCard user={this.props.user} singleLine={true} />
         <PreviewContent
           isFullmessage={isFullmessage}
@@ -43,7 +46,7 @@ class MessengerPreview extends React.Component<Props, State> {
             __html: isFullmessage ? xss(content || '') : xss(strip(content))
           }}
         />
-      </WidgetPreviewStyled>
+      </WidgetPreview>
     );
   };
 
@@ -51,13 +54,12 @@ class MessengerPreview extends React.Component<Props, State> {
     const { sentAs } = this.props;
 
     return (
-      <WebPreview className={`type-${sentAs}`}>
-        <Messenger>
-          {this.renderNotificationBody()}
-          <LogoContainer>
-            <span>1</span>
-          </LogoContainer>
-        </Messenger>
+      <WebPreview className={`type-${sentAs}`} isEngage={true}>
+        {this.renderNotificationBody()}
+
+        <LauncherContainer>
+          <span>1</span>
+        </LauncherContainer>
       </WebPreview>
     );
   }
