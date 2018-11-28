@@ -116,14 +116,6 @@ class Mail extends React.Component<Props, {}> {
         <Content
           dangerouslySetInnerHTML={{ __html: this.cleanHtml(mailContent) }}
         />
-        {attachments.map(attachment => {
-          return (
-            <img
-              key={attachment.data}
-              src={`data:image/png;base64,${attachment.data}`}
-            />
-          );
-        })}
       </EmailItem>
     );
   }

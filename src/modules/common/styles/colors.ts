@@ -28,7 +28,6 @@ const bgLight = '#FAFAFA';
 const bgActive = '#F0F0F0';
 const bgUnread = '#F7F8FC';
 const bgInternal = '#FFFCCC';
-const bgIdle = '#FCE1E1';
 
 // Link colors
 const linkPrimary = '#1785FC';
@@ -79,7 +78,6 @@ export default {
   bgActive,
   bgUnread,
   bgInternal,
-  bgIdle,
 
   linkPrimary,
   linkPrimaryHover,

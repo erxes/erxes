@@ -1,12 +1,15 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 
+const dateColor = '#666';
+const subjectColor = '#202124';
+
 const InternalMessages = styled.div`
-  padding: 0 20px 20px;
+  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
 `;
 
 const EmailItem = styled.div`
-  padding: 20px;
+  padding: ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
 
   &:last-of-type {
@@ -30,14 +33,14 @@ const Content = styled.div`
 
 const Subject = styled.h2`
   font-size: 26px;
-  color: #202124;
+  color: ${subjectColor};
   font-weight: 400;
-  margin: 0 0 20px;
+  margin: 0 0 ${dimensions.coreSpacing}px;
   padding-left: 45px;
 `;
 
 const Meta = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -60,7 +63,7 @@ const Details = styled.div`
 const Date = styled.div`
   margin: 0 10px;
   font-size: 12px;
-  color: #666;
+  color: ${dateColor};
 `;
 
 const RightSide = styled.div`
