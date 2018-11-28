@@ -30,9 +30,9 @@ const userMutations = {
       secure: false,
     };
 
-    const { NODE_ENV } = process.env;
+    const { HTTPS } = process.env;
 
-    if (NODE_ENV === 'production') {
+    if (HTTPS === 'true') {
       cookieOptions.secure = true;
     }
 
