@@ -7,7 +7,7 @@ type Props = {
   message?: IMessagesItem;
 };
 
-class GreetingMessage extends React.Component<Props> {
+class GreetingMessage extends React.PureComponent<Props> {
   renderGreetingTitle() {
     const { message } = this.props;
 
