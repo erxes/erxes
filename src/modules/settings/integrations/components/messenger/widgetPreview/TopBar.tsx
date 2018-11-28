@@ -1,6 +1,5 @@
 import { IUser } from 'modules/auth/types';
 import { Icon } from 'modules/common/components';
-import { WebPreview } from 'modules/engage/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import { IMessagesItem } from 'modules/settings/integrations/types';
 import * as moment from 'moment';

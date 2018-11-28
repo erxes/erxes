@@ -5,7 +5,6 @@ import {
 } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { LANGUAGES } from 'modules/settings/general/constants';
 import { IMessages } from 'modules/settings/integrations/types';
 import { SubHeading } from 'modules/settings/styles';
 import * as React from 'react';
