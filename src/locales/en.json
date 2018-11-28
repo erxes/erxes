@@ -143,6 +143,7 @@
   "simple": "simple",
   "custom": "custom",
   "default": "default",
+  "default language": "default language",
   "primary": "primary",
   "Content": "Content",
   "Save & draft": "Save & draft",
@@ -671,6 +672,12 @@
   "Package version": "Package version",
   "Branch name": "Branch name",
   "Abbreviated": "Abbreviated",
+  "User": "User",
+  "Recent conversations": "Recent conversations",
+  "Start new conversation": "Start new conversation",
+  "Talk with support staff": "Talk with support staff",
+  "Send a message": "Send a message",
   "Volume Report By Customer": "Volume Report By Customer",
-  "Export Report": "Export Report"
+  "Export Report": "Export Report",
+  "We`re ready to help you.": "We`re ready to help you."
 }
