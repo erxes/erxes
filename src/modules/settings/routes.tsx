@@ -8,6 +8,7 @@ import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
 import ImportHistory from './importHistory/routes';
 import IntegrationsRoutes from './integrations/routes';
+import LinkedAccountRoutes from './linkedAccounts/routes';
 import MainRoutes from './main/routes';
 import ProductService from './productService/routes';
 import ProfileRoutes from './profile/routes';
@@ -33,6 +34,7 @@ const routes = () => (
     <PropertiesRoutes key="PropertiesRoutes" />
     <ImportHistory key="ImportHistory" />
     <StatusRoutes key="StatusRoutes" />
+    <LinkedAccountRoutes key="LinkedAccountRoutes" />
   </React.Fragment>
 );
 

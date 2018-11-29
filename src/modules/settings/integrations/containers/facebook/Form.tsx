@@ -3,24 +3,26 @@ import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
+import { queries } from 'modules/settings/linkedAccounts/graphql';
 import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { BrandsQueryResponse } from '../../../brands/types';
+import { AccountsQueryResponse } from '../../../linkedAccounts/types';
 import {
   CreateFacebookMutationResponse,
   CreateFacebookMutationVariables,
-  FacebookAppsListQueryResponse,
   IPages
 } from '../../types';
 
 type Props = {
   client: any;
   type?: string;
+  closeModal: () => void;
 };
 
 type FinalProps = {
-  integrationFacebookAppsListQuery: FacebookAppsListQueryResponse;
+  accountsQuery: AccountsQueryResponse;
   brandsQuery: BrandsQueryResponse;
 } & IRouterProps &
   Props &
@@ -37,18 +39,16 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     this.state = { pages: [] };
   }
 
-  onAppSelect = (appId: string) => {
+  onAccSelect = (doc: { accountId?: string }) => {
     this.props.client
       .query({
         query: gql`
-          query integrationFacebookPagesList($appId: String) {
-            integrationFacebookPagesList(appId: $appId)
+          query integrationFacebookPagesList($accountId: String) {
+            integrationFacebookPagesList(accountId: $accountId)
           }
         `,
 
-        variables: {
-          appId
-        }
+        variables: doc
       })
 
       .then(({ data, loading }) => {
@@ -66,20 +66,23 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     const {
       history,
       brandsQuery,
-      integrationFacebookAppsListQuery,
-      saveMutation
+      saveMutation,
+      accountsQuery,
+      closeModal
     } = this.props;
 
-    if (brandsQuery.loading || integrationFacebookAppsListQuery.loading) {
+    if (brandsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
     const brands = brandsQuery.brands;
+    const accounts = accountsQuery.accounts || [];
 
-    const save = variables => {
+    const save = (variables, callback) => {
       saveMutation({ variables })
         .then(() => {
           Alert.success('Congrats');
+          callback();
           history.push('/settings/integrations');
         })
         .catch(e => {
@@ -88,11 +91,12 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     };
 
     const updatedProps = {
+      closeModal,
       brands,
-      apps: integrationFacebookAppsListQuery.integrationFacebookAppsList,
       pages: this.state.pages,
-      onAppSelect: this.onAppSelect,
-      save
+      onAccSelect: this.onAccSelect,
+      save,
+      accounts
     };
 
     return <Facebook {...updatedProps} />;
@@ -117,14 +121,6 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, FacebookAppsListQueryResponse>(
-      gql`
-        query integrationFacebookAppsList {
-          integrationFacebookAppsList
-        }
-      `,
-      { name: 'integrationFacebookAppsListQuery' }
-    ),
     graphql<
       Props,
       CreateFacebookMutationResponse,
@@ -134,14 +130,14 @@ export default withProps<Props>(
         mutation integrationsCreateFacebookIntegration(
           $brandId: String!
           $name: String!
-          $appId: String!
+          $accountId: String!
           $pageIds: [String!]!
         ) {
           integrationsCreateFacebookIntegration(
             brandId: $brandId
             name: $name
-            appId: $appId
             pageIds: $pageIds
+            accountId: $accountId
           ) {
             _id
           }
@@ -149,6 +145,14 @@ export default withProps<Props>(
       `,
       { name: 'saveMutation' }
     ),
+    graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
+      name: 'accountsQuery',
+      options: {
+        variables: {
+          kind: 'facebook'
+        }
+      }
+    }),
     withApollo
   )(withRouter<FinalProps>(FacebookContainer))
 );
