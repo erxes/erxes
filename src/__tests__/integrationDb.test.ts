@@ -1,6 +1,8 @@
 import * as faker from 'faker';
+import * as sinon from 'sinon';
 import { FORM_LOAD_TYPES, KIND_CHOICES, MESSENGER_DATA_AVAILABILITY } from '../data/constants';
 import {
+  accountFactory,
   brandFactory,
   conversationFactory,
   conversationMessageFactory,
@@ -10,6 +12,7 @@ import {
   userFactory,
 } from '../db/factories';
 import { Brands, ConversationMessages, Fields, Forms, Integrations, Users } from '../db/models';
+import * as facebookTracker from '../trackers/facebookTracker';
 
 describe('messenger integration model add method', () => {
   let _brand;
@@ -426,15 +429,15 @@ describe('social integration test', () => {
   });
 
   test('create twitter integration', async () => {
-    expect.assertions(5);
+    const account = await accountFactory({});
+    expect.assertions(4);
 
     const doc = {
       name: 'name',
       brandId: _brand._id,
       twitterData: {
-        info: { id: 1 },
-        token: 'token',
-        tokenSecret: 'tokenSecret',
+        profileId: '123312',
+        accountId: account._id,
       },
     };
 
@@ -448,23 +451,29 @@ describe('social integration test', () => {
     expect(integration.brandId).toBe(doc.brandId);
     expect(integration.kind).toBe(KIND_CHOICES.TWITTER);
     expect(integration.twitterData.toJSON()).toEqual(doc.twitterData);
-
-    try {
-      await Integrations.createTwitterIntegration(doc);
-    } catch (e) {
-      expect(e.message).toBe('Already added');
-    }
   });
 
   test('create facebook integration', async () => {
+    const account = await accountFactory({});
     const doc = {
       name: 'name',
       brandId: _brand._id,
       facebookData: {
-        appId: '1',
+        accountId: account._id,
         pageIds: ['1'],
       },
     };
+
+    process.env.FACEBOOK_APP_ID = '123321';
+    process.env.DOMAIN = 'qwqwe';
+
+    sinon.stub(facebookTracker, 'getPageInfo').callsFake(() => {
+      return { id: '456', access_token: '123' };
+    });
+
+    sinon.stub(facebookTracker, 'subscribePage').callsFake(() => {
+      return { success: true };
+    });
 
     const integration = await Integrations.createFacebookIntegration(doc);
 

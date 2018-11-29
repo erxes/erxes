@@ -46,11 +46,6 @@ export const types = `
     redirectUrl: String
   }
 
-  input TwitterIntegrationAuthParams {
-    oauth_token: String!
-    oauth_verifier: String!
-  }
-
   input MessengerOnlineHoursSchema {
     _id: String
     day: String
@@ -101,7 +96,7 @@ export const queries = `
   integrationGetGoogleAuthUrl(service: String): String
   integrationGetGoogleAccessToken(code: String): JSON
   integrationFacebookAppsList: [JSON]
-  integrationFacebookPagesList(appId: String): [JSON]
+  integrationFacebookPagesList(accountId: String): [JSON]
 `;
 
 export const mutations = `
@@ -135,13 +130,13 @@ export const mutations = `
 
   integrationsCreateTwitterIntegration(
     brandId: String!,
-    queryParams: TwitterIntegrationAuthParams!
+    accountId: String!
   ): Integration
 
   integrationsCreateFacebookIntegration(
     brandId: String!,
     name: String!,
-    appId: String!,
+    accountId: String!,
     pageIds: [String!]!,
   ): Integration
 

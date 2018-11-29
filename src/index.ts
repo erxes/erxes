@@ -185,8 +185,6 @@ server.listen(PORT, () => {
 });
 
 if (process.env.NODE_ENV === 'development') {
-  console.log(`ws://localhost:${PORT}/subscriptions`);
-
   app.use(
     '/graphiql',
     graphiqlExpress({

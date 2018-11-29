@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import './cronJobs';
 import { listenChangeConversation } from './db/listener';
 import { trackEngages } from './trackers/engageTracker';
-import { trackIntegrations as trackFacebooks } from './trackers/facebookTracker';
+import { trackFbLogin, trackIntegrations as trackFacebooks } from './trackers/facebookTracker';
 import { trackIntegrations as trackTwitters } from './trackers/twitterTracker';
 
 dotenv.config();
@@ -22,8 +22,9 @@ export const init = async app => {
   trackTwitters();
   trackEngages(app);
   trackFacebooks(app);
+  trackFbLogin(app);
 
-  /* USE_REPLICATION=True means we are using replicaset, so we can
+  /* USE_REPLICATION=true means we are using replicaset, so we can
    * use Collection.watch
    */
   if (USE_REPLICATION === 'true') {

@@ -1,4 +1,4 @@
-import { Brands, Channels, Integrations, Tags } from '../../../db/models';
+import { Accounts, Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { getConfig, getPageList } from '../../../trackers/facebook';
 import { getAccessToken, getAuthorizeUrl } from '../../../trackers/googleTracker';
 
@@ -153,19 +153,18 @@ const integrationQueries = {
   },
 
   /**
-   * Get facebook pages by appId
+   * Get facebook pages by account id
    */
-  async integrationFacebookPagesList(_root, { appId }: { appId: string }) {
-    // const app = getConfig().find( app => app.id === appId );
-    const app = getConfig().find(data => {
-      return data.id === appId;
-    });
+  async integrationFacebookPagesList(_root, { accountId }: { accountId: string }) {
+    const account = await Accounts.findOne({ _id: accountId });
 
-    if (!app) {
-      return [];
+    if (!account) {
+      throw new Error('Account not found');
     }
 
-    return getPageList(app.accessToken);
+    const accessToken = account.token;
+
+    return getPageList(accessToken);
   },
 };
 

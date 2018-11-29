@@ -49,6 +49,7 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
     // edit
     if (prevEntry) {
       validStageIds.push(_id);
+
       bulkOpsPrevEntry.push({
         updateOne: {
           filter: {
@@ -162,6 +163,7 @@ class Pipeline {
 
     for (const { _id, order } of orders) {
       ids.push(_id);
+
       bulkOps.push({
         updateOne: {
           filter: { _id },

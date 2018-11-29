@@ -1,3 +1,4 @@
+import Accounts from './Accounts';
 import ActivityLogs from './ActivityLogs';
 import Brands from './Brands';
 import Channels from './Channels';
@@ -32,6 +33,7 @@ export {
   EmailTemplates,
   Brands,
   Integrations,
+  Accounts,
   Forms,
   EngageMessages,
   Tags,

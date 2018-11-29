@@ -4,6 +4,7 @@ import * as fileType from 'file-type';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
+import * as request from 'request';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Companies, Customers, Notifications, Users } from '../db/models';
 import { IUserDocument } from '../db/models/definitions/users';
@@ -358,6 +359,24 @@ export const generateXlsx = async (workbook: any, name: string): Promise<string>
 
   return `${DOMAIN}/static/${url}`;
 };
+/**
+ * Sends post request to specific url
+ */
+export const sendPostRequest = (url: string, params: { [key: string]: string }) =>
+  new Promise((resolve, reject) =>
+    request.post(url, { form: params }, (error, response, body) => {
+      if (error) {
+        reject(error);
+      }
+
+      resolve({
+        body,
+        contentLength: response.headers['content-length'],
+        contentType: response.headers['content-type'],
+      });
+    }),
+  );
+
 /**
  * Validates email using MX record resolver
  * @param email as String

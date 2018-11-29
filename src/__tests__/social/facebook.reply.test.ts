@@ -1,6 +1,11 @@
 import * as sinon from 'sinon';
 import { FACEBOOK_DATA_KINDS } from '../../data/constants';
-import { conversationFactory, conversationMessageFactory, integrationFactory } from '../../db/factories';
+import {
+  accountFactory,
+  conversationFactory,
+  conversationMessageFactory,
+  integrationFactory,
+} from '../../db/factories';
 import { ConversationMessages, Conversations, Integrations } from '../../db/models';
 import { facebookReply } from '../../trackers/facebook';
 import { graphRequest } from '../../trackers/facebookTracker';
@@ -21,10 +26,12 @@ describe('facebook integration: reply', () => {
       },
     ]);
 
+    const account = await accountFactory({});
+
     // create integration
     integration = await integrationFactory({
       facebookData: {
-        appId: 'id',
+        accountId: account._id,
         pageIds: [pageId],
       },
     });
