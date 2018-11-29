@@ -24,14 +24,7 @@ export const init = async app => {
   trackFacebooks(app);
   trackFbLogin(app);
 
-  /* USE_REPLICATION=True means we are using replicaset, so we can
-   * use Collection.watch
-   */
-  if (USE_REPLICATION) {
-    listenChangeConversation();
-  }
-
-  /* USE_REPLICATION=True means we are using replicaset, so we can
+  /* USE_REPLICATION=true means we are using replicaset, so we can
    * use Collection.watch
    */
   if (USE_REPLICATION === 'true') {
