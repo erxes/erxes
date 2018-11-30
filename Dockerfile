@@ -1,6 +1,6 @@
 FROM erxes/runner:latest as build-deps
 WORKDIR /erxes-widgets/
-COPY package.json yarn.lock .
+COPY package.json yarn.lock ./
 RUN yarn
 COPY . .
 RUN yarn build
