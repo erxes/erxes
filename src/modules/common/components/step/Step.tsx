@@ -95,6 +95,14 @@ class Step extends React.Component<Props> {
     );
   }
 
+  onClickNext = (stepNumber?: number) => {
+    const { next } = this.props;
+
+    if (next && stepNumber) {
+      return next(stepNumber);
+    }
+  };
+
   render() {
     const {
       stepNumber,
@@ -132,7 +140,7 @@ class Step extends React.Component<Props> {
 
         <ShortStep
           show={!show}
-          onClick={next && stepNumber && next.bind(null, stepNumber)}
+          onClick={this.onClickNext.bind(null, stepNumber)}
         >
           <StepImg>
             <img src={img} alt="step-icon" />
