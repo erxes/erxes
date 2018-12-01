@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { Conversations, Integrations, Users } from '../../../db/models';
+import { ConversationMessages, Conversations, Integrations, Users } from '../../../db/models';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 
@@ -55,6 +55,16 @@ interface IGenerateResponseData {
   teamMembers: {
     data: IGenerateUserChartData[];
   };
+}
+
+type ChartDocs = IMessageDocument | IConversationDocument;
+
+interface IChartData {
+  collection?: ChartDocs[];
+  loopCount: number;
+  duration: number;
+  startTime: number;
+  messageSelector?: any;
 }
 
 export interface IListArgs {
@@ -140,14 +150,9 @@ export const generateMessageSelector = async (
  * Populates message collection into date range
  * by given duration and loop count for chart data.
  */
-type ChartDocs = IMessageDocument | IConversationDocument;
+export const generateChartData = async (args: IChartData): Promise<IGenerateChartData[]> => {
+  const { collection, loopCount, duration, startTime, messageSelector } = args;
 
-export const generateChartData = (
-  collection: ChartDocs[],
-  loopCount: number,
-  duration: number,
-  startTime: number,
-): IGenerateChartData[] => {
   const results = [{ x: formatTime(moment(startTime), 'YYYY-MM-DD'), y: 0 }];
   let begin = 0;
   let end = 0;
@@ -163,8 +168,13 @@ export const generateChartData = (
     dateText = formatTime(moment(end), 'YYYY-MM-DD');
 
     // messages count between begin and end time.
-    count = collection.filter(message => begin < message.createdAt.getTime() && message.createdAt.getTime() < end)
-      .length;
+    if (collection) {
+      count = collection.filter(message => begin < message.createdAt.getTime() && message.createdAt.getTime() < end)
+        .length;
+    }
+    if (messageSelector) {
+      count = await ConversationMessages.countDocuments({ ...messageSelector, createdAt: { $gte: begin, $lte: end } });
+    }
 
     results.push({ x: dateText, y: count });
   }
@@ -237,7 +247,12 @@ export const generateUserChartData = async ({
   startTime: number;
 }): Promise<IGenerateUserChartData> => {
   const user = await Users.findOne({ _id: userId });
-  const userData = generateChartData(userMessages, 4, duration, startTime);
+  const userData = await generateChartData({
+    collection: userMessages,
+    loopCount: 4,
+    duration,
+    startTime,
+  });
 
   if (!user) {
     return {
@@ -328,7 +343,12 @@ export const generateResponseData = async (
   startTime: number,
 ): Promise<IGenerateResponseData> => {
   // preparing trend chart data
-  const trend = generateChartData(responsData, 7, duration, startTime);
+  const trend = await generateChartData({
+    collection: responsData,
+    loopCount: 7,
+    duration,
+    startTime,
+  });
 
   // Average response time for all messages
   const time = Math.floor(allResponseTime / responsData.length);
