@@ -42,6 +42,7 @@ const userFields = `
 const conversationDetailQuery = `
   query ($_id: String, $integrationId: String!) {
     conversationDetail(_id: $_id, integrationId: $integrationId) {
+      _id
       messages {
         ${messageFields}
       }
