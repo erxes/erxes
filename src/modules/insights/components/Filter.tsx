@@ -54,7 +54,7 @@ class Filter extends React.Component<Props, States> {
     router.setParams(this.props.history, { brandId });
   };
 
-  onDateInputChange = (type: string, date: Date) => {
+  onDateInputChange = (type: string, date) => {
     if (type === 'endDate') {
       this.setState({ endDate: date, isChange: true });
     } else {
@@ -62,7 +62,7 @@ class Filter extends React.Component<Props, States> {
     }
   };
 
-  onFilterByDate = (type: string, date: Date) => {
+  onFilterByDate = (type: string, date) => {
     if (this.state.isChange) {
       const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
       router.setParams(this.props.history, { [type]: formatDate });

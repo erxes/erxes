@@ -5,7 +5,6 @@ import { Calendar as GoogleCalendar, Gmail } from './containers/google';
 import CreateMessenger from './containers/messenger/Create';
 import EditMessenger from './containers/messenger/Edit';
 import Store from './containers/Store';
-import Twitter from './containers/twitter/Form';
 
 const createMessenger = ({ location }) => {
   return <CreateMessenger queryParams={queryString.parse(location.search)} />;
@@ -13,10 +12,6 @@ const createMessenger = ({ location }) => {
 
 const editMessenger = ({ match }) => {
   return <EditMessenger integrationId={match.params._id} />;
-};
-
-const twitter = () => {
-  return <Twitter type="link" />;
 };
 
 const googleCalendar = ({ history, location }) => {
@@ -31,12 +26,6 @@ const gmail = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <Gmail type="link" history={history} queryParams={queryParams} />;
-};
-
-const twitterCallback = ({ history, location }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <Twitter type="form" history={history} queryParams={queryParams} />;
 };
 
 const googleCalendarCallback = ({ history, location }) => {
@@ -74,13 +63,6 @@ const routes = () => (
     />
 
     <Route
-      key="/settings/integrations/twitter"
-      exact={true}
-      path="/settings/integrations/twitter"
-      component={twitter}
-    />
-
-    <Route
       key="/settings/integrations/google-calendar"
       exact={true}
       path="/settings/integrations/google-calendar"
@@ -92,12 +74,6 @@ const routes = () => (
       exact={true}
       path="/settings/integrations/gmail"
       component={gmail}
-    />
-
-    <Route
-      key="/service/oauth/twitter_callback"
-      path="/service/oauth/twitter_callback"
-      component={twitterCallback}
     />
 
     <Route

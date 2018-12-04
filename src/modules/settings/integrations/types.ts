@@ -231,7 +231,7 @@ export type TwitterAuthParams = {
 
 export type SaveTwitterMutationResponse = {
   saveMutation: (
-    params: { variables: { brandId: string; queryParams: TwitterAuthParams } }
+    params: { variables: { brandId: string; accountId: string } }
   ) => Promise<any>;
 };
 
@@ -274,7 +274,7 @@ export type SendGmailMutationResponse = {
 export type CreateFacebookMutationVariables = {
   name: string;
   brandId: string;
-  appId: string;
+  accountId: string;
   pageIds: string[];
 };
 

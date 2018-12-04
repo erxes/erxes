@@ -146,13 +146,20 @@ class Avatar extends React.Component<Props> {
       fullName = company.primaryName || null;
     }
 
-    const Element = customer ? Link : 'div';
+    if (customer) {
+      return (
+        <AvatarStyled {...this.generateTypes()}>
+          <Link to={customer && `/customers/details/${customer._id}`}>
+            {avatar ? this.renderImage(avatar) : this.renderInitials(fullName)}
+          </Link>
+          {icon}
+        </AvatarStyled>
+      );
+    }
 
     return (
       <AvatarStyled {...this.generateTypes()}>
-        <Element to={customer && `/customers/details/${customer._id}`}>
-          {avatar ? this.renderImage(avatar) : this.renderInitials(fullName)}
-        </Element>
+        <div />
         {icon}
       </AvatarStyled>
     );
