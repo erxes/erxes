@@ -36,7 +36,13 @@ class Sidebar extends React.Component<FinalProps> {
     const { totalCountQuery } = this.props;
 
     if (!localStorage.getItem(STORAGE_KEY)) {
-      setConfig(STORAGE_KEY, { showAddition: true });
+      setConfig(STORAGE_KEY, {
+        showAddition: true,
+        showChannels: true,
+        showBrands: false,
+        showIntegrations: false,
+        showTags: false
+      });
     }
 
     const integrations = INTEGRATIONS_TYPES.ALL_LIST.map(item => ({
