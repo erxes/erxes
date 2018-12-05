@@ -77,6 +77,12 @@ const insightFirstResponseReportExport = `
   }
 `;
 
+const insightTagReportExport = `
+  query insightTagReportExport(${listParamsDef}) {
+    insightTagReportExport(${listParamsValue})
+  }
+`;
+
 export default {
   main,
   pieChart,
@@ -87,5 +93,6 @@ export default {
   brands,
   insightVolumeReportExport,
   insightActivityReportExport,
-  insightFirstResponseReportExport
+  insightFirstResponseReportExport,
+  insightTagReportExport
 };
