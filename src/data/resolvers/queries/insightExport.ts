@@ -1,8 +1,8 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { ConversationMessages, Users } from '../../../db/models';
+import { ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { INSIGHT_BASIC_INFOS } from '../../constants';
+import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { createXlsFile, generateXlsx } from '../../utils';
 import { findConversations, fixDates, generateMessageSelector, generateUserSelector, IListArgs } from './insightUtils';
@@ -10,6 +10,7 @@ import { findConversations, fixDates, generateMessageSelector, generateUserSelec
 interface IVolumeReportExportArgs {
   date: string;
   count: number;
+  customerCount: string;
   messageCount: number;
   resolvedCount: number;
   averageResponseDuration: string;
@@ -54,7 +55,7 @@ const convertTime = ({ duration, count }: { duration: number; count: number }) =
     return num.toString();
   };
 
-  return timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds) + ' (' + count + ')';
+  return timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds);
 };
 
 /*
@@ -146,6 +147,10 @@ const insightExportQueries = {
       );
 
       const conversationIds = _.pluck(filtered, '_id');
+      const custCount = _.unique(_.pluck(filtered, 'customerId')).length;
+      const customerCount = `${custCount} (${
+        filtered.length !== 0 ? Math.floor((100 * custCount) / filtered.length) : 0
+      }%)`;
       const messageCount = await ConversationMessages.countDocuments({ conversationId: { $in: conversationIds } });
       const resolvedCount = filtered.filter(conv => (conv.status = 'closed')).length;
       const closedDuration: IDurationWithCount = { duration: 0, count: 0 };
@@ -174,6 +179,7 @@ const insightExportQueries = {
       data.push({
         date: moment(begin).format(timeFormat),
         count: filtered.length,
+        customerCount,
         messageCount,
         resolvedCount,
         averageResponseDuration: convertTime(closedDuration),
@@ -419,6 +425,80 @@ const insightExportQueries = {
 
     // Write to file.
     return generateXlsx(workbook, `${fullName}First Response - ${dateToString(start)} - ${dateToString(end)}`);
+  },
+
+  /*
+   * Tag Report
+   */
+  async insightTagReportExport(_root, args: IListArgs) {
+    const { integrationType, brandId, startDate, endDate } = args;
+    const { start, end } = fixDates(startDate, endDate);
+
+    const integrationSelector: { brandId?: string; kind?: string } = {};
+    const conversationSelector = {
+      $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
+    };
+
+    if (brandId) {
+      integrationSelector.brandId = brandId;
+    }
+
+    const tags = await Tags.find({ type: TAG_TYPES.CONVERSATION }).select('name');
+
+    if (integrationType) {
+      integrationSelector.kind = integrationType;
+    }
+
+    const integrationIds = await Integrations.find(integrationSelector).select('_id');
+
+    // Reads default template
+    const { workbook, sheet } = await createXlsFile();
+    let rowIndex = 1;
+    const cols: string[] = [];
+
+    let begin = start;
+    const generateData = async () => {
+      const next = nextTime(begin);
+      rowIndex++;
+
+      addCell({
+        sheet,
+        rowIndex,
+        col: 'date',
+        value: moment(begin).format('YYYY-MM-DD'),
+        cols,
+      });
+
+      // count conversations by each tag
+      for (const tag of tags) {
+        // find conversation counts of given tag
+        const count = await Conversations.countDocuments({
+          ...conversationSelector,
+          integrationId: { $in: integrationIds },
+          createdAt: { $gte: begin, $lte: next },
+          tagIds: tag._id,
+        });
+
+        addCell({
+          sheet,
+          rowIndex,
+          col: tag.name,
+          value: count,
+          cols,
+        });
+      }
+
+      if (next.getTime() < end.getTime()) {
+        begin = next;
+
+        await generateData();
+      }
+    };
+
+    await generateData();
+
+    // Write to file.
+    return generateXlsx(workbook, `Tag report - ${dateToString(start)} - ${dateToString(end)}`);
   },
 };
 

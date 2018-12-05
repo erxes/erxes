@@ -17,4 +17,5 @@ export const queries = `
   insightVolumeReportExport(type: String, ${params}): JSON
   insightActivityReportExport(${params}): JSON
   insightFirstResponseReportExport(type: String, userId: String, ${params}): JSON
+  insightTagReportExport(${params}): JSON
 `;

@@ -294,10 +294,19 @@ export const COMPANY_BASIC_INFOS = [
 export const INSIGHT_BASIC_INFOS = {
   count: 'Conversations by customer count',
   messageCount: 'Conversation message count',
+  customerCount: 'Customer count',
   resolvedCount: 'Resolved conversation',
   averageResponseDuration: 'Average duration of total',
   firstResponseDuration: 'Average duration of first response',
-  ALL: ['date', 'count', 'messageCount', 'resolvedCount', 'averageResponseDuration', 'firstResponseDuration'],
+  ALL: [
+    'date',
+    'count',
+    'customerCount',
+    'messageCount',
+    'resolvedCount',
+    'averageResponseDuration',
+    'firstResponseDuration',
+  ],
 };
 
 export const PROBABILITY = {

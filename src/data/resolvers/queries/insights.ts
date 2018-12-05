@@ -1,5 +1,4 @@
 import * as moment from 'moment';
-import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
 import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
@@ -13,7 +12,6 @@ import {
   generateMessageSelector,
   generateResponseData,
   generateTimeIntervals,
-  generateUserChartData,
   generateUserSelector,
 } from './insightUtils';
 
@@ -94,14 +92,14 @@ const insightQueries = {
       integrationSelector.kind = integrationType;
     }
 
+    const integrationIdsByTag = await Integrations.find(integrationSelector).select('_id');
+
     // count conversations by each tag
     for (const tag of tags) {
-      const integrationIds = await Integrations.find(integrationSelector).select('_id');
-
       // find conversation counts of given tag
       const value = await Conversations.countDocuments({
         ...conversationSelector,
-        integrationId: { $in: integrationIds },
+        integrationId: { $in: integrationIdsByTag },
         tagIds: tag._id,
       });
 
@@ -118,54 +116,51 @@ const insightQueries = {
    */
   async insightsPunchCard(_root, args: IListArgs) {
     const { type, integrationType, brandId, endDate } = args;
+
     // check & convert endDate's value
     const end = moment(fixDate(endDate)).format('YYYY-MM-DD');
     const start = moment(end).add(-7, 'days');
-
-    const messageSelector = await generateMessageSelector(
-      brandId,
-      integrationType,
-      // conversation selector
-      {},
-      // message selector
-      {
-        // client or user
-        userId: generateUserSelector(type),
-
-        // last 7 days
-        createdAt: { $gte: start, $lte: end },
-      },
-    );
-
-    const messages = await ConversationMessages.find(messageSelector);
-
     const punchCard: any = [];
 
-    let count = 0;
     let dayCount = 0;
+    const conversationIds = await findConversations(
+      { brandId, kind: integrationType },
+      {
+        createdAt: { $gte: start, $lte: end },
+      },
+      true,
+    );
 
-    // insert hourly message counts for all week duration
-    // into punch card array.
-    for (let i = 0; i < 7 * 24; i++) {
-      dayCount = moment(start)
-        .add(i, 'hours')
-        .weekday();
-      const startTime = moment(start)
-        .add(i, 'hours')
-        .toDate()
-        .getTime();
-      const endTime = moment(start)
-        .add(i + 1, 'hours')
-        .toDate()
-        .getTime();
-      // counting messages in one hour
-      count = messages.filter(
-        message => startTime < message.createdAt.getTime() && message.createdAt.getTime() < endTime,
-      ).length;
+    if (conversationIds.length > 0) {
+      // insert hourly message counts for all week duration
+      // into punch card array.
+      for (let i = 0; i < 7 * 24; i++) {
+        dayCount = moment(start)
+          .add(i, 'hours')
+          .weekday();
+        const startTime = moment(start)
+          .add(i, 'hours')
+          .toDate()
+          .getTime();
+        const endTime = moment(start)
+          .add(i + 1, 'hours')
+          .toDate()
+          .getTime();
 
-      if (count > 0) {
-        // 1(Monday), 1(am), 20 messages
-        punchCard.push([dayCount, i % 24, count]);
+        const messageSelector = {
+          conversationId: { $in: conversationIds },
+          // client or user
+          userId: generateUserSelector(type),
+          createdAt: { $gte: startTime, $lte: endTime },
+        };
+
+        // counting messages in one hour
+        const count = await ConversationMessages.countDocuments(messageSelector);
+
+        if (count > 0) {
+          // 1(Monday), 1(am), 20 messages
+          punchCard.push([dayCount, i % 24, count]);
+        }
       }
     }
 
@@ -184,7 +179,9 @@ const insightQueries = {
       brandId,
       integrationType,
       // conversation selector
-      {},
+      {
+        createdAt: { $gte: start, $lte: end },
+      },
       // message selector
       {
         userId: generateUserSelector(type),
@@ -192,68 +189,15 @@ const insightQueries = {
       },
     );
 
-    const messages = await ConversationMessages.find(messageSelector);
-
     const insightData: any = {
-      teamMembers: [],
       summary: [],
-      trend: generateChartData(messages, 7, duration, startTime),
+      trend: await generateChartData({
+        messageSelector,
+        loopCount: 7,
+        duration,
+        startTime,
+      }),
     };
-
-    if (type === 'response') {
-      const userIds = _.uniq(_.pluck(messages, 'userId'));
-
-      // generate detail and graph data for each user
-      for (const userId of userIds) {
-        const userMessages = messages.filter(message => userId === message.userId);
-
-        let responseTime = 0;
-        let count = 0;
-        const conversationIds: any = [];
-
-        for (const msg of userMessages) {
-          const conversationId = msg.conversationId;
-
-          if (conversationIds.indexOf(conversationId) < 0) {
-            const clientMessage = await ConversationMessages.findOne({
-              ...messageSelector,
-              conversationId,
-              userId: null,
-            }).sort({ createdAt: 1 });
-
-            // First message that answered to a conversation
-            const userMessage = await ConversationMessages.findOne({
-              ...messageSelector,
-              conversationId,
-              userId: { $ne: null },
-            }).sort({ createdAt: 1 });
-
-            if (userMessage && clientMessage) {
-              const userTime = userMessage.createdAt.getTime();
-              const clientTime = clientMessage.createdAt.getTime();
-
-              if (userTime > clientTime) {
-                responseTime += (userTime - clientTime) / 1000;
-                count += 1;
-              }
-            }
-
-            conversationIds.push(conversationId);
-          }
-        }
-
-        insightData.teamMembers.push({
-          data: await generateUserChartData({
-            userId,
-            userMessages,
-            duration,
-            startTime,
-          }),
-
-          time: Math.floor(responseTime / count),
-        });
-      }
-    }
 
     const summaries = generateTimeIntervals(start, end);
 
@@ -289,7 +233,12 @@ const insightQueries = {
     const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
     const insightData: any = {
       summary: [],
-      trend: generateChartData(conversations, 7, duration, startTime),
+      trend: await generateChartData({
+        collection: conversations,
+        loopCount: 7,
+        duration,
+        startTime,
+      }),
     };
 
     const summaries = generateTimeIntervals(start, end);
