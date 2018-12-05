@@ -76,29 +76,33 @@ export interface IListArgs {
 }
 
 /**
- * Find conversations.
+ * Find conversations or conversationIds.
  */
 export const findConversations = async (
   args: IIntegrationSelector,
   conversationSelector: any,
+  selectIds?: boolean,
 ): Promise<IConversationDocument[]> => {
   const integrationSelector: IIntegrationSelector = {};
   const { kind, brandId } = args;
 
-  if (brandId) {
-    integrationSelector.brandId = brandId;
+  if (kind || brandId) {
+    if (brandId) {
+      integrationSelector.brandId = brandId;
+    }
+
+    if (kind) {
+      integrationSelector.kind = kind;
+    }
+
+    conversationSelector.integrationIds = await Integrations.find(integrationSelector).select('_id');
   }
 
-  if (kind) {
-    integrationSelector.kind = kind;
+  if (selectIds) {
+    return Conversations.find(conversationSelector).select('_id');
   }
 
-  const integrationIds = await Integrations.find(integrationSelector).select('_id');
-
-  return Conversations.find({
-    ...conversationSelector,
-    integrationId: { $in: integrationIds },
-  }).sort({ createdAt: 1 });
+  return Conversations.find(conversationSelector).sort({ createdAt: 1 });
 };
 
 /**
@@ -110,40 +114,11 @@ export const generateMessageSelector = async (
   conversationSelector: any,
   messageSelector: IMessageSelector,
 ): Promise<IMessageSelector> => {
-  const selector = messageSelector;
+  const conversationIds = await findConversations({ brandId, kind: integrationType }, conversationSelector, true);
 
-  const findConversationIds = async (integrationSelector: IIntegrationSelector) => {
-    const integrationIds = await Integrations.find(integrationSelector).select('_id');
-    const conversationIds = await Conversations.find({
-      ...conversationSelector,
-      $or: [
-        {
-          userId: { $exists: true },
-          messageCount: { $gt: 1 },
-        },
-        {
-          userId: { $exists: false },
-        },
-      ],
-      integrationId: { $in: integrationIds },
-    }).select('_id');
+  messageSelector.conversationId = { $in: conversationIds };
 
-    selector.conversationId = { $in: conversationIds };
-  };
-
-  const integSelector: IIntegrationSelector = {};
-
-  if (brandId) {
-    integSelector.brandId = brandId;
-  }
-
-  if (integrationType) {
-    integSelector.kind = integrationType;
-  }
-
-  await findConversationIds(integSelector);
-
-  return selector;
+  return messageSelector;
 };
 
 /**

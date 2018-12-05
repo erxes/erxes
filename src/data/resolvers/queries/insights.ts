@@ -92,14 +92,14 @@ const insightQueries = {
       integrationSelector.kind = integrationType;
     }
 
+    const integrationIdsByTag = await Integrations.find(integrationSelector).select('_id');
+
     // count conversations by each tag
     for (const tag of tags) {
-      const integrationIds = await Integrations.find(integrationSelector).select('_id');
-
       // find conversation counts of given tag
       const value = await Conversations.countDocuments({
         ...conversationSelector,
-        integrationId: { $in: integrationIds },
+        integrationId: { $in: integrationIdsByTag },
         tagIds: tag._id,
       });
 
@@ -123,45 +123,44 @@ const insightQueries = {
     const punchCard: any = [];
 
     let dayCount = 0;
+    const conversationIds = await findConversations(
+      { brandId, kind: integrationType },
+      {
+        createdAt: { $gte: start, $lte: end },
+      },
+      true,
+    );
 
-    // insert hourly message counts for all week duration
-    // into punch card array.
-    for (let i = 0; i < 7 * 24; i++) {
-      dayCount = moment(start)
-        .add(i, 'hours')
-        .weekday();
-      const startTime = moment(start)
-        .add(i, 'hours')
-        .toDate()
-        .getTime();
-      const endTime = moment(start)
-        .add(i + 1, 'hours')
-        .toDate()
-        .getTime();
+    if (conversationIds.length > 0) {
+      // insert hourly message counts for all week duration
+      // into punch card array.
+      for (let i = 0; i < 7 * 24; i++) {
+        dayCount = moment(start)
+          .add(i, 'hours')
+          .weekday();
+        const startTime = moment(start)
+          .add(i, 'hours')
+          .toDate()
+          .getTime();
+        const endTime = moment(start)
+          .add(i + 1, 'hours')
+          .toDate()
+          .getTime();
 
-      const messageSelector = await generateMessageSelector(
-        brandId,
-        integrationType,
-        // conversation selector
-        {
-          createdAt: { $gte: start, $lte: end },
-        },
-        // message selector
-        {
+        const messageSelector = {
+          conversationId: { $in: conversationIds },
           // client or user
           userId: generateUserSelector(type),
-
-          // last 7 days
           createdAt: { $gte: startTime, $lte: endTime },
-        },
-      );
+        };
 
-      // counting messages in one hour
-      const count = await ConversationMessages.countDocuments(messageSelector);
+        // counting messages in one hour
+        const count = await ConversationMessages.countDocuments(messageSelector);
 
-      if (count > 0) {
-        // 1(Monday), 1(am), 20 messages
-        punchCard.push([dayCount, i % 24, count]);
+        if (count > 0) {
+          // 1(Monday), 1(am), 20 messages
+          punchCard.push([dayCount, i % 24, count]);
+        }
       }
     }
 
