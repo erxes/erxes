@@ -158,6 +158,22 @@ class ExportReport extends React.Component<Props, { userId: string }> {
               </Box>
             </div>
           </FullContent>
+
+          <InsightTitle>
+            <FlexRow>
+              <FlexItem>{__('Export Tag Report')}</FlexItem>
+            </FlexRow>
+          </InsightTitle>
+
+          <FullContent center={true}>
+            <div>
+              {this.renderBox(
+                'Tag Report',
+                '/images/icons/erxes-17.svg',
+                'insightTagReportExport'
+              )}
+            </div>
+          </FullContent>
         </InsightContent>
       </InsightWrapper>
     );
