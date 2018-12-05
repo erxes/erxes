@@ -28,7 +28,7 @@ mongoose.connection
 export function connect() {
   return mongoose.connect(
     MONGO_URL,
-    { useNewUrlParser: true },
+    { useNewUrlParser: true, useCreateIndex: true },
   );
 }
 
