@@ -8,7 +8,7 @@ export const getBrowserInfo = async () => {
   let location;
 
   try {
-    const response = await fetch("https://json.geoiplookup.io/api");
+    const response = await fetch("https://geo.erxes.io");
 
     location = await response.json();
   } catch (e) {
@@ -23,10 +23,10 @@ export const getBrowserInfo = async () => {
   }
 
   return {
-    remoteAddress: location.ip,
+    remoteAddress: location.network,
     region: location.region,
     city: location.city,
-    country: location.country_name,
+    country: location.countryName,
     url: window.location.pathname,
     hostname: window.location.origin,
     language: navigator.language,
