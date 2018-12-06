@@ -136,15 +136,15 @@ const insightQueries = {
       userId: generateUserSelector(type),
       createdAt: { $gte: start.toDate(), $lte: new Date(end) },
     };
-
+    // TODO: need improvements on timezone calculation.
     const punchData = await ConversationMessages.aggregate([
       {
         $match: matchMessageSelector,
       },
       {
         $project: {
-          hour: { $hour: '$createdAt' },
-          day: { $isoDayOfWeek: '$createdAt' },
+          hour: { $hour: { date: '$createdAt', timezone: '+08' } },
+          day: { $isoDayOfWeek: { date: '$createdAt', timezone: '+08' } },
         },
       },
       {
@@ -166,7 +166,7 @@ const insightQueries = {
       },
     ]);
     punchData.map(data => {
-      punchCard.push([data.day, (data.hour + 8) % 24, data.count]);
+      punchCard.push([data.day, data.hour % 24, data.count]);
     });
 
     return punchCard;
