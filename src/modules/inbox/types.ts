@@ -107,6 +107,7 @@ export interface IMessageFacebookData {
   video?: string;
   photos?: string[];
   link?: string;
+  createdTime: string;
   senderId: string;
   senderName: string;
 }

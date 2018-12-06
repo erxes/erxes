@@ -44,6 +44,7 @@ export default `
     photos
     senderId
     senderName
+    createdTime
   }
   user {
     _id

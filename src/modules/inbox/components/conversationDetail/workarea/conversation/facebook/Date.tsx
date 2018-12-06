@@ -11,10 +11,18 @@ type Props = {
 export default class Date extends React.Component<Props, {}> {
   render() {
     const { message } = this.props;
+    const { facebookData } = message;
+
+    if (!facebookData) {
+      return null;
+    }
 
     return (
-      <Tip placement="bottom" text={moment(message.createdAt).format('lll')}>
-        <DateTime>{moment(message.createdAt).fromNow()}</DateTime>
+      <Tip
+        placement="bottom"
+        text={moment(facebookData.createdTime).format('lll')}
+      >
+        <DateTime>{moment(facebookData.createdTime).fromNow()}</DateTime>
       </Tip>
     );
   }

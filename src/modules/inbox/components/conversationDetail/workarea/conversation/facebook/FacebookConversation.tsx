@@ -1,3 +1,5 @@
+import client from 'apolloClient';
+import gql from 'graphql-tag';
 import { FacebookComment } from 'modules/inbox/containers/conversationDetail';
 import * as React from 'react';
 import { IConversation, IMessage } from '../../../../../types';
@@ -19,6 +21,25 @@ const getAttr = (message: IMessage, attr: string) => {
 };
 
 export default class FacebookConversation extends React.Component<Props, {}> {
+  onClick = () => {
+    client
+      .query({
+        query: gql(`
+          query conversationsFetchFacebookComments($conversationId: String!, $limit: Int) {
+            conversationsFetchFacebookComments(conversationId: $conversationId, limit: $limit)
+          }
+        `),
+        variables: {
+          conversationId: this.props.conversation._id,
+          limit: 5
+        }
+      })
+      .then(({ data, loading }: { data: any; loading: boolean }) => {
+        // tslint:disable-next-line
+        console.log(data, loading);
+      });
+  };
+
   renderReplies(comment: IMessage) {
     const { conversationMessages = [] } = this.props;
 
@@ -93,6 +114,7 @@ export default class FacebookConversation extends React.Component<Props, {}> {
     return (
       <React.Fragment>
         <FacebookPost message={post} scrollBottom={scrollBottom} />
+        <a onClick={this.onClick}>View more comments</a>
         {this.renderComments(comments)}
         {this.renderInternals(internalMessages)}
       </React.Fragment>
