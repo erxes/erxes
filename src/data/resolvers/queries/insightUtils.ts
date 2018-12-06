@@ -8,7 +8,7 @@ interface IMessageSelector {
   userId?: string;
   createdAt: any;
   conversationId?: {
-    $in: IConversationDocument[];
+    $in: string[];
   };
 }
 
@@ -46,7 +46,11 @@ interface IGenerateDuration {
 }
 
 interface IResponseUserData {
-  [index: string]: { responseTime: number; count: number; summaries?: number[] };
+  [index: string]: {
+    responseTime: number;
+    count: number;
+    summaries?: number[];
+  };
 }
 
 interface IGenerateResponseData {
@@ -57,10 +61,8 @@ interface IGenerateResponseData {
   };
 }
 
-type ChartDocs = IMessageDocument | IConversationDocument;
-
 interface IChartData {
-  collection?: ChartDocs[];
+  collection?: any;
   loopCount: number;
   duration: number;
   startTime: number;
@@ -115,8 +117,8 @@ export const generateMessageSelector = async (
   messageSelector: IMessageSelector,
 ): Promise<IMessageSelector> => {
   const conversationIds = await findConversations({ brandId, kind: integrationType }, conversationSelector, true);
-
-  messageSelector.conversationId = { $in: conversationIds };
+  const rawConversationIds = conversationIds.map(obj => obj._id);
+  messageSelector.conversationId = { $in: rawConversationIds };
 
   return messageSelector;
 };
@@ -128,33 +130,71 @@ export const generateMessageSelector = async (
 export const generateChartData = async (args: IChartData): Promise<IGenerateChartData[]> => {
   const { collection, loopCount, duration, startTime, messageSelector } = args;
 
-  const results = [{ x: formatTime(moment(startTime), 'YYYY-MM-DD'), y: 0 }];
-  let begin = 0;
-  let end = 0;
-  let count = 0;
-  let dateText = null;
-
-  // Variable that represents time interval by steps.
+  // const results = [{ x: formatTime(moment(startTime), 'YYYY-MM-DD'), y: 0 }];
+  const results = {};
+  const startDate = moment(startTime).toDate();
+  const endDate = moment(startTime)
+    .add(loopCount, 'days')
+    .toDate();
+  const pipelineStages = [
+    {
+      $match: {
+        ...messageSelector,
+        createdAt: { $gte: startDate, $lte: endDate },
+      },
+    },
+    {
+      $project: {
+        date: {
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$createdAt',
+            timezone: '+08',
+          },
+        },
+      },
+    },
+    {
+      $group: {
+        _id: '$date',
+        y: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        x: '$_id',
+        y: 1,
+        _id: 0,
+      },
+    },
+    {
+      $sort: {
+        x: 1,
+      },
+    },
+  ];
   const divider = duration / loopCount;
-
+  let end = 0;
+  let dateText = 0;
   for (let i = 0; i < loopCount; i++) {
     end = startTime + divider * (i + 1);
-    begin = end - divider;
     dateText = formatTime(moment(end), 'YYYY-MM-DD');
-
-    // messages count between begin and end time.
-    if (collection) {
-      count = collection.filter(message => begin < message.createdAt.getTime() && message.createdAt.getTime() < end)
-        .length;
-    }
-    if (messageSelector) {
-      count = await ConversationMessages.countDocuments({ ...messageSelector, createdAt: { $gte: begin, $lte: end } });
-    }
-
-    results.push({ x: dateText, y: count });
+    results[dateText] = 0;
   }
-
-  return results;
+  if (collection) {
+    console.log('need another logic');
+    console.log(collection);
+    return [];
+  }
+  const trendData = await ConversationMessages.aggregate([pipelineStages]);
+  trendData.map(obj => {
+    results[obj.x] = obj.y;
+  });
+  return Object.keys(results)
+    .sort()
+    .map(key => {
+      return { x: key, y: results[key] };
+    });
 };
 
 /**
