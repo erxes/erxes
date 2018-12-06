@@ -39,12 +39,6 @@ interface IFixDates {
   end: Date;
 }
 
-interface IGenerateDuration {
-  startTime: number;
-  endTime: number;
-  duration: number;
-}
-
 interface IResponseUserData {
   [index: string]: {
     responseTime: number;
@@ -63,9 +57,6 @@ interface IGenerateResponseData {
 
 interface IChartData {
   collection?: any;
-  loopCount: number;
-  duration: number;
-  startTime: number;
   messageSelector?: any;
 }
 
@@ -128,20 +119,11 @@ export const generateMessageSelector = async (
  * by given duration and loop count for chart data.
  */
 export const generateChartData = async (args: IChartData): Promise<IGenerateChartData[]> => {
-  const { collection, loopCount, duration, startTime, messageSelector } = args;
+  const { collection, messageSelector } = args;
 
-  // const results = [{ x: formatTime(moment(startTime), 'YYYY-MM-DD'), y: 0 }];
-  const results = {};
-  const startDate = moment(startTime).toDate();
-  const endDate = moment(startTime)
-    .add(loopCount, 'days')
-    .toDate();
   const pipelineStages = [
     {
-      $match: {
-        ...messageSelector,
-        createdAt: { $gte: startDate, $lte: endDate },
-      },
+      $match: messageSelector,
     },
     {
       $project: {
@@ -173,28 +155,24 @@ export const generateChartData = async (args: IChartData): Promise<IGenerateChar
       },
     },
   ];
-  const divider = duration / loopCount;
-  let end = 0;
-  let dateText = 0;
-  for (let i = 0; i < loopCount; i++) {
-    end = startTime + divider * (i + 1);
-    dateText = formatTime(moment(end), 'YYYY-MM-DD');
-    results[dateText] = 0;
-  }
+
   if (collection) {
-    console.log('need another logic');
-    console.log(collection);
-    return [];
-  }
-  const trendData = await ConversationMessages.aggregate([pipelineStages]);
-  trendData.map(obj => {
-    results[obj.x] = obj.y;
-  });
-  return Object.keys(results)
-    .sort()
-    .map(key => {
-      return { x: key, y: results[key] };
+    const results = {};
+
+    collection.map(obj => {
+      const date = formatTime(moment(obj.createdAt), 'YYYY-MM-DD');
+
+      results[date] = (results[date] || 0) + 1;
     });
+
+    return Object.keys(results)
+      .sort()
+      .map(key => {
+        return { x: key, y: results[key] };
+      });
+  }
+
+  return ConversationMessages.aggregate([pipelineStages]);
 };
 
 /**
@@ -253,21 +231,12 @@ export const generateTimeIntervals = (start: Date, end: Date): IGenerateTimeInte
 export const generateUserChartData = async ({
   userId,
   userMessages,
-  duration,
-  startTime,
 }: {
   userId: string;
   userMessages: IMessageDocument[];
-  duration: number;
-  startTime: number;
 }): Promise<IGenerateUserChartData> => {
   const user = await Users.findOne({ _id: userId });
-  const userData = await generateChartData({
-    collection: userMessages,
-    loopCount: 4,
-    duration,
-    startTime,
-  });
+  const userData = await generateChartData({ collection: userMessages });
 
   if (!user) {
     return {
@@ -323,17 +292,6 @@ export const fixDates = (startValue: string, endValue: string, count?: number): 
   return { start: startDate, end: endDate };
 };
 
-export const generateDuration = ({ start, end }: { start: Date; end: Date }): IGenerateDuration => {
-  const startTime = start.getTime();
-  const endTime = end.getTime();
-
-  return {
-    startTime,
-    endTime,
-    duration: endTime - startTime,
-  };
-};
-
 /*
  * Determines user or client
  */
@@ -354,16 +312,9 @@ export const generateResponseData = async (
   responsData: IMessageDocument[],
   responseUserData: IResponseUserData,
   allResponseTime: number,
-  duration: number,
-  startTime: number,
 ): Promise<IGenerateResponseData> => {
   // preparing trend chart data
-  const trend = await generateChartData({
-    collection: responsData,
-    loopCount: 7,
-    duration,
-    startTime,
-  });
+  const trend = await generateChartData({ collection: responsData });
 
   // Average response time for all messages
   const time = Math.floor(allResponseTime / responsData.length);
@@ -383,8 +334,6 @@ export const generateResponseData = async (
       data: await generateUserChartData({
         userId,
         userMessages: responsData.filter(message => userId === message.userId),
-        duration,
-        startTime,
       }),
       time: avgResTime,
       summaries,
