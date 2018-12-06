@@ -122,7 +122,6 @@ const insightQueries = {
     const start = moment(end).add(-7, 'days');
     const punchCard: any = [];
 
-    let dayCount = 0;
     const conversationIds = await findConversations(
       { brandId, kind: integrationType },
       {
@@ -130,39 +129,45 @@ const insightQueries = {
       },
       true,
     );
+    const rawConversationIds = conversationIds.map(obj => obj._id);
+    const matchMessageSelector = {
+      conversationId: { $in: rawConversationIds },
+      // client or user
+      userId: generateUserSelector(type),
+      createdAt: { $gte: start.toDate(), $lte: new Date(end) },
+    };
 
-    if (conversationIds.length > 0) {
-      // insert hourly message counts for all week duration
-      // into punch card array.
-      for (let i = 0; i < 7 * 24; i++) {
-        dayCount = moment(start)
-          .add(i, 'hours')
-          .weekday();
-        const startTime = moment(start)
-          .add(i, 'hours')
-          .toDate()
-          .getTime();
-        const endTime = moment(start)
-          .add(i + 1, 'hours')
-          .toDate()
-          .getTime();
-
-        const messageSelector = {
-          conversationId: { $in: conversationIds },
-          // client or user
-          userId: generateUserSelector(type),
-          createdAt: { $gte: startTime, $lte: endTime },
-        };
-
-        // counting messages in one hour
-        const count = await ConversationMessages.countDocuments(messageSelector);
-
-        if (count > 0) {
-          // 1(Monday), 1(am), 20 messages
-          punchCard.push([dayCount, i % 24, count]);
-        }
-      }
-    }
+    const punchData = await ConversationMessages.aggregate([
+      {
+        $match: matchMessageSelector,
+      },
+      {
+        $project: {
+          hour: { $hour: '$createdAt' },
+          day: { $isoDayOfWeek: '$createdAt' },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            hour: '$hour',
+            day: '$day',
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          day: '$_id.day',
+          hour: '$_id.hour',
+          count: 1,
+        },
+      },
+    ]);
+    punchData.map(data => {
+      punchCard.push([data.day, (data.hour + 8) % 24, data.count]);
+    });
 
     return punchCard;
   },
