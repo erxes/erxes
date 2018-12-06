@@ -64,13 +64,12 @@ export const trackIntegrations = expressApp => {
 
 export const trackFbLogin = expressApp => {
   expressApp.get('/fblogin', (req, res) => {
-    const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, DOMAIN, MAIN_APP_DOMAIN } = process.env;
+    const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, DOMAIN, MAIN_APP_DOMAIN, FACEBOOK_PERMISSIONS } = process.env;
 
     const conf = {
       client_id: FACEBOOK_APP_ID,
       client_secret: FACEBOOK_APP_SECRET,
-      scope:
-        'manage_pages, pages_show_list, pages_messaging, publish_pages, pages_messaging_phone_number, pages_messaging_subscriptions',
+      scope: FACEBOOK_PERMISSIONS || 'manage_pages, pages_show_list, pages_messaging',
       redirect_uri: `${DOMAIN}/fblogin`,
     };
 
