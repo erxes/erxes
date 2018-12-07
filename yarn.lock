@@ -2043,13 +2043,6 @@ base@^0.11.1:
     mixin-deep "^1.2.0"
     pascalcase "^0.1.1"
 
-bat-d3-punchcard@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/bat-d3-punchcard/-/bat-d3-punchcard-1.0.2.tgz#e8d562ab95407f77d55ac8ce74f6caca47527c7e"
-  integrity sha1-6NViq5VAf3fVWsjOdPbKykdSfH4=
-  dependencies:
-    d3 "^3.5.17"
-
 bat-draft-js-mention-plugin@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/bat-draft-js-mention-plugin/-/bat-draft-js-mention-plugin-2.0.1.tgz#65c23883f6a919a9cda5836bd9e65c06b38b341b"
@@ -3403,11 +3396,6 @@ d3-time@1:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/d3-time/-/d3-time-1.0.10.tgz#8259dd71288d72eeacfd8de281c4bf5c7393053c"
   integrity sha512-hF+NTLCaJHF/JqHN5hE8HVGAXPStEq6/omumPE/SxyHVrR7/qQxusFDo0t0c/44+sCGHthC7yNGFZIEgju0P8g==
-
-d3@^3.5.17:
-  version "3.5.17"
-  resolved "https://registry.yarnpkg.com/d3/-/d3-3.5.17.tgz#bc46748004378b21a360c9fc7cf5231790762fb8"
-  integrity sha1-vEZ0gAQ3iyGjYMn8fPUjF5B2L7g=
 
 damerau-levenshtein@^1.0.4:
   version "1.0.4"
