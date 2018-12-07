@@ -22,7 +22,7 @@ type State = {
 };
 
 export default class FilterList extends React.PureComponent<Props, State> {
-  didMount: boolean;
+  mounted: boolean;
 
   constructor(props: Props) {
     super(props);
@@ -33,7 +33,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
       loading = false;
     }
 
-    this.didMount = false;
+    this.mounted = false;
 
     this.state = {
       fields: props.fields || [],
@@ -45,7 +45,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
   fetchData() {
     const { query, counts, queryParams } = this.props;
 
-    this.didMount = true;
+    this.mounted = true;
 
     // Fetching filter lists channels, brands, tags etc
     if (query) {
@@ -57,7 +57,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
           variables
         })
         .then(({ data }) => {
-          if (this.didMount) {
+          if (this.mounted) {
             this.setState({ fields: data[dataName] });
           }
         });
@@ -70,7 +70,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
         variables: { ...generateParams({ ...queryParams }), only: counts }
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
-        if (this.didMount) {
+        if (this.mounted) {
           this.setState({ counts: data.conversationCounts[counts], loading });
         }
       });
@@ -81,7 +81,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    this.didMount = false;
+    this.mounted = false;
   }
 
   render() {
