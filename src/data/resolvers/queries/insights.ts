@@ -146,6 +146,13 @@ const insightQueries = {
         $project: {
           hour: { $hour: { date: '$createdAt', timezone: '+08' } },
           day: { $isoDayOfWeek: { date: '$createdAt', timezone: '+08' } },
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+              // timezone: "+08"
+            },
+          },
         },
       },
       {
@@ -153,6 +160,7 @@ const insightQueries = {
           _id: {
             hour: '$hour',
             day: '$day',
+            date: '$date',
           },
           count: { $sum: 1 },
         },
@@ -162,6 +170,7 @@ const insightQueries = {
           _id: 0,
           day: '$_id.day',
           hour: '$_id.hour',
+          date: '$_id.date',
           count: 1,
         },
       },
