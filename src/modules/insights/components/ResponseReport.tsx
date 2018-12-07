@@ -11,7 +11,12 @@ import {
   InsightWrapper,
   LoaderWrapper
 } from '../styles';
-import { IChartParams, IQueryParams, SummaryData } from '../types';
+import {
+  IChartParams,
+  IPunchCardData,
+  IQueryParams,
+  SummaryData
+} from '../types';
 import { Chart, Filter, PunchCard, Sidebar, Summary } from './';
 
 type Props = {
@@ -19,7 +24,7 @@ type Props = {
   trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  punch: number[][];
+  punch: IPunchCardData[];
   summary: SummaryData[];
   loading: { main: boolean; punch: boolean };
 };
