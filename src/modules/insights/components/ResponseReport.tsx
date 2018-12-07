@@ -12,14 +12,13 @@ import {
   LoaderWrapper
 } from '../styles';
 import { IChartParams, IQueryParams, SummaryData } from '../types';
-import { Chart, Filter, PunchCard, Sidebar, Summary, TeamMembers } from './';
+import { Chart, Filter, PunchCard, Sidebar, Summary } from './';
 
 type Props = {
   brands: IBrand[];
   trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  teamMembers: IChartParams[];
   punch: number[][];
   summary: SummaryData[];
   loading: { main: boolean; punch: boolean };
@@ -100,7 +99,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
   }
 
   renderCharts() {
-    const { trend, teamMembers, punch, summary, loading } = this.props;
+    const { trend, punch, summary, loading } = this.props;
 
     const width = this.state.width;
 
@@ -114,11 +113,6 @@ class ResponseReport extends React.Component<Props, { width: number }> {
         {this.renderTrend('Response Trend', loading, trend)}
 
         {this.renderPunchCard(loading, punch, width)}
-
-        <InsightRow>
-          {this.renderTitle('Response by team members')}
-          <TeamMembers loading={loading.main} datas={teamMembers || []} />
-        </InsightRow>
       </InsightContent>
     );
   }

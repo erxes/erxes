@@ -62,12 +62,7 @@ const VolumenAndResponseReportContainer = (props: FinalProps) => {
     return <VolumeReport {...volumeProps} />;
   }
 
-  const responseProps = {
-    ...extendedProps,
-    teamMembers: data.teamMembers || []
-  };
-
-  return <ResponseReport {...responseProps} />;
+  return <ResponseReport {...extendedProps} />;
 };
 
 export default compose(
