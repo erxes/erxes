@@ -179,12 +179,10 @@ const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
   > section {
     margin: 0;
     box-shadow: none;
-    border-left: ${props =>
-      props.isOpen && `1px solid ${colors.borderPrimary}`};;
   }
 `;
 
-const shadowColor = 'rgba(0,0,0,0.1)';
+const shadowColor = 'rgba(0,0,0,0.15)';
 
 const AdditionalSidebar = styled.div`
   width: 200px;

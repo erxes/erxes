@@ -21,7 +21,7 @@ type State = {
   loading: boolean;
 };
 
-export default class FilterGroup extends React.PureComponent<Props, State> {
+export default class FilterList extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
