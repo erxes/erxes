@@ -167,8 +167,6 @@ const insightQueries = {
       },
     ]);
 
-    console.log(punchData, punchData.length);
-
     return punchData;
   },
 
