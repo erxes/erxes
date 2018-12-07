@@ -120,7 +120,6 @@ const insightQueries = {
     // check & convert endDate's value
     const end = moment(fixDate(endDate)).format('YYYY-MM-DD');
     const start = moment(end).add(-7, 'days');
-    const punchCard: any = [];
 
     const conversationIds = await findConversations(
       { brandId, kind: integrationType },
@@ -129,6 +128,7 @@ const insightQueries = {
       },
       true,
     );
+
     const rawConversationIds = conversationIds.map(obj => obj._id);
     const matchMessageSelector = {
       conversationId: { $in: rawConversationIds },
@@ -136,6 +136,7 @@ const insightQueries = {
       userId: generateUserSelector(type),
       createdAt: { $gte: start.toDate(), $lte: new Date(end) },
     };
+
     // TODO: need improvements on timezone calculation.
     const punchData = await ConversationMessages.aggregate([
       {
@@ -165,11 +166,10 @@ const insightQueries = {
         },
       },
     ]);
-    punchData.map(data => {
-      punchCard.push([data.day, data.hour % 24, data.count]);
-    });
 
-    return punchCard;
+    console.log(punchData, punchData.length);
+
+    return punchData;
   },
 
   /**
