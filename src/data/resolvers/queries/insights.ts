@@ -120,9 +120,7 @@ const insightQueries = {
     // check & convert endDate's value
     const end = moment(fixDate(endDate)).format('YYYY-MM-DD');
     const start = moment(end).add(-7, 'days');
-    const punchCard: any = [];
 
-    let dayCount = 0;
     const conversationIds = await findConversations(
       { brandId, kind: integrationType },
       {
@@ -131,40 +129,54 @@ const insightQueries = {
       true,
     );
 
-    if (conversationIds.length > 0) {
-      // insert hourly message counts for all week duration
-      // into punch card array.
-      for (let i = 0; i < 7 * 24; i++) {
-        dayCount = moment(start)
-          .add(i, 'hours')
-          .weekday();
-        const startTime = moment(start)
-          .add(i, 'hours')
-          .toDate()
-          .getTime();
-        const endTime = moment(start)
-          .add(i + 1, 'hours')
-          .toDate()
-          .getTime();
+    const rawConversationIds = conversationIds.map(obj => obj._id);
+    const matchMessageSelector = {
+      conversationId: { $in: rawConversationIds },
+      // client or user
+      userId: generateUserSelector(type),
+      createdAt: { $gte: start.toDate(), $lte: new Date(end) },
+    };
 
-        const messageSelector = {
-          conversationId: { $in: conversationIds },
-          // client or user
-          userId: generateUserSelector(type),
-          createdAt: { $gte: startTime, $lte: endTime },
-        };
+    // TODO: need improvements on timezone calculation.
+    const punchData = await ConversationMessages.aggregate([
+      {
+        $match: matchMessageSelector,
+      },
+      {
+        $project: {
+          hour: { $hour: { date: '$createdAt', timezone: '+08' } },
+          day: { $isoDayOfWeek: { date: '$createdAt', timezone: '+08' } },
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+              // timezone: "+08"
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            hour: '$hour',
+            day: '$day',
+            date: '$date',
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          day: '$_id.day',
+          hour: '$_id.hour',
+          date: '$_id.date',
+          count: 1,
+        },
+      },
+    ]);
 
-        // counting messages in one hour
-        const count = await ConversationMessages.countDocuments(messageSelector);
-
-        if (count > 0) {
-          // 1(Monday), 1(am), 20 messages
-          punchCard.push([dayCount, i % 24, count]);
-        }
-      }
-    }
-
-    return punchCard;
+    return punchData;
   },
 
   /**
