@@ -22,6 +22,8 @@ type State = {
 };
 
 export default class FilterList extends React.PureComponent<Props, State> {
+  didMount: boolean;
+
   constructor(props: Props) {
     super(props);
 
@@ -31,6 +33,8 @@ export default class FilterList extends React.PureComponent<Props, State> {
       loading = false;
     }
 
+    this.didMount = false;
+
     this.state = {
       fields: props.fields || [],
       counts: {},
@@ -38,8 +42,10 @@ export default class FilterList extends React.PureComponent<Props, State> {
     };
   }
 
-  doQuery() {
+  fetchData() {
     const { query, counts, queryParams } = this.props;
+
+    this.didMount = true;
 
     // Fetching filter lists channels, brands, tags etc
     if (query) {
@@ -51,7 +57,9 @@ export default class FilterList extends React.PureComponent<Props, State> {
           variables
         })
         .then(({ data }) => {
-          this.setState({ fields: data[dataName] });
+          if (this.didMount) {
+            this.setState({ fields: data[dataName] });
+          }
         });
     }
 
@@ -62,12 +70,18 @@ export default class FilterList extends React.PureComponent<Props, State> {
         variables: { ...generateParams({ ...queryParams }), only: counts }
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
-        this.setState({ counts: data.conversationCounts[counts], loading });
+        if (this.didMount) {
+          this.setState({ counts: data.conversationCounts[counts], loading });
+        }
       });
   }
 
   componentDidMount() {
-    this.doQuery();
+    this.fetchData();
+  }
+
+  componentWillUnmount() {
+    this.didMount = false;
   }
 
   render() {
