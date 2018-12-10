@@ -46,7 +46,11 @@ interface IGenerateDuration {
 }
 
 interface IResponseUserData {
-  [index: string]: { responseTime: number; count: number; summaries?: number[] };
+  [index: string]: {
+    responseTime: number;
+    count: number;
+    summaries?: number[];
+  };
 }
 
 interface IGenerateResponseData {
@@ -74,6 +78,30 @@ export interface IListArgs {
   endDate: string;
   type: string;
 }
+/**
+ * Return conversationSelect for aggregation
+ * @param args
+ * @param conversationSelector
+ * @param selectIds
+ */
+export const getConversationSelector = async (args: IIntegrationSelector, conversationSelector: any): Promise<any> => {
+  const integrationSelector: IIntegrationSelector = {};
+  const { kind, brandId } = args;
+
+  if (kind || brandId) {
+    if (brandId) {
+      integrationSelector.brandId = brandId;
+    }
+
+    if (kind) {
+      integrationSelector.kind = kind;
+    }
+
+    conversationSelector.integrationIds = await Integrations.find(integrationSelector).select('_id');
+  }
+
+  return conversationSelector;
+};
 
 /**
  * Find conversations or conversationIds.
@@ -120,7 +148,44 @@ export const generateMessageSelector = async (
 
   return messageSelector;
 };
+/**
+ * Fix trend for missing values because from then aggregation,
+ * it could return missing values for some dates. This method
+ * will assign 0 values for missing x values.
+ * @param startDate
+ * @param endDate
+ * @param data
+ */
+export const fixChartData = async (
+  startDate: Date,
+  endDate: Date,
+  loopCount: number,
+  data: any[],
+  hintX: string,
+  hintY: string,
+): Promise<IGenerateChartData[]> => {
+  const { duration, startTime } = generateDuration({ start: startDate, end: endDate });
+  // Variable that represents time interval by steps.
+  const divider = duration / loopCount;
+  let end = 0;
+  const results = {};
+  let dateText = null;
+  // Initialize with all zeros values
+  for (let i = 0; i < loopCount; i++) {
+    end = startTime + divider * (i + 1);
+    dateText = formatTime(moment(end), 'YYYY-MM-DD');
+    results[dateText ? dateText : ''] = 0;
+  }
 
+  data.map(row => {
+    results[row[hintX]] = row[hintY];
+  });
+  return Object.keys(results)
+    .sort()
+    .map(key => {
+      return { x: key, y: results[key] };
+    });
+};
 /**
  * Populates message collection into date range
  * by given duration and loop count for chart data.
@@ -148,7 +213,10 @@ export const generateChartData = async (args: IChartData): Promise<IGenerateChar
         .length;
     }
     if (messageSelector) {
-      count = await ConversationMessages.countDocuments({ ...messageSelector, createdAt: { $gte: begin, $lte: end } });
+      count = await ConversationMessages.countDocuments({
+        ...messageSelector,
+        createdAt: { $gte: begin, $lte: end },
+      });
     }
 
     results.push({ x: dateText, y: count });
@@ -207,6 +275,29 @@ export const generateTimeIntervals = (start: Date, end: Date): IGenerateTimeInte
   ];
 };
 
+/**
+ * Generate chart data from users chart data
+ * @param userId
+ * @param chartData
+ * @param startDate
+ * @param endDate
+ */
+/*
+export const generateUserChartFrom = async ({
+  userId,
+  chartData,
+  startDate,
+  endDate,
+}: {
+  userId: string;
+  chartData: any[];
+  startDate: Date;
+  endDate: Date;
+}): Promise<IGenerateUserChartData> => {
+  const user = await Users.findOne({ _id: userId });
+  return [];
+});
+*/
 /**
  * Generate chart data for given user
  */
