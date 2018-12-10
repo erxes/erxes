@@ -20,6 +20,8 @@ interface IConversationModel extends Model<IConversationDocument> {
 
   unassignUserConversation(conversationIds: string[]): Promise<IConversationDocument>;
 
+  changeCustomerStatus(conversationId: string, status: string, userId: string): Promise<IConversationDocument>;
+
   changeStatusConversation(conversationIds: string[], status: string, userId?: string): Promise<IConversationDocument>;
 
   markAsReadConversation(_id: string, userId: string): Promise<IConversationDocument>;
@@ -121,7 +123,23 @@ class Conversation {
 
     return Conversations.find({ _id: { $in: conversationIds } });
   }
-
+  /**
+   * Change customer status
+   * @param conversationId
+   * @param status [left/join]
+   * @param userId
+   * @param customerId
+   */
+  public static changeCustomerStatus(conversationId: string, status: string, userId: string) {
+    ConversationMessages.addMessage(
+      {
+        conversationId,
+        content: `Customer has ${status}`,
+        internal: true,
+      },
+      userId,
+    );
+  }
   /**
    * Change conversation status
    */
@@ -230,7 +248,9 @@ class Conversation {
 
     // Removing conversations and conversation messages
     const conversationIds = conversations.map(conv => conv._id);
-    await ConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await ConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds },
+    });
     await Conversations.deleteMany({ _id: { $in: conversationIds } });
   }
 }

@@ -15,7 +15,7 @@ import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils'
 import { pubsub } from './data/resolvers/subscriptions';
 import { checkFile, importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
-import { Customers } from './db/models';
+import { Conversations, Customers } from './db/models';
 import { init } from './startup';
 
 // load environment variables
@@ -140,12 +140,28 @@ server.listen(PORT, () => {
           const parsedMessage = JSON.parse(message).id || {};
 
           if (parsedMessage.type === 'messengerConnected') {
+            const messengerData = parsedMessage.value;
+            const integrationId = messengerData.integrationId;
             webSocket.messengerData = parsedMessage.value;
 
             const customerId = webSocket.messengerData.customerId;
 
             // mark as online
             await Customers.markCustomerAsActive(customerId);
+
+            // customer has joined + time
+            const customerConversations = await Conversations.find({
+              customerId,
+              integrationId,
+              status: 'open',
+            });
+            for (const conversationObj of customerConversations) {
+              Conversations.changeCustomerStatus(
+                conversationObj._id,
+                'joined',
+                messengerData.messengerData.supporterIds[0],
+              );
+            }
 
             // notify as connected
             pubsub.publish('customerConnectionChanged', {
@@ -163,9 +179,24 @@ server.listen(PORT, () => {
 
         if (messengerData) {
           const customerId = messengerData.customerId;
+          const integrationId = messengerData.integrationId;
 
           // mark as offline
           await Customers.markCustomerAsNotActive(customerId);
+
+          // customer has left + time
+          const customerConversations = await Conversations.find({
+            customerId,
+            integrationId,
+            status: 'open',
+          });
+          for (const conversationObj of customerConversations) {
+            Conversations.changeCustomerStatus(
+              conversationObj._id,
+              'left',
+              messengerData.messengerData.supporterIds[0],
+            );
+          }
 
           // notify as disconnected
           pubsub.publish('customerConnectionChanged', {
