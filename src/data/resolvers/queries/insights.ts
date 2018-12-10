@@ -448,7 +448,7 @@ const insightQueries = {
         avgResponseTime: userData.avgResponseTime,
       };
       // team members gather
-      const fixedChartData = await fixChartData(start, end, 7, userData.chartDatas, 'date', 'count');
+      const fixedChartData = await fixChartData(userData.chartDatas, 'date', 'count');
       const user = await Users.findOne({ _id: userData._id });
       userData.chartDatas.map(row => {
         if (row.date in aggregatedTrend) {
@@ -478,9 +478,6 @@ const insightQueries = {
     }
 
     const trend = await fixChartData(
-      start,
-      end,
-      7,
       Object.keys(aggregatedTrend)
         .sort()
         .map(key => {

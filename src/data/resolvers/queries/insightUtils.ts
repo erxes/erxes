@@ -156,34 +156,16 @@ export const generateMessageSelector = async (
  * @param endDate
  * @param data
  */
-export const fixChartData = async (
-  startDate: Date,
-  endDate: Date,
-  loopCount: number,
-  data: any[],
-  hintX: string,
-  hintY: string,
-): Promise<IGenerateChartData[]> => {
-  const { duration, startTime } = generateDuration({ start: startDate, end: endDate });
-  // Variable that represents time interval by steps.
-  const divider = duration / loopCount;
-  let end = 0;
+export const fixChartData = async (data: any[], hintX: string, hintY: string): Promise<IGenerateChartData[]> => {
   const results = {};
-  let dateText = null;
-  // Initialize with all zeros values
-  for (let i = 0; i < loopCount; i++) {
-    end = startTime + divider * (i + 1);
-    dateText = formatTime(moment(end), 'YYYY-MM-DD');
-    results[dateText ? dateText : ''] = 0;
-  }
-
   data.map(row => {
     results[row[hintX]] = row[hintY];
   });
+
   return Object.keys(results)
     .sort()
     .map(key => {
-      return { x: key, y: results[key] };
+      return { x: formatTime(moment(key), 'MM-DD'), y: results[key] };
     });
 };
 /**
