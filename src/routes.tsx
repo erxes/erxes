@@ -15,12 +15,18 @@ import InboxRoutes from './modules/inbox/routes';
 import InsightsRoutes from './modules/insights/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
 import NotificationRoutes from './modules/notifications/routes';
+import OnboardRoutes from './modules/onboard/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
 
 const renderRoutes = currentUser => {
   if (currentUser) {
+    const isFirst = true;
+    if (isFirst) {
+      return <OnboardRoutes />;
+    }
+
     return (
       <MainLayout currentUser={currentUser}>
         <MainWrapper>
