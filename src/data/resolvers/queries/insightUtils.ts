@@ -258,29 +258,6 @@ export const generateTimeIntervals = (start: Date, end: Date): IGenerateTimeInte
 };
 
 /**
- * Generate chart data from users chart data
- * @param userId
- * @param chartData
- * @param startDate
- * @param endDate
- */
-/*
-export const generateUserChartFrom = async ({
-  userId,
-  chartData,
-  startDate,
-  endDate,
-}: {
-  userId: string;
-  chartData: any[];
-  startDate: Date;
-  endDate: Date;
-}): Promise<IGenerateUserChartData> => {
-  const user = await Users.findOne({ _id: userId });
-  return [];
-});
-*/
-/**
  * Generate chart data for given user
  */
 export const generateUserChartData = async ({
