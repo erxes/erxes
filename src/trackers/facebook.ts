@@ -13,19 +13,30 @@ import { IFacebook as IMsgFacebook, IFbUser, IMessageDocument } from '../db/mode
 import { IConversationDocument, IFacebook } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
-import { findPostComments, graphRequest } from './facebookTracker';
+import { findPostComments, graphRequest, IComments, IPost } from './facebookTracker';
 
 interface IPostParams {
+  created_time?: string;
   post_id?: string;
   video_id?: string;
   link?: string;
   photo_id?: string;
   item?: string;
   photos?: string[];
+
+  caption?: string;
+  id: string;
+  description?: string;
+  picture?: string;
+  source?: string;
+  message?: string;
+  from: IFbUser;
+  comments: IComments;
 }
 
 interface ICommentParams {
   post_id: string;
+  created_time?: string;
   parent_id?: string;
   item?: string;
   comment_id?: string;
@@ -157,7 +168,7 @@ export class SaveWebhookResponse {
    * Receives feed updates
    */
   public handlePosts(postParams: IPostParams) {
-    const { post_id, video_id, link, photo_id, item, photos } = postParams;
+    const { post_id, video_id, link, photo_id, item, photos, created_time } = postParams;
 
     const doc: IMsgFacebook = {
       postId: post_id,
@@ -183,6 +194,10 @@ export class SaveWebhookResponse {
       doc.photos = photos;
     }
 
+    if (created_time) {
+      doc.createdTime = created_time;
+    }
+
     return doc;
   }
 
@@ -190,7 +205,7 @@ export class SaveWebhookResponse {
    * Receives comment
    */
   public async handleComments(commentParams: ICommentParams) {
-    const { photo, video, post_id, parent_id, item, comment_id, verb } = commentParams;
+    const { photo, video, post_id, parent_id, item, comment_id, verb, created_time } = commentParams;
 
     const doc: IMsgFacebook = {
       postId: post_id,
@@ -208,6 +223,10 @@ export class SaveWebhookResponse {
 
     if (video) {
       doc.video = video;
+    }
+
+    if (created_time) {
+      doc.createdTime = created_time;
     }
 
     // Counting post comments only
@@ -573,12 +592,14 @@ export class SaveWebhookResponse {
     content,
     attachments,
     facebookData,
+    restoring,
   }: {
     conversation: IConversationDocument;
     userId: string;
     content: string;
     attachments?: any;
     facebookData: IMsgFacebook;
+    restoring?: boolean;
   }): Promise<string> {
     if (!conversation) {
       throw new Error('createMessage: Conversation not found');
@@ -598,6 +619,10 @@ export class SaveWebhookResponse {
 
     // updating conversation content
     await Conversations.updateOne({ _id: conversation._id }, { $set: { content } });
+
+    if (restoring) {
+      return message._id;
+    }
 
     // notifying conversation inserted
     publishClientMessage(message);
@@ -646,8 +671,8 @@ export class SaveWebhookResponse {
 
     // creating parent post if comment has no parent
     // get post info
-    const fields = `/${postId}?fields=caption,description,link,picture,source,message,from`;
-    const postResponse: any = await graphRequest.get(fields, accessToken);
+    const fields = `/${postId}?fields=caption,description,link,picture,source,message,from,created_time,comments.summary(true)`;
+    const postResponse: IPost = await graphRequest.get(fields, accessToken);
 
     const postParams = await this.handlePosts({
       ...postResponse,
@@ -658,12 +683,14 @@ export class SaveWebhookResponse {
     await this.createMessage({
       conversation,
       userId,
-      content: postResponse.message,
+      content: postResponse.message || '...',
       facebookData: {
         senderId: postResponse.from.id,
         senderName: postResponse.from.name,
+        commentCount: postResponse.comments.summary.total_count,
         ...postParams,
       },
+      restoring: true,
     });
 
     // getting all the comments of post
@@ -682,7 +709,10 @@ export class SaveWebhookResponse {
           senderId: comment.from.id,
           senderName: comment.from.name,
           parentId: comment.parent && comment.parent.id,
+          createdTime: comment.created_time,
+          commentCount: comment.comments.summary.total_count,
         },
+        restoring: true,
       });
     }
 

@@ -24,6 +24,7 @@ export const types = `
     video: String
     photos: [String]
     link: String
+    createdTime: String
 
     senderId: String
     senderName: String

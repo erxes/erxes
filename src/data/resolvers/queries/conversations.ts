@@ -118,7 +118,8 @@ const conversationQueries = {
       limit: number;
     },
   ) {
-    const query = { conversationId };
+    let query: { [key: string]: string | { [key: string]: string | boolean } | any[] } = { conversationId };
+    let sort: { [key: string]: number | boolean } = { createdAt: 1 };
 
     if (limit) {
       const messages = await ConversationMessages.find(query)
@@ -129,7 +130,40 @@ const conversationQueries = {
       return messages.reverse();
     }
 
-    return ConversationMessages.find(query).sort({ createdAt: 1 });
+    const conversation = await Conversations.findOne({ _id: conversationId });
+
+    if (conversation && conversation.facebookData) {
+      query = {
+        conversationId,
+      };
+
+      sort = { 'facebookData.isPost': -1, 'facebookData.createdTime': 1 };
+
+      limit = 3;
+    }
+
+    const msgs = await ConversationMessages.find(query)
+      .sort(sort)
+      .limit(limit)
+      .then(async docs => {
+        if (conversation && conversation.facebookData) {
+          const lastItem = docs[docs.length - 1];
+
+          if (lastItem.facebookData && lastItem.facebookData.parentId) {
+            const parentComment = await ConversationMessages.findOne({
+              'facebookData.commentId': lastItem.facebookData.parentId,
+            });
+
+            if (parentComment) {
+              docs.splice(1, 0, parentComment);
+            }
+          }
+        }
+        console.log(docs);
+        return docs;
+      });
+
+    return msgs;
   },
 
   /**

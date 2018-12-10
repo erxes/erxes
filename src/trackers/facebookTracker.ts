@@ -1,5 +1,6 @@
 import * as graph from 'fbgraph';
 import { Accounts } from '../db/models';
+import { IFbUser } from '../db/models/definitions/conversationMessages';
 import { receiveWebhookResponse } from './facebook';
 
 /*
@@ -15,7 +16,7 @@ export const graphRequest = {
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
         if (error) {
-          return reject(error);
+          return reject(error.message);
         }
 
         return resolve(response);
@@ -125,24 +126,50 @@ export const trackFbLogin = expressApp => {
   });
 };
 
-interface IComment {
+export interface IPost {
+  caption?: string;
+  id: string;
+  description?: string;
+  link?: string;
+  picture?: string;
+  source?: string;
+  message?: string;
+  from: IFbUser;
+  comments: IComments;
+}
+
+interface ISummary {
+  order: string;
+  total_count: number;
+  can_comment: boolean;
+}
+
+export interface IComment {
   id: string;
   parent?: { id: string };
   from: { name: string; id: string };
   message: string;
   attachment_url: string;
+  created_time?: string;
+  summary: ISummary;
+  comments: IComments;
 }
 
-interface IComments {
+export interface IComments {
   data: IComment[];
+  summary: ISummary;
 }
 
 /*
  * Find post comments using postId
  */
-export const findPostComments = async (accessToken: string, postId: string, comments: IComment[]) => {
+export const findPostComments = async (
+  accessToken: string,
+  postId: string,
+  comments: IComment[],
+): Promise<IComment[]> => {
   const postComments: IComments = await graphRequest.get(
-    `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url&limit=3000`,
+    `/${postId}/comments?fields=parent.fields(id),from,message,attachment_url,created_time,comments.summary(true),order=reverse_chronological&limit=3000`,
     accessToken,
   );
 
