@@ -150,18 +150,12 @@ server.listen(PORT, () => {
             await Customers.markCustomerAsActive(customerId);
 
             // customer has joined + time
-            const customerConversations = await Conversations.find({
+            Conversations.changeCustomerStatus(
+              'joined',
+              messengerData.messengerData.supporterIds[0],
               customerId,
               integrationId,
-              status: 'open',
-            });
-            for (const conversationObj of customerConversations) {
-              Conversations.changeCustomerStatus(
-                conversationObj._id,
-                'joined',
-                messengerData.messengerData.supporterIds[0],
-              );
-            }
+            );
 
             // notify as connected
             pubsub.publish('customerConnectionChanged', {
@@ -185,18 +179,12 @@ server.listen(PORT, () => {
           await Customers.markCustomerAsNotActive(customerId);
 
           // customer has left + time
-          const customerConversations = await Conversations.find({
+          await Conversations.changeCustomerStatus(
+            'left',
+            messengerData.messengerData.supporterIds[0],
             customerId,
             integrationId,
-            status: 'open',
-          });
-          for (const conversationObj of customerConversations) {
-            Conversations.changeCustomerStatus(
-              conversationObj._id,
-              'left',
-              messengerData.messengerData.supporterIds[0],
-            );
-          }
+          );
 
           // notify as disconnected
           pubsub.publish('customerConnectionChanged', {

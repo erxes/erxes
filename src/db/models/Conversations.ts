@@ -20,7 +20,12 @@ interface IConversationModel extends Model<IConversationDocument> {
 
   unassignUserConversation(conversationIds: string[]): Promise<IConversationDocument>;
 
-  changeCustomerStatus(conversationId: string, status: string, userId: string): Promise<IConversationDocument>;
+  changeCustomerStatus(
+    status: string,
+    userId: string,
+    customerId: string,
+    integrationId: string,
+  ): Promise<IConversationDocument>;
 
   changeStatusConversation(conversationIds: string[], status: string, userId?: string): Promise<IConversationDocument>;
 
@@ -125,20 +130,27 @@ class Conversation {
   }
   /**
    * Change customer status
-   * @param conversationId
    * @param status [left/join]
    * @param userId
    * @param customerId
+   * @param integrationId
    */
-  public static changeCustomerStatus(conversationId: string, status: string, userId: string) {
-    ConversationMessages.addMessage(
-      {
-        conversationId,
-        content: `Customer has ${status}`,
-        internal: true,
-      },
-      userId,
-    );
+  public static async changeCustomerStatus(status: string, userId: string, customerId: string, integrationId: string) {
+    const customerConversations = await Conversations.find({
+      customerId,
+      integrationId,
+      status: 'open',
+    });
+    for (const conversationObj of customerConversations) {
+      ConversationMessages.addMessage(
+        {
+          conversationId: conversationObj._id,
+          content: `Customer has ${status}`,
+          internal: true,
+        },
+        userId,
+      );
+    }
   }
   /**
    * Change conversation status
