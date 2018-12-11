@@ -67,6 +67,30 @@ export interface IListArgs {
   endDate: string;
   type: string;
 }
+/**
+ * Return conversationSelect for aggregation
+ * @param args
+ * @param conversationSelector
+ * @param selectIds
+ */
+export const getConversationSelector = async (args: IIntegrationSelector, conversationSelector: any): Promise<any> => {
+  const integrationSelector: IIntegrationSelector = {};
+  const { kind, brandId } = args;
+
+  if (kind || brandId) {
+    if (brandId) {
+      integrationSelector.brandId = brandId;
+    }
+
+    if (kind) {
+      integrationSelector.kind = kind;
+    }
+
+    conversationSelector.integrationIds = await Integrations.find(integrationSelector).select('_id');
+  }
+
+  return conversationSelector;
+};
 
 /**
  * Find conversations or conversationIds.
@@ -113,7 +137,26 @@ export const generateMessageSelector = async (
 
   return messageSelector;
 };
+/**
+ * Fix trend for missing values because from then aggregation,
+ * it could return missing values for some dates. This method
+ * will assign 0 values for missing x values.
+ * @param startDate
+ * @param endDate
+ * @param data
+ */
+export const fixChartData = async (data: any[], hintX: string, hintY: string): Promise<IGenerateChartData[]> => {
+  const results = {};
+  data.map(row => {
+    results[row[hintX]] = row[hintY];
+  });
 
+  return Object.keys(results)
+    .sort()
+    .map(key => {
+      return { x: formatTime(moment(key), 'MM-DD'), y: results[key] };
+    });
+};
 /**
  * Populates message collection into date range
  * by given duration and loop count for chart data.
@@ -129,7 +172,7 @@ export const generateChartData = async (args: IChartData): Promise<IGenerateChar
       $project: {
         date: {
           $dateToString: {
-            format: '%Y-%m-%d',
+            format: '%m-%d',
             date: '$createdAt',
             timezone: '+08',
           },
@@ -168,7 +211,7 @@ export const generateChartData = async (args: IChartData): Promise<IGenerateChar
     return Object.keys(results)
       .sort()
       .map(key => {
-        return { x: key, y: results[key] };
+        return { x: formatTime(moment(key), 'MM-DD'), y: results[key] };
       });
   }
 
