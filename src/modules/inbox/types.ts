@@ -1,6 +1,6 @@
 import { IUser } from '../auth/types';
 import { ICustomer } from '../customers/types';
-import { IIntegration, IMessengerApp } from '../settings/integrations/types';
+import { IIntegration } from '../settings/integrations/types';
 import { ITag } from '../tags/types';
 
 export interface ITwitterData {
@@ -52,11 +52,6 @@ export interface IGmailAttachment {
   mimeType?: string;
   size: number;
   attachmentId: string;
-}
-
-export interface IGmailDataAttachment {
-  data?: string;
-  size: number;
 }
 
 export interface IConversationGmailData {
@@ -172,7 +167,6 @@ export interface IMessage {
   facebookData?: IMessageFacebookData;
   twitterData?: ITwitterData;
   gmailData?: IConversationGmailData;
-  gmailDataAttachments?: IGmailDataAttachment[];
 
   _id: string;
   user?: IUser;

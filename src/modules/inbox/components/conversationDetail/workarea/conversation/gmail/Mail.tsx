@@ -1,5 +1,5 @@
 import * as juice from 'juice';
-import { Button, Icon, ModalTrigger } from 'modules/common/components';
+import { Button, Icon, ModalTrigger, Spinner } from 'modules/common/components';
 import Avatar from 'modules/common/components/nameCard/Avatar';
 import { IConversationGmailData, IMessage } from 'modules/inbox/types';
 import { MailForm } from 'modules/settings/integrations/containers/google';
@@ -16,12 +16,14 @@ import {
   Subject
 } from './style';
 
+import Attachments from './Attachment';
+
 type Props = {
   message: IMessage;
   staff?: boolean;
 };
 
-class Mail extends React.Component<Props, {}> {
+class Mail extends React.PureComponent<Props, {}> {
   cleanHtml(mailContent: string) {
     return sanitizeHtml(mailContent, {
       allowedTags: false,
@@ -52,7 +54,7 @@ class Mail extends React.Component<Props, {}> {
         headerId={gmailData.headerId}
         threadId={gmailData.threadId}
         closeModal={props.closeModal}
-        subject={`Re: ${subject}`}
+        subject={subject}
       />
     );
 
@@ -86,8 +88,8 @@ class Mail extends React.Component<Props, {}> {
     const { message } = this.props;
 
     // gmail data
-    const gmailData = message.gmailData;
-    const attachments = message.gmailDataAttachments || [];
+    const gmailData = message.gmailData || {};
+    const attachments = gmailData.attachments || [];
 
     if (!gmailData) {
       return null;
@@ -116,6 +118,8 @@ class Mail extends React.Component<Props, {}> {
         <Content
           dangerouslySetInnerHTML={{ __html: this.cleanHtml(mailContent) }}
         />
+
+        <Attachments attachments={attachments} messageId={message._id || ''} />
       </EmailItem>
     );
   }

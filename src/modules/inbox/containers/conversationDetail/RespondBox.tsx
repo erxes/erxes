@@ -74,6 +74,7 @@ const RespondBoxContainer = (props: FinalProps) => {
           formWidgetData: null,
           twitterData: null,
           facebookData: null,
+          gmailData: null,
           user: null,
           customer: null
         }

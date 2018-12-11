@@ -19,7 +19,7 @@ const sendGmailFields = `
   $toEmails: String!,
   $cc: String,
   $bcc: String,
-  $attachments: [String],
+  $attachments: [gmailAttachmentData],
   $headerId: String,
   $references: String,
   $threadId: String

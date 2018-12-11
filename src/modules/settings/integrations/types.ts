@@ -196,8 +196,14 @@ export type GoogleAccessTokenQueryResponse = {
   refetch: () => void;
 };
 
-// mutation types
+export interface IGmailAttachment {
+  filename?: string;
+  mimeType?: string;
+  size?: number;
+  data?: string;
+}
 
+// mutation types
 export type SaveMessengerMutationVariables = {
   name: string;
   brandId: string;

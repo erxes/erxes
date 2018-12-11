@@ -71,6 +71,101 @@ const RightSide = styled.div`
   align-items: center;
 `;
 
+const AttachmentsContainer = styled.div`
+  padding-left: 45px;
+  margin-top: 20px;
+  overflow: hidden;
+`;
+
+const FileInfo = styled.div`
+  position: absolute;
+  padding: 5px 5px 5px 35px;
+  top: 85px;
+  left: 0;
+  right: 0;
+  word-break: break-all;
+  background: ${colors.bgLight};
+  height: 100%;
+  transition: top 0.2s ease;
+
+  span {
+    display: block;
+    color: ${colors.colorCoreGray};
+    visibility: hidden;
+    opacity: 0;
+    font-size: 11px;
+  }
+
+  > i {
+    position: absolute;
+    left: 11px;
+    color: ${colors.colorSecondary};
+  }
+`;
+
+const FileName = styled.div`
+  font-weight: bold;
+  font-size: 12px;
+  margin-top: 3px;
+  line-height: 16px;
+  max-height: 48px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const AttachmentItem = styled.div`
+  float: left;
+  width: 180px;
+  height: 120px;
+  border: 1px solid ${colors.borderPrimary};
+  position: relative;
+  overflow: hidden;
+  margin: 0 10px 10px 0;
+
+  &:hover ${FileInfo} {
+    top: 0;
+    bottom: 0;
+
+    span {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    ${FileName} {
+      white-space: normal;
+      text-overflow: initial;
+    }
+  }
+`;
+
+const Download = styled.a`
+  width: 30px;
+  height: 24px;
+  border-radius: 3px;
+  background: ${colors.colorCoreGray};
+  display: block;
+  text-align: center;
+  color: ${colors.colorWhite};
+  line-height: 23px;
+  position: absolute;
+  bottom: 15px;
+
+  &:hover {
+    background: ${colors.colorCoreDarkGray};
+    color: ${colors.colorWhite};
+  }
+`;
+
+const FileIcon = styled.div`
+  height: 85px;
+  text-align: center;
+  color: ${colors.colorCoreLightGray};
+  line-height: 85px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  background: ${colors.colorWhite};
+`;
+
 export {
   EmailItem,
   Subject,
@@ -79,5 +174,11 @@ export {
   Details,
   Content,
   InternalMessages,
-  RightSide
+  RightSide,
+  AttachmentItem,
+  AttachmentsContainer,
+  FileIcon,
+  FileInfo,
+  FileName,
+  Download
 };

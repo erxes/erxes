@@ -62,16 +62,6 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
   }
 `;
 
-const Rotate = styled.div`
-  width: 16px;
-  height: 16px;
-  animation: ${rotate} 0.75s linear infinite;
-  border: 1px solid ${colors.borderDarker};
-  border-top-color: ${colors.colorSecondary};
-  border-right-color: ${colors.colorSecondary};
-  border-radius: 8px;
-`;
-
 const EditorFooter = styled.div`
   display: flex;
   justify-content: space-between;
@@ -103,6 +93,5 @@ export {
   LeftSection,
   Resipients,
   AttachmentContainer,
-  Rotate,
   EditorFooter
 };

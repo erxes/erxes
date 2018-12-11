@@ -65,10 +65,6 @@ export default `
       attachmentId
     }
   }
-  gmailDataAttachments {
-    size
-    data
-  }
   user {
     _id
     username

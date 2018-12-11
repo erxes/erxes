@@ -5,9 +5,12 @@ import {
   ErxesEditor,
   toHTML
 } from 'modules/common/components/editor/Editor';
-import { __, Alert, uploadHandler } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { FileName } from 'modules/inbox/styles';
-import { IIntegration } from 'modules/settings/integrations/types';
+import {
+  IGmailAttachment,
+  IIntegration
+} from 'modules/settings/integrations/types';
 import * as React from 'react';
 import {
   AttachmentContainer,
@@ -16,8 +19,7 @@ import {
   EditorFooter,
   LeftSection,
   MailEditorWrapper,
-  Resipients,
-  Rotate
+  Resipients
 } from './styles';
 
 type Props = {
@@ -35,7 +37,7 @@ type Props = {
       subject?: string;
       body: string;
       integrationId?: string;
-      attachments: string[];
+      attachments: IGmailAttachment[];
     },
     callback: () => void
   ) => void;
@@ -53,9 +55,8 @@ type State = {
   content: string;
   editorState: EditorState;
   integrations: IIntegration[];
-  attachments: string[];
+  attachments: IGmailAttachment[];
   totalFileSize: number;
-  attachmentPreview?: { name: string; data: string; type: string };
   isSending: boolean;
 };
 
@@ -81,10 +82,6 @@ class MailForm extends React.Component<Props, State> {
     };
   }
 
-  setAttachmentPreview = attachmentPreview => {
-    this.setState({ attachmentPreview });
-  };
-
   getContent = editorState => {
     return toHTML(editorState);
   };
@@ -104,31 +101,49 @@ class MailForm extends React.Component<Props, State> {
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
 
-    uploadHandler({
-      files,
+    if (!files) {
+      return;
+    }
 
-      beforeUpload: () => {
-        return;
-      },
+    if (files.length === 0) {
+      return;
+    }
 
-      afterUpload: ({ response, fileInfo }) => {
+    // tslint:disable-next-line
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      const uploadReader = new FileReader();
+      const fileInfo = {
+        filename: file.name,
+        size: file.size,
+        mimeType: file.type
+      };
+
+      uploadReader.onloadend = () => {
         if (this.state.totalFileSize > 10368000) {
           return Alert.error('It`s size exceeds the limit 10mb');
         }
-        // set attachments
-        this.setState({
-          attachments: [...this.state.attachments, response],
-          totalFileSize: this.state.totalFileSize + fileInfo.size
-        });
 
-        // remove preview
-        this.setAttachmentPreview(null);
-      },
+        const result = uploadReader.result;
 
-      afterRead: ({ result, fileInfo }) => {
-        this.setAttachmentPreview(Object.assign({ data: result }, fileInfo));
-      }
-    });
+        if (result) {
+          const dataStr = result.toString();
+          const data = dataStr.substr(dataStr.indexOf(',') + 1);
+
+          const fileData = Object.assign({ data }, fileInfo);
+
+          this.setState({
+            attachments: [...this.state.attachments, fileData],
+            totalFileSize: this.state.totalFileSize + fileInfo.size
+          });
+
+          console.log(this.state.attachments); //tslint:disable-line
+        }
+      };
+
+      uploadReader.readAsDataURL(file);
+    }
   };
 
   onAfterSend = () => {
@@ -250,11 +265,13 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
-  onRemoveAttach = (attachment: string) => {
+  onRemoveAttach = (attachment: IGmailAttachment) => {
     const { attachments } = this.state;
 
     this.setState({
-      attachments: attachments.filter(item => item !== attachment)
+      attachments: attachments.filter(
+        item => item.filename !== attachment.filename
+      )
     });
   };
 
@@ -269,7 +286,7 @@ class MailForm extends React.Component<Props, State> {
       <Attachments>
         {attachments.map((attachment, index) => (
           <AttachmentContainer key={index}>
-            <FileName>{attachment}</FileName>
+            <FileName>{attachment.filename}</FileName>
             <Icon
               icon="cancel-1"
               size={14}
@@ -301,22 +318,22 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderButtons() {
-    const { toEmails, from, attachmentPreview, isSending } = this.state;
+    const { toEmails, from, isSending } = this.state;
 
     const disabled = toEmails && from ? false : true;
 
     return (
       <EditorFooter>
-        {attachmentPreview ? (
-          <Rotate />
-        ) : (
-          <Tip text={__('Attach file')}>
-            <label>
-              <Icon icon="upload-2" />
-              <input type="file" onChange={this.handleFileInput} />
-            </label>
-          </Tip>
-        )}
+        <Tip text={__('Attach file')}>
+          <label>
+            <Icon icon="upload-2" />
+            <input
+              type="file"
+              onChange={this.handleFileInput}
+              multiple={true}
+            />
+          </label>
+        </Tip>
         <div>
           <Button
             onClick={this.cancelEditing}

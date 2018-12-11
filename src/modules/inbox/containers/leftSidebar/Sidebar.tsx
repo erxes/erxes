@@ -37,7 +37,7 @@ class Sidebar extends React.Component<FinalProps> {
 
     if (!localStorage.getItem(STORAGE_KEY)) {
       setConfig(STORAGE_KEY, {
-        showAddition: true,
+        showAddition: false,
         showChannels: true,
         showBrands: false,
         showIntegrations: false,
