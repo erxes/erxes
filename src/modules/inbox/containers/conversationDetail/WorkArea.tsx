@@ -240,14 +240,21 @@ class WorkArea extends React.Component<FinalProps, State> {
         facebookCommentId: commentId
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        // tslint:disable-next-line
-        console.log('fetch more result', fetchMoreResult);
         if (!fetchMoreResult) {
           return prev;
         }
 
-        const fetchedMessages: IMessage[] =
-          fetchMoreResult.conversationMessages || [];
+        const fetchedMessages: IMessage[] = [];
+
+        const prevMessageIds = (prev.conversationMessages || []).map(
+          m => m._id
+        );
+
+        for (const message of fetchMoreResult.conversationMessages) {
+          if (!prevMessageIds.includes(message._id)) {
+            fetchedMessages.push(message);
+          }
+        }
 
         return {
           ...prev,
