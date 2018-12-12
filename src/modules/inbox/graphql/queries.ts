@@ -113,9 +113,9 @@ const conversationDetailMarkAsRead = `
 `;
 
 const conversationMessages = `
-  query conversationMessages($conversationId: String!, $skip: Int, $limit: Int, $facebookCommentId: String) {
+  query conversationMessages($conversationId: String!, $skip: Int, $limit: Int, $facebookCommentId: String, $facebookPostId: String) {
     conversationMessages(
-      conversationId: $conversationId, skip: $skip, limit: $limit, facebookCommentId: $facebookCommentId
+      conversationId: $conversationId, skip: $skip, limit: $limit, facebookCommentId: $facebookCommentId, facebookPostId: $facebookPostId
     ) {
       ${messageFields}
     }

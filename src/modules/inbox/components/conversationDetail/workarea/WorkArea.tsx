@@ -32,7 +32,9 @@ type Props = {
   conversationMessages: IMessage[];
   loading: boolean;
   loadMoreMessages: () => void;
-  fetchFacebook: (commentId: string) => void;
+  fetchFacebook: (
+    { commentId, postId }: { commentId?: string; postId?: string }
+  ) => void;
   addMessage: (
     {
       variables,

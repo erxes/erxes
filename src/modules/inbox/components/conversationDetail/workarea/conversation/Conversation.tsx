@@ -11,7 +11,9 @@ import { TwitterConversation } from './twitter';
 type Props = {
   conversation: IConversation;
   conversationMessages: IMessage[];
-  fetchFacebook: (commentId: string) => void;
+  fetchFacebook: (
+    { commentId, postId }: { commentId?: string; postId?: string }
+  ) => void;
   attachmentPreview: IAttachmentPreview;
   scrollBottom: () => void;
   loading: boolean;

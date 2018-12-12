@@ -27,11 +27,32 @@ type Props = {
     },
     callback: () => void
   ) => void;
-  fetchFacebook: (commentId: string) => void;
+  fetchFacebook: (
+    { commentId, postId }: { commentId?: string; postId?: string }
+  ) => void;
   scrollBottom?: () => void;
 };
 
-export default class FacebookComment extends React.Component<Props, {}> {
+export default class FacebookComment extends React.Component<
+  Props,
+  { hasReplies: boolean }
+> {
+  constructor(props) {
+    super(props);
+
+    const data = props.message.facebookData;
+
+    let hasReplies = false;
+
+    if (data.commentCount && data.commentCount > 0) {
+      hasReplies = true;
+    }
+
+    this.state = {
+      hasReplies
+    };
+  }
+
   renderReactionCount() {
     const data = this.props.message.facebookData;
 
@@ -53,12 +74,12 @@ export default class FacebookComment extends React.Component<Props, {}> {
     );
   }
 
-  asd = commentId => {
-    // tslint:disable-next-line
-    console.log(commentId);
+  fetchReplies = commentId => {
     const { fetchFacebook } = this.props;
 
-    fetchFacebook(commentId);
+    fetchFacebook({ commentId });
+
+    this.setState({ hasReplies: false });
   };
 
   render() {
@@ -113,11 +134,11 @@ export default class FacebookComment extends React.Component<Props, {}> {
           </Reply>
 
           <Date message={message} />
-          {data.commentCount && data.commentCount > 0 ? (
-            <a onClick={this.asd.bind(this, data.commentId)}>
+          {this.state.hasReplies && (
+            <a onClick={this.fetchReplies.bind(this, data.commentId)}>
               View more Replies
             </a>
-          ) : null}
+          )}
         </User>
       </ChildPost>
     );
