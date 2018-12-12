@@ -157,7 +157,6 @@ server.listen(PORT, () => {
                 conversationMessageInserted: _message,
               });
             }
-            await Conversations.changeCustomerStatus('joined', customerId, integrationId);
 
             // notify as connected
             pubsub.publish('customerConnectionChanged', {
