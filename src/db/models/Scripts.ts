@@ -56,7 +56,7 @@ class Script {
   /**
    * Create script
    */
-  public static async createScript(_id: string, fields: IScript) {
+  public static async createScript(fields: IScript) {
     const autoFields = await Script.calculateAutoFields(fields);
 
     return Scripts.create({
