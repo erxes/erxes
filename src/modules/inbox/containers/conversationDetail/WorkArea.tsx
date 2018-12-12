@@ -231,6 +231,35 @@ class WorkArea extends React.Component<FinalProps, State> {
     }
   };
 
+  fetchFacebook = (commentId: string) => {
+    const { currentId, messagesQuery } = this.props;
+
+    messagesQuery.fetchMore({
+      variables: {
+        conversationId: currentId,
+        facebookCommentId: commentId
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        // tslint:disable-next-line
+        console.log('fetch more result', fetchMoreResult);
+        if (!fetchMoreResult) {
+          return prev;
+        }
+
+        const fetchedMessages: IMessage[] =
+          fetchMoreResult.conversationMessages || [];
+
+        return {
+          ...prev,
+          conversationMessages: [
+            ...fetchedMessages,
+            ...prev.conversationMessages
+          ]
+        };
+      }
+    });
+  };
+
   render() {
     const { loadingMessages } = this.state;
     const { messagesQuery } = this.props;
@@ -241,6 +270,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       conversationMessages,
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
+      fetchFacebook: this.fetchFacebook,
       loading: messagesQuery.loading || loadingMessages
     };
 

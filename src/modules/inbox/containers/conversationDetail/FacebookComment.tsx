@@ -13,6 +13,7 @@ import { compose, graphql } from 'react-apollo';
 type Props = {
   message: IMessage;
   scrollBottom?: () => void;
+  fetchFacebook: (commentId: string) => void;
 };
 
 type FinalProps = Props & ReplyMutationResponse;

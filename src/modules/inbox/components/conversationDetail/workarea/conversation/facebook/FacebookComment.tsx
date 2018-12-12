@@ -27,6 +27,7 @@ type Props = {
     },
     callback: () => void
   ) => void;
+  fetchFacebook: (commentId: string) => void;
   scrollBottom?: () => void;
 };
 
@@ -51,6 +52,14 @@ export default class FacebookComment extends React.Component<Props, {}> {
       </ReplyReaction>
     );
   }
+
+  asd = commentId => {
+    // tslint:disable-next-line
+    console.log(commentId);
+    const { fetchFacebook } = this.props;
+
+    fetchFacebook(commentId);
+  };
 
   render() {
     const { message, replyPost, scrollBottom } = this.props;
@@ -104,6 +113,11 @@ export default class FacebookComment extends React.Component<Props, {}> {
           </Reply>
 
           <Date message={message} />
+          {data.commentCount && data.commentCount > 0 ? (
+            <a onClick={this.asd.bind(this, data.commentId)}>
+              View more Replies
+            </a>
+          ) : null}
         </User>
       </ChildPost>
     );

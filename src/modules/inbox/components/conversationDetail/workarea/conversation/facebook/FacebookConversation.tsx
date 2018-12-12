@@ -10,6 +10,7 @@ type Props = {
   conversation: IConversation;
   conversationMessages: IMessage[];
   scrollBottom: () => void;
+  fetchFacebook: (commentId: string) => void;
 };
 
 const getAttr = (message: IMessage, attr: string) => {
@@ -41,7 +42,7 @@ export default class FacebookConversation extends React.Component<Props, {}> {
   };
 
   renderReplies(comment: IMessage) {
-    const { conversationMessages = [] } = this.props;
+    const { conversationMessages = [], fetchFacebook } = this.props;
 
     const replies = conversationMessages.filter(msg => {
       const parentId = getAttr(msg, 'parentId');
@@ -51,7 +52,7 @@ export default class FacebookConversation extends React.Component<Props, {}> {
 
     return replies.map(reply => (
       <React.Fragment key={reply._id}>
-        <FacebookComment message={reply} />
+        <FacebookComment message={reply} fetchFacebook={fetchFacebook} />
       </React.Fragment>
     ));
   }
@@ -59,7 +60,10 @@ export default class FacebookConversation extends React.Component<Props, {}> {
   renderComments(comments: IMessage[]) {
     return comments.map(comment => (
       <React.Fragment key={comment._id}>
-        <FacebookComment message={comment} />
+        <FacebookComment
+          message={comment}
+          fetchFacebook={this.props.fetchFacebook}
+        />
         {this.renderReplies(comment)}
       </React.Fragment>
     ));

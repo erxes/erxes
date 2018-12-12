@@ -32,6 +32,7 @@ type Props = {
   conversationMessages: IMessage[];
   loading: boolean;
   loadMoreMessages: () => void;
+  fetchFacebook: (commentId: string) => void;
   addMessage: (
     {
       variables,
@@ -129,7 +130,8 @@ export default class WorkArea extends React.Component<Props, State> {
       currentConversation,
       conversationMessages,
       addMessage,
-      loading
+      loading,
+      fetchFacebook
     } = this.props;
 
     const tags = currentConversation.tags || [];
@@ -199,6 +201,7 @@ export default class WorkArea extends React.Component<Props, State> {
       <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
         <Conversation
           conversation={currentConversation}
+          fetchFacebook={fetchFacebook}
           scrollBottom={this.scrollBottom}
           conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
