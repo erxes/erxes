@@ -9,7 +9,6 @@ import {
   fixDates,
   formatTime,
   generateChartData,
-  generateDuration,
   generateMessageSelector,
   generateResponseData,
   generateTimeIntervals,
@@ -101,21 +100,36 @@ const insightQueries = {
     }
 
     const integrationIdsByTag = await Integrations.find(integrationSelector).select('_id');
-
+    const rawIntegrationIdsByTag = integrationIdsByTag.map(row => row._id);
+    const tagData = await Conversations.aggregate([
+      {
+        $match: {
+          ...conversationSelector,
+          integrationId: { $in: rawIntegrationIdsByTag },
+        },
+      },
+      {
+        $unwind: '$tagIds',
+      },
+      {
+        $group: {
+          _id: '$tagIds',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    const tagDictionaryData = {};
+    tagData.map(row => {
+      tagDictionaryData[row._id] = row.count;
+    });
     // count conversations by each tag
     for (const tag of tags) {
       // find conversation counts of given tag
-      const value = await Conversations.countDocuments({
-        ...conversationSelector,
-        integrationId: { $in: integrationIdsByTag },
-        tagIds: tag._id,
-      });
-
-      if (value > 0) {
+      const value = tagDictionaryData[tag._id];
+      if (tag._id in tagDictionaryData) {
         insights.tag.push({ id: tag.name, label: tag.name, value });
       }
     }
-
     return insights;
   },
 
@@ -193,7 +207,6 @@ const insightQueries = {
   async insightsMain(_root, args: IListArgs) {
     const { type, integrationType, brandId, startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
-    const { duration, startTime } = generateDuration({ start, end });
 
     const messageSelector = await generateMessageSelector(
       brandId,
@@ -211,12 +224,7 @@ const insightQueries = {
 
     const insightData: any = {
       summary: [],
-      trend: await generateChartData({
-        messageSelector,
-        loopCount: 7,
-        duration,
-        startTime,
-      }),
+      trend: await generateChartData({ messageSelector }),
     };
 
     const summaries = generateTimeIntervals(start, end);
@@ -243,7 +251,6 @@ const insightQueries = {
   async insightsConversation(_root, args: IListArgs) {
     const { integrationType, brandId, startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
-    const { duration, startTime } = generateDuration({ start, end });
 
     const conversationSelector = {
       createdAt: { $gt: start, $lte: end },
@@ -253,12 +260,7 @@ const insightQueries = {
     const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
     const insightData: any = {
       summary: [],
-      trend: await generateChartData({
-        collection: conversations,
-        loopCount: 7,
-        duration,
-        startTime,
-      }),
+      trend: await generateChartData({ collection: conversations }),
     };
 
     const summaries = generateTimeIntervals(start, end);
@@ -285,7 +287,6 @@ const insightQueries = {
   async insightsFirstResponse(_root, args: IListArgs) {
     const { integrationType, brandId, startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
-    const { duration, startTime } = generateDuration({ start, end });
 
     const conversationSelector = {
       firstRespondedUserId: { $exists: true },
@@ -354,7 +355,7 @@ const insightQueries = {
       }
     }
 
-    const doc = await generateResponseData(firstResponseData, responseUserData, allResponseTime, duration, startTime);
+    const doc = await generateResponseData(firstResponseData, responseUserData, allResponseTime);
 
     return { ...doc, summaries };
   },
@@ -487,6 +488,7 @@ const insightQueries = {
       'count',
     );
     const time = Math.floor(allResponseTime / totalCount);
+
     return { trend, teamMembers, time };
   },
 };

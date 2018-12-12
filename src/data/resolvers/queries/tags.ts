@@ -6,7 +6,7 @@ const tagQueries = {
    * Tags list
    */
   tags(_root, { type }: { type: string }) {
-    return Tags.find({ type });
+    return Tags.find({ type }).sort({ name: 1 });
   },
 
   /**
