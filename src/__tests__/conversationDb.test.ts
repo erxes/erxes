@@ -181,7 +181,18 @@ describe('Conversation db', () => {
 
     expect(conversationObj.assignedUserId).toBeUndefined();
   });
-
+  test('Change customer status', async () => {
+    const customerStatusMessages = await Conversations.changeCustomerStatus(
+      'left',
+      _conversation.customerId,
+      _conversation.integrationId,
+    );
+    expect(customerStatusMessages.length).toEqual(1);
+    for (const row of customerStatusMessages) {
+      const data = await row;
+      expect(data.content).toBe('Customer has left');
+    }
+  });
   test('Change conversation status', async () => {
     // try closing ========================
     await Conversations.changeStatusConversation([_conversation._id], 'closed');
