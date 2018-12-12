@@ -112,13 +112,17 @@ const conversationQueries = {
       conversationId,
       skip,
       limit,
+      facebookCommentId,
+      facebookPostId,
     }: {
       conversationId: string;
       skip: number;
       limit: number;
+      facebookCommentId: string;
+      facebookPostId: string;
     },
   ) {
-    let query: { [key: string]: string | { [key: string]: string | boolean } | any[] } = { conversationId };
+    const query: { [key: string]: string | { [key: string]: string | boolean } } = { conversationId };
     let sort: { [key: string]: number | boolean } = { createdAt: 1 };
 
     if (limit) {
@@ -133,35 +137,46 @@ const conversationQueries = {
     const conversation = await Conversations.findOne({ _id: conversationId });
 
     if (conversation && conversation.facebookData) {
-      query = {
-        conversationId,
-      };
+      sort = { 'facebookData.isPost': -1, 'facebookData.createdTime': -1 };
 
-      sort = { 'facebookData.isPost': -1, 'facebookData.createdTime': 1 };
+      limit = 2;
+    }
 
-      limit = 3;
+    if (facebookCommentId) {
+      query['facebookData.parentId'] = facebookCommentId;
+      limit = 1000;
+    }
+
+    if (facebookPostId) {
+      query['facebookData.postId'] = facebookPostId;
+      query['facebookData.parentId'] = { $exists: false };
+      limit = 10;
     }
 
     const msgs = await ConversationMessages.find(query)
       .sort(sort)
-      .limit(limit)
-      .then(async docs => {
-        if (conversation && conversation.facebookData) {
-          const lastItem = docs[docs.length - 1];
+      .limit(limit);
 
-          if (lastItem.facebookData && lastItem.facebookData.parentId) {
-            const parentComment = await ConversationMessages.findOne({
-              'facebookData.commentId': lastItem.facebookData.parentId,
-            });
+    // Getting parent comment if it is a reply
+    if (conversation && conversation.facebookData) {
+      if (facebookCommentId || facebookPostId) {
+        return msgs;
+      }
 
-            if (parentComment) {
-              docs.splice(1, 0, parentComment);
-            }
-          }
+      // getting last item from messages, it is the latest comment
+      const lastItem = msgs[msgs.length - 1];
+
+      if (lastItem.facebookData && lastItem.facebookData.parentId) {
+        const parentComment = await ConversationMessages.findOne({
+          'facebookData.commentId': lastItem.facebookData.parentId,
+        });
+
+        // inserting comment on top of reply
+        if (parentComment) {
+          msgs.splice(1, 0, parentComment);
         }
-        console.log(docs);
-        return docs;
-      });
+      }
+    }
 
     return msgs;
   },
@@ -306,6 +321,13 @@ const conversationQueries = {
         },
       ],
     }).countDocuments();
+  },
+
+  /**
+   * Get all unread conversations for logged in user
+   */
+  async conversationsFacebookFetchMore(_root, { commentId }) {
+    return ConversationMessages.find({ 'facebookData.parentId': commentId });
   },
 };
 
