@@ -135,6 +135,8 @@ export default class WorkArea extends React.Component<Props, State> {
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
+    const forceInternal =
+      currentConversation.gmailData || currentConversation.twitterData;
 
     const tagTrigger = (
       <PopoverButton>
@@ -214,7 +216,7 @@ export default class WorkArea extends React.Component<Props, State> {
         {currentConversation._id && (
           <ContenFooter>
             <RespondBox
-              isInternal={currentConversation.gmailData ? true : false}
+              isInternal={forceInternal ? true : false}
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
               addMessage={addMessage}
