@@ -1,5 +1,5 @@
 import * as juice from 'juice';
-import { Button, Icon, ModalTrigger, Spinner } from 'modules/common/components';
+import { Button, Icon, ModalTrigger } from 'modules/common/components';
 import Avatar from 'modules/common/components/nameCard/Avatar';
 import { IConversationGmailData, IMessage } from 'modules/inbox/types';
 import { MailForm } from 'modules/settings/integrations/containers/google';
@@ -118,7 +118,6 @@ class Mail extends React.PureComponent<Props, {}> {
         <Content
           dangerouslySetInnerHTML={{ __html: this.cleanHtml(mailContent) }}
         />
-
         <Attachments attachments={attachments} messageId={message._id || ''} />
       </EmailItem>
     );
