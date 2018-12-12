@@ -33,7 +33,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = (props.object || {}) as IScript;
 
     this.state = {
-      name: object.name,
+      name: object.name || '',
       messengerId: object.messengerId,
       leads: this.generateLeadOptions(object.leads || []),
       kbTopicId: object.kbTopicId
