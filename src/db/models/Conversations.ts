@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Users } from '.';
 import { CONVERSATION_STATUSES } from './definitions/constants';
+import { IMessageDocument } from './definitions/conversationMessages';
 import { conversationSchema, IConversation, IConversationDocument } from './definitions/conversations';
 
 interface ISTATUSES {
@@ -22,10 +23,9 @@ interface IConversationModel extends Model<IConversationDocument> {
 
   changeCustomerStatus(
     status: string,
-    userId: string,
     customerId: string,
     integrationId: string,
-  ): Promise<IConversationDocument>;
+  ): Array<Promise<IConversationDocument>>;
 
   changeStatusConversation(conversationIds: string[], status: string, userId?: string): Promise<IConversationDocument>;
 
@@ -131,26 +131,29 @@ class Conversation {
   /**
    * Change customer status
    * @param status [left/join]
-   * @param userId
    * @param customerId
    * @param integrationId
    */
-  public static async changeCustomerStatus(status: string, userId: string, customerId: string, integrationId: string) {
+  public static async changeCustomerStatus(status: string, customerId: string, integrationId: string) {
     const customerConversations = await Conversations.find({
       customerId,
       integrationId,
       status: 'open',
     });
+
+    const promises: Array<Promise<IMessageDocument>> = [];
+
     for (const conversationObj of customerConversations) {
-      ConversationMessages.addMessage(
-        {
+      promises.push(
+        ConversationMessages.addMessage({
           conversationId: conversationObj._id,
           content: `Customer has ${status}`,
-          internal: true,
-        },
-        userId,
+          fromBot: true,
+        }),
       );
     }
+
+    return Promise.all(promises);
   }
   /**
    * Change conversation status
