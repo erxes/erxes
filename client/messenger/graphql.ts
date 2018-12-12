@@ -27,7 +27,12 @@ const messageFields = `
     brandId
   }
   messengerAppData
-  attachments
+  attachments {
+    url
+    name
+    size
+    type
+  }
 `;
 
 const userFields = `

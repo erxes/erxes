@@ -390,7 +390,7 @@ export class AppProvider extends React.Component<{}, IState> {
             ${connection.queryVariables}
             $message: String
             $conversationId: String
-            $attachments: [JSON]
+            $attachments: [AttachmentInput]
           ) {
 
           insertMessage(

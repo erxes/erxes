@@ -5,6 +5,10 @@ import translation from "../locales";
 import { ENV, IBrowserInfo } from "./types";
 
 export const getBrowserInfo = async () => {
+  if (window.location.hostname === "localhost") {
+    return {};
+  }
+
   let location;
 
   try {
