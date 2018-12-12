@@ -100,21 +100,36 @@ const insightQueries = {
     }
 
     const integrationIdsByTag = await Integrations.find(integrationSelector).select('_id');
-
+    const rawIntegrationIdsByTag = integrationIdsByTag.map(row => row._id);
+    const tagData = await Conversations.aggregate([
+      {
+        $match: {
+          ...conversationSelector,
+          integrationId: { $in: rawIntegrationIdsByTag },
+        },
+      },
+      {
+        $unwind: '$tagIds',
+      },
+      {
+        $group: {
+          _id: '$tagIds',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    const tagDictionaryData = {};
+    tagData.map(row => {
+      tagDictionaryData[row._id] = row.count;
+    });
     // count conversations by each tag
     for (const tag of tags) {
       // find conversation counts of given tag
-      const value = await Conversations.countDocuments({
-        ...conversationSelector,
-        integrationId: { $in: integrationIdsByTag },
-        tagIds: tag._id,
-      });
-
-      if (value > 0) {
+      const value = tagDictionaryData[tag._id];
+      if (tag._id in tagDictionaryData) {
         insights.tag.push({ id: tag.name, label: tag.name, value });
       }
     }
-
     return insights;
   },
 
