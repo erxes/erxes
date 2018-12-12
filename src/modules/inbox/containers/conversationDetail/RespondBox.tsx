@@ -70,6 +70,7 @@ const RespondBoxContainer = (props: FinalProps) => {
           createdAt: new Date(),
           messengerAppData: null,
           isCustomerRead: false,
+          fromBot: false,
           formWidgetData: null,
           twitterData: null,
           facebookData: null,

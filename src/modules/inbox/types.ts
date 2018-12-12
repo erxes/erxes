@@ -134,6 +134,7 @@ export interface IMessage {
   mentionedUserIds?: string[];
   conversationId: string;
   internal?: boolean;
+  fromBot?: boolean;
   customerId?: string;
   userId?: string;
   isCustomerRead?: boolean;

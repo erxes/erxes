@@ -1,5 +1,10 @@
 import classNames from 'classnames';
-import { Attachment, NameCard, Tip } from 'modules/common/components';
+import {
+  Attachment,
+  NameCard,
+  TextDivider,
+  Tip
+} from 'modules/common/components';
 import * as moment from 'moment';
 import * as React from 'react';
 import * as xss from 'xss';
@@ -64,6 +69,10 @@ export default class SimpleMessage extends React.Component<Props, {}> {
       attachment: hasAttachment,
       same: isSameUser
     });
+
+    if (message.fromBot) {
+      return <TextDivider text={message.content} date={messageDate} />;
+    }
 
     return (
       <MessageItem staff={isStaff} className={classes} isSame={isSameUser}>
