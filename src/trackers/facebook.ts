@@ -31,7 +31,7 @@ interface IPostParams {
   source?: string;
   message?: string;
   from: IFbUser;
-  comments: IComments;
+  comments?: IComments;
 }
 
 interface ICommentParams {

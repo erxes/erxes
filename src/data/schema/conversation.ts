@@ -158,8 +158,6 @@ export const queries = `
     conversationId: String!
     skip: Int
     limit: Int
-    facebookCommentId: String
-    facebookPostId: String
   ): [ConversationMessage]
 
   conversationMessagesTotalCount(conversationId: String!): Int
@@ -168,8 +166,11 @@ export const queries = `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
-
-  conversationsFacebookFetchMore(commentId: String): [ConversationMessage]
+  conversationMessagesFacebook(
+    conversationId: String
+    facebookCommentId: String
+    facebookPostId: String limit: Int
+  ): [ConversationMessage]
 `;
 
 export const mutations = `

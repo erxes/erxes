@@ -103,44 +103,11 @@ const conversationQueries = {
       .limit(params.limit || 0);
   },
 
-  /**
-   * Get conversation messages
-   */
-  async conversationMessages(
-    _root,
-    {
-      conversationId,
-      skip,
-      limit,
-      facebookCommentId,
-      facebookPostId,
-    }: {
-      conversationId: string;
-      skip: number;
-      limit: number;
-      facebookCommentId: string;
-      facebookPostId: string;
-    },
-  ) {
+  async conversationMessagesFacebook({ conversationId, facebookCommentId, facebookPostId, limit }) {
     const query: { [key: string]: string | { [key: string]: string | boolean } } = { conversationId };
-    let sort: { [key: string]: number | boolean } = { createdAt: 1 };
+    const sort = { 'facebookData.isPost': -1, 'facebookData.createdTime': -1 };
 
-    if (limit) {
-      const messages = await ConversationMessages.find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip || 0)
-        .limit(limit);
-
-      return messages.reverse();
-    }
-
-    const conversation = await Conversations.findOne({ _id: conversationId });
-
-    if (conversation && conversation.facebookData) {
-      sort = { 'facebookData.isPost': -1, 'facebookData.createdTime': -1 };
-
-      limit = 2;
-    }
+    limit = 2;
 
     if (facebookCommentId) {
       query['facebookData.parentId'] = facebookCommentId;
@@ -158,27 +125,54 @@ const conversationQueries = {
       .limit(limit);
 
     // Getting parent comment if it is a reply
-    if (conversation && conversation.facebookData) {
-      if (facebookCommentId || facebookPostId) {
-        return msgs;
-      }
+    if (facebookCommentId || facebookPostId) {
+      return msgs;
+    }
 
-      // getting last item from messages, it is the latest comment
-      const lastItem = msgs[msgs.length - 1];
+    // getting last item from messages, it is the latest comment
+    const lastItem = msgs[msgs.length - 1];
 
-      if (lastItem.facebookData && lastItem.facebookData.parentId) {
-        const parentComment = await ConversationMessages.findOne({
-          'facebookData.commentId': lastItem.facebookData.parentId,
-        });
+    if (lastItem.facebookData && lastItem.facebookData.parentId) {
+      const parentComment = await ConversationMessages.findOne({
+        'facebookData.commentId': lastItem.facebookData.parentId,
+      });
 
-        // inserting comment on top of reply
-        if (parentComment) {
-          msgs.splice(1, 0, parentComment);
-        }
+      // inserting comment on top of reply
+      if (parentComment) {
+        msgs.splice(1, 0, parentComment);
       }
     }
 
     return msgs;
+  },
+
+  /**
+   * Get conversation messages
+   */
+  async conversationMessages(
+    _root,
+    {
+      conversationId,
+      skip,
+      limit,
+    }: {
+      conversationId: string;
+      skip: number;
+      limit: number;
+    },
+  ) {
+    const query = { conversationId };
+
+    if (limit) {
+      const messages = await ConversationMessages.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip || 0)
+        .limit(limit);
+
+      return messages.reverse();
+    }
+
+    return ConversationMessages.find(query).sort({ createdAt: 1 });
   },
 
   /**
@@ -321,13 +315,6 @@ const conversationQueries = {
         },
       ],
     }).countDocuments();
-  },
-
-  /**
-   * Get all unread conversations for logged in user
-   */
-  async conversationsFacebookFetchMore(_root, { commentId }) {
-    return ConversationMessages.find({ 'facebookData.parentId': commentId });
   },
 };
 

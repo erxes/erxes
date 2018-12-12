@@ -255,6 +255,8 @@ describe('facebook integration: get or create conversation', () => {
 
     // Received video
     const postParams = {
+      id: '123',
+      from: { id: '123', name: '12331' },
       post_id: '123',
       item: 'status',
       video_id: '12331213',
