@@ -1,9 +1,12 @@
+import * as moment from 'moment';
 import * as React from 'react';
 import styled from 'styled-components';
+import { Tip } from '.';
 import { colors } from '../styles';
 
 type Props = {
   text: string;
+  date: Date;
 };
 
 const Divider = styled.div`
@@ -28,10 +31,15 @@ const Divider = styled.div`
   }
 `;
 
-function TextDivider({ text }: Props) {
+function TextDivider({ text, date }: Props) {
   return (
     <Divider>
-      <span>{text}</span>
+      <span>
+        {text}
+        <Tip text={moment(date).format('lll')}>
+          <footer>{moment(date).format('LT')}</footer>
+        </Tip>
+      </span>
     </Divider>
   );
 }

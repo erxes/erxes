@@ -10,6 +10,7 @@ export default `
   mentionedUserIds
   conversationId
   internal
+  fromBot
   customerId
   userId
   createdAt
