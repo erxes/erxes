@@ -182,6 +182,13 @@ describe('Conversation db', () => {
     expect(conversationObj.assignedUserId).toBeUndefined();
   });
   test('Change customer status', async () => {
+    await Conversations.changeStatusConversation([_conversation._id], 'open');
+    const conversation = await Conversations.findOne();
+    if (conversation) {
+      expect(conversation.customerId).toBe(_conversation.customerId);
+      expect(conversation.status).toBe('open');
+    }
+    expect(await Conversations.countDocuments()).toBe(1);
     const customerStatusMessages = await Conversations.changeCustomerStatus(
       'left',
       _conversation.customerId,
