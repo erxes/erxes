@@ -5,7 +5,7 @@ import { IMessage, IMessageDocument, messageSchema } from './definitions/convers
 
 interface IMessageModel extends Model<IMessageDocument> {
   createMessage(doc: IMessage): Promise<IMessageDocument>;
-  addMessage(doc: IMessage, userId: string): Promise<IMessageDocument>;
+  addMessage(doc: IMessage, userId?: string): Promise<IMessageDocument>;
   getNonAsnweredMessage(conversationId: string): Promise<IMessageDocument>;
   getAdminMessages(conversationId: string): Promise<IMessageDocument[]>;
   markSentAsReadMessages(conversationId: string): Promise<IMessageDocument>;
@@ -54,7 +54,7 @@ class Message {
   /**
    * Create a conversation message
    */
-  public static async addMessage(doc: IMessage, userId: string) {
+  public static async addMessage(doc: IMessage, userId?: string) {
     const conversation = await Conversations.findOne({
       _id: doc.conversationId,
     });

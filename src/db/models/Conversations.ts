@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Users } from '.';
 import { CONVERSATION_STATUSES } from './definitions/constants';
+import { IMessageDocument } from './definitions/conversationMessages';
 import { conversationSchema, IConversation, IConversationDocument } from './definitions/conversations';
 
 interface ISTATUSES {
@@ -19,6 +20,12 @@ interface IConversationModel extends Model<IConversationDocument> {
   assignUserConversation(conversationIds: string[], assignedUserId?: string): Promise<IConversationDocument[]>;
 
   unassignUserConversation(conversationIds: string[]): Promise<IConversationDocument>;
+
+  changeCustomerStatus(
+    status: string,
+    customerId: string,
+    integrationId: string,
+  ): Array<Promise<IConversationDocument>>;
 
   changeStatusConversation(conversationIds: string[], status: string, userId?: string): Promise<IConversationDocument>;
 
@@ -121,7 +128,33 @@ class Conversation {
 
     return Conversations.find({ _id: { $in: conversationIds } });
   }
+  /**
+   * Change customer status
+   * @param status [left/join]
+   * @param customerId
+   * @param integrationId
+   */
+  public static async changeCustomerStatus(status: string, customerId: string, integrationId: string) {
+    const customerConversations = await Conversations.find({
+      customerId,
+      integrationId,
+      status: 'open',
+    });
 
+    const promises: Array<Promise<IMessageDocument>> = [];
+
+    for (const conversationObj of customerConversations) {
+      promises.push(
+        ConversationMessages.addMessage({
+          conversationId: conversationObj._id,
+          content: `Customer has ${status}`,
+          fromBot: true,
+        }),
+      );
+    }
+
+    return Promise.all(promises);
+  }
   /**
    * Change conversation status
    */
@@ -230,7 +263,9 @@ class Conversation {
 
     // Removing conversations and conversation messages
     const conversationIds = conversations.map(conv => conv._id);
-    await ConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await ConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds },
+    });
     await Conversations.deleteMany({ _id: { $in: conversationIds } });
   }
 }
