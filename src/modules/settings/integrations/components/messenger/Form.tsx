@@ -18,7 +18,7 @@ import {
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { LANGUAGES } from '../../constants';
-import { Appearance, Availability, Intro, Options } from './steps';
+import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 
 type Props = {
@@ -56,6 +56,7 @@ type State = {
   twitter: string;
   youtube: string;
   messages: IMessages;
+  isStepActive?: boolean;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -87,7 +88,7 @@ class CreateMessenger extends React.Component<Props, State> {
       })),
       logo: uiOptions.logo || '',
       logoPreviewStyle: {},
-      logoPreviewUrl: uiOptions.logo || '',
+      logoPreviewUrl: uiOptions.logo || '/images/erxes.png',
       facebook: links.facebook || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
@@ -170,6 +171,14 @@ class CreateMessenger extends React.Component<Props, State> {
     });
   };
 
+  onStepClick = name => {
+    if (name !== 'greeting') {
+      return this.setState({ isStepActive: false });
+    }
+
+    return this.setState({ isStepActive: true });
+  };
+
   renderButtons() {
     const cancelButton = (
       <Link to="/settings/integrations">
@@ -213,7 +222,8 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook,
       twitter,
       youtube,
-      messages
+      messages,
+      isStepActive
     } = this.state;
 
     const message = messages[languageCode];
@@ -242,8 +252,26 @@ class CreateMessenger extends React.Component<Props, State> {
 
         <Row>
           <Steps active={activeStep}>
-            <Step img="/images/icons/erxes-16.svg" title="Intro">
-              <Intro
+            <Step
+              img="/images/icons/erxes-06.svg"
+              title="Default Settings"
+              onClick={this.onStepClick.bind(null, 'default')}
+            >
+              <Options
+                onChange={this.onChange}
+                brands={this.props.brands}
+                brandId={brandId}
+                notifyCustomer={notifyCustomer}
+                languageCode={languageCode}
+              />
+            </Step>
+
+            <Step
+              img="/images/icons/erxes-09.svg"
+              title="Greeting"
+              onClick={this.onStepClick.bind(null, 'greeting')}
+            >
+              <Greeting
                 teamMembers={this.props.teamMembers}
                 onChange={this.onChange}
                 supporterIds={supporterIds}
@@ -255,7 +283,23 @@ class CreateMessenger extends React.Component<Props, State> {
               />
             </Step>
 
-            <Step img="/images/icons/erxes-03.svg" title="Hours & Availability">
+            <Step
+              img="/images/icons/erxes-16.svg"
+              title="Intro"
+              onClick={this.onStepClick.bind(null, 'intro')}
+            >
+              <Intro
+                onChange={this.onChange}
+                messages={messages}
+                languageCode={languageCode}
+              />
+            </Step>
+
+            <Step
+              img="/images/icons/erxes-03.svg"
+              title="Hours & Availability"
+              onClick={this.onStepClick.bind(null, 'hours')}
+            >
               <Availability
                 onChange={this.onChange}
                 isOnline={isOnline}
@@ -265,7 +309,12 @@ class CreateMessenger extends React.Component<Props, State> {
               />
             </Step>
 
-            <Step img="/images/icons/erxes-04.svg" title="Appearance">
+            <Step
+              img="/images/icons/erxes-04.svg"
+              title="Appearance"
+              onClick={this.onStepClick.bind(null, 'appearance')}
+              nextButton={this.renderButtons()}
+            >
               <Appearance
                 onChange={this.onChange}
                 color={color}
@@ -273,33 +322,25 @@ class CreateMessenger extends React.Component<Props, State> {
                 wallpaper={wallpaper}
               />
             </Step>
-
-            <Step
-              img="/images/icons/erxes-06.svg"
-              title="Options"
-              nextButton={this.renderButtons()}
-            >
-              <Options
-                onChange={this.onChange}
-                brands={this.props.brands}
-                brandId={brandId}
-                notifyCustomer={notifyCustomer}
-              />
-            </Step>
           </Steps>
 
           <MessengerPreview>
             <Preview fullHeight={true}>
               <CommonPreview
-                onChange={this.onChange}
                 teamMembers={this.props.teamMembers}
                 message={message}
                 supporterIds={supporterIds}
                 isOnline={isOnline}
                 wallpaper={wallpaper}
                 color={color}
+                brands={this.props.brands}
+                brandId={brandId}
                 logoPreviewStyle={logoPreviewStyle}
                 logoPreviewUrl={logoPreviewUrl}
+                isGreeting={isStepActive}
+                facebook={facebook}
+                twitter={twitter}
+                youtube={youtube}
               />
             </Preview>
           </MessengerPreview>

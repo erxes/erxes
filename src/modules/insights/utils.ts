@@ -1,3 +1,5 @@
+import { KIND_CHOICES } from 'modules/settings/integrations/constants';
+
 export type OptionsType = {
   value: string;
   label: string;
@@ -11,7 +13,15 @@ export function selectOptions(array) {
 
 export function integrationOptions(array) {
   const options: OptionsType[] = [];
-  array.map(item => options.push({ value: item, label: item }));
+  const types = KIND_CHOICES.ALL_LIST;
+
+  array.map(item =>
+    options.push({
+      value: types.includes(item) ? item : '',
+      label: item
+    })
+  );
+
   return options;
 }
 

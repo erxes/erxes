@@ -34,10 +34,10 @@ class Filter extends React.Component<Props, States> {
       // check condition for showing placeholder
       startDate: props.queryParams.startDate
         ? moment(props.queryParams.startDate)
-        : '',
+        : moment().add(-7, 'days'),
       endDate: props.queryParams.endDate
         ? moment(props.queryParams.endDate)
-        : '',
+        : moment(),
       isChange: false
     };
   }
@@ -54,7 +54,7 @@ class Filter extends React.Component<Props, States> {
     router.setParams(this.props.history, { brandId });
   };
 
-  onDateInputChange = (type: string, date: Date) => {
+  onDateInputChange = (type: string, date) => {
     if (type === 'endDate') {
       this.setState({ endDate: date, isChange: true });
     } else {
@@ -62,7 +62,7 @@ class Filter extends React.Component<Props, States> {
     }
   };
 
-  onFilterByDate = (type: string, date: Date) => {
+  onFilterByDate = (type: string, date) => {
     if (this.state.isChange) {
       const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
       router.setParams(this.props.history, { [type]: formatDate });
@@ -84,10 +84,10 @@ class Filter extends React.Component<Props, States> {
         <ControlLabel>Integrations</ControlLabel>
         <Select
           placeholder={__('Choose integrations')}
-          value={this.state.integrationType}
+          value={this.state.integrationType || ''}
           onChange={onChange}
           optionRenderer={options}
-          options={integrationOptions(integrations)}
+          options={integrationOptions([__('All'), ...integrations])}
         />
       </FlexItem>
     );
@@ -109,10 +109,10 @@ class Filter extends React.Component<Props, States> {
 
         <Select
           placeholder={__('Choose brands')}
-          value={this.state.brandId}
+          value={this.state.brandId || ''}
           onChange={onChange}
           optionRenderer={options}
-          options={selectOptions(brands)}
+          options={selectOptions([{ _id: '', name: __('All') }, ...brands])}
         />
       </FlexItem>
     );
