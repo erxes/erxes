@@ -19,6 +19,7 @@ import messengerApps from './messengerApps';
 import notifications from './notifications';
 import products from './products';
 import responseTemplates from './responseTemplates';
+import scripts from './scripts';
 import segments from './segments';
 import tags from './tags';
 import users from './users';
@@ -37,6 +38,7 @@ export default {
   ...fields,
   ...emailTemplates,
   ...responseTemplates,
+  ...scripts,
   ...channels,
   ...forms,
   ...integrations,

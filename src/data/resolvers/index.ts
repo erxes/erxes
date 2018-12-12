@@ -23,6 +23,7 @@ import Mutation from './mutations';
 import Notification from './notification';
 import Query from './queries';
 import ResponseTemplate from './responseTemplate';
+import Script from './script';
 import Segment from './segment';
 import Subscription from './subscriptions';
 
@@ -30,6 +31,7 @@ const resolvers: any = {
   ...customScalars,
 
   ResponseTemplate,
+  Script,
   Integration,
   Channel,
   Brand,
