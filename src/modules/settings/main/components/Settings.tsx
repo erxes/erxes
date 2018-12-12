@@ -80,10 +80,20 @@ class Settings extends React.Component {
               '/images/icons/erxes-09.svg',
               '/settings/email-templates'
             )}
+          </div>
+        </Row>
+        <Row>
+          <RowTitle />
+          <div>
             {this.renderBox(
               'Email Appearance',
               '/images/icons/erxes-08.svg',
               '/settings/emails'
+            )}
+            {this.renderBox(
+              'Scripts',
+              '/images/icons/erxes-11.svg',
+              '/settings/scripts'
             )}
           </div>
         </Row>

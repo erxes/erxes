@@ -14,6 +14,7 @@ type Props = {
   renderForm: (
     doc: { object: any; closeModal: () => void; save: () => void }
   ) => void;
+  additionalActions?: (object: any) => void;
   remove: (id: string) => void;
   save: () => void;
 };
@@ -57,11 +58,14 @@ export default class RowActions extends React.Component<Props, {}> {
   };
 
   render() {
+    const { additionalActions, object } = this.props;
+
     return (
       <td>
         <ActionButtons>
           {this.renderEditAction()}
           {this.renderRemoveAction()}
+          {additionalActions && additionalActions(object)}
         </ActionButtons>
       </td>
     );
