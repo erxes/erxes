@@ -21,7 +21,7 @@ import { init } from './startup';
 // load environment variables
 dotenv.config();
 
-const { MAIN_APP_DOMAIN } = process.env;
+const { MAIN_APP_DOMAIN = '', WIDGETS_DOMAIN = '' } = process.env;
 
 // connect to mongo database
 connect();
@@ -35,7 +35,7 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: MAIN_APP_DOMAIN,
+    origin: [MAIN_APP_DOMAIN, WIDGETS_DOMAIN],
   }),
 );
 
