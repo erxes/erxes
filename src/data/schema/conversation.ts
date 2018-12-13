@@ -134,6 +134,11 @@ export const types = `
     createdAt: Date,
     isCustomerRead: Boolean,
   }
+
+  type ConversationMessagesFacebookResponse {
+    list: [ConversationMessage],
+    commentCount: Int,
+  }
 `;
 
 const filterParams = `
@@ -170,7 +175,7 @@ export const queries = `
     conversationId: String
     facebookCommentId: String
     facebookPostId: String limit: Int
-  ): [ConversationMessage]
+  ): ConversationMessagesFacebookResponse
 `;
 
 export const mutations = `
