@@ -73,14 +73,16 @@ class FacebookConversationContainer extends React.Component<FinalProps, State> {
 
   fetchFacebook = ({
     commentId,
-    postId
+    postId,
+    limit
   }: {
     commentId?: string;
     postId?: string;
+    limit?: number;
   }) => {
     const { conversation } = this.props;
     const variables: { [key: string]: string | number } = {
-      conversationId: conversation._id || ''
+      conversationId: conversation._id
     };
 
     if (commentId) {
@@ -89,6 +91,7 @@ class FacebookConversationContainer extends React.Component<FinalProps, State> {
 
     if (postId) {
       variables.postId = postId;
+      variables.limit = limit || 5;
     }
 
     this.fetchMoreMessages(variables);
@@ -115,7 +118,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       gql(queries.conversationMessagesFacebook),
       {
         name: 'messagesQuery',
-        options: ({ conversation }: any) => {
+        options: ({ conversation }: { conversation: IConversation }) => {
           return {
             variables: {
               conversationId: conversation._id
