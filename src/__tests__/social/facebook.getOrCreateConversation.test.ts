@@ -456,6 +456,12 @@ describe('facebook integration: get or create conversation', () => {
         id: 'postId',
         from: { id: 'fromid', name: 'fromname' },
         name: 'fromname',
+        comments: {
+          data: [],
+          summary: {
+            total_count: 0,
+          },
+        },
       };
     });
 
@@ -465,11 +471,23 @@ describe('facebook integration: get or create conversation', () => {
           message: 'message',
           id: 'postId',
           from: { id: 'fromid', name: 'fromname' },
+          comments: {
+            data: [],
+            summary: {
+              total_count: 0,
+            },
+          },
         },
         {
           message: 'message',
           id: 'postId',
           from: { id: 'fromid', name: 'fromname' },
+          comments: {
+            data: [],
+            summary: {
+              total_count: 0,
+            },
+          },
         },
       ];
     });

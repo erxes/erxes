@@ -173,8 +173,8 @@ export const queries = `
   conversationsTotalUnreadCount: Int
   conversationMessagesFacebook(
     conversationId: String
-    facebookCommentId: String
-    facebookPostId: String limit: Int
+    commentId: String
+    postId: String limit: Int
   ): ConversationMessagesFacebookResponse
 `;
 

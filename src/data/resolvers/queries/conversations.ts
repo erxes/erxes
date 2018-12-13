@@ -104,7 +104,7 @@ const conversationQueries = {
       .limit(params.limit || 0);
   },
 
-  async conversationMessagesFacebook(_root, { conversationId, facebookCommentId, facebookPostId, limit }) {
+  async conversationMessagesFacebook(_root, { conversationId, commentId, postId, limit }) {
     const query: { [key: string]: string | { [key: string]: string | boolean } } = { conversationId };
     const sort = { 'facebookData.isPost': -1, 'facebookData.createdTime': -1 };
     const result: { list: IMessageDocument[]; commentCount?: number } = {
@@ -123,14 +123,14 @@ const conversationQueries = {
     }
 
     // Filter to retreive comment replies
-    if (facebookCommentId) {
-      query['facebookData.parentId'] = facebookCommentId;
+    if (commentId) {
+      query['facebookData.parentId'] = commentId;
       limit = 1000;
     }
 
     // Filter to retreive post comments
-    if (facebookPostId) {
-      query['facebookData.postId'] = facebookPostId;
+    if (postId) {
+      query['facebookData.postId'] = postId;
       query['facebookData.parentId'] = { $exists: false };
     }
 
@@ -156,7 +156,7 @@ const conversationQueries = {
     result.commentCount = commentCount;
 
     // Fetching the replies or comments
-    if (facebookCommentId || facebookPostId) {
+    if (commentId || postId) {
       return result;
     }
 

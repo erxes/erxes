@@ -136,6 +136,17 @@ describe('conversationQueries', () => {
     }
   `;
 
+  const qryConversationMessagesFacebook = `
+    query conversationMessagesFacebook($conversationId: String, $commentId: String, $postId: String, $limit: Int) {
+      conversationMessagesFacebook(conversationId: $conversationId, commentId: $commentId, postId: $postId, limit: $limit) {
+        list {
+          _id
+        }
+        commentCount
+      }
+    }
+  `;
+
   beforeEach(async () => {
     brand = await brandFactory();
     user = await userFactory({});
@@ -760,5 +771,99 @@ describe('conversationQueries', () => {
     const response = await graphqlRequest(qryTotalUnread, 'conversationsTotalUnreadCount', {}, { user });
 
     expect(response).toBe(1);
+  });
+
+  test('Conversation messages facebook test', async () => {
+    const messengerConversation = await conversationFactory({
+      facebookData: {
+        kind: 'messenger',
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: messengerConversation._id,
+      facebookData: {
+        createdTime: moment(new Date()).add(13, 'days'),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: messengerConversation._id,
+      facebookData: {
+        createdTime: moment(new Date()).add(13, 'days'),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: messengerConversation._id,
+      facebookData: {
+        createdTime: Date.now(),
+      },
+    });
+
+    let response = await graphqlRequest(
+      qryConversationMessagesFacebook,
+      'conversationMessagesFacebook',
+      {
+        conversationId: messengerConversation._id,
+      },
+      { user },
+    );
+
+    expect(response.list.length).toBe(3);
+
+    const feedConversation = await conversationFactory({
+      facebookData: {
+        kind: 'feed',
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        isPost: true,
+        postId: 'postId',
+        createdTime: moment(new Date()).add(13, 'days'),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '11',
+        createdTime: moment(new Date()).add(13, 'days'),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: 'parentComment',
+        createdTime: moment(new Date()).add(10, 'days'),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '111',
+        parentId: 'parentComment',
+        createdTime: new Date(),
+      },
+    });
+
+    response = await graphqlRequest(
+      qryConversationMessagesFacebook,
+      'conversationMessagesFacebook',
+      {
+        conversationId: feedConversation._id,
+      },
+      { user },
+    );
+
+    expect(response.list.length).toBe(3);
   });
 });
