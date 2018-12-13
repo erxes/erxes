@@ -26,7 +26,11 @@ const getAttr = (message: IMessage, attr: string) => {
 };
 
 export default class FacebookConversation extends React.Component<Props, {}> {
-  fetchComments = (facebookData: IMessageFacebookData) => {
+  fetchComments = (facebookData?: IMessageFacebookData) => {
+    if (!facebookData) {
+      return;
+    }
+
     this.props.fetchFacebook({ postId: facebookData.postId });
   };
 

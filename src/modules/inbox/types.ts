@@ -330,3 +330,10 @@ export type UnreadConversationsTotalCountQueryResponse = {
   refetch: () => void;
   subscribeToMore: (variables) => void;
 };
+
+export type FacebookMessagesQueryResponse = {
+  conversationMessagesFacebook: IMessage[];
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: (variables) => void;
+};
