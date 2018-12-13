@@ -294,7 +294,11 @@ const generateCustomerDetailQuery = params => {
 const conversationMessagesFacebook = `
   query conversationMessagesFacebook($conversationId: String, $facebookCommentId: String, $facebookPostId: String, $limit: Int) {
     conversationMessagesFacebook(conversationId: $conversationId, facebookCommentId: $facebookCommentId, facebookPostId: $facebookPostId, limit: $limit) {
-      ${messageFields}
+      list {
+        ${messageFields}
+      }
+      
+      commentCount
     }
   }
 `;

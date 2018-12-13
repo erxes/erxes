@@ -332,7 +332,7 @@ export type UnreadConversationsTotalCountQueryResponse = {
 };
 
 export type FacebookMessagesQueryResponse = {
-  conversationMessagesFacebook: IMessage[];
+  conversationMessagesFacebook: { list: IMessage[]; commentCount?: number };
   loading: boolean;
   refetch: () => void;
   fetchMore: (variables) => void;

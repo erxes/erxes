@@ -23,40 +23,49 @@ type FinalProps = {
 } & Props;
 
 type State = {
-  loadingMessages: boolean;
+  limit: number;
 };
 
 class FacebookConversationContainer extends React.Component<FinalProps, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      limit: 1
+    };
+  }
+
   fetchMoreMessages = variables => {
     const { messagesQuery } = this.props;
 
     messagesQuery.fetchMore({
       variables,
       updateQuery: (prev, { fetchMoreResult }) => {
-        this.setState({ loadingMessages: false });
-
         if (!fetchMoreResult) {
           return prev;
         }
 
-        const prevMessageIds = (prev.conversationMessagesFacebook || []).map(
-          m => m._id
-        );
+        const fetchedMessages = fetchMoreResult.conversationMessagesFacebook
+          ? fetchMoreResult.conversationMessagesFacebook.list
+          : [];
 
-        const fetchedMessages: IMessage[] = [];
+        const prevMessages = prev.conversationMessagesFacebook
+          ? prev.conversationMessagesFacebook.list
+          : [];
+        const prevMessageIds = prevMessages.map(m => m._id);
+        const filteredMessages: IMessage[] = [];
 
-        for (const message of fetchMoreResult.conversationMessagesFacebook) {
+        for (const message of fetchedMessages) {
           if (!prevMessageIds.includes(message._id)) {
-            fetchedMessages.push(message);
+            filteredMessages.push(message);
           }
         }
 
         return {
-          ...prev,
-          conversationMessagesFacebook: [
-            ...fetchedMessages,
-            ...prev.conversationMessagesFacebook
-          ]
+          conversationMessagesFacebook: {
+            ...prev.conversationMessagesFacebook,
+            list: [...filteredMessages, ...prevMessages]
+          }
         };
       }
     });
@@ -70,7 +79,7 @@ class FacebookConversationContainer extends React.Component<FinalProps, State> {
     postId?: string;
   }) => {
     const { conversation } = this.props;
-    const variables: { [key: string]: string } = {
+    const variables: { [key: string]: string | number } = {
       conversationId: conversation._id || ''
     };
 
@@ -90,7 +99,9 @@ class FacebookConversationContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       ...this.props,
-      conversationMessages: messagesQuery.conversationMessagesFacebook || [],
+      conversationMessages: messagesQuery.conversationMessagesFacebook
+        ? messagesQuery.conversationMessagesFacebook.list
+        : [],
       fetchFacebook: this.fetchFacebook
     };
 
