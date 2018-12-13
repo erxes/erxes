@@ -179,41 +179,6 @@ class WorkArea extends React.Component<FinalProps, State> {
       });
   };
 
-  fetchMoreMessages = variables => {
-    const { messagesQuery } = this.props;
-
-    messagesQuery.fetchMore({
-      variables,
-      updateQuery: (prev, { fetchMoreResult }) => {
-        this.setState({ loadingMessages: false });
-
-        if (!fetchMoreResult) {
-          return prev;
-        }
-
-        const prevMessageIds = (prev.conversationMessages || []).map(
-          m => m._id
-        );
-
-        const fetchedMessages: IMessage[] = [];
-
-        for (const message of fetchMoreResult.conversationMessages) {
-          if (!prevMessageIds.includes(message._id)) {
-            fetchedMessages.push(message);
-          }
-        }
-
-        return {
-          ...prev,
-          conversationMessages: [
-            ...fetchedMessages,
-            ...prev.conversationMessages
-          ]
-        };
-      }
-    });
-  };
-
   loadMoreMessages = () => {
     const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
@@ -229,35 +194,41 @@ class WorkArea extends React.Component<FinalProps, State> {
       limit = 10;
       skip = conversationMessages.length;
 
-      this.fetchMoreMessages({
-        conversationId: currentId,
-        limit,
-        skip
+      messagesQuery.fetchMore({
+        variables: {
+          conversationId: currentId,
+          limit,
+          skip
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          this.setState({ loadingMessages: false });
+
+          if (!fetchMoreResult) {
+            return prev;
+          }
+
+          const prevMessageIds = (prev.conversationMessages || []).map(
+            m => m._id
+          );
+
+          const fetchedMessages: IMessage[] = [];
+
+          for (const message of fetchMoreResult.conversationMessages) {
+            if (!prevMessageIds.includes(message._id)) {
+              fetchedMessages.push(message);
+            }
+          }
+
+          return {
+            ...prev,
+            conversationMessages: [
+              ...fetchedMessages,
+              ...prev.conversationMessages
+            ]
+          };
+        }
       });
     }
-  };
-
-  fetchFacebook = ({
-    commentId,
-    postId
-  }: {
-    commentId?: string;
-    postId?: string;
-  }) => {
-    const { currentId } = this.props;
-    const variables: { [key: string]: string } = {
-      conversationId: currentId || ''
-    };
-
-    if (commentId) {
-      variables.facebookCommentId = commentId;
-    }
-
-    if (postId) {
-      variables.facebookPostId = postId;
-    }
-
-    this.fetchMoreMessages(variables);
   };
 
   render() {
@@ -270,7 +241,6 @@ class WorkArea extends React.Component<FinalProps, State> {
       conversationMessages,
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
-      fetchFacebook: this.fetchFacebook,
       loading: messagesQuery.loading || loadingMessages
     };
 

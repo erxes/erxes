@@ -11,9 +11,6 @@ import { TwitterConversation } from './twitter';
 type Props = {
   conversation: IConversation;
   conversationMessages: IMessage[];
-  fetchFacebook: (
-    { commentId, postId }: { commentId?: string; postId?: string }
-  ) => void;
   attachmentPreview: IAttachmentPreview;
   scrollBottom: () => void;
   loading: boolean;
@@ -60,8 +57,7 @@ class Conversation extends React.Component<Props, {}> {
       loading,
       conversation,
       conversationMessages,
-      scrollBottom,
-      fetchFacebook
+      scrollBottom
     } = this.props;
     const { kind } = conversation.integration;
 
