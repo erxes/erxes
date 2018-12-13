@@ -1,4 +1,4 @@
-import { ModalTrigger, NameCard } from 'modules/common/components';
+import { Icon, ModalTrigger, NameCard } from 'modules/common/components';
 import * as React from 'react';
 import { IMessage } from '../../../../../types';
 import {
@@ -14,6 +14,7 @@ import {
   FlexItem,
   Reply,
   ReplyReaction,
+  ShowMore,
   User
 } from './styles';
 
@@ -108,39 +109,45 @@ export default class FacebookComment extends React.Component<
     );
 
     return (
-      <ChildPost isReply={data.parentId}>
-        <NameCard.Avatar customer={message.customer} size={size} />
+      <>
+        <ChildPost isReply={data.parentId}>
+          <NameCard.Avatar customer={message.customer} size={size} />
 
-        <User isReply={data.parentId}>
-          <FlexItem>
-            <Comment isInternal={message.internal}>
-              <UserName username={data.senderName} userId={data.senderId} />
-              <FacebookContent
-                content={message.content}
-                scrollBottom={scrollBottom}
-                image={data.photo}
-                link={data.link || data.video || commentVideo}
+          <User isReply={data.parentId}>
+            <FlexItem>
+              <Comment isInternal={message.internal}>
+                <UserName username={data.senderName} userId={data.senderId} />
+                <FacebookContent
+                  content={message.content}
+                  scrollBottom={scrollBottom}
+                  image={data.photo}
+                  link={data.link || data.video || commentVideo}
+                />
+              </Comment>
+              {this.renderReactionCount()}
+            </FlexItem>
+
+            <Reply>
+              <ModalTrigger
+                title="Reply"
+                trigger={<a> Reply •</a>}
+                content={content}
               />
-            </Comment>
-            {this.renderReactionCount()}
-          </FlexItem>
+            </Reply>
 
-          <Reply>
-            <ModalTrigger
-              title="Reply"
-              trigger={<a> Reply •</a>}
-              content={content}
-            />
-          </Reply>
-
-          <Date message={message} />
-          {this.state.hasReplies && (
-            <a onClick={this.fetchReplies.bind(this, data.commentId)}>
-              View more Replies
-            </a>
-          )}
-        </User>
-      </ChildPost>
+            <Date message={message} />
+          </User>
+        </ChildPost>
+        {this.state.hasReplies && (
+          <ShowMore
+            onClick={this.fetchReplies.bind(this, data.commentId)}
+            isReply={true}
+          >
+            <Icon icon="reply" />
+            <span>View more replies</span>
+          </ShowMore>
+        )}
+      </>
     );
   }
 }

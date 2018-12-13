@@ -7,6 +7,7 @@ import {
 } from '../../../../../types';
 import { SimpleMessage } from '../messages';
 import { FacebookPost } from './';
+import { ShowMore } from './styles';
 
 type Props = {
   conversation: IConversation;
@@ -111,9 +112,9 @@ export default class FacebookConversation extends React.Component<Props, {}> {
     return (
       <React.Fragment>
         <FacebookPost message={post} scrollBottom={scrollBottom} />
-        <a onClick={this.fetchComments.bind(this, post.facebookData)}>
-          View more comments
-        </a>
+        <ShowMore onClick={this.fetchComments.bind(this, post.facebookData)}>
+          View previous comments
+        </ShowMore>
         {this.renderComments(comments)}
         {this.renderInternals(internalMessages)}
       </React.Fragment>
