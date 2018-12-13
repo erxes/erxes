@@ -84,11 +84,11 @@ class FacebookConversationContainer extends React.Component<FinalProps, State> {
     };
 
     if (commentId) {
-      variables.facebookCommentId = commentId;
+      variables.commentId = commentId;
     }
 
     if (postId) {
-      variables.facebookPostId = postId;
+      variables.postId = postId;
     }
 
     this.fetchMoreMessages(variables);

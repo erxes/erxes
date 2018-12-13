@@ -292,8 +292,8 @@ const generateCustomerDetailQuery = params => {
 };
 
 const conversationMessagesFacebook = `
-  query conversationMessagesFacebook($conversationId: String, $facebookCommentId: String, $facebookPostId: String, $limit: Int) {
-    conversationMessagesFacebook(conversationId: $conversationId, facebookCommentId: $facebookCommentId, facebookPostId: $facebookPostId, limit: $limit) {
+  query conversationMessagesFacebook($conversationId: String, $commentId: String, $postId: String, $limit: Int) {
+    conversationMessagesFacebook(conversationId: $conversationId, commentId: $commentId, postId: $postId, limit: $limit) {
       list {
         ${messageFields}
       }
