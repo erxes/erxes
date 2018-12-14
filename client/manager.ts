@@ -20,7 +20,7 @@ if (script && script instanceof HTMLScriptElement) {
 
         scrpt.innerHTML = text;
 
-        document.body.append(scrpt);
+        (document.body as any).append(scrpt);
       });
   }
 }
