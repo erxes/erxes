@@ -46,6 +46,8 @@ describe('facebook integration: save webhook response', () => {
 
       // mock get user info
       return {
+        first_name: 'Dombo',
+        last_name: 'Gombo',
         name: 'Dombo Gombo',
       };
     });
@@ -317,7 +319,7 @@ describe('facebook integration: save webhook response', () => {
 
     // check customer field values
     expect(customer.integrationId).toBe(integration._id);
-    expect(customer.firstName).toBe('Dombo Gombo'); // from mocked get info above
+    expect(customer.firstName).toBe(senderName); // from mocked get info above
     expect(customer.facebookData.id).toBe(senderId);
 
     // 1 logs

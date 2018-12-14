@@ -69,7 +69,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: filter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData,
       content: 'hi',
       msgFacebookData: {},
@@ -91,7 +90,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: filter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData,
       content: 'hey',
       msgFacebookData: {},
@@ -108,7 +106,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: filter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData,
       content: 'hi again',
       msgFacebookData: {},
@@ -137,7 +134,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: filter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData,
       content: 'new sender hi',
       msgFacebookData: {},
@@ -172,7 +168,6 @@ describe('facebook integration: get or create conversation', () => {
     const msgId = await saveWebhookResponse.getOrCreateConversation({
       findSelector: messengerFilter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData: messengerFacebookData,
       content: 'messenger message',
       msgFacebookData: {},
@@ -200,7 +195,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: messengerFilter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData: messengerFacebookData,
       content: 'hi test',
       msgFacebookData: {},
@@ -218,7 +212,6 @@ describe('facebook integration: get or create conversation', () => {
     let message: any = await saveWebhookResponse.getOrCreateConversation({
       findSelector: messengerFilter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData: messengerFacebookData,
       content: 'test create new conversation',
       msgFacebookData: {},
@@ -234,7 +227,6 @@ describe('facebook integration: get or create conversation', () => {
     let secondMessage: any = await saveWebhookResponse.getOrCreateConversation({
       findSelector: messengerFilter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData: messengerFacebookData,
       content: 'insert message',
       msgFacebookData: {},
@@ -423,7 +415,6 @@ describe('facebook integration: get or create conversation', () => {
 
     let res = await saveWebhookResponse.restoreOldPosts({
       conversation,
-      userId: '123',
       facebookData,
     });
 
@@ -439,7 +430,6 @@ describe('facebook integration: get or create conversation', () => {
 
     res = await saveWebhookResponse.restoreOldPosts({
       conversation,
-      userId: '123',
       facebookData,
     });
 
@@ -494,7 +484,6 @@ describe('facebook integration: get or create conversation', () => {
 
     res = await saveWebhookResponse.restoreOldPosts({
       conversation,
-      userId: '123',
       facebookData,
     });
 
@@ -531,7 +520,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: { 'facebookData.postId': 'postId', 'facebookData.kind': 'status' },
       status: CONVERSATION_STATUSES.CLOSED,
-      senderId,
       facebookData,
       content: 'hi',
       msgFacebookData: {},
@@ -544,7 +532,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: { 'facebookData.postId': 'postId', 'facebookData.kind': 'status' },
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData,
       content: 'hi',
       msgFacebookData: {},
