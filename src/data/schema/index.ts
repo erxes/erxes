@@ -18,6 +18,8 @@ import {
   types as ResponseTemplate,
 } from './responseTemplate';
 
+import { mutations as ScriptMutations, queries as ScriptQueries, types as Script } from './script';
+
 import {
   mutations as EmailTemplateMutations,
   queries as EmailTemplateQueries,
@@ -107,6 +109,7 @@ export const types = `
   ${BrandTypes}
   ${IntegrationTypes}
   ${ResponseTemplate}
+  ${Script}
   ${EmailTemplate}
   ${EngageTypes}
   ${TagTypes}
@@ -134,6 +137,7 @@ export const queries = `
     ${BrandQueries}
     ${IntegrationQueries}
     ${ResponseTemplateQueries}
+    ${ScriptQueries}
     ${EmailTemplateQueries}
     ${FieldQueries}
     ${EngageQueries}
@@ -167,6 +171,7 @@ export const mutations = `
     ${TagMutations}
     ${BrandMutations}
     ${ResponseTemplateMutations}
+    ${ScriptMutations}
     ${EmailTemplateMutations}
     ${InternalNoteMutations}
     ${CustomerMutations}
