@@ -105,7 +105,9 @@ const conversationQueries = {
   },
 
   async conversationMessagesFacebook(_root, { conversationId, commentId, postId, limit }) {
-    const query: { [key: string]: string | { [key: string]: string | boolean } } = { conversationId };
+    const query: {
+      [key: string]: string | { [key: string]: string | boolean };
+    } = { conversationId };
     const sort = { 'facebookData.isPost': -1, 'facebookData.createdTime': -1 };
     const result: { list: IMessageDocument[]; commentCount?: number } = {
       list: [],
@@ -166,6 +168,7 @@ const conversationQueries = {
 
     if (lastItem.facebookData && lastItem.facebookData.parentId) {
       const parentComment = await ConversationMessages.findOne({
+        conversationId,
         'facebookData.commentId': lastItem.facebookData.parentId,
       });
 

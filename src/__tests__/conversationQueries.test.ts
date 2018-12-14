@@ -788,21 +788,21 @@ describe('conversationQueries', () => {
     await conversationMessageFactory({
       conversationId: messengerConversation._id,
       facebookData: {
-        createdTime: moment(new Date()).add(13, 'days'),
+        content: '123',
       },
     });
 
     await conversationMessageFactory({
       conversationId: messengerConversation._id,
       facebookData: {
-        createdTime: moment(new Date()).add(13, 'days'),
+        content: '123',
       },
     });
 
     await conversationMessageFactory({
       conversationId: messengerConversation._id,
       facebookData: {
-        createdTime: Date.now(),
+        content: '123',
       },
     });
 
@@ -811,6 +811,7 @@ describe('conversationQueries', () => {
       'conversationMessagesFacebook',
       {
         conversationId: messengerConversation._id,
+        limit: 10000,
       },
       { user },
     );
@@ -869,6 +870,30 @@ describe('conversationQueries', () => {
       { user },
     );
 
-    expect(response.list.length).toBe(3);
+    expect(response.list.length).toBe(2);
+
+    response = await graphqlRequest(
+      qryConversationMessagesFacebook,
+      'conversationMessagesFacebook',
+      {
+        conversationId: feedConversation._id,
+        commentId: 'parentComment',
+      },
+      { user },
+    );
+
+    expect(response.list.length).toBe(1);
+
+    response = await graphqlRequest(
+      qryConversationMessagesFacebook,
+      'conversationMessagesFacebook',
+      {
+        conversationId: feedConversation._id,
+        postId: 'postId',
+      },
+      { user },
+    );
+
+    expect(response.list.length).toBe(2);
   });
 });
