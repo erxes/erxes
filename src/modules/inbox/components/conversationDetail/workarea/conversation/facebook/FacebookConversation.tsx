@@ -14,7 +14,11 @@ type Props = {
   conversationMessages: IMessage[];
   scrollBottom: () => void;
   fetchFacebook: (
-    { commentId, postId }: { commentId?: string; postId?: string }
+    {
+      commentId,
+      postId,
+      limit
+    }: { commentId?: string; postId?: string; limit?: number }
   ) => void;
 };
 
@@ -26,13 +30,31 @@ const getAttr = (message: IMessage, attr: string) => {
   return message.facebookData[attr];
 };
 
-export default class FacebookConversation extends React.Component<Props, {}> {
+export default class FacebookConversation extends React.Component<
+  Props,
+  { limit: number }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      limit: 2
+    };
+  }
+
   fetchComments = (facebookData?: IMessageFacebookData) => {
     if (!facebookData) {
       return;
     }
 
-    this.props.fetchFacebook({ postId: facebookData.postId });
+    const limit = this.state.limit + 5;
+
+    this.setState({ limit }, () => {
+      this.props.fetchFacebook({
+        postId: facebookData.postId,
+        limit: this.state.limit
+      });
+    });
   };
 
   renderReplies(comment: IMessage) {
@@ -75,6 +97,18 @@ export default class FacebookConversation extends React.Component<Props, {}> {
     });
   }
 
+  renderViewMore(post) {
+    if (this.state.limit < post.facebookData.commentCount) {
+      return (
+        <ShowMore onClick={this.fetchComments.bind(this, post.facebookData)}>
+          View previous comments
+        </ShowMore>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const {
       conversation,
@@ -112,9 +146,7 @@ export default class FacebookConversation extends React.Component<Props, {}> {
     return (
       <React.Fragment>
         <FacebookPost message={post} scrollBottom={scrollBottom} />
-        <ShowMore onClick={this.fetchComments.bind(this, post.facebookData)}>
-          View previous comments
-        </ShowMore>
+        {this.renderViewMore(post)}
         {this.renderComments(comments)}
         {this.renderInternals(internalMessages)}
       </React.Fragment>

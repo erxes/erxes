@@ -29,7 +29,11 @@ type Props = {
     callback: () => void
   ) => void;
   fetchFacebook: (
-    { commentId, postId }: { commentId?: string; postId?: string }
+    {
+      commentId,
+      postId,
+      limit
+    }: { commentId?: string; postId?: string; limit?: number }
   ) => void;
   scrollBottom?: () => void;
 };
