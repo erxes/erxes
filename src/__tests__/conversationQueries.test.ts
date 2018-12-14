@@ -70,7 +70,12 @@ describe('conversationQueries', () => {
         messages {
           _id
           content
-          attachments
+          attachments {
+            url
+            name
+            type
+            size
+          }
           mentionedUserIds
           conversationId
           internal

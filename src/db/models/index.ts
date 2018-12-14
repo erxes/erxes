@@ -20,6 +20,7 @@ import MessengerApps from './MessengerApps';
 import { NotificationConfigurations, Notifications } from './Notifications';
 import Products from './Products';
 import ResponseTemplates from './ResponseTemplates';
+import Scripts from './Scripts';
 import Segments from './Segments';
 import Session from './Session';
 import Tags from './Tags';
@@ -30,6 +31,7 @@ export {
   Session,
   Channels,
   ResponseTemplates,
+  Scripts,
   EmailTemplates,
   Brands,
   Integrations,

@@ -5,7 +5,7 @@ import { IMessage, IMessageDocument, messageSchema } from './definitions/convers
 
 interface IMessageModel extends Model<IMessageDocument> {
   createMessage(doc: IMessage): Promise<IMessageDocument>;
-  addMessage(doc: IMessage, userId: string): Promise<IMessageDocument>;
+  addMessage(doc: IMessage, userId?: string): Promise<IMessageDocument>;
   getNonAsnweredMessage(conversationId: string): Promise<IMessageDocument>;
   getAdminMessages(conversationId: string): Promise<IMessageDocument[]>;
   markSentAsReadMessages(conversationId: string): Promise<IMessageDocument>;
@@ -54,7 +54,7 @@ class Message {
   /**
    * Create a conversation message
    */
-  public static async addMessage(doc: IMessage, userId: string) {
+  public static async addMessage(doc: IMessage, userId?: string) {
     const conversation = await Conversations.findOne({
       _id: doc.conversationId,
     });
@@ -76,18 +76,22 @@ class Message {
     }
 
     // setting conversation's content to last message & first responded user
-    const obj: {
-      content: string;
+    const modifier: {
+      content?: string;
       firstRespondedUserId?: string;
       firstRespondedDate?: Date;
-    } = { content };
+    } = {};
 
-    if (!conversation.firstRespondedUserId) {
-      obj.firstRespondedUserId = userId;
-      obj.firstRespondedDate = new Date();
+    if (!doc.fromBot) {
+      modifier.content = doc.content;
     }
 
-    await Conversations.updateOne({ _id: doc.conversationId }, { $set: obj });
+    if (!conversation.firstRespondedUserId) {
+      modifier.firstRespondedUserId = userId;
+      modifier.firstRespondedDate = new Date();
+    }
+
+    await Conversations.updateOne({ _id: doc.conversationId }, { $set: modifier });
 
     return this.createMessage({ ...doc, userId });
   }

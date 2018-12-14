@@ -98,13 +98,21 @@ export const types = `
     sentAs: String
   }
 
+  type Attachment {
+    url: String!
+    name: String!
+    type: String!
+    size: Float
+  }
+
   type ConversationMessage {
     _id: String!
     content: String
-    attachments: [JSON]
+    attachments: [Attachment]
     mentionedUserIds: [String]
     conversationId: String
     internal: Boolean
+    fromBot: Boolean
     customerId: String
     userId: String
     createdAt: Date
@@ -136,8 +144,15 @@ export const types = `
   }
 
   type ConversationMessagesFacebookResponse {
-    list: [ConversationMessage],
-    commentCount: Int,
+    list: [ConversationMessage]
+    commentCount: Int
+  }
+
+  input AttachmentInput {
+    url: String!
+    name: String!
+    type: String!
+    size: Float
   }
 `;
 
@@ -184,7 +199,7 @@ export const mutations = `
     content: String,
     mentionedUserIds: [String],
     internal: Boolean,
-    attachments: [JSON],
+    attachments: [AttachmentInput],
     tweetReplyToId: String,
     tweetReplyToScreenName: String,
     commentReplyToId: String

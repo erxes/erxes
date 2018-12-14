@@ -15,13 +15,13 @@ import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils'
 import { pubsub } from './data/resolvers/subscriptions';
 import { checkFile, importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
-import { Customers } from './db/models';
+import { Conversations, Customers } from './db/models';
 import { init } from './startup';
 
 // load environment variables
 dotenv.config();
 
-const { MAIN_APP_DOMAIN } = process.env;
+const { MAIN_APP_DOMAIN = '', WIDGETS_DOMAIN = '' } = process.env;
 
 // connect to mongo database
 connect();
@@ -35,7 +35,7 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: MAIN_APP_DOMAIN,
+    origin: [MAIN_APP_DOMAIN, WIDGETS_DOMAIN],
   }),
 );
 
@@ -140,12 +140,23 @@ server.listen(PORT, () => {
           const parsedMessage = JSON.parse(message).id || {};
 
           if (parsedMessage.type === 'messengerConnected') {
+            const messengerData = parsedMessage.value;
+            const integrationId = messengerData.integrationId;
             webSocket.messengerData = parsedMessage.value;
 
             const customerId = webSocket.messengerData.customerId;
 
             // mark as online
             await Customers.markCustomerAsActive(customerId);
+
+            // customer has joined + time
+            const conversationMessages = await Conversations.changeCustomerStatus('joined', customerId, integrationId);
+
+            for (const _message of conversationMessages) {
+              pubsub.publish('conversationMessageInserted', {
+                conversationMessageInserted: _message,
+              });
+            }
 
             // notify as connected
             pubsub.publish('customerConnectionChanged', {
@@ -163,10 +174,19 @@ server.listen(PORT, () => {
 
         if (messengerData) {
           const customerId = messengerData.customerId;
+          const integrationId = messengerData.integrationId;
 
           // mark as offline
           await Customers.markCustomerAsNotActive(customerId);
 
+          // customer has left + time
+          const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
+
+          for (const message of conversationMessages) {
+            pubsub.publish('conversationMessageInserted', {
+              conversationMessageInserted: message,
+            });
+          }
           // notify as disconnected
           pubsub.publish('customerConnectionChanged', {
             customerConnectionChanged: {
