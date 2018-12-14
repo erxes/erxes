@@ -188,6 +188,68 @@ const Box = styledTS<{ selected?: boolean }>(BoxRoot.extend)`
   }
 `;
 
+const PunchCardWrapper = styledTS<{ paddingLeft: number }>(styled.div)`
+  padding-left: ${props => props.paddingLeft}px;
+`;
+
+const PunchCell = styledTS<{ height: number }>(styled.div)`
+  width: ${100 / 24}%;
+  height: ${props => props.height}px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const PunchCircle = styledTS<{ radius: number }>(styled.div)`
+  display: inline-block;
+  border-radius: 50%;
+  background-color: ${colors.colorPrimary};
+  width: ${props => props.radius}px;
+  height: ${props => props.radius}px;
+  text-indent: -9999px;
+  white-space: nowrap;
+  cursor: pointer;
+`;
+
+const PunchDates = styledTS<{ width: number }>(styled.div)`
+  position: absolute;
+  width: ${props => props.width}px;
+  left: 0;
+  border-right: 1px solid ${colors.colorCoreGray};
+
+  ${PunchCell} {
+    width: 100%;
+    position: relative;
+
+    &:before {
+      content: "";
+      height: 2px;
+      width: 5px;
+      background-color: ${colors.colorCoreGray};
+      position: absolute;
+      right: 0;
+    }
+  }
+`;
+
+const PunchHours = styled.div`
+  margin-top: 10px;
+  border-top: 1px solid ${colors.colorCoreGray};
+
+  ${PunchCell} {
+    &:before {
+      content: '';
+      height: 5px;
+      width: 2px;
+      background-color: ${colors.colorCoreGray};
+      position: absolute;
+      left: 50%;
+      top: 0;
+    }
+  }
+`;
+
 export {
   InsightWrapper,
   InsightRow,
@@ -204,5 +266,10 @@ export {
   InsightUserData,
   UserProfile,
   FullName,
-  Box
+  Box,
+  PunchCell,
+  PunchCircle,
+  PunchDates,
+  PunchCardWrapper,
+  PunchHours
 };

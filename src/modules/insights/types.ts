@@ -30,13 +30,20 @@ export interface InsightData {
   tag: IPieChartData[];
 }
 
+export interface IPunchCardData {
+  count: number;
+  day: number;
+  hour: number;
+  date: string;
+}
+
 export type SummaryData = {
   count: number;
   title: string;
 };
 
 export type PunchCardQueryResponse = {
-  insightsPunchCard: number[][];
+  insightsPunchCard: IPunchCardData[];
   loading: boolean;
 };
 

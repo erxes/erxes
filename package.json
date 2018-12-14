@@ -28,7 +28,6 @@
     "apollo-link-ws": "^1.0.8",
     "apollo-utilities": "^1.0.5",
     "autolinker": "^1.6.2",
-    "bat-d3-punchcard": "^1.0.2",
     "bat-draft-js-mention-plugin": "^2.0.1",
     "classnames": "^2.2.5",
     "color": "^3.0.0",

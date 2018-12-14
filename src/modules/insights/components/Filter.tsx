@@ -34,10 +34,10 @@ class Filter extends React.Component<Props, States> {
       // check condition for showing placeholder
       startDate: props.queryParams.startDate
         ? moment(props.queryParams.startDate)
-        : '',
+        : moment().add(-7, 'days'),
       endDate: props.queryParams.endDate
         ? moment(props.queryParams.endDate)
-        : '',
+        : moment(),
       isChange: false
     };
   }
@@ -84,10 +84,10 @@ class Filter extends React.Component<Props, States> {
         <ControlLabel>Integrations</ControlLabel>
         <Select
           placeholder={__('Choose integrations')}
-          value={this.state.integrationType}
+          value={this.state.integrationType || ''}
           onChange={onChange}
           optionRenderer={options}
-          options={integrationOptions(integrations)}
+          options={integrationOptions([__('All'), ...integrations])}
         />
       </FlexItem>
     );
@@ -109,10 +109,10 @@ class Filter extends React.Component<Props, States> {
 
         <Select
           placeholder={__('Choose brands')}
-          value={this.state.brandId}
+          value={this.state.brandId || ''}
           onChange={onChange}
           optionRenderer={options}
-          options={selectOptions(brands)}
+          options={selectOptions([{ _id: '', name: __('All') }, ...brands])}
         />
       </FlexItem>
     );

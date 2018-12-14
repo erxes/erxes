@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import {
   ActionButtons,
   Button,
@@ -10,7 +11,6 @@ import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/integrations/components/Sidebar';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { BarItems } from '../../../layout/styles';
 import { IAccount } from '../types';
 
@@ -52,7 +52,7 @@ class List extends React.Component<Props> {
   }
 
   onFacebookRedirect = () => {
-    const { REACT_APP_API_URL } = process.env;
+    const { REACT_APP_API_URL } = getEnv();
     const url = `${REACT_APP_API_URL}/fblogin`;
 
     window.location.replace(url);
