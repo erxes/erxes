@@ -91,8 +91,8 @@ class Settings extends React.Component {
               '/settings/emails'
             )}
             {this.renderBox(
-              'Scripts',
-              '/images/icons/erxes-11.svg',
+              'Script manager',
+              '/images/icons/erxes-12.svg',
               '/settings/scripts'
             )}
           </div>
