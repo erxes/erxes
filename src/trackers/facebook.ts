@@ -63,7 +63,6 @@ export interface IFacebookReply {
 interface IGetOrCreateConversationParams {
   findSelector: any;
   status: string;
-  senderId: string;
   facebookData: IFacebook;
   content: string;
   attachments?: any;
@@ -314,7 +313,8 @@ export class SaveWebhookResponse {
    */
   public async getOrCreateConversation(params: IGetOrCreateConversationParams): Promise<string> {
     // extract params
-    const { findSelector, status, senderId, facebookData, content, attachments, msgFacebookData } = params;
+    const { findSelector, status, facebookData, content, attachments, msgFacebookData } = params;
+    const { senderId, senderName } = facebookData;
 
     let conversation = await Conversations.findOne({
       ...findSelector,
@@ -330,7 +330,11 @@ export class SaveWebhookResponse {
       (conversation.messageCount &&
         (conversation.messageCount > 1 && conversation.status === CONVERSATION_STATUSES.CLOSED))
     ) {
-      const customer = await this.getOrCreateCustomer(senderId);
+      const customer = await this.getOrCreateCustomer(senderId, senderName);
+
+      if (!customer) {
+        throw new Error("getOrCreateConversation: Couldn't create customer");
+      }
 
       if (!this.currentPageId) {
         throw new Error("getOrCreateConversation: Couldn't set current page id");
@@ -358,7 +362,6 @@ export class SaveWebhookResponse {
     // Restoring deleted facebook converation's data
     const restored = await this.restoreOldPosts({
       conversation,
-      userId: senderId,
       facebookData: msgFacebookData,
     });
 
@@ -369,7 +372,6 @@ export class SaveWebhookResponse {
     // create new message
     return this.createMessage({
       conversation,
-      userId: senderId,
       content,
       attachments,
       facebookData: msgFacebookData,
@@ -457,7 +459,6 @@ export class SaveWebhookResponse {
         'facebookData.postId': postId,
       },
       status,
-      senderId,
       facebookData: {
         kind: FACEBOOK_DATA_KINDS.FEED,
         senderId,
@@ -516,7 +517,6 @@ export class SaveWebhookResponse {
         ],
       },
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData: {
         kind: FACEBOOK_DATA_KINDS.MESSENGER,
         senderId,
@@ -528,6 +528,8 @@ export class SaveWebhookResponse {
       content: messageText,
       attachments,
       msgFacebookData: {
+        senderId,
+        senderName,
         messageId,
       },
     });
@@ -536,7 +538,11 @@ export class SaveWebhookResponse {
   /**
    * Get or create customer using facebook data
    */
-  public async getOrCreateCustomer(fbUserId: string): Promise<ICustomerDocument> {
+  public async getOrCreateCustomer(fbUserId?: string, fbUserName?: string): Promise<ICustomerDocument | null> {
+    if (!fbUserId) {
+      return null;
+    }
+
     const integrationId = this.integration._id;
 
     const customer = await Customers.findOne({ 'facebookData.id': fbUserId });
@@ -545,11 +551,18 @@ export class SaveWebhookResponse {
       return customer;
     }
 
-    // get page access token
-    let res: any = await this.getPageAccessToken();
+    let avatar;
 
-    // get user info
-    res = await graphRequest.get(`/${fbUserId}`, res.access_token);
+    if (!fbUserName) {
+      const pageTokenResponse = await this.getPageAccessToken();
+      const pageToken = pageTokenResponse.access_token;
+
+      const fbUserResponse = await graphRequest.get(`/${fbUserId}`, pageToken);
+
+      fbUserName = `${fbUserResponse.first_name} ${fbUserResponse.last_name}`;
+
+      avatar = fbUserResponse.profile_pic;
+    }
 
     // get profile pic
     const getProfilePic = async (fbId: string) => {
@@ -563,15 +576,13 @@ export class SaveWebhookResponse {
 
     // when feed response will contain name field
     // when messeger response will not contain name field
-    const firstName = res.first_name || res.name;
-    const lastName = res.last_name || '';
+    const firstName = fbUserName || 'N/A';
 
     // create customer
     const createdCustomer = await Customers.createCustomer({
       firstName,
-      lastName,
       integrationId,
-      avatar: (await getProfilePic(fbUserId)) || '',
+      avatar: avatar ? avatar : (await getProfilePic(fbUserId)) || '',
       facebookData: {
         id: fbUserId,
       },
@@ -588,14 +599,12 @@ export class SaveWebhookResponse {
    */
   public async createMessage({
     conversation,
-    userId,
     content,
     attachments,
     facebookData,
     restoring,
   }: {
     conversation: IConversationDocument;
-    userId: string;
     content: string;
     attachments?: any;
     facebookData: IMsgFacebook;
@@ -605,7 +614,13 @@ export class SaveWebhookResponse {
       throw new Error('createMessage: Conversation not found');
     }
 
-    const customer = await this.getOrCreateCustomer(userId);
+    const { senderId, senderName } = facebookData;
+
+    const customer = await this.getOrCreateCustomer(senderId, senderName);
+
+    if (!customer) {
+      throw new Error("createMessage: Couldn't create customer");
+    }
 
     // create new message
     const message = await ConversationMessages.createMessage({
@@ -638,11 +653,9 @@ export class SaveWebhookResponse {
    */
   public async restoreOldPosts({
     conversation,
-    userId,
     facebookData,
   }: {
     conversation: IConversationDocument;
-    userId: string;
     facebookData: IMsgFacebook;
   }): Promise<boolean> {
     const { item, postId } = facebookData;
@@ -682,7 +695,6 @@ export class SaveWebhookResponse {
 
     await this.createMessage({
       conversation,
-      userId,
       content: postResponse.message || '...',
       facebookData: {
         senderId: postResponse.from.id,
@@ -700,7 +712,6 @@ export class SaveWebhookResponse {
     for (const comment of postComments) {
       await this.createMessage({
         conversation,
-        userId,
         content: comment.message,
         facebookData: {
           postId: postResponse.id,
