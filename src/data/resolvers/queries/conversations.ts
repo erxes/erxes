@@ -139,9 +139,7 @@ const conversationQueries = {
 
     // By default we are returning latest 3 comment with post
     if (!commentId && !postId) {
-      limit = 4;
-
-      query.$or = [{ 'facebookData.parentId': { $exists: false } }, { 'facebookData.isPost': true }];
+      limit = 2;
     }
 
     // Filter to retreive comment replies
