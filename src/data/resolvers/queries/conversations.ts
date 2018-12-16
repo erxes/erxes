@@ -81,7 +81,7 @@ const countByBrands = async (qb: any): Promise<ICountBy> => {
 
 const conversationQueries = {
   /**
-   * Conversataions list
+   * Conversations list
    */
   async conversations(_root, params: IListArgs, { user }: { user: IUserDocument }) {
     // filter by ids of conversations
@@ -104,11 +104,29 @@ const conversationQueries = {
       .limit(params.limit || 0);
   },
 
-  async conversationMessagesFacebook(_root, { conversationId, commentId, postId, limit }) {
+  /**
+   * Get facebook feed messages
+   */
+  async conversationMessagesFacebook(
+    _root,
+    {
+      conversationId,
+      commentId,
+      postId,
+      limit,
+    }: {
+      conversationId: string;
+      commentId?: string;
+      postId?: string;
+      limit?: number;
+    },
+  ) {
     const query: {
       [key: string]: string | { [key: string]: string | boolean };
     } = { conversationId };
+
     const sort = { 'facebookData.isPost': -1, 'facebookData.createdTime': -1 };
+
     const result: { list: IMessageDocument[]; commentCount?: number } = {
       list: [],
     };
