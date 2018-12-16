@@ -1,4 +1,4 @@
-import CreateBrand from './CreateBrand';
+import GettingStart from './GettingStart';
 import Welcome from './Welcome';
 
-export { CreateBrand, Welcome };
+export { GettingStart, Welcome };

@@ -1,7 +1,7 @@
 import queryString from 'query-string';
 import * as React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import { CreateBrand, Welcome } from './components';
+import { GettingStart, Welcome } from './components';
 
 const index = () => {
   return <Redirect to="/welcome" />;
@@ -14,9 +14,9 @@ const routes = () => {
       <Route exact={true} key="/welcome" path="/welcome" component={Welcome} />
       <Route
         exact={true}
-        key="/create-brand"
-        path="/create-brand"
-        component={CreateBrand}
+        key="/getting-started"
+        path="/getting-started"
+        component={GettingStart}
       />
     </React.Fragment>
   );
