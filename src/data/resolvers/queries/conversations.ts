@@ -139,7 +139,9 @@ const conversationQueries = {
 
     // By default we are returning latest 3 comment with post
     if (!commentId && !postId) {
-      limit = 2;
+      query.$or = [{ 'facebookData.parentId': { $exists: false } }, { 'facebookData.isPost': true }];
+
+      limit = 4;
     }
 
     // Filter to retreive comment replies
@@ -175,20 +177,26 @@ const conversationQueries = {
       return result;
     }
 
-    // We are getting parent comment if the latest comment was reply
-    const msgs = result.list;
-    const lastItem = msgs[msgs.length - 1];
+    const latestComment = await ConversationMessages.findOne({ conversationId }).sort({
+      'facebookData.createdTime': -1,
+    });
 
-    if (lastItem.facebookData && lastItem.facebookData.parentId) {
+    // Checking if the last comment was a reply
+    if (latestComment && latestComment.facebookData && latestComment.facebookData.parentId) {
       const parentComment = await ConversationMessages.findOne({
         conversationId,
-        'facebookData.commentId': lastItem.facebookData.parentId,
+        'facebookData.commentId': latestComment.facebookData.parentId,
       });
 
-      // inserting comment on top of reply
-      if (parentComment) {
-        result.list.splice(1, 0, parentComment);
+      const msgIds = result.list.map(obj => {
+        return obj._id;
+      });
+
+      if (parentComment && !msgIds.includes(parentComment._id)) {
+        result.list.push(parentComment);
       }
+
+      result.list.push(latestComment);
     }
 
     return result;
