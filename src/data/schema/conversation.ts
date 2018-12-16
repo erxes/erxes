@@ -100,7 +100,7 @@ export const types = `
 
   type Attachment {
     url: String!
-    name: String!
+    name: String
     type: String!
     size: Float
   }

@@ -2,7 +2,7 @@ import { Brands, Channels, ConversationMessages, Conversations, Tags } from '../
 import { IUserDocument } from '../../../db/models/definitions/users';
 
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
-import { CONVERSATION_STATUSES, INTEGRATION_KIND_CHOICES } from '../../constants';
+import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import QueryBuilder, { IListArgs } from './conversationQueryBuilder';
 
@@ -121,9 +121,9 @@ const conversationQueries = {
       limit?: number;
     },
   ) {
-    const query: {
-      [key: string]: string | { [key: string]: string | boolean };
-    } = { conversationId };
+    const query: any = {
+      conversationId,
+    };
 
     const sort = { 'facebookData.isPost': -1, 'facebookData.createdTime': -1 };
 
@@ -133,13 +133,15 @@ const conversationQueries = {
 
     const conversation = await Conversations.findOne({ _id: conversationId });
 
-    if (!conversation || !conversation.facebookData) {
-      throw new Error('Conversation not found');
+    if (!conversation || !conversation.facebookData || conversation.facebookData.kind !== FACEBOOK_DATA_KINDS.FEED) {
+      throw new Error('Bad conversation data');
     }
 
-    // If there is no limit defined returning the feed post and the latest comment
-    if (!limit) {
-      limit = 2;
+    // By default we are returning latest 3 comment with post
+    if (!commentId && !postId) {
+      limit = 4;
+
+      query.$or = [{ 'facebookData.parentId': { $exists: false } }, { 'facebookData.isPost': true }];
     }
 
     // Filter to retreive comment replies
@@ -156,12 +158,7 @@ const conversationQueries = {
 
     result.list = await ConversationMessages.find(query)
       .sort(sort)
-      .limit(limit);
-
-    // If we received conversation via messenger returning unfiltered list
-    if (conversation.facebookData.kind !== 'feed') {
-      return result;
-    }
+      .limit(limit || 4);
 
     // Counting post comments only, excluding comment replies
     const commentCount = await ConversationMessages.find({

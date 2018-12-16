@@ -779,50 +779,30 @@ describe('conversationQueries', () => {
   });
 
   test('Conversation messages facebook test', async () => {
-    const messengerConversation = await conversationFactory({
-      facebookData: {
-        kind: 'messenger',
-      },
-    });
-
-    await conversationMessageFactory({
-      conversationId: messengerConversation._id,
-      facebookData: {
-        content: '123',
-      },
-    });
-
-    await conversationMessageFactory({
-      conversationId: messengerConversation._id,
-      facebookData: {
-        content: '123',
-      },
-    });
-
-    await conversationMessageFactory({
-      conversationId: messengerConversation._id,
-      facebookData: {
-        content: '123',
-      },
-    });
-
-    let response = await graphqlRequest(
-      qryConversationMessagesFacebook,
-      'conversationMessagesFacebook',
-      {
-        conversationId: messengerConversation._id,
-        limit: 10000,
-      },
-      { user },
-    );
-
-    expect(response.list.length).toBe(3);
-
     const feedConversation = await conversationFactory({
       facebookData: {
         kind: 'feed',
       },
     });
+
+    const badConversation = await conversationFactory({
+      facebookData: {
+        kind: 'messenger',
+      },
+    });
+
+    try {
+      await graphqlRequest(
+        qryConversationMessagesFacebook,
+        'conversationMessagesFacebook',
+        {
+          conversationId: badConversation._id,
+        },
+        { user },
+      );
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
 
     await conversationMessageFactory({
       conversationId: feedConversation._id,
@@ -846,6 +826,24 @@ describe('conversationQueries', () => {
       conversationId: feedConversation._id,
       facebookData: {
         postId: 'postId',
+        commentId: '22',
+        createdTime: moment(new Date()).add(13, 'days'),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '33',
+        createdTime: moment(new Date()).add(13, 'days'),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
         commentId: 'parentComment',
         createdTime: moment(new Date()).add(10, 'days'),
       },
@@ -861,7 +859,7 @@ describe('conversationQueries', () => {
       },
     });
 
-    response = await graphqlRequest(
+    let response = await graphqlRequest(
       qryConversationMessagesFacebook,
       'conversationMessagesFacebook',
       {
@@ -870,7 +868,8 @@ describe('conversationQueries', () => {
       { user },
     );
 
-    expect(response.list.length).toBe(2);
+    // we have 1 post 5 comments and one of them is reply by default 4 should be returned
+    expect(response.list.length).toBe(4);
 
     response = await graphqlRequest(
       qryConversationMessagesFacebook,
@@ -882,7 +881,26 @@ describe('conversationQueries', () => {
       { user },
     );
 
+    // we have 1 comment reply
     expect(response.list.length).toBe(1);
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '66',
+        createdTime: moment(new Date()).add(13, 'days'),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '77',
+        createdTime: moment(new Date()).add(13, 'days'),
+      },
+    });
 
     response = await graphqlRequest(
       qryConversationMessagesFacebook,
@@ -890,10 +908,12 @@ describe('conversationQueries', () => {
       {
         conversationId: feedConversation._id,
         postId: 'postId',
+        limit: 10,
       },
       { user },
     );
 
-    expect(response.list.length).toBe(2);
+    // fetching the comments of post
+    expect(response.list.length).toBe(7);
   });
 });
