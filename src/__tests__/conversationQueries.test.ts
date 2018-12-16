@@ -868,8 +868,8 @@ describe('conversationQueries', () => {
       { user },
     );
 
-    // we have 1 post 5 comments and one of them is reply by default 4 should be returned
-    expect(response.list.length).toBe(4);
+    // we have 1 post 5 comments and one of them is reply by default 2 should be returned
+    expect(response.list.length).toBe(2);
 
     response = await graphqlRequest(
       qryConversationMessagesFacebook,
