@@ -12,7 +12,7 @@ describe('twitter integration', () => {
   let postMock;
 
   beforeEach(async () => {
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
 
     // create integration
     _integration = await integrationFactory({});

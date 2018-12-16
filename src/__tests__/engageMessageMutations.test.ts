@@ -212,7 +212,7 @@ describe('engage message mutation tests', () => {
       throw new Error('User not found');
     }
 
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
 
     sandbox.stub(awsRequests, 'getVerifiedEmails').callsFake(() => {
       return new Promise(resolve => {
@@ -276,7 +276,7 @@ describe('engage message mutation tests', () => {
     process.env.AWS_SES_CONFIG_SET = 'aws-ses';
     process.env.AWS_ENDPOINT = '123';
 
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
     const awsSpy = jest.spyOn(awsRequests, 'getVerifiedEmails');
 
     sandbox.stub(awsRequests, 'getVerifiedEmails').callsFake(() => {
