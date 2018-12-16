@@ -120,7 +120,7 @@ describe('Conversation message mutations', () => {
     };
 
     // mock twitter request
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
 
     const stub = sandbox.stub(twitRequest, 'post').callsFake(() => {
       return new Promise(resolve => {
@@ -157,7 +157,7 @@ describe('Conversation message mutations', () => {
     twitMap[_integrationTwitter._id] = twit;
 
     // mock twitter request
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
 
     // mock retweet request
     const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
@@ -207,7 +207,7 @@ describe('Conversation message mutations', () => {
     twitMap[_integrationTwitter._id] = twit;
 
     // mock twitter request
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
 
     // mock retweet request
     const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
