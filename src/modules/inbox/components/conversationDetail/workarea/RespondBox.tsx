@@ -32,7 +32,7 @@ type Props = {
     message: AddMessageMutationVariables,
     callback: (error: Error) => void
   ) => void;
-  isInternal: boolean;
+  showInternal: boolean;
   setAttachmentPreview?: (data: IAttachmentPreview) => void;
   responseTemplates: IResponseTemplate[];
   teamMembers: IUser[];
@@ -56,7 +56,7 @@ class RespondBox extends React.Component<Props, State> {
     this.state = {
       isInactive: !this.checkIsActive(props.conversation),
       editorKey: 'editor',
-      isInternal: props.isInternal || false,
+      isInternal: props.showInternal || false,
       sending: false,
       attachments: [],
       responseTemplate: '',
@@ -80,9 +80,9 @@ class RespondBox extends React.Component<Props, State> {
       });
     }
 
-    if (this.props.isInternal !== nextProps.isInternal) {
+    if (this.props.showInternal !== nextProps.showInternal) {
       this.setState({
-        isInternal: nextProps.isInternal
+        isInternal: nextProps.showInternal
       });
     }
   }

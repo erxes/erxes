@@ -216,7 +216,7 @@ export default class WorkArea extends React.Component<Props, State> {
         {currentConversation._id && (
           <ContenFooter>
             <RespondBox
-              isInternal={forceInternal ? true : false}
+              showInternal={forceInternal ? true : false}
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
               addMessage={addMessage}

@@ -14,7 +14,7 @@ import { AddMessageMutationVariables, IConversation } from '../../types';
 
 type Props = {
   conversation: IConversation;
-  isInternal: boolean;
+  showInternal: boolean;
   setAttachmentPreview: (attachmentPreview: IAttachmentPreview) => void;
   addMessage: (
     doc: {
