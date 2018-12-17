@@ -4,6 +4,10 @@ const ConversationMessages = require('../dist/db/models/ConversationMessages').d
 
 dotenv.config();
 
+/**
+ * Updating every post and parent comment's commentCount to 101 by static
+ *
+ */
 module.exports.up = function(next) {
   const { MONGO_URL } = process.env;
 
