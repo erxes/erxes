@@ -500,6 +500,11 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     expect(parentPost).toBeDefined();
+
+    if (!res) {
+      throw new Error('Response null');
+    }
+
     expect(res).toBeDefined();
   });
 
