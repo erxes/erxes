@@ -419,7 +419,7 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     // must be false because we received post
-    expect(res).toBe(false);
+    expect(res).toBeNull();
 
     facebookData.item = 'comment';
 
@@ -434,7 +434,7 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     // must be false because we do have parent post
-    expect(res).toBe(false);
+    expect(res).toBeNull();
 
     await ConversationMessages.deleteOne({ _id: parentPost._id });
 
@@ -500,7 +500,12 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     expect(parentPost).toBeDefined();
-    expect(res).toBe(true);
+
+    if (!res) {
+      throw new Error('Response null');
+    }
+
+    expect(res).toBeDefined();
   });
 
   test('Restore old facebook post: Must create new conversation on every comment', async () => {

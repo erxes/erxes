@@ -366,16 +366,22 @@ export class SaveWebhookResponse {
     });
 
     if (restored) {
+      publishMessage(restored);
+
+      publishClientMessage(restored);
+
       return 'restored';
     }
 
     // create new message
-    return this.createMessage({
+    const msg = await this.createMessage({
       conversation,
       content,
       attachments,
       facebookData: msgFacebookData,
     });
+
+    return msg._id;
   }
 
   /*
@@ -609,7 +615,7 @@ export class SaveWebhookResponse {
     attachments?: any;
     facebookData: IMsgFacebook;
     restoring?: boolean;
-  }): Promise<string> {
+  }): Promise<IMessageDocument> {
     if (!conversation) {
       throw new Error('createMessage: Conversation not found');
     }
@@ -636,7 +642,7 @@ export class SaveWebhookResponse {
     await Conversations.updateOne({ _id: conversation._id }, { $set: { content } });
 
     if (restoring) {
-      return message._id;
+      return message;
     }
 
     // notifying conversation inserted
@@ -645,7 +651,7 @@ export class SaveWebhookResponse {
     // notify subscription server new message
     publishMessage(message, conversation.customerId);
 
-    return message._id;
+    return message;
   }
 
   /**
@@ -657,15 +663,15 @@ export class SaveWebhookResponse {
   }: {
     conversation: IConversationDocument;
     facebookData: IMsgFacebook;
-  }): Promise<boolean> {
+  }): Promise<null | IMessageDocument> {
     const { item, postId } = facebookData;
 
     if (!postId) {
-      return false;
+      return null;
     }
 
     if (item !== 'comment') {
-      return false;
+      return null;
     }
 
     const parentPost = await ConversationMessages.findOne({
@@ -675,7 +681,7 @@ export class SaveWebhookResponse {
     });
 
     if (parentPost) {
-      return false;
+      return null;
     }
 
     // getting page access token
@@ -693,7 +699,7 @@ export class SaveWebhookResponse {
       post_id: postResponse.id,
     });
 
-    await this.createMessage({
+    const post = await this.createMessage({
       conversation,
       content: postResponse.message || '...',
       facebookData: {
@@ -727,7 +733,7 @@ export class SaveWebhookResponse {
       });
     }
 
-    return true;
+    return post;
   }
 }
 
