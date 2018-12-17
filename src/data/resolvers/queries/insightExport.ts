@@ -502,7 +502,6 @@ const insightExportQueries = {
     tagData.map(row => {
       tagDictionary[`${row.tagId}_${row.date}`] = row.count;
     });
-    console.log('tagData:', tagDictionary);
     const generateData = async () => {
       const next = nextTime(begin);
       rowIndex++;
