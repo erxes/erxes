@@ -17,6 +17,7 @@ export interface IReactions {
 }
 
 export interface IFacebook {
+  createdTime?: string;
   postId?: string;
   commentId?: string;
   parentId?: string;
@@ -190,6 +191,11 @@ const facebookSchema = new Schema(
     }),
 
     senderName: field({
+      type: String,
+      optional: true,
+    }),
+
+    createdTime: field({
       type: String,
       optional: true,
     }),

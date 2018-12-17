@@ -24,6 +24,7 @@ export const types = `
     video: String
     photos: [String]
     link: String
+    createdTime: String
 
     senderId: String
     senderName: String
@@ -99,7 +100,7 @@ export const types = `
 
   type Attachment {
     url: String!
-    name: String!
+    name: String
     type: String!
     size: Float
   }
@@ -142,6 +143,11 @@ export const types = `
     isCustomerRead: Boolean,
   }
 
+  type ConversationMessagesFacebookResponse {
+    list: [ConversationMessage]
+    commentCount: Int
+  }
+
   input AttachmentInput {
     url: String!
     name: String!
@@ -180,6 +186,11 @@ export const queries = `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
+  conversationMessagesFacebook(
+    conversationId: String
+    commentId: String
+    postId: String limit: Int
+  ): ConversationMessagesFacebookResponse
 `;
 
 export const mutations = `

@@ -69,7 +69,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: filter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData,
       content: 'hi',
       msgFacebookData: {},
@@ -91,7 +90,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: filter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData,
       content: 'hey',
       msgFacebookData: {},
@@ -108,7 +106,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: filter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData,
       content: 'hi again',
       msgFacebookData: {},
@@ -137,7 +134,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: filter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData,
       content: 'new sender hi',
       msgFacebookData: {},
@@ -172,7 +168,6 @@ describe('facebook integration: get or create conversation', () => {
     const msgId = await saveWebhookResponse.getOrCreateConversation({
       findSelector: messengerFilter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData: messengerFacebookData,
       content: 'messenger message',
       msgFacebookData: {},
@@ -200,7 +195,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: messengerFilter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData: messengerFacebookData,
       content: 'hi test',
       msgFacebookData: {},
@@ -218,7 +212,6 @@ describe('facebook integration: get or create conversation', () => {
     let message: any = await saveWebhookResponse.getOrCreateConversation({
       findSelector: messengerFilter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData: messengerFacebookData,
       content: 'test create new conversation',
       msgFacebookData: {},
@@ -234,7 +227,6 @@ describe('facebook integration: get or create conversation', () => {
     let secondMessage: any = await saveWebhookResponse.getOrCreateConversation({
       findSelector: messengerFilter,
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData: messengerFacebookData,
       content: 'insert message',
       msgFacebookData: {},
@@ -255,6 +247,8 @@ describe('facebook integration: get or create conversation', () => {
 
     // Received video
     const postParams = {
+      id: '123',
+      from: { id: '123', name: '12331' },
       post_id: '123',
       item: 'status',
       video_id: '12331213',
@@ -421,12 +415,11 @@ describe('facebook integration: get or create conversation', () => {
 
     let res = await saveWebhookResponse.restoreOldPosts({
       conversation,
-      userId: '123',
       facebookData,
     });
 
     // must be false because we received post
-    expect(res).toBe(false);
+    expect(res).toBeNull();
 
     facebookData.item = 'comment';
 
@@ -437,12 +430,11 @@ describe('facebook integration: get or create conversation', () => {
 
     res = await saveWebhookResponse.restoreOldPosts({
       conversation,
-      userId: '123',
       facebookData,
     });
 
     // must be false because we do have parent post
-    expect(res).toBe(false);
+    expect(res).toBeNull();
 
     await ConversationMessages.deleteOne({ _id: parentPost._id });
 
@@ -454,6 +446,12 @@ describe('facebook integration: get or create conversation', () => {
         id: 'postId',
         from: { id: 'fromid', name: 'fromname' },
         name: 'fromname',
+        comments: {
+          data: [],
+          summary: {
+            total_count: 0,
+          },
+        },
       };
     });
 
@@ -463,18 +461,29 @@ describe('facebook integration: get or create conversation', () => {
           message: 'message',
           id: 'postId',
           from: { id: 'fromid', name: 'fromname' },
+          comments: {
+            data: [],
+            summary: {
+              total_count: 0,
+            },
+          },
         },
         {
           message: 'message',
           id: 'postId',
           from: { id: 'fromid', name: 'fromname' },
+          comments: {
+            data: [],
+            summary: {
+              total_count: 0,
+            },
+          },
         },
       ];
     });
 
     res = await saveWebhookResponse.restoreOldPosts({
       conversation,
-      userId: '123',
       facebookData,
     });
 
@@ -491,7 +500,12 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     expect(parentPost).toBeDefined();
-    expect(res).toBe(true);
+
+    if (!res) {
+      throw new Error('Response null');
+    }
+
+    expect(res).toBeDefined();
   });
 
   test('Restore old facebook post: Must create new conversation on every comment', async () => {
@@ -511,7 +525,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: { 'facebookData.postId': 'postId', 'facebookData.kind': 'status' },
       status: CONVERSATION_STATUSES.CLOSED,
-      senderId,
       facebookData,
       content: 'hi',
       msgFacebookData: {},
@@ -524,7 +537,6 @@ describe('facebook integration: get or create conversation', () => {
     await saveWebhookResponse.getOrCreateConversation({
       findSelector: { 'facebookData.postId': 'postId', 'facebookData.kind': 'status' },
       status: CONVERSATION_STATUSES.NEW,
-      senderId,
       facebookData,
       content: 'hi',
       msgFacebookData: {},
