@@ -45,14 +45,17 @@ class FacebookConversationContainer extends React.Component<FinalProps, State> {
           return prev;
         }
 
-        const fetchedMessages = fetchMoreResult.conversationMessagesFacebook
-          ? fetchMoreResult.conversationMessagesFacebook.list
-          : [];
+        const fetchedMessagesQuery =
+          fetchMoreResult.conversationMessagesFacebook || {};
 
-        const prevMessages = prev.conversationMessagesFacebook
-          ? prev.conversationMessagesFacebook.list
-          : [];
+        const fetchedMessages = fetchedMessagesQuery.list || [];
+
+        const prevMessagesQuery = prev.conversationMessagesFacebook || {};
+
+        const prevMessages = prevMessagesQuery.list || [];
+
         const prevMessageIds = prevMessages.map(m => m._id);
+
         const filteredMessages: IMessage[] = [];
 
         for (const message of fetchedMessages) {
@@ -100,11 +103,12 @@ class FacebookConversationContainer extends React.Component<FinalProps, State> {
   render() {
     const { messagesQuery } = this.props;
 
+    const messagesQueryResult =
+      messagesQuery.conversationMessagesFacebook || {};
+
     const updatedProps = {
       ...this.props,
-      conversationMessages: messagesQuery.conversationMessagesFacebook
-        ? messagesQuery.conversationMessagesFacebook.list
-        : [],
+      conversationMessages: messagesQueryResult.list || [],
       fetchFacebook: this.fetchFacebook
     };
 
