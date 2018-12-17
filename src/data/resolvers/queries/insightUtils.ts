@@ -112,8 +112,8 @@ export const findConversations = async (
     if (kind) {
       integrationSelector.kind = kind;
     }
-
-    conversationSelector.integrationIds = await Integrations.find(integrationSelector).select('_id');
+    const integrationIds = await Integrations.find(integrationSelector).select('_id');
+    conversationSelector.integrationId = integrationIds.map(row => row._id);
   }
 
   if (selectIds) {
