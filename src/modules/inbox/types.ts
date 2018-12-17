@@ -107,6 +107,7 @@ export interface IMessageFacebookData {
   video?: string;
   photos?: string[];
   link?: string;
+  createdTime: string;
   senderId: string;
   senderName: string;
 }
@@ -329,4 +330,11 @@ export type UnreadConversationsTotalCountQueryResponse = {
   loading: boolean;
   refetch: () => void;
   subscribeToMore: (variables) => void;
+};
+
+export type FacebookMessagesQueryResponse = {
+  conversationMessagesFacebook: { list: IMessage[]; commentCount?: number };
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: (variables) => void;
 };

@@ -1,10 +1,10 @@
 import { Spinner } from 'modules/common/components';
 import { IAttachmentPreview } from 'modules/common/types';
+import { FacebookConversation } from 'modules/inbox/containers/conversationDetail';
 import * as React from 'react';
 import styled from 'styled-components';
 import { IConversation, IMessage } from '../../../../types';
 import AttachmentPreview from './AttachmentPreview';
-import { FacebookConversation } from './facebook';
 import { Message } from './messages';
 import { TwitterConversation } from './twitter';
 
@@ -88,7 +88,6 @@ class Conversation extends React.Component<Props, {}> {
       return (
         <FacebookConversation
           conversation={conversation}
-          conversationMessages={conversationMessages}
           scrollBottom={scrollBottom}
         />
       );
