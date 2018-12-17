@@ -10,3 +10,4 @@ dump.rdb
 *.un~
 *.swp
 *.swo
+.migrate
