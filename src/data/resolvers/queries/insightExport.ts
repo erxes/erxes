@@ -10,7 +10,8 @@ import { findConversations, fixDates, generateMessageSelector, generateUserSelec
 interface IVolumeReportExportArgs {
   date: string;
   count: number;
-  customerCount: string;
+  customerCount: number;
+  customerCountPercentage: string;
   messageCount: number;
   resolvedCount: number;
   averageResponseDuration: string;
@@ -147,10 +148,10 @@ const insightExportQueries = {
       );
 
       const conversationIds = _.pluck(filtered, '_id');
-      const custCount = _.unique(_.pluck(filtered, 'customerId')).length;
-      const customerCount = `${custCount} (${
-        filtered.length !== 0 ? Math.floor((100 * custCount) / filtered.length) : 0
-      }%)`;
+      const customerCount = _.unique(_.pluck(filtered, 'customerId')).length;
+      const customerCountPercentage = `${
+        filtered.length !== 0 ? Math.floor((100 * customerCount) / filtered.length) : 0
+      }%`;
       const messageCount = await ConversationMessages.countDocuments({ conversationId: { $in: conversationIds } });
       const resolvedCount = filtered.filter(conv => (conv.status = 'closed')).length;
       const closedDuration: IDurationWithCount = { duration: 0, count: 0 };
@@ -180,6 +181,7 @@ const insightExportQueries = {
         date: moment(begin).format(timeFormat),
         count: filtered.length,
         customerCount,
+        customerCountPercentage,
         messageCount,
         resolvedCount,
         averageResponseDuration: convertTime(closedDuration),
