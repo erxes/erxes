@@ -1,10 +1,16 @@
 export default `
   _id
   content
-  attachments
+  attachments {
+    url
+    name
+    size
+    type
+  }
   mentionedUserIds
   conversationId
   internal
+  fromBot
   customerId
   userId
   createdAt
