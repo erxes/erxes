@@ -154,6 +154,7 @@ const insightQueries = {
     const rawConversationIds = conversationIds.map(obj => obj._id);
     const matchMessageSelector = {
       conversationId: { $in: rawConversationIds },
+      fromBot: { $exists: false },
       // client or user
       userId: generateUserSelector(type),
       createdAt: { $gte: start.toDate(), $lte: new Date(end) },
@@ -219,6 +220,8 @@ const insightQueries = {
       {
         userId: generateUserSelector(type),
         createdAt: { $gte: start, $lte: end },
+        // exclude bot messages
+        fromBot: { $exists: false },
       },
     );
 

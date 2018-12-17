@@ -7,6 +7,7 @@ import { IConversationDocument } from '../../../db/models/definitions/conversati
 interface IMessageSelector {
   userId?: string;
   createdAt: any;
+  fromBot?: any;
   conversationId?: {
     $in: string[];
   };
