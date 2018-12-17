@@ -484,7 +484,6 @@ const insightExportQueries = {
               $dateToString: {
                 format: '%Y-%m-%d',
                 date: '$createdAt',
-                timezone: '+08',
               },
             },
           },
