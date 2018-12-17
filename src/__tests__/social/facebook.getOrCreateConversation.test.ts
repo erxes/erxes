@@ -500,7 +500,7 @@ describe('facebook integration: get or create conversation', () => {
     });
 
     expect(parentPost).toBeDefined();
-    expect(res._id).toBeDefined();
+    expect(res).toBeDefined();
   });
 
   test('Restore old facebook post: Must create new conversation on every comment', async () => {
