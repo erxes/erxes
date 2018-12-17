@@ -437,9 +437,6 @@ const insightExportQueries = {
     const { start, end } = fixDates(startDate, endDate);
 
     const integrationSelector: { brandId?: string; kind?: string } = {};
-    const conversationSelector = {
-      $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
-    };
 
     if (brandId) {
       integrationSelector.brandId = brandId;
@@ -459,6 +456,54 @@ const insightExportQueries = {
     const cols: string[] = [];
 
     let begin = start;
+    const rawIntegrationIds = integrationIds.map(row => row._id);
+
+    const tagIds = tags.map(row => row._id);
+    const tagDictionary = {};
+    const tagData = await Conversations.aggregate([
+      {
+        $match: {
+          $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
+          integrationId: { $in: rawIntegrationIds },
+          createdAt: { $gte: start, $lte: end },
+        },
+      },
+      {
+        $unwind: '$tagIds',
+      },
+      {
+        $match: {
+          tagIds: { $in: tagIds },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            tagId: '$tagIds',
+            date: {
+              $dateToString: {
+                format: '%Y-%m-%d',
+                date: '$createdAt',
+                timezone: '+08',
+              },
+            },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          tagId: '$_id.tagId',
+          date: '$_id.date',
+          count: 1,
+        },
+      },
+    ]);
+    tagData.map(row => {
+      tagDictionary[`${row.tagId}_${row.date}`] = row.count;
+    });
+    console.log('tagData:', tagDictionary);
     const generateData = async () => {
       const next = nextTime(begin);
       rowIndex++;
@@ -474,12 +519,8 @@ const insightExportQueries = {
       // count conversations by each tag
       for (const tag of tags) {
         // find conversation counts of given tag
-        const count = await Conversations.countDocuments({
-          ...conversationSelector,
-          integrationId: { $in: integrationIds },
-          createdAt: { $gte: begin, $lte: next },
-          tagIds: tag._id,
-        });
+        const tagKey = `${tag._id}_${moment(begin).format('YYYY-MM-DD')}`;
+        const count = tagDictionary[tagKey] ? tagDictionary[tagKey] : 0;
 
         addCell({
           sheet,
