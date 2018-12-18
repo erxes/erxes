@@ -1,6 +1,5 @@
 import { engageMessageFactory, tagsFactory } from '../db/factories';
 import { EngageMessages, Tags } from '../db/models';
-import { tagObject, validateUniqueness } from '../db/models/Tags';
 
 describe('Test tags model', () => {
   let _tag;
@@ -21,11 +20,11 @@ describe('Test tags model', () => {
   });
 
   test('Validate unique tag', async () => {
-    const empty = await validateUniqueness({}, '', '');
+    const empty = await Tags.validateUniqueness({}, '', '');
 
-    const selectTag = await validateUniqueness({ type: _tag2.type }, 'new tag', _tag2.type);
+    const selectTag = await Tags.validateUniqueness({ type: _tag2.type }, 'new tag', _tag2.type);
 
-    const existing = await validateUniqueness({}, _tag.name, _tag.type);
+    const existing = await Tags.validateUniqueness({}, _tag.name, _tag.type);
 
     expect(empty).toEqual(true);
     expect(selectTag).toEqual(false);
@@ -35,7 +34,7 @@ describe('Test tags model', () => {
   test('Tag not found', async () => {
     expect.assertions(1);
     try {
-      await tagObject({
+      await Tags.tagObject({
         tagIds: [_tag._id],
         objectIds: [],
         collection: EngageMessages,

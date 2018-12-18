@@ -5,13 +5,19 @@ interface IMessengerAppModel extends Model<IMessengerAppDocument> {
   createApp(doc: IMessengerApp): Promise<IMessengerAppDocument>;
 }
 
-class MessengerApp {
-  public static async createApp(doc: IMessengerApp) {
-    return MessengerApps.create(doc);
+export const loadClass = () => {
+  class MessengerApp {
+    public static async createApp(doc: IMessengerApp) {
+      return MessengerApps.create(doc);
+    }
   }
-}
 
-messengerAppSchema.loadClass(MessengerApp);
+  messengerAppSchema.loadClass(MessengerApp);
+
+  return messengerAppSchema;
+};
+
+loadClass();
 
 // tslint:disable-next-line
 const MessengerApps = model<IMessengerAppDocument, IMessengerAppModel>('messenger_apps', messengerAppSchema);

@@ -8,41 +8,47 @@ interface IChannelModel extends Model<IChannelDocument> {
   removeChannel(_id: string): void;
 }
 
-class Channel {
-  public static createChannel(doc: IChannel, userId?: string) {
-    if (!userId) {
-      throw new Error('userId must be supplied');
+export const loadClass = () => {
+  class Channel {
+    public static createChannel(doc: IChannel, userId?: string) {
+      if (!userId) {
+        throw new Error('userId must be supplied');
+      }
+
+      return Channels.create({
+        ...doc,
+        createdAt: new Date(),
+        userId,
+      });
     }
 
-    return Channels.create({
-      ...doc,
-      createdAt: new Date(),
-      userId,
-    });
+    public static async updateChannel(_id: string, doc: IChannel) {
+      await Channels.updateOne({ _id }, { $set: doc }, { runValidators: true });
+
+      return Channels.findOne({ _id });
+    }
+
+    public static async updateUserChannels(channelIds: string[], userId: string) {
+      // remove from previous channels
+      await Channels.updateMany({ memberIds: { $in: [userId] } }, { $pull: { memberIds: userId } }, { multi: true });
+
+      // add to given channels
+      await Channels.updateMany({ _id: { $in: channelIds } }, { $push: { memberIds: userId } }, { multi: true });
+
+      return Channels.find({ _id: { $in: channelIds } });
+    }
+
+    public static removeChannel(_id: string) {
+      return Channels.deleteOne({ _id });
+    }
   }
 
-  public static async updateChannel(_id: string, doc: IChannel) {
-    await Channels.updateOne({ _id }, { $set: doc }, { runValidators: true });
+  channelSchema.loadClass(Channel);
 
-    return Channels.findOne({ _id });
-  }
+  return channelSchema;
+};
 
-  public static async updateUserChannels(channelIds: string[], userId: string) {
-    // remove from previous channels
-    await Channels.updateMany({ memberIds: { $in: [userId] } }, { $pull: { memberIds: userId } }, { multi: true });
-
-    // add to given channels
-    await Channels.updateMany({ _id: { $in: channelIds } }, { $push: { memberIds: userId } }, { multi: true });
-
-    return Channels.find({ _id: { $in: channelIds } });
-  }
-
-  public static removeChannel(_id: string) {
-    return Channels.deleteOne({ _id });
-  }
-}
-
-channelSchema.loadClass(Channel);
+loadClass();
 
 // tslint:disable-next-line
 const Channels = model<IChannelDocument, IChannelModel>('channels', channelSchema);
