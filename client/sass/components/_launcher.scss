@@ -51,10 +51,6 @@
     }
   }
 
-  &:hover {
-    box-shadow: 0 0 12px 0 rgba($black, .5);
-  }
-
   &::before {
     @include animation(.5s, 3s, animationPulse, linear, 10);
     border-radius: 50%;

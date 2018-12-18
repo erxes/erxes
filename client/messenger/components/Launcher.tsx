@@ -51,7 +51,7 @@ function Launcher(props: Props) {
 
   return (
     <>
-      <div
+      <a
         className={launcherClasses}
         onClick={clickHandler}
         style={{
@@ -61,8 +61,9 @@ function Launcher(props: Props) {
           backgroundSize: logo ? "" : "20px"
         }}
       >
+        <div />
         {renderUnreadCount()}
-      </div>
+      </a>
 
       {renderNotifier()}
     </>

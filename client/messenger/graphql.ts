@@ -27,7 +27,12 @@ const messageFields = `
     brandId
   }
   messengerAppData
-  attachments
+  attachments {
+    url
+    name
+    size
+    type
+  }
 `;
 
 const userFields = `
@@ -42,6 +47,7 @@ const userFields = `
 const conversationDetailQuery = `
   query ($_id: String, $integrationId: String!) {
     conversationDetail(_id: $_id, integrationId: $integrationId) {
+      _id
       messages {
         ${messageFields}
       }

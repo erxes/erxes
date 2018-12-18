@@ -2,6 +2,7 @@ var path = require('path');
 
 module.exports = {
   entry: {
+    manager: './client/manager.ts',
     messenger: './client/messenger/index.ts',
     messengerWidget: './client/messenger/widget/index.ts',
     form: './client/form/index.ts',
