@@ -13,7 +13,7 @@ interface ICustomerFieldsInput {
   primaryPhone?: string;
 }
 
-interface ICustomerModel extends Model<ICustomerDocument> {
+export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string): never;
 
   createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;

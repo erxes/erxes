@@ -1,9 +1,8 @@
 import { Model, model } from 'mongoose';
 import { emailTemplateSchema, IEmailTemplate, IEmailTemplateDocument } from './definitions/emailTemplates';
 
-interface IEmailTemplateModel extends Model<IEmailTemplateDocument> {
+export interface IEmailTemplateModel extends Model<IEmailTemplateDocument> {
   updateEmailTemplate(_id: string, fields: IEmailTemplate): IEmailTemplateDocument;
-
   removeEmailTemplate(_id: string): void;
 }
 

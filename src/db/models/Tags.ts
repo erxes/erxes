@@ -10,7 +10,7 @@ interface ITagObjectParams {
   tagType: string;
 }
 
-interface ITagModel extends Model<ITagDocument> {
+export interface ITagModel extends Model<ITagDocument> {
   createTag(doc: ITag): Promise<ITagDocument>;
   updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
   removeTag(ids: string[]): void;

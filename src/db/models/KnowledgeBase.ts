@@ -17,11 +17,9 @@ export interface IArticleCreate extends IArticle {
   icon?: string;
 }
 
-interface IArticleModel extends Model<IArticleDocument> {
+export interface IArticleModel extends Model<IArticleDocument> {
   createDoc({ categoryIds, ...docFields }: IArticleCreate, userId?: string): Promise<IArticleDocument>;
-
   updateDoc(_id: string, { categoryIds, ...docFields }: IArticleCreate, userId?: string): Promise<IArticleDocument>;
-
   removeDoc(_id: string): void;
 }
 
@@ -128,11 +126,9 @@ export interface ICategoryCreate extends ICategory {
   userId?: string;
 }
 
-interface ICategoryModel extends Model<ICategoryDocument> {
+export interface ICategoryModel extends Model<ICategoryDocument> {
   createDoc({ topicIds, ...docFields }: ICategoryCreate, userId?: string): Promise<ICategoryDocument>;
-
   updateDoc(_id: string, { topicIds, ...docFields }: ICategoryCreate, userId?: string): Promise<ICategoryDocument>;
-
   removeDoc(categoryId: string): void;
 }
 
@@ -239,11 +235,9 @@ export const loadCategoryClass = () => {
   return categorySchema;
 };
 
-interface ITopicModel extends Model<ITopicDocument> {
+export interface ITopicModel extends Model<ITopicDocument> {
   createDoc(docFields: ITopic, userId?: string): Promise<ITopicDocument>;
-
   updateDoc(_id: string, docFields: ITopic, userId?: string): Promise<ITopicDocument>;
-
   removeDoc(_id: string): void;
 }
 

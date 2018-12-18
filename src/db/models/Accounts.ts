@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import { accountSchema, IAccount, IAccountDocument } from './definitions/accounts';
 
-interface IAccountModel extends Model<IAccountDocument> {
+export interface IAccountModel extends Model<IAccountDocument> {
   createAccount(doc: IAccount): Promise<IAccountDocument>;
   removeAccount(_id: string): void;
 }

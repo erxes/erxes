@@ -3,7 +3,7 @@ import { Customers } from '.';
 import { ICustomerDocument } from './definitions/customers';
 import { engageMessageSchema, IEngageMessage, IEngageMessageDocument } from './definitions/engages';
 
-interface IEngageMessageModel extends Model<IEngageMessageDocument> {
+export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   createEngageMessage(doc: IEngageMessage): Promise<IEngageMessageDocument>;
 
   updateEngageMessage(_id: string, doc: IEngageMessage): Promise<IEngageMessageDocument>;

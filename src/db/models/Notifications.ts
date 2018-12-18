@@ -8,13 +8,10 @@ import {
 } from './definitions/notifications';
 import { IUserDocument } from './definitions/users';
 
-interface INotificationModel extends Model<INotificationDocument> {
+export interface INotificationModel extends Model<INotificationDocument> {
   markAsRead(ids: string[], userId?: string): void;
-
   createNotification(doc: INotification, createdUser?: IUserDocument | string): Promise<INotificationDocument>;
-
   updateNotification(_id: string, doc: INotification): Promise<INotificationDocument>;
-
   removeNotification(_id: string): void;
 }
 
@@ -77,7 +74,7 @@ export const loadNotificationClass = () => {
   return notificationSchema;
 };
 
-interface IConfigModel extends Model<IConfigDocument> {
+export interface IConfigModel extends Model<IConfigDocument> {
   createOrUpdateConfiguration(
     { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
     user?: IUserDocument | string,

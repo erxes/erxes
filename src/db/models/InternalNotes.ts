@@ -3,7 +3,7 @@ import { COC_CONTENT_TYPES } from './definitions/constants';
 import { IInternalNote, IInternalNoteDocument, internalNoteSchema } from './definitions/internalNotes';
 import { IUserDocument } from './definitions/users';
 
-interface IInternalNoteModel extends Model<IInternalNoteDocument> {
+export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
   createInternalNote(
     { contentType, contentTypeId, ...fields }: IInternalNote,
     user: IUserDocument,

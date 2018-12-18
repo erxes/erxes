@@ -27,7 +27,7 @@ interface IGmailParams {
   gmailData: IGmailData;
 }
 
-interface IIntegrationModel extends Model<IIntegrationDocument> {
+export interface IIntegrationModel extends Model<IIntegrationDocument> {
   generateFormDoc(mainDoc: IIntegration, formData: IFormData): IIntegration;
   createIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
   createMessengerIntegration(doc: IIntegration): Promise<IIntegrationDocument>;

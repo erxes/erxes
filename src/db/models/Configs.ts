@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import { configSchema, IConfigDocument } from './definitions/configs';
 
-interface IConfigModel extends Model<IConfigDocument> {
+export interface IConfigModel extends Model<IConfigDocument> {
   createOrUpdateConfig({ code, value }: { code: string; value: string[] }): IConfigDocument;
 }
 

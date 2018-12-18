@@ -20,26 +20,18 @@ interface IUpdateUser extends IEditProfile {
   password?: string;
 }
 
-interface IUserModel extends Model<IUserDocument> {
+export interface IUserModel extends Model<IUserDocument> {
   checkDuplication(email?: string, idsToExclude?: string | string[]): never;
   getSecret(): string;
-
   createUser(doc: IUser): Promise<IUserDocument>;
-
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
-
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
-
   configEmailSignatures(_id: string, signatures: IEmailSignature[]): Promise<IUserDocument>;
-
   configGetNotificationByEmail(_id: string, isAllowed: boolean): Promise<IUserDocument>;
-
   removeUser(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): string;
   comparePassword(password: string, userPassword: string): boolean;
-
   resetPassword({ token, newPassword }: { token: string; newPassword: string }): Promise<IUserDocument>;
-
   changePassword({
     _id,
     currentPassword,
@@ -49,12 +41,9 @@ interface IUserModel extends Model<IUserDocument> {
     currentPassword: string;
     newPassword: string;
   }): Promise<IUserDocument>;
-
   forgotPassword(email: string): string;
   createTokens(_user: IUserDocument, secret: string): string[];
-
   refreshTokens(refreshToken: string): { token: string; refreshToken: string; user: IUserDocument };
-
   login({ email, password }: { email: string; password?: string }): { token: string; refreshToken: string };
   logout(user: IUserDocument): string;
 }

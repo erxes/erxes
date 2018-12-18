@@ -4,7 +4,7 @@ import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { Fields } from './';
 import { formSchema, IForm, IFormDocument } from './definitions/forms';
 
-interface IFormModel extends Model<IFormDocument> {
+export interface IFormModel extends Model<IFormDocument> {
   generateCode(): string;
   createForm(doc: IForm, createdUserId?: string): Promise<IFormDocument>;
 

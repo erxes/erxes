@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import { IMessengerApp, IMessengerAppDocument, messengerAppSchema } from './definitions/messengerApps';
 
-interface IMessengerAppModel extends Model<IMessengerAppDocument> {
+export interface IMessengerAppModel extends Model<IMessengerAppDocument> {
   createApp(doc: IMessengerApp): Promise<IMessengerAppDocument>;
 }
 

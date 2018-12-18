@@ -5,7 +5,7 @@ import { COMPANY_BASIC_INFOS } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
 import { bulkInsert } from './utils';
 
-interface ICompanyModel extends Model<ICompanyDocument> {
+export interface ICompanyModel extends Model<ICompanyDocument> {
   checkDuplication(
     companyFields: {
       primaryName?: string;

@@ -1,9 +1,8 @@
 import { Model, model } from 'mongoose';
 import { IResponseTemplate, IResponseTemplateDocument, responseTemplateSchema } from './definitions/responseTemplates';
 
-interface IResponseTemplateModel extends Model<IResponseTemplateDocument> {
+export interface IResponseTemplateModel extends Model<IResponseTemplateDocument> {
   updateResponseTemplate(_id: string, fields: IResponseTemplate): Promise<IResponseTemplateDocument>;
-
   removeResponseTemplate(_id: string): void;
 }
 

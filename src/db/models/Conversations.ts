@@ -11,7 +11,7 @@ interface ISTATUSES {
   ALL_LIST: ['new', 'open', 'closed'];
 }
 
-interface IConversationModel extends Model<IConversationDocument> {
+export interface IConversationModel extends Model<IConversationDocument> {
   getConversationStatuses(): ISTATUSES;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
   checkExistanceConversations(ids: string[]): any;

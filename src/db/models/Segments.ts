@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import { ISegment, ISegmentDocument, segmentSchema } from './definitions/segments';
 
-interface ISegmentModel extends Model<ISegmentDocument> {
+export interface ISegmentModel extends Model<ISegmentDocument> {
   createSegment(doc: ISegment): Promise<ISegmentDocument>;
   updateSegment(_id: string, doc: ISegment): Promise<ISegmentDocument>;
   removeSegment(_id: string): void;

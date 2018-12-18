@@ -4,7 +4,7 @@ import { Integrations } from './';
 import { brandSchema, IBrand, IBrandDocument, IBrandEmailConfig } from './definitions/brands';
 import { IIntegrationDocument } from './definitions/integrations';
 
-interface IBrandModel extends Model<IBrandDocument> {
+export interface IBrandModel extends Model<IBrandDocument> {
   generateCode(code: string): string;
   createBrand(doc: IBrand): IBrandDocument;
   updateBrand(_id: string, fields: IBrand): IBrandDocument;

@@ -3,7 +3,7 @@ import * as strip from 'strip';
 import { Conversations } from '.';
 import { IMessage, IMessageDocument, messageSchema } from './definitions/conversationMessages';
 
-interface IMessageModel extends Model<IMessageDocument> {
+export interface IMessageModel extends Model<IMessageDocument> {
   createMessage(doc: IMessage): Promise<IMessageDocument>;
   addMessage(doc: IMessage, userId?: string): Promise<IMessageDocument>;
   getNonAsnweredMessage(conversationId: string): Promise<IMessageDocument>;

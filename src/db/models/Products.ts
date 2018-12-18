@@ -2,7 +2,7 @@ import { Model, model } from 'mongoose';
 import { Deals } from '.';
 import { IProduct, IProductDocument, productSchema } from './definitions/deals';
 
-interface IProductModel extends Model<IProductDocument> {
+export interface IProductModel extends Model<IProductDocument> {
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
   removeProduct(_id: string): void;

@@ -16,7 +16,7 @@ interface ICreateDocInput {
   coc: ICoc;
 }
 
-interface IActivityLogModel extends Model<IActivityLogDocument> {
+export interface IActivityLogModel extends Model<IActivityLogDocument> {
   createDoc(doc: ICreateDocInput): Promise<IActivityLogDocument>;
 
   createInternalNoteLog(internalNote: IInternalNoteDocument, user: IUserDocument): Promise<IActivityLogDocument>;

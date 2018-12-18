@@ -2,7 +2,7 @@ import { Model, model } from 'mongoose';
 import { Brands, Forms, Integrations } from '.';
 import { IScript, IScriptDocument, scriptSchema } from './definitions/scripts';
 
-interface IScriptModel extends Model<IScriptDocument> {
+export interface IScriptModel extends Model<IScriptDocument> {
   createScript(fields: IScript): Promise<IScriptDocument>;
   updateScript(_id: string, fields: IScript): Promise<IScriptDocument>;
   removeScript(_id: string): void;

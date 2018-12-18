@@ -20,7 +20,7 @@ export interface IOrderInput {
   order: number;
 }
 
-interface IFieldModel extends Model<IFieldDocument> {
+export interface IFieldModel extends Model<IFieldDocument> {
   checkIsDefinedByErxes(_id: string): never;
   createField(doc: IField): Promise<IFieldDocument>;
   updateField(_id: string, doc: IField): Promise<IFieldDocument>;
@@ -222,7 +222,7 @@ export const loadFieldClass = () => {
   return fieldSchema;
 };
 
-interface IFieldGroupModel extends Model<IFieldGroupDocument> {
+export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
   checkIsDefinedByErxes(_id: string): never;
   createGroup(doc: IFieldGroup): Promise<IFieldGroupDocument>;
   updateGroup(_id: string, doc: IFieldGroup): Promise<IFieldGroupDocument>;

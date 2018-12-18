@@ -74,7 +74,7 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
   return DealStages.deleteMany({ pipelineId, _id: { $nin: validStageIds } });
 };
 
-interface IBoardModel extends Model<IBoardDocument> {
+export interface IBoardModel extends Model<IBoardDocument> {
   createBoard(doc: IBoard): Promise<IBoardDocument>;
   updateBoard(_id: string, doc: IBoard): Promise<IBoardDocument>;
   removeBoard(_id: string): void;
@@ -123,7 +123,7 @@ export const loadBoardClass = () => {
   return boardSchema;
 };
 
-interface IPipelineModel extends Model<IPipelineDocument> {
+export interface IPipelineModel extends Model<IPipelineDocument> {
   createPipeline(doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
   updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
@@ -210,7 +210,7 @@ export const loadPipelineClass = () => {
   return pipelineSchema;
 };
 
-interface IStageModel extends Model<IStageDocument> {
+export interface IStageModel extends Model<IStageDocument> {
   createStage(doc: IStage): Promise<IStageDocument>;
   updateStage(_id: string, doc: IStage): Promise<IStageDocument>;
   changeStage(_id: string, pipelineId: string): Promise<IStageDocument>;
@@ -295,7 +295,7 @@ export const loadStageClass = () => {
   return stageSchema;
 };
 
-interface IDealModel extends Model<IDealDocument> {
+export interface IDealModel extends Model<IDealDocument> {
   createDeal(doc: IDeal): Promise<IDealDocument>;
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
   updateOrder(stageId: string, orders: IOrderInput[]): Promise<IDealDocument[]>;

@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import { channelSchema, IChannel, IChannelDocument } from './definitions/channels';
 
-interface IChannelModel extends Model<IChannelDocument> {
+export interface IChannelModel extends Model<IChannelDocument> {
   createChannel(doc: IChannel, userId?: string): IChannelDocument;
   updateChannel(_id: string, doc: IChannel): IChannelDocument;
   updateUserChannels(channelIds: string[], userId: string): IChannelDocument[];
