@@ -8,47 +8,53 @@ interface IImportHistoryModel extends Model<IImportHistoryDocument> {
   removeHistory(_id: string): Promise<string>;
 }
 
-class ImportHistory {
-  /*
-   * Create new history
-   */
-  public static async createHistory(doc: IImportHistory, user: IUserDocument) {
-    return ImportHistories.create({
-      userId: user._id,
-      date: new Date(),
-      ...doc,
-    });
+export const loadClass = () => {
+  class ImportHistory {
+    /*
+     * Create new history
+     */
+    public static async createHistory(doc: IImportHistory, user: IUserDocument) {
+      return ImportHistories.create({
+        userId: user._id,
+        date: new Date(),
+        ...doc,
+      });
+    }
+
+    /*
+     * Remove Imported history
+     */
+    public static async removeHistory(_id: string) {
+      const historyObj = await ImportHistories.findOne({ _id });
+
+      if (!historyObj) {
+        throw new Error('Import history not found');
+      }
+
+      const { ids = [], contentType } = historyObj;
+
+      let removeMethod = Customers.removeCustomer;
+
+      if (contentType === 'company') {
+        removeMethod = Companies.removeCompany;
+      }
+
+      for (const id of ids) {
+        await removeMethod(id);
+      }
+
+      await ImportHistories.deleteOne({ _id });
+
+      return _id;
+    }
   }
 
-  /*
-   * Remove Imported history
-   */
-  public static async removeHistory(_id: string) {
-    const historyObj = await ImportHistories.findOne({ _id });
+  importHistorySchema.loadClass(ImportHistory);
 
-    if (!historyObj) {
-      throw new Error('Import history not found');
-    }
+  return importHistorySchema;
+};
 
-    const { ids = [], contentType } = historyObj;
-
-    let removeMethod = Customers.removeCustomer;
-
-    if (contentType === 'company') {
-      removeMethod = Companies.removeCompany;
-    }
-
-    for (const id of ids) {
-      await removeMethod(id);
-    }
-
-    await ImportHistories.deleteOne({ _id });
-
-    return _id;
-  }
-}
-
-importHistorySchema.loadClass(ImportHistory);
+loadClass();
 
 // tslint:disable-next-line
 const ImportHistories = model<IImportHistoryDocument, IImportHistoryModel>('import_history', importHistorySchema);

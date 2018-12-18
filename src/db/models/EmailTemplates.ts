@@ -7,31 +7,37 @@ interface IEmailTemplateModel extends Model<IEmailTemplateDocument> {
   removeEmailTemplate(_id: string): void;
 }
 
-class EmailTemplate {
-  /**
-   * Update email template
-   */
-  public static async updateEmailTemplate(_id: string, fields: IEmailTemplate) {
-    await EmailTemplates.updateOne({ _id }, { $set: fields });
+export const loadClass = () => {
+  class EmailTemplate {
+    /**
+     * Update email template
+     */
+    public static async updateEmailTemplate(_id: string, fields: IEmailTemplate) {
+      await EmailTemplates.updateOne({ _id }, { $set: fields });
 
-    return EmailTemplates.findOne({ _id });
-  }
-
-  /**
-   * Delete email template
-   */
-  public static async removeEmailTemplate(_id: string) {
-    const emailTemplateObj = await EmailTemplates.findOne({ _id });
-
-    if (!emailTemplateObj) {
-      throw new Error(`Email template not found with id ${_id}`);
+      return EmailTemplates.findOne({ _id });
     }
 
-    return emailTemplateObj.remove();
-  }
-}
+    /**
+     * Delete email template
+     */
+    public static async removeEmailTemplate(_id: string) {
+      const emailTemplateObj = await EmailTemplates.findOne({ _id });
 
-emailTemplateSchema.loadClass(EmailTemplate);
+      if (!emailTemplateObj) {
+        throw new Error(`Email template not found with id ${_id}`);
+      }
+
+      return emailTemplateObj.remove();
+    }
+  }
+
+  emailTemplateSchema.loadClass(EmailTemplate);
+
+  return emailTemplateSchema;
+};
+
+loadClass();
 
 // tslint:disable-next-line
 const EmailTemplates = model<IEmailTemplateDocument, IEmailTemplateModel>('email_templates', emailTemplateSchema);
