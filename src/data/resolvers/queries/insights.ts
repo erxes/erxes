@@ -296,7 +296,6 @@ const insightQueries = {
     };
 
     const summaries = generateTimeIntervals(start, end);
-    console.log(summaries);
 
     // finds a respective message counts for different time intervals.
     for (const summary of summaries) {
