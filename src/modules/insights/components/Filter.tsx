@@ -20,7 +20,8 @@ type Props = {
 type States = {
   isChange: boolean;
   integrationType: string;
-  brandId: string;
+  integrationIds: string[];
+  brandIds: string[];
   startDate: Date;
   endDate: Date;
 };
@@ -42,16 +43,12 @@ class Filter extends React.Component<Props, States> {
     };
   }
 
-  onTypeChange = (value: any) => {
-    const integrationType = value ? value.value : '';
-    this.setState({ integrationType });
-    router.setParams(this.props.history, { integrationType });
+  onTypeChange = (integrations: any) => {
+    this.setState({ integrationIds: integrations.map(el => el.value) });
   };
 
-  onBrandChange = (value: any) => {
-    const brandId = value ? value.value : '';
-    this.setState({ brandId });
-    router.setParams(this.props.history, { brandId });
+  onBrandChange = (brands: any) => {
+    this.setState({ brandIds: brands.map(el => el.value) });
   };
 
   onDateInputChange = (type: string, date) => {
@@ -72,7 +69,6 @@ class Filter extends React.Component<Props, States> {
   renderIntegrations() {
     const integrations = INTEGRATIONS_TYPES.ALL_LIST;
 
-    const onChange = value => this.onTypeChange(value);
     const options = option => (
       <div className="simple-option">
         <span>{option.label}</span>
@@ -84,10 +80,11 @@ class Filter extends React.Component<Props, States> {
         <ControlLabel>Integrations</ControlLabel>
         <Select
           placeholder={__('Choose integrations')}
-          value={this.state.integrationType || ''}
-          onChange={onChange}
+          value={this.state.integrationIds || []}
+          onChange={this.onTypeChange}
           optionRenderer={options}
           options={integrationOptions([__('All'), ...integrations])}
+          multi={true}
         />
       </FlexItem>
     );
@@ -96,7 +93,6 @@ class Filter extends React.Component<Props, States> {
   renderBrands() {
     const { brands } = this.props;
 
-    const onChange = value => this.onBrandChange(value);
     const options = option => (
       <div className="simple-option">
         <span>{option.label}</span>
@@ -109,10 +105,11 @@ class Filter extends React.Component<Props, States> {
 
         <Select
           placeholder={__('Choose brands')}
-          value={this.state.brandId || ''}
-          onChange={onChange}
+          value={this.state.brandIds || []}
+          onChange={this.onBrandChange}
           optionRenderer={options}
           options={selectOptions([{ _id: '', name: __('All') }, ...brands])}
+          multi={true}
         />
       </FlexItem>
     );
