@@ -1,5 +1,6 @@
 import ConversationDetail from './ConversationDetail';
 import FacebookComment from './FacebookComment';
+import FacebookConversation from './FacebookConversation';
 import MessengerApp from './MessengerApp';
 import RespondBox from './RespondBox';
 import ResponseTemplate from './ResponseTemplate';
@@ -11,6 +12,7 @@ import WorkArea from './WorkArea';
 export {
   ConversationDetail,
   WorkArea,
+  FacebookConversation,
   Sidebar,
   RespondBox,
   ResponseTemplate,

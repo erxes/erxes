@@ -244,7 +244,9 @@ class PropertyForm extends React.Component<Props, State> {
           <FormControl
             id="groupId"
             componentClass="select"
-            defaultValue={field.groupId || groups[0]._id}
+            defaultValue={
+              field.groupId || groups.length > 0 ? groups[0]._id : ''
+            }
           >
             {groups.map(group => {
               return (
