@@ -231,17 +231,46 @@ const insightQueries = {
     };
 
     const summaries = generateTimeIntervals(start, end);
-
+    const facets = {};
     // finds a respective message counts for different time intervals.
     for (const summary of summaries) {
       messageSelector.createdAt = {
-        $gt: formatTime(summary.start),
-        $lte: formatTime(summary.end),
+        $gt: summary.start.toDate(),
+        $lte: summary.end.toDate(),
       };
-
+      facets[summary.title] = [
+        {
+          $match: {
+            userId: generateUserSelector(type),
+            createdAt: { $gte: summary.start.toDate(), $lte: summary.end.toDate() },
+            // exclude bot messages
+            fromBot: { $exists: false },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            count: 1,
+          },
+        },
+      ];
+    }
+    const data = await ConversationMessages.aggregate([
+      {
+        $facet: facets,
+      },
+    ]);
+    for (const summary of summaries) {
+      const count = data['0'][summary.title][0] ? data['0'][summary.title][0].count : 0;
       insightData.summary.push({
         title: summary.title,
-        count: await ConversationMessages.countDocuments(messageSelector),
+        count,
       });
     }
 
