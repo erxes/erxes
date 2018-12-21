@@ -7,23 +7,36 @@ import { TopBar } from "../containers";
 type Props = {
   save: (doc: State) => void;
   color?: string;
+  loading: boolean;
 };
 
 type State = {
   type: string;
   value: string;
+  isLoading: boolean;
   isValidated: boolean;
 };
 
-class AccquireInformation extends React.Component<Props, State> {
+class AccquireInformation extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { type: "email", value: "", isValidated: true };
+    this.state = {
+      type: "email",
+      value: "",
+      isValidated: true,
+      isLoading: props.loading
+    };
 
     this.save = this.save.bind(this);
     this.onTypeChange = this.onTypeChange.bind(this);
     this.onValueChange = this.onValueChange.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.loading !== this.props.loading) {
+      this.setState({ isLoading: nextProps.loading });
+    }
   }
 
   onTypeChange(type: string) {
@@ -40,7 +53,7 @@ class AccquireInformation extends React.Component<Props, State> {
   }
 
   isEmailValid(email: string) {
-    const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    const reg = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
     return reg.test(email);
   }
 
@@ -61,7 +74,7 @@ class AccquireInformation extends React.Component<Props, State> {
 
   render() {
     const { color } = this.props;
-    const { type, isValidated } = this.state;
+    const { type, isValidated, isLoading } = this.state;
     const formClasses = classNames("form", { invalid: !isValidated });
 
     const title = (
@@ -110,7 +123,7 @@ class AccquireInformation extends React.Component<Props, State> {
               type="submit"
               style={{ backgroundColor: color }}
             >
-              {iconRight}
+              {isLoading ? <div className="loader" /> : iconRight}
             </button>
           </form>
         </div>

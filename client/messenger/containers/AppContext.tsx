@@ -20,6 +20,7 @@ import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from "../types";
 interface IState {
   lastUnreadMessage?: IMessage;
   isMessengerVisible: boolean;
+  isSavingNotified: boolean;
   activeRoute: string | "";
   activeConversation: string | null;
   activeFaqCategory: IFaqCategory | null;
@@ -72,6 +73,7 @@ export class AppProvider extends React.Component<{}, IState> {
     this.state = {
       lastUnreadMessage: undefined,
       isMessengerVisible: false,
+      isSavingNotified: false,
       activeRoute,
       activeConversation: null,
       activeFaqCategory: null,
@@ -248,6 +250,8 @@ export class AppProvider extends React.Component<{}, IState> {
       return;
     }
 
+    this.setState({ isSavingNotified: true });
+
     client
       .mutate({
         mutation: gql`
@@ -273,6 +277,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
       // after mutation
       .then(() => {
+        this.setState({ isSavingNotified: false });
         // save email
         setLocalStorageItem("getNotifiedType", type);
         setLocalStorageItem("getNotifiedValue", value);
