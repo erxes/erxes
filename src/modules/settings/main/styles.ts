@@ -23,7 +23,7 @@ const RowTitle = styled.h3`
   width: ${rowTitleSize}px;
 `;
 
-const Box = BoxRoot.extend`
+const Box = styled(BoxRoot)`
   width: ${boxSize}px;
   height: ${boxSize}px;
 `;

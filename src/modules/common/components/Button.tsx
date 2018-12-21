@@ -107,7 +107,7 @@ const ButtonStyled = styledTS<{
 `;
 
 const ButtonLink = styledTS<{ disabled?: boolean }>(
-  ButtonStyled.withComponent('a').extend
+  styled(ButtonStyled.withComponent('a'))
 )`
   text-decoration: inherit;
   text-align: center;

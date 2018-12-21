@@ -19,7 +19,7 @@ const CompanyLogo = styled.div`
   background: ${colors.colorSecondary};
 `;
 
-const List = SidebarList.extend`
+const List = styled(SidebarList)`
   li {
     border-bottom: 1px solid ${colors.borderPrimary};
     color: ${colors.textPrimary};

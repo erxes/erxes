@@ -66,11 +66,11 @@ const Messenger = styled.div`
   align-items: flex-end;
 `;
 
-const LauncherContainer = Launcher.extend`
+const LauncherContainer = styled(Launcher)`
   position: absolute;
 `;
 
-const WidgetPreview = WidgetPreviewStyled.extend`
+const WidgetPreview = styled(WidgetPreviewStyled)`
   height: auto;
   bottom: 90px;
   right: 25px;
@@ -96,7 +96,7 @@ const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
   }
 `;
 
-const MessengerPreview = WebPreview.extend`
+const MessengerPreview = styled(WebPreview)`
   min-height: 500px;
 `;
 
@@ -141,7 +141,7 @@ const FlexItemCentered = styled.div`
   justify-content: center;
 `;
 
-const Box = BoxRoot.extend`
+const Box = styled(BoxRoot)`
   width: 23%;
   height: 200px;
   margin-top: ${coreSpace};

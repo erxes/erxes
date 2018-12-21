@@ -147,7 +147,7 @@ const FlexItem = styledTS<{
   }};
 `;
 
-const FlexPad = FlexItem.extend`
+const FlexPad = styled(FlexItem)`
   padding: ${dimensions.coreSpacing}px;
   border-right: 1px solid ${colors.borderPrimary};
 `;

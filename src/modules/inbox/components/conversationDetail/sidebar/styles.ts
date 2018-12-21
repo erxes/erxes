@@ -103,7 +103,7 @@ const ActivityNote = styled.div`
   }
 `;
 
-const ActivityLogContent = ActivityContent.extend`
+const ActivityLogContent = styled(ActivityContent)`
   padding: 0 ${dimensions.coreSpacing}px;
   margin-bottom: 30px;
 
