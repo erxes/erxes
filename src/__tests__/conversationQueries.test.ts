@@ -809,7 +809,9 @@ describe('conversationQueries', () => {
       facebookData: {
         isPost: true,
         postId: 'postId',
-        createdTime: moment(new Date()).add(13, 'days'),
+        createdTime: moment(new Date())
+          .add(-5, 'days')
+          .toISOString(),
       },
     });
 
@@ -818,7 +820,9 @@ describe('conversationQueries', () => {
       facebookData: {
         postId: 'postId',
         commentId: '11',
-        createdTime: moment(new Date()).add(13, 'days'),
+        createdTime: moment(new Date())
+          .add(-4, 'days')
+          .toISOString(),
       },
     });
 
@@ -827,7 +831,9 @@ describe('conversationQueries', () => {
       facebookData: {
         postId: 'postId',
         commentId: '22',
-        createdTime: moment(new Date()).add(13, 'days'),
+        createdTime: moment(new Date())
+          .add(-3, 'days')
+          .toISOString(),
       },
     });
 
@@ -836,7 +842,9 @@ describe('conversationQueries', () => {
       facebookData: {
         postId: 'postId',
         commentId: '33',
-        createdTime: moment(new Date()).add(13, 'days'),
+        createdTime: moment(new Date())
+          .add(-2, 'days')
+          .toISOString(),
       },
     });
 
@@ -845,7 +853,9 @@ describe('conversationQueries', () => {
       facebookData: {
         postId: 'postId',
         commentId: 'parentComment',
-        createdTime: moment(new Date()).add(10, 'days'),
+        createdTime: moment(new Date())
+          .add(-6, 'days')
+          .toISOString(),
       },
     });
 
@@ -855,7 +865,9 @@ describe('conversationQueries', () => {
         postId: 'postId',
         commentId: '111',
         parentId: 'parentComment',
-        createdTime: new Date(),
+        createdTime: moment(new Date())
+          .add(0, 'days')
+          .toISOString(),
       },
     });
 
@@ -868,7 +880,10 @@ describe('conversationQueries', () => {
       { user },
     );
 
-    // we have 1 post 5 comments and one of them is reply by default 6 should be returned
+    // we have 1 post 5 comments and the latest one is a reply
+    // by default there must be 1 post msg and latest 3 comments = 4 msg
+    // since last one is a reply we are gathering the parent comment for it
+    // 1 post msg 3 latest comment , 1 reply and its 1 parent = 6
     expect(response.list.length).toBe(6);
 
     response = await graphqlRequest(
