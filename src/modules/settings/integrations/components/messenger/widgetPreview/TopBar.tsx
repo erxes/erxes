@@ -1,14 +1,16 @@
 import { IUser } from 'modules/auth/types';
 import { Icon } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { IMessagesItem } from 'modules/settings/integrations/types';
 import * as moment from 'moment';
 import * as React from 'react';
-import { GreetingMessage, Supporters as SupporterComponent } from './';
+import { Supporters as SupporterComponent } from './';
 import {
   ErxesGreeting,
   ErxesMiddleTitle,
   ErxesTopbar,
+  GreetingInfo,
   Links,
   Socials,
   TopBarIcon
@@ -89,8 +91,39 @@ class TopBar extends React.Component<Props> {
     );
   }
 
+  renderGreetingTitle(message) {
+    if (message && message.greetings.title) {
+      return <h3>{message.greetings.title}</h3>;
+    }
+
+    return <h3>{__('Welcome')}</h3>;
+  }
+
+  renderGreetingMessage(message) {
+    if (message && message.greetings.message) {
+      return <p>{message.greetings.message}</p>;
+    }
+
+    return (
+      <p>
+        {__('Hi, any questions?')} <br /> {__('We`re ready to help you.')}
+      </p>
+    );
+  }
+
+  renderGreetings() {
+    const { message } = this.props;
+
+    return (
+      <GreetingInfo>
+        {this.renderGreetingTitle(message)}
+        {this.renderGreetingMessage(message)}
+      </GreetingInfo>
+    );
+  }
+
   renderGreetingTopbar() {
-    const { facebook, twitter, youtube, message } = this.props;
+    const { facebook, twitter, youtube } = this.props;
 
     return (
       <>
@@ -104,8 +137,7 @@ class TopBar extends React.Component<Props> {
             </Socials>
           </Links>
 
-          <GreetingMessage message={message} />
-
+          {this.renderGreetings()}
           {this.renderSupporters()}
         </ErxesGreeting>
         {this.renderIcons('cancel', false, 11)}
