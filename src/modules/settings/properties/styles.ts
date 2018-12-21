@@ -17,7 +17,7 @@ const PropertyList = styled.ul`
   }
 `;
 
-const TypeList = PropertyList.extend`
+const TypeList = styled(PropertyList)`
   button {
     margin-top: 10px;
   }

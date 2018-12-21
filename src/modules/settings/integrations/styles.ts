@@ -59,7 +59,7 @@ const BrandName = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
-const AttachmentContainer = Attachment.extend`
+const AttachmentContainer = styled(Attachment)`
   i {
     cursor: pointer;
     transition: all ease 0.3s;

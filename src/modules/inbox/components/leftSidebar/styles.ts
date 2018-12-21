@@ -94,7 +94,7 @@ const SmallText = styled.div`
   flex-shrink: 0;
 `;
 
-const SmallTextOneLine = SmallText.extend`
+const SmallTextOneLine = styled(SmallText)`
   max-height: ${dimensions.coreSpacing}px;
   overflow: hidden;
   display: -webkit-box;

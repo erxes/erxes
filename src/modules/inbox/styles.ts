@@ -168,12 +168,12 @@ const PopoverHeader = styled.div`
   }
 `;
 
-const PopoverFooter = RootFooter.extend`
+const PopoverFooter = styled(RootFooter)`
   align-self: flex-end;
   width: 100%;
 `;
 
-const PopoverList = styledTS<{ center?: boolean }>(RootList.extend)`
+const PopoverList = styledTS<{ center?: boolean }>(styled(RootList))`
   position: relative;
   padding: 0;
 

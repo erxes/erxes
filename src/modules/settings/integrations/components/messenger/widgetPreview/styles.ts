@@ -79,7 +79,7 @@ const ErxesSupporters = styled.div`
   }
 `;
 
-const Supporters = ErxesSupporters.extend`
+const Supporters = styled(ErxesSupporters)`
   ${ErxesStaffProfile} {
     margin-right: ${dimensions.unitSpacing}px;
     width: auto;
@@ -184,7 +184,7 @@ const ErxesFromCustomer = styled.li`
   text-align: right;
 `;
 
-const FromCustomer = ErxesMessage.extend`
+const FromCustomer = styled(ErxesMessage)`
   border-bottom-left-radius: ${coreSpace};
   border-top-right-radius: 2px;
   color: ${colors.colorWhite};
@@ -221,7 +221,7 @@ const Links = styled.div`
   }
 `;
 
-const Launcher = LogoContainer.extend`
+const Launcher = styled(LogoContainer)`
   position: fixed;
   right: ${coreSpace};
   bottom: ${coreSpace};

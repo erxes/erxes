@@ -20,7 +20,7 @@ const MemberImg = styled.img`
   }
 `;
 
-const More = MemberImg.withComponent('span').extend`
+const More = styled(MemberImg.withComponent('span'))`
   color: ${colors.colorWhite};
   text-align: center;
   vertical-align: middle;
