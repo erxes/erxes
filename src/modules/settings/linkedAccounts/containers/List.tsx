@@ -1,7 +1,9 @@
 import gql from 'graphql-tag';
 import { __, Alert, withProps } from 'modules/common/utils';
 import {
+  GetGoogleAuthUrlQueryResponse,
   GetTwitterAuthUrlQueryResponse,
+  GmailAuthParams,
   TwitterAuthParams
 } from 'modules/settings/integrations/types';
 import * as React from 'react';
@@ -10,6 +12,7 @@ import { List } from '../components';
 import { mutations, queries } from '../graphql';
 import {
   AccountsQueryResponse,
+  LinkGmailMutationResponse,
   LinkTwitterMutationResponse,
   RemoveMutationResponse
 } from '../types';
@@ -17,10 +20,12 @@ import {
 type Props = {
   accountsQuery: AccountsQueryResponse;
   twitterAuthUrlQuery: GetTwitterAuthUrlQueryResponse;
-  queryParams: TwitterAuthParams;
+  gmailAuthUrlQuery: GetGoogleAuthUrlQueryResponse;
+  queryParams: any;
   history: any;
 } & RemoveMutationResponse &
-  LinkTwitterMutationResponse;
+  LinkTwitterMutationResponse &
+  LinkGmailMutationResponse;
 
 class ListContainer extends React.Component<Props> {
   render() {
@@ -28,8 +33,10 @@ class ListContainer extends React.Component<Props> {
       accountsQuery,
       removeAccount,
       twitterAuthUrlQuery,
+      gmailAuthUrlQuery,
       queryParams,
       accountsAddTwitter,
+      accountsAddGmail,
       history
     } = this.props;
 
@@ -38,6 +45,20 @@ class ListContainer extends React.Component<Props> {
       (queryParams.oauth_token && queryParams.oauth_verifier)
     ) {
       accountsAddTwitter({ queryParams })
+        .then(() => {
+          history.push('/settings/linkedAccounts');
+          Alert.success('Success');
+        })
+        .catch(() => {
+          history.push('/settings/linkedAccounts');
+          Alert.error('Error');
+        });
+    }
+
+    if (queryParams && queryParams.code) {
+      accountsAddGmail({
+        variables: { code: queryParams.code }
+      })
         .then(() => {
           history.push('/settings/linkedAccounts');
           Alert.success('Success');
@@ -63,7 +84,8 @@ class ListContainer extends React.Component<Props> {
     const updatedProps = {
       accounts: accountsQuery.accounts || [],
       delink,
-      twitterAuthUrl: twitterAuthUrlQuery.integrationGetTwitterAuthUrl || ''
+      twitterAuthUrl: twitterAuthUrlQuery.integrationGetTwitterAuthUrl || '',
+      gmailAuthUrl: gmailAuthUrlQuery.integrationGetGoogleAuthUrl || ''
     };
 
     return <List {...updatedProps} />;
@@ -95,12 +117,26 @@ export default withProps<{
       `,
       { name: 'twitterAuthUrlQuery' }
     ),
+    graphql<Props, GetGoogleAuthUrlQueryResponse>(
+      gql`
+        query integrationGetGoogleAuthUrl {
+          integrationGetGoogleAuthUrl(service: "gmail")
+        }
+      `,
+      { name: 'gmailAuthUrlQuery' }
+    ),
     graphql<
       Props,
       LinkTwitterMutationResponse,
       { queryParams: TwitterAuthParams }
     >(gql(mutations.linkTwitterAccount), {
       name: 'accountsAddTwitter'
-    })
+    }),
+    graphql<Props, LinkGmailMutationResponse, { code: string }>(
+      gql(mutations.linkGmailAccount),
+      {
+        name: 'accountsAddGmail'
+      }
+    )
   )(ListContainer)
 );

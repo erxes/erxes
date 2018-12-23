@@ -36,12 +36,6 @@ const googleCalendarCallback = ({ history, location }) => {
   );
 };
 
-const gmailCallback = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <Gmail type="form" history={history} queryParams={queryParams} />;
-};
-
 const store = ({ location }) => (
   <Store queryParams={queryString.parse(location.search)} />
 );
@@ -80,12 +74,6 @@ const routes = () => (
       key="/service/oauth/google_calendar_callback"
       path="/service/oauth/google_calendar_callback"
       component={googleCalendarCallback}
-    />
-
-    <Route
-      key="/service/oauth/gmail_callback"
-      path="/service/oauth/gmail_callback"
-      component={gmailCallback}
     />
 
     <Route

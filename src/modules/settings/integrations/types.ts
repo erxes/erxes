@@ -235,6 +235,10 @@ export type TwitterAuthParams = {
   oauth_verifier: string;
 };
 
+export type GmailAuthParams = {
+  code: string;
+};
+
 export type SaveTwitterMutationResponse = {
   saveMutation: (
     params: { variables: { brandId: string; accountId: string } }
