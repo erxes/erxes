@@ -1,7 +1,7 @@
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { Calendar as GoogleCalendar, Gmail } from './containers/google';
+import { Calendar as GoogleCalendar } from './containers/google';
 import CreateMessenger from './containers/messenger/Create';
 import EditMessenger from './containers/messenger/Edit';
 import Store from './containers/Store';
@@ -20,12 +20,6 @@ const googleCalendar = ({ history, location }) => {
   return (
     <GoogleCalendar type="link" history={history} queryParams={queryParams} />
   );
-};
-
-const gmail = ({ history, location }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <Gmail type="link" history={history} queryParams={queryParams} />;
 };
 
 const googleCalendarCallback = ({ history, location }) => {
@@ -61,13 +55,6 @@ const routes = () => (
       exact={true}
       path="/settings/integrations/google-calendar"
       component={googleCalendar}
-    />
-
-    <Route
-      key="/settings/integrations/gmail"
-      exact={true}
-      path="/settings/integrations/gmail"
-      component={gmail}
     />
 
     <Route

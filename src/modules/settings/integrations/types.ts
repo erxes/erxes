@@ -260,8 +260,18 @@ export type EditMessengerMutationResponse = {
   ) => any;
 };
 
+export type CreateGmailMutationVariables = {
+  name: string;
+  brandId: string;
+  accountId: string;
+};
+
 export type CreateGmailMutationResponse = {
-  saveMutation: (params: { variables: { code: string } }) => Promise<any>;
+  saveMutation: (
+    params: {
+      variables: CreateGmailMutationVariables;
+    }
+  ) => Promise<any>;
 };
 
 export type SendGmailMutationVariables = {
