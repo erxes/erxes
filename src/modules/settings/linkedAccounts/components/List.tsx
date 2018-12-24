@@ -22,7 +22,7 @@ type Props = {
 };
 
 class List extends React.Component<Props> {
-  onClick(accountId) {
+  onClick(accountId: string) {
     const { delink } = this.props;
 
     confirm().then(() => {
@@ -67,10 +67,11 @@ class List extends React.Component<Props> {
 
   onGmailRedirect = () => {
     const { gmailAuthUrl } = this.props;
+
     window.location.href = gmailAuthUrl || '';
   };
 
-  renderRow(account) {
+  renderRow(account: IAccount) {
     return (
       <tr key={account._id}>
         <td> {account.name}</td>

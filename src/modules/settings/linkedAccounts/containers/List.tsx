@@ -3,7 +3,6 @@ import { __, Alert, withProps } from 'modules/common/utils';
 import {
   GetGoogleAuthUrlQueryResponse,
   GetTwitterAuthUrlQueryResponse,
-  GmailAuthParams,
   TwitterAuthParams
 } from 'modules/settings/integrations/types';
 import * as React from 'react';
@@ -28,12 +27,8 @@ type Props = {
   LinkGmailMutationResponse;
 
 class ListContainer extends React.Component<Props> {
-  render() {
+  componentDidMount() {
     const {
-      accountsQuery,
-      removeAccount,
-      twitterAuthUrlQuery,
-      gmailAuthUrlQuery,
       queryParams,
       accountsAddTwitter,
       accountsAddGmail,
@@ -68,6 +63,15 @@ class ListContainer extends React.Component<Props> {
           Alert.error('Error');
         });
     }
+  }
+
+  render() {
+    const {
+      accountsQuery,
+      removeAccount,
+      twitterAuthUrlQuery,
+      gmailAuthUrlQuery
+    } = this.props;
 
     const delink = (accountId: string) => {
       removeAccount({
@@ -115,7 +119,9 @@ export default withProps<{
           integrationGetTwitterAuthUrl
         }
       `,
-      { name: 'twitterAuthUrlQuery' }
+      {
+        name: 'twitterAuthUrlQuery'
+      }
     ),
     graphql<Props, GetGoogleAuthUrlQueryResponse>(
       gql`
@@ -130,12 +136,18 @@ export default withProps<{
       LinkTwitterMutationResponse,
       { queryParams: TwitterAuthParams }
     >(gql(mutations.linkTwitterAccount), {
-      name: 'accountsAddTwitter'
+      name: 'accountsAddTwitter',
+      options: {
+        refetchQueries: ['accounts']
+      }
     }),
     graphql<Props, LinkGmailMutationResponse, { code: string }>(
       gql(mutations.linkGmailAccount),
       {
-        name: 'accountsAddGmail'
+        name: 'accountsAddGmail',
+        options: {
+          refetchQueries: ['accounts']
+        }
       }
     )
   )(ListContainer)
