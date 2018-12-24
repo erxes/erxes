@@ -23,6 +23,7 @@ import TagsRoutes from './modules/tags/routes';
 const renderRoutes = currentUser => {
   if (currentUser) {
     const isFirst = true;
+
     if (isFirst) {
       return <OnboardRoutes />;
     }

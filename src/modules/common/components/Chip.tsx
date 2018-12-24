@@ -13,7 +13,7 @@ const ChipItem = styledTS<{ normal?: boolean }>(styled.span)`
   margin: 2px 5px 2px 0;
   text-transform: ${props => (props.normal ? 'none' : 'capitalize')};
   display: inline-block;
-  border-radius: ${horizontalSpace};
+  border-radius: 11px;
   padding-right: 30px;
   position: relative;
   line-height: 18px;
@@ -29,7 +29,7 @@ const Remove = styled.span`
   border-radius: 10px;
   position: absolute;
   text-align: center;
-  line-height: ${closeSize};
+  line-height: 18px;
   background: rgba(0, 0, 0, 0.1);
   padding: 0;
 
