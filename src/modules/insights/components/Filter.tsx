@@ -1,4 +1,4 @@
-import { ControlLabel } from 'modules/common/components';
+import { Button, ControlLabel } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
@@ -49,6 +49,14 @@ class Filter extends React.Component<Props, States> {
 
   onBrandChange = (brands: any) => {
     this.setState({ brandIds: brands.map(el => el.value) });
+  };
+  onApplyClick = () => {
+    router.setParams(this.props.history, {
+      integrationType: this.state.integrationIds
+        ? this.state.integrationIds.join(',')
+        : null,
+      brandId: this.state.brandIds ? this.state.brandIds.join(',') : null
+    });
   };
 
   onDateInputChange = (type: string, date) => {
@@ -146,6 +154,9 @@ class Filter extends React.Component<Props, States> {
               onChange={this.onDateInputChange.bind(this, 'endDate')}
             />
           </FlexItem>
+          <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
+            Apply
+          </Button>
         </FlexRow>
       </InsightFilter>
     );
