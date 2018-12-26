@@ -52,6 +52,26 @@ export default `
     senderName
     createdTime
   }
+  gmailData {
+    messageId
+    headerId
+    from
+    to
+    cc
+    bcc
+    reply
+    references
+    threadId
+    subject
+    textPlain
+    textHtml
+    attachments {
+      filename
+      mimeType
+      size
+      attachmentId
+    }
+  }
   user {
     _id
     username

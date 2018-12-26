@@ -167,6 +167,70 @@ const AssigneeWrapper = styled.div`
   justify-content: flex-end;
 `;
 
+const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  padding-left: ${props => props.isOpen && '200px'};
+  transition: padding 0.3s ease;
+  margin-right: 10px;
+  box-shadow: 0 0 5px 0 rgba(0,0,0,.08);
+
+  > section {
+    margin: 0;
+    box-shadow: none;
+  }
+`;
+
+const shadowColor = 'rgba(0,0,0,0.15)';
+
+const AdditionalSidebar = styled.div`
+  width: 200px;
+  background: ${colors.bgLight};
+  flex-shrink: 0;
+  padding: 10px 0;
+  box-shadow: inset -40px 0px 40px -40px ${shadowColor};
+  overflow: auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  ul > li > a {
+    padding: 5px 30px;
+  }
+`;
+
+const DropdownWrapper = styled.div`
+  position: relative;
+
+  > div {
+    padding-left: 20px;
+  }
+`;
+
+const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
+  font-weight: bold;
+  line-height: 32px;
+  padding: 0 20px;
+  color: ${props => props.isOpen && colors.colorSecondary};
+  user-select: none;
+  transition: color ease 0.3s;
+
+  i {
+    margin-left: 5px;
+    margin-right: 0;
+    font-size: 10px;
+    display: inline-block;
+    transition: all ease 0.3s;
+    transform: ${props => props.isOpen && 'rotate(180deg)'};
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 export {
   ConversationItems,
   RightItems,
@@ -180,5 +244,9 @@ export {
   SmallTextOneLine,
   MessageContent,
   AssigneeImg,
-  AssigneeWrapper
+  AssigneeWrapper,
+  AdditionalSidebar,
+  GroupTitle,
+  LeftContent,
+  DropdownWrapper
 };

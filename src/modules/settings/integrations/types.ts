@@ -196,8 +196,14 @@ export type GoogleAccessTokenQueryResponse = {
   refetch: () => void;
 };
 
-// mutation types
+export interface IGmailAttachment {
+  filename?: string;
+  mimeType?: string;
+  size?: number;
+  data?: string;
+}
 
+// mutation types
 export type SaveMessengerMutationVariables = {
   name: string;
   brandId: string;
@@ -229,6 +235,10 @@ export type TwitterAuthParams = {
   oauth_verifier: string;
 };
 
+export type GmailAuthParams = {
+  code: string;
+};
+
 export type SaveTwitterMutationResponse = {
   saveMutation: (
     params: { variables: { brandId: string; accountId: string } }
@@ -250,8 +260,18 @@ export type EditMessengerMutationResponse = {
   ) => any;
 };
 
+export type CreateGmailMutationVariables = {
+  name: string;
+  brandId: string;
+  accountId: string;
+};
+
 export type CreateGmailMutationResponse = {
-  saveMutation: (params: { variables: { code: string } }) => Promise<any>;
+  saveMutation: (
+    params: {
+      variables: CreateGmailMutationVariables;
+    }
+  ) => Promise<any>;
 };
 
 export type SendGmailMutationVariables = {

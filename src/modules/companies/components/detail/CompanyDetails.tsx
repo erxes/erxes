@@ -9,6 +9,7 @@ import {
 import { ActivityContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { ICompany, ICompanyActivityLog } from 'modules/companies/types';
+import { TabContent } from 'modules/customers/styles';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { Wrapper } from 'modules/layout/components';
@@ -31,7 +32,6 @@ interface IProps extends IRouterProps {
 type State = {
   currentTab: string;
   currentSubtab: string;
-  attachmentPreview: any;
 };
 
 class CompanyDetails extends React.Component<IProps, State> {
@@ -40,8 +40,7 @@ class CompanyDetails extends React.Component<IProps, State> {
 
     this.state = {
       currentSubtab: 'activity',
-      currentTab: 'newNote',
-      attachmentPreview: null
+      currentTab: 'newNote'
     };
   }
 
@@ -51,10 +50,6 @@ class CompanyDetails extends React.Component<IProps, State> {
 
   onChangeTab = currentTab => {
     this.setState({ currentTab });
-  };
-
-  setAttachmentPreview = attachmentPreview => {
-    this.setState({ attachmentPreview });
   };
 
   renderSubTabContent() {
@@ -98,14 +93,14 @@ class CompanyDetails extends React.Component<IProps, State> {
     }
 
     return (
-      <MailForm
-        contentType="company"
-        contentTypeId={company._id}
-        toEmails={company.emails}
-        setAttachmentPreview={this.setAttachmentPreview}
-        attachmentPreview={this.state.attachmentPreview}
-        refetchQueries={['activityLogsCompany']}
-      />
+      <TabContent>
+        <MailForm
+          contentType="company"
+          contentTypeId={company._id}
+          toEmails={company.emails}
+          refetchQueries={['activityLogsCompany']}
+        />
+      </TabContent>
     );
   }
 

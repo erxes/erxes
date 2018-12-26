@@ -17,11 +17,12 @@ import { IAccount } from '../types';
 type Props = {
   accounts: IAccount[];
   twitterAuthUrl: string;
+  gmailAuthUrl?: string;
   delink: (accountId: string) => void;
 };
 
 class List extends React.Component<Props> {
-  onClick(accountId) {
+  onClick(accountId: string) {
     const { delink } = this.props;
 
     confirm().then(() => {
@@ -64,7 +65,13 @@ class List extends React.Component<Props> {
     window.location.href = twitterAuthUrl;
   };
 
-  renderRow(account) {
+  onGmailRedirect = () => {
+    const { gmailAuthUrl } = this.props;
+
+    window.location.href = gmailAuthUrl || '';
+  };
+
+  renderRow(account: IAccount) {
     return (
       <tr key={account._id}>
         <td> {account.name}</td>
@@ -117,6 +124,9 @@ class List extends React.Component<Props> {
         </Button>
         <Button size="small" icon="cancel-1" onClick={this.onFacebookRedirect}>
           Link Facebook Account
+        </Button>
+        <Button size="small" icon="cancel-1" onClick={this.onGmailRedirect}>
+          Link Gmail Account
         </Button>
       </BarItems>
     );

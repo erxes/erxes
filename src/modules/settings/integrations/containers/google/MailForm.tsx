@@ -4,7 +4,6 @@ import { Alert, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IAttachmentPreview } from '../../../../common/types';
 import { MailForm } from '../../components/google';
 import {
   IntegrationsQueryResponse,
@@ -16,10 +15,11 @@ type Props = {
   refetchQueries: string[];
   contentType: string;
   contentTypeId: string;
+  headerId?: string;
+  threadId?: string;
   toEmail?: string;
+  subject?: string;
   toEmails?: string[];
-  setAttachmentPreview?: (data: IAttachmentPreview) => void;
-  attachmentPreview: { name: string; data: string; type: string };
   closeModal?: () => void;
 };
 
@@ -33,7 +33,8 @@ const MailFormContainer = (props: FinalProps) => {
     integrationsSendGmail,
     contentType,
     contentTypeId,
-    toEmail,
+    headerId,
+    threadId,
     gmailIntegrationsQuery
   } = props;
 
@@ -43,15 +44,20 @@ const MailFormContainer = (props: FinalProps) => {
 
   const integrations = gmailIntegrationsQuery.integrations || [];
 
-  const save = variables => {
+  const send = (variables, callback: () => void) => {
     integrationsSendGmail({
       variables: {
         ...variables,
+        headerId,
+        threadId,
         cocType: contentType,
         cocId: contentTypeId
       }
     })
       .then(() => {
+        if (callback) {
+          callback();
+        }
         Alert.success('Congrats! Your email sent successfully!');
       })
       .catch(e => {
@@ -59,14 +65,7 @@ const MailFormContainer = (props: FinalProps) => {
       });
   };
 
-  return (
-    <MailForm
-      save={save}
-      integrations={integrations}
-      toEmail={toEmail || ''}
-      {...props}
-    />
-  );
+  return <MailForm {...props} send={send} integrations={integrations} />;
 };
 
 export default withProps<Props>(

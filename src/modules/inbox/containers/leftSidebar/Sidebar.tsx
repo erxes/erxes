@@ -10,8 +10,28 @@ type Props = {
   currentConversationId?: string;
 } & IRouterProps;
 
+const STORAGE_KEY = 'erxes_additional_sidebar_config';
+
 class Sidebar extends React.Component<Props> {
   render() {
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      setConfig(STORAGE_KEY, {
+        showAddition: false,
+        showChannels: true,
+        showBrands: false,
+        showIntegrations: false,
+        showTags: false
+      });
+    }
+    
+    toggle = ({ isOpen }: { isOpen: boolean }) => {
+      const config = getConfig(STORAGE_KEY);
+
+      config.showAddition = isOpen;
+
+      setConfig(STORAGE_KEY, config);
+    };
+
     const integrations = INTEGRATIONS_TYPES.ALL_LIST.map(item => ({
       _id: item,
       name: item
@@ -19,7 +39,9 @@ class Sidebar extends React.Component<Props> {
 
     const updatedProps = {
       ...this.props,
-      integrations
+      integrations,
+      config: getConfig(STORAGE_KEY),
+      toggleSidebar: this.toggle
     };
 
     const content = props => {

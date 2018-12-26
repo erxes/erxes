@@ -1,4 +1,4 @@
-import { TwitterAuthParams } from '../integrations/types';
+import { GmailAuthParams, TwitterAuthParams } from '../integrations/types';
 
 export interface IAccount {
   _id: string;
@@ -25,4 +25,8 @@ export type LinkTwitterMutationResponse = {
   accountsAddTwitter: (
     { queryParams }: { queryParams: TwitterAuthParams }
   ) => Promise<any>;
+};
+
+export type LinkGmailMutationResponse = {
+  accountsAddGmail: (params: { variables: { code: string } }) => Promise<any>;
 };

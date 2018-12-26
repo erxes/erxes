@@ -58,5 +58,8 @@ export default `
   facebookData {
     kind
   }
+  gmailData {
+    messageId
+  }
   readUserIds
 `;
