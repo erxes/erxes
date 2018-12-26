@@ -26,8 +26,6 @@ export default class ConversationList extends React.Component<Props> {
       totalCount
     } = this.props;
 
-    console.log(totalCount); //tslint:disable-line
-
     return (
       <React.Fragment>
         <ConversationItems id="conversations">
