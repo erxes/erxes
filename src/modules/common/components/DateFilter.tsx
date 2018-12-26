@@ -24,7 +24,7 @@ const PopoverButton = styled.div`
   i {
     margin-left: 5px;
     margin-right: 0;
-    font-size: 10px;
+    font-size: ${typography.fontSizeHeading6 / 2}px;
     transition: all ease 0.3s;
   }
 
@@ -39,11 +39,6 @@ const PopoverButton = styled.div`
   &:hover {
     cursor: pointer;
   }
-`;
-
-const FlexItem = styled.div`
-  flex: 1;
-  margin-left: 5px;
 `;
 
 const FlexRow = styled.div`
@@ -67,18 +62,16 @@ const FlexRow = styled.div`
       border-color: ${colors.colorSecondary};
     }
   }
+`;
 
-  ${FlexItem} {
-    &:first-child {
-      border-right: 1px solid ${colors.borderPrimary};
-      padding-right: 5px;
-    }
-  }
+const FlexItem = styled.div`
+  flex: 1;
+  margin-left: 5px;
 `;
 
 const DateName = styled.div`
   text-transform: uppercase;
-  margin: 5px 0 10px 0;
+  margin: 5px 0 ${dimensions.unitSpacing}px 0;
   text-align: center;
 `;
 
@@ -223,7 +216,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
       <Popover id="filter-popover" title={__('Filter by date')}>
         <DateFilters>
           <FlexRow>
-            <FlexItem>
+            <div>
               <DateName>Start Date</DateName>
               <Datetime
                 {...props}
@@ -231,9 +224,9 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
                 value={this.state.startDate}
                 onChange={onChangeStart}
               />
-            </FlexItem>
+            </div>
 
-            <FlexItem>
+            <div>
               <DateName>End Date</DateName>
               <Datetime
                 {...props}
@@ -241,7 +234,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
                 value={this.state.endDate}
                 onChange={onChangeEnd}
               />
-            </FlexItem>
+            </div>
           </FlexRow>
 
           <FlexRow>

@@ -169,7 +169,7 @@ const AssigneeWrapper = styled.div`
 
 const SidebarHeader = styled.div`
   .popover {
-    max-width: 475px;
+    max-width: 470px;
     width: 500px;
   }
 
