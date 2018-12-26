@@ -32,7 +32,7 @@ const Action = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
-const List = SidebarList.extend`
+const List = styled(SidebarList)`
   li {
     border-bottom: 1px solid ${colors.borderPrimary};
     color: ${colors.textPrimary};

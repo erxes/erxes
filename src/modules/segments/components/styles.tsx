@@ -41,7 +41,7 @@ const ConditionItem = styled.div`
   border-radius: 2px;
 `;
 
-const SegmentResult = FlexItem.extend`
+const SegmentResult = styled(FlexItem)`
   align-self: center;
   text-align: center;
 `;

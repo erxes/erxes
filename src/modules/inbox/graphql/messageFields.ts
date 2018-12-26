@@ -50,6 +50,7 @@ export default `
     photos
     senderId
     senderName
+    createdTime
   }
   gmailData {
     messageId

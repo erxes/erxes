@@ -6,8 +6,9 @@ import { METHODS } from 'modules/engage/constants';
 import styledTS from 'styled-components-ts';
 
 import * as React from 'react';
+import styled from 'styled-components';
 
-const Box = styledTS<{ selected: boolean }>(BoxRoot.extend)`
+const Box = styledTS<{ selected: boolean }>(styled(BoxRoot))`
   width: 320px;
   border: 1px solid
     ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};

@@ -1,4 +1,4 @@
-import { ModalTrigger, NameCard } from 'modules/common/components';
+import { Icon, ModalTrigger, NameCard } from 'modules/common/components';
 import * as React from 'react';
 import { IMessage } from '../../../../../types';
 import {
@@ -14,6 +14,7 @@ import {
   FlexItem,
   Reply,
   ReplyReaction,
+  ShowMore,
   User
 } from './styles';
 
@@ -27,10 +28,36 @@ type Props = {
     },
     callback: () => void
   ) => void;
+  fetchFacebook: (
+    {
+      commentId,
+      postId,
+      limit
+    }: { commentId?: string; postId?: string; limit?: number }
+  ) => void;
   scrollBottom?: () => void;
 };
 
-export default class FacebookComment extends React.Component<Props, {}> {
+export default class FacebookComment extends React.Component<
+  Props,
+  { hasReplies: boolean }
+> {
+  constructor(props) {
+    super(props);
+
+    const data = props.message.facebookData;
+
+    let hasReplies = false;
+
+    if (data.commentCount && data.commentCount > 0) {
+      hasReplies = true;
+    }
+
+    this.state = {
+      hasReplies
+    };
+  }
+
   renderReactionCount() {
     const data = this.props.message.facebookData;
 
@@ -51,6 +78,14 @@ export default class FacebookComment extends React.Component<Props, {}> {
       </ReplyReaction>
     );
   }
+
+  fetchReplies = commentId => {
+    const { fetchFacebook } = this.props;
+
+    fetchFacebook({ commentId });
+
+    this.setState({ hasReplies: false });
+  };
 
   render() {
     const { message, replyPost, scrollBottom } = this.props;
@@ -78,34 +113,45 @@ export default class FacebookComment extends React.Component<Props, {}> {
     );
 
     return (
-      <ChildPost isReply={data.parentId}>
-        <NameCard.Avatar customer={message.customer} size={size} />
+      <>
+        <ChildPost isReply={data.parentId}>
+          <NameCard.Avatar customer={message.customer} size={size} />
 
-        <User isReply={data.parentId}>
-          <FlexItem>
-            <Comment isInternal={message.internal}>
-              <UserName username={data.senderName} userId={data.senderId} />
-              <FacebookContent
-                content={message.content}
-                scrollBottom={scrollBottom}
-                image={data.photo}
-                link={data.link || data.video || commentVideo}
+          <User isReply={data.parentId}>
+            <FlexItem>
+              <Comment isInternal={message.internal}>
+                <UserName username={data.senderName} userId={data.senderId} />
+                <FacebookContent
+                  content={message.content}
+                  scrollBottom={scrollBottom}
+                  image={data.photo}
+                  link={data.link || data.video || commentVideo}
+                />
+              </Comment>
+              {this.renderReactionCount()}
+            </FlexItem>
+
+            <Reply>
+              <ModalTrigger
+                title="Reply"
+                trigger={<a> Reply •</a>}
+                content={content}
               />
-            </Comment>
-            {this.renderReactionCount()}
-          </FlexItem>
+            </Reply>
 
-          <Reply>
-            <ModalTrigger
-              title="Reply"
-              trigger={<a> Reply •</a>}
-              content={content}
-            />
-          </Reply>
-
-          <Date message={message} />
-        </User>
-      </ChildPost>
+            <Date message={message} />
+          </User>
+        </ChildPost>
+        {this.state.hasReplies && (
+          <ShowMore
+            onClick={this.fetchReplies.bind(this, data.commentId)}
+            isReply={true}
+          >
+            <Icon icon="reply" />
+            <span>View more replies</span>
+          </ShowMore>
+        )}
+      </>
     );
   }
 }

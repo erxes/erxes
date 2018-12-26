@@ -135,7 +135,7 @@ const SidebarHeader = styledTS<{
 `;
 
 const SidebarTitle = styledTS<{ children: any }>(
-  SidebarHeader.withComponent('h3').extend
+  styled(SidebarHeader.withComponent('h3'))
 )`
   padding: 0 ${dimensions.coreSpacing}px;
   margin: 0 0 -1px 0;
@@ -148,7 +148,7 @@ const SidebarMainContent = styled.div`
   position: relative;
 `;
 
-const SidebarFooter = styledTS<{ children: any }>(SidebarHeader.extend)`
+const SidebarFooter = styledTS<{ children: any }>(styled(SidebarHeader))`
   border-top: 1px solid ${colors.borderPrimary};
   border-bottom: none;
 `;
@@ -352,7 +352,7 @@ const WhiteBoxRoot = styled.div`
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
 `;
 
-const WhiteBox = WhiteBoxRoot.extend`
+const WhiteBox = styled(WhiteBoxRoot)`
   flex: 1;
   overflow: auto;
   position: relative;

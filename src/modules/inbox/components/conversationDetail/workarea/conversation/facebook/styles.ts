@@ -83,6 +83,34 @@ const User = styledTS<{ isPost?: boolean; isReply?: string }>(styled.div)`
   }
 `;
 
+const ShowMore = styledTS<{ isReply?: boolean }>(styled.a)`
+  color: ${colors.socialFacebook};
+  font-size: 12px;
+  padding: ${props => (props.isReply ? '0 0 10px 60px' : '0 0 5px 10px')};
+  display: block;
+  position: relative;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+    color: ${colors.socialFacebook};
+  }
+
+  i {
+    transform: rotate(180deg);
+    position: absolute;
+    font-size: 10px;
+
+    &:before {
+      font-weight: bolder;
+    }
+  }
+
+  span {
+    padding-left: 20px;
+  }
+`;
+
 const Reply = styled.div`
   display: inline-block;
   margin-right: 5px;
@@ -254,5 +282,6 @@ export {
   Footer,
   ImageContainer,
   LeftAlign,
-  DateTime
+  DateTime,
+  ShowMore
 };
