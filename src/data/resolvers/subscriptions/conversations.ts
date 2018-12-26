@@ -1,10 +1,10 @@
-import { withFilter } from 'graphql-subscriptions';
+import { withFilter } from 'apollo-server-express';
 import pubsub from './pubsub';
 
 export default {
   /*
    * Listen for conversation changes like status, assignee, read state
-  */
+   */
   conversationChanged: {
     subscribe: withFilter(
       () => pubsub.asyncIterator('conversationChanged'),
@@ -17,7 +17,7 @@ export default {
 
   /*
    * Listen for new message insertion
-  */
+   */
   conversationMessageInserted: {
     subscribe: withFilter(
       () => pubsub.asyncIterator('conversationMessageInserted'),
@@ -30,14 +30,14 @@ export default {
 
   /*
    * Admin is listening for this subscription to show unread notification
-  */
+   */
   conversationClientMessageInserted: {
     subscribe: () => pubsub.asyncIterator('conversationClientMessageInserted'),
   },
 
   /*
    * Widget is listening for this subscription to show unread notification
-  */
+   */
   conversationAdminMessageInserted: {
     subscribe: withFilter(
       () => pubsub.asyncIterator('conversationAdminMessageInserted'),

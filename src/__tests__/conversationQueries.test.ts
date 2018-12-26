@@ -384,8 +384,8 @@ describe('conversationQueries', () => {
       qryConversations,
       'conversations',
       {
-        startDate,
-        endDate,
+        startDate: startDate.toString(),
+        endDate: endDate.toString(),
       },
       { user },
     );
@@ -409,7 +409,12 @@ describe('conversationQueries', () => {
     });
 
     // From 18 to 24 hours should be only 1 conversation
-    responses = await graphqlRequest(qryConversations, 'conversations', { startDate, endDate }, { user });
+    responses = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { startDate: startDate.toString(), endDate: endDate.toString() },
+      { user },
+    );
 
     expect(responses.length).toBe(1);
 
@@ -419,7 +424,12 @@ describe('conversationQueries', () => {
     responses = await graphqlRequest(
       qryConversations,
       'conversations',
-      { startDate: today, endDate: moment(today).add(1, 'days') },
+      {
+        startDate: today.toString(),
+        endDate: moment(today)
+          .add(1, 'days')
+          .toString(),
+      },
       { user },
     );
 

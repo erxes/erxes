@@ -80,7 +80,7 @@ export const mutations = `
   login(email: String!, password: String!): String 
   logout: String
   forgotPassword(email: String!): String!
-  resetPassword(token: String!, newPassword: String!): String
+  resetPassword(token: String!, newPassword: String!): JSON
   usersAdd(${commonParams}): User
   usersEdit(_id: String!, ${commonParams}): User
 
@@ -93,7 +93,7 @@ export const mutations = `
   ): User
 
   usersChangePassword(currentPassword: String!, newPassword: String!): User
-  usersRemove(_id: String!): String
+  usersRemove(_id: String!): JSON
 
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
   usersConfigGetNotificationByEmail(isAllowed: Boolean): User

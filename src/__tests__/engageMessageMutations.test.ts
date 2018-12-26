@@ -103,8 +103,8 @@ describe('engage message mutation tests', () => {
       },
       scheduleDate: {
         type: 'year',
-        month: 2,
-        day: 14,
+        month: '2',
+        day: '14',
         time: moment('2018-08-24T12:45:00'),
       },
       messenger: {
@@ -266,7 +266,7 @@ describe('engage message mutation tests', () => {
       process.env.AWS_SES_CONFIG_SET = '';
       await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
     } catch (e) {
-      expect(e.toString()).toBe('GraphQLError: Could not locate configs on AWS SES');
+      expect(e.toString()).toContain('Could not locate configs on AWS SES');
     }
   });
 
@@ -288,7 +288,7 @@ describe('engage message mutation tests', () => {
     try {
       await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
     } catch (e) {
-      expect(e.toString()).toBe('GraphQLError: Email not verified');
+      expect(e.toString()).toContain('Email not verified');
     }
 
     awsSpy.mockRestore();

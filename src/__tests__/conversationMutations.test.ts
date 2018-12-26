@@ -64,7 +64,7 @@ describe('Conversation message mutations', () => {
       mentionedUserIds: [_user._id],
       internal: false,
       attachments: [{ url: 'url', name: 'name', type: 'doc', size: 10 }],
-      tweetReplyToId: faker.random.number(),
+      tweetReplyToId: faker.random.number().toString(),
       tweetReplyToScreenName: faker.name.firstName(),
     };
 

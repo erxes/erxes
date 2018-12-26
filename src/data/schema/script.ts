@@ -33,5 +33,5 @@ export const mutations = `
     leadIds: [String]
   ): Script
 
-  scriptsRemove(_id: String!): String
+  scriptsRemove(_id: String!): JSON
 `;

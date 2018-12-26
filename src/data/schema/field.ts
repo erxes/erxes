@@ -85,6 +85,6 @@ export const fieldsGroupsQueries = `
 export const fieldsGroupsMutations = `
   fieldsGroupsAdd(${fieldsGroupsCommonFields}): FieldsGroup
   fieldsGroupsEdit(_id: String!, ${fieldsGroupsCommonFields}): FieldsGroup
-  fieldsGroupsRemove(_id: String!): String
+  fieldsGroupsRemove(_id: String!): JSON
   fieldsGroupsUpdateVisible(_id: String, isVisible: Boolean) : FieldsGroup
 `;

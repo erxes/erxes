@@ -1,3 +1,5 @@
+import { gql } from 'apollo-server-express';
+
 import { mutations as UserMutations, queries as UserQueries, types as UserTypes } from './user';
 
 import { mutations as CompanyMutations, queries as CompanyQueries, types as CompanyTypes } from './company';
@@ -202,3 +204,7 @@ export const subscriptions = `
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
   }
 `;
+
+const typeDefs = gql(`${types} ${queries} ${mutations} ${subscriptions}`);
+
+export default typeDefs;

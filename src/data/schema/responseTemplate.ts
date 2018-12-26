@@ -31,5 +31,5 @@ export const mutations = `
     files: JSON
   ): ResponseTemplate
 
-  responseTemplatesRemove(_id: String!): String
+  responseTemplatesRemove(_id: String!): JSON
 `;

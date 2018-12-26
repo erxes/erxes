@@ -39,5 +39,5 @@ const commonFields = `
 export const mutations = `
   segmentsAdd(contentType: String!, ${commonFields}): Segment
   segmentsEdit(_id: String!, ${commonFields}): Segment
-  segmentsRemove(_id: String!): String
+  segmentsRemove(_id: String!): JSON
 `;

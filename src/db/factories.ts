@@ -237,7 +237,7 @@ interface IInternalNoteFactoryInput {
 export const internalNoteFactory = (params: IInternalNoteFactoryInput) => {
   const internalNote = new InternalNotes({
     contentType: params.contentType || COC_CONTENT_TYPES.CUSTOMER,
-    contentTypeId: params.contentTypeId || faker.random.uuid(),
+    contentTypeId: params.contentTypeId || faker.random.uuid().toString(),
     content: params.content || faker.random.word(),
   });
 

@@ -1,10 +1,10 @@
-import { withFilter } from 'graphql-subscriptions';
+import { withFilter } from 'apollo-server-express';
 import pubsub from './pubsub';
 
 export default {
   /*
    * Listen for customer connection
-  */
+   */
   customerConnectionChanged: {
     subscribe: withFilter(
       () => pubsub.asyncIterator('customerConnectionChanged'),
