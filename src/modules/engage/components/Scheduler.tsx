@@ -121,14 +121,14 @@ class Scheduler extends React.Component<Props, State> {
         </SelectMonth>
 
         <DateTimePicker>
+          <ControlLabel>Choose time:</ControlLabel>
           <Datetime
             {...props}
             value={time}
             onChange={onChangeSchedule}
             dateFormat={false}
-            inputProps={{ placeholder: 'Click to choose time' }}
+            input={false}
           />
-          <Icon icon="calendar" />
         </DateTimePicker>
       </FormGroup>
     );
