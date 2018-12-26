@@ -167,6 +167,17 @@ const AssigneeWrapper = styled.div`
   justify-content: flex-end;
 `;
 
+const SidebarHeader = styled.div`
+  .popover {
+    max-width: 475px;
+    width: 500px;
+  }
+
+  .rdtPicker {
+    width: 100%;
+  }
+`;
+
 export {
   ConversationItems,
   RightItems,
@@ -180,5 +191,6 @@ export {
   SmallTextOneLine,
   MessageContent,
   AssigneeImg,
-  AssigneeWrapper
+  AssigneeWrapper,
+  SidebarHeader
 };

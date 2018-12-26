@@ -11,7 +11,7 @@ import { IConversation } from '../../types';
 import AssignBoxPopover from '../assignBox/AssignBoxPopover';
 import FilterPopover from './FilterPopover';
 import StatusFilterPopover from './StatusFilterPopover';
-import { RightItems } from './styles';
+import { RightItems, SidebarHeader } from './styles';
 
 type Integrations = {
   _id: string;
@@ -84,7 +84,7 @@ class LeftSidebar extends React.Component<Props, {}> {
   }
 
   renderSidebarHeader() {
-    return <React.Fragment>{this.renderSidebarActions()}</React.Fragment>;
+    return <SidebarHeader>{this.renderSidebarActions()}</SidebarHeader>;
   }
 
   renderSidebarFooter() {

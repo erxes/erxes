@@ -26,7 +26,6 @@ const PopoverButton = styled.div`
     margin-right: 0;
     font-size: 10px;
     transition: all ease 0.3s;
-    color: ${colors.colorCoreGray};
   }
 
   &[aria-describedby] {
@@ -42,10 +41,16 @@ const PopoverButton = styled.div`
   }
 `;
 
+const FlexItem = styled.div`
+  flex: 1;
+  margin-left: 5px;
+`;
+
 const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   padding: 5px ${dimensions.unitSpacing}px;
 
   .form-control {
@@ -62,18 +67,25 @@ const FlexRow = styled.div`
       border-color: ${colors.colorSecondary};
     }
   }
+
+  ${FlexItem} {
+    &:first-child {
+      border-right: 1px solid ${colors.borderPrimary};
+      padding-right: 5px;
+    }
+  }
 `;
 
-const FlexItem = styled.div`
-  flex: 1;
-  margin-left: 5px;
+const DateName = styled.div`
+  text-transform: uppercase;
+  margin: 5px 0 10px 0;
+  text-align: center;
 `;
 
 const DateFilters = styled.div`
-  width: 305px;
-
   button {
-    padding: 5px 20px;
+    padding: 5px 15px;
+    margin-bottom: 5px;
   }
 `;
 
@@ -176,13 +188,11 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
 
     if (this.props.countQuery) {
       return (
-        <FlexRow>
-          <FlexItem>
-            <span>
-              {__('Total')}: {totalCount}
-            </span>
-          </FlexItem>
-        </FlexRow>
+        <FlexItem>
+          <span>
+            {__('Total')}: {totalCount}
+          </span>
+        </FlexItem>
       );
     }
 
@@ -194,7 +204,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
       inputProps: { placeholder: __('Select a date') },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD',
-      closeOnSelect: true
+      closeOnSelect: false
     };
 
     const onChangeStart = date => {
@@ -214,26 +224,33 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
         <DateFilters>
           <FlexRow>
             <FlexItem>
+              <DateName>Start Date</DateName>
               <Datetime
                 {...props}
+                input={false}
                 value={this.state.startDate}
                 onChange={onChangeStart}
               />
             </FlexItem>
 
             <FlexItem>
+              <DateName>End Date</DateName>
               <Datetime
                 {...props}
+                input={false}
                 value={this.state.endDate}
                 onChange={onChangeEnd}
               />
             </FlexItem>
           </FlexRow>
 
-          {this.renderCount()}
-
           <FlexRow>
-            <Button btnStyle="simple" onClick={this.filterByDate}>
+            {this.renderCount()}
+            <Button
+              btnStyle="warning"
+              onClick={this.filterByDate}
+              icon="filter"
+            >
               Filter
             </Button>
           </FlexRow>
