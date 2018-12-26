@@ -3,7 +3,7 @@ import queryString from 'query-string';
 import { queries } from './graphql';
 
 export const generateParams = queryParams => ({
-  limit: queryParams.limit || 10,
+  limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,
   channelId: queryParams.channelId,
   status: queryParams.status,
   unassigned: queryParams.unassigned,

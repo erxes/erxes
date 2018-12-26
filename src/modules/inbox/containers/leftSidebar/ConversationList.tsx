@@ -64,7 +64,7 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
 
 const generateOptions = queryParams => ({
   ...queryParams,
-  limit: queryParams.limit || 10
+  limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10
 });
 
 export default withProps<Props>(
