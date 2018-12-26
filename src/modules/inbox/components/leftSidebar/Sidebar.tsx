@@ -23,8 +23,6 @@ type Props = {
   integrations: Integrations[];
   queryParams: any;
   history: any;
-  totalCount: any;
-
   bulk: IConversation[];
   toggleBulk: (target: IConversation[], toggleAdd: boolean) => void;
   emptyBulk: () => void;
@@ -136,7 +134,6 @@ class LeftSidebar extends React.Component<Props, {}> {
 
   render() {
     const {
-      totalCount,
       currentConversationId,
       history,
       queryParams,
@@ -153,7 +150,6 @@ class LeftSidebar extends React.Component<Props, {}> {
       >
         <ConversationList
           currentConversationId={currentConversationId}
-          totalCount={totalCount}
           history={history}
           queryParams={queryParams}
           toggleRowCheckbox={toggleBulk}
