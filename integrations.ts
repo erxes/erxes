@@ -29,9 +29,10 @@ export interface IFacebookData {
 export interface IFacebookDataDocument extends IFacebookData, Document {}
 
 export interface IGmailData {
+  accountId: string;
   email: string;
-  historyId: string;
-  credentials?: any;
+  historyId?: string;
+  expiration?: string;
 }
 
 export interface IGmailDataDocument extends IGmailData, Document {}
@@ -244,8 +245,16 @@ const uiOptionsSchema = new Schema(
 
 const gmailSchema = new Schema(
   {
+    accountId: field({ type: String }),
     email: field({ type: String }),
-    historyId: field({ type: String }),
+    historyId: field({
+      type: String,
+      optional: true,
+    }),
+    expiration: field({
+      type: String,
+      optional: true,
+    }),
     credentials: field({ type: Object }),
   },
   { _id: false },

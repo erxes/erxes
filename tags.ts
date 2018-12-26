@@ -1,6 +1,6 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
-import { TAG_TYPES } from "./constants";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
+import { TAG_TYPES } from './constants';
 
 export interface ITag {
   name: string;
@@ -19,9 +19,9 @@ export const tagSchema = new Schema({
   name: field({ type: String }),
   type: field({
     type: String,
-    enum: TAG_TYPES.ALL
+    enum: TAG_TYPES.ALL,
   }),
   colorCode: field({ type: String }),
   createdAt: field({ type: Date }),
-  objectCount: field({ type: Number })
+  objectCount: field({ type: Number }),
 });

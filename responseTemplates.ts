@@ -1,5 +1,5 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
 
 export interface IResponseTemplate {
   name?: string;
@@ -17,5 +17,5 @@ export const responseTemplateSchema = new Schema({
   name: field({ type: String }),
   content: field({ type: String }),
   brandId: field({ type: String }),
-  files: field({ type: Array })
+  files: field({ type: Array }),
 });

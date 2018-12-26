@@ -1,5 +1,5 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
 
 export interface IBrandEmailConfig {
   type?: string;
@@ -26,9 +26,9 @@ export interface IBrandDocument extends IBrand, Document {
 const brandEmailConfigSchema = new Schema({
   type: field({
     type: String,
-    enum: ["simple", "custom"]
+    enum: ['simple', 'custom'],
   }),
-  template: field({ type: String })
+  template: field({ type: String }),
 });
 
 export const brandSchema = new Schema({
@@ -38,5 +38,5 @@ export const brandSchema = new Schema({
   description: field({ type: String }),
   userId: field({ type: String }),
   createdAt: field({ type: Date }),
-  emailConfig: field({ type: brandEmailConfigSchema })
+  emailConfig: field({ type: brandEmailConfigSchema }),
 });
