@@ -137,8 +137,6 @@ class MailForm extends React.Component<Props, State> {
             attachments: [...this.state.attachments, fileData],
             totalFileSize: this.state.totalFileSize + fileInfo.size
           });
-
-          console.log(this.state.attachments); //tslint:disable-line
         }
       };
 
