@@ -2,11 +2,13 @@ import { Bulk } from 'modules/common/components';
 import { Sidebar as DumbSidebar } from 'modules/inbox/components/leftSidebar';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
+import { withRouter } from 'react-router';
+import { IRouterProps } from '../../../common/types';
 
 type Props = {
   queryParams: any;
   currentConversationId?: string;
-};
+} & IRouterProps;
 
 class Sidebar extends React.Component<Props> {
   render() {
@@ -28,4 +30,4 @@ class Sidebar extends React.Component<Props> {
   }
 }
 
-export default Sidebar;
+export default withRouter<Props>(Sidebar);
