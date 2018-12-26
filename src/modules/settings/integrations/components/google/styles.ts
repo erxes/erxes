@@ -4,7 +4,7 @@ import { Attachment } from 'modules/inbox/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const AttachmentContainer = Attachment.extend`
+const AttachmentContainer = styled(Attachment)`
   padding: 5px 10px;
   max-width: 240px;
   border-radius: 2px;
