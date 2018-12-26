@@ -1,4 +1,4 @@
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, PlaygroundConfig } from 'apollo-server-express';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
@@ -20,7 +20,7 @@ import { init } from './startup';
 // load environment variables
 dotenv.config();
 
-const { MAIN_APP_DOMAIN = '', WIDGETS_DOMAIN = '' } = process.env;
+const { NODE_ENV, MAIN_APP_DOMAIN = '', WIDGETS_DOMAIN = '' } = process.env;
 
 // connect to mongo database
 connect();
@@ -40,10 +40,10 @@ app.use(cors(corsOptions));
 
 app.use(userMiddleware);
 
-const apolloServer = new ApolloServer({
-  typeDefs,
-  resolvers,
-  playground: {
+let playground: PlaygroundConfig = false;
+
+if (NODE_ENV !== 'production') {
+  playground = {
     settings: {
       'general.betaUpdates': false,
       'editor.theme': 'dark',
@@ -54,7 +54,13 @@ const apolloServer = new ApolloServer({
       'editor.fontFamily': `'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace`,
       'request.credentials': 'include',
     },
-  },
+  };
+}
+
+const apolloServer = new ApolloServer({
+  typeDefs,
+  resolvers,
+  playground,
   context: ({ req, res }) => {
     return {
       user: req && req.user,
