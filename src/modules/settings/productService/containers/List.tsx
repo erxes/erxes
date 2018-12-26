@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
@@ -101,10 +102,7 @@ export default withProps<Props>(
       {
         name: 'productsQuery',
         options: ({ queryParams }) => ({
-          variables: {
-            page: queryParams.page || 1,
-            perPage: queryParams.perPage || 20
-          },
+          variables: generatePaginationParams(queryParams),
           fetchPolicy: 'network-only'
         })
       }

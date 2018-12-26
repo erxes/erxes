@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import { List } from '../components';
@@ -42,10 +43,7 @@ export default commonListComposer<Props>({
       options: ({ queryParams }: { queryParams: any }) => {
         return {
           notifyOnNetworkStatusChange: true,
-          variables: {
-            page: queryParams.page,
-            perPage: queryParams.perPage || 20
-          }
+          variables: generatePaginationParams(queryParams)
         };
       }
     }

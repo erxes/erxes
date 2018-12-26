@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert, confirm, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ArticleList } from '../../components';
@@ -67,9 +68,8 @@ export default withProps<Props>(
       name: 'articlesQuery',
       options: ({ queryParams, currentCategoryId }) => ({
         variables: {
-          categoryIds: [currentCategoryId],
-          page: queryParams.page,
-          perPage: queryParams.perPage || 20
+          ...generatePaginationParams(queryParams),
+          categoryIds: [currentCategoryId]
         },
         fetchPolicy: 'network-only'
       })

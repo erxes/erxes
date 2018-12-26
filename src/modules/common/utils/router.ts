@@ -63,6 +63,16 @@ const refetchIfUpdated = (history: any, query: any) => {
   }
 };
 
+export const generatePaginationParams = (queryParams: {
+  page?: string;
+  perPage?: string;
+}) => {
+  return {
+    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
+    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20
+  };
+};
+
 export default {
   setParams,
   getParam,

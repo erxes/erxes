@@ -77,7 +77,7 @@ export default withProps<Props>(
       options: ({ _id, queryParams }) => ({
         variables: {
           _id,
-          perPage: queryParams.limit || 20
+          perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
         }
       })
     }),
