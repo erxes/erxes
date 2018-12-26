@@ -8,14 +8,14 @@ import {
 } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
-import { Brand } from '../components';
+import { BrandAdd } from '../components';
 
 type Props = { queryParams: any };
 
 type FinalProps = { brandsCountQuery: BrandsCountQueryResponse } & Props &
   BrandAddMutationResponse;
 
-const BrandContainer = (props: ChildProps<FinalProps>) => {
+const BrandAddContainer = (props: ChildProps<FinalProps>) => {
   const { brandsCountQuery, addMutation } = props;
 
   const brandsTotalCount = brandsCountQuery.brandsTotalCount || 0;
@@ -39,19 +39,7 @@ const BrandContainer = (props: ChildProps<FinalProps>) => {
     save
   };
 
-  return <Brand {...updatedProps} />;
-};
-
-const commonOptions = ({ queryParams }: Props) => {
-  return {
-    refetchQueries: [
-      {
-        query: gql(queries.brands),
-        variables: { perPage: queryParams.limit || 20 }
-      },
-      { query: gql(queries.brandsCount) }
-    ]
-  };
+  return <BrandAdd {...updatedProps} />;
 };
 
 export default withProps<Props>(
@@ -60,11 +48,21 @@ export default withProps<Props>(
       gql(mutations.brandAdd),
       {
         name: 'addMutation',
-        options: commonOptions
+        options: ({ queryParams }) => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(queries.brands),
+                variables: { perPage: queryParams.limit || 20 }
+              },
+              { query: gql(queries.brandsCount) }
+            ]
+          };
+        }
       }
     ),
     graphql<Props, BrandsCountQueryResponse, {}>(gql(queries.brandsCount), {
       name: 'brandsCountQuery'
     })
-  )(BrandContainer)
+  )(BrandAddContainer)
 );

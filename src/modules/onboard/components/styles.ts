@@ -3,13 +3,31 @@ import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const transitionName = 'slide-in';
-
 const MainContainer = styled.div`
   display: flex;
   flex: 1;
   position: relative;
   justify-content: center;
+
+  .slide-appear,
+  .slide-enter {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .slide-appear-active,
+  .slide-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+  }
+
+  .slide-exit,
+  .slide-exit-active {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+  }
 `;
 
 const LeftContainer = styled.div`
@@ -41,6 +59,7 @@ const RightContent = styled.div`
 const ScrollContent = styled.div`
   padding: 50px 100px;
   max-height: 100%;
+  height: 100%;
   overflow: auto;
 `;
 
@@ -53,27 +72,21 @@ const LeftContent = styled.div`
   box-shadow: 0px 0px 30px 3px rgba(0, 0, 0, 0.1);
   position: relative;
 
-  .${transitionName}-appear
-    ${ScrollContent},
-    .${transitionName}-enter
-    ${ScrollContent} {
+  .slide-in-appear ${ScrollContent}, .slide-in-enter ${ScrollContent} {
     opacity: 0;
     transform: translateY(20px);
   }
 
-  .${transitionName}-appear-active
+  .slide-in-appear-active
     ${ScrollContent},
-    .${transitionName}-enter-active
+    .slide-in-enter-active
     ${ScrollContent} {
     opacity: 1;
     transform: translateY(0);
     transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95) 0.2s;
   }
 
-  .${transitionName}-exit
-    ${ScrollContent},
-    .${transitionName}-exit-active
-    ${ScrollContent} {
+  .slide-in-exit ${ScrollContent}, .slide-in-exit-active ${ScrollContent} {
     opacity: 0;
     transform: translateY(-20px);
     transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);

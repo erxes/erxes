@@ -21,7 +21,6 @@ type Props = {
     params: {
       doc: {
         name: string;
-        description: string;
         memberIds: string[];
       };
     },
@@ -66,9 +65,6 @@ class ChannelForm extends React.Component<Props, State> {
       doc: {
         name: (document.getElementById('channel-name') as HTMLInputElement)
           .value,
-        description: (document.getElementById(
-          'channel-description'
-        ) as HTMLInputElement).value,
         memberIds: this.collectValues(this.state.selectedMembers)
       }
     };
@@ -94,17 +90,6 @@ class ChannelForm extends React.Component<Props, State> {
             defaultValue={object.name}
             type="text"
             required={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Description</ControlLabel>
-
-          <FormControl
-            id="channel-description"
-            componentClass="textarea"
-            rows={5}
-            defaultValue={object.description}
           />
         </FormGroup>
 

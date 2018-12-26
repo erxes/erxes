@@ -45,15 +45,15 @@ const Remove = styled.span`
 
 function Chip(props: {
   normal?: boolean;
-  onClickClose: () => void;
+  onClick: () => void;
   children: React.ReactNode;
 }) {
-  const { normal, onClickClose, children } = props;
+  const { normal, onClick, children } = props;
 
   return (
     <ChipItem normal={normal}>
       {children}
-      <Remove onClick={onClickClose}>×</Remove>
+      <Remove onClick={onClick}>×</Remove>
     </ChipItem>
   );
 }

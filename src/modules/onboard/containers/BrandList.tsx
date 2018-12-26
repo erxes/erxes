@@ -57,22 +57,6 @@ const BrandListContainer = (props: ChildProps<FinalProps>) => {
   return <BrandList {...updatedProps} />;
 };
 
-const commonOptions = ({ queryParams }: Props) => {
-  return {
-    refetchQueries: [
-      {
-        query: gql(queries.brands),
-        variables: { perPage: queryParams.limit || 20 }
-      },
-      {
-        query: gql(queries.brands),
-        variables: {}
-      },
-      { query: gql(queries.brandsCount) }
-    ]
-  };
-};
-
 export default withProps<Props>(
   compose(
     graphql<Props, BrandsQueryResponse, { perPage: number }>(
@@ -91,7 +75,17 @@ export default withProps<Props>(
       gql(mutations.brandRemove),
       {
         name: 'removeMutation',
-        options: commonOptions
+        options: ({ queryParams }: Props) => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(queries.brands),
+                variables: { perPage: queryParams.limit || 20 }
+              },
+              { query: gql(queries.brandsCount) }
+            ]
+          };
+        }
       }
     )
   )(BrandListContainer)

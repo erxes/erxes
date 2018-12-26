@@ -15,14 +15,14 @@ type Props = {
   save: (name: string, callback: () => void) => void;
 };
 
-class BrandForm extends React.Component<
+class BrandAdd extends React.Component<
   Props,
   { brandName: string; showBrands: boolean }
 > {
   constructor(props: Props) {
     super(props);
 
-    this.state = { showBrands: false, brandName: '' };
+    this.state = { showBrands: true, brandName: '' };
   }
 
   clearInput() {
@@ -62,10 +62,9 @@ class BrandForm extends React.Component<
         </FormGroup>
 
         <Description>
-          <Icon icon="information" /> You already have a{' '}
-          <b>{this.props.brandsTotalCount}</b> brands.
+          <Icon icon="information" /> You already have{' '}
+          <b>{this.props.brandsTotalCount}</b> brands.{' '}
           <a href="javascript:;" onClick={this.toggleBrands}>
-            {' '}
             {showBrands ? 'Hide' : 'Show'} ›
           </a>
         </Description>
@@ -74,7 +73,7 @@ class BrandForm extends React.Component<
           in={showBrands}
           appear={true}
           timeout={300}
-          classNames="slide-in"
+          classNames="slide"
           unmountOnExit={true}
         >
           <BrandList queryParams={{}} />
@@ -104,4 +103,4 @@ class BrandForm extends React.Component<
   }
 }
 
-export default BrandForm;
+export default BrandAdd;

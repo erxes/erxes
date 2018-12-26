@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as RTG from 'react-transition-group';
-import { Brand, Channel } from '../containers';
+import { BrandAdd, Channel, UserAdd } from '../containers';
 import { LeftContent } from './styles';
 
 type Props = {
@@ -21,11 +21,21 @@ class Content extends React.PureComponent<Props> {
           classNames="slide-in"
           unmountOnExit={true}
         >
-          <Brand queryParams={{}} />
+          <BrandAdd queryParams={{}} />
         </RTG.CSSTransition>
 
         <RTG.CSSTransition
           in={activeStep === 2}
+          appear={true}
+          timeout={500}
+          classNames="slide-in"
+          unmountOnExit={true}
+        >
+          <UserAdd queryParams={{}} />
+        </RTG.CSSTransition>
+
+        <RTG.CSSTransition
+          in={activeStep === 3}
           appear={true}
           timeout={500}
           classNames="slide-in"
