@@ -262,7 +262,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
         shouldUpdatePosition={true}
         rootClose={true}
       >
-        <PopoverButton>
+        <PopoverButton className="date">
           {__('Date')} <Icon icon="downarrow" />
         </PopoverButton>
       </OverlayTrigger>

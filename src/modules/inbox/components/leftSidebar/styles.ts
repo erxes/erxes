@@ -168,7 +168,7 @@ const AssigneeWrapper = styled.div`
 `;
 
 const SidebarHeader = styled.div`
-  .popover {
+  .date .popover {
     max-width: 470px;
     width: 500px;
   }
