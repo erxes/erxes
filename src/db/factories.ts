@@ -439,6 +439,7 @@ interface IIntegrationFactoryInput {
   formId?: string;
   twitterData?: any;
   facebookData?: any;
+  gmailData?: any;
   formData?: any | string;
   tagIds?: string[];
 }
@@ -454,6 +455,7 @@ export const integrationFactory = async (params: IIntegrationFactoryInput = {}) 
     messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
     twitterData: params.twitterData || {},
     facebookData: params.facebookData || {},
+    gmailData: params.gmailData || {},
     formData: params.formData === 'form' ? params.formData : kind === 'form' ? { thankContent: 'thankContent' } : null,
     tagIds: params.tagIds || [],
   };
@@ -793,6 +795,8 @@ interface IAccountFactoryInput {
   uid?: string;
   token?: string;
   name?: string;
+  expireDate?: number;
+  scope?: string;
 }
 
 export const accountFactory = async (params: IAccountFactoryInput) => {
@@ -800,6 +804,8 @@ export const accountFactory = async (params: IAccountFactoryInput) => {
     kind: params.kind || 'facebook',
     uid: params.uid || faker.random.number,
     token: params.token || faker.random.word(),
+    expireDate: params.expireDate || faker.random.number,
+    scope: params.scope || faker.random.word(),
     name: params.name || faker.random.name,
   };
 

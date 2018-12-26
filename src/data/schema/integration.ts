@@ -13,6 +13,7 @@ export const types = `
     messengerData: JSON
     twitterData: JSON
     facebookData: JSON
+    gmailData: JSON
     uiOptions: JSON
 
     brand: Brand
@@ -76,6 +77,13 @@ export const types = `
     color: String
     wallpaper: String
     logo: String
+  }
+
+  input gmailAttachmentData {
+    filename: String
+    size: Int
+    mimeType: String
+    data: String
   }
 `;
 
@@ -150,7 +158,7 @@ export const mutations = `
 
   integrationsRemove(_id: String!): JSON
 
-  integrationsCreateGmailIntegration(code: String!, brandId: String!): Integration
+  integrationsCreateGmailIntegration(name: String!, accountId: String!, brandId: String!): Integration
 
   integrationsSendGmail(
     integrationId: String!,
@@ -161,6 +169,9 @@ export const mutations = `
     toEmails: String!,
     cc: String,
     bcc: String,
-    attachments: [String],
+    attachments: [gmailAttachmentData],
+    headerId: String,
+    references: String,
+    threadId: String
   ): GmailResponseData
 `;

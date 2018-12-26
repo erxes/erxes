@@ -15,7 +15,8 @@ export const INTEGRATION_KIND_CHOICES = {
   FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  ALL: ['messenger', 'form', 'twitter', 'facebook'],
+  GMAIL: 'gmail',
+  ALL: ['messenger', 'form', 'twitter', 'facebook', 'gmail'],
 };
 
 export const TAG_TYPES = {

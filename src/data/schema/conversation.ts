@@ -28,7 +28,7 @@ export const types = `
 
     senderId: String
     senderName: String
-    }
+  }
 
   type TwitterData {
     id: Float
@@ -59,6 +59,33 @@ export const types = `
     favorite_count: Float
   }
 
+  type ConversationGmailData {
+    messageId: String
+  }
+
+  type ConversationMessageGmailAttachmentData {
+    filename: String
+    mimeType: String
+    size: Int
+    attachmentId: String
+  }
+
+  type ConversationMessageGmailData {
+    messageId: String
+    headerId: String
+    threadId: String
+    reply: String
+    references: String
+    from: String
+    to: String
+    cc: String
+    bcc: String
+    subject: String
+    textPlain: String
+    textHtml: String
+    attachments: [ConversationMessageGmailAttachmentData]
+  }
+
   type Conversation {
     _id: String!
     content: String
@@ -77,6 +104,7 @@ export const types = `
     tagIds: [String]
     twitterData: TwitterData
     facebookData: ConversationFacebookData
+    gmailData: ConversationGmailData
 
     messages: [ConversationMessage]
     tags: [Tag]
@@ -122,7 +150,7 @@ export const types = `
     messengerAppData: JSON
     twitterData: TwitterData
     facebookData: ConversationMessageFacebookData
-
+    gmailData: ConversationMessageGmailData
     user: User
     customer: Customer
   }

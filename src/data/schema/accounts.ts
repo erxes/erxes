@@ -19,4 +19,5 @@ export const queries = `
 export const mutations = `
   accountsRemove(_id: String!): JSON
   accountsAddTwitter(queryParams: TwitterIntegrationAuthParams): Account
+  accountsAddGmail(code: String!): Account
 `;

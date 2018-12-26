@@ -16,6 +16,7 @@ import { checkFile, importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Conversations, Customers } from './db/models';
 import { init } from './startup';
+import { getAttachment } from './trackers/gmail';
 
 // load environment variables
 dotenv.config();
@@ -187,6 +188,23 @@ app.post('/import-file', (req: any, res) => {
         res.json(e);
       });
   });
+});
+
+// get gmail attachment file
+app.get('/read-gmail-attachment', async (req: any, res) => {
+  if (!req.query.message || !req.query.attach) {
+    return res.status(404).send('Not found');
+  }
+
+  const attachment: { filename?: string; data?: string } = await getAttachment(req.query.message, req.query.attach);
+
+  if (!attachment.data) {
+    return res.status(404).send('Not found');
+  }
+
+  res.attachment(attachment.filename);
+
+  return res.send(Buffer.from(attachment.data, 'base64'));
 });
 
 // engage unsubscribe

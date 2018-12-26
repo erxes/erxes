@@ -442,7 +442,7 @@ export class SaveWebhookResponse {
 
     let response: any = await this.getPageAccessToken();
 
-    // acess token expired
+    // access token expired
     if (response === 'Error processing https request') {
       throw new Error("getOrCreateConversationByFeed: Couldn't get Page access token");
     }

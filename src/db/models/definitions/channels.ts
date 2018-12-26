@@ -1,5 +1,5 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
 
 export interface IChannel {
   name?: string;
@@ -22,17 +22,17 @@ export const channelSchema = new Schema({
   name: field({ type: String }),
   description: field({
     type: String,
-    optional: true
+    optional: true,
   }),
   integrationIds: field({ type: [String] }),
   memberIds: field({ type: [String] }),
   userId: field({ type: String }),
   conversationCount: field({
     type: Number,
-    default: 0
+    default: 0,
   }),
   openConversationCount: field({
     type: Number,
-    default: 0
-  })
+    default: 0,
+  }),
 });

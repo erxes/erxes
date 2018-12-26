@@ -1,7 +1,6 @@
 import { Accounts, Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { getConfig, getPageList } from '../../../trackers/facebook';
 import { getAccessToken, getAuthorizeUrl } from '../../../trackers/googleTracker';
-
 import { socUtils } from '../../../trackers/twitterTracker';
 import { KIND_CHOICES, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';

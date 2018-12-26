@@ -1,6 +1,6 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
-import { COC_CONTENT_TYPES } from "./constants";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
+import { COC_CONTENT_TYPES } from './constants';
 
 export interface ICondition {
   field: string;
@@ -36,27 +36,27 @@ const conditionSchema = new Schema(
 
     value: field({
       type: String,
-      optional: true
+      optional: true,
     }),
 
     dateUnit: field({
       type: String,
-      optional: true
-    })
+      optional: true,
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const segmentSchema = new Schema({
   _id: field({ pkey: true }),
   contentType: field({
     type: String,
-    enum: COC_CONTENT_TYPES.ALL
+    enum: COC_CONTENT_TYPES.ALL,
   }),
   name: field({ type: String }),
   description: field({ type: String, optional: true }),
   subOf: field({ type: String, optional: true }),
   color: field({ type: String }),
   connector: field({ type: String }),
-  conditions: field({ type: [conditionSchema] })
+  conditions: field({ type: [conditionSchema] }),
 });

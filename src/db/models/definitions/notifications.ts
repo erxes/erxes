@@ -1,6 +1,6 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
-import { NOTIFICATION_TYPES } from "./constants";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
+import { NOTIFICATION_TYPES } from './constants';
 
 export interface INotification {
   notifType?: string;
@@ -22,7 +22,7 @@ export const notificationSchema = new Schema({
   _id: field({ pkey: true }),
   notifType: field({
     type: String,
-    enum: NOTIFICATION_TYPES.ALL
+    enum: NOTIFICATION_TYPES.ALL,
   }),
   title: field({ type: String }),
   link: field({ type: String }),
@@ -31,12 +31,12 @@ export const notificationSchema = new Schema({
   receiver: field({ type: String }),
   date: field({
     type: Date,
-    default: Date.now
+    default: Date.now,
   }),
   isRead: field({
     type: Boolean,
-    default: false
-  })
+    default: false,
+  }),
 });
 
 export interface IConfig {
@@ -55,7 +55,7 @@ export const configSchema = new Schema({
   user: field({ type: String }),
   notifType: field({
     type: String,
-    enum: NOTIFICATION_TYPES.ALL
+    enum: NOTIFICATION_TYPES.ALL,
   }),
-  isAllowed: field({ type: Boolean })
+  isAllowed: field({ type: Boolean }),
 });

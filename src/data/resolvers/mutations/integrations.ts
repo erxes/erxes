@@ -1,8 +1,7 @@
 import { Accounts, Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
-import { getGmailUserProfile, sendGmail } from '../../../trackers/gmail';
-import { getAccessToken } from '../../../trackers/googleTracker';
+import { sendGmail, updateHistoryId } from '../../../trackers/gmail';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { requireAdmin, requireLogin } from '../../permissions';
 import { sendPostRequest } from '../../utils';
@@ -123,32 +122,35 @@ const integrationMutations = {
   /**
    * Create gmail integration
    */
-  async integrationsCreateGmailIntegration(_root, { code, brandId }: { code: string; brandId: string }) {
-    const credentials = await getAccessToken(code, 'gmail');
+  async integrationsCreateGmailIntegration(
+    _root,
+    { name, accountId, brandId }: { name: string; accountId: string; brandId: string },
+  ) {
+    const account = await Accounts.findOne({ _id: accountId });
 
-    // get permission granted email address
-    const data = await getGmailUserProfile(credentials);
-
-    if (!data.emailAddress || !data.historyId) {
-      throw new Error('Gmail profile not found');
+    if (!account) {
+      throw new Error(`Account not found id with ${accountId}`);
     }
 
-    return Integrations.createGmailIntegration({
-      name: data.emailAddress,
+    const integration = await Integrations.createGmailIntegration({
+      name,
       brandId,
       gmailData: {
-        email: data.emailAddress,
-        historyId: data.historyId,
-        credentials,
+        email: account.uid,
+        accountId,
       },
     });
+
+    await updateHistoryId(integration);
+
+    return integration;
   },
 
   /**
    * Send mail by gmail api
    */
-  integrationsSendGmail(_root, args, { user }) {
-    return sendGmail(args, user._id);
+  integrationsSendGmail(_root, args) {
+    return sendGmail(args);
   },
 };
 
