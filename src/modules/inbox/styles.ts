@@ -15,11 +15,7 @@ const PopoverButton = styled.div`
     display: inline-block;
   }
 
-  button {
-    padding: 0;
-  }
-
-  i {
+  > i {
     margin-left: 5px;
     margin-right: 0;
     font-size: 10px;

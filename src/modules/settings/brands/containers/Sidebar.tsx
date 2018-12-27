@@ -97,7 +97,9 @@ const commonOptions = ({ queryParams, currentBrandId }: Props) => {
     refetchQueries: [
       {
         query: gql(queries.brands),
-        variables: { perPage: queryParams.limit || 20 }
+        variables: {
+          perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
+        }
       },
       {
         query: gql(queries.brands),
@@ -120,7 +122,7 @@ export default withProps<Props>(
         name: 'brandsQuery',
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: {
-            perPage: queryParams.limit || 20
+            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
           },
           fetchPolicy: 'network-only'
         })

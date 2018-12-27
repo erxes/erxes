@@ -39,6 +39,10 @@ const NavItem = styled.div`
   display: table-cell;
   vertical-align: middle;
 
+  .dropdown-menu {
+    min-width: 240px;
+  }
+
   > a {
     color: ${colors.colorCoreDarkGray};
   }

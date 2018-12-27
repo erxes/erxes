@@ -10,6 +10,7 @@ import {
   ICustomer
 } from '../../../customers/types';
 import { IConversation } from '../../types';
+import { getConfig, setConfig } from '../../utils';
 
 type Props = {
   conversation: IConversation;
@@ -23,18 +24,6 @@ type State = {
 };
 
 const STORAGE_KEY = `erxes_sidebar_section_config`;
-
-const getConfig = () => {
-  const sidebarConfig = localStorage.getItem(STORAGE_KEY);
-
-  if (sidebarConfig) {
-    return JSON.parse(sidebarConfig);
-  }
-};
-
-const setConfig = params => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
-};
 
 class Sidebar extends React.Component<FinalProps, State> {
   constructor(props) {
@@ -64,7 +53,7 @@ class Sidebar extends React.Component<FinalProps, State> {
       return null;
     }
 
-    const sectionParams = getConfig();
+    const sectionParams = getConfig(STORAGE_KEY);
 
     this.setState({ loading: true });
 
@@ -88,11 +77,11 @@ class Sidebar extends React.Component<FinalProps, State> {
 
   toggleSection = ({ name, isOpen }: { name: string; isOpen: boolean }) => {
     const customerId = this.props.conversation.customerId;
-    const config = getConfig();
+    const config = getConfig(STORAGE_KEY);
 
     config[name] = isOpen;
 
-    setConfig(config);
+    setConfig(STORAGE_KEY, config);
 
     this.getCustomerDetail(customerId);
   };
@@ -101,7 +90,7 @@ class Sidebar extends React.Component<FinalProps, State> {
     const { customer, loading } = this.state;
 
     if (!localStorage.getItem(STORAGE_KEY)) {
-      setConfig({
+      setConfig(STORAGE_KEY, {
         showProfile: true,
         showCompanies: false,
         showConversationDetails: false,
@@ -115,7 +104,7 @@ class Sidebar extends React.Component<FinalProps, State> {
 
     const taggerRefetchQueries = [
       {
-        query: gql(queries.generateCustomerDetailQuery(getConfig())),
+        query: gql(queries.generateCustomerDetailQuery(getConfig(STORAGE_KEY))),
         variables: { _id: customer._id }
       }
     ];
@@ -125,7 +114,7 @@ class Sidebar extends React.Component<FinalProps, State> {
       customer,
       loading,
       toggleSection: this.toggleSection,
-      config: getConfig(),
+      config: getConfig(STORAGE_KEY),
       taggerRefetchQueries
     };
 
@@ -136,7 +125,7 @@ class Sidebar extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<Props, CustomerDetailQueryResponse, { _id?: string }>(
-      gql(queries.generateCustomerDetailQuery(getConfig())),
+      gql(queries.generateCustomerDetailQuery(getConfig(STORAGE_KEY))),
       {
         name: 'customerDetailQuery',
         options: ({ conversation }) => ({

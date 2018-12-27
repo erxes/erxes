@@ -86,4 +86,18 @@ const Name = styled.div`
   }
 `;
 
-export { InfoTitle, InfoDetail, Info, Action, List, InfoAvatar, Contact, Name };
+const TabContent = styled.div`
+  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
+`;
+
+export {
+  InfoTitle,
+  InfoDetail,
+  Info,
+  Action,
+  List,
+  InfoAvatar,
+  Contact,
+  Name,
+  TabContent
+};

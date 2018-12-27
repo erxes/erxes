@@ -100,7 +100,9 @@ const commonOptions = ({ queryParams, currentChannelId }: Props) => {
     refetchQueries: [
       {
         query: gql(queries.channels),
-        variables: { perPage: queryParams.limit || 20 }
+        variables: {
+          perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
+        }
       },
       {
         query: gql(queries.channels),
@@ -124,7 +126,7 @@ export default withProps<Props>(
         name: 'channelsQuery',
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: {
-            perPage: queryParams.limit || 20
+            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
           },
           fetchPolicy: 'network-only'
         })
