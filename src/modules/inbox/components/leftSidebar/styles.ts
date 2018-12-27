@@ -9,10 +9,6 @@ const RightItems = styled.div`
   > div {
     margin-right: 10px;
   }
-
-  button {
-    padding: 5px 12px;
-  }
 `;
 
 const ConversationItems = styled.ul`
@@ -167,6 +163,17 @@ const AssigneeWrapper = styled.div`
   justify-content: flex-end;
 `;
 
+const SidebarActions = styled.div`
+  #date-popover {
+    max-width: 470px;
+    width: 500px;
+  }
+
+  .rdtPicker {
+    width: 100%;
+  }
+`;
+
 const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
   display: flex;
   position: relative;
@@ -245,6 +252,7 @@ export {
   MessageContent,
   AssigneeImg,
   AssigneeWrapper,
+  SidebarActions,
   AdditionalSidebar,
   GroupTitle,
   LeftContent,

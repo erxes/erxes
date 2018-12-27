@@ -503,7 +503,7 @@ a:hover {
   box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15);
   width: 100%;
   border-color: ${colors.colorShadowGray};
-  min-width: 200px;
+  min-width: 220px;
   max-width: 260px;
 }
 

@@ -18,7 +18,8 @@ import {
   AdditionalSidebar,
   DropdownWrapper,
   LeftContent,
-  RightItems
+  RightItems,
+  SidebarActions
 } from './styles';
 
 type Integrations = {
@@ -73,6 +74,7 @@ class LeftSidebar extends React.Component<Props, State> {
     if (bulk.length > 0) {
       return (
         <Sidebar.Header>
+          <Resolver conversations={bulk} emptyBulk={emptyBulk} />
           <RightItems>
             <AssignBoxPopover
               targets={bulk}
@@ -80,7 +82,6 @@ class LeftSidebar extends React.Component<Props, State> {
             />
 
             <Tagger targets={bulk} trigger={this.renderTrigger('Tag')} />
-            <Resolver conversations={bulk} emptyBulk={emptyBulk} />
           </RightItems>
         </Sidebar.Header>
       );
@@ -108,7 +109,7 @@ class LeftSidebar extends React.Component<Props, State> {
   }
 
   renderSidebarHeader() {
-    return <React.Fragment>{this.renderSidebarActions()}</React.Fragment>;
+    return <SidebarActions>{this.renderSidebarActions()}</SidebarActions>;
   }
 
   renderAdditionalSidebar() {
