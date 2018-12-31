@@ -137,12 +137,8 @@ export const trackGmail = async () => {
     keyFilename: GOOGLE_APPLICATION_CREDENTIALS,
   });
 
-  if (!GOOGLE_TOPIC) {
-    throw new Error('GOOGLE_TOPIC not found in env');
-  }
-
-  if (!GOOGLE_SUPSCRIPTION_NAME) {
-    throw new Error('GOOGLE_SUPSCRIPTION_NAME not found in env');
+  if (!GOOGLE_TOPIC || !GOOGLE_SUPSCRIPTION_NAME) {
+    return;
   }
 
   const topic = pubsubClient.topic(GOOGLE_TOPIC);
