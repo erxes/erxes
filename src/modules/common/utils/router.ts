@@ -3,7 +3,7 @@ import queryString from 'query-string';
 /**
  * @param {Object} query
  */
-const setParams = (history: any, query: any) => {
+const setParams = (history: any, query: any, replace: boolean = false) => {
   const location = Object.assign({}, history.location);
 
   // convert to {param1: value1}
@@ -16,7 +16,11 @@ const setParams = (history: any, query: any) => {
   const stringified = queryString.stringify(parsed);
 
   // go to new url
-  history.push(`${location.pathname}?${stringified}`);
+  if (replace) {
+    return history.replace(`${location.pathname}?${stringified}`);
+  }
+
+  return history.push(`${location.pathname}?${stringified}`);
 };
 
 /**
