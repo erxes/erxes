@@ -50,12 +50,14 @@ class Filter extends React.Component<Props, States> {
   onBrandChange = (brands: any) => {
     this.setState({ brandIds: brands.map(el => el.value) });
   };
+
   onApplyClick = () => {
-    router.setParams(this.props.history, {
-      integrationType: this.state.integrationIds
-        ? this.state.integrationIds.join(',')
-        : null,
-      brandId: this.state.brandIds ? this.state.brandIds.join(',') : null
+    const { history } = this.props;
+    const { integrationIds, brandIds } = this.state;
+
+    router.setParams(history, {
+      integrationIds: (integrationIds || []).join(','),
+      brandIds: (brandIds || []).join(',')
     });
   };
 
