@@ -18,15 +18,44 @@ interface IProps extends IRouterProps {
 class LifecycleStateFilter extends React.Component<IProps> {
   renderCounts = () => {
     const { history, counts } = this.props;
-    const { Section } = Wrapper.Sidebar;
-    const paramKey = 'lifecycleState';
 
-    const onClear = () => {
-      router.setParams(history, { lifecycleState: null });
-    };
+    const paramKey = 'lifecycleState';
 
     const onClick = (key, value) => {
       router.setParams(history, { [key]: value });
+    };
+
+    return (
+      <SidebarList>
+        {lifecycleStateChoices(__).map(
+          ({ value, label }: { value: string; label: string }) => {
+            return (
+              <li key={Math.random()}>
+                <a
+                  tabIndex={0}
+                  className={
+                    router.getParam(history, [paramKey]) === value
+                      ? 'active'
+                      : ''
+                  }
+                  onClick={onClick.bind(this, paramKey, value)}
+                >
+                  {label}
+                  <SidebarCounter>{counts ? counts[value] : 0}</SidebarCounter>
+                </a>
+              </li>
+            );
+          }
+        )}
+      </SidebarList>
+    );
+  };
+
+  render() {
+    const { Section } = Wrapper.Sidebar;
+
+    const onClear = () => {
+      router.setParams(history, { lifecycleState: null });
     };
 
     return (
@@ -39,47 +68,17 @@ class LifecycleStateFilter extends React.Component<IProps> {
             </a>
           ) : null}
         </Section.QuickButtons>
-        <div>
-          <SidebarList>
-            {lifecycleStateChoices(__).map(
-              ({ value, label }: { value: string; label: string }) => {
-                return (
-                  <li key={Math.random()}>
-                    <a
-                      tabIndex={0}
-                      className={
-                        router.getParam(history, [paramKey]) === value
-                          ? 'active'
-                          : ''
-                      }
-                      onClick={onClick.bind(this, paramKey, value)}
-                    >
-                      {label}
-                      <SidebarCounter>
-                        {counts ? counts[value] : 0}
-                      </SidebarCounter>
-                    </a>
-                  </li>
-                );
-              }
-            )}
-          </SidebarList>
-        </div>
-      </Section>
-    );
-  };
 
-  render() {
-    return (
-      <DataWithLoader
-        loading={this.props.loading}
-        count={Object.keys(LIFECYCLE_STATE_TYPES).length}
-        data={this.renderCounts()}
-        emptyText="No lifecycle states"
-        emptyIcon="type"
-        size="small"
-        objective={true}
-      />
+        <DataWithLoader
+          loading={this.props.loading}
+          count={Object.keys(LIFECYCLE_STATE_TYPES).length}
+          data={this.renderCounts()}
+          emptyText="No lifecycle states"
+          emptyIcon="type"
+          size="small"
+          objective={true}
+        />
+      </Section>
     );
   }
 }
