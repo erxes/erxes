@@ -12,13 +12,14 @@ import { SelectBrand } from '../..';
 
 type Props = {
   onChange: (
-    name: 'brandId' | 'languageCode' | 'notifyCustomer',
+    name: 'brandId' | 'languageCode' | 'notifyCustomer' | 'requireAuth',
     value: string
   ) => void;
   brandId?: string;
   brands?: IBrand[];
   languageCode: string;
   notifyCustomer?: boolean;
+  requireAuth: boolean;
 };
 
 type State = {
@@ -47,6 +48,8 @@ class Options extends React.Component<Props, State> {
     const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
     const notifyCustomerChange = e =>
       this.onChangeFunction('notifyCustomer', e.target.checked);
+    const requireAuthChange = e =>
+      this.onChangeFunction('requireAuth', e.target.checked);
 
     return (
       <FlexItem>
@@ -74,6 +77,21 @@ class Options extends React.Component<Props, State> {
             defaultValue={this.props.brandId}
             onChange={brandOnChange}
           />
+
+          <FormGroup>
+            <ControlLabel>Require Authentication</ControlLabel>
+            <div>
+              <Toggle
+                className="wide"
+                checked={this.props.requireAuth}
+                onChange={requireAuthChange}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+              />
+            </div>
+          </FormGroup>
 
           <FormGroup>
             <ControlLabel>Notify customer</ControlLabel>
