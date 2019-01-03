@@ -343,8 +343,47 @@ const insightExportQueries = {
       },
     );
 
-    const messages = await ConversationMessages.find(messageSelector);
-    const userIds = _.uniq(_.pluck(messages, 'userId'));
+    const data = await ConversationMessages.aggregate([
+      {
+        $match: messageSelector,
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%d %H',
+              date: '$createdAt',
+            },
+          },
+          userId: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: '$userId',
+            date: '$date',
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: '$_id.userId',
+          date: '$_id.date',
+          count: 1,
+        },
+      },
+    ]);
+    const userDataDictionary = {};
+    const rawUserIds = {};
+    const userTotals = {};
+    data.map(row => {
+      userDataDictionary[`${row.userId}_${row.date}`] = row.count;
+      rawUserIds[row.userId] = 1;
+    });
+    const userIds = Object.keys(rawUserIds);
     const users: any = {};
 
     // Reads default template
@@ -366,20 +405,14 @@ const insightExportQueries = {
       });
 
       for (const userId of userIds) {
-        const count = messages.filter(msg => {
-          return (
-            begin.getTime() < msg.createdAt.getTime() &&
-            msg.createdAt.getTime() < next.getTime() &&
-            msg.userId === userId
-          );
-        }).length;
-
         if (!users[userId]) {
           const { details, email } = (await Users.findOne({ _id: userId })) as IUserDocument;
 
           users[userId] = (details && details.fullName) || email;
         }
-
+        const key = moment(begin).format('YYYY-MM-DD HH');
+        const count = userDataDictionary[`${userId}_${key}`] || 0;
+        userTotals[userId] = (userTotals[userId] || 0) + count;
         addCell({
           sheet,
           rowIndex,
@@ -397,6 +430,26 @@ const insightExportQueries = {
     };
 
     await generateData();
+
+    // add total
+    rowIndex++;
+    addCell({
+      sheet,
+      rowIndex,
+      col: 'date',
+      value: 'Total',
+      cols,
+    });
+
+    for (const userId of userIds) {
+      addCell({
+        sheet,
+        rowIndex,
+        col: users[userId],
+        value: userTotals[userId],
+        cols,
+      });
+    }
 
     // Write to file.
     return generateXlsx(workbook, `Activity report - ${dateToString(start)} - ${dateToString(end)}`);
