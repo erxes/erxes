@@ -8,5 +8,5 @@ echo "`jo \`env | grep type\` \
           \`env | grep auth_provider_x509_cert_url\` \
           \`env | grep client_x509_cert_url\` \
           private_key="$private_key" \
-          `" > test.json
+          `" > google_cred.json
 yarn start
