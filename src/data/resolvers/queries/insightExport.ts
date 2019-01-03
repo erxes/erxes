@@ -502,6 +502,7 @@ const insightExportQueries = {
     tagData.map(row => {
       tagDictionary[`${row.tagId}_${row.date}`] = row.count;
     });
+
     const generateData = async () => {
       const next = nextTime(begin);
       rowIndex++;
@@ -519,6 +520,7 @@ const insightExportQueries = {
         // find conversation counts of given tag
         const tagKey = `${tag._id}_${moment(begin).format('YYYY-MM-DD')}`;
         const count = tagDictionary[tagKey] ? tagDictionary[tagKey] : 0;
+        tagDictionary[`${tag._id}_total`] = (tagDictionary[`${tag._id}_total`] || 0) + count;
 
         addCell({
           sheet,
@@ -537,6 +539,26 @@ const insightExportQueries = {
     };
 
     await generateData();
+
+    // add total values
+    rowIndex++;
+    addCell({
+      sheet,
+      rowIndex,
+      col: 'date',
+      value: 'Total',
+      cols,
+    });
+
+    for (const tag of tags) {
+      addCell({
+        sheet,
+        rowIndex,
+        col: tag.name,
+        value: tagDictionary[`${tag.id}_total`],
+        cols,
+      });
+    }
 
     // Write to file.
     return generateXlsx(workbook, `Tag report - ${dateToString(start)} - ${dateToString(end)}`);

@@ -31,8 +31,8 @@ interface IGenerateUserChartData {
 }
 
 interface IIntegrationSelector {
-  brandId?: string;
-  kind?: string;
+  brandId?: any;
+  kind?: any;
 }
 
 interface IFixDates {
@@ -69,24 +69,32 @@ export interface IListArgs {
   type: string;
 }
 /**
+ * Return integrationSelector for aggregations
+ * @param args
+ */
+export const getIntegrationSelector = async (args: IIntegrationSelector): Promise<any> => {
+  const integrationSelector: IIntegrationSelector = {};
+  const { kind, brandId } = args;
+  if (brandId) {
+    integrationSelector.brandId = { $in: brandId.split(',') };
+  }
+
+  if (kind) {
+    integrationSelector.kind = { $in: kind.split(',') };
+  }
+  return integrationSelector;
+};
+/**
  * Return conversationSelect for aggregation
  * @param args
  * @param conversationSelector
  * @param selectIds
  */
 export const getConversationSelector = async (args: IIntegrationSelector, conversationSelector: any): Promise<any> => {
-  const integrationSelector: IIntegrationSelector = {};
+  const integrationSelector = await getIntegrationSelector(args);
   const { kind, brandId } = args;
 
   if (kind || brandId) {
-    if (brandId) {
-      integrationSelector.brandId = brandId;
-    }
-
-    if (kind) {
-      integrationSelector.kind = kind;
-    }
-
     conversationSelector.integrationIds = await Integrations.find(integrationSelector).select('_id');
   }
 
@@ -101,17 +109,10 @@ export const findConversations = async (
   conversationSelector: any,
   selectIds?: boolean,
 ): Promise<IConversationDocument[]> => {
-  const integrationSelector: IIntegrationSelector = {};
+  const integrationSelector = await getIntegrationSelector(args);
   const { kind, brandId } = args;
 
   if (kind || brandId) {
-    if (brandId) {
-      integrationSelector.brandId = brandId;
-    }
-
-    if (kind) {
-      integrationSelector.kind = kind;
-    }
     const integrationIds = await Integrations.find(integrationSelector).select('_id');
     conversationSelector.integrationId = integrationIds.map(row => row._id);
   }
