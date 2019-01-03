@@ -5,6 +5,7 @@ import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import * as formidable from 'formidable';
+import * as fs from 'fs';
 import { createServer } from 'http';
 import * as path from 'path';
 import { userMiddleware } from './auth';
@@ -212,7 +213,9 @@ app.get('/unsubscribe', async (req, res) => {
   const unsubscribed = await handleEngageUnSubscribe(req.query);
 
   if (unsubscribed) {
-    res.end('Unsubscribed');
+    res.setHeader('Content-Type', 'text/html');
+    const template = fs.readFileSync(__dirname + '/private/emailTemplates/unsubscribe.html');
+    res.send(template);
   }
 
   res.end();
