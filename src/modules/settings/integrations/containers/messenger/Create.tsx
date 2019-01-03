@@ -135,6 +135,9 @@ export default withProps<Props>(
             {
               query: gql(integQueries.integrations),
               variables: integrationsListParams(queryParams)
+            },
+            {
+              query: gql(queries.integrationTotalCount)
             }
           ]
         };
