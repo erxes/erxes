@@ -11,7 +11,7 @@ export const callGmailUsersWatch = async () => {
   });
 
   for (const integration of integrations) {
-    await updateHistoryId(integration._id);
+    await updateHistoryId(integration);
   }
 };
 

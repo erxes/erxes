@@ -7,35 +7,26 @@ import { getOauthClient } from './googleTracker';
 /**
  * Get permission granted email information
  */
-export const getGmailUserProfile = async (credentials: any): Promise<{ emailAddress?: string; historyId?: string }> => {
+export const getGmailUserProfile = (credentials: any) => {
   const auth = getOauthClient('gmail');
 
   auth.setCredentials(credentials);
 
-  const gmail = await google.gmail('v1');
+  const gmail = google.gmail('v1');
 
-  return new Promise((resolve, reject) => {
-    gmail.users.getProfile({ auth, userId: 'me' }, (err, response) => {
-      if (err) {
-        reject(err);
-      }
-
-      if (response) {
-        resolve(response.data);
-      }
-    });
+  return gmail.users.getProfile({ auth, userId: 'me' }).catch(({ response }) => {
+    throw new Error(response.data.error.message);
   });
 };
 
 /**
  * Send email
  */
-const sendEmail = async (credentials: any, raw: string, threadId?: string) => {
+const sendEmail = (credentials: any, raw: string, threadId?: string) => {
   const auth = getOauthClient('gmail');
 
   auth.setCredentials(credentials);
-
-  const gmail = await google.gmail('v1');
+  const gmail = google.gmail('v1');
 
   const data = {
     auth,
@@ -46,7 +37,9 @@ const sendEmail = async (credentials: any, raw: string, threadId?: string) => {
     },
   };
 
-  return gmail.users.messages.send(data);
+  return gmail.users.messages.send(data).catch(({ response }) => {
+    throw new Error(response.data.error.message);
+  });
 };
 
 /**
@@ -57,30 +50,35 @@ const getGmailAttachment = async (credentials: any, gmailData: IMsgGmail, attach
     throw new Error('GmailData not found');
   }
 
-  const gmail = await google.gmail('v1');
-  const auth = getOauthClient('gmail');
-
-  const { messageId } = gmailData;
-
-  auth.setCredentials(credentials);
-
-  const { data } = await gmail.users.messages.attachments.get({
-    auth,
-    id: attachmentId,
-    userId: 'me',
-    messageId,
-  });
-
   const attachment = await gmailData.attachments.find(a => a.attachmentId === attachmentId);
 
   if (!attachment) {
     throw new Error(`Gmail attachment not found id with ${attachmentId}`);
   }
 
-  return {
-    data: data.data,
-    filename: attachment.filename,
-  };
+  const { messageId } = gmailData;
+
+  const gmail = await google.gmail('v1');
+  const auth = getOauthClient('gmail');
+
+  auth.setCredentials(credentials);
+
+  return gmail.users.messages.attachments
+    .get({
+      auth,
+      id: attachmentId,
+      userId: 'me',
+      messageId,
+    })
+    .catch(({ response }) => {
+      throw new Error(response.data.error.message);
+    })
+    .then(({ data }) => {
+      return {
+        data: data.data,
+        filename: attachment.filename,
+      };
+    });
 };
 
 /**
@@ -132,14 +130,14 @@ const getMessagesByHistoryId = async (historyId: string, integrationId: string, 
 export const trackGmail = async () => {
   const { GOOGLE_APPLICATION_CREDENTIALS, GOOGLE_TOPIC, GOOGLE_SUPSCRIPTION_NAME, GOOGLE_PROJECT_ID } = process.env;
 
+  if (!GOOGLE_APPLICATION_CREDENTIALS || !GOOGLE_PROJECT_ID || !GOOGLE_TOPIC || !GOOGLE_SUPSCRIPTION_NAME) {
+    return;
+  }
+
   const pubsubClient = PubSub({
     projectId: GOOGLE_PROJECT_ID,
     keyFilename: GOOGLE_APPLICATION_CREDENTIALS,
   });
-
-  if (!GOOGLE_TOPIC || !GOOGLE_SUPSCRIPTION_NAME) {
-    return;
-  }
 
   const topic = pubsubClient.topic(GOOGLE_TOPIC);
 
@@ -171,25 +169,29 @@ export const trackGmail = async () => {
   });
 };
 
-export const callWatch = async (credentials: any) => {
+export const callWatch = (credentials: any) => {
   const auth = getOauthClient('gmail');
-  const gmail: any = await google.gmail('v1');
+  const gmail: any = google.gmail('v1');
   const { GOOGLE_TOPIC } = process.env;
 
   auth.setCredentials(credentials);
-  const response = await gmail.users.watch({
-    auth,
-    userId: 'me',
-    requestBody: {
-      topicName: GOOGLE_TOPIC,
-    },
-  });
-  return response;
+
+  return gmail.users
+    .watch({
+      auth,
+      userId: 'me',
+      requestBody: {
+        topicName: GOOGLE_TOPIC,
+      },
+    })
+    .catch(({ response }) => {
+      throw new Error(response.data.error.message);
+    });
 };
 
-export const stopReceivingEmail = async (email: string, credentials: any) => {
+export const stopReceivingEmail = (email: string, credentials: any) => {
   const auth = getOauthClient('gmail');
-  const gmail: any = await google.gmail('v1');
+  const gmail: any = google.gmail('v1');
 
   auth.setCredentials(credentials);
 
