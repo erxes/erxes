@@ -5,7 +5,14 @@ import { IUserDocument } from '../../../db/models/definitions/users';
 import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { createXlsFile, generateXlsx } from '../../utils';
-import { findConversations, fixDates, generateMessageSelector, generateUserSelector, IListArgs } from './insightUtils';
+import {
+  findConversations,
+  fixDates,
+  generateMessageSelector,
+  generateUserSelector,
+  getConversationSelector,
+  IListArgs,
+} from './insightUtils';
 
 interface IVolumeReportExportArgs {
   date: string;
@@ -16,11 +23,6 @@ interface IVolumeReportExportArgs {
   resolvedCount: number;
   averageResponseDuration: string;
   firstResponseDuration: string;
-}
-
-interface IDurationWithCount {
-  duration: number;
-  count: number;
 }
 
 interface IAddCellArgs {
@@ -38,15 +40,10 @@ export interface IListArgsWithUserId extends IListArgs {
 /**
  * Time format HH:mm:ii
  */
-const convertTime = ({ duration, count }: { duration: number; count: number }) => {
-  if (count === 0) {
-    return '-';
-  }
-
-  const second = Math.floor(duration / (count * 1000));
-  const hours = Math.floor(second / 3600);
-  const minutes = Math.floor((second - hours * 3600) / 60);
-  const seconds = second - hours * 3600 - minutes * 60;
+const convertTime = (duration: number) => {
+  const hours = Math.floor(duration / 3600);
+  const minutes = Math.floor((duration % 3600) / 60);
+  const seconds = Math.floor((duration % 3600) % 60);
 
   const timeFormat = (num: number) => {
     if (num < 10) {
@@ -120,13 +117,15 @@ const insightExportQueries = {
    * Volume report export
    */
   async insightVolumeReportExport(_root, args: IListArgs) {
-    const { integrationType, brandId, startDate, endDate, type } = args;
+    const { startDate, endDate, type } = args;
     let diffCount = 7;
     let timeFormat = 'YYYY-MM-DD';
+    let aggregationTimeFormat = '%Y-%m-%d';
 
     if (type === 'time') {
       diffCount = 1;
       timeFormat = 'YYYY-MM-DD HH';
+      aggregationTimeFormat = '%Y-%m-%d %H';
     }
 
     const { start, end } = fixDates(startDate, endDate, diffCount);
@@ -135,57 +134,147 @@ const insightExportQueries = {
       $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
     };
 
-    const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
+    const mainSelector = await getConversationSelector(args, conversationSelector);
+    const conversations = await Conversations.find(mainSelector);
+    const conversationRawIds = conversations.map(row => row._id);
+    const aggregatedData = await Conversations.aggregate([
+      {
+        $match: mainSelector,
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: {
+              format: aggregationTimeFormat,
+              date: '$createdAt',
+            },
+          },
+          customerId: 1,
+          status: 1,
+          closeTime: {
+            $divide: [{ $subtract: ['$closedAt', '$createdAt'] }, 1000],
+          },
+          firstRespondTime: {
+            $divide: [{ $subtract: ['$firstRespondedDate', '$createdAt'] }, 1000],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$date',
+          uniqueCustomerIds: { $addToSet: '$customerId' },
+          resolvedCount: {
+            $sum: { $cond: [{ $eq: ['$status', 'closed'] }, 1, 0] },
+          },
+          totalCount: { $sum: 1 },
+          averageCloseTime: { $avg: '$closeTime' },
+          averageRespondTime: { $avg: '$firstRespondTime' },
+        },
+      },
+      {
+        $project: {
+          uniqueCustomerCount: { $size: '$uniqueCustomerIds' },
+          totalCount: 1,
+          averageCloseTime: 1,
+          averageRespondTime: 1,
+          resolvedCount: 1,
+          percentage: {
+            $multiply: [
+              {
+                $divide: [{ $size: '$uniqueCustomerIds' }, '$totalCount'],
+              },
+              100,
+            ],
+          },
+        },
+      },
+    ]);
+
+    const volumeDictionary = {};
+
+    let totalSumCount = 0;
+    let totalCustomerCount = 0;
+    let totalConversationMessages = 0;
+    let totalPercentage = 0;
+    let totalResolved = 0;
+    let totalAverageClosed = 0;
+    let totalAverageRespond = 0;
+    let totalRowCount = 0;
+
+    aggregatedData.map(row => {
+      volumeDictionary[row._id] = row;
+    });
+
+    const messageAggregationData = await ConversationMessages.aggregate([
+      {
+        $match: {
+          conversationId: { $in: conversationRawIds },
+        },
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: {
+              format: aggregationTimeFormat,
+              date: '$createdAt',
+            },
+          },
+          status: 1,
+        },
+      },
+      {
+        $group: {
+          _id: '$date',
+          totalCount: { $sum: 1 },
+        },
+      },
+    ]);
+    const conversationDictionary = {};
+    messageAggregationData.map(row => {
+      conversationDictionary[row._id] = row.totalCount;
+      totalConversationMessages += row.totalCount;
+    });
 
     const data: IVolumeReportExportArgs[] = [];
 
     let begin = start;
     const generateData = async () => {
       const next = nextTime(begin, type);
+      const dateKey = moment(begin).format(timeFormat);
+      const {
+        resolvedCount,
+        totalCount,
+        averageCloseTime,
+        averageRespondTime,
+        uniqueCustomerCount,
+        percentage,
+      } = volumeDictionary[dateKey] || {
+        resolvedCount: 0,
+        totalCount: 0,
+        averageCloseTime: 0,
+        averageRespondTime: 0,
+        uniqueCustomerCount: 0,
+        percentage: 0,
+      };
+      const messageCount = conversationDictionary[dateKey];
 
-      const filtered = conversations.filter(
-        conv => begin.getTime() < conv.createdAt.getTime() && conv.createdAt.getTime() < next.getTime(),
-      );
-
-      const conversationIds = _.pluck(filtered, '_id');
-      const customerCount = _.unique(_.pluck(filtered, 'customerId')).length;
-      const customerCountPercentage = `${
-        filtered.length !== 0 ? Math.floor((100 * customerCount) / filtered.length) : 0
-      }%`;
-      const messageCount = await ConversationMessages.countDocuments({ conversationId: { $in: conversationIds } });
-      const resolvedCount = filtered.filter(conv => (conv.status = 'closed')).length;
-      const closedDuration: IDurationWithCount = { duration: 0, count: 0 };
-      const firstDuration: IDurationWithCount = { duration: 0, count: 0 };
-
-      for (const conv of filtered) {
-        const { createdAt, closedAt, firstRespondedDate } = conv;
-
-        if (!createdAt) {
-          break;
-        }
-
-        const createTime = createdAt.getTime();
-
-        if (closedAt) {
-          closedDuration.duration = closedDuration.duration + closedAt.getTime() - createTime;
-          closedDuration.count = closedDuration.count + 1;
-        }
-
-        if (firstRespondedDate) {
-          firstDuration.duration = firstDuration.duration + firstRespondedDate.getTime() - createTime;
-          firstDuration.count = firstDuration.count + 1;
-        }
-      }
+      totalSumCount += totalCount;
+      totalResolved += resolvedCount;
+      totalAverageClosed += averageCloseTime;
+      totalAverageRespond += averageRespondTime;
+      totalCustomerCount += uniqueCustomerCount;
+      totalPercentage += percentage;
+      totalRowCount += 1;
 
       data.push({
         date: moment(begin).format(timeFormat),
-        count: filtered.length,
-        customerCount,
-        customerCountPercentage,
+        count: totalCount,
+        customerCount: uniqueCustomerCount,
+        customerCountPercentage: `${percentage.toFixed(0)}%`,
         messageCount,
         resolvedCount,
-        averageResponseDuration: convertTime(closedDuration),
-        firstResponseDuration: convertTime(firstDuration),
+        averageResponseDuration: convertTime(averageCloseTime),
+        firstResponseDuration: convertTime(averageRespondTime),
       });
 
       if (next.getTime() < end.getTime()) {
@@ -196,6 +285,17 @@ const insightExportQueries = {
     };
 
     await generateData();
+
+    data.push({
+      date: 'Total',
+      count: totalSumCount,
+      customerCount: totalCustomerCount,
+      customerCountPercentage: `${(totalPercentage / totalRowCount).toFixed(0)}%`,
+      messageCount: totalConversationMessages,
+      resolvedCount: totalResolved,
+      averageResponseDuration: convertTime(totalAverageClosed / totalRowCount),
+      firstResponseDuration: convertTime(totalAverageRespond / totalRowCount),
+    });
 
     const basicInfos = INSIGHT_BASIC_INFOS;
 
