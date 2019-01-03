@@ -1,5 +1,4 @@
 import * as moment from 'moment';
-import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../constants';
