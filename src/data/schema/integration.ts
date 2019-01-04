@@ -71,6 +71,7 @@ export const types = `
     knowledgeBaseTopicId: String
     links: IntegrationLinks
     supporterIds: [String]
+    requireAuth: Boolean
   }
 
   input MessengerUiOptions {

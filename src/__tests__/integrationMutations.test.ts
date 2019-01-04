@@ -155,6 +155,7 @@ describe('mutations', () => {
       notifyCustomer: false,
       isOnline: false,
       availabilityMethod: 'auto',
+      requireAuth: false,
       onlineHours: [
         {
           day: faker.random.word(),
