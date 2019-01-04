@@ -47,7 +47,7 @@ const NotifList = styled.ul`
   }
 `;
 
-const NotificationList = NotifList.extend`
+const NotificationList = styled(NotifList)`
   max-height: 420px !important;
 
   li {

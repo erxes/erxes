@@ -706,7 +706,7 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
-        createUrl: '/settings/integrations/gmail'
+        createModal: 'gmail'
       },
       {
         name: 'Google meet',

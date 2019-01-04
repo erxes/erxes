@@ -14,6 +14,7 @@ import { MailForm } from 'modules/settings/integrations/containers/google';
 import * as React from 'react';
 import { IActivityLogForMonth } from '../../../activityLogs/types';
 import { IUser } from '../../../auth/types';
+import { TabContent } from '../../styles';
 import { ICustomer } from '../../types';
 import { hasAnyActivity } from '../../utils';
 import LeftSidebar from './LeftSidebar';
@@ -30,7 +31,6 @@ type Props = {
 type State = {
   currentSubTab: string;
   currentTab: string;
-  attachmentPreview: any;
 };
 
 class CustomerDetails extends React.Component<Props, State> {
@@ -39,8 +39,7 @@ class CustomerDetails extends React.Component<Props, State> {
 
     this.state = {
       currentSubTab: 'activity',
-      currentTab: 'newNote',
-      attachmentPreview: null
+      currentTab: 'newNote'
     };
   }
 
@@ -50,10 +49,6 @@ class CustomerDetails extends React.Component<Props, State> {
 
   onChangeTab = currentTab => {
     this.setState({ currentTab });
-  };
-
-  setAttachmentPreview = attachmentPreview => {
-    this.setState({ attachmentPreview });
   };
 
   renderSubTabContent() {
@@ -97,14 +92,14 @@ class CustomerDetails extends React.Component<Props, State> {
     }
 
     return (
-      <MailForm
-        contentType="customer"
-        contentTypeId={customer._id}
-        toEmail={customer.primaryEmail}
-        setAttachmentPreview={this.setAttachmentPreview}
-        attachmentPreview={this.state.attachmentPreview}
-        refetchQueries={['activityLogsCustomer']}
-      />
+      <TabContent>
+        <MailForm
+          contentType="customer"
+          contentTypeId={customer._id}
+          toEmail={customer.primaryEmail}
+          refetchQueries={['activityLogsCustomer']}
+        />
+      </TabContent>
     );
   }
 

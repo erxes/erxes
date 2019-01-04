@@ -1,4 +1,5 @@
 import { Alert } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 
 export const save = ({
   variables,
@@ -35,8 +36,7 @@ export const save = ({
 };
 
 export const integrationsListParams = queryParams => ({
+  ...generatePaginationParams(queryParams),
   searchValue: queryParams.searchValue,
-  page: queryParams.page,
-  perPage: queryParams.perPage || 20,
   kind: queryParams.kind
 });

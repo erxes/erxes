@@ -35,7 +35,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     const { historiesQuery, history, importHistoriesRemove } = this.props;
 
     if (!router.getParam(history, 'type')) {
-      router.setParams(history, { type: 'customer' });
+      router.setParams(history, { type: 'customer' }, true);
     }
 
     const currentType = router.getParam(history, 'type');

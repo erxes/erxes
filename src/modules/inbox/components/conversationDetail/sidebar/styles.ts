@@ -42,14 +42,6 @@ const FlexItem = styled.div`
   margin-left: 5px;
 `;
 
-const DateFilters = styled.div`
-  width: 305px;
-
-  button {
-    padding: 5px 20px;
-  }
-`;
-
 const Actions = styled.div`
   display: flex;
   justify-content: space-between;
@@ -103,7 +95,7 @@ const ActivityNote = styled.div`
   }
 `;
 
-const ActivityLogContent = ActivityContent.extend`
+const ActivityLogContent = styled(ActivityContent)`
   padding: 0 ${dimensions.coreSpacing}px;
   margin-bottom: 30px;
 
@@ -167,7 +159,6 @@ const SidebarCollapse = styled.a`
 export {
   FlexRow,
   FlexItem,
-  DateFilters,
   SectionContainer,
   Actions,
   ActivityNote,

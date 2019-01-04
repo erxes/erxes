@@ -39,7 +39,7 @@ const DealDate = styled.span`
   flex-shrink: 0;
 `;
 
-const HeaderRow = FlexContent.extend`
+const HeaderRow = styled(FlexContent)`
   margin-bottom: 40px;
 `;
 
@@ -103,7 +103,7 @@ const FormFooter = styled.div`
   margin-top: 20px;
 `;
 
-const SpaceContent = FlexContent.extend`
+const SpaceContent = styled(FlexContent)`
   position: relative;
   justify-content: space-between;
 `;
@@ -150,7 +150,7 @@ const Right = styled.div`
   }
 `;
 
-const MoveContainer = FlexContent.extend`
+const MoveContainer = styled(FlexContent)`
   display: flex;
   margin-bottom: 20px;
   align-items: center;
@@ -308,7 +308,7 @@ const AddContainer = styled.form`
   }
 `;
 
-const ActionInfo = SpaceContent.extend`
+const ActionInfo = styled(SpaceContent)`
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px dashed ${colors.colorShadowGray};

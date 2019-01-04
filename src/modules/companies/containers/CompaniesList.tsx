@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
 import { Alert, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -122,8 +123,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
 
 const generateParams = ({ queryParams }) => ({
   variables: {
-    page: queryParams.page,
-    perPage: queryParams.perPage || 20,
+    ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
     tag: queryParams.tag,
     brand: queryParams.brand,

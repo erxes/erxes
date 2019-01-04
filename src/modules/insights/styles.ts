@@ -92,7 +92,7 @@ const ChartWrapper = styledTS<IWrapperProps>(styled.div)`
   overflow: hidden;
 `;
 
-const LoaderWrapper = ChartWrapper.extend`
+const LoaderWrapper = styled(ChartWrapper)`
   padding: ${dimensions.coreSpacing * 2}px;
 `;
 
@@ -165,7 +165,7 @@ const FullName = styled.span`
   font-weight: bold;
 `;
 
-const Box = styledTS<{ selected?: boolean }>(BoxRoot.extend)`
+const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   width: 320px;
   border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
 

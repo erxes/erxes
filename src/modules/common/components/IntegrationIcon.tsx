@@ -22,6 +22,7 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
     (props.type === 'messenger' && colors.colorPrimary) ||
     (props.type === 'twitter' && colors.socialTwitter) ||
     (props.type === 'facebook' && colors.socialFacebook) ||
+    (props.type === 'gmail' && colors.socialGmail) ||
     colors.colorSecondary};
 
   i {
@@ -58,6 +59,9 @@ class IntegrationIcon extends React.PureComponent<Props> {
         break;
       case 'messenger':
         icon = 'comment';
+        break;
+      case 'gmail':
+        icon = 'mail-alt';
         break;
       default:
         icon = 'doc-text-inv-1';

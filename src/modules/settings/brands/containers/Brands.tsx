@@ -96,7 +96,11 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
       lastBrandQuery.brandsGetLast &&
       !lastBrandQuery.loading
     ) {
-      routerUtils.setParams(history, { _id: lastBrandQuery.brandsGetLast._id });
+      routerUtils.setParams(
+        history,
+        { _id: lastBrandQuery.brandsGetLast._id },
+        true
+      );
     }
   }
 

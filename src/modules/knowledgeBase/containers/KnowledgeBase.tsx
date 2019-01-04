@@ -93,9 +93,13 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
     const { knowledgeBaseCategoriesGetLast, loading } = lastCategoryQuery;
 
     if (!_id && knowledgeBaseCategoriesGetLast && !loading) {
-      routerUtils.setParams(history, {
-        id: knowledgeBaseCategoriesGetLast._id
-      });
+      routerUtils.setParams(
+        history,
+        {
+          id: knowledgeBaseCategoriesGetLast._id
+        },
+        true
+      );
     }
   }
 

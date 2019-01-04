@@ -2,6 +2,7 @@ import client from 'apolloClient';
 import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import { __, Alert, uploadHandler, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -178,8 +179,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
 const generateParams = ({ queryParams }) => {
   return {
-    page: queryParams.page,
-    perPage: queryParams.perPage || 20,
+    ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
     tag: queryParams.tag,
     ids: queryParams.ids,

@@ -5,6 +5,7 @@ import {
   WidgetPreview
 } from 'modules/engage/styles';
 import * as React from 'react';
+import styled from 'styled-components';
 import {
   BodyContent,
   CallOutBody,
@@ -20,7 +21,7 @@ import {
   SlideRightContent
 } from './styles';
 
-export const ShoutBox = WebPreview.extend`
+export const ShoutBox = styled(WebPreview)`
   height: 100%;
   width: auto;
   margin-left: 0;

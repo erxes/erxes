@@ -42,14 +42,13 @@ export default class ConversationList extends React.Component<Props> {
             />
           ))}
         </ConversationItems>
-        {!loading &&
-          conversations.length === 0 && (
-            <EmptyState
-              text="There is no message."
-              size="full"
-              image="/images/robots/robot-02.svg"
-            />
-          )}
+        {!loading && conversations.length === 0 && (
+          <EmptyState
+            text="There is no message."
+            size="full"
+            image="/images/robots/robot-02.svg"
+          />
+        )}
 
         <LoadMore all={totalCount} perPage={10} loading={loading} />
       </React.Fragment>

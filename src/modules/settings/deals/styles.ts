@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { SidebarListItem } from '../styles';
 
-const BoardItem = styledTS<{ isActive: boolean }>(SidebarListItem.extend)`
+const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   overflow: hidden;
   background: ${props => props.isActive && colors.bgActive};
   
@@ -59,7 +59,7 @@ const StageList = styled.div`
   }
 `;
 
-const StageItemContainer = PipelineRowContainer.extend`
+const StageItemContainer = styled(PipelineRowContainer)`
   align-items: center;
 
   > *:not(button) {

@@ -99,7 +99,7 @@ const SelectWrapper = styled.div`
   }
 `;
 
-const Select = Input.withComponent('select').extend`
+const Select = styled(Input.withComponent('select'))`
   ${formInvalid}
 
   border: none;
@@ -110,7 +110,7 @@ const Select = Input.withComponent('select').extend`
 `;
 
 const TextArea = styledTS<{ maxHeight?: number }>(
-  Input.withComponent('textarea').extend
+  styled(Input.withComponent('textarea'))
 )`
   ${formInvalid}
   transition: none;
@@ -205,9 +205,8 @@ const inputStyle = styled.input`
   }
 `;
 
-const Radio = inputStyle.extend`
+const Radio = styled(inputStyle)`
   + span {
-
     &::before,
     &::after {
       border-radius: 50%;
@@ -215,12 +214,9 @@ const Radio = inputStyle.extend`
   }
 
   &:checked {
-
     &:active,
     &:focus {
-
       + span {
-
         &::before {
           animation: none;
           filter: none;
@@ -230,7 +226,6 @@ const Radio = inputStyle.extend`
     }
 
     + span {
-
       &:before {
         animation: none;
         background-color: ${colors.colorSecondary};
@@ -244,14 +239,14 @@ const Radio = inputStyle.extend`
   }
 `;
 
-const Checkbox = inputStyle.extend`
+const Checkbox = styled(inputStyle)`
   + span {
     &:after {
       background-color: transparent;
       top: 51%;
-      left: calc(1px + ${inputHeight}/5);
-      width: calc(${inputHeight}/2);
-      height: calc(${inputHeight}/5);
+      left: calc(1px + ${inputHeight} / 5);
+      width: calc(${inputHeight} / 2);
+      height: calc(${inputHeight} / 5);
       margin-top: calc(${inputHeight} / -2 / 2 * 0.8);
       border-style: solid;
       border-color: ${colors.colorWhite};
@@ -264,7 +259,6 @@ const Checkbox = inputStyle.extend`
   }
 
   &:checked + span {
-
     &:before {
       animation: none;
       background-color: ${colors.colorSecondary};
