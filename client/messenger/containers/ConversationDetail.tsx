@@ -29,7 +29,7 @@ class ConversationDetail extends React.Component<
   componentWillMount() {
     const { data, endConversation, conversationId } = this.props;
 
-    if (!data) {
+    if (!data || !conversationId) {
       return;
     }
 

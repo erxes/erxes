@@ -53,6 +53,10 @@ interface IStore extends IState {
   sendMessage: (message: string, attachments?: IAttachment[]) => void;
   sendFile: (file: File) => void;
   setHeadHeight: (headHeight: number) => void;
+  updateCustomer: (
+    doc: { [key: string]: string },
+    callback: () => void
+  ) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -65,9 +69,15 @@ export class AppProvider extends React.Component<{}, IState> {
 
     let activeRoute = "conversationList";
 
+    const { messengerData } = connection.data;
+
     // if visitor did not give email or phone then ask
-    if (!this.isLoggedIn()) {
+    if (!this.isLoggedIn() && messengerData.requireAuth) {
       activeRoute = "accquireInformation";
+    }
+
+    if (!messengerData.requireAuth && !getLocalStorageItem("hasNotified")) {
+      activeRoute = "home";
     }
 
     this.state = {
@@ -176,7 +186,11 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   changeRoute = (route: string) => {
-    if (route === "conversationDetail" && !this.isLoggedIn()) {
+    if (
+      route === "conversationDetail" &&
+      !this.isLoggedIn() &&
+      connection.data.messengerData.requireAuth
+    ) {
       // if visitor did not give email or phone then ask
       return this.setState({ activeRoute: "accquireInformation" });
     }
@@ -306,6 +320,7 @@ export class AppProvider extends React.Component<{}, IState> {
     setLocalStorageItem("getNotifiedValue", "");
     setLocalStorageItem("lastConversationId", "");
     setLocalStorageItem("customerId", "");
+    setLocalStorageItem("hasNotified", "");
     this.toggle(true);
     window.location.reload();
   };
@@ -334,6 +349,18 @@ export class AppProvider extends React.Component<{}, IState> {
         }
       ]
     });
+  };
+
+  updateCustomer = (doc: { [key: string]: string }, callback: () => void) => {
+    client
+      .mutate({
+        mutation: gql(graphqlTypes.updateCustomer),
+        variables: { _id: connection.data.customerId, ...doc }
+      })
+      .then(() => {
+        callback();
+        setLocalStorageItem("hasNotified", "true");
+      });
   };
 
   sendMessage = (message: string, attachments?: IAttachment[]) => {
@@ -478,7 +505,8 @@ export class AppProvider extends React.Component<{}, IState> {
           readMessages: this.readMessages,
           sendMessage: this.sendMessage,
           sendFile: this.sendFile,
-          setHeadHeight: this.setHeadHeight
+          setHeadHeight: this.setHeadHeight,
+          updateCustomer: this.updateCustomer
         }}
       >
         {this.props.children}

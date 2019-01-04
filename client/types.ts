@@ -100,6 +100,7 @@ export interface IIntegrationMessengerData {
   formCode: string;
   availabilityMethod: string;
   isOnline: boolean;
+  requireAuth: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
   timezone?: string;
   messages?: IIntegrationMessengerDataMessagesItem;

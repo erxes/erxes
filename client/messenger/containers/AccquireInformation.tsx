@@ -12,6 +12,7 @@ export default class extends React.Component {
               color={getColor()}
               save={saveGetNotified}
               loading={isSavingNotified}
+              showTitle={true}
             />
           );
         }}

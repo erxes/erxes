@@ -7,20 +7,37 @@ import {
   IIntegrationUiOptions
 } from "../../types";
 import { scrollTo } from "../../utils";
+import { getLocalStorageItem } from "../connection";
 import { IMessage } from "../types";
 import { Message } from "./";
+import AccquireInformation from "./AccquireInformation";
 
 type Props = {
   messages: IMessage[];
   isOnline: boolean;
+  color?: string;
   inputFocus: () => void;
   uiOptions: IIntegrationUiOptions;
   messengerData: IIntegrationMessengerData;
+  updateCustomer: (
+    doc: { [key: string]: string },
+    callback: () => void
+  ) => void;
 };
 
-class MessagesList extends React.Component<Props> {
+type State = {
+  hideNotifyInput: boolean;
+};
+
+class MessagesList extends React.Component<Props, State> {
   private node: HTMLDivElement | null = null;
   private shouldScrollBottom: boolean = false;
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { hideNotifyInput: false };
+  }
 
   componentDidMount() {
     if (this.node) {
@@ -55,6 +72,16 @@ class MessagesList extends React.Component<Props> {
     });
   }
 
+  onNotify = ({ type, value }: { type: string; value: string }) => {
+    const doc = {
+      [type]: value
+    };
+
+    this.props.updateCustomer(doc, () =>
+      this.setState({ hideNotifyInput: true })
+    );
+  };
+
   renderAwayMessage(messengerData: IIntegrationMessengerData) {
     const { isOnline } = this.props;
     const messages =
@@ -65,6 +92,30 @@ class MessagesList extends React.Component<Props> {
     }
 
     return <li className="erxes-spacial-message away">{messages.away}</li>;
+  }
+
+  renderNotifyInput(messengerData: IIntegrationMessengerData) {
+    if (messengerData.requireAuth || getLocalStorageItem("hasNotified")) {
+      return null;
+    }
+
+    if (this.state.hideNotifyInput) {
+      const messages =
+        messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
+
+      return (
+        <li className="erxes-spacial-message">
+          <span> {messages.thank || "Thank you. "}</span>
+        </li>
+      );
+    }
+
+    return (
+      <li className="erxes-spacial-message">
+        Get notified
+        <AccquireInformation save={this.onNotify} loading={false} />
+      </li>
+    );
   }
 
   renderWelcomeMessage(messengerData: IIntegrationMessengerData) {
@@ -80,18 +131,14 @@ class MessagesList extends React.Component<Props> {
   }
 
   render() {
-    const { uiOptions, messengerData, messages, inputFocus } = this.props;
+    const { uiOptions, messengerData, messages } = this.props;
     const { color, wallpaper } = uiOptions;
     const backgroundClass = classNames("erxes-messages-background", {
       [`bg-${wallpaper}`]: wallpaper
     });
 
     return (
-      <div
-        className={backgroundClass}
-        ref={node => (this.node = node)}
-        onClick={inputFocus}
-      >
+      <div className={backgroundClass} ref={node => (this.node = node)}>
         <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderWelcomeMessage(messengerData)}
           <RTG.TransitionGroup component={null}>
@@ -114,6 +161,7 @@ class MessagesList extends React.Component<Props> {
             })}
           </RTG.TransitionGroup>
           {this.renderAwayMessage(messengerData)}
+          {this.renderNotifyInput(messengerData)}
         </ul>
       </div>
     );
