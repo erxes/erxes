@@ -61,6 +61,7 @@ export interface IMessengerData {
   notifyCustomer?: boolean;
   availabilityMethod?: string;
   isOnline?: boolean;
+  requireAuth?: boolean;
   onlineHours?: IMessengerOnlineHours[];
   timezone?: string;
   messages?: IMessageDataMessages;
@@ -181,6 +182,7 @@ const messengerDataSchema = new Schema(
       twitter: String,
       youtube: String,
     },
+    requireAuth: field({ type: Boolean, default: true }),
   },
   { _id: false },
 );
