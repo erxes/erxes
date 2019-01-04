@@ -80,6 +80,14 @@ $darker-blue: #3b85f4;
     margin-left: 50px;
   }
 
+  &.auth {
+    background: $white;
+
+    .accquire-information {
+      padding: 0;
+    }
+  }
+
   ~.erxes-spacial-message {
     margin-top: 15px;
   }

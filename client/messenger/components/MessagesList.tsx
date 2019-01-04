@@ -111,8 +111,7 @@ class MessagesList extends React.Component<Props, State> {
     }
 
     return (
-      <li className="erxes-spacial-message">
-        Get notified
+      <li className="erxes-spacial-message auth">
         <AccquireInformation save={this.onNotify} loading={false} />
       </li>
     );
