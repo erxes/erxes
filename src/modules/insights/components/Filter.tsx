@@ -39,7 +39,9 @@ class Filter extends React.Component<Props, States> {
       endDate: props.queryParams.endDate
         ? moment(props.queryParams.endDate)
         : moment(),
-      isChange: false
+      isChange: false,
+      brandIds: props.queryParams.brandIds.split(','),
+      integrationIds: props.queryParams.integrationIds.split(',')
     };
   }
 
