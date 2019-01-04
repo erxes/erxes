@@ -67,6 +67,7 @@ export interface IMessengerData {
   timezone?: string;
   messages?: IMessageDataMessages;
   links?: ILink;
+  requireAuth?: boolean;
 }
 
 export interface IMessengerDataDocument extends IMessengerData, Document {}
@@ -173,6 +174,9 @@ const messengerDataSchema = new Schema(
       enum: MESSENGER_DATA_AVAILABILITY.ALL
     }),
     isOnline: field({
+      type: Boolean
+    }),
+    requireAuth: field({
       type: Boolean
     }),
     onlineHours: field({ type: [messengerOnlineHoursSchema] }),
