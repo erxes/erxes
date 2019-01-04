@@ -57,6 +57,7 @@ type State = {
   youtube: string;
   messages: IMessages;
   isStepActive?: boolean;
+  requireAuth: boolean;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -78,6 +79,7 @@ class CreateMessenger extends React.Component<Props, State> {
       color: uiOptions.color || '#6569DF',
       wallpaper: uiOptions.wallpaper || '1',
       notifyCustomer: configData.notifyCustomer || false,
+      requireAuth: configData.requireAuth ? true : false,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
       isOnline: configData.isOnline || false,
@@ -132,7 +134,8 @@ class CreateMessenger extends React.Component<Props, State> {
       messages,
       facebook,
       twitter,
-      youtube
+      youtube,
+      requireAuth
     } = this.state;
 
     if (!languageCode) {
@@ -161,6 +164,7 @@ class CreateMessenger extends React.Component<Props, State> {
         onlineHours: this.state.onlineHours,
         supporterIds: this.state.supporterIds,
         messages,
+        requireAuth,
         links
       },
       uiOptions: {
@@ -223,7 +227,8 @@ class CreateMessenger extends React.Component<Props, State> {
       twitter,
       youtube,
       messages,
-      isStepActive
+      isStepActive,
+      requireAuth
     } = this.state;
 
     const message = messages[languageCode];
@@ -263,6 +268,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 brandId={brandId}
                 notifyCustomer={notifyCustomer}
                 languageCode={languageCode}
+                requireAuth={requireAuth}
               />
             </Step>
 

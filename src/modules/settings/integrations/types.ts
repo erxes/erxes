@@ -56,6 +56,7 @@ export interface IMessengerData {
   availabilityMethod?: string;
   isOnline?: boolean;
   timezone?: string;
+  requireAuth?: boolean;
   onlineHours?: IOnlineHour[];
   links?: ILink;
 }
