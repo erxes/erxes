@@ -200,12 +200,15 @@ const facebookSchema = new Schema(
   { _id: false }
 );
 
-const engageDataRuleSchema = new Schema({
-  kind: field({ type: String }),
-  text: field({ type: String }),
-  condition: field({ type: String }),
-  value: field({ type: String, optional: true })
-});
+const engageDataRuleSchema = new Schema(
+  {
+    kind: field({ type: String }),
+    text: field({ type: String }),
+    condition: field({ type: String }),
+    value: field({ type: String, optional: true })
+  },
+  { _id: false }
+);
 
 const engageDataSchema = new Schema(
   {
