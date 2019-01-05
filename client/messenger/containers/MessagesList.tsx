@@ -14,13 +14,14 @@ export default class extends React.Component<Props> {
   render() {
     return (
       <AppConsumer>
-        {({ getUiOptions, getMessengerData, updateCustomer }) => {
+        {({ getUiOptions, getMessengerData, saveGetNotified, getColor }) => {
           return (
             <MessagesList
               {...this.props}
-              updateCustomer={updateCustomer}
               uiOptions={getUiOptions()}
               messengerData={getMessengerData()}
+              saveGetNotified={saveGetNotified}
+              getColor={getColor()}
             />
           );
         }}

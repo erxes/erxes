@@ -7,7 +7,7 @@ import {
   IIntegrationUiOptions
 } from "../../types";
 import { scrollTo } from "../../utils";
-import { getLocalStorageItem } from "../connection";
+import { getLocalStorageItem, setLocalStorageItem } from "../connection";
 import { IMessage } from "../types";
 import { Message } from "./";
 import AccquireInformation from "./AccquireInformation";
@@ -19,10 +19,11 @@ type Props = {
   inputFocus: () => void;
   uiOptions: IIntegrationUiOptions;
   messengerData: IIntegrationMessengerData;
-  updateCustomer: (
-    doc: { [key: string]: string },
-    callback: () => void
+  saveGetNotified: (
+    doc: { type: string; value: string },
+    callback?: () => void
   ) => void;
+  getColor?: string;
 };
 
 type State = {
@@ -37,6 +38,7 @@ class MessagesList extends React.Component<Props, State> {
     super(props);
 
     this.state = { hideNotifyInput: false };
+    this.onNotify = this.onNotify.bind(this);
   }
 
   componentDidMount() {
@@ -73,13 +75,11 @@ class MessagesList extends React.Component<Props, State> {
   }
 
   onNotify = ({ type, value }: { type: string; value: string }) => {
-    const doc = {
-      [type]: value
-    };
-
-    this.props.updateCustomer(doc, () =>
-      this.setState({ hideNotifyInput: true })
-    );
+    this.props.saveGetNotified({ type, value }, () => {
+      this.setState({ hideNotifyInput: true }, () =>
+        setLocalStorageItem("hasNotified", "true")
+      );
+    });
   };
 
   renderAwayMessage(messengerData: IIntegrationMessengerData) {
@@ -95,10 +95,6 @@ class MessagesList extends React.Component<Props, State> {
   }
 
   renderNotifyInput(messengerData: IIntegrationMessengerData) {
-    if (messengerData.requireAuth || getLocalStorageItem("hasNotified")) {
-      return null;
-    }
-
     if (this.state.hideNotifyInput) {
       const messages =
         messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
@@ -110,9 +106,17 @@ class MessagesList extends React.Component<Props, State> {
       );
     }
 
+    if (messengerData.requireAuth || getLocalStorageItem("hasNotified")) {
+      return null;
+    }
+
     return (
       <li className="erxes-spacial-message auth">
-        <AccquireInformation save={this.onNotify} loading={false} />
+        <AccquireInformation
+          save={this.onNotify}
+          color={this.props.getColor}
+          loading={false}
+        />
       </li>
     );
   }

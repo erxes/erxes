@@ -46,17 +46,16 @@ interface IStore extends IState {
   goToFaqArticle: (article: IFaqArticle) => void;
   goToConversationList: () => void;
   openLastConversation: () => void;
-  saveGetNotified: (doc: { type: string; value: string }) => void;
+  saveGetNotified: (
+    doc: { type: string; value: string },
+    callback?: () => void
+  ) => void;
   endConversation: () => void;
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
   sendMessage: (message: string, attachments?: IAttachment[]) => void;
   sendFile: (file: File) => void;
   setHeadHeight: (headHeight: number) => void;
-  updateCustomer: (
-    doc: { [key: string]: string },
-    callback: () => void
-  ) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -259,7 +258,10 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
-  saveGetNotified = ({ type, value }: { type: string; value: string }) => {
+  saveGetNotified = (
+    { type, value }: { type: string; value: string },
+    callback?: () => void
+  ) => {
     if (!value) {
       return;
     }
@@ -292,6 +294,10 @@ export class AppProvider extends React.Component<{}, IState> {
       // after mutation
       .then(() => {
         this.setState({ isSavingNotified: false });
+        if (callback) {
+          callback();
+        }
+
         // save email
         setLocalStorageItem("getNotifiedType", type);
         setLocalStorageItem("getNotifiedValue", value);
@@ -349,18 +355,6 @@ export class AppProvider extends React.Component<{}, IState> {
         }
       ]
     });
-  };
-
-  updateCustomer = (doc: { [key: string]: string }, callback: () => void) => {
-    client
-      .mutate({
-        mutation: gql(graphqlTypes.updateCustomer),
-        variables: { _id: connection.data.customerId, ...doc }
-      })
-      .then(() => {
-        callback();
-        setLocalStorageItem("hasNotified", "true");
-      });
   };
 
   sendMessage = (message: string, attachments?: IAttachment[]) => {
@@ -505,8 +499,7 @@ export class AppProvider extends React.Component<{}, IState> {
           readMessages: this.readMessages,
           sendMessage: this.sendMessage,
           sendFile: this.sendFile,
-          setHeadHeight: this.setHeadHeight,
-          updateCustomer: this.updateCustomer
+          setHeadHeight: this.setHeadHeight
         }}
       >
         {this.props.children}
