@@ -106,10 +106,18 @@
       margin: 0;
       outline: 0;
       padding: 4px;
+      position: relative;
       width: 40px;
 
       svg {
         margin-top: 3px;
+      }
+
+      .loader {
+        border: 2px solid rgba($white, .8);
+        border-top: 2px solid rgba($white, .3);
+        height: 16px;
+        width: 16px;
       }
     }
   }

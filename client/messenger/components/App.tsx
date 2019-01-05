@@ -1,4 +1,3 @@
-import * as classNames from "classnames";
 import * as React from "react";
 import * as RTG from "react-transition-group";
 import { Launcher, Messenger } from "../containers";
@@ -16,15 +15,11 @@ export default class App extends React.Component<Props> {
 
   render() {
     const { isMessengerVisible } = this.props;
-    const widgetClasses = classNames("erxes-widget", {
-      opened: isMessengerVisible
-    });
 
     return (
-      <div className={widgetClasses}>
+      <div className="erxes-widget">
         <RTG.CSSTransition
           in={isMessengerVisible}
-          appear={true}
           timeout={300}
           classNames="scale-in"
           unmountOnExit={true}

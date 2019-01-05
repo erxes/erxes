@@ -39,7 +39,7 @@ class MessageSender extends React.Component<Props, State> {
     }
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
     if (this.textarea && window.innerWidth > 415) {
       this.textarea.focus();
     }

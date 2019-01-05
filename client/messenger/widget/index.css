@@ -39,7 +39,7 @@
 }
 
 .erxes-messenger-shown {
-  width: 416px;
+  width: 421px;
   height: 100%;
   height: calc(100% - 20px);
   max-height: 780px;
@@ -85,7 +85,6 @@
   #erxes-messenger-iframe {
     bottom: 0;
     right: 0;
-    width: 100%;
   }
 
   body.messenger-widget-shown.widget-mobile {
