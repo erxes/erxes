@@ -38,7 +38,7 @@ const channelQueries = {
    * Get all channels count. We will use it in pager
    */
   channelsTotalCount() {
-    return Channels.find({}).count();
+    return Channels.find({}).countDocuments();
   },
 
   /**

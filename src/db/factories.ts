@@ -12,6 +12,7 @@ import {
 } from '../data/constants';
 import { IActionPerformer, IActivity, ICoc } from '../db/models/definitions/activityLogs';
 import {
+  Accounts,
   ActivityLogs,
   Brands,
   Channels,
@@ -236,7 +237,7 @@ interface IInternalNoteFactoryInput {
 export const internalNoteFactory = (params: IInternalNoteFactoryInput) => {
   const internalNote = new InternalNotes({
     contentType: params.contentType || COC_CONTENT_TYPES.CUSTOMER,
-    contentTypeId: params.contentTypeId || faker.random.uuid(),
+    contentTypeId: params.contentTypeId || faker.random.uuid().toString(),
     content: params.content || faker.random.word(),
   });
 
@@ -361,7 +362,7 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
   });
 
   await field.save();
-  await Fields.update({ _id: field._id }, { $set: { ...params } });
+  await Fields.updateOne({ _id: field._id }, { $set: { ...params } });
 
   return Fields.findOne({ _id: field._id });
 };
@@ -438,6 +439,7 @@ interface IIntegrationFactoryInput {
   formId?: string;
   twitterData?: any;
   facebookData?: any;
+  gmailData?: any;
   formData?: any | string;
   tagIds?: string[];
 }
@@ -453,6 +455,7 @@ export const integrationFactory = async (params: IIntegrationFactoryInput = {}) 
     messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
     twitterData: params.twitterData || {},
     facebookData: params.facebookData || {},
+    gmailData: params.gmailData || {},
     formData: params.formData === 'form' ? params.formData : kind === 'form' ? { thankContent: 'thankContent' } : null,
     tagIds: params.tagIds || [],
   };
@@ -746,7 +749,7 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
 
   const groupObj = await FieldsGroups.create(doc);
 
-  FieldsGroups.update({ _id: groupObj._id }, { $set: { ...params } });
+  FieldsGroups.updateOne({ _id: groupObj._id }, { $set: { ...params } });
 
   return FieldsGroups.findOne({ _id: groupObj._id });
 };
@@ -786,3 +789,25 @@ export function messengerAppFactory(params: IMessengerApp) {
     credentials: params.credentials,
   });
 }
+
+interface IAccountFactoryInput {
+  kind?: string;
+  uid?: string;
+  token?: string;
+  name?: string;
+  expireDate?: number;
+  scope?: string;
+}
+
+export const accountFactory = async (params: IAccountFactoryInput) => {
+  const doc = {
+    kind: params.kind || 'facebook',
+    uid: params.uid || faker.random.number,
+    token: params.token || faker.random.word(),
+    expireDate: params.expireDate || faker.random.number,
+    scope: params.scope || faker.random.word(),
+    name: params.name || faker.random.name,
+  };
+
+  return Accounts.create(doc);
+};

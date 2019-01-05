@@ -46,6 +46,8 @@ describe('facebook integration: save webhook response', () => {
 
       // mock get user info
       return {
+        first_name: 'Dombo',
+        last_name: 'Gombo',
         name: 'Dombo Gombo',
       };
     });
@@ -68,18 +70,18 @@ describe('facebook integration: save webhook response', () => {
     postMock.restore();
 
     // clear previous datas
-    await Conversations.remove({});
-    await Customers.remove({});
-    await ConversationMessages.remove({});
-    await ActivityLogs.remove({});
+    await Conversations.deleteMany({});
+    await Customers.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await ActivityLogs.deleteMany({});
   });
 
   test('via messenger event', async () => {
     // first time ========================
 
-    expect(await Conversations.find().count()).toBe(0); // 0 conversations
-    expect(await Customers.find().count()).toBe(0); // 0 customers
-    expect(await ConversationMessages.find().count()).toBe(0); // 0 messages
+    expect(await Conversations.find().countDocuments()).toBe(0); // 0 conversations
+    expect(await Customers.find().countDocuments()).toBe(0); // 0 customers
+    expect(await ConversationMessages.find().countDocuments()).toBe(0); // 0 messages
 
     senderId = '2242424244';
     let messageText = 'from messenger';
@@ -115,9 +117,9 @@ describe('facebook integration: save webhook response', () => {
     };
     await saveWebhookResponse.start();
 
-    expect(await Conversations.find().count()).toBe(1); // 1 conversation
-    expect(await Customers.find().count()).toBe(1); // 1 customer
-    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
+    expect(await Conversations.find().countDocuments()).toBe(1); // 1 conversation
+    expect(await Customers.find().countDocuments()).toBe(1); // 1 customer
+    expect(await ConversationMessages.find().countDocuments()).toBe(1); // 1 message
 
     let conversation = await Conversations.findOne();
     const customer = await Customers.findOne();
@@ -189,13 +191,13 @@ describe('facebook integration: save webhook response', () => {
     await saveWebhookResponse.start();
 
     // must not be created new conversation
-    expect(await Conversations.find().count()).toBe(1);
+    expect(await Conversations.find().countDocuments()).toBe(1);
 
     // must not be created new customer
-    expect(await Customers.find().count()).toBe(1);
+    expect(await Customers.find().countDocuments()).toBe(1);
 
     // must be created new message
-    expect(await ConversationMessages.find().count()).toBe(2);
+    expect(await ConversationMessages.find().countDocuments()).toBe(2);
 
     // check conversation field updates
     conversation = await Conversations.findOne();
@@ -241,15 +243,15 @@ describe('facebook integration: save webhook response', () => {
     await saveWebhookResponse.start();
 
     // must not be created new message
-    expect(await ConversationMessages.find().count()).toBe(2);
+    expect(await ConversationMessages.find().countDocuments()).toBe(2);
   });
 
   test('via feed event', async () => {
     // first time ========================
 
-    expect(await Conversations.find().count()).toBe(0); // 0 conversations
-    expect(await Customers.find().count()).toBe(0); // 0 customers
-    expect(await ConversationMessages.find().count()).toBe(0); // 0 messages
+    expect(await Conversations.find().countDocuments()).toBe(0); // 0 conversations
+    expect(await Customers.find().countDocuments()).toBe(0); // 0 customers
+    expect(await ConversationMessages.find().countDocuments()).toBe(0); // 0 messages
 
     let messageText = 'wall post';
     const link = 'link_url';
@@ -283,9 +285,9 @@ describe('facebook integration: save webhook response', () => {
     };
     await saveWebhookResponse.start();
 
-    expect(await Conversations.find().count()).toBe(1); // 1 conversation
-    expect(await Customers.find().count()).toBe(1); // 1 customer
-    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
+    expect(await Conversations.find().countDocuments()).toBe(1); // 1 conversation
+    expect(await Customers.find().countDocuments()).toBe(1); // 1 customer
+    expect(await ConversationMessages.find().countDocuments()).toBe(1); // 1 message
 
     let conversation = await Conversations.findOne();
 
@@ -317,11 +319,11 @@ describe('facebook integration: save webhook response', () => {
 
     // check customer field values
     expect(customer.integrationId).toBe(integration._id);
-    expect(customer.firstName).toBe('Dombo Gombo'); // from mocked get info above
+    expect(customer.firstName).toBe(senderName); // from mocked get info above
     expect(customer.facebookData.id).toBe(senderId);
 
     // 1 logs
-    expect(await ActivityLogs.find({ 'activity.type': 'customer' }).count()).toBe(1);
+    expect(await ActivityLogs.find({ 'activity.type': 'customer' }).countDocuments()).toBe(1);
 
     // check message field values
     expect(message.createdAt).toBeDefined();
@@ -374,13 +376,13 @@ describe('facebook integration: save webhook response', () => {
     await saveWebhookResponse.start();
 
     // must not be created new conversation
-    expect(await Conversations.find().count()).toBe(1);
+    expect(await Conversations.find().countDocuments()).toBe(1);
 
     // must not be created new customer
-    expect(await Customers.find().count()).toBe(1);
+    expect(await Customers.find().countDocuments()).toBe(1);
 
     // must be created new message
-    expect(await ConversationMessages.find().count()).toBe(2);
+    expect(await ConversationMessages.find().countDocuments()).toBe(2);
 
     // check conversation field updates
     conversation = await Conversations.findOne();

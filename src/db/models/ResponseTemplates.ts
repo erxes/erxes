@@ -1,37 +1,42 @@
 import { Model, model } from 'mongoose';
 import { IResponseTemplate, IResponseTemplateDocument, responseTemplateSchema } from './definitions/responseTemplates';
 
-interface IResponseTemplateModel extends Model<IResponseTemplateDocument> {
+export interface IResponseTemplateModel extends Model<IResponseTemplateDocument> {
   updateResponseTemplate(_id: string, fields: IResponseTemplate): Promise<IResponseTemplateDocument>;
-
   removeResponseTemplate(_id: string): void;
 }
 
-class ResponseTemplate {
-  /**
-   * Update response template
-   */
-  public static async updateResponseTemplate(_id: string, fields: IResponseTemplate) {
-    await ResponseTemplates.update({ _id }, { $set: { ...fields } });
+export const loadClass = () => {
+  class ResponseTemplate {
+    /**
+     * Update response template
+     */
+    public static async updateResponseTemplate(_id: string, fields: IResponseTemplate) {
+      await ResponseTemplates.updateOne({ _id }, { $set: { ...fields } });
 
-    return ResponseTemplates.findOne({ _id });
-  }
-
-  /**
-   * Delete response template
-   */
-  public static async removeResponseTemplate(_id: string) {
-    const responseTemplateObj = await ResponseTemplates.findOne({ _id });
-
-    if (!responseTemplateObj) {
-      throw new Error(`Response template not found with id ${_id}`);
+      return ResponseTemplates.findOne({ _id });
     }
 
-    return responseTemplateObj.remove();
-  }
-}
+    /**
+     * Delete response template
+     */
+    public static async removeResponseTemplate(_id: string) {
+      const responseTemplateObj = await ResponseTemplates.findOne({ _id });
 
-responseTemplateSchema.loadClass(ResponseTemplate);
+      if (!responseTemplateObj) {
+        throw new Error(`Response template not found with id ${_id}`);
+      }
+
+      return responseTemplateObj.remove();
+    }
+  }
+
+  responseTemplateSchema.loadClass(ResponseTemplate);
+
+  return responseTemplateSchema;
+};
+
+loadClass();
 
 // tslint:disable-next-line
 const ResponseTemplates = model<IResponseTemplateDocument, IResponseTemplateModel>(

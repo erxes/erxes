@@ -111,9 +111,9 @@ describe('companyQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Companies.remove({});
-    await Tags.remove({});
-    await Segments.remove({});
+    await Companies.deleteMany({});
+    await Tags.deleteMany({});
+    await Segments.deleteMany({});
   });
 
   test('Companies', async () => {

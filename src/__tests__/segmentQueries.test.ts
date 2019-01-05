@@ -6,7 +6,7 @@ import { Segments } from '../db/models';
 describe('segmentQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await Segments.remove({});
+    await Segments.deleteMany({});
   });
 
   test('Segments', async () => {

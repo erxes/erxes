@@ -1,10 +1,10 @@
-import { Integrations } from '../../../db/models';
+import { Accounts, Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
-import { getGmailUserProfile, sendGmail } from '../../../trackers/gmail';
-import { getAccessToken } from '../../../trackers/googleTracker';
+import { sendGmail, updateHistoryId } from '../../../trackers/gmail';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { requireAdmin, requireLogin } from '../../permissions';
+import { sendPostRequest } from '../../utils';
 
 interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
@@ -53,21 +53,24 @@ const integrationMutations = {
   /**
    * Create a new twitter integration
    */
-  async integrationsCreateTwitterIntegration(_root, { queryParams, brandId }: { queryParams: any; brandId: string }) {
-    const data: any = await socUtils.authenticate(queryParams);
+  async integrationsCreateTwitterIntegration(_root, { accountId, brandId }: { accountId: string; brandId: string }) {
+    const account = await Accounts.findOne({ _id: accountId });
+
+    if (!account) {
+      throw new Error('Account not found');
+    }
 
     const integration = await Integrations.createTwitterIntegration({
-      name: data.info.name,
+      name: account.name,
       brandId,
       twitterData: {
-        info: data.info,
-        token: data.tokens.auth.token,
-        tokenSecret: data.tokens.auth.token_secret,
+        profileId: account.uid,
+        accountId: account._id,
       },
     });
 
     // start tracking new twitter entries
-    socUtils.trackIntegration(integration);
+    socUtils.trackIntegration(account, integration);
 
     return integration;
   },
@@ -77,16 +80,29 @@ const integrationMutations = {
    */
   async integrationsCreateFacebookIntegration(
     _root,
-    { name, brandId, appId, pageIds }: { name: string; brandId: string; appId: string; pageIds: string[] },
+    { name, brandId, pageIds, accountId }: { name: string; brandId: string; pageIds: string[]; accountId: string },
   ) {
-    return Integrations.createFacebookIntegration({
+    const integration = Integrations.createFacebookIntegration({
       name,
       brandId,
       facebookData: {
-        appId,
+        accountId,
         pageIds,
       },
     });
+
+    const { INTEGRATION_ENDPOINT_URL, FACEBOOK_APP_ID, DOMAIN } = process.env;
+
+    if (INTEGRATION_ENDPOINT_URL) {
+      for (const pageId of pageIds) {
+        await sendPostRequest(`${INTEGRATION_ENDPOINT_URL}/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, {
+          endPoint: DOMAIN || '',
+          pageId,
+        });
+      }
+    }
+
+    return integration;
   },
 
   /**
@@ -106,32 +122,35 @@ const integrationMutations = {
   /**
    * Create gmail integration
    */
-  async integrationsCreateGmailIntegration(_root, { code, brandId }: { code: string; brandId: string }) {
-    const credentials = await getAccessToken(code, 'gmail');
+  async integrationsCreateGmailIntegration(
+    _root,
+    { name, accountId, brandId }: { name: string; accountId: string; brandId: string },
+  ) {
+    const account = await Accounts.findOne({ _id: accountId });
 
-    // get permission granted email address
-    const data = await getGmailUserProfile(credentials);
-
-    if (!data.emailAddress || !data.historyId) {
-      throw new Error('Gmail profile not found');
+    if (!account) {
+      throw new Error(`Account not found id with ${accountId}`);
     }
 
-    return Integrations.createGmailIntegration({
-      name: data.emailAddress,
+    const integration = await Integrations.createGmailIntegration({
+      name,
       brandId,
       gmailData: {
-        email: data.emailAddress,
-        historyId: data.historyId,
-        credentials,
+        email: account.uid,
+        accountId,
       },
     });
+
+    await updateHistoryId(integration);
+
+    return integration;
   },
 
   /**
    * Send mail by gmail api
    */
-  integrationsSendGmail(_root, args, { user }) {
-    return sendGmail(args, user._id);
+  integrationsSendGmail(_root, args) {
+    return sendGmail(args);
   },
 };
 

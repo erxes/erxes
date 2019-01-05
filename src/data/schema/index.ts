@@ -1,3 +1,5 @@
+import { gql } from 'apollo-server-express';
+
 import { mutations as UserMutations, queries as UserQueries, types as UserTypes } from './user';
 
 import { mutations as CompanyMutations, queries as CompanyQueries, types as CompanyTypes } from './company';
@@ -17,6 +19,8 @@ import {
   queries as ResponseTemplateQueries,
   types as ResponseTemplate,
 } from './responseTemplate';
+
+import { mutations as ScriptMutations, queries as ScriptQueries, types as Script } from './script';
 
 import {
   mutations as EmailTemplateMutations,
@@ -93,6 +97,8 @@ import {
   types as MessengerAppTypes,
 } from './messengerApp';
 
+import { mutations as AccountMutations, queries as AccountQueries, types as AccountTypes } from './accounts';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -105,6 +111,7 @@ export const types = `
   ${BrandTypes}
   ${IntegrationTypes}
   ${ResponseTemplate}
+  ${Script}
   ${EmailTemplate}
   ${EngageTypes}
   ${TagTypes}
@@ -122,6 +129,7 @@ export const types = `
   ${FieldGroupTypes}
   ${ImportHistoryTypes}
   ${MessengerAppTypes}
+  ${AccountTypes}
 `;
 
 export const queries = `
@@ -131,6 +139,7 @@ export const queries = `
     ${BrandQueries}
     ${IntegrationQueries}
     ${ResponseTemplateQueries}
+    ${ScriptQueries}
     ${EmailTemplateQueries}
     ${FieldQueries}
     ${EngageQueries}
@@ -151,6 +160,7 @@ export const queries = `
     ${FieldGroupQueries}
     ${ImportHistoryQueries}
     ${MessengerAppQueries}
+    ${AccountQueries}
   }
 `;
 
@@ -163,6 +173,7 @@ export const mutations = `
     ${TagMutations}
     ${BrandMutations}
     ${ResponseTemplateMutations}
+    ${ScriptMutations}
     ${EmailTemplateMutations}
     ${InternalNoteMutations}
     ${CustomerMutations}
@@ -180,6 +191,7 @@ export const mutations = `
     ${FieldGroupMutations}
     ${ImportHistoryMutations}
     ${MessengerAppMutations}
+    ${AccountMutations}
   }
 `;
 
@@ -192,3 +204,7 @@ export const subscriptions = `
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
   }
 `;
+
+const typeDefs = gql(`${types} ${queries} ${mutations} ${subscriptions}`);
+
+export default typeDefs;

@@ -36,5 +36,5 @@ export const queries = `
 
 export const mutations = `
   notificationsSaveConfig (notifType: String!, isAllowed: Boolean): NotificationConfiguration
-  notificationsMarkAsRead (_ids: [String]) : Boolean
+  notificationsMarkAsRead (_ids: [String]) : JSON
 `;

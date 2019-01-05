@@ -1,19 +1,18 @@
 import * as moment from 'moment';
-import * as _ from 'underscore';
-import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
+import { ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../db/models';
 import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import {
+  findConversations,
+  fixChartData,
   fixDate,
   fixDates,
-  formatTime,
   generateChartData,
-  generateDuration,
   generateMessageSelector,
   generateResponseData,
   generateTimeIntervals,
-  generateUserChartData,
   generateUserSelector,
+  getConversationSelector,
 } from './insightUtils';
 
 interface IListArgs {
@@ -45,7 +44,10 @@ const insightQueries = {
       integrationSelector.brandId = brandId;
     }
 
-    const insights: { integration: IPieChartData[]; tag: IPieChartData[] } = { integration: [], tag: [] };
+    const insights: { integration: IPieChartData[]; tag: IPieChartData[] } = {
+      integration: [],
+      tag: [],
+    };
 
     const conversationSelector = {
       createdAt: { $gte: start, $lte: end },
@@ -54,10 +56,13 @@ const insightQueries = {
 
     // count conversations by each integration kind
     for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
-      const integrationIds = await Integrations.find({ ...integrationSelector, kind }).select('_id');
+      const integrationIds = await Integrations.find({
+        ...integrationSelector,
+        kind,
+      }).select('_id');
 
       // find conversation counts of given integrations
-      const value = await Conversations.count({
+      const value = await Conversations.countDocuments({
         ...conversationSelector,
         integrationId: { $in: integrationIds },
       });
@@ -65,7 +70,7 @@ const insightQueries = {
       if (kind === INTEGRATION_KIND_CHOICES.FACEBOOK) {
         const { FEED, MESSENGER } = FACEBOOK_DATA_KINDS;
 
-        const feedCount = await Conversations.count({
+        const feedCount = await Conversations.countDocuments({
           ...conversationSelector,
           integrationId: { $in: integrationIds },
           'facebookData.kind': FEED,
@@ -93,172 +98,235 @@ const insightQueries = {
       integrationSelector.kind = integrationType;
     }
 
+    const integrationIdsByTag = await Integrations.find(integrationSelector).select('_id');
+    const rawIntegrationIdsByTag = integrationIdsByTag.map(row => row._id);
+    const tagData = await Conversations.aggregate([
+      {
+        $match: {
+          ...conversationSelector,
+          integrationId: { $in: rawIntegrationIdsByTag },
+        },
+      },
+      {
+        $unwind: '$tagIds',
+      },
+      {
+        $group: {
+          _id: '$tagIds',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    const tagDictionaryData = {};
+    tagData.map(row => {
+      tagDictionaryData[row._id] = row.count;
+    });
     // count conversations by each tag
     for (const tag of tags) {
-      const integrationIds = await Integrations.find(integrationSelector).select('_id');
-
       // find conversation counts of given tag
-      const value = await Conversations.count({
-        ...conversationSelector,
-        integrationId: { $in: integrationIds },
-        tagIds: tag._id,
-      });
-
-      if (value > 0) {
+      const value = tagDictionaryData[tag._id];
+      if (tag._id in tagDictionaryData) {
         insights.tag.push({ id: tag.name, label: tag.name, value });
       }
     }
-
     return insights;
   },
 
   /**
    * Counts conversations by each hours in each days.
    */
-  async insightsPunchCard(_root, { type, integrationType, brandId, endDate }: IListArgs) {
+  async insightsPunchCard(_root, args: IListArgs) {
+    const { type, integrationType, brandId, endDate } = args;
+
     // check & convert endDate's value
     const end = moment(fixDate(endDate)).format('YYYY-MM-DD');
     const start = moment(end).add(-7, 'days');
 
-    const messageSelector = await generateMessageSelector(
-      brandId,
-      integrationType,
-      // conversation selector
-      {},
-      // message selector
+    const conversationIds = await findConversations(
+      { brandId, kind: integrationType },
       {
-        // client or user
-        userId: generateUserSelector(type),
-
-        // last 7 days
         createdAt: { $gte: start, $lte: end },
       },
+      true,
     );
 
-    const messages = await ConversationMessages.find(messageSelector);
+    const rawConversationIds = conversationIds.map(obj => obj._id);
+    const matchMessageSelector = {
+      conversationId: { $in: rawConversationIds },
+      fromBot: { $exists: false },
+      // client or user
+      userId: generateUserSelector(type),
+      createdAt: { $gte: start.toDate(), $lte: new Date(end) },
+    };
 
-    const punchCard: any = [];
+    // TODO: need improvements on timezone calculation.
+    const punchData = await ConversationMessages.aggregate([
+      {
+        $match: matchMessageSelector,
+      },
+      {
+        $project: {
+          hour: { $hour: { date: '$createdAt', timezone: '+08' } },
+          day: { $isoDayOfWeek: { date: '$createdAt', timezone: '+08' } },
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+              // timezone: "+08"
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            hour: '$hour',
+            day: '$day',
+            date: '$date',
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          day: '$_id.day',
+          hour: '$_id.hour',
+          date: '$_id.date',
+          count: 1,
+        },
+      },
+    ]);
 
-    let count = 0;
-    let dayCount = 0;
-
-    // insert hourly message counts for all week duration
-    // into punch card array.
-    for (let i = 0; i < 7 * 24; i++) {
-      dayCount = moment(start)
-        .add(i, 'hours')
-        .weekday();
-      const startTime = moment(start)
-        .add(i, 'hours')
-        .toDate()
-        .getTime();
-      const endTime = moment(start)
-        .add(i + 1, 'hours')
-        .toDate()
-        .getTime();
-      // counting messages in one hour
-      count = messages.filter(
-        message => startTime < message.createdAt.getTime() && message.createdAt.getTime() < endTime,
-      ).length;
-
-      if (count > 0) {
-        // 1(Monday), 1(am), 20 messages
-        punchCard.push([dayCount, i % 24, count]);
-      }
-    }
-
-    return punchCard;
+    return punchData;
   },
 
   /**
    * Sends combined charting data for trends, summaries and team members.
    */
-  async insightsMain(_root, { type, integrationType, brandId, startDate, endDate }: IListArgs) {
+  async insightsMain(_root, args: IListArgs) {
+    const { type, integrationType, brandId, startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
-    const { duration, startTime } = generateDuration({ start, end });
 
     const messageSelector = await generateMessageSelector(
       brandId,
       integrationType,
       // conversation selector
-      {},
+      {
+        createdAt: { $gte: start, $lte: end },
+      },
       // message selector
       {
         userId: generateUserSelector(type),
         createdAt: { $gte: start, $lte: end },
+        // exclude bot messages
+        fromBot: { $exists: false },
       },
     );
 
-    const messages = await ConversationMessages.find(messageSelector);
-
     const insightData: any = {
-      teamMembers: [],
       summary: [],
-      trend: generateChartData(messages, 7, duration, startTime),
+      trend: await generateChartData({ messageSelector }),
     };
 
-    if (type === 'response') {
-      const userIds = _.uniq(_.pluck(messages, 'userId'));
-
-      // generate detail and graph data for each user
-      for (const userId of userIds) {
-        const userMessages = messages.filter(message => userId === message.userId);
-
-        let responseTime = 0;
-        let count = 0;
-        const conversationIds: any = [];
-
-        for (const msg of userMessages) {
-          const conversationId = msg.conversationId;
-
-          if (conversationIds.indexOf(conversationId) < 0) {
-            const clientMessage = await ConversationMessages.findOne({
-              ...messageSelector,
-              conversationId,
-              userId: null,
-            }).sort({ createdAt: 1 });
-
-            // First message that answered to a conversation
-            const userMessage = await ConversationMessages.findOne({
-              ...messageSelector,
-              conversationId,
-              userId: { $ne: null },
-            }).sort({ createdAt: 1 });
-
-            if (userMessage && clientMessage) {
-              responseTime += (userMessage.createdAt.getTime() - clientMessage.createdAt.getTime()) / 1000;
-              count += 1;
-            }
-
-            conversationIds.push(conversationId);
-          }
-        }
-
-        insightData.teamMembers.push({
-          data: await generateUserChartData({
-            userId,
-            userMessages,
-            duration,
-            startTime,
-          }),
-
-          time: Math.floor(responseTime / count),
-        });
-      }
-    }
-
     const summaries = generateTimeIntervals(start, end);
-
+    const facets = {};
     // finds a respective message counts for different time intervals.
     for (const summary of summaries) {
       messageSelector.createdAt = {
-        $gt: formatTime(summary.start),
-        $lte: formatTime(summary.end),
+        $gt: summary.start.toDate(),
+        $lte: summary.end.toDate(),
       };
-
+      facets[summary.title] = [
+        {
+          $match: {
+            userId: generateUserSelector(type),
+            createdAt: {
+              $gte: summary.start.toDate(),
+              $lte: summary.end.toDate(),
+            },
+            // exclude bot messages
+            fromBot: { $exists: false },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            count: 1,
+          },
+        },
+      ];
+    }
+    const data = await ConversationMessages.aggregate([
+      {
+        $facet: facets,
+      },
+    ]);
+    for (const summary of summaries) {
+      const count = data['0'][summary.title][0] ? data['0'][summary.title][0].count : 0;
       insightData.summary.push({
         title: summary.title,
-        count: await ConversationMessages.count(messageSelector),
+        count,
+      });
+    }
+
+    return insightData;
+  },
+
+  /**
+   * Sends combined charting data for trends and summaries.
+   */
+  async insightsConversation(_root, args: IListArgs) {
+    const { integrationType, brandId, startDate, endDate } = args;
+    const { start, end } = fixDates(startDate, endDate);
+
+    const conversationSelector = {
+      createdAt: { $gt: start, $lte: end },
+      $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
+    };
+
+    const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
+    const insightData: any = {
+      summary: [],
+      trend: await generateChartData({ collection: conversations }),
+    };
+
+    const summaries = generateTimeIntervals(start, end);
+    const facets = {};
+
+    // finds a respective message counts for different time intervals.
+    for (const summary of summaries) {
+      facets[summary.title] = [
+        {
+          $match: {
+            createdAt: {
+              $gt: summary.start.toDate(),
+              $lte: summary.end.toDate(),
+            },
+            $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
+          },
+        },
+        { $group: { _id: null, count: { $sum: 1 } } },
+        { $project: { _id: 0, count: 1 } },
+      ];
+    }
+    const data = await Conversations.aggregate([
+      {
+        $facet: facets,
+      },
+    ]);
+
+    for (const summary of summaries) {
+      const count = data['0'][summary.title][0] ? data['0'][summary.title][0].count : 0;
+      insightData.summary.push({
+        title: summary.title,
+        count,
       });
     }
 
@@ -268,21 +336,16 @@ const insightQueries = {
   /**
    * Calculates average first response time for each team members.
    */
-  async insightsFirstResponse(_root, { integrationType, brandId, startDate, endDate }: IListArgs) {
+  async insightsFirstResponse(_root, args: IListArgs) {
+    const { integrationType, brandId, startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
-    const { duration, startTime } = generateDuration({ start, end });
 
-    const messageSelector = await generateMessageSelector(
-      brandId,
-      integrationType,
-      // conversation selector
-      {
-        messageCount: { $gt: 2 },
-        createdAt: { $gte: start, $lte: end },
-      },
-      // message selector
-      { createdAt: { $ne: null } },
-    );
+    const conversationSelector = {
+      firstRespondedUserId: { $exists: true },
+      firstRespondedDate: { $exists: true },
+      messageCount: { $gt: 1 },
+      createdAt: { $gte: start, $lte: end },
+    };
 
     const insightData = { teamMembers: [], trend: [] };
 
@@ -294,41 +357,33 @@ const insightQueries = {
 
     let allResponseTime = 0;
 
-    // If conversation was found that above search criteria.
-    if (!(messageSelector.conversationId && messageSelector.conversationId.$in)) {
+    const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
+
+    if (conversations.length < 1) {
       return insightData;
     }
 
-    const conversationIds = messageSelector.conversationId.$in;
     const summaries = [0, 0, 0, 0];
 
     // Processes total first response time for each users.
-    for (const conversationId of conversationIds) {
-      // Client first response message
-      const clientMessage = await ConversationMessages.findOne({
-        ...messageSelector,
-        conversationId,
-        userId: null,
-      }).sort({ createdAt: 1 });
-
-      // First message that answered to a conversation
-      const userMessage = await ConversationMessages.findOne({
-        ...messageSelector,
-        conversationId,
-        userId: { $ne: null },
-      }).sort({ createdAt: 1 });
+    for (const conversation of conversations) {
+      const { firstRespondedUserId, firstRespondedDate, createdAt } = conversation;
 
       let responseTime = 0;
 
       // checking wheter or not this is actual conversation
-      if (userMessage && clientMessage) {
-        responseTime = userMessage.createdAt.getTime() - clientMessage.createdAt.getTime();
+      if (firstRespondedDate && firstRespondedUserId) {
+        responseTime = createdAt.getTime() - firstRespondedDate.getTime();
         responseTime = Math.abs(responseTime / 1000);
 
-        const userId = userMessage.userId || '';
+        const userId = firstRespondedUserId;
 
         // collecting each user's respond information
-        firstResponseData.push({ createdAt: userMessage.createdAt, userId, responseTime });
+        firstResponseData.push({
+          createdAt: firstRespondedDate,
+          userId,
+          responseTime,
+        });
 
         allResponseTime += responseTime;
 
@@ -337,7 +392,11 @@ const insightQueries = {
           responseUserData[userId].responseTime = responseTime + responseUserData[userId].responseTime;
           responseUserData[userId].count = responseUserData[userId].count + 1;
         } else {
-          responseUserData[userId] = { responseTime, count: 1, summaries: [0, 0, 0, 0] };
+          responseUserData[userId] = {
+            responseTime,
+            count: 1,
+            summaries: [0, 0, 0, 0],
+          };
         }
 
         const minute = Math.floor(responseTime / 60);
@@ -348,7 +407,7 @@ const insightQueries = {
       }
     }
 
-    const doc = await generateResponseData(firstResponseData, responseUserData, allResponseTime, duration, startTime);
+    const doc = await generateResponseData(firstResponseData, responseUserData, allResponseTime);
 
     return { ...doc, summaries };
   },
@@ -356,9 +415,9 @@ const insightQueries = {
   /**
    * Calculates average response close time for each team members.
    */
-  async insightsResponseClose(_root, { integrationType, brandId, startDate, endDate }: IListArgs) {
+  async insightsResponseClose(_root, args: IListArgs) {
+    const { integrationType, brandId, startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
-    const { duration, startTime } = generateDuration({ start, end });
 
     const conversationSelector = {
       createdAt: { $gte: start, $lte: end },
@@ -366,68 +425,123 @@ const insightQueries = {
       closedUserId: { $ne: null },
     };
 
-    const integrationSelector: any = {};
-
-    if (brandId) {
-      integrationSelector.brandId = brandId;
-    }
-
-    if (integrationType) {
-      integrationSelector.kind = integrationType;
-    }
-
-    const integrationIds = await Integrations.find(integrationSelector).select('_id');
-    const conversations = await Conversations.find({
-      ...conversationSelector,
-      integrationId: { $in: integrationIds },
-    });
-
-    const insightData = { teamMembers: [], trend: [] };
-
-    // If conversation not found.
-    if (conversations.length < 1) {
-      return insightData;
-    }
-
-    // Variable that holds all responded conversation messages
-    const responseCloseData: any = [];
-
+    const conversationMatch = await getConversationSelector({ kind: integrationType, brandId }, conversationSelector);
+    const insightAggregateData = await Conversations.aggregate([
+      {
+        $match: conversationMatch,
+      },
+      {
+        $match: {
+          closedAt: { $exists: true },
+        },
+      },
+      {
+        $project: {
+          responseTime: {
+            $divide: [{ $subtract: ['$closedAt', '$createdAt'] }, 1000],
+          },
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+              // timezone: "+08"
+            },
+          },
+          closedUserId: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            closedUserId: '$closedUserId',
+            date: '$date',
+          },
+          totalResponseTime: { $sum: '$responseTime' },
+          avgResponseTime: { $avg: '$responseTime' },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          closedUserId: '$_id.closedUserId',
+          date: '$_id.date',
+          totalResponseTime: 1,
+          avgResponseTime: 1,
+          count: 1,
+        },
+      },
+      {
+        $group: {
+          _id: '$closedUserId',
+          responseTime: { $sum: '$totalResponseTime' },
+          avgResponseTime: { $avg: '$avgResponseTime' },
+          count: { $sum: '$count' },
+          chartDatas: {
+            $push: {
+              date: '$date',
+              count: '$count',
+            },
+          },
+        },
+      },
+    ]);
     // Variables holds every user's response time.
+    const teamMembers: any = [];
     const responseUserData: any = {};
 
     let allResponseTime = 0;
-
-    // Processes total first response time for each users.
-    for (const conversation of conversations) {
-      let responseTime = 0;
-      if (conversation.closedAt) {
-        responseTime = conversation.closedAt.getTime() - conversation.createdAt.getTime();
-        responseTime = responseTime / 1000;
-      }
-
-      const userId = conversation.closedUserId || '';
-
-      // collecting each user's respond information
-      responseCloseData.push({
-        createdAt: conversation.createdAt,
-        userId,
-        responseTime,
+    let totalCount = 0;
+    const aggregatedTrend = {};
+    for (const userData of insightAggregateData) {
+      // responseUserData
+      responseUserData[userData._id] = {
+        responseTime: userData.responseTime,
+        count: userData.count,
+        avgResponseTime: userData.avgResponseTime,
+      };
+      // team members gather
+      const fixedChartData = await fixChartData(userData.chartDatas, 'date', 'count');
+      const user = await Users.findOne({ _id: userData._id });
+      userData.chartDatas.map(row => {
+        if (row.date in aggregatedTrend) {
+          aggregatedTrend[row.date] += row.count;
+        } else {
+          aggregatedTrend[row.date] = row.count;
+        }
       });
-
-      allResponseTime += responseTime;
-
-      let count = 1;
-
-      // Builds every users's response time and conversation message count.
-      if (responseUserData[userId]) {
-        responseTime = responseTime + responseUserData[userId].responseTime;
-        count = responseUserData[userId].count + 1;
+      if (!user) {
+        continue;
       }
-
-      responseUserData[userId] = { responseTime, count };
+      const userDetail = user.details;
+      teamMembers.push({
+        data: {
+          fullName: userDetail ? userDetail.fullName : '',
+          avatar: userDetail ? userDetail.avatar : '',
+          graph: fixedChartData,
+        },
+      });
+      // calculate allResponseTime to render average responseTime
+      allResponseTime += userData.responseTime;
+      totalCount += userData.count;
     }
 
-    return generateResponseData(responseCloseData, responseUserData, allResponseTime, duration, startTime);
+    if (insightAggregateData.length < 1) {
+      return { teamMembers: [], trend: [] };
+    }
+
+    const trend = await fixChartData(
+      Object.keys(aggregatedTrend)
+        .sort()
+        .map(key => {
+          return { date: key, count: aggregatedTrend[key] };
+        }),
+      'date',
+      'count',
+    );
+    const time = Math.floor(allResponseTime / totalCount);
+
+    return { trend, teamMembers, time };
   },
 };
 

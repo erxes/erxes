@@ -13,6 +13,7 @@ export const types = `
     messengerData: JSON
     twitterData: JSON
     facebookData: JSON
+    gmailData: JSON
     uiOptions: JSON
 
     brand: Brand
@@ -46,11 +47,6 @@ export const types = `
     redirectUrl: String
   }
 
-  input TwitterIntegrationAuthParams {
-    oauth_token: String!
-    oauth_verifier: String!
-  }
-
   input MessengerOnlineHoursSchema {
     _id: String
     day: String
@@ -75,12 +71,20 @@ export const types = `
     knowledgeBaseTopicId: String
     links: IntegrationLinks
     supporterIds: [String]
+    requireAuth: Boolean
   }
 
   input MessengerUiOptions {
     color: String
     wallpaper: String
     logo: String
+  }
+
+  input gmailAttachmentData {
+    filename: String
+    size: Int
+    mimeType: String
+    data: String
   }
 `;
 
@@ -101,7 +105,7 @@ export const queries = `
   integrationGetGoogleAuthUrl(service: String): String
   integrationGetGoogleAccessToken(code: String): JSON
   integrationFacebookAppsList: [JSON]
-  integrationFacebookPagesList(appId: String): [JSON]
+  integrationFacebookPagesList(accountId: String): [JSON]
 `;
 
 export const mutations = `
@@ -135,13 +139,13 @@ export const mutations = `
 
   integrationsCreateTwitterIntegration(
     brandId: String!,
-    queryParams: TwitterIntegrationAuthParams!
+    accountId: String!
   ): Integration
 
   integrationsCreateFacebookIntegration(
     brandId: String!,
     name: String!,
-    appId: String!,
+    accountId: String!,
     pageIds: [String!]!,
   ): Integration
 
@@ -153,9 +157,9 @@ export const mutations = `
     formId: String!,
     formData: IntegrationFormData!): Integration
 
-  integrationsRemove(_id: String!): String
+  integrationsRemove(_id: String!): JSON
 
-  integrationsCreateGmailIntegration(code: String!, brandId: String!): Integration
+  integrationsCreateGmailIntegration(name: String!, accountId: String!, brandId: String!): Integration
 
   integrationsSendGmail(
     integrationId: String!,
@@ -166,6 +170,9 @@ export const mutations = `
     toEmails: String!,
     cc: String,
     bcc: String,
-    attachments: [String],
+    attachments: [gmailAttachmentData],
+    headerId: String,
+    references: String,
+    threadId: String
   ): GmailResponseData
 `;

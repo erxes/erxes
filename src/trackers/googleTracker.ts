@@ -7,7 +7,6 @@ const SCOPES_GMAIL = [
   'https://www.googleapis.com/auth/gmail.compose',
   'https://www.googleapis.com/auth/gmail.send',
   'https://www.googleapis.com/auth/gmail.readonly',
-  'https://www.googleapis.com/auth/gmail.metadata',
 ];
 
 export const getOauthClient = (service?: string) => {
@@ -21,7 +20,7 @@ export const getOauthClient = (service?: string) => {
 /**
  * Get auth url defends on google services such us gmail, calendar
  */
-export const getAuthorizeUrl = (service: string) => {
+export const getAuthorizeUrl = (service?: string) => {
   const oauthClient = getOauthClient(service);
   const scopes = service === 'gmail' ? SCOPES_GMAIL : SCOPES_CALENDAR;
 

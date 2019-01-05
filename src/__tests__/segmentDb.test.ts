@@ -50,8 +50,8 @@ describe('Segments mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Segments.remove({});
-    await Users.remove({});
+    await Segments.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Create segment', async () => {

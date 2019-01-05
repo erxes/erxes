@@ -12,7 +12,7 @@ describe('twitter integration', () => {
   let postMock;
 
   beforeEach(async () => {
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
 
     // create integration
     _integration = await integrationFactory({});
@@ -40,10 +40,10 @@ describe('twitter integration', () => {
     // unwrap the spy
     postMock.restore();
 
-    await Conversations.remove({});
-    await Integrations.remove({});
-    await ConversationMessages.remove({});
-    await Customers.remove({});
+    await Conversations.deleteMany({});
+    await Integrations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Customers.deleteMany({});
   });
 
   test('direct message', async () => {

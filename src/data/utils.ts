@@ -1,8 +1,10 @@
 import * as AWS from 'aws-sdk';
+import * as EmailValidator from 'email-deep-validator';
 import * as fileType from 'file-type';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
+import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Companies, Customers, Notifications, Users } from '../db/models';
 import { IUserDocument } from '../db/models/definitions/users';
@@ -357,9 +359,38 @@ export const generateXlsx = async (workbook: any, name: string): Promise<string>
 
   return `${DOMAIN}/static/${url}`;
 };
+/**
+ * Sends post request to specific url
+ */
+export const sendPostRequest = (url: string, params: { [key: string]: string }) =>
+  requestify.request(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: { ...params },
+  });
+
+/**
+ * Validates email using MX record resolver
+ * @param email as String
+ */
+export const validateEmail = async email => {
+  const emailValidator = new EmailValidator();
+  const { validDomain, validMailbox } = await emailValidator.verify(email);
+
+  if (!validDomain) {
+    return false;
+  }
+
+  if (!validMailbox && validMailbox === null) {
+    return false;
+  }
+
+  return true;
+};
 
 export default {
   sendEmail,
+  validateEmail,
   sendNotification,
   readFile,
   createTransporter,

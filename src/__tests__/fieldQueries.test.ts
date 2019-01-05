@@ -6,8 +6,8 @@ import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
 describe('fieldQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await Fields.remove({});
-    await FieldsGroups.remove({});
+    await Fields.deleteMany({});
+    await FieldsGroups.deleteMany({});
   });
 
   test('Fields', async () => {

@@ -41,7 +41,7 @@ const sortBuilder = (params: IListArgs): ISortParams => {
 const count = (query, mainQuery) => {
   const findQuery = { $and: [mainQuery, query] };
 
-  return Customers.find(findQuery).count();
+  return Customers.find(findQuery).countDocuments();
 };
 
 const countBySegment = async (qb: any, mainQuery: any): Promise<ICountBy> => {
@@ -124,7 +124,7 @@ const customerQueries = {
     const sort = sortBuilder(params);
 
     const list = await paginate(Customers.find(qb.mainQuery()).sort(sort), params);
-    const totalCount = await Customers.find(qb.mainQuery()).count();
+    const totalCount = await Customers.find(qb.mainQuery()).countDocuments();
 
     return { list, totalCount };
   },

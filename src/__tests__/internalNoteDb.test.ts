@@ -33,8 +33,8 @@ describe('InternalNotes model test', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await InternalNotes.remove({});
-    await Users.remove({});
+    await InternalNotes.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Create internalNote', async () => {
@@ -62,12 +62,12 @@ describe('InternalNotes model test', () => {
       expect(e.message).toBe('InternalNote not found with id DFFFDSFD');
     }
 
-    let count = await InternalNotes.find({ _id: _internalNote._id }).count();
+    let count = await InternalNotes.find({ _id: _internalNote._id }).countDocuments();
     expect(count).toBe(1);
 
     await InternalNotes.removeInternalNote(_internalNote._id);
 
-    count = await InternalNotes.find({ _id: _internalNote._id }).count();
+    count = await InternalNotes.find({ _id: _internalNote._id }).countDocuments();
     expect(count).toBe(0);
   });
 

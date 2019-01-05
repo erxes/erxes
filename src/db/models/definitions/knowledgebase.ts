@@ -1,6 +1,6 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
-import { LANGUAGE_CHOICES, PUBLISH_STATUSES } from "./constants";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
+import { LANGUAGE_CHOICES, PUBLISH_STATUSES } from './constants';
 
 interface ICommonFields {
   createdBy: string;
@@ -50,12 +50,12 @@ export interface ITopicDocument extends ICommonFields, ITopic, Document {
 const commonFields = {
   createdBy: field({ type: String }),
   createdDate: field({
-    type: Date
+    type: Date,
   }),
   modifiedBy: field({ type: String }),
   modifiedDate: field({
-    type: Date
-  })
+    type: Date,
+  }),
 };
 
 export const articleSchema = new Schema({
@@ -66,9 +66,9 @@ export const articleSchema = new Schema({
   status: field({
     type: String,
     enum: PUBLISH_STATUSES.ALL,
-    default: PUBLISH_STATUSES.DRAFT
+    default: PUBLISH_STATUSES.DRAFT,
   }),
-  ...commonFields
+  ...commonFields,
 });
 
 export const categorySchema = new Schema({
@@ -77,7 +77,7 @@ export const categorySchema = new Schema({
   description: field({ type: String }),
   articleIds: field({ type: [String] }),
   icon: field({ type: String }),
-  ...commonFields
+  ...commonFields,
 });
 
 export const topicSchema = new Schema({
@@ -88,7 +88,7 @@ export const topicSchema = new Schema({
 
   categoryIds: field({
     type: [String],
-    required: false
+    required: false,
   }),
 
   color: field({ type: String }),
@@ -96,8 +96,8 @@ export const topicSchema = new Schema({
   languageCode: field({
     type: String,
     enum: LANGUAGE_CHOICES,
-    optional: true
+    optional: true,
   }),
 
-  ...commonFields
+  ...commonFields,
 });

@@ -1,14 +1,15 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { Conversations, Integrations, Users } from '../../../db/models';
+import { ConversationMessages, Conversations, Integrations, Users } from '../../../db/models';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 
 interface IMessageSelector {
   userId?: string;
   createdAt: any;
+  fromBot?: any;
   conversationId?: {
-    $in: IConversationDocument[];
+    $in: string[];
   };
 }
 
@@ -30,8 +31,8 @@ interface IGenerateUserChartData {
 }
 
 interface IIntegrationSelector {
-  brandId?: string;
-  kind?: string;
+  brandId?: any;
+  kind?: any;
 }
 
 interface IFixDates {
@@ -39,14 +40,12 @@ interface IFixDates {
   end: Date;
 }
 
-interface IGenerateDuration {
-  startTime: number;
-  endTime: number;
-  duration: number;
-}
-
 interface IResponseUserData {
-  [index: string]: { responseTime: number; count: number; summaries?: number[] };
+  [index: string]: {
+    responseTime: number;
+    count: number;
+    summaries?: number[];
+  };
 }
 
 interface IGenerateResponseData {
@@ -57,6 +56,74 @@ interface IGenerateResponseData {
   };
 }
 
+interface IChartData {
+  collection?: any;
+  messageSelector?: any;
+}
+
+export interface IListArgs {
+  integrationType: string;
+  brandId: string;
+  startDate: string;
+  endDate: string;
+  type: string;
+}
+/**
+ * Return integrationSelector for aggregations
+ * @param args
+ */
+export const getIntegrationSelector = async (args: IIntegrationSelector): Promise<any> => {
+  const integrationSelector: IIntegrationSelector = {};
+  const { kind, brandId } = args;
+  if (brandId) {
+    integrationSelector.brandId = { $in: brandId.split(',') };
+  }
+
+  if (kind) {
+    integrationSelector.kind = { $in: kind.split(',') };
+  }
+  return integrationSelector;
+};
+/**
+ * Return conversationSelect for aggregation
+ * @param args
+ * @param conversationSelector
+ * @param selectIds
+ */
+export const getConversationSelector = async (args: IIntegrationSelector, conversationSelector: any): Promise<any> => {
+  const integrationSelector = await getIntegrationSelector(args);
+  const { kind, brandId } = args;
+
+  if (kind || brandId) {
+    conversationSelector.integrationIds = await Integrations.find(integrationSelector).select('_id');
+  }
+
+  return conversationSelector;
+};
+
+/**
+ * Find conversations or conversationIds.
+ */
+export const findConversations = async (
+  args: IIntegrationSelector,
+  conversationSelector: any,
+  selectIds?: boolean,
+): Promise<IConversationDocument[]> => {
+  const integrationSelector = await getIntegrationSelector(args);
+  const { kind, brandId } = args;
+
+  if (kind || brandId) {
+    const integrationIds = await Integrations.find(integrationSelector).select('_id');
+    conversationSelector.integrationId = integrationIds.map(row => row._id);
+  }
+
+  if (selectIds) {
+    return Conversations.find(conversationSelector).select('_id');
+  }
+
+  return Conversations.find(conversationSelector).sort({ createdAt: 1 });
+};
+
 /**
  * Builds messages find query selector.
  */
@@ -66,74 +133,91 @@ export const generateMessageSelector = async (
   conversationSelector: any,
   messageSelector: IMessageSelector,
 ): Promise<IMessageSelector> => {
-  const selector = messageSelector;
+  const conversationIds = await findConversations({ brandId, kind: integrationType }, conversationSelector, true);
+  const rawConversationIds = conversationIds.map(obj => obj._id);
+  messageSelector.conversationId = { $in: rawConversationIds };
 
-  const findConversationIds = async (integrationSelector: IIntegrationSelector) => {
-    const integrationIds = await Integrations.find(integrationSelector).select('_id');
-    const conversationIds = await Conversations.find({
-      ...conversationSelector,
-      $or: [
-        {
-          userId: { $exists: true },
-          messageCount: { $gt: 1 },
-        },
-        {
-          userId: { $exists: false },
-        },
-      ],
-      integrationId: { $in: integrationIds },
-    }).select('_id');
-
-    selector.conversationId = { $in: conversationIds };
-  };
-
-  const integSelector: IIntegrationSelector = {};
-
-  if (brandId) {
-    integSelector.brandId = brandId;
-  }
-
-  if (integrationType) {
-    integSelector.kind = integrationType;
-  }
-
-  await findConversationIds(integSelector);
-
-  return selector;
+  return messageSelector;
 };
+/**
+ * Fix trend for missing values because from then aggregation,
+ * it could return missing values for some dates. This method
+ * will assign 0 values for missing x values.
+ * @param startDate
+ * @param endDate
+ * @param data
+ */
+export const fixChartData = async (data: any[], hintX: string, hintY: string): Promise<IGenerateChartData[]> => {
+  const results = {};
+  data.map(row => {
+    results[row[hintX]] = row[hintY];
+  });
 
+  return Object.keys(results)
+    .sort()
+    .map(key => {
+      return { x: formatTime(moment(key), 'MM-DD'), y: results[key] };
+    });
+};
 /**
  * Populates message collection into date range
  * by given duration and loop count for chart data.
  */
-export const generateChartData = (
-  collection: IMessageDocument[],
-  loopCount: number,
-  duration: number,
-  startTime: number,
-): IGenerateChartData[] => {
-  const results = [{ x: formatTime(moment(startTime), 'YYYY-MM-DD'), y: 0 }];
-  let begin = 0;
-  let end = 0;
-  let count = 0;
-  let dateText = null;
+export const generateChartData = async (args: IChartData): Promise<IGenerateChartData[]> => {
+  const { collection, messageSelector } = args;
 
-  // Variable that represents time interval by steps.
-  const divider = duration / loopCount;
+  const pipelineStages = [
+    {
+      $match: messageSelector,
+    },
+    {
+      $project: {
+        date: {
+          $dateToString: {
+            format: '%m-%d',
+            date: '$createdAt',
+            timezone: '+08',
+          },
+        },
+      },
+    },
+    {
+      $group: {
+        _id: '$date',
+        y: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        x: '$_id',
+        y: 1,
+        _id: 0,
+      },
+    },
+    {
+      $sort: {
+        x: 1,
+      },
+    },
+  ];
 
-  for (let i = 0; i < loopCount; i++) {
-    end = startTime + divider * (i + 1);
-    begin = end - divider;
-    dateText = formatTime(moment(end), 'YYYY-MM-DD');
+  if (collection) {
+    const results = {};
 
-    // messages count between begin and end time.
-    count = collection.filter(message => begin < message.createdAt.getTime() && message.createdAt.getTime() < end)
-      .length;
+    collection.map(obj => {
+      const date = formatTime(moment(obj.createdAt), 'YYYY-MM-DD');
 
-    results.push({ x: dateText, y: count });
+      results[date] = (results[date] || 0) + 1;
+    });
+
+    return Object.keys(results)
+      .sort()
+      .map(key => {
+        return { x: formatTime(moment(key), 'MM-DD'), y: results[key] };
+      });
   }
 
-  return results;
+  return ConversationMessages.aggregate([pipelineStages]);
 };
 
 /**
@@ -192,16 +276,12 @@ export const generateTimeIntervals = (start: Date, end: Date): IGenerateTimeInte
 export const generateUserChartData = async ({
   userId,
   userMessages,
-  duration,
-  startTime,
 }: {
   userId: string;
   userMessages: IMessageDocument[];
-  duration: number;
-  startTime: number;
 }): Promise<IGenerateUserChartData> => {
   const user = await Users.findOne({ _id: userId });
-  const userData = generateChartData(userMessages, 4, duration, startTime);
+  const userData = await generateChartData({ collection: userMessages });
 
   if (!user) {
     return {
@@ -241,13 +321,13 @@ export const fixDate = (value, defaultValue = new Date()): Date => {
   return defaultValue;
 };
 
-export const fixDates = (startValue: string, endValue: string): IFixDates => {
+export const fixDates = (startValue: string, endValue: string, count?: number): IFixDates => {
   // convert given value or get today
   const endDate = fixDate(endValue);
 
   const startDateDefaultValue = new Date(
     moment(endDate)
-      .add(-7, 'days')
+      .add(count ? count * -1 : -7, 'days')
       .toString(),
   );
 
@@ -257,18 +337,7 @@ export const fixDates = (startValue: string, endValue: string): IFixDates => {
   return { start: startDate, end: endDate };
 };
 
-export const generateDuration = ({ start, end }: { start: Date; end: Date }): IGenerateDuration => {
-  const startTime = start.getTime();
-  const endTime = end.getTime();
-
-  return {
-    startTime,
-    endTime,
-    duration: endTime - startTime,
-  };
-};
-
-/* 
+/*
  * Determines user or client
  */
 export const generateUserSelector = (type: string): any => {
@@ -288,11 +357,9 @@ export const generateResponseData = async (
   responsData: IMessageDocument[],
   responseUserData: IResponseUserData,
   allResponseTime: number,
-  duration: number,
-  startTime: number,
 ): Promise<IGenerateResponseData> => {
   // preparing trend chart data
-  const trend = generateChartData(responsData, 7, duration, startTime);
+  const trend = await generateChartData({ collection: responsData });
 
   // Average response time for all messages
   const time = Math.floor(allResponseTime / responsData.length);
@@ -312,8 +379,6 @@ export const generateResponseData = async (
       data: await generateUserChartData({
         userId,
         userMessages: responsData.filter(message => userId === message.userId),
-        duration,
-        startTime,
       }),
       time: avgResTime,
       summaries,

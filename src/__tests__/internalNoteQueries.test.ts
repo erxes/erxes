@@ -6,12 +6,12 @@ import { InternalNotes } from '../db/models';
 describe('internalNoteQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await InternalNotes.remove({});
+    await InternalNotes.deleteMany({});
   });
 
   test('Internal notes', async () => {
     // Creating test data
-    const contentTypeId = faker && faker.random ? faker.random.number() : 999;
+    const contentTypeId = (faker && faker.random ? faker.random.number() : 999).toString();
 
     await internalNoteFactory({ contentType: 'company', contentTypeId });
     await internalNoteFactory({ contentType: 'customer', contentTypeId });

@@ -21,9 +21,9 @@ describe('notificationsQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Notifications.remove({});
-    await NotificationConfigurations.remove({});
-    await Users.remove({});
+    await Notifications.deleteMany({});
+    await NotificationConfigurations.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Notifications', async () => {

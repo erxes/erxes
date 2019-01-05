@@ -49,7 +49,7 @@ const userQueries = {
   async usersTotalCount(_root, args: IListArgs) {
     const selector = await queryBuilder(args);
 
-    return Users.find(selector).count();
+    return Users.find(selector).countDocuments();
   },
 
   /**
@@ -70,7 +70,7 @@ const userQueries = {
     const selector = { participatedUserIds: { $in: [_id] } };
 
     const list = paginate(Conversations.find(selector), { perPage });
-    const totalCount = Conversations.find(selector).count();
+    const totalCount = Conversations.find(selector).countDocuments();
 
     return { list, totalCount };
   },

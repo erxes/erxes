@@ -24,10 +24,11 @@ export const types = `
     video: String
     photos: [String]
     link: String
+    createdTime: String
 
     senderId: String
     senderName: String
-    }
+  }
 
   type TwitterData {
     id: Float
@@ -58,6 +59,33 @@ export const types = `
     favorite_count: Float
   }
 
+  type ConversationGmailData {
+    messageId: String
+  }
+
+  type ConversationMessageGmailAttachmentData {
+    filename: String
+    mimeType: String
+    size: Int
+    attachmentId: String
+  }
+
+  type ConversationMessageGmailData {
+    messageId: String
+    headerId: String
+    threadId: String
+    reply: String
+    references: String
+    from: String
+    to: String
+    cc: String
+    bcc: String
+    subject: String
+    textPlain: String
+    textHtml: String
+    attachments: [ConversationMessageGmailAttachmentData]
+  }
+
   type Conversation {
     _id: String!
     content: String
@@ -76,6 +104,7 @@ export const types = `
     tagIds: [String]
     twitterData: TwitterData
     facebookData: ConversationFacebookData
+    gmailData: ConversationGmailData
 
     messages: [ConversationMessage]
     tags: [Tag]
@@ -97,13 +126,21 @@ export const types = `
     sentAs: String
   }
 
+  type Attachment {
+    url: String!
+    name: String
+    type: String!
+    size: Float
+  }
+
   type ConversationMessage {
     _id: String!
     content: String
-    attachments: [JSON]
+    attachments: [Attachment]
     mentionedUserIds: [String]
     conversationId: String
     internal: Boolean
+    fromBot: Boolean
     customerId: String
     userId: String
     createdAt: Date
@@ -113,7 +150,7 @@ export const types = `
     messengerAppData: JSON
     twitterData: TwitterData
     facebookData: ConversationMessageFacebookData
-
+    gmailData: ConversationMessageGmailData
     user: User
     customer: Customer
   }
@@ -132,6 +169,18 @@ export const types = `
     userId: String,
     createdAt: Date,
     isCustomerRead: Boolean,
+  }
+
+  type ConversationMessagesFacebookResponse {
+    list: [ConversationMessage]
+    commentCount: Int
+  }
+
+  input AttachmentInput {
+    url: String!
+    name: String!
+    type: String!
+    size: Float
   }
 `;
 
@@ -165,6 +214,11 @@ export const queries = `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
+  conversationMessagesFacebook(
+    conversationId: String
+    commentId: String
+    postId: String limit: Int
+  ): ConversationMessagesFacebookResponse
 `;
 
 export const mutations = `
@@ -173,7 +227,7 @@ export const mutations = `
     content: String,
     mentionedUserIds: [String],
     internal: Boolean,
-    attachments: [JSON],
+    attachments: [AttachmentInput],
     tweetReplyToId: String,
     tweetReplyToScreenName: String,
     commentReplyToId: String

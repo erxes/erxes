@@ -6,7 +6,7 @@ import { Products } from '../db/models';
 describe('productQueries', () => {
   afterEach(async () => {
     // Clearing test data
-    await Products.remove({});
+    await Products.deleteMany({});
   });
 
   test('Products', async () => {

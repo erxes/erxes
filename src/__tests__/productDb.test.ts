@@ -13,8 +13,8 @@ describe('Test products model', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Products.remove({});
-    await Deals.remove({});
+    await Products.deleteMany({});
+    await Deals.deleteMany({});
   });
 
   test('Create product', async () => {
@@ -68,7 +68,7 @@ describe('Test products model', () => {
   });
 
   test('Remove product', async () => {
-    await Deals.update({ _id: deal._id }, { $set: { productsData: [] } });
+    await Deals.updateOne({ _id: deal._id }, { $set: { productsData: [] } });
     const isDeleted = await Products.removeProduct(product.id);
 
     expect(isDeleted).toBeTruthy();

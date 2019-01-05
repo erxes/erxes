@@ -22,7 +22,7 @@ const brandQueries = {
    * Get all brands count. We will use it in pager
    */
   brandsTotalCount() {
-    return Brands.find({}).count();
+    return Brands.find({}).countDocuments();
   },
 
   /**

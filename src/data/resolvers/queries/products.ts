@@ -34,7 +34,7 @@ const productQueries = {
       filter.type = type;
     }
 
-    return Products.find(filter).count();
+    return Products.find(filter).countDocuments();
   },
 };
 

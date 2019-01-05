@@ -29,10 +29,6 @@ import {
 } from '../db/models';
 import { awsRequests } from '../trackers/engageTracker';
 
-const toJSON = value => {
-  return JSON.stringify(value);
-};
-
 describe('engage message mutation tests', () => {
   let _message;
   let _user;
@@ -107,8 +103,8 @@ describe('engage message mutation tests', () => {
       },
       scheduleDate: {
         type: 'year',
-        month: 2,
-        day: 14,
+        month: '2',
+        day: '14',
         time: moment('2018-08-24T12:45:00'),
       },
       messenger: {
@@ -134,16 +130,16 @@ describe('engage message mutation tests', () => {
   afterEach(async () => {
     // Clearing test data
     _doc = null;
-    await Users.remove({});
-    await Tags.remove({});
-    await Brands.remove({});
-    await Segments.remove({});
-    await EngageMessages.remove({});
-    await EmailTemplates.remove({});
-    await Customers.remove({});
-    await Integrations.remove({});
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
+    await Users.deleteMany({});
+    await Tags.deleteMany({});
+    await Brands.deleteMany({});
+    await Segments.deleteMany({});
+    await EngageMessages.deleteMany({});
+    await EmailTemplates.deleteMany({});
+    await Customers.deleteMany({});
+    await Integrations.deleteMany({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
   });
 
   test('Engage utils send via messenger: integration not found', async () => {
@@ -216,7 +212,7 @@ describe('engage message mutation tests', () => {
       throw new Error('User not found');
     }
 
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
 
     sandbox.stub(awsRequests, 'getVerifiedEmails').callsFake(() => {
       return new Promise(resolve => {
@@ -250,7 +246,7 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
     expect(tags).toEqual(_doc.tagIds);
     expect(engageMessage.email.toJSON()).toEqual(_doc.email);
-    expect(toJSON(engageMessage.messenger)).toEqual(toJSON(_doc.messenger));
+    expect(engageMessage.messenger.toJSON()).toMatchObject(_doc.messenger);
     expect(engageMessage.deliveryReports).toEqual({});
     expect(engageMessage.scheduleDate.type).toEqual('year');
     expect(engageMessage.scheduleDate.month).toEqual('2');
@@ -270,7 +266,7 @@ describe('engage message mutation tests', () => {
       process.env.AWS_SES_CONFIG_SET = '';
       await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
     } catch (e) {
-      expect(e.toString()).toBe('GraphQLError: Could not locate configs on AWS SES');
+      expect(e.toString()).toContain('Could not locate configs on AWS SES');
     }
   });
 
@@ -280,7 +276,7 @@ describe('engage message mutation tests', () => {
     process.env.AWS_SES_CONFIG_SET = 'aws-ses';
     process.env.AWS_ENDPOINT = '123';
 
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
     const awsSpy = jest.spyOn(awsRequests, 'getVerifiedEmails');
 
     sandbox.stub(awsRequests, 'getVerifiedEmails').callsFake(() => {
@@ -292,7 +288,7 @@ describe('engage message mutation tests', () => {
     try {
       await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
     } catch (e) {
-      expect(e.toString()).toBe('GraphQLError: Email not verified');
+      expect(e.toString()).toContain('Email not verified');
     }
 
     awsSpy.mockRestore();

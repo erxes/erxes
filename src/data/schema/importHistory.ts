@@ -17,5 +17,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  importHistoriesRemove(_id: String!): String
+  importHistoriesRemove(_id: String!): JSON
 `;

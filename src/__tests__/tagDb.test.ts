@@ -1,6 +1,5 @@
 import { engageMessageFactory, tagsFactory } from '../db/factories';
 import { EngageMessages, Tags } from '../db/models';
-import { tagObject, validateUniqueness } from '../db/models/Tags';
 
 describe('Test tags model', () => {
   let _tag;
@@ -16,16 +15,16 @@ describe('Test tags model', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Tags.remove({});
-    await EngageMessages.remove({});
+    await Tags.deleteMany({});
+    await EngageMessages.deleteMany({});
   });
 
   test('Validate unique tag', async () => {
-    const empty = await validateUniqueness({}, '', '');
+    const empty = await Tags.validateUniqueness({}, '', '');
 
-    const selectTag = await validateUniqueness({ type: _tag2.type }, 'new tag', _tag2.type);
+    const selectTag = await Tags.validateUniqueness({ type: _tag2.type }, 'new tag', _tag2.type);
 
-    const existing = await validateUniqueness({}, _tag.name, _tag.type);
+    const existing = await Tags.validateUniqueness({}, _tag.name, _tag.type);
 
     expect(empty).toEqual(true);
     expect(selectTag).toEqual(false);
@@ -35,7 +34,7 @@ describe('Test tags model', () => {
   test('Tag not found', async () => {
     expect.assertions(1);
     try {
-      await tagObject({
+      await Tags.tagObject({
         tagIds: [_tag._id],
         objectIds: [],
         collection: EngageMessages,
@@ -137,7 +136,7 @@ describe('Test tags model', () => {
   test("Can't remove a tag", async () => {
     expect.assertions(1);
     try {
-      await EngageMessages.update({ _id: _message._id }, { $set: { tagIds: [_tag._id] } });
+      await EngageMessages.updateMany({ _id: _message._id }, { $set: { tagIds: [_tag._id] } });
       await Tags.removeTag([_tag._id]);
     } catch (e) {
       expect(e.message).toEqual("Can't remove a tag with tagged object(s)");

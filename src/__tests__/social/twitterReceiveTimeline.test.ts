@@ -13,16 +13,16 @@ describe('createOrUpdateTimelineConversation', () => {
 
   beforeEach(async () => {
     _integration = await integrationFactory({
-      twitterData: { info: { id: 1 } },
+      twitterData: { profileId: 1 },
     });
   });
 
   afterEach(async () => {
-    await Integrations.remove({});
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Customers.remove({});
-    await ActivityLogs.remove({});
+    await Integrations.deleteMany({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Customers.deleteMany({});
+    await ActivityLogs.deleteMany({});
   });
 
   const data = {
@@ -68,8 +68,8 @@ describe('createOrUpdateTimelineConversation', () => {
     // call action
     await createOrUpdateTimelineConversation(_integration._id, data);
 
-    expect(await Conversations.find().count()).toBe(1); // 1 conversation
-    expect(await Customers.find().count()).toBe(1); // 1 customer
+    expect(await Conversations.find().countDocuments()).toBe(1); // 1 conversation
+    expect(await Customers.find().countDocuments()).toBe(1); // 1 customer
 
     let conversation = await Conversations.findOne();
 
@@ -115,7 +115,7 @@ describe('createOrUpdateTimelineConversation', () => {
     expect(customer.twitterData.id_str).toBe('24242424242');
 
     // 1 log
-    expect(await ActivityLogs.find().count()).toBe(1);
+    expect(await ActivityLogs.find().countDocuments()).toBe(1);
 
     // second call =================
     const updatedData = {
@@ -128,11 +128,11 @@ describe('createOrUpdateTimelineConversation', () => {
     // call
     await createOrUpdateTimelineConversation(_integration._id, updatedData);
 
-    expect(await Conversations.find({}).count()).toBe(1); // 1 conversation
-    expect(await Customers.find({}).count()).toBe(1); // 1 customer
-    expect(await ActivityLogs.find({}).count()).toBe(1); // 1 log
+    expect(await Conversations.find({}).countDocuments()).toBe(1); // 1 conversation
+    expect(await Customers.find({}).countDocuments()).toBe(1); // 1 customer
+    expect(await ActivityLogs.find({}).countDocuments()).toBe(1); // 1 log
 
-    await Conversations.update({ _id: conversation._id }, { $set: { status: 'closed' } });
+    await Conversations.updateOne({ _id: conversation._id }, { $set: { status: 'closed' } });
 
     conversation = await Conversations.findOne();
 
@@ -145,7 +145,7 @@ describe('createOrUpdateTimelineConversation', () => {
 
     // check updated field values
 
-    expect(await Conversations.find({}).count()).toBe(2); // 2 conversation
+    expect(await Conversations.find({}).countDocuments()).toBe(2); // 2 conversation
     expect(conversation.status).toBe('closed');
     expect(conversation.content).toBe('updated');
     expect(conversation.twitterData.quote_count).toBe(1);
@@ -160,8 +160,8 @@ describe('createOrUpdateTimelineConversation', () => {
     // call action
     await createOrUpdateTimelineMessage(_conversation, data);
 
-    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
-    expect(await Customers.find().count()).toBe(1); // 1 customer
+    expect(await ConversationMessages.find().countDocuments()).toBe(1); // 1 message
+    expect(await Customers.find().countDocuments()).toBe(1); // 1 customer
 
     let message = await ConversationMessages.findOne();
 
@@ -205,7 +205,7 @@ describe('createOrUpdateTimelineConversation', () => {
     expect(customer.twitterData.id_str).toBe('24242424242');
 
     // 1 log
-    expect(await ActivityLogs.find().count()).toBe(1);
+    expect(await ActivityLogs.find().countDocuments()).toBe(1);
 
     // second call =================
     const updatedData = {
@@ -218,10 +218,10 @@ describe('createOrUpdateTimelineConversation', () => {
     // call
     await createOrUpdateTimelineMessage(_conversation, updatedData);
 
-    expect(await Conversations.find().count()).toBe(1); // 1 conversation
-    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
-    expect(await Customers.find().count()).toBe(1); // 1 customer
-    expect(await ActivityLogs.find().count()).toBe(1); // 1 log
+    expect(await Conversations.find().countDocuments()).toBe(1); // 1 conversation
+    expect(await ConversationMessages.find().countDocuments()).toBe(1); // 1 message
+    expect(await Customers.find().countDocuments()).toBe(1); // 1 customer
+    expect(await ActivityLogs.find().countDocuments()).toBe(1); // 1 log
 
     message = await ConversationMessages.findOne();
 
@@ -245,19 +245,19 @@ describe('createOrUpdateTimelineConversation', () => {
     // call
     await createOrUpdateTimelineMessage(_conversation, newData);
 
-    expect(await Conversations.find().count()).toBe(1); // 1 conversation
-    expect(await ConversationMessages.find().count()).toBe(2); // 2 message
-    expect(await Customers.find().count()).toBe(1); // 1 customer
-    expect(await ActivityLogs.find().count()).toBe(1); // 1 log
+    expect(await Conversations.find().countDocuments()).toBe(1); // 1 conversation
+    expect(await ConversationMessages.find().countDocuments()).toBe(2); // 2 message
+    expect(await Customers.find().countDocuments()).toBe(1); // 1 customer
+    expect(await ActivityLogs.find().countDocuments()).toBe(1); // 1 log
   });
 
   test('receive', async () => {
     // call action
     await receiveTimelineInformation(_integration, data);
 
-    expect(await Conversations.find().count()).toBe(1); // 1 conversation
-    expect(await ConversationMessages.find().count()).toBe(1); // 1 message
-    expect(await Customers.find().count()).toBe(1); // 1 customer
-    expect(await ActivityLogs.find().count()).toBe(1); // 1 log
+    expect(await Conversations.find().countDocuments()).toBe(1); // 1 conversation
+    expect(await ConversationMessages.find().countDocuments()).toBe(1); // 1 message
+    expect(await Customers.find().countDocuments()).toBe(1); // 1 customer
+    expect(await ActivityLogs.find().countDocuments()).toBe(1); // 1 log
   });
 });

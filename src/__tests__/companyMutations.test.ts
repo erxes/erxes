@@ -46,9 +46,9 @@ describe('Companies mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Companies.remove({});
-    await Customers.remove({});
-    await Users.remove({});
+    await Companies.deleteMany({});
+    await Customers.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Add company', async () => {

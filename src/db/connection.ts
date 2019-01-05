@@ -1,12 +1,16 @@
 import * as dotenv from 'dotenv';
 import { graphql } from 'graphql';
+import { makeExecutableSchema } from 'graphql-tools';
 import mongoose = require('mongoose');
-import schema from '../data/';
+import resolvers from '../data/resolvers';
+import typeDefs from '../data/schema';
 import { userFactory } from './factories';
 
 dotenv.config();
 
 const { NODE_ENV, MONGO_URL = '' } = process.env;
+
+mongoose.set('useFindAndModify', false);
 
 mongoose.Promise = global.Promise;
 
@@ -26,7 +30,7 @@ mongoose.connection
 export function connect() {
   return mongoose.connect(
     MONGO_URL,
-    { useMongoClient: true },
+    { useNewUrlParser: true, useCreateIndex: true },
   );
 }
 
@@ -34,10 +38,15 @@ export function disconnect() {
   return mongoose.connection.close();
 }
 
-export const graphqlRequest = async (mutation: string = '', name: string = '', args?: any, context?: any) => {
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+});
+
+export const graphqlRequest = async (source: string = '', name: string = '', args?: any, context?: any) => {
   const user = await userFactory({});
+
   const rootValue = {};
-  const _schema: any = schema;
 
   const res = {
     cookie: () => {
@@ -45,7 +54,7 @@ export const graphqlRequest = async (mutation: string = '', name: string = '', a
     },
   };
 
-  const response: any = await graphql(_schema, mutation, rootValue, context || { user, res }, args);
+  const response: any = await graphql(schema, source, rootValue, context || { user, res }, args);
 
   if (response.errors || !response.data) {
     throw response.errors;

@@ -6,17 +6,17 @@ mongoose.Promise = global.Promise;
 // load environment variables
 dotenv.config();
 
-beforeAll(() => {
-  jest.setTimeout(10000);
+const { TEST_MONGO_URL = 'mongodb://localhost/test' } = process.env;
 
-  const { TEST_MONGO_URL } = process.env;
+// prevent deprecated warning related findAndModify
+// https://github.com/Automattic/mongoose/issues/6880
+mongoose.set('useFindAndModify', false);
+
+beforeAll(async () => {
+  jest.setTimeout(30000);
 
   return mongoose.connect(
-    TEST_MONGO_URL || 'mongodb://localhost/test',
-    { useMongoClient: true },
+    TEST_MONGO_URL.replace('test', `erxes-test-${Math.random()}`).replace('.', ''),
+    { useNewUrlParser: true, useCreateIndex: true },
   );
-});
-
-afterAll(() => {
-  return mongoose.connection.db.dropDatabase();
 });

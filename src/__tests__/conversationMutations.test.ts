@@ -14,7 +14,8 @@ import { twitMap } from '../trackers/twitter';
 import { twitRequest } from '../trackers/twitterTracker';
 
 const toJSON = value => {
-  return JSON.stringify(value);
+  // sometimes object key order is different even though it has same value.
+  return JSON.stringify(value, Object.keys(value).sort());
 };
 
 const spy = jest.spyOn(utils, 'sendNotification');
@@ -47,11 +48,11 @@ describe('Conversation message mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
-    await Users.remove({});
-    await Integrations.remove({});
-    await Customers.remove({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
+    await Users.deleteMany({});
+    await Integrations.deleteMany({});
+    await Customers.deleteMany({});
 
     spy.mockRestore();
   });
@@ -62,8 +63,8 @@ describe('Conversation message mutations', () => {
       content: _conversationMessage.content,
       mentionedUserIds: [_user._id],
       internal: false,
-      attachments: [{ url: 'url' }],
-      tweetReplyToId: faker.random.number(),
+      attachments: [{ url: 'url', name: 'name', type: 'doc', size: 10 }],
+      tweetReplyToId: faker.random.number().toString(),
       tweetReplyToScreenName: faker.name.firstName(),
     };
 
@@ -73,7 +74,7 @@ describe('Conversation message mutations', () => {
         $content: String
         $mentionedUserIds: [String]
         $internal: Boolean
-        $attachments: [JSON]
+        $attachments: [AttachmentInput]
         $tweetReplyToId: String
         $tweetReplyToScreenName: String
       ) {
@@ -90,7 +91,12 @@ describe('Conversation message mutations', () => {
           content
           mentionedUserIds
           internal
-          attachments
+          attachments {
+            url
+            name
+            type
+            size
+          }
         }
       }
     `;
@@ -98,7 +104,7 @@ describe('Conversation message mutations', () => {
     const message = await graphqlRequest(mutation, 'conversationMessageAdd', args);
 
     expect(message.content).toBe(args.content);
-    expect(message.attachments[0].toJSON()).toEqual({ url: 'url' });
+    expect(message.attachments[0]).toEqual({ url: 'url', name: 'name', type: 'doc', size: 10 });
     expect(toJSON(message.mentionedUserIds)).toEqual(toJSON(args.mentionedUserIds));
     expect(message.internal).toBe(args.internal);
   });
@@ -114,7 +120,7 @@ describe('Conversation message mutations', () => {
     };
 
     // mock twitter request
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
 
     const stub = sandbox.stub(twitRequest, 'post').callsFake(() => {
       return new Promise(resolve => {
@@ -151,7 +157,7 @@ describe('Conversation message mutations', () => {
     twitMap[_integrationTwitter._id] = twit;
 
     // mock twitter request
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
 
     // mock retweet request
     const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
@@ -201,7 +207,7 @@ describe('Conversation message mutations', () => {
     twitMap[_integrationTwitter._id] = twit;
 
     // mock twitter request
-    const sandbox = sinon.sandbox.create();
+    const sandbox = sinon.createSandbox();
 
     // mock retweet request
     const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {

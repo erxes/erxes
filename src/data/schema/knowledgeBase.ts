@@ -84,13 +84,13 @@ export const queries = `
 export const mutations = `
   knowledgeBaseTopicsAdd(doc: KnowledgeBaseTopicDoc!): KnowledgeBaseTopic
   knowledgeBaseTopicsEdit(_id: String!, doc: KnowledgeBaseTopicDoc!): KnowledgeBaseTopic
-  knowledgeBaseTopicsRemove(_id: String!): Boolean
+  knowledgeBaseTopicsRemove(_id: String!): JSON
 
   knowledgeBaseCategoriesAdd(doc: KnowledgeBaseCategoryDoc!): KnowledgeBaseCategory
   knowledgeBaseCategoriesEdit(_id: String!, doc: KnowledgeBaseCategoryDoc!): KnowledgeBaseCategory
-  knowledgeBaseCategoriesRemove(_id: String!): Boolean
+  knowledgeBaseCategoriesRemove(_id: String!): JSON
 
   knowledgeBaseArticlesAdd(doc: KnowledgeBaseArticleDoc!): KnowledgeBaseArticle
   knowledgeBaseArticlesEdit(_id: String!, doc: KnowledgeBaseArticleDoc!): KnowledgeBaseArticle
-  knowledgeBaseArticlesRemove(_id: String!): Boolean
+  knowledgeBaseArticlesRemove(_id: String!): JSON
 `;

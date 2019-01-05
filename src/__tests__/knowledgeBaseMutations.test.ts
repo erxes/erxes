@@ -54,11 +54,11 @@ describe('mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await KnowledgeBaseTopics.remove({});
-    await KnowledgeBaseCategories.remove({});
-    await KnowledgeBaseArticles.remove({});
-    await Users.remove({});
-    await Brands.remove({});
+    await KnowledgeBaseTopics.deleteMany({});
+    await KnowledgeBaseCategories.deleteMany({});
+    await KnowledgeBaseArticles.deleteMany({});
+    await Users.deleteMany({});
+    await Brands.deleteMany({});
   });
 
   test('Add knowledge base topic', async () => {

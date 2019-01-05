@@ -14,5 +14,5 @@ export const queries = `
 export const mutations = `
   emailTemplatesAdd(name: String!, content: String): EmailTemplate
   emailTemplatesEdit(_id: String!, name: String!, content: String): EmailTemplate
-  emailTemplatesRemove(_id: String!): String
+  emailTemplatesRemove(_id: String!): JSON
 `;

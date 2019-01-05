@@ -1,11 +1,6 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
-import {
-  ACTIVITY_ACTIONS,
-  ACTIVITY_PERFORMER_TYPES,
-  ACTIVITY_TYPES,
-  COC_CONTENT_TYPES
-} from "./constants";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
+import { ACTIVITY_ACTIONS, ACTIVITY_PERFORMER_TYPES, ACTIVITY_TYPES, COC_CONTENT_TYPES } from './constants';
 
 export interface IActionPerformer {
   type: string;
@@ -56,13 +51,13 @@ const actionPerformerSchema = new Schema(
       type: String,
       enum: ACTIVITY_PERFORMER_TYPES.ALL,
       default: ACTIVITY_PERFORMER_TYPES.SYSTEM,
-      required: true
+      required: true,
     }),
     id: field({
-      type: String
-    })
+      type: String,
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 /*
@@ -90,22 +85,22 @@ const activitySchema = new Schema(
     type: field({
       type: String,
       required: true,
-      enum: ACTIVITY_TYPES.ALL
+      enum: ACTIVITY_TYPES.ALL,
     }),
     action: field({
       type: String,
       required: true,
-      enum: ACTIVITY_ACTIONS.ALL
+      enum: ACTIVITY_ACTIONS.ALL,
     }),
     content: field({
       type: String,
-      optional: true
+      optional: true,
     }),
     id: field({
-      type: String
-    })
+      type: String,
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 /* the customer that is related to a given ActivityLog
@@ -114,15 +109,15 @@ const cocSchema = new Schema(
   {
     id: field({
       type: String,
-      required: true
+      required: true,
     }),
     type: field({
       type: String,
       enum: COC_CONTENT_TYPES.ALL,
-      required: true
-    })
+      required: true,
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const activityLogSchema = new Schema({
@@ -134,6 +129,6 @@ export const activityLogSchema = new Schema({
   createdAt: field({
     type: Date,
     required: true,
-    default: Date.now
-  })
+    default: Date.now,
+  }),
 });

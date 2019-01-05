@@ -84,9 +84,9 @@ describe('Fields mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
-    await Fields.remove({});
-    await FieldsGroups.remove({});
+    await Users.deleteMany({});
+    await Fields.deleteMany({});
+    await FieldsGroups.deleteMany({});
   });
 
   test('Add field', async () => {
@@ -285,7 +285,6 @@ describe('Fields mutations', () => {
     `;
 
     await graphqlRequest(mutation, 'fieldsGroupsRemove', { _id: _fieldGroup._id }, context);
-
     expect(await FieldsGroups.findOne({ _id: _fieldGroup._id })).toBe(null);
   });
 

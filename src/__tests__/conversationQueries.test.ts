@@ -70,7 +70,12 @@ describe('conversationQueries', () => {
         messages {
           _id
           content
-          attachments
+          attachments {
+            url
+            name
+            type
+            size
+          }
           mentionedUserIds
           conversationId
           internal
@@ -136,6 +141,17 @@ describe('conversationQueries', () => {
     }
   `;
 
+  const qryConversationMessagesFacebook = `
+    query conversationMessagesFacebook($conversationId: String, $commentId: String, $postId: String, $limit: Int) {
+      conversationMessagesFacebook(conversationId: $conversationId, commentId: $commentId, postId: $postId, limit: $limit) {
+        list {
+          _id
+        }
+        commentCount
+      }
+    }
+  `;
+
   beforeEach(async () => {
     brand = await brandFactory();
     user = await userFactory({});
@@ -153,12 +169,12 @@ describe('conversationQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Conversations.remove({});
-    await Users.remove({});
-    await Brands.remove({});
-    await Channels.remove({});
-    await Tags.remove({});
-    await Integrations.remove({});
+    await Conversations.deleteMany({});
+    await Users.deleteMany({});
+    await Brands.deleteMany({});
+    await Channels.deleteMany({});
+    await Tags.deleteMany({});
+    await Integrations.deleteMany({});
   });
 
   test('Conversation messages with skip', async () => {
@@ -295,7 +311,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
+    await Users.updateOne({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
@@ -368,8 +384,8 @@ describe('conversationQueries', () => {
       qryConversations,
       'conversations',
       {
-        startDate,
-        endDate,
+        startDate: startDate.toString(),
+        endDate: endDate.toString(),
       },
       { user },
     );
@@ -393,7 +409,12 @@ describe('conversationQueries', () => {
     });
 
     // From 18 to 24 hours should be only 1 conversation
-    responses = await graphqlRequest(qryConversations, 'conversations', { startDate, endDate }, { user });
+    responses = await graphqlRequest(
+      qryConversations,
+      'conversations',
+      { startDate: startDate.toString(), endDate: endDate.toString() },
+      { user },
+    );
 
     expect(responses.length).toBe(1);
 
@@ -403,7 +424,12 @@ describe('conversationQueries', () => {
     responses = await graphqlRequest(
       qryConversations,
       'conversations',
-      { startDate: today, endDate: moment(today).add(1, 'days') },
+      {
+        startDate: today.toString(),
+        endDate: moment(today)
+          .add(1, 'days')
+          .toString(),
+      },
       { user },
     );
 
@@ -490,7 +516,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
+    await Users.updateOne({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
@@ -644,7 +670,7 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration._id });
 
-    await Users.update({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
+    await Users.updateOne({ _id: user._id }, { $set: { starredConversationIds: [conversation._id] } });
 
     const updatedUser = await Users.findOne({ _id: user._id });
 
@@ -760,5 +786,159 @@ describe('conversationQueries', () => {
     const response = await graphqlRequest(qryTotalUnread, 'conversationsTotalUnreadCount', {}, { user });
 
     expect(response).toBe(1);
+  });
+
+  test('Conversation messages facebook test', async () => {
+    const feedConversation = await conversationFactory({
+      facebookData: {
+        kind: 'feed',
+      },
+    });
+
+    const badConversation = await conversationFactory({
+      facebookData: {
+        kind: 'messenger',
+      },
+    });
+
+    try {
+      await graphqlRequest(
+        qryConversationMessagesFacebook,
+        'conversationMessagesFacebook',
+        {
+          conversationId: badConversation._id,
+        },
+        { user },
+      );
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        isPost: true,
+        postId: 'postId',
+        createdTime: moment(new Date())
+          .add(-5, 'days')
+          .toISOString(),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '11',
+        createdTime: moment(new Date())
+          .add(-4, 'days')
+          .toISOString(),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '22',
+        createdTime: moment(new Date())
+          .add(-3, 'days')
+          .toISOString(),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '33',
+        createdTime: moment(new Date())
+          .add(-2, 'days')
+          .toISOString(),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: 'parentComment',
+        createdTime: moment(new Date())
+          .add(-6, 'days')
+          .toISOString(),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '111',
+        parentId: 'parentComment',
+        createdTime: moment(new Date())
+          .add(0, 'days')
+          .toISOString(),
+      },
+    });
+
+    let response = await graphqlRequest(
+      qryConversationMessagesFacebook,
+      'conversationMessagesFacebook',
+      {
+        conversationId: feedConversation._id,
+      },
+      { user },
+    );
+
+    // we have 1 post 5 comments and the latest one is a reply
+    // by default there must be 1 post msg and latest 3 comments = 4 msg
+    // since last one is a reply we are gathering the parent comment for it
+    // 1 post msg 3 latest comment , 1 reply and its 1 parent = 6
+    expect(response.list.length).toBe(6);
+
+    response = await graphqlRequest(
+      qryConversationMessagesFacebook,
+      'conversationMessagesFacebook',
+      {
+        conversationId: feedConversation._id,
+        commentId: 'parentComment',
+      },
+      { user },
+    );
+
+    // we have 1 comment reply
+    expect(response.list.length).toBe(1);
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '66',
+        createdTime: moment(new Date()).add(13, 'days'),
+      },
+    });
+
+    await conversationMessageFactory({
+      conversationId: feedConversation._id,
+      facebookData: {
+        postId: 'postId',
+        commentId: '77',
+        createdTime: moment(new Date()).add(13, 'days'),
+      },
+    });
+
+    response = await graphqlRequest(
+      qryConversationMessagesFacebook,
+      'conversationMessagesFacebook',
+      {
+        conversationId: feedConversation._id,
+        postId: 'postId',
+        limit: 10,
+      },
+      { user },
+    );
+
+    // fetching the comments of post
+    expect(response.list.length).toBe(7);
   });
 });

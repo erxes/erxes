@@ -1,7 +1,17 @@
-import { google } from 'googleapis';
-import * as request from 'request';
-import { ActivityLogs, Integrations } from '../db/models';
-import { getOauthClient } from './googleTracker';
+import { CONVERSATION_STATUSES } from '../data/constants';
+import { publishClientMessage, publishMessage } from '../data/resolvers/mutations/conversations';
+import { Accounts, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
+import { IGmail as IMsgGmail } from '../db/models/definitions/conversationMessages';
+import { IConversationDocument } from '../db/models/definitions/conversations';
+import { ICustomerDocument } from '../db/models/definitions/customers';
+import { utils } from './gmailTracker';
+
+interface IAttachmentParams {
+  data: string;
+  filename: string;
+  size: number;
+  mimeType: string;
+}
 
 interface IMailParams {
   integrationId: string;
@@ -10,76 +20,60 @@ interface IMailParams {
   subject: string;
   body: string;
   toEmails: string;
-  cc: string;
-  bcc: string;
-  attachments: string[];
+  cc?: string;
+  bcc?: string;
+  attachments?: IAttachmentParams[];
+  references?: string;
+  headerId?: string;
+  threadId?: string;
+  fromEmail?: string;
 }
-
-/**
- * Get file by url into fileStream buffer
- */
-const getInBufferAttachFile = (url: string) =>
-  new Promise((resolve, reject) =>
-    request.get({ url, encoding: null }, (error, response, body) => {
-      if (error) {
-        reject(error);
-      }
-
-      resolve({
-        body,
-        contentLength: response.headers['content-length'],
-        contentType: response.headers['content-type'],
-      });
-    }),
-  );
 
 /**
  * Create string sequence that generates email body encrypted to base64
  */
-const encodeEmail = async (
-  toEmail: string,
-  fromEmail: string,
-  subject: string,
-  body: string,
-  attachments?: string[],
-  ccEmails?: string,
-  bccEmails?: string,
-) => {
+const encodeEmail = async (params: IMailParams) => {
+  const { toEmails, fromEmail, subject, body, attachments, cc, bcc, headerId, references } = params;
+
+  // split header to add reply References
+  let rawHeader = ['Content-Type: multipart/mixed; boundary="erxes"', 'MIME-Version: 1.0'].join('\r\n');
+
+  // if message is reply add follow references
+  if (headerId) {
+    rawHeader += [`References: ${references}`, `In-Reply-To: ${headerId}`].join('\r\n');
+  }
+
   const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString('base64')}?=`;
 
-  let rawEmail = [
-    'Content-Type: multipart/mixed; boundary="erxes"',
-    'MIME-Version: 1.0',
-    `From: ${fromEmail}`,
-    `To: ${toEmail}`,
-    `Cc: ${ccEmails || ''}`,
-    `Bcc: ${bccEmails || ''}`,
-    `Subject: ${utf8Subject}`,
-    '',
-    '--erxes',
-    'Content-Type: text/html; charset="UTF-8"',
-    'MIME-Version: 1.0',
-    'Content-Transfer-Encoding: 7bit',
-    '',
-    body,
-    '',
-  ].join('\r\n');
+  let rawEmail =
+    rawHeader +
+    [
+      `From: ${fromEmail}`,
+      `To: ${toEmails}`,
+      `Cc: ${cc || ''}`,
+      `Bcc: ${bcc || ''}`,
+      `Subject: ${utf8Subject}`,
+      '',
+      '--erxes',
+      'Content-Type: text/html; charset="UTF-8"',
+      'MIME-Version: 1.0',
+      'Content-Transfer-Encoding: 7bit',
+      '',
+      body,
+      '',
+    ].join('\r\n');
 
   if (attachments) {
-    for (const attachmentUrl of attachments) {
-      const attach: any = await getInBufferAttachFile(attachmentUrl);
-      const splitedUrl = attachmentUrl.split('/');
-      const fileName = splitedUrl[splitedUrl.length - 1];
-
+    for (const attach of attachments) {
       rawEmail += [
         '--erxes',
-        `Content-Type: ${attach.contentType}`,
+        `Content-Type: ${attach.mimeType}`,
         'MIME-Version: 1.0',
-        `Content-Length: ${attach.contentLength}`,
+        `Content-Length: ${attach.size}`,
         'Content-Transfer-Encoding: base64',
-        `Content-Disposition: attachment; filename="${fileName}"`,
+        `Content-Disposition: attachment; filename="${attach.filename}"`,
         '',
-        attach.body.toString('base64'),
+        attach.data,
         '',
       ].join('\r\n');
     }
@@ -97,8 +91,8 @@ const encodeEmail = async (
 /**
  * Send email & create activiy log with gmail kind
  */
-export const sendGmail = async (mailParams: IMailParams, userId: string) => {
-  const { integrationId, subject, body, toEmails, cc, bcc, attachments, cocType, cocId } = mailParams;
+export const sendGmail = async (mailParams: IMailParams) => {
+  const { integrationId, threadId } = mailParams;
 
   const integration = await Integrations.findOne({ _id: integrationId });
 
@@ -106,64 +100,340 @@ export const sendGmail = async (mailParams: IMailParams, userId: string) => {
     throw new Error(`Integration not found id with ${integrationId}`);
   }
 
+  const credentials = await Accounts.getGmailCredentials(integration.gmailData.email);
+
   const fromEmail = integration.gmailData.email;
+  // get raw string encrypted by base64
+  const raw = await encodeEmail({ fromEmail, ...mailParams });
 
-  const auth = getOauthClient('gmail');
+  await utils.sendEmail(credentials, raw, threadId);
 
-  auth.setCredentials(integration.gmailData.credentials);
+  return { status: 200, statusText: 'ok ' };
+};
 
-  const gmail: any = await google.gmail('v1');
+/**
+ * Set header keys to lower case
+ */
+export const mapHeaders = (headers: any) => {
+  if (!headers) {
+    return {};
+  }
 
-  const raw = await encodeEmail(toEmails, fromEmail, subject, body, attachments, cc, bcc);
+  return headers.reduce((result, header) => {
+    result[header.name.toLowerCase()] = header.value;
+    return result;
+  }, {});
+};
 
-  const activityLogContent = JSON.stringify({
-    toEmails,
-    subject,
-    body,
-    attachments,
-    cc,
-    bcc,
+/**
+ * Get headers specific values from gmail.users.messages.get response
+ */
+const getHeaderProperties = (headers: any, messageId: string, threadId: string) => {
+  return {
+    subject: headers.subject,
+    from: headers.from,
+    to: headers.to,
+    cc: headers.cc,
+    bcc: headers.bcc,
+    references: headers.references,
+    headerId: headers['message-id'],
+    reply: headers['in-reply-to'],
+    messageId,
+    threadId,
+  };
+};
+
+/**
+ * Get other parts of gmail.users.messages.get response such us html, plain text, attachment
+ */
+const getBodyProperties = (headers: any, part: any, gmailData: IMsgGmail) => {
+  const isHtml = part.mimeType && part.mimeType.includes('text/html');
+  const isPlain = part.mimeType && part.mimeType.includes('text/plain');
+  const cd = headers['content-disposition'];
+  const isAttachment = cd && cd.includes('attachment');
+  const isInline = cd && cd.includes('inline');
+
+  // get html content
+  if (isHtml && !isAttachment) {
+    gmailData.textHtml = Buffer.from(part.body.data, 'base64').toString();
+
+    // get plain text
+  } else if (isPlain && !isAttachment) {
+    gmailData.textPlain = Buffer.from(part.body.data, 'base64').toString();
+
+    // get attachments
+  } else if (isAttachment || isInline) {
+    const body = part.body;
+
+    if (!gmailData.attachments) {
+      gmailData.attachments = [];
+    }
+
+    gmailData.attachments.push({
+      filename: part.filename,
+      mimeType: part.mimeType,
+      size: body.size,
+      attachmentId: body.attachmentId,
+    });
+  }
+
+  return gmailData;
+};
+
+/**
+ * Parse result of users.messages.get response
+ */
+export const parseMessage = (response: any) => {
+  const { id, threadId, payload } = response;
+
+  if (!payload) {
+    return;
+  }
+
+  let headers = mapHeaders(payload.headers);
+  let gmailData: IMsgGmail = getHeaderProperties(headers, id, threadId);
+
+  let parts = [payload];
+  let firstPartProcessed = false;
+
+  while (parts.length !== 0) {
+    const part = parts.shift();
+
+    if (part.parts) {
+      parts = parts.concat(part.parts);
+    }
+
+    if (firstPartProcessed) {
+      headers = mapHeaders(part.headers);
+    }
+
+    if (!part.body) {
+      continue;
+    }
+
+    gmailData = getBodyProperties(headers, part, gmailData);
+
+    firstPartProcessed = true;
+  }
+
+  return gmailData;
+};
+
+/**
+ * Get gmail inbox updates
+ */
+export const getGmailUpdates = async ({ emailAddress, historyId }: { emailAddress: string; historyId: string }) => {
+  const integration = await Integrations.findOne({
+    gmailData: { $exists: true },
+    'gmailData.email': emailAddress,
   });
 
-  return new Promise((resolve, reject) => {
-    const data = {
-      auth,
-      userId: 'me',
-      resource: {
-        raw,
-      },
-    };
+  if (!integration || !integration.gmailData) {
+    throw new Error(`Integration not found gmailData with ${emailAddress}`);
+  }
 
-    gmail.users.messages.send(data, (err, response) => {
-      if (err) {
-        reject(err);
+  const credentials = await Accounts.getGmailCredentials(emailAddress);
+
+  const storedHistoryId = integration.gmailData.historyId;
+
+  if (storedHistoryId) {
+    await utils.getMessagesByHistoryId(storedHistoryId, integration._id, credentials);
+  }
+
+  integration.gmailData.historyId = historyId;
+
+  await integration.save();
+};
+
+/**
+ * Get or create customer for conversation
+ */
+export const getOrCreateCustomer = async (integrationId: string, email: string) => {
+  let primaryEmail: string = email;
+  let firstName: string = '';
+  let lastName: string = '';
+
+  if (email.includes(' ')) {
+    const info = email.split(' ');
+
+    for (const val of info) {
+      if (val.includes('@')) {
+        primaryEmail = val.replace('<', '').replace('>', '');
+      } else if (!firstName) {
+        firstName = val;
+      } else {
+        lastName = val;
       }
+    }
+  }
 
-      // Create activity log for send gmail
-      ActivityLogs.createGmailLog(activityLogContent, cocType, cocId, userId);
+  const customer = await Customers.findOne({ emails: { $in: [primaryEmail] } });
 
-      resolve(response);
-    });
+  if (customer) {
+    return customer;
+  }
+
+  return Customers.createCustomer({
+    primaryEmail,
+    firstName,
+    lastName,
+    emails: [primaryEmail],
+    integrationId,
   });
 };
 
 /**
- * Get permission granted email information
+ * Create new message as recieved email
  */
-export const getGmailUserProfile = async (credentials): Promise<{ emailAddress?: string; historyId?: string }> => {
-  const auth = getOauthClient('gmail');
+export const createMessage = async ({
+  conversation,
+  content,
+  customer,
+  gmailData,
+}: {
+  conversation: IConversationDocument;
+  content: string;
+  customer: ICustomerDocument;
+  gmailData: IMsgGmail;
+}): Promise<string> => {
+  if (!conversation) {
+    throw new Error('createMessage: Conversation not found');
+  }
 
-  auth.setCredentials(credentials);
-
-  const gmail: any = await google.gmail('v1');
-
-  return new Promise((resolve, reject) => {
-    gmail.users.getProfile({ auth, userId: 'me' }, (err, response) => {
-      if (err) {
-        reject(err);
-      }
-
-      resolve(response.data);
-    });
+  // create new message
+  const message = await ConversationMessages.createMessage({
+    conversationId: conversation._id,
+    customerId: customer._id,
+    content,
+    gmailData,
+    internal: false,
   });
+
+  // notifying conversation inserted
+  publishClientMessage(message);
+
+  // notify subscription server new message
+  publishMessage(message, conversation.customerId);
+
+  return message._id;
+};
+
+/**
+ * Create or update conversation defends on new email or reply email
+ */
+const getOrCreateConversation = async (
+  integrationId: string,
+  customerId: string,
+  content: string,
+  messageId: string,
+  reply?: string,
+) => {
+  if (reply) {
+    // new conversation
+    const replyHeaders = reply.match(/\<\S+\>/gi);
+
+    // check if message is reply save in one conversation
+    const conversationMessage = await ConversationMessages.findOne({
+      'gmailData.headerId': { $in: replyHeaders },
+    }).sort({ createdAt: -1 });
+
+    if (conversationMessage) {
+      const conversation = await Conversations.findOne({ _id: conversationMessage.conversationId });
+
+      if (conversation) {
+        conversation.status = CONVERSATION_STATUSES.OPEN;
+        conversation.content = content;
+        await conversation.save();
+        return conversation;
+      }
+    }
+  }
+
+  return Conversations.createConversation({
+    integrationId,
+    customerId,
+    status: CONVERSATION_STATUSES.NEW,
+    content,
+
+    // save gmail infos
+    gmailData: {
+      messageId,
+    },
+  });
+};
+
+/*
+ * Save google message to database
+ */
+export const syncConversation = async (integrationId: string, gmailData: IMsgGmail) => {
+  const { subject, reply, from, messageId } = gmailData;
+
+  if (!subject || !from || !messageId) {
+    throw new Error('Empty gmail data');
+  }
+
+  // check if message has arrived true return previous message instance
+  const prevMessage = await ConversationMessages.findOne({
+    'gmailData.messageId': messageId,
+  }).sort({ createdAt: -1 });
+
+  if (prevMessage) {
+    return prevMessage;
+  }
+
+  // get customer
+  const customer = await getOrCreateCustomer(integrationId, from);
+
+  // get conversation
+  const conversation = await getOrCreateConversation(integrationId, customer._id, subject, messageId, reply);
+
+  // create new message
+  return createMessage({
+    conversation,
+    customer,
+    content: subject,
+    gmailData: {
+      messageId,
+      ...gmailData,
+    },
+  });
+};
+
+/**
+ * Get attachment as a base64 string from gmail.users.attachments.get with help conversation id and attachment id
+ */
+export const getAttachment = async (conversationMessageId: string, attachmentId: string) => {
+  const message = await ConversationMessages.findOne({ _id: conversationMessageId });
+  if (!message || !message.gmailData) {
+    throw new Error(`Conversation message not found id with ${conversationMessageId}`);
+  }
+
+  const conversation = await Conversations.findOne({ _id: message.conversationId });
+
+  if (!conversation) {
+    throw new Error(`Conversation not found id with ${message.conversationId}`);
+  }
+
+  const integration = await Integrations.findOne({ _id: conversation.integrationId });
+
+  if (!integration || !integration.gmailData) {
+    throw new Error(`Integration gmail data not found id with ${conversation.integrationId}`);
+  }
+
+  const credentials = await Accounts.getGmailCredentials(integration.gmailData.email);
+
+  return utils.getGmailAttachment(credentials, message.gmailData, attachmentId);
+};
+
+/*
+ * Register new email to push notification
+ */
+export const updateHistoryId = async integration => {
+  const credentials = await Accounts.getGmailCredentials(integration.gmailData.email);
+  const { data } = await utils.callWatch(credentials);
+
+  integration.gmailData.historyId = data.historyId;
+  integration.gmailData.expiration = data.expiration;
+
+  await integration.save();
 };

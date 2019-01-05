@@ -15,7 +15,8 @@ export const INTEGRATION_KIND_CHOICES = {
   FORM: 'form',
   TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  ALL: ['messenger', 'form', 'twitter', 'facebook'],
+  GMAIL: 'gmail',
+  ALL: ['messenger', 'form', 'twitter', 'facebook', 'gmail'],
 };
 
 export const TAG_TYPES = {
@@ -290,6 +291,26 @@ export const COMPANY_BASIC_INFOS = [
   'description',
   'doNotDisturb',
 ];
+
+export const INSIGHT_BASIC_INFOS = {
+  count: 'Conversations by customer count',
+  messageCount: 'Conversation message count',
+  customerCount: 'Customer count',
+  customerCountPercentage: 'Customer Count Percentage',
+  resolvedCount: 'Resolved conversation',
+  averageResponseDuration: 'Average duration of total',
+  firstResponseDuration: 'Average duration of first response',
+  ALL: [
+    'date',
+    'count',
+    'customerCount',
+    'customerCountPercentage',
+    'messageCount',
+    'resolvedCount',
+    'averageResponseDuration',
+    'firstResponseDuration',
+  ],
+};
 
 export const PROBABILITY = {
   TEN: '10%',

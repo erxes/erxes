@@ -8,112 +8,120 @@ import {
 } from './definitions/notifications';
 import { IUserDocument } from './definitions/users';
 
-interface INotificationModel extends Model<INotificationDocument> {
+export interface INotificationModel extends Model<INotificationDocument> {
   markAsRead(ids: string[], userId?: string): void;
-
   createNotification(doc: INotification, createdUser?: IUserDocument | string): Promise<INotificationDocument>;
-
   updateNotification(_id: string, doc: INotification): Promise<INotificationDocument>;
-
   removeNotification(_id: string): void;
 }
 
-class Notification {
-  /**
-   * Marks notifications as read
-   */
-  public static markAsRead(ids: string[], userId: string) {
-    let selector: any = { receiver: userId };
+export const loadNotificationClass = () => {
+  class Notification {
+    /**
+     * Marks notifications as read
+     */
+    public static markAsRead(ids: string[], userId: string) {
+      let selector: any = { receiver: userId };
 
-    if (ids) {
-      selector = { _id: { $in: ids } };
+      if (ids) {
+        selector = { _id: { $in: ids } };
+      }
+
+      return Notifications.updateMany(selector, { $set: { isRead: true } }, { multi: true });
     }
 
-    return Notifications.update(selector, { $set: { isRead: true } }, { multi: true });
-  }
+    /**
+     * Create a notification
+     */
+    public static async createNotification(doc: INotification, createdUser?: IUserDocument | string) {
+      if (!createdUser) {
+        throw new Error('createdUser must be supplied');
+      }
 
-  /**
-   * Create a notification
-   */
-  public static async createNotification(doc: INotification, createdUser?: IUserDocument | string) {
-    if (!createdUser) {
-      throw new Error('createdUser must be supplied');
+      // if receiver is configured to get this notification
+      const config = await NotificationConfigurations.findOne({
+        user: doc.receiver,
+        notifType: doc.notifType,
+      });
+
+      // receiver disabled this notification
+      if (config && !config.isAllowed) {
+        throw new Error('Configuration does not exist');
+      }
+
+      return Notifications.create({ ...doc, createdUser });
     }
 
-    // if receiver is configured to get this notification
-    const config = await NotificationConfigurations.findOne({
-      user: doc.receiver,
-      notifType: doc.notifType,
-    });
+    /**
+     * Update a notification
+     */
+    public static async updateNotification(_id: string, doc: INotification) {
+      await Notifications.updateOne({ _id }, doc);
 
-    // receiver disabled this notification
-    if (config && !config.isAllowed) {
-      throw new Error('Configuration does not exist');
+      return Notifications.findOne({ _id });
     }
 
-    return Notifications.create({ ...doc, createdUser });
+    /**
+     * Remove a notification
+     */
+    public static removeNotification(_id: string) {
+      return Notifications.deleteOne({ _id });
+    }
   }
 
-  /**
-   * Update a notification
-   */
-  public static async updateNotification(_id: string, doc: INotification) {
-    await Notifications.update({ _id }, doc);
+  notificationSchema.loadClass(Notification);
 
-    return Notifications.findOne({ _id });
-  }
+  return notificationSchema;
+};
 
-  /**
-   * Remove a notification
-   */
-  public static removeNotification(_id: string) {
-    return Notifications.remove({ _id });
-  }
-}
-
-notificationSchema.loadClass(Notification);
-
-// tslint:disable-next-line
-export const Notifications = model<INotificationDocument, INotificationModel>('notifications', notificationSchema);
-
-interface IConfigModel extends Model<IConfigDocument> {
+export interface IConfigModel extends Model<IConfigDocument> {
   createOrUpdateConfiguration(
     { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
     user?: IUserDocument | string,
   ): Promise<IConfigDocument>;
 }
 
-class Configuration {
-  /**
-   * Creates an new notification or updates already existing notification configuration
-   */
-  public static async createOrUpdateConfiguration(
-    { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
-    user?: IUserDocument | string,
-  ) {
-    if (!user) {
-      throw new Error('user must be supplied');
+export const loadNotificationConfigClass = () => {
+  class Configuration {
+    /**
+     * Creates an new notification or updates already existing notification configuration
+     */
+    public static async createOrUpdateConfiguration(
+      { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
+      user?: IUserDocument | string,
+    ) {
+      if (!user) {
+        throw new Error('user must be supplied');
+      }
+
+      const selector: any = { user, notifType };
+
+      const oldOne = await NotificationConfigurations.findOne(selector);
+
+      // If already inserted then raise error
+      if (oldOne) {
+        await NotificationConfigurations.updateOne({ _id: oldOne._id }, { $set: { isAllowed } });
+
+        return NotificationConfigurations.findOne({ _id: oldOne._id });
+      }
+
+      // If it is first time then insert
+      selector.isAllowed = isAllowed;
+
+      return NotificationConfigurations.create(selector);
     }
-
-    const selector: any = { user, notifType };
-
-    const oldOne = await NotificationConfigurations.findOne(selector);
-
-    // If already inserted then raise error
-    if (oldOne) {
-      await NotificationConfigurations.update({ _id: oldOne._id }, { $set: { isAllowed } });
-
-      return NotificationConfigurations.findOne({ _id: oldOne._id });
-    }
-
-    // If it is first time then insert
-    selector.isAllowed = isAllowed;
-
-    return NotificationConfigurations.create(selector);
   }
-}
 
-configSchema.loadClass(Configuration);
+  configSchema.loadClass(Configuration);
+
+  return configSchema;
+};
+
+loadNotificationClass();
+loadNotificationConfigClass();
 
 // tslint:disable-next-line
 export const NotificationConfigurations = model<IConfigDocument, IConfigModel>('notification_configs', configSchema);
+
+// tslint:disable-next-line
+export const Notifications = model<INotificationDocument, INotificationModel>('notifications', notificationSchema);

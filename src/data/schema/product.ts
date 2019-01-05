@@ -24,5 +24,5 @@ export const queries = `
 export const mutations = `
   productsAdd(${params}): Product
   productsEdit(_id: String!, ${params}): Product
-  productsRemove(_id: String!): String
+  productsRemove(_id: String!): JSON
 `;
