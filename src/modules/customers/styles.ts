@@ -32,7 +32,7 @@ const Action = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
-const List = SidebarList.extend`
+const List = styled(SidebarList)`
   li {
     border-bottom: 1px solid ${colors.borderPrimary};
     color: ${colors.textPrimary};
@@ -86,4 +86,18 @@ const Name = styled.div`
   }
 `;
 
-export { InfoTitle, InfoDetail, Info, Action, List, InfoAvatar, Contact, Name };
+const TabContent = styled.div`
+  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
+`;
+
+export {
+  InfoTitle,
+  InfoDetail,
+  Info,
+  Action,
+  List,
+  InfoAvatar,
+  Contact,
+  Name,
+  TabContent
+};

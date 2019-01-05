@@ -29,7 +29,7 @@ class WithCurrentId extends React.Component<IProps> {
     const { conversationsGetLast, loading } = lastConversationQuery;
 
     if (!_id && conversationsGetLast && !loading) {
-      routerUtils.setParams(history, { _id: conversationsGetLast._id });
+      routerUtils.setParams(history, { _id: conversationsGetLast._id }, true);
     }
   }
 

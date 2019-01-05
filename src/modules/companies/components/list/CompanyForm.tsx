@@ -152,7 +152,7 @@ class CompanyForm extends React.Component<Props, State> {
 
   handleSelect = <T extends keyof State>(
     name: T,
-    selectedOption: { value: State[T] }
+    selectedOption: { value: string }
   ) => {
     this.setState({
       [name]: selectedOption ? selectedOption.value : null

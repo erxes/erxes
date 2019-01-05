@@ -21,6 +21,7 @@ import { IBreadCrumbItem } from '../../common/types';
 import MessengerForm from './MessengerForm';
 
 type Props = {
+  kind: string;
   message?: IEngageMessage;
   brands: IBrand[];
   users: IUser[];
@@ -86,8 +87,7 @@ class VisitorForm extends React.Component<Props, State> {
         brandId: messenger.brandId,
         sentAs: messenger.sentAs,
         content: this.state.content
-      },
-      scheduleDate: this.state.scheduleDate
+      }
     };
 
     const response = this.props.validateDoc(type, doc);
@@ -106,6 +106,8 @@ class VisitorForm extends React.Component<Props, State> {
       content,
       scheduleDate
     } = this.state;
+
+    const { kind, users, brands } = this.props;
 
     const onChange = e =>
       this.changeState('title', (e.target as HTMLInputElement).value);
@@ -137,9 +139,10 @@ class VisitorForm extends React.Component<Props, State> {
             message={this.props.message}
           >
             <MessengerForm
-              brands={this.props.brands}
+              brands={brands}
               onChange={this.changeState}
-              users={this.props.users}
+              users={users}
+              messageKind={kind}
               hasKind={false}
               messenger={messenger || ({} as IEngageMessenger)}
               fromUserId={fromUserId}

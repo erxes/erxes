@@ -1,6 +1,8 @@
+import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
 import asyncComponent from './components/AsyncComponent';
+import { ExportReport, SummaryReport } from './containers';
 
 const AsyncVolumeAndResponseReport = asyncComponent(() =>
   import('./containers/VolumeAndResponseReport')
@@ -40,6 +42,18 @@ const volumeReport = () => {
   );
 };
 
+const summaryReport = ({ history, location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <SummaryReport queryParams={queryParams} history={history} />;
+};
+
+const exportReport = ({ history, location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <ExportReport queryParams={queryParams} history={history} />;
+};
+
 const routes = () => {
   return (
     <React.Fragment>
@@ -76,6 +90,20 @@ const routes = () => {
         exact={true}
         path="/insights"
         component={AsyncInsightPage}
+      />
+
+      <Route
+        key="/insights/summary-report"
+        exact={true}
+        path="/insights/summary-report"
+        component={summaryReport}
+      />
+
+      <Route
+        key="/insights/export-report"
+        exact={true}
+        path="/insights/export-report"
+        component={exportReport}
       />
     </React.Fragment>
   );

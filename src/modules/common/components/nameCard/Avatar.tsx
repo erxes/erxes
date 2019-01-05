@@ -65,6 +65,23 @@ type Props = {
   hasAvatar?: boolean;
 };
 
+function Element({
+  children,
+  customer
+}: {
+  children: React.ReactNode;
+  customer?: ICustomer;
+}) {
+  if (customer) {
+    return (
+      <Link to={customer && `/customers/details/${customer._id}`}>
+        {children}
+      </Link>
+    );
+  }
+  return <div>{children}</div>;
+}
+
 class Avatar extends React.Component<Props> {
   generateStyle(size = 40) {
     return {
@@ -146,11 +163,9 @@ class Avatar extends React.Component<Props> {
       fullName = company.primaryName || null;
     }
 
-    const Element = customer ? Link : 'div';
-
     return (
       <AvatarStyled {...this.generateTypes()}>
-        <Element to={customer && `/customers/details/${customer._id}`}>
+        <Element customer={customer}>
           {avatar ? this.renderImage(avatar) : this.renderInitials(fullName)}
         </Element>
         {icon}

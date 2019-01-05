@@ -3,7 +3,7 @@ import queryString from 'query-string';
 import { queries } from './graphql';
 
 export const generateParams = queryParams => ({
-  limit: queryParams.limit || 10,
+  limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,
   channelId: queryParams.channelId,
   status: queryParams.status,
   unassigned: queryParams.unassigned,
@@ -27,4 +27,16 @@ export const refetchSidebarConversationsOptions = () => {
       }
     ]
   };
+};
+
+export const getConfig = (key: string) => {
+  const sidebarConfig = localStorage.getItem(key);
+
+  if (sidebarConfig) {
+    return JSON.parse(sidebarConfig);
+  }
+};
+
+export const setConfig = (key, params) => {
+  localStorage.setItem(key, JSON.stringify(params));
 };

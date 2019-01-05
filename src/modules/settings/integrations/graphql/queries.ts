@@ -16,6 +16,7 @@ const brands = `
       _id
       name
       code
+      description
     }
   }
 `;

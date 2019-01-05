@@ -1,5 +1,5 @@
 import { Button, EmptyState } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import * as React from 'react';
 import { SidebarContent } from '../styles';
@@ -167,6 +167,17 @@ class GenerateGroups extends React.Component<GroupsProps> {
 
   render() {
     const { loading, fieldsGroups, customFieldsData } = this.props;
+    const { Section } = Sidebar;
+    const { Title } = Section;
+
+    if (fieldsGroups.length === 0) {
+      return (
+        <Section>
+          <Title>{__('Contact information')}</Title>
+          <EmptyState icon="clipboard-1" text="Empty" size="small" />
+        </Section>
+      );
+    }
 
     return fieldsGroups.map(fieldGroup => {
       const data = {};

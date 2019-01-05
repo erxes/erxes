@@ -4,30 +4,44 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Spinner
 } from '../../../../common/components';
 import { ModalFooter } from '../../../../common/styles/main';
 import { __ } from '../../../../common/utils';
 import { IBrand } from '../../../brands/types';
-import { IFacebookApp, IPages } from '../../types';
+import { IAccount } from '../../../linkedAccounts/types';
+import { CreateFacebookMutationVariables, IPages } from '../../types';
 
 type Props = {
   save: (
-    params: { name: string; brandId: string; appId: string; pageIds: string[] }
+    params: CreateFacebookMutationVariables,
+    callback?: () => void
   ) => void;
-  onAppSelect: (appId: string) => void;
+  onAccSelect: (doc: { appId?: string; accountId?: string }) => void;
   brands: IBrand[];
-  apps: IFacebookApp[];
   pages: IPages[];
+  accounts: IAccount[];
+  closeModal: () => void;
 };
 
-class Facebook extends React.Component<Props> {
-  onAppChange = () => {
-    const appId = (document.getElementById('app') as HTMLInputElement).value;
-    this.props.onAppSelect(appId);
+class Facebook extends React.Component<Props, { loading: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      loading: false
+    };
+  }
+
+  onAccChange = () => {
+    const accountId = (document.getElementById('acc') as HTMLInputElement)
+      .value;
+
+    this.props.onAccSelect({ accountId });
   };
 
-  collectCheckboxValues(name) {
+  collectCheckboxValues(name: string): string[] {
     const values: string[] = [];
     const elements = document.getElementsByName(name);
 
@@ -46,20 +60,29 @@ class Facebook extends React.Component<Props> {
   handleSubmit = e => {
     e.preventDefault();
 
-    this.props.save({
+    const doc: CreateFacebookMutationVariables = {
       name: (document.getElementById('name') as HTMLInputElement).value,
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value,
-      appId: (document.getElementById('app') as HTMLInputElement).value,
+      accountId: (document.getElementById('acc') as HTMLInputElement).value,
       pageIds: this.collectCheckboxValues('pages')
-    });
+    };
+
+    const callback = () => {
+      this.setState({ loading: false }, () => this.props.closeModal());
+    };
+
+    this.setState({ loading: true });
+
+    this.props.save(doc, callback);
   };
 
   render() {
-    const { apps, pages, brands } = this.props;
+    const { pages, brands, accounts } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
+        {this.state.loading && <Spinner />}
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
@@ -69,19 +92,19 @@ class Facebook extends React.Component<Props> {
         <SelectBrand brands={brands} />
 
         <FormGroup>
-          <ControlLabel>App</ControlLabel>
+          <ControlLabel>Linked Accounts</ControlLabel>
 
           <FormControl
             componentClass="select"
-            placeholder={__('Select app')}
-            onChange={this.onAppChange}
-            id="app"
+            placeholder={__('Select account')}
+            onChange={this.onAccChange}
+            id="acc"
           >
-            <option value="">Select app ...</option>
+            <option value="">Select account ...</option>
 
-            {apps.map((app, index) => (
-              <option key={`app${index}`} value={app.id}>
-                {app.name}
+            {accounts.map((account, index) => (
+              <option key={`account${index}`} value={account._id}>
+                {account.name}
               </option>
             ))}
           </FormControl>

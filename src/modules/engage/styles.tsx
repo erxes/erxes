@@ -1,7 +1,12 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import { BoxRoot } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import {
+  Launcher,
+  WidgetPreviewStyled
+} from '../settings/integrations/components/messenger/widgetPreview/styles';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const size = 65;
@@ -53,7 +58,6 @@ const PreviewContent = styledTS<{ isFullmessage: boolean }>(styled.div)`
 `;
 
 const Messenger = styled.div`
-  width: 300px;
   position: absolute;
   right: ${coreSpace};
   bottom: ${coreSpace};
@@ -63,19 +67,27 @@ const Messenger = styled.div`
   align-items: flex-end;
 `;
 
-const WebPreview = styled.div`
+const LauncherContainer = styled(Launcher)`
+  position: absolute;
+`;
+
+const WidgetPreview = styled(WidgetPreviewStyled)`
+  height: auto;
+  bottom: 90px;
+  right: 25px;
+  max-height: calc(100% - 95px);
+`;
+
+const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
   min-height: 100%;
-  flex: 1;
   position: relative;
-  width: calc(100% - ${coreSpace});
-  margin-left: auto;
-  margin-top: -1px;
   background: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0) 30%,
     rgba(255, 255, 255, 0.3) 60%,
     ${colors.borderPrimary} 100%
   );
+  width: ${props => props.isEngage && '100%'};
 
   .engage-message {
     > div:first-of-type {
@@ -85,7 +97,7 @@ const WebPreview = styled.div`
   }
 `;
 
-const MessengerPreview = WebPreview.extend`
+const MessengerPreview = styled(WebPreview)`
   min-height: 500px;
 `;
 
@@ -130,7 +142,7 @@ const FlexItemCentered = styled.div`
   justify-content: center;
 `;
 
-const Box = BoxRoot.extend`
+const Box = styled(BoxRoot)`
   width: 23%;
   height: 200px;
   margin-top: ${coreSpace};
@@ -178,40 +190,35 @@ const SelectMonth = styled.div`
 
 const DateTimePicker = styled.div`
   margin-top: ${coreSpace};
-  position: relative;
-
-  input {
-    font-size: 13px;
-    border-color: ${colors.colorShadowGray};
-    box-shadow: none;
-    cursor: pointer;
-  }
-
-  input:focus {
-    box-shadow: none;
-    border-color: ${colors.colorSecondary};
-  }
-
-  > i {
-    position: absolute;
-    right: 1px;
-    top: 1px;
-    padding: 6px 10px;
-    background: ${colors.borderPrimary};
-    border-right-radius: 13px;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-  }
 
   .rdtOpen .rdtPicker {
-    font-size: 12px;
-    max-width: inherit;
-    width: 100%;
+    border:none;
+
+    table {
+      width: inherit;
+    }
   }
 
-  .rdtCounter .rdtBtn {
-    height: 30%;
-    line-height: 30px;
+  .rdtCounterSeparator {
+    line-height: inherit;
+    padding-left: ${dimensions.unitSpacing}px;
+  }
+
+  .rdtTime {
+    margin-left: -${dimensions.coreSpacing}px;
+  }
+
+  .rdtCounter {
+    position: relative;
+    height: ${dimensions.headerSpacing + 5}px
+    color: ${rgba(colors.colorCoreDarkGray, 0.8)};
+
+    .rdtBtn {
+      line-height: ${dimensions.unitSpacing}px;
+      position: absolute;
+      right: 0;
+      font-size: 10px;
+    }
   }
 `;
 
@@ -234,5 +241,7 @@ export {
   BoxHeader,
   IconContainer,
   DateTimePicker,
-  SelectMonth
+  SelectMonth,
+  LauncherContainer,
+  WidgetPreview
 };

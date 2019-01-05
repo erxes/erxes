@@ -111,7 +111,6 @@ type IndexProps = {
 type IndexState = {
   currentTab: string;
   currentSubTab: string;
-  attachmentPreview: any;
 };
 
 interface IRenderData {
@@ -127,8 +126,7 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     this.state = {
       currentTab: 'customer',
-      currentSubTab: 'details',
-      attachmentPreview: null
+      currentSubTab: 'details'
     };
   }
 
@@ -138,10 +136,6 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   onSubtabClick = currentSubTab => {
     this.setState({ currentSubTab });
-  };
-
-  setAttachmentPreview = attachmentPreview => {
-    this.setState({ attachmentPreview });
   };
 
   renderMessengerData = ({
@@ -194,20 +188,18 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     const content = props => (
       <MailForm
-        {...props}
         contentType="customer"
         contentTypeId={customer._id}
         toEmail={primaryEmail}
-        setAttachmentPreview={this.setAttachmentPreview}
-        attachmentPreview={this.state.attachmentPreview}
         refetchQueries={['activityLogsCustomer']}
+        closeModal={props.closeModal}
       />
     );
 
     return (
       <Actions>
         <ModalTrigger
-          title="Edit basic info"
+          title="Email"
           trigger={
             <Button disabled={primaryEmail ? false : true} size="small">
               {__('Email')}

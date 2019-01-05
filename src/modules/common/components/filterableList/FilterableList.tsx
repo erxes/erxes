@@ -77,7 +77,7 @@ class FilterableList extends React.Component<Props, State> {
 
     return items.map(item => {
       // filter items by key
-      if (key && item.title.toLowerCase().indexOf(key) < 0) {
+      if (key && item.title.toLowerCase().indexOf(key.toLowerCase()) < 0) {
         return false;
       }
 

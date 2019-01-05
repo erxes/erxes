@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ArticleForm } from '../../components';
@@ -70,9 +71,8 @@ const commonOptions = ({ queryParams, currentCategoryId, topicIds }) => {
       {
         query: gql(queries.knowledgeBaseArticles),
         variables: {
-          categoryIds: [currentCategoryId],
-          page: queryParams.page,
-          perPage: queryParams.perPage || 20
+          ...generatePaginationParams(queryParams),
+          categoryIds: [currentCategoryId]
         }
       },
       {

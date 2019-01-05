@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
@@ -87,8 +88,7 @@ export default withProps<Props>(
       options: ({ queryParams }) => {
         return {
           variables: {
-            page: queryParams.page,
-            perPage: queryParams.perPage || 20,
+            ...generatePaginationParams(queryParams),
             tag: queryParams.tag,
             kind: 'form'
           },

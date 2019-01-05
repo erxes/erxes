@@ -685,7 +685,7 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'twitter',
         logo: '/images/integrations/twitter.png',
-        createUrl: '/settings/integrations/twitter'
+        createModal: 'twitter'
       },
       {
         name: 'Messenger',
@@ -706,7 +706,7 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
-        createUrl: '/settings/integrations/gmail'
+        createModal: 'gmail'
       },
       {
         name: 'Google meet',

@@ -18,7 +18,7 @@ const LeftNavigation = styled.aside`
 
   > a {
     display: flex;
-    margin-top: ${dimensions.unitSpacing}px;
+    margin-top: ${dimensions.unitSpacing / 2}px;
     height: ${dimensions.headerSpacing}px;
     justify-content: center;
     align-items: center;
@@ -36,7 +36,7 @@ const LeftNavigation = styled.aside`
 
 const Nav = styled.nav`
   display: block;
-  margin-top: ${dimensions.unitSpacing}px;
+  margin-top: ${dimensions.unitSpacing / 2}px;
   height: calc(100% - 130px);
   overflow: auto;
 

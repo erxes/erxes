@@ -22,6 +22,7 @@ type Props = {
   nextButton?: React.ReactNode;
   save?: (name: string, e: React.MouseEvent) => void;
   message?: any;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 class Step extends React.Component<Props> {
@@ -94,6 +95,14 @@ class Step extends React.Component<Props> {
     );
   }
 
+  onClickNext = (stepNumber?: number) => {
+    const { next } = this.props;
+
+    if (next && stepNumber) {
+      return next(stepNumber);
+    }
+  };
+
   render() {
     const {
       stepNumber,
@@ -102,7 +111,8 @@ class Step extends React.Component<Props> {
       title,
       children,
       next,
-      nextButton
+      nextButton,
+      onClick
     } = this.props;
 
     let show = false;
@@ -112,7 +122,7 @@ class Step extends React.Component<Props> {
     }
 
     return (
-      <StepItem show={show}>
+      <StepItem show={show} onClick={onClick}>
         <FullStep show={show}>
           <StepHeaderContainer>
             <StepHeader>
@@ -130,7 +140,7 @@ class Step extends React.Component<Props> {
 
         <ShortStep
           show={!show}
-          onClick={next && stepNumber && next.bind(null, stepNumber)}
+          onClick={this.onClickNext.bind(null, stepNumber)}
         >
           <StepImg>
             <img src={img} alt="step-icon" />

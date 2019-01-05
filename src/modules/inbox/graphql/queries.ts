@@ -114,9 +114,7 @@ const conversationDetailMarkAsRead = `
 
 const conversationMessages = `
   query conversationMessages($conversationId: String!, $skip: Int, $limit: Int) {
-    conversationMessages(
-      conversationId: $conversationId, skip: $skip, limit: $limit
-    ) {
+    conversationMessages(conversationId: $conversationId, skip: $skip, limit: $limit) {
       ${messageFields}
     }
   }
@@ -293,6 +291,18 @@ const generateCustomerDetailQuery = params => {
   `;
 };
 
+const conversationMessagesFacebook = `
+  query conversationMessagesFacebook($conversationId: String, $commentId: String, $postId: String, $limit: Int) {
+    conversationMessagesFacebook(conversationId: $conversationId, commentId: $commentId, postId: $postId, limit: $limit) {
+      list {
+        ${messageFields}
+      }
+      
+      commentCount
+    }
+  }
+`;
+
 export default {
   conversationList,
   sidebarConversations,
@@ -309,5 +319,6 @@ export default {
   totalConversationsCount,
   unreadConversationsCount,
   lastConversation,
-  generateCustomerDetailQuery
+  generateCustomerDetailQuery,
+  conversationMessagesFacebook
 };

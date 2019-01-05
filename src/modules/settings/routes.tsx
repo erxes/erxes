@@ -8,11 +8,13 @@ import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
 import ImportHistory from './importHistory/routes';
 import IntegrationsRoutes from './integrations/routes';
+import LinkedAccountRoutes from './linkedAccounts/routes';
 import MainRoutes from './main/routes';
 import ProductService from './productService/routes';
 import ProfileRoutes from './profile/routes';
 import PropertiesRoutes from './properties/routes';
 import ResponseTemplatesRoutes from './responseTemplates/routes';
+import ScriptsRoutes from './scripts/routes';
 import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
 
@@ -26,6 +28,7 @@ const routes = () => (
     <TeamRoutes key="team" />
     <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
     <EmailRoutes key="EmailRoutes" />
+    <ScriptsRoutes key="ScriptsRoutes" />
     <IntegrationsRoutes key="IntegrationsRoutes" />
     <DealRoutes key="DealRoutes" />
     <ProductService key="ProductService" />
@@ -33,6 +36,7 @@ const routes = () => (
     <PropertiesRoutes key="PropertiesRoutes" />
     <ImportHistory key="ImportHistory" />
     <StatusRoutes key="StatusRoutes" />
+    <LinkedAccountRoutes key="LinkedAccountRoutes" />
   </React.Fragment>
 );
 

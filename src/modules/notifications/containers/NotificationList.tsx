@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { NotificationList } from '../components';
@@ -63,9 +64,8 @@ export default withProps<Props>(
       name: 'notificationsQuery',
       options: ({ queryParams }) => ({
         variables: {
+          ...generatePaginationParams(queryParams),
           requireRead: false,
-          page: queryParams.page,
-          perPage: queryParams.perPage || 20,
           title: queryParams.title
         }
       })

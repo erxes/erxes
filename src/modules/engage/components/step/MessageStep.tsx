@@ -63,7 +63,7 @@ class MessageStep extends React.Component<Props> {
         onChange={onChange}
         users={users}
         hasKind={true}
-        kind={kind}
+        messageKind={kind}
         messenger={messenger || ({} as IEngageMessenger)}
         fromUserId={fromUserId}
         content={content}

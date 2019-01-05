@@ -6,39 +6,39 @@ import * as React from 'react';
 
 moment.defineLocale('mn', {
   relativeTime: {
-    future: '%s дараа',
-    past: '%s өмнө',
-    ss: '$d секундын',
+    future: '%s',
+    past: '%s',
+    ss: '$dс',
     s: 'саяхан',
-    m: 'минутын',
-    mm: '%d минутын',
-    h: '1 цагийн',
-    hh: '%d цагийн',
-    d: '1 өдрийн',
-    dd: '%d өдрийн',
-    M: '1 сарын',
-    MM: '%d сарын',
-    y: '1 жилийн',
-    yy: '%d жилийн'
+    m: 'м',
+    mm: '%dм',
+    h: '1ц',
+    hh: '%dц',
+    d: '1ө',
+    dd: '%dө',
+    M: '1с',
+    MM: '%dс',
+    y: '1ж',
+    yy: '%dж'
   }
 });
 
 moment.updateLocale('en', {
   relativeTime: {
-    future: 'in %s',
-    past: '%s ago',
-    s: '%d seconds',
-    ss: '%d s',
-    m: 'a minute',
-    mm: '%d minutes',
-    h: 'an hour',
-    hh: '%d hours',
-    d: 'a day',
-    dd: '%d days',
-    M: 'a month',
-    MM: '%d months',
-    y: 'a year',
-    yy: '%d years'
+    future: '%s',
+    past: '%s',
+    s: '%ds',
+    ss: '%ds',
+    m: 'm',
+    mm: '%dm',
+    h: 'h',
+    hh: '%dh',
+    d: 'd',
+    dd: '%dd',
+    M: 'm',
+    MM: '%dm',
+    y: 'y',
+    yy: '%dy'
   }
 });
 

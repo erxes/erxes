@@ -1,5 +1,6 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import { BoxRoot } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -91,7 +92,7 @@ const ChartWrapper = styledTS<IWrapperProps>(styled.div)`
   overflow: hidden;
 `;
 
-const LoaderWrapper = ChartWrapper.extend`
+const LoaderWrapper = styled(ChartWrapper)`
   padding: ${dimensions.coreSpacing * 2}px;
 `;
 
@@ -164,6 +165,91 @@ const FullName = styled.span`
   font-weight: bold;
 `;
 
+const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
+  width: 320px;
+  border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
+
+  > a {
+    padding: 40px;
+  }
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+
+  span {
+    font-weight: 500;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: ${colors.colorCoreLightGray};
+  }
+`;
+
+const PunchCardWrapper = styledTS<{ paddingLeft: number }>(styled.div)`
+  padding-left: ${props => props.paddingLeft}px;
+`;
+
+const PunchCell = styledTS<{ height: number }>(styled.div)`
+  width: ${100 / 24}%;
+  height: ${props => props.height}px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const PunchCircle = styledTS<{ radius: number }>(styled.div)`
+  display: inline-block;
+  border-radius: 50%;
+  background-color: ${colors.colorPrimary};
+  width: ${props => props.radius}px;
+  height: ${props => props.radius}px;
+  text-indent: -9999px;
+  white-space: nowrap;
+  cursor: pointer;
+`;
+
+const PunchDates = styledTS<{ width: number }>(styled.div)`
+  position: absolute;
+  width: ${props => props.width}px;
+  left: 0;
+  border-right: 1px solid ${colors.colorCoreGray};
+
+  ${PunchCell} {
+    width: 100%;
+    position: relative;
+
+    &:before {
+      content: "";
+      height: 2px;
+      width: 5px;
+      background-color: ${colors.colorCoreGray};
+      position: absolute;
+      right: 0;
+    }
+  }
+`;
+
+const PunchHours = styled.div`
+  margin-top: 10px;
+  border-top: 1px solid ${colors.colorCoreGray};
+
+  ${PunchCell} {
+    &:before {
+      content: '';
+      height: 5px;
+      width: 2px;
+      background-color: ${colors.colorCoreGray};
+      position: absolute;
+      left: 50%;
+      top: 0;
+    }
+  }
+`;
+
 export {
   InsightWrapper,
   InsightRow,
@@ -179,5 +265,11 @@ export {
   SummaryCount,
   InsightUserData,
   UserProfile,
-  FullName
+  FullName,
+  Box,
+  PunchCell,
+  PunchCircle,
+  PunchDates,
+  PunchCardWrapper,
+  PunchHours
 };

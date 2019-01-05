@@ -61,9 +61,8 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://cloud.google.com/developers/startups/" target="_blank"><img src="https://erxes.io/img/logo/cloud-logo.svg" width="130px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
 <a href="https://www.digitalocean.com/" target="_blank"><img src="https://erxes.io/img/logo/digitalocean.png" width="100px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
 <a href="https://www.saucelabs.com/" target="_blank"><img src="https://erxes.io/img/logo/saucelabs.png" width="130px;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-<a href="https://www.transifex.com/" target="_blank"><img src="https://erxes.io/img/logo/transifex.png" width="100px;" /></a>
-
- 
+<a href="https://www.transifex.com/" target="_blank"><img src="https://erxes.io/img/logo/transifex.png" width="100px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://www.browserstack.com/" target="_blank"><img src="https://erxes.io/img/logo/browserstack.png" width="130px;" /></a>
 
 ## Copyright & License
 Copyright (c) 2018 erxes Inc - Released under the <a href="https://github.com/erxes/erxes/blob/develop/LICENSE.md">GNU General Public License v3.0</a>

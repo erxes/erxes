@@ -1,10 +1,16 @@
 export default `
   _id
   content
-  attachments
+  attachments {
+    url
+    name
+    size
+    type
+  }
   mentionedUserIds
   conversationId
   internal
+  fromBot
   customerId
   userId
   createdAt
@@ -44,6 +50,27 @@ export default `
     photos
     senderId
     senderName
+    createdTime
+  }
+  gmailData {
+    messageId
+    headerId
+    from
+    to
+    cc
+    bcc
+    reply
+    references
+    threadId
+    subject
+    textPlain
+    textHtml
+    attachments {
+      filename
+      mimeType
+      size
+      attachmentId
+    }
   }
   user {
     _id

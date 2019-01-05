@@ -106,6 +106,8 @@ class ManageIntegrations extends React.Component<Props, State> {
       type = 'twitter';
     } else if (kind === KIND_CHOICES.FACEBOOK) {
       type = 'facebook';
+    } else if (kind === KIND_CHOICES.GMAIL) {
+      type = 'gmail';
     }
 
     return type;
@@ -113,14 +115,16 @@ class ManageIntegrations extends React.Component<Props, State> {
 
   getIconByKind(integration) {
     const kind = integration.kind;
-    let icon = 'chat';
+    let icon = 'comment-alt';
 
     if (kind === KIND_CHOICES.FORM) {
-      icon = 'form';
+      icon = 'doc-text-inv-1';
     } else if (kind === KIND_CHOICES.TWITTER) {
-      icon = 'twitter';
+      icon = 'twitter-1';
     } else if (kind === KIND_CHOICES.FACEBOOK) {
-      icon = 'facebook';
+      icon = 'facebook-official';
+    } else if (kind === KIND_CHOICES.GMAIL) {
+      icon = 'mail-alt';
     }
 
     return icon;

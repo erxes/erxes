@@ -93,7 +93,7 @@ const SlideLeftContent = styled.div`
   }
 `;
 
-const SlideRightContent = SlideLeftContent.extend`
+const SlideRightContent = styled(SlideLeftContent)`
   right: 0;
   left: auto;
   animation: ${slideRight} 0.5s linear;

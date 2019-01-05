@@ -141,7 +141,8 @@
   "Signature": "Гарын үсэг",
   "simple": "энгийн",
   "custom": "дурын",
-  "default": "үндсэн",
+  "default": "Үндсэн",
+  "default language": "Үндсэн хэл",
   "primary": "гол",
   "Content": "Агуулга",
   "Save & draft": "Хадгалах & Түр хадгалах",
@@ -670,5 +671,13 @@
   "Knowledge base topic": "Мэдлэгийн сангийн гарчиг",
   "Package version": "Сангийн хувилбар",
   "Branch name": "Салбарын нэр",
-  "Abbreviated": "Товчилсон"
+  "Abbreviated": "Товчилсон",
+  "User": "Хэрэглэгч",
+  "Recent conversations": "Сүүлийн харилцааны түүхүүд",
+  "Start new conversation": "Шинэ харилцааны түүх эхлүүлэх",
+  "Talk with support staff": "Тусламжийн багтай харилцах",
+  "Send a message": "Захиа илгээх",
+  "Volume Report By Customer": "Хандалтын тайлан харилцагчаар",
+  "Export Report": "Тайлан татах",
+  "We`re ready to help you.": "Бид танд туслахад бэлэн байна."
 }

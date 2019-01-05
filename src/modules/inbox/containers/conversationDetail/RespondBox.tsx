@@ -14,6 +14,8 @@ import { AddMessageMutationVariables, IConversation } from '../../types';
 
 type Props = {
   conversation: IConversation;
+  showInternal: boolean;
+  setAttachmentPreview: (attachmentPreview: IAttachmentPreview) => void;
   addMessage: (
     doc: {
       variables: AddMessageMutationVariables;
@@ -22,7 +24,6 @@ type Props = {
       callback: (error: Error) => void;
     }
   ) => void;
-  setAttachmentPreview: (attachmentPreview: IAttachmentPreview) => void;
 };
 
 type FinalProps = {
@@ -70,9 +71,11 @@ const RespondBoxContainer = (props: FinalProps) => {
           createdAt: new Date(),
           messengerAppData: null,
           isCustomerRead: false,
+          fromBot: false,
           formWidgetData: null,
           twitterData: null,
           facebookData: null,
+          gmailData: null,
           user: null,
           customer: null
         }

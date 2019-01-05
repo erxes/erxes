@@ -30,19 +30,34 @@ export interface InsightData {
   tag: IPieChartData[];
 }
 
+export interface IPunchCardData {
+  count: number;
+  day: number;
+  hour: number;
+  date: string;
+}
+
 export type SummaryData = {
   count: number;
   title: string;
 };
 
 export type PunchCardQueryResponse = {
-  insightsPunchCard: number[][];
+  insightsPunchCard: IPunchCardData[];
   loading: boolean;
 };
 
 export type MainQueryResponse = {
   insightsMain: {
     teamMembers: IChartParams[];
+    summary: SummaryData[];
+    trend: IChartParams[];
+  };
+  loading: boolean;
+};
+
+export type SummaryQueryResponse = {
+  insightsConversation: {
     summary: SummaryData[];
     trend: IChartParams[];
   };
@@ -71,4 +86,15 @@ export type ResponseCloseQueryResponse = {
     integration: IPieChartData[];
   };
   loading: boolean;
+};
+
+export type VolumeReportExportQueryResponse = {
+  insightVolumeReportExport: string;
+  loading: boolean;
+};
+
+export type ExportArgs = {
+  queryName: string;
+  type?: string;
+  userId?: string;
 };
