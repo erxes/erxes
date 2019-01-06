@@ -9,8 +9,11 @@ import queries from "./graphql";
 const Categories = (props: ChildProps<{}, QueryResponse>) => {
   const { data } = props;
 
-  if (!data || data.loading) {
+  if (!data) {
     return null;
+  }
+  if (data.loading) {
+    return <div className="loader bigger top-space" />;
   }
 
   const extendedProps = {

@@ -27,7 +27,7 @@
   padding: $kb-spacing 35px;
   text-decoration: none;
   transition: box-shadow .3s ease;
-
+  cursor: pointer;
   &:last-child {
     margin-bottom: 0;
   }
@@ -49,7 +49,7 @@
 
   &.detail {
     padding: 50px 60px;
-
+    cursor: auto;
     h1 {
       color: lightten($black, 30%);
       font-size: 30px;
