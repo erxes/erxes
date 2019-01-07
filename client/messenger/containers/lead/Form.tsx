@@ -15,7 +15,7 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
   }
 
   if (!data.form || !(data.form.title || "").trim()) {
-    return "Missing form title";
+    return null;
   }
 
   const extendedProps = {
