@@ -81,3 +81,15 @@ export interface IFaqTopic extends ICommonFields {
   description: string;
   categories: IFaqCategory[];
 }
+
+export interface IUpdateCustomerMutationVariables {
+  _id: string;
+  email: string;
+}
+
+export interface IUpdateCustomerMutationResponse {
+  updateCustomerMutation: (
+    params: { variables: IUpdateCustomerMutationVariables }
+  ) => Promise<any>;
+  refetch: () => void;
+}

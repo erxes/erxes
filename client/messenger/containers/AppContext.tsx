@@ -20,6 +20,7 @@ import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from "../types";
 interface IState {
   lastUnreadMessage?: IMessage;
   isMessengerVisible: boolean;
+  isSavingNotified: boolean;
   activeRoute: string | "";
   activeConversation: string | null;
   activeFaqCategory: IFaqCategory | null;
@@ -45,7 +46,10 @@ interface IStore extends IState {
   goToFaqArticle: (article: IFaqArticle) => void;
   goToConversationList: () => void;
   openLastConversation: () => void;
-  saveGetNotified: (doc: { type: string; value: string }) => void;
+  saveGetNotified: (
+    doc: { type: string; value: string },
+    callback?: () => void
+  ) => void;
   endConversation: () => void;
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
@@ -64,14 +68,21 @@ export class AppProvider extends React.Component<{}, IState> {
 
     let activeRoute = "conversationList";
 
+    const { messengerData } = connection.data;
+
     // if visitor did not give email or phone then ask
-    if (!this.isLoggedIn()) {
+    if (!this.isLoggedIn() && messengerData.requireAuth) {
       activeRoute = "accquireInformation";
+    }
+
+    if (!messengerData.requireAuth && !getLocalStorageItem("hasNotified")) {
+      activeRoute = "home";
     }
 
     this.state = {
       lastUnreadMessage: undefined,
       isMessengerVisible: false,
+      isSavingNotified: false,
       activeRoute,
       activeConversation: null,
       activeFaqCategory: null,
@@ -174,7 +185,11 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   changeRoute = (route: string) => {
-    if (route === "conversationDetail" && !this.isLoggedIn()) {
+    if (
+      route === "conversationDetail" &&
+      !this.isLoggedIn() &&
+      connection.data.messengerData.requireAuth
+    ) {
       // if visitor did not give email or phone then ask
       return this.setState({ activeRoute: "accquireInformation" });
     }
@@ -243,10 +258,15 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
-  saveGetNotified = ({ type, value }: { type: string; value: string }) => {
+  saveGetNotified = (
+    { type, value }: { type: string; value: string },
+    callback?: () => void
+  ) => {
     if (!value) {
       return;
     }
+
+    this.setState({ isSavingNotified: true });
 
     client
       .mutate({
@@ -273,6 +293,11 @@ export class AppProvider extends React.Component<{}, IState> {
 
       // after mutation
       .then(() => {
+        this.setState({ isSavingNotified: false });
+        if (callback) {
+          callback();
+        }
+
         // save email
         setLocalStorageItem("getNotifiedType", type);
         setLocalStorageItem("getNotifiedValue", value);
@@ -301,6 +326,7 @@ export class AppProvider extends React.Component<{}, IState> {
     setLocalStorageItem("getNotifiedValue", "");
     setLocalStorageItem("lastConversationId", "");
     setLocalStorageItem("customerId", "");
+    setLocalStorageItem("hasNotified", "");
     this.toggle(true);
     window.location.reload();
   };

@@ -7,7 +7,7 @@ const script =
   })();
 
 if (script && script instanceof HTMLScriptElement) {
-  const matches = script.src.match(/id=([\w\d]+)&apiUrl=([\w\d:\/]+)/);
+  const matches = script.src.match(/id=([\w\d]+)&apiUrl=([\w\d:\/.-]+)/);
 
   if (matches && matches.length >= 3) {
     const id = matches[1];
