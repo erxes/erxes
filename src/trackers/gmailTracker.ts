@@ -128,9 +128,9 @@ const getMessagesByHistoryId = async (historyId: string, integrationId: string, 
  * Listening email that connected with
  */
 export const trackGmail = async () => {
-  const { GOOGLE_APPLICATION_CREDENTIALS, GOOGLE_TOPIC, GOOGLE_SUPSCRIPTION_NAME, GOOGLE_PROJECT_ID } = process.env;
+  const { GOOGLE_APPLICATION_CREDENTIALS, GOOGLE_TOPIC, GOOGLE_SUBSCRIPTION_NAME, GOOGLE_PROJECT_ID } = process.env;
 
-  if (!GOOGLE_APPLICATION_CREDENTIALS || !GOOGLE_PROJECT_ID || !GOOGLE_TOPIC || !GOOGLE_SUPSCRIPTION_NAME) {
+  if (!GOOGLE_APPLICATION_CREDENTIALS || !GOOGLE_PROJECT_ID || !GOOGLE_TOPIC || !GOOGLE_SUBSCRIPTION_NAME) {
     return;
   }
 
@@ -141,7 +141,7 @@ export const trackGmail = async () => {
 
   const topic = pubsubClient.topic(GOOGLE_TOPIC);
 
-  topic.createSubscription(GOOGLE_SUPSCRIPTION_NAME, (error, subscription) => {
+  topic.createSubscription(GOOGLE_SUBSCRIPTION_NAME, (error, subscription) => {
     if (error) {
       throw error;
     }
