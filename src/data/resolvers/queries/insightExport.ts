@@ -438,7 +438,7 @@ const insightExportQueries = {
     }
 
     // Write to file.
-    return generateXlsx(workbook, `Activity report - ${dateToString(start)} - ${dateToString(end)}`);
+    return generateXlsx(workbook, `Operator Activity report - ${dateToString(start)} - ${dateToString(end)}`);
   },
 
   /*
