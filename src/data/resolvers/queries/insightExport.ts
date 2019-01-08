@@ -200,7 +200,7 @@ const insightExportQueries = {
     let totalAverageRespond = 0;
     let totalRowCount = 0;
 
-    aggregatedData.map(row => {
+    aggregatedData.forEach(row => {
       volumeDictionary[row._id] = row;
     });
 
@@ -228,8 +228,9 @@ const insightExportQueries = {
         },
       },
     ]);
+
     const conversationDictionary = {};
-    messageAggregationData.map(row => {
+    messageAggregationData.forEach(row => {
       conversationDictionary[row._id] = row.totalCount;
       totalConversationMessages += row.totalCount;
     });
@@ -320,7 +321,7 @@ const insightExportQueries = {
     }
 
     // Write to file.
-    return generateXlsx(workbook, `Volume report - ${dateToString(start)} - ${dateToString(end)}`);
+    return generateXlsx(workbook, `Volume report By ${type || 'date'} - ${dateToString(start)} - ${dateToString(end)}`);
   },
 
   /*
