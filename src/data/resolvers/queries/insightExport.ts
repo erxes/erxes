@@ -4,7 +4,7 @@ import { IUserDocument } from '../../../db/models/definitions/users';
 import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { createXlsFile, generateXlsx } from '../../utils';
-import { getDateFieldAsStr } from './aggregationUtils';
+import { getDateFieldAsStr, getDurationField } from './aggregationUtils';
 import {
   findConversations,
   fixDates,
@@ -146,12 +146,8 @@ const insightExportQueries = {
           date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat }),
           customerId: 1,
           status: 1,
-          closeTime: {
-            $divide: [{ $subtract: ['$closedAt', '$createdAt'] }, 1000],
-          },
-          firstRespondTime: {
-            $divide: [{ $subtract: ['$firstRespondedDate', '$createdAt'] }, 1000],
-          },
+          closeTime: getDurationField({ startField: '$closedAt', endField: '$createdAt' }),
+          firstRespondTime: getDurationField({ startField: '$firstRespondedDate', endField: '$createdAt' }),
         },
       },
       {

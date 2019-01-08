@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import { ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../db/models';
 import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
-import { getDateFieldAsStr } from './aggregationUtils';
+import { getDateFieldAsStr, getDurationField } from './aggregationUtils';
 import {
   findConversations,
   fixChartData,
@@ -434,9 +434,7 @@ const insightQueries = {
       },
       {
         $project: {
-          responseTime: {
-            $divide: [{ $subtract: ['$closedAt', '$createdAt'] }, 1000],
-          },
+          responseTime: getDurationField({ startField: '$closedAt', endField: '$createdAt' }),
           date: await getDateFieldAsStr({}),
           closedUserId: 1,
         },

@@ -19,3 +19,22 @@ export const getDateFieldAsStr = ({
     },
   };
 };
+
+/**
+ * Return duration calculation as seconds
+ */
+export const getDurationField = ({
+  startField = '$createdAt',
+  endField = '$closedAt',
+}): {
+  $divide: [{ $subtract: string[] }, number];
+} => {
+  return {
+    $divide: [
+      {
+        $subtract: [startField, endField],
+      },
+      1000,
+    ],
+  };
+};
