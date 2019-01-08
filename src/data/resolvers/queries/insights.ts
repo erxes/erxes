@@ -2,6 +2,7 @@ import * as moment from 'moment';
 import { ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../db/models';
 import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
+import { getDateFieldAsStr } from './aggregationUtils';
 import {
   findConversations,
   fixChartData,
@@ -117,10 +118,12 @@ const insightQueries = {
         },
       },
     ]);
+
     const tagDictionaryData = {};
-    tagData.map(row => {
+    tagData.forEach(row => {
       tagDictionaryData[row._id] = row.count;
     });
+
     // count conversations by each tag
     for (const tag of tags) {
       // find conversation counts of given tag
@@ -129,6 +132,7 @@ const insightQueries = {
         insights.tag.push({ id: tag.name, label: tag.name, value });
       }
     }
+
     return insights;
   },
 
@@ -168,13 +172,7 @@ const insightQueries = {
         $project: {
           hour: { $hour: { date: '$createdAt', timezone: '+08' } },
           day: { $isoDayOfWeek: { date: '$createdAt', timezone: '+08' } },
-          date: {
-            $dateToString: {
-              format: '%Y-%m-%d',
-              date: '$createdAt',
-              // timezone: "+08"
-            },
-          },
+          date: await getDateFieldAsStr({}),
         },
       },
       {
@@ -233,10 +231,6 @@ const insightQueries = {
     const facets = {};
     // finds a respective message counts for different time intervals.
     for (const summary of summaries) {
-      messageSelector.createdAt = {
-        $gt: summary.start.toDate(),
-        $lte: summary.end.toDate(),
-      };
       facets[summary.title] = [
         {
           $match: {
@@ -263,13 +257,15 @@ const insightQueries = {
         },
       ];
     }
-    const data = await ConversationMessages.aggregate([
+
+    const [legend] = await ConversationMessages.aggregate([
       {
         $facet: facets,
       },
     ]);
+
     for (const summary of summaries) {
-      const count = data['0'][summary.title][0] ? data['0'][summary.title][0].count : 0;
+      const count = legend[summary.title][0] ? legend[summary.title][0].count : 0;
       insightData.summary.push({
         title: summary.title,
         count,
@@ -316,14 +312,15 @@ const insightQueries = {
         { $project: { _id: 0, count: 1 } },
       ];
     }
-    const data = await Conversations.aggregate([
+
+    const [legend] = await Conversations.aggregate([
       {
         $facet: facets,
       },
     ]);
 
     for (const summary of summaries) {
-      const count = data['0'][summary.title][0] ? data['0'][summary.title][0].count : 0;
+      const count = legend[summary.title][0] ? legend[summary.title][0].count : 0;
       insightData.summary.push({
         title: summary.title,
         count,
@@ -440,13 +437,7 @@ const insightQueries = {
           responseTime: {
             $divide: [{ $subtract: ['$closedAt', '$createdAt'] }, 1000],
           },
-          date: {
-            $dateToString: {
-              format: '%Y-%m-%d',
-              date: '$createdAt',
-              // timezone: "+08"
-            },
-          },
+          date: await getDateFieldAsStr({}),
           closedUserId: 1,
         },
       },
@@ -503,13 +494,14 @@ const insightQueries = {
       // team members gather
       const fixedChartData = await fixChartData(userData.chartDatas, 'date', 'count');
       const user = await Users.findOne({ _id: userData._id });
-      userData.chartDatas.map(row => {
+      userData.chartDatas.forEach(row => {
         if (row.date in aggregatedTrend) {
           aggregatedTrend[row.date] += row.count;
         } else {
           aggregatedTrend[row.date] = row.count;
         }
       });
+
       if (!user) {
         continue;
       }

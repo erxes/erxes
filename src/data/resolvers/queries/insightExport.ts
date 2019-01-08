@@ -4,6 +4,7 @@ import { IUserDocument } from '../../../db/models/definitions/users';
 import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { createXlsFile, generateXlsx } from '../../utils';
+import { getDateFieldAsStr } from './aggregationUtils';
 import {
   findConversations,
   fixDates,
@@ -142,12 +143,7 @@ const insightExportQueries = {
       },
       {
         $project: {
-          date: {
-            $dateToString: {
-              format: aggregationTimeFormat,
-              date: '$createdAt',
-            },
-          },
+          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat }),
           customerId: 1,
           status: 1,
           closeTime: {
@@ -212,12 +208,7 @@ const insightExportQueries = {
       },
       {
         $project: {
-          date: {
-            $dateToString: {
-              format: aggregationTimeFormat,
-              date: '$createdAt',
-            },
-          },
+          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat }),
           status: 1,
         },
       },
@@ -349,12 +340,7 @@ const insightExportQueries = {
       },
       {
         $project: {
-          date: {
-            $dateToString: {
-              format: '%Y-%m-%d %H',
-              date: '$createdAt',
-            },
-          },
+          date: await getDateFieldAsStr({ timeFormat: '%Y-%m-%d %H' }),
           userId: 1,
         },
       },
@@ -376,14 +362,16 @@ const insightExportQueries = {
         },
       },
     ]);
+
     const userDataDictionary = {};
     const rawUserIds = {};
     const userTotals = {};
-    data.map(row => {
+    data.forEach(row => {
       userDataDictionary[`${row.userId}_${row.date}`] = row.count;
       rawUserIds[row.userId] = 1;
     });
     const userIds = Object.keys(rawUserIds);
+
     const users: any = {};
 
     // Reads default template
@@ -406,7 +394,9 @@ const insightExportQueries = {
 
       for (const userId of userIds) {
         if (!users[userId]) {
-          const { details, email } = (await Users.findOne({ _id: userId })) as IUserDocument;
+          const { details, email } = (await Users.findOne({
+            _id: userId,
+          })) as IUserDocument;
 
           users[userId] = (details && details.fullName) || email;
         }
@@ -573,7 +563,9 @@ const insightExportQueries = {
     let fullName = '';
 
     if (userId) {
-      const { details, email } = (await Users.findOne({ _id: userId })) as IUserDocument;
+      const { details, email } = (await Users.findOne({
+        _id: userId,
+      })) as IUserDocument;
 
       fullName = `${(details && details.fullName) || email || ''} `;
     }
