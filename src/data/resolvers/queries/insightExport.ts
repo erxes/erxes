@@ -11,6 +11,7 @@ import {
   generateMessageSelector,
   generateUserSelector,
   getConversationSelector,
+  getFilterSelector,
   IListArgs,
 } from './insightUtils';
 
@@ -315,18 +316,14 @@ const insightExportQueries = {
    * Operator Activity Report
    */
   async insightActivityReportExport(_root, args: IListArgs) {
-    const { integrationType, brandId, startDate, endDate } = args;
+    const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate, 1);
 
     const messageSelector = await generateMessageSelector(
-      brandId,
-      integrationType,
-      // conversation selector
-      {},
+      args,
       // message selector
       {
         userId: generateUserSelector('response'),
-        createdAt: { $gte: start, $lte: end },
       },
     );
 
@@ -445,7 +442,8 @@ const insightExportQueries = {
    * First Response Report
    */
   async insightFirstResponseReportExport(_root, args: IListArgsWithUserId) {
-    const { integrationType, brandId, startDate, endDate, userId, type } = args;
+    const { startDate, endDate, userId, type } = args;
+    const filterSelector = getFilterSelector(args);
     const { start, end } = fixDates(startDate, endDate);
 
     // Reads default template
@@ -475,7 +473,7 @@ const insightExportQueries = {
         messageCounts.push(0);
       });
 
-      const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
+      const conversations = await findConversations(filterSelector, conversationSelector);
 
       // Processes total first response time for each users.
       for (const conversation of conversations) {
@@ -574,22 +572,13 @@ const insightExportQueries = {
    * Tag Report
    */
   async insightTagReportExport(_root, args: IListArgs) {
-    const { integrationType, brandId, startDate, endDate } = args;
+    const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
-
-    const integrationSelector: { brandId?: string; kind?: string } = {};
-
-    if (brandId) {
-      integrationSelector.brandId = brandId;
-    }
+    const filterSelector = getFilterSelector(args);
 
     const tags = await Tags.find({ type: TAG_TYPES.CONVERSATION }).select('name');
 
-    if (integrationType) {
-      integrationSelector.kind = integrationType;
-    }
-
-    const integrationIds = await Integrations.find(integrationSelector).select('_id');
+    const integrationIds = await Integrations.find(filterSelector.integration).select('_id');
 
     // Reads default template
     const { workbook, sheet } = await createXlsFile();
@@ -606,7 +595,7 @@ const insightExportQueries = {
         $match: {
           $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
           integrationId: { $in: rawIntegrationIds },
-          createdAt: { $gte: start, $lte: end },
+          createdAt: filterSelector.createdAt,
         },
       },
       {

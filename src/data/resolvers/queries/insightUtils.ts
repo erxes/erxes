@@ -6,8 +6,8 @@ import { IConversationDocument } from '../../../db/models/definitions/conversati
 
 interface IMessageSelector {
   userId?: string;
-  createdAt: any;
-  fromBot?: any;
+  createdAt?: { $gte: Date; $lte: Date };
+  fromBot?: { $exists: boolean };
   conversationId?: {
     $in: string[];
   };
@@ -28,11 +28,6 @@ interface IGenerateUserChartData {
   fullName?: string;
   avatar?: string;
   graph: IGenerateChartData[];
-}
-
-interface IIntegrationSelector {
-  brandId?: any;
-  kind?: any;
 }
 
 interface IFixDates {
@@ -62,41 +57,57 @@ interface IChartData {
 }
 
 export interface IListArgs {
-  integrationType: string;
-  brandId: string;
+  integrationIds: string;
+  brandIds: string;
   startDate: string;
   endDate: string;
   type: string;
 }
+
+export interface IFilterSelector {
+  createdAt?: { $gte: Date; $lte: Date };
+  integration: {
+    kind?: { $in: string[] };
+    brandId?: { $in: string[] };
+  };
+}
+
 /**
- * Return integrationSelector for aggregations
+ * Return filterSelector
  * @param args
  */
-export const getIntegrationSelector = async (args: IIntegrationSelector): Promise<any> => {
-  const integrationSelector: IIntegrationSelector = {};
-  const { kind, brandId } = args;
-  if (brandId) {
-    integrationSelector.brandId = { $in: brandId.split(',') };
+export const getFilterSelector = (args: IListArgs): any => {
+  const selector: IFilterSelector = { integration: {} };
+  const { startDate, endDate, integrationIds, brandIds } = args;
+  const { start, end } = fixDates(startDate, endDate);
+
+  if (integrationIds) {
+    selector.integration.kind = { $in: integrationIds.split(',') };
   }
 
-  if (kind) {
-    integrationSelector.kind = { $in: kind.split(',') };
+  if (brandIds) {
+    selector.integration.brandId = { $in: brandIds.split(',') };
   }
-  return integrationSelector;
+
+  selector.createdAt = { $gte: start, $lte: end };
+
+  return selector;
 };
+
 /**
  * Return conversationSelect for aggregation
  * @param args
  * @param conversationSelector
  * @param selectIds
  */
-export const getConversationSelector = async (args: IIntegrationSelector, conversationSelector: any): Promise<any> => {
-  const integrationSelector = await getIntegrationSelector(args);
-  const { kind, brandId } = args;
+export const getConversationSelector = async (args: IListArgs, conversationSelector: any): Promise<any> => {
+  const filterSelector = await getFilterSelector(args);
 
-  if (kind || brandId) {
-    conversationSelector.integrationIds = await Integrations.find(integrationSelector).select('_id');
+  if (filterSelector.integration) {
+    const integrationIds = await Integrations.find(filterSelector.integration).select('_id');
+    conversationSelector.integrationId = { $in: integrationIds.map(row => row._id) };
   }
+  conversationSelector.createdAt = filterSelector.createdAt;
 
   return conversationSelector;
 };
@@ -105,15 +116,12 @@ export const getConversationSelector = async (args: IIntegrationSelector, conver
  * Find conversations or conversationIds.
  */
 export const findConversations = async (
-  args: IIntegrationSelector,
+  filterSelector: IFilterSelector,
   conversationSelector: any,
   selectIds?: boolean,
 ): Promise<IConversationDocument[]> => {
-  const integrationSelector = await getIntegrationSelector(args);
-  const { kind, brandId } = args;
-
-  if (kind || brandId) {
-    const integrationIds = await Integrations.find(integrationSelector).select('_id');
+  if (filterSelector.integration) {
+    const integrationIds = await Integrations.find(filterSelector.integration).select('_id');
     conversationSelector.integrationId = integrationIds.map(row => row._id);
   }
 
@@ -123,17 +131,69 @@ export const findConversations = async (
 
   return Conversations.find(conversationSelector).sort({ createdAt: 1 });
 };
+/**
+ *
+ * @param summaries
+ * @param collection
+ * @param selector
+ */
+export const getSummaryData = async ({ startDate, endDate, selector, collection }): Promise<any> => {
+  const summaries: Array<{ title?: string; count?: number }> = [];
+  const intervals = generateTimeIntervals(startDate, endDate);
+  const facets = {};
+  // finds a respective message counts for different time intervals.
+  for (const interval of intervals) {
+    const facetMessageSelector = { ...selector };
+    facetMessageSelector.createdAt = {
+      $gte: interval.start.toDate(),
+      $lte: interval.end.toDate(),
+    };
+    facets[interval.title] = [
+      {
+        $match: facetMessageSelector,
+      },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          count: 1,
+        },
+      },
+    ];
+  }
+
+  const [legend] = await collection.aggregate([
+    {
+      $facet: facets,
+    },
+  ]);
+
+  for (const interval of intervals) {
+    const count = legend[interval.title][0] ? legend[interval.title][0].count : 0;
+    summaries.push({
+      title: interval.title,
+      count,
+    });
+  }
+  return summaries;
+};
 
 /**
  * Builds messages find query selector.
  */
 export const generateMessageSelector = async (
-  brandId: string,
-  integrationType: string,
-  conversationSelector: any,
+  args: IListArgs,
   messageSelector: IMessageSelector,
 ): Promise<IMessageSelector> => {
-  const conversationIds = await findConversations({ brandId, kind: integrationType }, conversationSelector, true);
+  const filterSelector = await getFilterSelector(args);
+  messageSelector.createdAt = filterSelector.createdAt;
+
+  const conversationIds = await findConversations(filterSelector, { ...messageSelector }, true);
   const rawConversationIds = conversationIds.map(obj => obj._id);
   messageSelector.conversationId = { $in: rawConversationIds };
 

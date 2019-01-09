@@ -1,15 +1,15 @@
 export const types = ``;
 
 const params = `
-  integrationType: String,
-  brandId: String,
+  integrationIds: String,
+  brandIds: String,
   startDate: String,
   endDate: String
 `;
 
 export const queries = `
   insights(${params}): JSON
-  insightsPunchCard(type: String, integrationType: String, brandId: String, endDate: String): JSON
+  insightsPunchCard(type: String, ${params}): JSON
   insightsMain(type: String, ${params}): JSON
   insightsConversation(${params}): JSON
   insightsFirstResponse(${params}): JSON
