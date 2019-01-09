@@ -133,6 +133,8 @@ const generateParams = ({ queryParams }) => ({
     lifecycleState: queryParams.lifecycleState,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
+      ? parseInt(queryParams.sortDirection, 10)
+      : undefined
   },
   fetchPolicy: 'network-only'
 });
