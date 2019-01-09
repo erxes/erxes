@@ -34,9 +34,9 @@ export const getAccessToken = (code: string, service?: string) => {
   const oauthClient = getOauthClient(service);
 
   return new Promise((resolve, reject) =>
-    oauthClient.getToken(code, (err, token: any) => {
+    oauthClient.getToken(code, (err: any, token: any) => {
       if (err) {
-        return reject(err);
+        return reject(err.response.data.error);
       }
 
       return resolve(token);
