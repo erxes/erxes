@@ -29,12 +29,15 @@ type States = {
 class Filter extends React.Component<Props, States> {
   constructor(props) {
     super(props);
-    const { startDate, endDate, brandIds = '', integrationIds = '' } = props;
+    const {
+      startDate = moment().add(-7, 'days'),
+      endDate = moment(),
+      brandIds = '',
+      integrationIds = ''
+    } = props.queryParams || {};
     this.state = {
       ...props.queryParams,
       // check condition for showing placeholder
-      startDate: startDate ? moment(startDate) : moment().add(-7, 'days'),
-      endDate: endDate ? moment(endDate) : moment(),
       isChange: false,
       brandIds: brandIds.split(','),
       integrationIds: integrationIds.split(',')
