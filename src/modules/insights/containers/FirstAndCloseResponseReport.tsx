@@ -6,7 +6,7 @@ import { FirstResponse, ResponseCloseReport } from '../components';
 import { queries } from '../graphql';
 import {
   FirstResponseQueryResponse,
-  IParamsWithType2,
+  IParamsWithType,
   ResponseCloseQueryResponse
 } from '../types';
 
@@ -76,12 +76,12 @@ export default compose(
   graphql(gql(queries.firstResponse), {
     name: 'firstResponseQuery',
     skip: ({ type }) => type !== 'first',
-    options: ({ queryParams }: IParamsWithType2) => commonOptions(queryParams)
+    options: ({ queryParams }: IParamsWithType) => commonOptions(queryParams)
   }),
   graphql(gql(queries.responseClose), {
     name: 'responseCloseQuery',
     skip: ({ type }) => type !== 'close',
-    options: ({ queryParams }: IParamsWithType2) => commonOptions(queryParams)
+    options: ({ queryParams }: IParamsWithType) => commonOptions(queryParams)
   }),
   graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
     name: 'brandsQuery'
