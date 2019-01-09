@@ -37,8 +37,8 @@ export default compose(
       fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
       variables: {
-        brandId: queryParams.brandId,
-        integrationType: queryParams.integrationType,
+        brandIds: queryParams.brandIds,
+        integrationIds: queryParams.integrationIds,
         startDate: queryParams.startDate,
         endDate: queryParams.endDate
       }

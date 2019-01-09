@@ -1,8 +1,8 @@
 export interface IQueryParams {
-  brandId: string;
+  brandIds: string;
   endDate: string;
   startDate: string;
-  integrationType: string;
+  integrationIds: string;
 }
 
 export interface IParams {
