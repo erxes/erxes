@@ -204,8 +204,8 @@ app.get('/read-gmail-attachment', async (req: any, res) => {
   }
 
   res.attachment(attachment.filename);
-
-  return res.send(Buffer.from(attachment.data, 'base64'));
+  res.write(attachment.data, 'base64');
+  res.end();
 });
 
 // engage unsubscribe
