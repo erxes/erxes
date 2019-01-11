@@ -64,7 +64,7 @@ const convertTime = (duration: number) => {
  * @param excel
  */
 const addHeader = async (title: string, args: IListArgs, excel: any): Promise<any> => {
-  const { integrationIds, brandIds, startDate, endDate } = args;
+  const { integrationIds = '', brandIds = '', startDate, endDate } = args;
   const selectedBrands = await Brands.find({ brandId: { $in: brandIds.split(',') } }).select('name');
   const brandNames = selectedBrands.map(row => row.name).join(',');
   const { start, end } = fixDates(startDate, endDate);
