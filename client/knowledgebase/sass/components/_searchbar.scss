@@ -6,7 +6,9 @@
   flex-shrink: 0;
   overflow: hidden;
   padding: $kb-spacing;
-
+  position: fixed;
+  width: -webkit-fill-available;
+  z-index: 10;
   i {
     color: $white;
     font-size: 18px;
@@ -28,9 +30,10 @@
     max-width: 100%;
     min-width: 100%;
     outline: 0;
-    padding: 16px 16px 16px 48px;
+    padding: 14px 16px 14px 48px;
     transition: background .3s;
-
+    font-size: 14px;
+    
     &:focus {
       background-color: rgba($transparent-white, .4);
     }
