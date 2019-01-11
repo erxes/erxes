@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../db/models';
+import { Brands, ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
@@ -57,6 +57,27 @@ const convertTime = (duration: number) => {
   return timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds);
 };
 
+/**
+ * Add header into excel file
+ * @param title
+ * @param args
+ * @param excel
+ */
+const addHeader = async (title: string, args: IListArgs, excel: any): Promise<any> => {
+  const { integrationIds, brandIds, startDate, endDate } = args;
+  const selectedBrands = await Brands.find({ brandId: { $in: brandIds.split(',') } }).select('name');
+  const brandNames = selectedBrands.map(row => row.name).join(',');
+  const { start, end } = fixDates(startDate, endDate);
+  excel.cell(1, 1).value(title);
+  excel.cell(2, 1).value('date:');
+  excel.cell(2, 2).value(`${dateToString(start)}-${dateToString(end)}`);
+  excel.cell(2, 4).value('Integration:');
+  excel.cell(2, 5).value(integrationIds);
+  excel.cell(2, 6).value('Brand:');
+  excel.cell(2, 7).value(brandNames || '');
+  return {};
+};
+
 /*
  * Sheet add cell
  */
@@ -73,7 +94,7 @@ const addCell = (args: IAddCellArgs): void => {
       .column(cols.length + 1)
       .width(25)
       .hidden(false);
-    sheet.cell(1, cols.length + 1).value(col);
+    sheet.cell(3, cols.length + 1).value(col);
     // Creating cell
     sheet.cell(rowIndex, cols.length + 1).value(value);
 
@@ -287,8 +308,9 @@ const insightExportQueries = {
 
     // Reads default template
     const { workbook, sheet } = await createXlsFile();
+    await addHeader(`Volume Report By ${type || 'date'}`, args, sheet);
 
-    let rowIndex: number = 1;
+    let rowIndex: number = 3;
     const cols: string[] = [];
 
     for (const obj of data) {
@@ -367,7 +389,8 @@ const insightExportQueries = {
 
     // Reads default template
     const { workbook, sheet } = await createXlsFile();
-    let rowIndex = 1;
+    await addHeader('Operator Activity report', args, sheet);
+    let rowIndex = 3;
     const cols: string[] = [];
 
     let begin = start;
@@ -446,7 +469,7 @@ const insightExportQueries = {
 
     // Reads default template
     const { workbook, sheet } = await createXlsFile();
-    let rowIndex = 1;
+    let rowIndex = 3;
     const cols: string[] = [];
 
     for (const t of timeIntervals) {
@@ -475,7 +498,7 @@ const insightExportQueries = {
 
       // Processes total first response time for each users.
       for (const conversation of conversations) {
-        rowIndex = 1;
+        rowIndex = 3;
         const { firstRespondedDate, createdAt } = conversation;
 
         let responseTime = 0;
@@ -516,8 +539,20 @@ const insightExportQueries = {
       }
     };
 
+    let fullName = '';
+
+    if (userId) {
+      const { details, email } = (await Users.findOne({
+        _id: userId,
+      })) as IUserDocument;
+
+      fullName = `${(details && details.fullName) || email || ''} `;
+    }
+
     if (type === 'operator') {
       const users = await Users.find();
+
+      await addHeader(`${fullName} First Response`, args, sheet);
 
       for (const user of users) {
         const { _id, details, username } = user;
@@ -549,17 +584,8 @@ const insightExportQueries = {
         }
       };
 
+      await addHeader(`${fullName} First Response`, args, sheet);
       await generateData();
-    }
-
-    let fullName = '';
-
-    if (userId) {
-      const { details, email } = (await Users.findOne({
-        _id: userId,
-      })) as IUserDocument;
-
-      fullName = `${(details && details.fullName) || email || ''} `;
     }
 
     // Write to file.
@@ -580,7 +606,9 @@ const insightExportQueries = {
 
     // Reads default template
     const { workbook, sheet } = await createXlsFile();
-    let rowIndex = 1;
+    await addHeader('Tag Report', args, sheet);
+
+    let rowIndex = 3;
     const cols: string[] = [];
 
     let begin = start;
