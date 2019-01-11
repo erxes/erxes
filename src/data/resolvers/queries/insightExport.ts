@@ -187,7 +187,6 @@ const insightExportQueries = {
     let totalSumCount = 0;
     let totalCustomerCount = 0;
     let totalConversationMessages = 0;
-    let totalPercentage = 0;
     let totalResolved = 0;
     let totalAverageClosed = 0;
     let totalAverageRespond = 0;
@@ -251,7 +250,6 @@ const insightExportQueries = {
       totalAverageClosed += averageCloseTime;
       totalAverageRespond += averageRespondTime;
       totalCustomerCount += uniqueCustomerCount;
-      totalPercentage += percentage;
       totalRowCount += 1;
 
       data.push({
@@ -278,7 +276,7 @@ const insightExportQueries = {
       date: 'Total',
       count: totalSumCount,
       customerCount: totalCustomerCount,
-      customerCountPercentage: `${(totalPercentage / totalRowCount).toFixed(0)}%`,
+      customerCountPercentage: `${(totalCustomerCount / totalSumCount).toFixed(0)}%`,
       messageCount: totalConversationMessages,
       resolvedCount: totalResolved,
       averageResponseDuration: convertTime(totalAverageClosed / totalRowCount),
