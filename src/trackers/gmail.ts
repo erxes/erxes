@@ -128,7 +128,7 @@ export const mapHeaders = (headers: any) => {
 /**
  * Get headers specific values from gmail.users.messages.get response
  */
-const getHeaderProperties = (headers: any, messageId: string, threadId: string) => {
+const getHeaderProperties = (headers: any, messageId: string, threadId: string, labelIds: string[]) => {
   return {
     subject: headers.subject,
     from: headers.from,
@@ -140,6 +140,7 @@ const getHeaderProperties = (headers: any, messageId: string, threadId: string) 
     reply: headers['in-reply-to'],
     messageId,
     threadId,
+    labelIds,
   };
 };
 
@@ -184,14 +185,14 @@ const getBodyProperties = (headers: any, part: any, gmailData: IMsgGmail) => {
  * Parse result of users.messages.get response
  */
 export const parseMessage = (response: any) => {
-  const { id, threadId, payload } = response;
+  const { id, threadId, payload, labelIds } = response;
 
   if (!payload) {
     return;
   }
 
   let headers = mapHeaders(payload.headers);
-  let gmailData: IMsgGmail = getHeaderProperties(headers, id, threadId);
+  let gmailData: IMsgGmail = getHeaderProperties(headers, id, threadId, labelIds);
 
   let parts = [payload];
   let firstPartProcessed = false;
@@ -431,9 +432,32 @@ export const getAttachment = async (conversationMessageId: string, attachmentId:
 export const updateHistoryId = async integration => {
   const credentials = await Accounts.getGmailCredentials(integration.gmailData.email);
   const { data } = await utils.callWatch(credentials);
-
   integration.gmailData.historyId = data.historyId;
   integration.gmailData.expiration = data.expiration;
 
   await integration.save();
+};
+
+/*
+ * refresh token and save when access_token expires
+ */
+export const refreshAccessToken = async (integrationId: string, tokens: any) => {
+  const integration = await Integrations.findOne({ _id: integrationId });
+  if (!integration || !integration.gmailData) {
+    throw new Error(`Integration not found id with ${integrationId}`);
+  }
+  const account = await Accounts.findOne({ _id: integration.gmailData.accountId });
+  if (!account) {
+    throw new Error(`Account not found id with ${integration.gmailData.accountId}`);
+  }
+
+  account.token = tokens.access_token;
+  if (tokens.refresh_token) {
+    account.tokenSecret = tokens.refresh_token;
+  }
+
+  if (tokens.expiry_date) {
+    account.expireDate = tokens.expiry_date;
+  }
+  await account.save();
 };

@@ -376,18 +376,21 @@ interface IConversationFactoryInput {
   participatedUserIds?: string[];
   facebookData?: any;
   twitterData?: any;
+  gmailData?: any;
   status?: string;
   closedAt?: dateType;
   closedUserId?: string;
   readUserIds?: string[];
   tagIds?: string[];
+  messageCount?: number;
+  number?: number;
 }
 
 export const conversationFactory = (params: IConversationFactoryInput = {}) => {
   const doc = {
-    content: faker.lorem.sentence(),
-    customerId: Random.id(),
-    integrationId: Random.id(),
+    content: params.content || faker.lorem.sentence(),
+    customerId: params.customerId || Random.id(),
+    integrationId: params.integrationId || Random.id(),
   };
 
   return Conversations.createConversation({
@@ -407,6 +410,7 @@ interface IConversationMessageFactoryInput {
   engageData?: any;
   formWidgetData?: any;
   facebookData?: any;
+  gmailData?: any;
 }
 
 export const conversationMessageFactory = async (params: IConversationMessageFactoryInput) => {
@@ -429,6 +433,7 @@ export const conversationMessageFactory = async (params: IConversationMessageFac
     engageData: params.engageData || {},
     formWidgetData: params.formWidgetData || {},
     facebookData: params.facebookData || {},
+    gmailData: params.gmailData || {},
   });
 };
 

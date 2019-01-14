@@ -1,7 +1,7 @@
 import * as PubSub from '@google-cloud/pubsub';
 import { google } from 'googleapis';
 import { IGmail as IMsgGmail } from '../db/models/definitions/conversationMessages';
-import { getGmailUpdates, parseMessage, syncConversation } from './gmail';
+import { getGmailUpdates, parseMessage, refreshAccessToken, syncConversation } from './gmail';
 import { getOauthClient } from './googleTracker';
 
 /**
@@ -88,6 +88,10 @@ const getMessagesByHistoryId = async (historyId: string, integrationId: string, 
   const auth = getOauthClient('gmail');
 
   auth.setCredentials(credentials);
+  // Access tokens expire. This library will automatically use a refresh token to obtain a new access token
+  auth.on('tokens', async tokens => {
+    await refreshAccessToken(integrationId, tokens);
+  });
 
   const gmail = await google.gmail('v1');
 
@@ -203,6 +207,7 @@ export const stopReceivingEmail = (email: string, credentials: any) => {
 
 export const utils = {
   getMessagesByHistoryId,
+  getGmailUserProfile,
   getGmailAttachment,
   sendEmail,
   stopReceivingEmail,

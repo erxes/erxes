@@ -1,5 +1,5 @@
 import { Accounts } from '../../../db/models';
-import { getGmailUserProfile, stopReceivingEmail } from '../../../trackers/gmailTracker';
+import { utils } from '../../../trackers/gmailTracker';
 import { getAccessToken } from '../../../trackers/googleTracker';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { moduleRequireLogin } from '../../permissions';
@@ -36,7 +36,7 @@ const accountMutations = {
     if (account.kind === 'gmail') {
       const credentials = await Accounts.getGmailCredentials(account.uid);
       // remove email from google push notification
-      stopReceivingEmail(account.uid, credentials);
+      await utils.stopReceivingEmail(account.uid, credentials);
     }
 
     return Accounts.removeAccount(_id);
@@ -63,7 +63,7 @@ const accountMutations = {
   async accountsAddGmail(_root, { code }: { code: string }) {
     const credentials: any = await getAccessToken(code, 'gmail');
     // get email address connected with
-    const { data } = await getGmailUserProfile(credentials);
+    const { data } = await utils.getGmailUserProfile(credentials);
     const email = data.emailAddress || '';
 
     return Accounts.createAccount({

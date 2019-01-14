@@ -5,7 +5,7 @@ import { accountSchema, IAccount, IAccountDocument } from './definitions/account
 export interface IAccountModel extends Model<IAccountDocument> {
   createAccount(doc: IAccount): Promise<IAccountDocument>;
   removeAccount(_id: string): void;
-  getGmailCredentials(uid: string): Promise<IAccountDocument>;
+  getGmailCredentials(uid: string): Promise<JSON>;
 }
 
 export const loadClass = () => {
@@ -39,7 +39,7 @@ export const loadClass = () => {
       return Accounts.deleteOne({ _id });
     }
 
-    public static async getGmailCredentials(uid) {
+    public static async getGmailCredentials(uid: string) {
       const account = await Accounts.findOne({ uid, kind: 'gmail' });
 
       if (!account) {
