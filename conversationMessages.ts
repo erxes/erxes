@@ -56,6 +56,7 @@ export interface IGmail {
   textPlain?: string;
   textHtml?: string;
   attachments?: IGmailAttachment[];
+  labelIds?: string[];
 }
 
 interface IFacebookDataDocument extends IFacebook, Document {}
@@ -285,6 +286,10 @@ const gmailSchema = new Schema(
     }),
     attachments: field({
       type: [gmailAttachmentSchema],
+      optional: true,
+    }),
+    labelIds: field({
+      type: [String],
       optional: true,
     }),
   },
