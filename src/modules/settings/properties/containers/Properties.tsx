@@ -42,7 +42,11 @@ const PropertiesContainer = (props: FinalProps) => {
   } = props;
 
   if (!router.getParam(history, 'type')) {
-    router.setParams(history, { type: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER });
+    router.setParams(
+      history,
+      { type: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER },
+      true
+    );
   }
 
   const removePropertyGroup = ({ _id }) => {
