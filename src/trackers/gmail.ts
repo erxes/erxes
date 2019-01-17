@@ -106,7 +106,7 @@ export const sendGmail = async (mailParams: IMailParams) => {
   // get raw string encrypted by base64
   const raw = await encodeEmail({ fromEmail, ...mailParams });
 
-  await utils.sendEmail(credentials, raw, threadId);
+  await utils.sendEmail(integration._id, credentials, raw, threadId);
 
   return { status: 200, statusText: 'ok ' };
 };
@@ -431,7 +431,7 @@ export const getAttachment = async (conversationMessageId: string, attachmentId:
  */
 export const updateHistoryId = async integration => {
   const credentials = await Accounts.getGmailCredentials(integration.gmailData.email);
-  const { data } = await utils.callWatch(credentials);
+  const { data } = await utils.callWatch(credentials, integration._id);
   integration.gmailData.historyId = data.historyId;
   integration.gmailData.expiration = data.expiration;
 

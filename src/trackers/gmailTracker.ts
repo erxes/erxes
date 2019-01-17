@@ -5,6 +5,21 @@ import { getGmailUpdates, parseMessage, refreshAccessToken, syncConversation } f
 import { getOauthClient } from './googleTracker';
 
 /**
+ * Get auth with valid credentials
+ */
+const getOAuth = (integrationId: string, credentials: any) => {
+  const auth = getOauthClient('gmail');
+
+  // Access tokens expire. This library will automatically use a refresh token to obtain a new access token
+  auth.on('tokens', async tokens => {
+    await refreshAccessToken(integrationId, tokens);
+    credentials = tokens;
+  });
+
+  auth.setCredentials(credentials);
+  return auth;
+};
+/**
  * Get permission granted email information
  */
 export const getGmailUserProfile = (credentials: any) => {
@@ -22,10 +37,8 @@ export const getGmailUserProfile = (credentials: any) => {
 /**
  * Send email
  */
-const sendEmail = (credentials: any, raw: string, threadId?: string) => {
-  const auth = getOauthClient('gmail');
-
-  auth.setCredentials(credentials);
+const sendEmail = (integrationId: string, credentials: any, raw: string, threadId?: string) => {
+  const auth = getOAuth(integrationId, credentials);
   const gmail = google.gmail('v1');
 
   const data = {
@@ -85,15 +98,8 @@ const getGmailAttachment = async (credentials: any, gmailData: IMsgGmail, attach
  * Get new messages by stored history id
  */
 const getMessagesByHistoryId = async (historyId: string, integrationId: string, credentials: any) => {
-  const auth = getOauthClient('gmail');
-
-  auth.setCredentials(credentials);
-  // Access tokens expire. This library will automatically use a refresh token to obtain a new access token
-  auth.on('tokens', async tokens => {
-    await refreshAccessToken(integrationId, tokens);
-  });
-
-  const gmail = await google.gmail('v1');
+  const auth = getOAuth(integrationId, credentials);
+  const gmail = google.gmail('v1');
 
   const response = await gmail.users.history.list({
     auth,
@@ -173,12 +179,10 @@ export const trackGmail = async () => {
   });
 };
 
-export const callWatch = (credentials: any) => {
-  const auth = getOauthClient('gmail');
+export const callWatch = (credentials: any, integrationId: string) => {
   const gmail: any = google.gmail('v1');
   const { GOOGLE_TOPIC } = process.env;
-
-  auth.setCredentials(credentials);
+  const auth = getOAuth(integrationId, credentials);
 
   return gmail.users
     .watch({

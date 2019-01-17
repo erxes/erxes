@@ -3,7 +3,7 @@ import { Integrations } from '../db/models';
 import { updateHistoryId } from '../trackers/gmail';
 
 /**
- * Send conversation messages to customer
+ * notify user to google push notification
  */
 export const callGmailUsersWatch = async () => {
   const integrations = await Integrations.find({
