@@ -6,7 +6,7 @@ const conversationMessageAdd = `
     $content: String,
     $mentionedUserIds: [String],
     $internal: Boolean,
-    $attachments: [JSON],
+    $attachments: [AttachmentInput],
     $tweetReplyToId: String,
     $tweetReplyToScreenName: String
     $commentReplyToId: String

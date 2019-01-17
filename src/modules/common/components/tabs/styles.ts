@@ -11,6 +11,7 @@ const TabContainer = styledTS<{ grayBorder?: boolean; full?: boolean }>(
   display: flex;
   justify-content: ${props => props.full && 'space-evenly'};
   flex-shrink: 0;
+  height: ${dimensions.headerSpacing}px;
 `;
 
 const TabCaption = styled.span`

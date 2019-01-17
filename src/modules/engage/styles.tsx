@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import { BoxRoot } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -66,11 +67,11 @@ const Messenger = styled.div`
   align-items: flex-end;
 `;
 
-const LauncherContainer = Launcher.extend`
+const LauncherContainer = styled(Launcher)`
   position: absolute;
 `;
 
-const WidgetPreview = WidgetPreviewStyled.extend`
+const WidgetPreview = styled(WidgetPreviewStyled)`
   height: auto;
   bottom: 90px;
   right: 25px;
@@ -96,7 +97,7 @@ const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
   }
 `;
 
-const MessengerPreview = WebPreview.extend`
+const MessengerPreview = styled(WebPreview)`
   min-height: 500px;
 `;
 
@@ -141,7 +142,7 @@ const FlexItemCentered = styled.div`
   justify-content: center;
 `;
 
-const Box = BoxRoot.extend`
+const Box = styled(BoxRoot)`
   width: 23%;
   height: 200px;
   margin-top: ${coreSpace};
@@ -189,40 +190,35 @@ const SelectMonth = styled.div`
 
 const DateTimePicker = styled.div`
   margin-top: ${coreSpace};
-  position: relative;
-
-  input {
-    font-size: 13px;
-    border-color: ${colors.colorShadowGray};
-    box-shadow: none;
-    cursor: pointer;
-  }
-
-  input:focus {
-    box-shadow: none;
-    border-color: ${colors.colorSecondary};
-  }
-
-  > i {
-    position: absolute;
-    right: 1px;
-    top: 1px;
-    padding: 6px 10px;
-    background: ${colors.borderPrimary};
-    border-right-radius: 13px;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-  }
 
   .rdtOpen .rdtPicker {
-    font-size: 12px;
-    max-width: inherit;
-    width: 100%;
+    border:none;
+
+    table {
+      width: inherit;
+    }
   }
 
-  .rdtCounter .rdtBtn {
-    height: 30%;
-    line-height: 30px;
+  .rdtCounterSeparator {
+    line-height: inherit;
+    padding-left: ${dimensions.unitSpacing}px;
+  }
+
+  .rdtTime {
+    margin-left: -${dimensions.coreSpacing}px;
+  }
+
+  .rdtCounter {
+    position: relative;
+    height: ${dimensions.headerSpacing + 5}px
+    color: ${rgba(colors.colorCoreDarkGray, 0.8)};
+
+    .rdtBtn {
+      line-height: ${dimensions.unitSpacing}px;
+      position: absolute;
+      right: 0;
+      font-size: 10px;
+    }
   }
 `;
 

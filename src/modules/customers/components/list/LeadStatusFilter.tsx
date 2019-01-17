@@ -18,15 +18,43 @@ interface IProps extends IRouterProps {
 class LeadStatusFilter extends React.Component<IProps> {
   renderCounts = () => {
     const { history, counts } = this.props;
-    const { Section } = Wrapper.Sidebar;
     const paramKey = 'leadStatus';
-
-    const onClear = () => {
-      router.setParams(history, { leadStatus: null });
-    };
 
     const onClick = (key, value) => {
       router.setParams(history, { [key]: value });
+    };
+
+    return (
+      <SidebarList>
+        {leadStatusChoices(__).map(
+          ({ value, label }: { value: string; label: string }) => {
+            return (
+              <li key={Math.random()}>
+                <a
+                  tabIndex={0}
+                  className={
+                    router.getParam(history, [paramKey]) === value
+                      ? 'active'
+                      : ''
+                  }
+                  onClick={onClick.bind(this, paramKey, value)}
+                >
+                  {label}
+                  <SidebarCounter>{counts ? counts[value] : 0}</SidebarCounter>
+                </a>
+              </li>
+            );
+          }
+        )}
+      </SidebarList>
+    );
+  };
+
+  render() {
+    const { Section } = Wrapper.Sidebar;
+
+    const onClear = () => {
+      router.setParams(history, { leadStatus: null });
     };
 
     return (
@@ -39,47 +67,17 @@ class LeadStatusFilter extends React.Component<IProps> {
             </a>
           ) : null}
         </Section.QuickButtons>
-        <div>
-          <SidebarList>
-            {leadStatusChoices(__).map(
-              ({ value, label }: { value: string; label: string }) => {
-                return (
-                  <li key={Math.random()}>
-                    <a
-                      tabIndex={0}
-                      className={
-                        router.getParam(history, [paramKey]) === value
-                          ? 'active'
-                          : ''
-                      }
-                      onClick={onClick.bind(this, paramKey, value)}
-                    >
-                      {label}
-                      <SidebarCounter>
-                        {counts ? counts[value] : 0}
-                      </SidebarCounter>
-                    </a>
-                  </li>
-                );
-              }
-            )}
-          </SidebarList>
-        </div>
-      </Section>
-    );
-  };
 
-  render() {
-    return (
-      <DataWithLoader
-        loading={this.props.loading}
-        count={Object.keys(LEAD_STATUS_TYPES).length}
-        data={this.renderCounts()}
-        emptyText="No leads"
-        emptyIcon="type"
-        size="small"
-        objective={true}
-      />
+        <DataWithLoader
+          loading={this.props.loading}
+          count={Object.keys(LEAD_STATUS_TYPES).length}
+          data={this.renderCounts()}
+          emptyText="No leads"
+          emptyIcon="type"
+          size="small"
+          objective={true}
+        />
+      </Section>
     );
   }
 }

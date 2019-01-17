@@ -1,13 +1,13 @@
 const listParamsDef = `
-  $integrationType: String,
-  $brandId: String,
+  $integrationIds: String,
+  $brandIds: String,
   $startDate: String,
   $endDate: String
 `;
 
 const listParamsValue = `
-  integrationType: $integrationType,
-  brandId: $brandId,
+  integrationIds: $integrationIds,
+  brandIds: $brandIds,
   startDate: $startDate,
   endDate: $endDate
 `;
@@ -19,10 +19,8 @@ const pieChart = `
 `;
 
 const punchCard = `
-  query insightsPunchCard($type: String, $integrationType: String,
-    $brandId: String, $endDate: String) {
-    insightsPunchCard(type: $type, integrationType: $integrationType,
-      brandId: $brandId, endDate: $endDate)
+  query insightsPunchCard($type: String, ${listParamsDef}) {
+    insightsPunchCard(type: $type, ${listParamsValue})
   }
 `;
 

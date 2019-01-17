@@ -10,7 +10,6 @@ const Preview = styled.div`
   background: ${colors.colorSecondary};
   margin: 5px 55px 0 auto;
   display: inline-block;
-  float: right;
   box-shadow: 0 1px 5px 0 ${colors.darkShadow};
   border-radius: 20px;
   position: relative;

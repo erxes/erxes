@@ -61,7 +61,7 @@ class Top extends React.Component<Props> {
   };
 
   renderDealMove() {
-    const { deal, stageId, onChangeField } = this.props;
+    const { deal, stageId } = this.props;
 
     return (
       <Move deal={deal} stageId={stageId} onChangeStage={this.onChangeStage} />

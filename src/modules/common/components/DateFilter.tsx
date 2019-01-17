@@ -1,67 +1,22 @@
 import gql from 'graphql-tag';
 import { Button, Icon } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
+import { PopoverButton } from 'modules/inbox/styles';
 import * as moment from 'moment';
 import * as React from 'react';
 import { withApollo } from 'react-apollo';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import * as Datetime from 'react-datetime';
 import styled from 'styled-components';
-import { colors, dimensions, typography } from '../styles';
-
-const PopoverButton = styled.div`
-  display: inline-block;
-  position: relative;
-
-  > * {
-    display: inline-block;
-  }
-
-  button {
-    padding: 0;
-  }
-
-  i {
-    margin-left: 5px;
-    margin-right: 0;
-    font-size: 10px;
-    transition: all ease 0.3s;
-    color: ${colors.colorCoreGray};
-  }
-
-  &[aria-describedby] {
-    color: ${colors.colorSecondary};
-
-    i {
-      transform: rotate(180deg);
-    }
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-`;
+import { dimensions } from '../styles';
 
 const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 5px ${dimensions.unitSpacing}px;
-
-  .form-control {
-    box-shadow: none;
-    border-radius: 0;
-    border: none;
-    background: none;
-    border-bottom: 1px solid ${colors.colorShadowGray};
-    padding: 17px 14px;
-    font-size: ${typography.fontSizeBody}px;
-
-    &:focus {
-      box-shadow: none;
-      border-color: ${colors.colorSecondary};
-    }
-  }
+  justify-content: space-between;
+  padding: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px
+    ${dimensions.unitSpacing}px;
 `;
 
 const FlexItem = styled.div`
@@ -69,12 +24,10 @@ const FlexItem = styled.div`
   margin-left: 5px;
 `;
 
-const DateFilters = styled.div`
-  width: 305px;
-
-  button {
-    padding: 5px 20px;
-  }
+const DateName = styled.div`
+  text-transform: uppercase;
+  margin: ${dimensions.unitSpacing}px 0;
+  text-align: center;
 `;
 
 type Props = {
@@ -176,13 +129,11 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
 
     if (this.props.countQuery) {
       return (
-        <FlexRow>
-          <FlexItem>
-            <span>
-              {__('Total')}: {totalCount}
-            </span>
-          </FlexItem>
-        </FlexRow>
+        <FlexItem>
+          <span>
+            {__('Total')}: <b>{totalCount}</b>
+          </span>
+        </FlexItem>
       );
     }
 
@@ -194,7 +145,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
       inputProps: { placeholder: __('Select a date') },
       timeFormat: 'HH:mm',
       dateFormat: 'YYYY/MM/DD',
-      closeOnSelect: true
+      closeOnSelect: false
     };
 
     const onChangeStart = date => {
@@ -210,34 +161,40 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     };
 
     return (
-      <Popover id="filter-popover" title={__('Filter by date')}>
-        <DateFilters>
-          <FlexRow>
-            <FlexItem>
-              <Datetime
-                {...props}
-                value={this.state.startDate}
-                onChange={onChangeStart}
-              />
-            </FlexItem>
+      <Popover id="date-popover" title={__('Filter by date')}>
+        <FlexRow>
+          <div>
+            <DateName>Start Date</DateName>
+            <Datetime
+              {...props}
+              input={false}
+              value={this.state.startDate}
+              onChange={onChangeStart}
+            />
+          </div>
 
-            <FlexItem>
-              <Datetime
-                {...props}
-                value={this.state.endDate}
-                onChange={onChangeEnd}
-              />
-            </FlexItem>
-          </FlexRow>
+          <div>
+            <DateName>End Date</DateName>
+            <Datetime
+              {...props}
+              input={false}
+              value={this.state.endDate}
+              onChange={onChangeEnd}
+            />
+          </div>
+        </FlexRow>
 
+        <FlexRow>
           {this.renderCount()}
-
-          <FlexRow>
-            <Button btnStyle="simple" onClick={this.filterByDate}>
-              Filter
-            </Button>
-          </FlexRow>
-        </DateFilters>
+          <Button
+            btnStyle="warning"
+            onClick={this.filterByDate}
+            icon="filter"
+            size="small"
+          >
+            Filter
+          </Button>
+        </FlexRow>
       </Popover>
     );
   };

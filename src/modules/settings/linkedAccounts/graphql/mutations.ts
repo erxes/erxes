@@ -12,7 +12,16 @@ const linkTwitterAccount = `
     }
 `;
 
+const linkGmailAccount = `
+    mutation accountsAddGmail($code: String!) {
+        accountsAddGmail(code: $code) {
+            _id
+        }
+    }
+`;
+
 export default {
   delinkAccount,
-  linkTwitterAccount
+  linkTwitterAccount,
+  linkGmailAccount
 };

@@ -7,7 +7,7 @@ import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
-const Box = styledTS<{ selected?: boolean }>(BoxRoot.extend)`
+const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   border: 1px solid
     ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
   padding: ${dimensions.coreSpacing * 2}px;

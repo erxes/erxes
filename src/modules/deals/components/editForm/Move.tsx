@@ -64,11 +64,11 @@ class DealMove extends React.Component<Props, State> {
 
     let isPass = true;
 
-    const onClick = s => onChangeStage && onChangeStage(s._id);
-
     return (
       <Stages>
         {stages.map(s => {
+          const onClick = () => onChangeStage && onChangeStage(s._id);
+
           const item = (
             <StageItem key={s._id} isPass={isPass}>
               <Tip text={s.name}>

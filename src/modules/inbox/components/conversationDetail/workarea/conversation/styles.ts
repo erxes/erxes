@@ -22,9 +22,9 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
     }
 
     return `
-        border-bottom-right-radius: 2px;
-        border-bottom-left-radius: 20px;
-      `;
+      border-bottom-right-radius: 2px;
+      border-bottom-left-radius: 20px;
+    `;
   }};
 
   a {
@@ -84,11 +84,11 @@ const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean }>(styled.div)`
     }
 
     return `
-        padding-right: 0;
-        padding-left: 17%;
-        text-align: right;
-        flex-direction: row-reverse;
-      `;
+      padding-right: 0;
+      padding-left: 10%;
+      text-align: right;
+      flex-direction: row-reverse;
+    `;
   }};
 
   &.same {

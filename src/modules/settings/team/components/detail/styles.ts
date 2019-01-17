@@ -1,7 +1,8 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { SidebarList } from 'modules/layout/styles';
+import styled from 'styled-components';
 
-const List = SidebarList.extend`
+const List = styled(SidebarList)`
   li {
     border-bottom: 1px solid ${colors.borderPrimary};
 

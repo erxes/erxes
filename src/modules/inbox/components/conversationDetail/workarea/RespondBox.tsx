@@ -32,6 +32,7 @@ type Props = {
     message: AddMessageMutationVariables,
     callback: (error: Error) => void
   ) => void;
+  showInternal: boolean;
   setAttachmentPreview?: (data: IAttachmentPreview) => void;
   responseTemplates: IResponseTemplate[];
   teamMembers: IUser[];
@@ -55,7 +56,7 @@ class RespondBox extends React.Component<Props, State> {
     this.state = {
       isInactive: !this.checkIsActive(props.conversation),
       editorKey: 'editor',
-      isInternal: false,
+      isInternal: props.showInternal || false,
       sending: false,
       attachments: [],
       responseTemplate: '',
@@ -76,6 +77,12 @@ class RespondBox extends React.Component<Props, State> {
     if (this.props.conversation.customer !== nextProps.conversation.customer) {
       this.setState({
         isInactive: !this.checkIsActive(nextProps.conversation)
+      });
+    }
+
+    if (this.props.showInternal !== nextProps.showInternal) {
+      this.setState({
+        isInternal: nextProps.showInternal
       });
     }
   }
@@ -260,6 +267,7 @@ class RespondBox extends React.Component<Props, State> {
         <FormControl
           className="toggle-message"
           componentClass="checkbox"
+          checked={isInternal}
           onChange={this.toggleForm}
         >
           {__('Internal note')}

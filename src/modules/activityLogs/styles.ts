@@ -27,10 +27,11 @@ const ActivityTitle = styled.h5`
   line-height: ${typography.lineHeightHeading4};
 `;
 
-const ActivityRow = WhiteBox.extend`
+const ActivityRow = styled(WhiteBox)`
   padding: ${dimensions.coreSpacing}px;
   position: relative;
   overflow: visible;
+  margin-bottom: ${dimensions.unitSpacing}px;
 
   &:last-of-type {
     margin-bottom: 0;

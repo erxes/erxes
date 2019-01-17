@@ -21,7 +21,7 @@ type Props = {
   ) => void;
   users: IUser[];
   hasKind: boolean;
-  kind?: string;
+  messageKind: string;
   messenger: IEngageMessenger;
   fromUserId: string;
   content: string;
@@ -66,6 +66,7 @@ class MessengerForm extends React.Component<Props, State> {
     if (!hasKind) {
       return null;
     }
+
     const onChange = e =>
       this.changeContent('kind', (e.target as HTMLInputElement).value);
 
@@ -90,9 +91,9 @@ class MessengerForm extends React.Component<Props, State> {
   }
 
   renderScheduler() {
-    const { kind, onChange } = this.props;
+    const { messageKind, onChange } = this.props;
 
-    if (kind === 'manual') {
+    if (messageKind === 'manual' || messageKind === 'visitorAuto') {
       return null;
     }
 

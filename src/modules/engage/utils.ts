@@ -1,6 +1,7 @@
+import { generatePaginationParams } from 'modules/common/utils/router';
+
 export const generateListQueryVariables = ({ queryParams }) => ({
-  page: queryParams.page,
-  perPage: queryParams.perPage || 20,
+  ...generatePaginationParams(queryParams),
   kind: queryParams.kind,
   status: queryParams.status,
   tag: queryParams.tag,

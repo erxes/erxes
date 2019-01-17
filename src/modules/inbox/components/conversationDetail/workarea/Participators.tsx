@@ -25,7 +25,7 @@ const ParticipatorImg = styled.img`
   margin-left: -10px;
 `;
 
-const More = ParticipatorImg.withComponent('span').extend`
+const More = styled(ParticipatorImg.withComponent('span'))`
   color: ${colors.colorWhite};
   text-align: center;
   vertical-align: middle;
