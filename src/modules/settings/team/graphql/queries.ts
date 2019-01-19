@@ -91,6 +91,7 @@ const users = `
       username
       email
       role
+      status
       details {
         avatar
         fullName
