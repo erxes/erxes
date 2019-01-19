@@ -24,6 +24,7 @@ import IntegrationIcon from './IntegrationIcon';
 import Label from './Label';
 import LoadMore from './LoadMore';
 import ModalTrigger from './ModalTrigger';
+import ModifiableList from './ModifiableList';
 import ModifiableSelect from './ModifiableSelect';
 import NameCard from './nameCard/NameCard';
 import Pagination from './pagination/Pagination';
@@ -87,6 +88,7 @@ export {
   Chooser,
   DateFilter,
   ModifiableSelect,
+  ModifiableList,
   Uploader,
   SortHandler
 };

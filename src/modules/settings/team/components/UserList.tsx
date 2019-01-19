@@ -1,8 +1,16 @@
 import { IUser } from 'modules/auth/types';
-import { NameCard, Table } from 'modules/common/components';
+import {
+  Button,
+  ControlLabel,
+  FormGroup,
+  ModifiableList,
+  NameCard,
+  Table
+} from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
+import { ModalFooter } from '../../../common/styles/main';
 import { List, RowActions } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
@@ -13,9 +21,68 @@ const UserAvatar = styled.td`
   }
 `;
 
-class UserList extends React.Component<ICommonListProps> {
+class UserList extends React.Component<ICommonListProps, { emails: string[] }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      emails: []
+    };
+  }
+
   onAvatarClick = object => {
     return this.props.history.push(`team/details/${object._id}`);
+  };
+
+  onAddingEmail = options => {
+    this.setState({ emails: options });
+  };
+
+  onRemovingEmail = options => {
+    this.setState({ emails: options });
+  };
+
+  onSubmit = () => {
+    // tslint:disable-next-line
+    console.log(this.state.emails);
+  };
+
+  renderInvitationForm = props => {
+    return (
+      <div>
+        <FormGroup>
+          <ControlLabel>Emails</ControlLabel>
+          <ul>
+            <ModifiableList
+              options={[]}
+              addButtonLabel="Add Email"
+              onAddingOption={this.onAddingEmail}
+              onRemovingOption={this.onRemovingEmail}
+            />
+          </ul>
+        </FormGroup>
+
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={props.closeModal}
+            icon="cancel-1"
+          >
+            Cancel
+          </Button>
+
+          <Button
+            btnStyle="success"
+            type="submit"
+            onClick={this.onSubmit}
+            icon="checked-1"
+          >
+            Invite
+          </Button>
+        </ModalFooter>
+      </div>
+    );
   };
 
   renderForm = props => {
@@ -72,12 +139,12 @@ class UserList extends React.Component<ICommonListProps> {
   render() {
     return (
       <List
-        title="New user"
+        title="Invite team members"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Team members') }
         ]}
-        renderForm={this.renderForm}
+        renderForm={this.renderInvitationForm}
         renderContent={this.renderContent}
         {...this.props}
       />
