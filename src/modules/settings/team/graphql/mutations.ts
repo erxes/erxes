@@ -50,4 +50,17 @@ const usersInvite = `
   }
 `;
 
-export default { usersEditProfile, usersEdit, usersInvite };
+const usersConfirmInvitation = `
+  mutation usersConfirmInvitation($email: String, $token: String, $password: String, $passwordConfirmation: String) {
+    usersConfirmInvitation(email: $email, token: $token, password: $password, passwordConfirmation: $passwordConfirmation) {
+      _id
+    }
+  }
+`;
+
+export default {
+  usersEditProfile,
+  usersEdit,
+  usersInvite,
+  usersConfirmInvitation
+};

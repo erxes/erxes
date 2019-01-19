@@ -2,7 +2,9 @@ import { withCurrentUser } from 'modules/auth/containers';
 import { MainBar } from 'modules/layout/components';
 import { MainLayout } from 'modules/layout/containers';
 import { MainWrapper } from 'modules/layout/styles';
+import { userConfirmation } from 'modules/settings/team/routes';
 import * as React from 'react';
+import { Route, Switch } from 'react-router-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
@@ -42,7 +44,17 @@ const renderRoutes = currentUser => {
     );
   }
 
-  return <AuthRoutes />;
+  return (
+    <Switch>
+      <Route
+        key="/invitation"
+        exact={true}
+        path="/invitation"
+        component={userConfirmation}
+      />
+      <AuthRoutes />
+    </Switch>
+  );
 };
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => (
