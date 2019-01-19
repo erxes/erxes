@@ -12,7 +12,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { ModalFooter } from '../../../common/styles/main';
 import { List, RowActions } from '../../common/components';
-import { ICommonListProps } from '../../common/types';
+import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
 
 const UserAvatar = styled.td`
@@ -21,7 +21,12 @@ const UserAvatar = styled.td`
   }
 `;
 
-class UserList extends React.Component<ICommonListProps, { emails: string[] }> {
+class UserList extends React.Component<
+  ICommonListProps & ICommonFormProps,
+  { emails: string[] }
+> {
+  private closeModal;
+
   constructor(props) {
     super(props);
 
@@ -43,11 +48,16 @@ class UserList extends React.Component<ICommonListProps, { emails: string[] }> {
   };
 
   onSubmit = () => {
-    // tslint:disable-next-line
-    console.log(this.state.emails);
+    this.props.save(
+      { doc: { emails: this.state.emails } },
+      this.closeModal,
+      null
+    );
   };
 
   renderInvitationForm = props => {
+    this.closeModal = props.closeModal;
+
     return (
       <div>
         <FormGroup>
@@ -100,6 +110,7 @@ class UserList extends React.Component<ICommonListProps, { emails: string[] }> {
           <UserAvatar onClick={onClick}>
             <NameCard user={object} avatarSize={30} singleLine={true} />
           </UserAvatar>
+          <td>{object.status || 'Verified'}</td>
           <td>{object.email}</td>
           <td>{object.role}</td>
 
@@ -119,6 +130,7 @@ class UserList extends React.Component<ICommonListProps, { emails: string[] }> {
         <thead>
           <tr>
             <th>{__('Full name')}</th>
+            <th>{__('Status')}</th>
             <th>{__('Email')}</th>
             <th>{__('Role')}</th>
             <th>{__('Actions')}</th>

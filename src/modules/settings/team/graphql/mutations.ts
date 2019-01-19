@@ -44,4 +44,10 @@ const usersEditProfile = `
   }
 `;
 
-export default { usersEditProfile, usersEdit };
+const usersInvite = `
+  mutation usersInvite($emails: [String]) {
+    usersInvite(emails: $emails)
+  }
+`;
+
+export default { usersEditProfile, usersEdit, usersInvite };
