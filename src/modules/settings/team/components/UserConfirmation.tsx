@@ -42,17 +42,19 @@ class Confirmation extends React.Component<{
               <FormGroup>
                 <ControlLabel>Password</ControlLabel>
 
-                <FormControl id="password" />
+                <FormControl type="password" id="password" />
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Password Confirmation</ControlLabel>
 
-                <FormControl id="passwordConfirmation" />
+                <FormControl type="password" id="passwordConfirmation" />
+              </FormGroup>
+              <FormGroup>
+                <Button type="submit">Submit</Button>
               </FormGroup>
             </Box>
           </MiddleContent>
         </FullContent>
-        <Button type="submit">Submit</Button>
       </form>
     );
   }
