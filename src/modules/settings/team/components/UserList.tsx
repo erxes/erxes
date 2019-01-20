@@ -79,6 +79,7 @@ class UserList extends React.Component<ICommonListProps> {
         ]}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
+        center={true}
         {...this.props}
       />
     );
