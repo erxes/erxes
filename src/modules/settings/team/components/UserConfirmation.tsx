@@ -7,6 +7,7 @@ import {
 import { FullContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
+import { AuthBox } from '../../../auth/styles';
 import { Box, MiddleContent, Title } from '../../status/styles';
 
 class Confirmation extends React.Component<{
@@ -34,28 +35,31 @@ class Confirmation extends React.Component<{
 
   render() {
     return (
-      <form onSubmit={this.onSubmit}>
-        <FullContent center={true}>
-          <MiddleContent>
-            <Box>
-              <Title>{__('Set up your password')}</Title>
-              <FormGroup>
-                <ControlLabel>Password</ControlLabel>
+      <AuthBox>
+        <h2>{__('Welcome')}</h2>
+        <form onSubmit={this.onSubmit}>
+          <FullContent center={true}>
+            <MiddleContent>
+              <Box>
+                <Title>{__('Set up your password')}</Title>
+                <FormGroup>
+                  <ControlLabel>Password</ControlLabel>
 
-                <FormControl type="password" id="password" />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Password Confirmation</ControlLabel>
+                  <FormControl type="password" id="password" />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Password Confirmation</ControlLabel>
 
-                <FormControl type="password" id="passwordConfirmation" />
-              </FormGroup>
-              <FormGroup>
-                <Button type="submit">Submit</Button>
-              </FormGroup>
-            </Box>
-          </MiddleContent>
-        </FullContent>
-      </form>
+                  <FormControl type="password" id="passwordConfirmation" />
+                </FormGroup>
+                <FormGroup>
+                  <Button type="submit">Submit</Button>
+                </FormGroup>
+              </Box>
+            </MiddleContent>
+          </FullContent>
+        </form>
+      </AuthBox>
     );
   }
 }
