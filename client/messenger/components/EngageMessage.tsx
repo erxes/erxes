@@ -1,7 +1,6 @@
 import * as classNames from "classnames";
 import * as React from "react";
 import * as striptags from "striptags";
-import { iconClose } from "../../icons/Icons";
 import { IUser } from "../../types";
 import { User } from "../components/common";
 import { IEngageData } from "../types";
@@ -10,22 +9,20 @@ const Component = React.Component;
 
 type Props = {
   engageData: IEngageData;
-  toggle?: () => void;
 };
 
 class EngageMessage extends Component<Props> {
-  renderClose() {
-    return (
-      <a
-        href="#"
-        className="close-notification"
-        onClick={this.props.toggle}
-        title="Close notification"
-      >
-        {iconClose}
-      </a>
-    );
-  }
+  // renderClose() {
+  //   return (
+  //     <a
+  //       href="#"
+  //       className="close-notification"
+  //       title="Close notification"
+  //     >
+  //       {iconClose}
+  //     </a>
+  //   );
+  // }
 
   renderUserFullName(fromUser?: IUser) {
     if (fromUser && fromUser.details) {
@@ -59,7 +56,7 @@ class EngageMessage extends Component<Props> {
             )}
           </div>
         </div>
-        {this.renderClose()}
+        {/* {this.renderClose()} */}
       </>
     );
   }

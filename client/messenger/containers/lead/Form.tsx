@@ -14,7 +14,7 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
     return null;
   }
 
-  if (!data.form) {
+  if (!data.form || !(data.form.title || "").trim()) {
     return null;
   }
 

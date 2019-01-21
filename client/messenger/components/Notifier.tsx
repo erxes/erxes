@@ -2,6 +2,7 @@ import * as classNames from "classnames";
 import * as React from "react";
 import * as RTG from "react-transition-group";
 import * as striptags from "striptags";
+import { iconClose } from "../../icons/Icons";
 import { EngageMessage } from "../components";
 import { User } from "../components/common";
 import { IEngageData, IMessage } from "../types";
@@ -10,15 +11,33 @@ type Props = {
   message: IMessage;
   readConversation: (conversationId: string) => void;
   showUnreadMessage: () => void;
+  toggleNotifier: (isVisible: boolean) => void;
 };
 
-class Notifier extends React.Component<Props> {
+type State = {
+  isVisible: boolean;
+};
+
+class Notifier extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { isVisible: true };
+  }
+
   componentDidMount() {
     this.props.showUnreadMessage();
   }
 
-  componentDidUpdate() {
-    this.props.showUnreadMessage();
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (prevState.isVisible === this.state.isVisible) {
+      this.props.showUnreadMessage();
+    }
+  }
+
+  close() {
+    this.props.toggleNotifier(true);
+    this.setState({ isVisible: !this.state.isVisible });
   }
 
   renderNotificationBody() {
@@ -55,17 +74,28 @@ class Notifier extends React.Component<Props> {
 
     return (
       <RTG.CSSTransition
-        in={true}
+        in={this.state.isVisible}
         appear={true}
         timeout={300}
         classNames="scale-in"
         unmountOnExit={true}
       >
-        <div
-          className={classes}
-          onClick={() => readConversation(message.conversationId)}
-        >
-          {this.renderNotificationBody()}
+        <div className={classes}>
+          <div
+            className="flex-notification-container"
+            onClick={() => readConversation(message.conversationId)}
+          >
+            {this.renderNotificationBody()}
+          </div>
+          <a
+            className="close-notification"
+            title="Close notification"
+            onClick={() => {
+              this.close();
+            }}
+          >
+            {iconClose}
+          </a>
         </div>
       </RTG.CSSTransition>
     );
