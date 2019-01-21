@@ -62,14 +62,12 @@ class UserList extends React.Component<
       <div>
         <FormGroup>
           <ControlLabel>Emails</ControlLabel>
-          <ul>
-            <ModifiableList
-              options={[]}
-              addButtonLabel="Add Email"
-              onAddingOption={this.onAddingEmail}
-              onRemovingOption={this.onRemovingEmail}
-            />
-          </ul>
+          <ModifiableList
+            options={[]}
+            addButtonLabel="Add another"
+            onAddingOption={this.onAddingEmail}
+            onRemovingOption={this.onRemovingEmail}
+          />
         </FormGroup>
 
         <ModalFooter>

@@ -8,21 +8,12 @@ const List = styled.ul`
   list-style: none;
   padding: 0;
 
-  li {
-    position: relative;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-`;
-
-const TypeList = styled(List)`
   button {
     margin-top: 10px;
   }
 
   li {
+    position: relative;
     margin-bottom: 5px;
     background-color: ${colors.colorWhite};
     border: 1px solid ${colors.borderPrimary};
@@ -54,12 +45,12 @@ type State = {
   adding: boolean;
 };
 
-class PropertyForm extends React.Component<Props, State> {
+class ModifiableList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      adding: false,
+      adding: true,
       options: props.options || []
     };
   }
@@ -81,25 +72,17 @@ class PropertyForm extends React.Component<Props, State> {
     this.setState({ options: [...options, optionValue] }, () => {
       if (this.props.onAddingOption) {
         this.props.onAddingOption(this.state.options, optionValue);
+        (document.getElementById('optionValue') as HTMLInputElement).value = '';
       }
-
-      this.handleCancelAddingOption();
     });
   };
 
-  handleRemoveOption = index => {
+  handleRemoveOption = (i: string) => {
     const { options } = this.state;
 
-    this.setState(
-      {
-        options: options.splice(index, 1) && options
-      },
-      () => {
-        if (this.props.onRemovingOption) {
-          this.props.onRemovingOption(options);
-        }
-      }
-    );
+    this.setState({
+      options: options.filter(item => item !== i)
+    });
   };
 
   renderButtonOrElement = () => {
@@ -111,7 +94,7 @@ class PropertyForm extends React.Component<Props, State> {
       };
 
       return (
-        <React.Fragment>
+        <>
           <FormControl
             id="optionValue"
             autoFocus={true}
@@ -123,7 +106,7 @@ class PropertyForm extends React.Component<Props, State> {
               icon="cancel-1"
               btnStyle="simple"
               size="small"
-              onClick={this.handleSaveOption}
+              onClick={this.handleCancelAddingOption}
             >
               Cancel
             </Button>
@@ -137,7 +120,7 @@ class PropertyForm extends React.Component<Props, State> {
               Save
             </Button>
           </Actions>
-        </React.Fragment>
+        </>
       );
     }
 
@@ -148,29 +131,29 @@ class PropertyForm extends React.Component<Props, State> {
     );
   };
 
-  removeClick = index => {
-    return this.handleRemoveOption(index);
-  };
-
   renderOption = (option, index) => {
     return (
       <li key={index}>
         {option}
-        <Icon icon="cancel-1" onClick={this.removeClick} />
+        <Icon
+          icon="cancel-1"
+          onClick={this.handleRemoveOption.bind(this, option)}
+        />
       </li>
     );
   };
 
   render() {
+    console.log(this.state.options); //tslint:disable-line
     return (
-      <TypeList>
+      <List>
         {this.state.options.map((option, index) =>
           this.renderOption(option, index)
         )}
         {this.renderButtonOrElement()}
-      </TypeList>
+      </List>
     );
   }
 }
 
-export default PropertyForm;
+export default ModifiableList;

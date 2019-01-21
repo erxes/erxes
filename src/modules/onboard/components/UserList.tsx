@@ -14,7 +14,7 @@ class UserList extends React.PureComponent<Props, {}> {
 
     return users.map(user => (
       <Chip key={user._id} onClick={remove.bind(null, user._id)}>
-        {user.username}
+        {user.username || user.email}
       </Chip>
     ));
   };

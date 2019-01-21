@@ -26,28 +26,27 @@ const renderRoutes = currentUser => {
   if (currentUser) {
     const isFirst = true;
 
-    if (isFirst) {
-      return <OnboardRoutes />;
-    }
-
     return (
-      <MainLayout currentUser={currentUser}>
-        <MainWrapper>
-          <MainBar />
-          <InboxRoutes />
-          <SegmentsRoutes />
-          <CustomersRoutes />
-          <CompaniesRoutes />
-          <InsightsRoutes />
-          <EngageRoutes />
-          <KnowledgeBaseRoutes />
-          <FormRoutes />
-          <SettingsRoutes />
-          <TagsRoutes />
-          <NotificationRoutes />
-          <DealsRoutes />
-        </MainWrapper>
-      </MainLayout>
+      <>
+        <OnboardRoutes />
+        <MainLayout currentUser={currentUser}>
+          <MainWrapper>
+            <MainBar />
+            <InboxRoutes />
+            <SegmentsRoutes />
+            <CustomersRoutes />
+            <CompaniesRoutes />
+            <InsightsRoutes />
+            <EngageRoutes />
+            <KnowledgeBaseRoutes />
+            <FormRoutes />
+            <SettingsRoutes />
+            <TagsRoutes />
+            <NotificationRoutes />
+            <DealsRoutes />
+          </MainWrapper>
+        </MainLayout>
+      </>
     );
   }
 
