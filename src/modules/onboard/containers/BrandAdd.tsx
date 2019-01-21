@@ -10,7 +10,7 @@ import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { BrandAdd } from '../components';
 
-type Props = { queryParams: any };
+type Props = { queryParams: any; changeStep: () => void };
 
 type FinalProps = { brandsCountQuery: BrandsCountQueryResponse } & Props &
   BrandAddMutationResponse;

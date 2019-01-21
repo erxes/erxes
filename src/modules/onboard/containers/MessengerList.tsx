@@ -1,7 +1,10 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
+import {
+  mutations,
+  queries as integrationQuery
+} from 'modules/settings/integrations/graphql';
 import {
   IntegrationsQueryResponse,
   RemoveMutationResponse
@@ -9,6 +12,7 @@ import {
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { MessengerList } from '../components';
+import { queries } from '../graphql';
 
 type FinalProps = {
   integrationsQuery: IntegrationsQueryResponse;
@@ -67,7 +71,7 @@ export default withProps<{}>(
               }
             },
             {
-              query: gql(queries.integrationTotalCount)
+              query: gql(integrationQuery.integrationTotalCount)
             }
           ]
         };

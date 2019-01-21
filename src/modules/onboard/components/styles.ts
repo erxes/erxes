@@ -3,11 +3,28 @@ import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
+const Header = styled.div`
+  height: 70px;
+  background: ${colors.colorWhite};
+  text-align: center;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+
+  img {
+    height: 40px;
+    margin: 15px 0;
+  }
+`;
+
 const MainContainer = styled.div`
   display: flex;
   flex: 1;
-  position: relative;
-  justify-content: center;
+  flex-direction: column;
+`;
+
+const ContentContainer = styled.div`
+  display: flex;
+  flex: 1;
 
   .slide-appear,
   .slide-enter {
@@ -30,101 +47,73 @@ const MainContainer = styled.div`
   }
 `;
 
-const LeftContainer = styled.div`
-  flex: 1;
-  display: flex;
-
-  &.move-appear,
-  &.move-enter {
-    transform: translateX(-50px);
-  }
-
-  &.move-appear-active,
-  &.move-enter-active {
-    transform: translateX(0);
-    transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
-  }
-`;
-
 const RightContent = styled.div`
-  width: 500px;
   flex-shrink: 0;
-  padding: 100px;
+  padding: 70px;
   background: ${colors.colorPrimaryDark};
   display: flex;
   align-items: center;
   overflow: auto;
+  flex: 1;
 `;
 
-const ScrollContent = styled.div`
-  padding: 50px 100px;
-  max-height: 100%;
-  height: 100%;
-  overflow: auto;
+const Footer = styled.div`
+  text-align: center;
+  > div {
+    margin-bottom: 10px;
+  }
 `;
 
 const LeftContent = styled.div`
-  margin: 100px -100px 100px 100px;
-  padding-bottom: 52px;
   z-index: 1;
   flex: 1;
-  background: ${colors.colorWhite};
-  box-shadow: 0px 0px 30px 3px rgba(0, 0, 0, 0.1);
   position: relative;
+  min-width: 640px;
+  display: flex;
+  padding: 70px;
 
-  .slide-in-appear ${ScrollContent}, .slide-in-enter ${ScrollContent} {
+  .slide-in-appear,
+  .slide-in-enter {
     opacity: 0;
     transform: translateY(20px);
   }
 
-  .slide-in-appear-active
-    ${ScrollContent},
-    .slide-in-enter-active
-    ${ScrollContent} {
+  .slide-in-appear-active,
+  .slide-in-enter-active {
     opacity: 1;
     transform: translateY(0);
     transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95) 0.2s;
   }
 
-  .slide-in-exit ${ScrollContent}, .slide-in-exit-active ${ScrollContent} {
+  .slide-in-exit,
+  .slide-in-exit-active {
     opacity: 0;
     transform: translateY(-20px);
     transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
   }
 
   > form {
-    height: 100%;
     position: absolute;
-    padding-bottom: 52px;
-    left: 0;
-    right: 0;
+    width: 640px;
+    align-self: center;
+    padding: 70px 70px 50px 70px;
+    right: -70px;
+    overflow: auto;
+    max-height: 100%;
+    border-radius: 2px;
+    background: ${colors.colorWhite};
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 20px 3px;
   }
 `;
 
 const TopContent = styled.div`
-  text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 50px;
   position: relative;
 
-  img {
-    height: 120px;
-  }
-
   h2 {
-    margin-bottom: 0;
+    margin-top: 0;
     font-weight: normal;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    background: aliceblue;
-    top: 0;
-    border-radius: 60px;
-    z-index: -1;
-    margin-left: -30px;
+    margin-bottom: 30px;
   }
 `;
 
@@ -132,24 +121,6 @@ const Description = styled.div`
   font-size: 14px;
   margin: 40px 0 20px;
   color: ${colors.colorCoreGray};
-`;
-
-const Footer = styled.div`
-  padding: 10px 20px;
-  box-shadow: 0px -2px 6px 0px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-`;
-
-const Logo = styled.img`
-  position: absolute;
-  left: 100px;
-  top: 30px;
-  height: 40px;
 `;
 
 const Robot = styled.img`
@@ -184,6 +155,7 @@ const WelcomeWrapper = styled.div`
 
 const Indicator = styled.div`
   z-index: 10;
+  width: 400px;
 
   &.move-appear,
   &.move-enter {
@@ -217,7 +189,7 @@ const Item = styledTS<{ active?: boolean }>(styled.div)`
 
   &::before {
     background-color: ${props =>
-      props.active ? colors.colorPrimary : colors.colorWhite};
+      props.active ? colors.colorCoreTeal : colors.colorWhite};
     color: ${props =>
       props.active ? colors.colorWhite : colors.colorLightGray};
     font-weight: bold;
@@ -244,15 +216,14 @@ const Item = styledTS<{ active?: boolean }>(styled.div)`
 `;
 
 export {
+  Header,
   MainContainer,
-  LeftContainer,
+  ContentContainer,
   RightContent,
   TopContent,
   LeftContent,
-  ScrollContent,
   Description,
   Footer,
-  Logo,
   Robot,
   Indicator,
   Item,

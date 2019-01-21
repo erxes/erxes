@@ -7,7 +7,6 @@ import {
   ChannelsCountQueryResponse,
   ChannelsQueryResponse,
   EditChannelMutationResponse,
-  EditChannelMutationVariables,
   RemoveChannelMutationResponse,
   RemoveChannelMutationVariables
 } from 'modules/settings/channels/types';
@@ -15,6 +14,8 @@ import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Channel } from '../components';
+import { queries as onboardQueries } from '../graphql';
+import { IntegrationsQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
@@ -25,6 +26,7 @@ type FinalProps = {
   channelsQuery: ChannelsQueryResponse;
   usersQuery: UsersQueryResponse;
   channelsCountQuery: ChannelsCountQueryResponse;
+  integrationsQuery: IntegrationsQueryResponse;
 } & Props &
   AddChannelMutationResponse &
   EditChannelMutationResponse &
@@ -36,13 +38,14 @@ const SidebarContainer = (props: FinalProps) => {
     channelsQuery,
     channelsCountQuery,
     addMutation,
-    editMutation,
+    integrationsQuery,
     removeMutation
   } = props;
 
   const channels = channelsQuery.channels || [];
   const members = usersQuery.users || [];
   const channelsTotalCount = channelsCountQuery.channelsTotalCount || 0;
+  const integrations = integrationsQuery.integrations || [];
 
   // remove action
   const remove = channelId => {
@@ -59,19 +62,21 @@ const SidebarContainer = (props: FinalProps) => {
     });
   };
 
-  // create or update action
-  const save = (doc, channel) => {
-    let mutation = addMutation;
+  // create action
+  const save = doc => {
+    console.log(doc); //tslint:disable-line
 
-    // if edit mode
-    if (channel) {
-      mutation = editMutation;
-      doc._id = channel._id;
+    const { integrationIds, memberIds } = doc;
+
+    if (memberIds.length === 0) {
+      return Alert.error('Choose at least on user');
     }
 
-    mutation({
-      variables: doc
-    })
+    if (integrationIds.length === 0) {
+      return Alert.error('Choose at least one messenger');
+    }
+
+    addMutation({ variables: doc })
       .then(() => {
         Alert.success('Successfully saved.');
       })
@@ -84,6 +89,7 @@ const SidebarContainer = (props: FinalProps) => {
     ...props,
     members,
     channels,
+    integrations,
     channelsTotalCount,
     save,
     remove,
@@ -93,7 +99,7 @@ const SidebarContainer = (props: FinalProps) => {
   return <Channel {...updatedProps} />;
 };
 
-const commonOptions = ({ queryParams, currentChannelId }: Props) => {
+const commonOptions = ({ queryParams }: Props) => {
   return {
     refetchQueries: [
       {
@@ -103,10 +109,6 @@ const commonOptions = ({ queryParams, currentChannelId }: Props) => {
       {
         query: gql(queries.channels),
         variables: {}
-      },
-      {
-        query: gql(queries.channelDetail),
-        variables: { _id: currentChannelId || '' }
       },
       { query: gql(queries.channelsCount) },
       { query: gql(queries.users) }
@@ -128,6 +130,18 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<{}, IntegrationsQueryResponse>(gql(onboardQueries.integrations), {
+      name: 'integrationsQuery',
+      options: () => {
+        return {
+          notifyOnNetworkStatusChange: true,
+          variables: {
+            kind: 'messenger'
+          },
+          fetchPolicy: 'network-only'
+        };
+      }
+    }),
     graphql<Props, UsersQueryResponse, {}>(gql(queries.users), {
       name: 'usersQuery',
       options: () => ({
@@ -141,13 +155,6 @@ export default withProps<Props>(
       gql(mutations.channelAdd),
       {
         name: 'addMutation',
-        options: commonOptions
-      }
-    ),
-    graphql<Props, EditChannelMutationResponse, EditChannelMutationVariables>(
-      gql(mutations.channelEdit),
-      {
-        name: 'editMutation',
         options: commonOptions
       }
     ),

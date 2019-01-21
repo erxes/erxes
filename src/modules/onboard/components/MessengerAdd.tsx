@@ -11,7 +11,7 @@ import { SelectBrand } from 'modules/settings/integrations/components';
 import * as React from 'react';
 import * as RTG from 'react-transition-group';
 import { MessengerList } from '../containers';
-import { Description, Footer, ScrollContent, TopContent } from './styles';
+import { Description, Footer, TopContent } from './styles';
 
 type Props = {
   brands: IBrand[];
@@ -131,16 +131,13 @@ class MessengerAdd extends React.Component<Props, State> {
   render() {
     return (
       <form onSubmit={this.save}>
-        <ScrollContent>
-          <TopContent>
-            <img src="/images/icons/erxes-12.svg" />
-            <h2>Create your messenger</h2>
-          </TopContent>
+        <TopContent>
+          <h2>Create your messenger</h2>
           {this.renderContent()}
-        </ScrollContent>
+        </TopContent>
         <Footer>
-          <Button btnStyle="link">Back</Button>
-          <Button btnStyle="primary" type="submit">
+          <Button btnStyle="link">Previous</Button>
+          <Button btnStyle="success" type="submit">
             Next <Icon icon="rightarrow" />
           </Button>
         </Footer>

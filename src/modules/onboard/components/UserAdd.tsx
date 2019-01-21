@@ -5,15 +5,15 @@ import {
   FormGroup,
   Icon
 } from 'modules/common/components';
-import { FormColumn, FormWrapper } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import * as RTG from 'react-transition-group';
 import { UserList } from '../containers';
-import { Description, Footer, ScrollContent, TopContent } from './styles';
+import { Description, Footer, TopContent } from './styles';
 
 type Props = {
   usersTotalCount: number;
+  changeStep: (increase: boolean) => void;
   save: (
     params: {
       doc: {
@@ -59,6 +59,8 @@ class UserAdd extends React.Component<Props, State> {
       password: '',
       passwordConfirmation: ''
     });
+
+    this.props.changeStep(true);
   }
 
   toggleBrands = () => {
@@ -97,6 +99,12 @@ class UserAdd extends React.Component<Props, State> {
     this.setState({ [name]: e.target.value } as Pick<State, keyof State>);
   };
 
+  next = e => {
+    e.preventDefault();
+    const { save } = this.props;
+    save(this.generateDoc(), this.afterSave.bind(this));
+  };
+
   renderContent() {
     const {
       username,
@@ -109,68 +117,63 @@ class UserAdd extends React.Component<Props, State> {
 
     return (
       <>
-        <FormWrapper>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>Username</ControlLabel>
+        <FormGroup>
+          <ControlLabel>Username</ControlLabel>
 
-              <FormControl
-                value={username}
-                onChange={this.handleChange.bind(this, 'username')}
-                type="text"
-                required={true}
-              />
-            </FormGroup>
+          <FormControl
+            value={username}
+            onChange={this.handleChange.bind(this, 'username')}
+            type="text"
+            required={true}
+          />
+        </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Email</ControlLabel>
+        <FormGroup>
+          <ControlLabel>Email</ControlLabel>
 
-              <FormControl
-                value={email}
-                onChange={this.handleChange.bind(this, 'email')}
-                type="text"
-                required={true}
-              />
-            </FormGroup>
+          <FormControl
+            value={email}
+            onChange={this.handleChange.bind(this, 'email')}
+            type="text"
+            required={true}
+          />
+        </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Role</ControlLabel>
+        <FormGroup>
+          <ControlLabel>Role</ControlLabel>
 
-              <FormControl
-                componentClass="select"
-                value={role}
-                onChange={this.handleChange.bind(this, 'role')}
-              >
-                <option value="admin">{__('Admin')}</option>
-                <option value="contributor">{__('Contributor')}</option>
-              </FormControl>
-            </FormGroup>
-          </FormColumn>
+          <FormControl
+            componentClass="select"
+            value={role}
+            onChange={this.handleChange.bind(this, 'role')}
+          >
+            <option value="admin">{__('Admin')}</option>
+            <option value="contributor">{__('Contributor')}</option>
+          </FormControl>
+        </FormGroup>
 
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>Password</ControlLabel>
+        <FormGroup>
+          <ControlLabel>Password</ControlLabel>
 
-              <FormControl
-                value={password}
-                onChange={this.handleChange.bind(this, 'password')}
-                type="text"
-                required={true}
-              />
-            </FormGroup>
+          <FormControl
+            value={password}
+            onChange={this.handleChange.bind(this, 'password')}
+            type="text"
+            required={true}
+          />
+        </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Password confirmation</ControlLabel>
+        <FormGroup>
+          <ControlLabel>Password confirmation</ControlLabel>
 
-              <FormControl
-                value={passwordConfirmation}
-                onChange={this.handleChange.bind(this, 'passwordConfirmation')}
-                type="text"
-                required={true}
-              />
-            </FormGroup>
-          </FormColumn>
-        </FormWrapper>
+          <FormControl
+            value={passwordConfirmation}
+            onChange={this.handleChange.bind(this, 'passwordConfirmation')}
+            type="text"
+            required={true}
+          />
+        </FormGroup>
+
         <Description>
           <Icon icon="information" /> There is another{' '}
           <b>{this.props.usersTotalCount}</b> users.
@@ -194,20 +197,24 @@ class UserAdd extends React.Component<Props, State> {
   }
 
   render() {
+    const { changeStep } = this.props;
+
     return (
       <form onSubmit={this.save}>
-        <ScrollContent>
-          <TopContent>
-            <img src="/images/icons/erxes-16.svg" />
-            <h2>Add user on your team</h2>
-          </TopContent>
+        <TopContent>
+          <h2>Add user on your team</h2>
           {this.renderContent()}
-        </ScrollContent>
+        </TopContent>
         <Footer>
-          <Button btnStyle="link">Back</Button>
-          <Button btnStyle="primary" type="submit">
-            Next <Icon icon="rightarrow" />
-          </Button>
+          <div>
+            <Button btnStyle="link" onClick={changeStep.bind(null, false)}>
+              Previous
+            </Button>
+            <Button btnStyle="success" onClick={this.next}>
+              Next <Icon icon="rightarrow-2" />
+            </Button>
+          </div>
+          <a onClick={changeStep.bind(null, true)}>Skip for now</a>
         </Footer>
       </form>
     );

@@ -28,3 +28,15 @@ export type UserRemoveMutationResponse = {
     }
   ) => Promise<void>;
 };
+
+export interface IIntegration {
+  _id: string;
+  kind: string;
+  name: string;
+  languageCode?: string;
+}
+
+export type IntegrationsQueryResponse = {
+  integrations: IIntegration[];
+  loading: boolean;
+};

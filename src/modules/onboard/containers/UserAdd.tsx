@@ -7,7 +7,7 @@ import { UserAdd } from '../components';
 import { mutations, queries } from '../graphql';
 import { UsersAddMutationResponse, UsersCountQueryResponse } from '../types';
 
-type Props = { queryParams: any };
+type Props = { queryParams: any; changeStep: (inscrease: boolean) => void };
 
 type FinalProps = { usersCountQuery: UsersCountQueryResponse } & Props &
   UsersAddMutationResponse;

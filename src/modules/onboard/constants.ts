@@ -2,21 +2,21 @@ export const STEPS = [
   {
     title: 'Create brand',
     description:
-      'A qualifying handbook multiplies the promise inside the ultimate moan. A sound parades within a paper.'
+      'Creating a brand and channels enables you to analyze customers basic needs and the most unresolved questions asked'
   },
   {
     title: 'Create user',
     description:
-      'A qualifying handbook multiplies the promise inside the ultimate moan. A sound parades within a paper.'
+      'Team members are responsible to represent the company as well as to solve problem, engage with customers'
   },
   {
     title: 'Create your messenger',
     description:
-      'A qualifying handbook multiplies the promise inside the ultimate moan. A sound parades within a paper.'
+      'Capture every single customer feedback and to create more meaningful conversations!'
   },
   {
     title: 'Create channel',
     description:
-      'A qualifying handbook multiplies the promise inside the ultimate moan. A sound parades within a paper.'
+      'Channel consists of typical brands specifically categorized by its type and activity'
   }
 ];

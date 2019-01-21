@@ -7,29 +7,29 @@ import {
   Icon
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { IChannel } from 'modules/settings/channels/types';
 import * as React from 'react';
 import Select from 'react-select-plus';
-import { Footer, ScrollContent, TopContent } from './styles';
+import { IIntegration } from '../types';
+import { Footer, TopContent } from './styles';
 
 type Props = {
   members: IUser[];
   channelsTotalCount: number;
   loading: boolean;
+  integrations: IIntegration[];
   remove: (channelId: string) => void;
   save: (
-    params: {
-      doc: {
-        name: string;
-        memberIds: string[];
-      };
-    },
-    channel?: IChannel
+    doc: {
+      name: string;
+      memberIds: string[];
+      integrationIds: string[];
+    }
   ) => void;
 };
 
 type State = {
   selectedMembers: IUser[];
+  selectedMessengers: IIntegration[];
 };
 
 class ChannelForm extends React.Component<Props, State> {
@@ -37,7 +37,8 @@ class ChannelForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedMembers: this.generateMembersParams(props.members)
+      selectedMembers: [],
+      selectedMessengers: []
     };
   }
 
@@ -53,31 +54,32 @@ class ChannelForm extends React.Component<Props, State> {
     return items.map(item => item.value);
   };
 
-  generateMembersParams = members => {
-    return members.map(member => ({
-      value: member._id,
-      label: (member.details && member.details.fullName) || ''
+  generateListParams = items => {
+    return items.map(item => ({
+      value: item._id,
+      label: item.name || (item.details && item.details.fullName) || ''
     }));
   };
 
   generateDoc = () => {
     return {
-      doc: {
-        name: (document.getElementById('channel-name') as HTMLInputElement)
-          .value,
-        memberIds: this.collectValues(this.state.selectedMembers)
-      }
+      name: (document.getElementById('channel-name') as HTMLInputElement).value,
+      memberIds: this.collectValues(this.state.selectedMembers),
+      integrationIds: this.collectValues(this.state.selectedMessengers)
     };
   };
 
   renderContent() {
-    const { members } = this.props;
+    const { members, integrations } = this.props;
 
-    const object = { name: '', description: '' };
     const self = this;
 
     const onChange = items => {
       self.setState({ selectedMembers: items });
+    };
+
+    const onChangeIntegrations = items => {
+      self.setState({ selectedMessengers: items });
     };
 
     return (
@@ -85,22 +87,29 @@ class ChannelForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
-          <FormControl
-            id="channel-name"
-            defaultValue={object.name}
-            type="text"
-            required={true}
-          />
+          <FormControl id="channel-name" type="text" required={true} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Members</ControlLabel>
+          <ControlLabel>Users</ControlLabel>
 
           <Select
             placeholder={__('Choose members')}
             onChange={onChange}
             value={self.state.selectedMembers}
-            options={self.generateMembersParams(members)}
+            options={self.generateListParams(members)}
+            multi={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Messengers</ControlLabel>
+
+          <Select
+            placeholder={__('Choose messengers')}
+            onChange={onChangeIntegrations}
+            value={self.state.selectedMessengers}
+            options={self.generateListParams(integrations)}
             multi={true}
           />
         </FormGroup>
@@ -111,16 +120,13 @@ class ChannelForm extends React.Component<Props, State> {
   render() {
     return (
       <form onSubmit={this.save}>
-        <ScrollContent>
-          <TopContent>
-            <img src="/images/icons/erxes-05.svg" />
-            <h2>Create your channel</h2>
-          </TopContent>
+        <TopContent>
+          <h2>Create your channel</h2>
           {this.renderContent()}
-        </ScrollContent>
+        </TopContent>
         <Footer>
-          <Button btnStyle="link">Back</Button>
-          <Button btnStyle="primary" type="submit">
+          <Button btnStyle="link">Previous</Button>
+          <Button btnStyle="success" type="submit">
             Next <Icon icon="rightarrow" />
           </Button>
         </Footer>

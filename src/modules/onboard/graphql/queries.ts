@@ -26,8 +26,26 @@ const userTotalCount = `
   }
 `;
 
+const integrations = `
+  query integrations($kind: String) {
+    integrations(kind: $kind) {
+      _id
+      brandId
+      languageCode
+      name
+      kind
+      brand {
+        _id
+        name
+        code
+      }
+    }
+  }
+`;
+
 export default {
   channels,
   users,
+  integrations,
   userTotalCount
 };

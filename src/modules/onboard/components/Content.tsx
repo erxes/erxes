@@ -29,17 +29,17 @@ function WithTransition(props: {
 }
 
 class Content extends React.PureComponent<Props> {
-  renderContent() {
-    const { activeStep } = this.props;
+  render() {
+    const { activeStep, changeStep } = this.props;
 
     return (
       <>
         <WithTransition active={activeStep} current={1}>
-          <BrandAdd queryParams={{}} />
+          <BrandAdd queryParams={{}} changeStep={changeStep} />
         </WithTransition>
 
         <WithTransition active={activeStep} current={2}>
-          <UserAdd queryParams={{}} />
+          <UserAdd queryParams={{}} changeStep={changeStep} />
         </WithTransition>
 
         <WithTransition active={activeStep} current={3}>
@@ -51,9 +51,6 @@ class Content extends React.PureComponent<Props> {
         </WithTransition>
       </>
     );
-  }
-  render() {
-    return <LeftContent>{this.renderContent()}</LeftContent>;
   }
 }
 

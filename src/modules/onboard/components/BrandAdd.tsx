@@ -8,11 +8,12 @@ import {
 import * as React from 'react';
 import * as RTG from 'react-transition-group';
 import { BrandList } from '../containers';
-import { Description, Footer, ScrollContent, TopContent } from './styles';
+import { Description, Footer, TopContent } from './styles';
 
 type Props = {
   brandsTotalCount: number;
   save: (name: string, callback: () => void) => void;
+  changeStep: () => void;
 };
 
 class BrandAdd extends React.Component<
@@ -38,6 +39,12 @@ class BrandAdd extends React.Component<
     const { save } = this.props;
 
     save(this.state.brandName, this.clearInput.bind(this));
+  };
+
+  next = e => {
+    e.preventDefault();
+    const { changeStep, save } = this.props;
+    save(this.state.brandName, changeStep);
   };
 
   handleInput = e => {
@@ -83,20 +90,24 @@ class BrandAdd extends React.Component<
   }
 
   render() {
+    const { brandsTotalCount } = this.props;
+
     return (
       <form onSubmit={this.save}>
-        <ScrollContent>
-          <TopContent>
-            <img src="/images/icons/erxes-03.svg" />
-            <h2>Create your brand </h2>
-          </TopContent>
+        <TopContent>
+          <h2>Create your brand </h2>
           {this.renderContent()}
-        </ScrollContent>
+        </TopContent>
         <Footer>
-          <Button btnStyle="link">Back</Button>
-          <Button btnStyle="primary" type="submit">
-            Next <Icon icon="rightarrow" />
-          </Button>
+          <div>
+            <Button btnStyle="link" disabled={true}>
+              Previous
+            </Button>
+            <Button btnStyle="success" onClick={this.next}>
+              Next <Icon icon="rightarrow-2" />
+            </Button>
+          </div>
+          <a onClick={this.props.changeStep}>Skip for now</a>
         </Footer>
       </form>
     );

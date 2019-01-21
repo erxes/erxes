@@ -3,10 +3,11 @@ import * as RTG from 'react-transition-group';
 import { STEPS } from '../constants';
 import { Content } from './';
 import {
+  ContentContainer,
+  Header,
   Indicator,
   Item,
-  LeftContainer,
-  Logo,
+  LeftContent,
   MainContainer,
   RightContent
 } from './styles';
@@ -31,9 +32,14 @@ class GettingStart extends React.PureComponent<Props, State> {
     this.changeStep = this.changeStep.bind(this);
   }
 
-  changeStep() {
+  changeStep(increase: boolean = true) {
     const { activeStep } = this.state;
-    this.setState({ activeStep: activeStep + 1 });
+
+    if (increase) {
+      return this.setState({ activeStep: activeStep + 1 });
+    }
+
+    return this.setState({ activeStep: activeStep - 1 });
   }
 
   goStep(activeStep: number) {
@@ -45,39 +51,38 @@ class GettingStart extends React.PureComponent<Props, State> {
 
     return (
       <MainContainer>
-        <Logo src="/images/logo-dark.png" alt="erxes" />
-        <RTG.CSSTransition
-          in={true}
-          appear={true}
-          timeout={500}
-          classNames="move"
-        >
-          <LeftContainer>
+        <Header>
+          <img src="/images/logo-dark.png" alt="erxes" />
+        </Header>
+
+        <ContentContainer>
+          <LeftContent>
             <Content activeStep={activeStep} changeStep={this.changeStep} />
-          </LeftContainer>
-        </RTG.CSSTransition>
-        <RightContent>
-          <RTG.CSSTransition
-            in={true}
-            appear={true}
-            timeout={500}
-            classNames="move"
-          >
-            <Indicator>
-              {STEPS.map((step, index) => (
-                <Item
-                  key={index}
-                  data-number={index + 1}
-                  active={index + 1 === activeStep}
-                  onClick={this.goStep.bind(this, index + 1)}
-                >
-                  <h4>{step.title}</h4>
-                  <p>{step.description}</p>
-                </Item>
-              ))}
-            </Indicator>
-          </RTG.CSSTransition>
-        </RightContent>
+          </LeftContent>
+
+          <RightContent>
+            <RTG.CSSTransition
+              in={true}
+              appear={true}
+              timeout={500}
+              classNames="move"
+            >
+              <Indicator>
+                {STEPS.map((step, index) => (
+                  <Item
+                    key={index}
+                    data-number={index + 1}
+                    active={index + 1 === activeStep}
+                    onClick={this.goStep.bind(this, index + 1)}
+                  >
+                    <h4>{step.title}</h4>
+                    <p>{step.description}</p>
+                  </Item>
+                ))}
+              </Indicator>
+            </RTG.CSSTransition>
+          </RightContent>
+        </ContentContainer>
       </MainContainer>
     );
   }

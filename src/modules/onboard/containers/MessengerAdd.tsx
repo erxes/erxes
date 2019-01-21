@@ -1,7 +1,10 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
+import {
+  mutations,
+  queries as integrationQuery
+} from 'modules/settings/integrations/graphql';
 import {
   IntegrationsCountQueryResponse,
   SaveMessengerMutationResponse,
@@ -10,6 +13,7 @@ import {
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { MessengerAdd } from '../components';
+import { queries } from '../graphql';
 
 type Props = { queryParams: any };
 
@@ -31,7 +35,7 @@ const MessengerAddContainer = (props: ChildProps<FinalProps>) => {
   const brands = brandsQuery.brands || [];
 
   const save = (doc, callback: () => void) => {
-    const { name, brandId, languageCode } = doc;
+    const { brandId, languageCode } = doc;
 
     if (!languageCode) {
       return Alert.error('Set language');
@@ -42,7 +46,7 @@ const MessengerAddContainer = (props: ChildProps<FinalProps>) => {
     }
 
     saveMessengerMutation({
-      variables: { name, brandId, languageCode }
+      variables: doc
     })
       .then(() => {
         Alert.success('Successfully saved.');
@@ -70,14 +74,31 @@ export default withProps<Props>(
       SaveMessengerMutationResponse,
       SaveMessengerMutationVariables
     >(gql(mutations.integrationsCreateMessenger), {
-      name: 'saveMessengerMutation'
+      name: 'saveMessengerMutation',
+      options: () => {
+        return {
+          refetchQueries: [
+            {
+              query: gql(queries.integrations),
+              variables: {
+                kind: 'messenger'
+              }
+            },
+            {
+              query: gql(integrationQuery.integrationTotalCount)
+            }
+          ]
+        };
+      }
     }),
-    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
+    graphql<Props, BrandsQueryResponse>(gql(integrationQuery.brands), {
       name: 'brandsQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
     }),
-    graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' })
+    graphql(gql(integrationQuery.integrationTotalCount), {
+      name: 'totalCountQuery'
+    })
   )(MessengerAddContainer)
 );
