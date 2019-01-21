@@ -25,7 +25,7 @@ class ConversationDetail extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { isFocused: false, expanded: true, isFullHead: true };
+    this.state = { isFocused: true, expanded: true, isFullHead: true };
 
     this.inputFocus = this.inputFocus.bind(this);
     this.onTextInputBlur = this.onTextInputBlur.bind(this);

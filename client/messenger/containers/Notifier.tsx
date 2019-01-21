@@ -37,6 +37,7 @@ export default class Notifier extends React.Component<Props> {
               message={message}
               readConversation={readConversation}
               showUnreadMessage={showUnreadMessage}
+              toggleNotifier={toggleNotifier}
             />
           );
         }}

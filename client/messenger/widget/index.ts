@@ -53,6 +53,12 @@ function delaydAddClass(str: string) {
   }, delay);
 }
 
+function delaydToggleClass(str: string, isVisible: boolean) {
+  hideDelayTimer = setTimeout(() => {
+    erxesContainer.classList.toggle(str, isVisible);
+  }, delay);
+}
+
 function delaydSetClass(str: string) {
   hideDelayTimer = setTimeout(() => {
     erxesContainer.className = str;
@@ -133,7 +139,8 @@ window.addEventListener("message", async (event: MessageEvent) => {
 
     if (message === "notifier") {
       clearTimer();
-      delaydAddClass(` erxes-notifier-${isVisible ? "shown" : "hidden"}`);
+      delaydToggleClass("erxes-notifier-shown", isVisible);
+      // delaydAddClass(` erxes-notifier-${isVisible ? "shown" : "hidden"}`);
     }
 
     if (message === "notifierFull") {
