@@ -44,3 +44,16 @@ export type UserConverationsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type ConfirmMutationVariables = {
+  email: string;
+  token: string;
+  password: string;
+  passwordConfirmation: string;
+};
+
+export type ConfirmMutationResponse = {
+  usersConfirmInvitation: (
+    params: { variables: ConfirmMutationVariables }
+  ) => Promise<any>;
+};
