@@ -12,18 +12,6 @@ type Props = {
 };
 
 class EngageMessage extends Component<Props> {
-  // renderClose() {
-  //   return (
-  //     <a
-  //       href="#"
-  //       className="close-notification"
-  //       title="Close notification"
-  //     >
-  //       {iconClose}
-  //     </a>
-  //   );
-  // }
-
   renderUserFullName(fromUser?: IUser) {
     if (fromUser && fromUser.details) {
       return fromUser.details.fullName;
@@ -56,7 +44,6 @@ class EngageMessage extends Component<Props> {
             )}
           </div>
         </div>
-        {/* {this.renderClose()} */}
       </>
     );
   }
