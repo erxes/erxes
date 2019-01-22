@@ -1,5 +1,5 @@
-import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
+import { Document, Schema } from "mongoose";
+import { field } from "../utils";
 
 export interface IGoogleCredentials {
   access_token: string;
@@ -18,10 +18,13 @@ export interface ILeadCredentials {
   formCode: string;
 }
 
-export type IMessengerAppCrendentials = IGoogleCredentials | IKnowledgebaseCredentials | ILeadCredentials;
+export type IMessengerAppCrendentials =
+  | IGoogleCredentials
+  | IKnowledgebaseCredentials
+  | ILeadCredentials;
 
 export interface IMessengerApp {
-  kind: 'googleMeet' | 'knowledgebase' | 'lead';
+  kind: "googleMeet" | "knowledgebase" | "lead";
   name: string;
   showInInbox?: boolean;
   credentials: IMessengerAppCrendentials;
@@ -37,10 +40,10 @@ export const messengerAppSchema = new Schema({
 
   kind: field({
     type: String,
-    enum: ['googleMeet', 'knowledgebase', 'lead'],
+    enum: ["googleMeet", "knowledgebase", "lead"]
   }),
 
   name: field({ type: String }),
   showInInbox: field({ type: Boolean, default: false }),
-  credentials: field({ type: Object }),
+  credentials: field({ type: Object })
 });
