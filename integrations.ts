@@ -63,7 +63,6 @@ export interface IMessengerData {
   notifyCustomer?: boolean;
   availabilityMethod?: string;
   isOnline?: boolean;
-  requireAuth?: boolean;
   onlineHours?: IMessengerOnlineHours[];
   timezone?: string;
   messages?: IMessageDataMessages;
@@ -172,9 +171,6 @@ const messengerDataSchema = new Schema(
       enum: MESSENGER_DATA_AVAILABILITY.ALL
     }),
     isOnline: field({
-      type: Boolean
-    }),
-    requireAuth: field({
       type: Boolean
     }),
     onlineHours: field({ type: [messengerOnlineHoursSchema] }),
