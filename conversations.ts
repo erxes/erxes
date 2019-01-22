@@ -50,7 +50,12 @@ export interface IFacebook {
   pageId?: string;
 }
 
+export interface IGmail {
+  messageId?: string;
+}
+
 export interface IFacebookDocument extends IFacebook, Document {}
+export interface IGmailDocument extends IGmail, Document {}
 
 export interface IConversation {
   content?: string;
@@ -72,6 +77,10 @@ export interface IConversation {
   number?: number;
   twitterData?: ITwitterResponse;
   facebookData?: IFacebook;
+  gmailData?: IGmail;
+
+  firstRespondedUserId?: string;
+  firstRespondedDate?: Date;
 }
 
 // Conversation schema
@@ -79,6 +88,7 @@ export interface IConversationDocument extends IConversation, Document {
   _id: string;
   twitterData?: ITwitterResponseDocument;
   facebookData?: IFacebookDocument;
+  gmailData?: IGmailDocument;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -154,6 +164,16 @@ const facebookSchema = new Schema(
   { _id: false }
 );
 
+// facebook schema
+const gmailSchema = new Schema(
+  {
+    messageId: field({
+      type: String
+    })
+  },
+  { _id: false }
+);
+
 // Conversation schema
 export const conversationSchema = new Schema({
   _id: field({ pkey: true }),
@@ -187,5 +207,9 @@ export const conversationSchema = new Schema({
   // number of total conversations
   number: field({ type: Number }),
   twitterData: field({ type: twitterResponseSchema }),
-  facebookData: field({ type: facebookSchema })
+  facebookData: field({ type: facebookSchema }),
+  gmailData: field({ type: gmailSchema }),
+
+  firstRespondedUserId: field({ type: String }),
+  firstRespondedDate: field({ type: Date })
 });

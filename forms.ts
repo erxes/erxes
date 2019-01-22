@@ -56,7 +56,7 @@ const submissionSchema = new Schema(
 // schema for form document
 export const formSchema = new Schema({
   _id: field({ pkey: true }),
-  title: field({ type: String }),
+  title: field({ type: String, optional: true }),
   description: field({
     type: String,
     optional: true

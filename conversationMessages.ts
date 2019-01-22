@@ -21,6 +21,7 @@ export interface IReactions {
 }
 
 export interface IFacebook {
+  createdTime?: string;
   postId?: string;
   commentId?: string;
   parentId?: string;
@@ -38,7 +39,32 @@ export interface IFacebook {
   senderName?: string;
 }
 
+export interface IGmailAttachment {
+  filename?: string;
+  mimeType?: string;
+  size: number;
+  attachmentId: string;
+}
+
+export interface IGmail {
+  threadId?: string;
+  messageId?: string;
+  headerId?: string;
+  from?: string;
+  to?: string;
+  cc?: string;
+  bcc?: string;
+  reply?: string;
+  refrences?: string;
+  subject?: string;
+  textPlain?: string;
+  textHtml?: string;
+  attachments?: IGmailAttachment[];
+  labelIds?: string[];
+}
+
 interface IFacebookDataDocument extends IFacebook, Document {}
+interface IGmailDataDocument extends IGmail, Document {}
 
 interface IEngageDataRules {
   kind: string;
@@ -71,18 +97,21 @@ export interface IMessage {
   internal?: boolean;
   customerId?: string;
   userId?: string;
+  fromBot?: boolean;
   isCustomerRead?: boolean;
   formWidgetData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
   facebookData?: IFacebook;
   twitterData?: ITwitterResponse;
+  gmailData?: IGmail;
 }
 
 export interface IMessageDocument extends IMessage, Document {
   _id: string;
   engageData?: IEngageDataDocument;
   facebookData?: IFacebookDataDocument;
+  gmailData?: IGmailDataDocument;
   twitterData?: ITwitterResponseDocument;
   createdAt: Date;
 }
@@ -195,6 +224,77 @@ const facebookSchema = new Schema(
     senderName: field({
       type: String,
       optional: true
+    }),
+
+    createdTime: field({
+      type: String,
+      optional: true
+    })
+  },
+  { _id: false }
+);
+
+const gmailAttachmentSchema = new Schema(
+  {
+    filename: field({ type: String }),
+    mimeType: field({ type: String }),
+    size: field({ type: Number }),
+    attachmentId: field({ type: String })
+  },
+  { _id: false }
+);
+
+const gmailSchema = new Schema(
+  {
+    messageId: field({
+      type: String
+    }),
+    threadId: field({
+      type: String
+    }),
+    headerId: field({
+      type: String
+    }),
+    from: field({
+      type: String
+    }),
+    to: field({
+      type: String
+    }),
+    cc: field({
+      type: String,
+      optional: true
+    }),
+    bcc: field({
+      type: String,
+      optional: true
+    }),
+    reply: field({
+      type: String,
+      optional: true
+    }),
+    refrences: field({
+      type: String,
+      optional: true
+    }),
+    subject: field({
+      type: String
+    }),
+    textPlain: field({
+      type: String,
+      optional: true
+    }),
+    textHtml: field({
+      type: String,
+      optional: true
+    }),
+    attachments: field({
+      type: [gmailAttachmentSchema],
+      optional: true
+    }),
+    labelIds: field({
+      type: [String],
+      optional: true
     })
   },
   { _id: false }
@@ -231,6 +331,7 @@ export const messageSchema = new Schema({
   conversationId: field({ type: String }),
   internal: field({ type: Boolean }),
   customerId: field({ type: String }),
+  fromBot: field({ type: Boolean }),
   userId: field({ type: String }),
   createdAt: field({ type: Date }),
   isCustomerRead: field({ type: Boolean }),
@@ -238,5 +339,6 @@ export const messageSchema = new Schema({
   messengerAppData: field({ type: Object }),
   engageData: field({ type: engageDataSchema }),
   facebookData: field({ type: facebookSchema }),
-  twitterData: field({ type: twitterResponseSchema })
+  twitterData: field({ type: twitterResponseSchema }),
+  gmailData: field({ type: gmailSchema })
 });

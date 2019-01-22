@@ -15,24 +15,24 @@ export interface ILink {
 }
 
 export interface ITwitterData {
-  info?: any;
-  token?: string;
-  tokenSecret?: string;
+  accountId: string;
+  profileId: string;
 }
 
 export interface ITwitterDataDocument extends ITwitterData, Document {}
 
 export interface IFacebookData {
-  appId: string;
+  accountId?: string;
   pageIds: string[];
 }
 
 export interface IFacebookDataDocument extends IFacebookData, Document {}
 
 export interface IGmailData {
+  accountId: string;
   email: string;
-  historyId: string;
-  credentials?: any;
+  historyId?: string;
+  expiration?: string;
 }
 
 export interface IGmailDataDocument extends IGmailData, Document {}
@@ -63,6 +63,7 @@ export interface IMessengerData {
   notifyCustomer?: boolean;
   availabilityMethod?: string;
   isOnline?: boolean;
+  requireAuth?: boolean;
   onlineHours?: IMessengerOnlineHours[];
   timezone?: string;
   messages?: IMessageDataMessages;
@@ -129,13 +130,10 @@ export interface IMessengerApp {
 // Mongoose schemas ======================
 const twitterSchema = new Schema(
   {
-    info: {
+    profileId: {
       type: Object
     },
-    token: {
-      type: String
-    },
-    tokenSecret: {
+    accountId: {
       type: String
     }
   },
@@ -144,7 +142,7 @@ const twitterSchema = new Schema(
 
 const facebookSchema = new Schema(
   {
-    appId: {
+    accountId: {
       type: String
     },
     pageIds: {
@@ -189,7 +187,8 @@ const messengerDataSchema = new Schema(
       facebook: String,
       twitter: String,
       youtube: String
-    }
+    },
+    requireAuth: field({ type: Boolean, default: true })
   },
   { _id: false }
 );
@@ -254,8 +253,16 @@ const uiOptionsSchema = new Schema(
 
 const gmailSchema = new Schema(
   {
+    accountId: field({ type: String }),
     email: field({ type: String }),
-    historyId: field({ type: String }),
+    historyId: field({
+      type: String,
+      optional: true
+    }),
+    expiration: field({
+      type: String,
+      optional: true
+    }),
     credentials: field({ type: Object })
   },
   { _id: false }
