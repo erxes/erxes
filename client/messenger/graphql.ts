@@ -13,6 +13,7 @@ const messageFields = `
   content
   createdAt
   internal
+  fromBot
   engageData {
     content
     kind
