@@ -636,12 +636,7 @@ const insightExportQueries = {
         $group: {
           _id: {
             tagId: '$tagIds',
-            date: {
-              $dateToString: {
-                format: '%Y-%m-%d',
-                date: '$createdAt',
-              },
-            },
+            date: getDateFieldAsStr({}),
           },
           count: { $sum: 1 },
         },

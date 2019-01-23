@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Integrations, Users } from '../../../db/models';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
+import { getDateFieldAsStr } from './aggregationUtils';
 
 interface IMessageSelector {
   userId?: string;
@@ -232,13 +233,7 @@ export const generateChartData = async (args: IChartData): Promise<IGenerateChar
     },
     {
       $project: {
-        date: {
-          $dateToString: {
-            format: '%m-%d',
-            date: '$createdAt',
-            timezone: '+08',
-          },
-        },
+        date: getDateFieldAsStr({}),
       },
     },
     {
