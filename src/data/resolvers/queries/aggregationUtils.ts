@@ -6,16 +6,19 @@
 export const getDateFieldAsStr = ({
   fieldName = '$createdAt',
   timeFormat = '%Y-%m-%d',
+  timeZone = '+08',
 }): {
   $dateToString: {
     format: string;
     date: string;
+    timezone: string;
   };
 } => {
   return {
     $dateToString: {
       format: timeFormat,
       date: fieldName,
+      timezone: timeZone,
     },
   };
 };
