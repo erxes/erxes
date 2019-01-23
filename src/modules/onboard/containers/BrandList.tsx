@@ -14,7 +14,7 @@ import { ChildProps, compose, graphql } from 'react-apollo';
 import { BrandList } from '../components';
 
 type Props = {
-  queryParams: any;
+  brandCount: number;
 };
 
 type FinalProps = {
@@ -63,9 +63,9 @@ export default withProps<Props>(
       gql(queries.brands),
       {
         name: 'brandsQuery',
-        options: ({ queryParams }: { queryParams: any }) => ({
+        options: ({ brandCount }: Props) => ({
           variables: {
-            perPage: queryParams.limit || 20
+            perPage: brandCount
           },
           fetchPolicy: 'network-only'
         })
@@ -75,12 +75,12 @@ export default withProps<Props>(
       gql(mutations.brandRemove),
       {
         name: 'removeMutation',
-        options: ({ queryParams }: Props) => {
+        options: () => {
           return {
             refetchQueries: [
               {
                 query: gql(queries.brands),
-                variables: { perPage: queryParams.limit || 20 }
+                variables: { perPage: 0 }
               },
               { query: gql(queries.brandsCount) }
             ]

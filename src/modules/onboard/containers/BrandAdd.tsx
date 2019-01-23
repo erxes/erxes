@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/brands/graphql';
 import {
   BrandAddMutationResponse,
@@ -9,8 +9,9 @@ import {
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { BrandAdd } from '../components';
+import { AppConsumer } from '../containers/OnboardContext';
 
-type Props = { queryParams: any; changeStep: () => void };
+type Props = { changeStep: () => void };
 
 type FinalProps = { brandsCountQuery: BrandsCountQueryResponse } & Props &
   BrandAddMutationResponse;
@@ -42,27 +43,31 @@ const BrandAddContainer = (props: ChildProps<FinalProps>) => {
   return <BrandAdd {...updatedProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, BrandAddMutationResponse, BrandMutationVariables>(
-      gql(mutations.brandAdd),
-      {
-        name: 'addMutation',
-        options: ({ queryParams }) => {
-          return {
-            refetchQueries: [
-              {
-                query: gql(queries.brands),
-                variables: { perPage: queryParams.limit || 20 }
-              },
-              { query: gql(queries.brandsCount) }
-            ]
-          };
-        }
+const WithQuery = compose(
+  graphql<BrandAddMutationResponse, BrandMutationVariables>(
+    gql(mutations.brandAdd),
+    {
+      name: 'addMutation',
+      options: () => {
+        return {
+          refetchQueries: [
+            {
+              query: gql(queries.brands),
+              variables: { perPage: 0 }
+            },
+            { query: gql(queries.brandsCount) }
+          ]
+        };
       }
-    ),
-    graphql<Props, BrandsCountQueryResponse, {}>(gql(queries.brandsCount), {
-      name: 'brandsCountQuery'
-    })
-  )(BrandAddContainer)
+    }
+  ),
+  graphql<BrandsCountQueryResponse>(gql(queries.brandsCount), {
+    name: 'brandsCountQuery'
+  })
+)(BrandAddContainer);
+
+export default () => (
+  <AppConsumer>
+    {({ changeStep }) => <WithQuery changeStep={changeStep} />}
+  </AppConsumer>
 );

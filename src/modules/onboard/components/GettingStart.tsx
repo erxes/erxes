@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import * as RTG from 'react-transition-group';
 import { STEPS } from '../constants';
 import { Content } from './';
@@ -13,8 +14,8 @@ import {
 } from './styles';
 
 type Props = {
-  onSuccess: (password: string) => void;
-  closeModal: () => void;
+  activeStep: number;
+  goStep: (step: number) => void;
 };
 
 type State = {
@@ -22,42 +23,19 @@ type State = {
 };
 
 class GettingStart extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      activeStep: 1
-    };
-
-    this.changeStep = this.changeStep.bind(this);
-  }
-
-  changeStep(increase: boolean = true) {
-    const { activeStep } = this.state;
-
-    if (increase) {
-      return this.setState({ activeStep: activeStep + 1 });
-    }
-
-    return this.setState({ activeStep: activeStep - 1 });
-  }
-
-  goStep(activeStep: number) {
-    this.setState({ activeStep });
-  }
-
   render() {
-    const { activeStep } = this.state;
+    const { activeStep, goStep } = this.props;
 
     return (
       <MainContainer>
         <Header>
           <img src="/images/logo-dark.png" alt="erxes" />
+          <Link to="/">Skip »</Link>
         </Header>
 
         <ContentContainer>
           <LeftContent>
-            <Content activeStep={activeStep} changeStep={this.changeStep} />
+            <Content activeStep={activeStep} />
           </LeftContent>
 
           <RightContent>
@@ -73,7 +51,7 @@ class GettingStart extends React.PureComponent<Props, State> {
                     key={index}
                     data-number={index + 1}
                     active={index + 1 === activeStep}
-                    onClick={this.goStep.bind(this, index + 1)}
+                    onClick={goStep.bind(this, index + 1)}
                   >
                     <h4>{step.title}</h4>
                     <p>{step.description}</p>

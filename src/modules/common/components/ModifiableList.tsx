@@ -55,6 +55,14 @@ class ModifiableList extends React.Component<Props, State> {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { options } = nextProps;
+
+    if (nextProps.options !== this.state.options) {
+      this.setState({ options });
+    }
+  }
+
   handleAddOption = () => {
     this.setState({ adding: true });
   };
@@ -85,24 +93,24 @@ class ModifiableList extends React.Component<Props, State> {
     });
   };
 
+  onKeyPress = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      this.handleSaveOption();
+    }
+  };
+
   renderButtonOrElement = () => {
     if (this.state.adding) {
-      const onKeyPress = e => {
-        if (e.key === 'Enter') {
-          this.handleSaveOption();
-        }
-      };
-
       return (
         <>
           <FormControl
             id="optionValue"
             autoFocus={true}
-            onKeyPress={onKeyPress}
+            onKeyPress={this.onKeyPress}
           />
           <Actions>
             <Button
-              type="success"
               icon="cancel-1"
               btnStyle="simple"
               size="small"
@@ -111,7 +119,6 @@ class ModifiableList extends React.Component<Props, State> {
               Cancel
             </Button>
             <Button
-              type="success"
               btnStyle="success"
               size="small"
               icon="checked-1"
@@ -144,7 +151,6 @@ class ModifiableList extends React.Component<Props, State> {
   };
 
   render() {
-    console.log(this.state.options); //tslint:disable-line
     return (
       <List>
         {this.state.options.map((option, index) =>

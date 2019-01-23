@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm } from 'modules/common/utils';
 import {
   mutations,
   queries as integrationQuery
@@ -45,37 +44,35 @@ const MessengerListContainer = (props: FinalProps) => {
   return <MessengerList {...updatedProps} />;
 };
 
-export default withProps<{}>(
-  compose(
-    graphql<{}, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'integrationsQuery',
-      options: () => {
-        return {
-          notifyOnNetworkStatusChange: true,
-          variables: {
-            kind: 'messenger'
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
-    }),
-    graphql<{}, RemoveMutationResponse>(gql(mutations.integrationsRemove), {
-      name: 'removeMutation',
-      options: () => {
-        return {
-          refetchQueries: [
-            {
-              query: gql(queries.integrations),
-              variables: {
-                kind: 'messenger'
-              }
-            },
-            {
-              query: gql(integrationQuery.integrationTotalCount)
+export default compose(
+  graphql<IntegrationsQueryResponse>(gql(queries.integrations), {
+    name: 'integrationsQuery',
+    options: () => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: {
+          kind: 'messenger'
+        },
+        fetchPolicy: 'network-only'
+      };
+    }
+  }),
+  graphql<RemoveMutationResponse>(gql(mutations.integrationsRemove), {
+    name: 'removeMutation',
+    options: () => {
+      return {
+        refetchQueries: [
+          {
+            query: gql(queries.integrations),
+            variables: {
+              kind: 'messenger'
             }
-          ]
-        };
-      }
-    })
-  )(MessengerListContainer)
-);
+          },
+          {
+            query: gql(integrationQuery.integrationTotalCount)
+          }
+        ]
+      };
+    }
+  })
+)(MessengerListContainer);

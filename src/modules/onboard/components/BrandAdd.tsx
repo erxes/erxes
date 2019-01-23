@@ -83,14 +83,14 @@ class BrandAdd extends React.Component<
           classNames="slide"
           unmountOnExit={true}
         >
-          <BrandList queryParams={{}} />
+          <BrandList brandCount={this.props.brandsTotalCount} />
         </RTG.CSSTransition>
       </>
     );
   }
 
   render() {
-    const { brandsTotalCount } = this.props;
+    const { brandsTotalCount, changeStep } = this.props;
 
     return (
       <form onSubmit={this.save}>
@@ -103,11 +103,15 @@ class BrandAdd extends React.Component<
             <Button btnStyle="link" disabled={true}>
               Previous
             </Button>
-            <Button btnStyle="success" onClick={this.next}>
+            <Button
+              btnStyle="success"
+              disabled={brandsTotalCount === 0}
+              onClick={this.next}
+            >
               Next <Icon icon="rightarrow-2" />
             </Button>
           </div>
-          <a onClick={this.props.changeStep}>Skip for now</a>
+          <a onClick={changeStep}>Skip for now »</a>
         </Footer>
       </form>
     );

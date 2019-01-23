@@ -24,6 +24,7 @@ type Props = {
     },
     callback: () => void
   ) => void;
+  changeStep: (increase: boolean) => void;
 };
 
 type State = {
@@ -48,19 +49,35 @@ class MessengerAdd extends React.Component<Props, State> {
     this.setState({ showBrands: !this.state.showBrands });
   };
 
+  goNext = () => {
+    this.props.changeStep(true);
+  };
+
   save = e => {
     e.preventDefault();
-
-    const { save } = this.props;
     const { name, brand, language } = this.state;
 
-    save(
+    this.props.save(
       {
         name,
         brandId: brand,
         languageCode: language
       },
       this.clearInput.bind(this)
+    );
+  };
+
+  saveNext = e => {
+    e.preventDefault();
+    const { name, brand, language } = this.state;
+
+    this.props.save(
+      {
+        name,
+        brandId: brand,
+        languageCode: language
+      },
+      this.goNext
     );
   };
 
@@ -86,7 +103,7 @@ class MessengerAdd extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Default Language</ControlLabel>
+          <ControlLabel>Messenger Language</ControlLabel>
 
           <FormControl
             componentClass="select"
@@ -136,10 +153,18 @@ class MessengerAdd extends React.Component<Props, State> {
           {this.renderContent()}
         </TopContent>
         <Footer>
-          <Button btnStyle="link">Previous</Button>
-          <Button btnStyle="success" type="submit">
-            Next <Icon icon="rightarrow" />
-          </Button>
+          <div>
+            <Button
+              btnStyle="link"
+              onClick={this.props.changeStep.bind(null, false)}
+            >
+              Previous
+            </Button>
+            <Button btnStyle="success" onClick={this.saveNext}>
+              Next <Icon icon="rightarrow-2" />
+            </Button>
+          </div>
+          <a onClick={this.goNext}>Skip for now »</a>
         </Footer>
       </form>
     );

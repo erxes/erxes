@@ -7,14 +7,19 @@ import {
   Icon
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { IChannel } from 'modules/settings/channels/types';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
+import * as RTG from 'react-transition-group';
 import { IIntegration } from '../types';
-import { Footer, TopContent } from './styles';
+import { ChannelList } from './';
+import { Description, Footer, TopContent } from './styles';
 
 type Props = {
   members: IUser[];
   channelsTotalCount: number;
+  channels: IChannel[];
   loading: boolean;
   integrations: IIntegration[];
   remove: (channelId: string) => void;
@@ -25,11 +30,13 @@ type Props = {
       integrationIds: string[];
     }
   ) => void;
+  changeStep: (increase: boolean) => void;
 };
 
 type State = {
   selectedMembers: IUser[];
   selectedMessengers: IIntegration[];
+  showChannels: boolean;
 };
 
 class ChannelForm extends React.Component<Props, State> {
@@ -38,9 +45,14 @@ class ChannelForm extends React.Component<Props, State> {
 
     this.state = {
       selectedMembers: [],
-      selectedMessengers: []
+      selectedMessengers: [],
+      showChannels: true
     };
   }
+
+  toggleChannels = () => {
+    this.setState({ showChannels: !this.state.showChannels });
+  };
 
   save = e => {
     e.preventDefault();
@@ -57,7 +69,8 @@ class ChannelForm extends React.Component<Props, State> {
   generateListParams = items => {
     return items.map(item => ({
       value: item._id,
-      label: item.name || (item.details && item.details.fullName) || ''
+      label:
+        item.name || (item.details && item.details.fullName) || item.email || ''
     }));
   };
 
@@ -70,7 +83,8 @@ class ChannelForm extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { members, integrations } = this.props;
+    const { members, integrations, channels, remove } = this.props;
+    const { showChannels } = this.state;
 
     const self = this;
 
@@ -113,11 +127,31 @@ class ChannelForm extends React.Component<Props, State> {
             multi={true}
           />
         </FormGroup>
+
+        <Description>
+          <Icon icon="information" /> You already have{' '}
+          <b>{this.props.channelsTotalCount}</b> brands.{' '}
+          <a href="javascript:;" onClick={this.toggleChannels}>
+            {showChannels ? 'Hide' : 'Show'} ›
+          </a>
+        </Description>
+
+        <RTG.CSSTransition
+          in={showChannels}
+          appear={true}
+          timeout={300}
+          classNames="slide"
+          unmountOnExit={true}
+        >
+          <ChannelList remove={remove} channels={channels} />
+        </RTG.CSSTransition>
       </React.Fragment>
     );
   }
 
   render() {
+    const { channelsTotalCount, changeStep } = this.props;
+
     return (
       <form onSubmit={this.save}>
         <TopContent>
@@ -125,10 +159,19 @@ class ChannelForm extends React.Component<Props, State> {
           {this.renderContent()}
         </TopContent>
         <Footer>
-          <Button btnStyle="link">Previous</Button>
-          <Button btnStyle="success" type="submit">
-            Next <Icon icon="rightarrow" />
-          </Button>
+          <div>
+            <Button btnStyle="link" onClick={changeStep.bind(null, false)}>
+              Previous
+            </Button>
+            <Button
+              btnStyle="success"
+              disabled={channelsTotalCount === 0}
+              onClick={this.save}
+            >
+              Finish <Icon icon="rightarrow-2" />
+            </Button>
+          </div>
+          <Link to="/inbox">Go to Inbox »</Link>
         </Footer>
       </form>
     );

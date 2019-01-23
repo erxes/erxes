@@ -1,9 +1,9 @@
 import {
   Button,
   ControlLabel,
-  FormControl,
   FormGroup,
-  Icon
+  Icon,
+  ModifiableList
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
@@ -17,11 +17,7 @@ type Props = {
   save: (
     params: {
       doc: {
-        username: string;
-        email: string;
-        role: string;
-        password: string;
-        passwordConfirmation: string;
+        emails: string[];
       };
     },
     callback: () => void
@@ -29,11 +25,7 @@ type Props = {
 };
 
 type State = {
-  username: string;
-  email: string;
-  role: string;
-  password: string;
-  passwordConfirmation: string;
+  emails: string[];
   showUsers?: boolean;
 };
 
@@ -43,22 +35,12 @@ class UserAdd extends React.Component<Props, State> {
 
     this.state = {
       showUsers: true,
-      username: '',
-      email: '',
-      role: 'admin',
-      password: '',
-      passwordConfirmation: ''
+      emails: []
     };
   }
 
   afterSave() {
-    this.setState({
-      username: '',
-      email: '',
-      role: '',
-      password: '',
-      passwordConfirmation: ''
-    });
+    this.setState({ emails: [] });
 
     this.props.changeStep(true);
   }
@@ -68,22 +50,10 @@ class UserAdd extends React.Component<Props, State> {
   };
 
   generateDoc = () => {
-    const {
-      username,
-      email,
-      role,
-      password,
-      passwordConfirmation
-    } = this.state;
+    const { emails } = this.state;
 
     return {
-      doc: {
-        username,
-        email,
-        role,
-        password,
-        passwordConfirmation
-      }
+      doc: { emails }
     };
   };
 
@@ -94,83 +64,28 @@ class UserAdd extends React.Component<Props, State> {
     save(this.generateDoc(), this.afterSave.bind(this));
   };
 
-  handleChange = <T extends keyof State>(name: T, e) => {
-    e.preventDefault();
-    this.setState({ [name]: e.target.value } as Pick<State, keyof State>);
-  };
-
   next = e => {
     e.preventDefault();
     const { save } = this.props;
     save(this.generateDoc(), this.afterSave.bind(this));
   };
 
+  onChangeEmails = options => {
+    this.setState({ emails: options });
+  };
+
   renderContent() {
-    const {
-      username,
-      email,
-      role,
-      password,
-      passwordConfirmation,
-      showUsers
-    } = this.state;
+    const { showUsers, emails } = this.state;
 
     return (
       <>
         <FormGroup>
-          <ControlLabel>Username</ControlLabel>
-
-          <FormControl
-            value={username}
-            onChange={this.handleChange.bind(this, 'username')}
-            type="text"
-            required={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Email</ControlLabel>
-
-          <FormControl
-            value={email}
-            onChange={this.handleChange.bind(this, 'email')}
-            type="text"
-            required={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Role</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            value={role}
-            onChange={this.handleChange.bind(this, 'role')}
-          >
-            <option value="admin">{__('Admin')}</option>
-            <option value="contributor">{__('Contributor')}</option>
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Password</ControlLabel>
-
-          <FormControl
-            value={password}
-            onChange={this.handleChange.bind(this, 'password')}
-            type="text"
-            required={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Password confirmation</ControlLabel>
-
-          <FormControl
-            value={passwordConfirmation}
-            onChange={this.handleChange.bind(this, 'passwordConfirmation')}
-            type="text"
-            required={true}
+          <ControlLabel>Emails</ControlLabel>
+          <ModifiableList
+            options={emails}
+            addButtonLabel="Add another"
+            onAddingOption={this.onChangeEmails}
+            onRemovingOption={this.onChangeEmails}
           />
         </FormGroup>
 
@@ -190,7 +105,7 @@ class UserAdd extends React.Component<Props, State> {
           classNames="slide"
           unmountOnExit={true}
         >
-          <UserList queryParams={{}} />
+          <UserList userCount={this.props.usersTotalCount} />
         </RTG.CSSTransition>
       </>
     );
@@ -202,7 +117,7 @@ class UserAdd extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <TopContent>
-          <h2>Add user on your team</h2>
+          <h2>Invite users</h2>
           {this.renderContent()}
         </TopContent>
         <Footer>
@@ -211,10 +126,10 @@ class UserAdd extends React.Component<Props, State> {
               Previous
             </Button>
             <Button btnStyle="success" onClick={this.next}>
-              Next <Icon icon="rightarrow-2" />
+              Invite <Icon icon="rightarrow-2" />
             </Button>
           </div>
-          <a onClick={changeStep.bind(null, true)}>Skip for now</a>
+          <a onClick={changeStep.bind(null, true)}>Skip for now »</a>
         </Footer>
       </form>
     );

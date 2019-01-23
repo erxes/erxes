@@ -1,26 +1,31 @@
 import gql from 'graphql-tag';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { IRouterProps } from 'modules/common/types';
+import { Alert, confirm } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/channels/graphql';
 import {
   AddChannelMutationResponse,
   ChannelMutationVariables,
   ChannelsCountQueryResponse,
   ChannelsQueryResponse,
-  EditChannelMutationResponse,
   RemoveChannelMutationResponse,
   RemoveChannelMutationVariables
 } from 'modules/settings/channels/types';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import { Channel } from '../components';
-import { queries as onboardQueries } from '../graphql';
-import { IntegrationsQueryResponse } from '../types';
+import { AppConsumer } from '../containers/OnboardContext';
+import {
+  mutations as onBoardMutations,
+  queries as onboardQueries
+} from '../graphql';
+import {
+  IntegrationsQueryResponse,
+  UserSeenOnboardMutationResponse
+} from '../types';
 
-type Props = {
-  queryParams: any;
-  currentChannelId?: string;
-};
+type Props = { changeStep: () => void };
 
 type FinalProps = {
   channelsQuery: ChannelsQueryResponse;
@@ -28,9 +33,10 @@ type FinalProps = {
   channelsCountQuery: ChannelsCountQueryResponse;
   integrationsQuery: IntegrationsQueryResponse;
 } & Props &
+  IRouterProps &
   AddChannelMutationResponse &
-  EditChannelMutationResponse &
-  RemoveChannelMutationResponse;
+  RemoveChannelMutationResponse &
+  UserSeenOnboardMutationResponse;
 
 const SidebarContainer = (props: FinalProps) => {
   const {
@@ -39,7 +45,9 @@ const SidebarContainer = (props: FinalProps) => {
     channelsCountQuery,
     addMutation,
     integrationsQuery,
-    removeMutation
+    removeMutation,
+    userSeenOnboardMutation,
+    history
   } = props;
 
   const channels = channelsQuery.channels || [];
@@ -64,8 +72,6 @@ const SidebarContainer = (props: FinalProps) => {
 
   // create action
   const save = doc => {
-    console.log(doc); //tslint:disable-line
-
     const { integrationIds, memberIds } = doc;
 
     if (memberIds.length === 0) {
@@ -78,7 +84,14 @@ const SidebarContainer = (props: FinalProps) => {
 
     addMutation({ variables: doc })
       .then(() => {
-        Alert.success('Successfully saved.');
+        return userSeenOnboardMutation();
+      })
+      .then(() => {
+        Alert.success('Successfully saved your channel.');
+
+        setTimeout(() => {
+          history.push('/');
+        }, 1500);
       })
       .catch(error => {
         Alert.error(error.message);
@@ -99,13 +112,9 @@ const SidebarContainer = (props: FinalProps) => {
   return <Channel {...updatedProps} />;
 };
 
-const commonOptions = ({ queryParams }: Props) => {
+const commonOptions = () => {
   return {
     refetchQueries: [
-      {
-        query: gql(queries.channels),
-        variables: { perPage: queryParams.limit || 20 }
-      },
       {
         query: gql(queries.channels),
         variables: {}
@@ -116,55 +125,57 @@ const commonOptions = ({ queryParams }: Props) => {
   };
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, ChannelsQueryResponse, { perPage: number }>(
-      gql(queries.channels),
-      {
-        name: 'channelsQuery',
-        options: ({ queryParams }: { queryParams: any }) => ({
-          variables: {
-            perPage: queryParams.limit || 20
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<{}, IntegrationsQueryResponse>(gql(onboardQueries.integrations), {
-      name: 'integrationsQuery',
-      options: () => {
-        return {
-          notifyOnNetworkStatusChange: true,
-          variables: {
-            kind: 'messenger'
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
-    }),
-    graphql<Props, UsersQueryResponse, {}>(gql(queries.users), {
-      name: 'usersQuery',
-      options: () => ({
+const WithQuery = compose(
+  graphql<Props, ChannelsQueryResponse>(gql(queries.channels), {
+    name: 'channelsQuery',
+    options: () => ({
+      variables: {},
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql<{}, IntegrationsQueryResponse>(gql(onboardQueries.integrations), {
+    name: 'integrationsQuery',
+    options: () => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: {
+          kind: 'messenger'
+        },
         fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
-      name: 'channelsCountQuery'
-    }),
-    graphql<Props, AddChannelMutationResponse, ChannelMutationVariables>(
-      gql(mutations.channelAdd),
-      {
-        name: 'addMutation',
-        options: commonOptions
-      }
-    ),
-    graphql<
-      Props,
-      RemoveChannelMutationResponse,
-      RemoveChannelMutationVariables
-    >(gql(mutations.channelRemove), {
+      };
+    }
+  }),
+  graphql<Props, UsersQueryResponse, {}>(gql(queries.users), {
+    name: 'usersQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
+    name: 'channelsCountQuery'
+  }),
+  graphql<Props, AddChannelMutationResponse, ChannelMutationVariables>(
+    gql(mutations.channelAdd),
+    {
+      name: 'addMutation',
+      options: commonOptions
+    }
+  ),
+  graphql<UserSeenOnboardMutationResponse>(
+    gql(onBoardMutations.userSeenOnboard),
+    { name: 'userSeenOnboardMutation' }
+  ),
+  graphql<Props, RemoveChannelMutationResponse, RemoveChannelMutationVariables>(
+    gql(mutations.channelRemove),
+    {
       name: 'removeMutation',
       options: commonOptions
-    })
-  )(SidebarContainer)
+    }
+  )
+)(withRouter<FinalProps>(SidebarContainer));
+
+export default () => (
+  <AppConsumer>
+    {({ changeStep }) => <WithQuery changeStep={changeStep} />}
+  </AppConsumer>
 );

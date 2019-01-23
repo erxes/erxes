@@ -5,7 +5,7 @@ export const STEPS = [
       'Creating a brand and channels enables you to analyze customers basic needs and the most unresolved questions asked'
   },
   {
-    title: 'Create user',
+    title: 'Invite users',
     description:
       'Team members are responsible to represent the company as well as to solve problem, engage with customers'
   },

@@ -9,10 +9,17 @@ const Header = styled.div`
   text-align: center;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
+  position: relative;
 
   img {
     height: 40px;
     margin: 15px 0;
+  }
+
+  a {
+    position: absolute;
+    right: 25px;
+    top: 25px;
   }
 `;
 
@@ -26,6 +33,7 @@ const MainContainer = styled.div`
   bottom: 0;
   top: 0;
   background: ${colors.bgMain};
+  overflow: hidden;
   z-index: 11;
 `;
 
@@ -66,6 +74,7 @@ const RightContent = styled.div`
 
 const Footer = styled.div`
   text-align: center;
+
   > div {
     margin-bottom: 10px;
   }
@@ -131,19 +140,18 @@ const Description = styled.div`
 `;
 
 const Robot = styled.img`
+  width: 300px;
   position: absolute;
-  right: -80%;
-  bottom: -100%;
-  width: 400px;
   height: auto !important;
+  bottom: -69px;
+  right: -109px;
+  z-index: -1;
 `;
 
 const WelcomeWrapper = styled.div`
-  align-self: center;
-  text-align: center;
-  max-width: 100%;
-  width: 420px;
   position: relative;
+  padding: 20px 50px 50px;
+  z-index: 1;
 
   h1 {
     color: ${colors.colorCoreBlack};
@@ -156,7 +164,7 @@ const WelcomeWrapper = styled.div`
   }
 
   img {
-    height: 60px;
+    height: 40px;
   }
 `;
 

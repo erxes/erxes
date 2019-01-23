@@ -1,14 +1,13 @@
 import { UserMutationVariables } from 'modules/settings/team/types';
 
 // queries
-
 export type UsersCountQueryResponse = {
   usersTotalCount: number;
   loading: boolean;
   refetch: () => void;
 };
 
-// mutation
+// mutations
 export type UsersAddMutationResponse = {
   addMutation: (
     params: {
@@ -29,6 +28,9 @@ export type UserRemoveMutationResponse = {
   ) => Promise<void>;
 };
 
+export type UserSeenOnboardMutationResponse = {
+  userSeenOnboardMutation: () => Promise<void>;
+};
 export interface IIntegration {
   _id: string;
   kind: string;

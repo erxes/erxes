@@ -1,11 +1,9 @@
 import * as React from 'react';
 import * as RTG from 'react-transition-group';
 import { BrandAdd, Channel, MessengerAdd, UserAdd } from '../containers';
-import { LeftContent } from './styles';
 
 type Props = {
   activeStep: number;
-  changeStep: () => void;
 };
 
 function WithTransition(props: {
@@ -30,24 +28,24 @@ function WithTransition(props: {
 
 class Content extends React.PureComponent<Props> {
   render() {
-    const { activeStep, changeStep } = this.props;
+    const { activeStep } = this.props;
 
     return (
       <>
         <WithTransition active={activeStep} current={1}>
-          <BrandAdd queryParams={{}} changeStep={changeStep} />
+          <BrandAdd />
         </WithTransition>
 
         <WithTransition active={activeStep} current={2}>
-          <UserAdd queryParams={{}} changeStep={changeStep} />
+          <UserAdd />
         </WithTransition>
 
         <WithTransition active={activeStep} current={3}>
-          <MessengerAdd queryParams={{}} />
+          <MessengerAdd />
         </WithTransition>
 
         <WithTransition active={activeStep} current={4}>
-          <Channel queryParams={{}} />
+          <Channel />
         </WithTransition>
       </>
     );

@@ -28,4 +28,18 @@ const usersRemove = `
   }
 `;
 
-export default { usersAdd, usersRemove };
+const usersInvite = `
+  mutation usersInvite($emails: [String]) {
+    usersInvite(emails: $emails)
+  }
+`;
+
+const userSeenOnboard = `
+  mutation {
+    usersSeenOnBoard {
+      _id
+    }
+  }
+`;
+
+export default { usersAdd, usersRemove, usersInvite, userSeenOnboard };

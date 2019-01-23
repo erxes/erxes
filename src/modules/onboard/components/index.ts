@@ -1,6 +1,7 @@
 import BrandAdd from './BrandAdd';
 import BrandList from './BrandList';
 import Channel from './Channel';
+import ChannelList from './ChannelList';
 import Content from './Content';
 import GettingStart from './GettingStart';
 import MessengerAdd from './MessengerAdd';
@@ -13,6 +14,7 @@ export {
   BrandAdd,
   BrandList,
   Channel,
+  ChannelList,
   Content,
   GettingStart,
   MessengerAdd,

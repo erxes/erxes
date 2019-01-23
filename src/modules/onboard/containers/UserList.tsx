@@ -11,7 +11,7 @@ import {
 } from '../types';
 
 type Props = {
-  queryParams: any;
+  userCount: number;
 };
 
 type FinalProps = { usersQuery: UsersQueryResponse } & Props &
@@ -29,8 +29,6 @@ const UserListContainer = (props: ChildProps<FinalProps>) => {
         variables: { _id: userId }
       })
         .then(() => {
-          usersQuery.refetch();
-
           Alert.success('Successfully deleted.');
         })
         .catch(error => {
@@ -55,25 +53,22 @@ export default withProps<Props>(
       gql(queries.users),
       {
         name: 'usersQuery',
-        options: ({ queryParams }: Props) => ({
+        options: ({ userCount }: Props) => ({
           variables: {
-            perPage: queryParams.limit || 20
+            perPage: userCount
           },
           fetchPolicy: 'network-only'
         })
       }
     ),
-    graphql<Props, UserRemoveMutationResponse, UserRemoveMutationVariables>(
+    graphql<UserRemoveMutationResponse, UserRemoveMutationVariables>(
       gql(mutations.usersRemove),
       {
         name: 'removeMutation',
-        options: ({ queryParams }: Props) => {
+        options: () => {
           return {
             refetchQueries: [
-              {
-                query: gql(queries.users),
-                variables: { perPage: queryParams.limit || 20 }
-              },
+              { query: gql(queries.users) },
               { query: gql(queries.userTotalCount) }
             ]
           };

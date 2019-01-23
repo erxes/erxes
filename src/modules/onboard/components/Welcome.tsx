@@ -1,56 +1,64 @@
 import { Button } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
+import { Modal } from 'react-bootstrap';
 import { withRouter } from 'react-router';
-import * as RTG from 'react-transition-group';
 import { IRouterProps } from '../../common/types';
-import { MainContainer, Robot, WelcomeWrapper } from './styles';
+import { Robot, WelcomeWrapper } from './styles';
 
 interface IProps extends IRouterProps {
-  onSuccess: (password: string) => void;
-  closeModal: () => void;
+  hasSeen: boolean;
 }
 
-function Welcome({ history }: IProps) {
-  const start = () => {
-    history.push('/getting-started');
+type State = {
+  isOpen?: boolean;
+};
+
+class Welcome extends React.PureComponent<IProps, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = { isOpen: false };
+  }
+
+  closeModal = () => {
+    this.setState({ isOpen: false });
   };
 
-  const defaultStyle = {
-    transition: `opacity 1300ms ease-in-out`,
-    opacity: 0
+  start = () => {
+    this.props.history.push('/getting-started');
+    this.closeModal();
   };
 
-  const transitionStyles = {
-    entering: { opacity: 1 },
-    entered: { opacity: 1 }
-  };
+  componentDidMount() {
+    const { hasSeen, history } = this.props;
 
-  return (
-    <MainContainer>
-      <RTG.Transition appear={true} in={true} timeout={1300}>
-        {state => (
-          <WelcomeWrapper
-            style={{
-              ...defaultStyle,
-              ...transitionStyles[state]
-            }}
-          >
+    if (!hasSeen && history.location.pathname !== '/getting-started') {
+      setTimeout(() => {
+        this.setState({ isOpen: true });
+      }, 3000);
+    }
+  }
+
+  render() {
+    const { isOpen } = this.state;
+
+    return (
+      <Modal show={isOpen} onHide={this.closeModal}>
+        <Modal.Body>
+          <WelcomeWrapper>
             <img src="/images/logo-dark.png" alt="erxes" />
             <h1>Welcome to erxes</h1>
-            <p>
-              Marketing, sales, and customer service platform designed to help
-              your business attract more engaged customers. Replace Hubspot with
-              the mission and community-driven ecosystem.
-            </p>
-            <Button onClick={start} btnStyle="success" size="large">
+            <p>We’re here to help you grow your business successfully</p>
+            <Button onClick={this.start} btnStyle="success" size="large">
               Let's start
             </Button>
             <Robot src="/images/robots/robot-05.svg" />
           </WelcomeWrapper>
-        )}
-      </RTG.Transition>
-    </MainContainer>
-  );
+        </Modal.Body>
+      </Modal>
+    );
+  }
 }
 
 export default withRouter<IProps>(Welcome);
