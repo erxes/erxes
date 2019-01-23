@@ -226,7 +226,7 @@ const insightQueries = {
       createdAt: filterSelector.createdAt,
       $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
     };
-    const conversations = await findConversations(filterSelector, conversationSelector);
+    const conversations = await findConversations(filterSelector, { ...conversationSelector });
     const insightData: any = {
       summary: [],
       trend: await generateChartData({ collection: conversations }),
