@@ -205,8 +205,8 @@ const insightExportQueries = {
 
     const volumeDictionary = {};
 
-    let totalSumCount = 0;
     let totalCustomerCount = 0;
+    let totalUniqueCount = 0;
     let totalConversationMessages = 0;
     let totalResolved = 0;
     let totalAverageClosed = 0;
@@ -266,11 +266,11 @@ const insightExportQueries = {
       };
       const messageCount = conversationDictionary[dateKey];
 
-      totalSumCount += totalCount;
+      totalCustomerCount += totalCount;
       totalResolved += resolvedCount;
       totalAverageClosed += averageCloseTime;
       totalAverageRespond += averageRespondTime;
-      totalCustomerCount += uniqueCustomerCount;
+      totalUniqueCount += uniqueCustomerCount;
       totalRowCount += 1;
 
       data.push({
@@ -295,9 +295,9 @@ const insightExportQueries = {
 
     data.push({
       date: 'Total',
-      count: totalSumCount,
+      count: totalUniqueCount,
       customerCount: totalCustomerCount,
-      customerCountPercentage: `${(totalCustomerCount / totalSumCount).toFixed(0)}%`,
+      customerCountPercentage: `${((totalUniqueCount / totalCustomerCount) * 100).toFixed(0)}%`,
       messageCount: totalConversationMessages,
       resolvedCount: totalResolved,
       averageResponseDuration: convertTime(totalAverageClosed / totalRowCount),
