@@ -1,16 +1,9 @@
 import { IUser } from 'modules/auth/types';
-import {
-  Button,
-  ControlLabel,
-  FormGroup,
-  ModifiableList,
-  NameCard,
-  Table
-} from 'modules/common/components';
+import { NameCard, Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
-import { ModalFooter } from '../../../common/styles/main';
+import { InivitationForm } from '.';
 import { List, RowActions } from '../../common/components';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
@@ -25,8 +18,6 @@ class UserList extends React.Component<
   ICommonListProps & ICommonFormProps,
   { emails: string[] }
 > {
-  private closeModal;
-
   constructor(props) {
     super(props);
 
@@ -39,60 +30,8 @@ class UserList extends React.Component<
     return this.props.history.push(`team/details/${object._id}`);
   };
 
-  onAddingEmail = options => {
-    this.setState({ emails: options });
-  };
-
-  onRemovingEmail = options => {
-    this.setState({ emails: options });
-  };
-
-  onSubmit = () => {
-    this.props.save(
-      { doc: { emails: this.state.emails } },
-      this.closeModal,
-      null
-    );
-  };
-
   renderInvitationForm = props => {
-    this.closeModal = props.closeModal;
-
-    return (
-      <div>
-        <FormGroup>
-          <ControlLabel>Emails</ControlLabel>
-          <ul>
-            <ModifiableList
-              options={[]}
-              addButtonLabel="Add Email"
-              onAddingOption={this.onAddingEmail}
-              onRemovingOption={this.onRemovingEmail}
-            />
-          </ul>
-        </FormGroup>
-
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={props.closeModal}
-            icon="cancel-1"
-          >
-            Cancel
-          </Button>
-
-          <Button
-            btnStyle="success"
-            type="submit"
-            onClick={this.onSubmit}
-            icon="checked-1"
-          >
-            Invite
-          </Button>
-        </ModalFooter>
-      </div>
-    );
+    return <InivitationForm {...props} />;
   };
 
   renderForm = props => {
