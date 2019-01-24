@@ -5,6 +5,7 @@ import {
   FormGroup,
   Icon
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import { SelectBrand } from 'modules/settings/integrations/components';
@@ -31,14 +32,14 @@ type State = {
   name: string;
   language: string;
   brand: string;
-  showBrands: boolean;
+  showMessengers: boolean;
 };
 
 class MessengerAdd extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { showBrands: true, name: '', brand: '', language: '' };
+    this.state = { showMessengers: true, name: '', brand: '', language: '' };
   }
 
   clearInput() {
@@ -46,7 +47,7 @@ class MessengerAdd extends React.Component<Props, State> {
   }
 
   toggleBrands = () => {
-    this.setState({ showBrands: !this.state.showBrands });
+    this.setState({ showMessengers: !this.state.showMessengers });
   };
 
   goNext = () => {
@@ -87,7 +88,7 @@ class MessengerAdd extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { name, showBrands } = this.state;
+    const { name, showMessengers } = this.state;
 
     return (
       <>
@@ -125,18 +126,18 @@ class MessengerAdd extends React.Component<Props, State> {
         />
 
         <Description>
-          <Icon icon="information" /> You already have{' '}
-          <b>{this.props.totalCount}</b> messengers.
+          <Icon icon="checked-1" /> {__('You already have')}{' '}
+          <b>{this.props.totalCount}</b> {__('messengers')}.
           <a href="javascript:;" onClick={this.toggleBrands}>
-            {showBrands ? 'Hide' : 'Show'} ›
+            {showMessengers ? __('Show') : __('Hide')} ›
           </a>
         </Description>
 
         <RTG.CSSTransition
-          in={showBrands}
+          in={showMessengers}
           appear={true}
           timeout={300}
-          classNames="slide"
+          classNames="slide-in-small"
           unmountOnExit={true}
         >
           <MessengerList />
@@ -149,7 +150,7 @@ class MessengerAdd extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <TopContent>
-          <h2>Create your messenger</h2>
+          <h2>{__('Create messenger')}</h2>
           {this.renderContent()}
         </TopContent>
         <Footer>
@@ -161,10 +162,10 @@ class MessengerAdd extends React.Component<Props, State> {
               Previous
             </Button>
             <Button btnStyle="success" onClick={this.saveNext}>
-              Next <Icon icon="rightarrow-2" />
+              {__('Next')} <Icon icon="rightarrow-2" />
             </Button>
           </div>
-          <a onClick={this.goNext}>Skip for now »</a>
+          <a onClick={this.goNext}>{__('Skip for now')} »</a>
         </Footer>
       </form>
     );

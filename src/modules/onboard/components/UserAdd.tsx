@@ -90,11 +90,10 @@ class UserAdd extends React.Component<Props, State> {
         </FormGroup>
 
         <Description>
-          <Icon icon="information" /> There is another{' '}
-          <b>{this.props.usersTotalCount}</b> users.
+          <Icon icon="checked-1" /> {__('There is another')}{' '}
+          <b>{this.props.usersTotalCount}</b> {__('users')}.{' '}
           <a href="javascript:;" onClick={this.toggleBrands}>
-            {' '}
-            {showUsers ? 'Hide' : 'Show'} ›
+            {showUsers ? __('Show') : __('Hide')} ›
           </a>
         </Description>
 
@@ -102,7 +101,7 @@ class UserAdd extends React.Component<Props, State> {
           in={showUsers}
           appear={true}
           timeout={300}
-          classNames="slide"
+          classNames="slide-in-small"
           unmountOnExit={true}
         >
           <UserList userCount={this.props.usersTotalCount} />
@@ -117,7 +116,7 @@ class UserAdd extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <TopContent>
-          <h2>Invite users</h2>
+          <h2>{__('Invite users')}</h2>
           {this.renderContent()}
         </TopContent>
         <Footer>
@@ -126,10 +125,10 @@ class UserAdd extends React.Component<Props, State> {
               Previous
             </Button>
             <Button btnStyle="success" onClick={this.next}>
-              Invite <Icon icon="rightarrow-2" />
+              {__('Invite')} <Icon icon="rightarrow-2" />
             </Button>
           </div>
-          <a onClick={changeStep.bind(null, true)}>Skip for now »</a>
+          <a onClick={changeStep.bind(null, true)}>{__('Skip for now')} »</a>
         </Footer>
       </form>
     );

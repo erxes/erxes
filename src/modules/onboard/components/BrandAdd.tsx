@@ -5,6 +5,7 @@ import {
   FormGroup,
   Icon
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import * as RTG from 'react-transition-group';
 import { BrandList } from '../containers';
@@ -58,7 +59,7 @@ class BrandAdd extends React.Component<
     return (
       <>
         <FormGroup>
-          <ControlLabel>Brand name</ControlLabel>
+          <ControlLabel>Brand Name</ControlLabel>
 
           <FormControl
             value={brandName}
@@ -69,10 +70,10 @@ class BrandAdd extends React.Component<
         </FormGroup>
 
         <Description>
-          <Icon icon="information" /> You already have{' '}
-          <b>{this.props.brandsTotalCount}</b> brands.{' '}
+          <Icon icon="checked-1" /> {__('You already have')}{' '}
+          <b>{this.props.brandsTotalCount}</b> {__('brands')}.{' '}
           <a href="javascript:;" onClick={this.toggleBrands}>
-            {showBrands ? 'Hide' : 'Show'} ›
+            {showBrands ? __('Show') : __('Hide')} ›
           </a>
         </Description>
 
@@ -80,7 +81,7 @@ class BrandAdd extends React.Component<
           in={showBrands}
           appear={true}
           timeout={300}
-          classNames="slide"
+          classNames="slide-in-small"
           unmountOnExit={true}
         >
           <BrandList brandCount={this.props.brandsTotalCount} />
@@ -95,7 +96,7 @@ class BrandAdd extends React.Component<
     return (
       <form onSubmit={this.save}>
         <TopContent>
-          <h2>Create your brand </h2>
+          <h2>{__('Create brand')}</h2>
           {this.renderContent()}
         </TopContent>
         <Footer>
@@ -108,10 +109,10 @@ class BrandAdd extends React.Component<
               disabled={brandsTotalCount === 0}
               onClick={this.next}
             >
-              Next <Icon icon="rightarrow-2" />
+              {__('Next')} <Icon icon="rightarrow-2" />
             </Button>
           </div>
-          <a onClick={changeStep}>Skip for now »</a>
+          <a onClick={changeStep}>{__('Skip for now')} »</a>
         </Footer>
       </form>
     );

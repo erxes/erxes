@@ -30,7 +30,9 @@ function Filter({ queryParams = {}, history }: IProps) {
     const onClick = () => onClickClose([paramKey]);
 
     return (
-      <Chip onClick={onClick}>{bool ? paramKey : queryParams[paramKey]}</Chip>
+      <Chip capitalize={true} onClick={onClick}>
+        {bool ? paramKey : queryParams[paramKey]}
+      </Chip>
     );
   };
 
@@ -53,7 +55,7 @@ function Filter({ queryParams = {}, history }: IProps) {
       const ChipText = createChipText(graphqlQuery, id);
 
       return (
-        <Chip normal={true} onClick={onClickClose.bind(null, [paramKey])}>
+        <Chip onClick={onClickClose.bind(null, [paramKey])}>
           <ChipText />
         </Chip>
       );
@@ -67,7 +69,7 @@ function Filter({ queryParams = {}, history }: IProps) {
       const onClick = () => onClickClose(['startDate', 'endDate']);
 
       return (
-        <Chip normal={true} onClick={onClick}>
+        <Chip onClick={onClick}>
           {queryParams.startDate} - {queryParams.endDate}
         </Chip>
       );

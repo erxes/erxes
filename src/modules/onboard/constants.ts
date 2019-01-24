@@ -10,7 +10,7 @@ export const STEPS = [
       'Team members are responsible to represent the company as well as to solve problem, engage with customers'
   },
   {
-    title: 'Create your messenger',
+    title: 'Create messenger',
     description:
       'Capture every single customer feedback and to create more meaningful conversations!'
   },

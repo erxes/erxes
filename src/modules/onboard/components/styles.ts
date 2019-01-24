@@ -1,4 +1,4 @@
-import { colors, dimensions } from 'modules/common/styles';
+import { colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -41,21 +41,21 @@ const ContentContainer = styled.div`
   display: flex;
   flex: 1;
 
-  .slide-appear,
-  .slide-enter {
+  .slide-in-small-appear,
+  .slide-in-small-enter {
     opacity: 0;
     transform: translateY(10px);
   }
 
-  .slide-appear-active,
-  .slide-enter-active {
+  .slide-in-small-appear-active,
+  .slide-in-small-enter-active {
     opacity: 1;
     transform: translateY(0);
     transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
   }
 
-  .slide-exit,
-  .slide-exit-active {
+  .slide-in-small-exit,
+  .slide-in-small-exit-active {
     opacity: 0;
     transform: translateY(10px);
     transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
@@ -133,41 +133,6 @@ const TopContent = styled.div`
   }
 `;
 
-const Description = styled.div`
-  font-size: 14px;
-  margin: 40px 0 20px;
-  color: ${colors.colorCoreGray};
-`;
-
-const Robot = styled.img`
-  width: 300px;
-  position: absolute;
-  height: auto !important;
-  bottom: -69px;
-  right: -109px;
-  z-index: -1;
-`;
-
-const WelcomeWrapper = styled.div`
-  position: relative;
-  padding: 20px 50px 50px;
-  z-index: 1;
-
-  h1 {
-    color: ${colors.colorCoreBlack};
-    margin-bottom: 20px;
-  }
-
-  p {
-    color: ${colors.colorCoreGray};
-    margin-bottom: 30px;
-  }
-
-  img {
-    height: 40px;
-  }
-`;
-
 const Indicator = styled.div`
   z-index: 10;
   width: 400px;
@@ -228,6 +193,45 @@ const Item = styledTS<{ active?: boolean }>(styled.div)`
   p {
     margin: 0;
   } 
+`;
+
+const WelcomeWrapper = styled.div`
+  position: relative;
+  padding: 20px 50px 50px;
+  z-index: 1;
+
+  h1 {
+    color: ${colors.colorCoreBlack};
+    margin-bottom: 20px;
+  }
+
+  p {
+    color: ${colors.colorCoreGray};
+    margin-bottom: 30px;
+  }
+
+  img {
+    height: 40px;
+  }
+`;
+
+const Description = styled.div`
+  font-size: 14px;
+  margin: 40px 0 20px;
+  color: ${colors.colorCoreGray};
+
+  i {
+    color: ${colors.colorCoreRed};
+  }
+`;
+
+const Robot = styled.img`
+  width: 300px;
+  position: absolute;
+  height: auto !important;
+  bottom: -69px;
+  right: -109px;
+  z-index: -1;
 `;
 
 export {

@@ -1,3 +1,4 @@
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import * as RTG from 'react-transition-group';
@@ -30,7 +31,7 @@ class GettingStart extends React.PureComponent<Props, State> {
       <MainContainer>
         <Header>
           <img src="/images/logo-dark.png" alt="erxes" />
-          <Link to="/">Skip »</Link>
+          <Link to="/">{__('Skip')} »</Link>
         </Header>
 
         <ContentContainer>
@@ -53,8 +54,8 @@ class GettingStart extends React.PureComponent<Props, State> {
                     active={index + 1 === activeStep}
                     onClick={goStep.bind(this, index + 1)}
                   >
-                    <h4>{step.title}</h4>
-                    <p>{step.description}</p>
+                    <h4>{__(step.title)}</h4>
+                    <p>{__(step.description)}</p>
                   </Item>
                 ))}
               </Indicator>

@@ -6,20 +6,23 @@ import { colors } from '../styles';
 const closeSize = '20px';
 const horizontalSpace = '10px';
 
-const ChipItem = styledTS<{ normal?: boolean }>(styled.span)`
+const ChipItem = styledTS<{ capitalize?: boolean; hasSpace: boolean }>(
+  styled.span
+)`
   color: ${colors.colorWhite};
   background: ${colors.colorSecondary};
   padding: 2px ${horizontalSpace};
   margin: 2px 5px 2px 0;
-  text-transform: ${props => (props.normal ? 'none' : 'capitalize')};
+  text-transform: ${props => (props.capitalize ? 'capitalize' : 'none')};
   display: inline-block;
   border-radius: 11px;
-  padding-right: 30px;
+  padding-right: 27px;
+  padding-left: ${props => props.hasSpace && '30px'};
   position: relative;
   line-height: 18px;
 `;
 
-const Remove = styled.span`
+const Click = styled.span`
   position: absolute;
   right: 1px;
   top: 1px;
@@ -43,17 +46,23 @@ const Remove = styled.span`
   }
 `;
 
+const Front = styled(Click)`
+  left: 1px;
+`;
+
 function Chip(props: {
-  normal?: boolean;
+  capitalize?: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  frontContent?: React.ReactNode;
 }) {
-  const { normal, onClick, children } = props;
+  const { capitalize = false, onClick, children, frontContent } = props;
 
   return (
-    <ChipItem normal={normal}>
+    <ChipItem capitalize={capitalize} hasSpace={frontContent ? true : false}>
+      {frontContent && <Front>{frontContent}</Front>}
       {children}
-      <Remove onClick={onClick}>×</Remove>
+      <Click onClick={onClick}>×</Click>
     </ChipItem>
   );
 }

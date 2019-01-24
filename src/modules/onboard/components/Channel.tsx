@@ -129,10 +129,10 @@ class ChannelForm extends React.Component<Props, State> {
         </FormGroup>
 
         <Description>
-          <Icon icon="information" /> You already have{' '}
-          <b>{this.props.channelsTotalCount}</b> brands.{' '}
+          <Icon icon="checked-1" /> {__('You already have')}{' '}
+          <b>{this.props.channelsTotalCount}</b> {__('channels')}.{' '}
           <a href="javascript:;" onClick={this.toggleChannels}>
-            {showChannels ? 'Hide' : 'Show'} ›
+            {showChannels ? __('Show') : __('Hide')} ›
           </a>
         </Description>
 
@@ -140,7 +140,7 @@ class ChannelForm extends React.Component<Props, State> {
           in={showChannels}
           appear={true}
           timeout={300}
-          classNames="slide"
+          classNames="slide-in-small"
           unmountOnExit={true}
         >
           <ChannelList remove={remove} channels={channels} />
@@ -155,7 +155,7 @@ class ChannelForm extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <TopContent>
-          <h2>Create your channel</h2>
+          <h2>{__('Create channel')}</h2>
           {this.renderContent()}
         </TopContent>
         <Footer>
@@ -168,10 +168,10 @@ class ChannelForm extends React.Component<Props, State> {
               disabled={channelsTotalCount === 0}
               onClick={this.save}
             >
-              Finish <Icon icon="rightarrow-2" />
+              {__('Finish')} <Icon icon="rightarrow-2" />
             </Button>
           </div>
-          <Link to="/inbox">Go to Inbox »</Link>
+          <Link to="/inbox">{__('Go to Inbox')} »</Link>
         </Footer>
       </form>
     );
