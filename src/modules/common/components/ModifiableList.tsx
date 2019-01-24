@@ -1,21 +1,9 @@
 import { Button, FormControl, Icon } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
+import { PropertyList as List } from 'modules/settings/properties/styles';
 import * as React from 'react';
 import styled from 'styled-components';
-
-const List = styled.ul`
-  list-style: none;
-  padding: 0;
-
-  li {
-    position: relative;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-`;
 
 const TypeList = styled(List)`
   button {
@@ -118,15 +106,6 @@ class PropertyForm extends React.Component<Props, State> {
             onKeyPress={onKeyPress}
           />
           <Actions>
-            <Button
-              type="success"
-              icon="cancel-1"
-              btnStyle="simple"
-              size="small"
-              onClick={this.handleSaveOption}
-            >
-              Cancel
-            </Button>
             <Button
               type="success"
               btnStyle="success"

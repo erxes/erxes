@@ -9,7 +9,6 @@ import {
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { Actions, TypeList } from '../styles';
 import { IField, IFieldGroup } from '../types';
 
 type Doc = {

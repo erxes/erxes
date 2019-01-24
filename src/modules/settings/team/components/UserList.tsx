@@ -1,9 +1,16 @@
 import { IUser } from 'modules/auth/types';
-import { NameCard, Table } from 'modules/common/components';
+import {
+  Button,
+  ControlLabel,
+  FormGroup,
+  ModifiableList,
+  NameCard,
+  Table
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
-import { InivitationForm } from '.';
 import { List, RowActions } from '../../common/components';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
@@ -18,6 +25,8 @@ class UserList extends React.Component<
   ICommonListProps & ICommonFormProps,
   { emails: string[] }
 > {
+  private closeModal;
+
   constructor(props) {
     super(props);
 
@@ -30,8 +39,58 @@ class UserList extends React.Component<
     return this.props.history.push(`team/details/${object._id}`);
   };
 
+  onAddingEmail = options => {
+    this.setState({ emails: options });
+  };
+
+  onRemovingEmail = options => {
+    this.setState({ emails: options });
+  };
+
+  onSubmit = () => {
+    this.props.save(
+      { doc: { emails: this.state.emails } },
+      this.closeModal,
+      null
+    );
+  };
+
   renderInvitationForm = props => {
-    return <InivitationForm {...props} />;
+    this.closeModal = props.closeModal;
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>Emails</ControlLabel>
+          <ModifiableList
+            options={[]}
+            addButtonLabel="Add Email"
+            onAddingOption={this.onAddingEmail}
+            onRemovingOption={this.onRemovingEmail}
+          />
+        </FormGroup>
+
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={props.closeModal}
+            icon="cancel-1"
+          >
+            Cancel
+          </Button>
+
+          <Button
+            btnStyle="success"
+            type="submit"
+            onClick={this.onSubmit}
+            icon="checked-1"
+          >
+            Invite
+          </Button>
+        </ModalFooter>
+      </>
+    );
   };
 
   renderForm = props => {
