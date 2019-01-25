@@ -181,6 +181,8 @@ const insightExportQueries = {
           },
           totalCount: { $sum: 1 },
           averageCloseTime: { $avg: '$closeTime' },
+          totalResponseTime: { $sum: '$firstRespondTime' },
+          totalCloseTime: { $sum: '$closeTime' },
           averageRespondTime: { $avg: '$firstRespondTime' },
         },
       },
@@ -190,6 +192,8 @@ const insightExportQueries = {
           totalCount: 1,
           averageCloseTime: 1,
           averageRespondTime: 1,
+          totalCloseTime: 1,
+          totalResponseTime: 1,
           resolvedCount: 1,
           percentage: {
             $multiply: [
@@ -209,9 +213,8 @@ const insightExportQueries = {
     let totalUniqueCount = 0;
     let totalConversationMessages = 0;
     let totalResolved = 0;
-    let totalAverageClosed = 0;
-    let totalAverageRespond = 0;
-    let totalRowCount = 0;
+    let totalClosedTime = 0;
+    let totalRespondTime = 0;
 
     aggregatedData.forEach(row => {
       volumeDictionary[row._id] = row;
@@ -254,6 +257,8 @@ const insightExportQueries = {
         totalCount,
         averageCloseTime,
         averageRespondTime,
+        totalResponseTime,
+        totalCloseTime,
         uniqueCustomerCount,
         percentage,
       } = volumeDictionary[dateKey] || {
@@ -261,6 +266,8 @@ const insightExportQueries = {
         totalCount: 0,
         averageCloseTime: 0,
         averageRespondTime: 0,
+        totalResponseTime: 0,
+        totalCloseTime: 0,
         uniqueCustomerCount: 0,
         percentage: 0,
       };
@@ -268,10 +275,9 @@ const insightExportQueries = {
 
       totalCustomerCount += totalCount;
       totalResolved += resolvedCount;
-      totalAverageClosed += averageCloseTime;
-      totalAverageRespond += averageRespondTime;
+      totalClosedTime += totalCloseTime;
+      totalRespondTime += totalResponseTime;
       totalUniqueCount += uniqueCustomerCount;
-      totalRowCount += 1;
 
       data.push({
         date: moment(begin).format(timeFormat),
@@ -300,8 +306,8 @@ const insightExportQueries = {
       customerCountPercentage: `${((totalUniqueCount / totalCustomerCount) * 100).toFixed(0)}%`,
       messageCount: totalConversationMessages,
       resolvedCount: totalResolved,
-      averageResponseDuration: convertTime(totalAverageClosed / totalRowCount),
-      firstResponseDuration: convertTime(totalAverageRespond / totalRowCount),
+      averageResponseDuration: convertTime(totalClosedTime / totalConversationMessages),
+      firstResponseDuration: convertTime(totalRespondTime / totalConversationMessages),
     });
 
     const basicInfos = INSIGHT_BASIC_INFOS;
