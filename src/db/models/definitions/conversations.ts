@@ -1,6 +1,6 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
-import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from "./constants";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
+import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from './constants';
 
 export interface ITwitterResponse {
   id?: number;
@@ -130,9 +130,9 @@ export const twitterResponseSchema = new Schema(
     quote_count: field({ type: Number, optional: true }),
     reply_count: field({ type: Number, optional: true }),
     retweet_count: field({ type: Number, optional: true }),
-    favorite_count: field({ type: Number, optional: true })
+    favorite_count: field({ type: Number, optional: true }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // facebook schema
@@ -140,38 +140,38 @@ const facebookSchema = new Schema(
   {
     kind: field({
       type: String,
-      enum: FACEBOOK_DATA_KINDS.ALL
+      enum: FACEBOOK_DATA_KINDS.ALL,
     }),
     senderName: field({
-      type: String
+      type: String,
     }),
     senderId: field({
-      type: String
+      type: String,
     }),
     recipientId: field({
-      type: String
+      type: String,
     }),
 
     // when wall post
     postId: field({
-      type: String
+      type: String,
     }),
 
     pageId: field({
-      type: String
-    })
+      type: String,
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // facebook schema
 const gmailSchema = new Schema(
   {
     messageId: field({
-      type: String
-    })
+      type: String,
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Conversation schema
@@ -189,17 +189,17 @@ export const conversationSchema = new Schema({
 
   closedAt: field({
     type: Date,
-    optional: true
+    optional: true,
   }),
 
   closedUserId: field({
     type: String,
-    optional: true
+    optional: true,
   }),
 
   status: field({
     type: String,
-    enum: CONVERSATION_STATUSES.ALL
+    enum: CONVERSATION_STATUSES.ALL,
   }),
   messageCount: field({ type: Number }),
   tagIds: field({ type: [String] }),
@@ -211,5 +211,5 @@ export const conversationSchema = new Schema({
   gmailData: field({ type: gmailSchema }),
 
   firstRespondedUserId: field({ type: String }),
-  firstRespondedDate: field({ type: Date })
+  firstRespondedDate: field({ type: Date }),
 });
