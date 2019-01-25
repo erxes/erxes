@@ -1,11 +1,8 @@
-import { Document, Schema } from "mongoose";
+import { Document, Schema } from 'mongoose';
 
-import {
-  CUSTOMER_LEAD_STATUS_TYPES,
-  CUSTOMER_LIFECYCLE_STATE_TYPES
-} from "./constants";
+import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES } from './constants';
 
-import { field } from "../utils";
+import { field } from '../utils';
 
 export interface ILocation {
   remoteAddress: string;
@@ -120,17 +117,17 @@ const locationSchema = new Schema(
     region: String,
     hostname: String,
     language: String,
-    userAgent: String
+    userAgent: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const visitorContactSchema = new Schema(
   {
     email: String,
-    phone: String
+    phone: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 /*
@@ -140,22 +137,22 @@ const messengerSchema = new Schema(
   {
     lastSeenAt: field({
       type: Date,
-      label: "Last seen at"
+      label: 'Last seen at',
     }),
     sessionCount: field({
       type: Number,
-      label: "Session count"
+      label: 'Session count',
     }),
     isActive: field({
       type: Boolean,
-      label: "Is online"
+      label: 'Is online',
     }),
     customData: field({
       type: Object,
-      optional: true
-    })
+      optional: true,
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 /*
@@ -166,13 +163,13 @@ const messengerSchema = new Schema(
  */
 const twitterSchema = new Schema(
   {
-    id: field({ type: Number, label: "Twitter ID (Number)" }),
-    id_str: field({ type: String, label: "Twitter ID" }),
-    name: field({ type: String, label: "Twitter name" }),
-    screen_name: field({ type: String, label: "Twitter screen name" }),
-    profile_image_url: field({ type: String, label: "Twitter photo" })
+    id: field({ type: Number, label: 'Twitter ID (Number)' }),
+    id_str: field({ type: String, label: 'Twitter ID' }),
+    name: field({ type: String, label: 'Twitter name' }),
+    screen_name: field({ type: String, label: 'Twitter screen name' }),
+    profile_image_url: field({ type: String, label: 'Twitter photo' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 /*
@@ -182,74 +179,74 @@ const facebookSchema = new Schema(
   {
     id: field({
       type: String,
-      label: "Facebook ID"
+      label: 'Facebook ID',
     }),
     profilePic: field({
       type: String,
       optional: true,
-      label: "Facebook photo"
-    })
+      label: 'Facebook photo',
+    }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 const linkSchema = new Schema(
   {
-    linkedIn: field({ type: String, optional: true, label: "LinkedIn" }),
-    twitter: field({ type: String, optional: true, label: "Twitter" }),
-    facebook: field({ type: String, optional: true, label: "Facebook" }),
-    github: field({ type: String, optional: true, label: "Github" }),
-    youtube: field({ type: String, optional: true, label: "Youtube" }),
-    website: field({ type: String, optional: true, label: "Website" })
+    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
+    twitter: field({ type: String, optional: true, label: 'Twitter' }),
+    facebook: field({ type: String, optional: true, label: 'Facebook' }),
+    github: field({ type: String, optional: true, label: 'Github' }),
+    youtube: field({ type: String, optional: true, label: 'Youtube' }),
+    website: field({ type: String, optional: true, label: 'Website' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const customerSchema = new Schema({
   _id: field({ pkey: true }),
 
-  createdAt: field({ type: Date, label: "Created at" }),
-  modifiedAt: field({ type: Date, label: "Modified at" }),
+  createdAt: field({ type: Date, label: 'Created at' }),
+  modifiedAt: field({ type: Date, label: 'Modified at' }),
   avatar: field({ type: String, optional: true }),
 
-  firstName: field({ type: String, label: "First name", optional: true }),
-  lastName: field({ type: String, label: "Last name", optional: true }),
+  firstName: field({ type: String, label: 'First name', optional: true }),
+  lastName: field({ type: String, label: 'Last name', optional: true }),
 
-  primaryEmail: field({ type: String, label: "Primary Email", optional: true }),
+  primaryEmail: field({ type: String, label: 'Primary Email', optional: true }),
   emails: field({ type: [String], optional: true }),
   hasValidEmail: field({ type: Boolean, optional: true }),
 
-  primaryPhone: field({ type: String, label: "Primary Phone", optional: true }),
+  primaryPhone: field({ type: String, label: 'Primary Phone', optional: true }),
   phones: field({ type: [String], optional: true }),
 
   ownerId: field({ type: String, optional: true }),
-  position: field({ type: String, optional: true, label: "Position" }),
-  department: field({ type: String, optional: true, label: "Department" }),
+  position: field({ type: String, optional: true, label: 'Position' }),
+  department: field({ type: String, optional: true, label: 'Department' }),
 
   leadStatus: field({
     type: String,
     enum: CUSTOMER_LEAD_STATUS_TYPES,
     optional: true,
-    label: "Lead Status"
+    label: 'Lead Status',
   }),
 
   lifecycleState: field({
     type: String,
     enum: CUSTOMER_LIFECYCLE_STATE_TYPES,
     optional: true,
-    label: "Lifecycle State"
+    label: 'Lifecycle State',
   }),
 
-  hasAuthority: field({ type: String, optional: true, label: "Has authority" }),
-  description: field({ type: String, optional: true, label: "Description" }),
+  hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
+  description: field({ type: String, optional: true, label: 'Description' }),
   doNotDisturb: field({
     type: String,
     optional: true,
-    label: "Do not disturb"
+    label: 'Do not disturb',
   }),
   links: field({ type: linkSchema, default: {} }),
 
-  isUser: field({ type: Boolean, label: "Is user", optional: true }),
+  isUser: field({ type: Boolean, label: 'Is user', optional: true }),
 
   integrationId: field({ type: String, optional: true }),
   tagIds: field({ type: [String], optional: true }),
@@ -267,7 +264,7 @@ export const customerSchema = new Schema({
   visitorContactInfo: field({
     type: visitorContactSchema,
     optional: true,
-    label: "Visitor contact info"
+    label: 'Visitor contact info',
   }),
-  urlVisits: Object
+  urlVisits: Object,
 });

@@ -1,5 +1,5 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
 
 export interface ICallout extends Document {
   title?: string;
@@ -39,18 +39,18 @@ const calloutSchema = new Schema(
     body: field({ type: String, optional: true }),
     buttonText: field({ type: String, optional: true }),
     featuredImage: field({ type: String, optional: true }),
-    skip: field({ type: Boolean, optional: true })
+    skip: field({ type: Boolean, optional: true }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // schema for form submission details
 const submissionSchema = new Schema(
   {
     customerId: field({ type: String }),
-    submittedAt: field({ type: Date })
+    submittedAt: field({ type: Date }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 // schema for form document
@@ -59,7 +59,7 @@ export const formSchema = new Schema({
   title: field({ type: String, optional: true }),
   description: field({
     type: String,
-    optional: true
+    optional: true,
   }),
   buttonText: field({ type: String, optional: true }),
   themeColor: field({ type: String, optional: true }),
@@ -67,10 +67,10 @@ export const formSchema = new Schema({
   createdUserId: field({ type: String }),
   createdDate: field({
     type: Date,
-    default: Date.now
+    default: Date.now,
   }),
   callout: field({ type: calloutSchema, default: {} }),
   viewCount: field({ type: Number }),
   contactsGathered: field({ type: Number }),
-  submissions: field({ type: [submissionSchema] })
+  submissions: field({ type: [submissionSchema] }),
 });

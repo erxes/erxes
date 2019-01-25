@@ -1,5 +1,5 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
 
 export interface IScript {
   name: string;
@@ -21,5 +21,5 @@ export const scriptSchema = new Schema({
   messengerBrandCode: field({ type: String }),
   kbTopicId: field({ type: String }),
   leadIds: field({ type: [String] }),
-  leadMaps: field({ type: [Object] })
+  leadMaps: field({ type: [Object] }),
 });

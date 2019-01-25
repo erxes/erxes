@@ -1,6 +1,6 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
-import { MESSENGER_KINDS, METHODS, SENT_AS_CHOICES } from "./constants";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
+import { MESSENGER_KINDS, METHODS, SENT_AS_CHOICES } from './constants';
 
 export interface IScheduleDate {
   type?: string;
@@ -86,22 +86,22 @@ const scheduleDateSchema = new Schema(
     type: field({ type: String, optional: true }),
     month: field({ type: String, optional: true }),
     day: field({ type: String, optional: true }),
-    time: field({ type: Date, optional: true })
+    time: field({ type: Date, optional: true }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 const emailSchema = new Schema(
   {
     templateId: field({
       type: String,
-      optional: true
+      optional: true,
     }),
     attachments: field({ type: Object }),
     subject: field({ type: String }),
-    content: field({ type: String })
+    content: field({ type: String }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 const ruleSchema = new Schema(
@@ -117,9 +117,9 @@ const ruleSchema = new Schema(
     // is, isNot, startsWith
     condition: field({ type: String }),
 
-    value: field({ type: String })
+    value: field({ type: String }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 const messengerSchema = new Schema(
@@ -127,16 +127,16 @@ const messengerSchema = new Schema(
     brandId: field({ type: String }),
     kind: field({
       type: String,
-      enum: MESSENGER_KINDS.ALL
+      enum: MESSENGER_KINDS.ALL,
     }),
     sentAs: field({
       type: String,
-      enum: SENT_AS_CHOICES.ALL
+      enum: SENT_AS_CHOICES.ALL,
     }),
     content: field({ type: String }),
-    rules: field({ type: [ruleSchema] })
+    rules: field({ type: [ruleSchema] }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 const statsSchema = new Schema(
@@ -148,9 +148,9 @@ const statsSchema = new Schema(
     bounce: field({ type: Number }),
     reject: field({ type: Number }),
     send: field({ type: Number }),
-    renderingfailure: field({ type: Number })
+    renderingfailure: field({ type: Number }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const engageMessageSchema = new Schema({
@@ -158,14 +158,14 @@ export const engageMessageSchema = new Schema({
   kind: field({ type: String }),
   segmentId: field({
     type: String,
-    optional: true
+    optional: true,
   }),
   customerIds: field({ type: [String] }),
   title: field({ type: String }),
   fromUserId: field({ type: String }),
   method: field({
     type: String,
-    enum: METHODS.ALL
+    enum: METHODS.ALL,
   }),
   isDraft: field({ type: Boolean }),
   isLive: field({ type: Boolean }),
@@ -178,5 +178,5 @@ export const engageMessageSchema = new Schema({
   scheduleDate: field({ type: scheduleDateSchema }),
   messenger: field({ type: messengerSchema }),
   deliveryReports: field({ type: Object }),
-  stats: field({ type: statsSchema, default: {} })
+  stats: field({ type: statsSchema, default: {} }),
 });

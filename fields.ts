@@ -1,6 +1,6 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
-import { FIELDS_GROUPS_CONTENT_TYPES } from "./constants";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
+import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
 
 export interface IField {
   contentType?: string;
@@ -49,23 +49,23 @@ export const fieldSchema = new Schema({
   type: field({ type: String }),
   validation: field({
     type: String,
-    optional: true
+    optional: true,
   }),
   text: field({ type: String }),
   description: field({
     type: String,
-    optional: true
+    optional: true,
   }),
   options: field({
     type: [String],
-    optional: true
+    optional: true,
   }),
   isRequired: field({ type: Boolean }),
   isDefinedByErxes: field({ type: Boolean }),
   order: field({ type: Number }),
   groupId: field({ type: String }),
   isVisible: field({ type: Boolean, default: true }),
-  lastUpdatedUserId: field({ type: String })
+  lastUpdatedUserId: field({ type: String }),
 });
 
 export const fieldGroupSchema = new Schema({
@@ -76,9 +76,9 @@ export const fieldGroupSchema = new Schema({
   order: field({ type: Number }),
   isDefinedByErxes: field({ type: Boolean, default: false }),
   description: field({
-    type: String
+    type: String,
   }),
   // Id of user who updated the group
   lastUpdatedUserId: field({ type: String }),
-  isVisible: field({ type: Boolean, default: true })
+  isVisible: field({ type: Boolean, default: true }),
 });

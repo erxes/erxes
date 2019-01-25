@@ -1,6 +1,6 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
-import { PROBABILITY, PRODUCT_TYPES } from "./constants";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
+import { PROBABILITY, PRODUCT_TYPES } from './constants';
 
 interface ICommonFields {
   userId?: string;
@@ -83,9 +83,9 @@ const commonFieldsSchema = {
   userId: field({ type: String }),
   createdAt: field({
     type: Date,
-    default: new Date()
+    default: new Date(),
   }),
-  order: field({ type: Number })
+  order: field({ type: Number }),
 };
 
 export const boardSchema = new Schema({
@@ -93,16 +93,16 @@ export const boardSchema = new Schema({
   name: field({ type: String }),
   isDefault: field({
     type: Boolean,
-    default: false
+    default: false,
   }),
-  ...commonFieldsSchema
+  ...commonFieldsSchema,
 });
 
 export const pipelineSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
   boardId: field({ type: String }),
-  ...commonFieldsSchema
+  ...commonFieldsSchema,
 });
 
 export const stageSchema = new Schema({
@@ -110,10 +110,10 @@ export const stageSchema = new Schema({
   name: field({ type: String }),
   probability: field({
     type: String,
-    enum: PROBABILITY.ALL
+    enum: PROBABILITY.ALL,
   }), // Win probability
   pipelineId: field({ type: String }),
-  ...commonFieldsSchema
+  ...commonFieldsSchema,
 });
 
 export const productSchema = new Schema({
@@ -122,14 +122,14 @@ export const productSchema = new Schema({
   type: field({
     type: String,
     enum: PRODUCT_TYPES.ALL,
-    default: PRODUCT_TYPES.PRODUCT
+    default: PRODUCT_TYPES.PRODUCT,
   }),
   description: field({ type: String, optional: true }),
   sku: field({ type: String, optional: true }), // Stock Keeping Unit
   createdAt: field({
     type: Date,
-    default: new Date()
-  })
+    default: new Date(),
+  }),
 });
 
 const productDataSchema = new Schema(
@@ -144,9 +144,9 @@ const productDataSchema = new Schema(
     tax: field({ type: Number }),
     discountPercent: field({ type: Number }),
     discount: field({ type: Number }),
-    amount: field({ type: Number })
+    amount: field({ type: Number }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const dealSchema = new Schema({
@@ -161,8 +161,8 @@ export const dealSchema = new Schema({
   stageId: field({ type: String }),
   modifiedAt: field({
     type: Date,
-    default: new Date()
+    default: new Date(),
   }),
   modifiedBy: field({ type: String }),
-  ...commonFieldsSchema
+  ...commonFieldsSchema,
 });

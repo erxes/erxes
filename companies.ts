@@ -1,13 +1,13 @@
-import { Document, Schema } from "mongoose";
+import { Document, Schema } from 'mongoose';
 
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
   COMPANY_LEAD_STATUS_TYPES,
-  COMPANY_LIFECYCLE_STATE_TYPES
-} from "./constants";
+  COMPANY_LIFECYCLE_STATE_TYPES,
+} from './constants';
 
-import { field } from "../utils";
+import { field } from '../utils';
 
 export interface ILink {
   linkedIn?: string;
@@ -58,112 +58,112 @@ export interface ICompanyDocument extends ICompany, Document {
 
 const linkSchema = new Schema(
   {
-    linkedIn: field({ type: String, optional: true, label: "LinkedIn" }),
-    twitter: field({ type: String, optional: true, label: "Twitter" }),
-    facebook: field({ type: String, optional: true, label: "Facebook" }),
-    github: field({ type: String, optional: true, label: "Github" }),
-    youtube: field({ type: String, optional: true, label: "Youtube" }),
-    website: field({ type: String, optional: true, label: "Website" })
+    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
+    twitter: field({ type: String, optional: true, label: 'Twitter' }),
+    facebook: field({ type: String, optional: true, label: 'Facebook' }),
+    github: field({ type: String, optional: true, label: 'Github' }),
+    youtube: field({ type: String, optional: true, label: 'Youtube' }),
+    website: field({ type: String, optional: true, label: 'Website' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const companySchema = new Schema({
   _id: field({ pkey: true }),
 
-  createdAt: field({ type: Date, label: "Created at" }),
-  modifiedAt: field({ type: Date, label: "Modified at" }),
+  createdAt: field({ type: Date, label: 'Created at' }),
+  modifiedAt: field({ type: Date, label: 'Modified at' }),
 
   primaryName: field({
     type: String,
-    label: "Name"
+    label: 'Name',
   }),
 
   names: field({
     type: [String],
-    optional: true
+    optional: true,
   }),
 
   avatar: field({
     type: String,
-    optional: true
+    optional: true,
   }),
 
   size: field({
     type: Number,
-    label: "Size",
-    optional: true
+    label: 'Size',
+    optional: true,
   }),
 
   industry: field({
     type: String,
     enum: COMPANY_INDUSTRY_TYPES,
-    label: "Industry",
-    optional: true
+    label: 'Industry',
+    optional: true,
   }),
 
   website: field({
     type: String,
-    label: "Website",
-    optional: true
+    label: 'Website',
+    optional: true,
   }),
 
   plan: field({
     type: String,
-    label: "Plan",
-    optional: true
+    label: 'Plan',
+    optional: true,
   }),
 
   parentCompanyId: field({
     type: String,
     optional: true,
-    label: "Parent Company"
+    label: 'Parent Company',
   }),
 
-  primaryEmail: field({ type: String, optional: true, label: "Email" }),
+  primaryEmail: field({ type: String, optional: true, label: 'Email' }),
   emails: field({ type: [String], optional: true }),
 
-  primaryPhone: field({ type: String, optional: true, label: "Phone" }),
+  primaryPhone: field({ type: String, optional: true, label: 'Phone' }),
   phones: field({ type: [String], optional: true }),
 
-  ownerId: field({ type: String, optional: true, label: "Owner" }),
+  ownerId: field({ type: String, optional: true, label: 'Owner' }),
 
   leadStatus: field({
     type: String,
     enum: COMPANY_LEAD_STATUS_TYPES,
     optional: true,
-    label: "Lead Status"
+    label: 'Lead Status',
   }),
 
   lifecycleState: field({
     type: String,
     enum: COMPANY_LIFECYCLE_STATE_TYPES,
     optional: true,
-    label: "Lifecycle State"
+    label: 'Lifecycle State',
   }),
 
   businessType: field({
     type: String,
     enum: COMPANY_BUSINESS_TYPES,
     optional: true,
-    label: "Business Type"
+    label: 'Business Type',
   }),
 
   description: field({ type: String, optional: true }),
-  employees: field({ type: Number, optional: true, label: "Employees" }),
+  employees: field({ type: Number, optional: true, label: 'Employees' }),
   doNotDisturb: field({
     type: String,
     optional: true,
-    label: "Do not disturb"
+    label: 'Do not disturb',
   }),
   links: field({ type: linkSchema, default: {} }),
 
   tagIds: field({
     type: [String],
-    optional: true
+    optional: true,
   }),
 
   customFieldsData: field({
-    type: Object
-  })
+    type: Object,
+  }),
 });
