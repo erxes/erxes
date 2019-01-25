@@ -1,5 +1,5 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
 
 export interface IAccount {
   kind: string;
@@ -18,23 +18,23 @@ export interface IAccountDocument extends IAccount, Document {
 export const accountSchema = new Schema({
   _id: field({ pkey: true }),
   kind: field({
-    type: String
+    type: String,
   }),
   token: field({
-    type: String
+    type: String,
   }),
   tokenSecret: field({
     type: String,
-    optional: true
+    optional: true,
   }),
   scope: field({
     type: String,
-    optional: true
+    optional: true,
   }),
   expireDate: field({
     type: String,
-    optional: true
+    optional: true,
   }),
   name: field({ type: String }),
-  uid: field({ type: String })
+  uid: field({ type: String }),
 });

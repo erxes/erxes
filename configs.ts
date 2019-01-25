@@ -1,5 +1,5 @@
-import { Document, Schema } from "mongoose";
-import { field } from "../utils";
+import { Document, Schema } from 'mongoose';
+import { field } from '../utils';
 
 export interface IConfig {
   code: string;
@@ -15,5 +15,5 @@ export interface IConfigDocument extends IConfig, Document {
 export const configSchema = new Schema({
   _id: field({ pkey: true }),
   code: field({ type: String }),
-  value: field({ type: [String] })
+  value: field({ type: [String] }),
 });
