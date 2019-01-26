@@ -36,7 +36,7 @@ class Welcome extends React.PureComponent<IProps, State> {
     if (!hasSeen && history.location.pathname !== '/getting-started') {
       setTimeout(() => {
         this.setState({ isOpen: true });
-      }, 3000);
+      }, 2500);
     }
   }
 
@@ -47,13 +47,12 @@ class Welcome extends React.PureComponent<IProps, State> {
       <Modal show={isOpen} onHide={this.closeModal}>
         <Modal.Body>
           <WelcomeWrapper>
-            <img src="/images/logo-dark.png" alt="erxes" />
+            <Robot src="/images/actions/hello.svg" />
             <h1>Welcome to erxes</h1>
             <p>We’re here to help you grow your business successfully</p>
             <Button onClick={this.start} btnStyle="success" size="large">
               Let's start
             </Button>
-            <Robot src="/images/robots/robot-05.svg" />
           </WelcomeWrapper>
         </Modal.Body>
       </Modal>

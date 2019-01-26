@@ -75,8 +75,12 @@ const RightContent = styled.div`
 const Footer = styled.div`
   text-align: center;
 
+  a {
+    cursor: pointer;
+  }
+
   > div {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
   }
 `;
 
@@ -196,22 +200,19 @@ const Item = styledTS<{ active?: boolean }>(styled.div)`
 `;
 
 const WelcomeWrapper = styled.div`
-  position: relative;
-  padding: 20px 50px 50px;
+  padding: 20px;
   z-index: 1;
+  text-align: center;
 
   h1 {
-    color: ${colors.colorCoreBlack};
-    margin-bottom: 20px;
+    color: ${colors.colorPrimaryDark};
+    margin-top: 40px;
+    font-size: 30px;
   }
 
   p {
     color: ${colors.colorCoreGray};
     margin-bottom: 30px;
-  }
-
-  img {
-    height: 40px;
   }
 `;
 
@@ -227,11 +228,7 @@ const Description = styled.div`
 
 const Robot = styled.img`
   width: 300px;
-  position: absolute;
-  height: auto !important;
-  bottom: -69px;
-  right: -109px;
-  z-index: -1;
+  max-width: 100%;
 `;
 
 export {
