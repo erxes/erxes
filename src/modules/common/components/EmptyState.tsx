@@ -19,6 +19,8 @@ const EmptyStateStyled = styledTS<{ hugeness: string }>(styled.div)`
 
   img {
     max-height: 260px;
+    margin: 0 auto 20px auto;
+    max-width: 60%;
   }
 
   ${props => {

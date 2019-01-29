@@ -47,7 +47,7 @@ class SidebarActivity extends React.Component<Props> {
               />
             }
             emptyText="No Activities"
-            emptyImage="/images/robots/robot-03.svg"
+            emptyImage="/images/actions/19.svg"
           />
         </ActivityLogContent>
       </React.Fragment>

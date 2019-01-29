@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { Robot, WelcomeWrapper } from './styles';
+import { WelcomeImage, WelcomeWrapper } from './styles';
 
 interface IProps extends IRouterProps {
   hasSeen: boolean;
@@ -47,7 +47,7 @@ class Welcome extends React.PureComponent<IProps, State> {
       <Modal show={isOpen} onHide={this.closeModal}>
         <Modal.Body>
           <WelcomeWrapper>
-            <Robot src="/images/actions/hello.svg" />
+            <WelcomeImage src="/images/actions/13.svg" />
             <h1>Welcome to erxes</h1>
             <p>We’re here to help you grow your business successfully</p>
             <Button onClick={this.start} btnStyle="success" size="large">

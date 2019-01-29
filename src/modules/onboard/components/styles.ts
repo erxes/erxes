@@ -226,8 +226,8 @@ const Description = styled.div`
   }
 `;
 
-const Robot = styled.img`
-  width: 300px;
+const WelcomeImage = styled.img`
+  width: 360px;
   max-width: 100%;
 `;
 
@@ -240,7 +240,7 @@ export {
   LeftContent,
   Description,
   Footer,
-  Robot,
+  WelcomeImage,
   Indicator,
   Item,
   WelcomeWrapper

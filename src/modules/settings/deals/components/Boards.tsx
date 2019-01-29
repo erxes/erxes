@@ -66,13 +66,13 @@ class Boards extends React.Component<Props, {}> {
     const { loading, boards } = this.props;
 
     return (
-      <Sidebar header={this.renderSidebarHeader()} full={true}>
+      <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>
         <DataWithLoader
           data={<List>{this.renderItems()}</List>}
           loading={loading}
           count={boards.length}
           emptyText="There is no board"
-          emptyImage="/images/robots/robot-05.svg"
+          emptyImage="/images/actions/18.svg"
           objective={true}
         />
       </Sidebar>
