@@ -1,3 +1,4 @@
+import { EmptyState } from 'modules/common/components';
 import { DealItem } from 'modules/deals/containers/stage';
 import { DropZone, Wrapper } from 'modules/deals/styles/stage';
 import { IDeal } from 'modules/deals/types';
@@ -52,6 +53,13 @@ type InnerListProps = {
 class InnerList extends React.Component<InnerListProps> {
   render() {
     const { stageId, deals, dropProvided } = this.props;
+    if (deals.length === 0) {
+      return (
+        <DropZone innerRef={dropProvided.innerRef}>
+          <EmptyState icon="clipboard" text="No deal" size="small" />
+        </DropZone>
+      );
+    }
 
     return (
       <DropZone innerRef={dropProvided.innerRef}>

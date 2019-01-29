@@ -51,7 +51,7 @@ function Row({ tag, type, count, remove, save }: Props) {
           />
 
           <Tip text={__('Delete')}>
-            <Button btnStyle="link" onClick={removeTag} icon="close-circled" />
+            <Button btnStyle="link" onClick={removeTag} icon="cancel-1" />
           </Tip>
         </ActionButtons>
       </td>

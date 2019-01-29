@@ -7,6 +7,7 @@ import {
 import { ModalFooter } from 'modules/common/styles/main';
 import { IForm } from 'modules/forms/types';
 import * as React from 'react';
+import Select from 'react-select-plus';
 import { IIntegration } from '../../types';
 
 type Props = {
@@ -35,7 +36,9 @@ class Lead extends React.Component<Props> {
 
     this.props.save(this.generateDoc(), this.props.closeModal);
   };
-
+  onIntegrationsChange = integrations => {
+    this.setState({ integrations: integrations.map(el => el.value) });
+  };
   render() {
     const { integrations, leads, closeModal } = this.props;
 
@@ -49,15 +52,16 @@ class Lead extends React.Component<Props> {
 
         <FormGroup>
           <ControlLabel>Integration</ControlLabel>
-
-          <FormControl componentClass="select" id="selectIntegration">
-            <option />
+          <Select
+            value="array"
+            option={integrations}
+            onChange={this.onIntegrationsChange}
+          />
+          {/* <option />
             {integrations.map(i => (
               <option key={i._id} value={i._id}>
                 {i.name}
-              </option>
-            ))}
-          </FormControl>
+              </option> */}
         </FormGroup>
 
         <FormGroup>

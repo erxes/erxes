@@ -53,7 +53,7 @@ function List({ tags, type, remove, save }: Props) {
   );
 
   const breadcrumb = [
-    { title: __('Tags'), link: '/tags' },
+    { title: __('Tags'), link: '/tags/engageMessage' },
     { title: __(type) }
   ];
 

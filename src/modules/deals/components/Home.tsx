@@ -1,4 +1,4 @@
-import { Button, DropdownToggle } from 'modules/common/components';
+import { Button, DropdownToggle, EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
@@ -18,6 +18,10 @@ type Props = {
 class Home extends React.Component<Props> {
   renderBoards() {
     const { currentBoard, boards } = this.props;
+
+    if (currentBoard && boards.length === 1) {
+      return <EmptyState icon="clipboard" text="No boards" size="small" />;
+    }
 
     return boards.map(board => {
       if (currentBoard && board._id === currentBoard._id) {
@@ -43,6 +47,10 @@ class Home extends React.Component<Props> {
   renderPipelines() {
     const { currentBoard, currentPipeline } = this.props;
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
+
+    if (currentPipeline && pipelines.length === 1) {
+      return <EmptyState icon="clipboard" text="No pipeline" size="small" />;
+    }
 
     if (!currentBoard) {
       return null;

@@ -1,3 +1,4 @@
+import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { List } from 'modules/companies/styles';
@@ -16,19 +17,25 @@ export default class RightSidebar extends React.Component<{
     const { customer } = this.props;
 
     const { integration, visitorContactInfo } = customer;
-
+    if (!integration && !visitorContactInfo) {
+      return (
+        <Section>
+          <Title>{__('Other')}</Title>
+          <EmptyState icon="clipboard" text="Empty" size="small" />
+        </Section>
+      );
+    }
     return (
       <Section>
         <Title>{__('Other')}</Title>
 
         <List>
-          {integration &&
-            integration.name && (
-              <li>
-                <div>{__('Integration')}:</div>
-                <span>{integration.name}</span>
-              </li>
-            )}
+          {integration && integration.name && (
+            <li>
+              <div>{__('Integration')}:</div>
+              <span>{integration.name}</span>
+            </li>
+          )}
           {visitorContactInfo && (
             <li>
               <div>{__('Visitor contact info')}:</div>

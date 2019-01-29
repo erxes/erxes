@@ -88,6 +88,7 @@ class ListContainer extends React.Component<Props> {
     const updatedProps = {
       accounts: accountsQuery.accounts || [],
       delink,
+      loading: accountsQuery.loading,
       twitterAuthUrl: twitterAuthUrlQuery.integrationGetTwitterAuthUrl || '',
       gmailAuthUrl: gmailAuthUrlQuery.integrationGetGoogleAuthUrl || ''
     };
