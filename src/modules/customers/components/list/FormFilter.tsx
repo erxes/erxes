@@ -52,7 +52,7 @@ function Forms({ history, counts, integrations, loading }: IProps) {
         loading={loading}
         count={integrations.length}
         emptyText="No forms"
-        emptyIcon="pie-graph"
+        emptyIcon="monitor"
         size="small"
         objective={true}
       />

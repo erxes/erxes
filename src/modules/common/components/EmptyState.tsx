@@ -26,7 +26,7 @@ const EmptyStateStyled = styledTS<{ hugeness: string }>(styled.div)`
   ${props => {
     if (props.hugeness === 'small') {
       return `
-        min-height: 80px;
+        min-height: 100px;
         font-size: 12px;
         padding: 10px 20px;
       `;

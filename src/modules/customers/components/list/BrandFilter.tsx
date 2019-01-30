@@ -50,7 +50,7 @@ function Brands({ history, counts, brands, loading }: IProps) {
         loading={loading}
         count={brands.length}
         emptyText="No brands"
-        emptyIcon="pie-graph"
+        emptyIcon="leaf"
         size="small"
         objective={true}
       />
