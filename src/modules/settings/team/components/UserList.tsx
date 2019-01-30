@@ -5,7 +5,8 @@ import {
   FormGroup,
   ModifiableList,
   NameCard,
-  Table
+  Table,
+  TextInfo
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
@@ -108,9 +109,15 @@ class UserList extends React.Component<
           <UserAvatar onClick={onClick}>
             <NameCard user={object} avatarSize={30} singleLine={true} />
           </UserAvatar>
-          <td>{object.status || 'Verified'}</td>
+          <td>
+            <TextInfo textStyle="success">
+              {object.status || 'Verified'}
+            </TextInfo>
+          </td>
           <td>{object.email}</td>
-          <td>{object.role}</td>
+          <td>
+            <TextInfo>{object.role}</TextInfo>
+          </td>
 
           <RowActions
             {...this.props}

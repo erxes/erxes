@@ -37,6 +37,7 @@ import Table from './table';
 import { Tabs, TabTitle } from './tabs';
 import Tags from './Tags';
 import TextDivider from './TextDivider';
+import TextInfo from './TextInfo';
 import Tip from './Tip';
 import Uploader from './Uploader';
 
@@ -90,5 +91,6 @@ export {
   ModifiableSelect,
   ModifiableList,
   Uploader,
-  SortHandler
+  SortHandler,
+  TextInfo
 };
