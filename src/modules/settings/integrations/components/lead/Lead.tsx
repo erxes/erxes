@@ -7,7 +7,6 @@ import {
 import { ModalFooter } from 'modules/common/styles/main';
 import { IForm } from 'modules/forms/types';
 import * as React from 'react';
-import Select from 'react-select-plus';
 import { IIntegration } from '../../types';
 
 type Props = {
@@ -52,16 +51,14 @@ class Lead extends React.Component<Props> {
 
         <FormGroup>
           <ControlLabel>Integration</ControlLabel>
-          <Select
-            value="array"
-            option={integrations}
-            onChange={this.onIntegrationsChange}
-          />
-          {/* <option />
+          <FormControl componentClass="select" id="selectIntegration">
+            <option />
             {integrations.map(i => (
               <option key={i._id} value={i._id}>
                 {i.name}
-              </option> */}
+              </option>
+            ))}
+          </FormControl>
         </FormGroup>
 
         <FormGroup>

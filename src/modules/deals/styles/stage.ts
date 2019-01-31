@@ -189,6 +189,10 @@ const DropZone = styled.div`
   min-height: 200px;
 `;
 
+const EmptyContainer = styled.div`
+  height: 200px;
+`;
+
 export {
   AddNew,
   Container,
@@ -206,5 +210,6 @@ export {
   Deal,
   Date,
   Wrapper,
-  DropZone
+  DropZone,
+  EmptyContainer
 };

@@ -1,6 +1,6 @@
 import { EmptyState } from 'modules/common/components';
 import { DealItem } from 'modules/deals/containers/stage';
-import { DropZone, Wrapper } from 'modules/deals/styles/stage';
+import { DropZone, EmptyContainer, Wrapper } from 'modules/deals/styles/stage';
 import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
@@ -55,9 +55,9 @@ class InnerList extends React.Component<InnerListProps> {
     const { stageId, deals, dropProvided } = this.props;
     if (deals.length === 0) {
       return (
-        <DropZone innerRef={dropProvided.innerRef}>
+        <EmptyContainer innerRef={dropProvided.innerRef}>
           <EmptyState icon="clipboard" text="No deal" size="small" />
-        </DropZone>
+        </EmptyContainer>
       );
     }
 
