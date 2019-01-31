@@ -2,7 +2,6 @@ import {
   ActionButtons,
   Button,
   Icon,
-  Label,
   ModalTrigger,
   TextInfo,
   Tip

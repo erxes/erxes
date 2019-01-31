@@ -48,10 +48,14 @@ class Welcome extends React.PureComponent<IProps, State> {
         <Modal.Body>
           <WelcomeWrapper>
             <WelcomeImage src="/images/actions/13.svg" />
-            <h1>Welcome to erxes</h1>
-            <p>We’re here to help you grow your business successfully</p>
+            <h1>{__('Welcome')}!</h1>
+            <p>
+              {__("We're so happy to have you")}
+              <br />
+              {__("Let's take a moment to get you set up")}
+            </p>
             <Button onClick={this.start} btnStyle="success" size="large">
-              Let's start
+              {__("I'm ready to get started")}
             </Button>
           </WelcomeWrapper>
         </Modal.Body>

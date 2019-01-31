@@ -20,6 +20,7 @@ import FilterByParams from './FilterByParams';
 import { ControlLabel, FormControl, FormGroup, Textarea } from './form';
 import Icon from './Icon';
 import ImageWithPreview from './ImageWithPreview';
+import Info from './Info';
 import IntegrationIcon from './IntegrationIcon';
 import Label from './Label';
 import LoadMore from './LoadMore';
@@ -92,5 +93,6 @@ export {
   ModifiableList,
   Uploader,
   SortHandler,
-  TextInfo
+  TextInfo,
+  Info
 };

@@ -3,6 +3,7 @@ import {
   Button,
   ControlLabel,
   FormGroup,
+  Info,
   ModifiableList,
   NameCard,
   Table,
@@ -61,6 +62,9 @@ class UserList extends React.Component<
 
     return (
       <div>
+        <Info>
+          {__("Send an email and notify members that they've been invited!")}
+        </Info>
         <FormGroup>
           <ControlLabel>Emails</ControlLabel>
           <ModifiableList
