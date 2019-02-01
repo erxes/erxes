@@ -39,6 +39,8 @@ export type ConfirmMutationVariables = {
   token: string;
   password: string;
   passwordConfirmation: string;
+  fullName: string;
+  username: string;
 };
 
 export type ConfirmMutationResponse = {

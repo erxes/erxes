@@ -20,17 +20,23 @@ class UserConfirmationContainer extends React.Component<FinalProps> {
 
     const confirmUser = ({
       password,
-      passwordConfirmation
+      passwordConfirmation,
+      username,
+      fullName
     }: {
       password: string;
       passwordConfirmation: string;
+      username: string;
+      fullName: string;
     }) => {
       usersConfirmInvitation({
         variables: {
           token: queryParams.token,
           email: queryParams.email,
           password,
-          passwordConfirmation
+          passwordConfirmation,
+          username,
+          fullName
         }
       })
         .then(() => {
