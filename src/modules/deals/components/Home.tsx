@@ -12,15 +12,14 @@ type Props = {
   currentBoard?: IBoard;
   currentPipeline?: IPipeline;
   boards: IBoard[];
-  loading?: boolean;
+  loading: boolean;
 };
 
 class Home extends React.Component<Props> {
   renderBoards() {
     const { currentBoard, boards } = this.props;
-
-    if (currentBoard && boards.length === 1) {
-      return <EmptyState icon="clipboard" text="No boards" size="small" />;
+    if ((currentBoard && boards.length === 1) || boards.length === 0) {
+      return <EmptyState icon="clipboard" text="No board" size="small" />;
     }
 
     return boards.map(board => {
@@ -48,10 +47,9 @@ class Home extends React.Component<Props> {
     const { currentBoard, currentPipeline } = this.props;
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
-    if (currentPipeline && pipelines.length === 1) {
+    if ((currentPipeline && pipelines.length === 1) || pipelines.length === 0) {
       return <EmptyState icon="clipboard" text="No pipeline" size="small" />;
     }
-
     if (!currentBoard) {
       return null;
     }
@@ -114,17 +112,29 @@ class Home extends React.Component<Props> {
       />
     );
   }
+  renderContent() {
+    const { currentPipeline, boards, loading } = this.props;
+
+    if (boards.length === 0) {
+      return (
+        <EmptyState
+          image="/images/robots/robot-03.svg"
+          text="No board"
+          size="small"
+        />
+      );
+    }
+    return <Board currentPipeline={currentPipeline} />;
+  }
 
   render() {
     const breadcrumb = [{ title: __('Deal') }];
-
-    const { currentPipeline } = this.props;
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={this.renderActionBar()}
-        content={<Board currentPipeline={currentPipeline} />}
+        content={this.renderContent()}
         transparent={true}
       />
     );

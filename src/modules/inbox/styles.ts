@@ -341,7 +341,9 @@ const Mask = styled.div`
     cursor: pointer;
   }
 `;
-
+const NoHeight = styled.div`
+  height: auto;
+`;
 export {
   PopoverButton,
   ConversationWrapper,
@@ -370,5 +372,6 @@ export {
   AssignTrigger,
   Mask,
   MaskWrapper,
-  MessengerApps
+  MessengerApps,
+  NoHeight
 };

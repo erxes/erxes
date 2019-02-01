@@ -679,5 +679,9 @@
   "Send a message": "Send a message",
   "Volume Report By Customer": "Volume Report By Customer",
   "Export Report": "Export Report",
-  "We`re ready to help you.": "We`re ready to help you."
+  "We`re ready to help you.": "We`re ready to help you.",
+  "No board": "No board",
+  "Empty": "Empty",
+  "There is no account.": "There is no account.",
+  "There is no tag.": "There is no tag."
 }

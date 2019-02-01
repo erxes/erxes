@@ -679,5 +679,9 @@
   "Send a message": "Захиа илгээх",
   "Volume Report By Customer": "Хандалтын тайлан харилцагчаар",
   "Export Report": "Тайлан татах",
-  "We`re ready to help you.": "Бид танд туслахад бэлэн байна."
+  "We`re ready to help you.": "Бид танд туслахад бэлэн байна.",
+  "No board": "Самбар байхгүй байна",
+  "Empty": "Хоосон байна",
+  "There is no account.": "Данс байхгүй байна.",
+  "There is no tag.": "Таг байхгүй байна."
 }
