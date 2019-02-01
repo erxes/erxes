@@ -13,11 +13,11 @@ interface IStore extends IState {
   goStep: (activeStep: number) => void;
 }
 
-const AppContext = React.createContext({} as IStore);
+const OnboardContext = React.createContext({} as IStore);
 
-export const AppConsumer = AppContext.Consumer;
+export const OnboardConsumer = OnboardContext.Consumer;
 
-export class AppProvider extends React.PureComponent<{}, State> {
+export class OnboardProvider extends React.PureComponent<{}, State> {
   constructor(props) {
     super(props);
 
@@ -47,7 +47,7 @@ export class AppProvider extends React.PureComponent<{}, State> {
     const { activeStep } = this.state;
 
     return (
-      <AppContext.Provider
+      <OnboardContext.Provider
         value={{
           activeStep,
           changeStep: this.changeStep,
@@ -55,7 +55,7 @@ export class AppProvider extends React.PureComponent<{}, State> {
         }}
       >
         {this.props.children}
-      </AppContext.Provider>
+      </OnboardContext.Provider>
     );
   }
 }

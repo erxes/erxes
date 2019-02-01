@@ -15,7 +15,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Channel } from '../components';
-import { AppConsumer } from '../containers/OnboardContext';
+import { OnboardConsumer } from '../containers/OnboardContext';
 import {
   mutations as onBoardMutations,
   queries as onboardQueries
@@ -175,7 +175,7 @@ const WithQuery = compose(
 )(withRouter<FinalProps>(SidebarContainer));
 
 export default () => (
-  <AppConsumer>
+  <OnboardConsumer>
     {({ changeStep }) => <WithQuery changeStep={changeStep} />}
-  </AppConsumer>
+  </OnboardConsumer>
 );

@@ -48,7 +48,7 @@ class Lead extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Integration</ControlLabel>
+          <ControlLabel>Messenger integration</ControlLabel>
 
           <FormControl componentClass="select" id="selectIntegration">
             <option />

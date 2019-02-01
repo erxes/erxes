@@ -1,6 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { IRouterProps } from 'modules/common/types';
-import { Welcome } from 'modules/onboard/components';
+import { Welcome } from 'modules/onboard/containers';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { Navigation } from '../containers';

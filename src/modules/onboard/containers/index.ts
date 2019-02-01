@@ -6,6 +6,7 @@ import MessengerAdd from './MessengerAdd';
 import MessengerList from './MessengerList';
 import UserAdd from './UserAdd';
 import UserList from './UserList';
+import Welcome from './Welcome';
 
 export {
   BrandAdd,
@@ -15,5 +16,6 @@ export {
   MessengerList,
   UserAdd,
   UserList,
-  GettingStart
+  GettingStart,
+  Welcome
 };

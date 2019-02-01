@@ -231,6 +231,17 @@ const WelcomeImage = styled.img`
   max-width: 100%;
 `;
 
+const ModalBottom = styled.div`
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+
+  a {
+    cursor: pointer;
+    margin-left: 20px;
+  }
+`;
+
 export {
   Header,
   MainContainer,
@@ -243,5 +254,6 @@ export {
   WelcomeImage,
   Indicator,
   Item,
-  WelcomeWrapper
+  WelcomeWrapper,
+  ModalBottom
 };

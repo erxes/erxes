@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   Button,
   DataWithLoader,
+  Info,
   ModalTrigger,
   Pagination
 } from '../../../common/components';

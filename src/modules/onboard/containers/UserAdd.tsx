@@ -3,7 +3,7 @@ import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { UserAdd } from '../components';
-import { AppConsumer } from '../containers/OnboardContext';
+import { OnboardConsumer } from '../containers/OnboardContext';
 import { mutations, queries } from '../graphql';
 import { UsersAddMutationResponse, UsersCountQueryResponse } from '../types';
 
@@ -59,7 +59,7 @@ const WithQuery = withProps<Props>(
 );
 
 export default () => (
-  <AppConsumer>
+  <OnboardConsumer>
     {({ changeStep }) => <WithQuery changeStep={changeStep} />}
-  </AppConsumer>
+  </OnboardConsumer>
 );

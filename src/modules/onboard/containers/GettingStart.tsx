@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { GettingStart } from '../components';
-import { AppConsumer, AppProvider } from './OnboardContext';
+import { OnboardConsumer, OnboardProvider } from './OnboardContext';
 
 const container = () => (
-  <AppProvider>
-    <AppConsumer>
+  <OnboardProvider>
+    <OnboardConsumer>
       {({ activeStep, goStep }) => (
         <GettingStart activeStep={activeStep} goStep={goStep} />
       )}
-    </AppConsumer>
-  </AppProvider>
+    </OnboardConsumer>
+  </OnboardProvider>
 );
 
 export default container;

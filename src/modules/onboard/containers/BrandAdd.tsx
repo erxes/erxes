@@ -9,7 +9,7 @@ import {
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { BrandAdd } from '../components';
-import { AppConsumer } from '../containers/OnboardContext';
+import { OnboardConsumer } from '../containers/OnboardContext';
 
 type Props = { changeStep: () => void };
 
@@ -67,7 +67,7 @@ const WithQuery = compose(
 )(BrandAddContainer);
 
 export default () => (
-  <AppConsumer>
+  <OnboardConsumer>
     {({ changeStep }) => <WithQuery changeStep={changeStep} />}
-  </AppConsumer>
+  </OnboardConsumer>
 );

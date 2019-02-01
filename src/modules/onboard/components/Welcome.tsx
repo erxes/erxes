@@ -1,24 +1,27 @@
+import { FormControl } from 'modules/common/components';
 import { Button } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { WelcomeImage, WelcomeWrapper } from './styles';
+import { ModalBottom, WelcomeImage, WelcomeWrapper } from './styles';
 
 interface IProps extends IRouterProps {
   hasSeen: boolean;
+  seenOnboard: (callback: () => void) => void;
 }
 
 type State = {
   isOpen?: boolean;
+  isChecked?: boolean;
 };
 
 class Welcome extends React.PureComponent<IProps, State> {
   constructor(props) {
     super(props);
 
-    this.state = { isOpen: false };
+    this.state = { isOpen: false, isChecked: false };
   }
 
   closeModal = () => {
@@ -28,6 +31,20 @@ class Welcome extends React.PureComponent<IProps, State> {
   start = () => {
     this.props.history.push('/getting-started');
     this.closeModal();
+  };
+
+  onChangeCheckbox = () => {
+    this.setState({ isChecked: !this.state.isChecked });
+  };
+
+  onClose = () => {
+    const { seenOnboard } = this.props;
+
+    if (this.state.isChecked) {
+      return seenOnboard(this.closeModal);
+    }
+
+    return this.closeModal();
   };
 
   componentDidMount() {
@@ -50,13 +67,24 @@ class Welcome extends React.PureComponent<IProps, State> {
             <WelcomeImage src="/images/actions/13.svg" />
             <h1>{__('Welcome')}!</h1>
             <p>
-              {__("We're so happy to have you")}
-              <br />
-              {__("Let's take a moment to get you set up")}
+              {__(
+                "We're so happy to have you. Let's take a moment to get you set up"
+              )}
             </p>
             <Button onClick={this.start} btnStyle="success" size="large">
               {__("I'm ready to get started")}
             </Button>
+
+            <ModalBottom>
+              <FormControl
+                checked={this.state.isChecked}
+                componentClass="checkbox"
+                onChange={this.onChangeCheckbox}
+              >
+                Don't show again
+              </FormControl>
+              <a onClick={this.onClose}>{__('Close')} »</a>
+            </ModalBottom>
           </WelcomeWrapper>
         </Modal.Body>
       </Modal>
