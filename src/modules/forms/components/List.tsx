@@ -142,7 +142,7 @@ class List extends React.Component<Props, {}> {
           <DataWithLoader
             data={content}
             loading={loading}
-            count={totalCount}
+            count={integrations.length}
             emptyText="There is no lead."
             emptyImage="/images/actions/3.svg"
           />
