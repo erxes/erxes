@@ -66,11 +66,7 @@ class Welcome extends React.PureComponent<IProps, State> {
           <WelcomeWrapper>
             <WelcomeImage src="/images/actions/13.svg" />
             <h1>{__('Welcome')}!</h1>
-            <p>
-              {__(
-                "We're so happy to have you. Let's take a moment to get you set up"
-              )}
-            </p>
+            <p>{__('Welcome paragraph')}</p>
             <Button onClick={this.start} btnStyle="success" size="large">
               {__("I'm ready to get started")}
             </Button>
@@ -81,7 +77,7 @@ class Welcome extends React.PureComponent<IProps, State> {
                 componentClass="checkbox"
                 onChange={this.onChangeCheckbox}
               >
-                Don't show again
+                {__("Don't show again")}
               </FormControl>
               <a onClick={this.onClose}>{__('Close')} »</a>
             </ModalBottom>

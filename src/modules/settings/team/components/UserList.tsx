@@ -41,18 +41,19 @@ class UserList extends React.Component<
     return this.props.history.push(`team/details/${object._id}`);
   };
 
-  onAddingEmail = options => {
+  onChangeEmail = options => {
     this.setState({ emails: options });
   };
 
-  onRemovingEmail = options => {
-    this.setState({ emails: options });
+  afterInvite = () => {
+    this.setState({ emails: [] });
+    this.closeModal();
   };
 
   onSubmit = () => {
     this.props.save(
       { doc: { emails: this.state.emails } },
-      this.closeModal,
+      this.afterInvite,
       null
     );
   };
@@ -68,10 +69,9 @@ class UserList extends React.Component<
         <FormGroup>
           <ControlLabel>Emails</ControlLabel>
           <ModifiableList
-            options={[]}
+            options={this.state.emails}
             addButtonLabel="Add another"
-            onAddingOption={this.onAddingEmail}
-            onRemovingOption={this.onRemovingEmail}
+            onChangeOption={this.onChangeEmail}
           />
         </FormGroup>
 
@@ -114,13 +114,13 @@ class UserList extends React.Component<
             <NameCard user={object} avatarSize={30} singleLine={true} />
           </UserAvatar>
           <td>
-            <TextInfo textStyle="success">
+            <TextInfo textStyle={object.status ? 'warning' : 'success'}>
               {object.status || 'Verified'}
             </TextInfo>
           </td>
           <td>{object.email}</td>
           <td>
-            <TextInfo>{object.role}</TextInfo>
+            <TextInfo>{object.role || '-'}</TextInfo>
           </td>
 
           <RowActions

@@ -91,6 +91,10 @@ const QuickNavigation = ({
               <Link to="/profile">{__('View Profile')}</Link>
             </li>
 
+            <li>
+              <Link to="/getting-started">{__('Initial setup')}</Link>
+            </li>
+
             <ModalTrigger
               title="Change Password"
               trigger={

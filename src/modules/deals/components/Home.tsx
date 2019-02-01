@@ -20,9 +20,7 @@ class Home extends React.Component<Props> {
     const { currentBoard, boards } = this.props;
 
     if (boards.length <= 1) {
-      return (
-        <EmptyState icon="clipboard" text="No other boards" size="small" />
-      );
+      return <EmptyState icon="layout" text="No other boards" size="small" />;
     }
 
     return boards.map(board => {
@@ -51,9 +49,7 @@ class Home extends React.Component<Props> {
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
     if (pipelines.length <= 1) {
-      return (
-        <EmptyState icon="clipboard" text="No other pipeline" size="small" />
-      );
+      return <EmptyState icon="stop" text="No other pipeline" size="small" />;
     }
 
     if (!currentBoard) {
@@ -87,7 +83,7 @@ class Home extends React.Component<Props> {
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
-              {(currentBoard && currentBoard.name) || __('No Board')}
+              {(currentBoard && currentBoard.name) || __('There is no board')}
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>

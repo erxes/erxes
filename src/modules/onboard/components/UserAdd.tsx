@@ -5,6 +5,7 @@ import {
   Icon,
   ModifiableList
 } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import * as RTG from 'react-transition-group';
@@ -61,12 +62,10 @@ class UserAdd extends React.Component<Props, State> {
     e.preventDefault();
     const { save } = this.props;
 
-    save(this.generateDoc(), this.afterSave.bind(this));
-  };
+    if (this.state.emails.length === 0) {
+      return Alert.warning('Empty emails');
+    }
 
-  next = e => {
-    e.preventDefault();
-    const { save } = this.props;
     save(this.generateDoc(), this.afterSave.bind(this));
   };
 
@@ -84,8 +83,7 @@ class UserAdd extends React.Component<Props, State> {
           <ModifiableList
             options={emails}
             addButtonLabel="Add another"
-            onAddingOption={this.onChangeEmails}
-            onRemovingOption={this.onChangeEmails}
+            onChangeOption={this.onChangeEmails}
           />
         </FormGroup>
 
@@ -124,7 +122,7 @@ class UserAdd extends React.Component<Props, State> {
             <Button btnStyle="link" onClick={changeStep.bind(null, false)}>
               Previous
             </Button>
-            <Button btnStyle="success" onClick={this.next}>
+            <Button btnStyle="success" onClick={this.save}>
               {__('Invite')} <Icon icon="rightarrow-2" />
             </Button>
           </div>

@@ -1,5 +1,6 @@
 import { Button, FormControl, Icon } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
+import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -36,8 +37,7 @@ const Actions = styled.div`
 type Props = {
   options: string[];
   addButtonLabel?: string;
-  onAddingOption?: (options?: string[], optionValue?: string) => void;
-  onRemovingOption?: (options?: string[]) => void;
+  onChangeOption?: (options?: string[], optionValue?: string) => void;
 };
 
 type State = {
@@ -77,9 +77,13 @@ class ModifiableList extends React.Component<Props, State> {
       'optionValue'
     ) as HTMLInputElement).value;
 
+    if (!optionValue) {
+      return Alert.warning('Nothing inserted');
+    }
+
     this.setState({ options: [...options, optionValue] }, () => {
-      if (this.props.onAddingOption) {
-        this.props.onAddingOption(this.state.options, optionValue);
+      if (this.props.onChangeOption) {
+        this.props.onChangeOption(this.state.options, optionValue);
         (document.getElementById('optionValue') as HTMLInputElement).value = '';
       }
     });
@@ -88,9 +92,16 @@ class ModifiableList extends React.Component<Props, State> {
   handleRemoveOption = (i: string) => {
     const { options } = this.state;
 
-    this.setState({
-      options: options.filter(item => item !== i)
-    });
+    this.setState(
+      {
+        options: options.filter(item => item !== i)
+      },
+      () => {
+        if (this.props.onChangeOption) {
+          this.props.onChangeOption(this.state.options);
+        }
+      }
+    );
   };
 
   onKeyPress = e => {

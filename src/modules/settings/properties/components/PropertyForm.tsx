@@ -3,7 +3,6 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
   ModifiableList
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
@@ -104,7 +103,7 @@ class PropertyForm extends React.Component<Props, State> {
     this.props.closeModal();
   };
 
-  onAddOption = options => {
+  onChangeOption = options => {
     this.setState({ options });
   };
 
@@ -132,8 +131,7 @@ class PropertyForm extends React.Component<Props, State> {
     return (
       <ModifiableList
         options={this.state.options}
-        onAddingOption={this.onAddOption}
-        onRemovingOption={this.onRemoveOption}
+        onChangeOption={this.onChangeOption}
       />
     );
   };
