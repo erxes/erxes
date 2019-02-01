@@ -2,6 +2,7 @@ import { getEnv } from 'apolloClient';
 import {
   ActionButtons,
   Button,
+  DataWithLoader,
   Label,
   Table,
   Tip
@@ -19,6 +20,7 @@ type Props = {
   twitterAuthUrl: string;
   gmailAuthUrl?: string;
   delink: (accountId: string) => void;
+  loading: boolean;
 };
 
 class List extends React.Component<Props> {
@@ -97,7 +99,6 @@ class List extends React.Component<Props> {
 
   renderContent() {
     const { accounts } = this.props;
-
     return (
       <React.Fragment>
         <Table>
@@ -116,7 +117,7 @@ class List extends React.Component<Props> {
 
   render() {
     const breadcrumb = [{ title: __('App store') }];
-
+    const { loading, accounts } = this.props;
     const actionBarRight = (
       <BarItems>
         <Button size="small" icon="cancel-1" onClick={this.onTwitterRedirect}>
@@ -138,7 +139,15 @@ class List extends React.Component<Props> {
         actionBar={actionBar}
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar />}
-        content={this.renderContent()}
+        content={
+          <DataWithLoader
+            data={this.renderContent()}
+            loading={loading}
+            count={accounts.length}
+            emptyText="There is no account."
+            emptyImage="/images/actions/20.svg"
+          />
+        }
       />
     );
   }

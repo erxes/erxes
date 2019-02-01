@@ -31,8 +31,8 @@ export default class ConversationDetail extends React.Component<Props> {
       <EmptySidebar full={true}>
         <EmptyState
           text="Customer not found"
-          size="small"
-          image="/images/robots/robot-02.svg"
+          size="full"
+          image="/images/actions/18.svg"
         />
       </EmptySidebar>
     );
@@ -57,7 +57,7 @@ export default class ConversationDetail extends React.Component<Props> {
       <EmptyState
         text="Conversation not found"
         size="full"
-        image="/images/robots/robot-02.svg"
+        image="/images/actions/14.svg"
       />
     );
   }
