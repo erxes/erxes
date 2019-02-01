@@ -99,9 +99,11 @@ class Home extends React.Component<Props> {
     );
 
     const actionBarRight = (
-      <Button btnStyle="success" icon="settings">
-        <Link to="/settings/deals">{__('Manage Board & Pipeline')}</Link>
-      </Button>
+      <Link to="/settings/deals">
+        <Button btnStyle="success" icon="settings">
+          {__('Manage Board & Pipeline')}
+        </Button>
+      </Link>
     );
 
     return (
