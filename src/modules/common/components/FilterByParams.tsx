@@ -101,8 +101,8 @@ class FilterByParams extends React.Component<IProps, State> {
         loading={loading}
         count={fields.length}
         data={this.renderItems()}
-        emptyText="No tags"
-        emptyIcon="tag"
+        emptyText="Empty"
+        emptyIcon="piggybank"
         size="small"
         objective={true}
       />
