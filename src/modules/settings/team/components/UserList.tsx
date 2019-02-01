@@ -9,10 +9,10 @@ import {
   Table,
   TextInfo
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
-import { ModalFooter } from '../../../common/styles/main';
 import { List, RowActions } from '../../common/components';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';

@@ -1,14 +1,13 @@
+import { AuthBox } from 'modules/auth/styles';
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { FullContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { AuthLayout } from 'modules/layout/components';
 import * as React from 'react';
-import { AuthBox } from '../../../auth/styles';
-import { Box, MiddleContent, Title } from '../../status/styles';
 
 class Confirmation extends React.Component<{
   confirmUser: (
@@ -33,34 +32,29 @@ class Confirmation extends React.Component<{
     });
   };
 
-  render() {
+  renderContent() {
     return (
       <AuthBox>
-        <h2>{__('Welcome')}</h2>
+        <h2>{__('Set up your password')}</h2>
         <form onSubmit={this.onSubmit}>
-          <FullContent center={true}>
-            <MiddleContent>
-              <Box>
-                <Title>{__('Set up your password')}</Title>
-                <FormGroup>
-                  <ControlLabel>Password</ControlLabel>
-
-                  <FormControl type="password" id="password" />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Password Confirmation</ControlLabel>
-
-                  <FormControl type="password" id="passwordConfirmation" />
-                </FormGroup>
-                <FormGroup>
-                  <Button type="submit">Submit</Button>
-                </FormGroup>
-              </Box>
-            </MiddleContent>
-          </FullContent>
+          <FormGroup>
+            <ControlLabel>Password</ControlLabel>
+            <FormControl type="password" id="password" />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Password Confirmation</ControlLabel>
+            <FormControl type="password" id="passwordConfirmation" />
+          </FormGroup>
+          <Button btnStyle="success" type="submit" block={true}>
+            Submit
+          </Button>
         </form>
       </AuthBox>
     );
+  }
+
+  render() {
+    return <AuthLayout content={this.renderContent()} />;
   }
 }
 
