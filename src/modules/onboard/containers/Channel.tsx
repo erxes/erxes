@@ -91,7 +91,7 @@ const SidebarContainer = (props: FinalProps) => {
 
         setTimeout(() => {
           history.push('/');
-        }, 1500);
+        }, 800);
       })
       .catch(error => {
         Alert.error(error.message);
