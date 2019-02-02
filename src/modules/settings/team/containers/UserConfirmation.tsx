@@ -32,7 +32,6 @@ class UserConfirmationContainer extends React.Component<FinalProps> {
       usersConfirmInvitation({
         variables: {
           token: queryParams.token,
-          email: queryParams.email,
           password,
           passwordConfirmation,
           username,

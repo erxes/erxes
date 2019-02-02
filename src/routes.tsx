@@ -51,9 +51,9 @@ const renderRoutes = currentUser => {
   return (
     <Switch>
       <Route
-        key="/invitation"
+        key="/confirmation"
         exact={true}
-        path="/invitation"
+        path="/confirmation"
         component={userConfirmation}
       />
       <AuthRoutes />
