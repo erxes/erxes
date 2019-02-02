@@ -12,14 +12,14 @@ type Props = {
   currentBoard?: IBoard;
   currentPipeline?: IPipeline;
   boards: IBoard[];
-  loading?: boolean;
+  loading: boolean;
 };
 
 class Home extends React.Component<Props> {
   renderBoards() {
     const { currentBoard, boards } = this.props;
 
-    if (boards.length <= 1) {
+    if (currentBoard && boards.length <= 1) {
       return <EmptyState icon="layout" text="No other boards" size="small" />;
     }
 
@@ -48,7 +48,7 @@ class Home extends React.Component<Props> {
     const { currentBoard, currentPipeline } = this.props;
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
-    if (pipelines.length <= 1) {
+    if (currentPipeline && pipelines.length <= 1) {
       return <EmptyState icon="stop" text="No other pipeline" size="small" />;
     }
 
@@ -101,9 +101,11 @@ class Home extends React.Component<Props> {
     );
 
     const actionBarRight = (
-      <Button btnStyle="success" icon="settings">
-        <Link to="/settings/deals">{__('Manage Board & Pipeline')}</Link>
-      </Button>
+      <Link to="/settings/deals">
+        <Button btnStyle="success" icon="settings">
+          {__('Manage Board & Pipeline')}
+        </Button>
+      </Link>
     );
 
     return (
@@ -114,17 +116,29 @@ class Home extends React.Component<Props> {
       />
     );
   }
+  renderContent() {
+    const { currentPipeline, boards } = this.props;
+
+    if (boards.length === 0) {
+      return (
+        <EmptyState
+          image="/images/robots/robot-03.svg"
+          text="No board"
+          size="small"
+        />
+      );
+    }
+    return <Board currentPipeline={currentPipeline} />;
+  }
 
   render() {
     const breadcrumb = [{ title: __('Deal') }];
-
-    const { currentPipeline } = this.props;
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={this.renderActionBar()}
-        content={<Board currentPipeline={currentPipeline} />}
+        content={this.renderContent()}
         transparent={true}
       />
     );
