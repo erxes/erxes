@@ -51,7 +51,7 @@ class FilterByParams extends React.Component<IProps, State> {
     const { key } = this.state;
 
     if (fields.length === 0) {
-      return <EmptyState icon="clipboard-1" text="No templates" size="full" />;
+      return <EmptyState icon={icon} text="No templates" size="full" />;
     }
 
     return (
@@ -102,7 +102,7 @@ class FilterByParams extends React.Component<IProps, State> {
         count={fields.length}
         data={this.renderItems()}
         emptyText="Empty"
-        emptyIcon="piggybank"
+        emptyIcon="file"
         size="small"
         objective={true}
       />

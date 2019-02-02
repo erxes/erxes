@@ -18,7 +18,7 @@ type Props = {
 class Home extends React.Component<Props> {
   renderBoards() {
     const { currentBoard, boards } = this.props;
-    if ((currentBoard && boards.length === 1) || boards.length === 0) {
+    if (currentBoard && boards.length <= 1) {
       return <EmptyState icon="clipboard" text="No board" size="small" />;
     }
 
@@ -47,9 +47,10 @@ class Home extends React.Component<Props> {
     const { currentBoard, currentPipeline } = this.props;
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
-    if ((currentPipeline && pipelines.length === 1) || pipelines.length === 0) {
+    if (currentPipeline && pipelines.length <= 1) {
       return <EmptyState icon="clipboard" text="No pipeline" size="small" />;
     }
+
     if (!currentBoard) {
       return null;
     }
@@ -115,7 +116,7 @@ class Home extends React.Component<Props> {
     );
   }
   renderContent() {
-    const { currentPipeline, boards, loading } = this.props;
+    const { currentPipeline, boards } = this.props;
 
     if (boards.length === 0) {
       return (
