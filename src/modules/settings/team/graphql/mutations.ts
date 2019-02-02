@@ -51,8 +51,8 @@ const usersInvite = `
 `;
 
 const usersConfirmInvitation = `
-  mutation usersConfirmInvitation($email: String, $token: String, $password: String, $passwordConfirmation: String, $fullName: String, $username: String) {
-    usersConfirmInvitation(email: $email, token: $token, password: $password, passwordConfirmation: $passwordConfirmation, fullName: $fullName, username: $username) {
+  mutation usersConfirmInvitation($token: String, $password: String, $passwordConfirmation: String, $fullName: String, $username: String) {
+    usersConfirmInvitation(token: $token, password: $password, passwordConfirmation: $passwordConfirmation, fullName: $fullName, username: $username) {
       _id
     }
   }

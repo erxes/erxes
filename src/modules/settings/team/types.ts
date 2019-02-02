@@ -35,7 +35,6 @@ export type UserConverationsQueryResponse = {
 };
 
 export type ConfirmMutationVariables = {
-  email: string;
   token: string;
   password: string;
   passwordConfirmation: string;
