@@ -21,7 +21,7 @@ const WithPipelinesQuery = (props: FinalProps) => {
   if (!pipelineDetailQuery) {
     return (
       <EmptyState
-        image="/images/robots/robot-03.svg"
+        image="/images/actions/19.svg"
         text="There is no pipeline in this board."
         size="small"
       />

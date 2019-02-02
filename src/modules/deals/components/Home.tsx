@@ -19,7 +19,7 @@ class Home extends React.Component<Props> {
   renderBoards() {
     const { currentBoard, boards } = this.props;
 
-    if (currentBoard && boards.length <= 1) {
+    if ((currentBoard && boards.length === 1) || boards.length === 0) {
       return <EmptyState icon="layout" text="No other boards" size="small" />;
     }
 
@@ -48,7 +48,7 @@ class Home extends React.Component<Props> {
     const { currentBoard, currentPipeline } = this.props;
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
-    if (currentPipeline && pipelines.length <= 1) {
+    if ((currentPipeline && pipelines.length === 1) || pipelines.length === 0) {
       return <EmptyState icon="stop" text="No other pipeline" size="small" />;
     }
 
@@ -83,7 +83,7 @@ class Home extends React.Component<Props> {
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
-              {(currentBoard && currentBoard.name) || __('There is no board')}
+              {(currentBoard && currentBoard.name) || __('Choose board')}
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
@@ -92,7 +92,8 @@ class Home extends React.Component<Props> {
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
-              {(currentPipeline && currentPipeline.name) || __('No pipeline')}
+              {(currentPipeline && currentPipeline.name) ||
+                __('Choose pipeline')}
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderPipelines()}</Dropdown.Menu>
@@ -122,7 +123,7 @@ class Home extends React.Component<Props> {
     if (boards.length === 0) {
       return (
         <EmptyState
-          image="/images/robots/robot-03.svg"
+          image="/images/actions/16.svg"
           text="No board"
           size="small"
         />
