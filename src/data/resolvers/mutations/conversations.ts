@@ -174,7 +174,7 @@ const conversationMutations = {
 
     if (kind === KIND_CHOICES.FORM && email) {
       utils.sendEmail({
-        to: email,
+        toEmails: [email],
         title: 'Reply',
         template: {
           data: doc.content,
@@ -319,8 +319,8 @@ const conversationMutations = {
         if (notifyCustomer && customer.primaryEmail) {
           // send email to customer
           utils.sendEmail({
-            to: customer.primaryEmail,
-            subject: 'Conversation detail',
+            toEmails: [customer.primaryEmail],
+            title: 'Conversation detail',
             template: {
               name: 'conversationDetail',
               data: {

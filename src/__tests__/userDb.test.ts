@@ -114,6 +114,91 @@ describe('User db utils', () => {
     }
   });
 
+  test('createUserWithConfirmation', async () => {
+    const token = await Users.createUserWithConfirmation({ email: '123@gmail.com' });
+
+    const userObj = await Users.findOne({ registrationToken: token });
+
+    if (!userObj) {
+      throw new Error('User not found');
+    }
+
+    expect(userObj).toBeDefined();
+    expect(userObj._id).toBeDefined();
+    expect(userObj.registrationToken).toBeDefined();
+  });
+
+  test('updateOnBoardSeen', async () => {
+    const user = await userFactory({});
+
+    await Users.updateOnBoardSeen({ _id: user._id });
+
+    const userObj = await Users.findOne({ _id: user._id });
+
+    if (!userObj) {
+      throw new Error('User not found');
+    }
+
+    expect(userObj.hasSeenOnBoard).toBeTruthy();
+  });
+
+  test('confirmInvitation', async () => {
+    const email = '123@gmail.com';
+    const token = 'token';
+
+    let userObj = await userFactory({
+      email,
+      registrationToken: token,
+    });
+
+    if (!userObj) {
+      throw new Error('User not found');
+    }
+
+    await Users.confirmInvitation({
+      token,
+      password: '123',
+      passwordConfirmation: '123',
+    });
+
+    await Users.remove({ _id: userObj._id });
+
+    userObj = await userFactory({
+      email,
+      registrationToken: token,
+    });
+
+    try {
+      await Users.confirmInvitation({
+        token: '123321312312',
+        password: '',
+        passwordConfirmation: '',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Invalid token');
+    }
+
+    try {
+      await Users.confirmInvitation({
+        token,
+        password: '',
+        passwordConfirmation: '',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Password can not be empty');
+    }
+
+    try {
+      await Users.confirmInvitation({
+        token,
+        password: '123',
+        passwordConfirmation: '1234',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Password does not match');
+    }
+  });
+
   test('Update user', async () => {
     const updateDoc = await userFactory({});
 

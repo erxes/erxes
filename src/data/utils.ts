@@ -164,8 +164,6 @@ export const sendEmail = async ({
   fromEmail?: string;
   title?: string;
   template?: { name?: string; data?: any; isCustom?: boolean };
-  subject?: string;
-  to?: string;
 }) => {
   const { NODE_ENV, DEFAULT_EMAIL_SERVICE, COMPANY_EMAIL_FROM } = process.env;
 

@@ -26,6 +26,7 @@ import ResponseTemplate from './responseTemplate';
 import Script from './script';
 import Segment from './segment';
 import Subscription from './subscriptions';
+import User from './user';
 
 const resolvers: any = {
   ...customScalars,
@@ -61,6 +62,7 @@ const resolvers: any = {
   Form,
   FieldsGroup: fieldsGroup,
   Field: field,
+  User,
   ImportHistory,
 };
 
