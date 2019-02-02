@@ -36,8 +36,10 @@ export interface IUser {
   password: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  registrationToken?: string;
   role?: string;
   isOwner?: boolean;
+  hasSeenOnBoard?: boolean;
   email?: string;
   getNotificationByEmail?: boolean;
   emailSignatures?: IEmailSignature[];
@@ -94,12 +96,14 @@ export const userSchema = new Schema({
   username: field({ type: String }),
   password: field({ type: String }),
   resetPasswordToken: field({ type: String }),
+  registrationToken: field({ type: String }),
   resetPasswordExpires: field({ type: Date }),
   role: field({
     type: String,
     enum: [ROLES.ADMIN, ROLES.CONTRIBUTOR],
   }),
   isOwner: field({ type: Boolean }),
+  hasSeenOnBoard: field({ type: Boolean }),
   email: field({
     type: String,
     lowercase: true,
@@ -109,7 +113,7 @@ export const userSchema = new Schema({
   getNotificationByEmail: field({ type: Boolean }),
   emailSignatures: field({ type: [emailSignatureSchema] }),
   starredConversationIds: field({ type: [String] }),
-  details: field({ type: detailSchema }),
+  details: field({ type: detailSchema, default: {} }),
   links: field({ type: linkSchema, default: {} }),
   isActive: field({ type: Boolean, default: true }),
 });
