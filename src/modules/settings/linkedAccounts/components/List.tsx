@@ -145,7 +145,7 @@ class List extends React.Component<Props> {
             loading={loading}
             count={accounts.length}
             emptyText="There is no account."
-            emptyImage="/images/robots/robot-03.svg"
+            emptyImage="/images/actions/20.svg"
           />
         }
       />

@@ -18,8 +18,9 @@ type Props = {
 class Home extends React.Component<Props> {
   renderBoards() {
     const { currentBoard, boards } = this.props;
+
     if (currentBoard && boards.length <= 1) {
-      return <EmptyState icon="clipboard" text="No board" size="small" />;
+      return <EmptyState icon="layout" text="No other boards" size="small" />;
     }
 
     return boards.map(board => {
@@ -48,7 +49,7 @@ class Home extends React.Component<Props> {
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
     if (currentPipeline && pipelines.length <= 1) {
-      return <EmptyState icon="clipboard" text="No pipeline" size="small" />;
+      return <EmptyState icon="stop" text="No other pipeline" size="small" />;
     }
 
     if (!currentBoard) {
@@ -82,7 +83,7 @@ class Home extends React.Component<Props> {
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
-              {currentBoard && currentBoard.name}
+              {(currentBoard && currentBoard.name) || __('There is no board')}
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
@@ -91,7 +92,7 @@ class Home extends React.Component<Props> {
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
-              {currentPipeline && currentPipeline.name}
+              {(currentPipeline && currentPipeline.name) || __('No pipeline')}
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderPipelines()}</Dropdown.Menu>

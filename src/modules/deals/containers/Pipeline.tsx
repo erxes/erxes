@@ -34,7 +34,7 @@ class WithStages extends React.Component<Props, {}> {
     if (stagesCount === 0) {
       return (
         <EmptyState
-          image="/images/robots/robot-03.svg"
+          image="/images/actions/16.svg"
           text="No stage in this pipeline"
           size="small"
         />

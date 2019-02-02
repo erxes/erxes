@@ -66,7 +66,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
             loading={loading}
             count={totalCount}
             emptyText="There is no data."
-            emptyImage="/images/robots/robot-05.svg"
+            emptyImage="/images/actions/5.svg"
           />
         }
       />

@@ -46,7 +46,7 @@ export default class ConversationList extends React.Component<Props> {
           <EmptyState
             text="There is no message."
             size="full"
-            image="/images/robots/robot-02.svg"
+            image="/images/actions/6.svg"
           />
         )}
 

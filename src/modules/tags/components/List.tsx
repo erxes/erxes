@@ -73,7 +73,7 @@ function List({ tags, type, remove, save, loading }: Props) {
           loading={loading}
           count={tags.length}
           emptyText="There is no tag."
-          emptyImage="/images/robots/robot-03.svg"
+          emptyImage="/images/actions/8.svg"
         />
       }
       leftSidebar={<Sidebar />}

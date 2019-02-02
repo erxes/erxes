@@ -28,6 +28,7 @@ export interface IUserDoc {
   email: string;
   role?: string;
   details?: IUserDetails;
+  status?: string;
   links?: IUserLinks;
   getNotificationByEmail?: boolean;
   participatedConversations?: IUserConversation[];
@@ -36,6 +37,7 @@ export interface IUserDoc {
 export interface IUser extends IUserDoc {
   _id: string;
   role: string;
+  hasSeenOnBoard?: boolean;
   emailSignatures?: IEmailSignature[];
 }
 

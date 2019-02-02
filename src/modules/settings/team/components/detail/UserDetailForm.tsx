@@ -131,7 +131,7 @@ class UserDetails extends React.Component<Props, State> {
             />
           }
           emptyText="Empty Notes"
-          emptyImage="/images/robots/robot-03.svg"
+          emptyImage="/images/actions/19.svg"
         />
       </ActivityContent>
     );

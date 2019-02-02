@@ -2,9 +2,10 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Info
 } from 'modules/common/components';
-import { ModalFooter, Well } from 'modules/common/styles/main';
+import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { IEmailSignatureWithBrand } from '../types';
@@ -69,11 +70,11 @@ class Signature extends React.Component<Props, State> {
 
     const content = (
       <div>
-        <Well>
+        <Info>
           {__('Signatures are only included in response emails.')}
           <br />
           {__('You can use Markdown to format your signature.')}
-        </Well>
+        </Info>
 
         <form id="signature-form" onSubmit={this.handleSubmit}>
           <FormGroup>

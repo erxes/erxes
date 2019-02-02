@@ -20,10 +20,12 @@ import FilterByParams from './FilterByParams';
 import { ControlLabel, FormControl, FormGroup, Textarea } from './form';
 import Icon from './Icon';
 import ImageWithPreview from './ImageWithPreview';
+import Info from './Info';
 import IntegrationIcon from './IntegrationIcon';
 import Label from './Label';
 import LoadMore from './LoadMore';
 import ModalTrigger from './ModalTrigger';
+import ModifiableList from './ModifiableList';
 import ModifiableSelect from './ModifiableSelect';
 import NameCard from './nameCard/NameCard';
 import Pagination from './pagination/Pagination';
@@ -36,6 +38,7 @@ import Table from './table';
 import { Tabs, TabTitle } from './tabs';
 import Tags from './Tags';
 import TextDivider from './TextDivider';
+import TextInfo from './TextInfo';
 import Tip from './Tip';
 import Uploader from './Uploader';
 
@@ -87,6 +90,9 @@ export {
   Chooser,
   DateFilter,
   ModifiableSelect,
+  ModifiableList,
   Uploader,
-  SortHandler
+  SortHandler,
+  TextInfo,
+  Info
 };

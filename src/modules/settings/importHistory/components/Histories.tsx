@@ -66,7 +66,7 @@ class Histories extends React.Component<Props> {
             loading={loading}
             count={histories.length}
             emptyText="There aren't any imports"
-            emptyImage="/images/robots/robot-01.svg"
+            emptyImage="/images/actions/15.svg"
           />
         }
       />

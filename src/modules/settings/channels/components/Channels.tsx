@@ -78,7 +78,7 @@ class Channels extends React.Component<Props, {}> {
             loading={loading}
             count={integrationsCount}
             emptyText="There is no integration in this channel."
-            emptyImage="/images/robots/robot-05.svg"
+            emptyImage="/images/actions/2.svg"
           />
         }
       />

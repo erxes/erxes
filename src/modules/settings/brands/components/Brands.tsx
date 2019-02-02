@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   Button,
   DataWithLoader,
+  Info,
   ModalTrigger,
   Pagination
 } from '../../../common/components';
@@ -78,7 +79,7 @@ class Brands extends React.Component<Props, {}> {
             loading={loading}
             count={integrationsCount}
             emptyText="There is no integration in this Brand"
-            emptyImage="/images/robots/robot-05.svg"
+            emptyImage="/images/actions/2.svg"
           />
         }
       />

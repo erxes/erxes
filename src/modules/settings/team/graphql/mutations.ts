@@ -4,9 +4,7 @@ const commonParamsDef = `
   $role: String!
   $details: UserDetails,
   $links: UserLinks,
-  $channelIds: [String],
-  $password: String!,
-  $passwordConfirmation: String!
+  $channelIds: [String]
 `;
 
 const commonParams = `
@@ -15,9 +13,7 @@ const commonParams = `
   role: $role,
   details: $details,
   links: $links,
-  channelIds: $channelIds,
-  password: $password,
-  passwordConfirmation: $passwordConfirmation
+  channelIds: $channelIds
 `;
 
 const usersEdit = `
@@ -48,4 +44,23 @@ const usersEditProfile = `
   }
 `;
 
-export default { usersEditProfile, usersEdit };
+const usersInvite = `
+  mutation usersInvite($emails: [String]) {
+    usersInvite(emails: $emails)
+  }
+`;
+
+const usersConfirmInvitation = `
+  mutation usersConfirmInvitation($email: String, $token: String, $password: String, $passwordConfirmation: String) {
+    usersConfirmInvitation(email: $email, token: $token, password: $password, passwordConfirmation: $passwordConfirmation) {
+      _id
+    }
+  }
+`;
+
+export default {
+  usersEditProfile,
+  usersEdit,
+  usersInvite,
+  usersConfirmInvitation
+};

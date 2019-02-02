@@ -82,6 +82,10 @@ const ContenFooter = styled.div`
 `;
 
 const BarItems = styled.div`
+  .dropdown-menu {
+    min-width: 200px;
+  }
+
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }
