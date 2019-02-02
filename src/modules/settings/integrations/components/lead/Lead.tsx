@@ -35,7 +35,9 @@ class Lead extends React.Component<Props> {
 
     this.props.save(this.generateDoc(), this.props.closeModal);
   };
-
+  onIntegrationsChange = integrations => {
+    this.setState({ integrations: integrations.map(el => el.value) });
+  };
   render() {
     const { integrations, leads, closeModal } = this.props;
 
@@ -48,7 +50,7 @@ class Lead extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Integration</ControlLabel>
+          <ControlLabel>Messenger integration</ControlLabel>
 
           <FormControl componentClass="select" id="selectIntegration">
             <option />

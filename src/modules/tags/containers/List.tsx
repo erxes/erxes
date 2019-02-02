@@ -62,6 +62,7 @@ const ListContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     tags: tagsQuery.tags || [],
+    loading: tagsQuery.loading,
     type,
     remove,
     save

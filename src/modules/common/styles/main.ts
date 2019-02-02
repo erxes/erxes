@@ -141,14 +141,6 @@ const ActivityContent = styledTS<{ isEmpty: boolean }>(styled.div)`
   height: ${props => props.isEmpty && '360px'};
 `;
 
-const Well = styled.div`
-  min-height: ${dimensions.coreSpacing}px;
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  margin-bottom: ${dimensions.coreSpacing}px;
-  background-color: ${colors.bgActive};
-  border-left: 2px solid ${colors.colorSecondary};
-`;
-
 const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
   &:after {
     cursor: pointer;
@@ -220,7 +212,6 @@ export {
   ModalFooter,
   InfoWrapper,
   Links,
-  Well,
   FormWrapper,
   FormColumn,
   ColumnTitle,

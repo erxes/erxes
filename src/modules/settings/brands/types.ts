@@ -60,7 +60,7 @@ export type BrandsManageIntegrationsMutationResponse = {
 
 export type BrandMutationVariables = {
   name: string;
-  description: string;
+  description?: string;
 };
 
 export type BrandAddMutationResponse = {

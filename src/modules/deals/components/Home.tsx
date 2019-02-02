@@ -1,4 +1,4 @@
-import { Button, DropdownToggle } from 'modules/common/components';
+import { Button, DropdownToggle, EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
@@ -12,12 +12,16 @@ type Props = {
   currentBoard?: IBoard;
   currentPipeline?: IPipeline;
   boards: IBoard[];
-  loading?: boolean;
+  loading: boolean;
 };
 
 class Home extends React.Component<Props> {
   renderBoards() {
     const { currentBoard, boards } = this.props;
+
+    if ((currentBoard && boards.length === 1) || boards.length === 0) {
+      return <EmptyState icon="layout" text="No other boards" size="small" />;
+    }
 
     return boards.map(board => {
       if (currentBoard && board._id === currentBoard._id) {
@@ -43,6 +47,10 @@ class Home extends React.Component<Props> {
   renderPipelines() {
     const { currentBoard, currentPipeline } = this.props;
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
+
+    if ((currentPipeline && pipelines.length === 1) || pipelines.length === 0) {
+      return <EmptyState icon="stop" text="No other pipeline" size="small" />;
+    }
 
     if (!currentBoard) {
       return null;
@@ -75,7 +83,7 @@ class Home extends React.Component<Props> {
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
-              {currentBoard && currentBoard.name}
+              {(currentBoard && currentBoard.name) || __('Choose board')}
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
@@ -84,7 +92,8 @@ class Home extends React.Component<Props> {
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
-              {currentPipeline && currentPipeline.name}
+              {(currentPipeline && currentPipeline.name) ||
+                __('Choose pipeline')}
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderPipelines()}</Dropdown.Menu>
@@ -93,9 +102,11 @@ class Home extends React.Component<Props> {
     );
 
     const actionBarRight = (
-      <Button btnStyle="success" icon="settings">
-        <Link to="/settings/deals">{__('Manage Board & Pipeline')}</Link>
-      </Button>
+      <Link to="/settings/deals">
+        <Button btnStyle="success" icon="settings">
+          {__('Manage Board & Pipeline')}
+        </Button>
+      </Link>
     );
 
     return (
@@ -106,17 +117,29 @@ class Home extends React.Component<Props> {
       />
     );
   }
+  renderContent() {
+    const { currentPipeline, boards } = this.props;
+
+    if (boards.length === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/16.svg"
+          text="No board"
+          size="small"
+        />
+      );
+    }
+    return <Board currentPipeline={currentPipeline} />;
+  }
 
   render() {
     const breadcrumb = [{ title: __('Deal') }];
-
-    const { currentPipeline } = this.props;
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={this.renderActionBar()}
-        content={<Board currentPipeline={currentPipeline} />}
+        content={this.renderContent()}
         transparent={true}
       />
     );

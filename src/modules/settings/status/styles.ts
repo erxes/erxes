@@ -10,7 +10,6 @@ const Box = styled.div`
   padding-bottom: 0;
   background: ${colors.colorWhite};
   margin-bottom: ${dimensions.coreSpacing}px;
-  border-radius: ${dimensions.unitSpacing}px;
   box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.1);
 `;
 

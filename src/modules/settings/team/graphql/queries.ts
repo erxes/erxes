@@ -5,6 +5,7 @@ const userDetail = `
       username
       email
       role
+      status
 
       details {
         avatar
@@ -90,6 +91,7 @@ const users = `
       username
       email
       role
+      status
       details {
         avatar
         fullName

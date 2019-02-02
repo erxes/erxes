@@ -48,7 +48,7 @@ function IntegrationFilter({ history, counts }: IProps) {
         loading={false}
         count={KIND_CHOICES.ALL_LIST.length}
         emptyText="No integrations"
-        emptyIcon="pie-graph"
+        emptyIcon="puzzle"
         size="small"
         objective={true}
       />

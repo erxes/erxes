@@ -270,7 +270,7 @@ class CompaniesList extends React.Component<IProps, State> {
             loading={loading}
             count={companies.length}
             emptyText="No companies added yet!"
-            emptyImage="/images/robots/robot-04.svg"
+            emptyImage="/images/actions/1.svg"
           />
         }
       />

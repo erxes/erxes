@@ -130,7 +130,7 @@ class Segments extends React.Component<Props> {
           loading={loading}
           count={segments.length}
           emptyText="No segments"
-          emptyIcon="pie-graph"
+          emptyIcon="pie-chart"
           size="small"
           objective={true}
         />

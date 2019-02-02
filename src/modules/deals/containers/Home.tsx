@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { Spinner } from '../../common/components';
 import { Home } from '../components';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
@@ -68,9 +69,12 @@ class Main extends React.Component<FinalProps> {
       ...this.props,
       currentBoard,
       currentPipeline,
-      boards: boardsQuery.dealBoards || []
+      boards: boardsQuery.dealBoards || [],
+      loading: boardsQuery.loading
     };
-
+    if (boardsQuery.loading) {
+      return <Spinner />;
+    }
     return <Home {...extendedProps} />;
   }
 }

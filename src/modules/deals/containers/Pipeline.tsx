@@ -3,7 +3,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
-import { Spinner } from '../../common/components';
+import { EmptyState, Spinner } from '../../common/components';
 import { withProps } from '../../common/utils';
 import { queries } from '../graphql';
 import { IDealMap, IPipeline, IStageMap, StagesQueryResponse } from '../types';
@@ -30,6 +30,16 @@ class WithStages extends React.Component<Props, {}> {
   render() {
     const { initialDealMap, pipeline, stageMap } = this.props;
     const stagesCount = this.countStages(stageMap);
+
+    if (stagesCount === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No stage in this pipeline"
+          size="small"
+        />
+      );
+    }
 
     return (
       <PipelineProvider pipeline={pipeline} initialDealMap={initialDealMap}>

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Spinner } from '../../common/components';
+import { EmptyState, Spinner } from '../../common/components';
 import { withProps } from '../../common/utils';
 import { queries } from '../graphql';
 import { IPipeline, PipelineDetailQueryResponse } from '../types';
@@ -19,7 +19,13 @@ const WithPipelinesQuery = (props: FinalProps) => {
   const { pipelineDetailQuery } = props;
 
   if (!pipelineDetailQuery) {
-    return null;
+    return (
+      <EmptyState
+        image="/images/actions/19.svg"
+        text="There is no pipeline in this board."
+        size="small"
+      />
+    );
   }
 
   if (pipelineDetailQuery.loading) {

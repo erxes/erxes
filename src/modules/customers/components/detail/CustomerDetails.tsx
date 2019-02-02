@@ -77,7 +77,7 @@ class CustomerDetails extends React.Component<Props, State> {
             />
           }
           emptyText="No Activities"
-          emptyImage="/images/robots/robot-03.svg"
+          emptyImage="/images/actions/19.svg"
         />
       </ActivityContent>
     );

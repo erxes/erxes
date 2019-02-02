@@ -1,4 +1,9 @@
-import { Button, ModalTrigger, Table } from 'modules/common/components';
+import {
+  Button,
+  DataWithLoader,
+  ModalTrigger,
+  Table
+} from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { ITag, ITagSaveParams } from 'modules/tags/types';
@@ -12,9 +17,10 @@ type Props = {
   type: string;
   remove: (tag: ITag) => void;
   save: (params: ITagSaveParams) => void;
+  loading: boolean;
 };
 
-function List({ tags, type, remove, save }: Props) {
+function List({ tags, type, remove, save, loading }: Props) {
   const trigger = (
     <Button btnStyle="success" size="small" icon="add">
       Add tag
@@ -53,7 +59,7 @@ function List({ tags, type, remove, save }: Props) {
   );
 
   const breadcrumb = [
-    { title: __('Tags'), link: '/tags' },
+    { title: __('Tags'), link: '/tags/engageMessage' },
     { title: __(type) }
   ];
 
@@ -61,7 +67,15 @@ function List({ tags, type, remove, save }: Props) {
     <Wrapper
       header={<Wrapper.Header breadcrumb={breadcrumb} />}
       actionBar={actionBar}
-      content={content}
+      content={
+        <DataWithLoader
+          data={content}
+          loading={loading}
+          count={tags.length}
+          emptyText="There is no tag."
+          emptyImage="/images/actions/8.svg"
+        />
+      }
       leftSidebar={<Sidebar />}
     />
   );

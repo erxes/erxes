@@ -3,12 +3,11 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  ModifiableList
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { Actions, TypeList } from '../styles';
 import { IField, IFieldGroup } from '../types';
 
 type Doc = {
@@ -104,6 +103,14 @@ class PropertyForm extends React.Component<Props, State> {
     this.props.closeModal();
   };
 
+  onChangeOption = options => {
+    this.setState({ options });
+  };
+
+  onRemoveOption = options => {
+    this.setState({ options });
+  };
+
   onTypeChange = e => {
     const value = e.target.value;
 
@@ -116,103 +123,16 @@ class PropertyForm extends React.Component<Props, State> {
     this.setState({ type: value, ...doc });
   };
 
-  handleAddOption = () => {
-    this.setState({ add: true });
-  };
-
-  handleCancelAddingOption = () => {
-    this.setState({ add: false });
-  };
-
-  handleSaveOption = () => {
-    const { options } = this.state;
-    const optionValue = (document.getElementById(
-      'optionValue'
-    ) as HTMLInputElement).value;
-
-    this.setState({ options: [...options, optionValue] });
-    this.handleCancelAddingOption();
-  };
-
-  handleRemoveOption = index => {
-    const { options } = this.state;
-
-    this.setState({
-      options: options.splice(index, 1) && options
-    });
-  };
-
-  renderButtonOrElement = () => {
-    if (this.state.add) {
-      const onKeyPress = e => {
-        if (e.key === 'Enter') {
-          this.handleSaveOption();
-        }
-      };
-
-      return (
-        <React.Fragment>
-          <FormControl
-            id="optionValue"
-            autoFocus={true}
-            onKeyPress={onKeyPress}
-          />
-          <Actions>
-            <Button
-              type="success"
-              icon="cancel-1"
-              btnStyle="simple"
-              size="small"
-              onClick={this.handleSaveOption}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="success"
-              btnStyle="success"
-              size="small"
-              icon="checked-1"
-              onClick={this.handleSaveOption}
-            >
-              Save
-            </Button>
-          </Actions>
-        </React.Fragment>
-      );
-    }
-
-    return (
-      <Button onClick={this.handleAddOption} size="small" icon="add">
-        {__('Add an option')}
-      </Button>
-    );
-  };
-
-  removeClick = index => {
-    return this.handleRemoveOption(index);
-  };
-
-  renderOption = (option, index) => {
-    return (
-      <li key={index}>
-        {option}
-        <Icon icon="cancel-1" onClick={this.removeClick} />
-      </li>
-    );
-  };
-
   renderOptions = () => {
     if (!this.state.hasOptions) {
       return null;
     }
 
     return (
-      <TypeList>
-        {this.state.options.map((option, index) =>
-          this.renderOption(option, index)
-        )}
-        {this.renderButtonOrElement()}
-      </TypeList>
+      <ModifiableList
+        options={this.state.options}
+        onChangeOption={this.onChangeOption}
+      />
     );
   };
 

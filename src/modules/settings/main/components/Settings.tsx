@@ -41,7 +41,7 @@ class Settings extends React.Component {
             )}
             {this.renderBox(
               'Import histories',
-              '/images/icons/erxes-12.svg',
+              '/images/icons/erxes-07.svg',
               '/settings/importHistories'
             )}
             {this.renderBox(

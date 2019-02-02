@@ -91,8 +91,6 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         description: this.getInputElementValue('description')
       },
       channelIds: this.collectValues(this.state.selectedChannels),
-      password: this.getInputElementValue('password'),
-      passwordConfirmation: this.getInputElementValue('password-confirmation'),
       links: {
         linkedIn: this.getInputElementValue('linkedin'),
         twitter: this.getInputElementValue('twitter'),
@@ -127,18 +125,6 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
 
         {this.renderChannels()}
-
-        <br />
-
-        <FormGroup>
-          <ControlLabel>Password</ControlLabel>
-          <FormControl id="password" type="password" />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Password confirmation</ControlLabel>
-          <FormControl id="password-confirmation" type="password" />
-        </FormGroup>
       </div>
     );
   };

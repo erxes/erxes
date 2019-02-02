@@ -5,7 +5,6 @@ import { Alert, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { Form } from 'modules/settings/integrations/components/messenger';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
-import { queries as integQueries } from 'modules/settings/integrations/graphql';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import {
   IMessengerData,
@@ -133,7 +132,7 @@ export default withProps<Props>(
         return {
           refetchQueries: [
             {
-              query: gql(integQueries.integrations),
+              query: gql(queries.integrations),
               variables: integrationsListParams(queryParams)
             },
             {

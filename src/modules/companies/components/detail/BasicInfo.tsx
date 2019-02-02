@@ -13,7 +13,7 @@ import {
   LEAD_STATUS_TYPES,
   LIFECYCLE_STATE_TYPES
 } from 'modules/customers/constants';
-import { Action } from 'modules/customers/styles';
+import { Action, Name } from 'modules/customers/styles';
 import { Sidebar } from 'modules/layout/components';
 import {
   SidebarCounter,
@@ -125,10 +125,10 @@ class BasicInfo extends React.Component<Props> {
             <NameCard.Avatar company={company} size={50} />
           </AvatarWrapper>
 
-          <div className="name">
+          <Name>
             {company.primaryName}
             {this.renderLinks(links)}
-          </div>
+          </Name>
           <ModalTrigger
             title="Edit basic info"
             trigger={<Icon icon="edit" />}

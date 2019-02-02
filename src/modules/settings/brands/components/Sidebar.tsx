@@ -78,13 +78,9 @@ class Sidebar extends React.Component<Props, {}> {
           <LoadMore all={brandsTotalCount} loading={loading} />
         </List>
         {loading && <Spinner />}
-        {!loading &&
-          brandsTotalCount === 0 && (
-            <EmptyState
-              image="/images/robots/robot-03.svg"
-              text="There is no brand"
-            />
-          )}
+        {!loading && brandsTotalCount === 0 && (
+          <EmptyState image="/images/actions/18.svg" text="There is no brand" />
+        )}
       </LeftSidebar>
     );
   }
