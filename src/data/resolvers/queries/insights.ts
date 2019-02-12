@@ -56,7 +56,6 @@ const insightQueries = {
         ...conversationSelector,
         integrationId: { $in: integrationIds },
       });
-
       if (kind === INTEGRATION_KIND_CHOICES.FACEBOOK) {
         const { FEED, MESSENGER } = FACEBOOK_DATA_KINDS;
 
@@ -124,7 +123,7 @@ const insightQueries = {
   /**
    * Counts conversations by each hours in each days.
    */
-  async insightsPunchCard(_root, args: IListArgs) {
+  async insightsPunchCard(_root, args: IListArgs, { user }) {
     const { type, endDate } = args;
     const filterSelector = getFilterSelector(args);
 
@@ -158,7 +157,7 @@ const insightQueries = {
         $project: {
           hour: { $hour: { date: '$createdAt', timezone: '+08' } },
           day: { $isoDayOfWeek: { date: '$createdAt', timezone: '+08' } },
-          date: await getDateFieldAsStr({}),
+          date: await getDateFieldAsStr({ timeZone: user.details.location }),
         },
       },
       {
@@ -327,7 +326,7 @@ const insightQueries = {
   /**
    * Calculates average response close time for each team members.
    */
-  async insightsResponseClose(_root, args: IListArgs) {
+  async insightsResponseClose(_root, args: IListArgs, { user }) {
     const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
 
@@ -350,7 +349,7 @@ const insightQueries = {
       {
         $project: {
           responseTime: getDurationField({ startField: '$closedAt', endField: '$createdAt' }),
-          date: await getDateFieldAsStr({}),
+          date: await getDateFieldAsStr({ timeZone: user.details.location }),
           closedUserId: 1,
         },
       },
