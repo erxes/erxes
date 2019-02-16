@@ -138,8 +138,10 @@ const insightExportQueries = {
   /*
    * Volume report export
    */
-  async insightVolumeReportExport(_root, args: IListArgs, { user }) {
+  async insightVolumeReportExport(_root, args: IListArgs, { user }: { user: IUserDocument }) {
     const { startDate, endDate, type } = args;
+    const timeZone = user.details ? user.details.location : '+08';
+
     let diffCount = 7;
     let timeFormat = 'YYYY-MM-DD';
     let aggregationTimeFormat = '%Y-%m-%d';
@@ -165,7 +167,7 @@ const insightExportQueries = {
       },
       {
         $project: {
-          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone: user.details.location }),
+          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone }),
           customerId: 1,
           status: 1,
           closeTime: getDurationField({ startField: '$closedAt', endField: '$createdAt' }),
@@ -228,7 +230,7 @@ const insightExportQueries = {
       },
       {
         $project: {
-          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone: user.details.location }),
+          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone }),
           status: 1,
         },
       },

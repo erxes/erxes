@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
+import { IUserDocument } from '../../../db/models/definitions/users';
 import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
 import { getDateFieldAsStr, getDurationField } from './aggregationUtils';
@@ -123,7 +124,7 @@ const insightQueries = {
   /**
    * Counts conversations by each hours in each days.
    */
-  async insightsPunchCard(_root, args: IListArgs, { user }) {
+  async insightsPunchCard(_root, args: IListArgs, { user }: { user: IUserDocument }) {
     const { type, endDate } = args;
     const filterSelector = getFilterSelector(args);
 
@@ -157,7 +158,7 @@ const insightQueries = {
         $project: {
           hour: { $hour: { date: '$createdAt', timezone: '+08' } },
           day: { $isoDayOfWeek: { date: '$createdAt', timezone: '+08' } },
-          date: await getDateFieldAsStr({ timeZone: user.details.location }),
+          date: await getDateFieldAsStr({ timeZone: user.details ? user.details.location : '+08' }),
         },
       },
       {
