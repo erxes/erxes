@@ -34,6 +34,7 @@ type Props = {
 };
 
 type State = {
+  channelName: string;
   selectedMembers: IUser[];
   selectedMessengers: IIntegration[];
   showChannels: boolean;
@@ -44,6 +45,7 @@ class ChannelForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      channelName: '',
       selectedMembers: [],
       selectedMessengers: [],
       showChannels: true
@@ -76,10 +78,61 @@ class ChannelForm extends React.Component<Props, State> {
 
   generateDoc = () => {
     return {
-      name: (document.getElementById('channel-name') as HTMLInputElement).value,
+      name: this.state.channelName,
       memberIds: this.collectValues(this.state.selectedMembers),
       integrationIds: this.collectValues(this.state.selectedMessengers)
     };
+  };
+
+  handleInput = e => {
+    e.preventDefault();
+    this.setState({ channelName: e.target.value });
+  };
+
+  isFilledValues = () => {
+    const { channelName, selectedMembers, selectedMessengers } = this.state;
+
+    if (
+      channelName &&
+      selectedMembers.length > 0 &&
+      selectedMessengers.length > 0
+    ) {
+      return false;
+    }
+
+    return true;
+  };
+
+  renderOtherChannels = () => {
+    const { channelsTotalCount, channels, remove } = this.props;
+
+    if (channelsTotalCount === 0) {
+      return null;
+    }
+
+    const { showChannels } = this.state;
+
+    return (
+      <>
+        <Description>
+          <Icon icon="checked-1" /> {__('You already have')}{' '}
+          <b>{channelsTotalCount}</b> {__('channels')}.{' '}
+          <a href="javascript:;" onClick={this.toggleChannels}>
+            {showChannels ? __('Show') : __('Hide')} ›
+          </a>
+        </Description>
+
+        <RTG.CSSTransition
+          in={showChannels}
+          appear={true}
+          timeout={300}
+          classNames="slide-in-small"
+          unmountOnExit={true}
+        >
+          <ChannelList remove={remove} channels={channels} />
+        </RTG.CSSTransition>
+      </>
+    );
   };
 
   renderContent() {
@@ -101,7 +154,12 @@ class ChannelForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
-          <FormControl id="channel-name" type="text" required={true} />
+          <FormControl
+            value={this.state.channelName}
+            onChange={this.handleInput}
+            type="text"
+            required={true}
+          />
         </FormGroup>
 
         <FormGroup>
@@ -128,29 +186,13 @@ class ChannelForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <Description>
-          <Icon icon="checked-1" /> {__('You already have')}{' '}
-          <b>{this.props.channelsTotalCount}</b> {__('channels')}.{' '}
-          <a href="javascript:;" onClick={this.toggleChannels}>
-            {showChannels ? __('Show') : __('Hide')} ›
-          </a>
-        </Description>
-
-        <RTG.CSSTransition
-          in={showChannels}
-          appear={true}
-          timeout={300}
-          classNames="slide-in-small"
-          unmountOnExit={true}
-        >
-          <ChannelList remove={remove} channels={channels} />
-        </RTG.CSSTransition>
+        {this.renderOtherChannels()}
       </React.Fragment>
     );
   }
 
   render() {
-    const { channelsTotalCount, changeStep } = this.props;
+    const { changeStep } = this.props;
 
     return (
       <form onSubmit={this.save}>
@@ -165,7 +207,7 @@ class ChannelForm extends React.Component<Props, State> {
             </Button>
             <Button
               btnStyle="success"
-              disabled={channelsTotalCount === 0}
+              disabled={this.isFilledValues()}
               onClick={this.save}
             >
               {__('Finish')} <Icon icon="rightarrow-2" />

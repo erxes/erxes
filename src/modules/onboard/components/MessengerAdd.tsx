@@ -46,7 +46,7 @@ class MessengerAdd extends React.Component<Props, State> {
     this.setState({ name: '' });
   }
 
-  toggleBrands = () => {
+  toggleMessengers = () => {
     this.setState({ showMessengers: !this.state.showMessengers });
   };
 
@@ -87,8 +87,40 @@ class MessengerAdd extends React.Component<Props, State> {
     this.setState({ [name]: e.target.value } as Pick<State, keyof State>);
   };
 
+  renderOtherMessengers = () => {
+    const { totalCount } = this.props;
+
+    if (totalCount === 0) {
+      return null;
+    }
+
+    const { showMessengers } = this.state;
+
+    return (
+      <>
+        <Description>
+          <Icon icon="checked-1" /> {__('You already have')} <b>{totalCount}</b>{' '}
+          {__('messengers')}.
+          <a href="javascript:;" onClick={this.toggleMessengers}>
+            {showMessengers ? __('Show') : __('Hide')} ›
+          </a>
+        </Description>
+
+        <RTG.CSSTransition
+          in={showMessengers}
+          appear={true}
+          timeout={300}
+          classNames="slide-in-small"
+          unmountOnExit={true}
+        >
+          <MessengerList />
+        </RTG.CSSTransition>
+      </>
+    );
+  };
+
   renderContent() {
-    const { name, showMessengers } = this.state;
+    const { name } = this.state;
 
     return (
       <>
@@ -125,23 +157,7 @@ class MessengerAdd extends React.Component<Props, State> {
           onChange={this.handleChange.bind(this, 'brand')}
         />
 
-        <Description>
-          <Icon icon="checked-1" /> {__('You already have')}{' '}
-          <b>{this.props.totalCount}</b> {__('messengers')}.
-          <a href="javascript:;" onClick={this.toggleBrands}>
-            {showMessengers ? __('Show') : __('Hide')} ›
-          </a>
-        </Description>
-
-        <RTG.CSSTransition
-          in={showMessengers}
-          appear={true}
-          timeout={300}
-          classNames="slide-in-small"
-          unmountOnExit={true}
-        >
-          <MessengerList />
-        </RTG.CSSTransition>
+        {this.renderOtherMessengers()}
       </>
     );
   }
