@@ -1,7 +1,7 @@
 import { Channels, Users } from '../../../db/models';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument } from '../../../db/models/definitions/users';
 import { requireAdmin, requireLogin } from '../../permissions';
-import utils from '../../utils';
+import utils, { authCookieOptions } from '../../utils';
 
 interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -17,22 +17,7 @@ const userMutations = {
 
     const { token } = response;
 
-    const oneDay = 1 * 24 * 3600 * 1000; // 1 day
-
-    const cookieOptions = {
-      httpOnly: true,
-      expires: new Date(Date.now() + oneDay),
-      maxAge: oneDay,
-      secure: false,
-    };
-
-    const { HTTPS } = process.env;
-
-    if (HTTPS === 'true') {
-      cookieOptions.secure = true;
-    }
-
-    res.cookie('auth-token', token, cookieOptions);
+    res.cookie('auth-token', token, authCookieOptions());
 
     return 'loggedIn';
   },

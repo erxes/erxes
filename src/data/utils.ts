@@ -386,6 +386,23 @@ export const validateEmail = async email => {
   return true;
 };
 
+export const authCookieOptions = () => {
+  const oneDay = 1 * 24 * 3600 * 1000; // 1 day
+
+  const cookieOptions = {
+    httpOnly: true,
+    expires: new Date(Date.now() + oneDay),
+    maxAge: oneDay,
+    secure: false,
+  };
+
+  const { HTTPS } = process.env;
+
+  if (HTTPS === 'true') {
+    cookieOptions.secure = true;
+  }
+};
+
 export default {
   sendEmail,
   validateEmail,
