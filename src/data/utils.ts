@@ -401,6 +401,8 @@ export const authCookieOptions = () => {
   if (HTTPS === 'true') {
     cookieOptions.secure = true;
   }
+
+  return cookieOptions;
 };
 
 export default {
