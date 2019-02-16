@@ -16,6 +16,7 @@ import {
   getConversationSelector,
   getFilterSelector,
   getSummaryData,
+  getTimezone,
   IListArgs,
 } from './insightUtils';
 
@@ -158,7 +159,7 @@ const insightQueries = {
         $project: {
           hour: { $hour: { date: '$createdAt', timezone: '+08' } },
           day: { $isoDayOfWeek: { date: '$createdAt', timezone: '+08' } },
-          date: await getDateFieldAsStr({ timeZone: user.details ? user.details.location : '+08' }),
+          date: await getDateFieldAsStr({ timeZone: getTimezone(user) }),
         },
       },
       {
@@ -327,7 +328,7 @@ const insightQueries = {
   /**
    * Calculates average response close time for each team members.
    */
-  async insightsResponseClose(_root, args: IListArgs, { user }) {
+  async insightsResponseClose(_root, args: IListArgs, { user }: { user: IUserDocument }) {
     const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
 
@@ -350,7 +351,7 @@ const insightQueries = {
       {
         $project: {
           responseTime: getDurationField({ startField: '$closedAt', endField: '$createdAt' }),
-          date: await getDateFieldAsStr({ timeZone: user.details.location }),
+          date: await getDateFieldAsStr({ timeZone: getTimezone(user) }),
           closedUserId: 1,
         },
       },

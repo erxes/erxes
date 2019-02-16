@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Integrations, Users } from '../../../db/models';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
+import { IUser } from '../../../db/models/definitions/users';
 import { getDateFieldAsStr } from './aggregationUtils';
 
 interface IMessageSelector {
@@ -441,4 +442,8 @@ export const generateResponseData = async (
   }
 
   return { trend, time, teamMembers };
+};
+
+export const getTimezone = (user: IUser): string => {
+  return (user.details ? user.details.location : '+08') || '+08';
 };

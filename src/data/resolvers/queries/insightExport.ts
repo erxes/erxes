@@ -12,6 +12,7 @@ import {
   generateUserSelector,
   getConversationSelector,
   getFilterSelector,
+  getTimezone,
   IListArgs,
 } from './insightUtils';
 
@@ -140,7 +141,6 @@ const insightExportQueries = {
    */
   async insightVolumeReportExport(_root, args: IListArgs, { user }: { user: IUserDocument }) {
     const { startDate, endDate, type } = args;
-    const timeZone = user.details ? user.details.location : '+08';
 
     let diffCount = 7;
     let timeFormat = 'YYYY-MM-DD';
@@ -167,7 +167,7 @@ const insightExportQueries = {
       },
       {
         $project: {
-          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone }),
+          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone: getTimezone(user) }),
           customerId: 1,
           status: 1,
           closeTime: getDurationField({ startField: '$closedAt', endField: '$createdAt' }),
@@ -230,7 +230,7 @@ const insightExportQueries = {
       },
       {
         $project: {
-          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone }),
+          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone: getTimezone(user) }),
           status: 1,
         },
       },
@@ -343,7 +343,7 @@ const insightExportQueries = {
   /*
    * Operator Activity Report
    */
-  async insightActivityReportExport(_root, args: IListArgs, { user }) {
+  async insightActivityReportExport(_root, args: IListArgs, { user }: { user: IUserDocument }) {
     const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate, 1);
 
@@ -361,7 +361,7 @@ const insightExportQueries = {
       },
       {
         $project: {
-          date: await getDateFieldAsStr({ timeFormat: '%Y-%m-%d %H', timeZone: user.details.location }),
+          date: await getDateFieldAsStr({ timeFormat: '%Y-%m-%d %H', timeZone: getTimezone(user) }),
           userId: 1,
         },
       },
@@ -603,7 +603,7 @@ const insightExportQueries = {
   /*
    * Tag Report
    */
-  async insightTagReportExport(_root, args: IListArgs, { user }) {
+  async insightTagReportExport(_root, args: IListArgs, { user }: { user: IUserDocument }) {
     const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
     const filterSelector = getFilterSelector(args);
@@ -644,7 +644,7 @@ const insightExportQueries = {
         $group: {
           _id: {
             tagId: '$tagIds',
-            date: getDateFieldAsStr({ timeZone: user.details.location }),
+            date: getDateFieldAsStr({ timeZone: getTimezone(user) }),
           },
           count: { $sum: 1 },
         },
