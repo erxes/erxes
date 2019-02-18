@@ -52,12 +52,10 @@ export const checkFile = async file => {
  * Save binary data to amazon s3
  */
 export const uploadFile = async (file: { name: string; path: string }): Promise<string> => {
-  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET = '', AWS_PREFIX = '' } = process.env;
-
-  // check credentials
-  if (!(AWS_ACCESS_KEY_ID || AWS_SECRET_ACCESS_KEY || AWS_BUCKET)) {
-    throw new Error('Security credentials are not configured');
-  }
+  const AWS_ACCESS_KEY_ID = getEnv({ name: 'AWS_ACCESS_KEY_ID' });
+  const AWS_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SECRET_ACCESS_KEY' });
+  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
+  const AWS_PREFIX = getEnv({ name: 'AWS_PREFIX' });
 
   // initialize s3
   const s3 = new AWS.S3({
@@ -117,14 +115,15 @@ const applyTemplate = async (data: any, templateName: string) => {
  * Create default or ses transporter
  */
 export const createTransporter = ({ ses }) => {
-  const { MAIL_SERVICE, MAIL_PORT, MAIL_USER, MAIL_PASS } = process.env;
+  const MAIL_SERVICE = getEnv({ name: 'MAIL_SERVICE' });
+  const MAIL_PORT = getEnv({ name: 'MAIL_PORT' });
+  const MAIL_USER = getEnv({ name: 'MAIL_USER' });
+  const MAIL_PASS = getEnv({ name: 'MAIL_PASS' });
 
   if (ses) {
-    const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
-
-    if (!AWS_SES_ACCESS_KEY_ID || !AWS_SES_SECRET_ACCESS_KEY) {
-      throw new Error('Invalid SES configuration');
-    }
+    const AWS_SES_ACCESS_KEY_ID = getEnv({ name: 'AWS_SES_ACCESS_KEY_ID' });
+    const AWS_SES_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SES_SECRET_ACCESS_KEY' });
+    const AWS_REGION = getEnv({ name: 'AWS_REGION' });
 
     AWS.config.update({
       region: AWS_REGION,
@@ -135,10 +134,6 @@ export const createTransporter = ({ ses }) => {
     return nodemailer.createTransport({
       SES: new AWS.SES({ apiVersion: '2010-12-01' }),
     });
-  }
-
-  if (!MAIL_SERVICE || !MAIL_PORT || !MAIL_USER || !MAIL_PASS) {
-    throw new Error('Invalid mail service configuration');
   }
 
   return nodemailer.createTransport({
@@ -165,7 +160,9 @@ export const sendEmail = async ({
   title?: string;
   template?: { name?: string; data?: any; isCustom?: boolean };
 }) => {
-  const { NODE_ENV, DEFAULT_EMAIL_SERVICE, COMPANY_EMAIL_FROM } = process.env;
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const DEFAULT_EMAIL_SERVICE = getEnv({ name: 'DEFAULT_EMAIL_SERVICE', defaultValue: '' });
+  const COMPANY_EMAIL_FROM = getEnv({ name: 'COMPANY_EMAIL_FROM' });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
@@ -350,7 +347,7 @@ export const createXlsFile = async () => {
 export const generateXlsx = async (workbook: any, name: string): Promise<string> => {
   // Url to download xls file
   const url = `xlsTemplateOutputs/${name}.xlsx`;
-  const { DOMAIN } = process.env;
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   // Saving xls workbook to the directory
   await workbook.toFileAsync(`${__dirname}/../private/${url}`);
@@ -396,13 +393,27 @@ export const authCookieOptions = () => {
     secure: false,
   };
 
-  const { HTTPS } = process.env;
+  const HTTPS = getEnv({ name: 'HTTPS' });
 
   if (HTTPS === 'true') {
     cookieOptions.secure = true;
   }
 
   return cookieOptions;
+};
+
+export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: string }): string => {
+  const value = process.env[name];
+
+  if (!value && typeof defaultValue !== 'undefined') {
+    return defaultValue;
+  }
+
+  if (!value) {
+    throw new Error(`Missing environment variable configuration for ${name}`);
+  }
+
+  return value;
 };
 
 export default {

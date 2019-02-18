@@ -1,7 +1,7 @@
 import { Channels, Users } from '../../../db/models';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument } from '../../../db/models/definitions/users';
 import { requireAdmin, requireLogin } from '../../permissions';
-import utils, { authCookieOptions } from '../../utils';
+import utils, { authCookieOptions, getEnv } from '../../utils';
 
 interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -37,7 +37,7 @@ const userMutations = {
     const token = await Users.forgotPassword(email);
 
     // send email ==============
-    const { MAIN_APP_DOMAIN } = process.env;
+    const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
     const link = `${MAIN_APP_DOMAIN}/reset-password?token=${token}`;
 
@@ -170,7 +170,7 @@ const userMutations = {
     for (const email of emails) {
       const token = await Users.createUserWithConfirmation({ email });
 
-      const { MAIN_APP_DOMAIN } = process.env;
+      const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
       const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
 
       utils.sendEmail({

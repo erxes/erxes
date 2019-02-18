@@ -51,6 +51,9 @@ describe('Cronjob conversation send email', () => {
   });
 
   test('Conversations utils', async () => {
+    process.env.DEFAULT_EMAIL_SERIVCE = ' ';
+    process.env.COMPANY_EMAIL_FROM = ' ';
+
     const spyEmail = jest.spyOn(utils, 'sendEmail');
 
     const spyNewOrOpenConversation = jest.spyOn(Conversations, 'newOrOpenConversation');

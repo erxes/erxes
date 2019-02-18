@@ -4,7 +4,7 @@ import { IMessengerIntegration } from '../../../db/models/Integrations';
 import { sendGmail, updateHistoryId } from '../../../trackers/gmail';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { requireAdmin, requireLogin } from '../../permissions';
-import { sendPostRequest } from '../../utils';
+import { getEnv, sendPostRequest } from '../../utils';
 
 interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
@@ -91,9 +91,11 @@ const integrationMutations = {
       },
     });
 
-    const { INTEGRATION_ENDPOINT_URL, FACEBOOK_APP_ID, DOMAIN } = process.env;
+    const INTEGRATION_ENDPOINT_URL = getEnv({ name: 'INTEGRATION_ENDPOINT_URL', defaultValue: '' });
+    const FACEBOOK_APP_ID = getEnv({ name: 'FACEBOOK_APP_ID' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-    if (INTEGRATION_ENDPOINT_URL) {
+    if (INTEGRATION_ENDPOINT_URL !== '') {
       for (const pageId of pageIds) {
         await sendPostRequest(`${INTEGRATION_ENDPOINT_URL}/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, {
           endPoint: DOMAIN || '',

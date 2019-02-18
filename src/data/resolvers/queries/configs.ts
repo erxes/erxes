@@ -2,6 +2,7 @@ import * as gitRepoInfo from 'git-repo-info';
 import * as path from 'path';
 import { Configs } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+import { getEnv } from '../../utils';
 
 interface IInfo {
   branch: string; // current branch
@@ -50,12 +51,13 @@ const configQueries = {
   },
 
   configsVersions(_root) {
-    const { ERXES_PATH, API_PATH, WIDGET_PATH, WIDGET_API_PATH } = process.env;
-
-    const erxesProjectPath = ERXES_PATH || `${process.cwd()}/../erxes`;
-    const apiProjectPath = API_PATH || process.cwd();
-    const widgetProjectPath = WIDGET_PATH || `${process.cwd()}/../erxes-widgets`;
-    const widgetApiProjectPath = WIDGET_API_PATH || `${process.cwd()}/../erxes-widgets-api`;
+    const erxesProjectPath = getEnv({ name: 'ERXES_PATH', defaultValue: `${process.cwd()}/../erxes` });
+    const apiProjectPath = getEnv({ name: 'API_PATH', defaultValue: process.cwd() });
+    const widgetProjectPath = getEnv({ name: 'WIDGET_PATH', defaultValue: `${process.cwd()}/../erxes-widgets` });
+    const widgetApiProjectPath = getEnv({
+      name: 'WIDGET_API_PATH',
+      defaultValue: `${process.cwd()}/../erxes-widgets-api`,
+    });
 
     const response = {
       erxesVersion: getGitInfos(erxesProjectPath),

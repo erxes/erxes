@@ -1,5 +1,6 @@
 import * as PubSub from '@google-cloud/pubsub';
 import { google } from 'googleapis';
+import { getEnv } from '../data/utils';
 import { IGmail as IMsgGmail } from '../db/models/definitions/conversationMessages';
 import { getGmailUpdates, parseMessage, refreshAccessToken, syncConversation } from './gmail';
 import { getOauthClient } from './googleTracker';
@@ -138,11 +139,10 @@ const getMessagesByHistoryId = async (historyId: string, integrationId: string, 
  * Listening email that connected with
  */
 export const trackGmail = async () => {
-  const { GOOGLE_APPLICATION_CREDENTIALS, GOOGLE_TOPIC, GOOGLE_SUBSCRIPTION_NAME, GOOGLE_PROJECT_ID } = process.env;
-
-  if (!GOOGLE_APPLICATION_CREDENTIALS || !GOOGLE_PROJECT_ID || !GOOGLE_TOPIC || !GOOGLE_SUBSCRIPTION_NAME) {
-    return;
-  }
+  const GOOGLE_APPLICATION_CREDENTIALS = getEnv({ name: 'GOOGLE_APPLICATION_CREDENTIALS' });
+  const GOOGLE_TOPIC = getEnv({ name: 'GOOGLE_TOPIC' });
+  const GOOGLE_SUBSCRIPTION_NAME = getEnv({ name: 'GOOGLE_SUBSCRIPTION_NAME' });
+  const GOOGLE_PROJECT_ID = getEnv({ name: 'GOOGLE_PROJECT_ID' });
 
   const pubsubClient = PubSub({
     projectId: GOOGLE_PROJECT_ID,
@@ -181,7 +181,7 @@ export const trackGmail = async () => {
 
 export const callWatch = (credentials: any, integrationId: string) => {
   const gmail: any = google.gmail('v1');
-  const { GOOGLE_TOPIC } = process.env;
+  const GOOGLE_TOPIC = getEnv({ name: 'GOOGLE_TOPIC' });
   const auth = getOAuth(integrationId, credentials);
 
   return gmail.users

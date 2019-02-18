@@ -13,7 +13,7 @@ import resolvers from './data/resolvers';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
 import { pubsub } from './data/resolvers/subscriptions';
 import typeDefs from './data/schema';
-import { checkFile, importXlsFile, uploadFile } from './data/utils';
+import { checkFile, getEnv, importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Conversations, Customers } from './db/models';
 import { init } from './startup';
@@ -22,7 +22,9 @@ import { getAttachment } from './trackers/gmail';
 // load environment variables
 dotenv.config();
 
-const { NODE_ENV, MAIN_APP_DOMAIN = '', WIDGETS_DOMAIN = '' } = process.env;
+const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
+const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN', defaultValue: '' });
 
 // connect to mongo database
 connect();
@@ -227,7 +229,7 @@ apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
 const httpServer = createServer(app);
 
 // subscriptions server
-const { PORT } = process.env;
+const PORT = getEnv({ name: 'PORT' });
 
 apolloServer.installSubscriptionHandlers(httpServer);
 

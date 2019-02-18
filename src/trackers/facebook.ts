@@ -9,6 +9,7 @@ import {
   INTEGRATION_KIND_CHOICES,
 } from '../data/constants';
 
+import { getEnv } from '../data/utils';
 import { IFacebook as IMsgFacebook, IFbUser, IMessageDocument } from '../db/models/definitions/conversationMessages';
 import { IConversationDocument, IFacebook } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
@@ -880,7 +881,7 @@ export const facebookReply = async (
 };
 
 export const getConfig = () => {
-  const { FACEBOOK } = process.env;
+  const FACEBOOK = getEnv({ name: 'FACEBOOK' });
 
   if (!FACEBOOK) {
     throw new Error("getConfig: Couldn't get facebook config");

@@ -1,4 +1,5 @@
 import * as Random from 'meteor-random';
+import { getEnv } from '../../data/utils';
 import { Fields, ImportHistory } from './';
 import { ICompany, ICompanyDocument } from './definitions/companies';
 import { ICustomer, ICustomerDocument } from './definitions/customers';
@@ -56,7 +57,7 @@ export const bulkInsert = async (params: {
     failed: 0,
   };
 
-  const { MAX_IMPORT_SIZE = 600 } = process.env;
+  const MAX_IMPORT_SIZE = Number(getEnv({ name: 'MAX_IMPORT_SIZE', defaultValue: '600' }));
 
   if (fieldValues.length > MAX_IMPORT_SIZE) {
     return [`You can only import max ${MAX_IMPORT_SIZE} at a time`];

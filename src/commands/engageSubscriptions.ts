@@ -1,15 +1,13 @@
 import * as dotenv from 'dotenv';
+import { getEnv } from '../data/utils';
 import { getApi } from '../trackers/engageTracker';
 
 const start = () => {
   // load environment variables
   dotenv.config();
 
-  const { AWS_SES_CONFIG_SET = '', AWS_ENDPOINT = '' } = process.env;
-
-  if (AWS_SES_CONFIG_SET === '' || AWS_ENDPOINT === '') {
-    console.log('Couldnt locate configs on AWS SES');
-  }
+  const AWS_SES_CONFIG_SET = getEnv({ name: 'AWS_SES_CONFIG_SET' });
+  const AWS_ENDPOINT = getEnv({ name: 'AWS_ENDPOINT' });
 
   let topicArn = '';
 

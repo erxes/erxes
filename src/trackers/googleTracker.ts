@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import { getEnv } from '../data/utils';
 
 const SCOPES_CALENDAR = ['https://www.googleapis.com/auth/calendar'];
 const SCOPES_GMAIL = [
@@ -10,7 +11,10 @@ const SCOPES_GMAIL = [
 ];
 
 export const getOauthClient = (service?: string) => {
-  const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, GMAIL_REDIRECT_URL } = process.env;
+  const GOOGLE_CLIENT_ID = getEnv({ name: 'GOOGLE_CLIENT_ID' });
+  const GOOGLE_CLIENT_SECRET = getEnv({ name: 'GOOGLE_CLIENT_SECRET' });
+  const GOOGLE_REDIRECT_URI = getEnv({ name: 'GOOGLE_REDIRECT_URI' });
+  const GMAIL_REDIRECT_URL = getEnv({ name: 'GMAIL_REDIRECT_URL' });
 
   const redirectUrl = service === 'gmail' ? GMAIL_REDIRECT_URL : GOOGLE_REDIRECT_URI;
 

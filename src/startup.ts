@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import './cronJobs';
+import { getEnv } from './data/utils';
 import { listenChangeConversation } from './db/listener';
 import { trackEngages } from './trackers/engageTracker';
 import { trackFbLogin, trackIntegrations as trackFacebooks } from './trackers/facebookTracker';
@@ -9,7 +10,7 @@ import { trackIntegrations as trackTwitters } from './trackers/twitterTracker';
 
 dotenv.config();
 
-const { USE_REPLICATION } = process.env;
+const USE_REPLICATION = getEnv({ name: 'USE_REPLICATION' });
 
 export const init = async app => {
   const makeDirs = () => {

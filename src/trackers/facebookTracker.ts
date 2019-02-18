@@ -1,4 +1,5 @@
 import * as graph from 'fbgraph';
+import { getEnv } from '../data/utils';
 import { Accounts } from '../db/models';
 import { IFbUser } from '../db/models/definitions/conversationMessages';
 import { receiveWebhookResponse } from './facebook';
@@ -37,7 +38,7 @@ export const graphRequest = {
  * Listen for facebook webhook response
  */
 export const trackIntegrations = expressApp => {
-  const { FACEBOOK_APP_ID } = process.env;
+  const FACEBOOK_APP_ID = getEnv({ name: 'FACEBOOK_APP_ID' });
 
   expressApp.get(`/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, (req, res) => {
     const query = req.query;
@@ -65,7 +66,11 @@ export const trackIntegrations = expressApp => {
 
 export const trackFbLogin = expressApp => {
   expressApp.get('/fblogin', (req, res) => {
-    const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, DOMAIN, MAIN_APP_DOMAIN, FACEBOOK_PERMISSIONS } = process.env;
+    const FACEBOOK_APP_ID = getEnv({ name: 'FACEBOOK_APP_ID' });
+    const FACEBOOK_APP_SECRET = getEnv({ name: 'FACEBOOK_APP_SECRET' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
+    const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+    const FACEBOOK_PERMISSIONS = getEnv({ name: 'FACEBOOK_PERMISSIONS' });
 
     const conf = {
       client_id: FACEBOOK_APP_ID,

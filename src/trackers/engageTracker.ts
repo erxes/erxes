@@ -1,8 +1,11 @@
 import * as AWS from 'aws-sdk';
+import { getEnv } from '../data/utils';
 import { EngageMessages } from '../db/models';
 
 export const getApi = (type: string): any => {
-  const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
+  const AWS_SES_ACCESS_KEY_ID = getEnv({ name: 'AWS_SES_ACCESS_KEY_ID' });
+  const AWS_SES_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SES_SECRET_ACCESS_KEY' });
+  const AWS_REGION = getEnv({ name: 'AWS_REGION' });
 
   AWS.config.update({
     accessKeyId: AWS_SES_ACCESS_KEY_ID,

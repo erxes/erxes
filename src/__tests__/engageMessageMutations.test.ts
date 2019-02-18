@@ -258,18 +258,6 @@ describe('engage message mutation tests', () => {
     sendSpy.mockRestore();
   });
 
-  test('Engage add without aws config', async () => {
-    expect.assertions(1);
-
-    try {
-      // mock settings
-      process.env.AWS_SES_CONFIG_SET = '';
-      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
-    } catch (e) {
-      expect(e.toString()).toContain('Could not locate configs on AWS SES');
-    }
-  });
-
   test('Engage add with unverified email', async () => {
     expect.assertions(1);
 
