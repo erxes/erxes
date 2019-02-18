@@ -393,7 +393,7 @@ export const authCookieOptions = () => {
     secure: false,
   };
 
-  const HTTPS = getEnv({ name: 'HTTPS' });
+  const HTTPS = getEnv({ name: 'HTTPS', defaultValue: 'false' });
 
   if (HTTPS === 'true') {
     cookieOptions.secure = true;
