@@ -38,6 +38,10 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     const accountId = (document.getElementById('acc') as HTMLInputElement)
       .value;
 
+    if (accountId === '') {
+      return;
+    }
+
     this.props.onAccSelect({ accountId });
   };
 
