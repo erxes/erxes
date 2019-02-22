@@ -249,9 +249,20 @@ describe('User db utils', () => {
   });
 
   test('Remove user', async () => {
+    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1 } });
+
     const deactivatedUser = await Users.removeUser(_user._id);
     // ensure deactivated
     expect(deactivatedUser.isActive).toBe(false);
+  });
+
+  test('Remove user With pending invitation status', async () => {
+    await Users.removeUser(_user._id);
+
+    const user = await Users.findOne({ _id: _user._id });
+
+    // ensure deactivated
+    expect(user).toBeNull();
   });
 
   test('Edit profile', async () => {

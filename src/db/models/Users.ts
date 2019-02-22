@@ -276,6 +276,18 @@ export const loadClass = () => {
      * Remove user
      */
     public static async removeUser(_id: string) {
+      const user = await Users.findOne({ _id });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (user.registrationToken) {
+        await Users.remove({ _id });
+
+        return user;
+      }
+
       await Users.updateOne({ _id }, { $set: { isActive: false } });
 
       return Users.findOne({ _id });
