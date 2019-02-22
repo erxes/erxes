@@ -17,6 +17,7 @@ type Props = {
     facebook: number;
     gmail: number;
   };
+  topicsCount: number;
   queryParams: any;
 };
 
@@ -103,7 +104,7 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    const { integrations, title, totalCount } = this.props;
+    const { integrations, title, totalCount, topicsCount } = this.props;
 
     return (
       <React.Fragment>
@@ -116,6 +117,7 @@ class Row extends React.Component<Props, State> {
               toggleBox={this.toggleBox}
               getClassName={this.getClassName}
               totalCount={totalCount}
+              topicsCount={topicsCount}
             />
           ))}
         </IntegrationRow>

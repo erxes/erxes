@@ -1,5 +1,7 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { queries as kbqueries } from 'modules/knowledgeBase/graphql';
+import { TopicsTotalCountQueryResponse } from 'modules/knowledgeBase/types';
 import { Home } from 'modules/settings/integrations/components/store';
 import { queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
@@ -11,20 +13,25 @@ type Props = {
   queryParams: any;
 };
 
-type FinalProps = { totalCountQuery: IntegrationsCountQueryResponse } & Props;
+type FinalProps = {
+  totalCountQuery: IntegrationsCountQueryResponse;
+  topicsCountQuery: TopicsTotalCountQueryResponse;
+} & Props;
 
 const Store = (props: FinalProps) => {
-  const { totalCountQuery } = props;
+  const { totalCountQuery, topicsCountQuery } = props;
 
-  if (totalCountQuery.loading) {
+  if (totalCountQuery.loading || topicsCountQuery.loading) {
     return <Spinner />;
   }
 
   const totalCount = totalCountQuery.integrationsTotalCount.byKind;
+  const topicsCount = topicsCountQuery.knowledgeBaseTopicsTotalCount;
 
   const updatedProps = {
     ...props,
-    totalCount
+    totalCount,
+    topicsCount
   };
 
   return <Home {...updatedProps} />;
@@ -32,6 +39,9 @@ const Store = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' })
+    graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' }),
+    graphql(gql(kbqueries.knowledgeBaseTopicsTotalCount), {
+      name: 'topicsCountQuery'
+    })
   )(Store)
 );
