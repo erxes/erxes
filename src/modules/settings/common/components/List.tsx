@@ -5,7 +5,6 @@ import {
   Pagination
 } from 'modules/common/components';
 import { Wrapper } from 'modules/layout/components';
-import Sidebar from 'modules/settings/Sidebar';
 import * as React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
 import { ICommonListProps } from '../types';
@@ -16,6 +15,7 @@ type Props = {
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
   breadcrumb?: IBreadCrumbItem[];
+  center?: boolean;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -31,6 +31,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       loading,
       save,
       refetch,
+      center,
       remove
     } = this.props;
 
@@ -56,10 +57,10 @@ class List extends React.Component<Props & ICommonListProps, {}> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb || []} />}
-        leftSidebar={<Sidebar />}
         actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
         footer={<Pagination count={totalCount} />}
-        transparent={false}
+        transparent={true}
+        center={center}
         content={
           <DataWithLoader
             data={renderContent({ objects, save, refetch, remove })}

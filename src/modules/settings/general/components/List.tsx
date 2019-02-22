@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
 import { CURRENCIES, LANGUAGES, MEASUREMENTS } from '../constants';
-import { ICurrencies } from '../types';
 
 type Props = {
   currentLanguage: string;
@@ -126,6 +125,7 @@ class List extends React.Component<Props, State> {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         content={content}
         footer={actionFooter}
+        center={true}
       />
     );
   }

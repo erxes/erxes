@@ -167,6 +167,7 @@ class UserList extends React.Component<
         ]}
         renderForm={this.renderInvitationForm}
         renderContent={this.renderContent}
+        center={true}
         {...this.props}
       />
     );

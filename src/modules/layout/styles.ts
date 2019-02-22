@@ -42,14 +42,17 @@ const Contents = styled.div`
   }
 `;
 
-const MainContent = styledTS<{ transparent?: boolean }>(styled.section)`
+const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
+  styled.section
+)`
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 480px;
   box-shadow: ${props =>
     !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
-  margin-right: ${dimensions.unitSpacing}px;
+  height: ${props => props.center && '100%'};
+  margin-right: ${props => !props.center && '10px'};
 `;
 
 const ContentSpace = styled.div`

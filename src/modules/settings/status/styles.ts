@@ -1,10 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 
-const MiddleContent = styled.div`
-  width: 850px;
-`;
-
 const Box = styled.div`
   padding: ${dimensions.coreSpacing}px;
   padding-bottom: 0;
@@ -34,4 +30,4 @@ const Group = styled.div`
   }
 `;
 
-export { MiddleContent, Title, Group, Box };
+export { Title, Group, Box };
