@@ -14,13 +14,13 @@ type Props = {
     facebook: number;
     gmail: number;
   };
-  topicsCount: number;
+  messengerAppsCount: number;
   queryParams: any;
 };
 
 class Home extends React.Component<Props> {
   renderContent() {
-    const { totalCount, topicsCount, queryParams } = this.props;
+    const { totalCount, messengerAppsCount, queryParams } = this.props;
 
     return (
       <IntegrationWrapper>
@@ -30,7 +30,7 @@ class Home extends React.Component<Props> {
             title={obj.title}
             integrations={obj.rows}
             totalCount={totalCount}
-            topicsCount={topicsCount}
+            messengerAppsCount={messengerAppsCount}
             queryParams={queryParams}
           />
         ))}
