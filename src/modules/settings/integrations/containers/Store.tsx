@@ -5,26 +5,34 @@ import { queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { IntegrationsCountQueryResponse } from '../types';
+import {
+  IntegrationsCountQueryResponse,
+  MessengerAppsCountQueryResponse
+} from '../types';
 
 type Props = {
   queryParams: any;
 };
 
-type FinalProps = { totalCountQuery: IntegrationsCountQueryResponse } & Props;
+type FinalProps = {
+  totalCountQuery: IntegrationsCountQueryResponse;
+  messengerAppsCountQuery: MessengerAppsCountQueryResponse;
+} & Props;
 
 const Store = (props: FinalProps) => {
-  const { totalCountQuery } = props;
+  const { totalCountQuery, messengerAppsCountQuery } = props;
 
-  if (totalCountQuery.loading) {
+  if (totalCountQuery.loading || messengerAppsCountQuery.loading) {
     return <Spinner />;
   }
 
   const totalCount = totalCountQuery.integrationsTotalCount.byKind;
+  const messengerAppsCount = messengerAppsCountQuery.messengerAppsCount;
 
   const updatedProps = {
     ...props,
-    totalCount
+    totalCount,
+    messengerAppsCount
   };
 
   return <Home {...updatedProps} />;
@@ -32,6 +40,15 @@ const Store = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' })
+    graphql(gql(queries.integrationTotalCount), { name: 'totalCountQuery' }),
+    graphql(gql(queries.messengerAppsCount), {
+      name: 'messengerAppsCountQuery',
+      options: () => {
+        return {
+          variables: { kind: 'knowledgebase' },
+          fetchPolicy: 'network-only'
+        };
+      }
+    })
   )(Store)
 );

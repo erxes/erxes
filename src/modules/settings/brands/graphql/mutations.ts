@@ -1,5 +1,5 @@
 const commonParamsDef = `
-  $name: String,
+  $name: String!,
   $description: String,
 `;
 
