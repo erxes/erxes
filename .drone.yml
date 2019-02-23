@@ -2,29 +2,39 @@ pipeline:
   install:
     image: node:8-slim
     commands:
+      - echo "current folder1 - $PWD"
       - node -v
       - npm -v
       - yarn --version
       - yarn config set cache-folder .yarn-cache
       - yarn install
+      - echo "current folder2 - $PWD"
 
   linting:
     image: node:8-slim
     commands:
+      - echo "current folder3 - $PWD"
       - yarn lint
+      - echo "current folder4 - $PWD"
 
   typescript:
     image: node:8-slim
     commands:
+      - echo "current folder5 - $PWD"
       - yarn tsc
+      - echo "current folder6 - $PWD"
 
   build:
     image: node:8-slim
     commands:
+      - echo "current folder7 - $PWD"
       - yarn build
+      - echo "current folder8 - $PWD"
 
   publish:
     image: plugins/docker
+    commands:
+      - echo "current folder9 - $PWD"
     repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
     dockerfile: Dockerfile
     secrets:
