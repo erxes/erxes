@@ -17,3 +17,7 @@ pipeline:
     image: node:8-slim
     commands:
       - yarn tsc
+
+  build:
+    commands:
+      - yarn build
