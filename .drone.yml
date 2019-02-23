@@ -33,8 +33,6 @@ pipeline:
 
   publish:
     image: plugins/docker
-    commands:
-      - echo "current folder9 - $PWD"
     repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
     dockerfile: Dockerfile
     secrets:
