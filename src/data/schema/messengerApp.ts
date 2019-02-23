@@ -10,6 +10,7 @@ export const types = `
 
 export const queries = `
   messengerApps(kind: String): [MessengerApp]
+  messengerAppsCount(kind: String): Int
 `;
 
 export const mutations = `

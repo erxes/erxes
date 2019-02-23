@@ -14,6 +14,19 @@ const messengerAppQueries = {
 
     return MessengerApps.find(query);
   },
+
+  /*
+   * MessengerApps count
+   */
+  messengerAppsCount(_root, { kind }: { kind: string }) {
+    const query: any = {};
+
+    if (kind) {
+      query.kind = kind;
+    }
+
+    return MessengerApps.find(query).countDocuments();
+  },
 };
 
 moduleRequireLogin(messengerAppQueries);
