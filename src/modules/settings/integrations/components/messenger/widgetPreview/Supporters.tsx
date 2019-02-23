@@ -24,10 +24,15 @@ class Supporters extends React.Component<Props> {
 
     return supporters.map(u => {
       const details = u.details || {};
+      let avatar = details.avatar;
+
+      if (!details.avatar) {
+        avatar = '/images/avatar-colored.svg';
+      }
 
       return (
         <ErxesStaffProfile key={u._id}>
-          <img src={details.avatar} alt={details.fullName} />
+          <img src={avatar} alt={details.fullName} />
           <StateSpan state={isOnline || false} />
         </ErxesStaffProfile>
       );

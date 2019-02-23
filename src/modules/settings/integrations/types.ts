@@ -167,6 +167,11 @@ export type IntegrationsCountQueryResponse = {
   loading: boolean;
 };
 
+export type MessengerAppsCountQueryResponse = {
+  messengerAppsCount: number;
+  loading: boolean;
+};
+
 export type FormIntegrationDetailQueryResponse = {
   integrationDetail: IFormIntegration;
   loading: boolean;

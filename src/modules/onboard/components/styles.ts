@@ -115,6 +115,7 @@ const LeftContent = styled.div`
   > form {
     position: absolute;
     width: 640px;
+    min-height: 450px;
     align-self: center;
     padding: 70px 70px 50px 70px;
     right: -70px;

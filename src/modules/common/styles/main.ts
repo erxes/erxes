@@ -4,12 +4,18 @@ import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const FullContent = styledTS<{ center: boolean }>(styled.div)`
+const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   min-height: 100%;
   justify-content: ${props => props.center && 'center'};
-  align-items: center;
+  align-items: ${props => (props.align ? 'flex-start' : 'center')};
+`;
+
+const MiddleContent = styledTS<{ transparent?: boolean }>(styled.div)`
+  width: 850px;
+  height: 100%;
+  background: ${props => !props.transparent && colors.colorWhite};
 `;
 
 const BoxRoot = styled.div`
@@ -219,5 +225,6 @@ export {
   ActivityContent,
   DropIcon,
   UploadLoader,
+  MiddleContent,
   Avatar
 };

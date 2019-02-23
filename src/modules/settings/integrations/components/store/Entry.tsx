@@ -20,12 +20,17 @@ type Props = {
     facebook: number;
     gmail: number;
   };
+  messengerAppsCount: number;
 };
 
 class Entry extends React.Component<Props> {
   getCount = kind => {
-    const { totalCount } = this.props;
-    const countByKind = totalCount[kind];
+    const { totalCount, messengerAppsCount } = this.props;
+    let countByKind = totalCount[kind];
+
+    if (kind === 'knowledgebase') {
+      countByKind = messengerAppsCount;
+    }
 
     if (!countByKind) {
       return null;

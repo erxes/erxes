@@ -53,8 +53,40 @@ class BrandAdd extends React.Component<
     this.setState({ brandName: e.target.value });
   };
 
+  renderOtherBrands = () => {
+    const { brandsTotalCount } = this.props;
+
+    if (brandsTotalCount === 0) {
+      return null;
+    }
+
+    const { showBrands } = this.state;
+
+    return (
+      <>
+        <Description>
+          <Icon icon="checked-1" /> {__('You already have')}{' '}
+          <b>{brandsTotalCount}</b> {__('brands')}.{' '}
+          <a href="javascript:;" onClick={this.toggleBrands}>
+            {showBrands ? __('Show') : __('Hide')} ›
+          </a>
+        </Description>
+
+        <RTG.CSSTransition
+          in={showBrands}
+          appear={true}
+          timeout={300}
+          classNames="slide-in-small"
+          unmountOnExit={true}
+        >
+          <BrandList brandCount={brandsTotalCount} />
+        </RTG.CSSTransition>
+      </>
+    );
+  };
+
   renderContent() {
-    const { brandName, showBrands } = this.state;
+    const { brandName } = this.state;
 
     return (
       <>
@@ -69,29 +101,13 @@ class BrandAdd extends React.Component<
           />
         </FormGroup>
 
-        <Description>
-          <Icon icon="checked-1" /> {__('You already have')}{' '}
-          <b>{this.props.brandsTotalCount}</b> {__('brands')}.{' '}
-          <a href="javascript:;" onClick={this.toggleBrands}>
-            {showBrands ? __('Show') : __('Hide')} ›
-          </a>
-        </Description>
-
-        <RTG.CSSTransition
-          in={showBrands}
-          appear={true}
-          timeout={300}
-          classNames="slide-in-small"
-          unmountOnExit={true}
-        >
-          <BrandList brandCount={this.props.brandsTotalCount} />
-        </RTG.CSSTransition>
+        {this.renderOtherBrands()}
       </>
     );
   }
 
   render() {
-    const { brandsTotalCount, changeStep } = this.props;
+    const { changeStep } = this.props;
 
     return (
       <form onSubmit={this.save}>
@@ -106,7 +122,7 @@ class BrandAdd extends React.Component<
             </Button>
             <Button
               btnStyle="success"
-              disabled={brandsTotalCount === 0}
+              disabled={!this.state.brandName}
               onClick={this.next}
             >
               {__('Next')} <Icon icon="rightarrow-2" />

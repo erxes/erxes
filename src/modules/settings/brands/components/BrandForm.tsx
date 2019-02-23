@@ -28,7 +28,6 @@ class BrandForm extends React.Component<Props, {}> {
     e.preventDefault();
 
     const { save, brand, closeModal } = this.props;
-
     save(this.generateDoc(), () => closeModal(), brand);
   };
 
@@ -44,7 +43,7 @@ class BrandForm extends React.Component<Props, {}> {
   };
 
   renderContent() {
-    const object = this.props.brand || { name: '', description: '' };
+    const object = this.props.brand || ({} as IBrand);
 
     return (
       <div>

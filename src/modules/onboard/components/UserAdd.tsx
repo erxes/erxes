@@ -46,7 +46,7 @@ class UserAdd extends React.Component<Props, State> {
     this.props.changeStep(true);
   }
 
-  toggleBrands = () => {
+  toggleUsers = () => {
     this.setState({ showUsers: !this.state.showUsers });
   };
 
@@ -73,6 +73,38 @@ class UserAdd extends React.Component<Props, State> {
     this.setState({ emails: options });
   };
 
+  renderOtherUsers = () => {
+    const { usersTotalCount } = this.props;
+
+    if (usersTotalCount === 0) {
+      return null;
+    }
+
+    const { showUsers } = this.state;
+
+    return (
+      <>
+        <Description>
+          <Icon icon="checked-1" /> {__('There is another')}{' '}
+          <b>{usersTotalCount}</b> {__('users')}.{' '}
+          <a href="javascript:;" onClick={this.toggleUsers}>
+            {showUsers ? __('Show') : __('Hide')} ›
+          </a>
+        </Description>
+
+        <RTG.CSSTransition
+          in={showUsers}
+          appear={true}
+          timeout={300}
+          classNames="slide-in-small"
+          unmountOnExit={true}
+        >
+          <UserList userCount={usersTotalCount} />
+        </RTG.CSSTransition>
+      </>
+    );
+  };
+
   renderContent() {
     const { showUsers, emails } = this.state;
 
@@ -87,23 +119,7 @@ class UserAdd extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <Description>
-          <Icon icon="checked-1" /> {__('There is another')}{' '}
-          <b>{this.props.usersTotalCount}</b> {__('users')}.{' '}
-          <a href="javascript:;" onClick={this.toggleBrands}>
-            {showUsers ? __('Show') : __('Hide')} ›
-          </a>
-        </Description>
-
-        <RTG.CSSTransition
-          in={showUsers}
-          appear={true}
-          timeout={300}
-          classNames="slide-in-small"
-          unmountOnExit={true}
-        >
-          <UserList userCount={this.props.usersTotalCount} />
-        </RTG.CSSTransition>
+        {this.renderOtherUsers()}
       </>
     );
   }
