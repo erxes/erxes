@@ -2,3 +2,5 @@
 *.md
 scripts
 *.yml
+.git
+node_modules
