@@ -41,6 +41,6 @@ pipeline:
     tags:
       - ${DRONE_BRANCH}-latest
     when:
-      branch: [master, develop, drone-optimize]
+      branch: [master, develop]
       event: push
       status: success
