@@ -115,11 +115,6 @@ const applyTemplate = async (data: any, templateName: string) => {
  * Create default or ses transporter
  */
 export const createTransporter = ({ ses }) => {
-  const MAIL_SERVICE = getEnv({ name: 'MAIL_SERVICE' });
-  const MAIL_PORT = getEnv({ name: 'MAIL_PORT' });
-  const MAIL_USER = getEnv({ name: 'MAIL_USER' });
-  const MAIL_PASS = getEnv({ name: 'MAIL_PASS' });
-
   if (ses) {
     const AWS_SES_ACCESS_KEY_ID = getEnv({ name: 'AWS_SES_ACCESS_KEY_ID' });
     const AWS_SES_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SES_SECRET_ACCESS_KEY' });
@@ -135,6 +130,11 @@ export const createTransporter = ({ ses }) => {
       SES: new AWS.SES({ apiVersion: '2010-12-01' }),
     });
   }
+
+  const MAIL_SERVICE = getEnv({ name: 'MAIL_SERVICE' });
+  const MAIL_PORT = getEnv({ name: 'MAIL_PORT' });
+  const MAIL_USER = getEnv({ name: 'MAIL_USER' });
+  const MAIL_PASS = getEnv({ name: 'MAIL_PASS' });
 
   return nodemailer.createTransport({
     service: MAIL_SERVICE,
