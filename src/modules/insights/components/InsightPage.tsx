@@ -31,13 +31,13 @@ class InsightPage extends React.Component {
               'Volume Report',
               '/images/icons/erxes-14.svg',
               '/insights/volume-report',
-              'Feedbacks gathered through various customer engagement channels.'
+              'Find feedback that has been gathered from various customer engagement channels.'
             )}
             {this.renderBox(
               'Response Report',
               '/images/icons/erxes-15.svg',
               '/insights/response-report',
-              'Total number of response for customer feedbacks, by each staff.'
+              'A report on the total number of customer feedback responses given by team members.'
             )}
           </div>
           <div>
@@ -45,13 +45,13 @@ class InsightPage extends React.Component {
               'Response Close Report',
               '/images/icons/erxes-17.svg',
               '/insights/response-close-report',
-              'Average time of each staff solving problems that based on customer feedbacks.'
+              `The average time a team member solved a customer's problem based on customer feedback.`
             )}
             {this.renderBox(
               'First Response Report',
               '/images/icons/erxes-16.svg',
               '/insights/first-response',
-              'Responding time for a single feedback. Stats will define average response time by each staff.'
+              'The responding time for a single feedback. You can find stats that defines the average response time by each team member.'
             )}
           </div>
         </div>

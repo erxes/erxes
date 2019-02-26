@@ -51,7 +51,7 @@ function Forms({ history, counts, integrations, loading }: IProps) {
         data={data}
         loading={loading}
         count={integrations.length}
-        emptyText="No forms"
+        emptyText="Search and filter customers by form"
         emptyIcon="monitor"
         size="small"
         objective={true}

@@ -333,7 +333,7 @@ class CustomersList extends React.Component<IProps, State> {
             data={this.renderContent()}
             loading={loading}
             count={customers.length}
-            emptyText="Start adding customers now!"
+            emptyText="Let's start taking care of your customers"
             emptyImage="/images/actions/11.svg"
           />
         }

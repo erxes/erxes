@@ -12,6 +12,7 @@ const EmptyStateStyled = styledTS<{ hugeness: string }>(styled.div)`
   height: 100%;
   flex: 1;
   justify-content: center;
+  align-items: center;
   text-align: center;
   font-size: 14px;
   padding: 20px;
@@ -21,6 +22,10 @@ const EmptyStateStyled = styledTS<{ hugeness: string }>(styled.div)`
     max-height: 260px;
     margin: 0 auto 20px auto;
     max-width: 60%;
+  }
+
+  span {
+    max-width: 600px;
   }
 
   ${props => {
@@ -74,7 +79,7 @@ function EmptyState({
     <EmptyStateStyled hugeness={size}>
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
 
-      {__(text)}
+      <span>{__(text)}</span>
 
       {linkUrl && linkText ? (
         <Button btnStyle="simple" size="small" href={linkUrl}>
