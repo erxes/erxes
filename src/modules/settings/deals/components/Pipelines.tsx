@@ -99,7 +99,7 @@ class Pipelines extends React.Component<Props, State> {
       return (
         <EmptyState
           size="full"
-          text="There is no pipeline"
+          text="Get started on your pipeline"
           image="/images/actions/16.svg"
         />
       );

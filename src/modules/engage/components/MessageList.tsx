@@ -153,7 +153,7 @@ class List extends React.Component<Props> {
             data={mainContent}
             loading={loading}
             count={messages.length}
-            emptyText="There is no engage message."
+            emptyText="Start crafting your engage message"
             emptyImage="/images/actions/14.svg"
           />
         }
