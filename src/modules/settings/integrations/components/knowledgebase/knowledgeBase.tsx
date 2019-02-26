@@ -2,9 +2,11 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Info
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import { ITopic } from 'modules/knowledgeBase/types';
 import * as React from 'react';
 import { IIntegration } from '../../types';
@@ -42,6 +44,11 @@ class KnowledgeBase extends React.Component<Props> {
 
     return (
       <form onSubmit={this.handleSubmit}>
+        <Info>
+          {__(
+            'You can choose from our many messenger integrations and add to your knowledge base. The knowledge base will appear in the tab of your messenger widget. To do this, please create and add to your knowledge base.'
+          )}
+        </Info>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 

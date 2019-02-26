@@ -281,7 +281,6 @@
   "Color code": "Color code",
   "Engage Message": "Engage Message",
   "Item counts": "Item counts",
-  "There is no integration in this Brand": "There is no integration in this Brand",
   "Appearance": "Appearance",
   "Hours, Availability & Other configs": "Hours, Availability & Other configs",
   "There is no brand": "There is no brand",
@@ -726,5 +725,17 @@
   "Creating a brand and by adding channels, you are able to better analyze your customers needs and help solve their problems": "Creating a brand and by adding channels, you are able to better analyze your customers needs and help solve their problems",
   "Grow and add users to your team! Assign, designate and let them do what they do best": "Grow and add users to your team! Assign, designate and let them do what they do best",
   "Stay up to date with every single customer feedback and create more meaningful conversations": "Stay up to date with every single customer feedback and create more meaningful conversations",
-  "Create brand channels that are specifically categorized by type and activity": "Create brand channels that are specifically categorized by type and activity"
+  "Create brand channels that are specifically categorized by type and activity": "Create brand channels that are specifically categorized by type and activity",
+  "Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel.": "Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel.",
+  "You can choose from our many messenger integrations and add to your knowledge base. The knowledge base will appear in the tab of your messenger widget. To do this, please create and add to your knowledge base.": "You can choose from our many messenger integrations and add to your knowledge base. The knowledge base will appear in the tab of your messenger widget. To do this, please create and add to your knowledge base.",
+  "An email signature is an opportunity to share information that helps build recognition and trust.": "An email signature is an opportunity to share information that helps build recognition and trust.",
+  "Start adding customers now!": "Start adding customers now",
+  "Add in your first company!": "Add in your first company!",
+  "Choose from our many integrations and add to your channel": "Choose from our many integrations and add to your channel",
+  "Oh no! No Messages": "Oh no! No Messages",
+  "Nothing to see here folks": "Nothing to see here folks",
+  "Start adding articles": "Start adding articles",
+  "Oops! No data here": "Oops! No data here",
+  "Start adding integrations now!": "Start adding integrations now!",
+  "Add an integration in this Brand": "Add an integration in this Brand"
 }

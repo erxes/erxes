@@ -66,7 +66,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
             data={renderContent({ objects, save, refetch, remove })}
             loading={loading}
             count={totalCount}
-            emptyText="There is no data."
+            emptyText="Oops! No data here"
             emptyImage="/images/actions/5.svg"
           />
         }

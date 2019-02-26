@@ -42,7 +42,7 @@ class ArticleList extends React.Component<Props> {
         <DataWithLoader
           loading={loading}
           count={articles.length}
-          emptyText="There is no article"
+          emptyText="Start adding articles"
           emptyImage="/images/actions/8.svg"
           objective={true}
           data={this.renderArticles()}

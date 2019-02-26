@@ -78,7 +78,7 @@ class Brands extends React.Component<Props, {}> {
             }
             loading={loading}
             count={integrationsCount}
-            emptyText="There is no integration in this Brand"
+            emptyText="Add an integration in this Brand"
             emptyImage="/images/actions/2.svg"
           />
         }

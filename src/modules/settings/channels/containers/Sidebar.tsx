@@ -109,6 +109,10 @@ const commonOptions = ({ queryParams, currentChannelId }: Props) => {
         variables: {}
       },
       {
+        query: gql(queries.integrationsCount),
+        variables: {}
+      },
+      {
         query: gql(queries.channelDetail),
         variables: { _id: currentChannelId || '' }
       },

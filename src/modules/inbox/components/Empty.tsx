@@ -14,7 +14,7 @@ function Empty({ queryParams }: Props) {
 
   const content = (
     <EmptyState
-      text="There is no message."
+      text="Nothing to see here folks"
       size="full"
       image="/images/actions/12.svg"
     />
