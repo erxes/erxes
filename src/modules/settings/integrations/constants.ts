@@ -673,7 +673,7 @@ export const INTEGRATIONS = [
     rows: [
       {
         name: 'Facebook',
-        description: 'See and reply to Facebook messages in your Team Inbox',
+        description: 'Connect to Facebook messages right from your Team Inbox',
         inMessenger: false,
         kind: 'facebook',
         logo: '/images/integrations/facebook.png',
@@ -681,7 +681,7 @@ export const INTEGRATIONS = [
       },
       {
         name: 'Twitter',
-        description: 'See and reply to Twitter DMs in your Team Inbox',
+        description: 'Tweet back to your DMs right from your Team Inbox',
         inMessenger: false,
         kind: 'twitter',
         logo: '/images/integrations/twitter.png',
@@ -702,7 +702,8 @@ export const INTEGRATIONS = [
     rows: [
       {
         name: 'Gmail',
-        description: 'See and reply to Gmail in your Team Inbox',
+        description:
+          'Connect straight to your Gmail and get those emails going',
         inMessenger: false,
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
@@ -718,7 +719,7 @@ export const INTEGRATIONS = [
       },
       {
         name: 'Lead',
-        description: 'See lead in your Widget',
+        description: 'Find your lead forms right here in your Widget',
         inMessenger: true,
         kind: 'form',
         logo: '/images/integrations/lead.png',
@@ -732,7 +733,7 @@ export const INTEGRATIONS = [
     rows: [
       {
         name: 'Knowledge Base',
-        description: 'See knowledge base in your Widget',
+        description: 'Get access to your Knowledge Base right in your Widget',
         inMessenger: true,
         kind: 'knowledgebase',
         logo: '/images/integrations/knowledge-base.png',
@@ -747,19 +748,21 @@ export const INTEGRATIONS = [
     rows: [
       {
         name: 'Viber',
-        description: 'See and reply to Viber messages in your Team Inbox',
+        description: `Soon you'll be able to connect Viber straight to your Team Inbox`,
         inMessenger: false,
         logo: '/images/integrations/viber.png'
       },
       {
         name: 'WhatsApp',
-        description: 'See and reply to Whatsapp messages in your Team Inbox',
+        description:
+          'Get a hold of your Whatsapp messages through your Team Inbox',
         inMessenger: false,
         logo: '/images/integrations/whatsapp.png'
       },
       {
         name: 'Wechat',
-        description: 'See and reply to Wechat messages in your Team Inbox',
+        description:
+          'Connect with Wechat and start messaging right from your Team Inbox',
         inMessenger: false,
         logo: '/images/integrations/wechat.png'
       }
