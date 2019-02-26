@@ -29,7 +29,7 @@ pipeline:
       - cp -a static prod
       - cp .env.sample prod/.env
 
-  publish:
+  docker:
     image: plugins/docker
     repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
     dockerfile: Dockerfile
