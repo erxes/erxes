@@ -13,6 +13,7 @@ type Props = {
   integration: any;
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
+  messengerAppsCount?: number;
   totalCount: {
     messenger: number;
     form: number;
@@ -20,19 +21,18 @@ type Props = {
     facebook: number;
     gmail: number;
   };
-  messengerAppsCount: number;
 };
 
 class Entry extends React.Component<Props> {
   getCount = kind => {
     const { totalCount, messengerAppsCount } = this.props;
-    let countByKind = totalCount[kind];
+    const countByKind = totalCount[kind];
 
-    if (kind === 'knowledgebase') {
-      countByKind = messengerAppsCount;
+    if (typeof messengerAppsCount === 'number') {
+      return <span>({messengerAppsCount})</span>;
     }
 
-    if (!countByKind) {
+    if (typeof countByKind === 'undefined') {
       return null;
     }
 
@@ -121,7 +121,7 @@ class Entry extends React.Component<Props> {
     );
   };
 
-  BoxOnClick = () => {
+  boxOnClick = () => {
     return this.props.toggleBox(this.props.integration.kind);
   };
 
@@ -133,10 +133,10 @@ class Entry extends React.Component<Props> {
         key={integration.name}
         className={getClassName(integration.kind)}
       >
-        <Box onClick={this.BoxOnClick} isInMessenger={integration.inMessenger}>
+        <Box onClick={this.boxOnClick} isInMessenger={integration.inMessenger}>
           <img alt="logo" src={integration.logo} />
           <h5>
-            {integration.name} {this.getCount(integration.kind)}{' '}
+            {integration.name} {this.getCount(integration.kind)}
           </h5>
           <p>
             {integration.description}
