@@ -38,5 +38,8 @@ describe('accountQueries', () => {
     expect(account.name).toBe('admin@erxes.io');
     expect(account.kind).toBe('gmail');
     expect(response.length).toBe(1);
+
+    const responses = await graphqlRequest(qry, 'accounts', {});
+    expect(responses.length).toBe(2);
   });
 });

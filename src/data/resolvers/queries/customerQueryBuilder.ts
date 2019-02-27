@@ -15,7 +15,6 @@ export interface IListArgs {
   ids?: string[];
   searchValue?: string;
   brand?: string;
-  numberegration?: string;
   form?: string;
   startDate?: string;
   endDate?: string;

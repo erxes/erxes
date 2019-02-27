@@ -1,8 +1,15 @@
 import * as faker from 'faker';
 import * as moment from 'moment';
 import { graphqlRequest } from '../db/connection';
-import { customerFactory, formFactory, integrationFactory, segmentFactory, tagsFactory } from '../db/factories';
-import { Customers, Segments, Tags } from '../db/models';
+import {
+  customerFactory,
+  formFactory,
+  integrationFactory,
+  segmentFactory,
+  tagsFactory,
+  brandFactory,
+} from '../db/factories';
+import { Customers, Segments, Tags, Integrations } from '../db/models';
 
 const count = response => {
   return Object.keys(response).length;
@@ -122,7 +129,8 @@ describe('customerQueries', () => {
   });
 
   test('Customers', async () => {
-    await customerFactory({});
+    const integration = await integrationFactory();
+    await customerFactory({ integrationId: integration._id });
     await customerFactory({});
     await customerFactory({});
     await customerFactory({});
@@ -132,6 +140,9 @@ describe('customerQueries', () => {
     const responses = await graphqlRequest(qryCustomers, 'customers', args);
 
     expect(responses.length).toBe(3);
+
+    const resFiltered = await graphqlRequest(qryCustomers, 'customers', { integration: integration._id, ...args });
+    expect(resFiltered.length).toBe(1);
   });
 
   test('Customers filtered by ids', async () => {
