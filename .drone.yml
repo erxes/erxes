@@ -19,7 +19,7 @@ pipeline:
     commands:
       - yarn build
 
-  publish:
+  docker:
     image: plugins/docker
     repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
     dockerfile: Dockerfile
