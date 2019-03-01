@@ -135,9 +135,11 @@ export const createTransporter = ({ ses }) => {
   const MAIL_PORT = getEnv({ name: 'MAIL_PORT' });
   const MAIL_USER = getEnv({ name: 'MAIL_USER' });
   const MAIL_PASS = getEnv({ name: 'MAIL_PASS' });
+  const MAIL_HOST = getEnv({ name: 'MAIL_HOST' });
 
   return nodemailer.createTransport({
     service: MAIL_SERVICE,
+    host: MAIL_HOST,
     port: MAIL_PORT,
     auth: {
       user: MAIL_USER,
