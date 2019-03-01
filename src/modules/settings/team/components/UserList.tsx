@@ -114,7 +114,9 @@ class UserList extends React.Component<
             <NameCard user={object} avatarSize={30} singleLine={true} />
           </UserAvatar>
           <td>
-            <TextInfo textStyle={object.status ? 'warning' : 'success'}>
+            <TextInfo
+              textStyle={object.status === 'Verified' ? 'success' : 'warning'}
+            >
               {object.status || 'Verified'}
             </TextInfo>
           </td>
