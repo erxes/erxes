@@ -9,4 +9,5 @@ echo "`jo \`env | grep type\` \
           \`env | grep client_x509_cert_url\` \
           private_key="$private_key" \
           `" > google_cred.json
+echo "`jo -- -s \`env | grep client_id\``" >> google_cred.json
 yarn start
