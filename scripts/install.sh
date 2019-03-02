@@ -22,6 +22,3 @@ CURRENT_FOLDER=${PWD##*/}
 if [ $CURRENT_FOLDER = 'erxes' ]; then
   cd ..
 fi
-
-echo 'Install erxes-api'
-curl https://raw.githubusercontent.com/erxes/erxes-api/master/develop/install.sh | sh
