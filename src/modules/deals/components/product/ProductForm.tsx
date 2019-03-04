@@ -1,6 +1,6 @@
 import { Button, EmptyState, Table } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { ProductItemForm } from '../../containers';
@@ -127,14 +127,27 @@ class ProductForm extends React.Component<Props, State> {
     ));
   }
 
+  onClick = () => {
+    const { saveProductsData, productsData, closeModal } = this.props;
+
+    if (productsData.length !== 0) {
+      for (const data of productsData) {
+        if (!data.product) {
+          return Alert.error(__('Please choose a product'));
+        }
+
+        if (!data.currency) {
+          return Alert.error(__('Please choose a currency'));
+        }
+      }
+    }
+
+    saveProductsData();
+    closeModal();
+  };
+
   render() {
     const { total, tax, discount } = this.state;
-    const { saveProductsData } = this.props;
-
-    const onClick = () => {
-      saveProductsData();
-      this.props.closeModal();
-    };
 
     return (
       <FormContainer>
@@ -192,7 +205,7 @@ class ProductForm extends React.Component<Props, State> {
               Close
             </Button>
 
-            <Button btnStyle="success" onClick={onClick} icon="checked-1">
+            <Button btnStyle="success" onClick={this.onClick} icon="checked-1">
               Save
             </Button>
           </ModalFooter>

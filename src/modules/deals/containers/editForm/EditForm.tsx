@@ -155,11 +155,15 @@ export default withProps<Props>(
     }),
     graphql<Props, SaveDealMutation, IDealParams>(gql(mutations.dealsEdit), {
       name: 'editMutation',
-      options: ({ dealId }: { dealId: string }) => ({
+      options: ({ dealId, stageId }: { stageId: string; dealId: string }) => ({
         refetchQueries: [
           {
             query: gql(queries.dealDetail),
             variables: { _id: dealId }
+          },
+          {
+            query: gql(queries.stageDetail),
+            variables: { _id: stageId }
           }
         ]
       })
