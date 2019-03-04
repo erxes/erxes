@@ -12,8 +12,6 @@ const commonParamsDef = `
   $details: UserDetails,
   $links: UserLinks,
   $channelIds: [String],
-  $password: String!,
-  $passwordConfirmation: String!
 `;
 
 const commonParams = `
@@ -23,8 +21,6 @@ const commonParams = `
   details: $details,
   links: $links,
   channelIds: $channelIds,
-  password: $password,
-  passwordConfirmation: $passwordConfirmation
 `;
 
 export default commonListComposer<{ queryParams: any; history: any }>({
@@ -53,10 +49,8 @@ export default commonListComposer<{ queryParams: any; history: any }>({
 
   gqlAddMutation: graphql(
     gql`
-      mutation usersAdd(${commonParamsDef}) {
-        usersAdd(${commonParams}) {
-          _id
-        }
+      mutation usersInvite($emails: [String]) {
+        usersInvite(emails: $emails)
       }
     `,
     {

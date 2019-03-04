@@ -1,4 +1,4 @@
-import { Icon, ModalTrigger } from 'modules/common/components';
+import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import {
   AddNew,
@@ -60,7 +60,7 @@ export default class Stage extends React.Component<Props> {
     const { index, stage, deals } = this.props;
 
     if (!stage) {
-      return null;
+      return <EmptyState icon="clipboard" text="No stage" size="small" />;
     }
 
     return (

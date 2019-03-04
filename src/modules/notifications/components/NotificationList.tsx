@@ -2,7 +2,6 @@ import { Button, Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { INotification } from 'modules/notifications/types';
-import Sidebar from 'modules/settings/Sidebar';
 import * as React from 'react';
 import { NotificationRow } from './';
 import { NotifList } from './styles';
@@ -81,9 +80,9 @@ class NotificationList extends React.Component<Props, { bulk: string[] }> {
         header={
           <Wrapper.Header breadcrumb={[{ title: __('Notifications') }]} />
         }
-        leftSidebar={<Sidebar />}
         actionBar={actionBar}
         content={content}
+        center={true}
         footer={<Pagination count={count} />}
       />
     );

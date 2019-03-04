@@ -71,7 +71,8 @@ export default withProps<Props>(
         options: {
           variables: {
             perPage: 20
-          }
+          },
+          fetchPolicy: 'network-only'
         }
       }
     )

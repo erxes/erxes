@@ -97,6 +97,11 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     const exportCustomers = bulk => {
       const { queryParams } = this.props;
 
+      // queryParams page parameter needs convert to int.
+      if (queryParams.page) {
+        queryParams.page = parseInt(queryParams.page, 10);
+      }
+
       if (bulk.length > 0) {
         queryParams.ids = bulk.map(customer => customer._id);
       }
@@ -193,6 +198,8 @@ const generateParams = ({ queryParams }) => {
     lifecycleState: queryParams.lifecycleState,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
+      ? parseInt(queryParams.sortDirection, 10)
+      : undefined
   };
 };
 

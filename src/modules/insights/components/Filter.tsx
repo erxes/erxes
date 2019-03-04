@@ -1,4 +1,4 @@
-import { ControlLabel } from 'modules/common/components';
+import { Button, ControlLabel } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
@@ -20,7 +20,8 @@ type Props = {
 type States = {
   isChange: boolean;
   integrationType: string;
-  brandId: string;
+  integrationIds: string[];
+  brandIds: string[];
   startDate: Date;
   endDate: Date;
 };
@@ -28,30 +29,37 @@ type States = {
 class Filter extends React.Component<Props, States> {
   constructor(props) {
     super(props);
-
+    const {
+      startDate = moment().add(-7, 'days'),
+      endDate = moment(),
+      brandIds = '',
+      integrationIds = ''
+    } = props.queryParams || {};
     this.state = {
       ...props.queryParams,
       // check condition for showing placeholder
-      startDate: props.queryParams.startDate
-        ? moment(props.queryParams.startDate)
-        : moment().add(-7, 'days'),
-      endDate: props.queryParams.endDate
-        ? moment(props.queryParams.endDate)
-        : moment(),
-      isChange: false
+      isChange: false,
+      brandIds: brandIds.split(','),
+      integrationIds: integrationIds.split(',')
     };
   }
 
-  onTypeChange = (value: any) => {
-    const integrationType = value ? value.value : '';
-    this.setState({ integrationType });
-    router.setParams(this.props.history, { integrationType });
+  onTypeChange = (integrations: any) => {
+    this.setState({ integrationIds: integrations.map(el => el.value) });
   };
 
-  onBrandChange = (value: any) => {
-    const brandId = value ? value.value : '';
-    this.setState({ brandId });
-    router.setParams(this.props.history, { brandId });
+  onBrandChange = (brands: any) => {
+    this.setState({ brandIds: brands.map(el => el.value) });
+  };
+
+  onApplyClick = () => {
+    const { history } = this.props;
+    const { integrationIds, brandIds } = this.state;
+
+    router.setParams(history, {
+      integrationIds: (integrationIds || []).join(','),
+      brandIds: (brandIds || []).join(',')
+    });
   };
 
   onDateInputChange = (type: string, date) => {
@@ -72,7 +80,6 @@ class Filter extends React.Component<Props, States> {
   renderIntegrations() {
     const integrations = INTEGRATIONS_TYPES.ALL_LIST;
 
-    const onChange = value => this.onTypeChange(value);
     const options = option => (
       <div className="simple-option">
         <span>{option.label}</span>
@@ -84,10 +91,11 @@ class Filter extends React.Component<Props, States> {
         <ControlLabel>Integrations</ControlLabel>
         <Select
           placeholder={__('Choose integrations')}
-          value={this.state.integrationType || ''}
-          onChange={onChange}
+          value={this.state.integrationIds || []}
+          onChange={this.onTypeChange}
           optionRenderer={options}
           options={integrationOptions([__('All'), ...integrations])}
+          multi={true}
         />
       </FlexItem>
     );
@@ -96,7 +104,6 @@ class Filter extends React.Component<Props, States> {
   renderBrands() {
     const { brands } = this.props;
 
-    const onChange = value => this.onBrandChange(value);
     const options = option => (
       <div className="simple-option">
         <span>{option.label}</span>
@@ -109,10 +116,11 @@ class Filter extends React.Component<Props, States> {
 
         <Select
           placeholder={__('Choose brands')}
-          value={this.state.brandId || ''}
-          onChange={onChange}
+          value={this.state.brandIds || []}
+          onChange={this.onBrandChange}
           optionRenderer={options}
           options={selectOptions([{ _id: '', name: __('All') }, ...brands])}
+          multi={true}
         />
       </FlexItem>
     );
@@ -149,6 +157,9 @@ class Filter extends React.Component<Props, States> {
               onChange={this.onDateInputChange.bind(this, 'endDate')}
             />
           </FlexItem>
+          <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
+            Apply
+          </Button>
         </FlexRow>
       </InsightFilter>
     );

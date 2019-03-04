@@ -334,7 +334,7 @@ class CustomersList extends React.Component<IProps, State> {
             loading={loading}
             count={customers.length}
             emptyText="There is no customer."
-            emptyImage="/images/robots/robot-01.svg"
+            emptyImage="/images/actions/11.svg"
           />
         }
       />

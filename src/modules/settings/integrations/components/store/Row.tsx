@@ -4,6 +4,7 @@ import { IntegrationList } from 'modules/settings/integrations/containers/common
 import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
+import StoreEntry from '../../containers/StoreEntry';
 import Entry from './Entry';
 import { CollapsibleContent, IntegrationRow } from './styles';
 
@@ -82,6 +83,32 @@ class Row extends React.Component<Props, State> {
     return <Pagination count={totalCount} />;
   }
 
+  isMessengerApp(kind: string | null) {
+    if (kind === 'lead' || kind === 'googleMeet' || kind === 'knowledgebase') {
+      return true;
+    }
+
+    return false;
+  }
+
+  renderEntry(integration, totalCount) {
+    const kind = integration.kind;
+
+    const commonProp = {
+      key: integration.name,
+      integration,
+      toggleBox: this.toggleBox,
+      getClassName: this.getClassName,
+      totalCount
+    };
+
+    if (this.isMessengerApp(kind)) {
+      return <StoreEntry {...commonProp} kind={kind} />;
+    }
+
+    return <Entry {...commonProp} />;
+  }
+
   renderList() {
     const { queryParams, totalCount } = this.props;
     const { isContentVisible, kind } = this.state;
@@ -90,7 +117,7 @@ class Row extends React.Component<Props, State> {
       return null;
     }
 
-    if (kind === 'googleMeet' || kind === 'lead' || kind === 'knowledgebase') {
+    if (this.isMessengerApp(kind)) {
       return <MessengerAppList kind={kind} queryParams={queryParams} />;
     }
 
@@ -109,15 +136,9 @@ class Row extends React.Component<Props, State> {
       <React.Fragment>
         {title && <h3>{__(title)}</h3>}
         <IntegrationRow>
-          {integrations.map(integration => (
-            <Entry
-              key={integration.name}
-              integration={integration}
-              toggleBox={this.toggleBox}
-              getClassName={this.getClassName}
-              totalCount={totalCount}
-            />
-          ))}
+          {integrations.map(integration =>
+            this.renderEntry(integration, totalCount)
+          )}
         </IntegrationRow>
         <Collapse in={this.state.isContentVisible}>
           <CollapsibleContent>{this.renderList()}</CollapsibleContent>

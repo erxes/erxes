@@ -2,7 +2,6 @@ import { ISubMenuItem } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
-import { dimensions } from '../../styles';
 import MenuItem from './MenuItem';
 
 const Items = styled.ul`
@@ -19,7 +18,7 @@ function Submenu({ items }: { items?: ISubMenuItem[] }) {
       <Items>
         {items.map(b => (
           <MenuItem to={b.link || ''} key={b.title}>
-            {b.title}
+            {__(b.title)}
           </MenuItem>
         ))}
       </Items>

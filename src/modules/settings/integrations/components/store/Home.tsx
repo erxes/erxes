@@ -14,6 +14,7 @@ type Props = {
     facebook: number;
     gmail: number;
   };
+  messengerAppsCount: number;
   queryParams: any;
 };
 

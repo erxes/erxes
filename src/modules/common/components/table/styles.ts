@@ -21,11 +21,13 @@ const StyledTable = styledTS<{
 
     th {
       .table-sorter {
-        display: inline-block;
+        float: left;
         padding-right: 10px;
+        color: ${colors.colorSecondary};
 
         i {
           display: block;
+          line-height: 8px;
 
           &:hover {
             cursor: pointer;

@@ -154,7 +154,7 @@ class List extends React.Component<Props> {
             loading={loading}
             count={messages.length}
             emptyText="There is no engage message."
-            emptyImage="/images/robots/robot-03.svg"
+            emptyImage="/images/actions/14.svg"
           />
         }
       />

@@ -19,8 +19,6 @@ class BasicInfo extends React.Component<Props> {
 
     return (
       <Section>
-        <Title>{__('Profile')}</Title>
-
         <InfoSection customer={customer} />
         <Action>
           <ActionSection customer={customer} />

@@ -72,8 +72,8 @@ export default compose(
     options: ({ queryParams }: IParams) => ({
       fetchPolicy: 'network-only',
       variables: {
-        brandId: queryParams.brandId,
-        integrationType: queryParams.integrationType,
+        brandId: queryParams.brandIds,
+        integrationIds: queryParams.integrationIds,
         endDate: queryParams.endDate,
         startDate: queryParams.startDate
       }
@@ -85,8 +85,8 @@ export default compose(
       fetchPolicy: 'network-only',
       variables: {
         type,
-        brandId: queryParams.brandId,
-        integrationType: queryParams.integrationType,
+        brandIds: queryParams.brandIds,
+        integrationIds: queryParams.integrationIds,
         endDate: queryParams.endDate
       }
     })
@@ -98,8 +98,8 @@ export default compose(
       notifyOnNetworkStatusChange: true,
       variables: {
         type,
-        brandId: queryParams.brandId,
-        integrationType: queryParams.integrationType,
+        brandIds: queryParams.brandIds,
+        integrationIds: queryParams.integrationIds,
         startDate: queryParams.startDate,
         endDate: queryParams.endDate
       }

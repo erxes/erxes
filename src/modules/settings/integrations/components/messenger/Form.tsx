@@ -161,7 +161,11 @@ class CreateMessenger extends React.Component<Props, State> {
         availabilityMethod: this.state.availabilityMethod,
         isOnline: this.state.isOnline,
         timezone: this.state.timezone,
-        onlineHours: this.state.onlineHours,
+        onlineHours: (this.state.onlineHours || []).map(oh => ({
+          day: oh.day,
+          from: oh.from,
+          to: oh.to
+        })),
         supporterIds: this.state.supporterIds,
         messages,
         requireAuth,

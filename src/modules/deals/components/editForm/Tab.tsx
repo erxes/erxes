@@ -53,7 +53,7 @@ class Tab extends React.Component<Props, { currentTab: string }> {
             />
           }
           emptyText="No Activities"
-          emptyImage="/images/robots/robot-03.svg"
+          emptyImage="/images/actions/19.svg"
         />
       </ActivityContent>
     );

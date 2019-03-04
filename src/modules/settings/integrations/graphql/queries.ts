@@ -113,6 +113,12 @@ const messengerApps = `
   }
 `;
 
+const messengerAppsCount = `
+  query messengerAppsCount($kind: String) {
+    messengerAppsCount(kind: $kind)
+  }
+`;
+
 export default {
   users,
   brands,
@@ -120,5 +126,6 @@ export default {
   integrationTotalCount,
   integrationGetGoogleAuthUrl,
   integrations,
-  messengerApps
+  messengerApps,
+  messengerAppsCount
 };

@@ -11,7 +11,7 @@ import { Alert } from 'modules/common/utils';
 export const getEnv = () => {
   const wenv = (window as any).env || {};
 
-  const getItem = name => process.env[name] || wenv[name];
+  const getItem = name => wenv[name] || process.env[name];
 
   return {
     REACT_APP_API_URL: getItem('REACT_APP_API_URL'),
