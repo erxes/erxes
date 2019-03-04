@@ -51,6 +51,7 @@ export interface IDeal {
 export interface IProductData {
   _id: string;
   productId?: string;
+  product?: IProduct;
   uom?: string;
   currency?: string;
   quantity: number;
