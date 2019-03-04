@@ -51,7 +51,7 @@ class InsightPage extends React.Component {
               'First Response Report',
               '/images/icons/erxes-16.svg',
               '/insights/first-response',
-              'The responding time for a single feedback. You can find stats that defines the average response time by each team member.'
+              'You can find stats that defines the average response time by each team member.'
             )}
           </div>
         </div>
