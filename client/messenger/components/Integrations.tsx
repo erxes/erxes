@@ -15,6 +15,7 @@ export default class Integrations extends React.PureComponent<Props> {
     }
 
     const { brandCode, formCode } = this.props;
+
     return (
       <IntegrationItem>
         <LeadConnect brandCode={brandCode} formCode={formCode} />

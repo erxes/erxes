@@ -4,14 +4,17 @@ import { TopBar } from "./";
 
 type Props = {
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
-  setHeight: () => void;
+  setHeight?: () => void;
   configs: ICallout;
   color: string;
+  hasTopBar?: boolean;
 };
 
 class Callout extends React.Component<Props> {
   componentDidMount() {
-    this.props.setHeight();
+    if (this.props.setHeight) {
+      this.props.setHeight();
+    }
   }
 
   renderFeaturedImage(image: string, title: string) {
@@ -20,6 +23,14 @@ class Callout extends React.Component<Props> {
     }
 
     return <img onLoad={this.props.setHeight} src={image} alt={title} />;
+  }
+
+  renderHead(title: string, color: string) {
+    if (this.props.hasTopBar) {
+      return <TopBar title={title} color={color} />;
+    }
+
+    return <h4>{title}</h4>;
   }
 
   render() {
@@ -40,7 +51,7 @@ class Callout extends React.Component<Props> {
 
     return (
       <div className="erxes-form">
-        <TopBar title={title} color={color} />
+        {this.renderHead(title, color)}
 
         <div className="erxes-form-content">
           <div className="erxes-callout-body">
