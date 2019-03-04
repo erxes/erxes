@@ -679,5 +679,7 @@
   "Send a message": "Захиа илгээх",
   "Volume Report By Customer": "Хандалтын тайлан харилцагчаар",
   "Export Report": "Тайлан татах",
-  "We`re ready to help you.": "Бид танд туслахад бэлэн байна."
+  "We`re ready to help you.": "Бид танд туслахад бэлэн байна.",
+  "Please choose a product": "Бүтээгдэхүүн сонгоно уу.",
+  "Please choose a currency": "Валют сонгоно уу."
 }
