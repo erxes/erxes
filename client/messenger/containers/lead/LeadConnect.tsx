@@ -4,7 +4,7 @@ import client from "../../../apollo-client";
 import { __, requestBrowserInfo } from "../../../utils";
 import { connection } from "../../connection";
 import queries from "../../graphql";
-import Form from "./Form";
+import LeadContent from "./LeadContent";
 
 interface IState {
   loading: boolean;
@@ -74,7 +74,7 @@ class LeadConnect extends React.PureComponent<Props, IState> {
       return <div className="loader" />;
     }
 
-    return <Form />;
+    return <LeadContent />;
   }
 }
 

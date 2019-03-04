@@ -15,6 +15,7 @@ import { connection } from "../../connection";
 
 interface IState {
   currentStatus: ICurrentStatus;
+  isCallOutVisible: boolean;
 }
 
 interface IStore extends IState {
@@ -23,6 +24,7 @@ interface IStore extends IState {
   sendEmail: (params: IEmailParams) => void;
   getIntegration: () => IIntegration;
   getForm: () => IForm;
+  showForm: () => void;
 }
 
 const LeadContext = React.createContext({} as IStore);
@@ -34,13 +36,14 @@ export class LeadProvider extends React.Component<{}, IState> {
     super(props);
 
     this.state = {
-      currentStatus: { status: "INITIAL" }
+      currentStatus: { status: "INITIAL" },
+      isCallOutVisible: true
     };
   }
 
-  componentDidMount() {
-    this.increaseViewCount();
-  }
+  // componentDidMount() {
+  //   this.increaseViewCount();
+  // }
 
   /*
    * Increasing view count
@@ -87,6 +90,10 @@ export class LeadProvider extends React.Component<{}, IState> {
     return connection.formData.form;
   };
 
+  showForm = () => {
+    this.setState({ isCallOutVisible: false });
+  };
+
   render() {
     return (
       <LeadContext.Provider
@@ -96,7 +103,8 @@ export class LeadProvider extends React.Component<{}, IState> {
           createNew: this.createNew,
           sendEmail,
           getIntegration: this.getIntegration,
-          getForm: this.getForm
+          getForm: this.getForm,
+          showForm: this.showForm
         }}
       >
         {this.props.children}
