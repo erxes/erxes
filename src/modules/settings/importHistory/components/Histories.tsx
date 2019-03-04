@@ -1,6 +1,7 @@
 import { DataWithLoader, Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
+import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import Sidebar from '../../properties/components/Sidebar';
 import { IImportHistory } from '../types';
@@ -54,9 +55,22 @@ class Histories extends React.Component<Props> {
       { title: __(currentType) }
     ];
 
+    const actionBarLeft = (
+      <MainDescription>
+        <DescImg src="/images/actions/21.svg" />
+        <span>
+          <h4>{__('Import histories')}</h4>
+          {__(
+            'Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here.'
+          )}
+        </span>
+      </MainDescription>
+    );
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
         leftSidebar={
           <Sidebar title="Import histories" currentType={currentType} />
         }

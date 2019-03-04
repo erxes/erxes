@@ -7,6 +7,7 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
+import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { PropertyForm, PropertyGroupForm } from '../containers';
@@ -124,9 +125,26 @@ class Properties extends React.Component<Props> {
       { title: __(currentType) }
     ];
 
+    const actionBarLeft = (
+      <MainDescription>
+        <DescImg src="/images/actions/21.svg" />
+        <span>
+          <h4>{__('Properties')}</h4>
+          {__(
+            'The quick view finder helps you to view basic information on both companies and customers alike. Add groups and fields of the exact information you want to see.'
+          )}
+        </span>
+      </MainDescription>
+    );
+
     return (
       <Wrapper
-        actionBar={<Wrapper.ActionBar right={this.renderActionBar()} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={actionBarLeft}
+            right={this.renderActionBar()}
+          />
+        }
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar title="Properties" currentType={currentType} />}
         content={this.renderProperties()}

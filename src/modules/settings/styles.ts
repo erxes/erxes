@@ -251,6 +251,25 @@ const Description = styled.div`
   font-size: 12px;
 `;
 
+const MainDescription = styled.div`
+  max-width: 600px;
+  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+
+  h4 {
+    margin: 0;
+    padding-bottom: 5px;
+  }
+`;
+
+const DescImg = styled.img`
+  min-width: 100px;
+  max-height: 100px;
+  margin-right: ${dimensions.coreSpacing}px;
+`;
+
 export {
   ContentBox,
   ModuleBox,
@@ -266,5 +285,7 @@ export {
   LogoContainer,
   SidebarListItem,
   ActionButtons,
-  Description
+  Description,
+  MainDescription,
+  DescImg
 };

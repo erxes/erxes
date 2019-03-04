@@ -4,16 +4,19 @@ import {
   ModalTrigger,
   Pagination
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
+import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
-import { ICommonListProps } from '../types';
+import { IActionBarLeft, ICommonListProps } from '../types';
 
 type Props = {
   title?: string;
   size?: string;
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
+  renderActionBarLeft: IActionBarLeft[];
   breadcrumb?: IBreadCrumbItem[];
   center?: boolean;
 };
@@ -24,6 +27,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       title,
       size,
       renderContent,
+      renderActionBarLeft,
       renderForm,
       breadcrumb,
       totalCount,
@@ -45,7 +49,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       return renderForm({ ...props, save });
     };
 
-    const actionBarLeft = (
+    const actionBarRight = (
       <ModalTrigger
         title={title || ''}
         size={size}
@@ -54,10 +58,24 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       />
     );
 
+    const actionBarLeft = () => {
+      return renderActionBarLeft.map((item, index) => (
+        <MainDescription key={index}>
+          <DescImg src={item.icon} />
+          <span>
+            <h4>{item.title}</h4>
+            {item.description}
+          </span>
+        </MainDescription>
+      ));
+    };
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb || []} />}
-        actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
+        actionBar={
+          <Wrapper.ActionBar left={actionBarLeft()} right={actionBarRight} />
+        }
         footer={<Pagination count={totalCount} />}
         transparent={true}
         center={center}

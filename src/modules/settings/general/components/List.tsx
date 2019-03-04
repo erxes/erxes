@@ -1,6 +1,7 @@
 import { Button, ControlLabel, FormGroup } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ActionBar, Wrapper } from 'modules/layout/components';
+import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
@@ -60,6 +61,18 @@ class List extends React.Component<Props, State> {
       { title: __('Settings'), link: '/settings' },
       { title: __('General') }
     ];
+
+    const actionBarLeft = (
+      <MainDescription>
+        <DescImg src="/images/actions/21.svg" />
+        <span>
+          <h4>{__('General')}</h4>
+          {__(
+            'Set up your initial account settings so that things run smoothly in unison.'
+          )}
+        </span>
+      </MainDescription>
+    );
 
     const actionFooter = (
       <ActionBar
@@ -123,6 +136,7 @@ class List extends React.Component<Props, State> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
         content={content}
         footer={actionFooter}
         center={true}
