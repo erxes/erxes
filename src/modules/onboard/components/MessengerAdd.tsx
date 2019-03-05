@@ -166,7 +166,7 @@ class MessengerAdd extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <TopContent>
-          <h2>{__('Create messenger')}</h2>
+          <h2>{__('Start messaging now!')}</h2>
           {this.renderContent()}
         </TopContent>
         <Footer>

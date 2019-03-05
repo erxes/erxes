@@ -1,4 +1,9 @@
-import { Button, EmptyState, SortableList } from 'modules/common/components';
+import {
+  Button,
+  EmptyState,
+  HeaderDescription,
+  SortableList
+} from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { collectOrders } from 'modules/deals/utils';
 import { Wrapper } from 'modules/layout/components';
@@ -99,7 +104,7 @@ class Pipelines extends React.Component<Props, State> {
       return (
         <EmptyState
           size="full"
-          text="There is no pipeline"
+          text="Get started on your pipeline"
           image="/images/actions/16.svg"
         />
       );
@@ -136,7 +141,16 @@ class Pipelines extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <Wrapper.ActionBar right={this.renderButton()} />
+        <Wrapper.ActionBar
+          left={
+            <HeaderDescription
+              icon="/images/actions/31.svg"
+              title="Channels"
+              description="Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game."
+            />
+          }
+          right={this.renderButton()}
+        />
         {this.renderContent()}
 
         <PipelineForm

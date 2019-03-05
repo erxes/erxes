@@ -112,7 +112,7 @@ class BrandAdd extends React.Component<
     return (
       <form onSubmit={this.save}>
         <TopContent>
-          <h2>{__('Create brand')}</h2>
+          <h2>{__(`Let's create your brand`)}</h2>
           {this.renderContent()}
         </TopContent>
         <Footer>

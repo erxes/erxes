@@ -4,6 +4,7 @@ import {
   ModalTrigger,
   Pagination
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
@@ -14,6 +15,7 @@ type Props = {
   size?: string;
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
+  leftActionBar: React.ReactNode;
   breadcrumb?: IBreadCrumbItem[];
   center?: boolean;
 };
@@ -25,6 +27,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       size,
       renderContent,
       renderForm,
+      leftActionBar,
       breadcrumb,
       totalCount,
       objects,
@@ -45,7 +48,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       return renderForm({ ...props, save });
     };
 
-    const actionBarLeft = (
+    const actionBarRight = (
       <ModalTrigger
         title={title || ''}
         size={size}
@@ -57,7 +60,9 @@ class List extends React.Component<Props & ICommonListProps, {}> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb || []} />}
-        actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
+        actionBar={
+          <Wrapper.ActionBar left={leftActionBar} right={actionBarRight} />
+        }
         footer={<Pagination count={totalCount} />}
         transparent={true}
         center={center}
@@ -66,7 +71,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
             data={renderContent({ objects, save, refetch, remove })}
             loading={loading}
             count={totalCount}
-            emptyText="There is no data."
+            emptyText="Oops! No data here"
             emptyImage="/images/actions/5.svg"
           />
         }

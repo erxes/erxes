@@ -197,7 +197,7 @@ class ChannelForm extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <TopContent>
-          <h2>{__('Create channel')}</h2>
+          <h2>{__('Get started on your channel')}</h2>
           {this.renderContent()}
         </TopContent>
         <Footer>

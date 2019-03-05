@@ -1,4 +1,4 @@
-import { Icon } from 'modules/common/components';
+import { HeaderDescription, Icon } from 'modules/common/components';
 import { FullContent, MiddleContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
@@ -70,6 +70,14 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
     const content = (
       <FullContent center={true}>
         <MiddleContent transparent={true}>
+          <Box noTopPadding={true}>
+            <HeaderDescription
+              icon="/images/actions/28.svg"
+              title="System status"
+              description={`This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.`}
+            />
+          </Box>
+
           {this.renderData('Erxes Status', erxesVersion)}
 
           {this.renderData('Erxes API Status', apiVersion)}

@@ -96,6 +96,7 @@ class Signature extends React.Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
+              placeholder="An email signature is an opportunity to share information that helps build recognition and trust."
               id="content"
               rows={6}
               onChange={this.changeContent}

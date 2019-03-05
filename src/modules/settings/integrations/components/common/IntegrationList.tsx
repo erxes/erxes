@@ -129,7 +129,7 @@ class IntegrationList extends React.Component<Props> {
     if (!integrations || integrations.length < 1) {
       return (
         <EmptyState
-          text="There aren’t any integrations at the moment."
+          text="Start adding integrations now!"
           image="/images/actions/2.svg"
         />
       );

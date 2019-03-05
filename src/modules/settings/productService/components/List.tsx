@@ -1,6 +1,7 @@
 import {
   Button,
   DataWithLoader,
+  HeaderDescription,
   ModalTrigger,
   Pagination,
   Table
@@ -79,7 +80,18 @@ class List extends React.Component<Props> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={<Wrapper.ActionBar right={actionBarRight} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/30.svg"
+                title={'Product & Service'}
+                description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
+              />
+            }
+            right={actionBarRight}
+          />
+        }
         footer={<Pagination count={productsCount} />}
         center={true}
         content={
