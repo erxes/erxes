@@ -104,10 +104,10 @@ class DealAddForm extends React.Component<Props, State> {
     );
   }
 
-  render() {
-    const onChangeName = e =>
-      this.onChangeField('name', (e.target as HTMLInputElement).value);
+  onChangeName = e =>
+    this.onChangeField('name', (e.target as HTMLInputElement).value);
 
+  render() {
     return (
       <AddContainer onSubmit={this.save}>
         {this.renderSelect()}
@@ -115,7 +115,7 @@ class DealAddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
-            <FormControl autoFocus={true} onChange={onChangeName} />
+            <FormControl autoFocus={true} onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
 
