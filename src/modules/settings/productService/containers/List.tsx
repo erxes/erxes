@@ -95,6 +95,22 @@ class ProductListContainer extends React.Component<FinalProps> {
   }
 }
 
+const options = ({ queryParams }) => ({
+  refetchQueries: [
+    {
+      query: gql(queries.products),
+      variables: generatePaginationParams(queryParams)
+    },
+    {
+      query: gql(queries.products),
+      variables: { perPage: 20 }
+    },
+    {
+      query: gql(queries.productsCount)
+    }
+  ]
+});
+
 export default withProps<Props>(
   compose(
     graphql<Props, ProductsQueryResponse, { page: number; perPage: number }>(
@@ -102,8 +118,7 @@ export default withProps<Props>(
       {
         name: 'productsQuery',
         options: ({ queryParams }) => ({
-          variables: generatePaginationParams(queryParams),
-          fetchPolicy: 'network-only'
+          variables: generatePaginationParams(queryParams)
         })
       }
     ),
@@ -113,19 +128,22 @@ export default withProps<Props>(
     graphql<Props, AddMutationResponse, MutationVariables>(
       gql(mutations.productAdd),
       {
-        name: 'addMutation'
+        name: 'addMutation',
+        options
       }
     ),
     graphql<Props, EditMutationResponse, MutationVariables>(
       gql(mutations.productEdit),
       {
-        name: 'editMutation'
+        name: 'editMutation',
+        options
       }
     ),
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.productRemove),
       {
-        name: 'removeMutation'
+        name: 'removeMutation',
+        options
       }
     )
   )(ProductListContainer)

@@ -103,7 +103,15 @@ export default withProps<Props>(
     graphql<{}, ProductAddMutationResponse, IProduct>(
       gql(productMutations.productAdd),
       {
-        name: 'productAdd'
+        name: 'productAdd',
+        options: () => ({
+          refetchQueries: [
+            {
+              query: gql(productQueries.products),
+              variables: { perPage: 20 }
+            }
+          ]
+        })
       }
     )
   )(ProductChooser)

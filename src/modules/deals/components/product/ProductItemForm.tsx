@@ -6,6 +6,7 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { CURRENCIES, MEASUREMENTS } from 'modules/settings/general/constants';
+import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { ProductChooser } from '../../containers';
@@ -25,7 +26,7 @@ type Props = {
 };
 
 class ProductItemForm extends React.Component<Props> {
-  calculateAmount = (type, productData) => {
+  calculateAmount = (type: string, productData: IProductData) => {
     const amount = productData.unitPrice * productData.quantity;
 
     if (amount > 0) {
@@ -63,7 +64,11 @@ class ProductItemForm extends React.Component<Props> {
     }
   };
 
-  onChangeField = (type, value, productId) => {
+  onChangeField = (
+    type: string,
+    value: string | IProduct,
+    productId: string
+  ) => {
     const { productsData, onChangeProductsData } = this.props;
 
     if (productsData) {
@@ -72,7 +77,7 @@ class ProductItemForm extends React.Component<Props> {
         productData[type] = value;
       }
 
-      if (type !== 'product' && type !== 'uom') {
+      if (type !== 'product' && type !== 'uom' && productData) {
         this.calculateAmount(type, productData);
       }
 
@@ -82,7 +87,7 @@ class ProductItemForm extends React.Component<Props> {
     }
   };
 
-  renderProductServiceTrigger(product) {
+  renderProductServiceTrigger(product?: IProduct) {
     let content = (
       <div>
         {__('Product & Service')} <Icon icon="add" />
@@ -101,11 +106,13 @@ class ProductItemForm extends React.Component<Props> {
     return <DealButton>{content}</DealButton>;
   }
 
-  renderProductModal(productData) {
-    const productOnChange = products => {
+  renderProductModal(productData: IProductData) {
+    const productOnChange = (products: IProduct[]) => {
       const product = products && products.length === 1 ? products[0] : null;
 
-      this.onChangeField('product', product, productData._id);
+      if (product) {
+        this.onChangeField('product', product, productData._id);
+      }
     };
 
     const content = props => (
@@ -130,34 +137,41 @@ class ProductItemForm extends React.Component<Props> {
     );
   }
 
-  render() {
-    const { uom, currencies, productData, removeProductItem } = this.props;
+  uomOnChange = (option: HTMLOptionElement) =>
+    this.onChangeField(
+      'uom',
+      option ? option.value : '',
+      this.props.productData._id
+    );
 
-    const uomOnChange = option =>
-      this.onChangeField('uom', option ? option.value : '', productData._id);
+  currencyOnChange = (currency: HTMLOptionElement) =>
+    this.onChangeField(
+      'currency',
+      currency ? currency.value : '',
+      this.props.productData._id
+    );
+
+  onChange = e =>
+    this.onChangeField(
+      (e.target as HTMLInputElement).name,
+      (e.target as HTMLInputElement).value,
+      this.props.productData._id
+    );
+
+  onClick = () => {
+    const { productData, removeProductItem } = this.props;
+
+    return removeProductItem && removeProductItem(productData._id);
+  };
+
+  render() {
+    const { uom, currencies, productData } = this.props;
 
     const selectOption = option => (
       <div className="simple-option">
         <span>{option.label}</span>
       </div>
     );
-
-    const currencyOnChange = currency =>
-      this.onChangeField(
-        'currency',
-        currency ? currency.value : '',
-        productData._id
-      );
-
-    const onChange = e =>
-      this.onChangeField(
-        (e.target as HTMLInputElement).name,
-        (e.target as HTMLInputElement).value,
-        productData._id
-      );
-
-    const onClick = () =>
-      removeProductItem && removeProductItem(productData._id);
 
     return (
       <tr key={productData._id}>
@@ -167,7 +181,7 @@ class ProductItemForm extends React.Component<Props> {
             name="uom"
             placeholder={__('Choose')}
             value={productData.uom}
-            onChange={uomOnChange}
+            onChange={this.uomOnChange}
             optionRenderer={selectOption}
             options={selectConfigOptions(uom, MEASUREMENTS)}
           />
@@ -177,7 +191,7 @@ class ProductItemForm extends React.Component<Props> {
             name="currency"
             placeholder={__('Choose')}
             value={productData.currency}
-            onChange={currencyOnChange}
+            onChange={this.currencyOnChange}
             optionRenderer={selectOption}
             options={selectConfigOptions(currencies, CURRENCIES)}
           />
@@ -189,7 +203,7 @@ class ProductItemForm extends React.Component<Props> {
             min={1}
             placeholder="0"
             name="quantity"
-            onChange={onChange}
+            onChange={this.onChange}
           />
 
           <ItemText align="right">{__('Discount')}</ItemText>
@@ -202,7 +216,7 @@ class ProductItemForm extends React.Component<Props> {
             type="number"
             placeholder="0"
             name="unitPrice"
-            onChange={onChange}
+            onChange={this.onChange}
           />
 
           <FormControl
@@ -212,7 +226,7 @@ class ProductItemForm extends React.Component<Props> {
             max={100}
             placeholder="0"
             name="discountPercent"
-            onChange={onChange}
+            onChange={this.onChange}
           />
 
           <FormControl
@@ -222,7 +236,7 @@ class ProductItemForm extends React.Component<Props> {
             max={100}
             placeholder="0"
             name="taxPercent"
-            onChange={onChange}
+            onChange={this.onChange}
           />
 
           <ItemText>{__('Total')}</ItemText>
@@ -238,7 +252,7 @@ class ProductItemForm extends React.Component<Props> {
             type="number"
             placeholder="0"
             name="discount"
-            onChange={onChange}
+            onChange={this.onChange}
           />
 
           <ItemText>
@@ -254,7 +268,7 @@ class ProductItemForm extends React.Component<Props> {
             btnStyle="danger"
             icon="cancel-1"
             size="small"
-            onClick={onClick}
+            onClick={this.onClick}
           />
         </td>
       </tr>
