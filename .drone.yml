@@ -36,6 +36,10 @@ pipeline:
     commands:
       - yarn build
       - cp .env.sample .env
+    when:
+      branch: [master, develop]
+      event: push
+      status: success
 
   docker:
     image: plugins/docker
@@ -49,6 +53,10 @@ pipeline:
         target: docker_password
     tags:
       - ${DRONE_BRANCH}-latest
+    when:
+      branch: [master, develop]
+      event: push
+      status: success
 
 services:
   mongo:
