@@ -15,7 +15,7 @@ type Props = {
   size?: string;
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
-  leftActionBar: any;
+  leftActionBar: React.ReactNode;
   breadcrumb?: IBreadCrumbItem[];
   center?: boolean;
 };
