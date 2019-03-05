@@ -7,20 +7,11 @@ import {
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import { TYPES } from '../constants';
-import { IProduct } from '../types';
-
-type Doc = {
-  type: string;
-  _id?: string;
-  name?: string;
-  description?: string;
-  sku?: string;
-  createdAt?: Date;
-};
+import { IProduct, IProductDoc } from '../types';
 
 type Props = {
   product?: IProduct;
-  save: (doc: Doc, callback: () => void, product?: IProduct) => void;
+  save: (doc: IProductDoc, callback: () => void, product?: IProduct) => void;
   closeModal: () => void;
 };
 

@@ -2,7 +2,7 @@ import { IActivityLogForMonth } from '../activityLogs/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
-import { IProduct } from '../settings/productService/types';
+import { IProduct, IProductDoc } from '../settings/productService/types';
 
 export interface ICommonState {
   [key: string]: {
@@ -167,5 +167,5 @@ export type ProductsQueryResponse = {
 };
 
 export type ProductAddMutationResponse = {
-  productAdd: (params: { variables: IProduct }) => Promise<void>;
+  productAdd: (params: { variables: IProductDoc }) => Promise<void>;
 };
