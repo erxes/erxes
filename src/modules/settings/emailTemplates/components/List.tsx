@@ -1,4 +1,4 @@
-import { Table } from 'modules/common/components';
+import { HeaderDescription, Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -70,13 +70,13 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
           { title: __('Settings'), link: '/settings' },
           { title: __('Email templates') }
         ]}
-        renderActionBarLeft={[
-          {
-            title: 'Email templates',
-            icon: '/images/actions/22.svg',
-            description: `It's all about thinking ahead for your customers. Team members will be able to choose from email templates and send out one message to multiple recipients. You can use the email templates to send out a Mass email for leads/customers or you can send to other team members.`
-          }
-        ]}
+        leftActionBar={
+          <HeaderDescription
+            icon="/images/actions/22.svg"
+            title="Email templates"
+            description={`It's all about thinking ahead for your customers. Team members will be able to choose from email templates and send out one message to multiple recipients. You can use the email templates to send out a Mass email for leads/customers or you can send to other team members.`}
+          />
+        }
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         center={true}

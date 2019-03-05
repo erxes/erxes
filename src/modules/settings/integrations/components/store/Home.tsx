@@ -1,8 +1,8 @@
+import { HeaderDescription } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import Sidebar from 'modules/settings/integrations/components/Sidebar';
 import { INTEGRATIONS } from 'modules/settings/integrations/constants';
-import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import Row from './Row';
 import { IntegrationWrapper } from './styles';
@@ -41,22 +41,20 @@ class Home extends React.Component<Props> {
   render() {
     const breadcrumb = [{ title: __('App store') }];
 
-    const actionBarLeft = (
-      <MainDescription>
-        <DescImg src="/images/actions/33.svg" />
-        <span>
-          <h4>{__('App store')}</h4>
-          {__(
-            'Set up your integrations and start connecting with your customers. Now you can reach them on wherever platform they feel most comfortable.'
-          )}
-        </span>
-      </MainDescription>
-    );
-
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/33.svg"
+                title="App store"
+                description="Set up your integrations and start connecting with your customers. Now you can reach them on wherever platform they feel most comfortable."
+              />
+            }
+          />
+        }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

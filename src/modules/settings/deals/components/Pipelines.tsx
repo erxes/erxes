@@ -1,8 +1,12 @@
-import { Button, EmptyState, SortableList } from 'modules/common/components';
+import {
+  Button,
+  EmptyState,
+  HeaderDescription,
+  SortableList
+} from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { collectOrders } from 'modules/deals/utils';
 import { Wrapper } from 'modules/layout/components';
-import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { PipelineForm } from '../containers';
 import { PipelineContainer } from '../styles';
@@ -135,21 +139,18 @@ class Pipelines extends React.Component<Props, State> {
     const { boardId, save } = this.props;
     const { currentPipeline, showModal } = this.state;
 
-    const actionBarLeft = (
-      <MainDescription>
-        <DescImg src="/images/actions/34.svg" />
-        <span>
-          <h4>{__('Boards & Pipelines')}</h4>
-          {__(
-            `Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check.`
-          )}
-        </span>
-      </MainDescription>
-    );
-
     return (
       <React.Fragment>
-        <Wrapper.ActionBar left={actionBarLeft} right={this.renderButton()} />
+        <Wrapper.ActionBar
+          left={
+            <HeaderDescription
+              icon="/images/actions/31.svg"
+              title="Channels"
+              description="Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game."
+            />
+          }
+          right={this.renderButton()}
+        />
         {this.renderContent()}
 
         <PipelineForm

@@ -1,8 +1,7 @@
-import { Icon } from 'modules/common/components';
+import { HeaderDescription, Icon } from 'modules/common/components';
 import { FullContent, MiddleContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { Box, Group, Title } from '../styles';
 import { ProjectVersions, Version } from '../types';
@@ -72,15 +71,11 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
       <FullContent center={true}>
         <MiddleContent transparent={true}>
           <Box noTopPadding={true}>
-            <MainDescription>
-              <DescImg src="/images/actions/28.svg" />
-              <span>
-                <h4>{__('System status')}</h4>
-                {__(
-                  `This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.`
-                )}
-              </span>
-            </MainDescription>
+            <HeaderDescription
+              icon="/images/actions/28.svg"
+              title="System status"
+              description={`This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.`}
+            />
           </Box>
 
           {this.renderData('Erxes Status', erxesVersion)}

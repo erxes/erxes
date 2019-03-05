@@ -20,9 +20,3 @@ export interface ICommonFormProps {
   save: (params: { doc: any }, callback: () => void, object: any) => void;
   closeModal: () => void;
 }
-
-export interface IActionBarLeft {
-  title: string;
-  icon: string;
-  description: string;
-}

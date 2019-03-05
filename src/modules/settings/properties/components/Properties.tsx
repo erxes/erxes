@@ -2,12 +2,12 @@ import {
   Button,
   DropdownToggle,
   EmptyState,
+  HeaderDescription,
   Icon,
   ModalTrigger
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { PropertyForm, PropertyGroupForm } from '../containers';
@@ -126,15 +126,11 @@ class Properties extends React.Component<Props> {
     ];
 
     const actionBarLeft = (
-      <MainDescription>
-        <DescImg src="/images/actions/26.svg" />
-        <span>
-          <h4>{__('Properties')}</h4>
-          {__(
-            'The quick view finder helps you to view basic information on both companies and customers alike. Add groups and fields of the exact information you want to see.'
-          )}
-        </span>
-      </MainDescription>
+      <HeaderDescription
+        icon="/images/actions/26.svg"
+        title="Properties"
+        description="The quick view finder helps you to view basic information on both companies and customers alike. Add groups and fields of the exact information you want to see."
+      />
     );
 
     return (

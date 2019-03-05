@@ -6,17 +6,16 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
-import { IActionBarLeft, ICommonListProps } from '../types';
+import { ICommonListProps } from '../types';
 
 type Props = {
   title?: string;
   size?: string;
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
-  renderActionBarLeft: IActionBarLeft[];
+  leftActionBar: any;
   breadcrumb?: IBreadCrumbItem[];
   center?: boolean;
 };
@@ -27,8 +26,8 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       title,
       size,
       renderContent,
-      renderActionBarLeft,
       renderForm,
+      leftActionBar,
       breadcrumb,
       totalCount,
       objects,
@@ -58,23 +57,11 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       />
     );
 
-    const actionBarLeft = () => {
-      return renderActionBarLeft.map((item, index) => (
-        <MainDescription key={index}>
-          <DescImg src={item.icon} />
-          <span>
-            <h4>{item.title}</h4>
-            {item.description}
-          </span>
-        </MainDescription>
-      ));
-    };
-
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb || []} />}
         actionBar={
-          <Wrapper.ActionBar left={actionBarLeft()} right={actionBarRight} />
+          <Wrapper.ActionBar left={leftActionBar} right={actionBarRight} />
         }
         footer={<Pagination count={totalCount} />}
         transparent={true}

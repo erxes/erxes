@@ -1,13 +1,13 @@
 import {
   Button,
   DataWithLoader,
+  HeaderDescription,
   ModalTrigger,
   Pagination,
   Table
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { IProduct } from '../types';
 import { Form, Row } from './';
@@ -54,18 +54,6 @@ class List extends React.Component<Props> {
 
     const modalContent = props => <Form {...props} save={save} />;
 
-    const actionBarLeft = (
-      <MainDescription>
-        <DescImg src="/images/actions/30.svg" />
-        <span>
-          <h4>{__('Product & Service')}</h4>
-          {__(
-            `All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`
-          )}
-        </span>
-      </MainDescription>
-    );
-
     const actionBarRight = (
       <ModalTrigger
         title="Add Product / Service"
@@ -93,7 +81,16 @@ class List extends React.Component<Props> {
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         actionBar={
-          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/30.svg"
+                title={'Product & Service'}
+                description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
+              />
+            }
+            right={actionBarRight}
+          />
         }
         footer={<Pagination count={productsCount} />}
         center={true}

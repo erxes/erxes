@@ -1,6 +1,7 @@
 import {
   ActionButtons,
   Button,
+  HeaderDescription,
   Icon,
   Label,
   ModalTrigger,
@@ -9,7 +10,6 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { IBrand } from '../../brands/types';
 import { Config } from '../containers';
@@ -71,18 +71,6 @@ class List extends React.Component<Props, {}> {
       { title: __('Email appearance') }
     ];
 
-    const actionBarLeft = (
-      <MainDescription>
-        <DescImg src="/images/actions/29.svg" />
-        <span>
-          <h4>{__('Email appearance')}</h4>
-          {__(
-            'Appearances matter, especially for your business. Edit and manage your email appearance so that your business can operate in one voice.'
-          )}
-        </span>
-      </MainDescription>
-    );
-
     const content = (
       <Table>
         <thead>
@@ -99,7 +87,17 @@ class List extends React.Component<Props, {}> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/29.svg"
+                title="Email appearance"
+                description="Appearances matter, especially for your business. Edit and manage your email appearance so that your business can operate in one voice."
+              />
+            }
+          />
+        }
         content={content}
         transparent={true}
         center={true}
