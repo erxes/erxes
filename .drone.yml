@@ -41,6 +41,7 @@ pipeline:
     image: plugins/docker
     repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
     dockerfile: Dockerfile
+    custom_dns: 8.8.8.8
     secrets:
       - source: docker_hub_username
         target: docker_username
