@@ -721,7 +721,7 @@ export const INTEGRATIONS = [
         name: 'Lead',
         description: 'Find your lead forms right here in your Widget',
         inMessenger: true,
-        kind: 'form',
+        kind: 'lead',
         logo: '/images/integrations/lead.png',
         createModal: 'lead',
         createUrl: '/settings/integrations/lead'

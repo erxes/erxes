@@ -105,7 +105,7 @@ const RespondBoxContainer = (props: FinalProps) => {
     ...props,
     sendMessage,
     responseTemplates: responseTemplatesQuery.responseTemplates || [],
-    teamMembers: fromJS(teamMembers)
+    teamMembers: fromJS(teamMembers.filter(member => member.name))
   };
 
   return <RespondBox {...updatedProps} />;

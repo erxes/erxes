@@ -49,7 +49,7 @@ export default class FacebookComment extends React.Component<
 
     let hasReplies = false;
 
-    if (data.commentCount && data.commentCount > 0) {
+    if (data && data.commentCount && data.commentCount > 0) {
       hasReplies = true;
     }
 

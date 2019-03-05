@@ -20,7 +20,7 @@ type Props = {
 
 class Home extends React.Component<Props> {
   renderContent() {
-    const { totalCount, messengerAppsCount, queryParams } = this.props;
+    const { totalCount, queryParams } = this.props;
 
     return (
       <IntegrationWrapper>
@@ -30,7 +30,6 @@ class Home extends React.Component<Props> {
             title={obj.title}
             integrations={obj.rows}
             totalCount={totalCount}
-            messengerAppsCount={messengerAppsCount}
             queryParams={queryParams}
           />
         ))}
