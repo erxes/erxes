@@ -1,7 +1,13 @@
 import * as moment from 'moment';
 import insightQueries from '../data/resolvers/queries/insights';
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, conversationFactory, conversationMessageFactory, integrationFactory } from '../db/factories';
+import {
+  brandFactory,
+  conversationFactory,
+  conversationMessageFactory,
+  integrationFactory,
+  userFactory,
+} from '../db/factories';
 import { Brands, ConversationMessages, Conversations, Integrations } from '../db/models';
 
 describe('insightQueries', () => {
@@ -14,6 +20,7 @@ describe('insightQueries', () => {
     brand = await brandFactory();
     integration = await integrationFactory({
       brandId: brand._id,
+      kind: 'gmail',
     });
     conversation = await conversationFactory({
       integrationId: integration._id,
@@ -24,6 +31,7 @@ describe('insightQueries', () => {
     });
     await conversationMessageFactory({
       conversationId: conversation._id,
+      userId: null,
     });
   });
 
@@ -86,15 +94,20 @@ describe('insightQueries', () => {
   });
 
   test('insightsPunchCard', async () => {
-    const endDate = new Date().toISOString();
+    const endDate = new Date(
+      moment(new Date())
+        .add(1, 'days')
+        .toString(),
+    ).toISOString();
+
     const startDate = new Date(
       moment(endDate)
-        .add(-30, 'days')
+        .add(-1, 'days')
         .toString(),
-    ).toString();
+    ).toISOString();
 
     const args = {
-      integrationIds: integration._id,
+      integrationIds: 'gmail',
       brandIds: brand._id,
       startDate,
       endDate,
@@ -113,7 +126,8 @@ describe('insightQueries', () => {
       }
     `;
 
-    await graphqlRequest(qry, 'insightsPunchCard', args);
+    const response = await graphqlRequest(qry, 'insightsPunchCard', args);
+    expect(response.length).toBe(1);
   });
 
   test('insightsConversation', async () => {
@@ -125,7 +139,7 @@ describe('insightQueries', () => {
     ).toString();
 
     const args = {
-      integrationIds: integration._id,
+      integrationIds: 'gmail',
       brandIds: brand._id,
       startDate,
       endDate,
@@ -149,22 +163,43 @@ describe('insightQueries', () => {
   });
 
   test('insightsFirstResponse', async () => {
-    const endDate = new Date().toISOString();
+    const endDate = new Date(
+      moment(new Date())
+        .add(1, 'days')
+        .toString(),
+    ).toISOString();
+
     const startDate = new Date(
       moment(endDate)
-        .add(-30, 'days')
+        .add(-7, 'days')
         .toString(),
-    ).toString();
+    ).toISOString();
 
     const args = {
-      integrationIds: integration._id,
+      integrationIds: 'gmail',
       brandIds: brand._id,
       startDate,
       endDate,
     };
 
+    const user = await userFactory({});
+    const _conv = await conversationFactory({
+      integrationId: integration._id,
+      firstRespondedUserId: user._id,
+      firstRespondedDate: new Date(),
+      messageCount: 2,
+    });
+
+    await conversationMessageFactory({
+      conversationId: _conv._id,
+    });
+    await conversationMessageFactory({
+      conversationId: _conv._id,
+    });
+
     const qry = `
-      query insightsFirstResponse($integrationIds: String,
+      query insightsFirstResponse(
+        $integrationIds: String,
         $brandIds: String,
         $startDate: String,
         $endDate: String
@@ -176,37 +211,59 @@ describe('insightQueries', () => {
       }
     `;
 
-    await graphqlRequest(qry, 'insightsFirstResponse', args);
+    const response = await graphqlRequest(qry, 'insightsFirstResponse', args);
+    expect(response.trend.length).toBe(1);
+    expect(response.teamMembers.length).toBe(1);
   });
 
   test('insightsResponseClose', async () => {
-    const endDate = new Date().toISOString();
+    const endDate = new Date(
+      moment(new Date())
+        .add(1, 'days')
+        .toString(),
+    ).toISOString();
+
     const startDate = new Date(
       moment(endDate)
-        .add(-30, 'days')
+        .add(-7, 'days')
         .toString(),
-    ).toString();
+    ).toISOString();
+
+    const user = await userFactory({});
+    const _conv = await conversationFactory({
+      closedAt: new Date(),
+      closedUserId: user._id,
+      integrationId: integration._id,
+    });
+
+    await conversationMessageFactory({
+      conversationId: _conv._id,
+    });
 
     const args = {
-      integrationIds: integration._id,
+      integrationIds: 'gmail',
       brandIds: brand._id,
       startDate,
       endDate,
     };
 
     const qry = `
-      query insightsResponseClose($integrationIds: String,
+      query insightsResponseClose(
+        $integrationIds: String,
         $brandIds: String,
         $startDate: String,
         $endDate: String
         ) {
-        insightsResponseClose(integrationIds: $integrationIds,
+        insightsResponseClose(
+          integrationIds: $integrationIds,
           brandIds: $brandIds,
           startDate: $startDate,
           endDate: $endDate)
       }
     `;
 
-    await graphqlRequest(qry, 'insightsResponseClose', args);
+    const response = await graphqlRequest(qry, 'insightsResponseClose', args);
+    expect(response.trend.length).toBe(1);
+    expect(response.teamMembers.length).toBe(1);
   });
 });
