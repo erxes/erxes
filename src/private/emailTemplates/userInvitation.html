@@ -35,8 +35,6 @@
       table,
       td {
         border-collapse: collapse;
-        mso-table-lspace: 0pt;
-        mso-table-rspace: 0pt;
       }
 
       img {
@@ -119,7 +117,7 @@
                                     title=""
                                     height="auto"
                                     src="https://crm.nmma.co/images/logo.png"
-                                    style="border:none;border-radius:;display:block;outline:none;text-decoration:none;width:100%;height:auto;"
+                                    style="border:none;border-radius: none;display:block;outline:none;text-decoration:none;width:100%;height:auto;"
                                     width="60"
                                   />
                                 </td>
@@ -148,15 +146,17 @@
           <tbody>
             <tr>
               <td style="text-align:center;vertical-align:top;font-size:12px;padding:50px;">
-                <div style="cursor:auto;color:grey;font-family:Helvetica Neue;font-size:13px;font-weight:300;line-height:22px;">
+                <div
+                  style="cursor:auto;color:grey;font-family:Helvetica Neue;font-size:13px;font-weight:300;line-height:22px;"
+                >
                   <p style="font-size: 16px; color: #666; line-height:32px;">
-                    You have been invited to become team member of {{{ domain }}}. Click the link below to continue.
-                    <br>
+                    You have been invited to become team member of
+                    <a style="pointer-events: none; text-decoration: none; cursor: default; color: black"
+                      >{{{ domain }}}.</a
+                    >
+                    Click the link below to continue. <br />
                   </p>
-
-                  <p style="font-size: 12px; color: #666; line-height:32px;">
-                    {{{ content }}}
-                  </p>
+                  <a style="font-size: 16px; line-height:32px;" href="{{{ content }}}" target="_blank"> Click here </a>
                 </div>
               </td>
             </tr>
