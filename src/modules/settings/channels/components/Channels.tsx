@@ -7,6 +7,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
+import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { ManageIntegrations, Sidebar } from '../containers';
 import { IChannel } from '../types';
@@ -32,6 +33,18 @@ class Channels extends React.Component<Props, {}> {
       { title: __('Channels'), link: '/settings/channels' },
       { title: `${currentChannel.name || ''}` }
     ];
+
+    const actionBarLeft = (
+      <MainDescription>
+        <DescImg src="/images/actions/31.svg" />
+        <span>
+          <h4>{__('Channels')}</h4>
+          {__(
+            'Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game.'
+          )}
+        </span>
+      </MainDescription>
+    );
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="computer">
@@ -59,7 +72,9 @@ class Channels extends React.Component<Props, {}> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={<Wrapper.ActionBar right={rightActionBar} />}
+        actionBar={
+          <Wrapper.ActionBar left={actionBarLeft} right={rightActionBar} />
+        }
         leftSidebar={
           <Sidebar
             currentChannelId={currentChannel._id}

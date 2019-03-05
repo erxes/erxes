@@ -1,3 +1,4 @@
+import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import {
   Button,
@@ -34,6 +35,18 @@ class Brands extends React.Component<Props, {}> {
       { title: `${currentBrand.name || ''}` }
     ];
 
+    const actionBarLeft = (
+      <MainDescription>
+        <DescImg src="/images/actions/32.svg" />
+        <span>
+          <h4>{__('Brands')}</h4>
+          {__(
+            'Add unlimited Brands with unlimited support to further your growth and accelerate your business.'
+          )}
+        </span>
+      </MainDescription>
+    );
+
     const trigger = (
       <Button btnStyle="success" size="small" icon="computer">
         Manage integration
@@ -60,7 +73,9 @@ class Brands extends React.Component<Props, {}> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={<Wrapper.ActionBar right={rightActionBar} />}
+        actionBar={
+          <Wrapper.ActionBar left={actionBarLeft} right={rightActionBar} />
+        }
         leftSidebar={
           <Sidebar
             currentBrandId={currentBrand._id}

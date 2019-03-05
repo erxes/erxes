@@ -2,6 +2,7 @@ import { Button, EmptyState, SortableList } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { collectOrders } from 'modules/deals/utils';
 import { Wrapper } from 'modules/layout/components';
+import { DescImg, MainDescription } from 'modules/settings/styles';
 import * as React from 'react';
 import { PipelineForm } from '../containers';
 import { PipelineContainer } from '../styles';
@@ -134,9 +135,21 @@ class Pipelines extends React.Component<Props, State> {
     const { boardId, save } = this.props;
     const { currentPipeline, showModal } = this.state;
 
+    const actionBarLeft = (
+      <MainDescription>
+        <DescImg src="/images/actions/34.svg" />
+        <span>
+          <h4>{__('Boards & Pipelines')}</h4>
+          {__(
+            `Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check.`
+          )}
+        </span>
+      </MainDescription>
+    );
+
     return (
       <React.Fragment>
-        <Wrapper.ActionBar right={this.renderButton()} />
+        <Wrapper.ActionBar left={actionBarLeft} right={this.renderButton()} />
         {this.renderContent()}
 
         <PipelineForm

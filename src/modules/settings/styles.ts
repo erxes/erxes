@@ -252,8 +252,8 @@ const Description = styled.div`
 `;
 
 const MainDescription = styled.div`
-  max-width: 600px;
-  padding: 20px 0;
+  max-width: 610px;
+  padding: 30px 0;
   display: flex;
   align-items: center;
   font-size: 12px;
@@ -265,7 +265,7 @@ const MainDescription = styled.div`
 `;
 
 const DescImg = styled.img`
-  min-width: 100px;
+  max-width: 100px;
   max-height: 100px;
   margin-right: ${dimensions.coreSpacing}px;
 `;

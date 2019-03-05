@@ -64,7 +64,7 @@ class List extends React.Component<Props, State> {
 
     const actionBarLeft = (
       <MainDescription>
-        <DescImg src="/images/actions/21.svg" />
+        <DescImg src="/images/actions/25.svg" />
         <span>
           <h4>{__('General')}</h4>
           {__(

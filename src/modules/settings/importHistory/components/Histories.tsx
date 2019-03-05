@@ -57,7 +57,7 @@ class Histories extends React.Component<Props> {
 
     const actionBarLeft = (
       <MainDescription>
-        <DescImg src="/images/actions/21.svg" />
+        <DescImg src="/images/actions/27.svg" />
         <span>
           <h4>{__('Import histories')}</h4>
           {__(

@@ -127,7 +127,7 @@ class Properties extends React.Component<Props> {
 
     const actionBarLeft = (
       <MainDescription>
-        <DescImg src="/images/actions/21.svg" />
+        <DescImg src="/images/actions/26.svg" />
         <span>
           <h4>{__('Properties')}</h4>
           {__(
