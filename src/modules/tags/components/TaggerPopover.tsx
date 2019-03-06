@@ -9,14 +9,15 @@ type Props = {
   successCallback?: () => void;
   targets?: any[];
   container?: React.ReactNode;
+  refetchQueries?: any[];
 };
 
 function TaggerPopover(props: Props) {
-  const { trigger, container, ...taggerProps } = props;
+  const { trigger, container, refetchQueries, ...taggerProps } = props;
 
   const popover = (
     <Popover id="tags-popover" title={__('Choose your tags')}>
-      <Tagger event="onExit" {...taggerProps} />
+      <Tagger event="onExit" {...taggerProps} refetchQueries={refetchQueries} />
     </Popover>
   );
 
