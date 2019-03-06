@@ -65,7 +65,6 @@ interface IUserFactoryInput {
   isOwner?: boolean;
   isActive?: boolean;
   registrationToken?: string;
-  registrationTokenExpires?: Date;
 }
 
 export const userFactory = (params: IUserFactoryInput) => {
@@ -77,7 +76,6 @@ export const userFactory = (params: IUserFactoryInput) => {
       position: params.position || 'admin',
     },
     registrationToken: params.registrationToken || faker.random.word(),
-    registrationTokenExpires: params.registrationTokenExpires || Date.now(),
     links: {
       twitter: params.twitter || faker.random.word(),
       facebook: params.facebook || faker.random.word(),
