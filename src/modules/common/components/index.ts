@@ -19,6 +19,7 @@ import Filter from './filter/Filter';
 import FilterableList from './filterableList/FilterableList';
 import FilterByParams from './FilterByParams';
 import { ControlLabel, FormControl, FormGroup, Textarea } from './form';
+import HeaderDescription from './HeaderDescription';
 import Icon from './Icon';
 import ImageWithPreview from './ImageWithPreview';
 import Info from './Info';
@@ -79,6 +80,7 @@ export {
   Steps,
   Submenu,
   TextDivider,
+  HeaderDescription,
   Table,
   Editor,
   Tabs,

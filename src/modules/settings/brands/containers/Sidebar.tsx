@@ -106,6 +106,10 @@ const commonOptions = ({ queryParams, currentBrandId }: Props) => {
         variables: {}
       },
       {
+        query: gql(queries.integrationsCount),
+        variables: {}
+      },
+      {
         query: gql(queries.brandDetail),
         variables: { _id: currentBrandId || '' }
       },

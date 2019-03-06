@@ -153,7 +153,7 @@ class List extends React.Component<Props> {
             data={mainContent}
             loading={loading}
             count={messages.length}
-            emptyText="There is no engage message."
+            emptyText="A strong customer engagement can help to further brand growth and loyalty"
             emptyImage="/images/actions/14.svg"
           />
         }

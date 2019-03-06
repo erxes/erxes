@@ -2,21 +2,21 @@ export const STEPS = [
   {
     title: 'Create brand',
     description:
-      'Creating a brand and channels enables you to analyze customers basic needs and the most unresolved questions asked'
+      'Creating a brand and by adding channels, you are able to better analyze your customers needs and help solve their problems'
   },
   {
     title: 'Invite users',
     description:
-      'Team members are responsible to represent the company as well as to solve problem, engage with customers'
+      'Grow and add users to your team! Assign, designate and let them do what they do best'
   },
   {
     title: 'Create messenger',
     description:
-      'Capture every single customer feedback and to create more meaningful conversations!'
+      'Stay up to date with every single customer feedback and create more meaningful conversations'
   },
   {
     title: 'Create channel',
     description:
-      'Channel consists of typical brands specifically categorized by its type and activity'
+      'Create brand channels that are specifically categorized by type and activity'
   }
 ];

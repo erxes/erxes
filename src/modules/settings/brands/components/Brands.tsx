@@ -2,7 +2,7 @@ import * as React from 'react';
 import {
   Button,
   DataWithLoader,
-  Info,
+  HeaderDescription,
   ModalTrigger,
   Pagination
 } from '../../../common/components';
@@ -60,7 +60,18 @@ class Brands extends React.Component<Props, {}> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={<Wrapper.ActionBar right={rightActionBar} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/32.svg"
+                title="Brands"
+                description="Add unlimited Brands with unlimited support to further your growth and accelerate your business."
+              />
+            }
+            right={rightActionBar}
+          />
+        }
         leftSidebar={
           <Sidebar
             currentBrandId={currentBrand._id}
@@ -78,7 +89,7 @@ class Brands extends React.Component<Props, {}> {
             }
             loading={loading}
             count={integrationsCount}
-            emptyText="There is no integration in this Brand"
+            emptyText="Add an integration in this Brand"
             emptyImage="/images/actions/2.svg"
           />
         }

@@ -130,7 +130,7 @@ class UserAdd extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <TopContent>
-          <h2>{__('Invite users')}</h2>
+          <h2>{__(`Let's grow your team`)}</h2>
           {this.renderContent()}
         </TopContent>
         <Footer>

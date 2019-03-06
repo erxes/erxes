@@ -2,6 +2,7 @@ import {
   Button,
   DropdownToggle,
   EmptyState,
+  HeaderDescription,
   Icon,
   ModalTrigger
 } from 'modules/common/components';
@@ -124,9 +125,22 @@ class Properties extends React.Component<Props> {
       { title: __(currentType) }
     ];
 
+    const actionBarLeft = (
+      <HeaderDescription
+        icon="/images/actions/26.svg"
+        title="Properties"
+        description="The quick view finder helps you to view basic information on both companies and customers alike. Add groups and fields of the exact information you want to see."
+      />
+    );
+
     return (
       <Wrapper
-        actionBar={<Wrapper.ActionBar right={this.renderActionBar()} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={actionBarLeft}
+            right={this.renderActionBar()}
+          />
+        }
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar title="Properties" currentType={currentType} />}
         content={this.renderProperties()}

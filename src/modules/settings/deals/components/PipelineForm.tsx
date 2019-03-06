@@ -55,7 +55,15 @@ class PipelineForm extends React.Component<Props, State> {
 
     const { save, closeModal, pipeline } = this.props;
 
-    save(this.generateDoc(), () => closeModal(), pipeline);
+    save(
+      this.generateDoc(),
+      () => {
+        closeModal();
+
+        this.setState({ stages: [] });
+      },
+      pipeline
+    );
   };
 
   renderContent() {

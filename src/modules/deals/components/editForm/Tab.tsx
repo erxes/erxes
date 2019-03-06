@@ -59,12 +59,17 @@ class Tab extends React.Component<Props, { currentTab: string }> {
     );
   }
 
+  activityTabClick = () => {
+    return this.onTabClick('activity');
+  };
+
+  notesTabClick = () => {
+    return this.onTabClick('notes');
+  };
+
   render() {
     const { deal } = this.props;
     const { currentTab } = this.state;
-
-    const activityTabClick = () => this.onTabClick('activity');
-    const notesTabClick = () => this.onTabClick('notes');
 
     return (
       <Left>
@@ -80,14 +85,14 @@ class Tab extends React.Component<Props, { currentTab: string }> {
         <Tabs grayBorder={true}>
           <TabTitle
             className={currentTab === 'activity' ? 'active' : ''}
-            onClick={activityTabClick}
+            onClick={this.activityTabClick}
           >
             {__('Activity')}
           </TabTitle>
 
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
-            onClick={notesTabClick}
+            onClick={this.notesTabClick}
           >
             {__('Notes')}
           </TabTitle>

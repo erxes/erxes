@@ -1,4 +1,9 @@
-import { Button, ControlLabel, FormGroup } from 'modules/common/components';
+import {
+  Button,
+  ControlLabel,
+  FormGroup,
+  HeaderDescription
+} from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ActionBar, Wrapper } from 'modules/layout/components';
 import * as React from 'react';
@@ -123,6 +128,17 @@ class List extends React.Component<Props, State> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/25.svg"
+                title="General"
+                description="Set up your initial account settings so that things run smoothly in unison."
+              />
+            }
+          />
+        }
         content={content}
         footer={actionFooter}
         center={true}

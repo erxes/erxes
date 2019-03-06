@@ -1,6 +1,7 @@
 import {
   ActionButtons,
   Button,
+  HeaderDescription,
   Icon,
   Label,
   ModalTrigger,
@@ -65,6 +66,11 @@ class List extends React.Component<Props, {}> {
   render() {
     const { brands } = this.props;
 
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Email appearance') }
+    ];
+
     const content = (
       <Table>
         <thead>
@@ -78,14 +84,20 @@ class List extends React.Component<Props, {}> {
       </Table>
     );
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Email appearance') }
-    ];
-
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/29.svg"
+                title="Email appearance"
+                description="Appearances matter, especially for your business. Edit and manage your email appearance so that your business can operate in one voice."
+              />
+            }
+          />
+        }
         content={content}
         transparent={true}
         center={true}

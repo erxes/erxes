@@ -22,7 +22,7 @@ const WithPipelinesQuery = (props: FinalProps) => {
     return (
       <EmptyState
         image="/images/actions/19.svg"
-        text="There is no pipeline in this board."
+        text="Oh boy, looks like you need to get a head start on your deals"
         size="small"
       />
     );
