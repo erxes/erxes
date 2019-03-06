@@ -55,7 +55,7 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
       <form onSubmit={this.handleSubmit}>
         {this.state.loading && <Spinner />}
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
@@ -63,7 +63,7 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
         <SelectBrand brands={brands} />
 
         <FormGroup>
-          <ControlLabel>Linked Accounts</ControlLabel>
+          <ControlLabel required={true}>Linked Accounts</ControlLabel>
 
           <FormControl
             componentClass="select"

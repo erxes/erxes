@@ -6,10 +6,11 @@ type Props = {
   children: React.ReactNode | string;
   ignoreTrans?: boolean;
   htmlFor?: string;
+  required?: boolean;
 };
 
 function ControlLabel(props: Props) {
-  const { children, ignoreTrans } = props;
+  const { children, ignoreTrans, required } = props;
 
   let content = children;
 
@@ -17,7 +18,12 @@ function ControlLabel(props: Props) {
     content = __(children);
   }
 
-  return <Label>{content}</Label>;
+  return (
+    <Label>
+      {content}
+      {required && <span> *</span>}
+    </Label>
+  );
 }
 
 export default ControlLabel;

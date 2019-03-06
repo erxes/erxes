@@ -15,6 +15,10 @@ const Label = styled.label`
   color: ${colors.textSecondary};
   font-size: ${typography.fontSizeUppercase}px;
   margin-bottom: 5px;
+
+  > span {
+    color: ${colors.colorCoreRed};
+  }
 `;
 
 // browser default form invalid styling

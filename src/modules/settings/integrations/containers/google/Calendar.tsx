@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert, withProps } from 'modules/common/utils';
+import { queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Calendar as DumbCalendar } from '../../components/google';
@@ -107,7 +108,23 @@ export default withProps<Props>(
           }
         }
       `,
-      { name: 'saveMutation' }
+      {
+        name: 'saveMutation',
+        options: () => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(queries.messengerApps),
+                variables: { kind: 'googleMeet' }
+              },
+              {
+                query: gql(queries.messengerAppsCount),
+                variables: { kind: 'googleMeet' }
+              }
+            ]
+          };
+        }
+      }
     )
   )(Calendar)
 );
