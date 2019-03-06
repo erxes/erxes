@@ -5,6 +5,7 @@ import BreadCrumb from './breadcrumb/BreadCrumb';
 import BreadCrumbItem from './breadcrumb/BreadCrumbItem';
 import Bulk from './Bulk';
 import Button from './Button';
+import Calendar from './Calendar';
 import Chip from './Chip';
 import Chooser from './Chooser';
 import ConfirmDialog from './ConfirmDialog';
@@ -94,5 +95,6 @@ export {
   Uploader,
   SortHandler,
   TextInfo,
-  Info
+  Info,
+  Calendar
 };
