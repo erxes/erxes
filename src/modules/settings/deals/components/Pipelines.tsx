@@ -144,9 +144,9 @@ class Pipelines extends React.Component<Props, State> {
         <Wrapper.ActionBar
           left={
             <HeaderDescription
-              icon="/images/actions/31.svg"
-              title="Channels"
-              description="Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game."
+              icon="/images/actions/34.svg"
+              title={'Boards & Pipelines'}
+              description="Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check."
             />
           }
           right={this.renderButton()}
