@@ -133,16 +133,11 @@ describe('customerQueries', () => {
     await customerFactory({ integrationId: integration._id });
     await customerFactory({});
     await customerFactory({});
-    await customerFactory({});
-    await customerFactory({});
 
     const args = { page: 1, perPage: 3 };
     const responses = await graphqlRequest(qryCustomers, 'customers', args);
 
     expect(responses.length).toBe(3);
-
-    const resFiltered = await graphqlRequest(qryCustomers, 'customers', { integration: integration._id, ...args });
-    expect(resFiltered.length).toBe(1);
   });
 
   test('Customers filtered by ids', async () => {
