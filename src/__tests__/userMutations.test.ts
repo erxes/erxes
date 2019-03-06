@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import * as faker from 'faker';
+import * as moment from 'moment';
 import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, userFactory } from '../db/factories';
@@ -219,6 +220,9 @@ describe('User mutations', () => {
     await userFactory({
       email: 'test@example.com',
       registrationToken: '123',
+      registrationTokenExpires: moment(Date.now())
+        .add(7, 'days')
+        .toDate(),
     });
 
     const mutation = `

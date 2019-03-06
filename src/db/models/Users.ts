@@ -176,6 +176,7 @@ export const loadClass = () => {
       await Users.create({
         email,
         registrationToken: token,
+        registrationTokenExpires: Date.now() + 86400000,
       });
 
       return token;
@@ -212,10 +213,15 @@ export const loadClass = () => {
       fullName?: string;
       username?: string;
     }) {
-      const user = await Users.findOne({ registrationToken: token });
+      const user = await Users.findOne({
+        registrationToken: token,
+        registrationTokenExpires: {
+          $gt: Date.now(),
+        },
+      });
 
-      if (!user) {
-        throw new Error('Invalid token');
+      if (!user || !token) {
+        throw new Error('Token is invalid or has expired');
       }
 
       if (password === '') {
@@ -229,12 +235,14 @@ export const loadClass = () => {
       await Users.updateOne(
         { _id: user._id },
         {
-          password: await this.generatePassword(password),
-          isActive: true,
-          registrationToken: undefined,
-          username,
-          details: {
-            fullName,
+          $set: {
+            password: await this.generatePassword(password),
+            isActive: true,
+            registrationToken: undefined,
+            username,
+            details: {
+              fullName,
+            },
           },
         },
       );
