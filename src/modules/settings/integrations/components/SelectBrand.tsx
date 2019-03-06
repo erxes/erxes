@@ -15,7 +15,7 @@ type Props = {
 
 const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (
   <FormGroup>
-    <ControlLabel>Brand</ControlLabel>
+    <ControlLabel required={true}>Brand</ControlLabel>
 
     <FormControl
       componentClass="select"

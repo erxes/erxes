@@ -88,7 +88,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
       <form onSubmit={this.handleSubmit}>
         {this.state.loading && <Spinner />}
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
@@ -96,7 +96,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
         <SelectBrand brands={brands} />
 
         <FormGroup>
-          <ControlLabel>Linked Accounts</ControlLabel>
+          <ControlLabel required={true}>Linked Accounts</ControlLabel>
 
           <FormControl
             componentClass="select"
@@ -115,7 +115,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Pages</ControlLabel>
+          <ControlLabel required={true}>Pages</ControlLabel>
 
           {pages.map(page => (
             <div key={page.id}>
