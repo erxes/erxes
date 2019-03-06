@@ -50,13 +50,13 @@ class KnowledgeBase extends React.Component<Props> {
           )}
         </Info>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Messenger integration</ControlLabel>
+          <ControlLabel required={true}>Messenger integration</ControlLabel>
 
           <FormControl componentClass="select" id="selectIntegration">
             <option />
@@ -69,7 +69,7 @@ class KnowledgeBase extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Knowledge base</ControlLabel>
+          <ControlLabel required={true}>Knowledge base</ControlLabel>
 
           <FormControl componentClass="select" id="selectTopic">
             <option />

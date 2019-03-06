@@ -87,7 +87,23 @@ export default withProps<Props>(
     }),
     graphql<Props, MessengerAppsAddLeadMutationResponse>(
       gql(mutations.messengerAppsAddLead),
-      { name: 'saveMutation' }
+      {
+        name: 'saveMutation',
+        options: () => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(queries.messengerApps),
+                variables: { kind: 'lead' }
+              },
+              {
+                query: gql(queries.messengerAppsCount),
+                variables: { kind: 'lead' }
+              }
+            ]
+          };
+        }
+      }
     ),
     withApollo
   )(withRouter<FinalProps>(LeadContainer))

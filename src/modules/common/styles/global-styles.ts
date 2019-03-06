@@ -83,6 +83,8 @@ a:hover {
 
 .modal-header .close {
   outline: 0;
+  margin-top: -5px;
+  font-weight: 200;
 }
 
 .modal-title {
