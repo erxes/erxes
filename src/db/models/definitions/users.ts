@@ -37,6 +37,7 @@ export interface IUser {
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   registrationToken?: string;
+  registrationTokenExpires?: Date;
   role?: string;
   isOwner?: boolean;
   hasSeenOnBoard?: boolean;
@@ -97,6 +98,7 @@ export const userSchema = new Schema({
   password: field({ type: String }),
   resetPasswordToken: field({ type: String }),
   registrationToken: field({ type: String }),
+  registrationTokenExpires: field({ type: Date }),
   resetPasswordExpires: field({ type: Date }),
   role: field({
     type: String,
