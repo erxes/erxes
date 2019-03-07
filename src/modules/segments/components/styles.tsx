@@ -53,6 +53,12 @@ const ResultCount = styled.div`
     color: ${colors.colorShadowGray};
     font-size: ${typography.fontSizeHeading2}px;
   }
+
+  > div {
+    display: inline-block;
+    height: 30px;
+    width: 40px;
+  }
 `;
 
 export {

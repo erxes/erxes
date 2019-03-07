@@ -3,7 +3,8 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
+  Spinner
 } from 'modules/common/components';
 import { __, generateRandomColorCode } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
@@ -38,6 +39,7 @@ type Props = {
   segment: ISegment;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
+  counterLoading: boolean;
   total: any;
 };
 
@@ -69,18 +71,15 @@ class SegmentsForm extends React.Component<Props, State> {
   }
 
   addCondition = condition => {
-    this.setState({
-      conditions: [...this.state.conditions, condition]
-    });
+    this.setState(
+      {
+        conditions: [...this.state.conditions, condition]
+      },
+      () => this.updateCount()
+    );
   };
 
-  changeCondition = condition => {
-    this.setState({
-      conditions: this.state.conditions.map(
-        c => (c.field === condition.field ? condition : c)
-      )
-    });
-
+  updateCount = () => {
     const { contentType } = this.props;
 
     const {
@@ -105,10 +104,26 @@ class SegmentsForm extends React.Component<Props, State> {
     this.props.count(segment);
   };
 
+  changeCondition = condition => {
+    this.setState(
+      {
+        conditions: this.state.conditions.map(c =>
+          c.field === condition.field ? condition : c
+        )
+      },
+      () => this.updateCount()
+    );
+  };
+
   removeCondition = conditionField => {
-    this.setState({
-      conditions: this.state.conditions.filter(c => c.field !== conditionField)
-    });
+    this.setState(
+      {
+        conditions: this.state.conditions.filter(
+          c => c.field !== conditionField
+        )
+      },
+      () => this.updateCount()
+    );
   };
 
   handleChange = <T extends keyof State>(name: T, value: State[T]) => {
@@ -236,7 +251,7 @@ class SegmentsForm extends React.Component<Props, State> {
         <FlexItem count={3}>
           <form onSubmit={this.save}>
             <FormGroup>
-              <ControlLabel>Name</ControlLabel>
+              <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
                 required={true}
                 value={name}
@@ -264,7 +279,7 @@ class SegmentsForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { total } = this.props;
+    const { total, counterLoading } = this.props;
 
     return (
       <SegmentWrapper>
@@ -281,7 +296,12 @@ class SegmentsForm extends React.Component<Props, State> {
 
           <SegmentResult>
             <ResultCount>
-              <Icon icon="users" /> {total.byFakeSegment}
+              <Icon icon="users" />{' '}
+              {counterLoading ? (
+                <Spinner objective={true} />
+              ) : (
+                total.byFakeSegment
+              )}
             </ResultCount>
             {__('User(s) will recieve this message')}
           </SegmentResult>
