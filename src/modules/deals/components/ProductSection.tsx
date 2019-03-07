@@ -42,7 +42,7 @@ function ProductSection({
       <QuickButtons>
         <ModalTrigger
           title="New Product & Service"
-          dialogClassName="full"
+          size="lg"
           trigger={
             <a>
               <Icon icon="add" />

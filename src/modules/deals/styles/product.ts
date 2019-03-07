@@ -1,11 +1,9 @@
 import { colors } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const FormContainer = styled.div`
-  background: ${colors.colorWhite};
-  margin: -40px -40px -30px -40px;
-
   .Select-multi-value-wrapper {
     display: flex;
     min-width: 100px;
@@ -20,43 +18,84 @@ const FormContainer = styled.div`
   }
 `;
 
-const Footer = styled.div`
+const ProductItem = styled.div`
+  background: ${colors.colorWhite};
   padding: 20px;
-  background: ${colors.bgActive};
+  margin-bottom: 10px;
+  box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
+  position: relative;
+
+  label {
+    font-size: 10px;
+  }
+
+  > button {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 5px 8px;
+    background: ${colors.borderPrimary};
+  }
+`;
+
+const ContentRow = styled.div`
+  display: flex;
+`;
+
+const ContentColumn = styled.div`
+  flex: 1;
+  margin-right: 10px;
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+`;
+
+const TotalAmount = styled.div`
+  text-align: right;
+  font-size: 20px;
+  margin-top: 30px;
+  padding: 0 15px;
+  background: ${rgba(colors.colorCoreTeal, 0.2)};
+  border-radius: 15px;
+  float: right;
 `;
 
 const FooterInfo = styled.div`
   overflow: hidden;
-  padding-bottom: 10px;
-  > div {
-    &:first-child {
-      float: left;
-      width: 60%;
-    }
-  }
+
   table {
+    text-align: right;
     float: right;
-    width: 30%;
-    td {
-      vertical-align: top;
-      padding: 5px;
-    }
+    width: 40%;
+    font-size: 16px;
   }
 `;
 
 const Add = styled.div`
   display: block;
-  padding: 20px;
+  margin: 20px;
   text-align: center;
-  border-top: 1px solid ${colors.borderPrimary};
 `;
 
 const ItemText = styledTS<{ align?: string }>(styled.div)`
-  height: 34px;
   line-height: 34px;
-  font-weight: bold;
-  padding-left: 10px;
+  margin-top: 1px;
   text-align: ${props => props.align || 'left'};
+
+  > span {
+    font-size: 80%;
+    color: ${colors.colorCoreGray};
+  }
 `;
 
-export { FormContainer, Footer, FooterInfo, Add, ItemText };
+export {
+  FormContainer,
+  FooterInfo,
+  Add,
+  ItemText,
+  ProductItem,
+  ContentRow,
+  ContentColumn,
+  TotalAmount
+};
