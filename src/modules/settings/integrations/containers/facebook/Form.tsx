@@ -3,6 +3,8 @@ import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
+import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
+import { queries as integrationQuery } from 'modules/settings/integrations/graphql';
 import { queries } from 'modules/settings/linkedAccounts/graphql';
 import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
@@ -143,7 +145,21 @@ export default withProps<Props>(
           }
         }
       `,
-      { name: 'saveMutation' }
+      {
+        name: 'saveMutation',
+        options: () => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(integrationQuery.integrations)
+              },
+              {
+                query: gql(integrationQuery.integrationTotalCount)
+              }
+            ]
+          };
+        }
+      }
     ),
     graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
       name: 'accountsQuery',
