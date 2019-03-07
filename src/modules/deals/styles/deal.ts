@@ -1,7 +1,7 @@
 import { colors } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { borderRadius, coreHeight } from './deminsions';
+import { borderRadius } from './deminsions';
 
 const FlexContent = styled.div`
   display: flex;
@@ -82,11 +82,9 @@ const HeaderContentSmall = styled.div`
 
 const Button = styled.div`
   padding: 7px 10px;
-  margin-bottom: 15px;
   background: ${colors.colorWhite};
-  border-radius: 5px;
   cursor: pointer;
-  border: 1px solid ${colors.borderPrimary};
+  border-bottom: 1px solid ${colors.borderDarker};
   transition: all 0.3s ease;
 
   &:hover {
