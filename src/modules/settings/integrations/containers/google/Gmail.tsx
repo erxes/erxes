@@ -3,33 +3,56 @@ import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import Gmail from 'modules/settings/integrations/components/google/Gmail';
-import { queries } from 'modules/settings/linkedAccounts/graphql';
 import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { BrandsQueryResponse } from '../../../brands/types';
-import { AccountsQueryResponse } from '../../../linkedAccounts/types';
+import { mutations, queries } from '../../graphql';
 import {
+  AccountsQueryResponse,
   CreateGmailMutationResponse,
-  CreateGmailMutationVariables
+  CreateGmailMutationVariables,
+  GetGoogleAuthUrlQueryResponse,
+  LinkGmailMutationResponse
 } from '../../types';
 
 type Props = {
   client: any;
   type?: string;
+  gmailAuthUrlQuery: GetGoogleAuthUrlQueryResponse;
   closeModal: () => void;
 };
 
 type FinalProps = {
   accountsQuery: AccountsQueryResponse;
   brandsQuery: BrandsQueryResponse;
+  queryParams: any;
 } & IRouterProps &
   Props &
-  CreateGmailMutationResponse;
+  CreateGmailMutationResponse &
+  LinkGmailMutationResponse;
 
 class GmailContainer extends React.Component<FinalProps> {
   constructor(props: FinalProps) {
     super(props);
+  }
+
+  componentDidMount() {
+    const { queryParams, accountsAddGmail, history } = this.props;
+
+    if (queryParams && queryParams.code) {
+      accountsAddGmail({
+        variables: { code: queryParams.code }
+      })
+        .then(() => {
+          history.push('/settings/linkedAccounts');
+          Alert.success('Success');
+        })
+        .catch(() => {
+          history.push('/settings/linkedAccounts');
+          Alert.error('Error');
+        });
+    }
   }
 
   render() {
@@ -38,6 +61,7 @@ class GmailContainer extends React.Component<FinalProps> {
       brandsQuery,
       saveMutation,
       accountsQuery,
+      gmailAuthUrlQuery,
       closeModal
     } = this.props;
 
@@ -64,7 +88,8 @@ class GmailContainer extends React.Component<FinalProps> {
       closeModal,
       brands,
       save,
-      accounts
+      accounts,
+      gmailAuthUrl: gmailAuthUrlQuery.integrationGetGoogleAuthUrl || ''
     };
 
     return <Gmail {...updatedProps} />;
@@ -89,6 +114,14 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<Props, GetGoogleAuthUrlQueryResponse>(
+      gql`
+        query integrationGetGoogleAuthUrl {
+          integrationGetGoogleAuthUrl(service: "gmail")
+        }
+      `,
+      { name: 'gmailAuthUrlQuery' }
+    ),
     graphql<Props, CreateGmailMutationResponse, CreateGmailMutationVariables>(
       gql`
         mutation integrationsCreateGmailIntegration(
@@ -106,6 +139,15 @@ export default withProps<Props>(
         }
       `,
       { name: 'saveMutation' }
+    ),
+    graphql<Props, LinkGmailMutationResponse, { code: string }>(
+      gql(mutations.linkGmailAccount),
+      {
+        name: 'accountsAddGmail',
+        options: {
+          refetchQueries: ['accounts']
+        }
+      }
     ),
     graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
       name: 'accountsQuery',

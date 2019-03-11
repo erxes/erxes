@@ -2,7 +2,8 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Icon
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
@@ -10,9 +11,11 @@ import { IBrand } from 'modules/settings/brands/types';
 import { SelectBrand } from 'modules/settings/integrations/components';
 import { IAccount } from 'modules/settings/linkedAccounts/types';
 import * as React from 'react';
+import { LinkedAccountButton, Row } from '../../styles';
 
 type Props = {
   brands: IBrand[];
+  twitterAuthUrl: string;
   accounts: IAccount[];
   save: (
     { brandId, accountId }: { brandId: string; accountId: string }
@@ -31,6 +34,12 @@ class Twitter extends React.Component<Props> {
     });
   };
 
+  onTwitterRedirect = () => {
+    const { twitterAuthUrl } = this.props;
+
+    window.location.href = twitterAuthUrl;
+  };
+
   render() {
     const { accounts, brands } = this.props;
 
@@ -41,19 +50,24 @@ class Twitter extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Linked Accounts</ControlLabel>
 
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select account')}
-            id="selectAccount"
-          >
-            <option value="">Select account ...</option>
+          <Row>
+            <FormControl
+              componentClass="select"
+              placeholder={__('Select account')}
+              id="selectAccount"
+            >
+              <option value="">Select account ...</option>
 
-            {accounts.map((account, index) => (
-              <option key={`account${index}`} value={account._id}>
-                {account.name}
-              </option>
-            ))}
-          </FormControl>
+              {accounts.map((account, index) => (
+                <option key={`account${index}`} value={account._id}>
+                  {account.name}
+                </option>
+              ))}
+            </FormControl>
+            <LinkedAccountButton onClick={this.onTwitterRedirect}>
+              <Icon icon="plus" />
+            </LinkedAccountButton>
+          </Row>
         </FormGroup>
 
         <ModalFooter>

@@ -113,6 +113,13 @@ export interface IIntegration {
   channels: IChannel[];
 }
 
+export interface IAccount {
+  _id: string;
+  name: string;
+  kind: string;
+  id: string;
+}
+
 // query types
 export type QueryVariables = {
   page?: number;
@@ -198,6 +205,12 @@ export type GetTwitterAuthUrlQueryResponse = {
 
 export type GoogleAccessTokenQueryResponse = {
   integrationGetGoogleAccessToken: IGoogleCredentials;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type AccountsQueryResponse = {
+  accounts: IAccount[];
   loading: boolean;
   refetch: () => void;
 };
@@ -370,6 +383,16 @@ export type EditIntegrationMutationVariables = {
   name: string;
   languageCode: string;
   formId: string;
+};
+
+export type LinkTwitterMutationResponse = {
+  accountsAddTwitter: (
+    { queryParams }: { queryParams: TwitterAuthParams }
+  ) => Promise<any>;
+};
+
+export type LinkGmailMutationResponse = {
+  accountsAddGmail: (params: { variables: { code: string } }) => Promise<any>;
 };
 
 export type EditIntegrationMutationResponse = {

@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { darken, lighten } from 'modules/common/styles/color';
 import styled from 'styled-components';
 
 const FlexRow = styled.div`
@@ -57,4 +58,31 @@ const BrandName = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
-export { FlexRow, Row, MessengerPreview, IntegrationName, BrandName };
+const LinkedAccountButton = styled.button`
+  width: 35px;
+  margin-left: ${dimensions.unitSpacing}px;
+  background: ${colors.colorPrimary};
+  color: ${colors.colorWhite};
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 2px 16px 0 ${lighten(colors.colorPrimary, 45)};
+  transition: all ease 0.3s;
+
+  &:hover {
+    box-shadow: 0 2px 22px 0 ${lighten(colors.colorPrimary, 25)};
+  }
+
+  &:focus {
+    outline: 0;
+  }
+`;
+
+export {
+  FlexRow,
+  Row,
+  MessengerPreview,
+  IntegrationName,
+  BrandName,
+  LinkedAccountButton
+};

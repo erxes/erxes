@@ -9,7 +9,6 @@ import {
 } from 'modules/common/components';
 import { __, confirm } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import Sidebar from 'modules/settings/integrations/components/Sidebar';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import { BarItems } from '../../../layout/styles';
@@ -138,7 +137,6 @@ class List extends React.Component<Props> {
       <Wrapper
         actionBar={actionBar}
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
         content={
           <DataWithLoader
             data={this.renderContent()}

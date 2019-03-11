@@ -7,9 +7,14 @@ import { AccountsQueryResponse } from 'modules/settings/linkedAccounts/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../../brands/types';
-import { SaveTwitterMutationResponse } from '../../types';
+import {
+  GetTwitterAuthUrlQueryResponse,
+  SaveTwitterMutationResponse
+} from '../../types';
 
-type Props = {};
+type Props = {
+  twitterAuthUrlQuery: GetTwitterAuthUrlQueryResponse;
+};
 
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
@@ -18,7 +23,12 @@ type FinalProps = {
   SaveTwitterMutationResponse;
 
 const TwitterContainer = (props: FinalProps) => {
-  const { brandsQuery, saveMutation, accountsQuery } = props;
+  const {
+    brandsQuery,
+    saveMutation,
+    accountsQuery,
+    twitterAuthUrlQuery
+  } = props;
 
   if (brandsQuery.loading || accountsQuery.loading) {
     return <Spinner />;
@@ -52,7 +62,8 @@ const TwitterContainer = (props: FinalProps) => {
     ...props,
     brands,
     save,
-    accounts
+    accounts,
+    twitterAuthUrl: twitterAuthUrlQuery.integrationGetTwitterAuthUrl || ''
   };
 
   return <Twitter {...updatedProps} />;
@@ -74,6 +85,16 @@ export default withProps<Props>(
         options: () => ({
           fetchPolicy: 'network-only'
         })
+      }
+    ),
+    graphql<Props, GetTwitterAuthUrlQueryResponse>(
+      gql`
+        query integrationGetTwitterAuthUrl {
+          integrationGetTwitterAuthUrl
+        }
+      `,
+      {
+        name: 'twitterAuthUrlQuery'
       }
     ),
     graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {

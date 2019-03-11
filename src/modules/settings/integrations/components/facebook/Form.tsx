@@ -1,16 +1,19 @@
-import * as React from 'react';
-import { SelectBrand } from '..';
+import { getEnv } from 'apolloClient';
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup,
+  Icon,
   Spinner
-} from '../../../../common/components';
-import { ModalFooter } from '../../../../common/styles/main';
-import { __ } from '../../../../common/utils';
-import { IBrand } from '../../../brands/types';
-import { IAccount } from '../../../linkedAccounts/types';
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
+import { IAccount } from 'modules/settings/linkedAccounts/types';
+import * as React from 'react';
+import { SelectBrand } from '..';
+import { LinkedAccountButton, Row } from '../../styles';
 import { CreateFacebookMutationVariables, IPages } from '../../types';
 
 type Props = {
@@ -43,6 +46,13 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     }
 
     this.props.onAccSelect({ accountId });
+  };
+
+  onFacebookRedirect = () => {
+    const { REACT_APP_API_URL } = getEnv();
+    const url = `${REACT_APP_API_URL}/fblogin`;
+
+    window.location.replace(url);
   };
 
   collectCheckboxValues(name: string): string[] {
@@ -98,20 +108,25 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
         <FormGroup>
           <ControlLabel required={true}>Linked Accounts</ControlLabel>
 
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select account')}
-            onChange={this.onAccChange}
-            id="acc"
-          >
-            <option value="">Select account ...</option>
+          <Row>
+            <FormControl
+              componentClass="select"
+              placeholder={__('Select account')}
+              onChange={this.onAccChange}
+              id="acc"
+            >
+              <option value="">Select account ...</option>
 
-            {accounts.map((account, index) => (
-              <option key={`account${index}`} value={account._id}>
-                {account.name}
-              </option>
-            ))}
-          </FormControl>
+              {accounts.map((account, index) => (
+                <option key={`account${index}`} value={account._id}>
+                  {account.name}
+                </option>
+              ))}
+            </FormControl>
+            <LinkedAccountButton onClick={this.onFacebookRedirect}>
+              <Icon icon="plus" />
+            </LinkedAccountButton>
+          </Row>
         </FormGroup>
 
         <FormGroup>

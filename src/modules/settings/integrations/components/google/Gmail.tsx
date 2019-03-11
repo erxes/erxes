@@ -11,13 +11,16 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
+  Icon,
   Spinner
-} from '../../../../common/components';
+} from 'modules/common/components';
+import { LinkedAccountButton, Row } from '../../styles';
 
 type Props = {
   save: (params: CreateGmailMutationVariables, callback?: () => void) => void;
   brands: IBrand[];
   accounts: IAccount[];
+  gmailAuthUrl?: string;
   closeModal: () => void;
 };
 
@@ -29,6 +32,12 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
       loading: false
     };
   }
+
+  onGmailRedirect = () => {
+    const { gmailAuthUrl } = this.props;
+
+    window.location.href = gmailAuthUrl || '';
+  };
 
   handleSubmit = e => {
     e.preventDefault();
@@ -48,6 +57,7 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
 
     this.props.save(doc, callback);
   };
+
   render() {
     const { brands, accounts } = this.props;
 
@@ -65,19 +75,24 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
         <FormGroup>
           <ControlLabel required={true}>Linked Accounts</ControlLabel>
 
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select account')}
-            id="acc"
-          >
-            <option value="">Select account ...</option>
+          <Row>
+            <FormControl
+              componentClass="select"
+              placeholder={__('Select account')}
+              id="acc"
+            >
+              <option value="">Select account ...</option>
 
-            {accounts.map((account, index) => (
-              <option key={`account${index}`} value={account._id}>
-                {account.name}
-              </option>
-            ))}
-          </FormControl>
+              {accounts.map((account, index) => (
+                <option key={`account${index}`} value={account._id}>
+                  {account.name}
+                </option>
+              ))}
+            </FormControl>
+            <LinkedAccountButton onClick={this.onGmailRedirect}>
+              <Icon icon="plus" />
+            </LinkedAccountButton>
+          </Row>
         </FormGroup>
 
         <ModalFooter>
