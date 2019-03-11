@@ -303,6 +303,7 @@ interface ICustomerFactoryInput {
   tagIds?: string[] | string;
   twitterData?: any;
   ownerId?: string;
+  hasValidEmail?: boolean;
 }
 
 export const customerFactory = (params: ICustomerFactoryInput = {}) => {
@@ -322,6 +323,7 @@ export const customerFactory = (params: ICustomerFactoryInput = {}) => {
     tagIds: params.tagIds || [faker.random.number(), faker.random.number()],
     twitterData: params.twitterData || { id: faker.random.number() },
     ownerId: params.ownerId || Random.id(),
+    hasValidEmail: params.hasValidEmail || null,
   });
 
   return customer.save();
