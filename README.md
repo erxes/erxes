@@ -7,11 +7,11 @@ erxes is an open source growth marketing platform. Marketing, sales, and custome
 ## Status  <br>
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes)  [![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability) [![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)  [![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master) [![Dependencies checker](https://david-dm.org/erxes/erxes.svg)](https://david-dm.org/erxes/erxes) [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes) [![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/) [![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
 
-<a href="https://erxes.io" target="_blank"><img src="https://erxes.io/img/git-erxes.gif" alt="erxes is an AI meets open source messaging platform for sales, marketing and support "></a>
+<a href="https://erxes.io" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/git-erxes.gif" alt="erxes is an AI meets open source messaging platform for sales, marketing and support "></a>
 
 ## Features
 
-<img src="https://erxes.io/img/features-transparent.png" width="400" align="right" style="max-width: 50%">
+<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
 erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem. One of the ways we make customer engagement a lot easier is with unlimited customer service integrations such as social media platforms, messenger, email, SMS for multiple brands. This way, it’s a lot easier to respond quickly to any channels and solve problems on the go.
 
@@ -57,11 +57,11 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 
 ## In-kind sponsors
 
-<a href="https://www.cloudflare.com/" target="_blank"><img src="https://erxes.io/img/logo/cloudflare.png" width="130px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-<a href="https://cloud.google.com/developers/startups/" target="_blank"><img src="https://erxes.io/img/logo/cloud-logo.svg" width="130px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-<a href="https://www.digitalocean.com/" target="_blank"><img src="https://erxes.io/img/logo/digitalocean.png" width="100px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-<a href="https://www.transifex.com/" target="_blank"><img src="https://erxes.io/img/logo/transifex.png" width="100px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-<a href="https://www.browserstack.com/" target="_blank"><img src="https://erxes.io/img/logo/browserstack.png" width="130px;" /></a>
+<a href="https://www.cloudflare.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/cloudflare.png" width="130px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://cloud.google.com/developers/startups/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/cloud-logo.svg" width="130px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://www.digitalocean.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/digitalocean.png" width="100px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://www.transifex.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/transifex.png" width="100px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+<a href="https://www.browserstack.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/browserstack.png" width="130px;" /></a>
 
 ## Copyright & License
 Copyright (c) 2018 erxes Inc - Released under the <a href="https://github.com/erxes/erxes/blob/develop/LICENSE.md">GNU General Public License v3.0</a>
