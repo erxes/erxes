@@ -114,7 +114,14 @@ class CallOut extends React.Component<Props, State> {
       this.removeImage((e.currentTarget as HTMLInputElement).value);
 
     if (!image) {
-      return <input type="file" onChange={onChange} disabled={skip} />;
+      return (
+        <input
+          type="file"
+          onChange={onChange}
+          disabled={skip}
+          accept="image/*"
+        />
+      );
     }
 
     return (

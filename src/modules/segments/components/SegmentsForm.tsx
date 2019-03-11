@@ -7,8 +7,8 @@ import {
   Spinner
 } from 'modules/common/components';
 import { __, generateRandomColorCode } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import { ContentSpace, FlexContent, FlexItem } from 'modules/layout/styles';
+import { Sidebar, Wrapper } from 'modules/layout/components';
+import { FlexContent, FlexItem } from 'modules/layout/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { ISegment, ISegmentCondition, ISegmentDoc } from '../types';
@@ -16,7 +16,6 @@ import { AddConditionButton, Conditions } from './';
 import {
   ConditionWrapper,
   ResultCount,
-  SegmentContainer,
   SegmentResult,
   SegmentTitle,
   SegmentWrapper
@@ -248,7 +247,7 @@ class SegmentsForm extends React.Component<Props, State> {
 
     return (
       <FlexContent>
-        <FlexItem count={3}>
+        <FlexItem count={4}>
           <form onSubmit={this.save}>
             <FormGroup>
               <ControlLabel required={true}>Name</ControlLabel>
@@ -279,21 +278,23 @@ class SegmentsForm extends React.Component<Props, State> {
   }
 
   renderContent() {
+    return (
+      <SegmentWrapper>
+        <SegmentTitle>{__('Filters')}</SegmentTitle>
+
+        {this.renderConditions()}
+        <hr />
+        {this.renderForm()}
+      </SegmentWrapper>
+    );
+  }
+
+  renderSidebar() {
     const { total, counterLoading } = this.props;
 
     return (
-      <SegmentWrapper>
+      <Sidebar full={true} wide={true}>
         <FlexContent>
-          <FlexItem count={3}>
-            <SegmentContainer>
-              <SegmentTitle>{__('Filters')}</SegmentTitle>
-
-              {this.renderConditions()}
-              <ContentSpace />
-              {this.renderForm()}
-            </SegmentContainer>
-          </FlexItem>
-
           <SegmentResult>
             <ResultCount>
               <Icon icon="users" />{' '}
@@ -306,7 +307,7 @@ class SegmentsForm extends React.Component<Props, State> {
             {__('User(s) will recieve this message')}
           </SegmentResult>
         </FlexContent>
-      </SegmentWrapper>
+      </Sidebar>
     );
   }
 
@@ -349,6 +350,7 @@ class SegmentsForm extends React.Component<Props, State> {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         content={this.renderContent()}
         footer={this.renderFooter()}
+        rightSidebar={this.renderSidebar()}
       />
     );
   }
