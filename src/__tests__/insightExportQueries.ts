@@ -73,8 +73,8 @@ describe('insightExportQueries', () => {
     const args = {
       integrationIds: 'gmail',
       brandIds: brand._id,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toString(),
+      startDate: dateToString(startDate),
+      endDate: dateToString(endDate),
     };
 
     const qry = `
