@@ -11,8 +11,6 @@ const SegmentTitle = styled.h3`
 
 const SegmentWrapper = styled.div`
   padding: ${dimensions.coreSpacing}px;
-  font-weight: ${typography.fontWeightRegular};
-  background: ${colors.colorWhite};
 `;
 
 const ConditionWrapper = styled.div`
