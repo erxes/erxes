@@ -1,15 +1,8 @@
 import * as faker from 'faker';
 import * as moment from 'moment';
 import { graphqlRequest } from '../db/connection';
-import {
-  customerFactory,
-  formFactory,
-  integrationFactory,
-  segmentFactory,
-  tagsFactory,
-  brandFactory,
-} from '../db/factories';
-import { Customers, Segments, Tags, Integrations } from '../db/models';
+import { customerFactory, formFactory, integrationFactory, segmentFactory, tagsFactory } from '../db/factories';
+import { Customers, Segments, Tags } from '../db/models';
 
 const count = response => {
   return Object.keys(response).length;
