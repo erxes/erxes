@@ -29,7 +29,7 @@ pipeline:
     environment:
       - TEST_MONGO_URL=mongodb://mongo/test
     commands:
-      - mkdir src/data/private
+      - mkdir src/private
       - yarn test
 
   build:
