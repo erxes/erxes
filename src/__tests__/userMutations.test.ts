@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import * as faker from 'faker';
+import * as moment from 'moment';
 import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, userFactory } from '../db/factories';
@@ -48,8 +49,6 @@ describe('User mutations', () => {
     $details: UserDetails
     $links: UserLinks
     $channelIds: [String]
-    $password: String!
-    $passwordConfirmation: String!
   `;
 
   const commonParams = `
@@ -59,8 +58,6 @@ describe('User mutations', () => {
     details: $details
     links: $links
     channelIds: $channelIds
-    password: $password
-    passwordConfirmation: $passwordConfirmation
   `;
 
   beforeEach(async () => {
@@ -223,6 +220,9 @@ describe('User mutations', () => {
     await userFactory({
       email: 'test@example.com',
       registrationToken: '123',
+      registrationTokenExpires: moment(Date.now())
+        .add(7, 'days')
+        .toDate(),
     });
 
     const mutation = `
@@ -407,6 +407,8 @@ describe('User mutations', () => {
       }
     `;
 
+    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1 } });
+
     await graphqlRequest(mutation, 'usersRemove', { _id: _user._id }, { user: _admin });
 
     const deactivedUser = await Users.findOne({ _id: _user._id });
@@ -416,6 +418,20 @@ describe('User mutations', () => {
     }
 
     expect(deactivedUser.isActive).toBe(false);
+  });
+
+  test('Remove user with pending invitation status', async () => {
+    const mutation = `
+      mutation usersRemove($_id: String!) {
+        usersRemove(_id: $_id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'usersRemove', { _id: _user._id }, { user: _admin });
+
+    const removedUser = await Users.findOne({ _id: _user._id });
+
+    expect(removedUser).toBeNull();
   });
 
   test('Config user email signature', async () => {

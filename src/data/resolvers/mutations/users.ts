@@ -174,7 +174,7 @@ const userMutations = {
       const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
 
       utils.sendEmail({
-        toEmails: emails,
+        toEmails: [email],
         title: 'Team member invitation',
         template: {
           name: 'userInvitation',

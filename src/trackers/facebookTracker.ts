@@ -70,12 +70,15 @@ export const trackFbLogin = expressApp => {
     const FACEBOOK_APP_SECRET = getEnv({ name: 'FACEBOOK_APP_SECRET' });
     const DOMAIN = getEnv({ name: 'DOMAIN' });
     const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-    const FACEBOOK_PERMISSIONS = getEnv({ name: 'FACEBOOK_PERMISSIONS' });
+    const FACEBOOK_PERMISSIONS = getEnv({
+      name: 'FACEBOOK_PERMISSIONS',
+      defaultValue: 'manage_pages, pages_show_list, pages_messaging',
+    });
 
     const conf = {
       client_id: FACEBOOK_APP_ID,
       client_secret: FACEBOOK_APP_SECRET,
-      scope: FACEBOOK_PERMISSIONS || 'manage_pages, pages_show_list, pages_messaging',
+      scope: FACEBOOK_PERMISSIONS,
       redirect_uri: `${DOMAIN}/fblogin`,
     };
 

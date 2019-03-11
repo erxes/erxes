@@ -1,5 +1,6 @@
+.git
 .gitignore
 *.md
-scripts
 *.yml
-initialData
+scripts
+.snyk

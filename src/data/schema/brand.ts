@@ -20,8 +20,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  brandsAdd(name: String, description: String): Brand
-  brandsEdit(_id: String!, name: String, description: String): Brand
+  brandsAdd(name: String!, description: String): Brand
+  brandsEdit(_id: String!, name: String!, description: String): Brand
   brandsRemove(_id: String!): JSON
   brandsConfigEmail(_id: String!, emailConfig: JSON): Brand
   brandsManageIntegrations(_id: String!, integrationIds: [String]!): [Integration]

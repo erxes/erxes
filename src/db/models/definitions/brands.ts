@@ -35,7 +35,7 @@ export const brandSchema = new Schema({
   _id: field({ pkey: true }),
   code: field({ type: String }),
   name: field({ type: String }),
-  description: field({ type: String }),
+  description: field({ type: String, optional: true }),
   userId: field({ type: String }),
   createdAt: field({ type: Date }),
   emailConfig: field({ type: brandEmailConfigSchema }),

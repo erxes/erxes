@@ -66,8 +66,6 @@ const commonParams = `
   details: UserDetails,	
   links: UserLinks,	
   channelIds: [String],	
-  password: String!,	
-  passwordConfirmation: String!	
 `;
 
 export const queries = `

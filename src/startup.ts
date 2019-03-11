@@ -10,7 +10,7 @@ import { trackIntegrations as trackTwitters } from './trackers/twitterTracker';
 
 dotenv.config();
 
-const USE_REPLICATION = getEnv({ name: 'USE_REPLICATION' });
+const USE_REPLICATION = getEnv({ name: 'USE_REPLICATION', defaultValue: 'false' });
 
 export const init = async app => {
   const makeDirs = () => {
