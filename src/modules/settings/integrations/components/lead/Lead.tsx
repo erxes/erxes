@@ -1,15 +1,19 @@
 import {
   Button,
   ControlLabel,
+  FilterableList,
   FormControl,
   FormGroup,
   Info
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IForm } from 'modules/forms/types';
+import { MaskWrapper } from 'modules/inbox/styles';
 import * as React from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { __ } from '../../../../common/utils';
 import { IIntegration } from '../../types';
+import { IntegrationPopover } from '../common';
 
 type Props = {
   save: (
@@ -17,7 +21,7 @@ type Props = {
     callback: () => void
   ) => void;
   integrations: IIntegration[];
-  leads: IForm[];
+  leads: IIntegration[];
   closeModal: () => void;
 };
 
@@ -38,12 +42,14 @@ class Lead extends React.Component<Props> {
     this.props.save(this.generateDoc(), this.props.closeModal);
   };
 
-  onIntegrationsChange = integrations => {
-    this.setState({ integrations: integrations.map(el => el.value) });
-  };
-
   render() {
-    const { integrations, leads, closeModal } = this.props;
+    const { closeModal } = this.props;
+
+    const trigger = (
+      <MaskWrapper>
+        <FormControl id="lead" componentClass="select" />
+      </MaskWrapper>
+    );
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -61,27 +67,21 @@ class Lead extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Messenger integration</ControlLabel>
 
-          <FormControl componentClass="select" id="selectIntegration">
-            <option />
-            {integrations.map(i => (
-              <option key={i._id} value={i._id}>
-                {i.name}
-              </option>
-            ))}
-          </FormControl>
+          <IntegrationPopover
+            title="Select integration"
+            targets={this.props.integrations}
+            trigger={trigger}
+          />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Lead</ControlLabel>
 
-          <FormControl componentClass="select" id="selectLead">
-            <option />
-            {leads.map(lead => (
-              <option key={lead._id} value={lead._id}>
-                {lead.title}
-              </option>
-            ))}
-          </FormControl>
+          <IntegrationPopover
+            title="Select lead"
+            targets={this.props.leads}
+            trigger={trigger}
+          />
         </FormGroup>
 
         <ModalFooter>

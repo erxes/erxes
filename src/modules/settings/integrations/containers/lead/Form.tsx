@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
-import { queries as formQueries } from 'modules/forms/graphql';
 import { queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
@@ -11,7 +10,6 @@ import { Lead } from '../../components/lead';
 import { mutations } from '../../graphql';
 import {
   IntegrationsQueryResponse,
-  LeadsQueryResponse,
   MessengerAppsAddLeadMutationResponse
 } from '../../types';
 import { integrationsListParams } from '../utils';
@@ -23,21 +21,26 @@ type Props = {
 
 type FinalProps = {
   integrationsQuery: IntegrationsQueryResponse;
-  leadsQuery: LeadsQueryResponse;
+  leadIntegrationsQuery: IntegrationsQueryResponse;
 } & IRouterProps &
   Props &
   MessengerAppsAddLeadMutationResponse;
 
 class LeadContainer extends React.Component<FinalProps> {
   render() {
-    const { integrationsQuery, leadsQuery, saveMutation, history } = this.props;
+    const {
+      integrationsQuery,
+      leadIntegrationsQuery,
+      saveMutation,
+      history
+    } = this.props;
 
-    if (integrationsQuery.loading && leadsQuery.loading) {
+    if (integrationsQuery.loading && leadIntegrationsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
     const integrations = integrationsQuery.integrations || [];
-    const leads = leadsQuery.forms || [];
+    const leads = leadIntegrationsQuery.integrations || [];
 
     const save = (variables, callback) => {
       saveMutation({ variables })
@@ -77,10 +80,15 @@ export default withProps<Props>(
         };
       }
     }),
-    graphql<Props, LeadsQueryResponse>(gql(formQueries.forms), {
-      name: 'leadsQuery',
-      options: () => {
+    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
+      name: 'leadIntegrationsQuery',
+      options: ({ queryParams }) => {
         return {
+          notifyOnNetworkStatusChange: true,
+          variables: {
+            ...integrationsListParams(queryParams || {}),
+            kind: 'form'
+          },
           fetchPolicy: 'network-only'
         };
       }

@@ -94,4 +94,16 @@ const AvatarImg = styled.img`
   margin-right: ${dimensions.unitSpacing}px;
 `;
 
-export { PopoverHeader, PopoverBody, PopoverList, PopoverFooter, AvatarImg };
+const BrandName = styled.i`
+  margin-left: ${dimensions.unitSpacing}px;
+  color: ${colors.colorCoreGray};
+`;
+
+export {
+  PopoverHeader,
+  PopoverBody,
+  PopoverList,
+  PopoverFooter,
+  AvatarImg,
+  BrandName
+};
