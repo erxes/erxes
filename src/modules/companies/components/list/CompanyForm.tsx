@@ -13,6 +13,7 @@ import {
   ModalFooter
 } from 'modules/common/styles/main';
 import { __, searchCompany, searchUser } from 'modules/common/utils';
+import { regexEmail, regexPhone } from 'modules/customers/utils';
 import {
   leadStatusChoices,
   lifecycleStateChoices
@@ -260,6 +261,7 @@ class CompanyForm extends React.Component<Props, State> {
                 placeholder="Primary Email"
                 buttonText="Add email"
                 onChange={this.onChange.bind(this, 'emails', 'primaryEmail')}
+                regex={regexEmail}
               />
             </FormGroup>
 
@@ -313,6 +315,7 @@ class CompanyForm extends React.Component<Props, State> {
                 placeholder="Primary phone"
                 buttonText="Add phone"
                 onChange={this.onChange.bind(this, 'phones', 'primaryPhone')}
+                regex={regexPhone}
               />
             </FormGroup>
 
