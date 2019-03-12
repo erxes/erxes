@@ -3,9 +3,7 @@ import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
-import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
-import { queries as integrationQuery } from 'modules/settings/integrations/graphql';
-import { queries } from 'modules/settings/linkedAccounts/graphql';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -14,14 +12,15 @@ import { AccountsQueryResponse } from '../../../linkedAccounts/types';
 import {
   CreateFacebookMutationResponse,
   CreateFacebookMutationVariables,
-  IPages
+  IPages,
+  RemoveAccountMutationResponse
 } from '../../types';
 
 type Props = {
   client: any;
   type?: string;
   closeModal: () => void;
-};
+} & RemoveAccountMutationResponse;
 
 type FinalProps = {
   accountsQuery: AccountsQueryResponse;
@@ -44,12 +43,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
   onAccSelect = (doc: { accountId?: string }) => {
     this.props.client
       .query({
-        query: gql`
-          query integrationFacebookPagesList($accountId: String) {
-            integrationFacebookPagesList(accountId: $accountId)
-          }
-        `,
-
+        query: gql(queries.integrationFacebookPageList),
         variables: doc
       })
 
@@ -70,6 +64,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
       brandsQuery,
       saveMutation,
       accountsQuery,
+      removeAccount,
       closeModal
     } = this.props;
 
@@ -92,12 +87,25 @@ class FacebookContainer extends React.Component<FinalProps, State> {
         });
     };
 
+    const delink = (accountId: string) => {
+      removeAccount({
+        variables: { _id: accountId }
+      })
+        .then(() => {
+          Alert.success('Success');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const updatedProps = {
       closeModal,
       brands,
       pages: this.state.pages,
       onAccSelect: this.onAccSelect,
       save,
+      delink,
       accounts
     };
 
@@ -127,37 +135,27 @@ export default withProps<Props>(
       Props,
       CreateFacebookMutationResponse,
       CreateFacebookMutationVariables
-    >(
-      gql`
-        mutation integrationsCreateFacebookIntegration(
-          $brandId: String!
-          $name: String!
-          $accountId: String!
-          $pageIds: [String!]!
-        ) {
-          integrationsCreateFacebookIntegration(
-            brandId: $brandId
-            name: $name
-            pageIds: $pageIds
-            accountId: $accountId
-          ) {
-            _id
-          }
-        }
-      `,
+    >(gql(mutations.integrationsCreateFacebook), {
+      name: 'saveMutation',
+      options: () => {
+        return {
+          refetchQueries: [
+            {
+              query: gql(queries.integrations)
+            },
+            {
+              query: gql(queries.integrationTotalCount)
+            }
+          ]
+        };
+      }
+    }),
+    graphql<Props, RemoveAccountMutationResponse, { _id: string }>(
+      gql(mutations.delinkAccount),
       {
-        name: 'saveMutation',
-        options: () => {
-          return {
-            refetchQueries: [
-              {
-                query: gql(integrationQuery.integrations)
-              },
-              {
-                query: gql(integrationQuery.integrationTotalCount)
-              }
-            ]
-          };
+        name: 'removeAccount',
+        options: {
+          refetchQueries: ['accounts']
         }
       }
     ),

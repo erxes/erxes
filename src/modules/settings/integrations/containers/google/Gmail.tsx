@@ -13,15 +13,18 @@ import {
   CreateGmailMutationResponse,
   CreateGmailMutationVariables,
   GetGoogleAuthUrlQueryResponse,
-  LinkGmailMutationResponse
+  LinkGmailMutationResponse,
+  RemoveAccountMutationResponse
 } from '../../types';
 
 type Props = {
   client: any;
   type?: string;
+  queryParams: any;
+  history: any;
   gmailAuthUrlQuery: GetGoogleAuthUrlQueryResponse;
   closeModal: () => void;
-};
+} & RemoveAccountMutationResponse;
 
 type FinalProps = {
   accountsQuery: AccountsQueryResponse;
@@ -45,11 +48,11 @@ class GmailContainer extends React.Component<FinalProps> {
         variables: { code: queryParams.code }
       })
         .then(() => {
-          history.push('/settings/linkedAccounts');
+          history.push('/settings/integrations');
           Alert.success('Success');
         })
         .catch(() => {
-          history.push('/settings/linkedAccounts');
+          history.push('/settings/integrations');
           Alert.error('Error');
         });
     }
@@ -62,6 +65,7 @@ class GmailContainer extends React.Component<FinalProps> {
       saveMutation,
       accountsQuery,
       gmailAuthUrlQuery,
+      removeAccount,
       closeModal
     } = this.props;
 
@@ -84,10 +88,23 @@ class GmailContainer extends React.Component<FinalProps> {
         });
     };
 
+    const delink = (accountId: string) => {
+      removeAccount({
+        variables: { _id: accountId }
+      })
+        .then(() => {
+          Alert.success('Success');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const updatedProps = {
       closeModal,
       brands,
       save,
+      delink,
       accounts,
       gmailAuthUrl: gmailAuthUrlQuery.integrationGetGoogleAuthUrl || ''
     };
@@ -96,7 +113,12 @@ class GmailContainer extends React.Component<FinalProps> {
   }
 }
 
-export default withProps<Props>(
+export default withProps<
+  Props & {
+    queryParams: { [key: string]: string };
+    history: any;
+  }
+>(
   compose(
     graphql<Props, BrandsQueryResponse>(
       gql`
@@ -139,6 +161,15 @@ export default withProps<Props>(
         }
       `,
       { name: 'saveMutation' }
+    ),
+    graphql<Props, RemoveAccountMutationResponse, { _id: string }>(
+      gql(mutations.delinkAccount),
+      {
+        name: 'removeAccount',
+        options: {
+          refetchQueries: ['accounts']
+        }
+      }
     ),
     graphql<Props, LinkGmailMutationResponse, { code: string }>(
       gql(mutations.linkGmailAccount),

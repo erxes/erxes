@@ -8,12 +8,12 @@ import {
   Spinner
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, confirm } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { IAccount } from 'modules/settings/linkedAccounts/types';
 import * as React from 'react';
 import { SelectBrand } from '..';
-import { LinkedAccountButton, Row } from '../../styles';
+import { LinkedAccount, Row } from '../../styles';
 import { CreateFacebookMutationVariables, IPages } from '../../types';
 
 type Props = {
@@ -25,10 +25,14 @@ type Props = {
   brands: IBrand[];
   pages: IPages[];
   accounts: IAccount[];
+  delink: (accountId: string) => void;
   closeModal: () => void;
 };
 
-class Facebook extends React.Component<Props, { loading: boolean }> {
+class Facebook extends React.Component<
+  Props,
+  { loading: boolean; accountId?: string }
+> {
   constructor(props) {
     super(props);
 
@@ -45,6 +49,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
       return;
     }
 
+    this.setState({ accountId: accountId || '' });
     this.props.onAccSelect({ accountId });
   };
 
@@ -54,6 +59,14 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
 
     window.location.replace(url);
   };
+
+  onClick(accountId: string) {
+    const { delink } = this.props;
+
+    confirm().then(() => {
+      delink(accountId);
+    });
+  }
 
   collectCheckboxValues(name: string): string[] {
     const values: string[] = [];
@@ -91,6 +104,27 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     this.props.save(doc, callback);
   };
 
+  renderAccountAction() {
+    const { accountId } = this.state;
+
+    if (!accountId || accountId === '0') {
+      return (
+        <LinkedAccount onClick={this.onFacebookRedirect}>
+          Add Account
+        </LinkedAccount>
+      );
+    }
+
+    return (
+      <LinkedAccount
+        onClick={this.onClick.bind(this, accountId)}
+        isRemove={true}
+      >
+        Remove Account
+      </LinkedAccount>
+    );
+  }
+
   render() {
     const { pages, brands, accounts } = this.props;
 
@@ -115,7 +149,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
               onChange={this.onAccChange}
               id="acc"
             >
-              <option value="">Select account ...</option>
+              <option value="0">Select account ...</option>
 
               {accounts.map((account, index) => (
                 <option key={`account${index}`} value={account._id}>
@@ -123,9 +157,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
                 </option>
               ))}
             </FormControl>
-            <LinkedAccountButton onClick={this.onFacebookRedirect}>
-              <Icon icon="plus" />
-            </LinkedAccountButton>
+            {this.renderAccountAction()}
           </Row>
         </FormGroup>
 

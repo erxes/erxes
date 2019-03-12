@@ -1,5 +1,5 @@
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, confirm } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { SelectBrand } from '..';
@@ -14,17 +14,21 @@ import {
   Icon,
   Spinner
 } from 'modules/common/components';
-import { LinkedAccountButton, Row } from '../../styles';
+import { LinkedAccount, Row } from '../../styles';
 
 type Props = {
   save: (params: CreateGmailMutationVariables, callback?: () => void) => void;
   brands: IBrand[];
   accounts: IAccount[];
   gmailAuthUrl?: string;
+  delink: (accountId: string) => void;
   closeModal: () => void;
 };
 
-class Gmail extends React.Component<Props, { loading: boolean }> {
+class Gmail extends React.Component<
+  Props,
+  { loading: boolean; accountId?: string }
+> {
   constructor(props) {
     super(props);
 
@@ -37,6 +41,25 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
     const { gmailAuthUrl } = this.props;
 
     window.location.href = gmailAuthUrl || '';
+  };
+
+  onClick(accountId: string) {
+    const { delink } = this.props;
+
+    confirm().then(() => {
+      delink(accountId);
+    });
+  }
+
+  onAccChange = () => {
+    const accountId = (document.getElementById('acc') as HTMLInputElement)
+      .value;
+
+    if (accountId === '') {
+      return;
+    }
+
+    this.setState({ accountId: accountId || '' });
   };
 
   handleSubmit = e => {
@@ -57,6 +80,27 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
 
     this.props.save(doc, callback);
   };
+
+  renderAccountAction() {
+    const { accountId } = this.state;
+
+    if (!accountId || accountId === '0') {
+      return (
+        <LinkedAccount onClick={this.onGmailRedirect}>
+          Add Account
+        </LinkedAccount>
+      );
+    }
+
+    return (
+      <LinkedAccount
+        onClick={this.onClick.bind(this, accountId)}
+        isRemove={true}
+      >
+        Remove Account
+      </LinkedAccount>
+    );
+  }
 
   render() {
     const { brands, accounts } = this.props;
@@ -79,9 +123,10 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
             <FormControl
               componentClass="select"
               placeholder={__('Select account')}
+              onChange={this.onAccChange}
               id="acc"
             >
-              <option value="">Select account ...</option>
+              <option value="0">Select account ...</option>
 
               {accounts.map((account, index) => (
                 <option key={`account${index}`} value={account._id}>
@@ -89,9 +134,7 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
                 </option>
               ))}
             </FormControl>
-            <LinkedAccountButton onClick={this.onGmailRedirect}>
-              <Icon icon="plus" />
-            </LinkedAccountButton>
+            {this.renderAccountAction()}
           </Row>
         </FormGroup>
 

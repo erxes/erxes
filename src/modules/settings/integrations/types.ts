@@ -407,6 +407,10 @@ export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
+export type RemoveAccountMutationResponse = {
+  removeAccount: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
 export type MessengerAppsQueryResponse = {
   messengerApps: IMessengerApp[];
   loading: boolean;

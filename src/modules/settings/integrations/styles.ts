@@ -1,6 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { darken, lighten } from 'modules/common/styles/color';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const FlexRow = styled.div`
   display: flex;
@@ -58,19 +59,26 @@ const BrandName = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
-const LinkedAccountButton = styled.button`
-  width: 35px;
+const LinkedAccount = styledTS<{ isRemove?: boolean }>(styled.button)`
+  width: 150px;
+  background: ${colors.bgLight};
   margin-left: ${dimensions.unitSpacing}px;
-  background: ${colors.colorPrimary};
-  color: ${colors.colorWhite};
-  border: 0;
+  color: ${props =>
+    props.isRemove ? colors.colorCoreRed : colors.colorCoreGreen};
+  border: 1px solid ${props =>
+    props.isRemove ? colors.colorCoreRed : colors.colorCoreGreen};
   border-radius: 5px;
+  padding: ${dimensions.unitSpacing - 2}px;
+  font-size: 12px;
+  text-align: center;
   cursor: pointer;
-  box-shadow: 0 2px 16px 0 ${lighten(colors.colorPrimary, 45)};
   transition: all ease 0.3s;
 
   &:hover {
-    box-shadow: 0 2px 22px 0 ${lighten(colors.colorPrimary, 25)};
+    box-shadow: 0 2px 16px 0 ${props =>
+      props.isRemove
+        ? lighten(colors.colorCoreRed, 45)
+        : lighten(colors.colorCoreGreen, 45)};
   }
 
   &:focus {
@@ -84,5 +92,5 @@ export {
   MessengerPreview,
   IntegrationName,
   BrandName,
-  LinkedAccountButton
+  LinkedAccount
 };

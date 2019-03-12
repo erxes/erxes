@@ -49,6 +49,12 @@ const integrationGetGoogleAuthUrl = `
   }
 `;
 
+const integrationGetTwitterAuthUrl = `
+  query integrationGetTwitterAuthUrl {
+    integrationGetTwitterAuthUrl
+  }
+`;
+
 const commonParamsDef = `
   $channelId: String,
   $brandId: String,
@@ -130,6 +136,12 @@ const accounts = `
   }
 `;
 
+const integrationFacebookPageList = `
+  query integrationFacebookPagesList($accountId: String) {
+    integrationFacebookPagesList(accountId: $accountId)
+  }
+`;
+
 export default {
   accounts,
   users,
@@ -137,6 +149,8 @@ export default {
   integrationDetail,
   integrationTotalCount,
   integrationGetGoogleAuthUrl,
+  integrationGetTwitterAuthUrl,
+  integrationFacebookPageList,
   integrations,
   messengerApps,
   messengerAppsCount
