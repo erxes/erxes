@@ -4,17 +4,15 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
   Spinner
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, confirm } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
-import { IAccount } from 'modules/settings/linkedAccounts/types';
 import * as React from 'react';
 import { SelectBrand } from '..';
 import { LinkedAccount, Row } from '../../styles';
-import { CreateFacebookMutationVariables, IPages } from '../../types';
+import { CreateFacebookMutationVariables, IAccount, IPages } from '../../types';
 
 type Props = {
   save: (

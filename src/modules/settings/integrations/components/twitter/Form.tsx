@@ -2,16 +2,15 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup,
-  Icon
+  FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, confirm } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { SelectBrand } from 'modules/settings/integrations/components';
-import { IAccount } from 'modules/settings/linkedAccounts/types';
 import * as React from 'react';
 import { LinkedAccount, Row } from '../../styles';
+import { IAccount } from '../../types';
 
 type Props = {
   brands: IBrand[];

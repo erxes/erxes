@@ -1,20 +1,17 @@
-import { ModalFooter } from 'modules/common/styles/main';
-import { __, confirm } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
-import * as React from 'react';
-import { SelectBrand } from '..';
-import { IAccount } from '../../../linkedAccounts/types';
-import { CreateGmailMutationVariables } from '../../types';
-
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
   Spinner
 } from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __, confirm } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
+import * as React from 'react';
+import { SelectBrand } from '..';
 import { LinkedAccount, Row } from '../../styles';
+import { CreateGmailMutationVariables, IAccount } from '../../types';
 
 type Props = {
   save: (params: CreateGmailMutationVariables, callback?: () => void) => void;

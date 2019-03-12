@@ -8,8 +8,8 @@ import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { BrandsQueryResponse } from '../../../brands/types';
-import { AccountsQueryResponse } from '../../../linkedAccounts/types';
 import {
+  AccountsQueryResponse,
   CreateFacebookMutationResponse,
   CreateFacebookMutationVariables,
   IPages,
