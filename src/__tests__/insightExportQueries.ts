@@ -14,6 +14,7 @@ describe('insightExportQueries', () => {
   let conversation;
 
   beforeEach(async () => {
+    process.env.DOMAIN = 'http://localhost:3000';
     // Clearing test data
     brand = await brandFactory();
     integration = await integrationFactory({
