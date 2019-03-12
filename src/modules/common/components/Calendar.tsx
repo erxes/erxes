@@ -1,13 +1,18 @@
+import { BarItems } from 'modules/layout/styles';
 import * as moment from 'moment';
 import * as React from 'react';
+import { Dropdown } from 'react-bootstrap';
 import styled from 'styled-components';
+import { DropdownToggle } from '.';
 import { colors } from '../styles';
+import { IDateColumn } from '../types';
 import { __ } from '../utils';
 import {
-  getCurrentMonth,
-  getMonthYear,
+  getCurrentDate,
+  getFullTitle,
+  getMonthTitle,
+  monthColumns,
   nextMonth,
-  onMonthChange,
   previousMonth
 } from '../utils/calendar';
 import Button from './Button';
@@ -25,6 +30,8 @@ const Header = styled.div`
   flex: 1;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
   border-bottom: 0.5px solid ${colors.borderPrimary};
 `;
 
@@ -40,12 +47,18 @@ const Body = styled.div`
   max-height: 100%;
 `;
 
-const Card = styled.div`
-  border-radius: 10px;
-  background: ${colors.colorCoreLightGray};
-  height: 150px;
-  width: auto;
-  margin: 20px;
+const Content = styled.div`
+  flex: 1;
+  overflow: hidden;
+  border-right: 0.5px solid ${colors.borderPrimary};
+  border-left: 0.5px solid ${colors.borderPrimary};
+`;
+
+const ContentHeader = styled.div`
+  background: ${colors.bgLight};
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
 `;
 
 const Item = styled.div`
@@ -57,105 +70,124 @@ const Title = styled.div`
   text-transform: uppercase;
 `;
 
-const Content = styled.div`
-  flex: 0.25;
-  overflow: hidden;
-  border-right: 0.5px solid ${colors.borderPrimary};
-  border-left: 0.5px solid ${colors.borderPrimary};
-`;
-
-const ContentHeader = styled.div`
-  background: ${colors.bgLight};
-  padding: 8px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-`;
-
-const ContentBody = styled.div`
-  height: 100%;
-  overflow-y: auto;
-  padding-bottom: 40px;
-`;
-
 type State = {
-  currentMonth: moment.Moment;
+  currentDate: moment.Moment;
+  column: number;
 };
 
-type IDateColumn = {
-  month: number;
-  year: number;
-  title: string;
-};
-
-type IButton = {
+type ItemButton = {
   icon?: string;
   text?: string;
   onClick: () => void;
 };
 
-class Calendar extends React.Component<{}, State> {
-  constructor(props: {}) {
-    super(props);
+type Props = {
+  renderColumn: (date: IDateColumn) => React.ReactNode;
+};
 
-    this.state = { currentMonth: getCurrentMonth() };
-  }
+const columns = [
+  { label: '4 column', value: 3 },
+  { label: '5 column', value: 4 },
+  { label: '6 column', value: 5 }
+];
+
+class Calendar extends React.Component<Props, State> {
+  state = {
+    currentDate: getCurrentDate(),
+    column: 3
+  };
 
   onPreviousClick = () => {
-    const currentMonth = previousMonth(this.state.currentMonth);
+    const currentDate = previousMonth(this.state.currentDate);
 
-    this.setState({ currentMonth });
+    this.setState({ currentDate });
   };
 
   onNextClick = () => {
-    const currentMonth = nextMonth(this.state.currentMonth);
+    const currentDate = nextMonth(this.state.currentDate);
 
-    this.setState({ currentMonth });
+    this.setState({ currentDate });
   };
 
-  setCurrentMonth = () => {
-    this.setState({ currentMonth: getCurrentMonth() });
+  setCurrentDate = () => {
+    this.setState({ currentDate: getCurrentDate() });
   };
 
-  renderTitle(title: string) {
+  setColumn = (column: number) => {
+    this.setState({ column });
+  };
+
+  renderColumnTypes() {
+    return columns.map(column => (
+      <li key={column.value}>
+        <span onClick={this.setColumn.bind(this, column.value)}>
+          {__(column.label)}
+        </span>
+      </li>
+    ));
+  }
+
+  renderLeftItem(title: string) {
     return (
       <HeaderWrapper>
         {renderButton({ icon: 'leftarrow', onClick: this.onPreviousClick })}
         {renderButton({ icon: 'rightarrow', onClick: this.onNextClick })}
-        {renderButton({ onClick: this.setCurrentMonth, text: 'Today' })}
+        {renderButton({ onClick: this.setCurrentDate, text: 'Today' })}
         <Title>{title}</Title>
       </HeaderWrapper>
     );
   }
 
+  renderRightItem() {
+    return (
+      <BarItems>
+        <Dropdown id="dropdown-columns">
+          <DropdownToggle bsRole="toggle">
+            <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
+              {__('Columns')}
+            </Button>
+          </DropdownToggle>
+          <Dropdown.Menu>{this.renderColumnTypes()}</Dropdown.Menu>
+        </Dropdown>
+      </BarItems>
+    );
+  }
+
   renderContent() {
-    const { currentMonth } = this.state;
-    const months = onMonthChange(currentMonth);
+    const { currentDate, column } = this.state;
+    const months = monthColumns(currentDate, column);
 
-    const contents = months.map((date: IDateColumn, index: number) => (
+    return months.map((date: IDateColumn, index: number) => {
+      const title = getMonthTitle(date.month);
+      return this.renderColumns(index, title, date);
+    });
+  }
+
+  renderColumns(index: number, title: string, date: IDateColumn) {
+    return (
       <Content key={index}>
-        <ContentHeader>
-          <h5>{date.title}</h5>
-        </ContentHeader>
-        <ContentBody />
+        <ContentHeader>{title}</ContentHeader>
+        {this.props.renderColumn(date)}
       </Content>
-    ));
-
-    return contents;
+    );
   }
 
   render() {
-    const { currentMonth } = this.state;
-    const { title } = getMonthYear(currentMonth, true);
+    const title = getFullTitle(this.state.currentDate);
 
     return (
       <Container>
-        <Header>{this.renderTitle(title)}</Header>
+        <Header>
+          {this.renderLeftItem(title)}
+          {this.renderRightItem()}
+        </Header>
         <Body>{this.renderContent()}</Body>
       </Container>
     );
   }
 }
 
-function renderButton(props: IButton) {
+function renderButton(props: ItemButton) {
   const { text, ...buttonProps } = props;
 
   return (
