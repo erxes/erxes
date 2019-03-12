@@ -122,9 +122,8 @@ describe('customerQueries', () => {
   });
 
   test('Customers', async () => {
-    await customerFactory({});
-    await customerFactory({});
-    await customerFactory({});
+    const integration = await integrationFactory();
+    await customerFactory({ integrationId: integration._id });
     await customerFactory({});
     await customerFactory({});
 

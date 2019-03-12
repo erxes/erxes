@@ -1,6 +1,6 @@
 import { Accounts } from '../../../db/models';
 import { utils } from '../../../trackers/gmailTracker';
-import { getAccessToken } from '../../../trackers/googleTracker';
+import { googleUtils } from '../../../trackers/googleTracker';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { moduleRequireLogin } from '../../permissions';
 
@@ -61,7 +61,7 @@ const accountMutations = {
    * link Gmail account
    */
   async accountsAddGmail(_root, { code }: { code: string }) {
-    const credentials: any = await getAccessToken(code, 'gmail');
+    const credentials: any = await googleUtils.getAccessToken(code, 'gmail');
     // get email address connected with
     const { data } = await utils.getGmailUserProfile(credentials);
     const email = data.emailAddress || '';

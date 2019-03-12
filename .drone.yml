@@ -29,6 +29,7 @@ pipeline:
     environment:
       - TEST_MONGO_URL=mongodb://mongo/test
     commands:
+      - mkdir src/private/xlsTemplateOutputs
       - yarn test
 
   build:
@@ -60,5 +61,5 @@ pipeline:
 
 services:
   mongo:
-    image: mongo:3.4.4
+    image: mongo:3.6
     command: [--smallfiles]

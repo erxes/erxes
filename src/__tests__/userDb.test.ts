@@ -308,9 +308,10 @@ describe('User db utils', () => {
 
   test('Edit profile', async () => {
     const updateDoc = await userFactory({});
+    const email = 'testEmail@yahoo.com';
 
     await Users.editProfile(_user._id, {
-      email: 'testEmail@yahoo.com',
+      email,
       username: updateDoc.username,
       details: updateDoc.details,
       links: updateDoc.links,
@@ -326,7 +327,7 @@ describe('User db utils', () => {
     }
     // TODO: find out why email field lowered automatically after mongoose v5.x
     expect(userObj.username).toBe(updateDoc.username);
-    expect(userObj.email).toBe('testEmail@yahoo.com');
+    expect(userObj.email).toBe(email);
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
