@@ -326,7 +326,7 @@ describe('User db utils', () => {
     }
     // TODO: find out why email field lowered automatically after mongoose v5.x
     expect(userObj.username).toBe(updateDoc.username);
-    expect(userObj.email).toBe('testemail@yahoo.com');
+    expect(userObj.email).toBe('testEmail@yahoo.com');
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
