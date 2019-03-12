@@ -114,6 +114,14 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
   }
 }
 
+const generateRefetchQuery = ({ contentType }) => {
+  if (contentType === 'customer') {
+    return customerQueries.customerCounts;
+  }
+
+  return companyQueries.companyCounts;
+};
+
 export default withProps<Props>(
   compose(
     graphql<Props, SegmentDetailQueryResponse, { _id?: string }>(
@@ -159,7 +167,17 @@ export default withProps<Props>(
     graphql<Props, AddMutationResponse, AddMutationVariables>(
       gql(mutations.segmentsAdd),
       {
-        name: 'segmentsAdd'
+        name: 'segmentsAdd',
+        options: ({ contentType }) => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(generateRefetchQuery({ contentType })),
+                variables: { only: 'bySegment' }
+              }
+            ]
+          };
+        }
       }
     ),
     graphql<
