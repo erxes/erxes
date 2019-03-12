@@ -16,12 +16,17 @@ const MONTHS = [
   'December'
 ];
 
-const onMonthChange = (date: moment.Moment) => {
+/**
+ * Get columns of months
+ * @param date - current date
+ * @param range - range of months to get
+ */
+export const monthColumns = (date: moment.Moment, range: number) => {
   let currentDate = date.clone(); // deep copy prevent mutability
 
   const months: any = [getMonthYear(currentDate)];
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < range; i++) {
     currentDate = nextMonth(currentDate);
     months.push(getMonthYear(currentDate));
   }
@@ -29,31 +34,26 @@ const onMonthChange = (date: moment.Moment) => {
   return months;
 };
 
-const getCurrentMonth = () => {
-  return moment();
-};
+export const getCurrentDate = () => moment();
 
-const nextMonth = (date: moment.Moment) => {
+export const nextMonth = (date: moment.Moment) => {
   return date.add(1, 'month');
 };
 
-const previousMonth = (date: moment.Moment) => {
+export const previousMonth = (date: moment.Moment) => {
   return date.subtract(1, 'month');
 };
 
-const getMonthYear = (date: moment.Moment, hasYear?: boolean) => {
+export const getMonthTitle = (month: number) => __(MONTHS[month]);
+
+export const getFullTitle = (date: moment.Moment) => {
+  const { month, year } = getMonthYear(date);
+  return __(MONTHS[month]) + ' - ' + year;
+};
+
+const getMonthYear = (date: moment.Moment) => {
   const month = date.month();
   const year = date.year();
 
-  const title = __(MONTHS[month]) + (hasYear ? ' - ' + year : '');
-
-  return { month, year, title };
-};
-
-export {
-  getCurrentMonth,
-  nextMonth,
-  previousMonth,
-  onMonthChange,
-  getMonthYear
+  return { month, year };
 };
