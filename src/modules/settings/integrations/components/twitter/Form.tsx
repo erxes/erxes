@@ -69,7 +69,7 @@ class Twitter extends React.Component<Props, { accountId?: string }> {
   renderAccountAction() {
     const { accountId } = this.state;
 
-    if (!accountId || accountId === '0') {
+    if (!accountId || accountId === '') {
       return <Button onClick={this.onTwitterRedirect}>Add Account</Button>;
     }
 
