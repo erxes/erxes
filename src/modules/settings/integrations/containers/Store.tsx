@@ -9,6 +9,7 @@ import { IntegrationsCountQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
+  history?: any;
 };
 
 type FinalProps = { totalCountQuery: IntegrationsCountQueryResponse } & Props;

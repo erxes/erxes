@@ -110,12 +110,7 @@ class TwitterContainer extends React.Component<FinalProps> {
   }
 }
 
-export default withProps<
-  Props & {
-    queryParams: { [key: string]: string };
-    history: any;
-  }
->(
+export default withProps<Props>(
   compose(
     graphql<Props, BrandsQueryResponse>(
       gql`

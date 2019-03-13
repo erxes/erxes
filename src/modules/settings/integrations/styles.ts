@@ -1,5 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { darken, lighten } from 'modules/common/styles/color';
+import { lighten } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
