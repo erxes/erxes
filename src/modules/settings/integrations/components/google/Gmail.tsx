@@ -52,11 +52,11 @@ class Gmail extends React.Component<
     const accountId = (document.getElementById('acc') as HTMLInputElement)
       .value;
 
+    this.setState({ accountId: accountId || '' });
+
     if (accountId === '') {
       return;
     }
-
-    this.setState({ accountId: accountId || '' });
   };
 
   handleSubmit = e => {
@@ -81,7 +81,7 @@ class Gmail extends React.Component<
   renderAccountAction() {
     const { accountId } = this.state;
 
-    if (!accountId || accountId === '0') {
+    if (!accountId || accountId === '') {
       return <Button onClick={this.onGmailRedirect}>Add Account</Button>;
     }
 
@@ -116,7 +116,7 @@ class Gmail extends React.Component<
               onChange={this.onAccChange}
               id="acc"
             >
-              <option value="0">Select account ...</option>
+              <option value="">Select account ...</option>
 
               {accounts.map((account, index) => (
                 <option key={`account${index}`} value={account._id}>
