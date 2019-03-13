@@ -378,6 +378,7 @@ export class AppProvider extends React.Component<{}, IState> {
           createdAt: Number(new Date()),
           attachments: attachments || [],
           internal: false,
+          fromBot: false,
           messengerAppData: null,
           engageData: null
         }
