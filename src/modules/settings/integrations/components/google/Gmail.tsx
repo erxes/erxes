@@ -40,11 +40,12 @@ class Gmail extends React.Component<
     window.location.href = gmailAuthUrl || '';
   };
 
-  onClick(accountId: string) {
+  onRemove(accountId: string) {
     const { delink } = this.props;
 
     confirm().then(() => {
       delink(accountId);
+      this.setState({ accountId: '' });
     });
   }
 
@@ -86,7 +87,7 @@ class Gmail extends React.Component<
     }
 
     return (
-      <Button onClick={this.onClick.bind(this, accountId)} btnStyle="danger">
+      <Button onClick={this.onRemove.bind(this, accountId)} btnStyle="danger">
         Remove Account
       </Button>
     );
