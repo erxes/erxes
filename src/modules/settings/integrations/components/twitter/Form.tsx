@@ -9,7 +9,7 @@ import { __, confirm } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { SelectBrand } from 'modules/settings/integrations/components';
 import * as React from 'react';
-import { LinkedAccount, Row } from '../../styles';
+import { Row } from '../../styles';
 import { IAccount } from '../../types';
 
 type Props = {
@@ -70,20 +70,13 @@ class Twitter extends React.Component<Props, { accountId?: string }> {
     const { accountId } = this.state;
 
     if (!accountId || accountId === '0') {
-      return (
-        <LinkedAccount onClick={this.onTwitterRedirect}>
-          Add Account
-        </LinkedAccount>
-      );
+      return <Button onClick={this.onTwitterRedirect}>Add Account</Button>;
     }
 
     return (
-      <LinkedAccount
-        onClick={this.onClick.bind(this, accountId)}
-        isRemove={true}
-      >
+      <Button onClick={this.onClick.bind(this, accountId)} btnStyle="danger">
         Remove Account
-      </LinkedAccount>
+      </Button>
     );
   }
 

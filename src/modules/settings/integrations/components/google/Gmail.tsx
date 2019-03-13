@@ -10,7 +10,7 @@ import { __, confirm } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { SelectBrand } from '..';
-import { LinkedAccount, Row } from '../../styles';
+import { Row } from '../../styles';
 import { CreateGmailMutationVariables, IAccount } from '../../types';
 
 type Props = {
@@ -82,20 +82,13 @@ class Gmail extends React.Component<
     const { accountId } = this.state;
 
     if (!accountId || accountId === '0') {
-      return (
-        <LinkedAccount onClick={this.onGmailRedirect}>
-          Add Account
-        </LinkedAccount>
-      );
+      return <Button onClick={this.onGmailRedirect}>Add Account</Button>;
     }
 
     return (
-      <LinkedAccount
-        onClick={this.onClick.bind(this, accountId)}
-        isRemove={true}
-      >
+      <Button onClick={this.onClick.bind(this, accountId)} btnStyle="danger">
         Remove Account
-      </LinkedAccount>
+      </Button>
     );
   }
 

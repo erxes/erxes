@@ -11,7 +11,7 @@ import { __, confirm } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { SelectBrand } from '..';
-import { LinkedAccount, Row } from '../../styles';
+import { Row } from '../../styles';
 import { CreateFacebookMutationVariables, IAccount, IPages } from '../../types';
 
 type Props = {
@@ -106,20 +106,13 @@ class Facebook extends React.Component<
     const { accountId } = this.state;
 
     if (!accountId || accountId === '0') {
-      return (
-        <LinkedAccount onClick={this.onFacebookRedirect}>
-          Add Account
-        </LinkedAccount>
-      );
+      return <Button onClick={this.onFacebookRedirect}>Add Account</Button>;
     }
 
     return (
-      <LinkedAccount
-        onClick={this.onClick.bind(this, accountId)}
-        isRemove={true}
-      >
+      <Button onClick={this.onClick.bind(this, accountId)} btnStyle="danger">
         Remove Account
-      </LinkedAccount>
+      </Button>
     );
   }
 
@@ -147,7 +140,7 @@ class Facebook extends React.Component<
               onChange={this.onAccChange}
               id="acc"
             >
-              <option value="0">Select account ...</option>
+              <option value="0">{__('Select account ...')}</option>
 
               {accounts.map((account, index) => (
                 <option key={`account${index}`} value={account._id}>

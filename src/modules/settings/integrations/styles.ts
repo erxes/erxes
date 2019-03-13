@@ -1,7 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { lighten } from 'modules/common/styles/color';
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 
 const FlexRow = styled.div`
   display: flex;
@@ -44,6 +42,11 @@ const FlexRow = styled.div`
 const Row = styled.div`
   display: flex;
   height: 100%;
+
+  > button {
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
 `;
 
 const MessengerPreview = styled.div`
@@ -59,38 +62,4 @@ const BrandName = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
-const LinkedAccount = styledTS<{ isRemove?: boolean }>(styled.button)`
-  width: 150px;
-  background: ${colors.bgLight};
-  margin-left: ${dimensions.unitSpacing}px;
-  color: ${props =>
-    props.isRemove ? colors.colorCoreRed : colors.colorCoreGreen};
-  border: 1px solid ${props =>
-    props.isRemove ? colors.colorCoreRed : colors.colorCoreGreen};
-  border-radius: 5px;
-  padding: ${dimensions.unitSpacing - 2}px;
-  font-size: 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: all ease 0.3s;
-
-  &:hover {
-    box-shadow: 0 2px 16px 0 ${props =>
-      props.isRemove
-        ? lighten(colors.colorCoreRed, 45)
-        : lighten(colors.colorCoreGreen, 45)};
-  }
-
-  &:focus {
-    outline: 0;
-  }
-`;
-
-export {
-  FlexRow,
-  Row,
-  MessengerPreview,
-  IntegrationName,
-  BrandName,
-  LinkedAccount
-};
+export { FlexRow, Row, MessengerPreview, IntegrationName, BrandName };
