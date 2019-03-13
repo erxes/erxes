@@ -48,11 +48,11 @@ class Twitter extends React.Component<Props, { accountId?: string }> {
       'selectAccount'
     ) as HTMLInputElement).value;
 
+    this.setState({ accountId: accountId || '' });
+
     if (accountId === '') {
       return;
     }
-
-    this.setState({ accountId: accountId || '' });
   };
 
   handleSubmit = e => {
@@ -97,7 +97,7 @@ class Twitter extends React.Component<Props, { accountId?: string }> {
               onChange={this.onAccChange}
               id="selectAccount"
             >
-              <option value="0">Select account ...</option>
+              <option value="">Select account ...</option>
 
               {accounts.map((account, index) => (
                 <option key={`account${index}`} value={account._id}>

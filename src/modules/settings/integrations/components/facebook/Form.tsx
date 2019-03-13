@@ -43,11 +43,12 @@ class Facebook extends React.Component<
     const accountId = (document.getElementById('acc') as HTMLInputElement)
       .value;
 
+    this.setState({ accountId: accountId || '' });
+
     if (accountId === '') {
       return;
     }
 
-    this.setState({ accountId: accountId || '' });
     this.props.onAccSelect({ accountId });
   };
 
@@ -105,7 +106,7 @@ class Facebook extends React.Component<
   renderAccountAction() {
     const { accountId } = this.state;
 
-    if (!accountId || accountId === '0') {
+    if (!accountId || accountId === '') {
       return <Button onClick={this.onFacebookRedirect}>Add Account</Button>;
     }
 
@@ -116,8 +117,35 @@ class Facebook extends React.Component<
     );
   }
 
+  renderPages() {
+    const { pages } = this.props;
+
+    if (pages.length === 0) {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Pages</ControlLabel>
+
+        {pages.map(page => (
+          <div key={page.id}>
+            <FormControl
+              componentClass="checkbox"
+              name="pages"
+              key={page.id}
+              value={page.id}
+            >
+              {page.name}
+            </FormControl>
+          </div>
+        ))}
+      </FormGroup>
+    );
+  }
+
   render() {
-    const { pages, brands, accounts } = this.props;
+    const { brands, accounts } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -140,7 +168,7 @@ class Facebook extends React.Component<
               onChange={this.onAccChange}
               id="acc"
             >
-              <option value="0">{__('Select account ...')}</option>
+              <option value="">{__('Select account ...')}</option>
 
               {accounts.map((account, index) => (
                 <option key={`account${index}`} value={account._id}>
@@ -152,22 +180,7 @@ class Facebook extends React.Component<
           </Row>
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel required={true}>Pages</ControlLabel>
-
-          {pages.map(page => (
-            <div key={page.id}>
-              <FormControl
-                componentClass="checkbox"
-                name="pages"
-                key={page.id}
-                value={page.id}
-              >
-                {page.name}
-              </FormControl>
-            </div>
-          ))}
-        </FormGroup>
+        {this.renderPages()}
 
         <ModalFooter>
           <Button btnStyle="success" type="submit" icon="checked-1">
