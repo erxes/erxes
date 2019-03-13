@@ -1,4 +1,4 @@
-import { FilterableList, FormControl } from 'modules/common/components';
+import { FilterableList } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';

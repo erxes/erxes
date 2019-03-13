@@ -1,16 +1,13 @@
 import {
   Button,
   ControlLabel,
-  FilterableList,
   FormControl,
   FormGroup,
   Info
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IForm } from 'modules/forms/types';
 import { MaskWrapper } from 'modules/inbox/styles';
 import * as React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { __ } from '../../../../common/utils';
 import { IIntegration } from '../../types';
 import { IntegrationPopover } from '../common';
