@@ -1,7 +1,6 @@
 import { HeaderDescription } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import Sidebar from 'modules/settings/integrations/components/Sidebar';
 import { INTEGRATIONS } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import Row from './Row';
@@ -54,7 +53,6 @@ class Home extends React.Component<Props> {
             }
           />
         }
-        leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />
     );

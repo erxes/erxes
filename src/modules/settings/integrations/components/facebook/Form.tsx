@@ -1,17 +1,18 @@
-import * as React from 'react';
-import { SelectBrand } from '..';
+import { getEnv } from 'apolloClient';
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup,
   Spinner
-} from '../../../../common/components';
-import { ModalFooter } from '../../../../common/styles/main';
-import { __ } from '../../../../common/utils';
-import { IBrand } from '../../../brands/types';
-import { IAccount } from '../../../linkedAccounts/types';
-import { CreateFacebookMutationVariables, IPages } from '../../types';
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __, confirm } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
+import * as React from 'react';
+import { SelectBrand } from '..';
+import { Row } from '../../styles';
+import { CreateFacebookMutationVariables, IAccount, IPages } from '../../types';
 
 type Props = {
   save: (
@@ -22,10 +23,14 @@ type Props = {
   brands: IBrand[];
   pages: IPages[];
   accounts: IAccount[];
+  delink: (accountId: string) => void;
   closeModal: () => void;
 };
 
-class Facebook extends React.Component<Props, { loading: boolean }> {
+class Facebook extends React.Component<
+  Props,
+  { loading: boolean; accountId?: string }
+> {
   constructor(props) {
     super(props);
 
@@ -42,8 +47,24 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
       return;
     }
 
+    this.setState({ accountId: accountId || '' });
     this.props.onAccSelect({ accountId });
   };
+
+  onFacebookRedirect = () => {
+    const { REACT_APP_API_URL } = getEnv();
+    const url = `${REACT_APP_API_URL}/fblogin`;
+
+    window.location.replace(url);
+  };
+
+  onClick(accountId: string) {
+    const { delink } = this.props;
+
+    confirm().then(() => {
+      delink(accountId);
+    });
+  }
 
   collectCheckboxValues(name: string): string[] {
     const values: string[] = [];
@@ -81,6 +102,20 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     this.props.save(doc, callback);
   };
 
+  renderAccountAction() {
+    const { accountId } = this.state;
+
+    if (!accountId || accountId === '0') {
+      return <Button onClick={this.onFacebookRedirect}>Add Account</Button>;
+    }
+
+    return (
+      <Button onClick={this.onClick.bind(this, accountId)} btnStyle="danger">
+        Remove Account
+      </Button>
+    );
+  }
+
   render() {
     const { pages, brands, accounts } = this.props;
 
@@ -98,20 +133,23 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
         <FormGroup>
           <ControlLabel required={true}>Linked Accounts</ControlLabel>
 
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select account')}
-            onChange={this.onAccChange}
-            id="acc"
-          >
-            <option value="">Select account ...</option>
+          <Row>
+            <FormControl
+              componentClass="select"
+              placeholder={__('Select account')}
+              onChange={this.onAccChange}
+              id="acc"
+            >
+              <option value="0">{__('Select account ...')}</option>
 
-            {accounts.map((account, index) => (
-              <option key={`account${index}`} value={account._id}>
-                {account.name}
-              </option>
-            ))}
-          </FormControl>
+              {accounts.map((account, index) => (
+                <option key={`account${index}`} value={account._id}>
+                  {account.name}
+                </option>
+              ))}
+            </FormControl>
+            {this.renderAccountAction()}
+          </Row>
         </FormGroup>
 
         <FormGroup>

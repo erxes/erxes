@@ -42,6 +42,11 @@ const FlexRow = styled.div`
 const Row = styled.div`
   display: flex;
   height: 100%;
+
+  > button {
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
 `;
 
 const MessengerPreview = styled.div`

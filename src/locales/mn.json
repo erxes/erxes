@@ -730,5 +730,10 @@
   "Create brand channels that are specifically categorized by type and activity": "Create brand channels that are specifically categorized by type and activity",
   "Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel.": "Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel.",
   "You can choose from our many messenger integrations and add to your knowledge base. The knowledge base will appear in the tab of your messenger widget. To do this, please create and add to your knowledge base.": "You can choose from our many messenger integrations and add to your knowledge base. The knowledge base will appear in the tab of your messenger widget. To do this, please create and add to your knowledge base.",
-  "An email signature is an opportunity to share information that helps build recognition and trust.": "An email signature is an opportunity to share information that helps build recognition and trust."
+  "An email signature is an opportunity to share information that helps build recognition and trust.": "An email signature is an opportunity to share information that helps build recognition and trust.",
+  "Linked Accounts": "Холбогдсон хаягууд",
+  "Select account": "Хаягаа сонгоно уу",
+  "Select account ...": "Хаягаа сонгоно уу ...",
+  "Add Account": "Хаяг нэмэх",
+  "Remove Account": "Хаяг устгах"
 }

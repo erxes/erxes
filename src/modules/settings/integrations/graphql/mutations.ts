@@ -95,6 +95,35 @@ const integrationsCreateGmail = `
   }
 `;
 
+const integrationsCreateFacebook = `
+  mutation integrationsCreateFacebookIntegration(
+    $brandId: String!
+    $name: String!
+    $accountId: String!
+    $pageIds: [String!]!
+  ) {
+    integrationsCreateFacebookIntegration(
+      brandId: $brandId
+      name: $name
+      pageIds: $pageIds
+      accountId: $accountId
+    ) {
+      _id
+    }
+  }
+`;
+
+const integrationsCreateTwitter = `
+  mutation save($brandId: String!, $accountId: String!) {
+    integrationsCreateTwitterIntegration(
+      brandId: $brandId
+      accountId: $accountId
+    ) {
+      _id
+    }
+  }
+`;
+
 const integrationsRemove = `
   mutation integrationsRemove($_id: String!) {
     integrationsRemove(_id: $_id)
@@ -139,6 +168,28 @@ const messengerAppsRemove = `
   }
 `;
 
+const delinkAccount = `
+  mutation accountsRemove($_id: String!) {
+      accountsRemove(_id: $_id)
+  }
+`;
+
+const linkTwitterAccount = `
+  mutation accountsAddTwitter($queryParams: TwitterIntegrationAuthParams) {
+      accountsAddTwitter(queryParams: $queryParams) {
+          _id
+      }
+  }
+`;
+
+const linkGmailAccount = `
+  mutation accountsAddGmail($code: String!) {
+      accountsAddGmail(code: $code) {
+          _id
+      }
+  }
+`;
+
 export default {
   integrationsCreateMessenger,
   integrationsEditMessenger,
@@ -146,8 +197,13 @@ export default {
   integrationsSaveMessengerAppearance,
   integrationsSendGmail,
   integrationsCreateGmail,
+  integrationsCreateFacebook,
+  integrationsCreateTwitter,
   integrationsRemove,
   messengerAppsAddLead,
   messengerAppsAddKnowledgebase,
-  messengerAppsRemove
+  messengerAppsRemove,
+  delinkAccount,
+  linkTwitterAccount,
+  linkGmailAccount
 };
