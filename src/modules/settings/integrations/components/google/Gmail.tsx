@@ -52,11 +52,11 @@ class Gmail extends React.Component<
     const accountId = (document.getElementById('acc') as HTMLInputElement)
       .value;
 
-    this.setState({ accountId: accountId || '' });
-
     if (accountId === '') {
       return;
     }
+
+    this.setState({ accountId: accountId || '' });
   };
 
   handleSubmit = e => {
