@@ -199,7 +199,7 @@ export const subscriptions = `
   type Subscription {
     conversationChanged(_id: String!): ConversationChangedResponse
     conversationMessageInserted(_id: String!): ConversationMessage
-    conversationClientMessageInserted: ConversationMessage
+    conversationClientMessageInserted(userId: String!): ConversationMessage
     conversationAdminMessageInserted(customerId: String!): ConversationMessage
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
   }
