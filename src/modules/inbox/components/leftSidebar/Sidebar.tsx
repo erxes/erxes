@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import { Button, DateFilter, Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Resolver, Tagger } from 'modules/inbox/containers';
@@ -28,6 +29,7 @@ type Integrations = {
 };
 
 type Props = {
+  currentUser?: IUser;
   currentConversationId?: string;
   integrations: Integrations[];
   queryParams: any;
@@ -172,6 +174,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
   render() {
     const {
+      currentUser,
       currentConversationId,
       history,
       queryParams,
@@ -184,6 +187,7 @@ class LeftSidebar extends React.Component<Props, State> {
         <AdditionalSidebar>{this.renderAdditionalSidebar()}</AdditionalSidebar>
         <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>
           <ConversationList
+            currentUser={currentUser}
             currentConversationId={currentConversationId}
             history={history}
             queryParams={queryParams}

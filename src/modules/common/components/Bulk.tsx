@@ -1,17 +1,16 @@
 import * as React from 'react';
 import { toggleCheckBoxes } from '../utils';
 
-type Props = {
-  content: (
-    props: {
-      isAllSelected: boolean;
-      bulk: any[];
-      emptyBulk: () => void;
-      toggleBulk: (target: any, toAdd: boolean) => void;
-      toggleAll: (targets: any[], containerId: string) => void;
-    }
-  ) => React.ReactNode;
+export interface IBulkContentProps {
+  isAllSelected: boolean;
+  bulk: any[];
+  emptyBulk: () => void;
+  toggleBulk: (target: any, toAdd: boolean) => void;
+  toggleAll: (targets: any[], containerId: string) => void;
+}
 
+type Props = {
+  content: (props: IBulkContentProps) => React.ReactNode;
   refetch?: () => void;
 };
 

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import { ConversationList } from 'modules/inbox/components/leftSidebar';
 import { queries, subscriptions } from 'modules/inbox/graphql';
@@ -13,6 +14,7 @@ import {
 import { ConversationsTotalCountQueryResponse } from '../../types';
 
 type Props = {
+  currentUser?: IUser;
   history: any;
   currentConversationId?: string;
   toggleRowCheckbox: (conversation: IConversation[], checked: boolean) => void;
@@ -27,10 +29,11 @@ type FinalProps = {
 
 class ConversationListContainer extends React.PureComponent<FinalProps> {
   componentWillMount() {
-    const { conversationsQuery, totalCountQuery } = this.props;
+    const { currentUser, conversationsQuery, totalCountQuery } = this.props;
 
     conversationsQuery.subscribeToMore({
       document: gql(subscriptions.conversationClientMessageInserted),
+      variables: { userId: currentUser ? currentUser._id : null },
       updateQuery: () => {
         conversationsQuery.refetch();
         totalCountQuery.refetch();
