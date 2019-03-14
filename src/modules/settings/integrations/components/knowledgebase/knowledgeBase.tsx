@@ -57,12 +57,12 @@ class KnowledgeBase extends React.Component<Props, State> {
 
   onChangeMessenger = obj => {
     this.setState({ selectedMessenger: obj });
-    this.setState({ selectedMessengerId: obj._id });
+    this.setState({ selectedMessengerId: obj ? obj._id : '' });
   };
 
   onChangeTopics = obj => {
     this.setState({ selectedKb: obj });
-    this.setState({ selectedTopicId: obj._id });
+    this.setState({ selectedTopicId: obj ? obj._id : '' });
   };
 
   handleSubmit = e => {

@@ -63,12 +63,12 @@ class Lead extends React.Component<Props, State> {
 
   onChangeMessenger = obj => {
     this.setState({ selectedMessenger: obj });
-    this.setState({ selectedMessengerId: obj._id });
+    this.setState({ selectedMessengerId: obj ? obj._id : '' });
   };
 
   onChangeLead = obj => {
     this.setState({ selectedLead: obj });
-    this.setState({ selectedFormId: obj.form && obj.form._id });
+    this.setState({ selectedFormId: obj && obj.form ? obj.form._id : '' });
   };
 
   renderOption = option => {
