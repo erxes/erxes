@@ -74,7 +74,7 @@ const Picker = styled.div`
   height: 15px;
 `;
 
-const ImageContent = styled.div`
+const ImageUpload = styled.div`
   border: 1px dashed ${colors.borderDarker};
   border-radius: 5px;
   background: ${colors.colorLightBlue};
@@ -83,30 +83,44 @@ const ImageContent = styled.div`
   align-items: center;
   min-height: 200px;
   position: relative;
+  padding: 10px;
+  transition: border ease 0.3s;
 
-  img {
-    max-width: 300px;
+  input {
+    display: none;
   }
 
-  i {
-    visibility: hidden;
-    cursor: pointer;
-    position: absolute;
-    right: 5%;
-    top: ${dimensions.coreSpacing}px;
-    width: ${Space};
-    border-radius: ${Space};
+  label {
+    margin: 0;
     text-align: center;
-    line-height: ${Space};
-    background: rgba(255, 255, 255, 0.5);
-    transition: all ease 0.3s;
+    flex: 1;
+    cursor: pointer;
+
+    i {
+      font-size: 26px;
+      display: block;
+      color: ${colors.colorCoreGray};
+      margin-bottom: 5px;
+    }
+  }
+
+  button {
+    position: absolute;
+    right: ${dimensions.unitSpacing}px;
+    top: ${dimensions.unitSpacing}px;
+    padding: 5px 8px;
+    border-radius: ${Space};
+    background: ${colors.borderPrimary};
   }
 
   &:hover {
-    i {
-      visibility: visible;
-    }
+    border-color: ${colors.colorCoreTeal};
   }
+`;
+
+const ImagePreview = styled.img`
+  width: 300px;
+  max-width: 300px;
 `;
 
 const CarouselInner = styledTS<{ selected?: boolean }>(styled.div)`
@@ -255,5 +269,6 @@ export {
   Tabs,
   CarouselInner,
   FullPreview,
-  ImageContent
+  ImageUpload,
+  ImagePreview
 };

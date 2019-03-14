@@ -38,7 +38,7 @@ const Formgroup = styled.div`
   p {
     font-size: 12px;
     color: ${colors.colorCoreGray};
-    margin: 0;
+    margin-bottom: 5px;
   }
 `;
 
