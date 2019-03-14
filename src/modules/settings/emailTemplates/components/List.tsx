@@ -1,65 +1,77 @@
-import { HeaderDescription, Table } from 'modules/common/components';
+import {
+  Button,
+  HeaderDescription,
+  Icon,
+  ModalTrigger
+} from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import styled from 'styled-components';
-import { List, RowActions } from '../../common/components';
+import { List } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
+import {
+  Actions,
+  EmailTemplates,
+  IframePreview,
+  Options,
+  TemplateBox,
+  TemplatePreview
+} from '../styles';
 import Form from './Form';
-
-const IframePreview = styled.div`
-  width: 140px;
-  height: 100px;
-  overflow: hidden;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-
-  iframe {
-    transform: scale(0.2);
-    transform-origin: 0 0;
-    pointer-events: none;
-    width: 510%;
-    height: 500%;
-    border: 0;
-  }
-`;
 
 class EmailTemplateList extends React.Component<ICommonListProps> {
   renderForm = props => {
     return <Form {...props} />;
   };
 
-  renderRows({ objects }) {
+  remove = object => {
+    this.props.remove(object._id);
+  };
+
+  renderEditAction = object => {
+    const { save } = this.props;
+
+    const content = props => {
+      return this.renderForm({ ...props, object, save });
+    };
+
+    return (
+      <ModalTrigger
+        title="Edit"
+        trigger={
+          <span>
+            {' '}
+            <Icon icon="edit" /> Edit
+          </span>
+        }
+        content={content}
+      />
+    );
+  };
+
+  renderRow({ objects }) {
     return objects.map((object, index) => (
-      <tr key={index}>
-        <td>
+      <EmailTemplates key={index}>
+        <TemplateBox>
+          <Options>
+            <Button btnStyle="primary">Preview</Button>
+            <Actions>
+              {this.renderEditAction(object)}
+              <span onClick={this.remove.bind(this, object)}>
+                <Icon icon="cancel-1" /> Delete
+              </span>
+            </Actions>
+          </Options>
           <IframePreview>
             <iframe title="content-iframe" srcDoc={object.content} />
           </IframePreview>
-        </td>
-        <td>{object.name}</td>
-
-        <RowActions
-          {...this.props}
-          object={object}
-          renderForm={this.renderForm}
-        />
-      </tr>
+        </TemplateBox>
+        <span> {object.name} </span>
+      </EmailTemplates>
     ));
   }
 
   renderContent = props => {
-    return (
-      <Table>
-        <thead>
-          <tr>
-            <th />
-            <th>{__('Name')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRows(props)}</tbody>
-      </Table>
-    );
+    return <TemplatePreview>{this.renderRow(props)}</TemplatePreview>;
   };
 
   render() {
@@ -79,7 +91,6 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
         }
         renderForm={this.renderForm}
         renderContent={this.renderContent}
-        center={true}
         {...this.props}
       />
     );
