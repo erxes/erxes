@@ -93,6 +93,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           Alert.success('Success');
+          this.setState({ pages: [] });
         })
         .catch(e => {
           Alert.error(e.message);

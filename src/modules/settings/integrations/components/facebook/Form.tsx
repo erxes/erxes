@@ -59,11 +59,12 @@ class Facebook extends React.Component<
     window.location.replace(url);
   };
 
-  onClick(accountId: string) {
+  onRemove(accountId: string) {
     const { delink } = this.props;
 
     confirm().then(() => {
       delink(accountId);
+      this.setState({ accountId: '' });
     });
   }
 
@@ -111,7 +112,7 @@ class Facebook extends React.Component<
     }
 
     return (
-      <Button onClick={this.onClick.bind(this, accountId)} btnStyle="danger">
+      <Button onClick={this.onRemove.bind(this, accountId)} btnStyle="danger">
         Remove Account
       </Button>
     );
@@ -120,7 +121,7 @@ class Facebook extends React.Component<
   renderPages() {
     const { pages } = this.props;
 
-    if (pages.length === 0) {
+    if (pages.length === 0 || this.state.accountId === '') {
       return null;
     }
 

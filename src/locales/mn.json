@@ -735,5 +735,6 @@
   "Select account": "Хаягаа сонгоно уу",
   "Select account ...": "Хаягаа сонгоно уу ...",
   "Add Account": "Хаяг нэмэх",
-  "Remove Account": "Хаяг устгах"
+  "Remove Account": "Хаяг устгах",
+  "You can upload only image file": "Та зөвхөн .png юмуу .jpg зураг оруулна уу"
 }
