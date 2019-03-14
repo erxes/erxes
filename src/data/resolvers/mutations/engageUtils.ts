@@ -246,7 +246,7 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
 /*
  *  Send engage messages
  */
-export const send = message => {
+export const send = (message: IEngageMessageDocument) => {
   const { method, kind } = message;
 
   if (method === METHODS.EMAIL) {

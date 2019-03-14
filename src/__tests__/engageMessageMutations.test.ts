@@ -81,7 +81,14 @@ describe('engage message mutation tests', () => {
     _tag = await tagsFactory({});
     _brand = await brandFactory({});
     _segment = await segmentFactory({});
-    _message = await engageMessageFactory({ kind: 'auto', userId: _user._id });
+    _message = await engageMessageFactory({
+      kind: 'auto',
+      userId: _user._id,
+      messenger: {
+        content: 'content',
+        brandId: _brand.id,
+      },
+    });
     _emailTemplate = await emailTemplateFactory({});
     _customer = await customerFactory({
       hasValidEmail: true,
@@ -147,67 +154,63 @@ describe('engage message mutation tests', () => {
   });
 
   test('Engage utils send via messenger', async () => {
+    const brand = await brandFactory();
+    const emessage = await engageMessageFactory({
+      method: 'messenger',
+      title: 'Send via messenger',
+      userId: _user._id,
+      segmentId: _segment._id,
+      customerIds: [_customer._id],
+      isLive: true,
+      messenger: {
+        brandId: brand._id,
+        content: 'content',
+      },
+    });
+
+    const emessageWithoutUser = await engageMessageFactory({
+      method: 'messenger',
+      title: 'Send via messenger',
+      userId: 'fromUserId',
+      segmentId: _segment._id,
+      isLive: true,
+      messenger: {
+        brandId: brand._id,
+        content: 'content',
+      },
+    });
+
     try {
-      await engageUtils.send({
-        _id: _message._id,
-        method: 'messenger',
-        title: 'Send via messenger',
-        fromUserId: _user._id,
-        segmentId: _segment._id,
-        isLive: true,
-        messenger: {
-          brandId: '',
-          content: 'content',
-        },
-      });
+      await engageUtils.send(emessage);
     } catch (e) {
       expect(e.message).toEqual('Integration not found');
     }
 
     try {
-      await engageUtils.send({
-        _id: _message._id,
-        method: 'messenger',
-        title: 'Send via messenger',
-        fromUserId: 'fromUserId',
-        segmentId: _segment._id,
-        isLive: true,
-        messenger: {
-          brandId: '',
-          content: 'content',
-        },
-      });
+      await engageUtils.send(emessageWithoutUser);
     } catch (e) {
       expect(e.message).toEqual('User not found');
     }
 
-    const brand = await brandFactory();
     const integration = await integrationFactory({
       brandId: brand._id,
       kind: INTEGRATION_KIND_CHOICES.MESSENGER,
     });
 
-    const messenger = {
-      brandId: brand._id,
-      content: 'content',
-      toJSON: () => {
-        return {
-          brandId: brand._id,
-          content: 'content',
-        };
-      },
-    };
-
-    await engageUtils.send({
-      _id: _message._id,
+    const emessageWithBrand = await engageMessageFactory({
       method: 'messenger',
       title: 'Send via messenger',
-      fromUserId: _user._id,
+      userId: _user._id,
       segmentId: _segment._id,
       isLive: true,
       customerIds: [_customer._id],
-      messenger,
+      messenger: {
+        brandId: brand._id,
+        content: 'content',
+      },
     });
+
+    await engageUtils.send(emessageWithBrand);
 
     // setCustomerIds
     const setCustomer = await EngageMessages.findOne({ _id: _message._id, customerIds: _customer._id });
@@ -240,7 +243,7 @@ describe('engage message mutation tests', () => {
     }
 
     expect(newMessage).toBeDefined();
-    expect(newMessage.engageData.messageId).toBe(_message._id);
+    expect(newMessage.engageData.messageId).toBe(emessageWithBrand._id);
     expect(newMessage.engageData.fromUserId).toBe(_user._id);
     expect(newMessage.engageData.brandId).toBe(brand._id);
   });
@@ -253,26 +256,21 @@ describe('engage message mutation tests', () => {
     process.env.MAIL_PORT = '123';
 
     const emailTemplate = await emailTemplateFactory();
-    const email = {
-      toJSON: () => {
-        return {
-          templateId: emailTemplate._id,
-          subject: 'subject',
-          content: 'content',
-          attachments: [],
-        };
+    const emessage = await engageMessageFactory({
+      method: 'email',
+      title: 'Send via email',
+      userId: 'fromUserId',
+      segmentId: _segment._id,
+      email: {
+        templateId: emailTemplate._id,
+        subject: 'subject',
+        content: 'content',
+        attachments: [],
       },
-    };
+    });
 
     try {
-      await engageUtils.send({
-        _id: _message._id,
-        method: 'email',
-        title: 'Send via email',
-        fromUserId: 'fromUserId',
-        segmentId: _segment._id,
-        email,
-      });
+      await engageUtils.send(emessage);
     } catch (e) {
       expect(e.message).toBe('User not found');
     }
@@ -280,14 +278,20 @@ describe('engage message mutation tests', () => {
     const executeSendViaEmail = jest.spyOn(engageUtils.utils, 'executeSendViaEmail');
     executeSendViaEmail.mockImplementation(() => 'sent');
 
-    await engageUtils.send({
-      _id: _message._id,
+    const emessageWithUser = await engageMessageFactory({
       method: 'email',
       title: 'Send via email',
-      fromUserId: _user._id,
+      userId: _user._id,
       segmentId: _segment._id,
-      email,
+      email: {
+        templateId: emailTemplate._id,
+        subject: 'subject',
+        content: 'content',
+        attachments: [],
+      },
     });
+
+    await engageUtils.send(emessageWithUser);
 
     expect(executeSendViaEmail.mock.calls.length).toBe(1);
   });
