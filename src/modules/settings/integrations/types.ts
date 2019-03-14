@@ -31,6 +31,13 @@ export interface IPages {
   checked?: boolean;
 }
 
+export interface ISelectMessengerApps {
+  brand: IBrand;
+  label: string;
+  value: string;
+  form?: IForm;
+}
+
 export interface IOnlineHour {
   _id: string;
   day: string;

@@ -6,11 +6,11 @@ import {
   Info
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { MaskWrapper } from 'modules/inbox/styles';
 import * as React from 'react';
+import Select from 'react-select-plus';
 import { __ } from '../../../../common/utils';
-import { IIntegration } from '../../types';
-import { IntegrationPopover } from '../common';
+import { Options } from '../../styles';
+import { IIntegration, ISelectMessengerApps } from '../../types';
 
 type Props = {
   save: (
@@ -22,14 +22,27 @@ type Props = {
   closeModal: () => void;
 };
 
-class Lead extends React.Component<Props> {
+type State = {
+  selectedMessenger?: ISelectMessengerApps;
+  selectedMessengerId?: string;
+  selectedLead?: ISelectMessengerApps;
+  selectedFormId?: string;
+};
+
+class Lead extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {};
+  }
+
   generateDoc() {
+    const { selectedMessengerId, selectedFormId } = this.state;
+
     return {
       name: (document.getElementById('name') as HTMLInputElement).value,
-      integrationId: (document.getElementById(
-        'selectIntegration'
-      ) as HTMLInputElement).value,
-      formId: (document.getElementById('selectLead') as HTMLInputElement).value
+      integrationId: selectedMessengerId ? selectedMessengerId : '',
+      formId: selectedFormId ? selectedFormId : ''
     };
   }
 
@@ -39,14 +52,36 @@ class Lead extends React.Component<Props> {
     this.props.save(this.generateDoc(), this.props.closeModal);
   };
 
-  render() {
-    const { closeModal } = this.props;
+  generateIntegrationsParams = integrations => {
+    return integrations.map(integration => ({
+      value: integration._id,
+      label: integration.name,
+      brand: integration.brand,
+      form: integration.form && integration.form
+    }));
+  };
 
-    const trigger = (
-      <MaskWrapper>
-        <FormControl id="lead" componentClass="select" />
-      </MaskWrapper>
+  onChangeMessenger = obj => {
+    this.setState({ selectedMessenger: obj });
+    this.setState({ selectedMessengerId: obj._id });
+  };
+
+  onChangeLead = obj => {
+    this.setState({ selectedLead: obj });
+    this.setState({ selectedFormId: obj.form && obj.form._id });
+  };
+
+  renderOption = option => {
+    return (
+      <Options>
+        {option.label}
+        <i>{option.brand && option.brand.name}</i>
+      </Options>
     );
+  };
+
+  render() {
+    const { closeModal, integrations, leads } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -64,20 +99,24 @@ class Lead extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Messenger integration</ControlLabel>
 
-          <IntegrationPopover
-            title="Select integration"
-            targets={this.props.integrations}
-            trigger={trigger}
+          <Select
+            name="messengerIntegration"
+            value={this.state.selectedMessenger}
+            options={this.generateIntegrationsParams(integrations)}
+            onChange={this.onChangeMessenger}
+            optionRenderer={this.renderOption}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Lead</ControlLabel>
 
-          <IntegrationPopover
-            title="Select lead"
-            targets={this.props.leads}
-            trigger={trigger}
+          <Select
+            name="leadIntegration"
+            value={this.state.selectedLead}
+            options={this.generateIntegrationsParams(leads)}
+            onChange={this.onChangeLead}
+            optionRenderer={this.renderOption}
           />
         </FormGroup>
 

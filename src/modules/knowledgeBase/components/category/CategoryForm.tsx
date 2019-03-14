@@ -57,6 +57,7 @@ class CategoryForm extends React.Component<Props, State> {
 
   getSelectedIcon() {
     const { category } = this.props;
+
     return (category && category.icon) || '';
   }
 

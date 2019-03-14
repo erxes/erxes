@@ -2,7 +2,6 @@ import * as React from 'react';
 import Filter from './Filter';
 import {
   AvatarImg,
-  BrandName,
   PopoverBody,
   PopoverFooter,
   PopoverHeader,
@@ -78,10 +77,7 @@ class FilterableList extends React.Component<Props, State> {
 
     return items.map(item => {
       // filter items by key
-      if (
-        key &&
-        (item.title || item.name).toLowerCase().indexOf(key.toLowerCase()) < 0
-      ) {
+      if (key && item.title.toLowerCase().indexOf(key.toLowerCase()) < 0) {
         return false;
       }
 
@@ -100,8 +96,7 @@ class FilterableList extends React.Component<Props, State> {
             />
           ) : null}{' '}
           {item.avatar ? <AvatarImg src={item.avatar} /> : null}
-          {item.title || item.name || '[undefined]'}
-          {item.brand && <BrandName>{item.brand.name}</BrandName>}
+          {item.title || '[undefined]'}
         </li>
       );
     });

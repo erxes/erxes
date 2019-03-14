@@ -9,7 +9,9 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { ITopic } from 'modules/knowledgeBase/types';
 import * as React from 'react';
-import { IIntegration } from '../../types';
+import Select from 'react-select-plus';
+import { Options } from '../../styles';
+import { IIntegration, ISelectMessengerApps } from '../../types';
 
 type Props = {
   save: (
@@ -21,22 +23,61 @@ type Props = {
   closeModal: () => void;
 };
 
-class KnowledgeBase extends React.Component<Props> {
+type State = {
+  selectedMessenger?: ISelectMessengerApps;
+  selectedMessengerId?: string;
+  selectedKb?: ISelectMessengerApps;
+  selectedTopicId?: string;
+};
+
+class KnowledgeBase extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {};
+  }
+
   generateDoc() {
+    const { selectedMessengerId, selectedTopicId } = this.state;
+
     return {
       name: (document.getElementById('name') as HTMLInputElement).value,
-      integrationId: (document.getElementById(
-        'selectIntegration'
-      ) as HTMLInputElement).value,
-      topicId: (document.getElementById('selectTopic') as HTMLInputElement)
-        .value
+      integrationId: selectedMessengerId ? selectedMessengerId : '',
+      topicId: selectedTopicId ? selectedTopicId : ''
     };
   }
+
+  generateIntegrationsParams = integrations => {
+    return integrations.map(integration => ({
+      value: integration._id,
+      label: integration.name || integration.title,
+      brand: integration.brand
+    }));
+  };
+
+  onChangeMessenger = obj => {
+    this.setState({ selectedMessenger: obj });
+    this.setState({ selectedMessengerId: obj._id });
+  };
+
+  onChangeTopics = obj => {
+    this.setState({ selectedKb: obj });
+    this.setState({ selectedTopicId: obj._id });
+  };
 
   handleSubmit = e => {
     e.preventDefault();
 
     this.props.save(this.generateDoc(), this.props.closeModal);
+  };
+
+  renderOption = option => {
+    return (
+      <Options>
+        {option.label}
+        <i>{option.brand && option.brand.name}</i>
+      </Options>
+    );
   };
 
   render() {
@@ -58,27 +99,23 @@ class KnowledgeBase extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Messenger integration</ControlLabel>
 
-          <FormControl componentClass="select" id="selectIntegration">
-            <option />
-            {integrations.map(i => (
-              <option key={i._id} value={i._id}>
-                {i.name}
-              </option>
-            ))}
-          </FormControl>
+          <Select
+            value={this.state.selectedMessenger}
+            options={this.generateIntegrationsParams(integrations)}
+            onChange={this.onChangeMessenger}
+            optionRenderer={this.renderOption}
+          />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Knowledge base</ControlLabel>
 
-          <FormControl componentClass="select" id="selectTopic">
-            <option />
-            {topics.map(topic => (
-              <option key={topic._id} value={topic._id}>
-                {topic.title}
-              </option>
-            ))}
-          </FormControl>
+          <Select
+            value={this.state.selectedKb}
+            options={this.generateIntegrationsParams(topics)}
+            onChange={this.onChangeTopics}
+            optionRenderer={this.renderOption}
+          />
         </FormGroup>
 
         <ModalFooter>
