@@ -91,13 +91,13 @@ class KnowledgeBase extends React.Component<Props, State> {
           )}
         </Info>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Messenger integration</ControlLabel>
+          <ControlLabel required={true}>Messenger integration</ControlLabel>
 
           <Select
             value={this.state.selectedMessenger}
@@ -108,7 +108,7 @@ class KnowledgeBase extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Knowledge base</ControlLabel>
+          <ControlLabel required={true}>Knowledge base</ControlLabel>
 
           <Select
             value={this.state.selectedKb}

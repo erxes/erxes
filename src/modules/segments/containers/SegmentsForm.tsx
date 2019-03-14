@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { queries as companyQueries } from 'modules/companies/graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
 import * as React from 'react';
@@ -37,6 +37,10 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
   create = ({ doc }) => {
     const { contentType, segmentsAdd, history } = this.props;
 
+    if (!doc.name) {
+      return Alert.error(__('Enter name'));
+    }
+
     segmentsAdd({ variables: { contentType, ...doc } }).then(() => {
       Alert.success('Success');
       history.push(`/segments/${contentType}`);
@@ -55,7 +59,15 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
   count = (segment: ISegmentDoc) => {
     const { counts } = this.props;
 
-    counts.refetch({ byFakeSegment: segment });
+    const updateCount = async () => {
+      try {
+        await counts.refetch({ byFakeSegment: segment });
+      } catch (error) {
+        Alert.error(error.message);
+      }
+    };
+
+    updateCount();
   };
 
   render() {
@@ -93,6 +105,7 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
       headSegments: headSegments.filter(s => s.contentType === contentType),
       create: this.create,
       count: this.count,
+      counterLoading: counts.loading,
       total: counts[`${contentType}Counts`] || {},
       edit: this.edit
     };
@@ -100,6 +113,14 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
     return <SegmentsForm {...updatedProps} />;
   }
 }
+
+const generateRefetchQuery = ({ contentType }) => {
+  if (contentType === 'customer') {
+    return customerQueries.customerCounts;
+  }
+
+  return companyQueries.companyCounts;
+};
 
 export default withProps<Props>(
   compose(
@@ -146,7 +167,17 @@ export default withProps<Props>(
     graphql<Props, AddMutationResponse, AddMutationVariables>(
       gql(mutations.segmentsAdd),
       {
-        name: 'segmentsAdd'
+        name: 'segmentsAdd',
+        options: ({ contentType }) => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(generateRefetchQuery({ contentType })),
+                variables: { only: 'bySegment' }
+              }
+            ]
+          };
+        }
       }
     ),
     graphql<

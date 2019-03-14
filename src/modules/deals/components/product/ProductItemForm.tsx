@@ -1,5 +1,6 @@
 import {
   Button,
+  ControlLabel,
   FormControl,
   Icon,
   ModalTrigger
@@ -11,7 +12,13 @@ import * as React from 'react';
 import Select from 'react-select-plus';
 import { ProductChooser } from '../../containers';
 import { Button as DealButton } from '../../styles/deal';
-import { ItemText } from '../../styles/product';
+import {
+  ContentColumn,
+  ContentRow,
+  ItemText,
+  ProductItem,
+  TotalAmount
+} from '../../styles/product';
 import { IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 
@@ -90,7 +97,7 @@ class ProductItemForm extends React.Component<Props> {
   renderProductServiceTrigger(product?: IProduct) {
     let content = (
       <div>
-        {__('Product & Service')} <Icon icon="add" />
+        {__('Choose Product & Service')} <Icon icon="add" />
       </div>
     );
 
@@ -174,104 +181,148 @@ class ProductItemForm extends React.Component<Props> {
     );
 
     return (
-      <tr key={productData._id}>
-        <td>{this.renderProductModal(productData)}</td>
-        <td>
-          <Select
-            name="uom"
-            placeholder={__('Choose')}
-            value={productData.uom}
-            onChange={this.uomOnChange}
-            optionRenderer={selectOption}
-            options={selectConfigOptions(uom, MEASUREMENTS)}
-          />
-        </td>
-        <td>
-          <Select
-            name="currency"
-            placeholder={__('Choose')}
-            value={productData.currency}
-            onChange={this.currencyOnChange}
-            optionRenderer={selectOption}
-            options={selectConfigOptions(currencies, CURRENCIES)}
-          />
-        </td>
-        <td>
-          <FormControl
-            defaultValue={productData.quantity}
-            type="number"
-            min={1}
-            placeholder="0"
-            name="quantity"
-            onChange={this.onChange}
-          />
+      <ProductItem key={productData._id}>
+        <ContentRow>
+          <ContentColumn>
+            <ControlLabel>Product / Service</ControlLabel>
+            {this.renderProductModal(productData)}
+            <br />
+            <ContentRow>
+              <ContentColumn>
+                <ControlLabel>UOM</ControlLabel>
+                <Select
+                  name="uom"
+                  placeholder={__('Choose')}
+                  value={productData.uom}
+                  onChange={this.uomOnChange}
+                  optionRenderer={selectOption}
+                  options={selectConfigOptions(uom, MEASUREMENTS)}
+                />
+              </ContentColumn>
 
-          <ItemText align="right">{__('Discount')}</ItemText>
+              <ContentColumn>
+                <ControlLabel>Currency</ControlLabel>
+                <Select
+                  name="currency"
+                  placeholder={__('Choose')}
+                  value={productData.currency}
+                  onChange={this.currencyOnChange}
+                  optionRenderer={selectOption}
+                  options={selectConfigOptions(currencies, CURRENCIES)}
+                />
+              </ContentColumn>
+            </ContentRow>
+          </ContentColumn>
 
-          <ItemText align="right">{__('Tax')}</ItemText>
-        </td>
-        <td>
-          <FormControl
-            defaultValue={productData.unitPrice || ''}
-            type="number"
-            placeholder="0"
-            name="unitPrice"
-            onChange={this.onChange}
-          />
+          <ContentColumn>
+            <ContentRow>
+              <ContentColumn>
+                <ControlLabel>Quantity</ControlLabel>
+                <FormControl
+                  defaultValue={productData.quantity}
+                  type="number"
+                  min={1}
+                  placeholder="0"
+                  name="quantity"
+                  onChange={this.onChange}
+                />
+              </ContentColumn>
 
-          <FormControl
-            value={productData.discountPercent || ''}
-            type="number"
-            min={0}
-            max={100}
-            placeholder="0"
-            name="discountPercent"
-            onChange={this.onChange}
-          />
+              <ContentColumn>
+                <ControlLabel>Unit price</ControlLabel>
+                <FormControl
+                  defaultValue={productData.unitPrice || ''}
+                  type="number"
+                  placeholder="0"
+                  name="unitPrice"
+                  onChange={this.onChange}
+                />
+              </ContentColumn>
 
-          <FormControl
-            defaultValue={productData.taxPercent || ''}
-            type="number"
-            min={0}
-            max={100}
-            placeholder="0"
-            name="taxPercent"
-            onChange={this.onChange}
-          />
+              <ContentColumn>
+                <ControlLabel>Amount</ControlLabel>
+                <ItemText>
+                  {(
+                    productData.quantity * productData.unitPrice
+                  ).toLocaleString()}{' '}
+                  <b>{productData.currency}</b>
+                </ItemText>
+              </ContentColumn>
+            </ContentRow>
+            <br />
+            <ContentRow>
+              <ContentColumn>
+                <ItemText align="right">
+                  <b>{__('Discount')} </b>
+                  <span>%</span>
+                </ItemText>
+              </ContentColumn>
 
-          <ItemText>{__('Total')}</ItemText>
-        </td>
-        <td>
-          <ItemText>
-            {(productData.quantity * productData.unitPrice).toLocaleString()}{' '}
-            {productData.currency}
-          </ItemText>
+              <ContentColumn>
+                <FormControl
+                  value={productData.discountPercent || ''}
+                  type="number"
+                  min={0}
+                  max={100}
+                  placeholder="0"
+                  name="discountPercent"
+                  onChange={this.onChange}
+                />
+              </ContentColumn>
 
-          <FormControl
-            value={productData.discount || ''}
-            type="number"
-            placeholder="0"
-            name="discount"
-            onChange={this.onChange}
-          />
+              <ContentColumn>
+                <FormControl
+                  value={productData.discount || ''}
+                  type="number"
+                  placeholder="0"
+                  name="discount"
+                  onChange={this.onChange}
+                />
+              </ContentColumn>
+            </ContentRow>
 
-          <ItemText>
-            {(productData.tax || 0).toLocaleString()} {productData.currency}
-          </ItemText>
+            <ContentRow>
+              <ContentColumn>
+                <ItemText align="right">
+                  <b>{__('Tax')} </b>
+                  <span>%</span>
+                </ItemText>
+              </ContentColumn>
 
-          <ItemText>
-            {(productData.amount || 0).toLocaleString()} {productData.currency}
-          </ItemText>
-        </td>
-        <td>
-          <Button
-            btnStyle="danger"
-            icon="cancel-1"
-            size="small"
-            onClick={this.onClick}
-          />
-        </td>
-      </tr>
+              <ContentColumn>
+                <FormControl
+                  defaultValue={productData.taxPercent || ''}
+                  type="number"
+                  min={0}
+                  max={100}
+                  placeholder="0"
+                  name="taxPercent"
+                  onChange={this.onChange}
+                />
+              </ContentColumn>
+
+              <ContentColumn>
+                <ItemText>
+                  {(productData.tax || 0).toLocaleString()}{' '}
+                  <b>{productData.currency}</b>
+                </ItemText>
+              </ContentColumn>
+            </ContentRow>
+
+            <TotalAmount>
+              {productData.amount.toLocaleString()}{' '}
+              <b>{productData.currency}</b>
+            </TotalAmount>
+          </ContentColumn>
+        </ContentRow>
+
+        <Button
+          btnStyle="link"
+          icon="cancel"
+          size="small"
+          onClick={this.onClick}
+        />
+      </ProductItem>
     );
   }
 }

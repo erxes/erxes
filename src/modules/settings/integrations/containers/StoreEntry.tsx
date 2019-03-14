@@ -12,6 +12,7 @@ type Props = {
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
   kind: string;
+  queryParams: any;
   totalCount: {
     messenger: number;
     form: number;

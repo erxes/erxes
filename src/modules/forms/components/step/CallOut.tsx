@@ -1,4 +1,5 @@
 import {
+  Button,
   ControlLabel,
   FormControl,
   FormGroup,
@@ -10,7 +11,7 @@ import { uploadHandler } from 'modules/common/utils';
 import { ActionBar } from 'modules/layout/components';
 import * as React from 'react';
 import { CalloutPreview } from './preview';
-import { FlexColumn, FlexItem, ImageContent } from './style';
+import { FlexColumn, FlexItem, ImagePreview, ImageUpload } from './style';
 
 const defaultValue = {
   isSkip: false
@@ -105,6 +106,21 @@ class CallOut extends React.Component<Props, State> {
     });
   };
 
+  renderImagePreview() {
+    const { image } = this.props;
+
+    if (!image) {
+      return (
+        <>
+          <Icon icon="plus" />
+          {__('Upload')}
+        </>
+      );
+    }
+
+    return <ImagePreview src={image} alt="previewImage" />;
+  }
+
   renderUploadImage() {
     const { image, skip } = this.props;
 
@@ -113,15 +129,28 @@ class CallOut extends React.Component<Props, State> {
     const onClick = (e: React.MouseEvent<HTMLElement>) =>
       this.removeImage((e.currentTarget as HTMLInputElement).value);
 
-    if (!image) {
-      return <input type="file" onChange={onChange} disabled={skip} />;
-    }
-
     return (
-      <React.Fragment>
-        <img src={image} alt="previewImage" />
-        <Icon icon="cancel-1" size={15} onClick={onClick} />
-      </React.Fragment>
+      <ImageUpload>
+        <label htmlFor="file-upload">
+          <input
+            id="file-upload"
+            type="file"
+            onChange={onChange}
+            disabled={skip}
+            accept="image/x-png,image/jpeg"
+          />
+          {this.renderImagePreview()}
+        </label>
+
+        {image && (
+          <Button
+            btnStyle="link"
+            icon="cancel"
+            size="small"
+            onClick={onClick}
+          />
+        )}
+      </ImageUpload>
     );
   }
 
@@ -207,7 +236,8 @@ class CallOut extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Featured image</ControlLabel>
-              <ImageContent>{this.renderUploadImage()}</ImageContent>
+              <p>{__('You can upload only image file')}</p>
+              {this.renderUploadImage()}
             </FormGroup>
           </LeftItem>
           {this.footerActions()}

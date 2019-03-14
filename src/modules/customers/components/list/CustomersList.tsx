@@ -1,3 +1,5 @@
+import gql from 'graphql-tag';
+import { queries } from 'modules/customers/graphql';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
@@ -284,6 +286,11 @@ class CustomersList extends React.Component<IProps, State> {
           this.removeCustomers(bulk);
         });
 
+      const refetchQuery = {
+        query: gql(queries.customerCounts),
+        variables: { only: 'byTag' }
+      };
+
       actionBarLeft = (
         <BarItems>
           <Widget customers={bulk} emptyBulk={emptyBulk} />
@@ -293,6 +300,7 @@ class CustomersList extends React.Component<IProps, State> {
             successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
+            refetchQueries={[refetchQuery]}
           />
           {bulk.length === 2 && (
             <ModalTrigger

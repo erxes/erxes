@@ -91,13 +91,13 @@ class Lead extends React.Component<Props, State> {
           )}
         </Info>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
-          <FormControl id="name" type="text" required={true} />
+          <FormControl id="name" type="text" required={true} autoFocus={true} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Messenger integration</ControlLabel>
+          <ControlLabel required={true}>Messenger integration</ControlLabel>
 
           <Select
             name="messengerIntegration"
@@ -109,7 +109,7 @@ class Lead extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Lead</ControlLabel>
+          <ControlLabel required={true}>Lead</ControlLabel>
 
           <Select
             name="leadIntegration"

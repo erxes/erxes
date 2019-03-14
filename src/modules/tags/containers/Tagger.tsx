@@ -17,7 +17,7 @@ type Props = {
   type: ITagTypes | string;
   successCallback?: () => void;
   className?: string;
-  refetchQueries?: string[];
+  refetchQueries?: any[];
 };
 
 type FinalProps = {

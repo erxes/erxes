@@ -1,27 +1,31 @@
-import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
-import * as React from 'react';
-import { SelectBrand } from '..';
-import { IAccount } from '../../../linkedAccounts/types';
-import { CreateGmailMutationVariables } from '../../types';
-
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup,
   Spinner
-} from '../../../../common/components';
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __, confirm } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
+import * as React from 'react';
+import { SelectBrand } from '..';
+import { Row } from '../../styles';
+import { CreateGmailMutationVariables, IAccount } from '../../types';
 
 type Props = {
   save: (params: CreateGmailMutationVariables, callback?: () => void) => void;
   brands: IBrand[];
   accounts: IAccount[];
+  gmailAuthUrl?: string;
+  delink: (accountId: string) => void;
   closeModal: () => void;
 };
 
-class Gmail extends React.Component<Props, { loading: boolean }> {
+class Gmail extends React.Component<
+  Props,
+  { loading: boolean; accountId?: string }
+> {
   constructor(props) {
     super(props);
 
@@ -29,6 +33,32 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
       loading: false
     };
   }
+
+  onGmailRedirect = () => {
+    const { gmailAuthUrl } = this.props;
+
+    window.location.href = gmailAuthUrl || '';
+  };
+
+  onRemove(accountId: string) {
+    const { delink } = this.props;
+
+    confirm().then(() => {
+      delink(accountId);
+      this.setState({ accountId: '' });
+    });
+  }
+
+  onAccChange = () => {
+    const accountId = (document.getElementById('acc') as HTMLInputElement)
+      .value;
+
+    this.setState({ accountId: accountId || '' });
+
+    if (accountId === '') {
+      return;
+    }
+  };
 
   handleSubmit = e => {
     e.preventDefault();
@@ -48,6 +78,21 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
 
     this.props.save(doc, callback);
   };
+
+  renderAccountAction() {
+    const { accountId } = this.state;
+
+    if (!accountId || accountId === '') {
+      return <Button onClick={this.onGmailRedirect}>Add Account</Button>;
+    }
+
+    return (
+      <Button onClick={this.onRemove.bind(this, accountId)} btnStyle="danger">
+        Remove Account
+      </Button>
+    );
+  }
+
   render() {
     const { brands, accounts } = this.props;
 
@@ -55,7 +100,7 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
       <form onSubmit={this.handleSubmit}>
         {this.state.loading && <Spinner />}
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
@@ -63,21 +108,25 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
         <SelectBrand brands={brands} />
 
         <FormGroup>
-          <ControlLabel>Linked Accounts</ControlLabel>
+          <ControlLabel required={true}>Linked Accounts</ControlLabel>
 
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select account')}
-            id="acc"
-          >
-            <option value="">Select account ...</option>
+          <Row>
+            <FormControl
+              componentClass="select"
+              placeholder={__('Select account')}
+              onChange={this.onAccChange}
+              id="acc"
+            >
+              <option value="">Select account ...</option>
 
-            {accounts.map((account, index) => (
-              <option key={`account${index}`} value={account._id}>
-                {account.name}
-              </option>
-            ))}
-          </FormControl>
+              {accounts.map((account, index) => (
+                <option key={`account${index}`} value={account._id}>
+                  {account.name}
+                </option>
+              ))}
+            </FormControl>
+            {this.renderAccountAction()}
+          </Row>
         </FormGroup>
 
         <ModalFooter>

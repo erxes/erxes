@@ -14,6 +14,7 @@ type Props = {
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
   messengerAppsCount?: number;
+  queryParams: any;
   totalCount: {
     messenger: number;
     form: number;
@@ -40,6 +41,8 @@ class Entry extends React.Component<Props> {
   };
 
   renderCreate(createUrl, createModal) {
+    const { queryParams } = this.props;
+
     if (!createUrl && !createModal) {
       return null;
     }
@@ -85,7 +88,7 @@ class Entry extends React.Component<Props> {
     if (createModal === 'twitter') {
       const trigger = <a>+ {__('Add')}</a>;
 
-      const content = props => <Twitter {...props} />;
+      const content = props => <Twitter {...props} queryParams={queryParams} />;
 
       return (
         <ModalTrigger
@@ -99,7 +102,7 @@ class Entry extends React.Component<Props> {
     if (createModal === 'gmail') {
       const trigger = <a>+ {__('Add')}</a>;
 
-      const content = props => <Gmail {...props} />;
+      const content = props => <Gmail {...props} queryParams={queryParams} />;
 
       return (
         <ModalTrigger title="Add gmail" trigger={trigger} content={content} />

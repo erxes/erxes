@@ -3,11 +3,12 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
+  Icon,
+  Spinner
 } from 'modules/common/components';
 import { __, generateRandomColorCode } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import { ContentSpace, FlexContent, FlexItem } from 'modules/layout/styles';
+import { Sidebar, Wrapper } from 'modules/layout/components';
+import { FlexContent, FlexItem } from 'modules/layout/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { ISegment, ISegmentCondition, ISegmentDoc } from '../types';
@@ -15,7 +16,6 @@ import { AddConditionButton, Conditions } from './';
 import {
   ConditionWrapper,
   ResultCount,
-  SegmentContainer,
   SegmentResult,
   SegmentTitle,
   SegmentWrapper
@@ -38,6 +38,7 @@ type Props = {
   segment: ISegment;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
+  counterLoading: boolean;
   total: any;
 };
 
@@ -69,18 +70,15 @@ class SegmentsForm extends React.Component<Props, State> {
   }
 
   addCondition = condition => {
-    this.setState({
-      conditions: [...this.state.conditions, condition]
-    });
+    this.setState(
+      {
+        conditions: [...this.state.conditions, condition]
+      },
+      () => this.updateCount()
+    );
   };
 
-  changeCondition = condition => {
-    this.setState({
-      conditions: this.state.conditions.map(
-        c => (c.field === condition.field ? condition : c)
-      )
-    });
-
+  updateCount = () => {
     const { contentType } = this.props;
 
     const {
@@ -105,10 +103,26 @@ class SegmentsForm extends React.Component<Props, State> {
     this.props.count(segment);
   };
 
+  changeCondition = condition => {
+    this.setState(
+      {
+        conditions: this.state.conditions.map(c =>
+          c.field === condition.field ? condition : c
+        )
+      },
+      () => this.updateCount()
+    );
+  };
+
   removeCondition = conditionField => {
-    this.setState({
-      conditions: this.state.conditions.filter(c => c.field !== conditionField)
-    });
+    this.setState(
+      {
+        conditions: this.state.conditions.filter(
+          c => c.field !== conditionField
+        )
+      },
+      () => this.updateCount()
+    );
   };
 
   handleChange = <T extends keyof State>(name: T, value: State[T]) => {
@@ -233,10 +247,10 @@ class SegmentsForm extends React.Component<Props, State> {
 
     return (
       <FlexContent>
-        <FlexItem count={3}>
+        <FlexItem count={4}>
           <form onSubmit={this.save}>
             <FormGroup>
-              <ControlLabel>Name</ControlLabel>
+              <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
                 required={true}
                 value={name}
@@ -264,29 +278,36 @@ class SegmentsForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { total } = this.props;
-
     return (
       <SegmentWrapper>
+        <SegmentTitle>{__('Filters')}</SegmentTitle>
+
+        {this.renderConditions()}
+        <hr />
+        {this.renderForm()}
+      </SegmentWrapper>
+    );
+  }
+
+  renderSidebar() {
+    const { total, counterLoading } = this.props;
+
+    return (
+      <Sidebar full={true} wide={true}>
         <FlexContent>
-          <FlexItem count={3}>
-            <SegmentContainer>
-              <SegmentTitle>{__('Filters')}</SegmentTitle>
-
-              {this.renderConditions()}
-              <ContentSpace />
-              {this.renderForm()}
-            </SegmentContainer>
-          </FlexItem>
-
           <SegmentResult>
             <ResultCount>
-              <Icon icon="users" /> {total.byFakeSegment}
+              <Icon icon="users" />{' '}
+              {counterLoading ? (
+                <Spinner objective={true} />
+              ) : (
+                total.byFakeSegment
+              )}
             </ResultCount>
             {__('User(s) will recieve this message')}
           </SegmentResult>
         </FlexContent>
-      </SegmentWrapper>
+      </Sidebar>
     );
   }
 
@@ -329,6 +350,7 @@ class SegmentsForm extends React.Component<Props, State> {
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
         content={this.renderContent()}
         footer={this.renderFooter()}
+        rightSidebar={this.renderSidebar()}
       />
     );
   }

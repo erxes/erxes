@@ -1,10 +1,10 @@
-import { Button, EmptyState, Table } from 'modules/common/components';
+import { Button, EmptyState } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { ProductItemForm } from '../../containers';
-import { Add, Footer, FooterInfo, FormContainer } from '../../styles/product';
+import { Add, FooterInfo, FormContainer } from '../../styles/product';
 import { IProductData } from '../../types';
 
 type Props = {
@@ -95,9 +95,7 @@ class ProductForm extends React.Component<Props, State> {
   renderTotal(value) {
     return Object.keys(value).map(key => (
       <div key={key}>
-        <b>
-          {value[key].toLocaleString()} {key}
-        </b>
+        {value[key].toLocaleString()} <b>{key}</b>
       </div>
     ));
   }
@@ -151,65 +149,44 @@ class ProductForm extends React.Component<Props, State> {
 
     return (
       <FormContainer>
-        <Table alignTop={true}>
-          <thead>
-            <tr>
-              <th>{__('Product & Service')}</th>
-              <th>{__('UOM')}</th>
-              <th>{__('Currency')}</th>
-              <th>{__('Quantity')}</th>
-              <th>{__('Unit price')}</th>
-              <th>{__('Amount')}</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>{this.renderContent()}</tbody>
-        </Table>
-
+        {this.renderContent()}
         <Add>
-          <Button
-            btnStyle="success"
-            onClick={this.addProductItem}
-            icon="add"
-            size="large"
-          >
+          <Button btnStyle="success" onClick={this.addProductItem} icon="add">
             Add Product / Service
           </Button>
         </Add>
-        <Footer>
-          <FooterInfo>
-            <table>
-              <tbody>
-                <tr>
-                  <td>{__('Tax')}:</td>
-                  <td>{this.renderTotal(tax)}</td>
-                </tr>
-                <tr>
-                  <td>{__('Discount')}:</td>
-                  <td>{this.renderTotal(discount)}</td>
-                </tr>
-                <tr>
-                  <td>{__('Total')}:</td>
-                  <td>{this.renderTotal(total)}</td>
-                </tr>
-              </tbody>
-            </table>
-          </FooterInfo>
+        <FooterInfo>
+          <table>
+            <tbody>
+              <tr>
+                <td>{__('Tax')}:</td>
+                <td>{this.renderTotal(tax)}</td>
+              </tr>
+              <tr>
+                <td>{__('Discount')}:</td>
+                <td>{this.renderTotal(discount)}</td>
+              </tr>
+              <tr>
+                <td>{__('Total')}:</td>
+                <td>{this.renderTotal(total)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </FooterInfo>
 
-          <ModalFooter>
-            <Button
-              btnStyle="simple"
-              onClick={this.props.closeModal}
-              icon="cancel-1"
-            >
-              Close
-            </Button>
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            onClick={this.props.closeModal}
+            icon="cancel-1"
+          >
+            Close
+          </Button>
 
-            <Button btnStyle="success" onClick={this.onClick} icon="checked-1">
-              Save
-            </Button>
-          </ModalFooter>
-        </Footer>
+          <Button btnStyle="success" onClick={this.onClick} icon="checked-1">
+            Save
+          </Button>
+        </ModalFooter>
       </FormContainer>
     );
   }
