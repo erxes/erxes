@@ -61,6 +61,9 @@ if (NODE_ENV !== 'production') {
   };
 }
 
+const clients: string[] = [];
+const connectedClients: string[] = [];
+
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
@@ -86,25 +89,36 @@ const apolloServer = new ApolloServer({
 
           const customerId = webSocket.messengerData.customerId;
 
-          // mark as online
-          await Customers.markCustomerAsActive(customerId);
-
-          // customer has joined + time
-          const conversationMessages = await Conversations.changeCustomerStatus('joined', customerId, integrationId);
-
-          for (const _message of conversationMessages) {
-            pubsub.publish('conversationMessageInserted', {
-              conversationMessageInserted: _message,
-            });
+          if (!connectedClients.includes(customerId)) {
+            connectedClients.push(customerId);
           }
 
-          // notify as connected
-          pubsub.publish('customerConnectionChanged', {
-            customerConnectionChanged: {
-              _id: customerId,
-              status: 'connected',
-            },
-          });
+          // Waited for 5 seconds to reconnect in disconnect hook and disconnect hook
+          // removed this customer from connected clients list. So it means this customer
+          // is back online
+          if (!clients.includes(customerId)) {
+            clients.push(customerId);
+
+            // mark as online
+            await Customers.markCustomerAsActive(customerId);
+
+            // customer has joined + time
+            const conversationMessages = await Conversations.changeCustomerStatus('joined', customerId, integrationId);
+
+            for (const _message of conversationMessages) {
+              pubsub.publish('conversationMessageInserted', {
+                conversationMessageInserted: _message,
+              });
+            }
+
+            // notify as connected
+            pubsub.publish('customerConnectionChanged', {
+              customerConnectionChanged: {
+                _id: customerId,
+                status: 'connected',
+              },
+            });
+          }
         }
       });
     },
@@ -116,24 +130,39 @@ const apolloServer = new ApolloServer({
         const customerId = messengerData.customerId;
         const integrationId = messengerData.integrationId;
 
-        // mark as offline
-        await Customers.markCustomerAsNotActive(customerId);
+        // Temporarily marking as disconnected
+        // If client refreshes his browser, It will trigger disconnect, connect hooks.
+        // So to determine this issue. We are marking as disconnected here and waiting
+        // for 5 seconds to reconnect.
+        connectedClients.splice(connectedClients.indexOf(customerId), 1);
 
-        // customer has left + time
-        const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
+        setTimeout(async () => {
+          if (connectedClients.includes(customerId)) {
+            return;
+          }
 
-        for (const message of conversationMessages) {
-          pubsub.publish('conversationMessageInserted', {
-            conversationMessageInserted: message,
+          clients.splice(clients.indexOf(customerId), 1);
+
+          // mark as offline
+          await Customers.markCustomerAsNotActive(customerId);
+
+          // customer has left + time
+          const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
+
+          for (const message of conversationMessages) {
+            pubsub.publish('conversationMessageInserted', {
+              conversationMessageInserted: message,
+            });
+          }
+
+          // notify as disconnected
+          pubsub.publish('customerConnectionChanged', {
+            customerConnectionChanged: {
+              _id: customerId,
+              status: 'disconnected',
+            },
           });
-        }
-        // notify as disconnected
-        pubsub.publish('customerConnectionChanged', {
-          customerConnectionChanged: {
-            _id: customerId,
-            status: 'disconnected',
-          },
-        });
+        }, 10000);
       }
     },
   },
