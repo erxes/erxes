@@ -1,4 +1,3 @@
-import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { queries, subscriptions } from 'modules/inbox/graphql';
