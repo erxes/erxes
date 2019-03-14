@@ -24,16 +24,19 @@ type Props = {
 
 type State = {
   selectedMessenger?: ISelectMessengerApps;
-  selectedMessengerId?: string;
+  selectedMessengerId: string;
   selectedLead?: ISelectMessengerApps;
-  selectedFormId?: string;
+  selectedFormId: string;
 };
 
 class Lead extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      selectedMessengerId: '',
+      selectedFormId: ''
+    };
   }
 
   generateDoc() {
@@ -41,8 +44,8 @@ class Lead extends React.Component<Props, State> {
 
     return {
       name: (document.getElementById('name') as HTMLInputElement).value,
-      integrationId: selectedMessengerId ? selectedMessengerId : '',
-      formId: selectedFormId ? selectedFormId : ''
+      integrationId: selectedMessengerId,
+      formId: selectedFormId
     };
   }
 

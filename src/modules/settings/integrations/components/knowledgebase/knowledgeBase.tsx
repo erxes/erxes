@@ -25,16 +25,19 @@ type Props = {
 
 type State = {
   selectedMessenger?: ISelectMessengerApps;
-  selectedMessengerId?: string;
+  selectedMessengerId: string;
   selectedKb?: ISelectMessengerApps;
-  selectedTopicId?: string;
+  selectedTopicId: string;
 };
 
 class KnowledgeBase extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      selectedMessengerId: '',
+      selectedTopicId: ''
+    };
   }
 
   generateDoc() {
@@ -42,8 +45,8 @@ class KnowledgeBase extends React.Component<Props, State> {
 
     return {
       name: (document.getElementById('name') as HTMLInputElement).value,
-      integrationId: selectedMessengerId ? selectedMessengerId : '',
-      topicId: selectedTopicId ? selectedTopicId : ''
+      integrationId: selectedMessengerId,
+      topicId: selectedTopicId
     };
   }
 
