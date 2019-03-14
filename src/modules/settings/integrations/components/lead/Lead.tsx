@@ -6,10 +6,11 @@ import {
   Info
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IForm } from 'modules/forms/types';
 import * as React from 'react';
+import Select from 'react-select-plus';
 import { __ } from '../../../../common/utils';
-import { IIntegration } from '../../types';
+import { Options } from '../../styles';
+import { IIntegration, ISelectMessengerApps } from '../../types';
 
 type Props = {
   save: (
@@ -17,18 +18,34 @@ type Props = {
     callback: () => void
   ) => void;
   integrations: IIntegration[];
-  leads: IForm[];
+  leads: IIntegration[];
   closeModal: () => void;
 };
 
-class Lead extends React.Component<Props> {
+type State = {
+  selectedMessenger?: ISelectMessengerApps;
+  selectedMessengerId: string;
+  selectedLead?: ISelectMessengerApps;
+  selectedFormId: string;
+};
+
+class Lead extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectedMessengerId: '',
+      selectedFormId: ''
+    };
+  }
+
   generateDoc() {
+    const { selectedMessengerId, selectedFormId } = this.state;
+
     return {
       name: (document.getElementById('name') as HTMLInputElement).value,
-      integrationId: (document.getElementById(
-        'selectIntegration'
-      ) as HTMLInputElement).value,
-      formId: (document.getElementById('selectLead') as HTMLInputElement).value
+      integrationId: selectedMessengerId,
+      formId: selectedFormId
     };
   }
 
@@ -38,12 +55,36 @@ class Lead extends React.Component<Props> {
     this.props.save(this.generateDoc(), this.props.closeModal);
   };
 
-  onIntegrationsChange = integrations => {
-    this.setState({ integrations: integrations.map(el => el.value) });
+  generateIntegrationsParams = integrations => {
+    return integrations.map(integration => ({
+      value: integration._id,
+      label: integration.name,
+      brand: integration.brand,
+      form: integration.form && integration.form
+    }));
+  };
+
+  onChangeMessenger = obj => {
+    this.setState({ selectedMessenger: obj });
+    this.setState({ selectedMessengerId: obj ? obj.value : '' });
+  };
+
+  onChangeLead = obj => {
+    this.setState({ selectedLead: obj });
+    this.setState({ selectedFormId: obj && obj.form ? obj.form._id : '' });
+  };
+
+  renderOption = option => {
+    return (
+      <Options>
+        {option.label}
+        <i>{option.brand && option.brand.name}</i>
+      </Options>
+    );
   };
 
   render() {
-    const { integrations, leads, closeModal } = this.props;
+    const { closeModal, integrations, leads } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -61,27 +102,25 @@ class Lead extends React.Component<Props> {
         <FormGroup>
           <ControlLabel required={true}>Messenger integration</ControlLabel>
 
-          <FormControl componentClass="select" id="selectIntegration">
-            <option />
-            {integrations.map(i => (
-              <option key={i._id} value={i._id}>
-                {i.name}
-              </option>
-            ))}
-          </FormControl>
+          <Select
+            name="messengerIntegration"
+            value={this.state.selectedMessenger}
+            options={this.generateIntegrationsParams(integrations)}
+            onChange={this.onChangeMessenger}
+            optionRenderer={this.renderOption}
+          />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Lead</ControlLabel>
 
-          <FormControl componentClass="select" id="selectLead">
-            <option />
-            {leads.map(lead => (
-              <option key={lead._id} value={lead._id}>
-                {lead.title}
-              </option>
-            ))}
-          </FormControl>
+          <Select
+            name="leadIntegration"
+            value={this.state.selectedLead}
+            options={this.generateIntegrationsParams(leads)}
+            onChange={this.onChangeLead}
+            optionRenderer={this.renderOption}
+          />
         </FormGroup>
 
         <ModalFooter>
