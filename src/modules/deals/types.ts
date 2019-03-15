@@ -48,6 +48,18 @@ export interface IDeal {
   products: any;
 }
 
+export interface IDealTotalAmount {
+  _id: string;
+  dealCount: number;
+  dealAmounts: [
+    {
+      _id: string;
+      amount: number;
+      currency: string;
+    }
+  ];
+}
+
 export interface IProductData {
   _id: string;
   productId?: string;
@@ -107,6 +119,11 @@ export type DealsQueryResponse = {
   deals: IDeal[];
   loading: boolean;
   refetch: () => void;
+  fetchMore: any;
+};
+
+export type DealsTotalAmountsQueryResponse = {
+  dealsTotalAmounts: IDealTotalAmount;
 };
 
 export type DealDetailQueryResponse = {

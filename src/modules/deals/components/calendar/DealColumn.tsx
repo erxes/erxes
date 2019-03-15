@@ -5,25 +5,14 @@ import { __ } from 'modules/common/utils';
 import { AddNew } from 'modules/deals/styles/stage';
 import * as React from 'react';
 import styled from 'styled-components';
-import { IDeal } from '../../types';
+import { IDeal, IDealTotalAmount } from '../../types';
 import { Deal } from '../portable';
 
 type Props = {
-  deals: any;
+  deals: IDeal[];
   date: IDateColumn;
-  amount: any;
-  addDeal: any;
-  dealTotalAmounts: {
-    _id: string;
-    dealCount: number;
-    dealAmounts: [
-      {
-        _id: string;
-        amount: number;
-        currency: string;
-      }
-    ];
-  };
+  dealTotalAmounts: IDealTotalAmount;
+  refetch: () => void;
   onLoadMore: (skip: number) => void;
 };
 
@@ -83,6 +72,10 @@ const Amount = styled.ul`
 `;
 
 class DealColumn extends React.Component<Props, {}> {
+  onRemove = () => {
+    this.props.refetch();
+  };
+
   onLoadMore = () => {
     const { deals, onLoadMore } = this.props;
     onLoadMore(deals.length);
@@ -96,7 +89,7 @@ class DealColumn extends React.Component<Props, {}> {
     }
 
     const contents = deals.map((deal: IDeal, index: number) => (
-      <Deal key={index} deal={deal} />
+      <Deal key={index} deal={deal} onRemove={this.onRemove} />
     ));
 
     return <ContentBody>{contents}</ContentBody>;

@@ -5,14 +5,18 @@ import { DealColumn } from 'modules/deals/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
-import { DealsQueryResponse } from '../../types';
+import {
+  DealsQueryResponse,
+  DealsTotalAmountsQueryResponse
+} from '../../types';
 
 type Props = {
   date: IDateColumn;
   dealsQuery: DealsQueryResponse;
+  dealsTotalAmountsQuery: DealsTotalAmountsQueryResponse;
 };
 
-const DealColumnContainer = props => {
+const DealColumnContainer = (props: Props) => {
   const {
     dealsQuery,
     dealsTotalAmountsQuery,
@@ -47,6 +51,7 @@ const DealColumnContainer = props => {
     deals,
     title,
     onLoadMore,
+    refetch: dealsQuery.refetch,
     dealTotalAmounts
   };
 
@@ -54,17 +59,23 @@ const DealColumnContainer = props => {
 };
 
 export default compose(
-  graphql<Props>(gql(queries.deals), {
-    name: 'dealsQuery',
-    options: ({ date }) => ({
-      notifyOnNetworkStatusChange: true,
-      variables: { skip: 0, date }
-    })
-  }),
-  graphql<Props>(gql(queries.dealsTotalAmounts), {
-    name: 'dealsTotalAmountsQuery',
-    options: ({ date }) => ({
-      variables: { date }
-    })
-  })
+  graphql<Props, DealsQueryResponse, { skip: number; date: IDateColumn }>(
+    gql(queries.deals),
+    {
+      name: 'dealsQuery',
+      options: ({ date }) => ({
+        notifyOnNetworkStatusChange: true,
+        variables: { skip: 0, date }
+      })
+    }
+  ),
+  graphql<Props, DealsTotalAmountsQueryResponse, { date: IDateColumn }>(
+    gql(queries.dealsTotalAmounts),
+    {
+      name: 'dealsTotalAmountsQuery',
+      options: ({ date }: { date: IDateColumn }) => ({
+        variables: { date }
+      })
+    }
+  )
 )(DealColumnContainer);

@@ -1,7 +1,7 @@
 import queryString from 'query-string';
 import * as React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import { CalendarView } from './components';
+import { Calendar } from './components';
 import { Home } from './containers';
 
 const deals = () => {
@@ -17,7 +17,7 @@ const boards = ({ history, location }) => {
 const calendar = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <CalendarView queryParams={queryParams} history={history} />;
+  return <Calendar queryParams={queryParams} history={history} />;
 };
 
 const routes = () => {

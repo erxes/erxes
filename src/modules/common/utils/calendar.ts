@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 import { __ } from '.';
+import { IDateColumn } from '../types';
 
 const MONTHS = [
   'January',
@@ -21,7 +22,10 @@ const MONTHS = [
  * @param date - current date
  * @param range - range of months to get
  */
-export const monthColumns = (date: moment.Moment, range: number) => {
+export const monthColumns = (
+  date: moment.Moment,
+  range: number
+): [IDateColumn] => {
   let currentDate = date.clone(); // deep copy prevent mutability
 
   const months: any = [getMonthYear(currentDate)];
@@ -34,24 +38,24 @@ export const monthColumns = (date: moment.Moment, range: number) => {
   return months;
 };
 
-export const getCurrentDate = () => moment();
+export const getCurrentDate = (): moment.Moment => moment();
 
-export const nextMonth = (date: moment.Moment) => {
+export const nextMonth = (date: moment.Moment): moment.Moment => {
   return date.add(1, 'month');
 };
 
-export const previousMonth = (date: moment.Moment) => {
+export const previousMonth = (date: moment.Moment): moment.Moment => {
   return date.subtract(1, 'month');
 };
 
-export const getMonthTitle = (month: number) => __(MONTHS[month]);
+export const getMonthTitle = (month: number): string => __(MONTHS[month]);
 
-export const getFullTitle = (date: moment.Moment) => {
+export const getFullTitle = (date: moment.Moment): string => {
   const { month, year } = getMonthYear(date);
   return __(MONTHS[month]) + ' - ' + year;
 };
 
-const getMonthYear = (date: moment.Moment) => {
+const getMonthYear = (date: moment.Moment): { month: number; year: number } => {
   const month = date.month();
   const year = date.year();
 
