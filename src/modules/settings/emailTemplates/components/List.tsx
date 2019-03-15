@@ -9,7 +9,6 @@ import * as React from 'react';
 import { List } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
 import {
-  Actions,
   EmailTemplates,
   IframePreview,
   Options,
@@ -23,7 +22,7 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
     return <Form {...props} />;
   };
 
-  remove = object => {
+  removeTemplate = object => {
     this.props.remove(object._id);
   };
 
@@ -39,7 +38,6 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
         title="Edit"
         trigger={
           <span>
-            {' '}
             <Icon icon="edit" /> Edit
           </span>
         }
@@ -53,13 +51,10 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
       <EmailTemplates key={index}>
         <TemplateBox>
           <Options>
-            <Button btnStyle="primary">Preview</Button>
-            <Actions>
-              {this.renderEditAction(object)}
-              <span onClick={this.remove.bind(this, object)}>
-                <Icon icon="cancel-1" /> Delete
-              </span>
-            </Actions>
+            {this.renderEditAction(object)}
+            <span onClick={this.removeTemplate.bind(this, object)}>
+              <Icon icon="cancel-1" /> Delete
+            </span>
           </Options>
           <IframePreview>
             <iframe title="content-iframe" srcDoc={object.content} />

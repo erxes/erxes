@@ -8,20 +8,20 @@ const IframePreview = styled.div`
   border-radius: 4px;
 
   iframe {
-    transform: scale(0.4);
+    transform: scale(0.5);
     transform-origin: 0 0;
     pointer-events: none;
-    width: 250%;
-    height: 500%;
+    width: 200%;
+    height: 280px;
     border: 0;
   }
 `;
 
 const TemplatePreview = styled.div`
-  display: flex;
   height: 100%;
   background: ${colors.colorWhite};
   padding: ${dimensions.coreSpacing}px;
+  overflow: auto;
 `;
 
 const TemplateBox = styled.div`
@@ -39,17 +39,16 @@ const Options = styled.div`
   width: 100%;
   height: 100%;
   text-align: center;
-  padding-top: ${dimensions.coreSpacing + dimensions.coreSpacing}px;
-`;
-
-const Actions = styled.div`
-  color: ${colors.bgLight};
-  display: flex;
-  justify-content: space-evenly;
-  margin-top: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  padding-top: ${dimensions.headerSpacing + 10}px;
+  transition: all ease 0.3s;
 
   span {
-    cursor: pointer;
+    color: ${colors.bgLight};
+    font-size: 15px;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 `;
 
@@ -57,7 +56,8 @@ const EmailTemplates = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 12.5%;
+  width: 18%;
+  float: left;
   margin-right: ${dimensions.coreSpacing}px;
   transition: all ease 0.3s;
 
@@ -65,22 +65,20 @@ const EmailTemplates = styled.div`
     text-align: center;
     font-size: 12px;
     padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px 0;
+    margin-bottom: ${dimensions.unitSpacing}px;
     color: ${colors.colorCoreGray};
     font-weight: 500;
+    width: 100%;
+    height: ${dimensions.headerSpacing}px;
+    overflow: hidden;
   }
 
   &:hover {
     ${Options} {
-      display: block;
+      display: flex;
+      justify-content: space-evenly;
     }
   }
 `;
 
-export {
-  Actions,
-  EmailTemplates,
-  Options,
-  TemplateBox,
-  TemplatePreview,
-  IframePreview
-};
+export { EmailTemplates, Options, TemplateBox, TemplatePreview, IframePreview };
