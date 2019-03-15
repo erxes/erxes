@@ -31,6 +31,14 @@ const DealColumnContainer = (props: Props) => {
     dealAmounts: []
   };
 
+  const onUpdate = () => {
+    dealsTotalAmountsQuery.refetch();
+  };
+
+  const onRemove = () => {
+    dealsQuery.refetch();
+  };
+
   const onLoadMore = (skip: number) => {
     fetchMore({
       variables: { skip },
@@ -51,8 +59,8 @@ const DealColumnContainer = (props: Props) => {
     deals,
     title,
     onLoadMore,
-    refetchDeals: dealsQuery.refetch,
-    refetchTotalAmounts: dealsTotalAmountsQuery.refetch,
+    onRemove,
+    onUpdate,
     dealTotalAmounts
   };
 

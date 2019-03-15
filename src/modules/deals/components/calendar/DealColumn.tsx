@@ -12,8 +12,8 @@ type Props = {
   deals: IDeal[];
   date: IDateColumn;
   dealTotalAmounts: IDealTotalAmount;
-  refetchDeals: () => void;
-  refetchTotalAmounts: () => void;
+  onUpdate: () => void;
+  onRemove: () => void;
   onLoadMore: (skip: number) => void;
 };
 
@@ -73,28 +73,20 @@ const Amount = styled.ul`
 `;
 
 class DealColumn extends React.Component<Props, {}> {
-  onUpdate = () => {
-    this.props.refetchTotalAmounts();
-  };
-
-  onRemove = () => {
-    this.props.refetchDeals();
-  };
-
   onLoadMore = () => {
     const { deals, onLoadMore } = this.props;
     onLoadMore(deals.length);
   };
 
   renderContent() {
-    const { deals } = this.props;
+    const { deals, onUpdate, onRemove } = this.props;
 
     if (deals.length === 0) {
       return <EmptyState icon="piggy-bank" text="No deal" />;
     }
 
     const contents = deals.map((deal: IDeal, index: number) => (
-      <Deal key={index} deal={deal} onRemove={this.onRemove} />
+      <Deal key={index} deal={deal} onRemove={onRemove} onUpdate={onUpdate} />
     ));
 
     return <ContentBody>{contents}</ContentBody>;
