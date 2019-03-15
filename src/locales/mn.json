@@ -748,5 +748,11 @@
   "An email signature is an opportunity to share information that helps build recognition and trust.": "An email signature is an opportunity to share information that helps build recognition and trust.",
   "Calendar": "Календар",
   "Columns": "Багана",
-  "columns": "багана"
+  "columns": "багана",
+  "Linked Accounts": "Холбогдсон хаягууд",
+  "Select account": "Хаягаа сонгоно уу",
+  "Select account ...": "Хаягаа сонгоно уу ...",
+  "Add Account": "Хаяг нэмэх",
+  "Remove Account": "Хаяг устгах",
+  "You can upload only image file": "Та зөвхөн .png юмуу .jpg зураг оруулна уу"
 }

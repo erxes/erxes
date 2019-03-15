@@ -49,6 +49,12 @@ const integrationGetGoogleAuthUrl = `
   }
 `;
 
+const integrationGetTwitterAuthUrl = `
+  query integrationGetTwitterAuthUrl {
+    integrationGetTwitterAuthUrl
+  }
+`;
+
 const commonParamsDef = `
   $channelId: String,
   $brandId: String,
@@ -119,12 +125,32 @@ const messengerAppsCount = `
   }
 `;
 
+const accounts = `
+  query accounts($kind: String) {
+    accounts(kind: $kind) {
+        _id
+        name
+        id
+        kind
+    }
+  }
+`;
+
+const integrationFacebookPageList = `
+  query integrationFacebookPagesList($accountId: String) {
+    integrationFacebookPagesList(accountId: $accountId)
+  }
+`;
+
 export default {
+  accounts,
   users,
   brands,
   integrationDetail,
   integrationTotalCount,
   integrationGetGoogleAuthUrl,
+  integrationGetTwitterAuthUrl,
+  integrationFacebookPageList,
   integrations,
   messengerApps,
   messengerAppsCount

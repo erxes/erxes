@@ -91,7 +91,7 @@ class Row extends React.Component<Props, State> {
     return false;
   }
 
-  renderEntry(integration, totalCount) {
+  renderEntry(integration, totalCount, queryParams) {
     const kind = integration.kind;
 
     const commonProp = {
@@ -99,7 +99,8 @@ class Row extends React.Component<Props, State> {
       integration,
       toggleBox: this.toggleBox,
       getClassName: this.getClassName,
-      totalCount
+      totalCount,
+      queryParams
     };
 
     if (this.isMessengerApp(kind)) {
@@ -130,14 +131,14 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    const { integrations, title, totalCount } = this.props;
+    const { integrations, title, totalCount, queryParams } = this.props;
 
     return (
       <React.Fragment>
         {title && <h3>{__(title)}</h3>}
         <IntegrationRow>
           {integrations.map(integration =>
-            this.renderEntry(integration, totalCount)
+            this.renderEntry(integration, totalCount, queryParams)
           )}
         </IntegrationRow>
         <Collapse in={this.state.isContentVisible}>

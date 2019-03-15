@@ -55,10 +55,6 @@ const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
   margin-right: ${props => !props.center && '10px'};
 `;
 
-const ContentSpace = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-`;
-
 const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
   flex: 1;
   overflow: auto;
@@ -472,7 +468,6 @@ export {
   ContentBox,
   ContenFooter,
   ContentHeader,
-  ContentSpace,
   HeaderItems,
   BarItems,
   SideContent,

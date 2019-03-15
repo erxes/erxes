@@ -17,7 +17,12 @@ import { __, searchUser } from 'modules/common/utils';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { ICustomer, ICustomerDoc } from '../../types';
-import { leadStatusChoices, lifecycleStateChoices } from '../../utils';
+import {
+  leadStatusChoices,
+  lifecycleStateChoices,
+  regexEmail,
+  regexPhone
+} from '../../utils';
 
 type Props = {
   customer?: ICustomer;
@@ -214,6 +219,7 @@ class CustomerForm extends React.Component<Props, State> {
                 placeholder="Primary email"
                 buttonText="Add Email"
                 onChange={this.onEmailChange}
+                regex={regexEmail}
               />
             </FormGroup>
 
@@ -268,6 +274,7 @@ class CustomerForm extends React.Component<Props, State> {
                 placeholder="Primary phone"
                 buttonText="Add Phone"
                 onChange={this.onPhoneChange}
+                regex={regexPhone}
               />
             </FormGroup>
 

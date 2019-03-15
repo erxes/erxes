@@ -1,17 +1,18 @@
-import * as React from 'react';
-import { SelectBrand } from '..';
+import { getEnv } from 'apolloClient';
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup,
   Spinner
-} from '../../../../common/components';
-import { ModalFooter } from '../../../../common/styles/main';
-import { __ } from '../../../../common/utils';
-import { IBrand } from '../../../brands/types';
-import { IAccount } from '../../../linkedAccounts/types';
-import { CreateFacebookMutationVariables, IPages } from '../../types';
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __, confirm } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
+import * as React from 'react';
+import { SelectBrand } from '..';
+import { Row } from '../../styles';
+import { CreateFacebookMutationVariables, IAccount, IPages } from '../../types';
 
 type Props = {
   save: (
@@ -22,10 +23,14 @@ type Props = {
   brands: IBrand[];
   pages: IPages[];
   accounts: IAccount[];
+  delink: (accountId: string) => void;
   closeModal: () => void;
 };
 
-class Facebook extends React.Component<Props, { loading: boolean }> {
+class Facebook extends React.Component<
+  Props,
+  { loading: boolean; accountId?: string }
+> {
   constructor(props) {
     super(props);
 
@@ -38,12 +43,30 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     const accountId = (document.getElementById('acc') as HTMLInputElement)
       .value;
 
+    this.setState({ accountId: accountId || '' });
+
     if (accountId === '') {
       return;
     }
 
     this.props.onAccSelect({ accountId });
   };
+
+  onFacebookRedirect = () => {
+    const { REACT_APP_API_URL } = getEnv();
+    const url = `${REACT_APP_API_URL}/fblogin`;
+
+    window.location.replace(url);
+  };
+
+  onRemove(accountId: string) {
+    const { delink } = this.props;
+
+    confirm().then(() => {
+      delink(accountId);
+      this.setState({ accountId: '' });
+    });
+  }
 
   collectCheckboxValues(name: string): string[] {
     const values: string[] = [];
@@ -81,14 +104,55 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     this.props.save(doc, callback);
   };
 
+  renderAccountAction() {
+    const { accountId } = this.state;
+
+    if (!accountId || accountId === '') {
+      return <Button onClick={this.onFacebookRedirect}>Add Account</Button>;
+    }
+
+    return (
+      <Button onClick={this.onRemove.bind(this, accountId)} btnStyle="danger">
+        Remove Account
+      </Button>
+    );
+  }
+
+  renderPages() {
+    const { pages } = this.props;
+
+    if (pages.length === 0 || this.state.accountId === '') {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Pages</ControlLabel>
+
+        {pages.map(page => (
+          <div key={page.id}>
+            <FormControl
+              componentClass="checkbox"
+              name="pages"
+              key={page.id}
+              value={page.id}
+            >
+              {page.name}
+            </FormControl>
+          </div>
+        ))}
+      </FormGroup>
+    );
+  }
+
   render() {
-    const { pages, brands, accounts } = this.props;
+    const { brands, accounts } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
         {this.state.loading && <Spinner />}
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
@@ -96,40 +160,28 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
         <SelectBrand brands={brands} />
 
         <FormGroup>
-          <ControlLabel>Linked Accounts</ControlLabel>
+          <ControlLabel required={true}>Linked Accounts</ControlLabel>
 
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select account')}
-            onChange={this.onAccChange}
-            id="acc"
-          >
-            <option value="">Select account ...</option>
+          <Row>
+            <FormControl
+              componentClass="select"
+              placeholder={__('Select account')}
+              onChange={this.onAccChange}
+              id="acc"
+            >
+              <option value="">{__('Select account ...')}</option>
 
-            {accounts.map((account, index) => (
-              <option key={`account${index}`} value={account._id}>
-                {account.name}
-              </option>
-            ))}
-          </FormControl>
+              {accounts.map((account, index) => (
+                <option key={`account${index}`} value={account._id}>
+                  {account.name}
+                </option>
+              ))}
+            </FormControl>
+            {this.renderAccountAction()}
+          </Row>
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Pages</ControlLabel>
-
-          {pages.map(page => (
-            <div key={page.id}>
-              <FormControl
-                componentClass="checkbox"
-                name="pages"
-                key={page.id}
-                value={page.id}
-              >
-                {page.name}
-              </FormControl>
-            </div>
-          ))}
-        </FormGroup>
+        {this.renderPages()}
 
         <ModalFooter>
           <Button btnStyle="success" type="submit" icon="checked-1">

@@ -1,10 +1,7 @@
 import gql from 'graphql-tag';
-import { router as routerUtils, withProps } from 'modules/common/utils';
-import queryString from 'query-string';
+import { router as routerUtils } from 'modules/common/utils';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
-import { IRouterProps } from '../../common/types';
+import { graphql } from 'react-apollo';
 import { Empty, Inbox } from '../components';
 import { queries } from '../graphql';
 import {
@@ -13,20 +10,20 @@ import {
 } from '../types';
 import { generateParams } from '../utils';
 
-interface IProps extends IRouterProps {
-  lastConversationQuery: any;
+interface IRouteProps {
   queryParams: any;
+  history: any;
+}
+
+interface IProps extends IRouteProps {
+  conversationsGetLast: any;
+  loading: boolean;
 }
 
 class WithCurrentId extends React.Component<IProps> {
-  componentWillReceiveProps(nextProps) {
-    const {
-      lastConversationQuery = {},
-      history,
-      queryParams: { _id }
-    } = nextProps;
-
-    const { conversationsGetLast, loading } = lastConversationQuery;
+  componentWillReceiveProps(nextProps: IProps) {
+    const { conversationsGetLast, loading, history, queryParams } = nextProps;
+    const { _id } = queryParams;
 
     if (!_id && conversationsGetLast && !loading) {
       routerUtils.setParams(history, { _id: conversationsGetLast._id }, true);
@@ -34,47 +31,36 @@ class WithCurrentId extends React.Component<IProps> {
   }
 
   render() {
-    const {
-      queryParams: { _id }
-    } = this.props;
+    const { queryParams } = this.props;
+    const { _id } = queryParams;
 
     if (!_id) {
-      return <Empty {...this.props} />;
+      return <Empty queryParams={queryParams} />;
     }
 
-    const updatedProps = {
-      ...this.props,
-      currentConversationId: _id
-    };
-
-    return <Inbox {...updatedProps} />;
+    return <Inbox queryParams={queryParams} currentConversationId={_id} />;
   }
 }
 
-const WithLastConversation = withProps<{ queryParams: any }>(
-  compose(
-    graphql<
-      { queryParams: any },
-      LastConversationQueryResponse,
-      ConvesationsQueryVariables
-    >(gql(queries.lastConversation), {
-      name: 'lastConversationQuery',
-      skip: ({ queryParams }) => queryParams._id,
-      options: ({ queryParams }) => ({
-        variables: generateParams(queryParams),
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(WithCurrentId)
-);
-
-const WithQueryParams = (props: IRouterProps) => {
-  const { location } = props;
-  const queryParams = queryString.parse(location.search);
-
-  const extendedProps = { ...props, queryParams };
-
-  return <WithLastConversation {...extendedProps} />;
-};
-
-export default withProps<{}>(withRouter<IRouterProps>(WithQueryParams));
+export default graphql<
+  IRouteProps,
+  LastConversationQueryResponse,
+  ConvesationsQueryVariables,
+  IProps
+>(gql(queries.lastConversation), {
+  skip: (props: IRouteProps) => {
+    return props.queryParams._id;
+  },
+  options: (props: IRouteProps) => ({
+    variables: generateParams(props.queryParams),
+    fetchPolicy: 'network-only'
+  }),
+  props: ({ data, ownProps }: { data?: any; ownProps: IRouteProps }) => {
+    return {
+      conversationsGetLast: data.conversationsGetLast,
+      loading: data.loading,
+      history: ownProps.history,
+      queryParams: ownProps.queryParams
+    };
+  }
+})(WithCurrentId);

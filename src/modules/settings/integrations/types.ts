@@ -31,6 +31,13 @@ export interface IPages {
   checked?: boolean;
 }
 
+export interface ISelectMessengerApps {
+  brand: IBrand;
+  label: string;
+  value: string;
+  form?: IForm;
+}
+
 export interface IOnlineHour {
   _id: string;
   day: string;
@@ -111,6 +118,13 @@ export interface IIntegration {
   formData?: IFormData;
   brand: IBrand;
   channels: IChannel[];
+}
+
+export interface IAccount {
+  _id: string;
+  name: string;
+  kind: string;
+  id: string;
 }
 
 // query types
@@ -198,6 +212,12 @@ export type GetTwitterAuthUrlQueryResponse = {
 
 export type GoogleAccessTokenQueryResponse = {
   integrationGetGoogleAccessToken: IGoogleCredentials;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type AccountsQueryResponse = {
+  accounts: IAccount[];
   loading: boolean;
   refetch: () => void;
 };
@@ -372,6 +392,16 @@ export type EditIntegrationMutationVariables = {
   formId: string;
 };
 
+export type LinkTwitterMutationResponse = {
+  accountsAddTwitter: (
+    { queryParams }: { queryParams: TwitterAuthParams }
+  ) => Promise<any>;
+};
+
+export type LinkGmailMutationResponse = {
+  accountsAddGmail: (params: { variables: { code: string } }) => Promise<any>;
+};
+
 export type EditIntegrationMutationResponse = {
   editIntegrationMutation: (
     params: {
@@ -382,6 +412,10 @@ export type EditIntegrationMutationResponse = {
 
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type RemoveAccountMutationResponse = {
+  removeAccount: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 export type MessengerAppsQueryResponse = {

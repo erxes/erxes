@@ -72,6 +72,10 @@ export default withProps<Props>(
               {
                 query: gql(queries.messengerApps),
                 variables: { kind }
+              },
+              {
+                query: gql(queries.messengerAppsCount),
+                variables: { kind }
               }
             ]
           };

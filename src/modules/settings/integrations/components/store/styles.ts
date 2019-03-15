@@ -41,7 +41,7 @@ const Type = styled.span`
 `;
 
 const IntegrationItem = styledTS(styled.div)`
-  width: 33.333333333%;
+  width: 25%;
   display: flex;
   padding-left: ${storeSpace}px;
   padding-top: ${storeSpace}px;

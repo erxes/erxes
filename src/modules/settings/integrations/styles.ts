@@ -42,6 +42,11 @@ const FlexRow = styled.div`
 const Row = styled.div`
   display: flex;
   height: 100%;
+
+  > button {
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
 `;
 
 const MessengerPreview = styled.div`
@@ -57,4 +62,14 @@ const BrandName = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
-export { FlexRow, Row, MessengerPreview, IntegrationName, BrandName };
+const Options = styled.div`
+  font-weight: 500;
+
+  i {
+    color: ${colors.colorCoreGray};
+    margin-left: ${dimensions.unitSpacing}px;
+    font-weight: normal;
+  }
+`;
+
+export { FlexRow, Row, MessengerPreview, IntegrationName, BrandName, Options };

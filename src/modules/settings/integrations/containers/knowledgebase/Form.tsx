@@ -88,7 +88,23 @@ export default withProps<Props>(
     }),
     graphql<Props, messengerAppsAddKnowledgebaseMutationResponse>(
       gql(mutations.messengerAppsAddKnowledgebase),
-      { name: 'saveMutation' }
+      {
+        name: 'saveMutation',
+        options: () => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(queries.messengerApps),
+                variables: { kind: 'knowledgebase' }
+              },
+              {
+                query: gql(queries.messengerAppsCount),
+                variables: { kind: 'knowledgebase' }
+              }
+            ]
+          };
+        }
+      }
     ),
     withApollo
   )(withRouter<FinalProps>(KnowledgeBaseContainer))

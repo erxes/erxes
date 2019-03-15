@@ -11,8 +11,6 @@ const SegmentTitle = styled.h3`
 
 const SegmentWrapper = styled.div`
   padding: ${dimensions.coreSpacing}px;
-  font-weight: ${typography.fontWeightRegular};
-  background: ${colors.colorWhite};
 `;
 
 const ConditionWrapper = styled.div`
@@ -52,6 +50,12 @@ const ResultCount = styled.div`
   i {
     color: ${colors.colorShadowGray};
     font-size: ${typography.fontSizeHeading2}px;
+  }
+
+  > div {
+    display: inline-block;
+    height: 30px;
+    width: 40px;
   }
 `;
 

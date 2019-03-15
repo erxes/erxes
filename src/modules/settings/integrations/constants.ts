@@ -694,12 +694,7 @@ export const INTEGRATIONS = [
         kind: 'messenger',
         logo: '/images/integrations/messenger.png',
         createUrl: '/settings/integrations/createMessenger'
-      }
-    ]
-  },
-  {
-    name: 'row-2',
-    rows: [
+      },
       {
         name: 'Gmail',
         description:
@@ -708,7 +703,12 @@ export const INTEGRATIONS = [
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
         createModal: 'gmail'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-2',
+    rows: [
       {
         name: 'Google meet',
         description: 'Start a video call from your conversation',
@@ -725,12 +725,7 @@ export const INTEGRATIONS = [
         logo: '/images/integrations/lead.png',
         createModal: 'lead',
         createUrl: '/settings/integrations/lead'
-      }
-    ]
-  },
-  {
-    name: 'row-3',
-    rows: [
+      },
       {
         name: 'Knowledge Base',
         description: 'Get access to your Knowledge Base right in your Widget',
@@ -744,7 +739,7 @@ export const INTEGRATIONS = [
   },
   {
     title: 'Coming soon',
-    name: 'row-4',
+    name: 'row-3',
     rows: [
       {
         name: 'Viber',
@@ -765,12 +760,7 @@ export const INTEGRATIONS = [
           'Connect with Wechat and start messaging right from your Team Inbox',
         inMessenger: false,
         logo: '/images/integrations/wechat.png'
-      }
-    ]
-  },
-  {
-    name: 'row-5',
-    rows: [
+      },
       {
         name: 'Line',
         description: 'See and reply to Line messages in your Team Inbox',
