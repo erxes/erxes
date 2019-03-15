@@ -12,7 +12,8 @@ type Props = {
   deals: IDeal[];
   date: IDateColumn;
   dealTotalAmounts: IDealTotalAmount;
-  refetch: () => void;
+  refetchDeals: () => void;
+  refetchTotalAmounts: () => void;
   onLoadMore: (skip: number) => void;
 };
 
@@ -72,8 +73,12 @@ const Amount = styled.ul`
 `;
 
 class DealColumn extends React.Component<Props, {}> {
+  onUpdate = () => {
+    this.props.refetchTotalAmounts();
+  };
+
   onRemove = () => {
-    this.props.refetch();
+    this.props.refetchDeals();
   };
 
   onLoadMore = () => {

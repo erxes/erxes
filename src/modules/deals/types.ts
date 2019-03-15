@@ -124,6 +124,7 @@ export type DealsQueryResponse = {
 
 export type DealsTotalAmountsQueryResponse = {
   dealsTotalAmounts: IDealTotalAmount;
+  refetch: () => void;
 };
 
 export type DealDetailQueryResponse = {

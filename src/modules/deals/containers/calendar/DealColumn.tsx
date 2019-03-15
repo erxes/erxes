@@ -51,7 +51,8 @@ const DealColumnContainer = (props: Props) => {
     deals,
     title,
     onLoadMore,
-    refetch: dealsQuery.refetch,
+    refetchDeals: dealsQuery.refetch,
+    refetchTotalAmounts: dealsTotalAmountsQuery.refetch,
     dealTotalAmounts
   };
 
