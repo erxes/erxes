@@ -29,8 +29,8 @@ function ConversationItem({
   let fullName = (__("Support staff") || {}).toString();
 
   if (participatedUser && participatedUser.details) {
-    avatar = participatedUser.details.avatar;
-    fullName = participatedUser.details.fullName;
+    avatar = participatedUser.details.avatar || defaultAvatar;
+    fullName = participatedUser.details.fullName || fullName;
   }
 
   return (
