@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
+import { EmptyState, Spinner } from 'modules/common/components';
+import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { EmptyState, Spinner } from '../../common/components';
-import { withProps } from '../../common/utils';
 import { queries } from '../graphql';
 import { IPipeline, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';

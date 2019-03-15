@@ -18,9 +18,9 @@ import { IDeal } from '../../types';
 
 type Props = {
   deal: IDeal;
-  onAdd: (stageId: string, deal: IDeal) => void;
-  onRemove: (dealId: string, stageId: string) => void;
-  onUpdate: (deal: IDeal) => void;
+  onAdd?: (stageId: string, deal: IDeal) => void;
+  onRemove?: (dealId: string, stageId: string) => void;
+  onUpdate?: (deal: IDeal) => void;
 };
 
 class Deal extends React.Component<Props, { isFormVisible: boolean }> {

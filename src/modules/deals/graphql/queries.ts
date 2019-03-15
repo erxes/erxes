@@ -162,9 +162,35 @@ const dealFields = `
   modifiedBy
 `;
 
+const dealsTotalAmounts = `
+  query dealsTotalAmounts($date: DealDate) {
+    dealsTotalAmounts(date: $date) {
+      _id
+      dealCount
+      dealAmounts {
+        _id
+        currency
+        amount
+      }
+    }
+  }
+`;
+
 const deals = `
-  query deals($stageId: String, $customerId: String, $companyId: String) {
-    deals(stageId: $stageId, customerId: $customerId, companyId: $companyId) {
+  query deals(
+    $stageId: String, 
+    $customerId: String, 
+    $companyId: String ,
+    $date: DealDate,
+    $skip: Int
+  ) {
+    deals(
+      stageId: $stageId, 
+      customerId: $customerId, 
+      companyId: $companyId
+      date: $date
+      skip: $skip
+    ) {
       ${dealFields}
     }
   }
@@ -239,5 +265,6 @@ export default {
   dealDetail,
   productDetail,
   users,
-  activityLogsDeal
+  activityLogsDeal,
+  dealsTotalAmounts
 };

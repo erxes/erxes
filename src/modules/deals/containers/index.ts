@@ -1,4 +1,5 @@
 import Board from './Board';
+import DealColumn from './calendar/DealColumn';
 import DealSelect from './DealSelect';
 import Tab from './editForm/Tab';
 import Home from './Home';
@@ -15,5 +16,6 @@ export {
   DealSelect,
   Tab,
   ProductChooser,
-  ProductItemForm
+  ProductItemForm,
+  DealColumn
 };

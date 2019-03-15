@@ -1,6 +1,6 @@
 const commonVariables = `
   $name: String!,
-  $stageId: String!,
+  $stageId: String,
   $productsData: JSON,
   $companyIds: [String],
   $customerIds: [String],
