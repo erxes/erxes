@@ -85,7 +85,7 @@ type Props = {
   renderColumn: (date: IDateColumn) => React.ReactNode;
 };
 
-const columns = [4, 5, 6];
+const columns = [3, 4, 5];
 
 class Calendar extends React.Component<Props, State> {
   state = {
