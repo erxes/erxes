@@ -85,11 +85,7 @@ type Props = {
   renderColumn: (date: IDateColumn) => React.ReactNode;
 };
 
-const columns = [
-  { label: '4 column', value: 3 },
-  { label: '5 column', value: 4 },
-  { label: '6 column', value: 5 }
-];
+const columns = [4, 5, 6];
 
 class Calendar extends React.Component<Props, State> {
   state = {
@@ -118,10 +114,10 @@ class Calendar extends React.Component<Props, State> {
   };
 
   renderColumnTypes() {
-    return columns.map(column => (
-      <li key={column.value}>
-        <span onClick={this.setColumn.bind(this, column.value)}>
-          {__(column.label)}
+    return columns.map((column, index) => (
+      <li key={index}>
+        <span onClick={this.setColumn.bind(this, column)}>
+          {column} {__('columns')}
         </span>
       </li>
     ));
