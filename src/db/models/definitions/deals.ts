@@ -158,7 +158,7 @@ export const dealSchema = new Schema({
   closeDate: field({ type: Date }),
   description: field({ type: String, optional: true }),
   assignedUserIds: field({ type: [String] }),
-  stageId: field({ type: String }),
+  stageId: field({ type: String, optional: true }),
   modifiedAt: field({
     type: Date,
     default: new Date(),

@@ -1,6 +1,32 @@
 import { DealBoards, DealPipelines, Deals, DealStages } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
 
+interface IDate {
+  month: number;
+  year: number;
+}
+
+interface IDeal {
+  stageId: string;
+  customerId: string;
+  companyId: string;
+  skip?: number;
+  date?: IDate;
+}
+
+const dateSelector = (date: IDate) => {
+  const { year, month } = date;
+  const currentDate = new Date();
+
+  const start = currentDate.setFullYear(year, month, 1);
+  const end = currentDate.setFullYear(year, month + 1, 0);
+
+  return {
+    $gte: new Date(start),
+    $lte: new Date(end),
+  };
+};
+
 const dealQueries = {
   /**
    * Deal Boards list
@@ -54,8 +80,9 @@ const dealQueries = {
   /**
    * Deals list
    */
-  deals(_root, { stageId, customerId, companyId }: { stageId: string; customerId: string; companyId: string }) {
+  deals(_root, { stageId, customerId, companyId, date, skip }: IDeal) {
     const filter: any = {};
+    const sort = { order: 1, createdAt: -1 };
 
     if (stageId) {
       filter.stageId = stageId;
@@ -69,7 +96,50 @@ const dealQueries = {
       filter.companyIds = { $in: [companyId] };
     }
 
-    return Deals.find(filter).sort({ order: 1, createdAt: -1 });
+    if (date) {
+      filter.closeDate = dateSelector(date);
+      return Deals.find(filter)
+        .sort(sort)
+        .skip(skip || 0)
+        .limit(5);
+    }
+
+    return Deals.find(filter).sort(sort);
+  },
+
+  /**
+   *  Deal total amounts
+   */
+  async dealsTotalAmounts(_root, { date }: { date: IDate }) {
+    const closeDate = dateSelector(date);
+
+    const dealCount = await Deals.find({ closeDate }).count();
+    const amountList = await Deals.aggregate([
+      {
+        $match: { closeDate },
+      },
+      {
+        $unwind: '$productsData',
+      },
+      {
+        $project: {
+          amount: '$productsData.amount',
+          currency: '$productsData.currency',
+        },
+      },
+      {
+        $group: {
+          _id: '$currency',
+          amount: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    const dealAmounts = amountList.map(deal => {
+      return { _id: Math.random(), currency: deal._id, amount: deal.amount };
+    });
+
+    return { _id: Math.random(), dealCount, dealAmounts };
   },
 
   /**
