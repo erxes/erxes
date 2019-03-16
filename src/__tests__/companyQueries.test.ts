@@ -403,9 +403,8 @@ describe('companyQueries', () => {
     process.env.DOMAIN = 'http://localhost:3300';
     const args = { page: 1, perPage: 3 };
 
+    const exportTime = moment().format('YYYY-MM-DD HH:mm');
     const response = await graphqlRequest(qryCompaniesExport, 'companiesExport', args);
-    expect(response).toBe(
-      `${process.env.DOMAIN}/static/xlsTemplateOutputs/company - ${moment().format('YYYY-MM-DD HH:mm')}.xlsx`,
-    );
+    expect(response).toBe(`${process.env.DOMAIN}/static/xlsTemplateOutputs/company - ${exportTime}.xlsx`);
   });
 });
