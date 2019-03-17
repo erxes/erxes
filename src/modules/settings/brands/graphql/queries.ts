@@ -23,6 +23,7 @@ const brands = `
       name
       createdAt
       description
+      emailConfig
     }
   }
 `;
