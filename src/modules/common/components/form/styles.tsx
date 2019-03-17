@@ -120,6 +120,7 @@ const TextArea = styledTS<{ maxHeight?: number }>(
   transition: none;
   max-height: ${props => props.maxHeight && `${props.maxHeight}px`};
   min-height: 80px;
+  resize: none;
 `;
 
 const FormLabel = styled.label`
