@@ -104,6 +104,10 @@ export class PipelineProvider extends React.Component<Props, State> {
     for (const stageId of stageIds) {
       const orders = collectOrders(dealMap[stageId]);
 
+      if (orders.length === 0) {
+        continue;
+      }
+
       client.mutate({
         mutation: gql(mutations.dealsUpdateOrder),
         variables: {
