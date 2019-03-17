@@ -23,6 +23,7 @@ type Props = {
   onAdd: (stageId: string, deal: IDeal) => void;
   onRemove: (dealId: string, stageId: string) => void;
   onUpdate: (deal: IDeal) => void;
+  onTogglePopup: () => void;
 };
 
 export default class DealItem extends React.PureComponent<
@@ -44,6 +45,8 @@ export default class DealItem extends React.PureComponent<
   }
 
   toggleForm = () => {
+    this.props.onTogglePopup();
+
     const { isFormVisible } = this.state;
 
     this.setState({ isFormVisible: !isFormVisible });
