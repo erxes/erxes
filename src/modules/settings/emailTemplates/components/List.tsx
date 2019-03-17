@@ -1,5 +1,4 @@
 import {
-  Button,
   HeaderDescription,
   Icon,
   ModalTrigger
@@ -9,11 +8,11 @@ import * as React from 'react';
 import { List } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
 import {
-  EmailTemplates,
+  Actions,
+  EmailTemplate,
   IframePreview,
-  Options,
   TemplateBox,
-  TemplatePreview
+  Templates
 } from '../styles';
 import Form from './Form';
 
@@ -37,9 +36,9 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
       <ModalTrigger
         title="Edit"
         trigger={
-          <span>
+          <div>
             <Icon icon="edit" /> Edit
-          </span>
+          </div>
         }
         content={content}
       />
@@ -48,25 +47,25 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
 
   renderRow({ objects }) {
     return objects.map((object, index) => (
-      <EmailTemplates key={index}>
+      <EmailTemplate key={index}>
         <TemplateBox>
-          <Options>
+          <Actions>
             {this.renderEditAction(object)}
-            <span onClick={this.removeTemplate.bind(this, object)}>
+            <div onClick={this.removeTemplate.bind(this, object)}>
               <Icon icon="cancel-1" /> Delete
-            </span>
-          </Options>
+            </div>
+          </Actions>
           <IframePreview>
             <iframe title="content-iframe" srcDoc={object.content} />
           </IframePreview>
         </TemplateBox>
-        <span> {object.name} </span>
-      </EmailTemplates>
+        <h5>{object.name}</h5>
+      </EmailTemplate>
     ));
   }
 
   renderContent = props => {
-    return <TemplatePreview>{this.renderRow(props)}</TemplatePreview>;
+    return <Templates>{this.renderRow(props)}</Templates>;
   };
 
   render() {
