@@ -29,8 +29,16 @@ const httpLink = createHttpLink({
   credentials: 'include'
 });
 
-// Network error
-const errorLink = onError(({ networkError }) => {
+// Error handler
+const errorLink = onError(({ networkError, graphQLErrors }) => {
+  if (graphQLErrors && graphQLErrors.length > 0) {
+    const [error] = graphQLErrors;
+
+    if (error.message === 'Login required') {
+      window.location.reload();
+    }
+  }
+
   if (networkError) {
     Alert.error('Disconnect ...');
   }
