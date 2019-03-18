@@ -45,8 +45,8 @@ describe('gmail integration tests', () => {
     };
 
     // must be created new conversation, new message
-    expect(await Conversations.find({}).count()).toBe(0);
-    expect(await ConversationMessages.find({}).count()).toBe(0);
+    expect(await Conversations.find({}).countDocuments()).toBe(0);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(0);
 
     await syncConversation(integration._id, gmailData);
 
@@ -57,7 +57,7 @@ describe('gmail integration tests', () => {
     }
 
     expect(conversation.status).toBe(CONVERSATION_STATUSES.NEW);
-    expect(await ConversationMessages.find({}).count()).toBe(1);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(1);
 
     gmailData = {
       from: 'test@gmail.com',
@@ -77,8 +77,8 @@ describe('gmail integration tests', () => {
 
     expect(conversation.status).toBe(CONVERSATION_STATUSES.OPEN);
     expect(conversation.content).toBe(gmailData.subject);
-    expect(await Conversations.find({}).count()).toBe(1);
-    expect(await ConversationMessages.find({}).count()).toBe(2);
+    expect(await Conversations.find({}).countDocuments()).toBe(1);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(2);
   });
 
   test('Create message', async () => {

@@ -100,6 +100,6 @@ describe('scriptMutations', () => {
     const script = await Scripts.create(doc);
     await graphqlRequest(mutation, 'scriptsRemove', { _id: script._id }, context);
 
-    expect(await Scripts.find({}).count()).toBe(0);
+    expect(await Scripts.find({}).countDocuments()).toBe(0);
   });
 });
