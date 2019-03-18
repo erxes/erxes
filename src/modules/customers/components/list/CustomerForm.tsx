@@ -69,7 +69,7 @@ class CustomerForm extends React.Component<Props, State> {
     return (document.getElementById(id) as HTMLInputElement).value;
   }
 
-  action = e => {
+  onSubmit = e => {
     const { phones, emails, primaryPhone, primaryEmail, avatar } = this.state;
 
     e.preventDefault();
@@ -197,7 +197,7 @@ class CustomerForm extends React.Component<Props, State> {
     };
 
     return (
-      <form onSubmit={this.action}>
+      <form onSubmit={this.onSubmit}>
         <AvatarUpload
           avatar={customer.avatar}
           onAvatarUpload={this.onAvatarUpload}
@@ -216,7 +216,7 @@ class CustomerForm extends React.Component<Props, State> {
               <ModifiableSelect
                 value={primaryEmail}
                 options={this.getEmailsOptions(customer)}
-                placeholder="Primary email"
+                placeholder="Choose primary email"
                 buttonText="Add Email"
                 onChange={this.onEmailChange}
                 regex={regexEmail}
@@ -271,7 +271,7 @@ class CustomerForm extends React.Component<Props, State> {
               <ModifiableSelect
                 value={primaryPhone}
                 options={this.getPhonesOptions(customer)}
-                placeholder="Primary phone"
+                placeholder="Choose primary phone"
                 buttonText="Add Phone"
                 onChange={this.onPhoneChange}
                 regex={regexPhone}

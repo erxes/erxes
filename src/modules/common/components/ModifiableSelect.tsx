@@ -78,14 +78,8 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
     return <span>{selectedOption}</span>;
   };
 
-  isValid() {
-    const { regex } = this.props;
-
-    if (regex) {
-      return regex.test(this.state.inputValue);
-    }
-
-    return false;
+  isValid(regex: RegExp) {
+    return regex.test(this.state.inputValue);
   }
 
   saveValue() {
@@ -102,6 +96,8 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
 
     this.setState({ ...state }, () => {
       onChange({ options: this.state.options, selectedOption: updatedOption });
+
+      this.setState({ inputValue: '' });
     });
 
     Alert.success('Successfully added');
@@ -111,7 +107,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
     const { regex } = this.props;
 
     if (regex) {
-      if (this.isValid()) {
+      if (this.isValid(regex)) {
         return this.saveValue();
       }
 
@@ -188,7 +184,6 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
             />
           </FormGroup>
           <Button
-            type="success"
             icon="cancel-1"
             btnStyle="simple"
             size="small"
@@ -197,7 +192,6 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
             Cancel
           </Button>
           <Button
-            type="success"
             btnStyle="success"
             size="small"
             icon="checked-1"
