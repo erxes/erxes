@@ -708,17 +708,24 @@ a:hover {
   width: 8px;
   height: 10px;
   border-radius: 0;
-  
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(10, 50, 60, .1);
+  background: #c7cfd3;
+  border-radius: 1px;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #b0bbc0;
   border-radius: 1px;
 }
 
 ::-webkit-scrollbar-track {
   background: rgba(10, 45, 65, .08);
-  box-shadow: 0 0 5px 0 rgba(200,200,200,0.3) inset;
+}
+
+::-webkit-scrollbar-track:active {
+  background: rgba(10, 45, 65, .1);
 }
 `;
 

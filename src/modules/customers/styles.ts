@@ -78,6 +78,7 @@ const Contact = styled.div`
 const Name = styled.div`
   flex: 1;
   word-break: break-word;
+  margin-bottom: 10px;
 
   p {
     color: ${colors.colorCoreLightGray};

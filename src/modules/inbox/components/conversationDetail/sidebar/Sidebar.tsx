@@ -383,13 +383,13 @@ class Index extends React.Component<IndexProps, IndexState> {
             className={currentTab === 'customer' ? 'active' : ''}
             onClick={customerOnClick}
           >
-            {__('CUSTOMER')}
+            {__('Customer')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'company' ? 'active' : ''}
             onClick={companyOnClick}
           >
-            {__('COMPANY')}
+            {__('Company')}
           </TabTitle>
         </Tabs>
         {this.renderTabContent()}
