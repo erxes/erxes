@@ -283,8 +283,8 @@ const insightExportQueries = {
 
       data.push({
         date: moment(begin).format(timeFormat),
-        count: totalCount,
-        customerCount: uniqueCustomerCount,
+        count: uniqueCustomerCount,
+        customerCount: totalCount,
         customerCountPercentage: `${percentage.toFixed(0)}%`,
         messageCount,
         resolvedCount,
