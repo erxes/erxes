@@ -27,8 +27,13 @@ const TabCaption = styled.span`
     color: ${colors.textPrimary};
   }
 
+  i {
+    margin-right: 3px;
+  }
+
   &.active {
     color: ${colors.textPrimary};
+    font-weight: 500;
 
     &:before {
       border-bottom: 3px solid ${colors.colorSecondary};
