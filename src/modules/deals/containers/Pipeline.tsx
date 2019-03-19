@@ -13,7 +13,7 @@ import { Stage } from './stage';
 const Container = styled.div`
   height: 100%;
   display: inline-flex;
-  padding-bottom: 10px;
+  padding-left: -4px;
 `;
 
 type Props = {
