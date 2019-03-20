@@ -92,8 +92,20 @@ const encodeEmail = async (params: IMailParams) => {
  * Send email & create activiy log with gmail kind
  */
 export const sendGmail = async (mailParams: IMailParams) => {
-  const { integrationId, threadId } = mailParams;
+  let totalSize = 0;
+  // 10mb
+  const limit = 1000000 * 10;
+  if (mailParams.attachments) {
+    for (const attach of mailParams.attachments) {
+      totalSize += attach.size;
 
+      if (attach.size > limit || totalSize > limit) {
+        throw new Error(`${attach.filename} file size exceeded`);
+      }
+    }
+  }
+
+  const { integrationId, threadId } = mailParams;
   const integration = await Integrations.findOne({ _id: integrationId });
 
   if (!integration || !integration.gmailData) {
@@ -187,7 +199,7 @@ const getBodyProperties = (headers: any, part: any, gmailData: IMsgGmail) => {
 export const parseMessage = (response: any) => {
   const { id, threadId, payload, labelIds } = response;
 
-  if (!payload) {
+  if (!payload || labelIds.includes('TRASH') || labelIds.includes('DRAFT')) {
     return;
   }
 
@@ -432,6 +444,7 @@ export const getAttachment = async (conversationMessageId: string, attachmentId:
 export const updateHistoryId = async integration => {
   const credentials = await Accounts.getGmailCredentials(integration.gmailData.email);
   const { data } = await utils.callWatch(credentials, integration._id);
+
   integration.gmailData.historyId = data.historyId;
   integration.gmailData.expiration = data.expiration;
 

@@ -62,6 +62,10 @@ const accountMutations = {
    */
   async accountsAddGmail(_root, { code }: { code: string }) {
     const credentials: any = await googleUtils.getAccessToken(code, 'gmail');
+    if (!credentials.refresh_token) {
+      throw new Error('You must remove Erxes from your gmail apps before reconnecting this account.');
+    }
+
     // get email address connected with
     const { data } = await utils.getGmailUserProfile(credentials);
     const email = data.emailAddress || '';
