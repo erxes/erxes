@@ -75,6 +75,10 @@ class ImageWithPreview extends React.Component<Props, State> {
     document.addEventListener('keydown', this.handleKeydown);
   }
 
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeydown);
+  }
+
   handleKeydown = e => {
     if (e.keyCode === KEYCODES.ESCAPE && this.state.visible) {
       this.setState({ visible: false });
