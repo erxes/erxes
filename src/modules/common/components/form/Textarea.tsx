@@ -10,7 +10,7 @@ class Textarea extends React.Component<Props> {
   private area;
 
   componentDidMount() {
-    this.area.style.height = `${this.area.scrollHeight}px`;
+    this.setHeight();
   }
 
   setHeight() {
