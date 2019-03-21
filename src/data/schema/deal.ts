@@ -79,13 +79,14 @@ export const queries = `
   dealStageDetail(_id: String!): DealStage
   dealDetail(_id: String!): Deal
   deals(
+    pipelineId: String,
     stageId: String, 
     customerId: String, 
     companyId: String
     date: DealDate
     skip: Int
   ): [Deal]
-  dealsTotalAmounts(date: DealDate): DealTotalAmounts
+  dealsTotalAmounts(date: DealDate pipelineId: String): DealTotalAmounts
 `;
 
 const dealMutationParams = `

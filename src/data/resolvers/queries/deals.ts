@@ -7,6 +7,7 @@ interface IDate {
 }
 
 interface IDeal {
+  pipelineId?: string;
   stageId: string;
   customerId: string;
   companyId: string;
@@ -80,7 +81,7 @@ const dealQueries = {
   /**
    * Deals list
    */
-  deals(_root, { stageId, customerId, companyId, date, skip }: IDeal) {
+  async deals(_root, { pipelineId, stageId, customerId, companyId, date, skip }: IDeal) {
     const filter: any = {};
     const sort = { order: 1, createdAt: -1 };
 
@@ -97,7 +98,11 @@ const dealQueries = {
     }
 
     if (date) {
+      const stageIds = await DealStages.find({ pipelineId }).distinct('_id');
+
       filter.closeDate = dateSelector(date);
+      filter.stageId = { $in: stageIds };
+
       return Deals.find(filter)
         .sort(sort)
         .skip(skip || 0)
@@ -110,13 +115,14 @@ const dealQueries = {
   /**
    *  Deal total amounts
    */
-  async dealsTotalAmounts(_root, { date }: { date: IDate }) {
-    const closeDate = dateSelector(date);
+  async dealsTotalAmounts(_root, { pipelineId, date }: { date: IDate; pipelineId: string }) {
+    const stageIds = await DealStages.find({ pipelineId }).distinct('_id');
+    const filter = { stageId: { $in: stageIds }, closeDate: dateSelector(date) };
 
-    const dealCount = await Deals.find({ closeDate }).count();
+    const dealCount = await Deals.find(filter).count();
     const amountList = await Deals.aggregate([
       {
-        $match: { closeDate },
+        $match: filter,
       },
       {
         $unwind: '$productsData',
