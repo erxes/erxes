@@ -247,6 +247,7 @@ class CompaniesList extends React.Component<IProps, State> {
           trigger={addTrigger}
           size="lg"
           content={companyForm}
+          backDrop="static"
         />
       </BarItems>
     );

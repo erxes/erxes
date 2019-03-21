@@ -262,6 +262,7 @@ class CustomersList extends React.Component<IProps, State> {
           trigger={addTrigger}
           size="lg"
           content={customerForm}
+          backDrop="static"
         />
       </BarItems>
     );

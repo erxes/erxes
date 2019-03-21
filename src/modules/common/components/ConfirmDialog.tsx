@@ -55,7 +55,6 @@ class ConfirmDialog extends React.Component<Props, State> {
   };
 
   proceed = () => {
-    console.log('adasdasd'); //tslint:disable-line
     this.setState({ show: false }, () => {
       this.props.proceed();
     });

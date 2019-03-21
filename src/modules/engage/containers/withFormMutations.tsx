@@ -41,6 +41,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
 
     const message = engageMessageDetailQuery.engageMessageDetail || {};
     const users = usersQuery.users || [];
+    const verifiedUsers = users.filter(user => user.username) || [];
 
     const doMutation = (mutation, variables) => {
       mutation({
@@ -90,7 +91,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
     const updatedProps = {
       ...props,
       save,
-      users,
+      users: verifiedUsers,
       message: {
         ...message,
         // excluding __type auto fields

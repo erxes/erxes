@@ -75,10 +75,11 @@ class AssignBox extends React.Component<Props, State> {
 
       return {
         _id: assignee._id,
-        title: assignee.details ? assignee.details.fullName : assignee.email,
-        avatar: assignee.details
-          ? assignee.details.avatar
-          : '/images/avatar-colored.svg',
+        title:
+          (assignee.details && assignee.details.fullName) || assignee.email,
+        avatar:
+          (assignee.details && assignee.details.avatar) ||
+          '/images/avatar-colored.svg',
         selectedBy: state
       };
     });

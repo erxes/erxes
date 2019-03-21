@@ -193,7 +193,7 @@ class EmailForm extends React.Component<Props, State> {
               <option />{' '}
               {this.props.users.map(user => (
                 <option key={user._id} value={user._id}>
-                  {user.details ? user.details.fullName : user.username}
+                  {(user.details && user.details.fullName) || user.username}
                 </option>
               ))}
             </FormControl>
