@@ -20,7 +20,7 @@ const toKey = ({ year, month }: IDateColumn) => {
 };
 
 class CalendarView extends React.Component<Props> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {};
