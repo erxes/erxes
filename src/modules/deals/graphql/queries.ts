@@ -163,8 +163,8 @@ const dealFields = `
 `;
 
 const dealsTotalAmounts = `
-  query dealsTotalAmounts($date: DealDate) {
-    dealsTotalAmounts(date: $date) {
+  query dealsTotalAmounts($date: DealDate $pipelineId: String) {
+    dealsTotalAmounts(date: $date pipelineId: $pipelineId) {
       _id
       dealCount
       dealAmounts {
@@ -178,6 +178,7 @@ const dealsTotalAmounts = `
 
 const deals = `
   query deals(
+    $pipelineId: String,
     $stageId: String, 
     $customerId: String, 
     $companyId: String ,
@@ -185,6 +186,7 @@ const deals = `
     $skip: Int
   ) {
     deals(
+      pipelineId: $pipelineId,
       stageId: $stageId, 
       customerId: $customerId, 
       companyId: $companyId

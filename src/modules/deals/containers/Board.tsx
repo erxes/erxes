@@ -4,11 +4,11 @@ import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
-import { IPipeline, PipelineDetailQueryResponse } from '../types';
+import { PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
 
 type Props = {
-  currentPipeline?: IPipeline;
+  queryParams: any;
 };
 
 type FinalProps = {
@@ -29,7 +29,7 @@ const WithPipelinesQuery = (props: FinalProps) => {
   }
 
   if (pipelineDetailQuery.loading) {
-    return <Spinner />;
+    return null;
   }
 
   const pipeline = pipelineDetailQuery.dealPipelineDetail;
@@ -43,9 +43,9 @@ export default withProps<Props>(
       gql(queries.pipelineDetail),
       {
         name: 'pipelineDetailQuery',
-        skip: ({ currentPipeline }) => !currentPipeline,
-        options: ({ currentPipeline }) => ({
-          variables: { _id: currentPipeline && currentPipeline._id }
+        skip: ({ queryParams }) => !queryParams.pipelineId,
+        options: ({ queryParams }) => ({
+          variables: { _id: queryParams && queryParams.pipelineId }
         })
       }
     )

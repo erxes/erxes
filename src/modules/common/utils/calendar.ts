@@ -50,12 +50,14 @@ export const previousMonth = (date: moment.Moment): moment.Moment => {
 
 export const getMonthTitle = (month: number): string => __(MONTHS[month]);
 
-export const getFullTitle = (date: moment.Moment): string => {
-  const { month, year } = getMonthYear(date);
+export const getFullTitle = (date: IDateColumn): string => {
+  const { month, year } = date;
   return __(MONTHS[month]) + ' - ' + year;
 };
 
-const getMonthYear = (date: moment.Moment): { month: number; year: number } => {
+export const getMonthYear = (
+  date: moment.Moment
+): { month: number; year: number } => {
   const month = date.month();
   const year = date.year();
 

@@ -1,23 +1,22 @@
 import queryString from 'query-string';
 import * as React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import { Calendar } from './components';
-import { Home } from './containers';
+import { Calendar, DealBoard } from './components';
 
 const deals = () => {
   return <Redirect to="/deals/board" />;
 };
 
-const boards = ({ history, location }) => {
+const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <Home queryParams={queryParams} history={history} />;
+  return <DealBoard queryParams={queryParams} />;
 };
 
-const calendar = ({ history, location }) => {
+const calendar = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <Calendar queryParams={queryParams} history={history} />;
+  return <Calendar queryParams={queryParams} />;
 };
 
 const routes = () => {
