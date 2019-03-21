@@ -1,90 +1,129 @@
 import gql from 'graphql-tag';
 import { IDateColumn } from 'modules/common/types';
-import { getMonthTitle } from 'modules/common/utils/calendar';
+import { withProps } from 'modules/common/utils';
+import { getMonthTitle, getMonthYear } from 'modules/common/utils/calendar';
 import { DealColumn } from 'modules/deals/components';
+import * as moment from 'moment';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 import {
   DealsQueryResponse,
-  DealsTotalAmountsQueryResponse
+  DealsTotalAmountsQueryResponse,
+  IDeal
 } from '../../types';
 
-type Props = {
-  date: IDateColumn;
+type FinalProps = Props & {
   dealsQuery: DealsQueryResponse;
   dealsTotalAmountsQuery: DealsTotalAmountsQueryResponse;
 };
 
-const DealColumnContainer = (props: Props) => {
-  const {
-    dealsQuery,
-    dealsTotalAmountsQuery,
-    date: { month }
-  } = props;
-  const { fetchMore } = dealsQuery;
+class DealColumnContainer extends React.Component<FinalProps> {
+  componentWillReceiveProps(nextProps: FinalProps) {
+    const { updatedAt, dealsQuery, dealsTotalAmountsQuery } = this.props;
 
-  const title = getMonthTitle(month);
-  const deals = dealsQuery.deals || [];
-  const dealTotalAmounts = dealsTotalAmountsQuery.dealsTotalAmounts || {
-    dealCount: 0,
-    dealAmounts: []
-  };
+    if (updatedAt !== nextProps.updatedAt) {
+      dealsQuery.refetch();
+      dealsTotalAmountsQuery.refetch();
+    }
+  }
 
-  const onUpdate = () => {
-    dealsTotalAmountsQuery.refetch();
-  };
+  render() {
+    const {
+      dealsQuery,
+      dealsTotalAmountsQuery,
+      date: { month }
+    } = this.props;
 
-  const onRemove = () => {
-    dealsQuery.refetch();
-  };
+    const { fetchMore } = dealsQuery;
 
-  const onLoadMore = (skip: number) => {
-    fetchMore({
-      variables: { skip },
-      updateQuery: (prevResult, { fetchMoreResult }) => {
-        if (!fetchMoreResult || fetchMoreResult.deals.length === 0) {
-          return prevResult;
-        }
+    // Update calendar after stage updated
+    if (localStorage.getItem('dealCalendarCacheInvalidated') === 'true') {
+      localStorage.setItem('dealCalendarCacheInvalidated', 'false');
 
-        return {
-          deals: prevResult.deals.concat(fetchMoreResult.deals)
-        };
+      dealsQuery.refetch();
+      dealsTotalAmountsQuery.refetch();
+    }
+
+    const title = getMonthTitle(month);
+    const deals = dealsQuery.deals || [];
+    const dealTotalAmounts = dealsTotalAmountsQuery.dealsTotalAmounts || {
+      dealCount: 0,
+      dealAmounts: []
+    };
+
+    const updateDeals = (deal?: IDeal) => {
+      dealsQuery.refetch();
+      dealsTotalAmountsQuery.refetch();
+
+      if (deal) {
+        const { onColumnUpdated } = this.props;
+
+        const convertedDate = moment(deal.closeDate);
+        const date = getMonthYear(convertedDate);
+
+        onColumnUpdated(date);
       }
-    });
-  };
+    };
 
-  const updatedProps = {
-    ...props,
-    deals,
-    title,
-    onLoadMore,
-    onRemove,
-    onUpdate,
-    dealTotalAmounts
-  };
+    const onLoadMore = (skip: number) => {
+      fetchMore({
+        variables: { skip },
+        updateQuery: (prevResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult || fetchMoreResult.deals.length === 0) {
+            return prevResult;
+          }
 
-  return <DealColumn {...updatedProps} />;
+          return {
+            deals: prevResult.deals.concat(fetchMoreResult.deals)
+          };
+        }
+      });
+    };
+
+    const updatedProps = {
+      ...this.props,
+      deals,
+      title,
+      onLoadMore,
+      onRemove: updateDeals,
+      onUpdate: updateDeals,
+      dealTotalAmounts
+    };
+
+    return <DealColumn {...updatedProps} />;
+  }
+}
+
+type Props = {
+  updatedAt: string;
+  pipelineId: string;
+  date: IDateColumn;
+  onColumnUpdated: (date: IDateColumn) => void;
 };
 
-export default compose(
-  graphql<Props, DealsQueryResponse, { skip: number; date: IDateColumn }>(
-    gql(queries.deals),
-    {
-      name: 'dealsQuery',
-      options: ({ date }) => ({
-        notifyOnNetworkStatusChange: true,
-        variables: { skip: 0, date }
-      })
-    }
-  ),
-  graphql<Props, DealsTotalAmountsQueryResponse, { date: IDateColumn }>(
-    gql(queries.dealsTotalAmounts),
-    {
-      name: 'dealsTotalAmountsQuery',
-      options: ({ date }: { date: IDateColumn }) => ({
-        variables: { date }
-      })
-    }
-  )
-)(DealColumnContainer);
+export default withProps<Props>(
+  compose(
+    graphql<Props, DealsQueryResponse, { skip: number; date: IDateColumn }>(
+      gql(queries.deals),
+      {
+        name: 'dealsQuery',
+        options: ({ date, pipelineId }: Props) => {
+          return {
+            notifyOnNetworkStatusChange: true,
+            variables: { skip: 0, date, pipelineId }
+          };
+        }
+      }
+    ),
+    graphql<Props, DealsTotalAmountsQueryResponse, { date: IDateColumn }>(
+      gql(queries.dealsTotalAmounts),
+      {
+        name: 'dealsTotalAmountsQuery',
+        options: ({ date, pipelineId }: Props) => ({
+          variables: { date, pipelineId }
+        })
+      }
+    )
+  )(DealColumnContainer)
+);

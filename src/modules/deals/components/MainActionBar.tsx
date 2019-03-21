@@ -1,21 +1,49 @@
 import { Button, DropdownToggle, EmptyState } from 'modules/common/components';
+import { router as routerUtils } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { Board } from '../containers';
 import { IBoard, IPipeline } from '../types';
 
 type Props = {
   currentBoard?: IBoard;
   currentPipeline?: IPipeline;
   boards: IBoard[];
-  loading: boolean;
+  middleContent?: () => React.ReactNode;
+  history: any;
 };
 
-class Home extends React.Component<Props> {
+// get selected deal type from URL
+const getType = () =>
+  window.location.href.includes('calendar') ? 'calendar' : 'board';
+
+class MainActionBar extends React.Component<Props> {
+  componentDidMount() {
+    const { currentBoard, currentPipeline, history } = this.props;
+
+    if (currentBoard && currentPipeline) {
+      routerUtils.setParams(history, {
+        id: currentBoard._id,
+        pipelineId: currentPipeline._id
+      });
+    }
+  }
+
+  onFilterClick = (type: string) => {
+    const { currentBoard, currentPipeline } = this.props;
+
+    if (currentBoard && currentPipeline) {
+      return `/deals/${type}?id=${currentBoard._id}&pipelineId=${
+        currentPipeline._id
+      }`;
+    }
+
+    return `/deals/${type}`;
+  };
+
   renderBoards() {
     const { currentBoard, boards } = this.props;
 
@@ -28,7 +56,7 @@ class Home extends React.Component<Props> {
         return null;
       }
 
-      let link = `/deals/board?id=${board._id}`;
+      let link = `/deals/${getType()}?id=${board._id}`;
 
       const { pipelines = [] } = board;
 
@@ -64,7 +92,7 @@ class Home extends React.Component<Props> {
       return (
         <li key={pipeline._id}>
           <Link
-            to={`/deals/board?id=${currentBoard._id}&pipelineId=${
+            to={`/deals/${getType()}?id=${currentBoard._id}&pipelineId=${
               pipeline._id
             }`}
           >
@@ -75,8 +103,11 @@ class Home extends React.Component<Props> {
     });
   }
 
-  renderActionBar() {
-    const { currentBoard, currentPipeline } = this.props;
+  render() {
+    const { currentBoard, currentPipeline, middleContent } = this.props;
+
+    const boardLink = this.onFilterClick('board');
+    const calendarLink = this.onFilterClick('calendar');
 
     const actionBarLeft = (
       <BarItems>
@@ -98,14 +129,28 @@ class Home extends React.Component<Props> {
           </DropdownToggle>
           <Dropdown.Menu>{this.renderPipelines()}</Dropdown.Menu>
         </Dropdown>
+        {middleContent && middleContent()}
       </BarItems>
     );
 
     const actionBarRight = (
       <BarItems>
-        <Link to="/deals/calendar">
-          <Button btnStyle="success">{__('Calendar')}</Button>
-        </Link>
+        {getType() === 'calendar' && (
+          <Link to={boardLink}>
+            <Button btnStyle="primary" icon="clipboard">
+              {__('Board')}
+            </Button>
+          </Link>
+        )}
+
+        {getType() === 'board' && (
+          <Link to={calendarLink}>
+            <Button btnStyle="primary" icon="calendar">
+              {__('Calendar')}
+            </Button>
+          </Link>
+        )}
+
         <Link to="/settings/deals">
           <Button btnStyle="success" icon="settings">
             {__('Manage Board & Pipeline')}
@@ -122,33 +167,6 @@ class Home extends React.Component<Props> {
       />
     );
   }
-  renderContent() {
-    const { currentPipeline, boards } = this.props;
-
-    if (boards.length === 0) {
-      return (
-        <EmptyState
-          image="/images/actions/16.svg"
-          text="No board"
-          size="small"
-        />
-      );
-    }
-    return <Board currentPipeline={currentPipeline} />;
-  }
-
-  render() {
-    const breadcrumb = [{ title: __('Deal') }];
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={this.renderActionBar()}
-        content={this.renderContent()}
-        transparent={true}
-      />
-    );
-  }
 }
 
-export default Home;
+export default MainActionBar;

@@ -1,9 +1,12 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
+import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import { Spinner } from '../../common/components';
-import { Home } from '../components';
+import { MainActionBar as DumbMainActionBar } from '../components';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
 import {
@@ -13,9 +16,8 @@ import {
 } from '../types';
 
 type Props = {
-  history: any;
-  queryParams: any;
-};
+  middleContent?: () => React.ReactNode;
+} & IRouterProps;
 
 type FinalProps = {
   boardsQuery: BoardsQueryResponse;
@@ -30,11 +32,13 @@ class Main extends React.Component<FinalProps> {
   render() {
     const {
       history,
-      queryParams,
+      location,
       boardsQuery,
       boardGetLastQuery,
       boardDetailQuery
     } = this.props;
+
+    const queryParams = generateQueryParams({ location });
 
     const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
     const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
@@ -72,14 +76,20 @@ class Main extends React.Component<FinalProps> {
       boards: boardsQuery.dealBoards || [],
       loading: boardsQuery.loading
     };
+
     if (boardsQuery.loading) {
       return <Spinner />;
     }
-    return <Home {...extendedProps} />;
+
+    return <DumbMainActionBar {...extendedProps} />;
   }
 }
 
-const MainContainer = withProps<Props>(
+const generateQueryParams = ({ location }: { location: any }) => {
+  return queryString.parse(location.search);
+};
+
+const MainActionBar = withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
       name: 'boardsQuery'
@@ -91,16 +101,21 @@ const MainContainer = withProps<Props>(
       gql(queries.boardDetail),
       {
         name: 'boardDetailQuery',
-        skip: ({ queryParams }) =>
-          !queryParams.id && !localStorage.getItem(STORAGE_BOARD_KEY),
-        options: ({ queryParams }) => ({
-          variables: {
-            _id: queryParams.id || localStorage.getItem(STORAGE_BOARD_KEY)
-          }
-        })
+        skip: props => {
+          const queryParams = generateQueryParams(props);
+          return !queryParams.id && !localStorage.getItem(STORAGE_BOARD_KEY);
+        },
+        options: props => {
+          const queryParams = generateQueryParams(props);
+          return {
+            variables: {
+              _id: queryParams.id || localStorage.getItem(STORAGE_BOARD_KEY)
+            }
+          };
+        }
       }
     )
   )(Main)
 );
 
-export default MainContainer;
+export default withRouter(MainActionBar);
