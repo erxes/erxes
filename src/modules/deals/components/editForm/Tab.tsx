@@ -76,7 +76,7 @@ class Tab extends React.Component<Props, { currentTab: string }> {
         <WhiteBox>
           <Tabs>
             <TabTitle className="active">
-              <Icon icon="compose" /> {__('New note')}
+              <Icon icon="edit-1" /> {__('New note')}
             </TabTitle>
           </Tabs>
 
