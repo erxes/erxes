@@ -98,10 +98,7 @@ class CreateFormContainer extends React.Component<Props, {}> {
 export default withProps<{}>(
   compose(
     graphql<{}, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'brandsQuery'
     }),
     graphql<
       {},

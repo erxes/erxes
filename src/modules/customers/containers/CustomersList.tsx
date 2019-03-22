@@ -210,18 +210,14 @@ export default withProps<Props>(
       {
         name: 'customersMainQuery',
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
+          variables: generateParams({ queryParams })
         })
       }
     ),
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.customersListConfig),
       {
-        name: 'customersListConfigQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
+        name: 'customersListConfigQuery'
       }
     ),
 

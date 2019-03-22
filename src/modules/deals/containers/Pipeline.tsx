@@ -106,7 +106,6 @@ export default withProps<Props>(
     graphql<Props, StagesQueryResponse>(gql(queries.stages), {
       name: 'stagesQuery',
       options: ({ pipeline }) => ({
-        fetchPolicy: 'network-only',
         variables: {
           pipelineId: pipeline._id
         }

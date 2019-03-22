@@ -91,24 +91,19 @@ export default withProps<Props>(
             ...generatePaginationParams(queryParams),
             tag: queryParams.tag,
             kind: 'form'
-          },
-          fetchPolicy: 'network-only'
+          }
         };
       }
     }),
     graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
-      name: 'integrationsTotalCountQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'integrationsTotalCountQuery'
     }),
     graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
       name: 'tagsQuery',
       options: () => ({
         variables: {
           type: 'integration'
-        },
-        fetchPolicy: 'network-only'
+        }
       })
     }),
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(

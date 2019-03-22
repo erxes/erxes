@@ -43,8 +43,7 @@ export default withProps<{}>(
       options: () => ({
         variables: {
           type: TAG_TYPES.COMPANY
-        },
-        fetchPolicy: 'network-only'
+        }
       })
     })
   )(TagFilterContainer)

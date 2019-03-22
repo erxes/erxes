@@ -73,8 +73,7 @@ const MessageListContainerWithData = withProps<Props>(
       {
         name: 'engageMessagesQuery',
         options: props => ({
-          variables: generateListQueryVariables(props),
-          fetchPolicy: 'network-only'
+          variables: generateListQueryVariables(props)
         })
       }
     ),
@@ -83,8 +82,7 @@ const MessageListContainerWithData = withProps<Props>(
       {
         name: 'engageMessagesTotalCountQuery',
         options: props => ({
-          variables: generateListQueryVariables(props),
-          fetchPolicy: 'network-only'
+          variables: generateListQueryVariables(props)
         })
       }
     )
