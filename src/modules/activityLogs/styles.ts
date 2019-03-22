@@ -1,4 +1,5 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
+import { lighten } from 'modules/common/styles/color';
 import { WhiteBox } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -122,9 +123,14 @@ const ActivityDate = styled.div`
 
 const ActivityContent = styled.div`
   margin-top: ${dimensions.unitSpacing}px;
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  background: ${colors.bgInternal};
+  padding: ${dimensions.unitSpacing / 2}px ${dimensions.unitSpacing}px;
+  background: ${lighten(colors.bgInternal, 5)};
   box-shadow: 0 1px 2px 0 ${colors.darkShadow};
+  border-radius: 2px;
+
+  p:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
 const EmailContent = styled.div`
