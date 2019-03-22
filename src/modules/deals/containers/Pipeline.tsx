@@ -85,7 +85,7 @@ const WithStatesQuery = (props: WithStatesQueryProps) => {
   const { stagesQuery } = props;
 
   if (stagesQuery.loading) {
-    return null; // Prevent multiple loader at once
+    return <Spinner />;
   }
 
   const stages = stagesQuery.dealStages;
