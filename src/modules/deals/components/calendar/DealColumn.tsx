@@ -12,7 +12,7 @@ type Props = {
   deals: IDeal[];
   date: IDateColumn;
   dealTotalAmounts: IDealTotalAmount;
-  onUpdate: () => void;
+  onUpdate: (deal: IDeal) => void;
   onRemove: () => void;
   onLoadMore: (skip: number) => void;
 };
@@ -107,8 +107,9 @@ class DealColumn extends React.Component<Props, {}> {
 
   renderFooter() {
     const { deals, dealTotalAmounts } = this.props;
+    const count = dealTotalAmounts.dealCount;
 
-    if (deals.length === dealTotalAmounts.dealCount) {
+    if (deals.length === count || deals.length > count) {
       return null;
     }
 

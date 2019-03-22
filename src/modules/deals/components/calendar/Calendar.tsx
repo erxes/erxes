@@ -1,49 +1,78 @@
-import { Button, Calendar } from 'modules/common/components';
+import { Calendar } from 'modules/common/components';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import { DealColumn } from '../../containers';
+import styled from 'styled-components';
+import { DealColumn, MainActionBar } from '../../containers';
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
+const Container = styled.div`
+  display: flex;
+  height: 100%;
+`;
+
+const toKey = ({ year, month }: IDateColumn) => {
+  return year + '-' + month;
+};
+
 class CalendarView extends React.Component<Props> {
-  renderActionBar() {
-    const actionBarRight = (
-      <BarItems>
-        <Link to="/deals/board">
-          <Button btnStyle="success">{__('Board')}</Button>
-        </Link>
-      </BarItems>
-    );
+  constructor(props: Props) {
+    super(props);
 
-    return (
-      <Wrapper.ActionBar right={actionBarRight} background="transparent" />
-    );
+    this.state = {};
   }
 
-  renderContent() {
-    return <Calendar renderColumn={this.renderColumn} />;
-  }
-
-  renderColumn = (date: IDateColumn) => {
-    return <DealColumn date={date} />;
+  onColumnUpdated = (date: IDateColumn) => {
+    this.setState({ [toKey(date)]: new Date().toString() });
   };
 
-  render() {
+  renderColumn = (date: IDateColumn) => {
+    const { queryParams } = this.props;
+    const key = toKey(date);
+
+    return (
+      <DealColumn
+        updatedAt={`${key}-${this.state[key]}`}
+        date={date}
+        onColumnUpdated={this.onColumnUpdated}
+        pipelineId={queryParams.pipelineId}
+      />
+    );
+  };
+
+  renderActionBar = (renderMiddleContent: () => React.ReactNode) => {
+    return <MainActionBar middleContent={renderMiddleContent} />;
+  };
+
+  renderMonthView(renderMonths: () => React.ReactNode[]) {
+    return <Container>{renderMonths()}</Container>;
+  }
+
+  renderContent = (
+    renderMonths: () => React.ReactNode[],
+    renderMiddleContent: () => React.ReactNode
+  ) => {
     const breadcrumb = [{ title: __('Deal') }];
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={this.renderActionBar()}
-        content={this.renderContent()}
+        actionBar={this.renderActionBar(renderMiddleContent)}
+        content={this.renderMonthView(renderMonths)}
         transparent={true}
+      />
+    );
+  };
+
+  render() {
+    return (
+      <Calendar
+        renderContent={this.renderContent}
+        renderColumn={this.renderColumn}
       />
     );
   }
