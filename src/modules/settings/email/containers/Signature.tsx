@@ -36,7 +36,7 @@ const SignatureContainer = (props: FinalProps) => {
   }
 
   // save email configs action
-  const save = (signaturesToSave: IEmailSignatureWithBrand[]) => {
+  const save = (signaturesToSave: IEmailSignatureWithBrand[], callback) => {
     const doc: IEmailSignature[] = [];
 
     // remove brandName from list
@@ -52,6 +52,7 @@ const SignatureContainer = (props: FinalProps) => {
     saveMutation({ variables: { signatures: doc } })
       .then(() => {
         Alert.success('Congrats');
+        callback();
         userDetailQuery.refetch();
       })
       .catch(error => {

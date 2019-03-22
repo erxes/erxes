@@ -1,10 +1,17 @@
+import { EditorState } from 'draft-js';
 import {
   Button,
   ControlLabel,
+  EmptyState,
   FormControl,
   FormGroup,
   Info
 } from 'modules/common/components';
+import {
+  createStateFromHTML,
+  ErxesEditor,
+  toHTML
+} from 'modules/common/components/editor/Editor';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
@@ -12,13 +19,14 @@ import { IEmailSignatureWithBrand } from '../types';
 
 type Props = {
   signatures: IEmailSignatureWithBrand[];
-  save: (signatures: IEmailSignatureWithBrand[]) => void;
+  save: (signatures: IEmailSignatureWithBrand[], callback: () => void) => void;
   closeModal: () => void;
 };
 
 type State = {
   signatures: IEmailSignatureWithBrand[];
   currentId?: string;
+  editorState: EditorState;
 };
 
 class Signature extends React.Component<Props, State> {
@@ -27,13 +35,28 @@ class Signature extends React.Component<Props, State> {
 
     this.state = {
       signatures: props.signatures,
-      currentId: undefined
+      currentId: undefined,
+      editorState: createStateFromHTML(EditorState.createEmpty(), '')
     };
   }
 
-  getCurrent = () => {
-    const currentId = this.state.currentId;
+  getEditorContent = editorState => {
+    return toHTML(editorState);
+  };
 
+  onChangeContent = editorState => {
+    this.setState({ editorState });
+
+    const current = this.getCurrent(this.state.currentId);
+
+    if (current) {
+      current.signature = this.getEditorContent(editorState);
+
+      this.setState({ signatures: this.state.signatures });
+    }
+  };
+
+  getCurrent = (currentId?: string) => {
     if (!currentId) {
       return { signature: '' };
     }
@@ -44,31 +67,54 @@ class Signature extends React.Component<Props, State> {
   };
 
   changeCurrent = e => {
-    this.setState({ currentId: e.target.value });
-  };
+    const currentId = e.target.value;
 
-  changeContent = e => {
-    const current = this.getCurrent();
+    this.setState({ currentId });
 
-    if (current) {
-      current.signature = e.target.value;
+    const current = this.getCurrent(currentId);
 
-      this.setState({ signatures: this.state.signatures });
-    }
+    const editorState = createStateFromHTML(
+      EditorState.createEmpty(),
+      (current && current.signature) || ''
+    );
+
+    return this.setState({ editorState });
   };
 
   handleSubmit = e => {
     e.preventDefault();
+    const { save, closeModal } = this.props;
 
-    this.props.save(this.state.signatures);
-
-    this.props.closeModal();
+    save(this.state.signatures, closeModal);
   };
 
-  render() {
-    const current = this.getCurrent();
+  renderSignatureEditor() {
+    if (!this.state.currentId) {
+      return (
+        <EmptyState text="Nothing selected" image="/images/actions/29.svg" />
+      );
+    }
 
-    const content = (
+    return (
+      <FormGroup>
+        <ControlLabel>Signature</ControlLabel>
+        <p>
+          {__(
+            'An email signature is an opportunity to share information that helps build recognition and trust.'
+          )}
+        </p>
+
+        <ErxesEditor
+          bordered={true}
+          editorState={this.state.editorState}
+          onChange={this.onChangeContent}
+        />
+      </FormGroup>
+    );
+  }
+
+  render() {
+    return (
       <div>
         <Info>
           {__('Signatures are only included in response emails.')}
@@ -78,10 +124,10 @@ class Signature extends React.Component<Props, State> {
 
         <form id="signature-form" onSubmit={this.handleSubmit}>
           <FormGroup>
-            <ControlLabel>Brand</ControlLabel>
+            <ControlLabel required={true}>Choose brand</ControlLabel>
 
             <FormControl componentClass="select" onChange={this.changeCurrent}>
-              <option>------------</option>
+              <option value="">------------</option>
 
               {this.props.signatures.map(signature => (
                 <option key={signature.brandId} value={signature.brandId}>
@@ -91,18 +137,7 @@ class Signature extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Signature</ControlLabel>
-
-            <FormControl
-              componentClass="textarea"
-              placeholder="An email signature is an opportunity to share information that helps build recognition and trust."
-              id="content"
-              rows={6}
-              onChange={this.changeContent}
-              value={current && current.signature}
-            />
-          </FormGroup>
+          {this.renderSignatureEditor()}
           <ModalFooter>
             <Button
               btnStyle="simple"
@@ -119,8 +154,6 @@ class Signature extends React.Component<Props, State> {
         </form>
       </div>
     );
-
-    return content;
   }
 }
 

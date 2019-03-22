@@ -16,6 +16,7 @@ const Timeline = styled.div`
     height: 100%;
     position: absolute;
     z-index: 1;
+    margin-top: 1px;
     left: calc(${iconWrapperWidth} / 2);
   }
 `;
