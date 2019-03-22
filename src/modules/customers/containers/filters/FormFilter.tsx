@@ -8,29 +8,32 @@ import { queries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 
 type Props = {
-  integrationsQuery: IntegrationsQueryResponse;
-  customersCountQuery: CountQueryResponse;
-  counts: { [key: string]: number };
+  integrationsQuery?: IntegrationsQueryResponse;
+  customersCountQuery?: CountQueryResponse;
 };
 
 const FormFilterContainer = (props: Props) => {
   const { integrationsQuery, customersCountQuery } = props;
 
-  const counts = customersCountQuery.customerCounts || {};
+  const counts = (customersCountQuery
+    ? customersCountQuery.customerCounts
+    : null) || { byForm: {} };
+  const integrations =
+    (integrationsQuery ? integrationsQuery.integrations : null) || [];
 
   const updatedProps = {
     ...props,
     counts: counts.byForm || {},
-    integrations: integrationsQuery.integrations || [],
-    loading: integrationsQuery.loading
+    integrations,
+    loading: integrationsQuery ? integrationsQuery.loading : false
   };
 
   return <FormFilter {...updatedProps} />;
 };
 
-export default withProps<{}>(
+export default withProps<{ loadingMainQuery: boolean }>(
   compose(
-    graphql<{}, IntegrationsQueryResponse, {}>(
+    graphql<{ loadingMainQuery: boolean }, IntegrationsQueryResponse, {}>(
       gql`
         query integrations {
           integrations(kind: "form") {
@@ -43,17 +46,20 @@ export default withProps<{}>(
         }
       `,
       {
-        name: 'integrationsQuery'
+        name: 'integrationsQuery',
+        skip: ({ loadingMainQuery }) => loadingMainQuery
       }
     ),
-    graphql<{}, CountQueryResponse, { only: string }>(
-      gql(queries.customerCounts),
-      {
-        name: 'customersCountQuery',
-        options: {
-          variables: { only: 'byForm' }
-        }
+    graphql<
+      { loadingMainQuery: boolean },
+      CountQueryResponse,
+      { only: string }
+    >(gql(queries.customerCounts), {
+      name: 'customersCountQuery',
+      skip: ({ loadingMainQuery }) => loadingMainQuery,
+      options: {
+        variables: { only: 'byForm' }
       }
-    )
+    })
   )(FormFilterContainer)
 );
