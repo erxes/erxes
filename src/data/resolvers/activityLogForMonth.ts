@@ -1,5 +1,3 @@
-import { ActivityLogs } from '../../db/models';
-
 // TODO: to check obj type
 
 /*
@@ -16,14 +14,7 @@ export default {
   /**
    * Returns a list of activity logs present in the given date interval
    */
-  list(obj) {
-    return ActivityLogs.find({
-      'coc.type': obj.cocContentType,
-      'coc.id': obj.coc._id,
-      createdAt: {
-        $gte: obj.date.interval.start,
-        $lt: obj.date.interval.end,
-      },
-    }).sort({ createdAt: -1 });
+  list() {
+    return [];
   },
 };
