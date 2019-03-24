@@ -264,7 +264,7 @@ class CompaniesList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar loadingMainQuery={loading} />}
         content={
           <DataWithLoader
             data={mainContent}

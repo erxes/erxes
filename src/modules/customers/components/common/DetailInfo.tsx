@@ -16,7 +16,7 @@ type Props = {
   hasPosition?: boolean;
 };
 
-class DetailInfo extends React.Component<Props> {
+class DetailInfo extends React.PureComponent<Props> {
   renderRow(label, value) {
     return (
       <li>

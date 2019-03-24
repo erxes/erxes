@@ -5,7 +5,7 @@ import styledTS from 'styled-components-ts';
 
 const RichEditorRoot = styledTS<{ bordered: boolean }>(styled.div)`
   font-size: 14px;
-  border: ${props => props.bordered && `1px solid ${colors.borderPrimary}`};
+  border: ${props => props.bordered && `1px solid ${colors.borderDarker}`};
   margin-top: ${props => props.bordered && '10px'};
 
   .RichEditor-editor {

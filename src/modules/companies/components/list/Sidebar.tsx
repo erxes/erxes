@@ -8,14 +8,14 @@ import {
   TagFilter
 } from '../../containers/filters';
 
-function Sidebar() {
+function Sidebar({ loadingMainQuery }: { loadingMainQuery: boolean }) {
   return (
     <Wrapper.Sidebar>
-      <SegmentFilter />
-      <TagFilter />
-      <LeadStatusFilter />
-      <LifecycleStateFilter />
-      <BrandFilter />
+      <SegmentFilter loadingMainQuery={loadingMainQuery} />
+      <TagFilter loadingMainQuery={loadingMainQuery} />
+      <LeadStatusFilter loadingMainQuery={loadingMainQuery} />
+      <LifecycleStateFilter loadingMainQuery={loadingMainQuery} />
+      <BrandFilter loadingMainQuery={loadingMainQuery} />
     </Wrapper.Sidebar>
   );
 }
