@@ -1,10 +1,20 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { Calendar as GoogleCalendar } from './containers/google';
-import CreateMessenger from './containers/messenger/Create';
-import EditMessenger from './containers/messenger/Edit';
 import Store from './containers/Store';
+
+const CreateMessenger = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings CreateMessenger" */ './containers/messenger/Create')
+);
+
+const EditMessenger = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings EditMessenger" */ './containers/messenger/Edit')
+);
+
+const GoogleCalendar = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings GoogleCalendar" */ './containers/google')
+);
 
 const createMessenger = ({ location }) => {
   return <CreateMessenger queryParams={queryString.parse(location.search)} />;

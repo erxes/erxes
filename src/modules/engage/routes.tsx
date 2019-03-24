@@ -1,7 +1,19 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { EmailStatistics, MessageForm, MessageList } from './containers';
+
+const MessageForm = asyncComponent(() =>
+  import(/* webpackChunkName: "MessageForm - Engage" */ './containers/MessageForm')
+);
+
+const MessageList = asyncComponent(() =>
+  import(/* webpackChunkName: "MessageList - Engage" */ './containers/MessageList')
+);
+
+const EmailStatistics = asyncComponent(() =>
+  import(/* webpackChunkName: "EmailStatistics - Engage" */ './containers/EmailStatistics')
+);
 
 const createForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);

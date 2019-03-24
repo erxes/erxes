@@ -1,15 +1,22 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import asyncComponent from './components/AsyncComponent';
-import { ExportReport, SummaryReport } from './containers';
+
+const AsyncExportReport = asyncComponent(() =>
+  import(/* webpackChunkName: "AsyncExportReport" */ './containers/ExportReport')
+);
+
+const AsyncSummaryReport = asyncComponent(() =>
+  import(/* webpackChunkName: "AsyncSummaryReport" */ './containers/SummaryReport')
+);
 
 const AsyncVolumeAndResponseReport = asyncComponent(() =>
-  import('./containers/VolumeAndResponseReport')
+  import(/* webpackChunkName: "VolumeAndResponseReport" */ './containers/VolumeAndResponseReport')
 );
 
 const AsyncFirstAndCloseResponseReport = asyncComponent(() =>
-  import('./containers/FirstAndCloseResponseReport')
+  import(/* webpackChunkName: "FirstAndCloseResponseReport" */ './containers/FirstAndCloseResponseReport')
 );
 
 const AsyncReports = asyncComponent(() => import('./containers/Reports'));
@@ -45,13 +52,13 @@ const volumeReport = () => {
 const summaryReport = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <SummaryReport queryParams={queryParams} history={history} />;
+  return <AsyncSummaryReport queryParams={queryParams} history={history} />;
 };
 
 const exportReport = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <ExportReport queryParams={queryParams} history={history} />;
+  return <AsyncExportReport queryParams={queryParams} history={history} />;
 };
 
 const routes = () => {

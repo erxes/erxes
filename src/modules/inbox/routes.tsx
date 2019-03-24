@@ -1,8 +1,12 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import { IRouterProps } from 'modules/common/types';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import { Inbox } from './containers';
+
+const Inbox = asyncComponent(() =>
+  import(/* webpackChunkName: "Inbox" */ './containers/Inbox')
+);
 
 const index = () => {
   return <Redirect to="/inbox" />;
