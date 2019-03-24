@@ -1,7 +1,11 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { Properties } from './containers';
+
+const Properties = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings Properties" */ './containers/Properties')
+);
 
 const properties = ({ location }) => {
   const queryParams = queryString.parse(location.search);

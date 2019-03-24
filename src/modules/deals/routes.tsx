@@ -1,7 +1,15 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import { Calendar, DealBoard } from './components';
+
+const Calendar = asyncComponent(() =>
+  import(/* webpackChunkName: "Calendar" */ './components/calendar/Calendar')
+);
+
+const DealBoard = asyncComponent(() =>
+  import(/* webpackChunkName: "DealBoard" */ './components/DealBoard')
+);
 
 const deals = () => {
   return <Redirect to="/deals/board" />;
