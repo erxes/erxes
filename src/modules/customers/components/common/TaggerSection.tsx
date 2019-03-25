@@ -39,12 +39,16 @@ class TaggerSection extends React.Component<Props, State> {
       return <EmptyState icon="tag" text="Not tagged yet" size="small" />;
     }
 
-    return tags.map(({ _id, colorCode, name }) => (
-      <li key={_id}>
-        <Icon icon="tag icon" style={{ color: colorCode }} />
-        {name}
-      </li>
-    ));
+    return (
+      <SidebarList className="no-link">
+        {tags.map(({ _id, colorCode, name }) => (
+          <li key={_id}>
+            <Icon icon="tag icon" style={{ color: colorCode }} />
+            {name}
+          </li>
+        ))}
+      </SidebarList>
+    );
   }
 
   render() {
@@ -78,7 +82,7 @@ class TaggerSection extends React.Component<Props, State> {
           </div>
         </Collapse>
 
-        <SidebarList className="no-link">{this.renderTags(tags)}</SidebarList>
+        {this.renderTags(tags)}
       </Section>
     );
   }
