@@ -66,13 +66,15 @@ const Nav = styled.nav`
 
       &:before {
         content: '';
-        width: 2px;
+        width: 3px;
         background: ${colors.colorCoreTeal};
         position: absolute;
         display: block;
         left: 0;
-        top: 0;
-        bottom: 0;
+        top: 3px;
+        bottom: 3px;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
       }
 
       i {
