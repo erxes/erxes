@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import {
   Button,
@@ -25,7 +26,7 @@ const UserAvatar = styled.td`
 `;
 
 class UserList extends React.Component<
-  ICommonListProps & ICommonFormProps,
+  ICommonListProps & ICommonFormProps & { currentUser: IUser },
   { emails: string[] }
 > {
   private closeModal;
@@ -103,6 +104,22 @@ class UserList extends React.Component<
     return <UserForm {...props} />;
   };
 
+  renderRowActions = (user: IUser) => {
+    const { currentUser } = this.props;
+
+    if (user._id !== currentUser._id) {
+      return (
+        <RowActions
+          {...this.props}
+          object={user}
+          renderForm={this.renderForm}
+        />
+      );
+    }
+
+    return null;
+  };
+
   renderRows({ objects }: { objects: IUser[] }) {
     return objects.map((object, index) => {
       const onClick = () => {
@@ -125,12 +142,7 @@ class UserList extends React.Component<
           <td>
             <TextInfo>{object.role || '-'}</TextInfo>
           </td>
-
-          <RowActions
-            {...this.props}
-            object={object}
-            renderForm={this.renderForm}
-          />
+          {this.renderRowActions(object)}
         </tr>
       );
     });
@@ -184,4 +196,16 @@ class UserList extends React.Component<
   }
 }
 
-export default UserList;
+const WithConsumer = (
+  props: ICommonListProps & ICommonFormProps & { currentUser: IUser }
+) => {
+  return (
+    <AppConsumer>
+      {({ currentUser }) => (
+        <UserList {...props} currentUser={currentUser || ({} as IUser)} />
+      )}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer;
