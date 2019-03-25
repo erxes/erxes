@@ -11,7 +11,7 @@ export interface IScheduleDate {
 
 interface IScheduleDateDocument extends IScheduleDate, Document {}
 
-interface IEmail {
+export interface IEmail {
   templateId?: string;
   attachments?: any;
   subject?: string;

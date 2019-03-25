@@ -182,10 +182,8 @@ const insightExportQueries = {
             $sum: { $cond: [{ $eq: ['$status', 'closed'] }, 1, 0] },
           },
           totalCount: { $sum: 1 },
-          averageCloseTime: { $avg: '$closeTime' },
           totalResponseTime: { $sum: '$firstRespondTime' },
           totalCloseTime: { $sum: '$closeTime' },
-          averageRespondTime: { $avg: '$firstRespondTime' },
         },
       },
       {
@@ -257,8 +255,6 @@ const insightExportQueries = {
       const {
         resolvedCount,
         totalCount,
-        averageCloseTime,
-        averageRespondTime,
         totalResponseTime,
         totalCloseTime,
         uniqueCustomerCount,
@@ -266,8 +262,6 @@ const insightExportQueries = {
       } = volumeDictionary[dateKey] || {
         resolvedCount: 0,
         totalCount: 0,
-        averageCloseTime: 0,
-        averageRespondTime: 0,
         totalResponseTime: 0,
         totalCloseTime: 0,
         uniqueCustomerCount: 0,
@@ -283,13 +277,13 @@ const insightExportQueries = {
 
       data.push({
         date: moment(begin).format(timeFormat),
-        count: totalCount,
-        customerCount: uniqueCustomerCount,
+        count: uniqueCustomerCount,
+        customerCount: totalCount,
         customerCountPercentage: `${percentage.toFixed(0)}%`,
         messageCount,
         resolvedCount,
-        averageResponseDuration: convertTime(averageCloseTime),
-        firstResponseDuration: convertTime(averageRespondTime),
+        averageResponseDuration: convertTime(totalCloseTime / resolvedCount),
+        firstResponseDuration: convertTime(totalRespondTime / totalCount),
       });
 
       if (next.getTime() < end.getTime()) {
@@ -308,8 +302,8 @@ const insightExportQueries = {
       customerCountPercentage: `${((totalUniqueCount / totalCustomerCount) * 100).toFixed(0)}%`,
       messageCount: totalConversationMessages,
       resolvedCount: totalResolved,
-      averageResponseDuration: convertTime(totalClosedTime / totalConversationMessages),
-      firstResponseDuration: convertTime(totalRespondTime / totalConversationMessages),
+      averageResponseDuration: convertTime(totalClosedTime / totalResolved),
+      firstResponseDuration: convertTime(totalRespondTime / totalCustomerCount),
     });
 
     const basicInfos = INSIGHT_BASIC_INFOS;

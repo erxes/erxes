@@ -45,6 +45,7 @@ import {
   Tags,
   Users,
 } from './models';
+import { IEmail, IMessenger } from './models/definitions/engages';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
 import { IUserDocument } from './models/definitions/users';
 
@@ -120,22 +121,24 @@ interface IEngageMessageFactoryInput {
   isLive?: boolean;
   isDraft?: boolean;
   customerIds?: string[];
+  method?: string;
+  messenger?: IMessenger;
+  title?: string;
+  email?: IEmail;
 }
 
 export const engageMessageFactory = (params: IEngageMessageFactoryInput = {}) => {
   const engageMessage = new EngageMessages({
     kind: params.kind || 'manual',
-    method: 'messenger',
-    title: faker.random.word(),
+    method: params.method || 'messenger',
+    title: params.title || faker.random.word(),
     fromUserId: params.userId || faker.random.uuid(),
     segmentId: params.segmentId || faker.random.word(),
     tagIds: params.tagIds || [],
     isLive: params.isLive || false,
     isDraft: params.isDraft || false,
-    messenger: {
-      brandId: faker.random.word(),
-      content: faker.random.word(),
-    },
+    messenger: params.messenger,
+    email: params.email,
   });
 
   return engageMessage.save();
@@ -305,6 +308,7 @@ interface ICustomerFactoryInput {
   tagIds?: string[] | string;
   twitterData?: any;
   ownerId?: string;
+  hasValidEmail?: boolean;
 }
 
 export const customerFactory = (params: ICustomerFactoryInput = {}) => {
@@ -324,6 +328,7 @@ export const customerFactory = (params: ICustomerFactoryInput = {}) => {
     tagIds: params.tagIds || [faker.random.number(), faker.random.number()],
     twitterData: params.twitterData || { id: faker.random.number() },
     ownerId: params.ownerId || Random.id(),
+    hasValidEmail: params.hasValidEmail || null,
   });
 
   return customer.save();
@@ -388,6 +393,8 @@ interface IConversationFactoryInput {
   tagIds?: string[];
   messageCount?: number;
   number?: number;
+  firstRespondedUserId?: string;
+  firstRespondedDate?: dateType;
 }
 
 export const conversationFactory = (params: IConversationFactoryInput = {}) => {
@@ -409,7 +416,7 @@ interface IConversationMessageFactoryInput {
   mentionedUserIds?: string[];
   internal?: boolean;
   customerId?: string;
-  userId?: string;
+  userId?: any;
   isCustomerRead?: boolean;
   engageData?: any;
   formWidgetData?: any;
@@ -425,6 +432,11 @@ export const conversationMessageFactory = async (params: IConversationMessageFac
     conversationId = conversation._id;
   }
 
+  let userId = params.userId;
+  if (params.userId === undefined) {
+    userId = Random.id();
+  }
+
   return ConversationMessages.createMessage({
     content: params.content || faker.random.word(),
     attachments: {},
@@ -432,7 +444,7 @@ export const conversationMessageFactory = async (params: IConversationMessageFac
     conversationId,
     internal: params.internal || true,
     customerId: params.customerId || Random.id(),
-    userId: params.userId || Random.id(),
+    userId,
     isCustomerRead: params.isCustomerRead || true,
     engageData: params.engageData || {},
     formWidgetData: params.formWidgetData || {},

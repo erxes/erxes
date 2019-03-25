@@ -1,6 +1,7 @@
 import * as faker from 'faker';
 import * as moment from 'moment';
 import * as sinon from 'sinon';
+import { INTEGRATION_KIND_CHOICES } from '../data/constants';
 import * as engageUtils from '../data/resolvers/mutations/engageUtils';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -27,6 +28,7 @@ import {
   Tags,
   Users,
 } from '../db/models';
+
 import { awsRequests } from '../trackers/engageTracker';
 
 describe('engage message mutation tests', () => {
@@ -79,9 +81,18 @@ describe('engage message mutation tests', () => {
     _tag = await tagsFactory({});
     _brand = await brandFactory({});
     _segment = await segmentFactory({});
-    _message = await engageMessageFactory({ kind: 'auto', userId: _user._id });
+    _message = await engageMessageFactory({
+      kind: 'auto',
+      userId: _user._id,
+      messenger: {
+        content: 'content',
+        brandId: _brand.id,
+      },
+    });
     _emailTemplate = await emailTemplateFactory({});
-    _customer = await customerFactory({});
+    _customer = await customerFactory({
+      hasValidEmail: true,
+    });
     _integration = await integrationFactory({ brandId: 'brandId' });
 
     _doc = {
@@ -142,25 +153,147 @@ describe('engage message mutation tests', () => {
     await ConversationMessages.deleteMany({});
   });
 
-  test('Engage utils send via messenger: integration not found', async () => {
-    expect.assertions(1);
+  test('Engage utils send via messenger', async () => {
+    const brand = await brandFactory();
+    const emessage = await engageMessageFactory({
+      method: 'messenger',
+      title: 'Send via messenger',
+      userId: _user._id,
+      segmentId: _segment._id,
+      customerIds: [_customer._id],
+      isLive: true,
+      messenger: {
+        brandId: brand._id,
+        content: 'content',
+      },
+    });
+
+    const emessageWithoutUser = await engageMessageFactory({
+      method: 'messenger',
+      title: 'Send via messenger',
+      userId: 'fromUserId',
+      segmentId: _segment._id,
+      isLive: true,
+      messenger: {
+        brandId: brand._id,
+        content: 'content',
+      },
+    });
 
     try {
-      await engageUtils.send({
-        _id: _message._id,
-        method: 'messenger',
-        title: 'Send via messenger',
-        fromUserId: _user._id,
-        segmentId: _segment._id,
-        isLive: true,
-        messenger: {
-          brandId: '',
-          content: 'content',
-        },
-      });
+      await engageUtils.send(emessage);
     } catch (e) {
       expect(e.message).toEqual('Integration not found');
     }
+
+    try {
+      await engageUtils.send(emessageWithoutUser);
+    } catch (e) {
+      expect(e.message).toEqual('User not found');
+    }
+
+    const integration = await integrationFactory({
+      brandId: brand._id,
+      kind: INTEGRATION_KIND_CHOICES.MESSENGER,
+    });
+
+    const emessageWithBrand = await engageMessageFactory({
+      method: 'messenger',
+      title: 'Send via messenger',
+      userId: _user._id,
+      segmentId: _segment._id,
+      isLive: true,
+      customerIds: [_customer._id],
+      messenger: {
+        brandId: brand._id,
+        content: 'content',
+      },
+    });
+
+    await engageUtils.send(emessageWithBrand);
+
+    // setCustomerIds
+    const setCustomer = await EngageMessages.findOne({ _id: _message._id, customerIds: _customer._id });
+    expect(setCustomer).toBeDefined();
+
+    // create conversation
+    const newConversation = await Conversations.findOne({
+      userId: _user._id,
+      customerId: _customer._id,
+      integrationId: integration._id,
+      content: 'content',
+    });
+
+    if (!newConversation) {
+      throw new Error('Conversation not found');
+    }
+
+    expect(newConversation).toBeDefined();
+
+    // create message
+    const newMessage = await ConversationMessages.findOne({
+      conversationId: newConversation._id,
+      customerId: _customer._id,
+      userId: _user._id,
+      content: 'content',
+    });
+
+    if (!newMessage || !newMessage.engageData) {
+      throw new Error('Message not found');
+    }
+
+    expect(newMessage).toBeDefined();
+    expect(newMessage.engageData.messageId).toBe(emessageWithBrand._id);
+    expect(newMessage.engageData.fromUserId).toBe(_user._id);
+    expect(newMessage.engageData.brandId).toBe(brand._id);
+  });
+
+  test('Engage utils send via email', async () => {
+    process.env.AWS_SES_ACCESS_KEY_ID = '';
+    process.env.AWS_SES_SECRET_ACCESS_KEY = '';
+    process.env.AWS_SES_CONFIG_SET = 'aws-ses';
+    process.env.AWS_ENDPOINT = '123';
+    process.env.MAIL_PORT = '123';
+
+    const emailTemplate = await emailTemplateFactory();
+    const emessage = await engageMessageFactory({
+      method: 'email',
+      title: 'Send via email',
+      userId: 'fromUserId',
+      segmentId: _segment._id,
+      email: {
+        templateId: emailTemplate._id,
+        subject: 'subject',
+        content: 'content',
+        attachments: [],
+      },
+    });
+
+    try {
+      await engageUtils.send(emessage);
+    } catch (e) {
+      expect(e.message).toBe('User not found');
+    }
+
+    const executeSendViaEmail = jest.spyOn(engageUtils.utils, 'executeSendViaEmail');
+    executeSendViaEmail.mockImplementation(() => 'sent');
+
+    const emessageWithUser = await engageMessageFactory({
+      method: 'email',
+      title: 'Send via email',
+      userId: _user._id,
+      segmentId: _segment._id,
+      email: {
+        templateId: emailTemplate._id,
+        subject: 'subject',
+        content: 'content',
+        attachments: [],
+      },
+    });
+
+    await engageUtils.send(emessageWithUser);
+
+    expect(executeSendViaEmail.mock.calls.length).toBe(1);
   });
 
   const engageMessageAddMutation = `

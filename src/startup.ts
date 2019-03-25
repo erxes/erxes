@@ -21,11 +21,15 @@ export const init = async app => {
     }
   };
 
-  trackTwitters();
-  trackEngages(app);
-  trackFacebooks(app);
-  trackGmail();
-  trackFbLogin(app);
+  try {
+    trackTwitters();
+    trackEngages(app);
+    trackFacebooks(app);
+    trackGmail();
+    trackFbLogin(app);
+  } catch (e) {
+    console.log(e.toString());
+  }
 
   /* USE_REPLICATION=true means we are using replicaset, so we can
    * use Collection.watch

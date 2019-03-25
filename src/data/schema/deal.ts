@@ -31,7 +31,7 @@ export const types = `
   type Deal {
     _id: String!
     name: String!
-    stageId: String!
+    stageId: String
     pipeline: DealPipeline
     boardId: String
     companyIds: [String]
@@ -50,6 +50,23 @@ export const types = `
     stage: DealStage
     ${commonTypes}
   }
+
+  type DealTotalAmount {
+    _id: String
+    currency: String
+    amount: Float
+  }
+
+  type DealTotalAmounts {
+    _id: String
+    dealCount: Int
+    dealAmounts: [DealTotalAmount]
+  }
+
+  input DealDate {
+    month: Int
+    year: Int
+  }
 `;
 
 export const queries = `
@@ -60,13 +77,21 @@ export const queries = `
   dealPipelineDetail(_id: String!): DealPipeline
   dealStages(pipelineId: String!): [DealStage]
   dealStageDetail(_id: String!): DealStage
-  deals(stageId: String, customerId: String, companyId: String): [Deal]
   dealDetail(_id: String!): Deal
+  deals(
+    pipelineId: String,
+    stageId: String, 
+    customerId: String, 
+    companyId: String
+    date: DealDate
+    skip: Int
+  ): [Deal]
+  dealsTotalAmounts(date: DealDate pipelineId: String): DealTotalAmounts
 `;
 
 const dealMutationParams = `
   name: String!,
-  stageId: String!,
+  stageId: String,
   assignedUserIds: [String],
   companyIds: [String],
   customerIds: [String],

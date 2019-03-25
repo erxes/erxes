@@ -5,10 +5,8 @@ const formQueries = {
   /**
    * Forms list
    */
-  async forms() {
-    const forms = Forms.find({});
-
-    return forms.sort({ title: 1 });
+  forms() {
+    return Forms.find({}).sort({ title: 1 });
   },
 
   /**

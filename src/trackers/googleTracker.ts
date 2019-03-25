@@ -80,3 +80,7 @@ export const createMeetEvent = (credentials, event) => {
     );
   });
 };
+
+export const googleUtils = {
+  getAccessToken,
+};
