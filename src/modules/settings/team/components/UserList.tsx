@@ -117,7 +117,7 @@ class UserList extends React.Component<
       );
     }
 
-    return null;
+    return <td>-</td>;
   };
 
   renderRows({ objects }: { objects: IUser[] }) {

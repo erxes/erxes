@@ -15,7 +15,7 @@ const UserList = asyncComponent(() =>
   import(/* webpackChunkName: "Settings - UserList" */ './containers/UserList')
 );
 
-const team = ({ history, location, currentUser }) => {
+const team = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
   return <UserList queryParams={queryParams} history={history} />;
 };
