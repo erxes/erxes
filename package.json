@@ -44,7 +44,7 @@
     "juice": "^5.0.1",
     "moment": "^2.22.1",
     "query-string": "^5.0.0",
-    "react": "^16.8.5",
+    "react": "^16.4.2",
     "react-apollo": "^2.1.11",
     "react-beautiful-dnd": "^10.1.0",
     "react-bootstrap": "^0.31.3",
