@@ -45,6 +45,7 @@ export const types = `
     username: String
     email: String
     role: String
+    isActive: Boolean
     details: UserDetailsType
     links: UserLinksType
     status: String
@@ -69,7 +70,7 @@ const commonParams = `
 `;
 
 export const queries = `
-  users(page: Int, perPage: Int, searchValue: String): [User]
+  users(page: Int, perPage: Int, searchValue: String, isActive: Boolean): [User]
   userDetail(_id: String): User
   usersTotalCount: Int
   currentUser: User
@@ -92,7 +93,7 @@ export const mutations = `
 
   usersEdit(_id: String!, ${commonParams}): User
   usersChangePassword(currentPassword: String!, newPassword: String!): User
-  usersRemove(_id: String!): JSON
+  usersSetActiveStatus(_id: String!): User
 
   usersInvite(emails: [String]): Boolean
   usersConfirmInvitation(token: String, password: String, passwordConfirmation: String, fullName: String, username: String): User

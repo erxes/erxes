@@ -131,34 +131,14 @@ const userMutations = {
   },
 
   /*
-   * Remove user
+   * Set Active or inactive user
    */
-  async usersRemove(_root, { _id }: { _id: string }) {
-    const userToRemove = await Users.findOne({ _id });
-
-    if (!userToRemove) {
-      throw new Error('User not found');
+  async usersSetActiveStatus(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+    if (user._id === _id) {
+      throw new Error('You can not delete yourself');
     }
 
-    // can not remove owner
-    if (userToRemove.isOwner) {
-      throw new Error('Can not remove owner');
-    }
-
-    // if the user involved in any channel then can not delete this user
-    if ((await Channels.find({ userId: userToRemove._id }).countDocuments()) > 0) {
-      throw new Error('You cannot delete this user. This user belongs other channel.');
-    }
-
-    if (
-      (await Channels.find({
-        memberIds: { $in: [userToRemove._id] },
-      }).countDocuments()) > 0
-    ) {
-      throw new Error('You cannot delete this user. This user belongs other channel.');
-    }
-
-    return Users.removeUser(_id);
+    return Users.setUserActiveOrInactive(_id);
   },
 
   /*
@@ -232,7 +212,7 @@ requireLogin(userMutations, 'usersEditProfile');
 requireLogin(userMutations, 'usersConfigGetNotificationByEmail');
 requireLogin(userMutations, 'usersConfigEmailSignatures');
 requireAdmin(userMutations, 'usersEdit');
-requireAdmin(userMutations, 'usersRemove');
+requireAdmin(userMutations, 'usersSetActiveStatus');
 requireAdmin(userMutations, 'usersInvite');
 
 export default userMutations;
