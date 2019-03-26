@@ -13,23 +13,38 @@ import { compose, graphql } from 'react-apollo';
 import { PipelineConsumer } from '../PipelineContext';
 
 type WrapperProps = {
-  stage?: IStage;
+  stage: IStage;
   index: number;
+  isLoadedDeals: boolean;
   deals: IDeal[];
   length: number;
 };
 
 type StageProps = {
+  onLoad: (stageId: string, deals: IDeal[]) => void;
   onAddDeal: (stageId: string, deal: IDeal) => void;
 } & WrapperProps;
 
 type FinalStageProps = {
   addMutation: SaveDealMutation;
+  dealsQuery: any;
 } & StageProps;
 
-class StageContainer extends React.Component<FinalStageProps, {}> {
+class StageContainer extends React.PureComponent<
+  FinalStageProps,
+  { loadedDeals: boolean }
+> {
+  componentWillReceiveProps(nextProps: FinalStageProps) {
+    const { stage, isLoadedDeals, onLoad, dealsQuery } = nextProps;
+
+    if (!dealsQuery.loading && !isLoadedDeals) {
+      onLoad(stage._id, dealsQuery.deals || []);
+    }
+  }
+
   render() {
-    const { onAddDeal, stage, addMutation } = this.props;
+    const { onAddDeal, stage, dealsQuery, addMutation } = this.props;
+    const loadingDeals = dealsQuery.loading;
 
     // create deal
     const addDeal = (name: string, callback) => {
@@ -52,6 +67,7 @@ class StageContainer extends React.Component<FinalStageProps, {}> {
 
     const extendedProps = {
       ...this.props,
+      loadingDeals,
       addDeal
     };
 
@@ -59,8 +75,16 @@ class StageContainer extends React.Component<FinalStageProps, {}> {
   }
 }
 
-const WithMutation = withProps<StageProps>(
+const WithData = withProps<StageProps>(
   compose(
+    graphql<StageProps>(gql(queries.deals), {
+      name: 'dealsQuery',
+      options: ({ stage }) => ({
+        variables: {
+          stageId: stage._id
+        }
+      })
+    }),
     // mutation
     graphql<StageProps, SaveDealMutation, IDealParams>(
       gql(mutations.dealsAdd),
@@ -82,8 +106,10 @@ const WithMutation = withProps<StageProps>(
 export default (props: WrapperProps) => {
   return (
     <PipelineConsumer>
-      {({ onAddDeal }) => {
-        return <WithMutation {...props} onAddDeal={onAddDeal} />;
+      {({ onAddDeal, onLoadStage, stageLoadMap }) => {
+        return (
+          <WithData {...props} onLoad={onLoadStage} onAddDeal={onAddDeal} />
+        );
       }}
     </PipelineConsumer>
   );

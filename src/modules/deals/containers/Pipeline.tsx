@@ -44,7 +44,7 @@ class WithStages extends React.Component<Props, {}> {
     return (
       <PipelineProvider pipeline={pipeline} initialDealMap={initialDealMap}>
         <PipelineConsumer>
-          {({ dealMap, onDragEnd, stageIds }) => (
+          {({ stageLoadMap, dealMap, onDragEnd, stageIds }) => (
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable
                 droppableId="pipeline"
@@ -57,15 +57,24 @@ class WithStages extends React.Component<Props, {}> {
                     innerRef={provided.innerRef}
                     {...provided.droppableProps}
                   >
-                    {stageIds.map((stageId, index) => (
-                      <Stage
-                        key={stageId}
-                        index={index}
-                        length={stagesCount}
-                        stage={stageMap && stageMap[stageId]}
-                        deals={dealMap[stageId]}
-                      />
-                    ))}
+                    {stageIds.map((stageId, index) => {
+                      const stage = stageMap && stageMap[stageId];
+
+                      if (!stage) {
+                        return null;
+                      }
+
+                      return (
+                        <Stage
+                          key={stageId}
+                          index={index}
+                          length={stagesCount}
+                          stage={stage}
+                          deals={dealMap[stageId]}
+                          isLoadedDeals={stageLoadMap[stageId]}
+                        />
+                      );
+                    })}
                   </Container>
                 )}
               </Droppable>
@@ -94,7 +103,7 @@ const WithStatesQuery = (props: WithStatesQueryProps) => {
   const stageMap: IStageMap = {};
 
   for (const stage of stages) {
-    dealMap[stage._id] = stage.deals || [];
+    dealMap[stage._id] = [];
     stageMap[stage._id] = stage;
   }
 

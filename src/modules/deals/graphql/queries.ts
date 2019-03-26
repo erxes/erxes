@@ -75,34 +75,6 @@ const stages = `
       name
       order
       amount
-
-      deals {
-        _id
-        name
-        amount
-        closeDate
-        assignedUsers {
-          _id
-          email
-          details {
-            fullName
-            avatar
-          }
-        }
-        modifiedAt
-        modifiedBy
-        products
-        companies {
-          _id
-          primaryName
-        }
-        customers {
-          _id
-          firstName
-          primaryEmail
-          primaryPhone
-        }
-      }
     }
   }
 `;
@@ -114,10 +86,6 @@ const stageDetail = `
       name
       pipelineId
       amount
-
-      deals {
-        _id
-      }
     }
   }
 `;

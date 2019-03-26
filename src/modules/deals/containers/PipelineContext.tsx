@@ -12,12 +12,15 @@ type Props = {
 
 type State = {
   dealMap: IDealMap;
+  stageLoadMap: { [key: string]: boolean };
   stageIds: string[];
 };
 
 interface IStore {
   dealMap: IDealMap;
+  stageLoadMap: { [key: string]: boolean };
   stageIds: string[];
+  onLoadStage: (stageId: string, deals: IDeal[]) => void;
   onDragEnd: (result: IDragResult) => void;
   onAddDeal: (stageId: string, deal: IDeal) => void;
   onRemoveDeal: (dealId: string, stageId: string) => void;
@@ -40,6 +43,7 @@ export class PipelineProvider extends React.Component<Props, State> {
 
     this.state = {
       dealMap: initialDealMap,
+      stageLoadMap: {},
       stageIds: Object.keys(initialDealMap)
     };
   }
@@ -128,6 +132,15 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
   };
 
+  onLoadStage = (stageId: string, deals: IDeal[]) => {
+    const { dealMap, stageLoadMap } = this.state;
+
+    this.setState({
+      dealMap: { ...dealMap, [stageId]: deals },
+      stageLoadMap: { ...stageLoadMap, [stageId]: true }
+    });
+  };
+
   onAddDeal = (stageId: string, deal: IDeal) => {
     const { dealMap } = this.state;
     const deals = dealMap[stageId];
@@ -178,10 +191,12 @@ export class PipelineProvider extends React.Component<Props, State> {
       <PipelineContext.Provider
         value={{
           onDragEnd: this.onDragEnd,
+          onLoadStage: this.onLoadStage,
           onAddDeal: this.onAddDeal,
           onRemoveDeal: this.onRemoveDeal,
           onUpdateDeal: this.onUpdateDeal,
           dealMap: this.state.dealMap,
+          stageLoadMap: this.state.stageLoadMap,
           stageIds: this.state.stageIds
         }}
       >

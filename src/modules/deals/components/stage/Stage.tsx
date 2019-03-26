@@ -1,4 +1,9 @@
-import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import {
+  EmptyState,
+  Icon,
+  ModalTrigger,
+  Spinner
+} from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import {
   AddNew,
@@ -17,6 +22,7 @@ import { DealAddForm } from '.';
 import DealList from './DealList';
 
 type Props = {
+  loadingDeals;
   index: number;
   stage?: IStage;
   length: number;
@@ -57,7 +63,7 @@ export default class Stage extends React.Component<Props> {
   }
 
   render() {
-    const { index, stage, deals } = this.props;
+    const { index, stage, deals, loadingDeals } = this.props;
 
     if (!stage) {
       return <EmptyState icon="clipboard" text="No stage" size="small" />;
@@ -76,6 +82,7 @@ export default class Stage extends React.Component<Props> {
               <Indicator>{this.renderIndicator()}</Indicator>
             </Header>
             <Body>
+              {loadingDeals ? <span>Loading ...</span> : null}
               <DealList
                 listId={stage._id}
                 listType="DEAL"
