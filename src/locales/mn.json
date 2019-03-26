@@ -754,5 +754,6 @@
   "Select account ...": "Хаягаа сонгоно уу ...",
   "Add Account": "Хаяг нэмэх",
   "Remove Account": "Хаяг устгах",
-  "You can upload only image file": "Та зөвхөн .png юмуу .jpg зураг оруулна уу"
+  "You can upload only image file": "Та зөвхөн .png юмуу .jpg зураг оруулна уу",
+  "Invitation Status": "Уригдсан эсэх"
 }
