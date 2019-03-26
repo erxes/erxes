@@ -27,6 +27,7 @@ export interface IUserDoc {
   username: string;
   email: string;
   role?: string;
+  isActive?: boolean;
   details?: IUserDetails;
   status?: string;
   links?: IUserLinks;

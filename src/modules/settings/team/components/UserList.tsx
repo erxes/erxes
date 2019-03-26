@@ -139,6 +139,13 @@ class UserList extends React.Component<
               {object.status || 'Verified'}
             </TextInfo>
           </td>
+          <td>
+            <TextInfo
+              textStyle={object.isActive === true ? 'success' : 'warning'}
+            >
+              {object.isActive === true ? 'Active' : 'Inactive'}
+            </TextInfo>
+          </td>
           <td>{object.email}</td>
           <td>
             <TextInfo>{object.role || '-'}</TextInfo>
@@ -155,6 +162,7 @@ class UserList extends React.Component<
         <thead>
           <tr>
             <th>{__('Full name')}</th>
+            <th>{__('Invitation status')}</th>
             <th>{__('Status')}</th>
             <th>{__('Email')}</th>
             <th>{__('Role')}</th>
