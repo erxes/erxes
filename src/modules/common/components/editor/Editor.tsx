@@ -1,163 +1,22 @@
 import * as Draft from 'draft-js';
 import { ContentState, EditorState, RichUtils } from 'draft-js';
+import createLinkPlugin from 'draft-js-anchor-plugin';
+import {
+  BlockquoteButton,
+  BoldButton,
+  CodeBlockButton,
+  ItalicButton,
+  OrderedListButton,
+  UnderlineButton,
+  UnorderedListButton
+} from 'draft-js-buttons';
+import createEmojiPlugin from 'draft-js-emoji-plugin';
 import { stateToHTML } from 'draft-js-export-html';
 import Editor from 'draft-js-plugins-editor';
+import createToolbarPlugin, { Separator } from 'draft-js-static-toolbar-plugin';
 import * as React from 'react';
-import {
-  RichEditorControls,
-  RichEditorControlsRoot,
-  RichEditorRoot
-} from './styles';
-
-function getBlockStyle(block) {
-  switch (block.getType()) {
-    case 'blockquote':
-      return 'RichEditor-blockquote';
-    default:
-      return null;
-  }
-}
-
-// Custom overrides for "code" style.
-const styleMap = {
-  CODE: {
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    fontFamily: '"Inconsolata", "Menlo", "Consolas", monospace',
-    fontSize: 16,
-    padding: 2
-  }
-};
-
-type Props = {
-  active: boolean;
-  label?: React.ReactNode;
-  style?: string;
-  title?: string;
-  onToggle: (style?: string) => void;
-};
-
-class StyleButton extends React.Component<Props> {
-  onToggle: (e: React.MouseEvent) => void;
-
-  constructor(props: Props) {
-    super(props);
-
-    const { style, onToggle } = props;
-
-    this.onToggle = e => {
-      e.preventDefault();
-      onToggle(style);
-    };
-  }
-
-  render() {
-    const { active, label, title } = this.props;
-
-    let className = 'RichEditor-styleButton';
-
-    if (active) {
-      className += ' RichEditor-activeButton';
-    }
-
-    return (
-      <span className={className} title={title} onMouseDown={this.onToggle}>
-        {label}
-      </span>
-    );
-  }
-}
-
-const BLOCK_TYPES = [
-  {
-    label: <i className="icon-fontsize" />,
-    style: 'header-three',
-    title: 'Heading'
-  },
-  {
-    label: <i className="icon-rightquote" />,
-    style: 'blockquote',
-    title: 'Blockquote'
-  },
-  {
-    label: <i className="icon-list-2" />,
-    style: 'unordered-list-item',
-    title: 'Unordered list'
-  },
-  {
-    label: <i className="icon-list" />,
-    style: 'ordered-list-item',
-    title: 'Ordered list'
-  },
-  {
-    label: <i className="icon-superscript" />,
-    style: 'code-block',
-    title: 'Code Block'
-  }
-];
-
-type BlockStyleProps = {
-  onToggle: (style?: string) => void;
-  editorState: EditorState;
-};
-
-const BlockStyleControls = (props: BlockStyleProps) => {
-  const { editorState, onToggle } = props;
-
-  const selection = editorState.getSelection();
-  const blockType = editorState
-    .getCurrentContent()
-    .getBlockForKey(selection.getStartKey())
-    .getType();
-
-  return (
-    <RichEditorControls>
-      {BLOCK_TYPES.map(type => (
-        <StyleButton
-          key={type.title}
-          active={type.style === blockType}
-          label={type.label}
-          onToggle={onToggle}
-          style={type.style}
-          title={type.title}
-        />
-      ))}
-    </RichEditorControls>
-  );
-};
-
-const INLINE_STYLES = [
-  { label: <i className="icon-bold" />, style: 'BOLD', title: 'Bold' },
-  { label: <i className="icon-italic" />, style: 'ITALIC', title: 'Italic' },
-  {
-    label: <i className="icon-underline" />,
-    style: 'UNDERLINE',
-    title: 'Underline'
-  }
-];
-
-type InlineStyleProps = {
-  onToggle: (inlineStyle?: string) => void;
-  editorState: EditorState;
-};
-
-const InlineStyleControls = ({ onToggle, editorState }: InlineStyleProps) => {
-  const currentStyle = editorState.getCurrentInlineStyle();
-
-  return (
-    <RichEditorControls>
-      {INLINE_STYLES.map(type => (
-        <StyleButton
-          key={type.title}
-          active={currentStyle.has(type.style)}
-          label={type.label}
-          onToggle={onToggle}
-          style={type.style}
-          title={type.title}
-        />
-      ))}
-    </RichEditorControls>
-  );
-};
+import HeadlinesButton from './HeadlinesButton';
+import { RichEditorControlsRoot, RichEditorRoot } from './styles';
 
 type ErxesEditorProps = {
   editorState: EditorState;
@@ -175,19 +34,35 @@ type ErxesEditorProps = {
 };
 
 export class ErxesEditor extends React.Component<ErxesEditorProps> {
-  constructor(props: ErxesEditorProps) {
+  editor: Editor = this.refs.editor;
+  private linkPlugin;
+  private toolbarPlugin;
+  private emojiPlugin;
+
+  constructor(props) {
     super(props);
 
-    this.focus = () => {
-      const editor: Editor = this.refs.editor;
-
-      editor.focus();
-    };
+    this.linkPlugin = createLinkPlugin();
+    this.toolbarPlugin = createToolbarPlugin();
+    this.emojiPlugin = createEmojiPlugin({
+      useNativeArt: true,
+      positionSuggestions: settings => {
+        return {
+          left: settings.decoratorRect.x + 'px',
+          top: settings.decoratorRect.y - 5 + 'px', // change this value (10) for manage the distance between cursor and bottom edge of popover
+          transform: 'scale(1) translateY(-100%)', // transition popover on the value of its height
+          position: 'fixed',
+          margin: '0',
+          transition: 'all 0.25s cubic-bezier(0.3, 1.2, 0.2, 1)',
+          boxShadow: '0 0 12px 0 rgba(0, 0, 0, 0.1)'
+        };
+      }
+    });
   }
 
-  focus() {
-    return;
-  }
+  focus = () => {
+    this.editor.focus();
+  };
 
   onTab = e => {
     const { onChange, editorState } = this.props;
@@ -233,8 +108,20 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
       controls,
       onUpArrow,
       onDownArrow,
-      bordered
+      bordered,
+      plugins
     } = this.props;
+
+    const updatedPlugins = [
+      this.toolbarPlugin,
+      this.linkPlugin,
+      this.emojiPlugin
+    ].concat(plugins || []);
+
+    // plugins
+    const { Toolbar } = this.toolbarPlugin;
+    const { LinkButton } = this.linkPlugin;
+    const { EmojiSuggestions, EmojiSelect } = this.emojiPlugin;
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.
@@ -254,24 +141,8 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
 
     return (
       <RichEditorRoot bordered={bordered || false}>
-        <RichEditorControlsRoot>
-          <BlockStyleControls
-            editorState={editorState}
-            onToggle={this.toggleBlockType}
-          />
-
-          <InlineStyleControls
-            editorState={editorState}
-            onToggle={this.toggleInlineStyle}
-          />
-
-          {controls ? controls : null}
-        </RichEditorControlsRoot>
-
         <div className={className} onClick={this.focus}>
           <Editor
-            blockStyleFn={getBlockStyle}
-            customStyleMap={styleMap}
             editorState={editorState}
             handleKeyCommand={this.handleKeyCommand}
             onTab={this.onTab}
@@ -280,13 +151,35 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
             keyBindingFn={this.props.keyBindingFn}
             onUpArrow={onUpArrow}
             onDownArrow={onDownArrow}
-            // tslint:disable-next-line:jsx-no-string-ref
-            ref="editor"
-            plugins={this.props.plugins}
+            ref={element => {
+              this.editor = element;
+            }}
+            plugins={updatedPlugins}
             spellCheck={true}
             handlePastedFiles={this.handlePastedFile}
           />
+          <EmojiSuggestions />
         </div>
+        <RichEditorControlsRoot>
+          <Toolbar>
+            {externalProps => (
+              <>
+                <BoldButton {...externalProps} />
+                <ItalicButton {...externalProps} />
+                <UnderlineButton {...externalProps} />
+                <Separator {...externalProps} />
+                <HeadlinesButton {...externalProps} />
+                <UnorderedListButton {...externalProps} />
+                <OrderedListButton {...externalProps} />
+                <BlockquoteButton {...externalProps} />
+                <CodeBlockButton {...externalProps} />
+                <LinkButton {...externalProps} />
+                <EmojiSelect />
+                {controls ? controls : null}
+              </>
+            )}
+          </Toolbar>
+        </RichEditorControlsRoot>
         {this.props.pluginContent}
       </RichEditorRoot>
     );

@@ -35,6 +35,7 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
     return (
       <ModalTrigger
         title="Edit"
+        size="lg"
         trigger={
           <div>
             <Icon icon="edit" /> Edit
@@ -72,6 +73,7 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
     return (
       <List
         title="New email template"
+        size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Email templates') }
