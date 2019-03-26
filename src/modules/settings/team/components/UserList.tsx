@@ -107,17 +107,13 @@ class UserList extends React.Component<
   renderRowActions = (user: IUser) => {
     const { currentUser } = this.props;
 
-    if (user._id !== currentUser._id) {
-      return (
-        <RowActions
-          {...this.props}
-          object={user}
-          renderForm={this.renderForm}
-        />
-      );
+    if (user._id === currentUser._id) {
+      return <td>-</td>;
     }
 
-    return <td>-</td>;
+    return (
+      <RowActions {...this.props} object={user} renderForm={this.renderForm} />
+    );
   };
 
   renderRows({ objects }: { objects: IUser[] }) {
