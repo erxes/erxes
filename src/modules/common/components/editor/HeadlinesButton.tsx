@@ -10,7 +10,6 @@ const HeadButton = styled.button`
   display: inline-block;
   border: 0;
   height: 36px;
-  vertical-align: bottom;
   outline: 0;
 `;
 

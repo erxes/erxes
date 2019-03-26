@@ -57,6 +57,10 @@ a:hover {
   opacity: 0.8;
 }
 
+.modal.in .modal-dialog {
+  transform: none;
+}
+
 .modal-dialog {
   padding: 50px 0;
   margin: 0 auto;

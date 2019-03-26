@@ -44,7 +44,6 @@ const RichEditorRoot = styledTS<{ bordered: boolean }>(styled.div)`
 `;
 
 const RichEditorControlsRoot = styled.div`
-  overflow: hidden;
   position: absolute;
   top: 0;
   right: 0;
@@ -72,6 +71,9 @@ const RichEditorControlsRoot = styled.div`
       background: none;
       font-size: 16px;
       font-weight: 500;
+      vertical-align: bottom;
+      border: none;
+      border-radius: 0;
       transition: background 0.3s ease;
 
       &:hover {
@@ -93,6 +95,24 @@ const RichEditorControlsRoot = styled.div`
     color: ${colors.colorCoreGray};
     display: inline-block;
     vertical-align: top;
+  }
+
+  .draftJsEmojiPlugin__emojiSelectPopover__1J1s0 {
+    margin: 0;
+    bottom: 100%;
+    border-color: ${colors.borderPrimary};
+    box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
+
+    h3 {
+      background: #fafafa;
+      margin: 3px 0 0 0;
+      font-weight: 500;
+    }
+
+    > div {
+      height: 160px;
+      margin: 0;
+    }
   }
 `;
 

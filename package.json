@@ -35,6 +35,7 @@
     "draft-js": "^0.10.5",
     "draft-js-anchor-plugin": "^2.0.2",
     "draft-js-buttons": "^2.0.1",
+    "draft-js-emoji-plugin": "^2.1.1",
     "draft-js-export-html": "^1.2.0",
     "draft-js-plugins-editor": "^2.0.3",
     "draft-js-static-toolbar-plugin": "^3.0.0",

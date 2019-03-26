@@ -10,6 +10,7 @@ import {
   UnderlineButton,
   UnorderedListButton
 } from 'draft-js-buttons';
+import createEmojiPlugin from 'draft-js-emoji-plugin';
 import { stateToHTML } from 'draft-js-export-html';
 import Editor from 'draft-js-plugins-editor';
 import createToolbarPlugin, { Separator } from 'draft-js-static-toolbar-plugin';
@@ -36,12 +37,27 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
   editor: Editor = this.refs.editor;
   private linkPlugin;
   private toolbarPlugin;
+  private emojiPlugin;
 
   constructor(props) {
     super(props);
 
     this.linkPlugin = createLinkPlugin();
     this.toolbarPlugin = createToolbarPlugin();
+    this.emojiPlugin = createEmojiPlugin({
+      useNativeArt: true,
+      positionSuggestions: settings => {
+        return {
+          left: settings.decoratorRect.x + 'px',
+          top: settings.decoratorRect.y - 5 + 'px', // change this value (10) for manage the distance between cursor and bottom edge of popover
+          transform: 'scale(1) translateY(-100%)', // transition popover on the value of its height
+          position: 'fixed',
+          margin: '0',
+          transition: 'all 0.25s cubic-bezier(0.3, 1.2, 0.2, 1)',
+          boxShadow: '0 0 12px 0 rgba(0, 0, 0, 0.1)'
+        };
+      }
+    });
   }
 
   focus = () => {
@@ -96,12 +112,16 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
       plugins
     } = this.props;
 
-    const updatedPlugins = [this.toolbarPlugin, this.linkPlugin].concat(
-      plugins || []
-    );
+    const updatedPlugins = [
+      this.toolbarPlugin,
+      this.linkPlugin,
+      this.emojiPlugin
+    ].concat(plugins || []);
 
+    // plugins
     const { Toolbar } = this.toolbarPlugin;
     const { LinkButton } = this.linkPlugin;
+    const { EmojiSuggestions, EmojiSelect } = this.emojiPlugin;
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.
@@ -138,6 +158,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
             spellCheck={true}
             handlePastedFiles={this.handlePastedFile}
           />
+          <EmojiSuggestions />
         </div>
         <RichEditorControlsRoot>
           <Toolbar>
@@ -153,6 +174,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
                 <BlockquoteButton {...externalProps} />
                 <CodeBlockButton {...externalProps} />
                 <LinkButton {...externalProps} />
+                <EmojiSelect />
                 {controls ? controls : null}
               </>
             )}

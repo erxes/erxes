@@ -5,6 +5,7 @@ import apolloClient from './apolloClient';
 import Routes from './routes';
 
 import 'draft-js-anchor-plugin/lib/plugin.css';
+import 'draft-js-emoji-plugin/lib/plugin.css';
 import 'draft-js-static-toolbar-plugin/lib/plugin.css';
 import 'erxes-icon/css/erxes.min.css';
 // global style
