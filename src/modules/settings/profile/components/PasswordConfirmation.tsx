@@ -9,7 +9,7 @@ import * as React from 'react';
 
 type Props = {
   onSuccess: (password: string) => void;
-  closeModal: () => void;
+  closeModal?: () => void;
 };
 
 class PasswordConfirmation extends React.Component<Props> {
@@ -20,7 +20,10 @@ class PasswordConfirmation extends React.Component<Props> {
       .value;
 
     this.props.onSuccess(password);
-    this.props.closeModal();
+
+    if (this.props.closeModal) {
+      this.props.closeModal();
+    }
   };
 
   render() {
