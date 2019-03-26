@@ -128,6 +128,7 @@ class UserList extends React.Component<
 
           <RowActions
             {...this.props}
+            size="lg"
             object={object}
             renderForm={this.renderForm}
           />

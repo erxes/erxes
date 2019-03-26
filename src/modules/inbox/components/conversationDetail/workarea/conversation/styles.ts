@@ -29,6 +29,7 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
 
   a {
     color: ${props => props.staff && colors.colorWhite};
+    text-decoration: underline;
   }
 
   p {

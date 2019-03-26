@@ -7,7 +7,7 @@ import styledTS from 'styled-components-ts';
 
 const types = {
   info: {
-    background: colors.colorSecondary,
+    background: colors.colorCoreBlue,
     icon: 'information'
   },
 
