@@ -71,8 +71,8 @@ const Nav = styled.nav`
         position: absolute;
         display: block;
         left: 0;
-        top: 3px;
-        bottom: 3px;
+        top: 5px;
+        bottom: 5px;
         border-top-right-radius: 3px;
         border-bottom-right-radius: 3px;
       }
@@ -87,7 +87,7 @@ const Nav = styled.nav`
     }
 
     &:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: rgba(0, 0, 0, 0.06);
 
       i {
         opacity: 1;

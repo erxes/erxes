@@ -12,7 +12,7 @@ const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
 `;
 
 const MiddleContent = styledTS<{ transparent?: boolean }>(styled.div)`
-  width: 850px;
+  width: 900px;
   height: 100%;
   background: ${props => !props.transparent && colors.colorWhite};
 `;

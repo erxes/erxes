@@ -3,11 +3,6 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import {
-  createStateFromHTML,
-  ErxesEditor,
-  toHTML
-} from 'modules/common/components/editor/Editor';
 import * as React from 'react';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
