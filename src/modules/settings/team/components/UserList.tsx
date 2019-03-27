@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import {
   Button,
@@ -25,7 +26,7 @@ const UserAvatar = styled.td`
 `;
 
 class UserList extends React.Component<
-  ICommonListProps & ICommonFormProps,
+  ICommonListProps & ICommonFormProps & { currentUser: IUser },
   { emails: string[] }
 > {
   private closeModal;
@@ -103,6 +104,23 @@ class UserList extends React.Component<
     return <UserForm {...props} />;
   };
 
+  renderRowActions = (user: IUser) => {
+    const { currentUser } = this.props;
+
+    if (user._id === currentUser._id) {
+      return <td>-</td>;
+    }
+
+    return (
+      <RowActions
+        {...this.props}
+        size="lg"
+        object={user}
+        renderForm={this.renderForm}
+      />
+    );
+  };
+
   renderRows({ objects }: { objects: IUser[] }) {
     return objects.map((object, index) => {
       const onClick = () => {
@@ -121,17 +139,18 @@ class UserList extends React.Component<
               {object.status || 'Verified'}
             </TextInfo>
           </td>
+          <td>
+            <TextInfo
+              textStyle={object.isActive === true ? 'success' : 'warning'}
+            >
+              {object.isActive === true ? 'Active' : 'Inactive'}
+            </TextInfo>
+          </td>
           <td>{object.email}</td>
           <td>
             <TextInfo>{object.role || '-'}</TextInfo>
           </td>
-
-          <RowActions
-            {...this.props}
-            size="lg"
-            object={object}
-            renderForm={this.renderForm}
-          />
+          {this.renderRowActions(object)}
         </tr>
       );
     });
@@ -143,6 +162,7 @@ class UserList extends React.Component<
         <thead>
           <tr>
             <th>{__('Full name')}</th>
+            <th>{__('Invitation status')}</th>
             <th>{__('Status')}</th>
             <th>{__('Email')}</th>
             <th>{__('Role')}</th>
@@ -185,4 +205,16 @@ class UserList extends React.Component<
   }
 }
 
-export default UserList;
+const WithConsumer = (
+  props: ICommonListProps & ICommonFormProps & { currentUser: IUser }
+) => {
+  return (
+    <AppConsumer>
+      {({ currentUser }) => (
+        <UserList {...props} currentUser={currentUser || ({} as IUser)} />
+      )}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer;

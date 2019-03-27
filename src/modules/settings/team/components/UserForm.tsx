@@ -119,6 +119,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
             defaultValue={user.role}
             id="role"
           >
+            <option />
             <option value="admin">{__('Admin')}</option>
             <option value="contributor">{__('Contributor')}</option>
           </FormControl>

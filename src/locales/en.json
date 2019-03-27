@@ -783,5 +783,6 @@
   "Select account ...": "Select account ...",
   "Add Account": "Add Account",
   "Remove Account": "Remove Account",
-  "You can upload only image file": "You can upload only .png or .jpg image file"
+  "You can upload only image file": "You can upload only .png or .jpg image file",
+  "Invitation Status": "Invitation Status"
 }
