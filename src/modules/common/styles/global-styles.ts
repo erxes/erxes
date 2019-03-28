@@ -61,6 +61,10 @@ a:hover {
   transform: none;
 }
 
+.modal.in .modal-dialog.transform {
+  transform: translate(0,0);
+}
+
 .modal-dialog {
   padding: 50px 0;
   margin: 0 auto;
