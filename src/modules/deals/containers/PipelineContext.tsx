@@ -12,15 +12,16 @@ type Props = {
 
 type State = {
   dealMap: IDealMap;
-  stageLoadMap: { [key: string]: boolean };
+  stageLoadMap: { [key: string]: string };
   stageIds: string[];
 };
 
 interface IStore {
   dealMap: IDealMap;
-  stageLoadMap: { [key: string]: boolean };
+  stageLoadMap: { [key: string]: string };
   stageIds: string[];
   onLoadStage: (stageId: string, deals: IDeal[]) => void;
+  scheduleDeals: (stageId: string) => void;
   onDragEnd: (result: IDragResult) => void;
   onAddDeal: (stageId: string, deal: IDeal) => void;
   onRemoveDeal: (dealId: string, stageId: string) => void;
@@ -36,15 +37,22 @@ const invalidateCalendarCache = () => {
 };
 
 export class PipelineProvider extends React.Component<Props, State> {
-  constructor(props) {
+  static tasks: Array<{
+    handler: (stageId: string) => void;
+    stageId: string;
+    isComplete: boolean;
+  }> = [];
+  static currentTask: any;
+
+  constructor(props: Props) {
     super(props);
 
     const { initialDealMap } = props;
 
     this.state = {
-      dealMap: initialDealMap,
+      dealMap: initialDealMap || {},
       stageLoadMap: {},
-      stageIds: Object.keys(initialDealMap)
+      stageIds: Object.keys(initialDealMap || {})
     };
   }
 
@@ -134,11 +142,60 @@ export class PipelineProvider extends React.Component<Props, State> {
 
   onLoadStage = (stageId: string, deals: IDeal[]) => {
     const { dealMap, stageLoadMap } = this.state;
+    const task = PipelineProvider.tasks.find(t => t.stageId === stageId);
+
+    if (task) {
+      task.isComplete = true;
+    }
 
     this.setState({
       dealMap: { ...dealMap, [stageId]: deals },
-      stageLoadMap: { ...stageLoadMap, [stageId]: true }
+      stageLoadMap: { ...stageLoadMap, [stageId]: 'loaded' }
     });
+  };
+
+  scheduleDeals = (stageId: string) => {
+    const tasks = PipelineProvider.tasks;
+
+    let currentTask = PipelineProvider.currentTask;
+
+    tasks.push({
+      handler: (id: string) => {
+        const { stageLoadMap } = this.state;
+
+        if (!Object.values(stageLoadMap).includes('ready')) {
+          this.setState({ stageLoadMap: { ...stageLoadMap, [id]: 'ready' } });
+        }
+      },
+      stageId,
+      isComplete: false
+    });
+
+    if (!currentTask) {
+      currentTask = (window as any).requestIdleCallback(this.runTaskQueue);
+    }
+  };
+
+  runTaskQueue = deadline => {
+    const inCompleteTask = PipelineProvider.tasks.find(
+      task => !task.isComplete
+    );
+
+    while (
+      (deadline.timeRemaining() > 0 || deadline.didTimeout) &&
+      inCompleteTask
+    ) {
+      const { handler, stageId } = inCompleteTask;
+      handler(stageId);
+    }
+
+    PipelineProvider.currentTask = 0;
+
+    if (inCompleteTask) {
+      PipelineProvider.currentTask = (window as any).requestIdleCallback(
+        this.runTaskQueue
+      );
+    }
   };
 
   onAddDeal = (stageId: string, deal: IDeal) => {
@@ -192,6 +249,7 @@ export class PipelineProvider extends React.Component<Props, State> {
         value={{
           onDragEnd: this.onDragEnd,
           onLoadStage: this.onLoadStage,
+          scheduleDeals: this.scheduleDeals,
           onAddDeal: this.onAddDeal,
           onRemoveDeal: this.onRemoveDeal,
           onUpdateDeal: this.onUpdateDeal,

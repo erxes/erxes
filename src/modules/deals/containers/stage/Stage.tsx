@@ -3,6 +3,7 @@ import { __, Alert, withProps } from 'modules/common/utils';
 import { Stage } from 'modules/deals/components/stage';
 import { mutations, queries } from 'modules/deals/graphql';
 import {
+  DealsQueryResponse,
   IDeal,
   IDealParams,
   IStage,
@@ -16,18 +17,20 @@ type WrapperProps = {
   stage: IStage;
   index: number;
   isLoadedDeals: boolean;
+  isReadyToFetch: boolean;
   deals: IDeal[];
   length: number;
 };
 
 type StageProps = {
   onLoad: (stageId: string, deals: IDeal[]) => void;
+  scheduleDeals: (stageId: string) => void;
   onAddDeal: (stageId: string, deal: IDeal) => void;
 } & WrapperProps;
 
 type FinalStageProps = {
   addMutation: SaveDealMutation;
-  dealsQuery: any;
+  dealsQuery?: DealsQueryResponse;
 } & StageProps;
 
 class StageContainer extends React.PureComponent<
@@ -37,14 +40,20 @@ class StageContainer extends React.PureComponent<
   componentWillReceiveProps(nextProps: FinalStageProps) {
     const { stage, isLoadedDeals, onLoad, dealsQuery } = nextProps;
 
-    if (!dealsQuery.loading && !isLoadedDeals) {
+    if (dealsQuery && !dealsQuery.loading && !isLoadedDeals) {
       onLoad(stage._id, dealsQuery.deals || []);
     }
   }
 
+  componentDidMount() {
+    const { scheduleDeals, stage } = this.props;
+
+    scheduleDeals(stage._id);
+  }
+
   render() {
     const { onAddDeal, stage, dealsQuery, addMutation } = this.props;
-    const loadingDeals = dealsQuery.loading;
+    const loadingDeals = (dealsQuery ? dealsQuery.loading : null) || false;
 
     // create deal
     const addDeal = (name: string, callback) => {
@@ -79,6 +88,7 @@ const WithData = withProps<StageProps>(
   compose(
     graphql<StageProps>(gql(queries.deals), {
       name: 'dealsQuery',
+      skip: ({ isReadyToFetch }) => !isReadyToFetch,
       options: ({ stage }) => ({
         variables: {
           stageId: stage._id
@@ -106,9 +116,14 @@ const WithData = withProps<StageProps>(
 export default (props: WrapperProps) => {
   return (
     <PipelineConsumer>
-      {({ onAddDeal, onLoadStage, stageLoadMap }) => {
+      {({ onAddDeal, onLoadStage, scheduleDeals }) => {
         return (
-          <WithData {...props} onLoad={onLoadStage} onAddDeal={onAddDeal} />
+          <WithData
+            {...props}
+            scheduleDeals={scheduleDeals}
+            onLoad={onLoadStage}
+            onAddDeal={onAddDeal}
+          />
         );
       }}
     </PipelineConsumer>

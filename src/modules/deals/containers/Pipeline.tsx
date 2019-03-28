@@ -71,7 +71,8 @@ class WithStages extends React.Component<Props, {}> {
                           length={stagesCount}
                           stage={stage}
                           deals={dealMap[stageId]}
-                          isLoadedDeals={stageLoadMap[stageId]}
+                          isLoadedDeals={stageLoadMap[stageId] === 'loaded'}
+                          isReadyToFetch={stageLoadMap[stageId] === 'ready'}
                         />
                       );
                     })}
