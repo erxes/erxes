@@ -165,7 +165,7 @@ class DealEditForm extends React.Component<Props, State> {
     } = this.state;
 
     return (
-      <React.Fragment>
+      <>
         <Top
           name={name}
           description={description}
@@ -192,13 +192,13 @@ class DealEditForm extends React.Component<Props, State> {
             saveProductsData={this.saveProductsData}
           />
         </FlexContent>
-      </React.Fragment>
+      </>
     );
   }
 
   render() {
     return (
-      <React.Fragment>
+      <>
         {this.renderFormContent()}
 
         <FormFooter>
@@ -214,7 +214,7 @@ class DealEditForm extends React.Component<Props, State> {
             Save
           </Button>
         </FormFooter>
-      </React.Fragment>
+      </>
     );
   }
 }

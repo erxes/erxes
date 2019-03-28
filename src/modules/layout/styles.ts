@@ -146,7 +146,8 @@ const SidebarTitle = styledTS<{ children: any }>(
 `;
 
 const SidebarMainContent = styled.div`
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   flex: 1;
   position: relative;
 `;

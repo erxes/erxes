@@ -22,6 +22,7 @@ type ErxesEditorProps = {
   editorState: EditorState;
   onChange: (richUtils: RichUtils) => void;
   bordered?: boolean;
+  isTopPopup?: boolean;
   // extra control rows
   controls?: any[];
   pluginContent?: any;
@@ -42,6 +43,20 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
   constructor(props) {
     super(props);
 
+    const options = settings => {
+      if (props.isTopPopup) {
+        return {
+          top: settings.decoratorRect.y - 30 + 'px', // change this value (30) for manage the distance between cursor and bottom edge of popover
+          transform: 'scale(1) translateY(-100%)'
+        };
+      }
+
+      return {
+        top: settings.decoratorRect.y + 'px',
+        transform: 'scale(1)'
+      };
+    };
+
     this.linkPlugin = createLinkPlugin();
     this.toolbarPlugin = createToolbarPlugin();
     this.emojiPlugin = createEmojiPlugin({
@@ -49,12 +64,11 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
       positionSuggestions: settings => {
         return {
           left: settings.decoratorRect.x + 'px',
-          top: settings.decoratorRect.y - 5 + 'px', // change this value (10) for manage the distance between cursor and bottom edge of popover
-          transform: 'scale(1) translateY(-100%)', // transition popover on the value of its height
+          boxShadow: '0 0 12px 0 rgba(0, 0, 0, 0.1)',
+          transformOrigin: '1em 0%',
           position: 'fixed',
-          margin: '0',
-          transition: 'all 0.25s cubic-bezier(0.3, 1.2, 0.2, 1)',
-          boxShadow: '0 0 12px 0 rgba(0, 0, 0, 0.1)'
+          transition: 'all 0.2s cubic-bezier(0.3, 1.2, 0.2, 1) 0s',
+          ...options(settings)
         };
       }
     });
@@ -109,6 +123,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
       onUpArrow,
       onDownArrow,
       bordered,
+      isTopPopup = false,
       plugins
     } = this.props;
 
@@ -160,7 +175,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
           />
           <EmojiSuggestions />
         </div>
-        <RichEditorControlsRoot>
+        <RichEditorControlsRoot isTopPopup={isTopPopup}>
           <Toolbar>
             {externalProps => (
               <>

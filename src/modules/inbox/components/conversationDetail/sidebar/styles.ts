@@ -84,6 +84,10 @@ const NoteFormContainer = styled.div`
       ${dimensions.unitSpacing}px;
     display: block;
   }
+
+  .draftJsToolbar__toolbar__dNtBH button {
+    width: 25px;
+  }
 `;
 
 const ActivityLogContent = styled(ActivityContent)`
