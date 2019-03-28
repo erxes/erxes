@@ -33,8 +33,7 @@ const MainWrapper = styled.div`
 const Contents = styled.div`
   display: flex;
   flex: 1;
-  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px
-    ${dimensions.unitSpacing}px;
+  margin-left: ${dimensions.unitSpacing}px;
   max-height: 100%;
 
   @-moz-document url-prefix() {
@@ -52,7 +51,7 @@ const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
   box-shadow: ${props =>
     !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
   height: ${props => props.center && '100%'};
-  margin-right: ${props => !props.center && '10px'};
+  margin: ${props => !props.center && '10px 10px 10px 0'};
 `;
 
 const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
@@ -113,7 +112,9 @@ const SideContent = styledTS<{
   width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
-  margin-right: ${dimensions.unitSpacing}px;
+  margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
+  dimensions.unitSpacing
+}px 0;
   box-shadow: ${props =>
     props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 `;
