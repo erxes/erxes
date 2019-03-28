@@ -85,7 +85,7 @@ class AssignBox extends React.Component<Props, State> {
     });
   }
 
-  assign = (id: string) => {
+  assign = (items: IAssignee[], id: string) => {
     const { assign, targets, afterSave } = this.props;
 
     assign(
