@@ -49,6 +49,7 @@ interface IState {
 
 interface IStore extends IState {
   currentUser?: IUser;
+  can: (action: string) => boolean;
   changeLanguage: (languageCode: string) => void;
 }
 
@@ -71,18 +72,35 @@ export class AppProvider extends React.Component<
       currentLanguage
     };
 
-    this.setLocale = this.setLocale.bind(this);
-    this.changeLanguage = this.changeLanguage.bind(this);
-
     this.setLocale(currentLanguage);
   }
 
-  setLocale(currentLanguage) {
+  can = (actionName: string): boolean => {
+    const { currentUser } = this.props;
+
+    if (!currentUser) {
+      return false;
+    }
+
+    if (currentUser.isOwner) {
+      return true;
+    }
+
+    if (!actionName) {
+      return false;
+    }
+
+    const actions = currentUser.permissionActions || [];
+
+    return actions.indexOf(actionName) >= 0;
+  };
+
+  setLocale = (currentLanguage: string): void => {
     moment.locale(currentLanguage);
     T.setTexts(translations[currentLanguage]);
-  }
+  };
 
-  changeLanguage(languageCode) {
+  changeLanguage = (languageCode): void => {
     const currentLanguage = languageCode || 'en';
 
     localStorage.setItem('currentLanguage', currentLanguage);
@@ -90,7 +108,7 @@ export class AppProvider extends React.Component<
     this.setLocale(currentLanguage);
 
     this.setState({ currentLanguage });
-  }
+  };
 
   public render() {
     const { currentUser, currentLanguage } = this.state;
@@ -100,6 +118,7 @@ export class AppProvider extends React.Component<
         value={{
           currentUser,
           currentLanguage,
+          can: this.can,
           changeLanguage: this.changeLanguage
         }}
       >

@@ -31,6 +31,7 @@ const usersEditProfile = `
     $details: UserDetails
     $links: UserLinks
     $password: String!
+    $groupIds: [String]
   ) {
     usersEditProfile(
       username: $username
@@ -38,6 +39,7 @@ const usersEditProfile = `
       details: $details
       links: $links
       password: $password
+      groupIds: $groupIds
     ) {
       _id
     }

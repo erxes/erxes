@@ -1,6 +1,8 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { ICommonFormProps } from 'modules/settings/common/types';
+import { queries as groupQueries } from 'modules/settings/usersGroups/graphql';
+import { UsersGroupsQueryResponse } from 'modules/settings/usersGroups/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
@@ -11,14 +13,15 @@ import { queries } from '../graphql';
 
 type Props = {
   channelsQuery: ChannelsQueryResponse;
+  groupsQuery: UsersGroupsQueryResponse;
 };
 
 const UserFormContainer = (props: Props & ICommonFormProps) => {
-  const { channelsQuery } = props;
+  const { channelsQuery, groupsQuery } = props;
 
   const object = props.object || ({} as IUser);
 
-  if (channelsQuery.loading) {
+  if (channelsQuery.loading || groupsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
@@ -33,7 +36,8 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
   const updatedProps = {
     ...props,
     selectedChannels,
-    channels
+    channels,
+    groups: groupQueries.usersGroups || []
   };
 
   return <UserForm {...updatedProps} />;
@@ -41,11 +45,13 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
 
 export default withProps<ICommonFormProps>(
   compose(
-    graphql(gql(queries.channels), {
+    graphql<{}, ChannelsQueryResponse>(gql(queries.channels), {
       name: 'channelsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      options: () => ({ fetchPolicy: 'network-only' })
+    }),
+    graphql<{}, UsersGroupsQueryResponse>(gql(groupQueries.usersGroups), {
+      name: 'groupsQuery',
+      options: () => ({ fetchPolicy: 'network-only' })
     })
   )(UserFormContainer)
 );

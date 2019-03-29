@@ -6,6 +6,7 @@ const userDetail = `
       email
       role
       status
+      groupIds
 
       details {
         avatar
