@@ -402,14 +402,17 @@ describe('User mutations', () => {
 
   test('Remove user', async () => {
     const mutation = `
-      mutation usersRemove($_id: String!) {
-        usersRemove(_id: $_id)
+      mutation usersSetActiveStatus($_id: String!) {
+        usersSetActiveStatus(_id: $_id) {
+          _id
+          isActive
+        }
       }
     `;
 
     await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1 } });
 
-    await graphqlRequest(mutation, 'usersRemove', { _id: _user._id }, { user: _admin });
+    await graphqlRequest(mutation, 'usersSetActiveStatus', { _id: _user._id }, { user: _admin });
 
     const deactivedUser = await Users.findOne({ _id: _user._id });
 
@@ -422,12 +425,14 @@ describe('User mutations', () => {
 
   test('Remove user with pending invitation status', async () => {
     const mutation = `
-      mutation usersRemove($_id: String!) {
-        usersRemove(_id: $_id)
+      mutation usersSetActiveStatus($_id: String!) {
+        usersSetActiveStatus(_id: $_id) {
+          _id
+        }
       }
     `;
 
-    await graphqlRequest(mutation, 'usersRemove', { _id: _user._id }, { user: _admin });
+    await graphqlRequest(mutation, 'usersSetActiveStatus', { _id: _user._id }, { user: _admin });
 
     const removedUser = await Users.findOne({ _id: _user._id });
 
