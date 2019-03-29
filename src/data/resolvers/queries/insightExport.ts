@@ -40,9 +40,22 @@ export interface IListArgsWithUserId extends IListArgs {
 }
 
 /**
+ * Fix number if it is either NaN or Infinity
+ */
+
+const fixNumber = (num: number) => {
+  if (isNaN(num) || num === Infinity) {
+    return 0;
+  }
+  return num;
+};
+
+/**
  * Time format HH:mm:ii
  */
 const convertTime = (duration: number) => {
+  duration = duration / 1000;
+
   const hours = Math.floor(duration / 3600);
   const minutes = Math.floor((duration % 3600) / 60);
   const seconds = Math.floor((duration % 3600) % 60);
@@ -213,8 +226,12 @@ const insightExportQueries = {
     let totalUniqueCount = 0;
     let totalConversationMessages = 0;
     let totalResolved = 0;
-    let totalClosedTime = 0;
     let totalRespondTime = 0;
+
+    let averageResponseDuration = 0;
+    let firstResponseDuration = 0;
+    let totalAverageResponseDuration = 0;
+    let totalFirstResponseDuration = 0;
 
     aggregatedData.forEach(row => {
       volumeDictionary[row._id] = row;
@@ -224,6 +241,7 @@ const insightExportQueries = {
       {
         $match: {
           conversationId: { $in: conversationRawIds },
+          createdAt: { $gte: start, $lte: end },
         },
       },
       {
@@ -267,13 +285,19 @@ const insightExportQueries = {
         uniqueCustomerCount: 0,
         percentage: 0,
       };
-      const messageCount = conversationDictionary[dateKey];
+      const messageCount = conversationDictionary[dateKey] || 0;
 
       totalCustomerCount += totalCount;
       totalResolved += resolvedCount;
-      totalClosedTime += totalCloseTime;
+
       totalRespondTime += totalResponseTime;
       totalUniqueCount += uniqueCustomerCount;
+
+      averageResponseDuration = fixNumber(totalCloseTime / resolvedCount);
+      firstResponseDuration = fixNumber(totalRespondTime / totalCount);
+
+      totalAverageResponseDuration += averageResponseDuration;
+      totalFirstResponseDuration += firstResponseDuration;
 
       data.push({
         date: moment(begin).format(timeFormat),
@@ -282,8 +306,8 @@ const insightExportQueries = {
         customerCountPercentage: `${percentage.toFixed(0)}%`,
         messageCount,
         resolvedCount,
-        averageResponseDuration: convertTime(totalCloseTime / resolvedCount),
-        firstResponseDuration: convertTime(totalRespondTime / totalCount),
+        averageResponseDuration: convertTime(averageResponseDuration),
+        firstResponseDuration: convertTime(firstResponseDuration),
       });
 
       if (next.getTime() < end.getTime()) {
@@ -302,8 +326,8 @@ const insightExportQueries = {
       customerCountPercentage: `${((totalUniqueCount / totalCustomerCount) * 100).toFixed(0)}%`,
       messageCount: totalConversationMessages,
       resolvedCount: totalResolved,
-      averageResponseDuration: convertTime(totalClosedTime / totalResolved),
-      firstResponseDuration: convertTime(totalRespondTime / totalCustomerCount),
+      averageResponseDuration: convertTime(totalAverageResponseDuration),
+      firstResponseDuration: convertTime(totalFirstResponseDuration),
     });
 
     const basicInfos = INSIGHT_BASIC_INFOS;
