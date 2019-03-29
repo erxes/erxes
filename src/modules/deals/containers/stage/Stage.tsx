@@ -1,9 +1,11 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { __, Alert, withProps } from 'modules/common/utils';
 import { Stage } from 'modules/deals/components/stage';
 import { mutations, queries } from 'modules/deals/graphql';
 import {
   DealsQueryResponse,
+  DealsTotalAmountsQueryResponse,
   IDeal,
   IDealParams,
   IStage,
@@ -31,6 +33,7 @@ type StageProps = {
 type FinalStageProps = {
   addMutation: SaveDealMutation;
   dealsQuery?: DealsQueryResponse;
+  dealsTotalAmountsQuery: DealsTotalAmountsQueryResponse;
 } & StageProps;
 
 class StageContainer extends React.PureComponent<
@@ -52,8 +55,36 @@ class StageContainer extends React.PureComponent<
   }
 
   render() {
-    const { onAddDeal, stage, dealsQuery, addMutation } = this.props;
+    const {
+      index,
+      length,
+      onLoad,
+      onAddDeal,
+      stage,
+      deals,
+      dealsQuery,
+      dealsTotalAmountsQuery,
+      addMutation
+    } = this.props;
     const loadingDeals = (dealsQuery ? dealsQuery.loading : null) || false;
+
+    const loadMore = () => {
+      client
+        .query({
+          query: gql(queries.deals),
+          variables: {
+            stageId: stage._id,
+            skip: deals.length
+          }
+        })
+        .then(({ data }: any) => {
+          const dealIds = deals.map(deal => deal._id);
+          const uniqueDeals = (data.deals || []).filter(
+            deal => !dealIds.includes(deal._id)
+          );
+          onLoad(stage._id, [...deals, ...uniqueDeals]);
+        });
+    };
 
     // create deal
     const addDeal = (name: string, callback) => {
@@ -74,18 +105,36 @@ class StageContainer extends React.PureComponent<
         });
     };
 
-    const extendedProps = {
-      ...this.props,
-      loadingDeals,
-      addDeal
+    const dealAmount = dealsTotalAmountsQuery.dealsTotalAmounts || {
+      dealCount: 0,
+      dealAmounts: {}
     };
 
-    return <Stage {...extendedProps} />;
+    return (
+      <Stage
+        stage={stage}
+        index={index}
+        length={length}
+        deals={deals}
+        loadingDeals={loadingDeals}
+        dealAmount={dealAmount}
+        loadMore={loadMore}
+        addDeal={addDeal}
+      />
+    );
   }
 }
 
 const WithData = withProps<StageProps>(
   compose(
+    graphql<StageProps>(gql(queries.dealsTotalAmounts), {
+      name: 'dealsTotalAmountsQuery',
+      options: ({ stage }) => ({
+        variables: {
+          stageId: stage._id
+        }
+      })
+    }),
     graphql<StageProps>(gql(queries.deals), {
       name: 'dealsQuery',
       skip: ({ isReadyToFetch }) => !isReadyToFetch,
