@@ -98,7 +98,7 @@ class CompanyDetails extends React.Component<IProps, State> {
           contentType="company"
           contentTypeId={company._id}
           toEmails={company.emails}
-          refetchQueries={['activityLogsCompany']}
+          refetchQueries={['activityLogs']}
         />
       </TabContent>
     );

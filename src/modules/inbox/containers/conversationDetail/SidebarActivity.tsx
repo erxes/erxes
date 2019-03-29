@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { queries as activityLogQueries } from 'modules/activityLogs/graphql';
 import { IUser } from 'modules/auth/types';
 import { queries } from 'modules/customers/graphql';
 import { ActivityLogQueryResponse, ICustomer } from 'modules/customers/types';
@@ -25,7 +26,7 @@ class SidebarActivityContainer extends React.Component<FinalProps> {
       ...this.props,
       customer,
       loadingLogs: customerActivityLogQuery.loading,
-      activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
+      activityLogsCustomer: customerActivityLogQuery.activityLogs || [],
       currentUser
     };
 
@@ -36,7 +37,7 @@ class SidebarActivityContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, ActivityLogQueryResponse, { _id: string }>(
-      gql(queries.activityLogsCustomer),
+      gql(activityLogQueries.activityLogs),
       {
         name: 'customerActivityLogQuery',
         options: ({ customer }) => ({

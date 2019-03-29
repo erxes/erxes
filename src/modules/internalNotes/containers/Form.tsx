@@ -44,7 +44,7 @@ export default compose(
       return {
         refetchQueries: [
           {
-            query: gql(queries[`${props.contentType}ActivityLogQuery`]),
+            query: gql(queries[`activityLogs`]),
             variables: { _id: props.contentTypeId }
           }
         ]

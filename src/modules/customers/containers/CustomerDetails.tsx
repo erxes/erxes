@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { queries as activityLogQueries } from 'modules/activityLogs/graphql';
 import { IUser } from 'modules/auth/types';
 import { Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
@@ -33,7 +34,8 @@ class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
     if (customerDetailQuery.loading) {
       return <Spinner objective={true} />;
     }
-
+    // tslint:disable-next-line:no-console
+    console.log(customerActivityLogQuery);
     const taggerRefetchQueries = [
       {
         query: gql(queries.customerDetail),
@@ -45,7 +47,7 @@ class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
       ...this.props,
       customer: customerDetailQuery.customerDetail || {},
       loadingLogs: customerActivityLogQuery.loading,
-      activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
+      activityLogsCustomer: customerActivityLogQuery.activityLogs || [],
       taggerRefetchQueries,
       currentUser
     };
@@ -67,13 +69,14 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, ActivityLogQueryResponse, { _id: string }>(
-      gql(queries.activityLogsCustomer),
+    graphql<Props, ActivityLogQueryResponse>(
+      gql(activityLogQueries.activityLogs),
       {
         name: 'customerActivityLogQuery',
         options: ({ id }: { id: string }) => ({
           variables: {
-            _id: id
+            contentId: id,
+            contentType: 'customer'
           }
         })
       }
