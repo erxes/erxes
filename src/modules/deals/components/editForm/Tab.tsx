@@ -10,7 +10,7 @@ import { ActivityContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
-import { WhiteBox } from 'modules/layout/styles';
+import { WhiteBoxRoot } from 'modules/layout/styles';
 import * as React from 'react';
 import { Left } from '../../styles/deal';
 import { IDeal } from '../../types';
@@ -73,7 +73,7 @@ class Tab extends React.Component<Props, { currentTab: string }> {
 
     return (
       <Left>
-        <WhiteBox>
+        <WhiteBoxRoot>
           <Tabs>
             <TabTitle className="active">
               <Icon icon="edit-1" /> {__('New note')}
@@ -81,7 +81,7 @@ class Tab extends React.Component<Props, { currentTab: string }> {
           </Tabs>
 
           <NoteForm contentType="deal" contentTypeId={deal && deal._id} />
-        </WhiteBox>
+        </WhiteBoxRoot>
         <Tabs grayBorder={true}>
           <TabTitle
             className={currentTab === 'activity' ? 'active' : ''}

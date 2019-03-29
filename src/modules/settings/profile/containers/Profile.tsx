@@ -18,10 +18,11 @@ const Profile = (
 ) => {
   const { currentUser, usersEditProfile, queryParams } = props;
 
-  const save = (variables: IUserDoc) => {
+  const save = (variables: IUserDoc, callback: () => void) => {
     usersEditProfile({ variables })
       .then(() => {
         Alert.success('Congrats');
+        callback();
       })
       .catch(error => {
         Alert.error(error.message);

@@ -93,6 +93,7 @@ const users = `
       email
       role
       status
+      isActive
       details {
         avatar
         fullName

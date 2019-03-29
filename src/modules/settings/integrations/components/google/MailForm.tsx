@@ -324,7 +324,7 @@ class MailForm extends React.Component<Props, State> {
       <EditorFooter>
         <Tip text={__('Attach file')}>
           <label>
-            <Icon icon="upload-2" />
+            <Icon icon="attach" />
             <input
               type="file"
               onChange={this.handleFileInput}
@@ -357,11 +357,6 @@ class MailForm extends React.Component<Props, State> {
   }
 
   render() {
-    const props = {
-      editorState: this.state.editorState,
-      onChange: this.changeContent
-    };
-
     const onClickIsCC = () => this.onClick('isCc');
     const onClickIsBCC = () => this.onClick('isBcc');
     const formOnChange = e =>
@@ -370,7 +365,7 @@ class MailForm extends React.Component<Props, State> {
       this.onChange('subject', (e.target as HTMLInputElement).value);
 
     return (
-      <MailEditorWrapper>
+      <>
         <ControlWrapper>
           <span>To:</span>
           {this.renderToEmails()}
@@ -408,11 +403,16 @@ class MailForm extends React.Component<Props, State> {
           />
         </ControlWrapper>
 
-        <ErxesEditor {...props} />
+        <MailEditorWrapper>
+          <ErxesEditor
+            editorState={this.state.editorState}
+            onChange={this.changeContent}
+          />
+        </MailEditorWrapper>
 
         {this.renderAttachments()}
         {this.renderButtons()}
-      </MailEditorWrapper>
+      </>
     );
   }
 }

@@ -19,7 +19,7 @@ type Props = {
   onAvatarUpload: (url: string) => void;
 };
 
-class UserCommonInfos extends React.Component<Props> {
+class UserCommonInfos extends React.PureComponent<Props> {
   render() {
     const { user, onAvatarUpload } = this.props;
     const details = user.details || {};
@@ -47,7 +47,7 @@ class UserCommonInfos extends React.Component<Props> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Email</ControlLabel>
+              <ControlLabel required={true}>Email</ControlLabel>
               <FormControl type="text" id="email" defaultValue={user.email} />
             </FormGroup>
             <FormGroup>
@@ -62,7 +62,7 @@ class UserCommonInfos extends React.Component<Props> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Username</ControlLabel>
+              <ControlLabel required={true}>Username</ControlLabel>
               <FormControl
                 type="text"
                 id="username"

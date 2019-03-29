@@ -256,7 +256,7 @@ const Attachment = styled.div`
   align-items: center;
 
   > div {
-    margin-right: 5px;
+    margin-right: 10px;
   }
 `;
 
@@ -344,6 +344,7 @@ const Mask = styled.div`
 const NoHeight = styled.div`
   height: auto;
 `;
+
 export {
   PopoverButton,
   ConversationWrapper,

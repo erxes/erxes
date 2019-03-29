@@ -275,7 +275,7 @@ class RespondBox extends React.Component<Props, State> {
 
         <Tip text={__('Attach file')}>
           <label>
-            <Icon icon="upload-2" />
+            <Icon icon="attach" />
             <input type="file" onChange={this.handleFileInput} />
           </label>
         </Tip>

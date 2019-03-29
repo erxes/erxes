@@ -46,7 +46,7 @@ class BoardForm extends React.Component<Props, {}> {
     return (
       <div>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl
             id="channel-name"

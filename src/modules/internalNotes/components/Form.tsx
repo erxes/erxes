@@ -23,6 +23,7 @@ const EditorWrapper = styled.div`
 
   .RichEditor-editor .public-DraftEditor-content {
     min-height: 130px;
+    padding-bottom: 40px;
   }
 `;
 
@@ -119,7 +120,8 @@ class Form extends React.PureComponent<
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChangeContent,
-      keyBindingFn: this.keyBindingFn
+      keyBindingFn: this.keyBindingFn,
+      placeholder: __('Write your note here')
     };
 
     return (
