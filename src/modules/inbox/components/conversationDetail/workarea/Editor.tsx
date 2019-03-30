@@ -410,6 +410,7 @@ export default class Editor extends React.Component<EditorProps, State> {
       onUpArrow: this.onUpArrow,
       onDownArrow: this.onDownArrow,
       handleFileInput: this.props.handleFileInput,
+      isTopPopup: true,
       plugins,
       pluginContent
     };

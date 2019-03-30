@@ -58,7 +58,7 @@ class BasicInfo extends React.Component<Props> {
         {this.renderLink(links.twitter, 'twitter')}
         {this.renderLink(links.linkedIn, 'linkedin-logo')}
         {this.renderLink(links.youtube, 'youtube')}
-        {this.renderLink(links.github, 'github')}
+        {this.renderLink(links.github, 'github-circled')}
         {this.renderLink(links.website, 'earthgrid')}
       </Links>
     );

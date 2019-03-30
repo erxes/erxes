@@ -159,7 +159,7 @@ class CompaniesList extends React.Component<IProps, State> {
     );
 
     const mergeButton = (
-      <Button btnStyle="primary" size="small" icon="shuffle">
+      <Button btnStyle="primary" size="small" icon="merge">
         Merge
       </Button>
     );

@@ -40,16 +40,17 @@ const RichEditorRoot = styledTS<{ bordered: boolean }>(styled.div)`
         text-decoration: underline;
       }
     }
-  }  
+  } 
 `;
 
-const RichEditorControlsRoot = styled.div`
+const RichEditorControlsRoot = styledTS<{ isTopPopup: boolean }>(styled.div)`
   position: absolute;
   top: 0;
   right: 0;
   left: 0;
   padding: 0 7px;
   background: ${colors.colorWhite};
+  max-height: 36px;
 
   > div {
     box-shadow: none;
@@ -99,7 +100,7 @@ const RichEditorControlsRoot = styled.div`
 
   .draftJsEmojiPlugin__emojiSelectPopover__1J1s0 {
     margin: 0;
-    bottom: 100%;
+    bottom: ${props => props.isTopPopup && '100%'};
     border-color: ${colors.borderPrimary};
     box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
 

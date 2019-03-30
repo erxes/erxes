@@ -229,6 +229,7 @@ class CustomersList extends React.Component<IProps, State> {
                 title="Manage Columns"
                 trigger={editColumns}
                 content={manageColumns}
+                dialogClassName="transform"
               />
             </li>
             <li>
@@ -270,7 +271,7 @@ class CustomersList extends React.Component<IProps, State> {
     let actionBarLeft: React.ReactNode;
 
     const mergeButton = (
-      <Button btnStyle="primary" size="small" icon="shuffle">
+      <Button btnStyle="primary" size="small" icon="merge">
         Merge
       </Button>
     );
