@@ -40,19 +40,18 @@ export default class Stage extends React.Component<
   componentDidMount() {
     const handle = setInterval(() => {
       const { current } = this.bodyRef;
+      const isScrolled = current.scrollHeight > current.clientHeight;
 
-      if (current) {
-        const isScrolled = current.scrollHeight > current.clientHeight;
+      if (isScrolled) {
+        clearInterval(handle);
+      }
 
-        if (isScrolled) {
-          clearInterval(handle);
-        }
+      const { deals, dealAmount, loadMore } = this.props;
 
-        const { deals, dealAmount, loadMore } = this.props;
-
-        if (deals.length < dealAmount.dealCount) {
-          loadMore();
-        }
+      if (deals.length < dealAmount.dealCount) {
+        loadMore();
+      } else {
+        clearInterval(handle);
       }
     }, 1000);
   }
