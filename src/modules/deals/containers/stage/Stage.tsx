@@ -68,11 +68,7 @@ class StageContainer extends React.PureComponent<
         }
       })
       .then(({ data }: any) => {
-        const dealIds = deals.map(deal => deal._id);
-        const uniqueDeals = (data.deals || []).filter(
-          deal => !dealIds.includes(deal._id)
-        );
-        onLoad(stage._id, [...deals, ...uniqueDeals]);
+        onLoad(stage._id, [...deals, ...(data.deals || [])]);
       });
   };
 
