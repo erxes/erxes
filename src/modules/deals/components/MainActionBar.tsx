@@ -1,6 +1,10 @@
-import { Button, DropdownToggle, EmptyState } from 'modules/common/components';
-import { router as routerUtils } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
+import {
+  Button,
+  DropdownToggle,
+  EmptyState,
+  FormControl
+} from 'modules/common/components';
+import { __, router as routerUtils } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
@@ -9,11 +13,13 @@ import { Link } from 'react-router-dom';
 import { IBoard, IPipeline } from '../types';
 
 type Props = {
+  onSearch: (search: string) => void;
   currentBoard?: IBoard;
   currentPipeline?: IPipeline;
   boards: IBoard[];
   middleContent?: () => React.ReactNode;
   history: any;
+  queryParams: any;
 };
 
 // get selected deal type from URL
@@ -31,6 +37,13 @@ class MainActionBar extends React.Component<Props> {
       });
     }
   }
+
+  onSearch = (e: React.KeyboardEvent<Element>) => {
+    if (e.key === 'Enter') {
+      const target = e.currentTarget as HTMLInputElement;
+      this.props.onSearch(target.value || '');
+    }
+  };
 
   onFilterClick = (type: string) => {
     const { currentBoard, currentPipeline } = this.props;
@@ -104,7 +117,12 @@ class MainActionBar extends React.Component<Props> {
   }
 
   render() {
-    const { currentBoard, currentPipeline, middleContent } = this.props;
+    const {
+      currentBoard,
+      currentPipeline,
+      middleContent,
+      queryParams
+    } = this.props;
 
     const boardLink = this.onFilterClick('board');
     const calendarLink = this.onFilterClick('calendar');
@@ -135,6 +153,15 @@ class MainActionBar extends React.Component<Props> {
 
     const actionBarRight = (
       <BarItems>
+        <div style={{ display: 'inline-block' }}>
+          <FormControl
+            defaultValue={queryParams.search}
+            placeholder="Search ..."
+            onKeyPress={this.onSearch}
+            autoFocus={true}
+          />
+        </div>
+
         {getType() === 'calendar' && (
           <Link to={boardLink}>
             <Button btnStyle="primary" icon="clipboard">

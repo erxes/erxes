@@ -20,6 +20,7 @@ type WrapperProps = {
   loadingState: 'readyToLoad' | 'loaded';
   deals: IDeal[];
   length: number;
+  search?: string;
 };
 
 type StageProps = {
@@ -55,7 +56,7 @@ class StageContainer extends React.PureComponent<
   }
 
   loadMore = () => {
-    const { onLoad, stage, deals } = this.props;
+    const { onLoad, stage, deals, search } = this.props;
 
     if (deals.length === stage.dealsTotalCount) {
       return;
@@ -66,6 +67,7 @@ class StageContainer extends React.PureComponent<
         query: gql(queries.deals),
         variables: {
           stageId: stage._id,
+          search,
           skip: deals.length
         }
       })
@@ -97,7 +99,6 @@ class StageContainer extends React.PureComponent<
 
   render() {
     const { index, length, stage, deals, dealsQuery } = this.props;
-
     const loadingDeals = (dealsQuery ? dealsQuery.loading : null) || false;
 
     return (
@@ -119,10 +120,14 @@ const WithData = withProps<StageProps>(
     graphql<StageProps>(gql(queries.deals), {
       name: 'dealsQuery',
       skip: ({ loadingState }) => loadingState !== 'readyToLoad',
-      options: ({ stage }) => ({
+      options: ({ stage, search, loadingState }) => ({
         variables: {
-          stageId: stage._id
-        }
+          stageId: stage._id,
+          search
+        },
+        fetchPolicy:
+          loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
+        notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
       })
     }),
     // mutation

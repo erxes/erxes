@@ -20,6 +20,7 @@ type Props = {
   pipeline: IPipeline;
   initialDealMap?: IDealMap;
   stageMap?: IStageMap;
+  queryParams: any;
 };
 
 class WithStages extends React.Component<Props, {}> {
@@ -28,7 +29,7 @@ class WithStages extends React.Component<Props, {}> {
   }
 
   render() {
-    const { initialDealMap, pipeline, stageMap } = this.props;
+    const { initialDealMap, pipeline, stageMap, queryParams } = this.props;
     const stagesCount = this.countStages(stageMap);
 
     if (stagesCount === 0) {
@@ -42,7 +43,11 @@ class WithStages extends React.Component<Props, {}> {
     }
 
     return (
-      <PipelineProvider pipeline={pipeline} initialDealMap={initialDealMap}>
+      <PipelineProvider
+        pipeline={pipeline}
+        initialDealMap={initialDealMap}
+        queryParams={queryParams}
+      >
         <PipelineConsumer>
           {({ stageLoadMap, dealMap, onDragEnd, stageIds }) => (
             <DragDropContext onDragEnd={onDragEnd}>
@@ -71,6 +76,7 @@ class WithStages extends React.Component<Props, {}> {
                           length={stagesCount}
                           stage={stage}
                           deals={dealMap[stageId]}
+                          search={queryParams.search}
                           loadingState={stageLoadMap[stageId]}
                         />
                       );

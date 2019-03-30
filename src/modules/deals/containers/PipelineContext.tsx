@@ -9,6 +9,7 @@ import { collectOrders, reorder, reorderDealMap } from '../utils';
 type Props = {
   pipeline: IPipeline;
   initialDealMap?: IDealMap;
+  queryParams: any;
 };
 
 type StageLoadMap = {
@@ -61,6 +62,25 @@ export class PipelineProvider extends React.Component<Props, State> {
       stageLoadMap: {},
       stageIds: Object.keys(initialDealMap || {})
     };
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    const {
+      queryParams: { search }
+    } = this.props;
+    const nextSearch = nextProps.queryParams.search;
+
+    // Reset deals on search parameter change
+    if (search !== nextSearch) {
+      const { stageIds } = this.state;
+
+      PipelineProvider.tasks = [];
+      PipelineProvider.currentTask = null;
+
+      stageIds.forEach((stageId: string) => {
+        this.scheduleStage(stageId);
+      });
+    }
   }
 
   onDragEnd = result => {
@@ -176,8 +196,9 @@ export class PipelineProvider extends React.Component<Props, State> {
     PipelineProvider.tasks.push({
       handler: (id: string) => {
         const { stageLoadMap } = this.state;
+        const states = Object.values(stageLoadMap);
 
-        if (!Object.values(stageLoadMap).includes('readyToLoad')) {
+        if (!states.includes('readyToLoad')) {
           this.setState({
             stageLoadMap: { ...stageLoadMap, [id]: 'readyToLoad' }
           });
@@ -264,6 +285,8 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   render() {
+    const { dealMap, stageLoadMap, stageIds } = this.state;
+
     return (
       <PipelineContext.Provider
         value={{
@@ -273,9 +296,9 @@ export class PipelineProvider extends React.Component<Props, State> {
           onAddDeal: this.onAddDeal,
           onRemoveDeal: this.onRemoveDeal,
           onUpdateDeal: this.onUpdateDeal,
-          dealMap: this.state.dealMap,
-          stageLoadMap: this.state.stageLoadMap,
-          stageIds: this.state.stageIds
+          dealMap,
+          stageLoadMap,
+          stageIds
         }}
       >
         {this.props.children}

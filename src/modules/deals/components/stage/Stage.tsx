@@ -41,6 +41,11 @@ export default class Stage extends React.Component<
     // Load deals until scroll created
     const handle = setInterval(() => {
       const { current } = this.bodyRef;
+
+      if (!current) {
+        return;
+      }
+
       const isScrolled = current.scrollHeight > current.clientHeight;
 
       if (isScrolled) {
