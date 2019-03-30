@@ -104,9 +104,9 @@ export default class Stage extends React.Component<
     if (
       index !== nextProps.index ||
       loadingDeals !== nextProps.loadingDeals ||
-      deals.length !== nextProps.deals.length ||
+      length !== nextProps.length ||
       JSON.stringify(stage) !== JSON.stringify(nextProps.stage) ||
-      length !== nextProps.length
+      JSON.stringify(deals) !== JSON.stringify(nextProps.deals)
     ) {
       return true;
     }
