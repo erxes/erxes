@@ -3,23 +3,33 @@ import { IStageDocument } from '../../db/models/definitions/deals';
 
 export default {
   async amount(stage: IStageDocument) {
-    const deals = await Deals.find({ stageId: stage._id });
+    const amountList = await Deals.aggregate([
+      {
+        $match: { stageId: stage._id },
+      },
+      {
+        $unwind: '$productsData',
+      },
+      {
+        $project: {
+          amount: '$productsData.amount',
+          currency: '$productsData.currency',
+        },
+      },
+      {
+        $group: {
+          _id: '$currency',
+          amount: { $sum: '$amount' },
+        },
+      },
+    ]);
+
     const amountsMap = {};
 
-    deals.forEach(deal => {
-      const data = deal.productsData || [];
-
-      data.forEach(product => {
-        const type = product.currency;
-
-        if (type) {
-          if (!amountsMap[type]) {
-            amountsMap[type] = 0;
-          }
-
-          amountsMap[type] += product.amount || 0;
-        }
-      });
+    amountList.forEach(item => {
+      if (item._id) {
+        amountsMap[item._id] = item.amount;
+      }
     });
 
     return amountsMap;
