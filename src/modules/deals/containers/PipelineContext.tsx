@@ -26,7 +26,7 @@ interface IStore {
   stageLoadMap: StageLoadMap;
   stageIds: string[];
   onLoadStage: (stageId: string, deals: IDeal[]) => void;
-  scheduleDeals: (stageId: string) => void;
+  scheduleStage: (stageId: string) => void;
   onDragEnd: (result: IDragResult) => void;
   onAddDeal: (stageId: string, deal: IDeal) => void;
   onRemoveDeal: (dealId: string, stageId: string) => void;
@@ -161,12 +161,13 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
   };
 
-  scheduleDeals = (stageId: string) => {
-    const tasks = PipelineProvider.tasks;
-
+  /*
+   * Register given stage to tasks queue
+   */
+  scheduleStage = (stageId: string) => {
     let currentTask = PipelineProvider.currentTask;
 
-    tasks.push({
+    PipelineProvider.tasks.push({
       handler: (id: string) => {
         const { stageLoadMap } = this.state;
 
@@ -185,12 +186,16 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
   };
 
+  /*
+   * If browser is idle then find first inComplete task and run it
+   */
   runTaskQueue = (deadline: {
     didTimeout: boolean;
     timeRemaining: () => number;
   }) => {
-    const tasks = PipelineProvider.tasks;
-    const inCompleteTask = tasks.find((t: Task) => !t.isComplete);
+    const inCompleteTask = PipelineProvider.tasks.find(
+      (t: Task) => !t.isComplete
+    );
 
     while (
       (deadline.timeRemaining() > 0 || deadline.didTimeout) &&
@@ -258,7 +263,7 @@ export class PipelineProvider extends React.Component<Props, State> {
         value={{
           onDragEnd: this.onDragEnd,
           onLoadStage: this.onLoadStage,
-          scheduleDeals: this.scheduleDeals,
+          scheduleStage: this.scheduleStage,
           onAddDeal: this.onAddDeal,
           onRemoveDeal: this.onRemoveDeal,
           onUpdateDeal: this.onUpdateDeal,

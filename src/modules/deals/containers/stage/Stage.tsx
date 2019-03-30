@@ -25,7 +25,7 @@ type WrapperProps = {
 
 type StageProps = {
   onLoad: (stageId: string, deals: IDeal[]) => void;
-  scheduleDeals: (stageId: string) => void;
+  scheduleStage: (stageId: string) => void;
   onAddDeal: (stageId: string, deal: IDeal) => void;
 } & WrapperProps;
 
@@ -43,14 +43,17 @@ class StageContainer extends React.PureComponent<
     const { stage, loadingState, onLoad, dealsQuery } = nextProps;
 
     if (dealsQuery && !dealsQuery.loading && loadingState !== 'loaded') {
+      // Send loaded deals to PipelineContext so that context is able to set it
+      // to global dealsMap
       onLoad(stage._id, dealsQuery.deals || []);
     }
   }
 
   componentDidMount() {
-    const { scheduleDeals, stage } = this.props;
+    const { scheduleStage, stage } = this.props;
 
-    scheduleDeals(stage._id);
+    // register stage to queue on first render
+    scheduleStage(stage._id);
   }
 
   loadMore = () => {
@@ -166,11 +169,11 @@ const WithData = withProps<StageProps>(
 export default (props: WrapperProps) => {
   return (
     <PipelineConsumer>
-      {({ onAddDeal, onLoadStage, scheduleDeals }) => {
+      {({ onAddDeal, onLoadStage, scheduleStage }) => {
         return (
           <WithData
             {...props}
-            scheduleDeals={scheduleDeals}
+            scheduleStage={scheduleStage}
             onLoad={onLoadStage}
             onAddDeal={onAddDeal}
           />
