@@ -57,6 +57,10 @@ class StageContainer extends React.PureComponent<
   loadMore = () => {
     const { onLoad, stage, deals } = this.props;
 
+    if (deals.length === stage.dealsTotalCount) {
+      return;
+    }
+
     client
       .query({
         query: gql(queries.deals),
