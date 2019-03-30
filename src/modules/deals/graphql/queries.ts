@@ -74,6 +74,8 @@ const stages = `
       _id
       name
       order
+      amount
+      dealsTotalCount
     }
   }
 `;
@@ -85,6 +87,7 @@ const stageDetail = `
       name
       pipelineId
       amount
+      dealsTotalCount
     }
   }
 `;

@@ -5,7 +5,6 @@ import { Stage } from 'modules/deals/components/stage';
 import { mutations, queries } from 'modules/deals/graphql';
 import {
   DealsQueryResponse,
-  DealsTotalAmountsQueryResponse,
   IDeal,
   IDealParams,
   IStage,
@@ -32,7 +31,6 @@ type StageProps = {
 type FinalStageProps = {
   addMutation: SaveDealMutation;
   dealsQuery?: DealsQueryResponse;
-  dealsTotalAmountsQuery: DealsTotalAmountsQueryResponse;
 } & StageProps;
 
 class StageContainer extends React.PureComponent<
@@ -94,21 +92,9 @@ class StageContainer extends React.PureComponent<
   };
 
   render() {
-    const {
-      index,
-      length,
-      stage,
-      deals,
-      dealsQuery,
-      dealsTotalAmountsQuery
-    } = this.props;
+    const { index, length, stage, deals, dealsQuery } = this.props;
 
     const loadingDeals = (dealsQuery ? dealsQuery.loading : null) || false;
-
-    const dealAmount = dealsTotalAmountsQuery.dealsTotalAmounts || {
-      dealCount: 0,
-      dealAmounts: {}
-    };
 
     return (
       <Stage
@@ -117,7 +103,6 @@ class StageContainer extends React.PureComponent<
         length={length}
         deals={deals}
         loadingDeals={loadingDeals}
-        dealAmount={dealAmount}
         loadMore={this.loadMore}
         addDeal={this.addDeal}
       />
@@ -127,14 +112,6 @@ class StageContainer extends React.PureComponent<
 
 const WithData = withProps<StageProps>(
   compose(
-    graphql<StageProps>(gql(queries.dealsTotalAmounts), {
-      name: 'dealsTotalAmountsQuery',
-      options: ({ stage }) => ({
-        variables: {
-          stageId: stage._id
-        }
-      })
-    }),
     graphql<StageProps>(gql(queries.deals), {
       name: 'dealsQuery',
       skip: ({ loadingState }) => loadingState !== 'readyToLoad',

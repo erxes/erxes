@@ -9,7 +9,8 @@ import {
   IndicatorItem,
   StageFooter
 } from 'modules/deals/styles/stage';
-import { IDeal, IDealTotalAmount, IStage } from 'modules/deals/types';
+import { IDeal, IStage } from 'modules/deals/types';
+import { renderDealAmount } from 'modules/deals/utils';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { DealAddForm } from '.';
@@ -23,7 +24,6 @@ type Props = {
   deals: IDeal[];
   addDeal: (name: string, callback: () => void) => void;
   loadMore: () => void;
-  dealAmount: IDealTotalAmount;
 };
 export default class Stage extends React.Component<
   Props,
@@ -47,9 +47,9 @@ export default class Stage extends React.Component<
         clearInterval(handle);
       }
 
-      const { deals, dealAmount, loadMore } = this.props;
+      const { deals, stage, loadMore } = this.props;
 
-      if (deals.length < dealAmount.dealCount) {
+      if (deals.length < stage.dealsTotalCount) {
         loadMore();
       } else {
         clearInterval(handle);
@@ -99,7 +99,11 @@ export default class Stage extends React.Component<
   }
 
   shouldComponentUpdate(nextProps: Props) {
-    const { deals, loadingDeals } = this.props;
+    const { stage, deals, loadingDeals } = this.props;
+
+    if (JSON.stringify(stage) !== JSON.stringify(nextProps.stage)) {
+      return true;
+    }
 
     if (deals.length !== nextProps.deals.length) {
       return true;
@@ -113,7 +117,7 @@ export default class Stage extends React.Component<
   }
 
   render() {
-    const { index, stage, deals, dealAmount, loadingDeals } = this.props;
+    const { index, stage, deals, loadingDeals } = this.props;
 
     if (!stage) {
       return <EmptyState icon="clipboard" text="No stage" size="small" />;
@@ -126,8 +130,9 @@ export default class Stage extends React.Component<
             <Header {...provided.dragHandleProps}>
               <h4>
                 {stage.name}
-                <span>({dealAmount.dealCount})</span>
+                <span>{stage.dealsTotalCount}</span>
               </h4>
+              <span>{renderDealAmount(stage.amount)}</span>
               <Indicator>{this.renderIndicator()}</Indicator>
             </Header>
             <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
