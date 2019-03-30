@@ -25,6 +25,10 @@ export default {
     return amountsMap;
   },
 
+  dealsTotalCount(stage: IStageDocument) {
+    return Deals.count({ stageId: stage._id });
+  },
+
   deals(stage: IStageDocument) {
     return Deals.find({ stageId: stage._id }).sort({ order: 1, createdAt: -1 });
   },

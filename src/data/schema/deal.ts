@@ -25,6 +25,7 @@ export const types = `
     pipelineId: String!
     amount: JSON
     deals: [Deal]
+    dealsTotalCount: Int
     ${commonTypes}
   }
 

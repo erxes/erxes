@@ -102,14 +102,12 @@ const dealQueries = {
 
       filter.closeDate = dateSelector(date);
       filter.stageId = { $in: stageIds };
-
-      return Deals.find(filter)
-        .sort(sort)
-        .skip(skip || 0)
-        .limit(5);
     }
 
-    return Deals.find(filter).sort(sort);
+    return Deals.find(filter)
+      .sort(sort)
+      .skip(skip || 0)
+      .limit(10);
   },
 
   /**
