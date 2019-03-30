@@ -18,8 +18,7 @@ import { PipelineConsumer } from '../PipelineContext';
 type WrapperProps = {
   stage: IStage;
   index: number;
-  isLoadedDeals: boolean;
-  isReadyToFetch: boolean;
+  loadingState: 'readyToLoad' | 'loaded';
   deals: IDeal[];
   length: number;
 };
@@ -41,9 +40,9 @@ class StageContainer extends React.PureComponent<
   { loadedDeals: boolean }
 > {
   componentWillReceiveProps(nextProps: FinalStageProps) {
-    const { stage, isLoadedDeals, onLoad, dealsQuery } = nextProps;
+    const { stage, loadingState, onLoad, dealsQuery } = nextProps;
 
-    if (dealsQuery && !dealsQuery.loading && !isLoadedDeals) {
+    if (dealsQuery && !dealsQuery.loading && loadingState !== 'loaded') {
       onLoad(stage._id, dealsQuery.deals || []);
     }
   }
@@ -54,56 +53,58 @@ class StageContainer extends React.PureComponent<
     scheduleDeals(stage._id);
   }
 
+  loadMore = () => {
+    const { onLoad, stage, deals } = this.props;
+
+    client
+      .query({
+        query: gql(queries.deals),
+        variables: {
+          stageId: stage._id,
+          skip: deals.length
+        }
+      })
+      .then(({ data }: any) => {
+        const dealIds = deals.map(deal => deal._id);
+        const uniqueDeals = (data.deals || []).filter(
+          deal => !dealIds.includes(deal._id)
+        );
+        onLoad(stage._id, [...deals, ...uniqueDeals]);
+      });
+  };
+
+  // create deal
+  addDeal = (name: string, callback: () => void) => {
+    const { stage, onAddDeal, addMutation } = this.props;
+
+    if (!stage) {
+      return null;
+    }
+
+    return addMutation({ variables: { name, stageId: stage._id } })
+      .then(({ data: { dealsAdd } }) => {
+        Alert.success(__('Successfully saved.'));
+
+        onAddDeal(stage._id, dealsAdd);
+
+        callback();
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   render() {
     const {
       index,
       length,
-      onLoad,
-      onAddDeal,
       stage,
       deals,
       dealsQuery,
-      dealsTotalAmountsQuery,
-      addMutation
+      dealsTotalAmountsQuery
     } = this.props;
+
     const loadingDeals = (dealsQuery ? dealsQuery.loading : null) || false;
-
-    const loadMore = () => {
-      client
-        .query({
-          query: gql(queries.deals),
-          variables: {
-            stageId: stage._id,
-            skip: deals.length
-          }
-        })
-        .then(({ data }: any) => {
-          const dealIds = deals.map(deal => deal._id);
-          const uniqueDeals = (data.deals || []).filter(
-            deal => !dealIds.includes(deal._id)
-          );
-          onLoad(stage._id, [...deals, ...uniqueDeals]);
-        });
-    };
-
-    // create deal
-    const addDeal = (name: string, callback) => {
-      if (!stage) {
-        return null;
-      }
-
-      return addMutation({ variables: { name, stageId: stage._id } })
-        .then(({ data: { dealsAdd } }) => {
-          Alert.success(__('Successfully saved.'));
-
-          onAddDeal(stage._id, dealsAdd);
-
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
 
     const dealAmount = dealsTotalAmountsQuery.dealsTotalAmounts || {
       dealCount: 0,
@@ -118,8 +119,8 @@ class StageContainer extends React.PureComponent<
         deals={deals}
         loadingDeals={loadingDeals}
         dealAmount={dealAmount}
-        loadMore={loadMore}
-        addDeal={addDeal}
+        loadMore={this.loadMore}
+        addDeal={this.addDeal}
       />
     );
   }
@@ -137,7 +138,7 @@ const WithData = withProps<StageProps>(
     }),
     graphql<StageProps>(gql(queries.deals), {
       name: 'dealsQuery',
-      skip: ({ isReadyToFetch }) => !isReadyToFetch,
+      skip: ({ loadingState }) => loadingState !== 'readyToLoad',
       options: ({ stage }) => ({
         variables: {
           stageId: stage._id

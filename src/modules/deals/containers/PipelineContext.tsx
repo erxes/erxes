@@ -11,15 +11,19 @@ type Props = {
   initialDealMap?: IDealMap;
 };
 
+type StageLoadMap = {
+  [key: string]: 'readyToLoad' | 'loaded';
+};
+
 type State = {
   dealMap: IDealMap;
-  stageLoadMap: { [key: string]: string };
+  stageLoadMap: StageLoadMap;
   stageIds: string[];
 };
 
 interface IStore {
   dealMap: IDealMap;
-  stageLoadMap: { [key: string]: string };
+  stageLoadMap: StageLoadMap;
   stageIds: string[];
   onLoadStage: (stageId: string, deals: IDeal[]) => void;
   scheduleDeals: (stageId: string) => void;
@@ -100,13 +104,11 @@ export class PipelineProvider extends React.Component<Props, State> {
       dealMap
     });
 
-    if (destination.droppableId) {
-      // save orders to database
-      return this.saveDealOrders(dealMap, [
-        source.droppableId,
-        destination.droppableId
-      ]);
-    }
+    // save orders to database
+    return this.saveDealOrders(dealMap, [
+      source.droppableId,
+      destination.droppableId
+    ]);
   };
 
   saveStageOrders = (stageIds: string[]) => {
@@ -168,8 +170,10 @@ export class PipelineProvider extends React.Component<Props, State> {
       handler: (id: string) => {
         const { stageLoadMap } = this.state;
 
-        if (!Object.values(stageLoadMap).includes('ready')) {
-          this.setState({ stageLoadMap: { ...stageLoadMap, [id]: 'ready' } });
+        if (!Object.values(stageLoadMap).includes('readyToLoad')) {
+          this.setState({
+            stageLoadMap: { ...stageLoadMap, [id]: 'readyToLoad' }
+          });
         }
       },
       stageId,
@@ -181,10 +185,12 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
   };
 
-  runTaskQueue = deadline => {
-    const inCompleteTask = PipelineProvider.tasks.find(
-      task => !task.isComplete
-    );
+  runTaskQueue = (deadline: {
+    didTimeout: boolean;
+    timeRemaining: () => number;
+  }) => {
+    const tasks = PipelineProvider.tasks;
+    const inCompleteTask = tasks.find((t: Task) => !t.isComplete);
 
     while (
       (deadline.timeRemaining() > 0 || deadline.didTimeout) &&
@@ -224,7 +230,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
   };
 
-  onUpdateDeal = (deal, prevStageId) => {
+  onUpdateDeal = (deal: IDeal, prevStageId?: string) => {
     const { stageId } = deal;
     const { dealMap } = this.state;
 
