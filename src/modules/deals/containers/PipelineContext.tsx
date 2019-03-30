@@ -147,6 +147,12 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
   };
 
+  /*
+   * - Stage container is sending loaded to deals
+   * - Storing sent deals to global dealMmap
+   * - Mark stage's task as complete
+   * - Mark stage's loading state as loaded
+   */
   onLoadStage = (stageId: string, deals: IDeal[]) => {
     const { dealMap, stageLoadMap } = this.state;
     const task = PipelineProvider.tasks.find(t => t.stageId === stageId);
@@ -194,7 +200,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     timeRemaining: () => number;
   }) => {
     const inCompleteTask = PipelineProvider.tasks.find(
-      (t: Task) => !t.isComplete
+      (task: Task) => !task.isComplete
     );
 
     while (

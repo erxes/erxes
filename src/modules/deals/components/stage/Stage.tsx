@@ -97,15 +97,22 @@ export default class Stage extends React.Component<
     return data;
   }
 
+  shouldComponentUpdate(nextProps: Props) {
+    const { deals, loadingDeals } = this.props;
+
+    if (deals.length !== nextProps.deals.length) {
+      return true;
+    }
+
+    if (loadingDeals !== nextProps.loadingDeals) {
+      return true;
+    }
+
+    return false;
+  }
+
   render() {
-    const {
-      index,
-      stage,
-      deals,
-      dealAmount,
-      loadMore,
-      loadingDeals
-    } = this.props;
+    const { index, stage, deals, dealAmount, loadingDeals } = this.props;
 
     if (!stage) {
       return <EmptyState icon="clipboard" text="No stage" size="small" />;
