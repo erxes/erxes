@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as React from 'react';
+import { requestIdleCallback } from 'request-idle-callback';
 import { mutations, queries } from '../graphql';
 import { IDeal, IDealMap, IDragResult, IPipeline } from '../types';
 import { collectOrders, reorder, reorderDealMap } from '../utils';
@@ -36,13 +37,15 @@ const invalidateCalendarCache = () => {
   localStorage.setItem('dealCalendarCacheInvalidated', 'true');
 };
 
+type Task = {
+  handler: (stageId: string) => void;
+  stageId: string;
+  isComplete: boolean;
+};
+
 export class PipelineProvider extends React.Component<Props, State> {
-  static tasks: Array<{
-    handler: (stageId: string) => void;
-    stageId: string;
-    isComplete: boolean;
-  }> = [];
-  static currentTask: any;
+  static tasks: Task[] = [];
+  static currentTask: Task | null;
 
   constructor(props: Props) {
     super(props);
@@ -97,11 +100,13 @@ export class PipelineProvider extends React.Component<Props, State> {
       dealMap
     });
 
-    // save orders to database
-    return this.saveDealOrders(dealMap, [
-      source.droppableId,
-      destination.droppableId
-    ]);
+    if (destination.droppableId) {
+      // save orders to database
+      return this.saveDealOrders(dealMap, [
+        source.droppableId,
+        destination.droppableId
+      ]);
+    }
   };
 
   saveStageOrders = (stageIds: string[]) => {
@@ -172,7 +177,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
 
     if (!currentTask) {
-      currentTask = (window as any).requestIdleCallback(this.runTaskQueue);
+      currentTask = requestIdleCallback(this.runTaskQueue);
     }
   };
 
@@ -189,12 +194,10 @@ export class PipelineProvider extends React.Component<Props, State> {
       handler(stageId);
     }
 
-    PipelineProvider.currentTask = 0;
+    PipelineProvider.currentTask = null;
 
     if (inCompleteTask) {
-      PipelineProvider.currentTask = (window as any).requestIdleCallback(
-        this.runTaskQueue
-      );
+      PipelineProvider.currentTask = requestIdleCallback(this.runTaskQueue);
     }
   };
 
