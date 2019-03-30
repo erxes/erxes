@@ -1,11 +1,12 @@
 import { Deals } from '../../db/models';
 import { IStageDocument } from '../../db/models/definitions/deals';
+import { dealsCommonFilter } from './queries/utils';
 
 export default {
-  async amount(stage: IStageDocument) {
+  async amount(stage: IStageDocument, _args, _context, { variableValues: { search } }) {
     const amountList = await Deals.aggregate([
       {
-        $match: { stageId: stage._id },
+        $match: dealsCommonFilter({ stageId: stage._id }, { search }),
       },
       {
         $unwind: '$productsData',
@@ -35,8 +36,8 @@ export default {
     return amountsMap;
   },
 
-  dealsTotalCount(stage: IStageDocument) {
-    return Deals.count({ stageId: stage._id });
+  dealsTotalCount(stage: IStageDocument, _args, _context, { variableValues: { search } }) {
+    return Deals.find(dealsCommonFilter({}, { search })).count({ stageId: stage._id });
   },
 
   deals(stage: IStageDocument) {

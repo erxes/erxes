@@ -10,3 +10,10 @@ export const paginate = (collection, params: { page?: number; perPage?: number }
 
   return collection.limit(_limit).skip((_page - 1) * _limit);
 };
+
+export const dealsCommonFilter = (filter, { search }: { search?: string }) => {
+  return {
+    ...filter,
+    $or: [{ name: new RegExp(`.*${search || ''}.*`, 'i') }, { description: new RegExp(`.*${search || ''}.*`, 'i') }],
+  };
+};
