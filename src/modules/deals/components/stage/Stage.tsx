@@ -99,17 +99,15 @@ export default class Stage extends React.Component<
   }
 
   shouldComponentUpdate(nextProps: Props) {
-    const { stage, deals, loadingDeals } = this.props;
+    const { stage, index, length, deals, loadingDeals } = this.props;
 
-    if (JSON.stringify(stage) !== JSON.stringify(nextProps.stage)) {
-      return true;
-    }
-
-    if (deals.length !== nextProps.deals.length) {
-      return true;
-    }
-
-    if (loadingDeals !== nextProps.loadingDeals) {
+    if (
+      index !== nextProps.index ||
+      loadingDeals !== nextProps.loadingDeals ||
+      deals.length !== nextProps.deals.length ||
+      JSON.stringify(stage) !== JSON.stringify(nextProps.stage) ||
+      length !== nextProps.length
+    ) {
       return true;
     }
 
