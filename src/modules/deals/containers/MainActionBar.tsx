@@ -40,7 +40,8 @@ class Main extends React.Component<FinalProps> {
       location,
       boardsQuery,
       boardGetLastQuery,
-      boardDetailQuery
+      boardDetailQuery,
+      middleContent
     } = this.props;
 
     const queryParams = generateQueryParams({ location });
@@ -80,6 +81,7 @@ class Main extends React.Component<FinalProps> {
 
     return (
       <DumbMainActionBar
+        middleContent={middleContent}
         onSearch={this.onSearch}
         queryParams={queryParams}
         history={history}
