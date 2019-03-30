@@ -62,12 +62,16 @@ export class PipelineProvider extends React.Component<Props, State> {
       stageLoadMap: {},
       stageIds: Object.keys(initialDealMap || {})
     };
+
+    PipelineProvider.tasks = [];
+    PipelineProvider.currentTask = null;
   }
 
   componentWillReceiveProps(nextProps: Props) {
     const {
       queryParams: { search }
     } = this.props;
+
     const nextSearch = nextProps.queryParams.search;
 
     // Reset deals on search parameter change
