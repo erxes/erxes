@@ -76,16 +76,17 @@ export const queries = `
   dealBoardDetail(_id: String!): DealBoard
   dealPipelines(boardId: String!): [DealPipeline]
   dealPipelineDetail(_id: String!): DealPipeline
-  dealStages(pipelineId: String!): [DealStage]
+  dealStages(pipelineId: String!, search: String): [DealStage]
   dealStageDetail(_id: String!): DealStage
   dealDetail(_id: String!): Deal
   deals(
     pipelineId: String,
     stageId: String, 
     customerId: String, 
-    companyId: String
-    date: DealDate
+    companyId: String,
+    date: DealDate,
     skip: Int
+    search: String,
   ): [Deal]
   dealsTotalAmounts(date: DealDate pipelineId: String): DealTotalAmounts
 `;
