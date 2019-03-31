@@ -267,6 +267,8 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   onUpdateDeal = (deal: IDeal, prevStageId?: string) => {
+    invalidateCalendarCache();
+
     const { stageId } = deal;
     const { dealMap } = this.state;
 
@@ -275,17 +277,36 @@ export class PipelineProvider extends React.Component<Props, State> {
       return this.onRemoveDeal(deal._id, prevStageId);
     }
 
-    invalidateCalendarCache();
+    // Moved between stages
+    if (prevStageId && stageId !== prevStageId) {
+      // remove from old stage
+      const prevStageDeals = dealMap[prevStageId].filter(
+        (d: IDeal) => d._id !== deal._id
+      );
 
-    const deals = [...dealMap[stageId]];
+      // add to new stage's front
+      const deals = [...dealMap[stageId]];
+      deals.unshift(deal);
 
-    const index = deals.findIndex(d => d._id === deal._id);
+      const newDealMap = {
+        ...dealMap,
+        [stageId]: deals,
+        [prevStageId]: prevStageDeals
+      };
 
-    deals[index] = deal;
+      this.setState({ dealMap: newDealMap }, () => {
+        this.saveDealOrders(newDealMap, [stageId]);
+      });
+    } else {
+      const deals = [...dealMap[stageId]];
+      const index = deals.findIndex(d => d._id === deal._id);
 
-    this.setState({
-      dealMap: { ...dealMap, [stageId]: deals }
-    });
+      deals[index] = deal;
+
+      this.setState({
+        dealMap: { ...dealMap, [stageId]: deals }
+      });
+    }
   };
 
   render() {
