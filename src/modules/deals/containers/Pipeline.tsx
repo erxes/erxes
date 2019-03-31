@@ -120,9 +120,10 @@ export default withProps<Props>(
   compose(
     graphql<Props, StagesQueryResponse>(gql(queries.stages), {
       name: 'stagesQuery',
-      options: ({ pipeline }) => ({
+      options: ({ pipeline, queryParams }) => ({
         variables: {
-          pipelineId: pipeline._id
+          pipelineId: pipeline._id,
+          search: queryParams.search
         }
       })
     })
