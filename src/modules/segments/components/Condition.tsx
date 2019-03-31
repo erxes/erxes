@@ -11,10 +11,11 @@ type Props = {
   fields: any[];
   condition: ISegmentCondition;
   changeCondition: (condition: ISegmentCondition) => void;
-  removeCondition: (field: string) => void;
+  removeCondition: (id: string) => void;
 };
 
 type State = {
+  _id: string;
   field: string;
   type: string;
   value: string;
@@ -44,10 +45,11 @@ class Condition extends React.Component<Props, State> {
   };
 
   // changeCondition will be fired after 350ms
-  handleValue = e => {
+  handleValue = (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
 
-    const val = e.target.value;
+    const target = e.currentTarget as HTMLInputElement;
+    const val = target.value;
 
     this.setState({ value: val }, () => {
       const { changeCondition } = this.props;
@@ -58,7 +60,7 @@ class Condition extends React.Component<Props, State> {
   };
 
   removeCondition = () => {
-    this.props.removeCondition(this.props.condition.field);
+    this.props.removeCondition(this.props.condition._id);
   };
 
   renderInput() {

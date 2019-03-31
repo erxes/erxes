@@ -2,12 +2,15 @@ export interface ISegmentField {
   _id: string;
 }
 
-export interface ISegmentCondition {
+export interface ISegmentConditionDoc {
   field: string;
   value: string;
   operator: string;
   dateUnit: string;
   type: string;
+}
+export interface ISegmentCondition extends ISegmentConditionDoc {
+  _id: string;
 }
 
 export interface ISegmentDoc {
