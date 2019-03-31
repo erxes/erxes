@@ -17,7 +17,7 @@ import {
   IQueryParams,
   SummaryData
 } from '../types';
-import { Chart, Filter, PunchCard, Sidebar, Summary } from './';
+import { Chart, InboxFilter, PunchCard, Sidebar, Summary } from './';
 
 type Props = {
   brands: IBrand[];
@@ -127,7 +127,11 @@ class ResponseReport extends React.Component<Props, { width: number }> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         {this.renderCharts()}
       </InsightWrapper>
     );

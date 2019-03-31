@@ -1,4 +1,6 @@
 export interface IQueryParams {
+  boardId: string;
+  pipelineIds: string;
   brandIds: string;
   endDate: string;
   startDate: string;
@@ -13,6 +15,13 @@ export interface IParams {
 export interface IParamsWithType {
   queryParams: IQueryParams;
   type: string;
+}
+
+export interface IInsightType {
+  name: string;
+  image: string;
+  to: string;
+  desc: string;
 }
 
 export interface IChartParams {

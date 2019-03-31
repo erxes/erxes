@@ -165,6 +165,10 @@ const FullName = styled.span`
   font-weight: bold;
 `;
 
+const BoxContainer = styled.div`
+  width: 660px;
+`;
+
 const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   width: 320px;
   border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
@@ -173,7 +177,7 @@ const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
     padding: 40px;
   }
 
-  &:last-of-type {
+  &:nth-child(even) {
     margin-right: 0;
   }
 
@@ -266,6 +270,7 @@ export {
   InsightUserData,
   UserProfile,
   FullName,
+  BoxContainer,
   Box,
   PunchCell,
   PunchCircle,

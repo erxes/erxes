@@ -2,6 +2,9 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
+import AsyncInsightPage from './components/InsightPage';
+import { INSIGHT_TYPES } from './constants';
+import { DealVolumeReport } from './containers';
 
 const AsyncExportReport = asyncComponent(() =>
   import(/* webpackChunkName: "AsyncExportReport" */ './containers/ExportReport')
@@ -21,9 +24,19 @@ const AsyncFirstAndCloseResponseReport = asyncComponent(() =>
 
 const AsyncReports = asyncComponent(() => import('./containers/Reports'));
 
-const AsyncInsightPage = asyncComponent(() =>
-  import('./components/InsightPage')
-);
+// const AsyncInsightPage = asyncComponent(() => import('./components/InsightPage'));
+
+// const AsyncDealVolumeReport = asyncComponent(([]) =>
+//   import(/* webpackChunkName: "DealVolumeReport" */ './containers/DealVolumeReport')
+// );
+
+const InboxInsightPage = () => {
+  return <AsyncInsightPage type={INSIGHT_TYPES.INBOX} />;
+};
+
+const DealInsightPage = () => {
+  return <AsyncInsightPage type={INSIGHT_TYPES.DEAL} />;
+};
 
 const responseReport = () => {
   return (
@@ -61,6 +74,12 @@ const exportReport = ({ history, location }) => {
   return <AsyncExportReport queryParams={queryParams} history={history} />;
 };
 
+const dealVolumeReport = ({ history, location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <DealVolumeReport queryParams={queryParams} history={history} />;
+};
+
 const routes = () => {
   return (
     <React.Fragment>
@@ -96,7 +115,7 @@ const routes = () => {
         key="/insights"
         exact={true}
         path="/insights"
-        component={AsyncInsightPage}
+        component={InboxInsightPage}
       />
 
       <Route
@@ -111,6 +130,20 @@ const routes = () => {
         exact={true}
         path="/insights/export-report"
         component={exportReport}
+      />
+
+      <Route
+        key="/deal/insights"
+        exact={true}
+        path="/deal/insights"
+        component={DealInsightPage}
+      />
+
+      <Route
+        key="/deal/insights/volume-report"
+        exact={true}
+        path="/deal/insights/volume-report"
+        component={dealVolumeReport}
       />
     </React.Fragment>
   );

@@ -1,4 +1,5 @@
 import { __ } from 'modules/common/utils';
+import { menuDeal } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { Board, MainActionBar } from '../containers';
@@ -23,7 +24,7 @@ class DealBoard extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header breadcrumb={breadcrumb} submenu={menuDeal} />}
         actionBar={this.renderActionBar()}
         content={this.renderContent()}
         transparent={true}

@@ -3,4 +3,9 @@ const menuInbox = [
   { title: 'Insights', link: '/insights' }
 ];
 
-export { menuInbox };
+const menuDeal = [
+  { title: 'Deal', link: '/deals' },
+  { title: 'Insights', link: '/deal/insights' }
+];
+
+export { menuInbox, menuDeal };

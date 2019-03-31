@@ -16,7 +16,7 @@ import {
 } from '../styles';
 import { ExportArgs, IQueryParams } from '../types';
 import { OptionsType } from '../utils';
-import { Filter, Sidebar } from './';
+import { InboxFilter, Sidebar } from './';
 
 type Props = {
   brands: IBrand[];
@@ -88,7 +88,11 @@ class ExportReport extends React.Component<Props, { userId: string }> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         <InsightContent>
           <InsightTitle>{__('Export Report')}</InsightTitle>
 
