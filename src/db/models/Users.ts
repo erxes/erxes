@@ -37,7 +37,7 @@ export interface IUserModel extends Model<IUserDocument> {
   updateOnBoardSeen({ _id }: { _id: string }): Promise<IUserDocument>;
   configEmailSignatures(_id: string, signatures: IEmailSignature[]): Promise<IUserDocument>;
   configGetNotificationByEmail(_id: string, isAllowed: boolean): Promise<IUserDocument>;
-  removeUser(_id: string): Promise<IUserDocument>;
+  setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): string;
   createUserWithConfirmation({ email }: { email: string }): string;
   confirmInvitation({
@@ -283,17 +283,27 @@ export const loadClass = () => {
     /*
      * Remove user
      */
-    public static async removeUser(_id: string) {
+    public static async setUserActiveOrInactive(_id: string) {
       const user = await Users.findOne({ _id });
 
       if (!user) {
         throw new Error('User not found');
       }
 
+      if (user.isActive === false) {
+        await Users.updateOne({ _id }, { $set: { isActive: true } });
+
+        return Users.findOne({ _id });
+      }
+
       if (user.registrationToken) {
         await Users.remove({ _id });
 
         return user;
+      }
+
+      if (user.isOwner) {
+        throw new Error('Can not remove owner');
       }
 
       await Users.updateOne({ _id }, { $set: { isActive: false } });
