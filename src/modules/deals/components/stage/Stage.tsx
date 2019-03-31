@@ -139,7 +139,12 @@ export default class Stage extends React.Component<
               <Indicator>{this.renderIndicator()}</Indicator>
             </Header>
             <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
-              {loadingDeals ? <span>Loading ...</span> : null}
+              {loadingDeals ? (
+                <img
+                  style={{ marginLeft: '12px' }}
+                  src="/images/fake-loader.gif"
+                />
+              ) : null}
               <DealList
                 listId={stage._id}
                 listType="DEAL"
