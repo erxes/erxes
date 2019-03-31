@@ -25,10 +25,7 @@ type Props = {
   addDeal: (name: string, callback: () => void) => void;
   loadMore: () => void;
 };
-export default class Stage extends React.Component<
-  Props,
-  { bodyRect: { left: number; width: number } }
-> {
+export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
 
   constructor(props: Props) {
