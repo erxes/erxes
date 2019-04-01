@@ -86,47 +86,37 @@ export default class {
 
   /**
    * Process a row of query and return a row for use on the front side
-   * @param {Object} date - Object containing year and month (interval)
-   * @param {Object[]} list - List containing activity logs belonging to the current interval
    * @param {string} action - Activity log action
    * @param {Object} content - Object with a type of data related to its content type (action)
    * @return {Object} - Return processed data of a given interval
    */
-  _processItem({ date, list }) {
-    const { year, month } = date;
 
+  _processItem(item) {
     const result: any = {
-      title: `${MONTHS[month]} ${year}`,
       data: []
     };
 
-    for (const item of list) {
-      if (this.type && this.type !== item.action) {
-        continue;
-      }
+    const iconAndColor = this._getIconAndColor(item.action);
+    const hasContent =
+      !['company-create', 'deal-create', 'customer-create'].includes(
+        item.action
+      ) && item.content !== '[object Object]';
 
-      const iconAndColor = this._getIconAndColor(item.action);
-      const hasContent =
-        !['company-create', 'deal-create', 'customer-create'].includes(
-          item.action
-        ) && item.content !== '[object Object]';
+    const caption = this._getCaption({
+      action: item.action,
+      by: item.by,
+      id: item.id
+    });
 
-      const caption = this._getCaption({
-        action: item.action,
-        by: item.by,
-        id: item.id
-      });
-
-      result.data.push({
-        ...iconAndColor,
-        caption,
-        content: hasContent ? item.content : null,
-        action: item.action,
-        date: item.createdAt,
-        createdAt: item.createdAt,
-        by: item.by
-      });
-    }
+    result.data.push({
+      ...iconAndColor,
+      caption,
+      content: hasContent ? item.content : null,
+      action: item.action,
+      date: item.createdAt,
+      createdAt: item.createdAt,
+      by: item.by
+    });
 
     return result;
   }
