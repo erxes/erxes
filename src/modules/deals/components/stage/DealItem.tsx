@@ -115,8 +115,6 @@ export default class DealItem extends React.PureComponent<
             </div>
           ))}
 
-          <br />
-
           <DealContainer>
             {renderDealAmount(deal.amount)}
 
@@ -125,8 +123,8 @@ export default class DealItem extends React.PureComponent<
                 <img
                   key={index}
                   src={user.details && user.details.avatar}
-                  width="24px"
-                  height="24px"
+                  width="22px"
+                  height="22px"
                   style={{ marginLeft: '2px' }}
                 />
               ))}

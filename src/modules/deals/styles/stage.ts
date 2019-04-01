@@ -23,6 +23,10 @@ const Container = styledTS<{ isDragging: boolean }>(styled.div)`
 
 const DealContainer = styled.div`
   overflow: auto;
+
+  ul {
+    float: left;
+  }
 `;
 
 const Right = styled.div`
@@ -37,6 +41,7 @@ const Content = styled('div')`
 
   h5 {
     margin-top: 0;
+    margin-bottom: 5px;
   }
 `;
 
@@ -50,6 +55,7 @@ const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
   overflow: hidden;
   padding: 8px;
   outline: 0px;
+  font-size: 12px;
   border-radius: 3px;
   transition: box-shadow 0.3s ease-in-out 0s;
   -webkit-box-pack: justify;
@@ -66,7 +72,6 @@ const Date = styled.div`
 
 const Indicator = styled.div`
   display: flex;
-  margin-top: 5px;
 
   > div {
     margin-right: 4px;
@@ -81,7 +86,7 @@ const DealIndicator = styledTS<{ color: string }>(styled.span)`
   display: inline-block;
   width: 8px;
   height: 8px;
-  margin: 8px 8px 0 0;
+  margin: 6px 6px 0 0;
   background-color: ${props => props.color}
 `;
 
@@ -104,7 +109,7 @@ const Header = styled.div`
   border-radius: 3px 3px 0 0;
 
   h4 {
-    margin: 0;
+    margin: 0 0 5px;
     font-size: 14px;
     font-weight: bold;
 
@@ -118,7 +123,7 @@ const Header = styled.div`
 
 const Amount = styled.ul`
   list-style: none;
-  margin: 5px 0px 0px;
+  margin: 0;
   overflow: hidden;
   padding: 0;
   max-width: 230px;
@@ -128,6 +133,7 @@ const Amount = styled.ul`
     float: left;
     padding-right: 5px;
     font-size: 12px;
+    line-height: 22px;
 
     span {
       font-weight: bold;
@@ -175,6 +181,7 @@ const IndicatorItem = styledTS<{ isPass: boolean }>(styled.div)`
   height: 4px;
   border-radius: 2px;
 `;
+
 const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
   background-color: ${({ isDraggingOver }) =>
     isDraggingOver && 'rgba(10, 45, 65, .1)'};
