@@ -58,23 +58,12 @@ const findCustomers = async ({
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
 
-  const dndAndValidEmailQuery = {
-    $and: [
-      {
-        $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }],
-      },
-      {
-        $and: [{ hasValidEmail: true }, { hasValidEmail: { $exists: true } }],
-      },
-    ],
-  };
-
   if (segmentId) {
     const segment = await Segments.findOne({ _id: segmentId });
     customerQuery = await QueryBuilder.segments(segment);
   }
 
-  return Customers.find({ ...customerQuery, ...dndAndValidEmailQuery });
+  return Customers.find({ ...customerQuery, $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }] });
 };
 
 const executeSendViaEmail = async (
