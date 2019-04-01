@@ -80,8 +80,10 @@ class SegmentsForm extends React.Component<Props, State> {
     );
 
     this.state = segment;
+  }
 
-    props.count(segment);
+  componentDidMount() {
+    this.updateCount();
   }
 
   addCondition = (condition: ISegmentCondition) => {
@@ -189,7 +191,7 @@ class SegmentsForm extends React.Component<Props, State> {
     const { contentType, fields } = this.props;
     const { conditions, connector, subOf } = this.state;
 
-    const connectorOnChange = e =>
+    const connectorOnChange = (e: React.FormEvent) =>
       this.handleChange(
         'connector',
         (e.currentTarget as HTMLInputElement).value
