@@ -19,10 +19,12 @@ class ActivityList extends React.Component<Props> {
   }
 
   renderList(activity, index) {
+    const data = Object.keys(activity);
+
     return (
       <div key={index}>
-        <ActivityTitle> {Object.keys(activity)} </ActivityTitle>
-        {Object.keys(activity).map(key => this.renderItem(activity[key]))}
+        <ActivityTitle> {data} </ActivityTitle>
+        {data.map(key => this.renderItem(activity[key]))}
       </div>
     );
   }
