@@ -5,7 +5,6 @@ import {
   BoardsGetLastQueryResponse,
   BoardsQueryResponse
 } from 'modules/deals/types';
-import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DealFilter } from '../components';

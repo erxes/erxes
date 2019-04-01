@@ -34,8 +34,6 @@ class Sidebar extends React.Component<Props> {
     const WrapperSidebar = Wrapper.Sidebar;
     const { Title } = WrapperSidebar.Section;
 
-    this.getInsights();
-
     return (
       <WrapperSidebar>
         <WrapperSidebar.Section>

@@ -12,6 +12,20 @@ const listParamsValue = `
   endDate: $endDate
 `;
 
+const dealParamsDef = `
+  $pipelineIds: String,
+  $boardId: String,
+  $startDate: String,
+  $endDate: String
+`;
+
+const dealParamsValue = `
+  pipelineIds: $pipelineIds,
+  boardId: $boardId,
+  startDate: $startDate,
+  endDate: $endDate
+`;
+
 const pieChart = `
   query insights(${listParamsDef}) {
     insights(${listParamsValue})
@@ -81,6 +95,18 @@ const insightTagReportExport = `
   }
 `;
 
+const dealInsightsMain = `
+  query dealInsightsMain(${dealParamsDef}) {
+    dealInsightsMain(${dealParamsValue})
+  }
+`;
+
+const dealInsightsPunchCard = `
+  query dealInsightsPunchCard(${dealParamsDef}) {
+    dealInsightsPunchCard(${dealParamsValue})
+  }
+`;
+
 export default {
   main,
   pieChart,
@@ -92,5 +118,8 @@ export default {
   insightVolumeReportExport,
   insightActivityReportExport,
   insightFirstResponseReportExport,
-  insightTagReportExport
+  insightTagReportExport,
+
+  dealInsightsMain,
+  dealInsightsPunchCard
 };

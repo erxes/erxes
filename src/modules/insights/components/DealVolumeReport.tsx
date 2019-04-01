@@ -6,17 +6,32 @@ import * as React from 'react';
 import { INSIGHT_TYPES } from '../constants';
 import { DealFilter } from '../containers';
 import {
+  InsightContent,
   InsightRow,
   InsightTitle,
   InsightWrapper,
   LoaderWrapper
 } from '../styles';
-import { IQueryParams } from '../types';
-import { Chart, PunchCard, Sidebar } from './';
+import {
+  IChartParams,
+  IPunchCardData,
+  IQueryParams,
+  SummaryData
+} from '../types';
+import { Chart, PunchCard, Sidebar, Summary } from './';
+
+type loadingType = {
+  main: boolean;
+  punch: boolean;
+};
 
 type Props = {
   queryParams: IQueryParams;
   history: any;
+  punch: IPunchCardData[];
+  trend: IChartParams[];
+  summary: SummaryData[];
+  loading: loadingType;
 };
 
 class DealVolumeReport extends React.Component<Props, { width: number }> {
@@ -78,24 +93,24 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
     ];
   }
 
-  // renderCharts() {
-  //   const { trend, punch, summary, loading } = this.props;
+  renderCharts() {
+    const { trend, summary, punch, loading } = this.props;
 
-  //   const width = this.state.width;
+    const width = this.state.width;
 
-  //   return (
-  //     <InsightContent>
-  //       <InsightRow>
-  //         {this.renderTitle('Volume summary')}
-  //         <Summary loading={loading.main} data={summary} />
-  //       </InsightRow>
+    return (
+      <InsightContent>
+        <InsightRow>
+          {this.renderTitle('Volume summary')}
+          <Summary loading={loading.main} data={summary} />
+        </InsightRow>
 
-  //       {this.renderTrend('Volume Trend', loading, trend)}
+        {this.renderTrend('Volume Trend', loading, trend)}
 
-  //       {this.renderPunchCard(loading, punch, width)}
-  //     </InsightContent>
-  //   );
-  // }
+        {this.renderPunchCard(loading, punch, width)}
+      </InsightContent>
+    );
+  }
 
   renderContent() {
     const { history, queryParams } = this.props;
@@ -103,7 +118,7 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
     return (
       <InsightWrapper>
         <DealFilter history={history} queryParams={queryParams} />
-        {/* {this.renderCharts()} */}
+        {this.renderCharts()}
       </InsightWrapper>
     );
   }
