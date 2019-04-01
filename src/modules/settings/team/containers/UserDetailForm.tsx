@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { queries as activityLogQueries } from 'modules/activityLogs/graphql';
 import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -46,10 +47,11 @@ const UserDetailFormContainer = (props: FinalProps) => {
     participatedConversations: list,
     totalConversationCount: totalCount,
     loadingLogs: userActivityLogQuery.loading,
-    activityLogsUser: userActivityLogQuery.activityLogsUser || [],
+    activityLogsUser: userActivityLogQuery.activityLogs || [],
     channels: channelsQuery.channels || []
   };
-
+  // tslint:disable-next-line:no-console
+  console.log(userActivityLogQuery);
   return <UserDetailForm {...updatedProps} />;
 };
 
@@ -85,11 +87,16 @@ export default withProps<Props>(
       name: 'channelsQuery',
       options: commonOptions
     }),
-    graphql<Props, ActivityLogQueryResponse, { _id: string }>(
-      gql(queries.userActivityLog),
+    graphql<Props, ActivityLogQueryResponse>(
+      gql(activityLogQueries.activityLogs),
       {
         name: 'userActivityLogQuery',
-        options: commonOptions
+        options: ({ _id }: { _id: string }) => ({
+          variables: {
+            contentId: _id,
+            contentType: 'user'
+          }
+        })
       }
     )
   )(UserDetailFormContainer)
