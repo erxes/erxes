@@ -151,6 +151,10 @@ export const trackGmail = async () => {
   const GOOGLE_SUBSCRIPTION_NAME = getEnv({ name: 'GOOGLE_SUBSCRIPTION_NAME' });
   const GOOGLE_PROJECT_ID = getEnv({ name: 'GOOGLE_PROJECT_ID' });
 
+  if (!GOOGLE_APPLICATION_CREDENTIALS || !GOOGLE_TOPIC || !GOOGLE_SUBSCRIPTION_NAME || !GOOGLE_PROJECT_ID) {
+    return;
+  }
+
   const pubsubClient = PubSub({
     projectId: GOOGLE_PROJECT_ID,
     keyFilename: GOOGLE_APPLICATION_CREDENTIALS,
