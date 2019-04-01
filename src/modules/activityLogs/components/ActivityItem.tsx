@@ -1,17 +1,8 @@
-import {
-  ActivityContent,
-  ActivityDate,
-  ActivityIcon,
-  ActivityRow,
-  AvatarWrapper,
-  EmailContent,
-  FlexBody,
-  FlexContent
-} from 'modules/activityLogs/styles';
-import { Icon, NameCard, Tip } from 'modules/common/components';
-import * as moment from 'moment';
+import { ActivityContent, EmailContent } from 'modules/activityLogs/styles';
+import { Icon } from 'modules/common/components';
 import * as React from 'react';
 import * as xss from 'xss';
+import ActivityRow from './ActivityRow';
 
 type Props = {
   data: any;
@@ -24,62 +15,38 @@ const ActivityItem = (props: Props) => {
     const content = JSON.parse(data.content);
 
     return (
-      <ActivityRow key={Math.random()}>
-        <ActivityIcon color={data.color}>
-          <Icon icon={data.icon || ''} />
-        </ActivityIcon>
-        <React.Fragment>
-          <FlexContent>
-            <AvatarWrapper>
-              <NameCard.Avatar user={data.by} size={40} />
-            </AvatarWrapper>
-            <FlexBody>
-              <p>{content.subject}</p>
-              <div>
-                {data.caption}
-                <Icon icon="rightarrow" /> To: <span>{content.toEmails}</span>
-                {content.cc && <span>Cc: {content.cc}</span>}
-                {content.bcc && <span>Bcc: {content.bcc}</span>}
-              </div>
-            </FlexBody>
-            <Tip text={moment(data.date).format('lll')}>
-              <ActivityDate>{moment(data.date).fromNow()}</ActivityDate>
-            </Tip>
-          </FlexContent>
-          {data.content && (
-            <EmailContent
-              dangerouslySetInnerHTML={{ __html: xss(content.body) }}
-            />
-          )}
-        </React.Fragment>
-      </ActivityRow>
+      <ActivityRow
+        data={data}
+        body={
+          <>
+            <p>{content.subject}</p>
+            <div>
+              {data.caption}
+              <Icon icon="rightarrow" /> To: <span>{content.toEmails}</span>
+              {content.cc && <span>Cc: {content.cc}</span>}
+              {content.bcc && <span>Bcc: {content.bcc}</span>}
+            </div>
+          </>
+        }
+        content={
+          <EmailContent
+            dangerouslySetInnerHTML={{ __html: xss(content.body) }}
+          />
+        }
+      />
     );
   }
 
   return (
-    <ActivityRow key={Math.random()}>
-      <ActivityIcon color={data.color}>
-        <Icon icon={data.icon || ''} />
-      </ActivityIcon>
-      <React.Fragment>
-        <FlexContent>
-          <AvatarWrapper>
-            <NameCard.Avatar user={data.by} size={32} />
-          </AvatarWrapper>
-          <FlexBody>{data.caption}</FlexBody>
-          <Tip text={moment(data.createdAt).format('llll')}>
-            <ActivityDate>
-              {moment(data.createdAt).format('MMM Do, h:mm A')}
-            </ActivityDate>
-          </Tip>
-        </FlexContent>
-        {data.content && (
-          <ActivityContent
-            dangerouslySetInnerHTML={{ __html: xss(data.content) }}
-          />
-        )}
-      </React.Fragment>
-    </ActivityRow>
+    <ActivityRow
+      data={data}
+      body={data.caption}
+      content={
+        <ActivityContent
+          dangerouslySetInnerHTML={{ __html: xss(data.content) }}
+        />
+      }
+    />
   );
 };
 
