@@ -11,7 +11,7 @@ const Timeline = styled.div`
   position: relative;
 
   &:before {
-    border-right: 1px solid ${colors.borderDarker};
+    border-right: 1px solid #ccc;
     content: '';
     height: 100%;
     position: absolute;
@@ -21,19 +21,18 @@ const Timeline = styled.div`
   }
 `;
 
-const ActivityTitle = styled.h5`
-  color: ${colors.colorCoreGray};
-  padding: ${dimensions.coreSpacing * 1.5}px 0 ${dimensions.coreSpacing}px 0;
-  margin: 0;
-  font-weight: 400;
-  line-height: ${typography.lineHeightHeading4};
+const ActivityTitle = styled.h3`
+  padding: ${dimensions.unitSpacing}px 0;
+  font-weight: 300;
+  color: ${colors.textPrimary};
 `;
 
 const ActivityRow = styled(WhiteBox)`
   padding: ${dimensions.coreSpacing}px;
   position: relative;
   overflow: visible;
-  margin-bottom: ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  border-radius: 3px;
 
   &:last-of-type {
     margin-bottom: 0;
@@ -57,7 +56,6 @@ const FlexBody = styled.div`
 
   > div {
     font-size: ${typography.fontSizeHeading8}px;
-    color: ${colors.colorCoreGray};
   }
 
   span {
@@ -124,10 +122,9 @@ const ActivityDate = styled.div`
 
 const ActivityContent = styled.div`
   margin-top: ${dimensions.unitSpacing}px;
-  padding: ${dimensions.unitSpacing / 2}px ${dimensions.unitSpacing}px;
-  background: ${lighten(colors.bgInternal, 5)};
+  padding: ${dimensions.unitSpacing}px;
+  background: ${colors.borderPrimary};
   box-shadow: 0 1px 2px 0 ${colors.darkShadow};
-  border-radius: 2px;
 
   p:last-of-type {
     margin-bottom: 0;

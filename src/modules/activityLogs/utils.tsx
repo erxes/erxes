@@ -20,14 +20,14 @@ const MONTHS = [
 const ICON_AND_COLOR_TABLE = {
   'customer-create': {
     icon: 'adduser',
-    color: '#A389D4'
+    color: '#6465e2'
   },
   'segment-create': {
     icon: 'filter',
     color: '#6569DF'
   },
   'conversation-create': {
-    icon: 'speech-bubble-3',
+    icon: 'speech-bubble-2',
     color: '#F44236'
   },
   'internal_note-create': {
@@ -92,10 +92,6 @@ export default class {
    */
 
   _processItem(item) {
-    const result: any = {
-      data: []
-    };
-
     const iconAndColor = this._getIconAndColor(item.action);
     const hasContent =
       !['company-create', 'deal-create', 'customer-create'].includes(
@@ -108,17 +104,14 @@ export default class {
       id: item.id
     });
 
-    result.data.push({
+    return {
       ...iconAndColor,
       caption,
       content: hasContent ? item.content : null,
       action: item.action,
-      date: item.createdAt,
       createdAt: item.createdAt,
       by: item.by
-    });
-
-    return result;
+    };
   }
 
   /**

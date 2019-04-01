@@ -64,13 +64,13 @@ const ActivityItem = (props: Props) => {
       <React.Fragment>
         <FlexContent>
           <AvatarWrapper>
-            <NameCard.Avatar user={data.by} size={40} />
+            <NameCard.Avatar user={data.by} size={32} />
           </AvatarWrapper>
-          <FlexBody>
-            <div>{data.caption}</div>
-          </FlexBody>
-          <Tip text={moment(data.date).format('lll')}>
-            <ActivityDate>{moment(data.date).fromNow()}</ActivityDate>
+          <FlexBody>{data.caption}</FlexBody>
+          <Tip text={moment(data.createdAt).format('llll')}>
+            <ActivityDate>
+              {moment(data.createdAt).format('MMM Do, h:mm A')}
+            </ActivityDate>
           </Tip>
         </FlexContent>
         {data.content && (
