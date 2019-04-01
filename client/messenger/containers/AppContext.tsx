@@ -56,6 +56,7 @@ interface IStore extends IState {
   sendMessage: (message: string, attachments?: IAttachment[]) => void;
   sendFile: (file: File) => void;
   setHeadHeight: (headHeight: number) => void;
+  isLoggedIn: () => boolean;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -500,7 +501,8 @@ export class AppProvider extends React.Component<{}, IState> {
           readMessages: this.readMessages,
           sendMessage: this.sendMessage,
           sendFile: this.sendFile,
-          setHeadHeight: this.setHeadHeight
+          setHeadHeight: this.setHeadHeight,
+          isLoggedIn: this.isLoggedIn
         }}
       >
         {this.props.children}
