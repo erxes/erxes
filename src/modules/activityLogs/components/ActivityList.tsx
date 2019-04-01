@@ -33,7 +33,8 @@ class ActivityList extends React.Component<Props> {
   render() {
     let { activities } = this.props;
     const activityLogProcessor = new ActivityLogProcessor(this.props);
-
+    // tslint:disable-next-line:no-console
+    console.log(activities);
     activities = activityLogProcessor.process();
 
     if (!activities || activities.length < 1) {

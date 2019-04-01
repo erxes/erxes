@@ -34,8 +34,7 @@ class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
     if (customerDetailQuery.loading) {
       return <Spinner objective={true} />;
     }
-    // tslint:disable-next-line:no-console
-    console.log(customerActivityLogQuery);
+
     const taggerRefetchQueries = [
       {
         query: gql(queries.customerDetail),
