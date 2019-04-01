@@ -85,12 +85,9 @@ class SegmentsForm extends React.Component<Props, State> {
   }
 
   addCondition = (condition: ISegmentCondition) => {
-    this.setState(
-      {
-        conditions: [...this.state.conditions, condition]
-      },
-      () => this.updateCount()
-    );
+    this.setState({
+      conditions: [...this.state.conditions, condition]
+    });
   };
 
   updateCount = () => {
@@ -125,7 +122,13 @@ class SegmentsForm extends React.Component<Props, State> {
           c._id === condition._id ? condition : c
         )
       },
-      () => this.updateCount()
+      () => {
+        const { operator, type, value } = condition;
+
+        if (operator && operator !== '' && (type === 'boolean' || value)) {
+          this.updateCount();
+        }
+      }
     );
   };
 
@@ -153,15 +156,21 @@ class SegmentsForm extends React.Component<Props, State> {
       conditions
     } = this.state;
 
+    const updatedConditions: ISegmentConditionDoc[] = [];
+
+    conditions.forEach((cond: ISegmentCondition) => {
+      if (cond.operator) {
+        const { _id, ...rest } = cond;
+        updatedConditions.push(rest);
+      }
+    });
+
     const doc = {
       name,
       description,
       color,
       connector,
-      conditions: conditions.map((cond: ISegmentCondition) => ({
-        ...cond,
-        _id: undefined
-      })),
+      conditions: updatedConditions,
       subOf: ''
     };
 

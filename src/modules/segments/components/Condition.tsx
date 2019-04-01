@@ -33,11 +33,6 @@ class Condition extends React.Component<Props, State> {
   handleInputValue = <T extends keyof State>(name: T, value: State[T]) => {
     const states = { [name]: value } as Pick<State, keyof State>;
 
-    // Changing current operator when the type is changed
-    if (name === 'type' && typeof value === 'string') {
-      states.operator = operators.string[0].value || '';
-    }
-
     this.setState(states, () => {
       const { changeCondition } = this.props;
       debounce(() => changeCondition(this.state), 350)();
@@ -76,8 +71,8 @@ class Condition extends React.Component<Props, State> {
     );
   }
 
-  renderSelect(name, value, obj) {
-    const onChange = e =>
+  renderSelect(name: keyof State, value: string, obj) {
+    const onChange = (e: React.FormEvent<HTMLElement>) =>
       this.handleInputValue(name, (e.currentTarget as HTMLInputElement).value);
 
     return (
@@ -137,6 +132,7 @@ class Condition extends React.Component<Props, State> {
         value={this.state.operator}
         onChange={onChange}
       >
+        <option />
         {operators[this.state.type].map(c => (
           <option value={c.value} key={c.value}>
             {c.name}
