@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { queries as activityLogQueries } from 'modules/activityLogs/graphql';
 import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -39,7 +40,7 @@ const CompanyDetailsContainer = (props: FinalProps) => {
     loadingLogs: companyActivityLogQuery.loading,
     loading: companyDetailQuery.loading,
     company: companyDetail,
-    companyActivityLog: companyActivityLogQuery.activityLogsCompany || [],
+    companyActivityLog: companyActivityLogQuery.activityLogs || [],
     taggerRefetchQueries,
     currentUser
   };
@@ -60,13 +61,14 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, ActivityLogQueryResponse, { _id: string }>(
-      gql(queries.activityLogsCompany),
+    graphql<Props, ActivityLogQueryResponse>(
+      gql(activityLogQueries.activityLogs),
       {
         name: 'companyActivityLogQuery',
-        options: ({ id }) => ({
+        options: ({ id }: { id: string }) => ({
           variables: {
-            _id: id
+            contentId: id,
+            contentType: 'company'
           }
         })
       }
