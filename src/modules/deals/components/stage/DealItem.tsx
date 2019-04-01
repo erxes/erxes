@@ -4,9 +4,9 @@ import {
   Content,
   Date,
   Deal,
-  DealContainer,
   DealIndicator,
   Footer,
+  PriceContainer,
   Right
 } from 'modules/deals/styles/stage';
 import { IDeal } from 'modules/deals/types';
@@ -110,12 +110,12 @@ export default class DealItem extends React.PureComponent<
 
           {companies.map((company, index) => (
             <div key={index}>
-              <DealIndicator color="#CEF753" />
+              <DealIndicator color="#EA475D" />
               {company.primaryName}
             </div>
           ))}
 
-          <DealContainer>
+          <PriceContainer>
             {renderDealAmount(deal.amount)}
 
             <Right>
@@ -129,14 +129,12 @@ export default class DealItem extends React.PureComponent<
                 />
               ))}
             </Right>
-          </DealContainer>
+          </PriceContainer>
 
           <Footer>
-            <DealContainer>
-              {__('Last updated')}
+            {__('Last updated')}
 
-              <Right>{this.renderDate(deal.modifiedAt)}</Right>
-            </DealContainer>
+            <Right>{this.renderDate(deal.modifiedAt)}</Right>
           </Footer>
         </Content>
         {this.renderForm()}

@@ -9,8 +9,8 @@ const FlexContent = styled.div`
 
 const Container = styledTS<{ isDragging?: boolean }>(styled.div)`
   overflow: hidden;
-  margin-bottom: 10px;
-  padding: 10px;
+  margin-bottom: 8px;
+  padding: 8px;
   outline: 0;
   border-radius: ${borderRadius};
   background-color: ${colors.colorWhite};

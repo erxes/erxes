@@ -7,7 +7,10 @@ import {
   Header,
   Indicator,
   IndicatorItem,
-  StageFooter
+  LoadingContent,
+  ScrollContent,
+  StageFooter,
+  StageRoot
 } from 'modules/deals/styles/stage';
 import { IDeal, IStage } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
@@ -75,7 +78,8 @@ export default class Stage extends React.Component<Props, {}> {
     const trigger = (
       <StageFooter>
         <AddNew>
-          <Icon icon="add" /> {__('Add a deal')}
+          <Icon icon="add" />
+          {__('Add a deal')}
         </AddNew>
       </StageFooter>
     );
@@ -125,31 +129,34 @@ export default class Stage extends React.Component<Props, {}> {
 
     return (
       <Draggable draggableId={stage.name} index={index}>
-        {provided => (
+        {(provided, snapshot) => (
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
-            <Header {...provided.dragHandleProps}>
-              <h4>
-                {stage.name}
-                <span>{stage.dealsTotalCount}</span>
-              </h4>
-              <span>{renderDealAmount(stage.amount)}</span>
-              <Indicator>{this.renderIndicator()}</Indicator>
-            </Header>
-            <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
-              {loadingDeals ? (
-                <img
-                  style={{ marginLeft: '12px' }}
-                  src="/images/fake-loader.gif"
-                />
-              ) : null}
-              <DealList
-                listId={stage._id}
-                listType="DEAL"
-                stageId={stage._id}
-                deals={deals}
-              />
-            </Body>
-            {this.renderAddDealTrigger()}
+            <StageRoot isDragging={snapshot.isDragging}>
+              <Header {...provided.dragHandleProps}>
+                <h4>
+                  {stage.name}
+                  <span>{stage.dealsTotalCount}</span>
+                </h4>
+                <span>{renderDealAmount(stage.amount)}</span>
+                <Indicator>{this.renderIndicator()}</Indicator>
+              </Header>
+              <Body innerRef={this.bodyRef}>
+                <ScrollContent onScroll={this.onScroll}>
+                  {loadingDeals ? (
+                    <LoadingContent>
+                      <img src="/images/loading-content.gif" />
+                    </LoadingContent>
+                  ) : null}
+                  <DealList
+                    listId={stage._id}
+                    listType="DEAL"
+                    stageId={stage._id}
+                    deals={deals}
+                  />
+                </ScrollContent>
+              </Body>
+              {this.renderAddDealTrigger()}
+            </StageRoot>
           </Container>
         )}
       </Draggable>
