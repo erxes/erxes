@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
+import { IPipeline } from 'modules/settings/deals/types';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -29,13 +30,18 @@ type FinalProps = {
  * Main board component
  */
 class Main extends React.Component<FinalProps> {
+  onSearch = (search: string) => {
+    routerUtils.setParams(this.props.history, { search });
+  };
+
   render() {
     const {
       history,
       location,
       boardsQuery,
       boardGetLastQuery,
-      boardDetailQuery
+      boardDetailQuery,
+      middleContent
     } = this.props;
 
     const queryParams = generateQueryParams({ location });
@@ -43,7 +49,7 @@ class Main extends React.Component<FinalProps> {
     const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
     const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
 
-    let currentPipeline;
+    let currentPipeline: IPipeline | undefined;
     let boardId = queryParams.id || localStorage.getItem(STORAGE_BOARD_KEY);
     let pipelineId =
       queryParams.pipelineId || localStorage.getItem(STORAGE_PIPELINE_KEY);
@@ -69,19 +75,21 @@ class Main extends React.Component<FinalProps> {
       localStorage.setItem(STORAGE_PIPELINE_KEY, pipelineId);
     }
 
-    const extendedProps = {
-      ...this.props,
-      currentBoard,
-      currentPipeline,
-      boards: boardsQuery.dealBoards || [],
-      loading: boardsQuery.loading
-    };
-
     if (boardsQuery.loading) {
       return <Spinner />;
     }
 
-    return <DumbMainActionBar {...extendedProps} />;
+    return (
+      <DumbMainActionBar
+        middleContent={middleContent}
+        onSearch={this.onSearch}
+        queryParams={queryParams}
+        history={history}
+        currentBoard={currentBoard}
+        currentPipeline={currentPipeline}
+        boards={boardsQuery.dealBoards || []}
+      />
+    );
   }
 }
 

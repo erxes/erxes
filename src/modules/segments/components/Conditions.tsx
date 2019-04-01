@@ -9,7 +9,7 @@ type Props = {
   fields: any[];
   conditions: ISegmentCondition[];
   changeCondition: (condition: ISegmentCondition) => void;
-  removeCondition: (field: string) => void;
+  removeCondition: (id: string) => void;
   parentSegmentId?: string;
   contentType?: string;
 };
@@ -49,7 +49,7 @@ class Conditions extends React.Component<Props> {
             condition={condition}
             changeCondition={changeCondition}
             removeCondition={removeCondition}
-            key={condition.field}
+            key={condition._id}
           />
         ))}
       </React.Fragment>

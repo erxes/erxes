@@ -11,7 +11,13 @@ import { Sidebar, Wrapper } from 'modules/layout/components';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { ISegment, ISegmentCondition, ISegmentDoc } from '../types';
+import {
+  ISegment,
+  ISegmentCondition,
+  ISegmentConditionDoc,
+  ISegmentDoc,
+  ISegmentField
+} from '../types';
 import { AddConditionButton, Conditions } from './';
 import {
   ConditionWrapper,
@@ -27,19 +33,21 @@ type SegmentDoc = {
   subOf: string;
   color: string;
   connector: string;
-  conditions: ISegmentCondition[];
+  conditions: ISegmentConditionDoc[];
 };
 
 type Props = {
   contentType: string;
-  fields: any[];
+  fields: ISegmentField[];
   create: (params: { doc: SegmentDoc }) => void;
   edit: (params: { _id: string; doc: SegmentDoc }) => void;
   segment: ISegment;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
   counterLoading: boolean;
-  total: any;
+  total: {
+    byFakeSegment: number;
+  };
 };
 
 type State = {
@@ -55,7 +63,7 @@ class SegmentsForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = props.segment || {
+    const segment: ISegment = props.segment || {
       name: '',
       description: '',
       subOf: '',
@@ -64,18 +72,24 @@ class SegmentsForm extends React.Component<Props, State> {
       connector: 'any'
     };
 
-    if (props.segment) {
-      props.count(props.segment);
-    }
+    segment.conditions = segment.conditions.map(
+      (cond: ISegmentConditionDoc) => ({
+        _id: Math.random().toString(),
+        ...cond
+      })
+    );
+
+    this.state = segment;
   }
 
-  addCondition = condition => {
-    this.setState(
-      {
-        conditions: [...this.state.conditions, condition]
-      },
-      () => this.updateCount()
-    );
+  componentDidMount() {
+    this.updateCount();
+  }
+
+  addCondition = (condition: ISegmentCondition) => {
+    this.setState({
+      conditions: [...this.state.conditions, condition]
+    });
   };
 
   updateCount = () => {
@@ -103,33 +117,34 @@ class SegmentsForm extends React.Component<Props, State> {
     this.props.count(segment);
   };
 
-  changeCondition = condition => {
+  changeCondition = (condition: ISegmentCondition) => {
     this.setState(
       {
         conditions: this.state.conditions.map(c =>
-          c.field === condition.field ? condition : c
+          c._id === condition._id ? condition : c
         )
       },
-      () => this.updateCount()
+      () => {
+        const { operator, type, value } = condition;
+
+        if (operator && operator !== '' && (type === 'boolean' || value)) {
+          this.updateCount();
+        }
+      }
     );
   };
 
-  removeCondition = conditionField => {
-    this.setState(
-      {
-        conditions: this.state.conditions.filter(
-          c => c.field !== conditionField
-        )
-      },
-      () => this.updateCount()
-    );
+  removeCondition = (id: string) => {
+    const conditions = this.state.conditions.filter(c => c._id !== id);
+
+    this.setState({ conditions }, () => this.updateCount());
   };
 
   handleChange = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
-  save = e => {
+  save = (e: React.FormEvent) => {
     e.preventDefault();
 
     const { segment, create, edit } = this.props;
@@ -143,7 +158,23 @@ class SegmentsForm extends React.Component<Props, State> {
       conditions
     } = this.state;
 
-    const doc = { name, description, color, connector, conditions, subOf: '' };
+    const updatedConditions: ISegmentConditionDoc[] = [];
+
+    conditions.forEach((cond: ISegmentCondition) => {
+      if (cond.operator) {
+        const { _id, ...rest } = cond;
+        updatedConditions.push(rest);
+      }
+    });
+
+    const doc = {
+      name,
+      description,
+      color,
+      connector,
+      conditions: updatedConditions,
+      subOf: ''
+    };
 
     if (subOf) {
       doc.subOf = subOf;
@@ -160,14 +191,7 @@ class SegmentsForm extends React.Component<Props, State> {
     const { contentType, fields } = this.props;
     const { conditions, connector, subOf } = this.state;
 
-    const selectedFieldIds = conditions.map(c => c.field);
-
-    // Exclude fields that are already selected
-    const changedFields = fields.filter(
-      field => selectedFieldIds.indexOf(field._id) < 0
-    );
-
-    const connectorOnChange = e =>
+    const connectorOnChange = (e: React.FormEvent) =>
       this.handleChange(
         'connector',
         (e.currentTarget as HTMLInputElement).value
@@ -199,16 +223,13 @@ class SegmentsForm extends React.Component<Props, State> {
           />
         </ConditionWrapper>
 
-        <AddConditionButton
-          fields={changedFields}
-          addCondition={this.addCondition}
-        />
+        <AddConditionButton fields={fields} addCondition={this.addCondition} />
       </React.Fragment>
     );
   }
 
   renderSubOf() {
-    const onChange = e =>
+    const onChange = (e: React.FormEvent) =>
       this.handleChange('subOf', (e.currentTarget as HTMLInputElement).value);
 
     return (
@@ -233,16 +254,16 @@ class SegmentsForm extends React.Component<Props, State> {
   renderForm() {
     const { name, description, color } = this.state;
 
-    const nameOnChange = e =>
+    const nameOnChange = (e: React.FormEvent) =>
       this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
 
-    const descOnChange = e =>
+    const descOnChange = (e: React.FormEvent) =>
       this.handleChange(
         'description',
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const colorOnChange = e =>
+    const colorOnChange = (e: React.FormEvent) =>
       this.handleChange('color', (e.currentTarget as HTMLInputElement).value);
 
     return (

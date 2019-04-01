@@ -11,10 +11,11 @@ type Props = {
   fields: any[];
   condition: ISegmentCondition;
   changeCondition: (condition: ISegmentCondition) => void;
-  removeCondition: (field: string) => void;
+  removeCondition: (id: string) => void;
 };
 
 type State = {
+  _id: string;
   field: string;
   type: string;
   value: string;
@@ -32,11 +33,6 @@ class Condition extends React.Component<Props, State> {
   handleInputValue = <T extends keyof State>(name: T, value: State[T]) => {
     const states = { [name]: value } as Pick<State, keyof State>;
 
-    // Changing current operator when the type is changed
-    if (name === 'type' && typeof value === 'string') {
-      states.operator = operators.string[0].value || '';
-    }
-
     this.setState(states, () => {
       const { changeCondition } = this.props;
       debounce(() => changeCondition(this.state), 350)();
@@ -44,10 +40,11 @@ class Condition extends React.Component<Props, State> {
   };
 
   // changeCondition will be fired after 350ms
-  handleValue = e => {
+  handleValue = (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
 
-    const val = e.target.value;
+    const target = e.currentTarget as HTMLInputElement;
+    const val = target.value;
 
     this.setState({ value: val }, () => {
       const { changeCondition } = this.props;
@@ -58,7 +55,7 @@ class Condition extends React.Component<Props, State> {
   };
 
   removeCondition = () => {
-    this.props.removeCondition(this.props.condition.field);
+    this.props.removeCondition(this.props.condition._id);
   };
 
   renderInput() {
@@ -74,8 +71,8 @@ class Condition extends React.Component<Props, State> {
     );
   }
 
-  renderSelect(name, value, obj) {
-    const onChange = e =>
+  renderSelect(name: keyof State, value: string, obj) {
+    const onChange = (e: React.FormEvent<HTMLElement>) =>
       this.handleInputValue(name, (e.currentTarget as HTMLInputElement).value);
 
     return (
@@ -135,6 +132,7 @@ class Condition extends React.Component<Props, State> {
         value={this.state.operator}
         onChange={onChange}
       >
+        <option />
         {operators[this.state.type].map(c => (
           <option value={c.value} key={c.value}>
             {c.name}
