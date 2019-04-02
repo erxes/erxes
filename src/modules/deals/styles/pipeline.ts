@@ -1,6 +1,6 @@
 import { colors } from 'modules/common/styles';
 import styled from 'styled-components';
-import { coreHeight } from './deminsions';
+import { coreHeight } from './common';
 
 const Container = styled.div`
   background-color: ${colors.colorWhite};

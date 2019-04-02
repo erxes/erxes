@@ -26,10 +26,10 @@ const ContentBody = styled.div`
   position: relative;
   z-index: 1;
   height: 100%;
-  padding: 15px;
+  padding: 0 4px;
+  margin: 0 4px;
   padding-bottom: 100px;
   overflow-y: auto;
-  background: ${colors.colorLightBlue};
 `;
 
 const Footer = styled.div`
@@ -45,12 +45,9 @@ const Footer = styled.div`
 
 const Amount = styled.ul`
   list-style: none;
-  margin: 5px 0px 0px;
   overflow: hidden;
-  padding: 0;
-  background: ${colors.bgLight};
-  margin: 0;
-  padding-left: 15px;
+  margin: 0 0 5px;
+  padding: 0 16px;
 
   li {
     padding-right: 5px;
@@ -116,7 +113,7 @@ class DealColumn extends React.Component<Props, {}> {
     return (
       <Footer>
         <AddNew onClick={this.onLoadMore}>
-          <Icon icon="add" /> {__('Load more')}
+          <Icon icon="refresh" /> {__('Load more')}
         </AddNew>
       </Footer>
     );
