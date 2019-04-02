@@ -7,6 +7,7 @@ import {
   TabTitle
 } from 'modules/common/components';
 import { ActivityContent } from 'modules/common/styles/main';
+import { router as routerUtils } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
@@ -20,6 +21,7 @@ type Props = {
   dealActivityLog: any;
   loadingLogs: boolean;
   currentUser?: IUser;
+  history: any;
 };
 
 class Tab extends React.Component<Props, { currentTab: string }> {
@@ -30,7 +32,21 @@ class Tab extends React.Component<Props, { currentTab: string }> {
   }
 
   onTabClick = currentTab => {
-    this.setState({ currentTab });
+    const { history } = this.props;
+
+    this.setState({ currentTab }, () => {
+      if (currentTab === 'notes') {
+        routerUtils.setParams(history, {
+          activityType: 'internal_note'
+        });
+      }
+
+      if (currentTab === 'activity') {
+        routerUtils.setParams(history, {
+          activityType: ''
+        });
+      }
+    });
   };
 
   renderTabContent() {
@@ -59,14 +75,6 @@ class Tab extends React.Component<Props, { currentTab: string }> {
     );
   }
 
-  activityTabClick = () => {
-    return this.onTabClick('activity');
-  };
-
-  notesTabClick = () => {
-    return this.onTabClick('notes');
-  };
-
   render() {
     const { deal } = this.props;
     const { currentTab } = this.state;
@@ -85,14 +93,14 @@ class Tab extends React.Component<Props, { currentTab: string }> {
         <Tabs grayBorder={true}>
           <TabTitle
             className={currentTab === 'activity' ? 'active' : ''}
-            onClick={this.activityTabClick}
+            onClick={this.onTabClick.bind(this, 'activity')}
           >
             {__('Activity')}
           </TabTitle>
 
           <TabTitle
             className={currentTab === 'notes' ? 'active' : ''}
-            onClick={this.notesTabClick}
+            onClick={this.onTabClick.bind(this, 'notes')}
           >
             {__('Notes')}
           </TabTitle>

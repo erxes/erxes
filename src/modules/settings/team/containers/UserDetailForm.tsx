@@ -50,8 +50,7 @@ const UserDetailFormContainer = (props: FinalProps) => {
     activityLogsUser: userActivityLogQuery.activityLogs || [],
     channels: channelsQuery.channels || []
   };
-  // tslint:disable-next-line:no-console
-  console.log(userActivityLogQuery);
+
   return <UserDetailForm {...updatedProps} />;
 };
 
