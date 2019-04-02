@@ -30,6 +30,7 @@ export interface IStage {
   itemId?: string;
   amount?: any;
   deals?: IDeal[];
+  dealsTotalCount: number;
 }
 
 export interface IDeal {

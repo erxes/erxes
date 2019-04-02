@@ -57,14 +57,10 @@ class DraggableContainer extends React.Component<
   }
 }
 
-class InnerDealList extends React.Component<{
+class InnerDealList extends React.PureComponent<{
   stageId: string;
   deals: IDeal[];
 }> {
-  shouldComponentUpdate(nextProps) {
-    return nextProps.deals !== this.props.deals;
-  }
-
   render() {
     const { stageId, deals } = this.props;
 
@@ -85,7 +81,7 @@ type InnerListProps = {
   deals: IDeal[];
 };
 
-class InnerList extends React.Component<InnerListProps> {
+class InnerList extends React.PureComponent<InnerListProps> {
   render() {
     const { stageId, deals, dropProvided } = this.props;
     if (deals.length === 0) {
