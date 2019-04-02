@@ -249,7 +249,7 @@ const AttachmentIndicator = styled.div`
 
 const Attachment = styled.div`
   display: flex;
-  max-width: 100%;
+  max-width: 250px;
   padding: 5px;
   margin: 0 0 5px 5px;
   font-size: 12px;
