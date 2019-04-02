@@ -10,7 +10,9 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
+import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { List } from '../../common/components';
 import { IUserGroup, IUserGroupDocument } from '../types';
 import GroupForm from './Form';
@@ -106,7 +108,16 @@ class GroupList extends React.Component<Props> {
       </Button>
     );
 
-    const rightActionBar = this.renderFormTrigger(trigger, null);
+    const rightActionBar = (
+      <BarItems>
+        {this.renderFormTrigger(trigger, null)}
+        <Link to="/settings/permissions">
+          <Button type="success" size="small">
+            Permissions
+          </Button>
+        </Link>
+      </BarItems>
+    );
 
     return <Wrapper.ActionBar right={rightActionBar} />;
   }

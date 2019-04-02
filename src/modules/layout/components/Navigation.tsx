@@ -166,7 +166,7 @@ class Navigation extends React.Component<{
               </NavLink>
             </Tip>
           </WithPermission>
-          <WithPermission action="showCompanyList">
+          <WithPermission action="showCompanies">
             <Tip placement="right" text={__('Companies').toString()}>
               <NavLink to="/companies">
                 <NavIcon className="icon-briefcase" />
@@ -194,13 +194,11 @@ class Navigation extends React.Component<{
               </NavLink>
             </Tip>
           </WithPermission>
-          <WithPermission action="showAppStore">
-            <Tip placement="right" text={__('App store').toString()}>
-              <NavLink to="/settings/integrations" className="bottom">
-                <NavIcon className="icon-menu" />
-              </NavLink>
-            </Tip>
-          </WithPermission>
+          <Tip placement="right" text={__('App store').toString()}>
+            <NavLink to="/settings/integrations" className="bottom">
+              <NavIcon className="icon-menu" />
+            </NavLink>
+          </Tip>
         </Nav>
       </LeftNavigation>
     );

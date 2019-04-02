@@ -61,11 +61,6 @@ class Settings extends React.Component {
               '/images/icons/erxes-03.svg',
               '/settings/permissions'
             )}
-            {this.renderBox(
-              'User groups',
-              '/images/icons/erxes-04.svg',
-              '/settings/users/groups'
-            )}
           </div>
         </Row>
         <Divider />

@@ -15,6 +15,7 @@ import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import { IUserGroup } from 'modules/settings/usersGroups/types';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import { FilterWrapper } from '../styles';
 import {
@@ -140,7 +141,11 @@ class PermissionList extends React.Component<Props> {
             content={this.renderForm}
           />
         )}
-        <Button type="primary">User groups</Button>
+        <Link to="/settings/users/groups">
+          <Button type="success" size="small">
+            User groups
+          </Button>
+        </Link>
       </BarItems>
     );
 
