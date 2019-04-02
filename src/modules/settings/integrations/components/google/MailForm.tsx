@@ -184,6 +184,14 @@ class MailForm extends React.Component<Props, State> {
   onSend = () => {
     const { subject, cc, bcc, toEmails, from, attachments } = this.state;
 
+    if (!toEmails) {
+      return Alert.error('Please, enter "To" emails');
+    }
+
+    if (!from) {
+      return Alert.error('Please, choose a "From" email');
+    }
+
     const body = this.getContent(this.state.editorState);
     const integrationId = from;
 
@@ -321,7 +329,11 @@ class MailForm extends React.Component<Props, State> {
             />
           </AttachmentContainer>
         ))}
-        {isUploading ? <Uploading>uploading ...</Uploading> : null}
+        {isUploading ? (
+          <Uploading>
+            <Spinner /> <span>uploading ...</span>
+          </Uploading>
+        ) : null}
       </Attachments>
     );
   }
@@ -346,10 +358,6 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderButtons() {
-    const { toEmails, from, isSending } = this.state;
-
-    const disabled = toEmails && from ? false : true;
-
     return (
       <EditorFooter>
         <Tip text={__('Attach file')}>
@@ -373,13 +381,12 @@ class MailForm extends React.Component<Props, State> {
           </Button>
           {this.renderCancelButton()}
           <Button
-            disabled={disabled}
             onClick={this.onSend}
             btnStyle="success"
             size="small"
             icon="send"
           >
-            {isSending ? 'Sending' : 'Send'}
+            {this.state.isSending ? 'Sending' : 'Send'}
           </Button>
         </div>
       </EditorFooter>
