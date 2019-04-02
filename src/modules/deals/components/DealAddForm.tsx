@@ -59,7 +59,7 @@ class DealAddForm extends React.Component<Props, State> {
       <AddContainer onSubmit={this.onSubmit}>
         <HeaderRow>
           <HeaderContent>
-            <ControlLabel>Name</ControlLabel>
+            <ControlLabel required={true}>Name</ControlLabel>
             <FormControl autoFocus={true} onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
