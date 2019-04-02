@@ -108,7 +108,7 @@ function convertConditionToQuery(condition: ICondition) {
           .toDate(),
       };
     case 'is':
-      return { $exists: true };
+      return { $exists: true, $ne: '' };
     case 'ins':
       return { $exists: false };
   }
