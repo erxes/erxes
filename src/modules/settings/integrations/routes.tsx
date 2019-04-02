@@ -12,32 +12,12 @@ const EditMessenger = asyncComponent(() =>
   import(/* webpackChunkName: "Settings EditMessenger" */ './containers/messenger/Edit')
 );
 
-const GoogleCalendar = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings GoogleCalendar" */ './containers/google/Calendar')
-);
-
 const createMessenger = ({ location }) => {
   return <CreateMessenger queryParams={queryString.parse(location.search)} />;
 };
 
 const editMessenger = ({ match }) => {
   return <EditMessenger integrationId={match.params._id} />;
-};
-
-const googleCalendar = ({ history, location }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return (
-    <GoogleCalendar type="link" history={history} queryParams={queryParams} />
-  );
-};
-
-const googleCalendarCallback = ({ history, location }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return (
-    <GoogleCalendar type="form" history={history} queryParams={queryParams} />
-  );
 };
 
 const twitterCallback = ({ location, history }) => {
@@ -70,19 +50,6 @@ const routes = () => (
       exact={true}
       path="/settings/integrations/editMessenger/:_id"
       component={editMessenger}
-    />
-
-    <Route
-      key="/settings/integrations/google-calendar"
-      exact={true}
-      path="/settings/integrations/google-calendar"
-      component={googleCalendar}
-    />
-
-    <Route
-      key="/service/oauth/google_calendar_callback"
-      path="/service/oauth/google_calendar_callback"
-      component={googleCalendarCallback}
     />
 
     <Route

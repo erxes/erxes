@@ -4,6 +4,7 @@ import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import Gmail from 'modules/settings/integrations/containers/google/Gmail';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { Meet } from '../../containers/google';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import Twitter from '../../containers/twitter/Form';
@@ -106,6 +107,20 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === 'googleMeet') {
+      const trigger = <a>+ {__('Add')}</a>;
+
+      const content = props => <Meet {...props} queryParams={queryParams} />;
+
+      return (
+        <ModalTrigger
+          title="Add google meet"
+          trigger={trigger}
+          content={content}
+        />
       );
     }
 

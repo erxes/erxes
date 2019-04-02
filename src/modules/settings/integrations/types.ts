@@ -325,7 +325,7 @@ export type CreateFacebookMutationVariables = {
 
 export type MessengerAppsAddGoogleMeetMutationVariables = {
   name: string;
-  credentials: object;
+  accountId: string;
 };
 
 export type messengerAppsAddGoogleMeetMutationResponse = {

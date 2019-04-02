@@ -1,5 +1,5 @@
-import Calendar from './Calendar';
 import Gmail from './Gmail';
 import MailForm from './MailForm';
+import Meet from './Meet';
 
-export { Calendar, Gmail, MailForm };
+export { Meet, Gmail, MailForm };
