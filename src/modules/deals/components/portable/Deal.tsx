@@ -1,19 +1,19 @@
+import { ModalTrigger } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
+import { EditForm } from 'modules/deals/containers/editForm';
+import { Content } from 'modules/deals/styles/stage';
+import { renderDealAmount, renderDealDate } from 'modules/deals/utils';
 import * as React from 'react';
 import { Items, UserCounter } from '.';
+import { __ } from '../../../common/utils';
 import {
-  ActionInfo,
-  Container,
-  FooterContent,
-  ItemList,
+  Deal as DealContainer,
+  Footer,
+  PriceContainer,
+  Right,
   SpaceContent,
   Status
 } from '../../styles/deal';
-
-import { ModalTrigger } from 'modules/common/components';
-import { EditForm } from 'modules/deals/containers/editForm';
-import { renderDealAmount, renderDealDate } from 'modules/deals/utils';
-import { __ } from '../../../common/utils';
 import { IDeal } from '../../types';
 
 type Props = {
@@ -77,34 +77,29 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
     const products = (deal.products || []).map(p => p.product);
 
     const content = (
-      <Container>
+      <DealContainer>
         {this.renderDealStatus(deal.stage)}
-        <SpaceContent>
-          <h4>{deal.name}</h4>
-          {renderDealDate(deal.closeDate)}
-        </SpaceContent>
-        <SpaceContent>
-          <FooterContent>
-            <ItemList>
-              <Items color="#63D2D6" items={products} />
-            </ItemList>
-            <ItemList>
-              <Items color="#F7CE53" items={deal.customers || []} />
-              <Items
-                color="#F7CE53"
-                uppercase={true}
-                items={deal.companies || []}
-              />
-            </ItemList>
-            {renderDealAmount(deal.amount || {})}
-          </FooterContent>
-          <UserCounter users={deal.assignedUsers || []} />
-        </SpaceContent>
-        <ActionInfo>
-          <span>{__('Last updated')}:</span>
-          {renderDealDate(deal.modifiedAt, 'lll')}
-        </ActionInfo>
-      </Container>
+        <Content>
+          <SpaceContent>
+            <h5>{deal.name}</h5>
+            {renderDealDate(deal.closeDate)}
+          </SpaceContent>
+          <Items color="#63D2D6" items={products} />
+          <Items color="#F7CE53" items={deal.customers || []} />
+          <Items color="#EA475D" items={deal.companies || []} />
+        </Content>
+        <PriceContainer>
+          {renderDealAmount(deal.amount)}
+
+          <Right>
+            <UserCounter users={deal.assignedUsers || []} />
+          </Right>
+        </PriceContainer>
+
+        <Footer>
+          {__('Last updated')}:<Right>{renderDealDate(deal.modifiedAt)}</Right>
+        </Footer>
+      </DealContainer>
     );
 
     return this.renderFormTrigger(content);

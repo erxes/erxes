@@ -125,9 +125,9 @@ class SegmentsForm extends React.Component<Props, State> {
         )
       },
       () => {
-        const { operator, type, value } = condition;
+        const { operator } = condition;
 
-        if (operator && operator !== '' && (type === 'boolean' || value)) {
+        if (operator && operator !== '') {
           this.updateCount();
         }
       }

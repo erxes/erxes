@@ -1,7 +1,12 @@
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import { Board, MainActionBar } from '../containers';
+import {
+  BoardContainer,
+  BoardContent,
+  ScrolledContent
+} from '../styles/common';
 
 type Props = {
   queryParams: any;
@@ -22,12 +27,15 @@ class DealBoard extends React.Component<Props> {
     const breadcrumb = [{ title: __('Deal') }];
 
     return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={this.renderActionBar()}
-        content={this.renderContent()}
-        transparent={true}
-      />
+      <BoardContainer>
+        <Header breadcrumb={breadcrumb} />
+        <BoardContent transparent={true}>
+          {this.renderActionBar()}
+          <ScrolledContent transparent={true}>
+            {this.renderContent()}
+          </ScrolledContent>
+        </BoardContent>
+      </BoardContainer>
     );
   }
 }
