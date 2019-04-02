@@ -16,7 +16,7 @@ type FinalProps = {
 } & Props;
 
 const WithPipelinesQuery = (props: FinalProps) => {
-  const { pipelineDetailQuery } = props;
+  const { pipelineDetailQuery, queryParams } = props;
 
   if (!pipelineDetailQuery) {
     return (
@@ -34,7 +34,13 @@ const WithPipelinesQuery = (props: FinalProps) => {
 
   const pipeline = pipelineDetailQuery.dealPipelineDetail;
 
-  return <Pipeline pipeline={pipeline} key={pipeline._id} />;
+  return (
+    <Pipeline
+      pipeline={pipeline}
+      key={pipeline._id}
+      queryParams={queryParams}
+    />
+  );
 };
 
 export default withProps<Props>(
