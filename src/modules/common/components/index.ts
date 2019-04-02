@@ -12,6 +12,7 @@ import ConfirmDialog from './ConfirmDialog';
 import CountsByTag from './CountsByTag';
 import DataWithLoader from './DataWithLoader';
 import DateFilter from './DateFilter';
+import DetailContent from './DetailContent';
 import DropdownToggle from './DropdownToggle';
 import Editor from './editor/Editor';
 import EmptyState from './EmptyState';
@@ -98,5 +99,6 @@ export {
   SortHandler,
   TextInfo,
   Info,
-  Calendar
+  Calendar,
+  DetailContent
 };

@@ -10,6 +10,8 @@ import { ActivityLogQueryResponse, DetailQueryResponse } from '../../types';
 
 type Props = {
   id: string;
+  history: any;
+  queryParams: any;
 };
 
 type FinalProps = {
@@ -65,10 +67,11 @@ export default withProps<Props>(
       gql(activityLogQueries.activityLogs),
       {
         name: 'companyActivityLogQuery',
-        options: ({ id }: { id: string }) => ({
+        options: (props: Props) => ({
           variables: {
-            contentId: id,
-            contentType: 'company'
+            contentId: props.id,
+            contentType: 'company',
+            activityType: props.queryParams.activityType
           }
         })
       }

@@ -10,6 +10,11 @@ type Props = {
 
 const ActivityItem = (props: Props) => {
   const { data } = props;
+  let isInternalNote = false;
+
+  if (data.action === 'internal_note-create') {
+    isInternalNote = true;
+  }
 
   if (data.action === 'email-send') {
     const content = JSON.parse(data.content);
@@ -43,6 +48,7 @@ const ActivityItem = (props: Props) => {
       body={data.caption}
       content={
         <ActivityContent
+          isInternalNote={isInternalNote}
           dangerouslySetInnerHTML={{ __html: xss(data.content) }}
         />
       }

@@ -14,6 +14,8 @@ import {
 
 type Props = {
   id: string;
+  queryParams: any;
+  history: any;
 };
 
 type FinalProps = {
@@ -72,12 +74,15 @@ export default withProps<Props>(
       gql(activityLogQueries.activityLogs),
       {
         name: 'customerActivityLogQuery',
-        options: ({ id }: { id: string }) => ({
-          variables: {
-            contentId: id,
-            contentType: 'customer'
-          }
-        })
+        options: (props: Props) => {
+          return {
+            variables: {
+              contentId: props.id,
+              contentType: 'customer',
+              activityType: props.queryParams.activityType
+            }
+          };
+        }
       }
     )
   )(CustomerDetailsContainer)

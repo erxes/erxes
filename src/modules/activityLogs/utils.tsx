@@ -2,21 +2,6 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { IUser } from '../auth/types';
 
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December'
-];
-
 const ICON_AND_COLOR_TABLE = {
   'customer-create': {
     icon: 'adduser',

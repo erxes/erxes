@@ -120,10 +120,11 @@ const ActivityDate = styled.div`
   cursor: help;
 `;
 
-const ActivityContent = styled.div`
+const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
   margin-top: ${dimensions.unitSpacing}px;
   padding: ${dimensions.unitSpacing}px;
-  background: ${colors.borderPrimary};
+  background: ${props =>
+    props.isInternalNote ? colors.bgInternal : colors.borderPrimary};
   box-shadow: 0 1px 2px 0 ${colors.darkShadow};
 
   p:last-of-type {
