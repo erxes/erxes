@@ -1,13 +1,13 @@
 import { google } from 'googleapis';
 import { getEnv } from '../data/utils';
 
-const SCOPES_CALENDAR = ['https://www.googleapis.com/auth/calendar'];
 const SCOPES_GMAIL = [
   'https://mail.google.com/',
   'https://www.googleapis.com/auth/gmail.modify',
   'https://www.googleapis.com/auth/gmail.compose',
   'https://www.googleapis.com/auth/gmail.send',
   'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/calendar',
 ];
 
 export const getOauthClient = (service?: string) => {
@@ -26,11 +26,10 @@ export const getOauthClient = (service?: string) => {
  */
 export const getAuthorizeUrl = (service?: string) => {
   const oauthClient = getOauthClient(service);
-  const scopes = service === 'gmail' ? SCOPES_GMAIL : SCOPES_CALENDAR;
 
   return oauthClient.generateAuthUrl({
     access_type: 'offline',
-    scope: scopes,
+    scope: SCOPES_GMAIL,
   });
 };
 
