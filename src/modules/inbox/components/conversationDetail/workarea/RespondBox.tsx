@@ -119,7 +119,7 @@ class RespondBox extends React.Component<Props, State> {
 
     this.addMessage();
 
-    // redrawing editor after sned button, so editor content will be reseted
+    // redrawing editor after send button, so editor content will be reseted
     this.setState({ editorKey: `${this.state.editorKey}Key` });
   };
 
