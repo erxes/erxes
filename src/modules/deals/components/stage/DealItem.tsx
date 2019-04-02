@@ -1,14 +1,13 @@
 import { __ } from 'modules/common/utils';
 import { EditForm } from 'modules/deals/containers/editForm';
 import {
-  Content,
-  Date,
   Deal,
-  DealIndicator,
+  DealDate,
   Footer,
   PriceContainer,
   Right
-} from 'modules/deals/styles/stage';
+} from 'modules/deals/styles/deal';
+import { Content, DealIndicator } from 'modules/deals/styles/stage';
 import { IDeal } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
 import * as moment from 'moment';
@@ -41,7 +40,7 @@ export default class DealItem extends React.PureComponent<
       return null;
     }
 
-    return <Date>{moment(date).format('MMM D, h:mm a')}</Date>;
+    return <DealDate>{moment(date).format('MMM D, h:mm a')}</DealDate>;
   }
 
   toggleForm = () => {
@@ -125,15 +124,14 @@ export default class DealItem extends React.PureComponent<
                   src={user.details && user.details.avatar}
                   width="22px"
                   height="22px"
-                  style={{ marginLeft: '2px' }}
+                  style={{ marginLeft: '2px', borderRadius: '11px' }}
                 />
               ))}
             </Right>
           </PriceContainer>
 
           <Footer>
-            {__('Last updated')}
-
+            {__('Last updated')}:
             <Right>{this.renderDate(deal.modifiedAt)}</Right>
           </Footer>
         </Content>

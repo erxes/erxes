@@ -5,10 +5,10 @@ import {
   Body,
   Container,
   Header,
+  HeaderAmount,
   Indicator,
   IndicatorItem,
   LoadingContent,
-  ScrollContent,
   StageFooter,
   StageRoot
 } from 'modules/deals/styles/stage';
@@ -78,7 +78,7 @@ export default class Stage extends React.Component<Props, {}> {
     const trigger = (
       <StageFooter>
         <AddNew>
-          <Icon icon="add" />
+          <Icon icon="plus" />
           {__('Add a deal')}
         </AddNew>
       </StageFooter>
@@ -137,23 +137,21 @@ export default class Stage extends React.Component<Props, {}> {
                   {stage.name}
                   <span>{stage.dealsTotalCount}</span>
                 </h4>
-                <span>{renderDealAmount(stage.amount)}</span>
+                <HeaderAmount>{renderDealAmount(stage.amount)}</HeaderAmount>
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
-              <Body innerRef={this.bodyRef}>
-                <ScrollContent onScroll={this.onScroll}>
-                  {loadingDeals ? (
-                    <LoadingContent>
-                      <img src="/images/loading-content.gif" />
-                    </LoadingContent>
-                  ) : null}
-                  <DealList
-                    listId={stage._id}
-                    listType="DEAL"
-                    stageId={stage._id}
-                    deals={deals}
-                  />
-                </ScrollContent>
+              <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
+                {loadingDeals ? (
+                  <LoadingContent>
+                    <img src="/images/loading-content.gif" />
+                  </LoadingContent>
+                ) : null}
+                <DealList
+                  listId={stage._id}
+                  listType="DEAL"
+                  stageId={stage._id}
+                  deals={deals}
+                />
               </Body>
               {this.renderAddDealTrigger()}
             </StageRoot>

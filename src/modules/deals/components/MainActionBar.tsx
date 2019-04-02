@@ -1,15 +1,22 @@
 import {
-  Button,
   DropdownToggle,
   EmptyState,
-  FormControl
+  FormControl,
+  Icon,
+  Tip
 } from 'modules/common/components';
 import { __, router as routerUtils } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import {
+  ButtonGroup,
+  HeaderButton,
+  HeaderItems,
+  HeaderLabel,
+  HeaderLink,
+  PageHeader
+} from '../styles/header';
 import { IBoard, IPipeline } from '../types';
 
 type Props = {
@@ -128,31 +135,46 @@ class MainActionBar extends React.Component<Props> {
     const calendarLink = this.onFilterClick('calendar');
 
     const actionBarLeft = (
-      <BarItems>
+      <HeaderItems>
+        <HeaderLabel>
+          <Icon icon="layout" /> Board:{' '}
+        </HeaderLabel>
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
-            <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
+            <HeaderButton>
               {(currentBoard && currentBoard.name) || __('Choose board')}
-            </Button>
+              <Icon icon="downarrow" />
+            </HeaderButton>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
         </Dropdown>
-
+        <HeaderLabel>
+          <Icon icon="verticalalignment" /> Pipeline:{' '}
+        </HeaderLabel>
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
-            <Button btnStyle="primary" icon="downarrow" ignoreTrans={true}>
+            <HeaderButton>
               {(currentPipeline && currentPipeline.name) ||
                 __('Choose pipeline')}
-            </Button>
+              <Icon icon="downarrow" />
+            </HeaderButton>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderPipelines()}</Dropdown.Menu>
         </Dropdown>
-        {middleContent && middleContent()}
-      </BarItems>
+        <HeaderLink>
+          <Tip text={__('Manage Board & Pipeline')}>
+            <Link to="/settings/deals">
+              <Icon icon="settings" />
+            </Link>
+          </Tip>
+        </HeaderLink>
+      </HeaderItems>
     );
 
     const actionBarRight = (
-      <BarItems>
+      <HeaderItems>
+        {middleContent && middleContent()}
+
         <div style={{ display: 'inline-block' }}>
           <FormControl
             defaultValue={queryParams.search}
@@ -161,37 +183,30 @@ class MainActionBar extends React.Component<Props> {
             autoFocus={true}
           />
         </div>
-
-        {getType() === 'calendar' && (
-          <Link to={boardLink}>
-            <Button btnStyle="primary" icon="clipboard">
-              {__('Board')}
-            </Button>
+        <ButtonGroup>
+          <Link
+            to={boardLink}
+            className={getType() === 'board' ? 'active' : ''}
+          >
+            <Icon icon="layout" />
+            {__('Board')}
           </Link>
-        )}
-
-        {getType() === 'board' && (
-          <Link to={calendarLink}>
-            <Button btnStyle="primary" icon="calendar">
-              {__('Calendar')}
-            </Button>
+          <Link
+            to={calendarLink}
+            className={getType() === 'calendar' ? 'active' : ''}
+          >
+            <Icon icon="calendar" />
+            {__('Calendar')}
           </Link>
-        )}
-
-        <Link to="/settings/deals">
-          <Button btnStyle="success" icon="settings">
-            {__('Manage Board & Pipeline')}
-          </Button>
-        </Link>
-      </BarItems>
+        </ButtonGroup>
+      </HeaderItems>
     );
 
     return (
-      <Wrapper.ActionBar
-        left={actionBarLeft}
-        right={actionBarRight}
-        background="transparent"
-      />
+      <PageHeader>
+        {actionBarLeft}
+        {actionBarRight}
+      </PageHeader>
     );
   }
 }

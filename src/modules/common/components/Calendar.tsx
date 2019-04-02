@@ -1,7 +1,6 @@
 import * as moment from 'moment';
 import * as React from 'react';
 import styled from 'styled-components';
-import { colors } from '../styles';
 import { IDateColumn } from '../types';
 import { __ } from '../utils';
 import {
@@ -12,13 +11,6 @@ import {
   previousMonth
 } from '../utils/calendar';
 import Button from './Button';
-
-const Container = styled.div`
-  display: flex;
-  height: 100%;
-  border-top: 1px solid ${colors.borderPrimary};
-  border-radius: 5px;
-`;
 
 const Header = styled.div`
   display: inline-block;
@@ -32,20 +24,25 @@ const HeaderWrapper = styled.div`
 const Content = styled.div`
   flex: 1;
   overflow: hidden;
-  background: ${colors.colorWhite};
-  border-right: 0.5px solid ${colors.borderPrimary};
-  border-left: 0.5px solid ${colors.borderPrimary};
+  background: #e5e8ec;
+  margin: 0 5px;
+  min-width: 280px;
+  border-radius: 3px;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 1px 5px 0px;
 `;
 
 const ContentHeader = styled.div`
-  background: ${colors.bgLight};
-  padding: 8px;
-  text-align: center;
+  padding: 8px 16px 2px;
+  font-weight: bold;
   font-size: 14px;
 `;
 
 const Item = styled.div`
-  margin: 8px;
+  margin-left: 8px;
+
+  &:first-of-type {
+    margin: 0;
+  }
 `;
 
 type State = {
@@ -56,6 +53,7 @@ type ItemButton = {
   icon?: string;
   text?: string;
   onClick: () => void;
+  btnStyle?: string;
 };
 
 type Props = {
@@ -91,7 +89,11 @@ class Calendar extends React.Component<Props, State> {
         <HeaderWrapper>
           {renderButton({ icon: 'leftarrow', onClick: this.onPreviousClick })}
           {renderButton({ icon: 'rightarrow', onClick: this.onNextClick })}
-          {renderButton({ onClick: this.setCurrentDate, text: 'Today' })}
+          {renderButton({
+            onClick: this.setCurrentDate,
+            text: 'Today',
+            btnStyle: 'primary'
+          })}
         </HeaderWrapper>
       </Header>
     );
@@ -118,11 +120,7 @@ class Calendar extends React.Component<Props, State> {
   render() {
     const { renderContent } = this.props;
 
-    return (
-      <Container>
-        {renderContent(this.renderMonths, this.renderMiddleContent)}
-      </Container>
-    );
+    return <>{renderContent(this.renderMonths, this.renderMiddleContent)}</>;
   }
 }
 
@@ -132,7 +130,7 @@ function renderButton(props: ItemButton) {
   return (
     <Item>
       <Button
-        btnStyle="primary"
+        btnStyle="simple"
         ignoreTrans={true}
         size="small"
         {...buttonProps}
