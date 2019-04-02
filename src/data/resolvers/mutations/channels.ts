@@ -43,11 +43,7 @@ const channelMutations = {
    * Update channel data
    */
   async channelsEdit(_root, { _id, ...doc }: IChannelsEdit) {
-    const channel = await Channels.updateChannel(_id, doc);
-
-    await sendChannelNotifications(channel);
-
-    return channel;
+    return Channels.updateChannel(_id, doc);
   },
 
   /**

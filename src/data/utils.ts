@@ -412,10 +412,10 @@ export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: st
   }
 
   if (!value) {
-    throw new Error(`Missing environment variable configuration for ${name}`);
+    console.log(`Missing environment variable configuration for ${name}`);
   }
 
-  return value;
+  return value || '';
 };
 
 export default {

@@ -1,18 +1,20 @@
 import { DealBoards, DealPipelines, Deals, DealStages } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
+import { dealsCommonFilter } from './utils';
 
 interface IDate {
   month: number;
   year: number;
 }
 
-interface IDeal {
+interface IDealListParams {
   pipelineId?: string;
   stageId: string;
   customerId: string;
   companyId: string;
   skip?: number;
   date?: IDate;
+  search?: string;
 }
 
 const dateSelector = (date: IDate) => {
@@ -81,8 +83,8 @@ const dealQueries = {
   /**
    * Deals list
    */
-  async deals(_root, { pipelineId, stageId, customerId, companyId, date, skip }: IDeal) {
-    const filter: any = {};
+  async deals(_root, { pipelineId, stageId, customerId, companyId, date, skip, search }: IDealListParams) {
+    const filter: any = dealsCommonFilter({}, { search });
     const sort = { order: 1, createdAt: -1 };
 
     if (stageId) {
@@ -102,14 +104,12 @@ const dealQueries = {
 
       filter.closeDate = dateSelector(date);
       filter.stageId = { $in: stageIds };
-
-      return Deals.find(filter)
-        .sort(sort)
-        .skip(skip || 0)
-        .limit(5);
     }
 
-    return Deals.find(filter).sort(sort);
+    return Deals.find(filter)
+      .sort(sort)
+      .skip(skip || 0)
+      .limit(10);
   },
 
   /**
