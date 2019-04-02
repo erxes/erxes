@@ -80,17 +80,16 @@ class SegmentsForm extends React.Component<Props, State> {
     );
 
     this.state = segment;
+  }
 
-    props.count(segment);
+  componentDidMount() {
+    this.updateCount();
   }
 
   addCondition = (condition: ISegmentCondition) => {
-    this.setState(
-      {
-        conditions: [...this.state.conditions, condition]
-      },
-      () => this.updateCount()
-    );
+    this.setState({
+      conditions: [...this.state.conditions, condition]
+    });
   };
 
   updateCount = () => {
@@ -125,7 +124,13 @@ class SegmentsForm extends React.Component<Props, State> {
           c._id === condition._id ? condition : c
         )
       },
-      () => this.updateCount()
+      () => {
+        const { operator } = condition;
+
+        if (operator && operator !== '') {
+          this.updateCount();
+        }
+      }
     );
   };
 
@@ -153,15 +158,21 @@ class SegmentsForm extends React.Component<Props, State> {
       conditions
     } = this.state;
 
+    const updatedConditions: ISegmentConditionDoc[] = [];
+
+    conditions.forEach((cond: ISegmentCondition) => {
+      if (cond.operator) {
+        const { _id, ...rest } = cond;
+        updatedConditions.push(rest);
+      }
+    });
+
     const doc = {
       name,
       description,
       color,
       connector,
-      conditions: conditions.map((cond: ISegmentCondition) => ({
-        ...cond,
-        _id: undefined
-      })),
+      conditions: updatedConditions,
       subOf: ''
     };
 
@@ -180,7 +191,7 @@ class SegmentsForm extends React.Component<Props, State> {
     const { contentType, fields } = this.props;
     const { conditions, connector, subOf } = this.state;
 
-    const connectorOnChange = e =>
+    const connectorOnChange = (e: React.FormEvent) =>
       this.handleChange(
         'connector',
         (e.currentTarget as HTMLInputElement).value

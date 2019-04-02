@@ -13,7 +13,7 @@ const EditMessenger = asyncComponent(() =>
 );
 
 const GoogleCalendar = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings GoogleCalendar" */ './containers/google')
+  import(/* webpackChunkName: "Settings GoogleCalendar" */ './containers/google/Calendar')
 );
 
 const createMessenger = ({ location }) => {

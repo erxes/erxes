@@ -59,15 +59,11 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
   count = (segment: ISegmentDoc) => {
     const { counts } = this.props;
 
-    const updateCount = async () => {
-      try {
-        await counts.refetch({ byFakeSegment: segment });
-      } catch (error) {
-        Alert.error(error.message);
-      }
-    };
-
-    updateCount();
+    try {
+      counts.refetch({ byFakeSegment: segment });
+    } catch (error) {
+      Alert.error(error.message);
+    }
   };
 
   render() {
