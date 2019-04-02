@@ -173,7 +173,12 @@ export const CURRENCIES = [
 
 export const LANGUAGES = [
   { label: 'Mongolian', value: 'mn' },
-  { label: 'English', value: 'en' }
+  { label: 'English', value: 'en' },
+  { label: 'French', value: 'fr' },
+  { label: 'Deustch', value: 'de' },
+  { label: 'Korean', value: 'kr' },
+  { label: 'Spanish', value: 'es' },
+  { label: 'Portuguese', value: 'pt_br' }
 ];
 
 export const MEASUREMENTS = [
