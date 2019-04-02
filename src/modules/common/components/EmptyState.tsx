@@ -6,7 +6,9 @@ import { colors } from '../styles';
 import Button from './Button';
 import Icon from './Icon';
 
-const EmptyStateStyled = styledTS<{ hugeness: string }>(styled.div)`
+const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
+  styled.div
+)`
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -26,6 +28,7 @@ const EmptyStateStyled = styledTS<{ hugeness: string }>(styled.div)`
 
   span {
     max-width: 600px;
+    color: ${props => props.light && colors.colorWhite}
   }
 
   ${props => {
@@ -65,6 +68,7 @@ type Props = {
   size?: string;
   linkUrl?: string;
   linkText?: string;
+  light?: boolean;
 };
 
 function EmptyState({
@@ -73,10 +77,11 @@ function EmptyState({
   image,
   size = 'small',
   linkUrl,
-  linkText
+  linkText,
+  light
 }: Props) {
   return (
-    <EmptyStateStyled hugeness={size}>
+    <EmptyStateStyled hugeness={size} light={light}>
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
 
       <span>{__(text)}</span>

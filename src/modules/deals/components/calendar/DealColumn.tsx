@@ -26,20 +26,18 @@ const ContentBody = styled.div`
   position: relative;
   z-index: 1;
   height: 100%;
-  padding: 0 4px;
+  padding: 0 4px 90px;
   margin: 0 4px;
-  padding-bottom: 100px;
   overflow-y: auto;
 `;
 
 const Footer = styled.div`
   position: absolute;
   z-index: 2;
-  bottom: 37px;
+  bottom: 31px;
   left: 0;
   right: 0;
   text-align: center;
-  border-top: 1px solid ${colors.borderPrimary};
   background: ${colors.bgLight};
 `;
 
