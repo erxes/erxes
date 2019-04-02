@@ -7,10 +7,8 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../../brands/types';
 import {
-  AccountsQueryResponse,
   GetTwitterAuthUrlQueryResponse,
   LinkTwitterMutationResponse,
-  RemoveAccountMutationResponse,
   SaveTwitterMutationResponse,
   TwitterAuthParams
 } from '../../types';
@@ -19,12 +17,10 @@ type Props = {
   twitterAuthUrlQuery: GetTwitterAuthUrlQueryResponse;
   queryParams: any;
   history: any;
-} & RemoveAccountMutationResponse &
-  LinkTwitterMutationResponse;
+} & LinkTwitterMutationResponse;
 
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
-  accountsQuery: AccountsQueryResponse;
 } & Props &
   SaveTwitterMutationResponse;
 
@@ -48,61 +44,36 @@ class TwitterContainer extends React.Component<FinalProps> {
     }
   }
 
-  render() {
-    const {
-      brandsQuery,
-      saveMutation,
-      accountsQuery,
-      twitterAuthUrlQuery,
-      removeAccount
-    } = this.props;
+  save = ({ brandId, accountId }: { brandId: string; accountId: string }) => {
+    const { saveMutation } = this.props;
 
-    if (brandsQuery.loading || accountsQuery.loading) {
+    saveMutation({
+      variables: {
+        brandId,
+        accountId
+      }
+    })
+      .then(() => {
+        Alert.success('Congrats');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  render() {
+    const { brandsQuery, twitterAuthUrlQuery } = this.props;
+
+    if (brandsQuery.loading) {
       return <Spinner />;
     }
 
     const brands = brandsQuery.brands;
-    const accounts = accountsQuery.accounts || [];
-
-    const save = ({
-      brandId,
-      accountId
-    }: {
-      brandId: string;
-      accountId: string;
-    }) => {
-      saveMutation({
-        variables: {
-          brandId,
-          accountId
-        }
-      })
-        .then(() => {
-          Alert.success('Congrats');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
-
-    const delink = (accountId: string) => {
-      removeAccount({
-        variables: { _id: accountId }
-      })
-        .then(() => {
-          Alert.success('Success');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
 
     const updatedProps = {
       ...this.props,
       brands,
-      save,
-      accounts,
-      delink,
+      save: this.save,
       twitterAuthUrl: twitterAuthUrlQuery.integrationGetTwitterAuthUrl || ''
     };
 
@@ -134,23 +105,6 @@ export default withProps<Props>(
         name: 'twitterAuthUrlQuery'
       }
     ),
-    graphql<Props, RemoveAccountMutationResponse, { _id: string }>(
-      gql(mutations.delinkAccount),
-      {
-        name: 'removeAccount',
-        options: {
-          refetchQueries: ['accounts']
-        }
-      }
-    ),
-    graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
-      name: 'accountsQuery',
-      options: {
-        variables: {
-          kind: 'twitter'
-        }
-      }
-    }),
     graphql<
       Props,
       LinkTwitterMutationResponse,

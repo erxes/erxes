@@ -6,19 +6,17 @@ import {
   Spinner
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __, confirm } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { SelectBrand } from '..';
-import { Row } from '../../styles';
-import { CreateGmailMutationVariables, IAccount } from '../../types';
+import Accounts from '../../containers/Accounts';
+import { CreateGmailMutationVariables } from '../../types';
 
 type Props = {
-  save: (params: CreateGmailMutationVariables, callback?: () => void) => void;
+  save: (params: CreateGmailMutationVariables, callback: () => void) => void;
   brands: IBrand[];
-  accounts: IAccount[];
   gmailAuthUrl?: string;
-  delink: (accountId: string) => void;
   closeModal: () => void;
 };
 
@@ -40,61 +38,39 @@ class Gmail extends React.Component<
     window.location.href = gmailAuthUrl || '';
   };
 
-  onRemove(accountId: string) {
-    const { delink } = this.props;
+  onRemoveAccount = () => {
+    this.setState({ accountId: '' });
+  };
 
-    confirm().then(() => {
-      delink(accountId);
-      this.setState({ accountId: '' });
-    });
-  }
-
-  onAccChange = () => {
-    const accountId = (document.getElementById('acc') as HTMLInputElement)
-      .value;
-
-    this.setState({ accountId: accountId || '' });
-
-    if (accountId === '') {
-      return;
-    }
+  onSelectAccount = (accountId?: string) => {
+    this.setState({ accountId });
   };
 
   handleSubmit = e => {
     e.preventDefault();
 
+    const { accountId } = this.state;
+
+    if (!accountId) {
+      return;
+    }
+
     const doc: CreateGmailMutationVariables = {
       name: (document.getElementById('name') as HTMLInputElement).value,
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value,
-      accountId: (document.getElementById('acc') as HTMLInputElement).value
-    };
-
-    const callback = () => {
-      this.setState({ loading: false }, () => this.props.closeModal());
+      accountId
     };
 
     this.setState({ loading: true });
 
-    this.props.save(doc, callback);
+    this.props.save(doc, () => {
+      this.setState({ loading: false }, () => this.props.closeModal());
+    });
   };
 
-  renderAccountAction() {
-    const { accountId } = this.state;
-
-    if (!accountId || accountId === '') {
-      return <Button onClick={this.onGmailRedirect}>Add Account</Button>;
-    }
-
-    return (
-      <Button onClick={this.onRemove.bind(this, accountId)} btnStyle="danger">
-        Remove Account
-      </Button>
-    );
-  }
-
   render() {
-    const { brands, accounts } = this.props;
+    const { brands } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -107,27 +83,12 @@ class Gmail extends React.Component<
 
         <SelectBrand brands={brands} />
 
-        <FormGroup>
-          <ControlLabel required={true}>Linked Accounts</ControlLabel>
-
-          <Row>
-            <FormControl
-              componentClass="select"
-              placeholder={__('Select account')}
-              onChange={this.onAccChange}
-              id="acc"
-            >
-              <option value="">Select account ...</option>
-
-              {accounts.map((account, index) => (
-                <option key={`account${index}`} value={account._id}>
-                  {account.name}
-                </option>
-              ))}
-            </FormControl>
-            {this.renderAccountAction()}
-          </Row>
-        </FormGroup>
+        <Accounts
+          kind="gmail"
+          onAdd={this.onGmailRedirect}
+          onRemove={this.onRemoveAccount}
+          onSelect={this.onSelectAccount}
+        />
 
         <ModalFooter>
           <Button btnStyle="success" type="submit" icon="checked-1">

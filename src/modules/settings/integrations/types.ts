@@ -320,7 +320,6 @@ export type SendGmailMutationResponse = {
 export type CreateFacebookMutationVariables = {
   name: string;
   brandId: string;
-  accountId: string;
   pageIds: string[];
 };
 
@@ -362,7 +361,7 @@ export type messengerAppsAddKnowledgebaseMutationResponse = {
 export type CreateFacebookMutationResponse = {
   saveMutation: (
     params: {
-      variables: CreateFacebookMutationVariables;
+      variables: CreateFacebookMutationVariables & { accountId: string };
     }
   ) => Promise<any>;
 };

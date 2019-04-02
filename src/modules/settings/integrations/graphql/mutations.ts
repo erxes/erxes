@@ -168,7 +168,7 @@ const messengerAppsRemove = `
   }
 `;
 
-const delinkAccount = `
+const removeAccount = `
   mutation accountsRemove($_id: String!) {
       accountsRemove(_id: $_id)
   }
@@ -203,7 +203,7 @@ export default {
   messengerAppsAddLead,
   messengerAppsAddKnowledgebase,
   messengerAppsRemove,
-  delinkAccount,
+  removeAccount,
   linkTwitterAccount,
   linkGmailAccount
 };
