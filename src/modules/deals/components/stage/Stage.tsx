@@ -17,14 +17,58 @@ import { DealAddForm } from '.';
 import DealList from './DealList';
 
 type Props = {
+  loadingDeals: boolean;
   index: number;
-  stage?: IStage;
+  stage: IStage;
   length: number;
   deals: IDeal[];
   addDeal: (name: string, callback: () => void) => void;
+  loadMore: () => void;
 };
+export default class Stage extends React.Component<Props, {}> {
+  private bodyRef;
 
-export default class Stage extends React.Component<Props> {
+  constructor(props: Props) {
+    super(props);
+
+    this.bodyRef = React.createRef();
+  }
+
+  componentDidMount() {
+    // Load deals until scroll created
+    const handle = setInterval(() => {
+      const { current } = this.bodyRef;
+
+      if (!current) {
+        return;
+      }
+
+      const isScrolled = current.scrollHeight > current.clientHeight;
+
+      if (isScrolled) {
+        clearInterval(handle);
+      }
+
+      const { deals, stage, loadMore } = this.props;
+
+      if (deals.length < stage.dealsTotalCount) {
+        loadMore();
+      } else {
+        clearInterval(handle);
+      }
+    }, 1000);
+  }
+
+  onScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const bottom =
+      target.scrollHeight - target.scrollTop === target.clientHeight;
+
+    if (bottom) {
+      this.props.loadMore();
+    }
+  };
+
   renderAddDealTrigger() {
     const { addDeal } = this.props;
 
@@ -56,8 +100,24 @@ export default class Stage extends React.Component<Props> {
     return data;
   }
 
+  shouldComponentUpdate(nextProps: Props) {
+    const { stage, index, length, deals, loadingDeals } = this.props;
+
+    if (
+      index !== nextProps.index ||
+      loadingDeals !== nextProps.loadingDeals ||
+      length !== nextProps.length ||
+      JSON.stringify(stage) !== JSON.stringify(nextProps.stage) ||
+      JSON.stringify(deals) !== JSON.stringify(nextProps.deals)
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
   render() {
-    const { index, stage, deals } = this.props;
+    const { index, stage, deals, loadingDeals } = this.props;
 
     if (!stage) {
       return <EmptyState icon="clipboard" text="No stage" size="small" />;
@@ -70,12 +130,18 @@ export default class Stage extends React.Component<Props> {
             <Header {...provided.dragHandleProps}>
               <h4>
                 {stage.name}
-                <span>({deals.length})</span>
+                <span>{stage.dealsTotalCount}</span>
               </h4>
-              {renderDealAmount(stage.amount)}
+              <span>{renderDealAmount(stage.amount)}</span>
               <Indicator>{this.renderIndicator()}</Indicator>
             </Header>
-            <Body>
+            <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
+              {loadingDeals ? (
+                <img
+                  style={{ marginLeft: '12px' }}
+                  src="/images/fake-loader.gif"
+                />
+              ) : null}
               <DealList
                 listId={stage._id}
                 listType="DEAL"

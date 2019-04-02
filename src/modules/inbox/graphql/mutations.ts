@@ -119,7 +119,9 @@ const conversationsUnassign = `
 
 const executeApp = `
   mutation messengerAppsExecuteGoogleMeet($_id: String!, $conversationId: String!) {
-    messengerAppsExecuteGoogleMeet(_id: $_id, conversationId: $conversationId)
+    messengerAppsExecuteGoogleMeet(_id: $_id, conversationId: $conversationId) {
+      _id
+    }
   }
 `;
 

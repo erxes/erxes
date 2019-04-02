@@ -3,7 +3,6 @@ import { Spinner } from 'modules/common/components';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
 import { UsersQueryResponse } from '../../../settings/team/types';
 import { EditForm } from '../../components/editForm';
 import { mutations, queries } from '../../graphql';

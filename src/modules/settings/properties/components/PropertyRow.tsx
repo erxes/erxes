@@ -11,7 +11,7 @@ import { Collapse } from 'react-bootstrap';
 import Toggle from 'react-toggle';
 import { PropertyForm, PropertyGroupForm } from '../containers';
 import { CollapseRow, DropIcon, FieldType } from '../styles';
-import { IFieldGroup } from '../types';
+import { IField, IFieldGroup } from '../types';
 
 type Props = {
   group: IFieldGroup;
@@ -70,8 +70,9 @@ class PropertyRow extends React.Component<Props, State> {
     );
   };
 
-  renderTableRow = field => {
+  renderTableRow = (field: IField) => {
     const { removeProperty, queryParams } = this.props;
+    const { lastUpdatedUser } = field;
 
     const onChange = e => this.visibleHandler(e, field);
 
@@ -82,13 +83,14 @@ class PropertyRow extends React.Component<Props, State> {
           <FieldType>{field.type}</FieldType>
         </td>
         <td>
-          {field.lastUpdatedUser
-            ? field.lastUpdatedUser.details.fullName
+          {lastUpdatedUser && lastUpdatedUser.details
+            ? lastUpdatedUser.details.fullName
             : 'Unknown'}
         </td>
         <td>
           <Toggle
             defaultChecked={field.isVisible}
+            disabled={field.isDefinedByErxes}
             icons={{
               checked: <span>Yes</span>,
               unchecked: <span>No</span>

@@ -69,40 +69,13 @@ const pipelineGetLast = `
 `;
 
 const stages = `
-  query dealStages($pipelineId: String!) {
-    dealStages(pipelineId: $pipelineId) {
+  query dealStages($pipelineId: String!, $search: String) {
+    dealStages(pipelineId: $pipelineId, search: $search) {
       _id
       name
       order
       amount
-
-      deals {
-        _id
-        name
-        amount
-        closeDate
-        assignedUsers {
-          _id
-          email
-          details {
-            fullName
-            avatar
-          }
-        }
-        modifiedAt
-        modifiedBy
-        products
-        companies {
-          _id
-          primaryName
-        }
-        customers {
-          _id
-          firstName
-          primaryEmail
-          primaryPhone
-        }
-      }
+      dealsTotalCount
     }
   }
 `;
@@ -114,10 +87,7 @@ const stageDetail = `
       name
       pipelineId
       amount
-
-      deals {
-        _id
-      }
+      dealsTotalCount
     }
   }
 `;
@@ -183,15 +153,17 @@ const deals = `
     $customerId: String, 
     $companyId: String ,
     $date: DealDate,
-    $skip: Int
+    $skip: Int,
+    $search: String
   ) {
     deals(
       pipelineId: $pipelineId,
       stageId: $stageId, 
       customerId: $customerId, 
-      companyId: $companyId
-      date: $date
-      skip: $skip
+      companyId: $companyId,
+      date: $date,
+      skip: $skip,
+      search: $search
     ) {
       ${dealFields}
     }
