@@ -118,6 +118,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           window.open(data.customersExport, '_blank');
         })
         .catch(error => {
+          this.setState({ loading: false });
           Alert.error(error.message);
         });
     };
