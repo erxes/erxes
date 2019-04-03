@@ -1,5 +1,5 @@
+import { AppConsumer } from 'appContext';
 import { __ } from 'modules/common/utils';
-import { menuInbox } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import { Contents } from 'modules/layout/styles';
 import * as React from 'react';
@@ -15,18 +15,30 @@ function Inbox({ currentConversationId, queryParams }: Props) {
   const breadcrumb = [{ title: __('Inbox') }];
 
   return (
-    <Contents>
-      <Header
-        queryParams={queryParams}
-        breadcrumb={breadcrumb}
-        submenu={menuInbox}
-      />
-      <Sidebar
-        queryParams={queryParams}
-        currentConversationId={currentConversationId}
-      />
-      <ConversationDetail currentId={currentConversationId} />
-    </Contents>
+    <AppConsumer>
+      {({ can }) => {
+        const menuInbox = [{ title: 'Inbox', link: '/inbox' }];
+
+        if (can('showInsights')) {
+          menuInbox.push({ title: 'Insights', link: '/insights' });
+        }
+
+        return (
+          <Contents>
+            <Header
+              queryParams={queryParams}
+              breadcrumb={breadcrumb}
+              submenu={menuInbox}
+            />
+            <Sidebar
+              queryParams={queryParams}
+              currentConversationId={currentConversationId}
+            />
+            <ConversationDetail currentId={currentConversationId} />
+          </Contents>
+        );
+      }}
+    </AppConsumer>
   );
 }
 

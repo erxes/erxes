@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { router as routerUtils } from 'modules/common/utils';
 import * as React from 'react';
@@ -31,14 +32,22 @@ class WithCurrentId extends React.Component<IProps> {
   }
 
   render() {
-    const { queryParams } = this.props;
-    const { _id } = queryParams;
+    return (
+      <AppConsumer>
+        {({ can }) => {
+          const { queryParams } = this.props;
+          const { _id } = queryParams;
 
-    if (!_id) {
-      return <Empty queryParams={queryParams} />;
-    }
+          if (!_id || !can('showConversations')) {
+            return <Empty queryParams={queryParams} />;
+          }
 
-    return <Inbox queryParams={queryParams} currentConversationId={_id} />;
+          return (
+            <Inbox queryParams={queryParams} currentConversationId={_id} />
+          );
+        }}
+      </AppConsumer>
+    );
   }
 }
 
