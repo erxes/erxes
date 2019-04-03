@@ -33,8 +33,6 @@ class GmailConversation extends React.Component<Props, {}> {
 
     const messages = conversationMessages || [];
 
-    console.log('messages: ', messages); //tslint:disable-line
-
     return (
       <>
         {messages.map(message => {
