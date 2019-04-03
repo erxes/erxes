@@ -49,6 +49,13 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     }));
   };
 
+  generateGroupsParams = groups => {
+    return groups.map(group => ({
+      value: group._id,
+      label: group.name
+    }));
+  };
+
   collectValues = items => {
     return items.map(item => item.value);
   };
@@ -57,19 +64,19 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     const self = this;
     const { groups } = this.props;
 
-    const onChange = items => {
-      this.setState({ selectedGroups: items });
+    const onChange = selectedGroups => {
+      this.setState({ selectedGroups });
     };
 
     return (
       <FormGroup>
-        <ControlLabel>Choose the channels</ControlLabel>
+        <ControlLabel>Choose the user groups</ControlLabel>
         <br />
 
         <Select
           placeholder={__('Choose groups')}
           value={self.state.selectedGroups}
-          options={self.generateChannelsParams(groups)}
+          options={self.generateGroupsParams(groups)}
           onChange={onChange}
           multi={true}
         />
@@ -81,8 +88,8 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     const self = this;
     const { channels } = this.props;
 
-    const onChange = items => {
-      self.setState({ selectedChannels: items });
+    const onChange = selectedChannels => {
+      self.setState({ selectedChannels });
     };
 
     return (

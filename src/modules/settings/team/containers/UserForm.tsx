@@ -2,7 +2,10 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { ICommonFormProps } from 'modules/settings/common/types';
 import { queries as groupQueries } from 'modules/settings/usersGroups/graphql';
-import { UsersGroupsQueryResponse } from 'modules/settings/usersGroups/types';
+import {
+  IUserGroup,
+  UsersGroupsQueryResponse
+} from 'modules/settings/usersGroups/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
@@ -26,18 +29,22 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
   }
 
   const channels = channelsQuery.channels;
+  const groups = groupsQuery.usersGroups;
 
   let selectedChannels: IChannel[] = [];
+  let selectedGroups: IUserGroup[] = [];
 
   if (object._id) {
     selectedChannels = channels.filter(c => c.memberIds.includes(object._id));
+    selectedGroups = groups.filter(g => object.groupIds.includes(g));
   }
 
   const updatedProps = {
     ...props,
     selectedChannels,
+    selectedGroups,
     channels,
-    groups: groupQueries.usersGroups || []
+    groups
   };
 
   return <UserForm {...updatedProps} />;

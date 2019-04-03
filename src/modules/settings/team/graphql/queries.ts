@@ -55,8 +55,14 @@ query activityLogsUser($_id: String!) {
 }
 `;
 
+const totalUsersCount = `
+  query totalUsersCount {
+    usersTotalCount
+  }
+`;
+
 const userConversations = `
-query userConversations($_id: String!, $perPage: Int) {
+  query userConversations($_id: String!, $perPage: Int) {
     userConversations(_id: $_id, perPage: $perPage) {
     list {
       _id
@@ -94,6 +100,7 @@ const users = `
       role
       status
       isActive
+      groupIds
       details {
         avatar
         fullName
@@ -119,5 +126,6 @@ export default {
   channels,
   userActivityLog,
   userConversations,
-  users
+  users,
+  totalUsersCount
 };

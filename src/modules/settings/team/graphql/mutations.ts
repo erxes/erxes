@@ -5,6 +5,7 @@ const commonParamsDef = `
   $details: UserDetails,
   $links: UserLinks,
   $channelIds: [String]
+  $groupIds: [String]
 `;
 
 const commonParams = `
@@ -14,6 +15,7 @@ const commonParams = `
   details: $details,
   links: $links,
   channelIds: $channelIds
+  groupIds: $groupIds
 `;
 
 const usersEdit = `
@@ -31,7 +33,6 @@ const usersEditProfile = `
     $details: UserDetails
     $links: UserLinks
     $password: String!
-    $groupIds: [String]
   ) {
     usersEditProfile(
       username: $username
@@ -39,7 +40,6 @@ const usersEditProfile = `
       details: $details
       links: $links
       password: $password
-      groupIds: $groupIds
     ) {
       _id
     }
@@ -49,6 +49,14 @@ const usersEditProfile = `
 const usersInvite = `
   mutation usersInvite($emails: [String]) {
     usersInvite(emails: $emails)
+  }
+`;
+
+const usersSetActiveStatus = `
+  mutation usersSetActiveStatus($_id: String!) {
+    usersSetActiveStatus(_id: $_id) {
+      _id
+    }
   }
 `;
 
@@ -64,5 +72,6 @@ export default {
   usersEditProfile,
   usersEdit,
   usersInvite,
-  usersConfirmInvitation
+  usersConfirmInvitation,
+  usersSetActiveStatus
 };
