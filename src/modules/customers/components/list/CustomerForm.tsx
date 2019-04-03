@@ -125,9 +125,7 @@ class CustomerForm extends React.Component<Props, State> {
   }
 
   handleUserSearch = value => {
-    if (value) {
-      searchUser(value, users => this.setState({ users }));
-    }
+    searchUser(value, users => this.setState({ users }));
   };
 
   getVisitorInfo(customer, key) {
@@ -239,7 +237,7 @@ class CustomerForm extends React.Component<Props, State> {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder={__('Search')}
-                onFocus={this.handleUserSearch.bind(this, ' ')}
+                onFocus={this.handleUserSearch.bind(this, '')}
                 onInputChange={this.handleUserSearch}
                 filterOptions={filteroptions}
                 onChange={this.onOwnerChange}

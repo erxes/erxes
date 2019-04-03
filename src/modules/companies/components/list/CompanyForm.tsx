@@ -171,9 +171,7 @@ class CompanyForm extends React.Component<Props, State> {
   };
 
   handleUserSearch = value => {
-    if (value) {
-      searchUser(value, users => this.setState({ users }));
-    }
+    searchUser(value, users => this.setState({ users }));
   };
 
   renderFormGroup = (label, props) => {
@@ -244,7 +242,7 @@ class CompanyForm extends React.Component<Props, State> {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search"
-                onFocus={this.handleUserSearch.bind(this, ' ')}
+                onFocus={this.handleUserSearch.bind(this, '')}
                 onInputChange={this.handleUserSearch}
                 filterOptions={filterOptions}
                 onChange={this.handleSelect.bind(this, 'ownerId')}
