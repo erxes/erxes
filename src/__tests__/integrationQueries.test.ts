@@ -3,7 +3,6 @@ import { TAG_TYPES } from '../data/constants';
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, integrationFactory, tagsFactory } from '../db/factories';
 import { Brands, Channels, Integrations } from '../db/models';
-import { socUtils } from '../trackers/twitterTracker';
 
 describe('integrationQueries', () => {
   const qryIntegrations = `
