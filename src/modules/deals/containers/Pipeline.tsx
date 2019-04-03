@@ -13,7 +13,6 @@ import { Stage } from './stage';
 const Container = styled.div`
   height: 100%;
   display: inline-flex;
-  padding-left: -4px;
 `;
 
 type Props = {
@@ -81,6 +80,7 @@ class WithStages extends React.Component<Props, {}> {
                         />
                       );
                     })}
+                    {provided.placeholder}
                   </Container>
                 )}
               </Droppable>

@@ -6,7 +6,7 @@ import { ICustomer } from 'modules/customers/types';
 import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { ProductSection } from '../';
-import { Right } from '../../styles/deal';
+import { RightContent } from '../../styles/deal';
 import { IDeal, IProductData } from '../../types';
 
 type Props = {
@@ -51,7 +51,7 @@ class Sidebar extends React.Component<Props> {
     const onClick = () => removeDeal(deal._id);
 
     return (
-      <Right>
+      <RightContent>
         <ProductSection
           onChangeProductsData={pDataChange}
           onChangeProducts={prsChange}
@@ -79,7 +79,7 @@ class Sidebar extends React.Component<Props> {
         <Button icon="cancel-1" onClick={onClick}>
           Delete
         </Button>
-      </Right>
+      </RightContent>
     );
   }
 }

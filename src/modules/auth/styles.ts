@@ -33,6 +33,10 @@ const AuthBox = styled.div`
     margin-top: 50px;
     border: 0;
   }
+
+  @media (max-width: 768px) {
+    padding: ${dimensions.coreSpacing * 2}px;
+  }
 `;
 
 const Links = styled.div`

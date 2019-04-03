@@ -2,24 +2,22 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup,
-  Spinner
+  FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
-import { SelectBrand } from '..';
 import Accounts from '../../containers/Accounts';
-import { CreateGmailMutationVariables } from '../../types';
 
 type Props = {
-  save: (params: CreateGmailMutationVariables, callback: () => void) => void;
-  brands: IBrand[];
+  save: (
+    doc: { name: string; accountId: string },
+    callback: () => void
+  ) => void;
   closeModal: () => void;
 };
 
-class Gmail extends React.Component<
+class Meet extends React.Component<
   Props,
   { loading: boolean; accountId?: string }
 > {
@@ -31,15 +29,15 @@ class Gmail extends React.Component<
     };
   }
 
-  onRemoveAccount = () => {
-    this.setState({ accountId: '' });
-  };
-
   onSelectAccount = (accountId?: string) => {
     this.setState({ accountId });
   };
 
-  handleSubmit = e => {
+  onRemoveAccount = () => {
+    this.setState({ accountId: '' });
+  };
+
+  handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const { accountId } = this.state;
@@ -48,10 +46,8 @@ class Gmail extends React.Component<
       return;
     }
 
-    const doc: CreateGmailMutationVariables = {
+    const doc = {
       name: (document.getElementById('name') as HTMLInputElement).value,
-      brandId: (document.getElementById('selectBrand') as HTMLInputElement)
-        .value,
       accountId
     };
 
@@ -63,24 +59,19 @@ class Gmail extends React.Component<
   };
 
   render() {
-    const { brands } = this.props;
-
     return (
       <form onSubmit={this.handleSubmit}>
-        {this.state.loading && <Spinner />}
         <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+          <ControlLabel>Name</ControlLabel>
 
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
 
-        <SelectBrand brands={brands} />
-
         <Accounts
           kind="gmail"
           addLink="gmailLogin"
-          onRemove={this.onRemoveAccount}
           onSelect={this.onSelectAccount}
+          onRemove={this.onRemoveAccount}
         />
 
         <ModalFooter>
@@ -93,4 +84,4 @@ class Gmail extends React.Component<
   }
 }
 
-export default Gmail;
+export default Meet;
