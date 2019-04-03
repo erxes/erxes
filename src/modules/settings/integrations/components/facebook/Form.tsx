@@ -1,4 +1,3 @@
-import { getEnv } from 'apolloClient';
 import {
   Button,
   ControlLabel,
@@ -34,13 +33,6 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
       loading: false
     };
   }
-
-  onFacebookRedirect = () => {
-    const { REACT_APP_API_URL } = getEnv();
-    const url = `${REACT_APP_API_URL}/fblogin`;
-
-    window.location.replace(url);
-  };
 
   collectCheckboxValues(name: string): string[] {
     const values: string[] = [];
@@ -118,7 +110,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
 
         <Accounts
           kind="facebook"
-          onAdd={this.onFacebookRedirect}
+          addLink="fblogin"
           onSelect={onAccountSelect}
           onRemove={onRemoveAccount}
         />

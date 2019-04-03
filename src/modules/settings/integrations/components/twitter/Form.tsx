@@ -8,7 +8,6 @@ import * as React from 'react';
 
 type Props = {
   brands: IBrand[];
-  twitterAuthUrl: string;
   save: (
     { brandId, accountId }: { brandId: string; accountId: string }
   ) => void;
@@ -21,13 +20,7 @@ class Twitter extends React.Component<Props, { accountId?: string }> {
     this.state = {};
   }
 
-  onTwitterRedirect = () => {
-    const { twitterAuthUrl } = this.props;
-
-    window.location.href = twitterAuthUrl;
-  };
-
-  onAccountRemove(accountId: string) {
+  onAccountRemove() {
     confirm().then(() => {
       this.setState({ accountId: '' });
     });
@@ -62,7 +55,7 @@ class Twitter extends React.Component<Props, { accountId?: string }> {
 
         <Accounts
           kind="twitter"
-          onAdd={this.onTwitterRedirect}
+          addLink="twitterLogin"
           onRemove={this.onAccountRemove}
           onSelect={this.onAccountSelect}
         />

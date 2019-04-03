@@ -15,7 +15,6 @@ type Props = {
     callback: () => void
   ) => void;
   closeModal: () => void;
-  gmailAuthUrl: string;
 };
 
 class Meet extends React.Component<
@@ -29,12 +28,6 @@ class Meet extends React.Component<
       loading: false
     };
   }
-
-  onGmailRedirect = () => {
-    const { gmailAuthUrl } = this.props;
-
-    window.location.href = gmailAuthUrl || '';
-  };
 
   onSelectAccount = (accountId?: string) => {
     this.setState({ accountId });
@@ -76,7 +69,7 @@ class Meet extends React.Component<
 
         <Accounts
           kind="gmail"
-          onAdd={this.onGmailRedirect}
+          addLink="gmailLogin"
           onSelect={this.onSelectAccount}
           onRemove={this.onRemoveAccount}
         />

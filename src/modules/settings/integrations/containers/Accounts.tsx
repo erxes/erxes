@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert, withProps } from 'modules/common/utils';
@@ -9,7 +10,7 @@ import { AccountsQueryResponse, RemoveAccountMutationResponse } from '../types';
 
 type Props = {
   kind: 'facebook' | 'twitter' | 'gmail';
-  onAdd: () => void;
+  addLink: string;
   onSelect: (accountId?: string) => void;
   onRemove: (accountId: string) => void;
 };
@@ -20,8 +21,30 @@ type FinalProps = {
   RemoveAccountMutationResponse;
 
 class AccountContainer extends React.Component<FinalProps, {}> {
+  onAdd = () => {
+    const { addLink } = this.props;
+
+    const { REACT_APP_API_URL } = getEnv();
+    const url = `${REACT_APP_API_URL}/${addLink}`;
+
+    window.location.replace(url);
+  };
+
+  removeAccount = (accountId: string) => {
+    const { removeAccount, onRemove } = this.props;
+
+    removeAccount({ variables: { _id: accountId } })
+      .then(() => {
+        Alert.success('Success');
+        onRemove(accountId);
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
   render() {
-    const { accountsQuery, onAdd, onRemove, onSelect } = this.props;
+    const { accountsQuery, onRemove, onSelect } = this.props;
 
     if (accountsQuery.loading) {
       return <Spinner objective={true} />;
@@ -29,24 +52,10 @@ class AccountContainer extends React.Component<FinalProps, {}> {
 
     const accounts = accountsQuery.accounts || [];
 
-    const removeAccount = (accountId: string) => {
-      this.props
-        .removeAccount({
-          variables: { _id: accountId }
-        })
-        .then(() => {
-          Alert.success('Success');
-          onRemove(accountId);
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
-
     return (
       <Accounts
-        onAdd={onAdd}
-        removeAccount={removeAccount}
+        onAdd={this.onAdd}
+        removeAccount={this.removeAccount}
         onSelect={onSelect}
         accounts={accounts}
       />

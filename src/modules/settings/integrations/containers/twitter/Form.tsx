@@ -1,23 +1,18 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert, withProps } from 'modules/common/utils';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import Twitter from 'modules/settings/integrations/components/twitter/Form';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
+import { mutations } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../../brands/types';
 import {
-  GetTwitterAuthUrlQueryResponse,
   LinkTwitterMutationResponse,
-  SaveTwitterMutationResponse,
-  TwitterAuthParams
+  SaveTwitterMutationResponse
 } from '../../types';
 
-type Props = {
-  twitterAuthUrlQuery: GetTwitterAuthUrlQueryResponse;
-  queryParams: any;
-  history: any;
-} & LinkTwitterMutationResponse;
+type Props = {} & LinkTwitterMutationResponse;
 
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
@@ -25,25 +20,6 @@ type FinalProps = {
   SaveTwitterMutationResponse;
 
 class TwitterContainer extends React.Component<FinalProps> {
-  componentDidMount() {
-    const { accountsAddTwitter, queryParams, history } = this.props;
-
-    if (
-      queryParams &&
-      (queryParams.oauth_token && queryParams.oauth_verifier)
-    ) {
-      accountsAddTwitter({ queryParams })
-        .then(() => {
-          history.push('/settings/integrations');
-          Alert.success('Success');
-        })
-        .catch(() => {
-          history.push('/settings/integrations');
-          Alert.error('Error');
-        });
-    }
-  }
-
   save = ({ brandId, accountId }: { brandId: string; accountId: string }) => {
     const { saveMutation } = this.props;
 
@@ -62,7 +38,7 @@ class TwitterContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { brandsQuery, twitterAuthUrlQuery } = this.props;
+    const { brandsQuery } = this.props;
 
     if (brandsQuery.loading) {
       return <Spinner />;
@@ -73,8 +49,7 @@ class TwitterContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       brands,
-      save: this.save,
-      twitterAuthUrl: twitterAuthUrlQuery.integrationGetTwitterAuthUrl || ''
+      save: this.save
     };
 
     return <Twitter {...updatedProps} />;
@@ -83,37 +58,11 @@ class TwitterContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(
-      gql`
-        query brands {
-          brands {
-            _id
-            name
-          }
-        }
-      `,
-      {
-        name: 'brandsQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, GetTwitterAuthUrlQueryResponse>(
-      gql(queries.integrationGetTwitterAuthUrl),
-      {
-        name: 'twitterAuthUrlQuery'
-      }
-    ),
-    graphql<
-      Props,
-      LinkTwitterMutationResponse,
-      { queryParams: TwitterAuthParams }
-    >(gql(mutations.linkTwitterAccount), {
-      name: 'accountsAddTwitter',
-      options: {
-        refetchQueries: ['accounts']
-      }
+    graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
     }),
     graphql<
       Props,
