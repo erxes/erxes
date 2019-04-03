@@ -715,7 +715,7 @@ export const INTEGRATIONS = [
         inMessenger: true,
         kind: 'googleMeet',
         logo: '/images/integrations/google-meet.png',
-        createUrl: '/settings/integrations/google-calendar'
+        createModal: 'googleMeet'
       },
       {
         name: 'Lead',

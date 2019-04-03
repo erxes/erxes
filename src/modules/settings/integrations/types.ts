@@ -192,30 +192,6 @@ export type FormIntegrationDetailQueryResponse = {
   refetch: () => void;
 };
 
-export type GetGoogleAuthUrlQueryResponse = {
-  integrationGetGoogleAuthUrl: string;
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type GetGoogleAccessTokenQueryResponse = {
-  integrationGetGoogleAccessToken: string;
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type GetTwitterAuthUrlQueryResponse = {
-  integrationGetTwitterAuthUrl: string;
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type GoogleAccessTokenQueryResponse = {
-  integrationGetGoogleAccessToken: IGoogleCredentials;
-  loading: boolean;
-  refetch: () => void;
-};
-
 export type AccountsQueryResponse = {
   accounts: IAccount[];
   loading: boolean;
@@ -320,16 +296,15 @@ export type SendGmailMutationResponse = {
 export type CreateFacebookMutationVariables = {
   name: string;
   brandId: string;
-  accountId: string;
   pageIds: string[];
 };
 
 export type MessengerAppsAddGoogleMeetMutationVariables = {
   name: string;
-  credentials: object;
+  accountId: string;
 };
 
-export type messengerAppsAddGoogleMeetMutationResponse = {
+export type MessengerAppsAddGoogleMeetMutationResponse = {
   saveMutation: (
     params: { variables: MessengerAppsAddGoogleMeetMutationVariables }
   ) => Promise<any>;
@@ -353,7 +328,7 @@ export type messengerAppsAddKnowledgebaseVariables = {
   topicId: string;
 };
 
-export type messengerAppsAddKnowledgebaseMutationResponse = {
+export type MessengerAppsAddKnowledgebaseMutationResponse = {
   saveMutation: (
     params: { variables: messengerAppsAddKnowledgebaseVariables }
   ) => Promise<any>;
@@ -362,7 +337,7 @@ export type messengerAppsAddKnowledgebaseMutationResponse = {
 export type CreateFacebookMutationResponse = {
   saveMutation: (
     params: {
-      variables: CreateFacebookMutationVariables;
+      variables: CreateFacebookMutationVariables & { accountId: string };
     }
   ) => Promise<any>;
 };
@@ -396,10 +371,6 @@ export type LinkTwitterMutationResponse = {
   accountsAddTwitter: (
     { queryParams }: { queryParams: TwitterAuthParams }
   ) => Promise<any>;
-};
-
-export type LinkGmailMutationResponse = {
-  accountsAddGmail: (params: { variables: { code: string } }) => Promise<any>;
 };
 
 export type EditIntegrationMutationResponse = {

@@ -21,9 +21,10 @@ const WithPipelinesQuery = (props: FinalProps) => {
   if (!pipelineDetailQuery) {
     return (
       <EmptyState
-        image="/images/actions/19.svg"
+        image="/images/actions/18.svg"
         text="Oh boy, looks like you need to get a head start on your deals"
         size="small"
+        light={true}
       />
     );
   }

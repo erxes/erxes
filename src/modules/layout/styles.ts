@@ -379,12 +379,22 @@ const Authlayout = styled.div`
     background: transparent url('/images/twinkling.png') repeat top center;
     animation: ${twinkling} 200s linear infinite;
   }
+
+  @media (max-width: 768px) {
+    overflow: auto;
+    padding-bottom: ${dimensions.coreSpacing * 2}px;
+  }
 `;
 
 const AuthContent = styled.div`
   position: relative;
   top: 50%;
   transform: translateY(-50%);
+
+  @media (max-width: 768px) {
+    top: 0;
+    transform: translateY(0);
+  }
 `;
 
 const AuthDescription = styled.div`
