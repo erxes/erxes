@@ -34,7 +34,10 @@ class CustomerDetails extends React.Component<Props> {
           target={customer.firstName}
           contentId={customer._id}
           contentType="customer"
-          extraTabs={[{ name: 'conversation', label: 'Conversation' }]}
+          extraTabs={[
+            { name: 'conversation', label: 'Conversation' },
+            { name: 'email', label: 'Email' }
+          ]}
         />
       </>
     );

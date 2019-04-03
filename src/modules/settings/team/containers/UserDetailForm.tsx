@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
+import { Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
@@ -33,6 +34,10 @@ const UserDetailFormContainer = (props: FinalProps) => {
     userConversationsQuery,
     renderEditForm
   } = props;
+
+  if (userDetailQuery.loading) {
+    return <Spinner />;
+  }
 
   const { list = [], totalCount = 0 } =
     userConversationsQuery.userConversations || {};

@@ -89,7 +89,7 @@ class UserDetails extends React.Component<Props> {
           target={user.details && user.details.fullName}
           contentId={user._id}
           contentType="user"
-          extraTabs={[]}
+          extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
         />
       </>
     );
