@@ -25,15 +25,15 @@ class FormBase extends React.Component<Props> {
 
   validateDoc = (docType, doc): { status: string; doc?: IEngageMessageDoc } => {
     if (!doc.title) {
-      return this.sendError(__('Write title'));
+      return this.sendError(__('Write a title'));
     }
 
     if (!doc.fromUserId) {
-      return this.sendError(__('Choose from who'));
+      return this.sendError(__('Choose a receiver'));
     }
 
     if (doc.messenger && !doc.messenger.brandId) {
-      return this.sendError(__('Choose brand'));
+      return this.sendError(__('Choose a brand'));
     }
 
     if (doc.messenger && !doc.messenger.sentAs) {
@@ -44,19 +44,19 @@ class FormBase extends React.Component<Props> {
       const { time, type, day, month } = doc.scheduleDate;
 
       if (!type && time) {
-        return this.sendError(__('Choose schedule type'));
+        return this.sendError(__('Choose a schedule day'));
       }
 
       if (type && (!time || time.length === 0)) {
-        return this.sendError(__('Choose schedule time'));
+        return this.sendError(__('Choose a schedule time'));
       }
 
       if ((type === 'year' || type === 'month') && !day) {
-        return this.sendError(__('Choose schedule day'));
+        return this.sendError(__('Choose a schedule day'));
       }
 
       if (type === 'year' && !month) {
-        return this.sendError(__('Choose schedule month'));
+        return this.sendError(__('Choose a schedule day'));
       }
     }
 

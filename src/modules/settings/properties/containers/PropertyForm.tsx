@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PropertyForm } from '../components';
@@ -34,7 +34,7 @@ const PropertyFormContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('Successfully added');
+        Alert.success(__(`You've successfully added a new property field`));
       })
       .catch(e => {
         Alert.error(e.message);
@@ -49,7 +49,7 @@ const PropertyFormContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('Successfully edited');
+        Alert.success(__(`You've successfully edited a new property field`));
       })
       .catch(e => {
         Alert.error(e.message);

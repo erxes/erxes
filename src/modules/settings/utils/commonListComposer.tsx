@@ -1,5 +1,5 @@
 import { confirm, withProps } from 'modules/common/utils';
-import { Alert } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose } from 'react-apollo';
 
@@ -9,6 +9,7 @@ interface IRemoveMutationVariables {
 
 function commonListComposer<ComponentProps>(options) {
   const {
+    text,
     name,
     gqlListQuery,
     gqlTotalCountQuery,
@@ -56,7 +57,7 @@ function commonListComposer<ComponentProps>(options) {
             listQuery.refetch();
             totalCountQuery.refetch();
 
-            Alert.success('Congrats, Successfully deleted.');
+            Alert.success(__(`You've successfully deleted a ${text}.`));
           })
           .catch(error => {
             Alert.error(error.message);
@@ -82,7 +83,15 @@ function commonListComposer<ComponentProps>(options) {
           listQuery.refetch();
           totalCountQuery.refetch();
 
-          Alert.success('Congrats');
+          let msg: string;
+
+          if (object) {
+            msg = `You've successfully edited a ${text}.`;
+          } else {
+            msg = `You've successfully added a new ${text}.`;
+          }
+
+          Alert.success(__(msg));
 
           callback();
         })

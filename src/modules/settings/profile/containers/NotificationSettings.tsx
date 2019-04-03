@@ -33,7 +33,7 @@ const NotificationSettingsContainer = (props: Props) => {
   const configGetNotificationByEmail = variables => {
     configGetNotificationByEmailMutation({ variables })
       .then(() => {
-        Alert.success('Congrats');
+        Alert.success('Saved');
       })
       .catch(error => {
         Alert.success(error.message);
@@ -44,7 +44,7 @@ const NotificationSettingsContainer = (props: Props) => {
   const saveNotificationConfigurations = variables => {
     saveNotificationConfigurationsMutation({ variables })
       .then(() => {
-        Alert.success('Congrats');
+        Alert.success('Saved');
         notificationConfigurationsQuery.refetch();
       })
       .catch(error => {

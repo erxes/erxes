@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { router } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -54,7 +54,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id }
     })
       .then(() => {
-        Alert.success('Successfully Removed');
+        Alert.success(__(`You've successfully deleted a property group`));
       })
       .catch(e => {
         Alert.error(e.message);
@@ -66,7 +66,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id }
     })
       .then(() => {
-        Alert.success('Succesfully Removed');
+        Alert.success(__(`You've successfully deleted a property field`));
       })
       .catch(e => {
         Alert.error(e.message);
@@ -78,7 +78,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id, isVisible }
     })
       .then(() => {
-        Alert.success('Successfully Updated');
+        Alert.success(`You've changed a property field visibility`);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -90,7 +90,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id, isVisible }
     })
       .then(() => {
-        Alert.success('Successfully Updated');
+        Alert.success(`You've changed a property group visibility`);
       })
       .catch(e => {
         Alert.error(e.message);

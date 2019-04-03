@@ -54,7 +54,11 @@ class PipelinesContainer extends React.Component<FinalProps> {
           .then(() => {
             pipelinesQuery.refetch();
 
-            Alert.success(__('Successfully deleted.'));
+            const msg = `${__(`You've successfully deleted a`)}' '${__(
+              'pipeline'
+            )}.`;
+
+            Alert.success(msg);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -77,7 +81,15 @@ class PipelinesContainer extends React.Component<FinalProps> {
         .then(() => {
           pipelinesQuery.refetch();
 
-          Alert.success(__('Successfully saved.'));
+          let msg: string;
+
+          if (pipeline) {
+            msg = `You've successfully edited a pipeline.`;
+          } else {
+            msg = `You've successfully added a new pipeline.`;
+          }
+
+          Alert.success(__(msg));
 
           callback();
         })

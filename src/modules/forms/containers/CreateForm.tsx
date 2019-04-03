@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import {
   AddIntegrationMutationResponse,
   AddIntegrationMutationVariables
@@ -75,7 +75,7 @@ class CreateFormContainer extends React.Component<Props, {}> {
         })
 
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success(__(`You've successfully added a lead`));
           history.push('/forms');
         })
 

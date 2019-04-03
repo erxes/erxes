@@ -127,7 +127,7 @@ class Form extends React.Component<Props, State> {
     }
 
     if (!brand) {
-      return Alert.error(__('Choose brand'));
+      return Alert.error(__('Choose a brand'));
     }
 
     this.props.save({

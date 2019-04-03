@@ -41,7 +41,7 @@ const MessengerAddContainer = (props: ChildProps<Props>) => {
     }
 
     if (!brandId) {
-      return Alert.error('Choose brand');
+      return Alert.error('Choose a brand');
     }
 
     saveMessengerMutation({

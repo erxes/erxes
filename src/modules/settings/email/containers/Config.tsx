@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { colors } from 'modules/common/styles';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { mutations as brandMutations } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -75,7 +75,7 @@ const ConfigContainer = (props: FinalProps) => {
       variables: doc
     })
       .then(() => {
-        Alert.success('Congrats');
+        Alert.success(__(`You've successfully updated an email appearance.`));
         refetch();
         callback();
       })
