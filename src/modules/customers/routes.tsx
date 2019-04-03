@@ -11,13 +11,10 @@ const CustomersList = asyncComponent(() =>
   import(/* webpackChunkName: "CustomersList" */ './containers/CustomersList')
 );
 
-const detail = ({ match, location, history }) => {
+const detail = ({ match }) => {
   const id = match.params.id;
-  const queryParams = queryString.parse(location.search);
 
-  return (
-    <CustomerDetails id={id} queryParams={queryParams} history={history} />
-  );
+  return <CustomerDetails id={id} />;
 };
 
 const list = ({ location }) => {

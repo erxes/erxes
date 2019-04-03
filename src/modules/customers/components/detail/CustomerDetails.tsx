@@ -1,9 +1,7 @@
-import { DetailContent } from 'modules/common/components';
-import { IRouterProps } from 'modules/common/types';
+import { ActivityLogs } from 'modules/activityLogs/containers';
 import { __, renderFullName } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
-import { IActivityLogForMonth } from '../../../activityLogs/types';
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../types';
 import LeftSidebar from './LeftSidebar';
@@ -12,22 +10,12 @@ import RightSidebar from './RightSidebar';
 type Props = {
   customer: ICustomer;
   currentUser: IUser;
-  activityLogsCustomer: IActivityLogForMonth[];
   taggerRefetchQueries?: any[];
-  loadingLogs: boolean;
-  history: any;
 };
 
 class CustomerDetails extends React.Component<Props> {
   render() {
-    const {
-      customer,
-      taggerRefetchQueries,
-      activityLogsCustomer,
-      currentUser,
-      loadingLogs,
-      history
-    } = this.props;
+    const { customer, taggerRefetchQueries, currentUser } = this.props;
 
     const breadcrumb = [
       { title: __('Customers'), link: '/customers' },
@@ -46,15 +34,11 @@ class CustomerDetails extends React.Component<Props> {
         }
         rightSidebar={<RightSidebar customer={customer} />}
         content={
-          <DetailContent
-            activityLog={activityLogsCustomer}
-            currentUser={currentUser}
+          <ActivityLogs
             target={customer.firstName}
-            loadingLogs={loadingLogs}
+            contentId={customer._id}
             contentType="customer"
-            contentTypeId={customer._id}
-            toEmail={customer.primaryEmail}
-            history={history}
+            extraTabs={[{ name: 'conversation', label: 'Conversation' }]}
           />
         }
         transparent={true}
