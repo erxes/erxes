@@ -7,31 +7,27 @@ import {
   Spinner
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __, confirm } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { SelectBrand } from '..';
-import { Row } from '../../styles';
-import { CreateFacebookMutationVariables, IAccount, IPages } from '../../types';
+import Accounts from '../../containers/Accounts';
+import { CreateFacebookMutationVariables, IPages } from '../../types';
 
 type Props = {
-  save: (
+  onSave: (
     params: CreateFacebookMutationVariables,
-    callback?: () => void
+    callback: () => void
   ) => void;
-  onAccSelect: (doc: { appId?: string; accountId?: string }) => void;
+  onAccountSelect: (accountId?: string) => void;
   brands: IBrand[];
   pages: IPages[];
-  accounts: IAccount[];
-  delink: (accountId: string) => void;
+  onRemoveAccount: (accountId: string) => void;
   closeModal: () => void;
 };
 
-class Facebook extends React.Component<
-  Props,
-  { loading: boolean; accountId?: string }
-> {
-  constructor(props) {
+class Facebook extends React.Component<Props, { loading: boolean }> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -39,34 +35,12 @@ class Facebook extends React.Component<
     };
   }
 
-  onAccChange = () => {
-    const accountId = (document.getElementById('acc') as HTMLInputElement)
-      .value;
-
-    this.setState({ accountId: accountId || '' });
-
-    if (accountId === '') {
-      return;
-    }
-
-    this.props.onAccSelect({ accountId });
-  };
-
   onFacebookRedirect = () => {
     const { REACT_APP_API_URL } = getEnv();
     const url = `${REACT_APP_API_URL}/fblogin`;
 
     window.location.replace(url);
   };
-
-  onRemove(accountId: string) {
-    const { delink } = this.props;
-
-    confirm().then(() => {
-      delink(accountId);
-      this.setState({ accountId: '' });
-    });
-  }
 
   collectCheckboxValues(name: string): string[] {
     const values: string[] = [];
@@ -84,44 +58,27 @@ class Facebook extends React.Component<
     return values;
   }
 
-  handleSubmit = e => {
+  handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const doc: CreateFacebookMutationVariables = {
       name: (document.getElementById('name') as HTMLInputElement).value,
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value,
-      accountId: (document.getElementById('acc') as HTMLInputElement).value,
       pageIds: this.collectCheckboxValues('pages')
-    };
-
-    const callback = () => {
-      this.setState({ loading: false }, () => this.props.closeModal());
     };
 
     this.setState({ loading: true });
 
-    this.props.save(doc, callback);
+    this.props.onSave(doc, () => {
+      this.setState({ loading: false }, () => this.props.closeModal());
+    });
   };
-
-  renderAccountAction() {
-    const { accountId } = this.state;
-
-    if (!accountId || accountId === '') {
-      return <Button onClick={this.onFacebookRedirect}>Add Account</Button>;
-    }
-
-    return (
-      <Button onClick={this.onRemove.bind(this, accountId)} btnStyle="danger">
-        Remove Account
-      </Button>
-    );
-  }
 
   renderPages() {
     const { pages } = this.props;
 
-    if (pages.length === 0 || this.state.accountId === '') {
+    if (pages.length === 0) {
       return null;
     }
 
@@ -146,7 +103,7 @@ class Facebook extends React.Component<
   }
 
   render() {
-    const { brands, accounts } = this.props;
+    const { brands, onRemoveAccount, onAccountSelect } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -159,27 +116,12 @@ class Facebook extends React.Component<
 
         <SelectBrand brands={brands} />
 
-        <FormGroup>
-          <ControlLabel required={true}>Linked Accounts</ControlLabel>
-
-          <Row>
-            <FormControl
-              componentClass="select"
-              placeholder={__('Select account')}
-              onChange={this.onAccChange}
-              id="acc"
-            >
-              <option value="">{__('Select account ...')}</option>
-
-              {accounts.map((account, index) => (
-                <option key={`account${index}`} value={account._id}>
-                  {account.name}
-                </option>
-              ))}
-            </FormControl>
-            {this.renderAccountAction()}
-          </Row>
-        </FormGroup>
+        <Accounts
+          kind="facebook"
+          onAdd={this.onFacebookRedirect}
+          onSelect={onAccountSelect}
+          onRemove={onRemoveAccount}
+        />
 
         {this.renderPages()}
 
