@@ -1,4 +1,4 @@
-import { ActivityNotes } from 'modules/activityLogs/components';
+import { ActivityInputs } from 'modules/activityLogs/components';
 import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
 import { Button } from 'modules/common/components';
@@ -181,10 +181,10 @@ class DealEditForm extends React.Component<Props, State> {
 
         <FlexContent>
           <Left>
-            <ActivityNotes
+            <ActivityInputs
               contentTypeId={deal._id}
               contentType="deal"
-              hasEmail={false}
+              showEmail={false}
             />
             <ActivityLogs
               target={deal.name}

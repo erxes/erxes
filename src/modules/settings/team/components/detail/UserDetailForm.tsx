@@ -1,4 +1,4 @@
-import { ActivityNotes } from 'modules/activityLogs/components';
+import { ActivityInputs } from 'modules/activityLogs/components';
 import { ActivityLogs } from 'modules/activityLogs/containers';
 import {
   ActivityDate,
@@ -79,10 +79,10 @@ class UserDetails extends React.Component<Props> {
 
     const content = (
       <>
-        <ActivityNotes
+        <ActivityInputs
           contentTypeId={user._id}
           contentType="user"
-          hasEmail={false}
+          showEmail={false}
         />
 
         <ActivityLogs

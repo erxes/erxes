@@ -1,4 +1,4 @@
-import { ActivityNotes } from 'modules/activityLogs/components';
+import { ActivityInputs } from 'modules/activityLogs/components';
 import { ActivityLogs } from 'modules/activityLogs/containers';
 import { __, renderFullName } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
@@ -24,11 +24,11 @@ class CustomerDetails extends React.Component<Props> {
 
     const content = (
       <>
-        <ActivityNotes
+        <ActivityInputs
           contentTypeId={customer._id}
           contentType="customer"
           toEmail={customer.primaryEmail}
-          hasEmail={true}
+          showEmail={true}
         />
         <ActivityLogs
           target={customer.firstName}

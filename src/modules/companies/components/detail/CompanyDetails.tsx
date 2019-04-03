@@ -1,4 +1,4 @@
-import { ActivityNotes } from 'modules/activityLogs/components';
+import { ActivityInputs } from 'modules/activityLogs/components';
 import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
@@ -25,11 +25,11 @@ class CompanyDetails extends React.Component<Props> {
 
     const content = (
       <>
-        <ActivityNotes
+        <ActivityInputs
           contentTypeId={company._id}
           contentType="company"
           toEmails={company.emails}
-          hasEmail={true}
+          showEmail={true}
         />
         <ActivityLogs
           target={company.primaryName || ''}

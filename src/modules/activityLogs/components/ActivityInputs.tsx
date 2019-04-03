@@ -1,5 +1,3 @@
-import { IActivityLogForMonth } from 'modules/activityLogs/types';
-import { IUser } from 'modules/auth/types';
 import { Icon, Tabs, TabTitle } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { TabContent } from 'modules/customers/styles';
@@ -11,7 +9,7 @@ import * as React from 'react';
 type Props = {
   contentType: string;
   contentTypeId: string;
-  hasEmail: boolean;
+  showEmail: boolean;
   toEmail?: string;
   toEmails?: string[];
 };
@@ -20,7 +18,7 @@ type State = {
   currentTab: string;
 };
 
-class ActivityNotes extends React.PureComponent<Props, State> {
+class ActivityInputs extends React.PureComponent<Props, State> {
   constructor(props) {
     super(props);
 
@@ -34,7 +32,7 @@ class ActivityNotes extends React.PureComponent<Props, State> {
   };
 
   renderTabContent() {
-    const { contentTypeId, contentType, toEmail, hasEmail } = this.props;
+    const { contentTypeId, contentType, toEmail, showEmail } = this.props;
     const { currentTab } = this.state;
 
     if (currentTab === 'newNote') {
@@ -43,7 +41,7 @@ class ActivityNotes extends React.PureComponent<Props, State> {
       );
     }
 
-    if (!hasEmail) {
+    if (!showEmail) {
       return null;
     }
 
@@ -60,7 +58,7 @@ class ActivityNotes extends React.PureComponent<Props, State> {
   }
 
   renderExtraTab() {
-    if (!this.props.hasEmail) {
+    if (!this.props.showEmail) {
       return null;
     }
 
@@ -96,4 +94,4 @@ class ActivityNotes extends React.PureComponent<Props, State> {
   }
 }
 
-export default ActivityNotes;
+export default ActivityInputs;

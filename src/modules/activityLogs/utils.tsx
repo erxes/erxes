@@ -78,10 +78,11 @@ export default class {
 
   _processItem(item) {
     const iconAndColor = this._getIconAndColor(item.action);
-    const hasContent =
-      !['company-create', 'deal-create', 'customer-create'].includes(
-        item.action
-      ) && item.content !== '[object Object]';
+    const hasContent = ![
+      'company-create',
+      'deal-create',
+      'customer-create'
+    ].includes(item.action);
 
     const caption = this._getCaption({
       action: item.action,
