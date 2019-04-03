@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-import { queries as activityLogQueries } from 'modules/activityLogs/graphql';
 import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -8,7 +7,6 @@ import { ChannelsQueryResponse } from '../../channels/types';
 import { UserDetailForm } from '../components';
 import { queries } from '../graphql';
 import {
-  ActivityLogQueryResponse,
   UserConverationsQueryResponse,
   UserDetailQueryResponse
 } from '../types';
@@ -22,7 +20,6 @@ type Props = {
 type FinalProps = {
   userDetailQuery: UserDetailQueryResponse;
   channelsQuery: ChannelsQueryResponse;
-  userActivityLogQuery: ActivityLogQueryResponse;
   userConversationsQuery: UserConverationsQueryResponse;
   renderEditForm: (
     { closeModal, user }: { closeModal: () => void; user: IUser }
@@ -33,7 +30,6 @@ const UserDetailFormContainer = (props: FinalProps) => {
   const {
     userDetailQuery,
     channelsQuery,
-    userActivityLogQuery,
     userConversationsQuery,
     renderEditForm
   } = props;
@@ -46,8 +42,6 @@ const UserDetailFormContainer = (props: FinalProps) => {
     user: userDetailQuery.userDetail || {},
     participatedConversations: list,
     totalConversationCount: totalCount,
-    loadingLogs: userActivityLogQuery.loading,
-    activityLogsUser: userActivityLogQuery.activityLogs || [],
     channels: channelsQuery.channels || []
   };
 
@@ -85,18 +79,6 @@ export default withProps<Props>(
     graphql(gql(queries.channels), {
       name: 'channelsQuery',
       options: commonOptions
-    }),
-    graphql<Props, ActivityLogQueryResponse>(
-      gql(activityLogQueries.activityLogs),
-      {
-        name: 'userActivityLogQuery',
-        options: ({ _id }: { _id: string }) => ({
-          variables: {
-            contentId: _id,
-            contentType: 'user'
-          }
-        })
-      }
-    )
+    })
   )(UserDetailFormContainer)
 );

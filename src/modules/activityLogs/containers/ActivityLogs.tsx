@@ -11,7 +11,7 @@ import { queries } from '../graphql';
 type Props = {
   contentId: string;
   contentType: string;
-  target: string;
+  target?: string;
   extraTabs: Array<{ name: string; label: string }>;
 };
 

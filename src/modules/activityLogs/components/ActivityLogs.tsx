@@ -10,7 +10,7 @@ import * as React from 'react';
 type Props = {
   activityLogs: IActivityLogForMonth[];
   currentUser: IUser;
-  target: string;
+  target?: string;
   loadingLogs: boolean;
   extraTabs: Array<{ name: string; label: string }>;
   onTabClick: (currentTab: string) => void;
