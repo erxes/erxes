@@ -43,18 +43,6 @@ const integrationTotalCount = `
   }
 `;
 
-const integrationGetGoogleAuthUrl = `
-  query integrationGetGoogleAuthUrl($service: String) {
-    integrationGetGoogleAuthUrl(service: $service)
-  }
-`;
-
-const integrationGetTwitterAuthUrl = `
-  query integrationGetTwitterAuthUrl {
-    integrationGetTwitterAuthUrl
-  }
-`;
-
 const commonParamsDef = `
   $channelId: String,
   $brandId: String,
@@ -148,8 +136,6 @@ export default {
   brands,
   integrationDetail,
   integrationTotalCount,
-  integrationGetGoogleAuthUrl,
-  integrationGetTwitterAuthUrl,
   integrationFacebookPageList,
   integrations,
   messengerApps,

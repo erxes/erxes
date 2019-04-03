@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
@@ -113,22 +114,12 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(
-      gql`
-        query brands {
-          brands {
-            _id
-            name
-          }
-        }
-      `,
-      {
-        name: 'brandsQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<
       Props,
       CreateFacebookMutationResponse,
