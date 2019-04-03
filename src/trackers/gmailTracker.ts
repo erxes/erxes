@@ -221,7 +221,7 @@ export const trackGmail = async () => {
       }
 
       // All notifications need to be acknowledged as per the Cloud Pub/Sub
-      message.ack();
+      await message.ack();
     };
 
     subscription.on('error', errorHandler);

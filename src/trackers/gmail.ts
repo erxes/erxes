@@ -356,6 +356,7 @@ const getOrCreateConversation = async (
       if (conversation) {
         conversation.status = CONVERSATION_STATUSES.OPEN;
         conversation.content = content;
+        conversation.readUserIds = [];
         await conversation.save();
         return conversation;
       }
@@ -385,10 +386,10 @@ export const syncConversation = async (integrationId: string, gmailData: IMsgGma
     throw new Error('Empty gmail data');
   }
 
-  // check if message has arrived true return previous message instance
+  // check if message exists
   const prevMessage = await ConversationMessages.findOne({
     'gmailData.messageId': messageId,
-  }).sort({ createdAt: -1 });
+  });
 
   if (prevMessage) {
     return prevMessage;
