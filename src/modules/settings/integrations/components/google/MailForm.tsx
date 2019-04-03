@@ -185,11 +185,15 @@ class MailForm extends React.Component<Props, State> {
     const { subject, cc, bcc, toEmails, from, attachments } = this.state;
 
     if (!toEmails) {
-      return Alert.error('Please, enter "To" emails');
+      return Alert.error('Enter a receiver');
     }
 
     if (!from) {
-      return Alert.error('Please, choose a "From" email');
+      return Alert.error('Select a sender');
+    }
+
+    if (!subject) {
+      return Alert.error('Your email has no subject');
     }
 
     const body = this.getContent(this.state.editorState);
