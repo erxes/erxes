@@ -1,4 +1,4 @@
-import { ActivityLogs, DealBoards, DealPipelines, Deals, DealStages } from '../../../db/models';
+import { DealBoards, DealPipelines, Deals, DealStages } from '../../../db/models';
 import { IOrderInput } from '../../../db/models/Deals';
 import { IBoard, IDeal, IPipeline, IStage, IStageDocument } from '../../../db/models/definitions/deals';
 import { IUserDocument } from '../../../db/models/definitions/users';
@@ -112,15 +112,11 @@ const dealMutations = {
   /**
    * Create new deal
    */
-  async dealsAdd(_root, doc: IDeal, { user }: { user: IUserDocument }) {
-    const deal = await Deals.createDeal({
+  dealsAdd(_root, doc: IDeal, { user }: { user: IUserDocument }) {
+    return Deals.createDeal({
       ...doc,
       modifiedBy: user._id,
     });
-
-    await ActivityLogs.createDealRegistrationLog(deal, user);
-
-    return deal;
   },
 
   /**

@@ -6,6 +6,7 @@ import {
   conversationMessageFactory,
   customerFactory,
   integrationFactory,
+  userFactory,
 } from '../../db/factories';
 import { Accounts, ConversationMessages, Conversations, Integrations } from '../../db/models';
 import {
@@ -320,8 +321,10 @@ describe('gmail integration tests', () => {
       cocId: 'customerId',
     };
 
+    const user = await userFactory({});
+
     try {
-      await sendGmail(mailParams);
+      await sendGmail(mailParams, user);
     } catch (e) {
       expect(e.message).toBe(`Integration not found id with ${mailParams.integrationId}`);
     }
@@ -341,7 +344,7 @@ describe('gmail integration tests', () => {
     mailParams.integrationId = integration._id;
     const mock = sinon.stub(utils, 'sendEmail').callsFake();
 
-    await sendGmail(mailParams);
+    await sendGmail(mailParams, user);
 
     mock.restore(); // unwraps the spy
   });

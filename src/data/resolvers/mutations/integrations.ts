@@ -1,5 +1,6 @@
 import { Accounts, Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
+import { IUserDocument } from '../../../db/models/definitions/users';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
 import { sendGmail, updateHistoryId } from '../../../trackers/gmail';
 import { socUtils } from '../../../trackers/twitterTracker';
@@ -151,8 +152,8 @@ const integrationMutations = {
   /**
    * Send mail by gmail api
    */
-  integrationsSendGmail(_root, args) {
-    return sendGmail(args);
+  integrationsSendGmail(_root, args, { user }: { user: IUserDocument }) {
+    return sendGmail(args, user);
   },
 };
 

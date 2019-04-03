@@ -8,6 +8,7 @@ import ConversationMessages from './ConversationMessages';
 import Conversations from './Conversations';
 import Customers from './Customers';
 import { DealBoards, DealPipelines, Deals, DealStages } from './Deals';
+import EmailDeliveries from './EmailDeliveries';
 import EmailTemplates from './EmailTemplates';
 import EngageMessages from './Engages';
 import { Fields, FieldsGroups } from './Fields';
@@ -44,6 +45,7 @@ export {
   InternalNotes,
   Customers,
   Companies,
+  EmailDeliveries,
   Conversations,
   ConversationMessages,
   KnowledgeBaseArticles,

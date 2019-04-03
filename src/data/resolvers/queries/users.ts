@@ -43,7 +43,7 @@ const userQueries = {
    * Get one user
    */
   userDetail(_root, { _id }: { _id: string }) {
-    return Users.findOne({ _id, isActive: { $ne: false } });
+    return Users.findOne({ _id });
   },
 
   /**

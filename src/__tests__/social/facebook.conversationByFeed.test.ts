@@ -1,7 +1,7 @@
 import * as sinon from 'sinon';
 import { CONVERSATION_STATUSES } from '../../data/constants';
 import { conversationMessageFactory, integrationFactory } from '../../db/factories';
-import { ActivityLogs, ConversationMessages, Conversations, Customers } from '../../db/models';
+import { ConversationMessages, Conversations, Customers } from '../../db/models';
 import { SaveWebhookResponse } from '../../trackers/facebook';
 import { graphRequest } from '../../trackers/facebookTracker';
 
@@ -84,9 +84,6 @@ describe('facebook integration: get or create conversation by feed info', () => 
     expect(await Conversations.find().countDocuments()).toBe(1); // 1 conversation
     expect(await ConversationMessages.find().countDocuments()).toBe(1); // 1 message
     expect(await Customers.find().countDocuments()).toBe(1); // 1 customer
-
-    // 1 logs
-    expect(await ActivityLogs.find({ 'activity.type': 'customer' }).countDocuments()).toBe(1);
 
     const conversation = await Conversations.findOne();
 

@@ -1,5 +1,4 @@
 import accounts from './accounts';
-import activityLogs from './activityLogs';
 import brands from './brands';
 import channels from './channels';
 import companies from './companies';
@@ -44,7 +43,6 @@ export default {
   ...integrations,
   ...notifications,
   ...knowledgeBase,
-  ...activityLogs,
   ...deals,
   ...products,
   ...configs,

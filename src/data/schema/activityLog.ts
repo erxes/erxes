@@ -1,14 +1,4 @@
 export const types = `
-  type ActivityLogYearMonthDoc {
-    year: Int
-    month: Int
-  }
-
-  type ActivityLogForMonth {
-    date: ActivityLogYearMonthDoc!
-    list: [ActivityLog]!
-  }
-
   type ActivityLogPerformerDetails {
     avatar: String
     fullName: String
@@ -32,15 +22,5 @@ export const types = `
 `;
 
 export const queries = `
-  activityLogsCustomer(_id: String!): [ActivityLogForMonth]
-  activityLogsCompany(_id: String!): [ActivityLogForMonth]
-  activityLogsUser(_id: String!): [ActivityLogForMonth]
-  activityLogsDeal(_id: String!): [ActivityLogForMonth]
-`;
-
-export const mutations = `
-  activityLogsAddConversationLog(customerId: String!, conversationId: String!): ActivityLog
-  activityLogsAddCustomerLog(_id: String!): ActivityLog
-  activityLogsAddCompanyLog(_id: String!): ActivityLog
-  activityLogsAddDealLog(_id: String!): ActivityLog
+  activityLogs(contentType: String!, contentId: String!, activityType: String, limit: Int): [ActivityLog]
 `;

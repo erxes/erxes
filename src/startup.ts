@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import './cronJobs';
 import { getEnv } from './data/utils';
-import { listenChangeConversation } from './db/listener';
+import { listen } from './db/listeners';
 import { trackEngages } from './trackers/engageTracker';
 import { trackFbLogin, trackIntegrations as trackFacebooks } from './trackers/facebookTracker';
 import { trackGmail, trackGmailLogin } from './trackers/gmailTracker';
@@ -36,7 +36,7 @@ export const init = async app => {
    * use Collection.watch
    */
   if (USE_REPLICATION === 'true') {
-    listenChangeConversation();
+    listen();
   }
 
   makeDirs();

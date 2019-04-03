@@ -1,7 +1,7 @@
 import { Brands, Customers, Forms, Segments, Tags } from '../../../db/models';
 import { ISegment } from '../../../db/models/definitions/segments';
 import {
-  COC_CONTENT_TYPES,
+  ACTIVITY_CONTENT_TYPES,
   COC_LEAD_STATUS_TYPES,
   COC_LIFECYCLE_STATE_TYPES,
   INTEGRATION_KIND_CHOICES,
@@ -49,7 +49,7 @@ const countBySegment = async (qb: any, mainQuery: any): Promise<ICountBy> => {
 
   // Count customers by segments
   const segments = await Segments.find({
-    contentType: COC_CONTENT_TYPES.CUSTOMER,
+    contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
   });
 
   // Count customers by segment

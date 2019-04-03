@@ -1,5 +1,4 @@
 import {
-  activityLogFactory,
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
@@ -9,16 +8,8 @@ import {
   internalNoteFactory,
   userFactory,
 } from '../db/factories';
-import {
-  ActivityLogs,
-  ConversationMessages,
-  Conversations,
-  Customers,
-  Deals,
-  ImportHistory,
-  InternalNotes,
-} from '../db/models';
-import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
+import { ConversationMessages, Conversations, Customers, Deals, ImportHistory, InternalNotes } from '../db/models';
+import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
 
 describe('Customers model tests', () => {
   let _customer;
@@ -212,7 +203,7 @@ describe('Customers model tests', () => {
     const customer = await customerFactory({});
 
     await internalNoteFactory({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customer._id,
     });
 
@@ -228,7 +219,7 @@ describe('Customers model tests', () => {
     await Customers.removeCustomer(customer._id);
 
     const internalNote = await InternalNotes.find({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customer._id,
     });
 
@@ -254,7 +245,7 @@ describe('Customers model tests', () => {
   });
 
   test('Merge customers', async () => {
-    expect.assertions(25);
+    expect.assertions(23);
 
     const integration = await integrationFactory({});
 
@@ -304,7 +295,7 @@ describe('Customers model tests', () => {
 
     // Merge without any errors ===========
     await internalNoteFactory({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerIds[0],
     });
 
@@ -314,13 +305,6 @@ describe('Customers model tests', () => {
 
     await conversationMessageFactory({
       customerId: customerIds[0],
-    });
-
-    await activityLogFactory({
-      coc: {
-        type: COC_CONTENT_TYPES.CUSTOMER,
-        id: customerIds[0],
-      },
     });
 
     await dealFactory({
@@ -374,43 +358,29 @@ describe('Customers model tests', () => {
     expect(mergedCustomer.ownerId).toBe('456');
 
     // Checking old customers datas to be deleted
-    expect(await Customers.find({ _id: customerIds[0] })).toHaveLength(0);
+    const oldCustomer = (await Customers.findOne({ _id: customerIds[0] })) || { status: '' };
+
+    expect(oldCustomer.status).toBe(STATUSES.DELETED);
     expect(await Conversations.find({ customerId: customerIds[0] })).toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: customerIds[0] })).toHaveLength(0);
 
     let internalNote = await InternalNotes.find({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customerIds[0],
     });
 
-    let activityLog = await ActivityLogs.find({
-      coc: {
-        id: customerIds[0],
-        type: COC_CONTENT_TYPES.CUSTOMER,
-      },
-    });
-
     expect(internalNote).toHaveLength(0);
-    expect(activityLog).toHaveLength(0);
 
     // Checking merged customer datas
     expect(await Conversations.find({ customerId: mergedCustomer._id })).not.toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: mergedCustomer._id })).not.toHaveLength(0);
 
     internalNote = await InternalNotes.find({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       contentTypeId: mergedCustomer._id,
     });
 
-    activityLog = await ActivityLogs.find({
-      coc: {
-        type: COC_CONTENT_TYPES.CUSTOMER,
-        id: mergedCustomer._id,
-      },
-    });
-
     expect(internalNote).not.toHaveLength(0);
-    expect(activityLog).not.toHaveLength(0);
 
     const deals = await Deals.find({
       customerIds: { $in: customerIds },

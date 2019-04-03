@@ -1,4 +1,4 @@
-import { ActivityLogs, Customers } from '../../../db/models';
+import { Customers } from '../../../db/models';
 
 import { ICustomer } from '../../../db/models/definitions/customers';
 import { IUserDocument } from '../../../db/models/definitions/users';
@@ -14,8 +14,6 @@ const customerMutations = {
    */
   async customersAdd(_root, doc: ICustomer, { user }: { user: IUserDocument }) {
     const customer = await Customers.createCustomer(doc, user);
-
-    await ActivityLogs.createCustomerRegistrationLog(customer, user);
 
     return customer;
   },

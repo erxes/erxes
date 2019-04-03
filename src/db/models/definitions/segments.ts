@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import { COC_CONTENT_TYPES } from './constants';
+import { ACTIVITY_CONTENT_TYPES } from './constants';
 
 export interface ICondition {
   field: string;
@@ -51,7 +51,7 @@ export const segmentSchema = new Schema({
   _id: field({ pkey: true }),
   contentType: field({
     type: String,
-    enum: COC_CONTENT_TYPES.ALL,
+    enum: ACTIVITY_CONTENT_TYPES.ALL,
   }),
   name: field({ type: String }),
   description: field({ type: String, optional: true }),

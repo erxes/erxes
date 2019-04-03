@@ -1,4 +1,4 @@
-import { Accounts, ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
+import { Accounts, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
 
 import { publishClientMessage, publishMessage } from '../data/resolvers/mutations/conversations';
 
@@ -353,9 +353,6 @@ export class SaveWebhookResponse {
           pageId: this.currentPageId,
         },
       });
-
-      // Creating conversation created activity log for customer
-      await ActivityLogs.createConversationLog(conversation, customer);
     } else {
       conversation = await Conversations.reopen(conversation._id);
     }
@@ -594,9 +591,6 @@ export class SaveWebhookResponse {
         id: fbUserId,
       },
     });
-
-    // create log
-    await ActivityLogs.createCustomerRegistrationLog(createdCustomer);
 
     return createdCustomer;
   }

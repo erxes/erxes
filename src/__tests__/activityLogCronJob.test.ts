@@ -1,5 +1,5 @@
 import cronJobs from '../cronJobs';
-import { ACTIVITY_ACTIONS, ACTIVITY_PERFORMER_TYPES, ACTIVITY_TYPES, COC_CONTENT_TYPES } from '../data/constants';
+import { ACTIVITY_ACTIONS, ACTIVITY_CONTENT_TYPES, ACTIVITY_PERFORMER_TYPES, ACTIVITY_TYPES } from '../data/constants';
 import { customerFactory, segmentFactory } from '../db/factories';
 import { ActivityLogs } from '../db/models';
 
@@ -19,7 +19,7 @@ describe('test activityLogsCronJob', () => {
     const customer = await customerFactory({ firstName: 'john smith' });
 
     const segment = await segmentFactory({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       conditions: nameEqualsConditions,
     });
 
@@ -39,8 +39,8 @@ describe('test activityLogsCronJob', () => {
       content: segment.name,
       id: segment._id,
     });
-    expect(aLog.coc.toObject()).toEqual({
-      type: COC_CONTENT_TYPES.CUSTOMER,
+    expect(aLog.contentType.toObject()).toEqual({
+      type: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       id: customer._id,
     });
 
@@ -67,7 +67,7 @@ describe('test activityLogsCronJob', () => {
 
     await customerFactory({ firstName: 'jane smith' });
     await segmentFactory({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       conditions: nameEqualsConditions2,
     });
 

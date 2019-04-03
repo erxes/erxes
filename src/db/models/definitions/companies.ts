@@ -5,6 +5,7 @@ import {
   COMPANY_INDUSTRY_TYPES,
   COMPANY_LEAD_STATUS_TYPES,
   COMPANY_LIFECYCLE_STATE_TYPES,
+  STATUSES,
 } from './constants';
 
 import { field } from '../utils';
@@ -37,7 +38,9 @@ export interface ICompany {
   primaryPhone?: string;
   phones?: string[];
 
+  mergedIds?: string[];
   leadStatus?: string;
+  status?: string;
   lifecycleState?: string;
   businessType?: string;
   description?: string;
@@ -52,6 +55,7 @@ export interface ICompany {
 export interface ICompanyDocument extends ICompany, Document {
   _id: string;
   links?: ILinkDocument;
+  status?: string;
   createdAt: Date;
   modifiedAt: Date;
 }
@@ -135,6 +139,14 @@ export const companySchema = new Schema({
     label: 'Lead Status',
   }),
 
+  status: field({
+    type: String,
+    enum: STATUSES.ALL,
+    default: STATUSES.ACTIVE,
+    optional: true,
+    label: 'Status',
+  }),
+
   lifecycleState: field({
     type: String,
     enum: COMPANY_LIFECYCLE_STATE_TYPES,
@@ -162,6 +174,9 @@ export const companySchema = new Schema({
     type: [String],
     optional: true,
   }),
+
+  // Merged company ids
+  mergedIds: field({ type: [String], optional: true }),
 
   customFieldsData: field({
     type: Object,

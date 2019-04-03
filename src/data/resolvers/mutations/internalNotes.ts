@@ -1,4 +1,4 @@
-import { ActivityLogs, InternalNotes } from '../../../db/models';
+import { InternalNotes } from '../../../db/models';
 import { IInternalNote } from '../../../db/models/definitions/internalNotes';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleRequireLogin } from '../../permissions';
@@ -13,8 +13,6 @@ const internalNoteMutations = {
    */
   async internalNotesAdd(_root, args: IInternalNote, { user }: { user: IUserDocument }) {
     const internalNote = await InternalNotes.createInternalNote(args, user);
-
-    await ActivityLogs.createInternalNoteLog(internalNote, user);
 
     return internalNote;
   },

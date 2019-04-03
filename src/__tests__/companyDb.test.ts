@@ -1,14 +1,7 @@
-import {
-  activityLogFactory,
-  companyFactory,
-  customerFactory,
-  dealFactory,
-  fieldFactory,
-  internalNoteFactory,
-} from '../db/factories';
-import { ActivityLogs, Companies, Customers, Deals, InternalNotes } from '../db/models';
+import { companyFactory, customerFactory, dealFactory, fieldFactory, internalNoteFactory } from '../db/factories';
+import { Companies, Customers, Deals, InternalNotes } from '../db/models';
 import { ICompany, ICompanyDocument } from '../db/models/definitions/companies';
-import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
+import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
 
 const check = (companyObj: ICompanyDocument, doc: ICompany) => {
   expect(companyObj.createdAt).toBeDefined();
@@ -157,22 +150,15 @@ describe('Companies model tests', () => {
     await customerFactory({ companyIds: [company._id] });
 
     await internalNoteFactory({
-      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: company._id,
     });
 
     await Companies.removeCompany(company._id);
 
     const internalNote = await InternalNotes.find({
-      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: company._id,
-    });
-
-    const activityLog = await ActivityLogs.find({
-      coc: {
-        type: COC_CONTENT_TYPES.COMPANY,
-        id: company._id,
-      },
     });
 
     const customers = await Customers.find({
@@ -181,11 +167,10 @@ describe('Companies model tests', () => {
 
     expect(customers).toHaveLength(0);
     expect(internalNote).toHaveLength(0);
-    expect(activityLog).toHaveLength(0);
   });
 
   test('mergeCompanies', async () => {
-    expect.assertions(23);
+    expect.assertions(21);
 
     const company1 = await companyFactory({
       tagIds: ['123', '456', '1234'],
@@ -223,15 +208,8 @@ describe('Companies model tests', () => {
 
     // Merge without any errors ===========
     await internalNoteFactory({
-      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: companyIds[0],
-    });
-
-    await activityLogFactory({
-      coc: {
-        type: COC_CONTENT_TYPES.COMPANY,
-        id: companyIds[0],
-      },
     });
 
     await dealFactory({
@@ -260,7 +238,9 @@ describe('Companies model tests', () => {
     expect(updatedCompany.parentCompanyId).toBe('123');
 
     // Checking old company datas deleted
-    expect(await Companies.find({ _id: companyIds[0] })).toHaveLength(0);
+    const oldCompany = (await Companies.findOne({ _id: companyIds[0] })) || { status: '' };
+
+    expect(oldCompany.status).toBe(STATUSES.DELETED);
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
 
     const customerObj1 = await Customers.findOne({ _id: customer1._id });
@@ -280,19 +260,11 @@ describe('Companies model tests', () => {
     expect(customerObj2.companyIds).not.toContain(company2._id);
 
     let internalNote = await InternalNotes.find({
-      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: companyIds[0],
     });
 
-    let activityLog = await ActivityLogs.find({
-      coc: {
-        type: COC_CONTENT_TYPES.COMPANY,
-        id: companyIds[0],
-      },
-    });
-
     expect(internalNote).toHaveLength(0);
-    expect(activityLog).toHaveLength(0);
 
     // Checking new company datas updated
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
@@ -301,19 +273,11 @@ describe('Companies model tests', () => {
     expect(customerObj2.companyIds).toContain(updatedCompany._id);
 
     internalNote = await InternalNotes.find({
-      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: updatedCompany._id,
     });
 
-    activityLog = await ActivityLogs.find({
-      coc: {
-        type: COC_CONTENT_TYPES.COMPANY,
-        id: updatedCompany._id,
-      },
-    });
-
     expect(internalNote).not.toHaveLength(0);
-    expect(activityLog).not.toHaveLength(0);
 
     const deals = await Deals.find({
       companyIds: { $in: companyIds },

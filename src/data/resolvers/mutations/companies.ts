@@ -1,4 +1,4 @@
-import { ActivityLogs, Companies } from '../../../db/models';
+import { Companies } from '../../../db/models';
 import { ICompany } from '../../../db/models/definitions/companies';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleRequireLogin } from '../../permissions';
@@ -13,8 +13,6 @@ const companyMutations = {
    */
   async companiesAdd(_root, doc: ICompany, { user }: { user: IUserDocument }) {
     const company = await Companies.createCompany(doc, user);
-
-    await ActivityLogs.createCompanyRegistrationLog(company, user);
 
     return company;
   },

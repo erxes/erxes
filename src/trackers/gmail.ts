@@ -4,6 +4,8 @@ import { Accounts, ConversationMessages, Conversations, Customers, Integrations 
 import { IGmail as IMsgGmail } from '../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
+import { IUserDocument } from '../db/models/definitions/users';
+import EmailDeliveries from '../db/models/EmailDeliveries';
 import { utils } from './gmailTracker';
 
 interface IAttachmentParams {
@@ -91,7 +93,7 @@ const encodeEmail = async (params: IMailParams) => {
 /**
  * Send email & create activiy log with gmail kind
  */
-export const sendGmail = async (mailParams: IMailParams) => {
+export const sendGmail = async (mailParams: IMailParams, user: IUserDocument) => {
   let totalSize = 0;
   // 10mb
   const limit = 1000000 * 10;
@@ -115,6 +117,23 @@ export const sendGmail = async (mailParams: IMailParams) => {
   const credentials = await Accounts.getGmailCredentials(integration.gmailData.email);
 
   const fromEmail = integration.gmailData.email;
+
+  // save delivered email
+  const emailDelivery = {
+    fromEmail,
+    cocType: mailParams.cocType,
+    cocId: mailParams.cocId,
+    subject: mailParams.subject,
+    body: mailParams.body,
+    toEmails: mailParams.toEmails,
+    cc: mailParams.cc,
+    bcc: mailParams.bcc,
+    attachments: mailParams.attachments,
+    userId: user._id,
+  };
+
+  await EmailDeliveries.createEmailDelivery(emailDelivery);
+
   // get raw string encrypted by base64
   const raw = await encodeEmail({ fromEmail, ...mailParams });
 
