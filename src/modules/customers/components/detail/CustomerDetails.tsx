@@ -1,3 +1,4 @@
+import { ActivityNotes } from 'modules/activityLogs/components';
 import { ActivityLogs } from 'modules/activityLogs/containers';
 import { __, renderFullName } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
@@ -9,18 +10,34 @@ import RightSidebar from './RightSidebar';
 
 type Props = {
   customer: ICustomer;
-  currentUser: IUser;
   taggerRefetchQueries?: any[];
 };
 
 class CustomerDetails extends React.Component<Props> {
   render() {
-    const { customer, taggerRefetchQueries, currentUser } = this.props;
+    const { customer, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
       { title: __('Customers'), link: '/customers' },
       { title: renderFullName(customer) }
     ];
+
+    const content = (
+      <>
+        <ActivityNotes
+          contentTypeId={customer._id}
+          contentType="customer"
+          toEmail={customer.primaryEmail}
+          hasEmail={true}
+        />
+        <ActivityLogs
+          target={customer.firstName}
+          contentId={customer._id}
+          contentType="customer"
+          extraTabs={[{ name: 'conversation', label: 'Conversation' }]}
+        />
+      </>
+    );
 
     return (
       <Wrapper
@@ -33,14 +50,7 @@ class CustomerDetails extends React.Component<Props> {
           />
         }
         rightSidebar={<RightSidebar customer={customer} />}
-        content={
-          <ActivityLogs
-            target={customer.firstName}
-            contentId={customer._id}
-            contentType="customer"
-            extraTabs={[{ name: 'conversation', label: 'Conversation' }]}
-          />
-        }
+        content={content}
         transparent={true}
       />
     );

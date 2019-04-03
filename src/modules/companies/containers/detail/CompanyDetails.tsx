@@ -1,32 +1,28 @@
 import gql from 'graphql-tag';
-import { queries as activityLogQueries } from 'modules/activityLogs/graphql';
+import { Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import { CompanyDetails } from '../../components';
 import { queries } from '../../graphql';
-import { ActivityLogQueryResponse, DetailQueryResponse } from '../../types';
+import { DetailQueryResponse } from '../../types';
 
 type Props = {
   id: string;
-  history: any;
-  queryParams: any;
 };
 
 type FinalProps = {
   companyDetailQuery: DetailQueryResponse;
-  companyActivityLogQuery: ActivityLogQueryResponse;
   currentUser: IUser;
 } & Props;
 
 const CompanyDetailsContainer = (props: FinalProps) => {
-  const {
-    id,
-    companyDetailQuery,
-    companyActivityLogQuery,
-    currentUser
-  } = props;
+  const { id, companyDetailQuery, currentUser } = props;
+
+  if (companyDetailQuery.loading) {
+    return <Spinner objective={true} />;
+  }
 
   const companyDetail = companyDetailQuery.companyDetail || {};
 
@@ -39,10 +35,8 @@ const CompanyDetailsContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    loadingLogs: companyActivityLogQuery.loading,
     loading: companyDetailQuery.loading,
     company: companyDetail,
-    companyActivityLog: companyActivityLogQuery.activityLogs || [],
     taggerRefetchQueries,
     currentUser
   };
@@ -59,19 +53,6 @@ export default withProps<Props>(
         options: ({ id }) => ({
           variables: {
             _id: id
-          }
-        })
-      }
-    ),
-    graphql<Props, ActivityLogQueryResponse>(
-      gql(activityLogQueries.activityLogs),
-      {
-        name: 'companyActivityLogQuery',
-        options: (props: Props) => ({
-          variables: {
-            contentId: props.id,
-            contentType: 'company',
-            activityType: props.queryParams.activityType
           }
         })
       }

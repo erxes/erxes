@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-import { IUser } from 'modules/auth/types';
 import { Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
 import * as React from 'react';
@@ -14,12 +13,11 @@ type Props = {
 
 type FinalProps = {
   customerDetailQuery: CustomerDetailQueryResponse;
-  currentUser: IUser;
 } & Props;
 
 class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { id, customerDetailQuery, currentUser } = this.props;
+    const { id, customerDetailQuery } = this.props;
 
     if (customerDetailQuery.loading) {
       return <Spinner objective={true} />;
@@ -35,8 +33,7 @@ class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
     const updatedProps = {
       ...this.props,
       customer: customerDetailQuery.customerDetail || {},
-      taggerRefetchQueries,
-      currentUser
+      taggerRefetchQueries
     };
 
     return <CustomerDetails {...updatedProps} />;

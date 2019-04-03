@@ -1,6 +1,8 @@
+import { ActivityNotes } from 'modules/activityLogs/components';
+import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
-import { ICompany, ICompanyActivityLog } from 'modules/companies/types';
+import { ICompany } from 'modules/companies/types';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import LeftSidebar from './LeftSidebar';
@@ -9,9 +11,7 @@ import RightSidebar from './RightSidebar';
 type Props = {
   company: ICompany;
   currentUser: IUser;
-  companyActivityLog: ICompanyActivityLog[];
   taggerRefetchQueries?: any[];
-  loadingLogs: boolean;
 };
 
 class CompanyDetails extends React.Component<Props> {
@@ -23,6 +23,23 @@ class CompanyDetails extends React.Component<Props> {
       { title: company.primaryName || 'N/A' }
     ];
 
+    const content = (
+      <>
+        <ActivityNotes
+          contentTypeId={company._id}
+          contentType="company"
+          toEmails={company.emails}
+          hasEmail={true}
+        />
+        <ActivityLogs
+          target={company.primaryName || ''}
+          contentId={company._id}
+          contentType="company"
+          extraTabs={[{ name: 'conversation', label: 'Conversation' }]}
+        />
+      </>
+    );
+
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
@@ -33,7 +50,7 @@ class CompanyDetails extends React.Component<Props> {
           />
         }
         rightSidebar={<RightSidebar company={company} />}
-        content={<div />}
+        content={content}
         transparent={true}
       />
     );
