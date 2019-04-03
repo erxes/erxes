@@ -357,7 +357,52 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
+  checkEmpty() {
+    const {
+      editorState,
+      cc,
+      bcc,
+      toEmails,
+      from,
+      subject,
+      attachments
+    } = this.state;
+
+    if (
+      editorState.getCurrentContent().hasText() ||
+      cc ||
+      bcc ||
+      toEmails ||
+      from ||
+      subject ||
+      attachments.length > 0
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  renderDiscardButton() {
+    if (this.checkEmpty()) {
+      return null;
+    }
+
+    return (
+      <Button
+        onClick={this.cancelEditing}
+        btnStyle="warning"
+        size="small"
+        icon="eraser-1"
+      >
+        Discard
+      </Button>
+    );
+  }
+
   renderButtons() {
+    const { isSending } = this.state;
+
     return (
       <EditorFooter>
         <Tip text={__('Attach file')}>
@@ -371,22 +416,16 @@ class MailForm extends React.Component<Props, State> {
           </label>
         </Tip>
         <div>
-          <Button
-            onClick={this.cancelEditing}
-            btnStyle="warning"
-            size="small"
-            icon="eraser-1"
-          >
-            Discard
-          </Button>
+          {this.renderDiscardButton()}
           {this.renderCancelButton()}
           <Button
+            disabled={isSending}
             onClick={this.onSend}
             btnStyle="success"
             size="small"
             icon="send"
           >
-            {this.state.isSending ? 'Sending' : 'Send'}
+            {isSending ? 'Sending' : 'Send'}
           </Button>
         </div>
       </EditorFooter>

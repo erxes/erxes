@@ -23,7 +23,16 @@ const AttachmentContainer = styled(Attachment)`
 
 const Uploading = styled.div`
   position: relative;
-  margin-left: 10px;
+  height: 33px;
+  top: -4px;
+  left: 25px;
+
+  span {
+    position: absolute;
+    width: 100px;
+    top: 6px;
+    left: 25px;
+  }
 `;
 
 const ControlWrapper = styled.div`
