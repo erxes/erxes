@@ -1,30 +1,28 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
-import { queries } from 'modules/settings/integrations/graphql';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Meet as DumbMeet } from '../../components/google';
 import {
-  GetGoogleAuthUrlQueryResponse,
-  messengerAppsAddGoogleMeetMutationResponse,
+  MessengerAppsAddGoogleMeetMutationResponse,
   MessengerAppsAddGoogleMeetMutationVariables
 } from '../../types';
 
 type Props = {
   type: string;
   history: any;
-  gmailAuthUrlQuery: GetGoogleAuthUrlQueryResponse;
   closeModal: () => void;
 };
 
-type FinalProps = messengerAppsAddGoogleMeetMutationResponse &
+type FinalProps = MessengerAppsAddGoogleMeetMutationResponse &
   Props &
   IRouterProps;
 
 const Meet = (props: FinalProps) => {
-  const { history, saveMutation, gmailAuthUrlQuery, closeModal } = props;
+  const { history, saveMutation, closeModal } = props;
 
   const save = (
     doc: MessengerAppsAddGoogleMeetMutationVariables,
@@ -41,36 +39,13 @@ const Meet = (props: FinalProps) => {
       });
   };
 
-  return (
-    <DumbMeet
-      save={save}
-      closeModal={closeModal}
-      gmailAuthUrl={gmailAuthUrlQuery.integrationGetGoogleAuthUrl || ''}
-    />
-  );
+  return <DumbMeet save={save} closeModal={closeModal} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, GetGoogleAuthUrlQueryResponse>(
-      gql`
-        query integrationGetGoogleAuthUrl {
-          integrationGetGoogleAuthUrl(service: "gmail")
-        }
-      `,
-      { name: 'gmailAuthUrlQuery' }
-    ),
-    graphql<Props, messengerAppsAddGoogleMeetMutationResponse>(
-      gql`
-        mutation messengerAppsAddGoogleMeet(
-          $name: String!
-          $accountId: String!
-        ) {
-          messengerAppsAddGoogleMeet(name: $name, accountId: $accountId) {
-            _id
-          }
-        }
-      `,
+    graphql<Props, MessengerAppsAddGoogleMeetMutationResponse>(
+      gql(mutations.messengerAppsAddGoogleMeet),
       {
         name: 'saveMutation',
         options: () => {

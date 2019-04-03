@@ -152,7 +152,7 @@ export type DetailQueryResponse = {
 };
 
 export type ActivityLogQueryResponse = {
-  activityLogsCompany: IActivityLogForMonth[];
+  activityLogs: IActivityLogForMonth[];
   loading: boolean;
 };
 

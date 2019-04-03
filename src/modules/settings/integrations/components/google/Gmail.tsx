@@ -16,7 +16,6 @@ import { CreateGmailMutationVariables } from '../../types';
 type Props = {
   save: (params: CreateGmailMutationVariables, callback: () => void) => void;
   brands: IBrand[];
-  gmailAuthUrl?: string;
   closeModal: () => void;
 };
 
@@ -31,12 +30,6 @@ class Gmail extends React.Component<
       loading: false
     };
   }
-
-  onGmailRedirect = () => {
-    const { gmailAuthUrl } = this.props;
-
-    window.location.href = gmailAuthUrl || '';
-  };
 
   onRemoveAccount = () => {
     this.setState({ accountId: '' });
@@ -85,7 +78,7 @@ class Gmail extends React.Component<
 
         <Accounts
           kind="gmail"
-          onAdd={this.onGmailRedirect}
+          addLink="gmailLogin"
           onRemove={this.onRemoveAccount}
           onSelect={this.onSelectAccount}
         />

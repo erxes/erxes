@@ -26,12 +26,6 @@ const twitterCallback = ({ location, history }) => {
   return <Store history={history} queryParams={queryParams} />;
 };
 
-const gmailCallback = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <Store history={history} queryParams={queryParams} />;
-};
-
 const store = ({ location }) => (
   <Store queryParams={queryString.parse(location.search)} />
 );
@@ -56,12 +50,6 @@ const routes = () => (
       key="/service/oauth/twitter_callback"
       path="/service/oauth/twitter_callback"
       component={twitterCallback}
-    />
-
-    <Route
-      key="/service/oauth/gmail_callback"
-      path="/service/oauth/gmail_callback"
-      component={gmailCallback}
     />
 
     <Route

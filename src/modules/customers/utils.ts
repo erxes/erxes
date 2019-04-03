@@ -4,7 +4,7 @@ export const hasAnyActivity = log => {
   let hasAny = false;
 
   log.forEach(item => {
-    if (item.list.length > 0) {
+    if (item) {
       hasAny = true;
     }
   });
