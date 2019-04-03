@@ -29,7 +29,8 @@ const options = ({ queryParams }: { queryParams: any }) => {
     variables: {
       ...generatePaginationParams(queryParams),
       searchValue: queryParams.searchValue,
-      isActive: queryParams.isActive || 'true'
+      isActive:
+        !queryParams.isActive || queryParams.isActive === 'true' ? true : false
     }
   };
 };

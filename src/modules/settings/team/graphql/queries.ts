@@ -86,7 +86,7 @@ const channels = `
 
 const listParamsDef = `
   $searchValue: String,
-  $isActive: String
+  $isActive: Boolean
 `;
 
 const listParamsValue = `
