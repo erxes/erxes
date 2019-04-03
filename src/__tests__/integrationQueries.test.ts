@@ -247,18 +247,6 @@ describe('integrationQueries', () => {
     expect(response.byBrand[brand._id]).toBe(2);
   });
 
-  test('Integration get twitter auth url', async () => {
-    socUtils.getTwitterAuthorizeUrl = jest.fn();
-
-    const qry = `
-      query integrationGetTwitterAuthUrl {
-        integrationGetTwitterAuthUrl
-      }
-    `;
-
-    await graphqlRequest(qry, 'integrationGetTwitterAuthUrl');
-  });
-
   test('Integration get facebook apps list', async () => {
     process.env.FACEBOOK = JSON.stringify([
       {
