@@ -5,6 +5,7 @@ export const types = `
     name: String!
     showInInbox: Boolean
     credentials: JSON
+    accountId: String
   }
 `;
 

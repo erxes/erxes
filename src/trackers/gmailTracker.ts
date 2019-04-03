@@ -1,15 +1,54 @@
 import * as PubSub from '@google-cloud/pubsub';
 import { google } from 'googleapis';
 import { getEnv } from '../data/utils';
+import { Accounts } from '../db/models';
 import { IGmail as IMsgGmail } from '../db/models/definitions/conversationMessages';
 import { getGmailUpdates, parseMessage, refreshAccessToken, syncConversation } from './gmail';
-import { getOauthClient } from './googleTracker';
+import { getAccessToken, getAuthorizeUrl, getOauthClient } from './googleTracker';
+
+export const trackGmailLogin = expressApp => {
+  expressApp.get('/gmailLogin', async (req, res) => {
+    // we don't have a code yet
+    // so we'll redirect to the oauth dialog
+    if (!req.query.code) {
+      if (!req.query.error) {
+        return res.redirect(getAuthorizeUrl());
+      }
+
+      return res.send('access denied');
+    }
+
+    const credentials: any = await getAccessToken(req.query.code);
+
+    if (!credentials.refresh_token) {
+      return res.send('You must remove Erxes from your gmail apps before reconnecting this account.');
+    }
+
+    // get email address connected with
+    const { data } = await getGmailUserProfile(credentials);
+    const email = data.emailAddress || '';
+
+    await Accounts.createAccount({
+      name: email,
+      uid: email,
+      kind: 'gmail',
+      token: credentials.access_token,
+      tokenSecret: credentials.refresh_token,
+      expireDate: credentials.expiry_date,
+      scope: credentials.scope,
+    });
+
+    const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+
+    return res.redirect(`${MAIN_APP_DOMAIN}/settings/integrations?gmailAuthorized=true`);
+  });
+};
 
 /**
  * Get auth with valid credentials
  */
 const getOAuth = (integrationId: string, credentials: any) => {
-  const auth = getOauthClient('gmail');
+  const auth = getOauthClient();
 
   // Access tokens expire. This library will automatically use a refresh token to obtain a new access token
   auth.on('tokens', async tokens => {
@@ -24,7 +63,7 @@ const getOAuth = (integrationId: string, credentials: any) => {
  * Get permission granted email information
  */
 export const getGmailUserProfile = (credentials: any) => {
-  const auth = getOauthClient('gmail');
+  const auth = getOauthClient();
 
   auth.setCredentials(credentials);
 
@@ -73,7 +112,7 @@ const getGmailAttachment = async (credentials: any, gmailData: IMsgGmail, attach
   const { messageId } = gmailData;
 
   const gmail = await google.gmail('v1');
-  const auth = getOauthClient('gmail');
+  const auth = getOauthClient();
 
   auth.setCredentials(credentials);
 
@@ -220,7 +259,7 @@ export const callWatch = (credentials: any, integrationId: string) => {
 };
 
 export const stopReceivingEmail = (email: string, credentials: any) => {
-  const auth = getOauthClient('gmail');
+  const auth = getOauthClient();
   const gmail: any = google.gmail('v1');
 
   auth.setCredentials(credentials);
