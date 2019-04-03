@@ -2,98 +2,69 @@
   role="presentation"
   cellpadding="0"
   cellspacing="0"
-  style="    max-width: 560px;font-size:0px;width:100%;background: #fff; padding-bottom: 30px;box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.2);border-radius: 10px;"
+  style="box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.2);border-radius: 10px;max-width: 560px;font-size:0px;width:100%;background:#fff;"
   align="center"
   border="0"
 >
   <tbody>
     <tr>
-      <td style="text-align:center;vertical-align:top;font-size:0px;/* padding:30px; */">
+      <td style="text-align: center;">
+        <div style="position: relative; background:#5629b6;padding-bottom: 10px;border-radius: 10px 10px 0 0;">
+          <img
+            src="https://crm.nmma.co/images/logo.png"
+            style="
+                    width: 60px;
+                    margin-top: 20px;
+                    margin-bottom: 10px;
+            "
+          />
+          <img
+            style="    width: 60px;
+            position: absolute;
+            bottom: -10px;
+            right: 70px;"
+            src="https://erxes.io/static/images/universe/meteor.svg"
+          />
+          <img
+            style="    width: 40px;
+            position: absolute;
+            bottom: 15px;
+            right: 40px;"
+            src="https://erxes.io/static/images/universe/meteor.svg"
+          />
+          <img
+            style="    width: 30px;
+            position: absolute;
+            bottom: 35px;
+            left: 200px;"
+            src="https://erxes.io/static/images/universe/meteor.svg"
+          />
+          <img
+            style="    width: 40px;
+            position: absolute;
+            bottom: 15px;
+            left: 50px;"
+            src="https://erxes.io/static/images/universe/meteor.svg"
+          />
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:center;vertical-align:top;font-size:0px;padding:50px;">
         <div style="cursor:auto;color:grey;font-family:Helvetica Neue;font-size:13px;font-weight:300;line-height:22px;">
-          <div style="position: relative; background:#5629b6;padding-bottom: 10px;border-radius: 10px 10px 0 0;">
-            <img
-              src="https://crm.nmma.co/images/logo.png"
-              style="
-                  width: 60px;
-                  margin-top: 20px;
-                  margin-bottom: 10px;
-                  "
-            />
-            <img
-              style="    width: 60px;
-                  position: absolute;
-                  bottom: -10px;
-                  right: 70px;"
-              src="https://erxes.io/static/images/universe/meteor.svg"
-            />
-            <img
-              style="    width: 40px;
-                  position: absolute;
-                  bottom: 15px;
-                  right: 40px;"
-              src="https://erxes.io/static/images/universe/meteor.svg"
-            />
-            <img
-              style="    width: 30px;
-                  position: absolute;
-                  bottom: 35px;
-                  left: 200px;"
-              src="https://erxes.io/static/images/universe/meteor.svg"
-            />
-            <img
-              style="    width: 40px;
-                  position: absolute;
-                  bottom: 15px;
-                  left: 50px;"
-              src="https://erxes.io/static/images/universe/meteor.svg"
-            />
-          </div>
-
-          <p style="font-size: 26px;color: #333;line-height:32px;margin-bottom: 0;margin-top: 50px;">
-            <strong>{{ notification.title }}</strong> <br />
+          <p style="font-size: 16px; color: #666; line-height:32px;">
+            <strong>Username:</strong> {{ username }}
+            <br />
           </p>
-          <p style="font-size: 15px;color: #666;line-height: 26px;padding: 15px 30px;">{{{ notification.content }}}</p>
-          <p style="border-collapse:collapse; font-size:12px; color:#888;">{{ notification.date }}</p>
-
-          <table
-            role="presentation"
-            cellpadding="0"
-            cellspacing="0"
-            style="border-collapse:separate;     margin: 30px auto 20px;"
-            align="center"
-            border="0"
-          >
-            <tbody>
-              <tr>
-                <td style="" align="center" valign="middle">
-                  <a
-                    href="http://crm.nmma.co{{ notification.link }}"
-                    style="    border-radius: 300px;
-                  box-shadow: 0 4px 28px rgba(0,0,0,.1);
-                  transition: .1s ease-in-out;
-                  transition-property: color,background-color,border-color;
-                  font-size: 14px;
-                  /* text-transform: uppercase; */
-                  background-color: #63d2d6;
-                  font-weight: 300;
-                  text-decoration: none;
-                  border: 1px solid transparent;
-                  padding: 8px 40px;
-                  color: #fff;"
-                    target="_blank"
-                  >
-                    View notification
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <p style="font-size: 16px; color: #666; line-height:32px;">
+            <strong>Password:</strong> {{ password }}
+            <br />
+          </p>
         </div>
       </td>
     </tr>
   </tbody>
 </table>
-<!--footer-->
 <table style="    margin-top: 20px;" align="center" border="0">
   <tbody>
     <tr>
@@ -145,9 +116,7 @@
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path
-                d="M11,10h2.6l0.4-3H11V5.3c0-0.9,0.2-1.5,1.5-1.5H14V1.1c-0.3,0-1-0.1-2.1-0.1C9.6,1,8,2.4,8,5v2H5.5v3H8v8h3V10z"
-              ></path>
+              <path d="M11,10h2.6l0.4-3H11V5.3c0-0.9,0.2-1.5,1.5-1.5H14V1.1c-0.3,0-1-0.1-2.1-0.1C9.6,1,8,2.4,8,5v2H5.5v3H8v8h3V10z"></path>
             </svg>
           </a>
           <a href="https://twitter.com/erxeshq" target="_blank" style="text-decoration: none">
@@ -187,11 +156,7 @@
               ></path>
             </svg>
           </a>
-          <a
-            href="https://www.youtube.com/channel/UCunYU3kJiiDsXGfB068BbDA"
-            target="_blank"
-            style="text-decoration: none"
-          >
+          <a href="https://www.youtube.com/channel/UCunYU3kJiiDsXGfB068BbDA" target="_blank" style="text-decoration: none">
             <svg
               style="    padding: 4px;
                     border-radius: 50%;
@@ -219,8 +184,7 @@
               font-size: 12px;    font-family: Helvetica Neue;
               font-weight: 300;"
       >
-        Copyright © 2019
-        <a style="color:#ccc; text-decoration: none;" target="_blank" href="https://erxes.io">erxes Inc</a>. All rights
+        Copyright © 2019 <a style="color:#ccc; text-decoration: none;" target="_blank" href="https://erxes.io">erxes Inc</a>. All rights
         reserved.
       </td>
     </tr>
