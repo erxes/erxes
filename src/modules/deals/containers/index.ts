@@ -1,7 +1,6 @@
 import Board from './Board';
 import DealColumn from './calendar/DealColumn';
 import DealSelect from './DealSelect';
-import Tab from './editForm/Tab';
 import MainActionBar from './MainActionBar';
 import Pipeline from './Pipeline';
 import PortableDeals from './PortableDeals';
@@ -14,7 +13,6 @@ export {
   Pipeline,
   PortableDeals,
   DealSelect,
-  Tab,
   ProductChooser,
   ProductItemForm,
   DealColumn

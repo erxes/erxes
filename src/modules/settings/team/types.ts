@@ -32,7 +32,7 @@ export type EditMutationResponse = {
 };
 
 export type ActivityLogQueryResponse = {
-  activityLogsUser: IActivityLogForMonth[];
+  activityLogs: IActivityLogForMonth[];
   loading: boolean;
 };
 
