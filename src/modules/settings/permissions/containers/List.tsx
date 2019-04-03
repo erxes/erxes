@@ -1,6 +1,7 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import { queries as usersGroupQueries } from 'modules/settings/usersGroups/graphql';
@@ -142,8 +143,7 @@ export default compose(
         action: queryParams.action,
         userId: queryParams.userId,
         groupId: queryParams.groupId,
-        page: queryParams.page || 1,
-        perPage: queryParams.perPage || 20
+        ...generatePaginationParams(queryParams)
       }
     })
   }),
@@ -157,7 +157,8 @@ export default compose(
     name: 'usersQuery'
   }),
   graphql<{}, UsersGroupsQueryResponse>(gql(usersGroupQueries.usersGroups), {
-    name: 'usersGroupsQuery'
+    name: 'usersGroupsQuery',
+    options: () => ({ fetchPolicy: 'network-only' })
   }),
 
   // mutations

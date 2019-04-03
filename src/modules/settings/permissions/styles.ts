@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 
 const FilterWrapper = styled.div`
+  position: relative;
+  z-index: 100;
   display: inline-block;
   width: 240px;
   margin-right: 24px;

@@ -123,7 +123,7 @@ class PermissionList extends React.Component<Props> {
   };
 
   renderActionBar() {
-    const { can, queryParams, modules, actions, groups, users } = this.props;
+    const { queryParams, modules, actions, groups, users } = this.props;
 
     const trigger = (
       <Button btnStyle="primary" size="small" icon="plus">
@@ -133,14 +133,12 @@ class PermissionList extends React.Component<Props> {
 
     const actionBarRight = (
       <BarItems>
-        {!can('configPermission') ? null : (
-          <ModalTrigger
-            title="New Permission"
-            size={'lg'}
-            trigger={trigger}
-            content={this.renderForm}
-          />
-        )}
+        <ModalTrigger
+          title="New Permission"
+          size={'lg'}
+          trigger={trigger}
+          content={this.renderForm}
+        />
         <Link to="/settings/users/groups">
           <Button type="success" size="small">
             User groups
@@ -210,7 +208,7 @@ class PermissionList extends React.Component<Props> {
             loading={isLoading}
             count={totalCount}
             emptyText="There is no data."
-            emptyImage="/images/robots/robot-05.svg"
+            emptyImage="/images/actions/11.svg"
           />
         }
       />
