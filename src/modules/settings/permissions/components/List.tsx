@@ -7,8 +7,7 @@ import {
   ModalTrigger,
   Pagination,
   Table,
-  Tip,
-  WithPermission
+  Tip
 } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
@@ -76,13 +75,11 @@ class PermissionList extends React.Component<Props> {
             />
           </td>
           <td>
-            <WithPermission action="configPermission">
-              <Tip text="Delete">
-                <Button type="success" onClick={remove.bind(null, object._id)}>
-                  <Icon icon="trash" />
-                </Button>
-              </Tip>
-            </WithPermission>
+            <Tip text="Delete">
+              <Button type="success" onClick={remove.bind(null, object._id)}>
+                <Icon icon="trash" />
+              </Button>
+            </Tip>
           </td>
         </tr>
       );
