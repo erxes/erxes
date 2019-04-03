@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
+import { Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
@@ -7,7 +8,6 @@ import { ChannelsQueryResponse } from '../../channels/types';
 import { UserDetailForm } from '../components';
 import { queries } from '../graphql';
 import {
-  ActivityLogQueryResponse,
   UserConverationsQueryResponse,
   UserDetailQueryResponse
 } from '../types';
@@ -21,7 +21,6 @@ type Props = {
 type FinalProps = {
   userDetailQuery: UserDetailQueryResponse;
   channelsQuery: ChannelsQueryResponse;
-  userActivityLogQuery: ActivityLogQueryResponse;
   userConversationsQuery: UserConverationsQueryResponse;
   renderEditForm: (
     { closeModal, user }: { closeModal: () => void; user: IUser }
@@ -32,10 +31,13 @@ const UserDetailFormContainer = (props: FinalProps) => {
   const {
     userDetailQuery,
     channelsQuery,
-    userActivityLogQuery,
     userConversationsQuery,
     renderEditForm
   } = props;
+
+  if (userDetailQuery.loading) {
+    return <Spinner />;
+  }
 
   const { list = [], totalCount = 0 } =
     userConversationsQuery.userConversations || {};
@@ -45,8 +47,6 @@ const UserDetailFormContainer = (props: FinalProps) => {
     user: userDetailQuery.userDetail || {},
     participatedConversations: list,
     totalConversationCount: totalCount,
-    loadingLogs: userActivityLogQuery.loading,
-    activityLogsUser: userActivityLogQuery.activityLogsUser || [],
     channels: channelsQuery.channels || []
   };
 
@@ -84,13 +84,6 @@ export default withProps<Props>(
     graphql(gql(queries.channels), {
       name: 'channelsQuery',
       options: commonOptions
-    }),
-    graphql<Props, ActivityLogQueryResponse, { _id: string }>(
-      gql(queries.userActivityLog),
-      {
-        name: 'userActivityLogQuery',
-        options: commonOptions
-      }
-    )
+    })
   )(UserDetailFormContainer)
 );
