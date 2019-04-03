@@ -12,7 +12,7 @@ import { KnowledgeBase } from '../../components/knowledgebase';
 import { mutations } from '../../graphql';
 import {
   IntegrationsQueryResponse,
-  messengerAppsAddKnowledgebaseMutationResponse
+  MessengerAppsAddKnowledgebaseMutationResponse
 } from '../../types';
 import { integrationsListParams } from '../utils';
 
@@ -26,7 +26,7 @@ type FinalProps = {
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
 } & IRouterProps &
   Props &
-  messengerAppsAddKnowledgebaseMutationResponse;
+  MessengerAppsAddKnowledgebaseMutationResponse;
 
 class KnowledgeBaseContainer extends React.Component<FinalProps> {
   render() {
@@ -86,7 +86,7 @@ export default withProps<Props>(
     graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
       name: 'knowledgeBaseTopicsQuery'
     }),
-    graphql<Props, messengerAppsAddKnowledgebaseMutationResponse>(
+    graphql<Props, MessengerAppsAddKnowledgebaseMutationResponse>(
       gql(mutations.messengerAppsAddKnowledgebase),
       {
         name: 'saveMutation',

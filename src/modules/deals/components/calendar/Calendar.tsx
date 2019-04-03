@@ -1,10 +1,15 @@
 import { Calendar } from 'modules/common/components';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import styled from 'styled-components';
 import { DealColumn, MainActionBar } from '../../containers';
+import {
+  BoardContainer,
+  BoardContent,
+  ScrolledContent
+} from '../../styles/common';
 
 type Props = {
   queryParams: any;
@@ -59,12 +64,15 @@ class CalendarView extends React.Component<Props> {
     const breadcrumb = [{ title: __('Deal') }];
 
     return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={this.renderActionBar(renderMiddleContent)}
-        content={this.renderMonthView(renderMonths)}
-        transparent={true}
-      />
+      <BoardContainer>
+        <Header breadcrumb={breadcrumb} />
+        <BoardContent transparent={true}>
+          {this.renderActionBar(renderMiddleContent)}
+          <ScrolledContent transparent={true}>
+            {this.renderMonthView(renderMonths)}
+          </ScrolledContent>
+        </BoardContent>
+      </BoardContainer>
     );
   };
 

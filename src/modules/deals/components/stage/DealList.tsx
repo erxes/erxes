@@ -133,6 +133,7 @@ export default class DealList extends React.Component<Props> {
               deals={deals}
               dropProvided={dropProvided}
             />
+            {dropProvided.placeholder}
           </Wrapper>
         )}
       </Droppable>

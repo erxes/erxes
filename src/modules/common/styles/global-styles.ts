@@ -719,7 +719,7 @@ a:hover {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c7cfd3;
+  background: #bfc8cd;
   border-radius: 1px;
 }
 
