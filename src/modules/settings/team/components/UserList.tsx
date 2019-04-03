@@ -55,7 +55,7 @@ class UserList extends React.Component<FinalProps, States> {
     this.state = {
       emails: [],
       searchValue,
-      isActive
+      isActive: isActive || true
     };
   }
 
