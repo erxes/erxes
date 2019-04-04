@@ -4,7 +4,7 @@ const FilterWrapper = styled.div`
   position: relative;
   z-index: 100;
   display: inline-block;
-  width: 240px;
+  width: 200px;
   margin-right: 24px;
 `;
 
