@@ -1,41 +1,61 @@
 import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import {
+  ActionButtons,
   Button,
   ControlLabel,
   FormGroup,
   HeaderDescription,
+  Icon,
   Info,
+  ModalTrigger,
   ModifiableList,
   NameCard,
   Table,
-  TextInfo
+  TextInfo,
+  Tip
 } from 'modules/common/components';
+import { Input } from 'modules/common/components/form/styles';
 import { ModalFooter } from 'modules/common/styles/main';
+import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
+import { FlexItem, FlexRow } from 'modules/insights/styles';
 import * as React from 'react';
-import styled from 'styled-components';
-import { List, RowActions } from '../../common/components';
+import Select from 'react-select-plus';
+import Toggle from 'react-toggle';
+import { List } from '../../common/components';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
+import { ButtonContainer, FilterContainer, UserAvatar } from '../styles';
 
-const UserAvatar = styled.td`
-  &:hover {
-    cursor: pointer;
-  }
-`;
+type Props = {
+  statusChanged?: (id: string) => void;
+};
 
-class UserList extends React.Component<
-  ICommonListProps & ICommonFormProps & { currentUser: IUser },
-  { emails: string[] }
-> {
+type FinalProps = ICommonListProps &
+  ICommonFormProps &
+  Props & { currentUser: IUser };
+
+type States = {
+  isActive: boolean;
+  searchValue: string;
+  emails: string[];
+};
+
+class UserList extends React.Component<FinalProps, States> {
   private closeModal;
 
   constructor(props) {
     super(props);
 
+    const {
+      queryParams: { isActive, searchValue }
+    } = props;
+
     this.state = {
-      emails: []
+      emails: [],
+      searchValue,
+      isActive: isActive || true
     };
   }
 
@@ -50,6 +70,16 @@ class UserList extends React.Component<
   afterInvite = () => {
     this.setState({ emails: [] });
     this.closeModal();
+  };
+
+  onApplyClick = () => {
+    const { history } = this.props;
+    const { searchValue, isActive } = this.state;
+
+    router.setParams(history, {
+      searchValue,
+      isActive
+    });
   };
 
   onSubmit = () => {
@@ -104,31 +134,50 @@ class UserList extends React.Component<
     return <UserForm {...props} />;
   };
 
-  renderRowActions = (user: IUser) => {
+  renderEditAction = (user: IUser) => {
     const { currentUser } = this.props;
 
     if (user._id === currentUser._id) {
-      return <td>-</td>;
+      return null;
     }
 
+    const { object, save } = this.props;
+
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')}>
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    const content = props => {
+      return this.renderForm({ ...props, object, save });
+    };
+
     return (
-      <RowActions
-        {...this.props}
+      <ModalTrigger
         size="lg"
-        object={user}
-        renderForm={this.renderForm}
+        title="Edit"
+        trigger={editTrigger}
+        content={content}
       />
     );
   };
 
+  visibleHandler = (user: IUser) => {
+    const { statusChanged } = this.props;
+
+    return statusChanged ? statusChanged(user._id) : null;
+  };
+
   renderRows({ objects }: { objects: IUser[] }) {
     return objects.map((object, index) => {
-      const onClick = () => {
-        this.onAvatarClick(object);
-      };
+      const onClick = () => this.onAvatarClick(object);
+      const onChange = () => this.visibleHandler(object);
 
       return (
-        <tr key={index}>
+        <tr key={object._id}>
           <UserAvatar onClick={onClick}>
             <NameCard user={object} avatarSize={30} singleLine={true} />
           </UserAvatar>
@@ -139,22 +188,92 @@ class UserList extends React.Component<
               {object.status || 'Verified'}
             </TextInfo>
           </td>
-          <td>
-            <TextInfo
-              textStyle={object.isActive === true ? 'success' : 'warning'}
-            >
-              {object.isActive === true ? 'Active' : 'Inactive'}
-            </TextInfo>
-          </td>
           <td>{object.email}</td>
           <td>
             <TextInfo>{object.role || '-'}</TextInfo>
           </td>
-          {this.renderRowActions(object)}
+          <td>
+            <Toggle
+              defaultChecked={object.isActive}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+              onChange={onChange}
+            />
+          </td>
+          <td>
+            <ActionButtons>{this.renderEditAction(object)}</ActionButtons>
+          </td>
         </tr>
       );
     });
   }
+
+  onStatusChange = (status: { label: string; value: boolean }) => {
+    this.setState({ isActive: status.value });
+  };
+
+  onChange = e => {
+    const { value } = e.target;
+    this.setState({ searchValue: value });
+  };
+
+  renderSearchValue() {
+    return (
+      <FlexItem>
+        <ControlLabel>Search</ControlLabel>
+        <Input value={this.state.searchValue} onChange={this.onChange} />
+      </FlexItem>
+    );
+  }
+
+  renderStatus = () => {
+    const options = option => (
+      <div className="simple-option">
+        <span>{option.label}</span>
+      </div>
+    );
+
+    return (
+      <FlexItem>
+        <ControlLabel>Status</ControlLabel>
+        <Select
+          placeholder={__('Choose status')}
+          value={this.state.isActive}
+          onChange={this.onStatusChange}
+          optionRenderer={options}
+          clearable={false}
+          options={[
+            {
+              value: true,
+              label: 'Active'
+            },
+            {
+              value: false,
+              label: 'Deactivated'
+            }
+          ]}
+        />
+      </FlexItem>
+    );
+  };
+
+  renderFilter = () => {
+    return (
+      <FilterContainer>
+        <FlexRow>
+          {this.renderSearchValue()}
+          {this.renderStatus()}
+          <ButtonContainer>
+            <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
+              Apply
+            </Button>
+          </ButtonContainer>
+        </FlexRow>
+      </FilterContainer>
+    );
+  };
 
   renderContent = props => {
     return (
@@ -163,10 +282,10 @@ class UserList extends React.Component<
           <tr>
             <th>{__('Full name')}</th>
             <th>{__('Invitation status')}</th>
-            <th>{__('Status')}</th>
             <th>{__('Email')}</th>
             <th>{__('Role')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__('Status')}</th>
+            <th />
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
@@ -196,6 +315,7 @@ class UserList extends React.Component<
             description="Your team members are the bolts and nuts of your business. Make sure all the parts are set and ready to go. Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info."
           />
         }
+        renderFilter={this.renderFilter}
         renderForm={this.renderInvitationForm}
         renderContent={this.renderContent}
         center={true}

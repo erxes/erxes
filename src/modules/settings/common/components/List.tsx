@@ -18,6 +18,7 @@ type Props = {
   leftActionBar: React.ReactNode;
   breadcrumb?: IBreadCrumbItem[];
   center?: boolean;
+  renderFilter?: () => any;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -27,6 +28,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       size,
       renderContent,
       renderForm,
+      renderFilter,
       leftActionBar,
       breadcrumb,
       totalCount,
@@ -67,13 +69,16 @@ class List extends React.Component<Props & ICommonListProps, {}> {
         transparent={true}
         center={center}
         content={
-          <DataWithLoader
-            data={renderContent({ objects, save, refetch, remove })}
-            loading={loading}
-            count={totalCount}
-            emptyText="Oops! No data here"
-            emptyImage="/images/actions/5.svg"
-          />
+          <>
+            {renderFilter ? renderFilter() : null}
+            <DataWithLoader
+              data={renderContent({ objects, save, refetch, remove })}
+              loading={loading}
+              count={totalCount}
+              emptyText="Oops! No data here"
+              emptyImage="/images/actions/5.svg"
+            />
+          </>
         }
       />
     );
