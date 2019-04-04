@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -43,12 +43,13 @@ function withSaveAndEdit<IComponentProps>(Component) {
     const users = usersQuery.users || [];
     const verifiedUsers = users.filter(user => user.username) || [];
 
-    const doMutation = (mutation, variables) => {
+    const doMutation = (mutation, variables, msg) => {
       mutation({
         variables
       })
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success(__(msg));
+
           history.push('/engage');
         })
         .catch(error => {
@@ -61,10 +62,18 @@ function withSaveAndEdit<IComponentProps>(Component) {
       doc.kind = message.kind ? message.kind : kind;
 
       if (messageId) {
-        return doMutation(editMutation, { ...doc, _id: messageId });
+        return doMutation(
+          editMutation,
+          { ...doc, _id: messageId },
+          `You've successfully edited a engagement message`
+        );
       }
 
-      return doMutation(addMutation, doc);
+      return doMutation(
+        addMutation,
+        doc,
+        `You've successfully added a engagement message`
+      );
     };
 
     const messenger = message.messenger || {

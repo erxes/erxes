@@ -41,12 +41,16 @@ class EditFormContainer extends React.Component<FinalProps> {
     this.removeDeal = this.removeDeal.bind(this);
   }
 
-  addDeal(doc: IDealParams, callback: () => void) {
+  addDeal(
+    doc: IDealParams,
+    callback: () => void,
+    msg = `You've successfully added a deal`
+  ) {
     const { onAdd, addMutation, stageId } = this.props;
 
     addMutation({ variables: doc })
       .then(({ data: { dealsAdd } }) => {
-        Alert.success(__('Successfully saved.'));
+        Alert.success(__(msg));
 
         callback();
 
@@ -64,7 +68,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     editMutation({ variables: { _id: dealId, ...doc } })
       .then(({ data }) => {
-        Alert.success(__('Successfully saved.'));
+        Alert.success(__(`You've successfully edited a deal`));
 
         callback();
 
@@ -84,6 +88,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       removeMutation({ variables: { _id: dealId } })
         .then(() => {
           callback();
+
+          Alert.success(__(`You've successfully deleted a deal`));
 
           if (onRemove) {
             onRemove(dealId, stageId);

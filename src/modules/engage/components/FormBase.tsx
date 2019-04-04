@@ -29,7 +29,7 @@ class FormBase extends React.Component<Props> {
     }
 
     if (!doc.fromUserId) {
-      return this.sendError(__('Choose a receiver'));
+      return this.sendError(__('Choose a sender'));
     }
 
     if (doc.messenger && !doc.messenger.brandId) {
@@ -37,7 +37,7 @@ class FormBase extends React.Component<Props> {
     }
 
     if (doc.messenger && !doc.messenger.sentAs) {
-      return this.sendError(__('Choose from sent as'));
+      return this.sendError(__('Choose a sent as'));
     }
 
     if (doc.scheduleDate) {

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -42,12 +42,12 @@ const MessageRowContainer = (props: FinalProps) => {
     toggleBulk
   } = props;
 
-  const doMutation = mutation =>
+  const doMutation = (mutation, msg: string) =>
     mutation({
       variables: { _id: message._id }
     })
       .then(() => {
-        Alert.success('Congrats');
+        Alert.success(__(msg));
       })
       .catch(error => {
         Alert.error(error.message);
@@ -63,15 +63,24 @@ const MessageRowContainer = (props: FinalProps) => {
 
   const remove = () => {
     confirm().then(() => {
-      doMutation(removeMutation).then(() => {
+      doMutation(
+        removeMutation,
+        `You've just deleted an engagement message.`
+      ).then(() => {
         history.push('/engage');
       });
     });
   };
 
-  const setLiveManual = () => doMutation(setLiveManualMutation);
-  const setLive = () => doMutation(setLiveMutation);
-  const setPause = () => doMutation(setPauseMutation);
+  const setLiveManual = () =>
+    doMutation(
+      setLiveManualMutation,
+      'Yay! Your engagement message is now live.'
+    );
+  const setLive = () =>
+    doMutation(setLiveMutation, 'Yay! Your engagement message is now live.');
+  const setPause = () =>
+    doMutation(setPauseMutation, 'Your engagement message is paused for now.');
 
   const updatedProps = {
     ...props,

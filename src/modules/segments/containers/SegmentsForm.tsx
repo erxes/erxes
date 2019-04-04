@@ -38,11 +38,11 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
     const { contentType, segmentsAdd, history } = this.props;
 
     if (!doc.name) {
-      return Alert.error(__('Enter name'));
+      return Alert.error(__('Enter a name'));
     }
 
     segmentsAdd({ variables: { contentType, ...doc } }).then(() => {
-      Alert.success('Success');
+      Alert.success(__(`You've successfully added a segment`));
       history.push(`/segments/${contentType}`);
     });
   };
@@ -51,7 +51,7 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
     const { contentType, segmentsEdit, history } = this.props;
 
     segmentsEdit({ variables: { _id, ...doc } }).then(() => {
-      Alert.success('Success');
+      Alert.success(__(`You've successfully edited a segment`));
       history.push(`/segments/${contentType}`);
     });
   };

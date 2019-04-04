@@ -15,7 +15,7 @@ import { Sidebar, Top } from './';
 type Props = {
   deal: IDeal;
   users: IUser[];
-  addDeal: (doc: IDealParams, callback: () => void) => void;
+  addDeal: (doc: IDealParams, callback: () => void, msg?: string) => void;
   saveDeal: (doc: IDealParams, callback: () => void) => void;
   removeDeal: (dealId: string, callback: () => void) => void;
   closeModal: () => void;
@@ -146,7 +146,11 @@ class DealEditForm extends React.Component<Props, State> {
       customerIds: deal.customers.map(customer => customer._id)
     };
 
-    addDeal(doc, () => closeModal && closeModal());
+    addDeal(
+      doc,
+      () => closeModal && closeModal(),
+      `You've successfully copied a deal`
+    );
   };
 
   renderFormContent() {

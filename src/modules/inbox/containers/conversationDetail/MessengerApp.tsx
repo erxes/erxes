@@ -42,7 +42,7 @@ const MessengerAppContainer = (props: FinalProps) => {
     };
 
     return executeAppMutation({ variables }).then(() => {
-      Alert.success('Success');
+      Alert.success(`You've successfully executed an app`);
     });
   };
 
