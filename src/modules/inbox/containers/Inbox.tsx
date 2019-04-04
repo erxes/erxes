@@ -39,8 +39,14 @@ class WithCurrentId extends React.Component<IProps> {
           const { queryParams } = this.props;
           const { _id } = queryParams;
 
-          if (!currentUser || !_id || !can('showConversations', currentUser)) {
-            return <Empty queryParams={queryParams} />;
+          if (!currentUser) {
+            return null;
+          }
+
+          if (!_id || !can('showConversations', currentUser)) {
+            return (
+              <Empty queryParams={queryParams} currentUser={currentUser} />
+            );
           }
 
           return (
