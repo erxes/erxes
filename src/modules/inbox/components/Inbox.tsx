@@ -17,7 +17,7 @@ function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
 
   const menuInbox = [{ title: 'Inbox', link: '/inbox' }];
 
-  if ((can('showInsights', currentUser), {})) {
+  if (can('showInsights', currentUser)) {
     menuInbox.push({ title: 'Insights', link: '/insights' });
   }
 
