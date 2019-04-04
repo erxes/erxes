@@ -53,7 +53,11 @@ class PermissionList extends React.Component<Props> {
   setFilter = (name: string, item: generatedList) => {
     const { history } = this.props;
 
-    router.setParams(history, { [name]: correctValue(item) });
+    router.setParams(history, {
+      [name]: correctValue(item),
+      page: null,
+      perPage: null
+    });
   };
 
   renderObjects() {

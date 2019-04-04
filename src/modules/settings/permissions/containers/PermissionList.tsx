@@ -1,4 +1,3 @@
-import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
@@ -150,8 +149,7 @@ export default compose(
     name: 'usersQuery'
   }),
   graphql<{}, UsersGroupsQueryResponse>(gql(queries.usersGroups), {
-    name: 'usersGroupsQuery',
-    options: () => ({ fetchPolicy: 'network-only' })
+    name: 'usersGroupsQuery'
   }),
 
   // mutations
