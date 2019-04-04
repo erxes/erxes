@@ -1,3 +1,4 @@
-import PermissionList from './List';
+import GroupList from './GroupList';
+import PermissionList from './PermissionList';
 
-export { PermissionList };
+export { PermissionList, GroupList };

@@ -13,9 +13,8 @@ import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { List } from '../../common/components';
 import { IUserGroup, IUserGroupDocument } from '../types';
-import GroupForm from './Form';
+import GroupForm from './GroupForm';
 
 type Props = {
   totalCount: number;

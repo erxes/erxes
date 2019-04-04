@@ -5,11 +5,10 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { IUserGroup } from 'modules/settings/usersGroups/types';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
-import { IActions, IModule, IPermissionParams } from '../types';
+import { IActions, IModule, IPermissionParams, IUserGroup } from '../types';
 import {
   correctValue,
   filterActions,
@@ -42,7 +41,7 @@ class PermissionForm extends React.Component<Props, State> {
     selectedGroups: []
   };
 
-  save = e => {
+  save = (e: React.FormEvent) => {
     e.preventDefault();
 
     const {

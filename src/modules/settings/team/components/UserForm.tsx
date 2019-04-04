@@ -6,7 +6,7 @@ import {
 } from 'modules/common/components';
 import { ColumnTitle } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { IUserGroup } from 'modules/settings/usersGroups/types';
+import { IUserGroup } from 'modules/settings/permissions/types';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { IChannel } from '../../channels/types';

@@ -18,8 +18,6 @@ const UserDetailContainer = (props: FinalProps) => {
   const { _id, queryParams, usersEdit } = props;
 
   const save = ({ doc }: { doc: IUserDoc }, closeModal: () => void) => {
-    // tslint:disable
-    console.log(doc);
     usersEdit({ variables: { _id, ...doc } })
       .then(() => {
         Alert.success('Successfully saved');

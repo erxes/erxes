@@ -25,7 +25,7 @@ class GroupForm extends React.Component<Props> {
     };
   }
 
-  save = e => {
+  save = (e: React.FormEvent) => {
     e.preventDefault();
 
     const doc = this.generateDoc();

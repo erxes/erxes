@@ -12,6 +12,22 @@ const commonParams = `
   groupId: $groupId
 `;
 
+const usersGroups = `
+  query usersGroups($page: Int, $perPage: Int) {
+    usersGroups(page: $page, perPage: $perPage) {
+      _id
+      name
+      description
+    }
+  }
+`;
+
+const userTotalCount = `
+  query usersGroupsTotalCount {
+    usersGroupsTotalCount
+  }
+`;
+
 const permissions = `
   query permissions(${commonParamsDef}, $page: Int,  $perPage: Int) {
     permissions(${commonParams}, page: $page, perPage: $perPage) {
@@ -63,5 +79,7 @@ export default {
   permissions,
   modules,
   actions,
-  totalCount
+  totalCount,
+  userTotalCount,
+  usersGroups
 };

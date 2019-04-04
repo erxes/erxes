@@ -4,8 +4,6 @@ import { Alert, confirm } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import { queries as usersGroupQueries } from 'modules/settings/usersGroups/graphql';
-import { UsersGroupsQueryResponse } from 'modules/settings/usersGroups/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PermissionList } from '../components';
@@ -17,7 +15,8 @@ import {
   PermissionModulesQueryResponse,
   PermissionRemoveMutationResponse,
   PermissionsQueryResponse,
-  PermissionTotalCountQueryResponse
+  PermissionTotalCountQueryResponse,
+  UsersGroupsQueryResponse
 } from '../types';
 
 type FinalProps = {
@@ -152,7 +151,7 @@ export default compose(
   graphql<Props, UsersQueryResponse>(gql(userQueries.users), {
     name: 'usersQuery'
   }),
-  graphql<{}, UsersGroupsQueryResponse>(gql(usersGroupQueries.usersGroups), {
+  graphql<{}, UsersGroupsQueryResponse>(gql(queries.usersGroups), {
     name: 'usersGroupsQuery',
     options: () => ({ fetchPolicy: 'network-only' })
   }),

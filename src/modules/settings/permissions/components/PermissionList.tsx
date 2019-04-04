@@ -12,7 +12,6 @@ import {
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
-import { IUserGroup } from 'modules/settings/usersGroups/types';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
@@ -21,9 +20,10 @@ import {
   IActions,
   IModule,
   IPermissionDocument,
-  IPermissionParams
+  IPermissionParams,
+  IUserGroup
 } from '../types';
-import PermissionForm from './Form';
+import PermissionForm from './PermissionForm';
 import {
   correctValue,
   filterActions,

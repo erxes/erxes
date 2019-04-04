@@ -17,7 +17,6 @@ import ResponseTemplatesRoutes from './responseTemplates/routes';
 import ScriptsRoutes from './scripts/routes';
 import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
-import UsersGroupsRoutes from './usersGroups/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -38,7 +37,6 @@ const routes = () => (
     <ImportHistory key="ImportHistory" />
     <StatusRoutes key="StatusRoutes" />
     <PermissionRoutes key="PermissionRoutes" />
-    <UsersGroupsRoutes key="UsersGroupsRoutes" />;
   </React.Fragment>
 );
 

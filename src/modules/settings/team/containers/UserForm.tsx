@@ -1,16 +1,16 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { ICommonFormProps } from 'modules/settings/common/types';
-import { queries as groupQueries } from 'modules/settings/usersGroups/graphql';
 import {
   IUserGroup,
   UsersGroupsQueryResponse
-} from 'modules/settings/usersGroups/types';
+} from 'modules/settings/permissions/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import { withProps } from '../../../common/utils';
 import { ChannelsQueryResponse, IChannel } from '../../channels/types';
+import { queries as usersGroupsQueries } from '../../permissions/graphql';
 import { UserForm } from '../components';
 import { queries } from '../graphql';
 
@@ -56,7 +56,7 @@ export default withProps<ICommonFormProps>(
       name: 'channelsQuery',
       options: () => ({ fetchPolicy: 'network-only' })
     }),
-    graphql<{}, UsersGroupsQueryResponse>(gql(groupQueries.usersGroups), {
+    graphql<{}, UsersGroupsQueryResponse>(gql(usersGroupsQueries.usersGroups), {
       name: 'groupsQuery',
       options: () => ({ fetchPolicy: 'network-only' })
     })
