@@ -23,7 +23,7 @@ const SignInContainer = (props: FinalProps) => {
 
         history.push('/');
       })
-      .catch(error => {
+      .catch(() => {
         Alert.error(
           __('The email address or password you entered is incorrect.')
         );
