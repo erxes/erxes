@@ -43,6 +43,7 @@ import TextDivider from './TextDivider';
 import TextInfo from './TextInfo';
 import Tip from './Tip';
 import Uploader from './Uploader';
+import WithPermission from './WithPermission';
 
 // TODO remove
 const pagination = {};
@@ -98,5 +99,6 @@ export {
   SortHandler,
   TextInfo,
   Info,
-  Calendar
+  Calendar,
+  WithPermission
 };

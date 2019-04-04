@@ -755,5 +755,15 @@
   "Add Account": "Хаяг нэмэх",
   "Remove Account": "Хаяг устгах",
   "You can upload only image file": "Та зөвхөн .png юмуу .jpg зураг оруулна уу",
+  "Permissions": "Хандах эрх",
+  "New permission": "Эрх үүсгэх",
+  "New group": "Бүлэг үүсгэх",
+  "Users groups": "Хэрэглэгчдийн бүлгийн жагсаалт",
+  "Choose the module": "Модул сонгох",
+  "Choose the actions": "Үйлдлүүд сонгох",
+  "Choose the users": "Хэрэглэгчид сонгох",
+  "Choose the groups": "Групп сонгох",
+  "Choose groups": "Групп сонгох",
+  "Allow": "Зөвшөөрөх",
   "Invitation Status": "Уригдсан эсэх"
 }

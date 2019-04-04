@@ -784,5 +784,15 @@
   "Add Account": "Add Account",
   "Remove Account": "Remove Account",
   "You can upload only image file": "You can upload only .png or .jpg image file",
+  "Permissions": "Permissions",
+  "New permission": "New permission",
+  "New group": "New group",
+  "Users groups": "Users groups",
+  "Choose the module": "Choose the module",
+  "Choose the actions": "Choose the actions",
+  "Choose the users": "Choose the users",
+  "Choose the groups": "Choose the groups",
+  "Choose groups": "Choose groups",
+  "Allow": "Allow",
   "Invitation Status": "Invitation Status"
 }
