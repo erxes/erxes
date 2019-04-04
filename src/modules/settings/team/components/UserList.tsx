@@ -141,7 +141,7 @@ class UserList extends React.Component<FinalProps, States> {
       return null;
     }
 
-    const { object, save } = this.props;
+    const { save } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -152,7 +152,7 @@ class UserList extends React.Component<FinalProps, States> {
     );
 
     const content = props => {
-      return this.renderForm({ ...props, object, save });
+      return this.renderForm({ ...props, object: user, save });
     };
 
     return (
