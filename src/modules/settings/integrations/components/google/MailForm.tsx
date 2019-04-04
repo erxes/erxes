@@ -172,7 +172,7 @@ class MailForm extends React.Component<Props, State> {
   };
 
   onAfterSend = () => {
-    this.cancelEditing();
+    this.discard();
 
     const { closeModal } = this.props;
 
@@ -215,19 +215,8 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
-  cancelEditing = () => {
-    this.setState({
-      isCc: false,
-      isBcc: false,
-      isSending: false,
-      editorState: EditorState.createEmpty(),
-      cc: '',
-      bcc: '',
-      toEmails: '',
-      from: '',
-      subject: '',
-      attachments: []
-    });
+  discard = () => {
+    this.setState({ editorState: EditorState.createEmpty() });
   };
 
   renderFromOption() {
@@ -361,40 +350,14 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
-  checkEmpty() {
-    const {
-      editorState,
-      cc,
-      bcc,
-      toEmails,
-      from,
-      subject,
-      attachments
-    } = this.state;
-
-    if (
-      editorState.getCurrentContent().hasText() ||
-      cc ||
-      bcc ||
-      toEmails ||
-      from ||
-      subject ||
-      attachments.length > 0
-    ) {
-      return false;
-    }
-
-    return true;
-  }
-
   renderDiscardButton() {
-    if (this.checkEmpty()) {
+    if (!this.state.editorState.getCurrentContent().hasText()) {
       return null;
     }
 
     return (
       <Button
-        onClick={this.cancelEditing}
+        onClick={this.discard}
         btnStyle="warning"
         size="small"
         icon="eraser-1"
