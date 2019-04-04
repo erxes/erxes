@@ -11,7 +11,7 @@ interface IListArgs {
 }
 
 const queryBuilder = async (params: IListArgs) => {
-  let selector: any = {};
+  const selector: any = {};
 
   if (params.searchValue) {
     const fields = [
@@ -19,11 +19,11 @@ const queryBuilder = async (params: IListArgs) => {
       { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') },
     ];
 
-    selector = { $or: fields };
+    selector.$or = fields;
   }
 
-  if (params.isActive) {
-    selector = { isActive: params.isActive };
+  if (params.isActive !== undefined) {
+    selector.isActive = params.isActive;
   }
 
   return selector;
@@ -35,8 +35,9 @@ const userQueries = {
    */
   async users(_root, args: IListArgs) {
     const selector = await queryBuilder(args);
-    const users = paginate(Users.find(selector), args);
-    return users.sort({ username: 1 });
+    const sort = { username: 1 };
+
+    return paginate(Users.find(selector).sort(sort), args);
   },
 
   /**
