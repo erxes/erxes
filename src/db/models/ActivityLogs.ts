@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { pubsub } from '../../data/resolvers/subscriptions';
 import {
   activityLogSchema,
   IActionPerformer,
@@ -29,7 +30,7 @@ export const loadClass = () => {
     /**
      * Create an ActivityLog document
      */
-    public static createDoc(doc: ICreateDocInput) {
+    public static async createDoc(doc: ICreateDocInput) {
       const { performer } = doc;
 
       let performedBy = {
@@ -40,7 +41,11 @@ export const loadClass = () => {
         performedBy = performer;
       }
 
-      return ActivityLogs.create({ performedBy, ...doc });
+      const log = await ActivityLogs.create({ performedBy, ...doc });
+
+      pubsub.publish('activityLogsChanged', { activityLogsChanged: true });
+
+      return log;
     }
 
     /**

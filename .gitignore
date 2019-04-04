@@ -1,6 +1,5 @@
 node_modules
 dist
-data
 static
 src/private/xlsTemplateOutputs
 .DS_Store
