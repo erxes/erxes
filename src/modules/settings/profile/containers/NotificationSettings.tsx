@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
@@ -33,7 +33,7 @@ const NotificationSettingsContainer = (props: Props) => {
   const configGetNotificationByEmail = variables => {
     configGetNotificationByEmailMutation({ variables })
       .then(() => {
-        Alert.success('Saved');
+        Alert.success(__('You successfully changed a notification setting'));
       })
       .catch(error => {
         Alert.success(error.message);
@@ -44,7 +44,7 @@ const NotificationSettingsContainer = (props: Props) => {
   const saveNotificationConfigurations = variables => {
     saveNotificationConfigurationsMutation({ variables })
       .then(() => {
-        Alert.success('Saved');
+        Alert.success(__('You successfully changed a notification setting'));
         notificationConfigurationsQuery.refetch();
       })
       .catch(error => {

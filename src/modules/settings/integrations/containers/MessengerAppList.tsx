@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { MessengerAppList } from '../components';
@@ -33,7 +33,7 @@ const MessengerAppContainer = (props: FinalProps) => {
     confirm().then(() => {
       removeMutation({ variables: { _id: app._id } })
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success(__('You successfully deleted a messenger'));
         })
 
         .catch(error => {

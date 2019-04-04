@@ -77,7 +77,7 @@ function commonListComposer<ComponentProps>(options) {
           // update queries
           listQuery.refetch();
 
-          Alert.success('Congrats, Successfully updated.');
+          Alert.success(__(`You successfully changed a ${text}.`));
         })
         .catch(error => {
           Alert.error(error.message);

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -31,7 +31,7 @@ const Meet = (props: FinalProps) => {
     saveMutation({ variables: doc })
       .then(() => {
         callback();
-        Alert.success('Congrats');
+        Alert.success(__('You successfully added an integration'));
         history.push('/settings/integrations');
       })
       .catch(e => {

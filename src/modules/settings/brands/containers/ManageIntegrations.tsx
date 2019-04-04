@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { ModalTrigger } from 'modules/common/components';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { ManageIntegrations } from 'modules/settings/integrations/containers/common';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
@@ -50,7 +50,7 @@ class ManageIntegrationsContainer extends React.Component<FinalProps> {
       }
     })
       .then(() => {
-        Alert.success('Successfully saved');
+        Alert.success(__('You successfully managed an integration'));
       })
       .catch(e => {
         Alert.error(e.message);

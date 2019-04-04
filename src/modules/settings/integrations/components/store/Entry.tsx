@@ -79,7 +79,7 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger
-          title="Add knowledgeBase"
+          title="Add knowledge base"
           trigger={trigger}
           content={content}
         />

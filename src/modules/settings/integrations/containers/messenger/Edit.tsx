@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { Form } from 'modules/settings/integrations/components/messenger';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
@@ -84,7 +84,8 @@ const EditMessenger = (props: FinalProps) => {
       })
 
       .then(() => {
-        Alert.success('Successfully saved.');
+        Alert.success(__('You successfully updated a messenger'));
+
         history.push('/settings/integrations?refetch=true');
       })
       .catch(error => {

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
 import { queries } from 'modules/settings/integrations/graphql';
@@ -47,7 +47,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
     const save = (variables, callback) => {
       saveMutation({ variables })
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success(__('You successfully added a knowledge base'));
           callback();
           history.push('/settings/integrations');
         })
