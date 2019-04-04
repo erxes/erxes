@@ -5,6 +5,18 @@ import { commonListComposer } from '../../utils';
 import { UserList } from '../components';
 import { mutations, queries } from '../graphql';
 
+const options = ({ queryParams }: { queryParams: any }) => {
+  return {
+    notifyOnNetworkStatusChange: true,
+    variables: {
+      ...generatePaginationParams(queryParams),
+      searchValue: queryParams.searchValue,
+      isActive:
+        !queryParams.isActive || queryParams.isActive === 'true' ? true : false
+    }
+  };
+};
+
 export default commonListComposer<{ queryParams: any; history: any }>({
   name: 'users',
 
@@ -15,9 +27,6 @@ export default commonListComposer<{ queryParams: any; history: any }>({
       variables: generatePaginationParams(queryParams)
     })
   }),
-  gqlTotalCountQuery: graphql(gql(queries.totalUsersCount), {
-    name: 'totalCountQuery'
-  }),
   gqlAddMutation: graphql(gql(mutations.usersInvite), {
     name: 'addMutation'
   }),
@@ -26,6 +35,11 @@ export default commonListComposer<{ queryParams: any; history: any }>({
   }),
   gqlRemoveMutation: graphql(gql(mutations.usersSetActiveStatus), {
     name: 'removeMutation'
+  }),
+
+  gqlTotalCountQuery: graphql(gql(queries.usersTotalCount), {
+    name: 'totalCountQuery',
+    options
   }),
   ListComponent: UserList
 });

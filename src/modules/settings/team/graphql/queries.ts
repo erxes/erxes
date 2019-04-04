@@ -66,9 +66,19 @@ const channels = `
   }
 `;
 
+const listParamsDef = `
+  $searchValue: String,
+  $isActive: Boolean
+`;
+
+const listParamsValue = `
+  searchValue: $searchValue,
+  isActive: $isActive
+`;
+
 const users = `
-  query users($page: Int, $perPage: Int, $searchValue: String) {
-    users(page: $page, perPage: $perPage, searchValue: $searchValue) {
+  query users($page: Int, $perPage: Int, ${listParamsDef}) {
+    users(page: $page, perPage: $perPage, ${listParamsValue}) {
       _id
       username
       email
@@ -96,10 +106,16 @@ const users = `
   }
 `;
 
+const usersTotalCount = `
+  query usersTotalCount(${listParamsDef}) {
+    usersTotalCount(${listParamsValue})
+  }
+`;
+
 export default {
   userDetail,
   channels,
   userConversations,
   users,
-  totalUsersCount
+  usersTotalCount
 };
