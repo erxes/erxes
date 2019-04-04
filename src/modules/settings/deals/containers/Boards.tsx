@@ -75,15 +75,9 @@ class BoardsContainer extends React.Component<FinalProps> {
         variables: doc
       })
         .then(() => {
-          let msg: string;
-
-          if (board) {
-            msg = `You successfully edited a board.`;
-          } else {
-            msg = `You successfully added a new board.`;
-          }
-
-          Alert.success(__(msg));
+          Alert.success(
+            __(`You successfully ${board ? 'updated' : 'added'} a new board.`)
+          );
 
           callback();
         })

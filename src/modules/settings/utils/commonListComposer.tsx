@@ -102,15 +102,9 @@ function commonListComposer<ComponentProps>(options) {
           listQuery.refetch();
           totalCountQuery.refetch();
 
-          let msg: string;
-
-          if (object) {
-            msg = `You successfully edited a ${text}.`;
-          } else {
-            msg = `You successfully added a new ${text}.`;
-          }
-
-          Alert.success(__(msg));
+          Alert.success(
+            __(`You successfully ${object ? 'updated' : 'added'} a ${text}.`)
+          );
 
           callback();
         })

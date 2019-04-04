@@ -43,15 +43,9 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
       variables: doc
     })
       .then(() => {
-        let msg: string;
-
-        if (object) {
-          msg = 'You successfully updated a category';
-        } else {
-          msg = 'You successfully added a category';
-        }
-
-        Alert.success(__(msg));
+        Alert.success(
+          __(`You successfully ${object ? 'updated' : 'added'} a category`)
+        );
 
         callback();
       })

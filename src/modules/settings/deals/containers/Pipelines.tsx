@@ -81,15 +81,9 @@ class PipelinesContainer extends React.Component<FinalProps> {
         .then(() => {
           pipelinesQuery.refetch();
 
-          let msg: string;
-
-          if (pipeline) {
-            msg = `You successfully edited a pipeline.`;
-          } else {
-            msg = `You successfully added a new pipeline.`;
-          }
-
-          Alert.success(__(msg));
+          Alert.success(
+            __(`You successfully ${pipeline ? 'updated' : 'added'} a pipeline.`)
+          );
 
           callback();
         })

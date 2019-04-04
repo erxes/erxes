@@ -68,7 +68,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     editMutation({ variables: { _id: dealId, ...doc } })
       .then(({ data }) => {
-        Alert.success(__(`You successfully edited a deal`));
+        Alert.success(__(`You successfully updated a deal`));
 
         callback();
 

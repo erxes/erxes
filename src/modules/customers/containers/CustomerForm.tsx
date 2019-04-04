@@ -35,7 +35,7 @@ const CustomerFormContainer = (props: FinalProps) => {
     action = ({ doc }) => {
       customersEdit({ variables: { _id: customer._id, ...doc } })
         .then(() => {
-          Alert.success(__(`You successfully edited a customer`));
+          Alert.success(__(`You successfully updated a customer`));
         })
         .catch(e => {
           Alert.error(e.message);

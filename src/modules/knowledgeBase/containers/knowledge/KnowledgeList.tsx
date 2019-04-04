@@ -75,15 +75,11 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
         topicsQuery.refetch();
         topicsCountQuery.refetch();
 
-        let msg: string;
-
-        if (object) {
-          msg = 'You successfully updated a knowledge base';
-        } else {
-          msg = 'You successfully added a knowledge base';
-        }
-
-        Alert.success(__(msg));
+        Alert.success(
+          __(
+            `You successfully ${object ? 'updated' : 'added'} a knowledge base`
+          )
+        );
 
         callback();
       })

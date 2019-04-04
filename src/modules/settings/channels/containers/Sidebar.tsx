@@ -73,15 +73,9 @@ const SidebarContainer = (props: FinalProps) => {
       variables: doc
     })
       .then(() => {
-        let msg: string;
-
-        if (channel) {
-          msg = `You successfully edited a channel.`;
-        } else {
-          msg = `You successfully added a new channel.`;
-        }
-
-        Alert.success(__(msg));
+        Alert.success(
+          __(`You successfully ${channel ? 'updated' : 'added'} a new channel.`)
+        );
 
         callback();
       })

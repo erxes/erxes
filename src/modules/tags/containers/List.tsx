@@ -50,15 +50,9 @@ const ListContainer = (props: FinalProps) => {
 
     mutation({ variables: doc })
       .then(() => {
-        let msg: string;
-
-        if (tag) {
-          msg = `You successfully edited a tag`;
-        } else {
-          msg = `You successfully added a tag`;
-        }
-
-        Alert.success(__(msg));
+        Alert.success(
+          __(`You successfully ${tag ? 'updated' : 'added'} a tag`)
+        );
 
         tagsQuery.refetch();
         callback();

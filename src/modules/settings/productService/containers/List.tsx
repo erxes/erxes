@@ -73,15 +73,13 @@ class ProductListContainer extends React.Component<FinalProps> {
           productsQuery.refetch();
           productsCountQuery.refetch();
 
-          let msg: string;
-
-          if (product) {
-            msg = `You successfully edited a product or service.`;
-          } else {
-            msg = `You successfully added a new product or service.`;
-          }
-
-          Alert.success(__(msg));
+          Alert.success(
+            __(
+              `You successfully ${
+                product ? 'updated' : 'added'
+              } a product and service.`
+            )
+          );
 
           callback();
         })

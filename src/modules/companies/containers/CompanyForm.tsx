@@ -42,7 +42,7 @@ const CompanyFromContainer = (props: FinalProps) => {
     action = ({ doc }) => {
       companiesEdit({ variables: { _id: company._id, ...doc } })
         .then(() => {
-          Alert.success(__('You successfully edited a company'));
+          Alert.success(__('You successfully updated a company'));
         })
         .catch(e => {
           Alert.error(e.message);

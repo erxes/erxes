@@ -46,15 +46,9 @@ const ArticleContainer = (props: FinalProps) => {
       variables: doc
     })
       .then(() => {
-        let msg: string;
-
-        if (object) {
-          msg = 'You successfully updated an article';
-        } else {
-          msg = 'You successfully added an article';
-        }
-
-        Alert.success(__(msg));
+        Alert.success(
+          __(`You successfully ${object ? 'updated' : 'added'} an article`)
+        );
 
         callback();
       })

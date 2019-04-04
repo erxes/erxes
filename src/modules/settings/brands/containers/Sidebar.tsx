@@ -71,15 +71,9 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
       .then(() => {
         brandsQuery.refetch();
 
-        let msg: string;
-
-        if (brand) {
-          msg = `You successfully edited a brand.`;
-        } else {
-          msg = `You successfully added a new brand.`;
-        }
-
-        Alert.success(__(msg));
+        Alert.success(
+          __(`You successfully ${brand ? 'updated' : 'added'} a brand.`)
+        );
 
         callback();
       })
