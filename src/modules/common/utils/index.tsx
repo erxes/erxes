@@ -106,7 +106,7 @@ export const can = (actionName: string, currentUser: IUser): boolean => {
 
   const actions = currentUser.permissionActions || [];
 
-  return actions.indexOf(actionName) >= 0;
+  return actions[actionName] === true;
 };
 
 export const __ = (key: string, options?: any) => {
