@@ -2,7 +2,7 @@ import { DealBoards, DealPipelines, Deals, DealStages } from '../../../db/models
 import { IOrderInput } from '../../../db/models/Deals';
 import { IBoard, IDeal, IPipeline, IStage, IStageDocument } from '../../../db/models/definitions/deals';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission } from '../../permissions';
 
 interface IDealBoardsEdit extends IBoard {
   _id: string;
@@ -156,6 +156,21 @@ const dealMutations = {
   },
 };
 
-moduleRequireLogin(dealMutations);
+checkPermission(dealMutations, 'dealBoardsAdd', 'dealBoardsAdd');
+checkPermission(dealMutations, 'dealBoardsEdit', 'dealBoardsEdit');
+checkPermission(dealMutations, 'dealBoardsRemove', 'dealBoardsRemove');
+checkPermission(dealMutations, 'dealPipelinesAdd', 'dealPipelinesAdd');
+checkPermission(dealMutations, 'dealPipelinesEdit', 'dealPipelinesEdit');
+checkPermission(dealMutations, 'dealPipelinesUpdateOrder', 'dealPipelinesUpdateOrder');
+checkPermission(dealMutations, 'dealPipelinesRemove', 'dealPipelinesRemove');
+checkPermission(dealMutations, 'dealStagesAdd', 'dealStagesAdd');
+checkPermission(dealMutations, 'dealStagesChange', 'dealStagesChange');
+checkPermission(dealMutations, 'dealStagesUpdateOrder', 'dealStagesUpdateOrder');
+checkPermission(dealMutations, 'dealStagesRemove', 'dealStagesRemove');
+checkPermission(dealMutations, 'dealsAdd', 'dealsAdd');
+checkPermission(dealMutations, 'dealsEdit', 'dealsEdit');
+checkPermission(dealMutations, 'dealsChange', 'dealsChange');
+checkPermission(dealMutations, 'dealsUpdateOrder', 'dealsUpdateOrder');
+checkPermission(dealMutations, 'dealsRemove', 'dealsRemove');
 
 export default dealMutations;

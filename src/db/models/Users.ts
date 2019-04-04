@@ -18,6 +18,7 @@ interface IEditProfile {
 interface IUpdateUser extends IEditProfile {
   role?: string;
   password?: string;
+  groupIds?: string[];
 }
 
 export interface IUserModel extends Model<IUserDocument> {
@@ -119,7 +120,7 @@ export const loadClass = () => {
     /**
      * Create new user
      */
-    public static async createUser({ username, email, password, role, details, links }: IUser) {
+    public static async createUser({ username, email, password, role, details, links, groupIds }: IUser) {
       // empty string password validation
       if (password === '') {
         throw new Error('Password can not be empty');
@@ -134,6 +135,7 @@ export const loadClass = () => {
         role,
         details,
         links,
+        groupIds,
         isActive: true,
         // hash password
         password: await this.generatePassword(password),
@@ -143,8 +145,11 @@ export const loadClass = () => {
     /**
      * Update user information
      */
-    public static async updateUser(_id: string, { username, email, password, role, details, links }: IUpdateUser) {
-      const doc = { username, email, password, role, details, links };
+    public static async updateUser(
+      _id: string,
+      { username, email, password, role, details, links, groupIds }: IUpdateUser,
+    ) {
+      const doc = { username, email, password, role, details, links, groupIds };
 
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });

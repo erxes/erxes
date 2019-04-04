@@ -1,5 +1,5 @@
 import { Accounts } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission } from '../../permissions';
 
 const accountQueries = {
   /**
@@ -10,6 +10,6 @@ const accountQueries = {
   },
 };
 
-moduleRequireLogin(accountQueries);
+checkPermission(accountQueries, 'accounts', 'showAccounts', []);
 
 export default accountQueries;

@@ -1,5 +1,5 @@
 import { Channels } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 interface IIn {
@@ -49,6 +49,10 @@ const channelQueries = {
   },
 };
 
-moduleRequireLogin(channelQueries);
+requireLogin(channelQueries, 'channelsGetLast');
+requireLogin(channelQueries, 'channelsTotalCount');
+requireLogin(channelQueries, 'channelDetail');
+
+checkPermission(channelQueries, 'channels', 'showChannels', []);
 
 export default channelQueries;

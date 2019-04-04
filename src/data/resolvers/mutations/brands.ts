@@ -1,7 +1,7 @@
 import { Brands } from '../../../db/models';
 import { IBrand, IBrandEmailConfig } from '../../../db/models/definitions/brands';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { moduleRequireAdmin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 
 interface IBrandsEdit extends IBrand {
   _id: string;
@@ -44,6 +44,6 @@ const brandMutations = {
   },
 };
 
-moduleRequireAdmin(brandMutations);
+moduleCheckPermission(brandMutations, 'manageBrands');
 
 export default brandMutations;

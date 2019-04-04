@@ -19,6 +19,7 @@ import internalNotes from './internalNotes';
 import knowledgeBase from './knowledgeBase';
 import messengerApps from './messengerApps';
 import notifications from './notifications';
+import { permissionQueries as permissions, usersGroupQueries as usersGroups } from './permissions';
 import products from './products';
 import responseTemplates from './responseTemplates';
 import scripts from './scripts';
@@ -55,4 +56,6 @@ export default {
   ...fieldsgroups,
   ...importHistory,
   ...messengerApps,
+  ...permissions,
+  ...usersGroups,
 };

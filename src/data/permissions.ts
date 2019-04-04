@@ -1,5 +1,6 @@
 import { IUserDocument } from '../db/models/definitions/users';
 import { ROLES } from './constants';
+import { can } from './permissions/utils';
 
 /**
  * Checks whether user is logged in or not
@@ -67,9 +68,51 @@ export const moduleRequireAdmin = (mdl: any) => {
   }
 };
 
+/**
+ * Wraps all properties (methods) of a given object with 'Permission action required' permission checker
+ */
+export const moduleCheckPermission = (mdl: any, action: string, defaultValue?: any) => {
+  for (const method in mdl) {
+    if (mdl.hasOwnProperty(method)) {
+      checkPermission(mdl, method, action, defaultValue);
+    }
+  }
+};
+
+/**
+ * Checks if user is logged and if user is can action
+ * @param {Object} user - User object
+ * @throws {Exception} throws Error('Permission required')
+ * @return {null}
+ */
+export const checkPermission = async (cls: any, methodName: string, actionName: string, defaultValue?: any) => {
+  const oldMethod = cls[methodName];
+
+  cls[methodName] = async (root, args, { user }) => {
+    checkLogin(user);
+
+    let allowed = await can(actionName, user._id);
+
+    if (user.isOwner) {
+      allowed = true;
+    }
+
+    if (!allowed) {
+      if (defaultValue) {
+        return defaultValue;
+      }
+
+      throw new Error('Permission required');
+    }
+
+    return oldMethod(root, args, { user });
+  };
+};
+
 export default {
   requireLogin,
   requireAdmin,
   moduleRequireLogin,
   moduleRequireAdmin,
+  checkPermission,
 };

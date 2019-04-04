@@ -1,5 +1,5 @@
 import { Forms } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 
 const formQueries = {
   /**
@@ -17,6 +17,7 @@ const formQueries = {
   },
 };
 
-moduleRequireLogin(formQueries);
+requireLogin(formQueries, 'formDetail');
+checkPermission(formQueries, 'forms', 'showForms', []);
 
 export default formQueries;

@@ -1,6 +1,6 @@
 import { ResponseTemplates } from '../../../db/models';
 import { IResponseTemplate } from '../../../db/models/definitions/responseTemplates';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 
 interface IResponseTemplatesEdit extends IResponseTemplate {
   _id: string;
@@ -29,6 +29,6 @@ const responseTemplateMutations = {
   },
 };
 
-moduleRequireLogin(responseTemplateMutations);
+moduleCheckPermission(responseTemplateMutations, 'manageResponseTemplate');
 
 export default responseTemplateMutations;

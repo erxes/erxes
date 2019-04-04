@@ -1,6 +1,6 @@
 import { Accounts } from '../../../db/models';
 import { utils } from '../../../trackers/gmailTracker';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 
 const accountMutations = {
   /**
@@ -23,6 +23,6 @@ const accountMutations = {
   },
 };
 
-moduleRequireLogin(accountMutations);
+moduleCheckPermission(accountMutations, 'manageAccounts');
 
 export default accountMutations;

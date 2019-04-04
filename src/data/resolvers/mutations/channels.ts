@@ -2,7 +2,7 @@ import { Channels } from '../../../db/models';
 import { IChannel, IChannelDocument } from '../../../db/models/definitions/channels';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { NOTIFICATION_TYPES } from '../../constants';
-import { moduleRequireAdmin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 import utils from '../../utils';
 
 interface IChannelsEdit extends IChannel {
@@ -49,13 +49,11 @@ const channelMutations = {
   /**
    * Remove a channel
    */
-  async channelsRemove(_root, { _id }: { _id: string }) {
-    await Channels.removeChannel(_id);
-
-    return _id;
+  channelsRemove(_root, { _id }: { _id: string }) {
+    return Channels.removeChannel(_id);
   },
 };
 
-moduleRequireAdmin(channelMutations);
+moduleCheckPermission(channelMutations, 'manageChannels');
 
 export default channelMutations;

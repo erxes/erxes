@@ -1,7 +1,7 @@
 import { Accounts, Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { getConfig, getPageList } from '../../../trackers/facebook';
 import { KIND_CHOICES, TAG_TYPES } from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 /**
@@ -143,5 +143,7 @@ const integrationQueries = {
 };
 
 moduleRequireLogin(integrationQueries);
+
+checkPermission(integrationQueries, 'integrations', 'showIntegrations', []);
 
 export default integrationQueries;

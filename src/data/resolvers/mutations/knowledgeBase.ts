@@ -3,7 +3,7 @@ import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } f
 import { ITopic } from '../../../db/models/definitions/knowledgebase';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { IArticleCreate, ICategoryCreate } from '../../../db/models/KnowledgeBase';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 
 const knowledgeBaseMutations = {
   /**
@@ -78,6 +78,6 @@ const knowledgeBaseMutations = {
   },
 };
 
-moduleRequireLogin(knowledgeBaseMutations);
+moduleCheckPermission(knowledgeBaseMutations, 'manageKnowledgeBase');
 
 export default knowledgeBaseMutations;

@@ -2,7 +2,7 @@ import { Customers } from '../../../db/models';
 
 import { ICustomer } from '../../../db/models/definitions/customers';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission } from '../../permissions';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -52,6 +52,10 @@ const customerMutations = {
   },
 };
 
-moduleRequireLogin(customerMutations);
+checkPermission(customerMutations, 'customersAdd', 'customersAdd');
+checkPermission(customerMutations, 'customersEdit', 'customersEdit');
+checkPermission(customerMutations, 'customersEditCompanies', 'customersEditCompanies');
+checkPermission(customerMutations, 'customersMerge', 'customersMerge');
+checkPermission(customerMutations, 'customersRemove', 'customersRemove');
 
 export default customerMutations;

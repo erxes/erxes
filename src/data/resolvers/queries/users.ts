@@ -1,6 +1,6 @@
 import { Conversations, Users } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 interface IListArgs {
@@ -22,7 +22,7 @@ const queryBuilder = async (params: IListArgs) => {
     selector.$or = fields;
   }
 
-  if (params.isActive !== undefined) {
+  if (params.isActive !== undefined && params.isActive !== null) {
     selector.isActive = params.isActive;
   }
 
@@ -80,8 +80,9 @@ const userQueries = {
   },
 };
 
-requireLogin(userQueries, 'users');
-requireLogin(userQueries, 'userDetail');
 requireLogin(userQueries, 'usersTotalCount');
+requireLogin(userQueries, 'userDetail');
+
+checkPermission(userQueries, 'users', 'showUsers', []);
 
 export default userQueries;

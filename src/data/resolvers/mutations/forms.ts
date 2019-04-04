@@ -1,7 +1,7 @@
 import { Forms } from '../../../db/models';
 import { IForm } from '../../../db/models/definitions/forms';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { requireAdmin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 
 interface IFormsEdit extends IForm {
   _id: string;
@@ -23,7 +23,6 @@ const formMutations = {
   },
 };
 
-requireAdmin(formMutations, 'formsAdd');
-requireAdmin(formMutations, 'formsEdit');
+moduleCheckPermission(formMutations, 'manageForms');
 
 export default formMutations;

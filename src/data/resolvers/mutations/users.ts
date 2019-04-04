@@ -1,10 +1,11 @@
 import { Channels, Users } from '../../../db/models';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument } from '../../../db/models/definitions/users';
-import { requireAdmin, requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 import utils, { authCookieOptions, getEnv } from '../../utils';
 
 interface IUsersEdit extends IUser {
   channelIds?: string[];
+  groupIds?: string[];
   _id: string;
 }
 
@@ -77,7 +78,7 @@ const userMutations = {
    * Update user
    */
   async usersEdit(_root, args: IUsersEdit) {
-    const { _id, username, email, role, channelIds = [], details, links } = args;
+    const { _id, username, email, role, channelIds = [], groupIds = [], details, links } = args;
 
     // TODO check isOwner
     const updatedUser = await Users.updateUser(_id, {
@@ -86,6 +87,7 @@ const userMutations = {
       role,
       details,
       links,
+      groupIds,
     });
 
     // add new user to channels
@@ -211,8 +213,9 @@ requireLogin(userMutations, 'usersChangePassword');
 requireLogin(userMutations, 'usersEditProfile');
 requireLogin(userMutations, 'usersConfigGetNotificationByEmail');
 requireLogin(userMutations, 'usersConfigEmailSignatures');
-requireAdmin(userMutations, 'usersEdit');
-requireAdmin(userMutations, 'usersSetActiveStatus');
-requireAdmin(userMutations, 'usersInvite');
+
+checkPermission(userMutations, 'usersEdit', 'usersEdit');
+checkPermission(userMutations, 'usersInvite', 'usersInvite');
+checkPermission(userMutations, 'usersSetActiveStatus', 'usersSetActiveStatus');
 
 export default userMutations;

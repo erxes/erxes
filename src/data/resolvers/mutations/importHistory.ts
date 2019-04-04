@@ -1,5 +1,5 @@
 import { ImportHistory } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission } from '../../permissions';
 
 const importHistoryMutations = {
   /**
@@ -10,6 +10,6 @@ const importHistoryMutations = {
   },
 };
 
-moduleRequireLogin(importHistoryMutations);
+checkPermission(importHistoryMutations, 'importHistoriesRemove', 'removeImportHistories');
 
 export default importHistoryMutations;

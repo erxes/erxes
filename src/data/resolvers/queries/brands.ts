@@ -1,5 +1,5 @@
 import { Brands } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 const brandQueries = {
@@ -33,6 +33,10 @@ const brandQueries = {
   },
 };
 
-moduleRequireLogin(brandQueries);
+requireLogin(brandQueries, 'brandsTotalCount');
+requireLogin(brandQueries, 'brandsGetLast');
+requireLogin(brandQueries, 'brandDetail');
+
+checkPermission(brandQueries, 'brands', 'showBrands', []);
 
 export default brandQueries;

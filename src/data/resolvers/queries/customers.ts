@@ -7,7 +7,7 @@ import {
   INTEGRATION_KIND_CHOICES,
   TAG_TYPES,
 } from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, moduleRequireLogin } from '../../permissions';
 import { cocsExport } from './cocExport';
 import BuildQuery, { IListArgs } from './customerQueryBuilder';
 import QueryBuilder from './segmentQueryBuilder';
@@ -249,5 +249,9 @@ const customerQueries = {
 };
 
 moduleRequireLogin(customerQueries);
+
+checkPermission(customerQueries, 'customers', 'showCustomers', []);
+checkPermission(customerQueries, 'customersMain', 'showCustomers', { list: [], totalCount: 0 });
+checkPermission(customerQueries, 'customersExport', 'exportCustomers');
 
 export default customerQueries;

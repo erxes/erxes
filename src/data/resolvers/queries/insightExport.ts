@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import { Brands, ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 import { createXlsFile, generateXlsx } from '../../utils';
 import { getDateFieldAsStr, getDurationField } from './aggregationUtils';
 import {
@@ -742,6 +742,6 @@ const insightExportQueries = {
   },
 };
 
-moduleRequireLogin(insightExportQueries);
+moduleCheckPermission(insightExportQueries, 'manageExportInsights');
 
 export default insightExportQueries;
