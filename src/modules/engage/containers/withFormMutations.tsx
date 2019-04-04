@@ -65,14 +65,14 @@ function withSaveAndEdit<IComponentProps>(Component) {
         return doMutation(
           editMutation,
           { ...doc, _id: messageId },
-          `You've successfully edited a engagement message`
+          `You successfully edited a engagement message`
         );
       }
 
       return doMutation(
         addMutation,
         doc,
-        `You've successfully added a engagement message`
+        `You successfully added a engagement message`
       );
     };
 

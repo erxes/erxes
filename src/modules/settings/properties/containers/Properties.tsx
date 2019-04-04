@@ -54,7 +54,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id }
     })
       .then(() => {
-        Alert.success(__(`You've successfully deleted a property group`));
+        Alert.success(__(`You successfully deleted a property group`));
       })
       .catch(e => {
         Alert.error(e.message);
@@ -66,7 +66,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id }
     })
       .then(() => {
-        Alert.success(__(`You've successfully deleted a property field`));
+        Alert.success(__(`You successfully deleted a property field`));
       })
       .catch(e => {
         Alert.error(e.message);
@@ -78,7 +78,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id, isVisible }
     })
       .then(() => {
-        Alert.success(`You've changed a property field visibility`);
+        Alert.success(`You changed a property field visibility`);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -90,7 +90,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id, isVisible }
     })
       .then(() => {
-        Alert.success(`You've changed a property group visibility`);
+        Alert.success(`You changed a property group visibility`);
       })
       .catch(e => {
         Alert.error(e.message);

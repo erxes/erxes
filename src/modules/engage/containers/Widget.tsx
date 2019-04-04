@@ -54,7 +54,7 @@ const WidgetContainer = (props: FinalProps) => {
         callback();
         emptyBulk();
 
-        Alert.success(`You've successfully added a engagement message`);
+        Alert.success(`You successfully added a engagement message`);
       })
       .catch(error => {
         Alert.error(error.message);

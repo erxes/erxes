@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -46,7 +46,15 @@ const ArticleContainer = (props: FinalProps) => {
       variables: doc
     })
       .then(() => {
-        Alert.success('Congrats');
+        let msg: string;
+
+        if (object) {
+          msg = 'You successfully updated an article';
+        } else {
+          msg = 'You successfully added an article';
+        }
+
+        Alert.success(__(msg));
 
         callback();
       })

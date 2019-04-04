@@ -60,7 +60,7 @@ function commonListComposer<ComponentProps>(options) {
             listQuery.refetch();
             totalCountQuery.refetch();
 
-            Alert.success(__(`You've successfully deleted a ${text}.`));
+            Alert.success(__(`You successfully deleted a ${text}.`));
           })
           .catch(error => {
             Alert.error(error.message);
@@ -105,9 +105,9 @@ function commonListComposer<ComponentProps>(options) {
           let msg: string;
 
           if (object) {
-            msg = `You've successfully edited a ${text}.`;
+            msg = `You successfully edited a ${text}.`;
           } else {
-            msg = `You've successfully added a new ${text}.`;
+            msg = `You successfully added a new ${text}.`;
           }
 
           Alert.success(__(msg));

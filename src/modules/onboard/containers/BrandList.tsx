@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/brands/graphql';
 import {
   BrandAddMutationResponse,
@@ -39,7 +39,7 @@ const BrandListContainer = (props: ChildProps<FinalProps>) => {
         .then(() => {
           brandsQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success(__('You successfully deleted a brand'));
         })
         .catch(error => {
           Alert.error(error.message);

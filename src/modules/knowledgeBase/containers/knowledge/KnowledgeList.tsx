@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { KnowledgeList } from '../../components';
@@ -49,7 +49,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
           topicsQuery.refetch();
           topicsCountQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success(__('You successfully deleted a knowledge base'));
         })
         .catch(error => {
           Alert.error(error.message);
@@ -75,7 +75,15 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
         topicsQuery.refetch();
         topicsCountQuery.refetch();
 
-        Alert.success('Congrats');
+        let msg: string;
+
+        if (object) {
+          msg = 'You successfully updated a knowledge base';
+        } else {
+          msg = 'You successfully added a knowledge base';
+        }
+
+        Alert.success(__(msg));
 
         callback();
       })

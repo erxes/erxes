@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../auth/types';
@@ -31,7 +31,7 @@ const CompanyFromContainer = (props: FinalProps) => {
   let action = ({ doc }) => {
     companiesAdd({ variables: doc })
       .then(() => {
-        Alert.success('Success');
+        Alert.success(__('You successfully added a company'));
       })
       .catch(e => {
         Alert.error(e.message);
@@ -42,7 +42,7 @@ const CompanyFromContainer = (props: FinalProps) => {
     action = ({ doc }) => {
       companiesEdit({ variables: { _id: company._id, ...doc } })
         .then(() => {
-          Alert.success('Success');
+          Alert.success(__('You successfully edited a company'));
         })
         .catch(e => {
           Alert.error(e.message);

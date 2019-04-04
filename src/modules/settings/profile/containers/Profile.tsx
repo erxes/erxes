@@ -21,7 +21,7 @@ const Profile = (
   const save = (variables: IUserDoc, callback: () => void) => {
     usersEditProfile({ variables })
       .then(() => {
-        Alert.success(`You've managed to update your info`);
+        Alert.success(`You managed to update your info`);
         callback();
       })
       .catch(error => {

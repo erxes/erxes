@@ -27,7 +27,7 @@ const CompanyAssociate = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success(__(`You've successfully saved a company list`));
+        Alert.success(__('You successfully updated a company list'));
       })
       .catch(e => {
         Alert.error(e.message);

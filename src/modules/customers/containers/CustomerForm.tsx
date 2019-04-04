@@ -24,7 +24,7 @@ const CustomerFormContainer = (props: FinalProps) => {
   let action = ({ doc }) => {
     customersAdd({ variables: doc })
       .then(() => {
-        Alert.success(__(`You've successfully added a customer info`));
+        Alert.success(__(`You successfully added a customer`));
       })
       .catch(e => {
         Alert.error(e.message);
@@ -35,7 +35,7 @@ const CustomerFormContainer = (props: FinalProps) => {
     action = ({ doc }) => {
       customersEdit({ variables: { _id: customer._id, ...doc } })
         .then(() => {
-          Alert.success(__(`You've successfully edited a customer info`));
+          Alert.success(__(`You successfully edited a customer`));
         })
         .catch(e => {
           Alert.error(e.message);

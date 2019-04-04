@@ -53,7 +53,7 @@ class BoardsContainer extends React.Component<FinalProps> {
 
             history.push('/settings/deals/');
 
-            Alert.success(__(`You've successfully deleted a board`));
+            Alert.success(__(`You successfully deleted a board`));
           })
           .catch(error => {
             Alert.error(error.message);
@@ -78,9 +78,9 @@ class BoardsContainer extends React.Component<FinalProps> {
           let msg: string;
 
           if (board) {
-            msg = `You've successfully edited a board.`;
+            msg = `You successfully edited a board.`;
           } else {
-            msg = `You've successfully added a new board.`;
+            msg = `You successfully added a new board.`;
           }
 
           Alert.success(__(msg));

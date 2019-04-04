@@ -54,7 +54,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       .then(() => {
         this.props.productsQuery.refetch();
 
-        Alert.success(__(`You've successfully added a product or service`));
+        Alert.success(__(`You successfully added a product or service`));
 
         callback();
       })

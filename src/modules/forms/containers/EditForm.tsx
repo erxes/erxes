@@ -141,7 +141,7 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
         })
 
         .then(() => {
-          Alert.success(__(`You've successfully edited a lead`));
+          Alert.success(__(`You successfully edited a lead`));
 
           fieldsQuery.refetch().then(() => {
             history.push('/forms');

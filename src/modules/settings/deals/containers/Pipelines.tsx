@@ -54,7 +54,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
           .then(() => {
             pipelinesQuery.refetch();
 
-            const msg = `${__(`You've successfully deleted a`)}' '${__(
+            const msg = `${__(`You successfully deleted a`)}' '${__(
               'pipeline'
             )}.`;
 
@@ -84,9 +84,9 @@ class PipelinesContainer extends React.Component<FinalProps> {
           let msg: string;
 
           if (pipeline) {
-            msg = `You've successfully edited a pipeline.`;
+            msg = `You successfully edited a pipeline.`;
           } else {
-            msg = `You've successfully added a new pipeline.`;
+            msg = `You successfully added a new pipeline.`;
           }
 
           Alert.success(__(msg));

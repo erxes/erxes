@@ -106,11 +106,11 @@ class DealEditForm extends React.Component<Props, State> {
     const { closeModal, saveDeal } = this.props;
 
     if (!name) {
-      return Alert.error(__('Enter name'));
+      return Alert.error(__('Enter a name'));
     }
 
     if (productsData.length === 0) {
-      return Alert.error(__('Please, select product & service'));
+      return Alert.error(__('Select product & service'));
     }
 
     const doc = {
@@ -149,7 +149,7 @@ class DealEditForm extends React.Component<Props, State> {
     addDeal(
       doc,
       () => closeModal && closeModal(),
-      `You've successfully copied a deal`
+      `You successfully copied a deal`
     );
   };
 

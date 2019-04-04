@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, confirm } from 'modules/common/utils';
+import { __, Alert, confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CategoryList } from '../../components';
@@ -42,7 +42,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
         .then(() => {
           categoriesQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success(__('You successfully deleted a category'));
         })
         .catch(error => {
           Alert.error(error.message);

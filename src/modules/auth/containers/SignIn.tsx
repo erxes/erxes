@@ -1,6 +1,6 @@
 import apolloClient from 'apolloClient';
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -24,7 +24,7 @@ const SignInContainer = (props: FinalProps) => {
         history.push('/');
       })
       .catch(error => {
-        Alert.error(error.message);
+        Alert.error(__('Email or password you entered is incorrect.'));
       });
   };
 

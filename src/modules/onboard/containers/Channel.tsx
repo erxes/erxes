@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, confirm } from 'modules/common/utils';
+import { __, Alert, confirm } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/channels/graphql';
 import {
   AddChannelMutationResponse,
@@ -62,7 +62,7 @@ const SidebarContainer = (props: FinalProps) => {
         variables: { _id: channelId }
       })
         .then(() => {
-          Alert.success('Successfully deleted.');
+          Alert.success(__('You successfully deleted a category'));
         })
         .catch(error => {
           Alert.error(error.message);
@@ -87,7 +87,7 @@ const SidebarContainer = (props: FinalProps) => {
         return userSeenOnboardMutation();
       })
       .then(() => {
-        Alert.success('Successfully saved your channel.');
+        Alert.success('You successfully added a channel');
 
         setTimeout(() => {
           history.push('/');

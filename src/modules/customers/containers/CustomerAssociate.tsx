@@ -27,7 +27,7 @@ const CustomerAssociate = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success(__(`You've successfully saved a customers list`));
+        Alert.success(__(`You successfully updated a customer list`));
       })
       .catch(e => {
         Alert.error(e.message);

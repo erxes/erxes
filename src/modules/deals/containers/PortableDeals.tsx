@@ -23,7 +23,7 @@ class PortableDealsContainer extends React.Component<FinalProps> {
 
     addMutation({ variables: doc })
       .then(() => {
-        Alert.success(__(`You've successfully added a deal`));
+        Alert.success(__(`You successfully added a deal`));
 
         callback();
 

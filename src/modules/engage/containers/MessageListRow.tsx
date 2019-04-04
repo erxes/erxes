@@ -65,7 +65,7 @@ const MessageRowContainer = (props: FinalProps) => {
     confirm().then(() => {
       doMutation(
         removeMutation,
-        `You've just deleted an engagement message.`
+        `You just deleted an engagement message.`
       ).then(() => {
         history.push('/engage');
       });

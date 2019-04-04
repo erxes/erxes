@@ -51,7 +51,7 @@ const SidebarContainer = (props: FinalProps) => {
         variables: { _id: channelId }
       })
         .then(() => {
-          Alert.success(__(`You've successfully deleted a channel.`));
+          Alert.success(__(`You successfully deleted a channel.`));
         })
         .catch(error => {
           Alert.error(error.message);
@@ -76,9 +76,9 @@ const SidebarContainer = (props: FinalProps) => {
         let msg: string;
 
         if (channel) {
-          msg = `You've successfully edited a channel.`;
+          msg = `You successfully edited a channel.`;
         } else {
-          msg = `You've successfully added a new channel.`;
+          msg = `You successfully added a new channel.`;
         }
 
         Alert.success(__(msg));

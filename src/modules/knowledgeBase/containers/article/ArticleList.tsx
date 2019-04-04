@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -37,7 +37,7 @@ const ArticleContainer = (props: FinalProps) => {
         .then(() => {
           articlesQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success(__('You successfully deleted an article'));
         })
         .catch(error => {
           Alert.error(error.message);
