@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
 import { Alert, confirm, withProps } from 'modules/common/utils';
+import { queries as teamQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { UserList } from '../components';
-import { mutations, queries } from '../graphql';
+import { mutations } from '../graphql';
 import {
   UserRemoveMutationResponse,
   UserRemoveMutationVariables
@@ -50,7 +51,7 @@ const UserListContainer = (props: ChildProps<FinalProps>) => {
 export default withProps<Props>(
   compose(
     graphql<Props, UsersQueryResponse, { perPage: number }>(
-      gql(queries.users),
+      gql(teamQueries.users),
       {
         name: 'usersQuery',
         options: ({ userCount }: Props) => ({
@@ -68,8 +69,8 @@ export default withProps<Props>(
         options: () => {
           return {
             refetchQueries: [
-              { query: gql(queries.users) },
-              { query: gql(queries.userTotalCount) }
+              { query: gql(teamQueries.users) },
+              { query: gql(teamQueries.usersTotalCount) }
             ]
           };
         }

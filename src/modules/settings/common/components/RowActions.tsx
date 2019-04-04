@@ -15,16 +15,24 @@ type Props = {
     doc: { object: any; closeModal: () => void; save: () => void }
   ) => void;
   additionalActions?: (object: any) => void;
-  remove: (id: string) => void;
+  remove?: (id: string) => void;
   save: () => void;
 };
 
 export default class RowActions extends React.Component<Props, {}> {
   remove = () => {
-    this.props.remove(this.props.object._id);
+    const { remove } = this.props;
+
+    if (remove) {
+      remove(this.props.object._id);
+    }
   };
 
   renderRemoveAction = () => {
+    if (!this.props.remove) {
+      return null;
+    }
+
     return (
       <Tip text={__('Delete')}>
         <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
