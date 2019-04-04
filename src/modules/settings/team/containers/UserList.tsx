@@ -23,29 +23,30 @@ const commonParams = `
   channelIds: $channelIds,
 `;
 
+const options = ({ queryParams }: { queryParams: any }) => {
+  return {
+    notifyOnNetworkStatusChange: true,
+    variables: {
+      ...generatePaginationParams(queryParams),
+      searchValue: queryParams.searchValue,
+      isActive:
+        !queryParams.isActive || queryParams.isActive === 'true' ? true : false
+    }
+  };
+};
+
 export default commonListComposer<{ queryParams: any; history: any }>({
   name: 'users',
 
   gqlListQuery: graphql(gql(queries.users), {
     name: 'listQuery',
-    options: ({ queryParams }: { queryParams: any }) => {
-      return {
-        notifyOnNetworkStatusChange: true,
-        variables: generatePaginationParams(queryParams)
-      };
-    }
+    options
   }),
 
-  gqlTotalCountQuery: graphql(
-    gql`
-      query totalUsersCount {
-        usersTotalCount
-      }
-    `,
-    {
-      name: 'totalCountQuery'
-    }
-  ),
+  gqlTotalCountQuery: graphql(gql(queries.usersTotalCount), {
+    name: 'totalCountQuery',
+    options
+  }),
 
   gqlAddMutation: graphql(
     gql`
@@ -71,7 +72,7 @@ export default commonListComposer<{ queryParams: any; history: any }>({
     }
   ),
 
-  gqlRemoveMutation: graphql(
+  gqlStatusChangedMutation: graphql(
     gql`
       mutation usersSetActiveStatus($_id: String!) {
         usersSetActiveStatus(_id: $_id) {
@@ -80,7 +81,7 @@ export default commonListComposer<{ queryParams: any; history: any }>({
       }
     `,
     {
-      name: 'removeMutation'
+      name: 'statusChangedMutation'
     }
   ),
 

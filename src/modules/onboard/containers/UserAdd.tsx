@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
+import { queries as teamQueries } from 'modules/settings/team/graphql';
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { UserAdd } from '../components';
 import { OnboardConsumer } from '../containers/OnboardContext';
-import { mutations, queries } from '../graphql';
+import { mutations } from '../graphql';
 import { UsersAddMutationResponse, UsersCountQueryResponse } from '../types';
 
 type Props = { changeStep: (inscrease: boolean) => void };
@@ -46,15 +47,18 @@ const WithQuery = withProps<Props>(
       options: () => {
         return {
           refetchQueries: [
-            { query: gql(queries.users) },
-            { query: gql(queries.userTotalCount) }
+            { query: gql(teamQueries.users) },
+            { query: gql(teamQueries.usersTotalCount) }
           ]
         };
       }
     }),
-    graphql<Props, UsersAddMutationResponse, {}>(gql(queries.userTotalCount), {
-      name: 'usersCountQuery'
-    })
+    graphql<Props, UsersAddMutationResponse, {}>(
+      gql(teamQueries.usersTotalCount),
+      {
+        name: 'usersCountQuery'
+      }
+    )
   )(UserAddContainer)
 );
 

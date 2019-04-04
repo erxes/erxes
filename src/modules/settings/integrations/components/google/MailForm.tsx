@@ -1,5 +1,11 @@
 import { EditorState } from 'draft-js';
-import { Button, FormControl, Icon, Tip } from 'modules/common/components';
+import {
+  Button,
+  FormControl,
+  Icon,
+  Spinner,
+  Tip
+} from 'modules/common/components';
 import {
   createStateFromHTML,
   ErxesEditor,
@@ -19,7 +25,8 @@ import {
   EditorFooter,
   LeftSection,
   MailEditorWrapper,
-  Resipients
+  Resipients,
+  Uploading
 } from './styles';
 
 type Props = {
@@ -58,6 +65,7 @@ type State = {
   attachments: IGmailAttachment[];
   totalFileSize: number;
   isSending: boolean;
+  isUploading: boolean;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -69,6 +77,7 @@ class MailForm extends React.Component<Props, State> {
       isCc: false,
       isBcc: false,
       isSending: false,
+      isUploading: false,
       content: '',
       cc: '',
       bcc: '',
@@ -109,6 +118,10 @@ class MailForm extends React.Component<Props, State> {
       return;
     }
 
+    this.setState({ isUploading: true });
+
+    let j = 0;
+
     // tslint:disable-next-line
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -121,7 +134,13 @@ class MailForm extends React.Component<Props, State> {
       };
 
       uploadReader.onloadend = () => {
-        if (this.state.totalFileSize > 10368000) {
+        const totalFileSize = this.state.totalFileSize + fileInfo.size;
+
+        if (totalFileSize > 10368000) {
+          this.setState({
+            isUploading: false
+          });
+
           return Alert.error('It`s size exceeds the limit 10mb');
         }
 
@@ -135,8 +154,16 @@ class MailForm extends React.Component<Props, State> {
 
           this.setState({
             attachments: [...this.state.attachments, fileData],
-            totalFileSize: this.state.totalFileSize + fileInfo.size
+            totalFileSize
           });
+
+          j++;
+
+          if (j === files.length) {
+            this.setState({
+              isUploading: false
+            });
+          }
         }
       };
 
@@ -145,7 +172,7 @@ class MailForm extends React.Component<Props, State> {
   };
 
   onAfterSend = () => {
-    this.cancelEditing();
+    this.discard();
 
     const { closeModal } = this.props;
 
@@ -156,6 +183,18 @@ class MailForm extends React.Component<Props, State> {
 
   onSend = () => {
     const { subject, cc, bcc, toEmails, from, attachments } = this.state;
+
+    if (!toEmails) {
+      return Alert.error('Enter a receiver');
+    }
+
+    if (!from) {
+      return Alert.error('Select a sender');
+    }
+
+    if (!subject) {
+      return Alert.error('Your email has no subject');
+    }
 
     const body = this.getContent(this.state.editorState);
     const integrationId = from;
@@ -176,19 +215,8 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
-  cancelEditing = () => {
-    this.setState({
-      isCc: false,
-      isBcc: false,
-      isSending: false,
-      editorState: EditorState.createEmpty(),
-      cc: '',
-      bcc: '',
-      toEmails: '',
-      from: '',
-      subject: '',
-      attachments: []
-    });
+  discard = () => {
+    this.setState({ editorState: EditorState.createEmpty() });
   };
 
   renderFromOption() {
@@ -274,17 +302,19 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderAttachments() {
-    const { attachments } = this.state;
-
-    if (attachments.length === 0) {
-      return null;
-    }
+    const { attachments, isUploading } = this.state;
 
     return (
       <Attachments>
         {attachments.map((attachment, index) => (
           <AttachmentContainer key={index}>
             <FileName>{attachment.filename}</FileName>
+            {attachment.size ? (
+              <div>
+                ({Math.round(attachment.size / 1000)}
+                kB)
+              </div>
+            ) : null}
             <Icon
               icon="cancel-1"
               size={14}
@@ -292,6 +322,11 @@ class MailForm extends React.Component<Props, State> {
             />
           </AttachmentContainer>
         ))}
+        {isUploading ? (
+          <Uploading>
+            <Spinner /> <span>uploading ...</span>
+          </Uploading>
+        ) : null}
       </Attachments>
     );
   }
@@ -315,10 +350,25 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
-  renderButtons() {
-    const { toEmails, from, isSending } = this.state;
+  renderDiscardButton() {
+    if (!this.state.editorState.getCurrentContent().hasText()) {
+      return null;
+    }
 
-    const disabled = toEmails && from ? false : true;
+    return (
+      <Button
+        onClick={this.discard}
+        btnStyle="warning"
+        size="small"
+        icon="eraser-1"
+      >
+        Discard
+      </Button>
+    );
+  }
+
+  renderButtons() {
+    const { isSending } = this.state;
 
     return (
       <EditorFooter>
@@ -333,17 +383,10 @@ class MailForm extends React.Component<Props, State> {
           </label>
         </Tip>
         <div>
-          <Button
-            onClick={this.cancelEditing}
-            btnStyle="warning"
-            size="small"
-            icon="eraser-1"
-          >
-            Discard
-          </Button>
+          {this.renderDiscardButton()}
           {this.renderCancelButton()}
           <Button
-            disabled={disabled}
+            disabled={isSending}
             onClick={this.onSend}
             btnStyle="success"
             size="small"
@@ -405,6 +448,7 @@ class MailForm extends React.Component<Props, State> {
 
         <MailEditorWrapper>
           <ErxesEditor
+            handleFileInput={this.handleFileInput}
             editorState={this.state.editorState}
             onChange={this.changeContent}
           />

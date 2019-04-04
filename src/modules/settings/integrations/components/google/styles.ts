@@ -5,12 +5,11 @@ import styledTS from 'styled-components-ts';
 
 const AttachmentContainer = styled(Attachment)`
   padding: 5px 10px;
-  max-width: 240px;
   border-radius: 2px;
-  margin: 0 0 0 5px;
+  margin: 0 0 5px 5px;
+  color: ${colors.colorWhite};
 
   i {
-    color: ${colors.colorWhite};
     cursor: pointer;
     opacity: 0.6;
     transition: opacity ease 0.3s;
@@ -19,6 +18,20 @@ const AttachmentContainer = styled(Attachment)`
     &:hover {
       opacity: 1;
     }
+  }
+`;
+
+const Uploading = styled.div`
+  position: relative;
+  height: 33px;
+  top: -4px;
+  left: 25px;
+
+  span {
+    position: absolute;
+    width: 100px;
+    top: 6px;
+    left: 25px;
   }
 `;
 
@@ -87,6 +100,7 @@ const EditorFooter = styled.div`
 const Attachments = styled.div`
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   margin: -10px 0 ${dimensions.coreSpacing}px -5px;
 `;
 
@@ -96,6 +110,7 @@ export {
   ControlWrapper,
   LeftSection,
   Resipients,
+  Uploading,
   AttachmentContainer,
   EditorFooter
 };

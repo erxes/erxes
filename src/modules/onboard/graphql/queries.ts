@@ -9,23 +9,6 @@ const channels = `
   }
 `;
 
-const users = `
-  query users($page: Int, $perPage: Int, $searchValue: String) {
-    users(page: $page, perPage: $perPage, searchValue: $searchValue) {
-      _id
-      username
-      email
-      role
-    }
-  }
-`;
-
-const userTotalCount = `
-  query totalUsersCount {
-    usersTotalCount
-  }
-`;
-
 const integrations = `
   query integrations($kind: String) {
     integrations(kind: $kind) {
@@ -45,7 +28,5 @@ const integrations = `
 
 export default {
   channels,
-  users,
-  integrations,
-  userTotalCount
+  integrations
 };
