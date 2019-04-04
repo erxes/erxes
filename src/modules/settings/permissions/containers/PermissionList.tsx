@@ -118,7 +118,6 @@ export default compose(
   graphql<Props, PermissionTotalCountQueryResponse>(gql(queries.totalCount), {
     name: 'totalCountQuery',
     options: ({ queryParams }) => ({
-      fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
       variables: {
         module: queryParams.module,
@@ -131,7 +130,6 @@ export default compose(
   graphql<Props, PermissionsQueryResponse>(gql(queries.permissions), {
     name: 'permissionsQuery',
     options: ({ queryParams }) => ({
-      fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
       variables: {
         module: queryParams.module,

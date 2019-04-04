@@ -15,6 +15,10 @@ type Props = {
   queryParams: any;
 };
 
+const commonOptions = () => ({
+  refetchQueries: [{ query: gql(queries.usersGroups) }]
+});
+
 export default commonListComposer({
   name: 'usersGroups',
 
@@ -44,21 +48,24 @@ export default commonListComposer({
   gqlAddMutation: graphql<{}, UsersGroupsAddMutation>(
     gql(mutations.usersGroupsAdd),
     {
-      name: 'addMutation'
+      name: 'addMutation',
+      options: commonOptions()
     }
   ),
 
   gqlEditMutation: graphql<{}, UsersGroupsEditMutation>(
     gql(mutations.usersGroupsEdit),
     {
-      name: 'editMutation'
+      name: 'editMutation',
+      options: commonOptions()
     }
   ),
 
   gqlRemoveMutation: graphql<{}, UsersGroupsRemoveMutation>(
     gql(mutations.usersGroupsRemove),
     {
-      name: 'removeMutation'
+      name: 'removeMutation',
+      options: commonOptions()
     }
   ),
 
