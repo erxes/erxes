@@ -1,5 +1,6 @@
 import { AppConsumer } from 'appContext';
 import * as React from 'react';
+import { can } from '../utils';
 
 type Props = {
   action: string;
@@ -11,8 +12,12 @@ const WithPermission = (props: Props) => {
 
   return (
     <AppConsumer>
-      {({ can }) => {
-        if (!can(action)) {
+      {({ currentUser }) => {
+        if (!currentUser) {
+          return null;
+        }
+
+        if (!can(action, currentUser)) {
           return null;
         }
 

@@ -1,4 +1,5 @@
 import T from 'i18n-react';
+import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import Alert from './Alert';
 import colorParser from './colorParser';
@@ -88,6 +89,24 @@ export {
   searchCompany,
   searchUser,
   searchCustomer
+};
+
+export const can = (actionName: string, currentUser: IUser): boolean => {
+  if (!currentUser) {
+    return false;
+  }
+
+  if (currentUser.isOwner) {
+    return true;
+  }
+
+  if (!actionName) {
+    return false;
+  }
+
+  const actions = currentUser.permissionActions || [];
+
+  return actions.indexOf(actionName) >= 0;
 };
 
 export const __ = (key: string, options?: any) => {

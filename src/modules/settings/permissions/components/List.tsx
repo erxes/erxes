@@ -33,7 +33,6 @@ import {
 } from './utils';
 
 type Props = {
-  can: (action: string) => boolean;
   history: any;
   queryParams: any;
   isLoading: boolean;

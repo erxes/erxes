@@ -99,11 +99,7 @@ const List = (props: FinalProps) => {
     isLoading
   };
 
-  return (
-    <AppConsumer>
-      {({ can }) => <PermissionList {...updatedProps} can={can} />}
-    </AppConsumer>
-  );
+  return <PermissionList {...updatedProps} />;
 };
 
 type Props = {

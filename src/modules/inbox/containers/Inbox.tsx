@@ -1,6 +1,7 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { router as routerUtils } from 'modules/common/utils';
+import { IUser } from 'modules/auth/types';
+import { can, router as routerUtils } from 'modules/common/utils';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 import { Empty, Inbox } from '../components';
@@ -34,16 +35,20 @@ class WithCurrentId extends React.Component<IProps> {
   render() {
     return (
       <AppConsumer>
-        {({ can }) => {
+        {({ currentUser }) => {
           const { queryParams } = this.props;
           const { _id } = queryParams;
 
-          if (!_id || !can('showConversations')) {
+          if (!currentUser || !_id || !can('showConversations', currentUser)) {
             return <Empty queryParams={queryParams} />;
           }
 
           return (
-            <Inbox queryParams={queryParams} currentConversationId={_id} />
+            <Inbox
+              queryParams={queryParams}
+              currentConversationId={_id}
+              currentUser={currentUser}
+            />
           );
         }}
       </AppConsumer>
