@@ -175,7 +175,7 @@ export type PipelineDetailQueryResponse = {
 };
 
 export type ActivityLogQueryResponse = {
-  activityLogsDeal: IActivityLogForMonth[];
+  activityLogs: IActivityLogForMonth[];
   loading: boolean;
 };
 
