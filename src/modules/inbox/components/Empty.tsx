@@ -1,16 +1,22 @@
+import { IUser } from 'modules/auth/types';
 import { EmptyState } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import { menuInbox } from 'modules/common/utils/menus';
+import { __, can } from 'modules/common/utils';
 import { Sidebar } from 'modules/inbox/containers/leftSidebar';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 
 type Props = {
   queryParams?: any;
+  currentUser: IUser;
 };
 
-function Empty({ queryParams }: Props) {
+function Empty({ queryParams, currentUser }: Props) {
   const breadcrumb = [{ title: __('Inbox') }];
+  const menuInbox = [{ title: 'Inbox', link: '/inbox' }];
+
+  if (can('showInsights', currentUser)) {
+    menuInbox.push({ title: 'Insights', link: '/insights' });
+  }
 
   const content = (
     <EmptyState

@@ -6,6 +6,7 @@ const userDetail = `
       email
       role
       status
+      groupIds
 
       details {
         avatar
@@ -26,6 +27,12 @@ const userDetail = `
       emailSignatures
       getNotificationByEmail
     }
+  }
+`;
+
+const totalUsersCount = `
+  query totalUsersCount {
+    usersTotalCount
   }
 `;
 
@@ -78,6 +85,7 @@ const users = `
       role
       status
       isActive
+      groupIds
       details {
         avatar
         fullName

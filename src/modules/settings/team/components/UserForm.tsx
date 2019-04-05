@@ -6,6 +6,7 @@ import {
 } from 'modules/common/components';
 import { ColumnTitle } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { IUserGroup } from 'modules/settings/permissions/types';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { IChannel } from '../../channels/types';
@@ -14,11 +15,13 @@ import { ICommonFormProps } from '../../common/types';
 
 type Props = {
   channels: IChannel[];
+  groups: any;
 };
 
 type State = {
   avatar: string;
   selectedChannels: IChannel[];
+  selectedGroups: IUserGroup[];
 };
 
 class UserForm extends React.Component<Props & ICommonFormProps, State> {
@@ -30,7 +33,8 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
 
     this.state = {
       avatar: user.details.avatar || defaultAvatar,
-      selectedChannels: this.generateChannelsParams(props.selectedChannels)
+      selectedChannels: this.generateChannelsParams(props.selectedChannels),
+      selectedGroups: user.groupIds || []
     };
   }
 
@@ -45,16 +49,47 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     }));
   };
 
+  generateGroupsParams = groups => {
+    return groups.map(group => ({
+      value: group._id,
+      label: group.name
+    }));
+  };
+
   collectValues = items => {
     return items.map(item => item.value);
   };
+
+  renderGroups() {
+    const self = this;
+    const { groups } = this.props;
+
+    const onChange = selectedGroups => {
+      this.setState({ selectedGroups });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>Choose the user groups</ControlLabel>
+        <br />
+
+        <Select
+          placeholder={__('Choose groups')}
+          value={self.state.selectedGroups}
+          options={self.generateGroupsParams(groups)}
+          onChange={onChange}
+          multi={true}
+        />
+      </FormGroup>
+    );
+  }
 
   renderChannels() {
     const self = this;
     const { channels } = this.props;
 
-    const onChange = items => {
-      self.setState({ selectedChannels: items });
+    const onChange = selectedChannels => {
+      self.setState({ selectedChannels });
     };
 
     return (
@@ -78,6 +113,8 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
   }
 
   generateDoc = () => {
+    const { selectedChannels, selectedGroups } = this.state;
+
     const doc = {
       username: this.getInputElementValue('username'),
       email: this.getInputElementValue('email'),
@@ -90,7 +127,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         location: this.getInputElementValue('user-location'),
         description: this.getInputElementValue('description')
       },
-      channelIds: this.collectValues(this.state.selectedChannels),
+      channelIds: this.collectValues(selectedChannels),
       links: {
         linkedIn: this.getInputElementValue('linkedin'),
         twitter: this.getInputElementValue('twitter'),
@@ -98,7 +135,8 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         youtube: this.getInputElementValue('youtube'),
         github: this.getInputElementValue('github'),
         website: this.getInputElementValue('website')
-      }
+      },
+      groupIds: this.collectValues(selectedGroups)
     };
     return { doc };
   };
@@ -126,6 +164,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
 
         {this.renderChannels()}
+        {this.renderGroups()}
       </div>
     );
   };

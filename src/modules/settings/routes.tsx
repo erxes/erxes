@@ -9,6 +9,7 @@ import General from './general/routes';
 import ImportHistory from './importHistory/routes';
 import IntegrationsRoutes from './integrations/routes';
 import MainRoutes from './main/routes';
+import PermissionRoutes from './permissions/routes';
 import ProductService from './productService/routes';
 import ProfileRoutes from './profile/routes';
 import PropertiesRoutes from './properties/routes';
@@ -35,6 +36,7 @@ const routes = () => (
     <PropertiesRoutes key="PropertiesRoutes" />
     <ImportHistory key="ImportHistory" />
     <StatusRoutes key="StatusRoutes" />
+    <PermissionRoutes key="PermissionRoutes" />
   </React.Fragment>
 );
 

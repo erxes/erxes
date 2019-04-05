@@ -5,6 +5,7 @@ const commonParamsDef = `
   $details: UserDetails,
   $links: UserLinks,
   $channelIds: [String]
+  $groupIds: [String]
 `;
 
 const commonParams = `
@@ -14,6 +15,7 @@ const commonParams = `
   details: $details,
   links: $links,
   channelIds: $channelIds
+  groupIds: $groupIds
 `;
 
 const usersEdit = `
@@ -50,6 +52,14 @@ const usersInvite = `
   }
 `;
 
+const usersSetActiveStatus = `
+  mutation usersSetActiveStatus($_id: String!) {
+    usersSetActiveStatus(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 const usersConfirmInvitation = `
   mutation usersConfirmInvitation($token: String, $password: String, $passwordConfirmation: String, $fullName: String, $username: String) {
     usersConfirmInvitation(token: $token, password: $password, passwordConfirmation: $passwordConfirmation, fullName: $fullName, username: $username) {
@@ -62,5 +72,6 @@ export default {
   usersEditProfile,
   usersEdit,
   usersInvite,
-  usersConfirmInvitation
+  usersConfirmInvitation,
+  usersSetActiveStatus
 };

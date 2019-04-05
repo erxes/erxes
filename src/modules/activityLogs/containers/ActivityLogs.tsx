@@ -6,7 +6,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ActivityLogQueryResponse } from '../../customers/types';
 import { ActivityLogs } from '../components';
-import { queries } from '../graphql';
+import { queries, subscriptions } from '../graphql';
 
 type Props = {
   contentId: string;
@@ -20,6 +20,17 @@ type FinalProps = {
 } & WithDataProps;
 
 class Container extends React.Component<FinalProps, {}> {
+  componentWillMount() {
+    const { activityLogQuery } = this.props;
+
+    activityLogQuery.subscribeToMore({
+      document: gql(subscriptions.activityLogsChanged),
+      updateQuery: () => {
+        this.props.activityLogQuery.refetch();
+      }
+    });
+  }
+
   render() {
     const {
       target,

@@ -1,4 +1,4 @@
-import { Label, Tip } from 'modules/common/components';
+import { Label, Tip, WithPermission } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, setBadge } from 'modules/common/utils';
 import * as React from 'react';
@@ -140,51 +140,67 @@ class Navigation extends React.Component<{
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
-          <Tip placement="right" text={__('Inbox').toString()}>
-            <NavLink to="/inbox">
-              <NavIcon className="icon-chat" />
-              {unreadConversationsCount !== 0 && (
-                <Label shake={true} lblStyle="danger" ignoreTrans={true}>
-                  {unreadConversationsCount}
-                </Label>
-              )}
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Deal').toString()}>
-            <NavLink to="/deals">
-              <NavIcon className="icon-piggy-bank" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Customers').toString()}>
-            <NavLink to="/customers">
-              <NavIcon className="icon-users" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Companies').toString()}>
-            <NavLink to="/companies">
-              <NavIcon className="icon-briefcase" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Leads').toString()}>
-            <NavLink to="/forms">
-              <NavIcon className="icon-laptop" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Engage').toString()}>
-            <NavLink to="/engage">
-              <NavIcon className="icon-megaphone" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('Knowledge Base').toString()}>
-            <NavLink to="/knowledgeBase">
-              <NavIcon className="icon-clipboard" />
-            </NavLink>
-          </Tip>
-          <Tip placement="right" text={__('App store').toString()}>
-            <NavLink to="/settings/integrations" className="bottom">
-              <NavIcon className="icon-menu" />
-            </NavLink>
-          </Tip>
+          <WithPermission action="showConversations">
+            <Tip placement="right" text={__('Inbox').toString()}>
+              <NavLink to="/inbox">
+                <NavIcon className="icon-chat" />
+                {unreadConversationsCount !== 0 && (
+                  <Label shake={true} lblStyle="danger" ignoreTrans={true}>
+                    {unreadConversationsCount}
+                  </Label>
+                )}
+              </NavLink>
+            </Tip>
+          </WithPermission>
+          <WithPermission action="showDeals">
+            <Tip placement="right" text={__('Deal').toString()}>
+              <NavLink to="/deals">
+                <NavIcon className="icon-piggy-bank" />
+              </NavLink>
+            </Tip>
+          </WithPermission>
+          <WithPermission action="showCustomers">
+            <Tip placement="right" text={__('Customers').toString()}>
+              <NavLink to="/customers">
+                <NavIcon className="icon-users" />
+              </NavLink>
+            </Tip>
+          </WithPermission>
+          <WithPermission action="showCompanies">
+            <Tip placement="right" text={__('Companies').toString()}>
+              <NavLink to="/companies">
+                <NavIcon className="icon-briefcase" />
+              </NavLink>
+            </Tip>
+          </WithPermission>
+          <WithPermission action="showFields">
+            <Tip placement="right" text={__('Leads').toString()}>
+              <NavLink to="/forms">
+                <NavIcon className="icon-laptop" />
+              </NavLink>
+            </Tip>
+          </WithPermission>
+          <WithPermission action="showEngagesMessages">
+            <Tip placement="right" text={__('Engage').toString()}>
+              <NavLink to="/engage">
+                <NavIcon className="icon-megaphone" />
+              </NavLink>
+            </Tip>
+          </WithPermission>
+          <WithPermission action="showKnowledgeBase">
+            <Tip placement="right" text={__('Knowledge Base').toString()}>
+              <NavLink to="/knowledgeBase">
+                <NavIcon className="icon-clipboard" />
+              </NavLink>
+            </Tip>
+            <WithPermission action="showIntegrations">
+              <Tip placement="right" text={__('App store').toString()}>
+                <NavLink to="/settings/integrations" className="bottom">
+                  <NavIcon className="icon-menu" />
+                </NavLink>
+              </Tip>
+            </WithPermission>
+          </WithPermission>
         </Nav>
       </LeftNavigation>
     );

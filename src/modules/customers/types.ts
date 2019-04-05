@@ -189,4 +189,6 @@ export type CustomerDetailQueryResponse = {
 export type ActivityLogQueryResponse = {
   activityLogs: IActivityLogForMonth[];
   loading: boolean;
+  refetch: () => void;
+  subscribeToMore: any;
 };
