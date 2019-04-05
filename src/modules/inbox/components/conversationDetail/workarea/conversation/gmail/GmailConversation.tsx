@@ -36,7 +36,13 @@ class GmailConversation extends React.Component<Props, {}> {
     return (
       <>
         {messages.map(message => {
-          return <Mail key={message._id} message={message} />;
+          return (
+            <Mail
+              key={message._id}
+              message={message}
+              integrationId={conversation.integration._id}
+            />
+          );
         })}
         <InternalMessages>{this.renderInternals(messages)}</InternalMessages>
       </>
