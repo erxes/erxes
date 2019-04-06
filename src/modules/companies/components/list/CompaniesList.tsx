@@ -159,7 +159,7 @@ class CompaniesList extends React.Component<IProps, State> {
     );
 
     const mergeButton = (
-      <Button btnStyle="primary" size="small" icon="shuffle">
+      <Button btnStyle="primary" size="small" icon="merge">
         Merge
       </Button>
     );
@@ -247,6 +247,7 @@ class CompaniesList extends React.Component<IProps, State> {
           trigger={addTrigger}
           size="lg"
           content={companyForm}
+          backDrop="static"
         />
       </BarItems>
     );
@@ -263,7 +264,7 @@ class CompaniesList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar loadingMainQuery={loading} />}
         content={
           <DataWithLoader
             data={mainContent}

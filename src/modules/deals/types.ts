@@ -30,6 +30,7 @@ export interface IStage {
   itemId?: string;
   amount?: any;
   deals?: IDeal[];
+  dealsTotalCount: number;
 }
 
 export interface IDeal {
@@ -46,6 +47,18 @@ export interface IDeal {
   pipeline: IPipeline;
   stage?: IStage;
   products: any;
+}
+
+export interface IDealTotalAmount {
+  _id: string;
+  dealCount: number;
+  dealAmounts: [
+    {
+      _id: string;
+      amount: number;
+      currency: string;
+    }
+  ];
 }
 
 export interface IProductData {
@@ -107,6 +120,12 @@ export type DealsQueryResponse = {
   deals: IDeal[];
   loading: boolean;
   refetch: () => void;
+  fetchMore: any;
+};
+
+export type DealsTotalAmountsQueryResponse = {
+  dealsTotalAmounts: IDealTotalAmount;
+  refetch: () => void;
 };
 
 export type DealDetailQueryResponse = {
@@ -156,7 +175,7 @@ export type PipelineDetailQueryResponse = {
 };
 
 export type ActivityLogQueryResponse = {
-  activityLogsDeal: IActivityLogForMonth[];
+  activityLogs: IActivityLogForMonth[];
   loading: boolean;
 };
 

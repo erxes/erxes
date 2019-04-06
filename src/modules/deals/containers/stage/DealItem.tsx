@@ -6,9 +6,9 @@ import { PipelineConsumer } from '../PipelineContext';
 type Props = {
   stageId: string;
   deal: IDeal;
-  index: number;
   isDragging: boolean;
   provided;
+  onTogglePopup: () => void;
 };
 
 export default (props: Props) => {
@@ -17,7 +17,11 @@ export default (props: Props) => {
       {({ onAddDeal, onRemoveDeal, onUpdateDeal }) => {
         return (
           <DealItem
-            {...props}
+            stageId={props.stageId}
+            deal={props.deal}
+            isDragging={props.isDragging}
+            provided={props.provided}
+            onTogglePopup={props.onTogglePopup}
             onAdd={onAddDeal}
             onRemove={onRemoveDeal}
             onUpdate={onUpdateDeal}

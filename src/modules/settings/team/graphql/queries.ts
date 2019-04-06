@@ -6,6 +6,7 @@ const userDetail = `
       email
       role
       status
+      groupIds
 
       details {
         avatar
@@ -29,33 +30,14 @@ const userDetail = `
   }
 `;
 
-const userActivityLog = `
-query activityLogsUser($_id: String!) {
-  activityLogsUser(_id: $_id) {
-    date {
-      year
-      month
-    }
-    list {
-      id
-      action
-      content
-      createdAt
-      by {
-        _id
-        type
-        details {
-          avatar
-          fullName
-        }
-      }
-    }
+const totalUsersCount = `
+  query totalUsersCount {
+    usersTotalCount
   }
-}
 `;
 
 const userConversations = `
-query userConversations($_id: String!, $perPage: Int) {
+  query userConversations($_id: String!, $perPage: Int) {
     userConversations(_id: $_id, perPage: $perPage) {
     list {
       _id
@@ -84,14 +66,26 @@ const channels = `
   }
 `;
 
+const listParamsDef = `
+  $searchValue: String,
+  $isActive: Boolean
+`;
+
+const listParamsValue = `
+  searchValue: $searchValue,
+  isActive: $isActive
+`;
+
 const users = `
-  query users($page: Int, $perPage: Int, $searchValue: String) {
-    users(page: $page, perPage: $perPage, searchValue: $searchValue) {
+  query users($page: Int, $perPage: Int, ${listParamsDef}) {
+    users(page: $page, perPage: $perPage, ${listParamsValue}) {
       _id
       username
       email
       role
       status
+      isActive
+      groupIds
       details {
         avatar
         fullName
@@ -112,10 +106,16 @@ const users = `
   }
 `;
 
+const usersTotalCount = `
+  query usersTotalCount(${listParamsDef}) {
+    usersTotalCount(${listParamsValue})
+  }
+`;
+
 export default {
   userDetail,
   channels,
-  userActivityLog,
   userConversations,
-  users
+  users,
+  usersTotalCount
 };

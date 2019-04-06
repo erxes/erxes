@@ -1,6 +1,14 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { SegmentsForm, SegmentsList } from './containers';
+
+const SegmentsList = asyncComponent(() =>
+  import(/* webpackChunkName: "SegmentsList" */ './containers/SegmentsList')
+);
+
+const SegmentsForm = asyncComponent(() =>
+  import(/* webpackChunkName: "SegmentsForm" */ './containers/SegmentsForm')
+);
 
 const segments = ({ match }) => {
   const contentType = match.params.contentType;

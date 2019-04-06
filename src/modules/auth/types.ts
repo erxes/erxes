@@ -27,11 +27,14 @@ export interface IUserDoc {
   username: string;
   email: string;
   role?: string;
+  isActive?: boolean;
   details?: IUserDetails;
+  isOwner?: boolean;
   status?: string;
   links?: IUserLinks;
   getNotificationByEmail?: boolean;
   participatedConversations?: IUserConversation[];
+  permissionActions?: string[];
 }
 
 export interface IUser extends IUserDoc {

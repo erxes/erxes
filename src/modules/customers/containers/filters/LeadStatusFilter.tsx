@@ -7,34 +7,38 @@ import { queries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 
 type Props = {
-  customersCountQuery: CountQueryResponse;
+  customersCountQuery?: CountQueryResponse;
 };
 
 class LeadStatusFilterContainer extends React.Component<Props> {
   render() {
     const { customersCountQuery } = this.props;
 
-    const counts = customersCountQuery.customerCounts || {};
+    const counts = (customersCountQuery
+      ? customersCountQuery.customerCounts
+      : null) || { byLeadStatus: {} };
 
     const updatedProps = {
       counts: counts.byLeadStatus || {},
-      loading: customersCountQuery.loading
+      loading: customersCountQuery ? customersCountQuery.loading : false
     };
 
     return <LeadStatusFilter {...updatedProps} />;
   }
 }
 
-export default withProps<{}>(
+export default withProps<{ loadingMainQuery: boolean }>(
   compose(
-    graphql<{}, CountQueryResponse, { only: string }>(
-      gql(queries.customerCounts),
-      {
-        name: 'customersCountQuery',
-        options: {
-          variables: { only: 'byLeadStatus' }
-        }
+    graphql<
+      { loadingMainQuery: boolean },
+      CountQueryResponse,
+      { only: string }
+    >(gql(queries.customerCounts), {
+      name: 'customersCountQuery',
+      skip: ({ loadingMainQuery }) => loadingMainQuery,
+      options: {
+        variables: { only: 'byLeadStatus' }
       }
-    )
+    })
   )(LeadStatusFilterContainer)
 );

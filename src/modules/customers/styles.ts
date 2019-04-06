@@ -29,7 +29,7 @@ const Action = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
 `;
 
 const List = styled(SidebarList)`
@@ -78,6 +78,7 @@ const Contact = styled.div`
 const Name = styled.div`
   flex: 1;
   word-break: break-word;
+  margin-bottom: 10px;
 
   p {
     color: ${colors.colorCoreLightGray};
@@ -87,7 +88,7 @@ const Name = styled.div`
 `;
 
 const TabContent = styled.div`
-  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 export {

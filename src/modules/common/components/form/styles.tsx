@@ -31,14 +31,14 @@ const formInvalid = `
 const Formgroup = styled.div`
   margin-bottom: 20px;
 
-  label {
+  > label {
     margin-right: ${dimensions.unitSpacing}px;
   }
 
   p {
     font-size: 12px;
     color: ${colors.colorCoreGray};
-    margin: 0;
+    margin-bottom: 5px;
   }
 `;
 
@@ -120,6 +120,7 @@ const TextArea = styledTS<{ maxHeight?: number }>(
   transition: none;
   max-height: ${props => props.maxHeight && `${props.maxHeight}px`};
   min-height: 80px;
+  resize: none;
 `;
 
 const FormLabel = styled.label`

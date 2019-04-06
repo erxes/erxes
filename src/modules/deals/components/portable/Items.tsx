@@ -1,30 +1,29 @@
 import { renderFullName } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import { PortableItem } from 'modules/deals/styles/deal';
+import { DealIndicator } from 'modules/deals/styles/stage';
 import * as React from 'react';
 import { ICompany } from '../../../companies/types';
 import { IProduct } from '../../../settings/productService/types';
 
 type Props = {
   items: ICompany[] | IProduct[] | ICustomer[];
-  uppercase?: boolean;
   color: string;
 };
 
 class Items extends React.Component<Props> {
-  renderItem(item, uppercase, color, index) {
+  renderItem(item, color, index) {
     return (
-      <PortableItem uppercase={uppercase} key={index} color={color}>
+      <div key={index}>
+        <DealIndicator color={color} />
         {item.name || item.primaryName || renderFullName(item)}
-      </PortableItem>
+      </div>
     );
   }
 
   renderItems(items) {
-    const { uppercase, color } = this.props;
-    return items.map((item, index) =>
-      this.renderItem(item, uppercase, color, index)
-    );
+    const { color } = this.props;
+
+    return items.map((item, index) => this.renderItem(item, color, index));
   }
 
   render() {
@@ -35,7 +34,7 @@ class Items extends React.Component<Props> {
       return null;
     }
 
-    return <React.Fragment>{this.renderItems(items)}</React.Fragment>;
+    return <>{this.renderItems(items)}</>;
   }
 }
 

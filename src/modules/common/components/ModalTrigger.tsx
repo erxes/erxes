@@ -9,6 +9,7 @@ type Props = {
   size?: string;
   ignoreTrans?: boolean;
   dialogClassName?: string;
+  backDrop?: string;
 };
 
 type State = {
@@ -37,7 +38,8 @@ class ModalTrigger extends React.Component<Props, State> {
       size,
       ignoreTrans,
       dialogClassName,
-      content
+      content,
+      backDrop
     } = this.props;
 
     const { isOpen } = this.state;
@@ -59,6 +61,7 @@ class ModalTrigger extends React.Component<Props, State> {
           bsSize={size}
           show={isOpen}
           onHide={this.closeModal}
+          backdrop={backDrop}
         >
           <Modal.Header closeButton={true}>
             <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>

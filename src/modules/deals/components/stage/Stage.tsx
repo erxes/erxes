@@ -5,9 +5,12 @@ import {
   Body,
   Container,
   Header,
+  HeaderAmount,
   Indicator,
   IndicatorItem,
-  StageFooter
+  LoadingContent,
+  StageFooter,
+  StageRoot
 } from 'modules/deals/styles/stage';
 import { IDeal, IStage } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
@@ -17,21 +20,66 @@ import { DealAddForm } from '.';
 import DealList from './DealList';
 
 type Props = {
+  loadingDeals: boolean;
   index: number;
-  stage?: IStage;
+  stage: IStage;
   length: number;
   deals: IDeal[];
   addDeal: (name: string, callback: () => void) => void;
+  loadMore: () => void;
 };
+export default class Stage extends React.Component<Props, {}> {
+  private bodyRef;
 
-export default class Stage extends React.Component<Props> {
+  constructor(props: Props) {
+    super(props);
+
+    this.bodyRef = React.createRef();
+  }
+
+  componentDidMount() {
+    // Load deals until scroll created
+    const handle = setInterval(() => {
+      const { current } = this.bodyRef;
+
+      if (!current) {
+        return;
+      }
+
+      const isScrolled = current.scrollHeight > current.clientHeight;
+
+      if (isScrolled) {
+        clearInterval(handle);
+      }
+
+      const { deals, stage, loadMore } = this.props;
+
+      if (deals.length < stage.dealsTotalCount) {
+        loadMore();
+      } else {
+        clearInterval(handle);
+      }
+    }, 1000);
+  }
+
+  onScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const bottom =
+      target.scrollHeight - target.scrollTop === target.clientHeight;
+
+    if (bottom) {
+      this.props.loadMore();
+    }
+  };
+
   renderAddDealTrigger() {
     const { addDeal } = this.props;
 
     const trigger = (
       <StageFooter>
         <AddNew>
-          <Icon icon="add" /> {__('Add a deal')}
+          <Icon icon="plus" />
+          {__('Add a deal')}
         </AddNew>
       </StageFooter>
     );
@@ -56,8 +104,24 @@ export default class Stage extends React.Component<Props> {
     return data;
   }
 
+  shouldComponentUpdate(nextProps: Props) {
+    const { stage, index, length, deals, loadingDeals } = this.props;
+
+    if (
+      index !== nextProps.index ||
+      loadingDeals !== nextProps.loadingDeals ||
+      length !== nextProps.length ||
+      JSON.stringify(stage) !== JSON.stringify(nextProps.stage) ||
+      JSON.stringify(deals) !== JSON.stringify(nextProps.deals)
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
   render() {
-    const { index, stage, deals } = this.props;
+    const { index, stage, deals, loadingDeals } = this.props;
 
     if (!stage) {
       return <EmptyState icon="clipboard" text="No stage" size="small" />;
@@ -65,25 +129,32 @@ export default class Stage extends React.Component<Props> {
 
     return (
       <Draggable draggableId={stage.name} index={index}>
-        {provided => (
+        {(provided, snapshot) => (
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
-            <Header {...provided.dragHandleProps}>
-              <h4>
-                {stage.name}
-                <span>({deals.length})</span>
-              </h4>
-              {renderDealAmount(stage.amount)}
-              <Indicator>{this.renderIndicator()}</Indicator>
-            </Header>
-            <Body>
-              <DealList
-                listId={stage._id}
-                listType="DEAL"
-                stageId={stage._id}
-                deals={deals}
-              />
-            </Body>
-            {this.renderAddDealTrigger()}
+            <StageRoot isDragging={snapshot.isDragging}>
+              <Header {...provided.dragHandleProps}>
+                <h4>
+                  {stage.name}
+                  <span>{stage.dealsTotalCount}</span>
+                </h4>
+                <HeaderAmount>{renderDealAmount(stage.amount)}</HeaderAmount>
+                <Indicator>{this.renderIndicator()}</Indicator>
+              </Header>
+              <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
+                {loadingDeals ? (
+                  <LoadingContent>
+                    <img src="/images/loading-content.gif" />
+                  </LoadingContent>
+                ) : null}
+                <DealList
+                  listId={stage._id}
+                  listType="DEAL"
+                  stageId={stage._id}
+                  deals={deals}
+                />
+              </Body>
+              {this.renderAddDealTrigger()}
+            </StageRoot>
           </Container>
         )}
       </Draggable>

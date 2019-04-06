@@ -15,31 +15,62 @@ type Props = {
   // may not be provided - and might be null
   ignoreContainerClipping?: boolean;
 };
+class DraggableContainer extends React.Component<
+  { stageId: string; deal: IDeal; index: number },
+  { isDragDisabled: boolean }
+> {
+  constructor(props) {
+    super(props);
 
-class InnerDealList extends React.Component<{
-  stageId: string;
-  deals: IDeal[];
-}> {
-  shouldComponentUpdate(nextProps) {
-    return nextProps.deals !== this.props.deals;
+    this.state = { isDragDisabled: false };
   }
 
-  render() {
-    const { stageId, deals } = this.props;
+  onTogglePopup = () => {
+    const { isDragDisabled } = this.state;
 
-    return deals.map((deal, index: number) => (
-      <Draggable key={deal._id} draggableId={deal._id} index={index}>
+    this.setState({ isDragDisabled: !isDragDisabled });
+  };
+
+  render() {
+    const { stageId, deal, index } = this.props;
+    const { isDragDisabled } = this.state;
+
+    return (
+      <Draggable
+        key={deal._id}
+        draggableId={deal._id}
+        index={index}
+        isDragDisabled={isDragDisabled}
+      >
         {(dragProvided, dragSnapshot) => (
           <DealItem
             key={deal._id}
-            index={index}
             stageId={stageId}
             deal={deal}
             isDragging={dragSnapshot.isDragging}
+            onTogglePopup={this.onTogglePopup}
             provided={dragProvided}
           />
         )}
       </Draggable>
+    );
+  }
+}
+
+class InnerDealList extends React.PureComponent<{
+  stageId: string;
+  deals: IDeal[];
+}> {
+  render() {
+    const { stageId, deals } = this.props;
+
+    return deals.map((deal, index: number) => (
+      <DraggableContainer
+        key={deal._id}
+        stageId={stageId}
+        deal={deal}
+        index={index}
+      />
     ));
   }
 }
@@ -50,7 +81,7 @@ type InnerListProps = {
   deals: IDeal[];
 };
 
-class InnerList extends React.Component<InnerListProps> {
+class InnerList extends React.PureComponent<InnerListProps> {
   render() {
     const { stageId, deals, dropProvided } = this.props;
     if (deals.length === 0) {
@@ -102,6 +133,7 @@ export default class DealList extends React.Component<Props> {
               deals={deals}
               dropProvided={dropProvided}
             />
+            {dropProvided.placeholder}
           </Wrapper>
         )}
       </Droppable>

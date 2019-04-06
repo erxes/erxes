@@ -187,6 +187,8 @@ export type CustomerDetailQueryResponse = {
 };
 
 export type ActivityLogQueryResponse = {
-  activityLogsCustomer: IActivityLogForMonth[];
+  activityLogs: IActivityLogForMonth[];
   loading: boolean;
+  refetch: () => void;
+  subscribeToMore: any;
 };

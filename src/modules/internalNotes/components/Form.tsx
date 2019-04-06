@@ -1,5 +1,11 @@
-import { Button, FormControl } from 'modules/common/components';
-import { colors, dimensions } from 'modules/common/styles';
+import { ContentState, EditorState, getDefaultKeyBinding } from 'draft-js';
+import { Button } from 'modules/common/components';
+import {
+  createStateFromHTML,
+  ErxesEditor,
+  toHTML
+} from 'modules/common/components/editor/Editor';
+import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -15,59 +21,86 @@ export const EditorActions = styled.div`
 const EditorWrapper = styled.div`
   position: relative;
 
-  textarea {
-    border-bottom: none;
-    box-sizing: border-box;
-    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px
-      ${dimensions.coreSpacing * 1.5}px;
+  .RichEditor-editor .public-DraftEditor-content {
+    min-height: 130px;
+    padding-bottom: 40px;
   }
 `;
 
-class Form extends React.Component<
+class Form extends React.PureComponent<
   { create: (content: string) => void },
-  { content: string; editing: boolean }
+  { editorState: EditorState }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      content: '',
-      editing: false
+      editorState: createStateFromHTML(EditorState.createEmpty(), '')
     };
   }
 
-  handleChange = e => {
-    e.preventDefault();
-    this.setState({ content: e.target.value, editing: true });
+  getContent = editorState => {
+    return toHTML(editorState);
   };
 
-  handleKeyDown = e => {
-    if (e.keyCode === 13 && e.shiftKey === false && this.state.content !== '') {
-      e.preventDefault();
-      this.onSend();
+  onChangeContent = editorState => {
+    this.setState({ editorState });
+  };
+
+  hasText() {
+    return this.state.editorState.getCurrentContent().hasText();
+  }
+
+  clearContent = () => {
+    const state = this.state.editorState;
+
+    const editorState = EditorState.push(
+      state,
+      ContentState.createFromText(''),
+      'insert-characters'
+    );
+
+    this.setState({ editorState: EditorState.moveFocusToEnd(editorState) });
+  };
+
+  keyBindingFn = e => {
+    // handle new line
+    if (e.key === 'Enter' && e.shiftKey) {
+      return getDefaultKeyBinding(e);
     }
+
+    // handle enter  in editor
+    if (e.key === 'Enter') {
+      if (this.hasText()) {
+        this.onSend();
+
+        return null;
+      }
+
+      return null;
+    }
+
+    return getDefaultKeyBinding(e);
   };
 
   onSend = () => {
-    this.props.create(this.state.content);
-    this.cancelEditing();
-  };
+    this.props.create(this.getContent(this.state.editorState));
 
-  cancelEditing = () => {
-    this.setState({ content: '', editing: false });
+    this.clearContent();
   };
 
   renderFooter() {
-    if (!this.state.editing) {
+    if (!this.hasText()) {
       return null;
     }
+
     return (
       <EditorActions>
         <Button
-          onClick={this.cancelEditing}
-          btnStyle="simple"
+          onClick={this.clearContent}
+          btnStyle="warning"
           size="small"
-          icon="cancel-1"
+          icon="eraser-1"
         >
           Discard
         </Button>
@@ -84,16 +117,17 @@ class Form extends React.Component<
   }
 
   render() {
+    const props = {
+      editorState: this.state.editorState,
+      onChange: this.onChangeContent,
+      keyBindingFn: this.keyBindingFn,
+      placeholder: __('Write your note here')
+    };
+
     return (
       <EditorWrapper>
-        <form onKeyDown={this.handleKeyDown} onChange={this.handleChange}>
-          <FormControl
-            componentClass="textarea"
-            placeholder={__('Start typing to leave a note')}
-            value={this.state.content}
-          />
-          {this.renderFooter()}
-        </form>
+        <ErxesEditor {...props} />
+        {this.renderFooter()}
       </EditorWrapper>
     );
   }

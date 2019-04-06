@@ -1,4 +1,6 @@
+import { AppConsumer } from 'appContext';
 import { Bulk } from 'modules/common/components';
+import { IBulkContentProps } from 'modules/common/components/Bulk';
 import { Sidebar as DumbSidebar } from 'modules/inbox/components/leftSidebar';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
@@ -38,15 +40,27 @@ class Sidebar extends React.Component<Props> {
       name: item
     }));
 
-    const updatedProps = {
-      ...this.props,
-      integrations,
-      config: getConfig(STORAGE_KEY),
-      toggleSidebar: this.toggle
-    };
+    const { currentConversationId, queryParams, history } = this.props;
 
-    const content = props => {
-      return <DumbSidebar {...updatedProps} {...props} />;
+    const content = ({ bulk, toggleBulk, emptyBulk }: IBulkContentProps) => {
+      return (
+        <AppConsumer>
+          {({ currentUser }) => (
+            <DumbSidebar
+              currentUser={currentUser}
+              currentConversationId={currentConversationId}
+              queryParams={queryParams}
+              integrations={integrations}
+              history={history}
+              bulk={bulk}
+              emptyBulk={emptyBulk}
+              toggleBulk={toggleBulk}
+              config={getConfig(STORAGE_KEY)}
+              toggleSidebar={this.toggle}
+            />
+          )}
+        </AppConsumer>
+      );
     };
 
     return <Bulk content={content} />;

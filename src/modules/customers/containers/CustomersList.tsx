@@ -118,6 +118,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           window.open(data.customersExport, '_blank');
         })
         .catch(error => {
+          this.setState({ loading: false });
           Alert.error(error.message);
         });
     };
@@ -210,18 +211,14 @@ export default withProps<Props>(
       {
         name: 'customersMainQuery',
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
+          variables: generateParams({ queryParams })
         })
       }
     ),
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.customersListConfig),
       {
-        name: 'customersListConfigQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
+        name: 'customersListConfigQuery'
       }
     ),
 

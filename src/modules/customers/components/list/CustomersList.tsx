@@ -229,6 +229,7 @@ class CustomersList extends React.Component<IProps, State> {
                 title="Manage Columns"
                 trigger={editColumns}
                 content={manageColumns}
+                dialogClassName="transform"
               />
             </li>
             <li>
@@ -262,6 +263,7 @@ class CustomersList extends React.Component<IProps, State> {
           trigger={addTrigger}
           size="lg"
           content={customerForm}
+          backDrop="static"
         />
       </BarItems>
     );
@@ -269,7 +271,7 @@ class CustomersList extends React.Component<IProps, State> {
     let actionBarLeft: React.ReactNode;
 
     const mergeButton = (
-      <Button btnStyle="primary" size="small" icon="shuffle">
+      <Button btnStyle="primary" size="small" icon="merge">
         Merge
       </Button>
     );
@@ -335,7 +337,7 @@ class CustomersList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar loadingMainQuery={loading} />}
         content={
           <DataWithLoader
             data={this.renderContent()}

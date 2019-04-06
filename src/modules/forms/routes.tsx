@@ -1,7 +1,19 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { CreateForm, EditForm, List } from './containers';
+
+const CreateForm = asyncComponent(() =>
+  import(/* webpackChunkName: "CreateForm" */ './containers/CreateForm')
+);
+
+const EditForm = asyncComponent(() =>
+  import(/* webpackChunkName: "EditForm" */ './containers/EditForm')
+);
+
+const List = asyncComponent(() =>
+  import(/* webpackChunkName: "List - Form" */ './containers/List')
+);
 
 const forms = ({ location }) => {
   const queryParams = queryString.parse(location.search);

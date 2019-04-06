@@ -13,13 +13,13 @@ import { Stage } from './stage';
 const Container = styled.div`
   height: 100%;
   display: inline-flex;
-  padding-bottom: 10px;
 `;
 
 type Props = {
   pipeline: IPipeline;
   initialDealMap?: IDealMap;
   stageMap?: IStageMap;
+  queryParams: any;
 };
 
 class WithStages extends React.Component<Props, {}> {
@@ -28,7 +28,7 @@ class WithStages extends React.Component<Props, {}> {
   }
 
   render() {
-    const { initialDealMap, pipeline, stageMap } = this.props;
+    const { initialDealMap, pipeline, stageMap, queryParams } = this.props;
     const stagesCount = this.countStages(stageMap);
 
     if (stagesCount === 0) {
@@ -42,9 +42,13 @@ class WithStages extends React.Component<Props, {}> {
     }
 
     return (
-      <PipelineProvider pipeline={pipeline} initialDealMap={initialDealMap}>
+      <PipelineProvider
+        pipeline={pipeline}
+        initialDealMap={initialDealMap}
+        queryParams={queryParams}
+      >
         <PipelineConsumer>
-          {({ dealMap, onDragEnd, stageIds }) => (
+          {({ stageLoadMap, dealMap, onDragEnd, stageIds }) => (
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable
                 droppableId="pipeline"
@@ -57,15 +61,26 @@ class WithStages extends React.Component<Props, {}> {
                     innerRef={provided.innerRef}
                     {...provided.droppableProps}
                   >
-                    {stageIds.map((stageId, index) => (
-                      <Stage
-                        key={stageId}
-                        index={index}
-                        length={stagesCount}
-                        stage={stageMap && stageMap[stageId]}
-                        deals={dealMap[stageId]}
-                      />
-                    ))}
+                    {stageIds.map((stageId, index) => {
+                      const stage = stageMap && stageMap[stageId];
+
+                      if (!stage) {
+                        return null;
+                      }
+
+                      return (
+                        <Stage
+                          key={stageId}
+                          index={index}
+                          length={stagesCount}
+                          stage={stage}
+                          deals={dealMap[stageId]}
+                          search={queryParams.search}
+                          loadingState={stageLoadMap[stageId]}
+                        />
+                      );
+                    })}
+                    {provided.placeholder}
                   </Container>
                 )}
               </Droppable>
@@ -94,7 +109,7 @@ const WithStatesQuery = (props: WithStatesQueryProps) => {
   const stageMap: IStageMap = {};
 
   for (const stage of stages) {
-    dealMap[stage._id] = stage.deals || [];
+    dealMap[stage._id] = [];
     stageMap[stage._id] = stage;
   }
 
@@ -105,10 +120,10 @@ export default withProps<Props>(
   compose(
     graphql<Props, StagesQueryResponse>(gql(queries.stages), {
       name: 'stagesQuery',
-      options: ({ pipeline }) => ({
-        fetchPolicy: 'network-only',
+      options: ({ pipeline, queryParams }) => ({
         variables: {
-          pipelineId: pipeline._id
+          pipelineId: pipeline._id,
+          search: queryParams.search
         }
       })
     })

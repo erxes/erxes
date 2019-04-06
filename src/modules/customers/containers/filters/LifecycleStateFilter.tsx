@@ -7,34 +7,37 @@ import { queries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 
 type Props = {
-  customersCountQuery: CountQueryResponse;
+  customersCountQuery?: CountQueryResponse;
 };
 
 class LifecycleStateFilterContainer extends React.Component<Props> {
   render() {
     const { customersCountQuery } = this.props;
 
-    const counts = customersCountQuery.customerCounts || {};
+    const counts =
+      (customersCountQuery ? customersCountQuery.customerCounts : null) || {};
 
     const updatedProps = {
-      counts: counts.byLifecycleState || {},
-      loading: customersCountQuery.loading
+      counts,
+      loading: customersCountQuery ? customersCountQuery.loading : false
     };
 
     return <LifecycleStateFilter {...updatedProps} />;
   }
 }
 
-export default withProps<{}>(
+export default withProps<{ loadingMainQuery: boolean }>(
   compose(
-    graphql<{}, CountQueryResponse, { only: string }>(
-      gql(queries.customerCounts),
-      {
-        name: 'customersCountQuery',
-        options: {
-          variables: { only: 'byLifecycleState' }
-        }
+    graphql<
+      { loadingMainQuery: boolean },
+      CountQueryResponse,
+      { only: string }
+    >(gql(queries.customerCounts), {
+      name: 'customersCountQuery',
+      skip: ({ loadingMainQuery }) => loadingMainQuery,
+      options: {
+        variables: { only: 'byLifecycleState' }
       }
-    )
+    })
   )(LifecycleStateFilterContainer)
 );

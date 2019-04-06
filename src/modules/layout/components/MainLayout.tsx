@@ -40,7 +40,7 @@ class MainLayout extends React.Component<IProps> {
 
     return (
       <Layout>
-        {currentUser && <Navigation />}
+        {currentUser && <Navigation currentUser={currentUser} />}
         {children}
         <Welcome hasSeen={hasSeenOnboard} />
       </Layout>

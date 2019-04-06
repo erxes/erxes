@@ -5,6 +5,7 @@ import BreadCrumb from './breadcrumb/BreadCrumb';
 import BreadCrumbItem from './breadcrumb/BreadCrumbItem';
 import Bulk from './Bulk';
 import Button from './Button';
+import Calendar from './Calendar';
 import Chip from './Chip';
 import Chooser from './Chooser';
 import ConfirmDialog from './ConfirmDialog';
@@ -42,6 +43,7 @@ import TextDivider from './TextDivider';
 import TextInfo from './TextInfo';
 import Tip from './Tip';
 import Uploader from './Uploader';
+import WithPermission from './WithPermission';
 
 // TODO remove
 const pagination = {};
@@ -96,5 +98,7 @@ export {
   Uploader,
   SortHandler,
   TextInfo,
-  Info
+  Info,
+  Calendar,
+  WithPermission
 };

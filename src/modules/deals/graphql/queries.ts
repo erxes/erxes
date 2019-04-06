@@ -69,40 +69,13 @@ const pipelineGetLast = `
 `;
 
 const stages = `
-  query dealStages($pipelineId: String!) {
-    dealStages(pipelineId: $pipelineId) {
+  query dealStages($pipelineId: String!, $search: String) {
+    dealStages(pipelineId: $pipelineId, search: $search) {
       _id
       name
       order
       amount
-
-      deals {
-        _id
-        name
-        amount
-        closeDate
-        assignedUsers {
-          _id
-          email
-          details {
-            fullName
-            avatar
-          }
-        }
-        modifiedAt
-        modifiedBy
-        products
-        companies {
-          _id
-          primaryName
-        }
-        customers {
-          _id
-          firstName
-          primaryEmail
-          primaryPhone
-        }
-      }
+      dealsTotalCount
     }
   }
 `;
@@ -114,10 +87,7 @@ const stageDetail = `
       name
       pipelineId
       amount
-
-      deals {
-        _id
-      }
+      dealsTotalCount
     }
   }
 `;
@@ -162,9 +132,39 @@ const dealFields = `
   modifiedBy
 `;
 
+const dealsTotalAmounts = `
+  query dealsTotalAmounts($date: DealDate $pipelineId: String) {
+    dealsTotalAmounts(date: $date pipelineId: $pipelineId) {
+      _id
+      dealCount
+      dealAmounts {
+        _id
+        currency
+        amount
+      }
+    }
+  }
+`;
+
 const deals = `
-  query deals($stageId: String, $customerId: String, $companyId: String) {
-    deals(stageId: $stageId, customerId: $customerId, companyId: $companyId) {
+  query deals(
+    $pipelineId: String,
+    $stageId: String, 
+    $customerId: String, 
+    $companyId: String ,
+    $date: DealDate,
+    $skip: Int,
+    $search: String
+  ) {
+    deals(
+      pipelineId: $pipelineId,
+      stageId: $stageId, 
+      customerId: $customerId, 
+      companyId: $companyId,
+      date: $date,
+      skip: $skip,
+      search: $search
+    ) {
       ${dealFields}
     }
   }
@@ -201,31 +201,6 @@ const users = `
   }
 `;
 
-const activityLogsDeal = `
-  query activityLogsDeal($_id: String!) {
-    activityLogsDeal(_id: $_id) {
-      date {
-        year
-        month
-      }
-      list {
-        id
-        action
-        content
-        createdAt
-        by {
-          _id
-          type
-          details {
-            avatar
-            fullName
-          }
-        }
-      }
-    }
-  }
-`;
-
 export default {
   boards,
   boardGetLast,
@@ -239,5 +214,5 @@ export default {
   dealDetail,
   productDetail,
   users,
-  activityLogsDeal
+  dealsTotalAmounts
 };

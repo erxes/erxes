@@ -135,8 +135,7 @@ const generateParams = ({ queryParams }) => ({
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined
-  },
-  fetchPolicy: 'network-only'
+  }
 });
 
 export default withProps<Props>(
@@ -149,10 +148,7 @@ export default withProps<Props>(
       }
     ),
     graphql<{}, ListConfigQueryResponse, {}>(gql(queries.companiesListConfig), {
-      name: 'companiesListConfigQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'companiesListConfigQuery'
     }),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(

@@ -1,6 +1,10 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { List } from './containers';
+
+const List = asyncComponent(() =>
+  import(/* webpackChunkName: "List - Tags" */ './containers/List')
+);
 
 const tags = ({ match }) => {
   return <List type={match.params.type} />;

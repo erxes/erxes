@@ -13,6 +13,7 @@ import {
   ModalFooter
 } from 'modules/common/styles/main';
 import { __, searchCompany, searchUser } from 'modules/common/utils';
+import { regexEmail, regexPhone } from 'modules/customers/utils';
 import {
   leadStatusChoices,
   lifecycleStateChoices
@@ -170,9 +171,7 @@ class CompanyForm extends React.Component<Props, State> {
   };
 
   handleUserSearch = value => {
-    if (value) {
-      searchUser(value, users => this.setState({ users }));
-    }
+    searchUser(value, users => this.setState({ users }));
   };
 
   renderFormGroup = (label, props) => {
@@ -243,7 +242,7 @@ class CompanyForm extends React.Component<Props, State> {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder="Search"
-                onFocus={this.handleUserSearch.bind(this, ' ')}
+                onFocus={this.handleUserSearch.bind(this, '')}
                 onInputChange={this.handleUserSearch}
                 filterOptions={filterOptions}
                 onChange={this.handleSelect.bind(this, 'ownerId')}
@@ -260,6 +259,7 @@ class CompanyForm extends React.Component<Props, State> {
                 placeholder="Primary Email"
                 buttonText="Add email"
                 onChange={this.onChange.bind(this, 'emails', 'primaryEmail')}
+                regex={regexEmail}
               />
             </FormGroup>
 
@@ -313,6 +313,7 @@ class CompanyForm extends React.Component<Props, State> {
                 placeholder="Primary phone"
                 buttonText="Add phone"
                 onChange={this.onChange.bind(this, 'phones', 'primaryPhone')}
+                regex={regexPhone}
               />
             </FormGroup>
 

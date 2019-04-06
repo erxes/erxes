@@ -1,13 +1,14 @@
+import { ActivityInputs } from 'modules/activityLogs/components';
+import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
 import { Button } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { ICompany } from '../../../companies/types';
 import { ICustomer } from '../../../customers/types';
 import { IProduct } from '../../../settings/productService/types';
-import { Tab } from '../../containers';
-import { FlexContent, FormFooter } from '../../styles/deal';
+import { FlexContent, FormFooter, Left } from '../../styles/deal';
 import { IDeal, IDealParams } from '../../types';
 import { Sidebar, Top } from './';
 
@@ -165,7 +166,7 @@ class DealEditForm extends React.Component<Props, State> {
     } = this.state;
 
     return (
-      <React.Fragment>
+      <>
         <Top
           name={name}
           description={description}
@@ -179,7 +180,20 @@ class DealEditForm extends React.Component<Props, State> {
         />
 
         <FlexContent>
-          <Tab deal={deal} />
+          <Left>
+            <ActivityInputs
+              contentTypeId={deal._id}
+              contentType="deal"
+              showEmail={false}
+            />
+            <ActivityLogs
+              target={deal.name}
+              contentId={deal._id}
+              contentType="deal"
+              extraTabs={[]}
+            />
+          </Left>
+
           <Sidebar
             customers={customers}
             companies={companies}
@@ -192,13 +206,13 @@ class DealEditForm extends React.Component<Props, State> {
             saveProductsData={this.saveProductsData}
           />
         </FlexContent>
-      </React.Fragment>
+      </>
     );
   }
 
   render() {
     return (
-      <React.Fragment>
+      <>
         {this.renderFormContent()}
 
         <FormFooter>
@@ -214,7 +228,7 @@ class DealEditForm extends React.Component<Props, State> {
             Save
           </Button>
         </FormFooter>
-      </React.Fragment>
+      </>
     );
   }
 }

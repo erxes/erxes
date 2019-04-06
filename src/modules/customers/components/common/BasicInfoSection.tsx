@@ -13,7 +13,6 @@ type Props = {
 class BasicInfo extends React.Component<Props> {
   render() {
     const { Section } = Sidebar;
-    const { Title } = Section;
 
     const { customer } = this.props;
 

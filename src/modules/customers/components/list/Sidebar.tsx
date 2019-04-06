@@ -10,16 +10,16 @@ import {
   TagFilter
 } from '../../containers/filters';
 
-function Sidebar() {
+function Sidebar({ loadingMainQuery }: { loadingMainQuery: boolean }) {
   return (
     <Wrapper.Sidebar>
-      <SegmentFilter />
-      <TagFilter />
-      <IntegrationFilter />
-      <BrandFilter />
-      <FormFilter />
-      <LeadStatusFilter />
-      <LifecycleStateFilter />
+      <SegmentFilter loadingMainQuery={loadingMainQuery} />
+      <TagFilter loadingMainQuery={loadingMainQuery} />
+      <IntegrationFilter loadingMainQuery={loadingMainQuery} />
+      <BrandFilter loadingMainQuery={loadingMainQuery} />
+      <FormFilter loadingMainQuery={loadingMainQuery} />
+      <LeadStatusFilter loadingMainQuery={loadingMainQuery} />
+      <LifecycleStateFilter loadingMainQuery={loadingMainQuery} />
     </Wrapper.Sidebar>
   );
 }

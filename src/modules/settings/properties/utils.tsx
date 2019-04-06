@@ -28,8 +28,8 @@ const generateFields = (infos: any[], type: string) => {
 const generateGroup = (infos: any[], type: string) => {
   return {
     _id: `basicInfosGroup${type}`,
-    name: 'Basic Infos',
-    description: `Basic Infos of a ${type}`,
+    name: 'Basic information',
+    description: `Basic information of a ${type}`,
     contentType: type,
     order: -1,
     isVisible: true,

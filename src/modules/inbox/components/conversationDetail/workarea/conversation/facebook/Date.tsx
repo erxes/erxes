@@ -8,7 +8,7 @@ type Props = {
   message: IMessage;
 };
 
-export default class Date extends React.Component<Props, {}> {
+export default class DateComponent extends React.Component<Props, {}> {
   render() {
     const { message } = this.props;
     const { facebookData } = message;
@@ -17,12 +17,18 @@ export default class Date extends React.Component<Props, {}> {
       return null;
     }
 
+    let createdTime = Number(facebookData.createdTime);
+
+    if (createdTime.toString().length === 10) {
+      createdTime = createdTime * 1000;
+    }
+
     return (
       <Tip
         placement="bottom"
-        text={moment(facebookData.createdTime).format('lll')}
+        text={moment(new Date(createdTime)).format('lll')}
       >
-        <DateTime>{moment(facebookData.createdTime).fromNow()}</DateTime>
+        <DateTime>{moment(new Date(createdTime)).fromNow()}</DateTime>
       </Tip>
     );
   }
