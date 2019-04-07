@@ -472,6 +472,20 @@ export const updateHistoryId = async integration => {
 };
 
 /*
+ * store the historyId of the most recent message (the first message in the list response) for future partial synchronization
+ */
+export const updateHistoryByLastReceived = async (integrationId: string, historyId: string) => {
+  const integration = await Integrations.findOne({ _id: integrationId });
+
+  if (!integration || !integration.gmailData) {
+    throw new Error(`Integration not found id with ${integrationId}`);
+  }
+
+  integration.gmailData.historyId = historyId;
+  await integration.save();
+};
+
+/*
  * refresh token and save when access_token expires
  */
 export const refreshAccessToken = async (integrationId: string, tokens: any) => {

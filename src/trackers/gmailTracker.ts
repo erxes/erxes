@@ -3,7 +3,13 @@ import { google } from 'googleapis';
 import { getEnv } from '../data/utils';
 import { Accounts } from '../db/models';
 import { IGmail as IMsgGmail } from '../db/models/definitions/conversationMessages';
-import { getGmailUpdates, parseMessage, refreshAccessToken, syncConversation } from './gmail';
+import {
+  getGmailUpdates,
+  parseMessage,
+  refreshAccessToken,
+  syncConversation,
+  updateHistoryByLastReceived,
+} from './gmail';
 import { getAccessToken, getAuthorizeUrl, getOauthClient } from './googleTracker';
 
 export const trackGmailLogin = expressApp => {
@@ -155,6 +161,8 @@ const getMessagesByHistoryId = async (historyId: string, integrationId: string, 
     if (!history.messages) {
       continue;
     }
+
+    await updateHistoryByLastReceived(integrationId, '' + history.id);
 
     for (const message of history.messages) {
       try {
