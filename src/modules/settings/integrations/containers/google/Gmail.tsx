@@ -43,7 +43,10 @@ class GmailContainer extends React.Component<FinalProps> {
         .then(() => {
           Alert.success('Congrats');
           callback();
-          history.push('/settings/integrations');
+
+          if (history) {
+            history.push('/settings/integrations');
+          }
         })
         .catch(e => {
           Alert.error(e.message);
