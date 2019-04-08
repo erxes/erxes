@@ -63,7 +63,7 @@ class CategoryForm extends React.Component<Props, State> {
 
   onChangeIcon = obj => {
     this.setState({
-      selectedIcon: obj.value
+      selectedIcon: (obj && obj.value) || ''
     });
   };
 
