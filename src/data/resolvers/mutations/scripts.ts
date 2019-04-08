@@ -1,6 +1,6 @@
 import { Scripts } from '../../../db/models';
 import { IScript } from '../../../db/models/definitions/scripts';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 
 interface IScriptsEdit extends IScript {
   _id: string;
@@ -29,6 +29,6 @@ const scriptMutations = {
   },
 };
 
-moduleRequireLogin(scriptMutations);
+moduleCheckPermission(scriptMutations, 'manageScripts');
 
 export default scriptMutations;

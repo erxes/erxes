@@ -8,7 +8,7 @@ import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { facebookReply, IFacebookReply } from '../../../trackers/facebook';
 import { favorite, retweet, tweet, tweetReply } from '../../../trackers/twitter';
-import { requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 import utils from '../../utils';
 import { pubsub } from '../subscriptions';
 
@@ -360,10 +360,11 @@ const conversationMutations = {
   },
 };
 
-requireLogin(conversationMutations, 'conversationMessageAdd');
-requireLogin(conversationMutations, 'conversationsAssign');
-requireLogin(conversationMutations, 'conversationsUnassign');
-requireLogin(conversationMutations, 'conversationsChangeStatus');
 requireLogin(conversationMutations, 'conversationMarkAsRead');
+
+checkPermission(conversationMutations, 'conversationMessageAdd', 'conversationMessageAdd');
+checkPermission(conversationMutations, 'conversationsAssign', 'assignConversation');
+checkPermission(conversationMutations, 'conversationsUnassign', 'assignConversation');
+checkPermission(conversationMutations, 'conversationsChangeStatus', 'changeConversationStatus');
 
 export default conversationMutations;

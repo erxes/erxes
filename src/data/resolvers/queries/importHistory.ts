@@ -1,5 +1,5 @@
 import { ImportHistory } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission } from '../../permissions';
 import { paginate } from './utils';
 
 const importHistoryQueries = {
@@ -11,6 +11,6 @@ const importHistoryQueries = {
   },
 };
 
-moduleRequireLogin(importHistoryQueries);
+checkPermission(importHistoryQueries, 'importHistories', 'importHistories', []);
 
 export default importHistoryQueries;

@@ -410,7 +410,7 @@ describe('User mutations', () => {
       }
     `;
 
-    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1 } });
+    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1, isOwner: false } });
 
     await graphqlRequest(mutation, 'usersSetActiveStatus', { _id: _user._id }, { user: _admin });
 

@@ -1,5 +1,5 @@
 import { Segments } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 
 const segmentQueries = {
   /**
@@ -24,6 +24,9 @@ const segmentQueries = {
   },
 };
 
-moduleRequireLogin(segmentQueries);
+requireLogin(segmentQueries, 'segmentsGetHeads');
+requireLogin(segmentQueries, 'segmentDetail');
+
+checkPermission(segmentQueries, 'segments', 'showSegments', []);
 
 export default segmentQueries;

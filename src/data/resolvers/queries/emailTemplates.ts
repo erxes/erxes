@@ -1,5 +1,5 @@
 import { EmailTemplates } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 const emailTemplateQueries = {
@@ -18,6 +18,7 @@ const emailTemplateQueries = {
   },
 };
 
-moduleRequireLogin(emailTemplateQueries);
+requireLogin(emailTemplateQueries, 'emailTemplatesTotalCount');
+checkPermission(emailTemplateQueries, 'emailTemplates', 'showEmailTemplates', []);
 
 export default emailTemplateQueries;

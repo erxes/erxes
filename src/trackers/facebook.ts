@@ -1,4 +1,4 @@
-import { Accounts, ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
+import { Accounts, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
 
 import { publishClientMessage, publishMessage } from '../data/resolvers/mutations/conversations';
 
@@ -17,7 +17,7 @@ import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { findPostComments, graphRequest, IComments, IPost } from './facebookTracker';
 
 interface IPostParams {
-  created_time?: string;
+  created_time?: number;
   post_id?: string;
   video_id?: string;
   link?: string;
@@ -37,7 +37,7 @@ interface IPostParams {
 
 interface ICommentParams {
   post_id: string;
-  created_time?: string;
+  created_time?: number;
   parent_id?: string;
   item?: string;
   comment_id?: string;
@@ -195,7 +195,7 @@ export class SaveWebhookResponse {
     }
 
     if (created_time) {
-      doc.createdTime = created_time;
+      doc.createdTime = (created_time * 1000).toString();
     }
 
     return doc;
@@ -226,7 +226,7 @@ export class SaveWebhookResponse {
     }
 
     if (created_time) {
-      doc.createdTime = created_time;
+      doc.createdTime = (created_time * 1000).toString();
     }
 
     // Counting post comments only
@@ -353,9 +353,6 @@ export class SaveWebhookResponse {
           pageId: this.currentPageId,
         },
       });
-
-      // Creating conversation created activity log for customer
-      await ActivityLogs.createConversationLog(conversation, customer);
     } else {
       conversation = await Conversations.reopen(conversation._id);
     }
@@ -595,9 +592,6 @@ export class SaveWebhookResponse {
       },
     });
 
-    // create log
-    await ActivityLogs.createCustomerRegistrationLog(createdCustomer);
-
     return createdCustomer;
   }
 
@@ -727,7 +721,7 @@ export class SaveWebhookResponse {
           senderId: comment.from.id,
           senderName: comment.from.name,
           parentId: comment.parent && comment.parent.id,
-          createdTime: comment.created_time,
+          createdTime: (comment.created_time || 0 * 1000).toString(),
           commentCount: comment.comments.summary.total_count,
         },
         restoring: true,
@@ -868,15 +862,6 @@ export const facebookReply = async (
 
     // save commentId and parentId in message object
     await ConversationMessages.updateOne({ _id: message._id }, { $set: { facebookData } });
-
-    // finding parent post and increasing comment count
-    await ConversationMessages.updateMany(
-      {
-        'facebookData.isPost': true,
-        conversationId: message.conversationId,
-      },
-      { $inc: { 'facebookData.commentCount': 1 } },
-    );
   }
 };
 

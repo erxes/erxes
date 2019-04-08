@@ -23,8 +23,9 @@ export type IMessengerAppCrendentials = IGoogleCredentials | IKnowledgebaseCrede
 export interface IMessengerApp {
   kind: 'googleMeet' | 'knowledgebase' | 'lead';
   name: string;
+  accountId?: string;
   showInInbox?: boolean;
-  credentials: IMessengerAppCrendentials;
+  credentials?: IMessengerAppCrendentials;
 }
 
 export interface IMessengerAppDocument extends IMessengerApp, Document {
@@ -41,6 +42,7 @@ export const messengerAppSchema = new Schema({
   }),
 
   name: field({ type: String }),
+  accountId: field({ type: String, optional: true }),
   showInInbox: field({ type: Boolean, default: false }),
   credentials: field({ type: Object }),
 });

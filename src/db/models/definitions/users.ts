@@ -48,6 +48,7 @@ export interface IUser {
   details?: IDetail;
   links?: ILink;
   isActive?: boolean;
+  groupIds?: string[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -55,6 +56,7 @@ export interface IUserDocument extends IUser, Document {
   emailSignatures?: IEmailSignatureDocument[];
   details?: IDetailDocument;
   links?: ILinkDocument;
+  groupIds?: string[];
 }
 
 // Mongoose schemas ===============================
@@ -117,4 +119,5 @@ export const userSchema = new Schema({
   details: field({ type: detailSchema, default: {} }),
   links: field({ type: linkSchema, default: {} }),
   isActive: field({ type: Boolean, default: true }),
+  groupIds: field({ type: [String] }),
 });

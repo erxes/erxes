@@ -2,7 +2,7 @@ import { graphqlRequest } from '../db/connection';
 import { messengerAppFactory } from '../db/factories';
 import { MessengerApps } from '../db/models';
 
-describe('Import history queries', () => {
+describe('Messenger app queries', () => {
   afterEach(async () => {
     // Clearing test data
     await MessengerApps.deleteMany({});

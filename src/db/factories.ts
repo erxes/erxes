@@ -3,14 +3,14 @@ import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import {
   ACTIVITY_ACTIONS,
+  ACTIVITY_CONTENT_TYPES,
   ACTIVITY_PERFORMER_TYPES,
   ACTIVITY_TYPES,
-  COC_CONTENT_TYPES,
   FIELDS_GROUPS_CONTENT_TYPES,
   NOTIFICATION_TYPES,
   PRODUCT_TYPES,
 } from '../data/constants';
-import { IActionPerformer, IActivity, ICoc } from '../db/models/definitions/activityLogs';
+import { IActionPerformer, IActivity, IContentType } from '../db/models/definitions/activityLogs';
 import {
   Accounts,
   ActivityLogs,
@@ -39,15 +39,46 @@ import {
   MessengerApps,
   NotificationConfigurations,
   Notifications,
+  Permissions,
   Products,
   ResponseTemplates,
   Segments,
   Tags,
   Users,
+  UsersGroups,
 } from './models';
+import { STATUSES } from './models/definitions/constants';
 import { IEmail, IMessenger } from './models/definitions/engages';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
 import { IUserDocument } from './models/definitions/users';
+
+interface IActivityLogFactoryInput {
+  performer?: IActionPerformer;
+  performedBy?: IActionPerformer;
+  activity?: IActivity;
+  contentType?: IContentType;
+}
+
+export const activityLogFactory = (params: IActivityLogFactoryInput) => {
+  const doc = {
+    activity: {
+      type: ACTIVITY_TYPES.INTERNAL_NOTE,
+      action: ACTIVITY_ACTIONS.CREATE,
+      id: faker.random.uuid(),
+      content: faker.random.word(),
+    },
+    performer: {
+      type: ACTIVITY_PERFORMER_TYPES.USER,
+      id: faker.random.uuid(),
+    },
+    contentType: {
+      type: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+      id: faker.random.uuid(),
+    },
+  };
+
+  return ActivityLogs.createDoc({ ...doc, ...params });
+};
 
 interface IUserFactoryInput {
   username?: string;
@@ -65,11 +96,12 @@ interface IUserFactoryInput {
   password?: string;
   isOwner?: boolean;
   isActive?: boolean;
+  groupIds?: string[];
   registrationToken?: string;
   registrationTokenExpires?: Date;
 }
 
-export const userFactory = (params: IUserFactoryInput) => {
+export const userFactory = (params: IUserFactoryInput = {}) => {
   const user = new Users({
     username: params.username || faker.internet.userName(),
     details: {
@@ -90,8 +122,9 @@ export const userFactory = (params: IUserFactoryInput) => {
     email: params.email || faker.internet.email(),
     role: params.role || 'contributor',
     password: params.password || '$2a$10$qfBFBmWmUjeRcR.nBBfgDO/BEbxgoai5qQhyjsrDUMiZC6dG7sg1q',
-    isOwner: params.isOwner || false,
+    isOwner: typeof params.isOwner !== 'undefined' ? params.isOwner : true,
     isActive: params.isActive || true,
+    groupIds: params.groupIds || [],
   });
 
   return user.save();
@@ -223,7 +256,7 @@ export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
   ];
 
   const segment = new Segments({
-    contentType: params.contentType || COC_CONTENT_TYPES.CUSTOMER,
+    contentType: params.contentType || ACTIVITY_CONTENT_TYPES.CUSTOMER,
     name: faker.random.word(),
     description: params.description || faker.random.word(),
     subOf: params.subOf,
@@ -243,7 +276,7 @@ interface IInternalNoteFactoryInput {
 
 export const internalNoteFactory = (params: IInternalNoteFactoryInput) => {
   const internalNote = new InternalNotes({
-    contentType: params.contentType || COC_CONTENT_TYPES.CUSTOMER,
+    contentType: params.contentType || ACTIVITY_CONTENT_TYPES.CUSTOMER,
     contentTypeId: params.contentTypeId || faker.random.uuid().toString(),
     content: params.content || faker.random.word(),
   });
@@ -260,6 +293,7 @@ interface ICompanyFactoryInput {
   tagIds?: string[];
   plan?: string;
   leadStatus?: string;
+  status?: string;
   lifecycleState?: string;
   createdAt?: Date;
   modifiedAt?: Date;
@@ -279,6 +313,7 @@ export const companyFactory = (params: ICompanyFactoryInput = {}) => {
     tagIds: params.tagIds || [faker.random.number()],
     plan: params.plan || faker.random.word(),
     leadStatus: params.leadStatus || 'open',
+    status: params.status || STATUSES.ACTIVE,
     lifecycleState: params.lifecycleState || 'lead',
     createdAt: params.createdAt || new Date(),
     modifiedAt: params.modifiedAt || new Date(),
@@ -301,6 +336,7 @@ interface ICustomerFactoryInput {
   phones?: string[];
   doNotDisturb?: string;
   leadStatus?: string;
+  status?: string;
   lifecycleState?: string;
   messengerData?: any;
   customFieldsData?: any;
@@ -321,6 +357,7 @@ export const customerFactory = (params: ICustomerFactoryInput = {}) => {
     emails: params.emails || [faker.internet.email()],
     phones: params.phones || [faker.phone.phoneNumber()],
     leadStatus: params.leadStatus || 'open',
+    status: params.status || STATUSES.ACTIVE,
     lifecycleState: params.lifecycleState || 'lead',
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
@@ -633,34 +670,6 @@ export const knowledgeBaseArticleFactory = async (params: IKnowledgeBaseArticleC
   return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, params.userId || faker.random.word());
 };
 
-interface IActivityLogFactoryInput {
-  performer?: IActionPerformer;
-  performedBy?: IActionPerformer;
-  activity?: IActivity;
-  coc?: ICoc;
-}
-
-export const activityLogFactory = (params: IActivityLogFactoryInput) => {
-  const doc = {
-    activity: {
-      type: ACTIVITY_TYPES.INTERNAL_NOTE,
-      action: ACTIVITY_ACTIONS.CREATE,
-      id: faker.random.number(),
-      content: faker.random.word(),
-    },
-    performer: {
-      type: ACTIVITY_PERFORMER_TYPES.USER,
-      id: faker.random.number(),
-    },
-    coc: {
-      type: COC_CONTENT_TYPES.CUSTOMER,
-      id: faker.random.number(),
-    },
-  };
-
-  return ActivityLogs.createDoc({ ...doc, ...params });
-};
-
 export const dealBoardFactory = () => {
   const board = new DealBoards({
     name: faker.random.word(),
@@ -831,4 +840,35 @@ export const accountFactory = async (params: IAccountFactoryInput) => {
   };
 
   return Accounts.create(doc);
+};
+
+interface IPermissionParams {
+  module?: string;
+  action?: string;
+  allowed?: boolean;
+  userId?: string;
+  requiredActions?: string[];
+  groupId?: string;
+}
+
+export const permissionFactory = async (params: IPermissionParams = {}) => {
+  const permission = new Permissions({
+    module: faker.random.word(),
+    action: params.action || faker.random.word(),
+    allowed: params.allowed || false,
+    userId: params.userId || Random.id(),
+    requiredActions: params.requiredActions || [],
+    groupId: params.groupId || faker.random.word(),
+  });
+
+  return permission.save();
+};
+
+export const usersGroupFactory = () => {
+  const usersGroup = new UsersGroups({
+    name: faker.random.word(),
+    description: faker.random.word(),
+  });
+
+  return usersGroup.save();
 };

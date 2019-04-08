@@ -121,12 +121,18 @@ export const trackFbLogin = expressApp => {
 
         const name = `${userAccount.first_name} ${userAccount.last_name}`;
 
-        await Accounts.createAccount({
-          token: access_token,
-          name,
-          kind: 'facebook',
-          uid: userAccount.id,
-        });
+        const account = await Accounts.findOne({ uid: userAccount.id });
+
+        if (account) {
+          await Accounts.updateOne({ _id: account._id }, { $set: { token: access_token } });
+        } else {
+          await Accounts.createAccount({
+            token: access_token,
+            name,
+            kind: 'facebook',
+            uid: userAccount.id,
+          });
+        }
 
         return res.redirect(`${MAIN_APP_DOMAIN}/settings/integrations?fbAuthorized=true`);
       },
@@ -158,7 +164,7 @@ export interface IComment {
   from: { name: string; id: string };
   message: string;
   attachment_url: string;
-  created_time?: string;
+  created_time?: number;
   summary: ISummary;
   comments: IComments;
 }

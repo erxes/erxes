@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import { companyFactory, customerFactory, internalNoteFactory, userFactory } from '../db/factories';
 import { InternalNotes, Users } from '../db/models';
-import { COC_CONTENT_TYPES } from '../db/models/definitions/constants';
+import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 
 /*
  * Generate test data
@@ -76,7 +76,7 @@ describe('InternalNotes model test', () => {
     const newCustomer = await customerFactory({});
 
     await internalNoteFactory({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customer._id,
     });
 
@@ -92,7 +92,7 @@ describe('InternalNotes model test', () => {
     const newCompany = await companyFactory({});
 
     await internalNoteFactory({
-      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: company._id,
     });
 
@@ -107,14 +107,14 @@ describe('InternalNotes model test', () => {
     const customer = await customerFactory({});
 
     await internalNoteFactory({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customer._id,
     });
 
     await InternalNotes.removeCustomerInternalNotes(customer._id);
 
     const internalNote = await InternalNotes.find({
-      contentType: COC_CONTENT_TYPES.CUSTOMER,
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
       contentTypeId: customer._id,
     });
 
@@ -125,14 +125,14 @@ describe('InternalNotes model test', () => {
     const company = await companyFactory({});
 
     await internalNoteFactory({
-      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: company._id,
     });
 
     await InternalNotes.removeCompanyInternalNotes(company._id);
 
     const internalNote = await InternalNotes.find({
-      contentType: COC_CONTENT_TYPES.COMPANY,
+      contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: company._id,
     });
 

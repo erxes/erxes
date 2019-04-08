@@ -1,5 +1,5 @@
 import { ResponseTemplates } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 const responseTemplateQueries = {
@@ -18,6 +18,7 @@ const responseTemplateQueries = {
   },
 };
 
-moduleRequireLogin(responseTemplateQueries);
+requireLogin(responseTemplateQueries, 'responseTemplatesTotalCount');
+checkPermission(responseTemplateQueries, 'responseTemplates', 'showResponseTemplates', []);
 
 export default responseTemplateQueries;

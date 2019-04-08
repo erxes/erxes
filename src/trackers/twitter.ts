@@ -1,6 +1,6 @@
 import { CONVERSATION_STATUSES } from '../data/constants';
 import { publishMessage } from '../data/resolvers/mutations/conversations';
-import { ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
+import { ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
 import { IConversationDocument } from '../db/models/definitions/conversations';
 import { IIntegrationDocument, ITwitterData } from '../db/models/definitions/integrations';
 import { findParentTweets, twitRequest } from './twitterTracker';
@@ -56,9 +56,6 @@ const getOrCreateCustomer = async (integrationId: string, user: any): Promise<st
       id_str: user.id_str,
     },
   });
-
-  // create log
-  await ActivityLogs.createCustomerRegistrationLog(createdCustomer);
 
   return createdCustomer._id;
 };

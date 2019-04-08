@@ -1,5 +1,5 @@
 import { DealBoards, DealPipelines, Deals, DealStages } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, moduleRequireLogin } from '../../permissions';
 import { dealsCommonFilter } from './utils';
 
 interface IDate {
@@ -157,5 +157,7 @@ const dealQueries = {
 };
 
 moduleRequireLogin(dealQueries);
+
+checkPermission(dealQueries, 'deals', 'showDeals', []);
 
 export default dealQueries;

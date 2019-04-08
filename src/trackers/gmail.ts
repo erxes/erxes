@@ -4,6 +4,8 @@ import { Accounts, ConversationMessages, Conversations, Customers, Integrations 
 import { IGmail as IMsgGmail } from '../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
+import { IUserDocument } from '../db/models/definitions/users';
+import EmailDeliveries from '../db/models/EmailDeliveries';
 import { utils } from './gmailTracker';
 
 interface IAttachmentParams {
@@ -91,7 +93,7 @@ const encodeEmail = async (params: IMailParams) => {
 /**
  * Send email & create activiy log with gmail kind
  */
-export const sendGmail = async (mailParams: IMailParams) => {
+export const sendGmail = async (mailParams: IMailParams, user: IUserDocument) => {
   let totalSize = 0;
   // 10mb
   const limit = 1000000 * 10;
@@ -115,6 +117,23 @@ export const sendGmail = async (mailParams: IMailParams) => {
   const credentials = await Accounts.getGmailCredentials(integration.gmailData.email);
 
   const fromEmail = integration.gmailData.email;
+
+  // save delivered email
+  const emailDelivery = {
+    fromEmail,
+    cocType: mailParams.cocType,
+    cocId: mailParams.cocId,
+    subject: mailParams.subject,
+    body: mailParams.body,
+    toEmails: mailParams.toEmails,
+    cc: mailParams.cc,
+    bcc: mailParams.bcc,
+    attachments: mailParams.attachments,
+    userId: user._id,
+  };
+
+  await EmailDeliveries.createEmailDelivery(emailDelivery);
+
   // get raw string encrypted by base64
   const raw = await encodeEmail({ fromEmail, ...mailParams });
 
@@ -356,6 +375,7 @@ const getOrCreateConversation = async (
       if (conversation) {
         conversation.status = CONVERSATION_STATUSES.OPEN;
         conversation.content = content;
+        conversation.readUserIds = [];
         await conversation.save();
         return conversation;
       }
@@ -385,10 +405,10 @@ export const syncConversation = async (integrationId: string, gmailData: IMsgGma
     throw new Error('Empty gmail data');
   }
 
-  // check if message has arrived true return previous message instance
+  // check if message exists
   const prevMessage = await ConversationMessages.findOne({
     'gmailData.messageId': messageId,
-  }).sort({ createdAt: -1 });
+  });
 
   if (prevMessage) {
     return prevMessage;
@@ -448,6 +468,20 @@ export const updateHistoryId = async integration => {
   integration.gmailData.historyId = data.historyId;
   integration.gmailData.expiration = data.expiration;
 
+  await integration.save();
+};
+
+/*
+ * store the historyId of the most recent message (the first message in the list response) for future partial synchronization
+ */
+export const updateHistoryByLastReceived = async (integrationId: string, historyId: string) => {
+  const integration = await Integrations.findOne({ _id: integrationId });
+
+  if (!integration || !integration.gmailData) {
+    throw new Error(`Integration not found id with ${integrationId}`);
+  }
+
+  integration.gmailData.historyId = historyId;
   await integration.save();
 };
 

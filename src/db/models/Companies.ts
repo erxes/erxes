@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs, Customers, Deals, Fields, InternalNotes } from './';
+import { Customers, Deals, Fields, InternalNotes } from './';
 import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
-import { COMPANY_BASIC_INFOS } from './definitions/constants';
+import { COMPANY_BASIC_INFOS, STATUSES } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
 import { bulkInsert } from './utils';
 
@@ -37,7 +37,7 @@ export const loadClass = () => {
       },
       idsToExclude?: string[] | string,
     ) {
-      const query: { [key: string]: any } = {};
+      const query: { status: {}; [key: string]: any } = { status: { $ne: STATUSES.DELETED } };
 
       // Adding exclude operator to the query
       if (idsToExclude) {
@@ -125,7 +125,6 @@ export const loadClass = () => {
      */
     public static async removeCompany(companyId: string) {
       // Removing modules associated with company
-      await ActivityLogs.removeCompanyActivityLog(companyId);
       await InternalNotes.removeCompanyInternalNotes(companyId);
 
       await Customers.updateMany({ companyIds: { $in: [companyId] } }, { $pull: { companyIds: companyId } });
@@ -167,8 +166,9 @@ export const loadClass = () => {
           // Merging company phones
           phones = phones.concat(companyPhones);
 
-          // Removing company
-          await Companies.deleteOne({ _id: companyId });
+          companyObj.status = STATUSES.DELETED;
+
+          await Companies.findByIdAndUpdate(companyId, { $set: { status: STATUSES.DELETED } });
         }
       }
 
@@ -188,6 +188,7 @@ export const loadClass = () => {
       const company = await Companies.createCompany({
         ...companyFields,
         tagIds,
+        mergedIds: companyIds,
         names,
         emails,
         phones,
@@ -199,7 +200,6 @@ export const loadClass = () => {
       await Customers.updateMany({ companyIds: { $in: companyIds } }, { $pullAll: { companyIds } });
 
       // Removing modules associated with current companies
-      await ActivityLogs.changeCompany(company._id, companyIds);
       await InternalNotes.changeCompany(company._id, companyIds);
       await Deals.changeCompany(company._id, companyIds);
 

@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import { validateEmail } from '../../data/utils';
-import { ActivityLogs, Conversations, Deals, EngageMessages, Fields, InternalNotes } from './';
-import { CUSTOMER_BASIC_INFOS } from './definitions/constants';
+import { Conversations, Deals, EngageMessages, Fields, InternalNotes } from './';
+import { CUSTOMER_BASIC_INFOS, STATUSES } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument, IFacebookData, ITwitterData } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
 import { bulkInsert } from './utils';
@@ -37,7 +37,7 @@ export const loadClass = () => {
      * Checking if customer has duplicated unique properties
      */
     public static async checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string) {
-      const query: { [key: string]: any } = {};
+      const query: { status: {}; [key: string]: any } = { status: { $ne: STATUSES.DELETED } };
       let previousEntry;
 
       // Adding exclude operator to the query
@@ -204,7 +204,6 @@ export const loadClass = () => {
      */
     public static async removeCustomer(customerId: string) {
       // Removing every modules that associated with customer
-      await ActivityLogs.removeCustomerActivityLog(customerId);
       await Conversations.removeCustomerConversations(customerId);
       await EngageMessages.removeCustomerEngages(customerId);
       await InternalNotes.removeCustomerInternalNotes(customerId);
@@ -252,8 +251,7 @@ export const loadClass = () => {
           emails = [...emails, ...(customerObj.emails || [])];
           phones = [...phones, ...(customerObj.phones || [])];
 
-          // Removing Customers
-          await Customers.deleteOne({ _id: customerId });
+          await Customers.findByIdAndUpdate(customerId, { $set: { status: STATUSES.DELETED } });
         }
       }
 
@@ -274,12 +272,12 @@ export const loadClass = () => {
         ...customerFields,
         tagIds,
         companyIds,
+        mergedIds: customerIds,
         emails,
         phones,
       });
 
       // Updating every modules associated with customers
-      await ActivityLogs.changeCustomer(customer._id, customerIds);
       await Conversations.changeCustomer(customer._id, customerIds);
       await EngageMessages.changeCustomer(customer._id, customerIds);
       await InternalNotes.changeCustomer(customer._id, customerIds);

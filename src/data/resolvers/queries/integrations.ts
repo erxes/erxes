@@ -1,9 +1,7 @@
 import { Accounts, Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { getConfig, getPageList } from '../../../trackers/facebook';
-import { getAccessToken, getAuthorizeUrl } from '../../../trackers/googleTracker';
-import { socUtils } from '../../../trackers/twitterTracker';
 import { KIND_CHOICES, TAG_TYPES } from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, moduleRequireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 /**
@@ -119,29 +117,6 @@ const integrationQueries = {
   },
 
   /**
-   * Generate twitter integration auth url using credentials in .env
-   */
-  integrationGetTwitterAuthUrl() {
-    return socUtils.getTwitterAuthorizeUrl();
-  },
-
-  /*
-   * Generate google integration auth url using credentials in .env
-   * @return {Promise} - Generated url
-   */
-  integrationGetGoogleAuthUrl(_root, { service }) {
-    return getAuthorizeUrl(service);
-  },
-
-  /*
-   * Generate google integration auth url using credentials in .env
-   * @return {Promise} - Generated url
-   */
-  integrationGetGoogleAccessToken(_root, { code }) {
-    return getAccessToken(code);
-  },
-
-  /**
    * Get facebook app list .env
    */
   integrationFacebookAppsList() {
@@ -168,5 +143,7 @@ const integrationQueries = {
 };
 
 moduleRequireLogin(integrationQueries);
+
+checkPermission(integrationQueries, 'integrations', 'showIntegrations', []);
 
 export default integrationQueries;

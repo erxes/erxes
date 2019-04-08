@@ -1,6 +1,5 @@
 import * as moment from 'moment';
-import { ConversationMessages, Conversations, Customers, Forms, MessengerApps } from '../../../db/models';
-import { IGoogleCredentials } from '../../../db/models/definitions/messengerApps';
+import { Accounts, ConversationMessages, Conversations, Customers, Forms, MessengerApps } from '../../../db/models';
 import { createMeetEvent } from '../../../trackers/googleTracker';
 import { requireLogin } from '../../permissions';
 import { publishMessage } from './conversations';
@@ -9,12 +8,12 @@ const messengerAppMutations = {
   /*
    * Google meet
    */
-  async messengerAppsAddGoogleMeet(_root, { name, credentials }: { name: string; credentials: IGoogleCredentials }) {
+  async messengerAppsAddGoogleMeet(_root, { name, accountId }: { name: string; accountId: string }) {
     return MessengerApps.createApp({
       name,
       kind: 'googleMeet',
       showInInbox: true,
-      credentials,
+      accountId,
     });
   },
 
@@ -89,6 +88,12 @@ const messengerAppMutations = {
       throw new Error('App not found');
     }
 
+    const account = await Accounts.findOne({ _id: app.accountId });
+
+    if (!account) {
+      throw new Error('Account not found');
+    }
+
     // get customer email
     let email = customer.primaryEmail;
 
@@ -96,7 +101,14 @@ const messengerAppMutations = {
       email = customer.visitorContactInfo.email;
     }
 
-    const eventData: any = await createMeetEvent(app.credentials, {
+    const credentials = {
+      access_token: account.token,
+      scope: 'https://www.googleapis.com/auth/calendar',
+      token_type: 'Bearer',
+      expiry_date: account.expireDate,
+    };
+
+    const eventData: any = await createMeetEvent(credentials, {
       summary: `Meet with ${customer.firstName} ${customer.lastName}`,
       attendees: [{ email }],
       start: {

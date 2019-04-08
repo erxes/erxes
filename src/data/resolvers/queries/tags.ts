@@ -1,5 +1,5 @@
 import { Tags } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 
 const tagQueries = {
   /**
@@ -17,6 +17,7 @@ const tagQueries = {
   },
 };
 
-moduleRequireLogin(tagQueries);
+requireLogin(tagQueries, 'tagDetail');
+checkPermission(tagQueries, 'tags', 'showTags', []);
 
 export default tagQueries;

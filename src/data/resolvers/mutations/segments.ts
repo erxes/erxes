@@ -1,6 +1,6 @@
 import { Segments } from '../../../db/models';
 import { ISegment } from '../../../db/models/definitions/segments';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 
 interface ISegmentsEdit extends ISegment {
   _id: string;
@@ -29,6 +29,6 @@ const segmentMutations = {
   },
 };
 
-moduleRequireLogin(segmentMutations);
+moduleCheckPermission(segmentMutations, 'manageSegments');
 
 export default segmentMutations;

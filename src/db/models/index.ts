@@ -8,6 +8,7 @@ import ConversationMessages from './ConversationMessages';
 import Conversations from './Conversations';
 import Customers from './Customers';
 import { DealBoards, DealPipelines, Deals, DealStages } from './Deals';
+import EmailDeliveries from './EmailDeliveries';
 import EmailTemplates from './EmailTemplates';
 import EngageMessages from './Engages';
 import { Fields, FieldsGroups } from './Fields';
@@ -18,6 +19,7 @@ import InternalNotes from './InternalNotes';
 import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from './KnowledgeBase';
 import MessengerApps from './MessengerApps';
 import { NotificationConfigurations, Notifications } from './Notifications';
+import { Permissions, UsersGroups } from './Permissions';
 import Products from './Products';
 import ResponseTemplates from './ResponseTemplates';
 import Scripts from './Scripts';
@@ -44,6 +46,7 @@ export {
   InternalNotes,
   Customers,
   Companies,
+  EmailDeliveries,
   Conversations,
   ConversationMessages,
   KnowledgeBaseArticles,
@@ -61,4 +64,6 @@ export {
   FieldsGroups,
   ImportHistory,
   MessengerApps,
+  Permissions,
+  UsersGroups,
 };

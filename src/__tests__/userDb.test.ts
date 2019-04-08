@@ -299,13 +299,13 @@ describe('User db utils', () => {
 
     // Can not remove owner
     try {
-      const user = await userFactory({ isOwner: true });
+      const user = await userFactory({});
       await Users.setUserActiveOrInactive(user._id);
     } catch (e) {
       expect(e.message).toBe('Can not remove owner');
     }
 
-    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1 } });
+    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1, isOwner: false } });
 
     const deactivatedUser = await Users.setUserActiveOrInactive(_user._id);
     // ensure deactivated
@@ -313,7 +313,10 @@ describe('User db utils', () => {
   });
 
   test('Set user to inactive', async () => {
-    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1 }, $set: { isActive: true } });
+    await Users.updateOne(
+      { _id: _user._id },
+      { $unset: { registrationToken: 1 }, $set: { isActive: true, isOwner: false } },
+    );
 
     const activatedUser = await Users.setUserActiveOrInactive(_user._id);
 

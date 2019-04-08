@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { COC_CONTENT_TYPES } from './definitions/constants';
+import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { IInternalNote, IInternalNoteDocument, internalNoteSchema } from './definitions/internalNotes';
 import { IUserDocument } from './definitions/users';
 
@@ -68,7 +68,7 @@ export const loadClass = () => {
       // Updating every internal notes of customer
       await InternalNotes.updateMany(
         {
-          contentType: COC_CONTENT_TYPES.CUSTOMER,
+          contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
           contentTypeId: { $in: customerIds || [] },
         },
         { contentTypeId: newCustomerId },
@@ -76,7 +76,7 @@ export const loadClass = () => {
 
       // Returning updated list of internal notes of new customer
       return InternalNotes.find({
-        contentType: COC_CONTENT_TYPES.CUSTOMER,
+        contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
         contentTypeId: newCustomerId,
       });
     }
@@ -87,7 +87,7 @@ export const loadClass = () => {
     public static async removeCustomerInternalNotes(customerId: string) {
       // Removing every internal notes of customer
       return InternalNotes.deleteMany({
-        contentType: COC_CONTENT_TYPES.CUSTOMER,
+        contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
         contentTypeId: customerId,
       });
     }
@@ -98,7 +98,7 @@ export const loadClass = () => {
     public static async removeCompanyInternalNotes(companyId: string) {
       // Removing every internal notes of company
       return InternalNotes.deleteMany({
-        contentType: COC_CONTENT_TYPES.COMPANY,
+        contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
         contentTypeId: companyId,
       });
     }
@@ -110,7 +110,7 @@ export const loadClass = () => {
       // Updating every internal notes of company
       await InternalNotes.updateMany(
         {
-          contentType: COC_CONTENT_TYPES.COMPANY,
+          contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
           contentTypeId: { $in: oldCompanyIds || [] },
         },
         { contentTypeId: newCompanyId },
@@ -118,7 +118,7 @@ export const loadClass = () => {
 
       // Returning updated list of internal notes of new company
       return InternalNotes.find({
-        contentType: COC_CONTENT_TYPES.COMPANY,
+        contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
         contentTypeId: newCompanyId,
       });
     }

@@ -2,7 +2,7 @@ import { Fields, FieldsGroups } from '../../../db/models';
 import { IField, IFieldGroup } from '../../../db/models/definitions/fields';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { IOrderInput } from '../../../db/models/Fields';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 
 interface IFieldsEdit extends IField {
   _id: string;
@@ -90,7 +90,7 @@ const fieldsGroupsMutations = {
   },
 };
 
-moduleRequireLogin(fieldMutations);
-moduleRequireLogin(fieldsGroupsMutations);
+moduleCheckPermission(fieldMutations, 'manageFields');
+moduleCheckPermission(fieldsGroupsMutations, 'manageFieldsGroups');
 
 export { fieldsGroupsMutations, fieldMutations };

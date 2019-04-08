@@ -3,7 +3,7 @@ import { IUserDocument } from '../../../db/models/definitions/users';
 
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES } from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, moduleRequireLogin } from '../../permissions';
 import QueryBuilder, { IListArgs } from './conversationQueryBuilder';
 
 interface ICountBy {
@@ -375,5 +375,7 @@ const conversationQueries = {
 };
 
 moduleRequireLogin(conversationQueries);
+
+checkPermission(conversationQueries, 'conversations', 'showConversations', []);
 
 export default conversationQueries;

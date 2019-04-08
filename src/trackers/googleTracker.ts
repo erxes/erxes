@@ -1,41 +1,37 @@
 import { google } from 'googleapis';
 import { getEnv } from '../data/utils';
 
-const SCOPES_CALENDAR = ['https://www.googleapis.com/auth/calendar'];
 const SCOPES_GMAIL = [
   'https://mail.google.com/',
   'https://www.googleapis.com/auth/gmail.modify',
   'https://www.googleapis.com/auth/gmail.compose',
   'https://www.googleapis.com/auth/gmail.send',
   'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/calendar',
 ];
 
-export const getOauthClient = (service?: string) => {
+export const getOauthClient = () => {
   const GOOGLE_CLIENT_ID = getEnv({ name: 'GOOGLE_CLIENT_ID' });
   const GOOGLE_CLIENT_SECRET = getEnv({ name: 'GOOGLE_CLIENT_SECRET' });
-  const GOOGLE_REDIRECT_URI = getEnv({ name: 'GOOGLE_REDIRECT_URI' });
   const GMAIL_REDIRECT_URL = getEnv({ name: 'GMAIL_REDIRECT_URL' });
 
-  const redirectUrl = service === 'gmail' ? GMAIL_REDIRECT_URL : GOOGLE_REDIRECT_URI;
-
-  return new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, redirectUrl);
+  return new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GMAIL_REDIRECT_URL);
 };
 
 /**
  * Get auth url defends on google services such us gmail, calendar
  */
-export const getAuthorizeUrl = (service?: string) => {
-  const oauthClient = getOauthClient(service);
-  const scopes = service === 'gmail' ? SCOPES_GMAIL : SCOPES_CALENDAR;
+export const getAuthorizeUrl = () => {
+  const oauthClient = getOauthClient();
 
   return oauthClient.generateAuthUrl({
     access_type: 'offline',
-    scope: scopes,
+    scope: SCOPES_GMAIL,
   });
 };
 
-export const getAccessToken = (code: string, service?: string) => {
-  const oauthClient = getOauthClient(service);
+export const getAccessToken = (code: string) => {
+  const oauthClient = getOauthClient();
 
   return new Promise((resolve, reject) =>
     oauthClient.getToken(code, (err: any, token: any) => {

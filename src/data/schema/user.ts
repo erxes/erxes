@@ -7,7 +7,6 @@ export const types = `
     location: String
     description: String
   }
-
   input UserLinks {
     linkedIn: String
     twitter: String
@@ -16,12 +15,10 @@ export const types = `
     github: String
     website: String
   }
-
   input EmailSignature {
     brandId: String
     signature: String
   }
-
   type UserDetailsType {
     avatar: String
     fullName: String
@@ -30,7 +27,6 @@ export const types = `
     location: String
     description: String
   }
-
   type UserLinksType {
     linkedIn: String
     twitter: String
@@ -39,7 +35,6 @@ export const types = `
     youtube: String
     website: String
   }
-
   type User {
     _id: String!
     username: String
@@ -52,8 +47,11 @@ export const types = `
     hasSeenOnBoard: Boolean
     emailSignatures: JSON
     getNotificationByEmail: Boolean
-  }
+    groupIds: [String]
 
+    isOwner: Boolean
+    permissionActions: JSON
+  }
   type UserConversationListResponse {
     list: [Conversation],
     totalCount: Float,
@@ -67,12 +65,18 @@ const commonParams = `
   details: UserDetails,	
   links: UserLinks,	
   channelIds: [String],	
+  groupIds: [String]
+`;
+
+const commonSelector = `
+  searchValue: String,
+  isActive: Boolean
 `;
 
 export const queries = `
-  users(page: Int, perPage: Int, searchValue: String, isActive: Boolean): [User]
+  users(page: Int, perPage: Int, ${commonSelector}): [User]
   userDetail(_id: String): User
-  usersTotalCount: Int
+  usersTotalCount(${commonSelector}): Int
   currentUser: User
   userConversations(_id: String, perPage: Int): UserConversationListResponse
 `;
@@ -82,7 +86,6 @@ export const mutations = `
   logout: String
   forgotPassword(email: String!): String!
   resetPassword(token: String!, newPassword: String!): JSON
-
   usersEditProfile(
     username: String!,
     email: String!,
@@ -90,15 +93,12 @@ export const mutations = `
     links: UserLinks
     password: String!
   ): User
-
   usersEdit(_id: String!, ${commonParams}): User
   usersChangePassword(currentPassword: String!, newPassword: String!): User
   usersSetActiveStatus(_id: String!): User
-
   usersInvite(emails: [String]): Boolean
   usersConfirmInvitation(token: String, password: String, passwordConfirmation: String, fullName: String, username: String): User
   usersSeenOnBoard: User
-
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
   usersConfigGetNotificationByEmail(isAllowed: Boolean): User
-`;
+  `;

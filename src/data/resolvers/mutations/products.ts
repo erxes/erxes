@@ -1,6 +1,6 @@
 import { Products } from '../../../db/models';
 import { IProduct } from '../../../db/models/definitions/deals';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 
 interface IProductsEdit extends IProduct {
   _id: string;
@@ -29,6 +29,6 @@ const productMutations = {
   },
 };
 
-moduleRequireLogin(productMutations);
+moduleCheckPermission(productMutations, 'manageProducts');
 
 export default productMutations;

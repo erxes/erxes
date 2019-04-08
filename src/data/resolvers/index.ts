@@ -1,5 +1,5 @@
+import * as permissionActions from '../permissions/actions';
 import ActivityLog from './activityLog';
-import ActivityLogForMonth from './activityLogForMonth';
 import Brand from './brand';
 import Channel from './channel';
 import Company from './company';
@@ -21,6 +21,7 @@ import KnowledgeBaseCategory from './knowledgeBaseCategory';
 import KnowledgeBaseTopic from './knowledgeBaseTopic';
 import Mutation from './mutations';
 import Notification from './notification';
+import Permission from './permission';
 import Query from './queries';
 import ResponseTemplate from './responseTemplate';
 import Script from './script';
@@ -30,6 +31,7 @@ import User from './user';
 
 const resolvers: any = {
   ...customScalars,
+  ...permissionActions,
 
   ResponseTemplate,
   Script,
@@ -58,12 +60,12 @@ const resolvers: any = {
   Notification,
 
   ActivityLog,
-  ActivityLogForMonth,
   Form,
   FieldsGroup: fieldsGroup,
   Field: field,
   User,
   ImportHistory,
+  Permission,
 };
 
 export default resolvers;
