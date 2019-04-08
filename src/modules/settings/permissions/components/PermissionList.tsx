@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import {
+  ActionButtons,
   Button,
   DataWithLoader,
   FormControl,
@@ -15,7 +16,7 @@ import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import { FilterWrapper } from '../styles';
+import { FilterItem, FilterWrapper } from '../styles';
 import {
   IActions,
   IModule,
@@ -78,11 +79,13 @@ class PermissionList extends React.Component<Props> {
             />
           </td>
           <td>
-            <Tip text="Delete">
-              <Button type="success" onClick={remove.bind(null, object._id)}>
-                <Icon icon="trash" />
-              </Button>
-            </Tip>
+            <ActionButtons>
+              <Tip text="Delete">
+                <Button btnStyle="link" onClick={remove.bind(null, object._id)}>
+                  <Icon icon="cancel-1" />
+                </Button>
+              </Tip>
+            </ActionButtons>
           </td>
         </tr>
       );
@@ -126,7 +129,7 @@ class PermissionList extends React.Component<Props> {
     const { queryParams, modules, actions, groups, users } = this.props;
 
     const trigger = (
-      <Button btnStyle="primary" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         New Permission
       </Button>
     );
@@ -140,7 +143,7 @@ class PermissionList extends React.Component<Props> {
           content={this.renderForm}
         />
         <Link to="/settings/users/groups">
-          <Button type="success" size="small">
+          <Button type="success" size="small" icon="users">
             User groups
           </Button>
         </Link>
@@ -148,42 +151,42 @@ class PermissionList extends React.Component<Props> {
     );
 
     const actionBarLeft = (
-      <React.Fragment>
-        <FilterWrapper>
+      <FilterWrapper>
+        <FilterItem>
           <Select
             placeholder={__('Choose module')}
             value={queryParams.module}
             options={generateModuleParams(modules)}
             onChange={this.setFilter.bind(this, 'module')}
           />
-        </FilterWrapper>
+        </FilterItem>
 
-        <FilterWrapper>
+        <FilterItem>
           <Select
             placeholder={__('Choose action')}
             value={queryParams.action}
             options={filterActions(actions, queryParams.module)}
             onChange={this.setFilter.bind(this, 'action')}
           />
-        </FilterWrapper>
-        <FilterWrapper>
+        </FilterItem>
+        <FilterItem>
           <Select
             placeholder={__('Choose group')}
             options={generateListParams(groups)}
             onChange={this.setFilter.bind(this, 'groupId')}
             value={queryParams.groupId}
           />
-        </FilterWrapper>
+        </FilterItem>
 
-        <FilterWrapper>
+        <FilterItem>
           <Select
             placeholder={__('Choose user')}
             options={generateListParams(users)}
             onChange={this.setFilter.bind(this, 'userId')}
             value={queryParams.userId}
           />
-        </FilterWrapper>
-      </React.Fragment>
+        </FilterItem>
+      </FilterWrapper>
     );
 
     return <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />;

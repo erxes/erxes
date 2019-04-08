@@ -8,7 +8,10 @@ const Box = styledTS<{ noTopPadding?: boolean }>(styled.div)`
   padding-top: ${props => props.noTopPadding && '0'};
   background: ${colors.colorWhite};
   margin-bottom: ${dimensions.unitSpacing}px;
-  box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.1);
+
+  &:last-of-type {
+    margin: 0;
+  }
 `;
 
 const Title = styled.h4`

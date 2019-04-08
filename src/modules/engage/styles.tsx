@@ -74,18 +74,19 @@ const LauncherContainer = styled(Launcher)`
 const WidgetPreview = styled(WidgetPreviewStyled)`
   height: auto;
   bottom: 90px;
-  right: 25px;
+  right: ${coreSpace};
   max-height: calc(100% - 95px);
+  max-width: calc(100% - 40px);
 `;
 
 const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
   min-height: 100%;
   position: relative;
   background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.3) 60%,
-    ${colors.borderPrimary} 100%
+    140deg,
+    rgba(0, 0, 0, 0) 70%,
+    rgba(0, 0, 0, 0.08) 95%,
+    rgba(0, 0, 0, 0.1) 100%
   );
   width: ${props => props.isEngage && '100%'};
 
@@ -109,12 +110,13 @@ const Segmentli = styledTS<{ chosen: boolean }>(styled.li)`
     props.chosen ? colors.borderPrimary : 'transparent'};
 
   a {
+    outline: none;
+    text-decoration: none;
+
     &:focus {
       outline: none;
       text-decoration: none;
     }
-    outline: none;
-    text-decoration: none;
   }
 `;
 
@@ -184,7 +186,7 @@ const SelectMonth = styled.div`
   flex: 1;
 
   label {
-    margin-top: 20px;
+    margin-top: ${coreSpace};
   }
 `;
 

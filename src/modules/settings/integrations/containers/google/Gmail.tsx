@@ -27,7 +27,7 @@ type FinalProps = {
 
 class GmailContainer extends React.Component<FinalProps> {
   render() {
-    const { history, brandsQuery, saveMutation, closeModal } = this.props;
+    const { brandsQuery, saveMutation, closeModal } = this.props;
 
     if (brandsQuery.loading) {
       return <Spinner objective={true} />;
@@ -43,7 +43,6 @@ class GmailContainer extends React.Component<FinalProps> {
         .then(() => {
           Alert.success(__('You successfully added an integration'));
           callback();
-          history.push('/settings/integrations');
         })
         .catch(e => {
           Alert.error(e.message);

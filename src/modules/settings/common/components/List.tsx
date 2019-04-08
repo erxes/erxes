@@ -66,7 +66,6 @@ class List extends React.Component<Props & ICommonListProps, {}> {
           <Wrapper.ActionBar left={leftActionBar} right={actionBarRight} />
         }
         footer={<Pagination count={totalCount} />}
-        transparent={true}
         center={center}
         content={
           <>
