@@ -75,7 +75,9 @@ class ConfirmDialog extends React.Component<Props, State> {
   }
 
   render() {
-    const { confirmation = 'Are you sure?' } = this.props;
+    const {
+      confirmation = 'Are you sure? This cannot be undone.'
+    } = this.props;
 
     const {
       okLabel = 'Yes, I am',

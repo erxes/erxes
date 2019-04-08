@@ -82,7 +82,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     saveMutation({ variables: { ...variables, accountId } })
       .then(() => {
         callback();
-        Alert.success('Congrats');
+        Alert.success('You successfully added a integration');
         history.push('/settings/integrations');
       })
       .catch(e => {

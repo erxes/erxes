@@ -30,7 +30,7 @@ const UserListContainer = (props: ChildProps<FinalProps>) => {
         variables: { _id: userId }
       })
         .then(() => {
-          Alert.success('Successfully deleted.');
+          Alert.success('You successfully deleted a user');
         })
         .catch(error => {
           Alert.error(error.message);

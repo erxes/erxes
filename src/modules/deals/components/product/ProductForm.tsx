@@ -131,11 +131,11 @@ class ProductForm extends React.Component<Props, State> {
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {
-          return Alert.error(__('Please choose a product'));
+          return Alert.error('Please choose a product');
         }
 
         if (!data.currency) {
-          return Alert.error(__('Please choose a currency'));
+          return Alert.error('Please choose a currency');
         }
       }
     }

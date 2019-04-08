@@ -32,7 +32,7 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
       .then(() => {
         customersQuery.refetch();
 
-        Alert.success('Success');
+        Alert.success('You successfully added a customer');
 
         callback();
       })

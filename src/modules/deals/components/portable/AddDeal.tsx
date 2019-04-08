@@ -1,6 +1,5 @@
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
 import { DealSelect } from 'modules/deals/containers';
 import {
   AddContainer,
@@ -54,11 +53,11 @@ class DealAddForm extends React.Component<Props, State> {
     const { customerId, companyId, saveDeal, closeModal } = this.props;
 
     if (!stageId) {
-      return Alert.error(__('No stage'));
+      return Alert.error('No stage');
     }
 
     if (!name) {
-      return Alert.error(__('Enter name'));
+      return Alert.error('Enter name');
     }
 
     const doc = {

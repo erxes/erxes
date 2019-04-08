@@ -75,7 +75,7 @@ const ConfigContainer = (props: FinalProps) => {
       variables: doc
     })
       .then(() => {
-        Alert.success('Congrats');
+        Alert.success('You successfully updated an email appearance.');
         refetch();
         callback();
       })

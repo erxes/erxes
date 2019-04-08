@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -27,7 +27,7 @@ const SegmentListContainer = (props: FinalProps) => {
         .then(() => {
           segmentsQuery.refetch();
 
-          Alert.success('Congrats');
+          Alert.success('You successfully deleted a segment');
         })
         .catch(error => {
           Alert.error(error.message);

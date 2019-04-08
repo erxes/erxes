@@ -84,7 +84,8 @@ const EditMessenger = (props: FinalProps) => {
       })
 
       .then(() => {
-        Alert.success('Successfully saved.');
+        Alert.success('You successfully updated a messenger');
+
         history.push('/settings/integrations?refetch=true');
       })
       .catch(error => {

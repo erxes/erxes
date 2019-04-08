@@ -32,7 +32,7 @@ const PropertyGroupFormContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('Successfully added');
+        Alert.success('You successfully added a new property group');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -47,7 +47,7 @@ const PropertyGroupFormContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('Successfully Edited');
+        Alert.success('You successfully updated a property group');
       })
       .catch(e => {
         Alert.error(e.message);

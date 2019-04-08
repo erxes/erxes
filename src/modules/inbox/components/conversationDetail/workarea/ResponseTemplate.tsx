@@ -91,7 +91,7 @@ class ResponseTemplate extends React.Component<Props, State> {
         return Alert.error(error.message);
       }
 
-      Alert.success('Congrats');
+      Alert.success('You successfully saved a response template');
 
       const element = document.querySelector('button.close') as HTMLElement;
 

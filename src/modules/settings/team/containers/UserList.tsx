@@ -39,6 +39,8 @@ const options = ({ queryParams }: { queryParams: any }) => {
 };
 
 export default commonListComposer<{ queryParams: any; history: any }>({
+  text: 'team member',
+
   name: 'users',
 
   gqlListQuery: graphql(gql(queries.users), {

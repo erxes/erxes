@@ -45,7 +45,7 @@ class LeadContainer extends React.Component<FinalProps> {
     const save = (variables, callback) => {
       saveMutation({ variables })
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success('You successfully added a lead');
           callback();
           history.push('/settings/integrations');
         })

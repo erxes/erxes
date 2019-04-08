@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { __, Alert, uploadHandler, withProps } from 'modules/common/utils';
+import { Alert, uploadHandler, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
@@ -71,7 +71,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('Success');
+          Alert.success('You successfully deleted a customer');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -87,7 +87,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then((result: any) => {
           callback();
-          Alert.success('Success');
+          Alert.success('You successfully merged a customer');
           history.push(`/customers/details/${result.data.customersMerge._id}`);
         })
         .catch(e => {
@@ -140,7 +140,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         afterUpload: ({ response }) => {
           if (response.length === 0) {
             customersMainQuery.refetch();
-            Alert.success(__('All customers imported successfully'));
+            Alert.success('All customers imported successfully');
           } else {
             Alert.error(response[0]);
           }

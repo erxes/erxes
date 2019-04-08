@@ -49,7 +49,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
           topicsQuery.refetch();
           topicsCountQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success('You successfully deleted a knowledge base');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -75,7 +75,9 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
         topicsQuery.refetch();
         topicsCountQuery.refetch();
 
-        Alert.success('Congrats');
+        Alert.success(
+          `You successfully ${object ? 'updated' : 'added'} a knowledge base`
+        );
 
         callback();
       })

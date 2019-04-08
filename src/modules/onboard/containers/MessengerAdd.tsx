@@ -41,14 +41,14 @@ const MessengerAddContainer = (props: ChildProps<Props>) => {
     }
 
     if (!brandId) {
-      return Alert.error('Choose brand');
+      return Alert.error('Choose a brand');
     }
 
     saveMessengerMutation({
       variables: doc
     })
       .then(() => {
-        Alert.success('Successfully saved.');
+        Alert.success('You successfully saved an app');
         callback();
       })
       .catch(error => {

@@ -62,7 +62,7 @@ const SidebarContainer = (props: FinalProps) => {
         variables: { _id: channelId }
       })
         .then(() => {
-          Alert.success('Successfully deleted.');
+          Alert.success('You successfully deleted a category');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -87,7 +87,7 @@ const SidebarContainer = (props: FinalProps) => {
         return userSeenOnboardMutation();
       })
       .then(() => {
-        Alert.success('Successfully saved your channel.');
+        Alert.success('You successfully added a channel');
 
         setTimeout(() => {
           history.push('/');
