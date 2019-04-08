@@ -23,7 +23,7 @@ describe('Accounts mutations', () => {
     _account = await accountFactory({
       kind: 'gmail',
     });
-    _user = await userFactory({ role: 'admin' });
+    _user = await userFactory({});
     _integration = await integrationFactory({
       gmailData: {
         accountId: _account._id,

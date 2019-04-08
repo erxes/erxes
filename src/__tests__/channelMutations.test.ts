@@ -12,7 +12,7 @@ describe('mutations', () => {
     // Creating test data
     _channel = await channelFactory({});
     _integration = await integrationFactory({});
-    _user = await userFactory({ role: 'admin' });
+    _user = await userFactory({});
 
     context = { user: _user };
   });

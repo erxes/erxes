@@ -3,7 +3,7 @@ import { userFactory } from '../db/factories';
 
 describe('Test configs mutations', () => {
   test('Insert config', async () => {
-    const context = { user: await userFactory({ role: 'admin' }) };
+    const context = { user: await userFactory({}) };
 
     const args = {
       code: 'dealUOM',

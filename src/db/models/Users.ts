@@ -16,7 +16,6 @@ interface IEditProfile {
 }
 
 interface IUpdateUser extends IEditProfile {
-  role?: string;
   password?: string;
   groupIds?: string[];
 }
@@ -120,7 +119,7 @@ export const loadClass = () => {
     /**
      * Create new user
      */
-    public static async createUser({ username, email, password, role, details, links, groupIds }: IUser) {
+    public static async createUser({ username, email, password, details, links, groupIds }: IUser) {
       // empty string password validation
       if (password === '') {
         throw new Error('Password can not be empty');
@@ -132,7 +131,6 @@ export const loadClass = () => {
       return Users.create({
         username,
         email,
-        role,
         details,
         links,
         groupIds,
@@ -145,11 +143,8 @@ export const loadClass = () => {
     /**
      * Update user information
      */
-    public static async updateUser(
-      _id: string,
-      { username, email, password, role, details, links, groupIds }: IUpdateUser,
-    ) {
-      const doc = { username, email, password, role, details, links, groupIds };
+    public static async updateUser(_id: string, { username, email, password, details, links, groupIds }: IUpdateUser) {
+      const doc = { username, email, password, details, links, groupIds };
 
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
@@ -443,7 +438,6 @@ export const loadClass = () => {
         _id: _user._id,
         email: _user.email,
         details: _user.details,
-        role: _user.role,
         isOwner: _user.isOwner,
       };
 

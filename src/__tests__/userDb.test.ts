@@ -40,7 +40,6 @@ describe('User db utils', () => {
     expect(userObj._id).toBeDefined();
     expect(userObj.username).toBe(_user.username);
     expect(userObj.email).toBe('qwerty@qwerty.com');
-    expect(userObj.role).toBe(_user.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(_user.details.position);
     expect(userObj.details.fullName).toBe(_user.details.fullName);
@@ -266,7 +265,6 @@ describe('User db utils', () => {
 
     expect(userObj.username).toBe(updateDoc.username);
     expect(userObj.email).toBe('123@gmail.com');
-    expect(userObj.role).toBe(userObj.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);

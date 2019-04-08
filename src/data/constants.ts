@@ -196,11 +196,6 @@ export const COC_LIFECYCLE_STATE_TYPES = [
   'other',
 ];
 
-export const ROLES = {
-  ADMIN: 'admin',
-  CONTRIBUTOR: 'contributor',
-};
-
 export const PUBLISH_STATUSES = {
   DRAFT: 'draft',
   PUBLISH: 'publish',

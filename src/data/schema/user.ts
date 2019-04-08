@@ -39,7 +39,6 @@ export const types = `
     _id: String!
     username: String
     email: String
-    role: String
     isActive: Boolean
     details: UserDetailsType
     links: UserLinksType
@@ -61,7 +60,6 @@ export const types = `
 const commonParams = `	
   username: String!,	
   email: String!,	
-  role: String!	
   details: UserDetails,	
   links: UserLinks,	
   channelIds: [String],	

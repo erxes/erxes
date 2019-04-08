@@ -43,7 +43,7 @@ describe('mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ role: 'admin' });
+    _user = await userFactory({});
     _integration = await integrationFactory({});
     _brand = await brandFactory({});
 

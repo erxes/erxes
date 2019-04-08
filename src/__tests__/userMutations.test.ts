@@ -45,7 +45,6 @@ describe('User mutations', () => {
   const commonParamDefs = `
     $username: String!
     $email: String!
-    $role: String!
     $details: UserDetails
     $links: UserLinks
     $channelIds: [String]
@@ -54,7 +53,6 @@ describe('User mutations', () => {
   const commonParams = `
     username: $username
     email: $email
-    role: $role
     details: $details
     links: $links
     channelIds: $channelIds
@@ -63,7 +61,7 @@ describe('User mutations', () => {
   beforeEach(async () => {
     // Creating test data
     _user = await userFactory({});
-    _admin = await userFactory({ role: 'admin' });
+    _admin = await userFactory({});
     _channel = await channelFactory({});
     _brand = await brandFactory({});
 
@@ -254,7 +252,6 @@ describe('User mutations', () => {
   test('Edit user', async () => {
     const doc = {
       ...args,
-      role: 'contributor',
       passwordConfirmation: 'pass',
       channelIds: [_channel._id],
     };
@@ -265,7 +262,6 @@ describe('User mutations', () => {
           _id
           username
           email
-          role
           details {
             fullName
             avatar
@@ -296,7 +292,6 @@ describe('User mutations', () => {
     expect(channel.memberIds).toContain(user._id);
     expect(user.username).toBe(doc.username);
     expect(user.email.toLowerCase()).toBe(doc.email.toLowerCase());
-    expect(user.role).toBe(doc.role);
     expect(user.details.fullName).toBe(doc.details.fullName);
     expect(user.details.avatar).toBe(doc.details.avatar);
     expect(user.details.location).toBe(doc.details.location);

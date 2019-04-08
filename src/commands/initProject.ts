@@ -9,7 +9,6 @@ connect()
       password: 'erxes',
       email: 'admin@erxes.io',
       isOwner: true,
-      role: 'admin',
       details: {
         fullName: 'Admin',
       },

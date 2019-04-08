@@ -48,7 +48,7 @@ describe('Test deals mutations', () => {
     pipeline = await dealPipelineFactory({ boardId: board._id });
     stage = await dealStageFactory({ pipelineId: pipeline._id });
     deal = await dealFactory({ stageId: stage._id });
-    context = { user: await userFactory({ role: 'admin' }) };
+    context = { user: await userFactory({}) };
   });
 
   afterEach(async () => {
