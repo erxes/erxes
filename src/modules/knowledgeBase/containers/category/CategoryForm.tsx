@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CategoryForm } from '../../components';
@@ -43,7 +43,9 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
       variables: doc
     })
       .then(() => {
-        Alert.success('Congrats');
+        Alert.success(
+          __(`You successfully ${object ? 'updated' : 'added'} a category`)
+        );
 
         callback();
       })

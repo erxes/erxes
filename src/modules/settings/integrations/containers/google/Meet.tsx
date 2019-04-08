@@ -31,7 +31,7 @@ const Meet = (props: FinalProps) => {
     saveMutation({ variables: doc })
       .then(() => {
         callback();
-        Alert.success('Congrats');
+        Alert.success('You successfully added an integration');
         history.push('/settings/integrations');
       })
       .catch(e => {

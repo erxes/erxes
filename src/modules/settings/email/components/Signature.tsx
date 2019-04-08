@@ -13,7 +13,7 @@ import {
   toHTML
 } from 'modules/common/components/editor/Editor';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { IEmailSignatureWithBrand } from '../types';
 
@@ -85,6 +85,10 @@ class Signature extends React.Component<Props, State> {
     e.preventDefault();
     const { save, closeModal } = this.props;
 
+    if (!this.state.currentId) {
+      return Alert.error('Select a brand');
+    }
+
     save(this.state.signatures, closeModal);
   };
 
@@ -124,7 +128,7 @@ class Signature extends React.Component<Props, State> {
 
         <form id="signature-form" onSubmit={this.handleSubmit}>
           <FormGroup>
-            <ControlLabel required={true}>Choose brand</ControlLabel>
+            <ControlLabel required={true}>Choose a brand</ControlLabel>
 
             <FormControl componentClass="select" onChange={this.changeCurrent}>
               <option value="">------------</option>

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
+import { queries } from 'modules/activityLogs/graphql';
 import { IUser } from 'modules/auth/types';
-import { queries } from 'modules/customers/graphql';
 import { ActivityLogQueryResponse, ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -25,7 +25,7 @@ class SidebarActivityContainer extends React.Component<FinalProps> {
       ...this.props,
       customer,
       loadingLogs: customerActivityLogQuery.loading,
-      activityLogsCustomer: customerActivityLogQuery.activityLogsCustomer || [],
+      activityLogsCustomer: customerActivityLogQuery.activityLogs || [],
       currentUser
     };
 
@@ -35,16 +35,14 @@ class SidebarActivityContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ActivityLogQueryResponse, { _id: string }>(
-      gql(queries.activityLogsCustomer),
-      {
-        name: 'customerActivityLogQuery',
-        options: ({ customer }) => ({
-          variables: {
-            _id: customer._id
-          }
-        })
-      }
-    )
+    graphql<Props, ActivityLogQueryResponse>(gql(queries.activityLogs), {
+      name: 'customerActivityLogQuery',
+      options: ({ customer }) => ({
+        variables: {
+          contentId: customer._id,
+          contentType: 'customer'
+        }
+      })
+    })
   )(SidebarActivityContainer)
 );

@@ -17,6 +17,8 @@ type Props = {
 };
 
 export default commonListComposer<Props>({
+  text: 'email template',
+
   name: 'emailTemplates',
 
   gqlListQuery: graphql(gql(queries.emailTemplates), {

@@ -75,7 +75,7 @@ class CreateFormContainer extends React.Component<Props, {}> {
         })
 
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success('You successfully added a lead');
           history.push('/forms');
         })
 

@@ -39,7 +39,7 @@ const BrandListContainer = (props: ChildProps<FinalProps>) => {
         .then(() => {
           brandsQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success('You successfully deleted a brand');
         })
         .catch(error => {
           Alert.error(error.message);

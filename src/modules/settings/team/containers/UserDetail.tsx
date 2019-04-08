@@ -20,7 +20,7 @@ const UserDetailContainer = (props: FinalProps) => {
   const save = ({ doc }: { doc: IUserDoc }, closeModal: () => void) => {
     usersEdit({ variables: { _id, ...doc } })
       .then(() => {
-        Alert.success('Successfully saved');
+        Alert.success('You successfully updated an user');
         closeModal();
       })
       .catch((e: Error) => {

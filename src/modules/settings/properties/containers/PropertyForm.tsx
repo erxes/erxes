@@ -34,7 +34,7 @@ const PropertyFormContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('Successfully added');
+        Alert.success('You successfully added a new property field');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -49,7 +49,7 @@ const PropertyFormContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('Successfully edited');
+        Alert.success('You successfully updated a new property field');
       })
       .catch(e => {
         Alert.error(e.message);

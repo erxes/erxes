@@ -1,7 +1,7 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
@@ -34,7 +34,7 @@ class ListContainer extends React.Component<FinalProps> {
           currencyConfigQuery.refetch();
           uomConfigQuery.refetch();
 
-          Alert.success(__('Successfully saved.'));
+          Alert.success('You successfully updated general settings');
         })
         .catch(error => {
           Alert.error(error.message);

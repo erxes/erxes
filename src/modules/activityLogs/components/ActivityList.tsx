@@ -1,4 +1,5 @@
-import { EmptyState, Icon } from 'modules/common/components';
+import { EmptyState } from 'modules/common/components';
+import * as moment from 'moment';
 import * as React from 'react';
 import { IUser } from '../../auth/types';
 import { ActivityTitle, Timeline } from '../styles';
@@ -13,20 +14,37 @@ type Props = {
 };
 
 class ActivityList extends React.Component<Props> {
-  renderList(activity) {
-    const activities = activity.data;
+  renderItem(data) {
+    return data.map((item, index) => <ActivityItem key={index} data={item} />);
+  }
+
+  renderList(activity, index) {
+    const data = Object.keys(activity);
 
     return (
-      <div key={activity.title}>
-        {activities.length ? (
-          <ActivityTitle>
-            <Icon icon="calendar" /> {activity.title}
-          </ActivityTitle>
-        ) : null}
-        {activities.map((rowData, index) => (
-          <ActivityItem key={index} data={rowData} />
-        ))}
+      <div key={index}>
+        <ActivityTitle> {data} </ActivityTitle>
+        {data.map(key => this.renderItem(activity[key]))}
       </div>
+    );
+  }
+
+  renderTimeLine(activities) {
+    const result = activities.reduce((item, activity) => {
+      const createdDate = moment(activity.createdAt).format('MMMM YYYY');
+
+      item[createdDate] = item[createdDate] || [];
+      item[createdDate].push(activity);
+
+      return item;
+    }, {});
+
+    return (
+      <Timeline>
+        {Object.keys(result).map((key, index) => {
+          return this.renderList({ [key]: result[key] }, index);
+        })}
+      </Timeline>
     );
   }
 
@@ -45,7 +63,7 @@ class ActivityList extends React.Component<Props> {
       );
     }
 
-    return <Timeline>{activities.map(item => this.renderList(item))}</Timeline>;
+    return this.renderTimeLine(activities);
   }
 }
 

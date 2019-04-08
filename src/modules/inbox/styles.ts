@@ -242,15 +242,16 @@ const MessengerApps = styled.div`
 const AttachmentIndicator = styled.div`
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   margin: 0 15px 10px 15px;
   color: ${rgba(colors.colorWhite, 0.7)};
 `;
 
 const Attachment = styled.div`
   display: flex;
-  max-width: 220px;
+  max-width: 250px;
   padding: 5px;
-  margin: 5px 0 5px 5px;
+  margin: 0 0 5px 5px;
   font-size: 12px;
   background-color: ${colors.colorSecondary};
   align-items: center;

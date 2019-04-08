@@ -189,6 +189,7 @@ const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
     margin: 10px 0 0;
     font-size: 12px;
     color: ${colors.colorCoreLightGray};
+    min-height: 54px;
   }
 `;
 

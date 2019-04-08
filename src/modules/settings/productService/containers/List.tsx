@@ -48,7 +48,7 @@ class ProductListContainer extends React.Component<FinalProps> {
             productsQuery.refetch();
             productsCountQuery.refetch();
 
-            Alert.success(__('Successfully deleted.'));
+            Alert.success(`You successfully deleted a product or service.`);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -73,7 +73,13 @@ class ProductListContainer extends React.Component<FinalProps> {
           productsQuery.refetch();
           productsCountQuery.refetch();
 
-          Alert.success(__('Successfully saved.'));
+          Alert.success(
+            __(
+              `You successfully ${
+                product ? 'updated' : 'added'
+              } a product and service.`
+            )
+          );
 
           callback();
         })

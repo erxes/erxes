@@ -4,7 +4,6 @@ import { Route, Switch } from 'react-router-dom';
 import { AuthLayout } from '../layout/components';
 import { ForgotPassword, ResetPassword, SignIn } from './containers';
 
-const home = () => <AuthLayout content={<SignIn />} />;
 const signIn = () => <AuthLayout content={<SignIn />} />;
 const forgotPassword = () => <AuthLayout content={<ForgotPassword />} />;
 const resetPassword = ({ location }) => {

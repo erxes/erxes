@@ -68,32 +68,34 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
     } = versions;
 
     const content = (
-      <FullContent center={true}>
-        <MiddleContent transparent={true}>
-          <Box noTopPadding={true}>
-            <HeaderDescription
-              icon="/images/actions/28.svg"
-              title="System status"
-              description={`This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.`}
-            />
-          </Box>
+      <div>
+        {this.renderData('Erxes Status', erxesVersion)}
 
-          {this.renderData('Erxes Status', erxesVersion)}
+        {this.renderData('Erxes API Status', apiVersion)}
 
-          {this.renderData('Erxes API Status', apiVersion)}
+        {this.renderData('Erxes Widget Status', widgetVersion)}
 
-          {this.renderData('Erxes Widget Status', widgetVersion)}
-
-          {this.renderData('Widget Api Version', widgetApiVersion)}
-        </MiddleContent>
-      </FullContent>
+        {this.renderData('Widget Api Version', widgetApiVersion)}
+      </div>
     );
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/28.svg"
+                title="System status"
+                description={`This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.`}
+              />
+            }
+          />
+        }
         content={content}
         transparent={true}
+        center={true}
       />
     );
   }

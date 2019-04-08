@@ -51,7 +51,7 @@ const SignatureContainer = (props: FinalProps) => {
 
     saveMutation({ variables: { signatures: doc } })
       .then(() => {
-        Alert.success('Congrats');
+        Alert.success('Great job! You just set up your email signature.');
         callback();
         userDetailQuery.refetch();
       })

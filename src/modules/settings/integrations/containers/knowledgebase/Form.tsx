@@ -47,7 +47,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
     const save = (variables, callback) => {
       saveMutation({ variables })
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success('You successfully added a knowledge base');
           callback();
           history.push('/settings/integrations');
         })

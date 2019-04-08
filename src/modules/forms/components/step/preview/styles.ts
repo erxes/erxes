@@ -41,7 +41,7 @@ const PreviewBody = styledTS<{ embedded?: string }>(styled.div)`
   padding: ${dimensions.coreSpacing}px;
   color: ${colors.textPrimary};
   background-color: ${colors.colorWhite};
-  border-radius: ${dimensions.coreSpacing}px;
+  border-radius: ${dimensions.unitSpacing}px;
   overflow: auto;
   height: 100%;
 
@@ -66,8 +66,7 @@ const DropdownContent = styled.div`
   box-shadow: 0 3px 20px -2px ${rgba(colors.colorBlack, 0.3)};
   background: ${colors.bgLight};
   transition: all 0.2s linear;
-  border-top-left-radius: ${dimensions.unitSpacing}px;
-  border-top-right-radius: ${dimensions.unitSpacing}px;
+  border-radius: ${dimensions.unitSpacing}px;
   display: flex;
   flex-direction: column;
   max-height: 100%;
@@ -78,8 +77,8 @@ const SlideLeftContent = styled.div`
   position: absolute;
   width: 380px;
   background: ${colors.bgLight};
-  bottom: 5px;
-  left: 0;
+  bottom: 20px;
+  left: 20px;
   box-shadow: 0 3px 20px 0px ${rgba(colors.colorBlack, 0.3)};
   border-radius: ${dimensions.unitSpacing}px;
   max-height: 100%;
@@ -94,7 +93,7 @@ const SlideLeftContent = styled.div`
 `;
 
 const SlideRightContent = styled(SlideLeftContent)`
-  right: 0;
+  right: 20px;
   left: auto;
   animation: ${slideRight} 0.5s linear;
 `;
@@ -197,6 +196,7 @@ const CallOutBody = styled.div`
 const PreviewContainer = styled.div`
   position: relative;
   height: 100%;
+  padding: 20px;
 `;
 
 const PopUpContainer = styled.div`

@@ -58,7 +58,7 @@ const MailFormContainer = (props: FinalProps) => {
         if (callback) {
           callback();
         }
-        Alert.success('Congrats! Your email sent successfully!');
+        Alert.success('Your email has been sent!');
       })
       .catch(e => {
         Alert.error(e.message);

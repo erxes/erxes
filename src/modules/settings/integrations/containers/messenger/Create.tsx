@@ -77,7 +77,7 @@ const CreateMessenger = (props: FinalProps) => {
       })
 
       .then(() => {
-        Alert.success('Successfully saved.');
+        Alert.success('You successfully added an integration');
         history.push('/settings/integrations?refetch=true');
       })
       .catch(error => {

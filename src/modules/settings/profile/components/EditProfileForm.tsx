@@ -96,14 +96,17 @@ class EditProfile extends React.Component<Props, State> {
     return this.setState({ isShowPasswordPopup: true });
   };
 
-  renderModal() {
+  renderPasswordConfirmationModal() {
     return (
       <Modal show={this.state.isShowPasswordPopup} onHide={this.closeConfirm}>
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Enter your password to Confirm')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <PasswordConfirmation onSuccess={this.onSuccess} />
+          <PasswordConfirmation
+            onSuccess={this.onSuccess}
+            closeModal={this.closeConfirm}
+          />
         </Modal.Body>
       </Modal>
     );
@@ -117,7 +120,7 @@ class EditProfile extends React.Component<Props, State> {
           onAvatarUpload={this.onAvatarUpload}
         />
 
-        {this.renderModal()}
+        {this.renderPasswordConfirmationModal()}
 
         <ModalFooter>
           <Button

@@ -71,18 +71,15 @@ export class AppProvider extends React.Component<
       currentLanguage
     };
 
-    this.setLocale = this.setLocale.bind(this);
-    this.changeLanguage = this.changeLanguage.bind(this);
-
     this.setLocale(currentLanguage);
   }
 
-  setLocale(currentLanguage) {
+  setLocale = (currentLanguage: string): void => {
     moment.locale(currentLanguage);
     T.setTexts(translations[currentLanguage]);
-  }
+  };
 
-  changeLanguage(languageCode) {
+  changeLanguage = (languageCode): void => {
     const currentLanguage = languageCode || 'en';
 
     localStorage.setItem('currentLanguage', currentLanguage);
@@ -90,7 +87,7 @@ export class AppProvider extends React.Component<
     this.setLocale(currentLanguage);
 
     this.setState({ currentLanguage });
-  }
+  };
 
   public render() {
     const { currentUser, currentLanguage } = this.state;

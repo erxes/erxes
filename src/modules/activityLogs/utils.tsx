@@ -2,32 +2,17 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { IUser } from '../auth/types';
 
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December'
-];
-
 const ICON_AND_COLOR_TABLE = {
   'customer-create': {
     icon: 'adduser',
-    color: '#A389D4'
+    color: '#6465e2'
   },
   'segment-create': {
     icon: 'filter',
     color: '#6569DF'
   },
   'conversation-create': {
-    icon: 'speech-bubble-3',
+    icon: 'speech-bubble-2',
     color: '#F44236'
   },
   'internal_note-create': {
@@ -86,49 +71,33 @@ export default class {
 
   /**
    * Process a row of query and return a row for use on the front side
-   * @param {Object} date - Object containing year and month (interval)
-   * @param {Object[]} list - List containing activity logs belonging to the current interval
    * @param {string} action - Activity log action
    * @param {Object} content - Object with a type of data related to its content type (action)
    * @return {Object} - Return processed data of a given interval
    */
-  _processItem({ date, list }) {
-    const { year, month } = date;
 
-    const result: any = {
-      title: `${MONTHS[month]} ${year}`,
-      data: []
+  _processItem(item) {
+    const iconAndColor = this._getIconAndColor(item.action);
+    const hasContent = ![
+      'company-create',
+      'deal-create',
+      'customer-create'
+    ].includes(item.action);
+
+    const caption = this._getCaption({
+      action: item.action,
+      by: item.by,
+      id: item.id
+    });
+
+    return {
+      ...iconAndColor,
+      caption,
+      content: hasContent ? item.content : null,
+      action: item.action,
+      createdAt: item.createdAt,
+      by: item.by
     };
-
-    for (const item of list) {
-      if (this.type && this.type !== item.action) {
-        continue;
-      }
-
-      const iconAndColor = this._getIconAndColor(item.action);
-      const hasContent =
-        !['company-create', 'deal-create', 'customer-create'].includes(
-          item.action
-        ) && item.content !== '[object Object]';
-
-      const caption = this._getCaption({
-        action: item.action,
-        by: item.by,
-        id: item.id
-      });
-
-      result.data.push({
-        ...iconAndColor,
-        caption,
-        content: hasContent ? item.content : null,
-        action: item.action,
-        date: item.createdAt,
-        createdAt: item.createdAt,
-        by: item.by
-      });
-    }
-
-    return result;
   }
 
   /**
