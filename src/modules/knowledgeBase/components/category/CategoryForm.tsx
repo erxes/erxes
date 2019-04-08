@@ -58,12 +58,12 @@ class CategoryForm extends React.Component<Props, State> {
   getSelectedIcon() {
     const { category } = this.props;
 
-    return (category && category.icon) || '';
+    return category ? category.icon : '';
   }
 
   onChangeIcon = obj => {
     this.setState({
-      selectedIcon: obj.value
+      selectedIcon: obj ? obj.value : ''
     });
   };
 
