@@ -160,6 +160,7 @@ export const moduleObjects = {
           'dealsAdd',
           'dealsEdit',
           'dealsRemove',
+          'dealsUpdateOrder',
         ],
       },
       {

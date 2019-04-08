@@ -80,7 +80,6 @@ const userMutations = {
   async usersEdit(_root, args: IUsersEdit) {
     const { _id, username, email, channelIds = [], groupIds = [], details, links } = args;
 
-    // TODO check isOwner
     const updatedUser = await Users.updateUser(_id, {
       username,
       email,

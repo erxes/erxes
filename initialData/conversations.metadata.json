@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"erxes.conversations"},{"v":2,"key":{"createdAt":1},"name":"createdAt_1","ns":"erxes.conversations","background":true}],"uuid":"5c02d57014ef43499b3b29ffa1328270"}
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"erxes.conversations"},{"v":2,"key":{"createdAt":1},"name":"createdAt_1","ns":"erxes.conversations","background":true}],"uuid":"873a980e2ce040d8b357dfb880c90a96"}
