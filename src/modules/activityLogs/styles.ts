@@ -4,20 +4,20 @@ import { WhiteBox } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const iconWrapperWidth = '80px';
+const iconWrapperWidth = '80';
 
 const Timeline = styled.div`
-  padding-left: ${iconWrapperWidth};
+  padding-left: ${iconWrapperWidth}px;
   position: relative;
 
   &:before {
-    border-right: 1px solid #ccc;
+    border-right: 1px solid ${colors.borderDarker};
     content: '';
     height: 100%;
     position: absolute;
     z-index: 1;
     margin-top: 1px;
-    left: calc(${iconWrapperWidth} / 2);
+    left: (${iconWrapperWidth} / 2) px;
   }
 `;
 
@@ -97,13 +97,13 @@ const ActivityIcon = styledTS<{ color?: string }>(styled.span)`
   display: inline-block;
   position: absolute;
   background-color: ${props => props.color};
-  height: calc(${iconWrapperWidth} * 0.4);
-  width: calc(${iconWrapperWidth} * 0.4);
-  line-height: calc(${iconWrapperWidth} * 0.4);
+  height: (${iconWrapperWidth} * 0.4)px;
+  width: (${iconWrapperWidth} * 0.4)px;
+  line-height: (${iconWrapperWidth} * 0.4)px;
   text-align: center;
   border-radius: 50%;
-  left: calc(-${iconWrapperWidth} + ${iconWrapperWidth} * 0.3);
-  top: ${dimensions.unitSpacing}px;
+  left: (-${iconWrapperWidth} + ${iconWrapperWidth} * 0.3)px;
+  top: ${dimensions.coreSpacing}px;
   z-index: 2;
 
   & i {
