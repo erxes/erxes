@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import { STORAGE_BOARD_KEY } from 'modules/deals/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -52,7 +52,8 @@ class BoardsContainer extends React.Component<FinalProps> {
             }
 
             history.push('/settings/deals/');
-            Alert.success(__('Successfully deleted.'));
+
+            Alert.success('You successfully deleted a board');
           })
           .catch(error => {
             Alert.error(error.message);
@@ -74,7 +75,9 @@ class BoardsContainer extends React.Component<FinalProps> {
         variables: doc
       })
         .then(() => {
-          Alert.success(__('Successfully saved.'));
+          Alert.success(
+            `You successfully ${board ? 'updated' : 'added'} a new board.`
+          );
 
           callback();
         })

@@ -9,6 +9,7 @@ interface IRemoveMutationVariables {
 
 function commonListComposer<ComponentProps>(options) {
   const {
+    text,
     name,
     gqlListQuery,
     gqlTotalCountQuery,
@@ -56,7 +57,7 @@ function commonListComposer<ComponentProps>(options) {
             listQuery.refetch();
             totalCountQuery.refetch();
 
-            Alert.success('Congrats, Successfully deleted.');
+            Alert.success(`You successfully deleted a ${text}.`);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -82,7 +83,9 @@ function commonListComposer<ComponentProps>(options) {
           listQuery.refetch();
           totalCountQuery.refetch();
 
-          Alert.success('Congrats');
+          Alert.success(
+            `You successfully ${object ? 'updated' : 'added'} a ${text}.`
+          );
 
           callback();
         })

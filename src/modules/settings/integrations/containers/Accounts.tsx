@@ -35,7 +35,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
 
     removeAccount({ variables: { _id: accountId } })
       .then(() => {
-        Alert.success('Success');
+        Alert.success('You successfully removed an account');
         onRemove(accountId);
       })
       .catch(e => {
@@ -44,7 +44,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   render() {
-    const { accountsQuery, onRemove, onSelect } = this.props;
+    const { accountsQuery, onSelect } = this.props;
 
     if (accountsQuery.loading) {
       return <Spinner objective={true} />;

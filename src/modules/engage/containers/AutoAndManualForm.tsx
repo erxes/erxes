@@ -72,7 +72,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     segmentsAdd({ variables: { ...doc } }).then(() => {
       segmentsQuery.refetch();
       customerCountsQuery.refetch();
-      Alert.success('Success');
+      Alert.success('You successfully added a segment');
     });
   };
 

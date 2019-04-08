@@ -37,7 +37,7 @@ const ArticleContainer = (props: FinalProps) => {
         .then(() => {
           articlesQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success('You successfully deleted an article');
         })
         .catch(error => {
           Alert.error(error.message);

@@ -147,7 +147,7 @@ class CreateMessenger extends React.Component<Props, State> {
     }
 
     if (!brandId) {
-      return Alert.error('Choose brand');
+      return Alert.error('Choose a brand');
     }
 
     const links = { facebook, twitter, youtube };

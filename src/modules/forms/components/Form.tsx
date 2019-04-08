@@ -123,11 +123,11 @@ class Form extends React.Component<Props, State> {
     const { brand, calloutTitle, title } = this.state;
 
     if (!title) {
-      return Alert.error(__('Write title'));
+      return Alert.error('Write title');
     }
 
     if (!brand) {
-      return Alert.error(__('Choose brand'));
+      return Alert.error('Choose a brand');
     }
 
     this.props.save({

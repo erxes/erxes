@@ -21,7 +21,7 @@ const ChangePasswordContainer = (
 
     changePasswordMutation({ variables: { currentPassword, newPassword } })
       .then(() => {
-        Alert.success('Congrats');
+        Alert.success('Your password has been changed and updated');
       })
       .catch(error => {
         Alert.success(error.message);

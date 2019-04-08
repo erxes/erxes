@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { UsersQueryResponse } from '../../../settings/team/types';
@@ -41,12 +41,16 @@ class EditFormContainer extends React.Component<FinalProps> {
     this.removeDeal = this.removeDeal.bind(this);
   }
 
-  addDeal(doc: IDealParams, callback: () => void) {
+  addDeal(
+    doc: IDealParams,
+    callback: () => void,
+    msg = `You successfully added a deal`
+  ) {
     const { onAdd, addMutation, stageId } = this.props;
 
     addMutation({ variables: doc })
       .then(({ data: { dealsAdd } }) => {
-        Alert.success(__('Successfully saved.'));
+        Alert.success(msg);
 
         callback();
 
@@ -64,7 +68,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     editMutation({ variables: { _id: dealId, ...doc } })
       .then(({ data }) => {
-        Alert.success(__('Successfully saved.'));
+        Alert.success('You successfully updated a deal');
 
         callback();
 
@@ -84,6 +88,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       removeMutation({ variables: { _id: dealId } })
         .then(() => {
           callback();
+
+          Alert.success('You successfully deleted a deal');
 
           if (onRemove) {
             onRemove(dealId, stageId);

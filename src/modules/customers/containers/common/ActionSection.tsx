@@ -34,7 +34,7 @@ const ActionSectionContainer = (props: FinalProps) => {
       variables: { customerIds: [_id] }
     })
       .then(() => {
-        Alert.success('Success');
+        Alert.success('You successfully deleted a customer');
         history.push('/customers');
       })
       .catch(e => {
@@ -50,7 +50,7 @@ const ActionSectionContainer = (props: FinalProps) => {
       }
     })
       .then(response => {
-        Alert.success('Success');
+        Alert.success('You successfully merged a customer');
         history.push(`/customers/details/${response.data.customersMerge._id}`);
       })
       .catch(e => {

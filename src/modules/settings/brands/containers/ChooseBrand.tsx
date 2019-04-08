@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { __, Alert } from 'modules/common/utils';
 import { withProps } from 'modules/common/utils';
 import {
   AddIntegrationMutationResponse,
@@ -8,10 +9,9 @@ import {
 } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { save } from '../../integrations/containers/utils';
 import { ChooseBrand } from '../components';
 import { mutations, queries } from '../graphql';
-import { BrandsQueryResponse } from '../types';
+import { BrandsQueryResponse, IChooseBrand } from '../types';
 
 type Variables = {
   name: string;
@@ -45,19 +45,36 @@ const ChooseBrandContainer = (props: FinalProps) => {
     return <Spinner objective={true} />;
   }
 
+  const save = (variables: IChooseBrand) => {
+    let mutation = addMutation;
+
+    if (integration && integration._id) {
+      mutation = editMutation;
+      variables._id = integration._id;
+    }
+
+    mutation({
+      variables
+    })
+      .then(() => {
+        if (refetch) {
+          refetch();
+        }
+
+        if (onSave) {
+          onSave();
+        }
+
+        Alert.success('You successfully chose a new brand');
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   const updatedProps = {
     ...props,
-
-    save: variables =>
-      save({
-        variables,
-        addMutation,
-        editMutation,
-        integration,
-        onSave,
-        refetch
-      }),
-
+    save,
     brands: brandsQuery.brands || []
   };
 

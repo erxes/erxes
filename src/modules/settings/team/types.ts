@@ -5,7 +5,6 @@ import { IConversation } from '../../inbox/types';
 export type UserMutationVariables = {
   username: string;
   email: string;
-  role: string;
   details?: IUserDetails;
   links?: IUserLinks;
   channelIds?: [string];

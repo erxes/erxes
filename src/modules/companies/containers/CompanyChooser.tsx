@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Chooser } from 'modules/common/components';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CompanyForm } from '.';
@@ -33,7 +33,7 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
       .then(() => {
         companiesQuery.refetch();
 
-        Alert.success('Success');
+        Alert.success('You successfully added a company');
 
         callback();
       })
