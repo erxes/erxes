@@ -14,7 +14,9 @@ const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
 const MiddleContent = styledTS<{ transparent?: boolean }>(styled.div)`
   width: 900px;
   height: 100%;
+  height: calc(100% - 20px);
   background: ${props => !props.transparent && colors.colorWhite};
+  margin: 10px 0;
 `;
 
 const BoxRoot = styled.div`

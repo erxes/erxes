@@ -99,7 +99,6 @@ class List extends React.Component<Props, {}> {
           />
         }
         content={content}
-        transparent={true}
         center={true}
       />
     );
