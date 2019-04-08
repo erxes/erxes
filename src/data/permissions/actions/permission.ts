@@ -188,7 +188,7 @@ export const moduleObjects = {
       },
       {
         name: 'dealPipelinesUpdateOrder',
-        description: 'Deal update pipeline order',
+        description: 'Update pipeline order',
       },
       {
         name: 'dealStagesAdd',
@@ -200,11 +200,11 @@ export const moduleObjects = {
       },
       {
         name: 'dealStagesChange',
-        description: 'Change change deal',
+        description: 'Change deal stages',
       },
       {
         name: 'dealStagesUpdateOrder',
-        description: 'Update deal stage order',
+        description: 'Update stage order',
       },
       {
         name: 'dealStagesRemove',
@@ -217,6 +217,10 @@ export const moduleObjects = {
       {
         name: 'dealsEdit',
         description: 'Edit deal',
+      },
+      {
+        name: 'dealsUpdateOrder',
+        description: 'Update deal order',
       },
       {
         name: 'dealsRemove',
