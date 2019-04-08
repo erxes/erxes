@@ -19,6 +19,7 @@ type Props = {
   threadId?: string;
   toEmail?: string;
   subject?: string;
+  integrationId?: string;
   toEmails?: string[];
   closeModal?: () => void;
 };

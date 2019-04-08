@@ -30,6 +30,7 @@ import {
 } from './styles';
 
 type Props = {
+  integrationId?: string;
   integrations: IIntegration[];
   toEmail?: string;
   toEmails?: string[];
@@ -82,7 +83,7 @@ class MailForm extends React.Component<Props, State> {
       cc: '',
       bcc: '',
       toEmails: props.toEmail || '',
-      from: '',
+      from: props.integrationId,
       subject: props.subject || '',
       attachments: [],
       totalFileSize: 0,

@@ -20,6 +20,7 @@ import Attachments from './Attachment';
 
 type Props = {
   message: IMessage;
+  integrationId: string;
   staff?: boolean;
 };
 
@@ -41,7 +42,7 @@ class Mail extends React.PureComponent<Props, {}> {
   }
 
   renderMailForm(gmailData: IConversationGmailData) {
-    const { message } = this.props;
+    const { message, integrationId } = this.props;
     const customerId = message.customer && message.customer._id;
     const subject = gmailData.subject;
 
@@ -50,6 +51,7 @@ class Mail extends React.PureComponent<Props, {}> {
         contentType="customer"
         contentTypeId={customerId || ''}
         toEmail={gmailData.from}
+        integrationId={integrationId}
         refetchQueries={['detailQuery']}
         headerId={gmailData.headerId}
         threadId={gmailData.threadId}
@@ -91,7 +93,7 @@ class Mail extends React.PureComponent<Props, {}> {
     const gmailData = message.gmailData || {};
     const attachments = gmailData.attachments || [];
 
-    if (!gmailData) {
+    if (gmailData === {}) {
       return null;
     }
 
@@ -119,6 +121,7 @@ class Mail extends React.PureComponent<Props, {}> {
           dangerouslySetInnerHTML={{ __html: this.cleanHtml(mailContent) }}
         />
         <Attachments attachments={attachments} messageId={message._id || ''} />
+        <div className="clearfix" />
       </EmailItem>
     );
   }
