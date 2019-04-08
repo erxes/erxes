@@ -1,5 +1,5 @@
 import { confirm, withProps } from 'modules/common/utils';
-import { __, Alert } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose } from 'react-apollo';
 
@@ -60,7 +60,7 @@ function commonListComposer<ComponentProps>(options) {
             listQuery.refetch();
             totalCountQuery.refetch();
 
-            Alert.success(__(`You successfully deleted a ${text}.`));
+            Alert.success(`You successfully deleted a ${text}.`);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -77,7 +77,7 @@ function commonListComposer<ComponentProps>(options) {
           // update queries
           listQuery.refetch();
 
-          Alert.success(__(`You successfully changed a ${text}.`));
+          Alert.success(`You successfully changed a ${text}.`);
         })
         .catch(error => {
           Alert.error(error.message);
@@ -103,7 +103,7 @@ function commonListComposer<ComponentProps>(options) {
           totalCountQuery.refetch();
 
           Alert.success(
-            __(`You successfully ${object ? 'updated' : 'added'} a ${text}.`)
+            `You successfully ${object ? 'updated' : 'added'} a ${text}.`
           );
 
           callback();

@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
@@ -48,7 +48,7 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
         .then(() => {
           brandsQuery.refetch();
 
-          Alert.success(__(`You successfully deleted a brand.`));
+          Alert.success('You successfully deleted a brand.');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -72,7 +72,7 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
         brandsQuery.refetch();
 
         Alert.success(
-          __(`You successfully ${brand ? 'updated' : 'added'} a brand.`)
+          `You successfully ${brand ? 'updated' : 'added'} a brand.`
         );
 
         callback();

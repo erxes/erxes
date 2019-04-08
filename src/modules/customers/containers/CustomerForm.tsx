@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import {
   AddMutationResponse,
   EditMutationResponse,
@@ -24,7 +24,7 @@ const CustomerFormContainer = (props: FinalProps) => {
   let action = ({ doc }) => {
     customersAdd({ variables: doc })
       .then(() => {
-        Alert.success(__(`You successfully added a customer`));
+        Alert.success('You successfully added a customer');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -35,7 +35,7 @@ const CustomerFormContainer = (props: FinalProps) => {
     action = ({ doc }) => {
       customersEdit({ variables: { _id: customer._id, ...doc } })
         .then(() => {
-          Alert.success(__(`You successfully updated a customer`));
+          Alert.success('You successfully updated a customer');
         })
         .catch(e => {
           Alert.error(e.message);

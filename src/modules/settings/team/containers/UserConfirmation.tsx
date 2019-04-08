@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -39,7 +39,7 @@ class UserConfirmationContainer extends React.Component<FinalProps> {
         }
       })
         .then(() => {
-          Alert.success(__('Successfully verified'));
+          Alert.success('You successfully verified');
           history.push('/');
         })
         .catch(e => {

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IUserDoc } from 'modules/auth/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { UserDetailForm, UserForm } from '.';
@@ -20,7 +20,7 @@ const UserDetailContainer = (props: FinalProps) => {
   const save = ({ doc }: { doc: IUserDoc }, closeModal: () => void) => {
     usersEdit({ variables: { _id, ...doc } })
       .then(() => {
-        Alert.success(__('You successfully updated an user'));
+        Alert.success('You successfully updated an user');
         closeModal();
       })
       .catch((e: Error) => {

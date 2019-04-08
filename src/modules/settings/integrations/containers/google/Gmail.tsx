@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import Gmail from 'modules/settings/integrations/components/google/Gmail';
 import * as React from 'react';
@@ -41,7 +41,7 @@ class GmailContainer extends React.Component<FinalProps> {
     ) => {
       saveMutation({ variables })
         .then(() => {
-          Alert.success(__('You successfully added an integration'));
+          Alert.success('You successfully added an integration');
           callback();
         })
         .catch(e => {

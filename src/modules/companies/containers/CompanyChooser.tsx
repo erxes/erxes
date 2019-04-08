@@ -33,7 +33,7 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
       .then(() => {
         companiesQuery.refetch();
 
-        Alert.success(__('You successfully added a company'));
+        Alert.success('You successfully added a company');
 
         callback();
       })

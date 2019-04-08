@@ -27,7 +27,7 @@ const SegmentListContainer = (props: FinalProps) => {
         .then(() => {
           segmentsQuery.refetch();
 
-          Alert.success(__(`You successfully deleted a segment`));
+          Alert.success('You successfully deleted a segment');
         })
         .catch(error => {
           Alert.error(error.message);

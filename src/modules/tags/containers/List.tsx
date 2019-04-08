@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
@@ -31,7 +31,7 @@ const ListContainer = (props: FinalProps) => {
     confirm().then(() => {
       removeMutation({ variables: { ids: [tag._id] } })
         .then(() => {
-          Alert.success(__('You successfully deleted a tag'));
+          Alert.success('You successfully deleted a tag');
           tagsQuery.refetch();
         })
         .catch(e => {
@@ -50,9 +50,7 @@ const ListContainer = (props: FinalProps) => {
 
     mutation({ variables: doc })
       .then(() => {
-        Alert.success(
-          __(`You successfully ${tag ? 'updated' : 'added'} a tag`)
-        );
+        Alert.success(`You successfully ${tag ? 'updated' : 'added'} a tag`);
 
         tagsQuery.refetch();
         callback();

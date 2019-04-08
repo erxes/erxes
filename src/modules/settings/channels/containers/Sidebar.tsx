@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { UsersQueryResponse } from '../../team/types';
@@ -51,7 +51,7 @@ const SidebarContainer = (props: FinalProps) => {
         variables: { _id: channelId }
       })
         .then(() => {
-          Alert.success(__(`You successfully deleted a channel.`));
+          Alert.success('You successfully deleted a channel.');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -74,7 +74,7 @@ const SidebarContainer = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success(
-          __(`You successfully ${channel ? 'updated' : 'added'} a new channel.`)
+          `You successfully ${channel ? 'updated' : 'added'} a new channel.`
         );
 
         callback();

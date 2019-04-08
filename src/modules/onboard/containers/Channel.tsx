@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, confirm } from 'modules/common/utils';
+import { Alert, confirm } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/channels/graphql';
 import {
   AddChannelMutationResponse,
@@ -62,7 +62,7 @@ const SidebarContainer = (props: FinalProps) => {
         variables: { _id: channelId }
       })
         .then(() => {
-          Alert.success(__('You successfully deleted a category'));
+          Alert.success('You successfully deleted a category');
         })
         .catch(error => {
           Alert.error(error.message);

@@ -68,7 +68,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success(__('You successfully deleted a company'));
+          Alert.success('You successfully deleted a company');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -83,7 +83,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
         }
       })
         .then(response => {
-          Alert.success(__('You successfully merged companies'));
+          Alert.success('You successfully merged companies');
           callback();
           history.push(
             `/companies/details/${response.data.companiesMerge._id}`

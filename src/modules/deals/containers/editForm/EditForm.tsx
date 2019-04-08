@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { UsersQueryResponse } from '../../../settings/team/types';
@@ -50,7 +50,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     addMutation({ variables: doc })
       .then(({ data: { dealsAdd } }) => {
-        Alert.success(__(msg));
+        Alert.success(msg);
 
         callback();
 
@@ -68,7 +68,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     editMutation({ variables: { _id: dealId, ...doc } })
       .then(({ data }) => {
-        Alert.success(__(`You successfully updated a deal`));
+        Alert.success('You successfully updated a deal');
 
         callback();
 
@@ -89,7 +89,7 @@ class EditFormContainer extends React.Component<FinalProps> {
         .then(() => {
           callback();
 
-          Alert.success(__(`You successfully deleted a deal`));
+          Alert.success('You successfully deleted a deal');
 
           if (onRemove) {
             onRemove(dealId, stageId);

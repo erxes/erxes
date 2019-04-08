@@ -33,7 +33,7 @@ class Row extends React.Component<Props, {}> {
           return Alert.error(error.message);
         }
 
-        return Alert.success(__(`You successfully deleted a lead`));
+        return Alert.success('You successfully deleted a lead');
       });
     });
   };

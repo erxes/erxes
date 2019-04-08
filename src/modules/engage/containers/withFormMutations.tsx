@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -48,7 +48,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         variables
       })
         .then(() => {
-          Alert.success(__(msg));
+          Alert.success(msg);
 
           history.push('/engage');
         })

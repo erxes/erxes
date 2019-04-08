@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
@@ -45,7 +45,7 @@ class LeadContainer extends React.Component<FinalProps> {
     const save = (variables, callback) => {
       saveMutation({ variables })
         .then(() => {
-          Alert.success(__('You successfully added a lead'));
+          Alert.success('You successfully added a lead');
           callback();
           history.push('/settings/integrations');
         })

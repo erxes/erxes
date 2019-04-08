@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   mutations,
@@ -48,7 +48,7 @@ const MessengerAddContainer = (props: ChildProps<Props>) => {
       variables: doc
     })
       .then(() => {
-        Alert.success(__('You successfully saved an app'));
+        Alert.success('You successfully saved an app');
         callback();
       })
       .catch(error => {

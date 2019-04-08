@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import Twitter from 'modules/settings/integrations/components/twitter/Form';
 import { mutations } from 'modules/settings/integrations/graphql';
@@ -30,7 +30,7 @@ class TwitterContainer extends React.Component<FinalProps> {
       }
     })
       .then(() => {
-        Alert.success(__('You successfully added a twitter'));
+        Alert.success('You successfully added a twitter');
       })
       .catch(e => {
         Alert.error(e.message);

@@ -2,7 +2,7 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
@@ -82,7 +82,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     saveMutation({ variables: { ...variables, accountId } })
       .then(() => {
         callback();
-        Alert.success(__(`You successfully added a integration`));
+        Alert.success('You successfully added a integration');
         history.push('/settings/integrations');
       })
       .catch(e => {

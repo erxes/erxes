@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -47,7 +47,7 @@ const MessageRowContainer = (props: FinalProps) => {
       variables: { _id: message._id }
     })
       .then(() => {
-        Alert.success(__(msg));
+        Alert.success(msg);
       })
       .catch(error => {
         Alert.error(error.message);

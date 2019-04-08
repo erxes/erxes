@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import { queries as teamQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
@@ -30,7 +30,7 @@ const UserListContainer = (props: ChildProps<FinalProps>) => {
         variables: { _id: userId }
       })
         .then(() => {
-          Alert.success(__('You successfully deleted a user'));
+          Alert.success('You successfully deleted a user');
         })
         .catch(error => {
           Alert.error(error.message);

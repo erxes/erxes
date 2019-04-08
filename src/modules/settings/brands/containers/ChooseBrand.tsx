@@ -65,7 +65,7 @@ const ChooseBrandContainer = (props: FinalProps) => {
           onSave();
         }
 
-        Alert.success(__('You successfully chose a new brand'));
+        Alert.success('You successfully chose a new brand');
       })
       .catch(error => {
         Alert.error(error.message);

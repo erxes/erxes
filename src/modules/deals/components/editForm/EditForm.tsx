@@ -2,7 +2,6 @@ import { ActivityInputs } from 'modules/activityLogs/components';
 import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
 import { Button } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { ICompany } from '../../../companies/types';
@@ -106,11 +105,11 @@ class DealEditForm extends React.Component<Props, State> {
     const { closeModal, saveDeal } = this.props;
 
     if (!name) {
-      return Alert.error(__('Enter a name'));
+      return Alert.error('Enter a name');
     }
 
     if (productsData.length === 0) {
-      return Alert.error(__('Select product & service'));
+      return Alert.error('Select product & service');
     }
 
     const doc = {

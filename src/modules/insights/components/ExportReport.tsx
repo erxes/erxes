@@ -70,7 +70,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
     const { userId } = this.state;
 
     if (!userId) {
-      Alert.error(__('Choose user'));
+      Alert.error('Choose user');
     } else {
       exportReport({ queryName: 'insightFirstResponseReportExport', userId });
     }

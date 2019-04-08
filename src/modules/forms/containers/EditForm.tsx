@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   EditIntegrationMutationResponse,
@@ -141,7 +141,7 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
         })
 
         .then(() => {
-          Alert.success(__(`You successfully updated a lead`));
+          Alert.success('You successfully updated a lead');
 
           fieldsQuery.refetch().then(() => {
             history.push('/forms');

@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PropertyGroupForm } from '../components';
@@ -32,7 +32,7 @@ const PropertyGroupFormContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success(__(`You successfully added a new property group`));
+        Alert.success('You successfully added a new property group');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -47,7 +47,7 @@ const PropertyGroupFormContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success(__(`You successfully updated a property group`));
+        Alert.success('You successfully updated a property group');
       })
       .catch(e => {
         Alert.error(e.message);
