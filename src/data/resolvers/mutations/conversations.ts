@@ -1,13 +1,20 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Customers, Integrations } from '../../../db/models';
-import { CONVERSATION_STATUSES, KIND_CHOICES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import {
+  ACTIVITY_CONTENT_TYPES,
+  CONVERSATION_STATUSES,
+  KIND_CHOICES,
+  NOTIFICATION_TYPES,
+} from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { facebookReply, IFacebookReply } from '../../../trackers/facebook';
+import { sendGmail } from '../../../trackers/gmail';
 import { favorite, retweet, tweet, tweetReply } from '../../../trackers/twitter';
+import { IMailParams } from '../../../trackers/types';
 import { checkPermission, requireLogin } from '../../permissions';
 import utils from '../../utils';
 import { pubsub } from '../subscriptions';
@@ -180,6 +187,33 @@ const conversationMutations = {
           data: doc.content,
         },
       });
+    }
+
+    if (kind === KIND_CHOICES.GMAIL) {
+      const firstMessage = await ConversationMessages.findOne({ conversationId: conversation._id }).sort({
+        createdAt: 1,
+      });
+
+      if (firstMessage && firstMessage.gmailData) {
+        const gmailData = firstMessage.gmailData;
+
+        const args: IMailParams = {
+          integrationId: integration._id,
+          cocType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+          cocId: conversation.customerId || '',
+          subject: `Re: ${gmailData.subject}`,
+          body: doc.content,
+          toEmails: gmailData.from,
+          cc: gmailData.cc || '',
+          bcc: gmailData.bcc || '',
+          headerId: gmailData.headerId,
+          threadId: gmailData.threadId,
+        };
+
+        await sendGmail(args, user);
+      }
+
+      return null;
     }
 
     const message = await ConversationMessages.addMessage(doc, user._id);

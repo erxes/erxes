@@ -46,7 +46,7 @@ export interface IGmail {
   threadId?: string;
   messageId?: string;
   headerId?: string;
-  from?: string;
+  from: string;
   to?: string;
   cc?: string;
   bcc?: string;
