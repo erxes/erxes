@@ -24,7 +24,7 @@ const BoxRoot = styled.div`
   box-shadow: 0 6px 10px 1px ${rgba(colors.colorCoreGray, 0.08)};
   margin-right: ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
-  border-radius: ${dimensions.unitSpacing / 2}px;
+  border-radius: ${dimensions.unitSpacing / 2 - 1}px;
   transition: all 0.25s ease;
 
   > a {
