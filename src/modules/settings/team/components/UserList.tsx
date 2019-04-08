@@ -4,25 +4,22 @@ import {
   ActionButtons,
   Button,
   ControlLabel,
-  FormGroup,
   HeaderDescription,
   Icon,
-  Info,
   ModalTrigger,
-  ModifiableList,
   NameCard,
   Table,
   TextInfo,
   Tip
 } from 'modules/common/components';
 import { Input } from 'modules/common/components/form/styles';
-import { ModalFooter } from 'modules/common/styles/main';
 import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { FlexItem, FlexRow } from 'modules/insights/styles';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
+import { UserInvitationForm } from '.';
 import { List } from '../../common/components';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
@@ -43,8 +40,6 @@ type States = {
 };
 
 class UserList extends React.Component<FinalProps, States> {
-  private closeModal;
-
   constructor(props) {
     super(props);
 
@@ -63,15 +58,6 @@ class UserList extends React.Component<FinalProps, States> {
     return this.props.history.push(`team/details/${object._id}`);
   };
 
-  onChangeEmail = options => {
-    this.setState({ emails: options });
-  };
-
-  afterInvite = () => {
-    this.setState({ emails: [] });
-    this.closeModal();
-  };
-
   onApplyClick = () => {
     const { history } = this.props;
     const { searchValue, isActive } = this.state;
@@ -82,51 +68,13 @@ class UserList extends React.Component<FinalProps, States> {
     });
   };
 
-  onSubmit = () => {
-    this.props.save(
-      { doc: { emails: this.state.emails } },
-      this.afterInvite,
-      null
-    );
-  };
-
   renderInvitationForm = props => {
-    this.closeModal = props.closeModal;
-
     return (
-      <div>
-        <Info>
-          {__("Send an email and notify members that they've been invited!")}
-        </Info>
-        <FormGroup>
-          <ControlLabel>Emails</ControlLabel>
-          <ModifiableList
-            options={this.state.emails}
-            addButtonLabel="Add another"
-            onChangeOption={this.onChangeEmail}
-          />
-        </FormGroup>
-
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={props.closeModal}
-            icon="cancel-1"
-          >
-            Cancel
-          </Button>
-
-          <Button
-            btnStyle="success"
-            type="submit"
-            onClick={this.onSubmit}
-            icon="checked-1"
-          >
-            Invite
-          </Button>
-        </ModalFooter>
-      </div>
+      <UserInvitationForm
+        emails={this.state.emails}
+        closeModal={props.closeModal}
+        save={this.props.save}
+      />
     );
   };
 
