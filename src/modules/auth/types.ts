@@ -26,7 +26,6 @@ export interface IUserConversation {
 export interface IUserDoc {
   username: string;
   email: string;
-  role?: string;
   isActive?: boolean;
   details?: IUserDetails;
   isOwner?: boolean;
@@ -39,7 +38,6 @@ export interface IUserDoc {
 
 export interface IUser extends IUserDoc {
   _id: string;
-  role: string;
   hasSeenOnBoard?: boolean;
   emailSignatures?: IEmailSignature[];
 }
