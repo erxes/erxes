@@ -45,7 +45,7 @@ class InsightPage extends React.Component {
               'Response Close Report',
               '/images/icons/erxes-17.svg',
               '/insights/response-close-report',
-              `The average time a team member solved a customer's problem based on customer feedback.`
+              `The average time a team member solved a problem based on customer feedback.`
             )}
             {this.renderBox(
               'First Response Report',
