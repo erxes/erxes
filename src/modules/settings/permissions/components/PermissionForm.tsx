@@ -164,12 +164,12 @@ class PermissionForm extends React.Component<Props, State> {
             btnStyle="simple"
             type="button"
             onClick={this.props.closeModal}
-            icon="close"
+            icon="cancel-1"
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checkmark">
+          <Button btnStyle="success" type="submit" icon="checked-1">
             Save
           </Button>
         </Modal.Footer>
