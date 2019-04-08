@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import {
+  ActionButtons,
   Button,
   DataWithLoader,
   FormControl,
@@ -78,11 +79,13 @@ class PermissionList extends React.Component<Props> {
             />
           </td>
           <td>
-            <Tip text="Delete">
-              <Button type="success" onClick={remove.bind(null, object._id)}>
-                <Icon icon="trash" />
-              </Button>
-            </Tip>
+            <ActionButtons>
+              <Tip text="Delete">
+                <Button btnStyle="link" onClick={remove.bind(null, object._id)}>
+                  <Icon icon="cancel-1" />
+                </Button>
+              </Tip>
+            </ActionButtons>
           </td>
         </tr>
       );

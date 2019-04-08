@@ -71,8 +71,10 @@ class GroupList extends React.Component<Props> {
         <td>{object.name}</td>
         <td>{object.description}</td>
         <td>
-          {this.renderEditActions(object)}
-          {this.renderRemoveActions(object)}
+          <ActionButtons>
+            {this.renderEditActions(object)}
+            {this.renderRemoveActions(object)}
+          </ActionButtons>
         </td>
       </tr>
     ));
@@ -82,7 +84,7 @@ class GroupList extends React.Component<Props> {
     const { objects } = this.props;
 
     return (
-      <Table whiteSpace="nowrap={true}" hover={true} bordered={true}>
+      <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
           <tr>
             <th>{__('Name')}</th>
