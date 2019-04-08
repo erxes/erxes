@@ -35,7 +35,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   afterInvite = () => {
     this.setState({ emails: [] });
-    this.closeModal();
+    this.props.closeModal();
   };
 
   onSubmit = () => {
@@ -71,7 +71,7 @@ class UserInvitationForm extends React.Component<Props, State> {
     this.setState({ emails: emails.filter(item => item !== i) });
   };
 
-  onKeyPress = e => {
+  onKeyPress = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       this.handleSaveOption();
