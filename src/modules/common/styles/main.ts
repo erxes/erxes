@@ -21,7 +21,7 @@ const BoxRoot = styled.div`
   text-align: center;
   float: left;
   background: ${colors.colorLightBlue};
-  box-shadow: 0 8px 5px ${rgba(colors.colorCoreGray, 0.08)};
+  box-shadow: 0 6px 10px 1px ${rgba(colors.colorCoreGray, 0.08)};
   margin-right: ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
   border-radius: ${dimensions.unitSpacing / 2}px;

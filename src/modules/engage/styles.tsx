@@ -109,12 +109,13 @@ const Segmentli = styledTS<{ chosen: boolean }>(styled.li)`
     props.chosen ? colors.borderPrimary : 'transparent'};
 
   a {
+    outline: none;
+    text-decoration: none;
+    
     &:focus {
       outline: none;
       text-decoration: none;
     }
-    outline: none;
-    text-decoration: none;
   }
 `;
 
