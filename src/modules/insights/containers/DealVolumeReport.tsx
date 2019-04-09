@@ -6,6 +6,8 @@ import { queries } from '../graphql';
 import {
   DealMainQueryResponse,
   DealPunchCardQueryResponse,
+  DealTeamMemberResponse,
+  IChartParams,
   IDealParams,
   IQueryParams
 } from '../types';
@@ -18,12 +20,26 @@ type Props = {
 type FinalProps = {
   mainQuery: DealMainQueryResponse;
   punchCardQuery: DealPunchCardQueryResponse;
+  insightsByTeamMemberQuery: DealTeamMemberResponse;
+  status?: string;
 } & Props;
 
 const DealVolumeReportContainer = (props: FinalProps) => {
-  const { history, mainQuery, queryParams, punchCardQuery } = props;
+  const {
+    history,
+    mainQuery,
+    queryParams,
+    punchCardQuery,
+    status,
+    insightsByTeamMemberQuery
+  } = props;
 
   const data = mainQuery.dealInsightsMain || {};
+  let teamMembers;
+
+  if (status) {
+    teamMembers = insightsByTeamMemberQuery.dealInsightsByTeamMember;
+  }
 
   const extendedProps = {
     history,
@@ -31,9 +47,13 @@ const DealVolumeReportContainer = (props: FinalProps) => {
     trend: data.trend || [],
     summary: data.summary || [],
     punch: punchCardQuery.dealInsightsPunchCard || [],
+    teamMembers,
     loading: {
       main: mainQuery.loading,
-      punch: punchCardQuery.loading
+      punch: punchCardQuery.loading,
+      teamMember:
+        insightsByTeamMemberQuery.dealInsightsByTeamMember &&
+        insightsByTeamMemberQuery.loading
     }
   };
 
@@ -41,28 +61,43 @@ const DealVolumeReportContainer = (props: FinalProps) => {
 };
 
 export default compose(
-  graphql(gql(queries.dealInsightsPunchCard), {
-    name: 'punchCardQuery',
-    options: ({ queryParams }: IDealParams) => ({
+  graphql(gql(queries.dealInsightsByTeamMember), {
+    name: 'insightsByTeamMemberQuery',
+    options: ({ queryParams, status }: IDealParams) => ({
       fetchPolicy: 'network-only',
       variables: {
         boardId: queryParams.boardId,
         pipelineIds: queryParams.pipelineIds,
         startDate: queryParams.startDate,
-        endDate: queryParams.endDate
+        endDate: queryParams.endDate,
+        status
+      }
+    })
+  }),
+  graphql(gql(queries.dealInsightsPunchCard), {
+    name: 'punchCardQuery',
+    options: ({ queryParams, status }: IDealParams) => ({
+      fetchPolicy: 'network-only',
+      variables: {
+        boardId: queryParams.boardId,
+        pipelineIds: queryParams.pipelineIds,
+        startDate: queryParams.startDate,
+        endDate: queryParams.endDate,
+        status
       }
     })
   }),
   graphql(gql(queries.dealInsightsMain), {
     name: 'mainQuery',
-    options: ({ queryParams }: IDealParams) => ({
+    options: ({ queryParams, status }: IDealParams) => ({
       fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
       variables: {
         boardId: queryParams.boardId,
         pipelineIds: queryParams.pipelineIds,
         startDate: queryParams.startDate,
-        endDate: queryParams.endDate
+        endDate: queryParams.endDate,
+        status
       }
     })
   })

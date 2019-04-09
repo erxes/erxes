@@ -14,6 +14,7 @@ export interface IParams {
 
 export interface IDealParams {
   queryParams: IQueryParams;
+  status: string;
 }
 
 export interface IInsightType {
@@ -74,6 +75,11 @@ export type DealMainQueryResponse = {
     summary: SummaryData[];
     trend: IChartParams[];
   };
+  loading: boolean;
+};
+
+export type DealTeamMemberResponse = {
+  dealInsightsByTeamMember: IChartParams[];
   loading: boolean;
 };
 

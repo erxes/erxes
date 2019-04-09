@@ -56,13 +56,13 @@ export const DEAL_INSIGHTS = [
   {
     name: 'Deal Won Report',
     image: '/images/icons/erxes-15.svg',
-    to: '/deal/insights/response-report',
+    to: '/deal/insights/won',
     desc: ''
   },
   {
     name: 'Deal Lost Report',
     image: '/images/icons/erxes-17.svg',
-    to: '/deal/insights/response-close-report',
+    to: '/deal/insights/lost',
     desc: ''
   }
 ];

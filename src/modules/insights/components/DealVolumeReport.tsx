@@ -18,11 +18,12 @@ import {
   IQueryParams,
   SummaryData
 } from '../types';
-import { Chart, PunchCard, Sidebar, Summary } from './';
+import { Chart, PunchCard, Sidebar, Summary, TeamMembers } from './';
 
 type loadingType = {
   main: boolean;
   punch: boolean;
+  teamMember: boolean;
 };
 
 type Props = {
@@ -32,6 +33,7 @@ type Props = {
   trend: IChartParams[];
   summary: SummaryData[];
   loading: loadingType;
+  teamMembers: IChartParams[];
 };
 
 class DealVolumeReport extends React.Component<Props, { width: number }> {
@@ -93,6 +95,24 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
     ];
   }
 
+  renderTeamMembers() {
+    const { teamMembers, loading } = this.props;
+
+    if (!teamMembers) {
+      return null;
+    }
+
+    return (
+      <InsightRow>
+        <InsightTitle>Team Members</InsightTitle>
+        <TeamMembers
+          loading={loading.teamMember || false}
+          datas={teamMembers || []}
+        />
+      </InsightRow>
+    );
+  }
+
   renderCharts() {
     const { trend, summary, punch, loading } = this.props;
 
@@ -108,6 +128,8 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
         {this.renderTrend('Volume Trend', loading, trend)}
 
         {this.renderPunchCard(loading, punch, width)}
+
+        {this.renderTeamMembers()}
       </InsightContent>
     );
   }

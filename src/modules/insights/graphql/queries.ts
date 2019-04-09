@@ -17,6 +17,7 @@ const dealParamsDef = `
   $boardId: String,
   $startDate: String,
   $endDate: String
+  $status: String
 `;
 
 const dealParamsValue = `
@@ -24,6 +25,7 @@ const dealParamsValue = `
   boardId: $boardId,
   startDate: $startDate,
   endDate: $endDate
+  status: $status
 `;
 
 const pieChart = `
@@ -107,6 +109,12 @@ const dealInsightsPunchCard = `
   }
 `;
 
+const dealInsightsByTeamMember = `
+  query dealInsightsByTeamMember(${dealParamsDef}) {
+    dealInsightsByTeamMember(${dealParamsValue})
+  }
+`;
+
 export default {
   main,
   pieChart,
@@ -121,5 +129,6 @@ export default {
   insightTagReportExport,
 
   dealInsightsMain,
-  dealInsightsPunchCard
+  dealInsightsPunchCard,
+  dealInsightsByTeamMember
 };

@@ -2,9 +2,7 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import AsyncInsightPage from './components/InsightPage';
 import { INSIGHT_TYPES } from './constants';
-import { DealVolumeReport } from './containers';
 
 const AsyncExportReport = asyncComponent(() =>
   import(/* webpackChunkName: "AsyncExportReport" */ './containers/ExportReport')
@@ -24,11 +22,13 @@ const AsyncFirstAndCloseResponseReport = asyncComponent(() =>
 
 const AsyncReports = asyncComponent(() => import('./containers/Reports'));
 
-// const AsyncInsightPage = asyncComponent(() => import('./components/InsightPage'));
+const AsyncInsightPage = asyncComponent(() =>
+  import('./components/InsightPage')
+);
 
-// const AsyncDealVolumeReport = asyncComponent(([]) =>
-//   import(/* webpackChunkName: "DealVolumeReport" */ './containers/DealVolumeReport')
-// );
+const AsyncDealVolumeReport = asyncComponent(([]) =>
+  import(/* webpackChunkName: "DealVolumeReport" */ './containers/DealVolumeReport')
+);
 
 const InboxInsightPage = () => {
   return <AsyncInsightPage type={INSIGHT_TYPES.INBOX} />;
@@ -77,7 +77,31 @@ const exportReport = ({ history, location }) => {
 const dealVolumeReport = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <DealVolumeReport queryParams={queryParams} history={history} />;
+  return <AsyncDealVolumeReport queryParams={queryParams} history={history} />;
+};
+
+const dealWon = ({ history, location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <AsyncDealVolumeReport
+      queryParams={queryParams}
+      history={history}
+      status="Won"
+    />
+  );
+};
+
+const dealLost = ({ history, location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <AsyncDealVolumeReport
+      queryParams={queryParams}
+      history={history}
+      status="Lost"
+    />
+  );
 };
 
 const routes = () => {
@@ -144,6 +168,20 @@ const routes = () => {
         exact={true}
         path="/deal/insights/volume-report"
         component={dealVolumeReport}
+      />
+
+      <Route
+        key="/deal/insights/won"
+        exact={true}
+        path="/deal/insights/won"
+        component={dealWon}
+      />
+
+      <Route
+        key="/deal/insights/lost"
+        exact={true}
+        path="/deal/insights/lost"
+        component={dealLost}
       />
     </React.Fragment>
   );
