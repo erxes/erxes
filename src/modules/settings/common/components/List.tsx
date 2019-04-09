@@ -69,7 +69,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
         center={center}
         content={
           <>
-            {renderFilter ? renderFilter() : null}
+            {renderFilter && renderFilter()}
             <DataWithLoader
               data={renderContent({ objects, save, refetch, remove })}
               loading={loading}

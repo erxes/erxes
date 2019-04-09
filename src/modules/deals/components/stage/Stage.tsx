@@ -120,8 +120,29 @@ export default class Stage extends React.Component<Props, {}> {
     return false;
   }
 
+  renderDealList() {
+    const { stage, deals, loadingDeals } = this.props;
+
+    if (loadingDeals) {
+      return (
+        <LoadingContent>
+          <img src="/images/loading-content.gif" />
+        </LoadingContent>
+      );
+    }
+
+    return (
+      <DealList
+        listId={stage._id}
+        listType="DEAL"
+        stageId={stage._id}
+        deals={deals}
+      />
+    );
+  }
+
   render() {
-    const { index, stage, deals, loadingDeals } = this.props;
+    const { index, stage } = this.props;
 
     if (!stage) {
       return <EmptyState icon="clipboard" text="No stage" size="small" />;
@@ -141,17 +162,7 @@ export default class Stage extends React.Component<Props, {}> {
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
-                {loadingDeals ? (
-                  <LoadingContent>
-                    <img src="/images/loading-content.gif" />
-                  </LoadingContent>
-                ) : null}
-                <DealList
-                  listId={stage._id}
-                  listType="DEAL"
-                  stageId={stage._id}
-                  deals={deals}
-                />
+                {this.renderDealList()}
               </Body>
               {this.renderAddDealTrigger()}
             </StageRoot>

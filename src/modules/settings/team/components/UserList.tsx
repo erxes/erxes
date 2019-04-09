@@ -190,9 +190,6 @@ class UserList extends React.Component<FinalProps, States> {
           </td>
           <td>{object.email}</td>
           <td>
-            <TextInfo>{object.role || '-'}</TextInfo>
-          </td>
-          <td>
             <Toggle
               defaultChecked={object.isActive}
               icons={{
@@ -282,7 +279,6 @@ class UserList extends React.Component<FinalProps, States> {
             <th>{__('Full name')}</th>
             <th>{__('Invitation status')}</th>
             <th>{__('Email')}</th>
-            <th>{__('Role')}</th>
             <th>{__('Status')}</th>
             <th />
           </tr>

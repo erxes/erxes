@@ -1,7 +1,6 @@
 const commonParamsDef = `
   $username: String!,
   $email: String!,
-  $role: String!
   $details: UserDetails,
   $links: UserLinks,
   $channelIds: [String]
@@ -11,7 +10,6 @@ const commonParamsDef = `
 const commonParams = `
   username: $username,
   email: $email,
-  role: $role,
   details: $details,
   links: $links,
   channelIds: $channelIds
