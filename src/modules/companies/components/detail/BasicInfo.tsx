@@ -7,7 +7,7 @@ import {
   NameCard
 } from 'modules/common/components';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
-import { __, confirm, searchCompany } from 'modules/common/utils';
+import { __, Alert, confirm, searchCompany } from 'modules/common/utils';
 import { TargetMerge } from 'modules/customers/components';
 import {
   LEAD_STATUS_TYPES,
@@ -83,7 +83,12 @@ class BasicInfo extends React.Component<Props> {
       }));
     };
 
-    const onDelete = () => confirm().then(() => remove());
+    const onDelete = () =>
+      confirm()
+        .then(() => remove())
+        .catch(error => {
+          Alert.error(error.message);
+        });
 
     return (
       <Action>

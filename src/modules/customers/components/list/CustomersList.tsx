@@ -18,7 +18,7 @@ import {
   Table
 } from '../../../common/components';
 import { IRouterProps } from '../../../common/types';
-import { __, confirm, router } from '../../../common/utils';
+import { __, Alert, confirm, router } from '../../../common/utils';
 import { Widget } from '../../../engage/containers';
 import { Wrapper } from '../../../layout/components';
 import { BarItems } from '../../../layout/styles';
@@ -284,9 +284,13 @@ class CustomersList extends React.Component<IProps, State> {
       );
 
       const onClick = () =>
-        confirm().then(() => {
-          this.removeCustomers(bulk);
-        });
+        confirm()
+          .then(() => {
+            this.removeCustomers(bulk);
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
 
       const refetchQuery = {
         query: gql(queries.customerCounts),

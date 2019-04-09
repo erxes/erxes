@@ -41,9 +41,13 @@ const MessengerAppContainer = (props: FinalProps) => {
       conversationId: conversation._id
     };
 
-    return executeAppMutation({ variables }).then(() => {
-      Alert.success(`You successfully executed an app`);
-    });
+    return executeAppMutation({ variables })
+      .then(() => {
+        Alert.success(`You successfully executed an app`);
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   const updatedProps = {

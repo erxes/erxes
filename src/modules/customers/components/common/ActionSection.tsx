@@ -4,7 +4,7 @@ import {
   Icon,
   ModalTrigger
 } from 'modules/common/components';
-import { __, confirm, searchCustomer } from 'modules/common/utils';
+import { __, Alert, confirm, searchCustomer } from 'modules/common/utils';
 import { CustomersMerge, TargetMerge } from 'modules/customers/components';
 import { CustomerForm } from 'modules/customers/containers';
 import { ICustomer } from 'modules/customers/types';
@@ -36,7 +36,7 @@ class ActionSection extends React.Component<Props> {
   }
 
   renderEditButton() {
-    const { customer, remove, isSmall } = this.props;
+    const { customer, isSmall } = this.props;
 
     if (!isSmall) {
       return null;
@@ -46,13 +46,11 @@ class ActionSection extends React.Component<Props> {
       return <CustomerForm {...props} size="lg" customer={customer} />;
     };
 
-    const onClick = () => confirm().then(() => remove());
-
     return (
       <li>
         <ModalTrigger
           title="Edit basic info"
-          trigger={<a onClick={onClick}>{__('Edit')}</a>}
+          trigger={<a>{__('Edit')}</a>}
           size="lg"
           content={customerForm}
         />
@@ -63,7 +61,12 @@ class ActionSection extends React.Component<Props> {
   render() {
     const { customer, merge, remove } = this.props;
 
-    const onClick = () => confirm().then(() => remove());
+    const onClick = () =>
+      confirm()
+        .then(() => remove())
+        .catch(error => {
+          Alert.error(error.message);
+        });
 
     const generateOptions = customers => {
       return customers.map((cus, key) => ({

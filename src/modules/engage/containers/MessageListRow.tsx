@@ -63,12 +63,13 @@ const MessageRowContainer = (props: FinalProps) => {
 
   const remove = () => {
     confirm().then(() => {
-      doMutation(
-        removeMutation,
-        `You just deleted an engagement message.`
-      ).then(() => {
-        history.push('/engage');
-      });
+      doMutation(removeMutation, `You just deleted an engagement message.`)
+        .then(() => {
+          history.push('/engage');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
     });
   };
 
