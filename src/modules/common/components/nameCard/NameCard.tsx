@@ -91,7 +91,7 @@ class NameCard extends React.Component<Props> {
 
     if (user || firstLine || secondLine) {
       first = firstLine || this.renderUserName();
-      second = (user && user.email) || this.renderUserName();
+      second = secondLine || (user && user.email) || this.renderUserName();
     }
 
     if (customer) {
