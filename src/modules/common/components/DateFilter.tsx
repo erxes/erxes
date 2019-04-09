@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Button, Icon } from 'modules/common/components';
-import { __, router } from 'modules/common/utils';
+import { __, Alert, router } from 'modules/common/utils';
 import { PopoverButton } from 'modules/inbox/styles';
 import * as moment from 'moment';
 import * as React from 'react';
@@ -105,6 +105,9 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
         this.setState({
           totalCount: data[countQueryParam]
         });
+      })
+      .catch(e => {
+        Alert.error(e.message);
       });
   };
 
