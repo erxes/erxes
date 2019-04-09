@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { withProps } from '../../common/utils';
+import { Alert, withProps } from '../../common/utils';
 import { DealSelect } from '../components';
 import { queries } from '../graphql';
 import {
@@ -31,27 +31,37 @@ class DealSelectContainer extends React.Component<FinalProps> {
   onChangeBoard = (boardId: string) => {
     this.props.onChangeBoard(boardId);
 
-    this.props.pipelinesQuery.refetch({ boardId }).then(({ data }) => {
-      const pipelines = data.dealPipelines;
+    this.props.pipelinesQuery
+      .refetch({ boardId })
+      .then(({ data }) => {
+        const pipelines = data.dealPipelines;
 
-      if (pipelines.length > 0) {
-        this.onChangePipeline(pipelines[0]._id);
-      }
-    });
+        if (pipelines.length > 0) {
+          this.onChangePipeline(pipelines[0]._id);
+        }
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   onChangePipeline = (pipelineId: string) => {
     const { stagesQuery } = this.props;
 
-    stagesQuery.refetch({ pipelineId }).then(({ data }) => {
-      const stages = data.dealStages;
+    stagesQuery
+      .refetch({ pipelineId })
+      .then(({ data }) => {
+        const stages = data.dealStages;
 
-      this.props.onChangePipeline(pipelineId, stages);
+        this.props.onChangePipeline(pipelineId, stages);
 
-      if (stages.length > 0) {
-        this.onChangeStage(stages[0]._id);
-      }
-    });
+        if (stages.length > 0) {
+          this.onChangeStage(stages[0]._id);
+        }
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   onChangeStage = (stageId: string, callback?: any) => {
