@@ -8,12 +8,12 @@ import {
 } from '../../../common/components';
 import { ModalFooter } from '../../../common/styles/main';
 import { __ } from '../../../common/utils';
-import { IBrand } from '../types';
+import { IBrand, IChooseBrand } from '../types';
 
 type Props = {
   brands: IBrand[];
   integration: IIntegration;
-  save: (variables: { name: string; brandId: string }) => void;
+  save: (variables: IChooseBrand) => void;
   closeModal?: () => void;
 };
 

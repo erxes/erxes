@@ -4,10 +4,6 @@ import styled from 'styled-components';
 const dateColor = '#666';
 const subjectColor = '#202124';
 
-const InternalMessages = styled.div`
-  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
-`;
-
 const EmailItem = styled.div`
   padding: ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
@@ -173,7 +169,6 @@ export {
   Date,
   Details,
   Content,
-  InternalMessages,
   RightSide,
   AttachmentItem,
   AttachmentsContainer,

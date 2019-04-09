@@ -22,7 +22,7 @@ const UserAddContainer = (props: ChildProps<FinalProps>) => {
   const save = ({ doc }, callback: () => void) => {
     addMutation({ variables: doc })
       .then(() => {
-        Alert.success('Successfully invited new user.');
+        Alert.success('You successfully invited a new user');
 
         callback();
       })

@@ -41,7 +41,7 @@ class GmailContainer extends React.Component<FinalProps> {
     ) => {
       saveMutation({ variables })
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success('You successfully added an integration');
           callback();
         })
         .catch(e => {

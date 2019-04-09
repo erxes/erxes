@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, router, withProps } from 'modules/common/utils';
+import { Alert, router, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -47,7 +47,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
         variables: { _id: historyId }
       })
         .then(() => {
-          Alert.success(__('Successfully Removed all customers'));
+          Alert.success('You successfully removed all customers');
           this.setState({ loading: false });
         })
         .catch(e => {

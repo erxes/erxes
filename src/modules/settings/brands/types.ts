@@ -9,6 +9,12 @@ export interface IBrand {
   emailConfig: { type: string; template: string };
 }
 
+export interface IChooseBrand {
+  _id?: string;
+  name: string;
+  brandId: string;
+}
+
 export interface IBrandDoc extends IBrand {
   integrations: IIntegration[];
 }

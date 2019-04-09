@@ -30,7 +30,7 @@ class TwitterContainer extends React.Component<FinalProps> {
       }
     })
       .then(() => {
-        Alert.success('Congrats');
+        Alert.success('You successfully added a twitter');
       })
       .catch(e => {
         Alert.error(e.message);

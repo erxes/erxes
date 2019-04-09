@@ -9,13 +9,13 @@ interface IRemoveMutationVariables {
 
 function commonListComposer<ComponentProps>(options) {
   const {
+    text,
     name,
     gqlListQuery,
     gqlTotalCountQuery,
     gqlAddMutation,
     gqlEditMutation,
     gqlRemoveMutation,
-    gqlStatusChangedMutation,
     ListComponent
   } = options;
 
@@ -25,7 +25,6 @@ function commonListComposer<ComponentProps>(options) {
     history: any;
     addMutation: ({ variables }: { variables: any }) => Promise<any>;
     editMutation: ({ variables }: { variables: any }) => Promise<any>;
-    statusChangedMutation: ({ variables }: { variables: any }) => Promise<any>;
     removeMutation: (
       {
         variables: { _id }
@@ -40,7 +39,6 @@ function commonListComposer<ComponentProps>(options) {
       addMutation,
       editMutation,
       removeMutation,
-      statusChangedMutation,
       history
     } = props;
 
@@ -59,28 +57,12 @@ function commonListComposer<ComponentProps>(options) {
             listQuery.refetch();
             totalCountQuery.refetch();
 
-            Alert.success('Congrats, Successfully deleted.');
+            Alert.success(`You successfully deleted a ${text}.`);
           })
           .catch(error => {
             Alert.error(error.message);
           });
       });
-    };
-
-    // status changed action
-    const statusChanged = id => {
-      statusChangedMutation({
-        variables: { _id: id }
-      })
-        .then(() => {
-          // update queries
-          listQuery.refetch();
-
-          Alert.success('Congrats, Successfully updated.');
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
     };
 
     // create or update action
@@ -101,7 +83,9 @@ function commonListComposer<ComponentProps>(options) {
           listQuery.refetch();
           totalCountQuery.refetch();
 
-          Alert.success('Congrats');
+          Alert.success(
+            `You successfully ${object ? 'updated' : 'added'} a ${text}.`
+          );
 
           callback();
         })
@@ -118,7 +102,6 @@ function commonListComposer<ComponentProps>(options) {
       save,
       remove,
       history,
-      statusChanged,
       loading: listQuery.loading
     };
 
@@ -135,10 +118,6 @@ function commonListComposer<ComponentProps>(options) {
 
   if (gqlRemoveMutation) {
     composeAttr.push(gqlRemoveMutation);
-  }
-
-  if (gqlStatusChangedMutation) {
-    composeAttr.push(gqlStatusChangedMutation);
   }
 
   if (gqlAddMutation) {

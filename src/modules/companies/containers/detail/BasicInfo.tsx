@@ -32,7 +32,7 @@ const BasicInfoContainer = (props: FinalProps) => {
   const remove = () => {
     companiesRemove({ variables: { companyIds: [_id] } })
       .then(() => {
-        Alert.success('Success');
+        Alert.success('You successfully deleted a company');
         history.push('/companies');
       })
       .catch(e => {
@@ -48,7 +48,7 @@ const BasicInfoContainer = (props: FinalProps) => {
       }
     })
       .then(response => {
-        Alert.success('Success');
+        Alert.success('You successfully merged companies');
         history.push(`/companies/details/${response.data.companiesMerge._id}`);
       })
       .catch(e => {

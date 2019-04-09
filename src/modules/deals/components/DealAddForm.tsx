@@ -40,7 +40,7 @@ class DealAddForm extends React.Component<Props, State> {
     const { add, closeModal } = this.props;
 
     if (!name) {
-      return Alert.error(__('Enter name'));
+      return Alert.error('Enter name');
     }
 
     // before save, disable save button

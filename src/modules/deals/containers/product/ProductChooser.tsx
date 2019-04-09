@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import { Chooser } from 'modules/common/components';
 import { Alert, withProps } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
 import { Form as ProductForm } from 'modules/settings/productService/components';
 import {
   mutations as productMutations,
@@ -54,7 +53,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       .then(() => {
         this.props.productsQuery.refetch();
 
-        Alert.success(__('Success'));
+        Alert.success('You successfully added a product or service');
 
         callback();
       })

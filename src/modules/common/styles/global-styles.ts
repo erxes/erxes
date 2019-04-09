@@ -83,7 +83,6 @@ a:hover {
 
 .modal-header {
   padding: 15px 40px;
-  height: 50px;
   border: 0;
   border-radius: 2px;
   background: #673FBD;
