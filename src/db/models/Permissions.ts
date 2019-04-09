@@ -95,7 +95,7 @@ export const permissionLoadClass = () => {
      * @return {Promise}
      */
     public static async removePermission(ids: string[]) {
-      const count = await Permissions.find({ _id: { $in: ids } }).count();
+      const count = await Permissions.find({ _id: { $in: ids } }).countDocuments();
 
       if (count !== ids.length) {
         throw new Error('Permission not found');
