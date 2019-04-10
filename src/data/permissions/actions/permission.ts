@@ -100,7 +100,7 @@ export const moduleObjects = {
           'showCustomers',
           'customersAdd',
           'customersEdit',
-          'updateCustomersCompanies',
+          'customersEditCompanies',
           'customersMerge',
           'customersRemove',
           'exportCustomers',
@@ -123,7 +123,7 @@ export const moduleObjects = {
         description: 'Edit customer',
       },
       {
-        name: 'updateCustomersCompanies',
+        name: 'customersEditCompanies',
         description: 'Update customers companies',
       },
       {
