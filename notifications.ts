@@ -49,6 +49,13 @@ export interface IConfigDocument extends IConfig, Document {
   _id: string;
 }
 
+export interface INotificationMobile {
+  notification: {
+    title: string;
+    body: string;
+  };
+}
+
 export const configSchema = new Schema({
   _id: field({ pkey: true }),
   // to whom this config is related
