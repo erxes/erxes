@@ -36,7 +36,7 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
 
   if (object._id) {
     selectedChannels = channels.filter(c => c.memberIds.includes(object._id));
-    selectedGroups = groups.filter(g => object.groupIds.includes(g));
+    selectedGroups = groups.filter(g => object.groupIds.includes(g._id));
   }
 
   const updatedProps = {

@@ -1,6 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { BoxRoot } from 'modules/common/styles/main';
+import { ContentHeader } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
@@ -9,13 +10,19 @@ const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
 const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   border: 1px solid
-    ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
+    ${props => (props.selected ? colors.colorSecondary : colors.borderPrimary)};
   padding: ${dimensions.coreSpacing * 2}px;
   width: 50%;
+  background: ${colors.bgLight};
+  min-width: 160px;
 
   i {
     font-size: 36px;
     color: ${colors.colorSecondary};
+  }
+
+  span {
+    font-weight: ${props => props.selected && '500'};
   }
 
   &:last-child {
@@ -131,10 +138,10 @@ const CarouselInner = styledTS<{ selected?: boolean }>(styled.div)`
   li {
     align-items: center;
     display: flex;
-    padding: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px 0;
+    padding: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing / 2}px 0;
 
     span {
-      padding: ${dimensions.unitSpacing}px;
+      padding: ${dimensions.unitSpacing / 2}px;
       border-radius: 50%;
       background-color: rgb(255, 255, 255);
       border: 2px solid
@@ -176,9 +183,10 @@ const CarouselInner = styledTS<{ selected?: boolean }>(styled.div)`
   }
 `;
 
-const CarouselSteps = styled.ol`
+const CarouselSteps = styled.ul`
   display: flex;
   padding: 0;
+  margin: 0;
 `;
 
 const MarkdownWrapper = styled.div`
@@ -251,6 +259,11 @@ const FlexColumn = styled.div`
   display: flex;
   min-width: 43.33333%;
   flex-direction: column;
+
+  ${ContentHeader} {
+    border-bottom: none;
+    border-top: 1px solid ${colors.borderPrimary};
+  }
 `;
 
 export {

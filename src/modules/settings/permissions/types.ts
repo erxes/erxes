@@ -68,6 +68,7 @@ export type PermissionRemoveMutationResponse = {
 };
 
 export interface IUserGroup {
+  _id: string;
   name?: string;
   description?: string;
 }

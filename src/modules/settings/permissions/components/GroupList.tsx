@@ -29,12 +29,7 @@ class GroupList extends React.Component<Props> {
     const content = props => this.renderForm({ ...props, object });
 
     return (
-      <ModalTrigger
-        title="New Group"
-        size={'lg'}
-        trigger={trigger}
-        content={content}
-      />
+      <ModalTrigger title="New Group" trigger={trigger} content={content} />
     );
   }
 
@@ -76,8 +71,10 @@ class GroupList extends React.Component<Props> {
         <td>{object.name}</td>
         <td>{object.description}</td>
         <td>
-          {this.renderEditActions(object)}
-          {this.renderRemoveActions(object)}
+          <ActionButtons>
+            {this.renderEditActions(object)}
+            {this.renderRemoveActions(object)}
+          </ActionButtons>
         </td>
       </tr>
     ));
@@ -87,7 +84,7 @@ class GroupList extends React.Component<Props> {
     const { objects } = this.props;
 
     return (
-      <Table whiteSpace="nowrap={true}" hover={true} bordered={true}>
+      <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
           <tr>
             <th>{__('Name')}</th>
@@ -102,7 +99,7 @@ class GroupList extends React.Component<Props> {
 
   renderActionBar() {
     const trigger = (
-      <Button btnStyle="primary" size="small" icon="plus">
+      <Button btnStyle="success" size="small" icon="add">
         New Group
       </Button>
     );
@@ -111,7 +108,7 @@ class GroupList extends React.Component<Props> {
       <BarItems>
         {this.renderFormTrigger(trigger, null)}
         <Link to="/settings/permissions">
-          <Button type="success" size="small">
+          <Button type="success" size="small" icon="user-2">
             Permissions
           </Button>
         </Link>
@@ -140,7 +137,7 @@ class GroupList extends React.Component<Props> {
             loading={loading}
             count={totalCount}
             emptyText="There is no data."
-            emptyImage="/images/robots/robot-05.svg"
+            emptyImage="/images/actions/26.svg"
           />
         }
       />

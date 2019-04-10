@@ -4,7 +4,6 @@ const userDetail = `
       _id
       username
       email
-      role
       status
       groupIds
 
@@ -82,7 +81,6 @@ const users = `
       _id
       username
       email
-      role
       status
       isActive
       groupIds

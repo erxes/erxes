@@ -5,7 +5,7 @@ import {
   Icon,
   Tip
 } from 'modules/common/components';
-import { __, router as routerUtils } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -34,17 +34,6 @@ const getType = () =>
   window.location.href.includes('calendar') ? 'calendar' : 'board';
 
 class MainActionBar extends React.Component<Props> {
-  componentDidMount() {
-    const { currentBoard, currentPipeline, history } = this.props;
-
-    if (currentBoard && currentPipeline) {
-      routerUtils.setParams(history, {
-        id: currentBoard._id,
-        pipelineId: currentPipeline._id
-      });
-    }
-  }
-
   onSearch = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;

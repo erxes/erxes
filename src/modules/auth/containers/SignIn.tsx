@@ -16,15 +16,13 @@ const SignInContainer = (props: FinalProps) => {
 
   const login = variables => {
     loginMutation({ variables })
-      .then(({ data }) => {
-        const { token, refreshToken } = data.login;
-
+      .then(() => {
         apolloClient.resetStore();
 
         history.push('/');
       })
-      .catch(error => {
-        Alert.error(error.message);
+      .catch(() => {
+        Alert.error('The email address or password you entered is incorrect.');
       });
   };
 

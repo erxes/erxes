@@ -174,13 +174,13 @@ class MessengerForm extends React.Component<Props, State> {
           {this.renderScheduler()}
         </FlexPad>
 
-        <FlexPad overflow="auto">
+        <FlexItem overflow="auto">
           <MessengerPreview
             sentAs={this.state.messenger.sentAs}
             content={this.props.content}
             fromUserId={this.state.fromUserId}
           />
-        </FlexPad>
+        </FlexItem>
       </FlexItem>
     );
   }

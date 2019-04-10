@@ -1,5 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
 import { mutations, queries } from '../graphql';
@@ -136,15 +137,19 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   saveStageOrders = (stageIds: string[]) => {
-    client.mutate({
-      mutation: gql(mutations.stagesUpdateOrder),
-      variables: {
-        orders: stageIds.map((stageId, index) => ({
-          _id: stageId,
-          order: index
-        }))
-      }
-    });
+    client
+      .mutate({
+        mutation: gql(mutations.stagesUpdateOrder),
+        variables: {
+          orders: stageIds.map((stageId, index) => ({
+            _id: stageId,
+            order: index
+          }))
+        }
+      })
+      .catch((e: Error) => {
+        Alert.error(e.message);
+      });
   };
 
   saveDealOrders = (dealMap: IDealMap, stageIds: string[]) => {
@@ -155,19 +160,23 @@ export class PipelineProvider extends React.Component<Props, State> {
         continue;
       }
 
-      client.mutate({
-        mutation: gql(mutations.dealsUpdateOrder),
-        variables: {
-          orders,
-          stageId
-        },
-        refetchQueries: [
-          {
-            query: gql(queries.stageDetail),
-            variables: { _id: stageId }
-          }
-        ]
-      });
+      client
+        .mutate({
+          mutation: gql(mutations.dealsUpdateOrder),
+          variables: {
+            orders,
+            stageId
+          },
+          refetchQueries: [
+            {
+              query: gql(queries.stageDetail),
+              variables: { _id: stageId }
+            }
+          ]
+        })
+        .catch((e: Error) => {
+          Alert.error(e.message);
+        });
     }
   };
 

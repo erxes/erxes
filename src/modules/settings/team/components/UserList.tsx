@@ -54,7 +54,7 @@ class UserList extends React.Component<FinalProps, States> {
 
     this.state = {
       emails: [],
-      searchValue,
+      searchValue: searchValue || '',
       isActive: isActive || true
     };
   }
@@ -172,7 +172,7 @@ class UserList extends React.Component<FinalProps, States> {
   };
 
   renderRows({ objects }: { objects: IUser[] }) {
-    return objects.map((object, index) => {
+    return objects.map(object => {
       const onClick = () => this.onAvatarClick(object);
       const onChange = () => this.visibleHandler(object);
 
@@ -189,9 +189,6 @@ class UserList extends React.Component<FinalProps, States> {
             </TextInfo>
           </td>
           <td>{object.email}</td>
-          <td>
-            <TextInfo>{object.role || '-'}</TextInfo>
-          </td>
           <td>
             <Toggle
               defaultChecked={object.isActive}
@@ -214,19 +211,11 @@ class UserList extends React.Component<FinalProps, States> {
     this.setState({ isActive: status.value });
   };
 
-  onChange = e => {
-    const { value } = e.target;
+  onChange = (e: React.FormEvent) => {
+    const { value } = e.currentTarget as HTMLInputElement;
+
     this.setState({ searchValue: value });
   };
-
-  renderSearchValue() {
-    return (
-      <FlexItem>
-        <ControlLabel>Search</ControlLabel>
-        <Input value={this.state.searchValue} onChange={this.onChange} />
-      </FlexItem>
-    );
-  }
 
   renderStatus = () => {
     const options = option => (
@@ -260,11 +249,18 @@ class UserList extends React.Component<FinalProps, States> {
   };
 
   renderFilter = () => {
+    const { searchValue } = this.state;
+
     return (
       <FilterContainer>
         <FlexRow>
-          {this.renderSearchValue()}
+          <FlexItem>
+            <ControlLabel>Search</ControlLabel>
+            <Input value={searchValue} onChange={this.onChange} />
+          </FlexItem>
+
           {this.renderStatus()}
+
           <ButtonContainer>
             <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
               Apply
@@ -283,7 +279,6 @@ class UserList extends React.Component<FinalProps, States> {
             <th>{__('Full name')}</th>
             <th>{__('Invitation status')}</th>
             <th>{__('Email')}</th>
-            <th>{__('Role')}</th>
             <th>{__('Status')}</th>
             <th />
           </tr>

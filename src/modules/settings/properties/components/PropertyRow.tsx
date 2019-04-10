@@ -40,7 +40,7 @@ class PropertyRow extends React.Component<Props, State> {
 
   visibleHandler = (e, property) => {
     if (property.isDefinedByErxes) {
-      return Alert.error(__('You cannot update this property'));
+      return Alert.error('You cannot update this property');
     }
 
     const isVisible = e.target.checked;
@@ -54,9 +54,13 @@ class PropertyRow extends React.Component<Props, State> {
     }
 
     const onClick = () =>
-      confirm().then(() => {
-        remove({ _id: data._id });
-      });
+      confirm()
+        .then(() => {
+          remove({ _id: data._id });
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
 
     return (
       <ActionButtons>

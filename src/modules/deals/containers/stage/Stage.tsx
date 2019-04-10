@@ -73,6 +73,9 @@ class StageContainer extends React.PureComponent<
       })
       .then(({ data }: any) => {
         onLoad(stage._id, [...deals, ...(data.deals || [])]);
+      })
+      .catch(e => {
+        Alert.error(e.message);
       });
   };
 
@@ -86,7 +89,7 @@ class StageContainer extends React.PureComponent<
 
     return addMutation({ variables: { name, stageId: stage._id } })
       .then(({ data: { dealsAdd } }) => {
-        Alert.success(__('Successfully saved.'));
+        Alert.success('You successfully added a deal');
 
         onAddDeal(stage._id, dealsAdd);
 

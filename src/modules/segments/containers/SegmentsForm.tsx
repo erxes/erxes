@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { queries as companyQueries } from 'modules/companies/graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
 import * as React from 'react';
@@ -38,22 +38,30 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
     const { contentType, segmentsAdd, history } = this.props;
 
     if (!doc.name) {
-      return Alert.error(__('Enter name'));
+      return Alert.error('Enter a name');
     }
 
-    segmentsAdd({ variables: { contentType, ...doc } }).then(() => {
-      Alert.success('Success');
-      history.push(`/segments/${contentType}`);
-    });
+    segmentsAdd({ variables: { contentType, ...doc } })
+      .then(() => {
+        Alert.success('You successfully added a segment');
+        history.push(`/segments/${contentType}`);
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   };
 
   edit = ({ _id, doc }) => {
     const { contentType, segmentsEdit, history } = this.props;
 
-    segmentsEdit({ variables: { _id, ...doc } }).then(() => {
-      Alert.success('Success');
-      history.push(`/segments/${contentType}`);
-    });
+    segmentsEdit({ variables: { _id, ...doc } })
+      .then(() => {
+        Alert.success('You successfully updated a segment');
+        history.push(`/segments/${contentType}`);
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   };
 
   count = (segment: ISegmentDoc) => {

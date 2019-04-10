@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Icon, Spinner } from 'modules/common/components';
-import { __, router } from 'modules/common/utils';
+import { __, Alert, router } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
 import { PopoverButton } from 'modules/inbox/styles';
 import { generateParams } from 'modules/inbox/utils';
@@ -39,6 +39,9 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         this.setState({ counts: data.conversationCounts, loading });
+      })
+      .catch(e => {
+        Alert.error(e.message);
       });
   };
 

@@ -26,7 +26,7 @@ const MessengerListContainer = (props: FinalProps) => {
     confirm().then(() => {
       removeMutation({ variables: { _id: appId } })
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success('You successfully deleted an app');
         })
 
         .catch(error => {

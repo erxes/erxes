@@ -6,20 +6,23 @@ const StepContainer = styled.div`
   display: flex;
   flex: 1;
   height: 100%;
+  overflow: auto;
+  box-shadow: 0 0 4px ${colors.colorShadowGray};
+
   > *:nth-child(n + 2) {
     margin-left: 5px;
   }
 `;
 
 const StepWrapper = styled.div`
-  margin: ${dimensions.coreSpacing}px;
+  margin: ${dimensions.unitSpacing}px;
   height: 100%;
   display: flex;
   flex-direction: column;
 `;
 
 const StepItem = styledTS<{ show: boolean }>(styled.div)`
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   width: ${props => (props.show ? '100%' : '70px')};
   box-shadow: 0 0 4px ${colors.colorShadowGray};
 `;
@@ -30,6 +33,7 @@ const TitleContainer = styled.div`
   margin-bottom: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
+  box-shadow: 0 0 4px ${colors.colorShadowGray};
 
   > *:nth-child(n + 2) {
     margin-left: ${dimensions.unitSpacing}px;
@@ -40,7 +44,7 @@ const FullStep = styledTS<{ show: boolean }>(styled.div)`
   background: ${colors.colorWhite};
   height: 100%;
   width: 100%;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   display: ${props => (props.show ? 'block' : 'none')};
 `;
 
@@ -65,14 +69,15 @@ const StepImg = styled.div`
   justify-content: center;
   height: 35px;
   width: 35px;
+
   > img {
     max-width: 100%;
     max-height: 100%;
   }
 `;
 
-const StepHeaderTitle = styled.div`
-  margin-left: ${dimensions.unitSpacing}px;
+const StepHeaderTitle = styled.h5`
+  margin: 0 0 0 ${dimensions.unitSpacing}px;
 `;
 
 const StepContent = styled.div`
@@ -90,7 +95,6 @@ const ShortStep = styledTS<{ show: boolean }>(styled.div)`
   align-items: center;
   padding: ${dimensions.unitSpacing}px 0;
   flex-direction: column;
-  border-radius: 5px;
 `;
 
 const InlineForm = styled.div`
@@ -145,11 +149,14 @@ const FlexItem = styledTS<{
     }
     return null;
   }};
+
+  &:last-of-type {
+    border: none;
+  }
 `;
 
 const FlexPad = styled(FlexItem)`
   padding: ${dimensions.coreSpacing}px;
-  border-right: 1px solid ${colors.borderPrimary};
 `;
 
 const LeftItem = styledTS<{ deactive?: boolean }>(styled.div)`
@@ -168,10 +175,10 @@ const LeftItem = styledTS<{ deactive?: boolean }>(styled.div)`
 const Preview = styledTS<{ fullHeight?: boolean }>(styled.div)`
   flex: 1;
   border-left: 1px solid ${colors.borderPrimary};
-  padding: ${props => !props.fullHeight && '20px'};
   background: url('/images/previews/preview.png');
   background-repeat: no-repeat;
-  background-size: 100% 100%;
+  background-position: right bottom;
+  background-size: cover;
   height: ${props => props.fullHeight && '100%'};
   overflow: hidden;
 `;

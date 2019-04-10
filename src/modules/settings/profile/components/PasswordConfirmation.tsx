@@ -9,11 +9,11 @@ import * as React from 'react';
 
 type Props = {
   onSuccess: (password: string) => void;
-  closeModal?: () => void;
+  closeModal: () => void;
 };
 
 class PasswordConfirmation extends React.Component<Props> {
-  submit = e => {
+  submit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const password = (document.getElementById('password') as HTMLInputElement)
@@ -21,9 +21,7 @@ class PasswordConfirmation extends React.Component<Props> {
 
     this.props.onSuccess(password);
 
-    if (this.props.closeModal) {
-      this.props.closeModal();
-    }
+    this.props.closeModal();
   };
 
   render() {

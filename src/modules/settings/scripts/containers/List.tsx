@@ -23,6 +23,8 @@ type Props = {
 };
 
 export default commonListComposer<Props>({
+  text: 'script',
+
   name: 'scripts',
 
   gqlListQuery: graphql(

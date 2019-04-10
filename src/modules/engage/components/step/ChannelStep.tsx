@@ -11,8 +11,9 @@ import styled from 'styled-components';
 const Box = styledTS<{ selected: boolean }>(styled(BoxRoot))`
   width: 320px;
   border: 1px solid
-    ${props => (props.selected ? colors.colorPrimary : colors.borderPrimary)};
+    ${props => (props.selected ? colors.colorSecondary : colors.borderPrimary)};
   padding: 40px;
+  background: ${colors.bgLight};
 
   i {
     font-size: 38px;
@@ -28,6 +29,7 @@ const Box = styledTS<{ selected: boolean }>(styled(BoxRoot))`
     margin: 10px 0 0;
     font-size: 12px;
     color: ${colors.colorCoreLightGray};
+    min-height: 36px;
   }
 
   &:last-of-type {

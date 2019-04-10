@@ -32,7 +32,7 @@ const IntegrationListContainer = (props: FinalProps) => {
     confirm().then(() => {
       removeMutation({ variables: { _id: integration._id } })
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success('Your integration is no longer in this channel');
         })
 
         .catch(error => {

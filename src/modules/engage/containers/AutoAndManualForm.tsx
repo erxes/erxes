@@ -69,11 +69,15 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
   };
 
   const segmentAdd = ({ doc }) => {
-    segmentsAdd({ variables: { ...doc } }).then(() => {
-      segmentsQuery.refetch();
-      customerCountsQuery.refetch();
-      Alert.success('Success');
-    });
+    segmentsAdd({ variables: { ...doc } })
+      .then(() => {
+        segmentsQuery.refetch();
+        customerCountsQuery.refetch();
+        Alert.success('You successfully added a segment');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   if (emailTemplatesQuery.loading) {

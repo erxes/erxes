@@ -1,7 +1,6 @@
 const commonParamsDef = `
   $username: String!,
   $email: String!,
-  $role: String!
   $password: String!,
   $passwordConfirmation: String!
 `;
@@ -9,7 +8,6 @@ const commonParamsDef = `
 const commonParams = `
   username: $username,
   email: $email,
-  role: $role,
   password: $password,
   passwordConfirmation: $passwordConfirmation
 `;
