@@ -12,7 +12,8 @@ import { PageHeader } from '../styles/header';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
-  BoardsQueryResponse
+  BoardsQueryResponse,
+  IPipeline
 } from '../types';
 
 type Props = {
@@ -53,11 +54,19 @@ class Main extends React.Component<FinalProps> {
     }
 
     const queryParams = generateQueryParams({ location });
+    const boardId = getBoardId({ location });
+    const { pipelineId } = queryParams;
+
+    if (boardId && pipelineId) {
+      localStorage.setItem(STORAGE_BOARD_KEY, boardId);
+      localStorage.setItem(STORAGE_PIPELINE_KEY, pipelineId);
+    }
 
     const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
     const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
-    const boardId = getBoardId({ location });
 
+    // if there is no boardId in queryparams and there is one in localstorage
+    // then put those in queryparams
     if (!boardId && localStorage.getItem(STORAGE_BOARD_KEY)) {
       routerUtils.setParams(history, {
         id: localStorage.getItem(STORAGE_BOARD_KEY),
@@ -67,6 +76,8 @@ class Main extends React.Component<FinalProps> {
       return null;
     }
 
+    // if there is no boardId in queryparams and there is lastBoard
+    // then put lastBoard._id and this board's first pipelineId to queryparams
     if (
       !boardId &&
       lastBoard &&
@@ -74,9 +85,6 @@ class Main extends React.Component<FinalProps> {
       lastBoard.pipelines.length > 0
     ) {
       const [firstPipeline] = lastBoard.pipelines;
-
-      localStorage.setItem(STORAGE_BOARD_KEY, lastBoard._id);
-      localStorage.setItem(STORAGE_PIPELINE_KEY, firstPipeline._id);
 
       routerUtils.setParams(history, {
         id: lastBoard._id,
@@ -86,13 +94,14 @@ class Main extends React.Component<FinalProps> {
       return null;
     }
 
-    if (
-      !currentBoard ||
-      !currentBoard.pipelines ||
-      currentBoard.pipelines.length === 0
-    ) {
+    if (!currentBoard) {
       return null;
     }
+
+    const pipelines = currentBoard.pipelines || [];
+    const currentPipeline = pipelineId
+      ? pipelines.find(pipe => pipe._id === pipelineId)
+      : pipelines[0];
 
     return (
       <DumbMainActionBar
@@ -101,7 +110,7 @@ class Main extends React.Component<FinalProps> {
         queryParams={queryParams}
         history={history}
         currentBoard={currentBoard}
-        currentPipeline={currentBoard.pipelines[0]}
+        currentPipeline={currentPipeline}
         boards={boardsQuery.dealBoards || []}
       />
     );
