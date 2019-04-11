@@ -73,6 +73,9 @@ class StageContainer extends React.PureComponent<
       })
       .then(({ data }: any) => {
         onLoad(stage._id, [...deals, ...(data.deals || [])]);
+      })
+      .catch(e => {
+        Alert.error(e.message);
       });
   };
 

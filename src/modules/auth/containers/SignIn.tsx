@@ -1,6 +1,6 @@
 import apolloClient from 'apolloClient';
 import gql from 'graphql-tag';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -16,17 +16,13 @@ const SignInContainer = (props: FinalProps) => {
 
   const login = variables => {
     loginMutation({ variables })
-      .then(({ data }) => {
-        const { token, refreshToken } = data.login;
-
+      .then(() => {
         apolloClient.resetStore();
 
         history.push('/');
       })
       .catch(() => {
-        Alert.error(
-          __('The email address or password you entered is incorrect.')
-        );
+        Alert.error('The email address or password you entered is incorrect.');
       });
   };
 

@@ -62,13 +62,17 @@ class PermissionList extends React.Component<Props> {
   };
 
   renderObjects() {
-    const { permissions, remove } = this.props;
+    const { permissions, actions, remove } = this.props;
 
     return permissions.map(object => {
+      const permissionAction = filterActions(actions, object.module).filter(
+        action => action.value === object.action
+      );
+
       return (
         <tr key={object._id}>
           <td>{object.module}</td>
-          <td>{object.action}</td>
+          <td>{permissionAction.map(action => action.label)}</td>
           <td>{object.user ? object.user.email : ''}</td>
           <td>{object.group ? object.group.name : ''}</td>
           <td>

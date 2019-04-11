@@ -7,7 +7,7 @@ import {
   SortHandler,
   Table
 } from 'modules/common/components';
-import { __, confirm, router } from 'modules/common/utils';
+import { __, Alert, confirm, router } from 'modules/common/utils';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
@@ -178,9 +178,13 @@ class CompaniesList extends React.Component<IProps, State> {
       );
 
       const onClick = () =>
-        confirm().then(() => {
-          this.removeCompanies(bulk);
-        });
+        confirm()
+          .then(() => {
+            this.removeCompanies(bulk);
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
 
       actionBarLeft = (
         <BarItems>

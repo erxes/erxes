@@ -16,7 +16,9 @@ import { ICommonFormProps } from '../../common/types';
 type Props = {
   channels: IChannel[];
   groups: any;
-};
+  selectedChannels: IChannel[];
+  selectedGroups: IUserGroup[];
+} & ICommonFormProps;
 
 type State = {
   avatar: string;
@@ -24,8 +26,8 @@ type State = {
   selectedGroups: IUserGroup[];
 };
 
-class UserForm extends React.Component<Props & ICommonFormProps, State> {
-  constructor(props) {
+class UserForm extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     const user = props.object || { details: {} };
@@ -34,7 +36,7 @@ class UserForm extends React.Component<Props & ICommonFormProps, State> {
     this.state = {
       avatar: user.details.avatar || defaultAvatar,
       selectedChannels: this.generateChannelsParams(props.selectedChannels),
-      selectedGroups: user.groupIds || []
+      selectedGroups: this.generateGroupsParams(props.selectedGroups)
     };
   }
 

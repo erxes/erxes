@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
-import { IPipeline } from 'modules/settings/deals/types';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -13,7 +12,8 @@ import { PageHeader } from '../styles/header';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
-  BoardsQueryResponse
+  BoardsQueryResponse,
+  IPipeline
 } from '../types';
 
 type Props = {
@@ -25,6 +25,11 @@ type FinalProps = {
   boardGetLastQuery?: BoardsGetLastQueryResponse;
   boardDetailQuery?: BoardDetailQueryResponse;
 } & Props;
+
+const getBoardId = ({ location }) => {
+  const queryParams = generateQueryParams({ location });
+  return queryParams.id;
+};
 
 /*
  * Main board component
@@ -44,40 +49,59 @@ class Main extends React.Component<FinalProps> {
       middleContent
     } = this.props;
 
-    const queryParams = generateQueryParams({ location });
-
-    const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
-    const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
-
-    let currentPipeline: IPipeline | undefined;
-    let boardId = queryParams.id || localStorage.getItem(STORAGE_BOARD_KEY);
-    let pipelineId =
-      queryParams.pipelineId || localStorage.getItem(STORAGE_PIPELINE_KEY);
-
-    if (!boardId && lastBoard) {
-      boardId = lastBoard._id;
-
-      if (lastBoard.pipelines && lastBoard.pipelines.length > 0) {
-        pipelineId = lastBoard.pipelines[0]._id;
-      }
-
-      routerUtils.setParams(history, { id: boardId, pipelineId });
-
-      return null;
+    if (boardsQuery.loading) {
+      return <PageHeader />;
     }
 
-    if (currentBoard) {
-      currentPipeline = (currentBoard.pipelines || []).find(
-        pipe => pipe._id === pipelineId
-      );
+    const queryParams = generateQueryParams({ location });
+    const boardId = getBoardId({ location });
+    const { pipelineId } = queryParams;
 
+    if (boardId && pipelineId) {
       localStorage.setItem(STORAGE_BOARD_KEY, boardId);
       localStorage.setItem(STORAGE_PIPELINE_KEY, pipelineId);
     }
 
-    if (boardsQuery.loading) {
-      return <PageHeader />;
+    const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
+    const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
+
+    // if there is no boardId in queryparams and there is one in localstorage
+    // then put those in queryparams
+    if (!boardId && localStorage.getItem(STORAGE_BOARD_KEY)) {
+      routerUtils.setParams(history, {
+        id: localStorage.getItem(STORAGE_BOARD_KEY),
+        pipelineId: localStorage.getItem(STORAGE_PIPELINE_KEY)
+      });
+
+      return null;
     }
+
+    // if there is no boardId in queryparams and there is lastBoard
+    // then put lastBoard._id and this board's first pipelineId to queryparams
+    if (
+      !boardId &&
+      lastBoard &&
+      lastBoard.pipelines &&
+      lastBoard.pipelines.length > 0
+    ) {
+      const [firstPipeline] = lastBoard.pipelines;
+
+      routerUtils.setParams(history, {
+        id: lastBoard._id,
+        pipelineId: firstPipeline._id
+      });
+
+      return null;
+    }
+
+    if (!currentBoard) {
+      return null;
+    }
+
+    const pipelines = currentBoard.pipelines || [];
+    const currentPipeline = pipelineId
+      ? pipelines.find(pipe => pipe._id === pipelineId)
+      : pipelines[0];
 
     return (
       <DumbMainActionBar
@@ -93,7 +117,7 @@ class Main extends React.Component<FinalProps> {
   }
 }
 
-const generateQueryParams = ({ location }: { location: any }) => {
+const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
 
@@ -103,21 +127,18 @@ const MainActionBar = withProps<Props>(
       name: 'boardsQuery'
     }),
     graphql<Props, BoardsGetLastQueryResponse>(gql(queries.boardGetLast), {
-      name: 'boardGetLastQuery'
+      name: 'boardGetLastQuery',
+      skip: getBoardId
     }),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
       {
         name: 'boardDetailQuery',
-        skip: props => {
-          const queryParams = generateQueryParams(props);
-          return !queryParams.id && !localStorage.getItem(STORAGE_BOARD_KEY);
-        },
+        skip: props => !getBoardId(props),
         options: props => {
-          const queryParams = generateQueryParams(props);
           return {
             variables: {
-              _id: queryParams.id || localStorage.getItem(STORAGE_BOARD_KEY)
+              _id: getBoardId(props)
             }
           };
         }

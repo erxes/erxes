@@ -1,6 +1,10 @@
 import { Label, Tip, WithPermission } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, setBadge } from 'modules/common/utils';
+import {
+  STORAGE_BOARD_KEY,
+  STORAGE_PIPELINE_KEY
+} from 'modules/deals/constants';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
@@ -134,6 +138,15 @@ class Navigation extends React.Component<{
   render() {
     const { unreadConversationsCount } = this.props;
 
+    let dealsLink = '/deals/board';
+
+    const lastBoardId = localStorage.getItem(STORAGE_BOARD_KEY);
+    const lastPipelineId = localStorage.getItem(STORAGE_PIPELINE_KEY);
+
+    if (lastBoardId && lastPipelineId) {
+      dealsLink = `/deals/board?id=${lastBoardId}&pipelineId=${lastPipelineId}`;
+    }
+
     return (
       <LeftNavigation>
         <NavLink to="/">
@@ -154,7 +167,7 @@ class Navigation extends React.Component<{
           </WithPermission>
           <WithPermission action="showDeals">
             <Tip placement="right" text={__('Deal').toString()}>
-              <NavLink to="/deals">
+              <NavLink to={dealsLink}>
                 <NavIcon className="icon-piggy-bank" />
               </NavLink>
             </Tip>
