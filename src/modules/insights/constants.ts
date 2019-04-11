@@ -49,19 +49,19 @@ export const INBOX_INSIGHTS = [
 export const DEAL_INSIGHTS = [
   {
     name: 'Deal Volume Report',
-    image: '/images/icons/erxes-14.svg',
+    image: '/images/icons/deal-insight-volume.svg',
     to: '/deal/insights/volume-report',
     desc: ''
   },
   {
     name: 'Deal Won Report',
-    image: '/images/icons/erxes-15.svg',
+    image: '/images/icons/deal-insight-won.svg',
     to: '/deal/insights/won',
     desc: ''
   },
   {
     name: 'Deal Lost Report',
-    image: '/images/icons/erxes-17.svg',
+    image: '/images/icons/deal-insight-lost.svg',
     to: '/deal/insights/lost',
     desc: ''
   }
