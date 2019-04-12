@@ -1,4 +1,5 @@
 import { Button, ControlLabel } from 'modules/common/components';
+import { ISelectedOption } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { IBoard, IPipeline } from 'modules/deals/types';
 import * as React from 'react';
@@ -33,11 +34,11 @@ class DealFilter extends React.Component<Props, States> {
     };
   }
 
-  onPipelineChange = (pipelines: any) => {
+  onPipelineChange = (pipelines: ISelectedOption[]) => {
     this.setState({ pipelineIds: pipelines.map(el => el.value) });
   };
 
-  onBoardChange = (board: any) => {
+  onBoardChange = (board: ISelectedOption) => {
     this.setState({ boardId: board && board.value });
 
     const { history } = this.props;

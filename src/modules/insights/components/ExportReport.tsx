@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { FullContent } from 'modules/common/styles/main';
+import { ISelectedOption } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
@@ -46,7 +47,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
     );
   }
 
-  onSelectChange = (value: any) => {
+  onSelectChange = (value: ISelectedOption) => {
     const userId = value ? value.value : '';
     this.setState({ userId });
   };

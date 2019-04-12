@@ -1,4 +1,5 @@
 import { Button, ControlLabel } from 'modules/common/components';
+import { ISelectedOption } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
@@ -32,11 +33,11 @@ class InboxFilter extends React.Component<Props, States> {
     };
   }
 
-  onTypeChange = (integrations: any) => {
+  onTypeChange = (integrations: ISelectedOption[]) => {
     this.setState({ integrationIds: integrations.map(el => el.value) });
   };
 
-  onBrandChange = (brands: any) => {
+  onBrandChange = (brands: ISelectedOption[]) => {
     this.setState({ brandIds: brands.map(el => el.value) });
   };
 
