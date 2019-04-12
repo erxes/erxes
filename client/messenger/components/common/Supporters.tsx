@@ -14,7 +14,6 @@ type Props = {
 
 class Supporters extends React.Component<Props> {
   getAvatar(avatar: string) {
-    console.log(avatar);
     if (!avatar) {
       return defaultAvatar;
     }
