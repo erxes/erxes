@@ -103,22 +103,18 @@ class InboxFilter extends React.Component<Props, States> {
   render() {
     const { queryParams, history } = this.props;
 
-    const content = () => {
-      return (
-        <>
-          {this.renderIntegrations()}
-          {this.renderBrands()}
-        </>
-      );
-    };
+    const content = (
+      <>
+        {this.renderIntegrations()}
+        {this.renderBrands()}
+      </>
+    );
 
-    const applyBtn = () => {
-      return (
-        <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
-          Apply
-        </Button>
-      );
-    };
+    const applyBtn = (
+      <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
+        Apply
+      </Button>
+    );
 
     return (
       <Filter

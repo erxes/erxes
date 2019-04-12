@@ -110,22 +110,18 @@ class DealFilter extends React.Component<Props, States> {
   render() {
     const { queryParams, history } = this.props;
 
-    const content = () => {
-      return (
-        <>
-          {this.renderBoards()}
-          {this.renderPipelines()}
-        </>
-      );
-    };
+    const content = (
+      <>
+        {this.renderBoards()}
+        {this.renderPipelines()}
+      </>
+    );
 
-    const applyBtn = () => {
-      return (
-        <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
-          Apply
-        </Button>
-      );
-    };
+    const applyBtn = (
+      <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
+        Apply
+      </Button>
+    );
 
     return (
       <Filter

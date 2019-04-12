@@ -8,8 +8,8 @@ import { FlexItem, FlexRow, InsightFilter, InsightTitle } from '../../styles';
 import { IQueryParams } from '../../types';
 
 type Props = {
-  content: any;
-  applyBtn: any;
+  content: React.ReactNode;
+  applyBtn: React.ReactNode;
   history: any;
   queryParams: IQueryParams;
 };
@@ -23,8 +23,7 @@ type States = {
 class Filter extends React.Component<Props, States> {
   constructor(props) {
     super(props);
-    const { startDate = moment().add(-7, 'days'), endDate = moment() } =
-      props.queryParams || {};
+
     this.state = {
       ...props.queryParams,
       // check condition for showing placeholder
@@ -60,7 +59,7 @@ class Filter extends React.Component<Props, States> {
       <InsightFilter>
         <InsightTitle>{__('Filter')}</InsightTitle>
         <FlexRow>
-          {content()}
+          {content}
           <FlexItem>
             <ControlLabel>Start date</ControlLabel>
             <Datetime
@@ -79,7 +78,7 @@ class Filter extends React.Component<Props, States> {
               onChange={this.onDateInputChange.bind(this, 'endDate')}
             />
           </FlexItem>
-          {applyBtn()}
+          {applyBtn}
         </FlexRow>
       </InsightFilter>
     );

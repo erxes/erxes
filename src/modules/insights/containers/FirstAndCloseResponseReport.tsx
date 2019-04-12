@@ -7,11 +7,12 @@ import { queries } from '../graphql';
 import {
   FirstResponseQueryResponse,
   IParams,
+  IQueryParams,
   ResponseCloseQueryResponse
 } from '../types';
 
 type Props = {
-  queryParams: any;
+  queryParams: IQueryParams;
   history: any;
   type: string;
 };
