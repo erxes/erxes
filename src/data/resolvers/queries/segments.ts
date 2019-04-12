@@ -12,8 +12,8 @@ const segmentQueries = {
   /**
    * Only segment that has no sub segments
    */
-  segmentsGetHeads() {
-    return Segments.find({ subOf: { $exists: false } });
+  async segmentsGetHeads() {
+    return Segments.find({ $or: [{ subOf: { $exists: false } }, { subOf: '' }] });
   },
 
   /**
