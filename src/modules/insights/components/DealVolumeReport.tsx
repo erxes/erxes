@@ -1,9 +1,10 @@
 import { Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { menuInbox } from 'modules/common/utils/menus';
+import { menuDeal } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
-import { IBrand } from '../../settings/brands/types';
+import { INSIGHT_TYPES } from '../constants';
+import { DealFilter } from '../containers';
 import {
   InsightContent,
   InsightRow,
@@ -17,19 +18,25 @@ import {
   IQueryParams,
   SummaryData
 } from '../types';
-import { Chart, InboxFilter, PunchCard, Sidebar, Summary } from './';
+import { Chart, PunchCard, Sidebar, Summary, TeamMembers } from './';
+
+type loadingType = {
+  main: boolean;
+  punch: boolean;
+  teamMember: boolean;
+};
 
 type Props = {
-  brands: IBrand[];
-  trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
   punch: IPunchCardData[];
+  trend: IChartParams[];
   summary: SummaryData[];
-  loading: { main: boolean; punch: boolean };
+  loading: loadingType;
+  teamMembers: IChartParams[];
 };
 
-class ResponseReport extends React.Component<Props, { width: number }> {
+class DealVolumeReport extends React.Component<Props, { width: number }> {
   private wrapper;
 
   constructor(props) {
@@ -38,21 +45,6 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     this.state = {
       width: 600
     };
-  }
-
-  calculateWidth() {
-    const width = this.wrapper.clientWidth;
-    this.setState({ width });
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.loading.punch && !this.props.loading.punch) {
-      this.calculateWidth();
-    }
-  }
-
-  componentDidMount() {
-    this.calculateWidth();
   }
 
   renderTitle(title: string, time?: string) {
@@ -98,40 +90,56 @@ class ResponseReport extends React.Component<Props, { width: number }> {
 
   renderBreadCrumnb() {
     return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('Response Report') }
+      { title: __('Insights'), link: '/deal/insights' },
+      { title: __('Volume Report') }
     ];
   }
 
+  renderTeamMembers() {
+    const { teamMembers, loading } = this.props;
+
+    if (!teamMembers) {
+      return null;
+    }
+
+    return (
+      <InsightRow>
+        <InsightTitle>Team Members</InsightTitle>
+        <TeamMembers
+          loading={loading.teamMember || false}
+          datas={teamMembers || []}
+        />
+      </InsightRow>
+    );
+  }
+
   renderCharts() {
-    const { trend, punch, summary, loading } = this.props;
+    const { trend, summary, punch, loading } = this.props;
 
     const width = this.state.width;
 
     return (
       <InsightContent>
         <InsightRow>
-          {this.renderTitle('Response Times summary')}
+          {this.renderTitle('Volume summary')}
           <Summary loading={loading.main} data={summary} />
         </InsightRow>
 
-        {this.renderTrend('Response Trend', loading, trend)}
+        {this.renderTrend('Volume Trend', loading, trend)}
 
         {this.renderPunchCard(loading, punch, width)}
+
+        {this.renderTeamMembers()}
       </InsightContent>
     );
   }
 
   renderContent() {
-    const { brands, history, queryParams } = this.props;
+    const { history, queryParams } = this.props;
 
     return (
       <InsightWrapper>
-        <InboxFilter
-          history={history}
-          brands={brands}
-          queryParams={queryParams}
-        />
+        <DealFilter history={history} queryParams={queryParams} />
         {this.renderCharts()}
       </InsightWrapper>
     );
@@ -143,14 +151,14 @@ class ResponseReport extends React.Component<Props, { width: number }> {
         header={
           <Wrapper.Header
             breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
+            submenu={menuDeal}
           />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar type={INSIGHT_TYPES.DEAL} />}
         content={this.renderContent()}
       />
     );
   }
 }
 
-export default ResponseReport;
+export default DealVolumeReport;

@@ -6,7 +6,6 @@ import { ResponseReport, VolumeReport } from '../components';
 import { queries } from '../graphql';
 import {
   IParams,
-  IParamsWithType,
   IQueryParams,
   MainQueryResponse,
   PieChartQueryResponse,
@@ -81,7 +80,7 @@ export default compose(
   }),
   graphql(gql(queries.punchCard), {
     name: 'punchCardQuery',
-    options: ({ queryParams, type }: IParamsWithType) => ({
+    options: ({ queryParams, type }: IParams) => ({
       fetchPolicy: 'network-only',
       variables: {
         type,
@@ -93,7 +92,7 @@ export default compose(
   }),
   graphql(gql(queries.main), {
     name: 'mainQuery',
-    options: ({ queryParams, type }: IParamsWithType) => ({
+    options: ({ queryParams, type }: IParams) => ({
       fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
       variables: {

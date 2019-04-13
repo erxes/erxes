@@ -1,6 +1,8 @@
 import Chart from './Chart';
+import DealVolumeReport from './DealVolumeReport';
 import ExportReport from './ExportReport';
-import Filter from './Filter';
+import DealFilter from './filter/DealFilter';
+import InboxFilter from './filter/InboxFilter';
 import FirstResponse from './FirstResponse';
 import InsightPage from './InsightPage';
 import Insights from './Insights';
@@ -19,7 +21,8 @@ export {
   TeamMembers,
   PunchCard,
   Sidebar,
-  Filter,
+  InboxFilter,
+  DealFilter,
   Chart,
   Summary,
   SummaryReport,
@@ -27,5 +30,6 @@ export {
   ResponseReport,
   FirstResponse,
   ExportReport,
-  ResponseCloseReport
+  ResponseCloseReport,
+  DealVolumeReport
 };

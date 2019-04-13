@@ -19,7 +19,8 @@ import {
   IQueryParams,
   SummaryData
 } from '../types';
-import { Chart, Filter, Insights, PunchCard, Sidebar, Summary } from './';
+import { Chart, Insights, PunchCard, Sidebar, Summary } from './';
+import InboxFilter from './filter/InboxFilter';
 
 type loadingType = {
   punch: boolean;
@@ -147,7 +148,11 @@ class VolumeReport extends React.Component<Props, { width: number }> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         {this.renderCharts()}
       </InsightWrapper>
     );
