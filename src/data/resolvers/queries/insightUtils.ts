@@ -1,9 +1,19 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { ConversationMessages, Conversations, Integrations, Users } from '../../../db/models';
+import {
+  ConversationMessages,
+  Conversations,
+  DealPipelines,
+  Deals,
+  DealStages,
+  Integrations,
+  Users,
+} from '../../../db/models';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
+import { IStageDocument } from '../../../db/models/definitions/deals';
 import { IUser } from '../../../db/models/definitions/users';
+import { INSIGHT_TYPES } from '../../constants';
 import { getDateFieldAsStr } from './aggregationUtils';
 
 interface IMessageSelector {
@@ -20,10 +30,17 @@ interface IGenerateChartData {
   y: number;
 }
 
+interface IGeneratePunchCard {
+  day: number;
+  hour: number;
+  date: number;
+  count: number;
+}
+
 interface IGenerateTimeIntervals {
   title: string;
-  start: any;
-  end: any;
+  start: moment.Moment;
+  end: moment.Moment;
 }
 
 interface IGenerateUserChartData {
@@ -53,11 +70,6 @@ interface IGenerateResponseData {
   };
 }
 
-interface IChartData {
-  collection?: any;
-  messageSelector?: any;
-}
-
 export interface IListArgs {
   integrationIds: string;
   brandIds: string;
@@ -66,12 +78,37 @@ export interface IListArgs {
   type: string;
 }
 
+export interface IDealListArgs {
+  pipelineIds: string;
+  boardId: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+}
+
 export interface IFilterSelector {
   createdAt?: { $gte: Date; $lte: Date };
   integration: {
     kind?: { $in: string[] };
     brandId?: { $in: string[] };
   };
+}
+
+interface IDealSelector {
+  modifiedAt?: {
+    $gte: Date;
+    $lte: Date;
+  };
+  createdAt?: {
+    $gte: Date;
+    $lte: Date;
+  };
+  stageId?: object;
+}
+
+interface IStageSelector {
+  probability?: string;
+  pipelineId?: {};
 }
 
 /**
@@ -92,6 +129,55 @@ export const getFilterSelector = (args: IListArgs): any => {
   }
 
   selector.createdAt = { $gte: start, $lte: end };
+
+  return selector;
+};
+
+/**
+ * Return filterSelector
+ * @param args
+ */
+export const getDealSelector = async (args: IDealListArgs): Promise<IDealSelector> => {
+  const { startDate, endDate, boardId, pipelineIds, status } = args;
+  const { start, end } = fixDates(startDate, endDate);
+
+  const selector: IDealSelector = {};
+  const date = {
+    $gte: start,
+    $lte: end,
+  };
+
+  // If status is either won or lost, modified date is more important
+  if (status) {
+    selector.modifiedAt = date;
+  } else {
+    selector.createdAt = date;
+  }
+
+  const stageSelector: IStageSelector = {};
+
+  if (status) {
+    stageSelector.probability = status;
+  }
+
+  let stages: IStageDocument[] = [];
+
+  if (boardId) {
+    if (pipelineIds) {
+      stageSelector.pipelineId = { $in: pipelineIds.split(',') };
+    } else {
+      const pipelines = await DealPipelines.find({ boardId });
+      stageSelector.pipelineId = { $in: pipelines.map(p => p._id) };
+    }
+
+    stages = await DealStages.find(stageSelector);
+    selector.stageId = { $in: stages.map(s => s._id) };
+  } else {
+    if (status) {
+      stages = await DealStages.find(stageSelector);
+      selector.stageId = { $in: stages.map(s => s._id) };
+    }
+  }
 
   return selector;
 };
@@ -139,17 +225,24 @@ export const findConversations = async (
  * @param collection
  * @param selector
  */
-export const getSummaryData = async ({ startDate, endDate, selector, collection }): Promise<any> => {
+export const getSummaryData = async ({
+  startDate,
+  endDate,
+  selector,
+  collection,
+  dateFieldName = 'createdAt',
+}): Promise<any> => {
   const summaries: Array<{ title?: string; count?: number }> = [];
   const intervals = generateTimeIntervals(startDate, endDate);
   const facets = {};
   // finds a respective message counts for different time intervals.
   for (const interval of intervals) {
     const facetMessageSelector = { ...selector };
-    facetMessageSelector.createdAt = {
+    facetMessageSelector[dateFieldName] = {
       $gte: interval.start.toDate(),
       $lte: interval.end.toDate(),
     };
+
     facets[interval.title] = [
       {
         $match: facetMessageSelector,
@@ -221,20 +314,23 @@ export const fixChartData = async (data: any[], hintX: string, hintY: string): P
       return { x: formatTime(moment(key), 'MM-DD'), y: results[key] };
     });
 };
+
 /**
  * Populates message collection into date range
  * by given duration and loop count for chart data.
  */
-export const generateChartData = async (args: IChartData): Promise<IGenerateChartData[]> => {
-  const { collection, messageSelector } = args;
-
+export const generateChartDataBySelector = async ({
+  selector,
+  type = INSIGHT_TYPES.CONVERSATION,
+  dateFieldName = '$createdAt',
+}): Promise<IGenerateChartData[]> => {
   const pipelineStages = [
     {
-      $match: messageSelector,
+      $match: selector,
     },
     {
       $project: {
-        date: getDateFieldAsStr({}),
+        date: getDateFieldAsStr({ fieldName: dateFieldName }),
       },
     },
     {
@@ -257,23 +353,72 @@ export const generateChartData = async (args: IChartData): Promise<IGenerateChar
     },
   ];
 
-  if (collection) {
-    const results = {};
-
-    collection.map(obj => {
-      const date = formatTime(moment(obj.createdAt), 'YYYY-MM-DD');
-
-      results[date] = (results[date] || 0) + 1;
-    });
-
-    return Object.keys(results)
-      .sort()
-      .map(key => {
-        return { x: formatTime(moment(key), 'MM-DD'), y: results[key] };
-      });
+  if (type === INSIGHT_TYPES.DEAL) {
+    return Deals.aggregate([pipelineStages]);
   }
 
   return ConversationMessages.aggregate([pipelineStages]);
+};
+
+export const generatePunchData = async (
+  collection: any,
+  selector: object,
+  user: IUser,
+): Promise<IGeneratePunchCard> => {
+  const pipelineStages = [
+    {
+      $match: selector,
+    },
+    {
+      $project: {
+        hour: { $hour: { date: '$createdAt', timezone: '+08' } },
+        day: { $isoDayOfWeek: { date: '$createdAt', timezone: '+08' } },
+        date: await getDateFieldAsStr({ timeZone: getTimezone(user) }),
+      },
+    },
+    {
+      $group: {
+        _id: {
+          hour: '$hour',
+          day: '$day',
+          date: '$date',
+        },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        day: '$_id.day',
+        hour: '$_id.hour',
+        date: '$_id.date',
+        count: 1,
+      },
+    },
+  ];
+
+  return collection.aggregate(pipelineStages);
+};
+
+/**
+ * Populates message collection into date range
+ * by given duration and loop count for chart data.
+ */
+
+export const generateChartDataByCollection = async (collection: any): Promise<IGenerateChartData[]> => {
+  const results = {};
+
+  collection.map(obj => {
+    const date = formatTime(moment(obj.createdAt), 'YYYY-MM-DD');
+
+    results[date] = (results[date] || 0) + 1;
+  });
+
+  return Object.keys(results)
+    .sort()
+    .map(key => {
+      return { x: formatTime(moment(key), 'MM-DD'), y: results[key] };
+    });
 };
 
 /**
@@ -337,7 +482,7 @@ export const generateUserChartData = async ({
   userMessages: IMessageDocument[];
 }): Promise<IGenerateUserChartData> => {
   const user = await Users.findOne({ _id: userId });
-  const userData = await generateChartData({ collection: userMessages });
+  const userData = await generateChartDataByCollection(userMessages);
 
   if (!user) {
     return {
@@ -415,7 +560,7 @@ export const generateResponseData = async (
   allResponseTime: number,
 ): Promise<IGenerateResponseData> => {
   // preparing trend chart data
-  const trend = await generateChartData({ collection: responsData });
+  const trend = await generateChartDataByCollection(responsData);
 
   // Average response time for all messages
   const time = Math.floor(allResponseTime / responsData.length);

@@ -6,6 +6,7 @@ import companies from './companies';
 import configs from './configs';
 import conversations from './conversations';
 import customers from './customers';
+import dealInsights from './dealInsights';
 import deals from './deals';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
@@ -51,6 +52,7 @@ export default {
   ...notifications,
   ...activityLogs,
   ...deals,
+  ...dealInsights,
   ...products,
   ...configs,
   ...fieldsgroups,

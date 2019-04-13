@@ -124,7 +124,7 @@ const userMutations = {
 
     if (!password || !valid) {
       // bad password
-      throw new Error('Invalid password');
+      throw new Error('Invalid password. Try again');
     }
 
     return Users.editProfile(user._id, { username, email, details, links });
