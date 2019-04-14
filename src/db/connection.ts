@@ -32,7 +32,7 @@ mongoose.connection
 export function connect() {
   return mongoose.connect(
     MONGO_URL,
-    { useNewUrlParser: true, useCreateIndex: true, poolSize: 100 },
+    { useNewUrlParser: true, useCreateIndex: true, poolSize: 100, autoReconnect: true },
   );
 }
 
