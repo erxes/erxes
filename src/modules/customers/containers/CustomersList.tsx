@@ -138,11 +138,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         },
 
         afterUpload: ({ response }) => {
-          if (response.length === 0) {
-            customersMainQuery.refetch();
-            Alert.success('All customers imported successfully');
-          } else {
-            Alert.error(response[0]);
+          if (response.id) {
+            history.push(`/settings/history/${response.id}`);
           }
 
           this.setState({ loading: false });
