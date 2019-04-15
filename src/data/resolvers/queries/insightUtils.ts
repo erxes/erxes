@@ -231,6 +231,12 @@ export const getSummaryData = async ({
   selector,
   collection,
   dateFieldName = 'createdAt',
+}: {
+  startDate: Date;
+  endDate: Date;
+  selector: any;
+  collection: any;
+  dateFieldName?: string;
 }): Promise<any> => {
   const summaries: Array<{ title?: string; count?: number }> = [];
   const intervals = generateTimeIntervals(startDate, endDate);
@@ -323,6 +329,10 @@ export const generateChartDataBySelector = async ({
   selector,
   type = INSIGHT_TYPES.CONVERSATION,
   dateFieldName = '$createdAt',
+}: {
+  selector: IMessageSelector;
+  type?: string;
+  dateFieldName?: string;
 }): Promise<IGenerateChartData[]> => {
   const pipelineStages = [
     {
