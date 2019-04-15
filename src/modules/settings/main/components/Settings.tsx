@@ -58,7 +58,7 @@ class Settings extends React.Component {
             )}
             {this.renderBox(
               'Permission',
-              '/images/icons/erxes-11.svg',
+              '/images/icons/erxes-20.svg',
               '/settings/permissions'
             )}
           </div>
