@@ -9,6 +9,7 @@ import {
 } from 'modules/common/components';
 import { __, Alert, confirm, router } from 'modules/common/utils';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
+import { TableHeadContent } from 'modules/customers/styles';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import { ManageColumns } from 'modules/settings/properties/containers';
@@ -123,8 +124,10 @@ class CompaniesList extends React.Component<IProps, State> {
               </th>
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>
-                  <SortHandler sortField={name} />
-                  {__(label)}
+                  <TableHeadContent>
+                    <SortHandler sortField={name} />
+                    {__(label)}
+                  </TableHeadContent>
                 </th>
               ))}
               <th>{__('Tags')}</th>
@@ -153,7 +156,7 @@ class CompaniesList extends React.Component<IProps, State> {
     );
 
     const editColumns = (
-      <Button btnStyle="simple" size="small">
+      <Button btnStyle="simple" size="small" icon="filter">
         Edit columns
       </Button>
     );

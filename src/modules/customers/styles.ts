@@ -91,6 +91,15 @@ const TabContent = styled.div`
   padding: ${dimensions.coreSpacing}px;
 `;
 
+const Date = styled.time`
+  font-size: 12px;
+`;
+
+const TableHeadContent = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
 export {
   InfoTitle,
   InfoDetail,
@@ -100,5 +109,7 @@ export {
   InfoAvatar,
   Contact,
   Name,
-  TabContent
+  Date,
+  TabContent,
+  TableHeadContent
 };

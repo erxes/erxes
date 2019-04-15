@@ -1,6 +1,13 @@
 import _ from 'lodash';
-import { FormControl, NameCard, Tags } from 'modules/common/components';
+import {
+  FormControl,
+  NameCard,
+  Tags,
+  TextInfo
+} from 'modules/common/components';
+import { isTimeStamp } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
+import { Date } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { IConfigColumn } from 'modules/settings/properties/types';
 import * as moment from 'moment';
@@ -14,31 +21,25 @@ type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
 };
 
-function isTimeStamp(value) {
-  if (typeof value === 'string') {
-    value = parseInt(value, 10);
-  }
-
-  return (
-    Number.isInteger(value) && value > 1000000000 && value <= 999999999999999
-  );
-}
-
 function formatValue(value) {
   if (!value) {
     return '-';
   }
 
+  if (typeof value === 'boolean') {
+    return (
+      <TextInfo textStyle={value ? 'success' : 'warning'}>
+        {value ? 'Yes' : 'No'}
+      </TextInfo>
+    );
+  }
+
+  if (moment(value, moment.ISO_8601, false).isValid() || isTimeStamp(value)) {
+    return <Date>{moment(value).format('lll')}</Date>;
+  }
+
   if (typeof value === 'string') {
     return value;
-  }
-
-  if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
-  }
-
-  if (moment(value, moment.ISO_8601).isValid() || isTimeStamp(value)) {
-    return moment(value).fromNow();
   }
 
   return value;
