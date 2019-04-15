@@ -1,7 +1,9 @@
 import {
   Button,
   DataWithLoader,
+  DropdownToggle,
   FormControl,
+  Icon,
   ModalTrigger,
   Pagination,
   SortHandler,
@@ -15,7 +17,9 @@ import { BarItems } from 'modules/layout/styles';
 import { ManageColumns } from 'modules/settings/properties/containers';
 import { TaggerPopover } from 'modules/tags/components';
 import * as React from 'react';
+import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 import { CompaniesMerge } from '..';
 import { IRouterProps } from '../../../common/types';
 import { IConfigColumn } from '../../../settings/properties/types';
@@ -42,6 +46,8 @@ interface IProps extends IRouterProps {
   ) => void;
   mergeCompanies: () => void;
   queryParams: any;
+  exportCompanies: (bulk: string[]) => void;
+  uploadXls: (e: React.FormEvent<HTMLInputElement>) => void;
 }
 
 type State = {
@@ -107,7 +113,9 @@ class CompaniesList extends React.Component<IProps, State> {
       emptyBulk,
       totalCount,
       mergeCompanies,
-      queryParams
+      queryParams,
+      uploadXls,
+      exportCompanies
     } = this.props;
 
     const mainContent = (
@@ -155,11 +163,7 @@ class CompaniesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = (
-      <Button btnStyle="simple" size="small" icon="filter">
-        Edit columns
-      </Button>
-    );
+    const editColumns = <a>{__('Edit columns')}</a>;
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
@@ -244,11 +248,48 @@ class CompaniesList extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <ModalTrigger
-          title="Choose which column you see"
-          trigger={editColumns}
-          content={manageColumns}
-        />
+
+        <Dropdown id="dropdown-engage" pullRight={true}>
+          <DropdownToggle bsRole="toggle">
+            <Button btnStyle="simple" size="small">
+              {__('Customize ')} <Icon icon="downarrow" />
+            </Button>
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <li>
+              <ModalTrigger
+                title="Manage Columns"
+                trigger={editColumns}
+                content={manageColumns}
+                dialogClassName="transform"
+              />
+            </li>
+            <li>
+              <Link to="/settings/properties?type=company">
+                {__('Properties')}
+              </Link>
+            </li>
+            <li>
+              <a onClick={exportCompanies.bind(this, bulk)}>
+                {__('Export companies')}
+              </a>
+            </li>
+            <li>
+              <a>
+                <label style={{ fontWeight: 'normal' }}>
+                  {__('Import companies')}
+                  <input
+                    type="file"
+                    onChange={uploadXls}
+                    style={{ display: 'none' }}
+                    accept=".xlsx, .xls"
+                  />
+                </label>
+              </a>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+
         <ModalTrigger
           title="New company"
           trigger={addTrigger}

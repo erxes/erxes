@@ -1,7 +1,6 @@
 import client from 'apolloClient';
-import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { Alert, uploadHandler, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
@@ -20,6 +19,7 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
+import { handleXlsUpload } from '../utils';
 
 type Props = {
   queryParams: any;
@@ -123,21 +123,14 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const handleXlsUpload = e => {
-      const xlsFile = e.target.files;
-
-      const { REACT_APP_API_URL } = getEnv();
-
-      uploadHandler({
-        files: xlsFile,
-        extraFormData: [{ key: 'type', value: 'customer' }],
-        url: `${REACT_APP_API_URL}/import-file`,
-        responseType: 'json',
-        beforeUpload: () => {
+    const uploadXls = e => {
+      handleXlsUpload({
+        e,
+        type: 'customer',
+        beforeUploadCallback: () => {
           this.setState({ loading: true });
         },
-
-        afterUpload: ({ response }) => {
+        afterUploadCallback: response => {
           if (response.id) {
             history.push(`/settings/importHistory/${response.id}`);
           }
@@ -145,8 +138,6 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           this.setState({ loading: false });
         }
       });
-
-      e.target.value = null;
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
@@ -160,7 +151,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customers: list,
       totalCount,
       exportCustomers,
-      handleXlsUpload,
+      uploadXls,
       integrations: KIND_CHOICES.ALL_LIST,
       searchValue,
       loading: customersMainQuery.loading || this.state.loading,

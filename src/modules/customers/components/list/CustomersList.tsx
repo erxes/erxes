@@ -56,7 +56,7 @@ interface IProps extends IRouterProps {
   ) => Promise<void>;
   queryParams: any;
   exportCustomers: (bulk: string[]) => void;
-  handleXlsUpload: (e: React.FormEvent<HTMLInputElement>) => void;
+  uploadXls: (e: React.FormEvent<HTMLInputElement>) => void;
 }
 
 type State = {
@@ -173,7 +173,7 @@ class CustomersList extends React.Component<IProps, State> {
       history,
       queryParams,
       exportCustomers,
-      handleXlsUpload
+      uploadXls
     } = this.props;
 
     const addTrigger = (
@@ -251,7 +251,7 @@ class CustomersList extends React.Component<IProps, State> {
                   {__('Import customers')}
                   <input
                     type="file"
-                    onChange={handleXlsUpload}
+                    onChange={uploadXls}
                     style={{ display: 'none' }}
                     accept=".xlsx, .xls"
                   />

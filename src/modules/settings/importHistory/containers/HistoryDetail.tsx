@@ -39,11 +39,11 @@ class HistoryDetailContainer extends React.Component<
         const { importHistoryChanged } = data;
         const { percentage, status } = importHistoryChanged;
 
-        this.setState({ percentage });
-
         if (status === 'Done') {
-          importHistoryDetailQuery.refetch();
+          return importHistoryDetailQuery.refetch();
         }
+
+        this.setState({ percentage });
       }
     });
   }
