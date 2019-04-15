@@ -49,7 +49,7 @@ export interface IUser {
   links?: ILink;
   isActive?: boolean;
   groupIds?: string[];
-  deviceTokens?: string[];
+  deviceToken?: string;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -58,7 +58,7 @@ export interface IUserDocument extends IUser, Document {
   details?: IDetailDocument;
   links?: ILinkDocument;
   groupIds?: string[];
-  deviceTokens?: string[];
+  deviceToken?: string;
 }
 
 // Mongoose schemas ===============================
@@ -122,5 +122,5 @@ export const userSchema = new Schema({
   links: field({ type: linkSchema, default: {} }),
   isActive: field({ type: Boolean, default: true }),
   groupIds: field({ type: [String] }),
-  deviceTokens: field({ type: [String] }),
+  deviceToken: field({ type: [String] }),
 });
