@@ -8,6 +8,9 @@ export interface IImportHistory {
   contentType: string;
   date: Date;
   user: IUser;
+  status: string;
+  percentage: number;
+  errorMsgs: string[];
 }
 
 // query types
@@ -15,6 +18,13 @@ export interface IImportHistory {
 export type ImportHistoriesQueryResponse = {
   importHistories: IImportHistory[];
   loading: boolean;
+  refetch: () => void;
+};
+
+export type ImportHistoryDetailQueryResponse = {
+  importHistoryDetail: IImportHistory;
+  loading: boolean;
+  subscribeToMore: any;
   refetch: () => void;
 };
 

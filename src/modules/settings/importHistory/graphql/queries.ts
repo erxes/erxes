@@ -16,6 +16,23 @@ const histories = `
   }
 `;
 
+const historyDetail = `
+  query importHistoryDetail($_id: String!) {
+    importHistoryDetail(_id: $_id) {
+      _id
+      success
+      failed
+      total
+      contentType
+      date
+      errorMsgs
+      percentage
+      status
+    }
+  }
+`;
+
 export default {
-  histories
+  histories,
+  historyDetail
 };

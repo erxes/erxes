@@ -130,7 +130,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
       uploadHandler({
         files: xlsFile,
-        extraFormData: [{ key: 'type', value: 'customers' }],
+        extraFormData: [{ key: 'type', value: 'customer' }],
         url: `${REACT_APP_API_URL}/import-file`,
         responseType: 'json',
         beforeUpload: () => {
@@ -139,7 +139,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
         afterUpload: ({ response }) => {
           if (response.id) {
-            history.push(`/settings/history/${response.id}`);
+            history.push(`/settings/importHistory/${response.id}`);
           }
 
           this.setState({ loading: false });

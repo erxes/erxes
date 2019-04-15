@@ -3,6 +3,7 @@ import {
   HeaderDescription,
   Table
 } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
@@ -18,12 +19,12 @@ type Props = {
   loading: boolean;
 };
 
-class Histories extends React.Component<Props> {
+class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
     const { histories, removeHistory } = this.props;
 
     return (
-      <Table>
+      <Table hover={true}>
         <thead>
           <tr>
             <th>{__('Success')}</th>
@@ -41,12 +42,19 @@ class Histories extends React.Component<Props> {
                 key={history._id}
                 history={history}
                 removeHistory={removeHistory}
+                onClick={this.onClick}
               />
             );
           })}
         </tbody>
       </Table>
     );
+  };
+
+  onClick = id => {
+    const { history } = this.props;
+
+    history.push(`/settings/importHistory/${id}`);
   };
 
   render() {

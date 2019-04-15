@@ -17,9 +17,8 @@ const importHistories = ({ location }) => {
   return <Histories queryParams={queryParams} />;
 };
 
-const importHistoryDetail = ({ location }) => {
-  const queryParams = queryString.parse(location.search);
-  const id = queryParams.id;
+const importHistoryDetail = ({ match }) => {
+  const id = match.params.id;
 
   return <HistoryDetail id={id} />;
 };
