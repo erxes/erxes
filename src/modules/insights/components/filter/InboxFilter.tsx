@@ -25,7 +25,9 @@ type States = {
 class InboxFilter extends React.Component<Props, States> {
   constructor(props) {
     super(props);
+
     const { brandIds = '', integrationIds = '' } = props.queryParams || {};
+
     this.state = {
       ...props.queryParams,
       brandIds: brandIds.split(','),

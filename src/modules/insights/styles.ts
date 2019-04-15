@@ -47,6 +47,8 @@ const InsightTitle = styled.h5`
 
   span {
     margin-left: ${dimensions.unitSpacing}px;
+    text-transform: lowercase;
+    font-size: 13px;
   }
 `;
 
@@ -99,6 +101,10 @@ const LoaderWrapper = styled(ChartWrapper)`
 const SummaryTitle = styled.div`
   margin-bottom: 5px;
   text-transform: uppercase;
+
+  span {
+    text-transform: lowercase;
+  }
 `;
 
 const SummaryCount = styled.span`
@@ -122,12 +128,8 @@ const SummaryItem = styledTS<{ isSmall?: boolean }>(styled.div)`
     padding: 8px;
     line-height: ${typography.fontSizeHeading7}px;
 
-    span {
+    > span {
       font-size: ${typography.fontSizeHeading7}px!important;
-    }
-  
-    div {
-      margin-bottom: 0px!important;
     }
   `}
 `;
