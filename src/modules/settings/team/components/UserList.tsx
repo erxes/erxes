@@ -36,7 +36,6 @@ type FinalProps = ICommonListProps &
 type States = {
   isActive: boolean;
   searchValue: string;
-  emails: string[];
 };
 
 class UserList extends React.Component<FinalProps, States> {
@@ -48,7 +47,6 @@ class UserList extends React.Component<FinalProps, States> {
     } = props;
 
     this.state = {
-      emails: [],
       searchValue: searchValue || '',
       isActive: isActive || true
     };
@@ -71,7 +69,6 @@ class UserList extends React.Component<FinalProps, States> {
   renderInvitationForm = props => {
     return (
       <UserInvitationForm
-        emails={this.state.emails}
         closeModal={props.closeModal}
         save={this.props.save}
       />

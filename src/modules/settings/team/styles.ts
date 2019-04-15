@@ -15,11 +15,15 @@ export const ButtonContainer = styled.div`
 
 export const FlexRow = styled.div`
   display: flex;
+  align-items: center;
+
+  input {
+    margin-bottom: ${dimensions.coreSpacing}px;
+  }
 
   i {
-    cursor: help;
-    margin: -${dimensions.unitSpacing - 7}px 0 0 5px;
-    color: ${colors.colorCoreRed};
+    cursor: pointer;
+    padding-left: ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -33,5 +37,16 @@ export const Emails = styled.div`
 export const UserAvatar = styled.td`
   &:hover {
     cursor: pointer;
+  }
+`;
+
+export const LinkButton = styled.a`
+  color: ${colors.colorPrimary};
+  cursor: pointer;
+  margin-right: ${dimensions.unitSpacing - 5}px;
+
+  &:hover {
+    text-decoration: underline;
+    color: ${colors.colorPrimary};
   }
 `;
