@@ -27,13 +27,6 @@ export const FlexRow = styled.div`
   }
 `;
 
-export const Emails = styled.div`
-  span:last-child {
-      margin-bottom: ${dimensions.coreSpacing}px;
-    }
-  }
-`;
-
 export const UserAvatar = styled.td`
   &:hover {
     cursor: pointer;

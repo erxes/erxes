@@ -11,7 +11,7 @@ import { __, Alert } from 'modules/common/utils';
 import { ICommonFormProps } from 'modules/settings/common/types';
 import * as React from 'react';
 import { Description } from '../../styles';
-import { Emails, FlexRow, LinkButton } from '../styles';
+import { FlexRow, LinkButton } from '../styles';
 import { IEmails } from '../types';
 
 type Props = {
@@ -35,6 +35,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   onInvite = (e: React.FormEvent) => {
     e.preventDefault();
+
     const { inputs } = this.state;
     const filterInputs = inputs.filter(input => input.email);
     const emails = filterInputs.map(item => item.email);
@@ -43,13 +44,22 @@ class UserInvitationForm extends React.Component<Props, State> {
       return Alert.warning('No email address found!');
     }
 
-    this.props.save({ doc: { emails } }, this.afterInvite, null);
+    this.props.save(
+      { doc: { emails } },
+      () => {
+        this.setState({ inputs: [] });
+        this.props.closeModal();
+      },
+      null
+    );
   };
 
   onEmailValueChange = (i: number, e: React.FormEvent) => {
     const { value } = e.target as HTMLInputElement;
+
     const inputs = [...this.state.inputs];
     inputs[i] = { ...inputs[i], email: value };
+
     this.setState({ inputs });
   };
 
@@ -63,6 +73,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   addInvitees = () => {
     const { inputs } = this.state;
+
     const values = (document.getElementById(
       'multipleEmailValue'
     ) as HTMLInputElement).value;
@@ -74,12 +85,8 @@ class UserInvitationForm extends React.Component<Props, State> {
     const emails = values.split(',');
 
     emails.map(e => inputs.splice(0, 0, { email: e }));
-    this.setState({ addMany: false });
-  };
 
-  afterInvite = () => {
-    this.setState({ inputs: [] });
-    this.props.closeModal();
+    this.setState({ addMany: false });
   };
 
   handleRemoveInput = (i: number) => {
