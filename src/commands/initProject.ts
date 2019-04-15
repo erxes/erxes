@@ -2,9 +2,9 @@ import { connect, disconnect } from '../db/connection';
 import { Users } from '../db/models';
 
 connect()
-  .then(() => {
+  .then(async () => {
     // create admin user
-    return Users.createUser({
+    const user = await Users.createUser({
       username: 'admin',
       password: 'erxes',
       email: 'admin@erxes.io',
@@ -13,6 +13,10 @@ connect()
         fullName: 'Admin',
       },
     });
+
+    await Users.updateOne({ _id: user._id }, { $set: { isOwner: true } });
+
+    return Users.findOne({ _id: user._id });
   })
 
   .then(() => {
