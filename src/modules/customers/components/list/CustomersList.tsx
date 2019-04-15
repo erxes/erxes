@@ -1,10 +1,4 @@
 import gql from 'graphql-tag';
-import { queries } from 'modules/customers/graphql';
-import * as React from 'react';
-import { Dropdown } from 'react-bootstrap';
-import { withRouter } from 'react-router';
-import { Link } from 'react-router-dom';
-import { CustomersMerge } from '..';
 import {
   Button,
   DataWithLoader,
@@ -16,7 +10,14 @@ import {
   Pagination,
   SortHandler,
   Table
-} from '../../../common/components';
+} from 'modules/common/components';
+import { queries } from 'modules/customers/graphql';
+import { TableHeadContent } from 'modules/customers/styles';
+import * as React from 'react';
+import { Dropdown } from 'react-bootstrap';
+import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
+import { CustomersMerge } from '..';
 import { IRouterProps } from '../../../common/types';
 import { __, Alert, confirm, router } from '../../../common/utils';
 import { Widget } from '../../../engage/containers';
@@ -114,8 +115,10 @@ class CustomersList extends React.Component<IProps, State> {
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>
-                <SortHandler sortField={name} />
-                {__(label)}
+                <TableHeadContent>
+                  <SortHandler sortField={name} />
+                  {__(label)}
+                </TableHeadContent>
               </th>
             ))}
             <th>{__('Tags')}</th>

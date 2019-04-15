@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { FormControl, NameCard, Tags } from 'modules/common/components';
-import { urlParser } from 'modules/common/utils';
+import { isTimeStamp, urlParser } from 'modules/common/utils';
+import { Date } from 'modules/customers/styles';
 import * as moment from 'moment';
 import * as React from 'react';
 import { FlexItem } from '../../styles';
@@ -13,16 +14,6 @@ type Props = {
   isChecked: boolean;
   toggleBulk: (company: ICompany, isChecked?: boolean) => void;
 };
-
-function isTimeStamp(value) {
-  if (typeof value === 'string') {
-    value = parseInt(value, 10);
-  }
-
-  return (
-    Number.isInteger(value) && value > 1000000000 && value <= 999999999999999
-  );
-}
 
 function createLinkFromUrl(url) {
   if (!url.includes('http')) {
@@ -50,7 +41,7 @@ function formatValue(value) {
     value &&
     (moment(value, moment.ISO_8601).isValid() || isTimeStamp(value))
   ) {
-    return moment(value).fromNow();
+    return <Date>{moment(value).format('lll')}</Date>;
   }
 
   return value || '-';
