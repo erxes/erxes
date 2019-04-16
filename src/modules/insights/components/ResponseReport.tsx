@@ -26,7 +26,11 @@ type Props = {
   history: any;
   punch: IPunchCardData[];
   summary: SummaryData[];
-  loading: { main: boolean; punch: boolean };
+  loading: {
+    trend: boolean;
+    summary: boolean;
+    punch: boolean;
+  };
 };
 
 class ResponseReport extends React.Component<Props, { width: number }> {
@@ -72,7 +76,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     return (
       <InsightRow innerRef={innerRef}>
         {this.renderTitle(name)}
-        <Chart loading={loading.main} height={360} data={trend} />
+        <Chart loading={loading} height={360} data={trend} />
       </InsightRow>
     );
   }
@@ -112,10 +116,10 @@ class ResponseReport extends React.Component<Props, { width: number }> {
       <InsightContent>
         <InsightRow>
           {this.renderTitle('Response Times summary')}
-          <Summary loading={loading.main} data={summary} />
+          <Summary loading={loading.summary} data={summary} />
         </InsightRow>
 
-        {this.renderTrend('Response Trend', loading, trend)}
+        {this.renderTrend('Response Trend', loading.trend, trend)}
 
         {this.renderPunchCard(loading, punch, width)}
       </InsightContent>
