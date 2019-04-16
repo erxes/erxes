@@ -1,6 +1,5 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import { ROLES } from './constants';
 
 export interface IEmailSignature {
   brandId?: string;
@@ -38,7 +37,6 @@ export interface IUser {
   resetPasswordExpires?: Date;
   registrationToken?: string;
   registrationTokenExpires?: Date;
-  role?: string;
   isOwner?: boolean;
   hasSeenOnBoard?: boolean;
   email?: string;
@@ -104,10 +102,6 @@ export const userSchema = new Schema({
   registrationToken: field({ type: String }),
   registrationTokenExpires: field({ type: Date }),
   resetPasswordExpires: field({ type: Date }),
-  role: field({
-    type: String,
-    enum: [ROLES.ADMIN, ROLES.CONTRIBUTOR],
-  }),
   isOwner: field({ type: Boolean }),
   hasSeenOnBoard: field({ type: Boolean }),
   email: field({

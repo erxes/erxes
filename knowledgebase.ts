@@ -61,7 +61,7 @@ const commonFields = {
 export const articleSchema = new Schema({
   _id: field({ pkey: true }),
   title: field({ type: String }),
-  summary: field({ type: String }),
+  summary: field({ type: String, optional: true }),
   content: field({ type: String }),
   status: field({
     type: String,
@@ -74,24 +74,24 @@ export const articleSchema = new Schema({
 export const categorySchema = new Schema({
   _id: field({ pkey: true }),
   title: field({ type: String }),
-  description: field({ type: String }),
+  description: field({ type: String, optional: true }),
   articleIds: field({ type: [String] }),
-  icon: field({ type: String }),
+  icon: field({ type: String, optional: true }),
   ...commonFields,
 });
 
 export const topicSchema = new Schema({
   _id: field({ pkey: true }),
   title: field({ type: String }),
-  description: field({ type: String }),
-  brandId: field({ type: String }),
+  description: field({ type: String, optional: true }),
+  brandId: field({ type: String, optional: true }),
 
   categoryIds: field({
     type: [String],
     required: false,
   }),
 
-  color: field({ type: String }),
+  color: field({ type: String, optional: true }),
 
   languageCode: field({
     type: String,
