@@ -48,12 +48,6 @@ export const INBOX_INSIGHTS = [
 
 export const DEAL_INSIGHTS = [
   {
-    name: 'Deal Volume Report',
-    image: '/images/icons/deal-insight-volume.svg',
-    to: '/deal/insights/volume-report',
-    desc: 'Find feedback that has been created by team members.'
-  },
-  {
     name: 'Deal Won Report',
     image: '/images/icons/deal-insight-won.svg',
     to: '/deal/insights/won',
@@ -64,5 +58,11 @@ export const DEAL_INSIGHTS = [
     image: '/images/icons/deal-insight-lost.svg',
     to: '/deal/insights/lost',
     desc: 'Find feedback of lost deals that has been created by team members.'
+  },
+  {
+    name: 'Deal Volume Report',
+    image: '/images/icons/deal-insight-volume.svg',
+    to: '/deal/insights/volume-report',
+    desc: 'Find feedback that has been created by team members.'
   }
 ];

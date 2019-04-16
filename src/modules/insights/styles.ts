@@ -167,6 +167,9 @@ const FullName = styled.span`
 
 const BoxContainer = styled.div`
   width: 680px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 `;
 
 const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
@@ -174,6 +177,7 @@ const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
   margin-top: 10px;
   margin-bottom: 10px;
+  flex-shrink: 0;
 
   > a {
     padding: 40px;
@@ -187,7 +191,6 @@ const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
     margin: 10px 0 0;
     font-size: 12px;
     color: ${colors.colorCoreLightGray};
-    min-height: 54px;
   }
 `;
 
