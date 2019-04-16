@@ -64,7 +64,7 @@
     "graphql": "^14.0.2",
     "graphql-redis-subscriptions": "^1.4.0",
     "graphql-tools": "^4.0.3",
-    "handlebars": "^4.0.10",
+    "handlebars": "^4.0.14",
     "ioredis": "^3.2.2",
     "jsonwebtoken": "^8.1.0",
     "meteor-random": "^0.0.3",
