@@ -96,7 +96,7 @@ export interface ICustomer {
   location?: ILocation;
   visitorContactInfo?: IVisitorContact;
   urlVisits?: any;
-  deviceTokens?: string;
+  deviceToken?: string;
 }
 
 export interface ICustomerDocument extends ICustomer, Document {
@@ -110,7 +110,7 @@ export interface ICustomerDocument extends ICustomer, Document {
   status?: string;
   createdAt: Date;
   modifiedAt: Date;
-  deviceTokens?: string;
+  deviceToken?: string;
 }
 
 /* location schema */
@@ -284,5 +284,5 @@ export const customerSchema = new Schema({
   }),
   urlVisits: Object,
 
-  deviceTokens: field({ type: [String] }),
+  deviceToken: field({ type: [String] }),
 });
