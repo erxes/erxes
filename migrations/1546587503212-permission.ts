@@ -20,6 +20,7 @@ module.exports.up = next => {
       const moduleKeys = Object.keys(moduleObjects);
       const groupId = userGroup._id;
 
+      await Users.updateMany({ isActive: { $exists: false } }, { $set: { isActive: true } });
       await Users.updateMany({}, { $set: { groupIds: [groupId] } });
 
       // Creating permissions according to user groups
