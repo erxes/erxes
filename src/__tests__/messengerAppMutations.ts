@@ -8,7 +8,7 @@ describe('mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ role: 'admin' });
+    _user = await userFactory({});
 
     context = { user: _user };
   });
@@ -22,18 +22,16 @@ describe('mutations', () => {
   test('Add google meet', async () => {
     const args = {
       name: 'google meet',
-      credentials: {
-        access_token: 'access_token',
-      },
+      accountId: Math.random().toString(),
     };
 
     const mutation = `
-      mutation messengerAppsAddGoogleMeet($name: String!, $credentials: JSON!) {
-        messengerAppsAddGoogleMeet(name: $name, credentials: $credentials) {
+      mutation messengerAppsAddGoogleMeet($name: String!, $accountId: String!) {
+        messengerAppsAddGoogleMeet(name: $name, accountId: $accountId) {
           name
           kind
           showInInbox
-          credentials
+          accountId
         }
       }
     `;
@@ -43,7 +41,7 @@ describe('mutations', () => {
     expect(app.kind).toBe('googleMeet');
     expect(app.showInInbox).toBe(true);
     expect(app.name).toBe(args.name);
-    expect(app.credentials).toBe(args.credentials);
+    expect(app.accountId).toBe(args.accountId);
   });
 
   test('Add knowledgebase', async () => {

@@ -1,6 +1,6 @@
 import { EmailTemplates } from '../../../db/models';
 import { IEmailTemplate } from '../../../db/models/definitions/emailTemplates';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions';
 
 interface IEmailTemplatesEdit extends IEmailTemplate {
   _id: string;
@@ -29,6 +29,6 @@ const emailTemplateMutations = {
   },
 };
 
-moduleRequireLogin(emailTemplateMutations);
+moduleCheckPermission(emailTemplateMutations, 'manageEmailTemplate');
 
 export default emailTemplateMutations;

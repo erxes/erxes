@@ -4,30 +4,10 @@ import { Accounts, ConversationMessages, Conversations, Customers, Integrations 
 import { IGmail as IMsgGmail } from '../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
+import { IUserDocument } from '../db/models/definitions/users';
+import EmailDeliveries from '../db/models/EmailDeliveries';
 import { utils } from './gmailTracker';
-
-interface IAttachmentParams {
-  data: string;
-  filename: string;
-  size: number;
-  mimeType: string;
-}
-
-interface IMailParams {
-  integrationId: string;
-  cocType: string;
-  cocId: string;
-  subject: string;
-  body: string;
-  toEmails: string;
-  cc?: string;
-  bcc?: string;
-  attachments?: IAttachmentParams[];
-  references?: string;
-  headerId?: string;
-  threadId?: string;
-  fromEmail?: string;
-}
+import { IMailParams } from './types';
 
 /**
  * Create string sequence that generates email body encrypted to base64
@@ -91,9 +71,21 @@ const encodeEmail = async (params: IMailParams) => {
 /**
  * Send email & create activiy log with gmail kind
  */
-export const sendGmail = async (mailParams: IMailParams) => {
-  const { integrationId, threadId } = mailParams;
+export const sendGmail = async (mailParams: IMailParams, user: IUserDocument) => {
+  let totalSize = 0;
+  // 10mb
+  const limit = 1000000 * 10;
+  if (mailParams.attachments) {
+    for (const attach of mailParams.attachments) {
+      totalSize += attach.size;
 
+      if (attach.size > limit || totalSize > limit) {
+        throw new Error(`${attach.filename} file size exceeded`);
+      }
+    }
+  }
+
+  const { integrationId, threadId } = mailParams;
   const integration = await Integrations.findOne({ _id: integrationId });
 
   if (!integration || !integration.gmailData) {
@@ -103,10 +95,27 @@ export const sendGmail = async (mailParams: IMailParams) => {
   const credentials = await Accounts.getGmailCredentials(integration.gmailData.email);
 
   const fromEmail = integration.gmailData.email;
+
+  // save delivered email
+  const emailDelivery = {
+    fromEmail,
+    cocType: mailParams.cocType,
+    cocId: mailParams.cocId || '',
+    subject: mailParams.subject,
+    body: mailParams.body,
+    toEmails: mailParams.toEmails,
+    cc: mailParams.cc,
+    bcc: mailParams.bcc,
+    attachments: mailParams.attachments,
+    userId: user._id,
+  };
+
+  await EmailDeliveries.createEmailDelivery(emailDelivery);
+
   // get raw string encrypted by base64
   const raw = await encodeEmail({ fromEmail, ...mailParams });
 
-  await utils.sendEmail(credentials, raw, threadId);
+  await utils.sendEmail(integration._id, credentials, raw, threadId);
 
   return { status: 200, statusText: 'ok ' };
 };
@@ -128,7 +137,7 @@ export const mapHeaders = (headers: any) => {
 /**
  * Get headers specific values from gmail.users.messages.get response
  */
-const getHeaderProperties = (headers: any, messageId: string, threadId: string) => {
+const getHeaderProperties = (headers: any, messageId: string, threadId: string, labelIds: string[]) => {
   return {
     subject: headers.subject,
     from: headers.from,
@@ -140,6 +149,7 @@ const getHeaderProperties = (headers: any, messageId: string, threadId: string) 
     reply: headers['in-reply-to'],
     messageId,
     threadId,
+    labelIds,
   };
 };
 
@@ -184,14 +194,14 @@ const getBodyProperties = (headers: any, part: any, gmailData: IMsgGmail) => {
  * Parse result of users.messages.get response
  */
 export const parseMessage = (response: any) => {
-  const { id, threadId, payload } = response;
+  const { id, threadId, payload, labelIds } = response;
 
-  if (!payload) {
+  if (!payload || labelIds.includes('TRASH') || labelIds.includes('DRAFT')) {
     return;
   }
 
   let headers = mapHeaders(payload.headers);
-  let gmailData: IMsgGmail = getHeaderProperties(headers, id, threadId);
+  let gmailData: IMsgGmail = getHeaderProperties(headers, id, threadId, labelIds);
 
   let parts = [payload];
   let firstPartProcessed = false;
@@ -343,6 +353,7 @@ const getOrCreateConversation = async (
       if (conversation) {
         conversation.status = CONVERSATION_STATUSES.OPEN;
         conversation.content = content;
+        conversation.readUserIds = [];
         await conversation.save();
         return conversation;
       }
@@ -372,10 +383,10 @@ export const syncConversation = async (integrationId: string, gmailData: IMsgGma
     throw new Error('Empty gmail data');
   }
 
-  // check if message has arrived true return previous message instance
+  // check if message exists
   const prevMessage = await ConversationMessages.findOne({
     'gmailData.messageId': messageId,
-  }).sort({ createdAt: -1 });
+  });
 
   if (prevMessage) {
     return prevMessage;
@@ -430,10 +441,48 @@ export const getAttachment = async (conversationMessageId: string, attachmentId:
  */
 export const updateHistoryId = async integration => {
   const credentials = await Accounts.getGmailCredentials(integration.gmailData.email);
-  const { data } = await utils.callWatch(credentials);
+  const { data } = await utils.callWatch(credentials, integration._id);
 
   integration.gmailData.historyId = data.historyId;
   integration.gmailData.expiration = data.expiration;
 
   await integration.save();
+};
+
+/*
+ * store the historyId of the most recent message (the first message in the list response) for future partial synchronization
+ */
+export const updateHistoryByLastReceived = async (integrationId: string, historyId: string) => {
+  const integration = await Integrations.findOne({ _id: integrationId });
+
+  if (!integration || !integration.gmailData) {
+    throw new Error(`Integration not found id with ${integrationId}`);
+  }
+
+  integration.gmailData.historyId = historyId;
+  await integration.save();
+};
+
+/*
+ * refresh token and save when access_token expires
+ */
+export const refreshAccessToken = async (integrationId: string, tokens: any) => {
+  const integration = await Integrations.findOne({ _id: integrationId });
+  if (!integration || !integration.gmailData) {
+    throw new Error(`Integration not found id with ${integrationId}`);
+  }
+  const account = await Accounts.findOne({ _id: integration.gmailData.accountId });
+  if (!account) {
+    throw new Error(`Account not found id with ${integration.gmailData.accountId}`);
+  }
+
+  account.token = tokens.access_token;
+  if (tokens.refresh_token) {
+    account.tokenSecret = tokens.refresh_token;
+  }
+
+  if (tokens.expiry_date) {
+    account.expireDate = tokens.expiry_date;
+  }
+  await account.save();
 };

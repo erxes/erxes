@@ -1,6 +1,6 @@
 import { CONVERSATION_STATUSES } from '../../data/constants';
 import { conversationFactory, integrationFactory } from '../../db/factories';
-import { ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../../db/models';
+import { ConversationMessages, Conversations, Customers, Integrations } from '../../db/models';
 import { receiveDirectMessageInformation } from '../../trackers/twitter';
 
 describe('receive direct message response', () => {
@@ -22,7 +22,6 @@ describe('receive direct message response', () => {
     await Conversations.deleteMany({});
     await ConversationMessages.deleteMany({});
     await Customers.deleteMany({});
-    await ActivityLogs.deleteMany({});
   });
 
   test('reopen', async () => {
@@ -158,9 +157,6 @@ describe('receive direct message response', () => {
     expect(customer.links.twitter).toBe(`https://twitter.com/${data.sender.screen_name}`);
     expect(customer.twitterData.id).toBe(data.sender_id);
     expect(customer.twitterData.id_str).toBe(data.sender_id_str);
-
-    // 1 log
-    expect(await ActivityLogs.find().countDocuments()).toBe(1);
 
     // check message field values
     expect(message.createdAt).toBeDefined();

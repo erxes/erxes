@@ -3,7 +3,8 @@ import { EngageMessages, Users } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { awsRequests } from '../../../trackers/engageTracker';
 import { MESSAGE_KINDS, METHODS } from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission } from '../../permissions';
+import { getEnv } from '../../utils';
 import { send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -19,11 +20,8 @@ const engageMutations = {
 
     if (method === METHODS.EMAIL) {
       // Checking if configs exist
-      const { AWS_SES_CONFIG_SET = '', AWS_ENDPOINT = '' } = process.env;
-
-      if (AWS_SES_CONFIG_SET === '' || AWS_ENDPOINT === '') {
-        throw new Error('Could not locate configs on AWS SES');
-      }
+      getEnv({ name: 'AWS_SES_CONFIG_SET' });
+      getEnv({ name: 'AWS_ENDPOINT' });
 
       const user = await Users.findOne({ _id: fromUserId });
 
@@ -99,6 +97,11 @@ const engageMutations = {
   },
 };
 
-moduleRequireLogin(engageMutations);
+checkPermission(engageMutations, 'engageMessageAdd', 'engageMessageAdd');
+checkPermission(engageMutations, 'engageMessageEdit', 'engageMessageEdit');
+checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
+checkPermission(engageMutations, 'engageMessageSetLive', 'engageMessageSetLive');
+checkPermission(engageMutations, 'engageMessageSetPause', 'engageMessageSetPause');
+checkPermission(engageMutations, 'engageMessageSetLiveManual', 'engageMessageSetLiveManual');
 
 export default engageMutations;

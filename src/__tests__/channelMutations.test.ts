@@ -12,7 +12,7 @@ describe('mutations', () => {
     // Creating test data
     _channel = await channelFactory({});
     _integration = await integrationFactory({});
-    _user = await userFactory({ role: 'admin' });
+    _user = await userFactory({});
 
     context = { user: _user };
   });
@@ -39,6 +39,9 @@ describe('mutations', () => {
   `;
 
   test('Add channel', async () => {
+    process.env.DEFAULT_EMAIL_SERIVCE = '';
+    process.env.COMPANY_EMAIL_FROM = ' ';
+
     const args = {
       name: _channel.name,
       description: _channel.description,
@@ -66,6 +69,7 @@ describe('mutations', () => {
   });
 
   test('Edit channel', async () => {
+    process.env.COMPANY_EMAIL_FROM = ' ';
     const member = await userFactory({});
 
     const args = {

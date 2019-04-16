@@ -8,6 +8,7 @@ import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Companies, Customers, Notifications, Users } from '../db/models';
 import { IUserDocument } from '../db/models/definitions/users';
+import { can } from './permissions/utils';
 
 /*
  * Check that given file is not harmful
@@ -52,12 +53,10 @@ export const checkFile = async file => {
  * Save binary data to amazon s3
  */
 export const uploadFile = async (file: { name: string; path: string }): Promise<string> => {
-  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET = '', AWS_PREFIX = '' } = process.env;
-
-  // check credentials
-  if (!(AWS_ACCESS_KEY_ID || AWS_SECRET_ACCESS_KEY || AWS_BUCKET)) {
-    throw new Error('Security credentials are not configured');
-  }
+  const AWS_ACCESS_KEY_ID = getEnv({ name: 'AWS_ACCESS_KEY_ID' });
+  const AWS_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SECRET_ACCESS_KEY' });
+  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
+  const AWS_PREFIX = getEnv({ name: 'AWS_PREFIX', defaultValue: '' });
 
   // initialize s3
   const s3 = new AWS.S3({
@@ -117,14 +116,10 @@ const applyTemplate = async (data: any, templateName: string) => {
  * Create default or ses transporter
  */
 export const createTransporter = ({ ses }) => {
-  const { MAIL_SERVICE, MAIL_PORT, MAIL_USER, MAIL_PASS } = process.env;
-
   if (ses) {
-    const { AWS_SES_ACCESS_KEY_ID, AWS_SES_SECRET_ACCESS_KEY, AWS_REGION } = process.env;
-
-    if (!AWS_SES_ACCESS_KEY_ID || !AWS_SES_SECRET_ACCESS_KEY) {
-      throw new Error('Invalid SES configuration');
-    }
+    const AWS_SES_ACCESS_KEY_ID = getEnv({ name: 'AWS_SES_ACCESS_KEY_ID' });
+    const AWS_SES_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SES_SECRET_ACCESS_KEY' });
+    const AWS_REGION = getEnv({ name: 'AWS_REGION' });
 
     AWS.config.update({
       region: AWS_REGION,
@@ -137,12 +132,15 @@ export const createTransporter = ({ ses }) => {
     });
   }
 
-  if (!MAIL_SERVICE || !MAIL_PORT || !MAIL_USER || !MAIL_PASS) {
-    throw new Error('Invalid mail service configuration');
-  }
+  const MAIL_SERVICE = getEnv({ name: 'MAIL_SERVICE' });
+  const MAIL_PORT = getEnv({ name: 'MAIL_PORT' });
+  const MAIL_USER = getEnv({ name: 'MAIL_USER' });
+  const MAIL_PASS = getEnv({ name: 'MAIL_PASS' });
+  const MAIL_HOST = getEnv({ name: 'MAIL_HOST' });
 
   return nodemailer.createTransport({
     service: MAIL_SERVICE,
+    host: MAIL_HOST,
     port: MAIL_PORT,
     auth: {
       user: MAIL_USER,
@@ -164,10 +162,10 @@ export const sendEmail = async ({
   fromEmail?: string;
   title?: string;
   template?: { name?: string; data?: any; isCustom?: boolean };
-  subject?: string;
-  to?: string;
 }) => {
-  const { NODE_ENV, DEFAULT_EMAIL_SERVICE, COMPANY_EMAIL_FROM } = process.env;
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const DEFAULT_EMAIL_SERVICE = getEnv({ name: 'DEFAULT_EMAIL_SERVICE', defaultValue: '' });
+  const COMPANY_EMAIL_FROM = getEnv({ name: 'COMPANY_EMAIL_FROM' });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
@@ -270,7 +268,11 @@ export const sendNotification = async ({
  * and imports customers to the database
  */
 export const importXlsFile = async (file: any, type: string, { user }: { user: IUserDocument }) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    if (!(await can('importXlsFile', user._id))) {
+      return reject('Permission denied!');
+    }
+
     const readStream = fs.createReadStream(file.path);
 
     // Directory to save file
@@ -352,7 +354,7 @@ export const createXlsFile = async () => {
 export const generateXlsx = async (workbook: any, name: string): Promise<string> => {
   // Url to download xls file
   const url = `xlsTemplateOutputs/${name}.xlsx`;
-  const { DOMAIN } = process.env;
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   // Saving xls workbook to the directory
   await workbook.toFileAsync(`${__dirname}/../private/${url}`);
@@ -386,6 +388,39 @@ export const validateEmail = async email => {
   }
 
   return true;
+};
+
+export const authCookieOptions = () => {
+  const oneDay = 1 * 24 * 3600 * 1000; // 1 day
+
+  const cookieOptions = {
+    httpOnly: true,
+    expires: new Date(Date.now() + oneDay),
+    maxAge: oneDay,
+    secure: false,
+  };
+
+  const HTTPS = getEnv({ name: 'HTTPS', defaultValue: 'false' });
+
+  if (HTTPS === 'true') {
+    cookieOptions.secure = true;
+  }
+
+  return cookieOptions;
+};
+
+export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: string }): string => {
+  const value = process.env[name];
+
+  if (!value && typeof defaultValue !== 'undefined') {
+    return defaultValue;
+  }
+
+  if (!value) {
+    console.log(`Missing environment variable configuration for ${name}`);
+  }
+
+  return value || '';
 };
 
 export default {

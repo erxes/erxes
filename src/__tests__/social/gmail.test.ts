@@ -1,12 +1,21 @@
 import * as sinon from 'sinon';
 import { CONVERSATION_STATUSES } from '../../data/constants';
-import { accountFactory, conversationFactory, customerFactory, integrationFactory } from '../../db/factories';
-import { ConversationMessages, Conversations, Integrations } from '../../db/models';
+import {
+  accountFactory,
+  conversationFactory,
+  conversationMessageFactory,
+  customerFactory,
+  integrationFactory,
+  userFactory,
+} from '../../db/factories';
+import { Accounts, ConversationMessages, Conversations, Integrations } from '../../db/models';
 import {
   createMessage,
+  getAttachment,
   getGmailUpdates,
   getOrCreateCustomer,
   parseMessage,
+  refreshAccessToken,
   sendGmail,
   syncConversation,
 } from '../../trackers/gmail';
@@ -37,8 +46,8 @@ describe('gmail integration tests', () => {
     };
 
     // must be created new conversation, new message
-    expect(await Conversations.find({}).count()).toBe(0);
-    expect(await ConversationMessages.find({}).count()).toBe(0);
+    expect(await Conversations.find({}).countDocuments()).toBe(0);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(0);
 
     await syncConversation(integration._id, gmailData);
 
@@ -49,7 +58,7 @@ describe('gmail integration tests', () => {
     }
 
     expect(conversation.status).toBe(CONVERSATION_STATUSES.NEW);
-    expect(await ConversationMessages.find({}).count()).toBe(1);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(1);
 
     gmailData = {
       from: 'test@gmail.com',
@@ -69,8 +78,8 @@ describe('gmail integration tests', () => {
 
     expect(conversation.status).toBe(CONVERSATION_STATUSES.OPEN);
     expect(conversation.content).toBe(gmailData.subject);
-    expect(await Conversations.find({}).count()).toBe(1);
-    expect(await ConversationMessages.find({}).count()).toBe(2);
+    expect(await Conversations.find({}).countDocuments()).toBe(1);
+    expect(await ConversationMessages.find({}).countDocuments()).toBe(2);
   });
 
   test('Create message', async () => {
@@ -312,8 +321,10 @@ describe('gmail integration tests', () => {
       cocId: 'customerId',
     };
 
+    const user = await userFactory({});
+
     try {
-      await sendGmail(mailParams);
+      await sendGmail(mailParams, user);
     } catch (e) {
       expect(e.message).toBe(`Integration not found id with ${mailParams.integrationId}`);
     }
@@ -333,8 +344,97 @@ describe('gmail integration tests', () => {
     mailParams.integrationId = integration._id;
     const mock = sinon.stub(utils, 'sendEmail').callsFake();
 
-    await sendGmail(mailParams);
+    await sendGmail(mailParams, user);
 
     mock.restore(); // unwraps the spy
+  });
+
+  test('Get attachment', async () => {
+    const conversationMessageId = 'conversationMessageId';
+    const attachmentId = 'attachmentId';
+
+    try {
+      await getAttachment(conversationMessageId, attachmentId);
+    } catch (e) {
+      expect(e.message).toBe(`Conversation message not found id with ${conversationMessageId}`);
+    }
+
+    const account = await accountFactory({
+      uid: 'admin@erxes.io',
+      kind: 'gmail',
+    });
+
+    const integration = await integrationFactory({
+      gmailData: {
+        email: 'admin@erxes.io',
+        accountId: account._id,
+      },
+    });
+    const conversation = await conversationFactory({
+      integrationId: integration._id,
+    });
+    const message = await conversationMessageFactory({
+      conversationId: conversation._id,
+      gmailData: {
+        messageId: 'messageId',
+        attachments: [],
+        labelIds: [],
+      },
+    });
+
+    const getGmailAttachment = jest.spyOn(utils, 'getGmailAttachment').mockImplementation(() => ({}));
+
+    await getAttachment(message._id, attachmentId);
+
+    expect(getGmailAttachment.mock.calls.length).toBe(1);
+  });
+
+  test('Refresh access token', async () => {
+    const integration = await integrationFactory({
+      gmailData: {
+        email: 'admin@erxes.io',
+        accountId: 'accountId',
+      },
+    });
+
+    const integrationId = 'integrationId';
+    const tokens = {
+      access_token: 'access_token',
+      refresh_token: 'refresh_token',
+      expiry_date: 'expiry_date',
+    };
+
+    try {
+      await refreshAccessToken(integrationId, tokens);
+    } catch (e) {
+      expect(e.message).toBe(`Integration not found id with ${integrationId}`);
+    }
+
+    if (!integration || !integration.gmailData) {
+      throw new Error('Integration not found');
+    }
+
+    try {
+      await refreshAccessToken(integration.id, tokens);
+    } catch (e) {
+      expect(e.message).toBe(`Account not found id with ${integration.gmailData.accountId}`);
+    }
+
+    const account = await accountFactory({ kind: 'gmail' });
+    const _integration = await integrationFactory({
+      gmailData: {
+        email: 'admin@erxes.io',
+        accountId: account._id,
+      },
+    });
+
+    await refreshAccessToken(_integration.id, tokens);
+    const _account = await Accounts.findOne({ _id: account._id });
+    if (!_account) {
+      throw new Error('Account not found');
+    }
+    expect(_account.token).toBe(tokens.access_token);
+    expect(_account.tokenSecret).toBe(tokens.refresh_token);
+    expect(_account.expireDate).toBe(tokens.expiry_date);
   });
 });

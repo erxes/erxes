@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
 import { Forms, Integrations, Segments } from '../../../db/models';
+import { STATUSES } from '../../../db/models/definitions/constants';
 import QueryBuilder from './segmentQueryBuilder';
 
 interface IIn {
@@ -15,7 +16,6 @@ export interface IListArgs {
   ids?: string[];
   searchValue?: string;
   brand?: string;
-  numberegration?: string;
   form?: string;
   startDate?: string;
   endDate?: string;
@@ -44,10 +44,11 @@ export default class Builder {
     this.params = params;
   }
 
-  public defaultFilters(): { $nor: [{ [index: string]: IIn | any }] } {
+  public defaultFilters(): { status: {}; $nor: [{ [index: string]: IIn | any }] } {
     const emptySelector = { $in: [null, ''] };
 
     return {
+      status: { $ne: STATUSES.DELETED },
       $nor: [
         {
           firstName: emptySelector,

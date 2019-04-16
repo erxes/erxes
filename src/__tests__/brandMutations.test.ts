@@ -21,7 +21,7 @@ describe('Brands mutations', () => {
   beforeEach(async () => {
     // Creating test data
     _brand = await brandFactory({});
-    _user = await userFactory({ role: 'admin' });
+    _user = await userFactory({});
     _integration = await integrationFactory({});
 
     context = { user: _user };

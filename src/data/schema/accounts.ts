@@ -5,11 +5,6 @@ export const types = `
     name: String
     id: String
   }
-
-  input TwitterIntegrationAuthParams {
-    oauth_token: String!
-    oauth_verifier: String!
-  }
 `;
 
 export const queries = `
@@ -18,6 +13,4 @@ export const queries = `
 
 export const mutations = `
   accountsRemove(_id: String!): JSON
-  accountsAddTwitter(queryParams: TwitterIntegrationAuthParams): Account
-  accountsAddGmail(code: String!): Account
 `;

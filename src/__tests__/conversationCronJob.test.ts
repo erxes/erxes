@@ -51,6 +51,9 @@ describe('Cronjob conversation send email', () => {
   });
 
   test('Conversations utils', async () => {
+    process.env.DEFAULT_EMAIL_SERIVCE = ' ';
+    process.env.COMPANY_EMAIL_FROM = ' ';
+
     const spyEmail = jest.spyOn(utils, 'sendEmail');
 
     const spyNewOrOpenConversation = jest.spyOn(Conversations, 'newOrOpenConversation');
@@ -100,7 +103,7 @@ describe('Cronjob conversation send email', () => {
     data.answers = [answer];
 
     const expectedArgs = {
-      to: _customer.primaryEmail,
+      toEmails: [_customer.primaryEmail],
       title: `Reply from "${_brand.name}"`,
       template: {
         name: 'conversationCron',
@@ -113,7 +116,7 @@ describe('Cronjob conversation send email', () => {
 
     const calledArgs = spyEmail.mock.calls[0][0];
 
-    expect(expectedArgs.to).toBe(calledArgs.to);
+    expect(expectedArgs.toEmails[0]).toBe(calledArgs.toEmails[0]);
     expect(expectedArgs.title).toBe(calledArgs.title);
     expect(expectedArgs.template.name).toBe(calledArgs.template.name);
     expect(expectedArgs.template.isCustom).toBe(calledArgs.template.isCustom);

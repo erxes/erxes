@@ -1,4 +1,5 @@
 import * as graph from 'fbgraph';
+import { getEnv } from '../data/utils';
 import { Accounts } from '../db/models';
 import { IFbUser } from '../db/models/definitions/conversationMessages';
 import { receiveWebhookResponse } from './facebook';
@@ -37,7 +38,7 @@ export const graphRequest = {
  * Listen for facebook webhook response
  */
 export const trackIntegrations = expressApp => {
-  const { FACEBOOK_APP_ID } = process.env;
+  const FACEBOOK_APP_ID = getEnv({ name: 'FACEBOOK_APP_ID' });
 
   expressApp.get(`/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, (req, res) => {
     const query = req.query;
@@ -65,12 +66,19 @@ export const trackIntegrations = expressApp => {
 
 export const trackFbLogin = expressApp => {
   expressApp.get('/fblogin', (req, res) => {
-    const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, DOMAIN, MAIN_APP_DOMAIN, FACEBOOK_PERMISSIONS } = process.env;
+    const FACEBOOK_APP_ID = getEnv({ name: 'FACEBOOK_APP_ID' });
+    const FACEBOOK_APP_SECRET = getEnv({ name: 'FACEBOOK_APP_SECRET' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
+    const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+    const FACEBOOK_PERMISSIONS = getEnv({
+      name: 'FACEBOOK_PERMISSIONS',
+      defaultValue: 'manage_pages, pages_show_list, pages_messaging',
+    });
 
     const conf = {
       client_id: FACEBOOK_APP_ID,
       client_secret: FACEBOOK_APP_SECRET,
-      scope: FACEBOOK_PERMISSIONS || 'manage_pages, pages_show_list, pages_messaging',
+      scope: FACEBOOK_PERMISSIONS,
       redirect_uri: `${DOMAIN}/fblogin`,
     };
 
@@ -113,12 +121,18 @@ export const trackFbLogin = expressApp => {
 
         const name = `${userAccount.first_name} ${userAccount.last_name}`;
 
-        await Accounts.createAccount({
-          token: access_token,
-          name,
-          kind: 'facebook',
-          uid: userAccount.id,
-        });
+        const account = await Accounts.findOne({ uid: userAccount.id });
+
+        if (account) {
+          await Accounts.updateOne({ _id: account._id }, { $set: { token: access_token } });
+        } else {
+          await Accounts.createAccount({
+            token: access_token,
+            name,
+            kind: 'facebook',
+            uid: userAccount.id,
+          });
+        }
 
         return res.redirect(`${MAIN_APP_DOMAIN}/settings/integrations?fbAuthorized=true`);
       },
@@ -150,7 +164,7 @@ export interface IComment {
   from: { name: string; id: string };
   message: string;
   attachment_url: string;
-  created_time?: string;
+  created_time?: number;
   summary: ISummary;
   comments: IComments;
 }

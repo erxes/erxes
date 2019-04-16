@@ -4,11 +4,13 @@ import { makeExecutableSchema } from 'graphql-tools';
 import mongoose = require('mongoose');
 import resolvers from '../data/resolvers';
 import typeDefs from '../data/schema';
+import { getEnv } from '../data/utils';
 import { userFactory } from './factories';
 
 dotenv.config();
 
-const { NODE_ENV, MONGO_URL = '' } = process.env;
+const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+const MONGO_URL = getEnv({ name: 'MONGO_URL', defaultValue: '' });
 
 mongoose.set('useFindAndModify', false);
 
@@ -30,7 +32,7 @@ mongoose.connection
 export function connect() {
   return mongoose.connect(
     MONGO_URL,
-    { useNewUrlParser: true, useCreateIndex: true },
+    { useNewUrlParser: true, useCreateIndex: true, poolSize: 100, autoReconnect: true },
   );
 }
 

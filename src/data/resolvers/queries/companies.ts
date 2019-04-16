@@ -1,6 +1,7 @@
 import { Brands, Companies, Customers, Integrations, Segments, Tags } from '../../../db/models';
-import { COC_CONTENT_TYPES, COC_LEAD_STATUS_TYPES, COC_LIFECYCLE_STATE_TYPES, TAG_TYPES } from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
+import { STATUSES } from '../../../db/models/definitions/constants';
+import { ACTIVITY_CONTENT_TYPES, COC_LEAD_STATUS_TYPES, COC_LIFECYCLE_STATE_TYPES, TAG_TYPES } from '../../constants';
+import { checkPermission, requireLogin } from '../../permissions';
 import { cocsExport } from './cocExport';
 import QueryBuilder from './segmentQueryBuilder';
 import { paginate } from './utils';
@@ -57,7 +58,9 @@ const brandFilter = async (brandId: string): Promise<IBrandFilter> => {
 };
 
 const listQuery = async (params: IListArgs) => {
-  let selector: any = {};
+  let selector: any = {
+    status: { $ne: STATUSES.DELETED },
+  };
 
   // Filter by segments
   if (params.segment) {
@@ -134,7 +137,7 @@ const countBySegment = async (args: ICountArgs): Promise<ICountBy> => {
 
   // Count companies by segments =========
   const segments = await Segments.find({
-    contentType: COC_CONTENT_TYPES.COMPANY,
+    contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
   });
 
   for (const s of segments) {
@@ -264,6 +267,12 @@ const companyQueries = {
   },
 };
 
-moduleRequireLogin(companyQueries);
+requireLogin(companyQueries, 'companiesMain');
+requireLogin(companyQueries, 'companyCounts');
+requireLogin(companyQueries, 'companyDetail');
+
+checkPermission(companyQueries, 'companies', 'showCompanies', []);
+checkPermission(companyQueries, 'companiesMain', 'showCompanies', { list: [], totalCount: 0 });
+checkPermission(companyQueries, 'companiesExport', 'exportCompanies');
 
 export default companyQueries;

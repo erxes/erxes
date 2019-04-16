@@ -253,7 +253,7 @@ describe('facebook integration: get or create conversation', () => {
       item: 'status',
       video_id: '12331213',
       link: 'video link',
-      created_time: '1533712330',
+      created_time: 1533712330,
     };
 
     const response = await saveWebhookResponse.handlePosts(postParams);
@@ -275,7 +275,7 @@ describe('facebook integration: get or create conversation', () => {
       verb: 'add',
       parent_id: '12344',
       item: 'status',
-      created_time: '1533712330',
+      created_time: 1533712330,
     };
 
     const response = await saveWebhookResponse.handleComments(commentParams);

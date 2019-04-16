@@ -1,6 +1,5 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import { ROLES } from './constants';
 
 export interface IEmailSignature {
   brandId?: string;
@@ -36,8 +35,10 @@ export interface IUser {
   password: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
-  role?: string;
+  registrationToken?: string;
+  registrationTokenExpires?: Date;
   isOwner?: boolean;
+  hasSeenOnBoard?: boolean;
   email?: string;
   getNotificationByEmail?: boolean;
   emailSignatures?: IEmailSignature[];
@@ -45,6 +46,7 @@ export interface IUser {
   details?: IDetail;
   links?: ILink;
   isActive?: boolean;
+  groupIds?: string[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -52,6 +54,7 @@ export interface IUserDocument extends IUser, Document {
   emailSignatures?: IEmailSignatureDocument[];
   details?: IDetailDocument;
   links?: ILinkDocument;
+  groupIds?: string[];
 }
 
 // Mongoose schemas ===============================
@@ -94,22 +97,21 @@ export const userSchema = new Schema({
   username: field({ type: String }),
   password: field({ type: String }),
   resetPasswordToken: field({ type: String }),
+  registrationToken: field({ type: String }),
+  registrationTokenExpires: field({ type: Date }),
   resetPasswordExpires: field({ type: Date }),
-  role: field({
-    type: String,
-    enum: [ROLES.ADMIN, ROLES.CONTRIBUTOR],
-  }),
   isOwner: field({ type: Boolean }),
+  hasSeenOnBoard: field({ type: Boolean }),
   email: field({
     type: String,
-    lowercase: true,
     unique: true,
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
   }),
   getNotificationByEmail: field({ type: Boolean }),
   emailSignatures: field({ type: [emailSignatureSchema] }),
   starredConversationIds: field({ type: [String] }),
-  details: field({ type: detailSchema }),
+  details: field({ type: detailSchema, default: {} }),
   links: field({ type: linkSchema, default: {} }),
   isActive: field({ type: Boolean, default: true }),
+  groupIds: field({ type: [String] }),
 });

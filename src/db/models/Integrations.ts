@@ -2,6 +2,7 @@ import { Model, model } from 'mongoose';
 import 'mongoose-type-email';
 import { Accounts, ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from '../../data/constants';
+import { getEnv } from '../../data/utils';
 import { getPageInfo, subscribePage } from '../../trackers/facebookTracker';
 import {
   IFacebookData,
@@ -130,11 +131,8 @@ export const loadClass = () => {
       brandId: string;
       facebookData: IFacebookData;
     }) {
-      const { FACEBOOK_APP_ID, DOMAIN } = process.env;
-
-      if (!FACEBOOK_APP_ID || !DOMAIN) {
-        throw new Error('Invalid configuration');
-      }
+      getEnv({ name: 'FACEBOOK_APP_ID' });
+      getEnv({ name: 'DOMAIN' });
 
       const { pageIds, accountId } = facebookData;
 

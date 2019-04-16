@@ -1,16 +1,25 @@
 export const types = ``;
 
 const params = `
-  integrationType: String,
-  brandId: String,
+  integrationIds: String,
+  brandIds: String,
   startDate: String,
   endDate: String
 `;
 
+const dealParams = `
+  pipelineIds: String,
+  boardId: String,
+  startDate: String,
+  endDate: String
+  status: String
+`;
+
 export const queries = `
   insights(${params}): JSON
-  insightsPunchCard(type: String, integrationType: String, brandId: String, endDate: String): JSON
-  insightsMain(type: String, ${params}): JSON
+  insightsPunchCard(type: String, ${params}): JSON
+  insightsTrend(type: String, ${params}): JSON
+  insightsSummaryData(type: String, ${params}): JSON
   insightsConversation(${params}): JSON
   insightsFirstResponse(${params}): JSON
   insightsResponseClose(${params}): JSON
@@ -18,4 +27,8 @@ export const queries = `
   insightActivityReportExport(${params}): JSON
   insightFirstResponseReportExport(type: String, userId: String, ${params}): JSON
   insightTagReportExport(${params}): JSON
+
+  dealInsightsMain(${dealParams}): JSON
+  dealInsightsPunchCard(${dealParams}): JSON
+  dealInsightsByTeamMember(${dealParams}): JSON
 `;

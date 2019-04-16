@@ -46,7 +46,7 @@ export interface IGmail {
   threadId?: string;
   messageId?: string;
   headerId?: string;
-  from?: string;
+  from: string;
   to?: string;
   cc?: string;
   bcc?: string;
@@ -56,6 +56,7 @@ export interface IGmail {
   textPlain?: string;
   textHtml?: string;
   attachments?: IGmailAttachment[];
+  labelIds?: string[];
 }
 
 interface IFacebookDataDocument extends IFacebook, Document {}
@@ -287,16 +288,23 @@ const gmailSchema = new Schema(
       type: [gmailAttachmentSchema],
       optional: true,
     }),
+    labelIds: field({
+      type: [String],
+      optional: true,
+    }),
   },
   { _id: false },
 );
 
-const engageDataRuleSchema = new Schema({
-  kind: field({ type: String }),
-  text: field({ type: String }),
-  condition: field({ type: String }),
-  value: field({ type: String, optional: true }),
-});
+const engageDataRuleSchema = new Schema(
+  {
+    kind: field({ type: String }),
+    text: field({ type: String }),
+    condition: field({ type: String }),
+    value: field({ type: String, optional: true }),
+  },
+  { _id: false },
+);
 
 const engageDataSchema = new Schema(
   {
@@ -316,12 +324,12 @@ export const messageSchema = new Schema({
   content: field({ type: String }),
   attachments: [attachmentSchema],
   mentionedUserIds: field({ type: [String] }),
-  conversationId: field({ type: String }),
+  conversationId: field({ type: String, index: true }),
   internal: field({ type: Boolean }),
   customerId: field({ type: String }),
   fromBot: field({ type: Boolean }),
   userId: field({ type: String }),
-  createdAt: field({ type: Date }),
+  createdAt: field({ type: Date, index: true }),
   isCustomerRead: field({ type: Boolean }),
   formWidgetData: field({ type: Object }),
   messengerAppData: field({ type: Object }),

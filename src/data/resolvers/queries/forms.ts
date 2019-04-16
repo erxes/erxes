@@ -1,14 +1,12 @@
 import { Forms } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 
 const formQueries = {
   /**
    * Forms list
    */
-  async forms() {
-    const forms = Forms.find({});
-
-    return forms.sort({ title: 1 });
+  forms() {
+    return Forms.find({}).sort({ title: 1 });
   },
 
   /**
@@ -19,6 +17,7 @@ const formQueries = {
   },
 };
 
-moduleRequireLogin(formQueries);
+requireLogin(formQueries, 'formDetail');
+checkPermission(formQueries, 'forms', 'showForms', []);
 
 export default formQueries;

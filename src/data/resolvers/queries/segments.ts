@@ -1,5 +1,5 @@
 import { Segments } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 
 const segmentQueries = {
   /**
@@ -12,8 +12,8 @@ const segmentQueries = {
   /**
    * Only segment that has no sub segments
    */
-  segmentsGetHeads() {
-    return Segments.find({ subOf: { $exists: false } });
+  async segmentsGetHeads() {
+    return Segments.find({ $or: [{ subOf: { $exists: false } }, { subOf: '' }] });
   },
 
   /**
@@ -24,6 +24,9 @@ const segmentQueries = {
   },
 };
 
-moduleRequireLogin(segmentQueries);
+requireLogin(segmentQueries, 'segmentsGetHeads');
+requireLogin(segmentQueries, 'segmentDetail');
+
+checkPermission(segmentQueries, 'segments', 'showSegments', []);
 
 export default segmentQueries;

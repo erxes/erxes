@@ -1,5 +1,5 @@
 import { Products } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 const productQueries = {
@@ -38,6 +38,7 @@ const productQueries = {
   },
 };
 
-moduleRequireLogin(productQueries);
+requireLogin(productQueries, 'productsTotalCount');
+checkPermission(productQueries, 'products', 'showProducts', []);
 
 export default productQueries;

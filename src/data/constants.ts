@@ -164,7 +164,7 @@ export const FIELD_CONTENT_TYPES = {
   ALL: ['form', 'customer', 'company'],
 };
 
-export const COC_CONTENT_TYPES = {
+export const ACTIVITY_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   USER: 'user',
@@ -195,11 +195,6 @@ export const COC_LIFECYCLE_STATE_TYPES = [
   'evangelist',
   'other',
 ];
-
-export const ROLES = {
-  ADMIN: 'admin',
-  CONTRIBUTOR: 'contributor',
-};
 
 export const PUBLISH_STATUSES = {
   DRAFT: 'draft',
@@ -328,3 +323,9 @@ export const PROBABILITY = {
 };
 
 export const FACEBOOK_POST_TYPES = ['status', 'video', 'photo', 'post', 'share'];
+
+export const INSIGHT_TYPES = {
+  DEAL: 'deal',
+  CONVERSATION: 'conversation',
+  ALL: ['deal', 'conversation'],
+};

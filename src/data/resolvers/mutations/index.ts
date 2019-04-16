@@ -1,5 +1,4 @@
 import accounts from './accounts';
-import activityLogs from './activityLogs';
 import brands from './brands';
 import channels from './channels';
 import companies from './companies';
@@ -17,6 +16,7 @@ import internalNotes from './internalNotes';
 import knowledgeBase from './knowledgeBase';
 import messengerApps from './messengerApps';
 import notifications from './notifications';
+import { permissionMutations as permissions, usersGroupMutations as usersGroups } from './permissions';
 import products from './products';
 import responseTemplates from './responseTemplates';
 import scripts from './scripts';
@@ -44,11 +44,12 @@ export default {
   ...integrations,
   ...notifications,
   ...knowledgeBase,
-  ...activityLogs,
   ...deals,
   ...products,
   ...configs,
   ...fieldsgroups,
   ...importHistory,
   ...messengerApps,
+  ...permissions,
+  ...usersGroups,
 };

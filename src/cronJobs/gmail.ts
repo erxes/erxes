@@ -3,7 +3,7 @@ import { Integrations } from '../db/models';
 import { updateHistoryId } from '../trackers/gmail';
 
 /**
- * Send conversation messages to customer
+ * notify user to google push notification
  */
 export const callGmailUsersWatch = async () => {
   const integrations = await Integrations.find({
@@ -27,7 +27,7 @@ export const callGmailUsersWatch = async () => {
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
 
-schedule.scheduleJob('* 45 23 * *', () => {
+schedule.scheduleJob('0 22 * * *', () => {
   callGmailUsersWatch();
 });
 

@@ -1,17 +1,15 @@
 import { OAuth } from 'oauth';
 import * as Twit from 'twit';
 import { INTEGRATION_KIND_CHOICES } from '../data/constants';
+import { getEnv } from '../data/utils';
 import { Accounts, Integrations } from '../db/models';
 import { IAccountDocument } from '../db/models/definitions/accounts';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { receiveDirectMessageInformation, receiveTimelineInformation, twitMap } from './twitter';
 
 const trackIntegration = (account: IAccountDocument, integration: IIntegrationDocument) => {
-  const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET } = process.env;
-
-  if (!TWITTER_CONSUMER_KEY || !TWITTER_CONSUMER_SECRET) {
-    return;
-  }
+  const TWITTER_CONSUMER_KEY = getEnv({ name: 'TWITTER_CONSUMER_KEY' });
+  const TWITTER_CONSUMER_SECRET = getEnv({ name: 'TWITTER_CONSUMER_SECRET' });
 
   // Twit instance
   const twit = new Twit({
@@ -44,7 +42,9 @@ const trackIntegration = (account: IAccountDocument, integration: IIntegrationDo
 
 // twitter oauth ===============
 const getOauth = () => {
-  const { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_REDIRECT_URL } = process.env;
+  const TWITTER_CONSUMER_KEY = getEnv({ name: 'TWITTER_CONSUMER_KEY' });
+  const TWITTER_CONSUMER_SECRET = getEnv({ name: 'TWITTER_CONSUMER_SECRET' });
+  const TWITTER_REDIRECT_URL = getEnv({ name: 'TWITTER_REDIRECT_URL' });
 
   return new OAuth(
     'https://api.twitter.com/oauth/request_token',

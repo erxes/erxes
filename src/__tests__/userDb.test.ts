@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { userFactory } from '../db/factories';
+import * as moment from 'moment';
+import { userFactory, usersGroupFactory } from '../db/factories';
 import { Users } from '../db/models';
 
 beforeAll(() => {
@@ -39,7 +40,6 @@ describe('User db utils', () => {
     expect(userObj._id).toBeDefined();
     expect(userObj.username).toBe(_user.username);
     expect(userObj.email).toBe('qwerty@qwerty.com');
-    expect(userObj.role).toBe(_user.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(_user.details.position);
     expect(userObj.details.fullName).toBe(_user.details.fullName);
@@ -114,6 +114,133 @@ describe('User db utils', () => {
     }
   });
 
+  test('createUserWithConfirmation', async () => {
+    const group = await usersGroupFactory();
+    const token = await Users.createUserWithConfirmation({ email: '123@gmail.com', groupId: group._id });
+
+    const userObj = await Users.findOne({ registrationToken: token }).lean();
+
+    if (!userObj) {
+      throw new Error('User not found');
+    }
+
+    expect(userObj).toBeDefined();
+    expect(userObj._id).toBeDefined();
+    expect(userObj.groupIds).toEqual([group._id]);
+    expect(userObj.registrationToken).toBeDefined();
+  });
+
+  test('updateOnBoardSeen', async () => {
+    const user = await userFactory({});
+
+    await Users.updateOnBoardSeen({ _id: user._id });
+
+    const userObj = await Users.findOne({ _id: user._id });
+
+    if (!userObj) {
+      throw new Error('User not found');
+    }
+
+    expect(userObj.hasSeenOnBoard).toBeTruthy();
+  });
+
+  test('confirmInvitation', async () => {
+    const email = '123@gmail.com';
+    const token = 'token';
+
+    let userObj = await userFactory({
+      email,
+      registrationToken: token,
+      registrationTokenExpires: moment(Date.now())
+        .add(7, 'days')
+        .toDate(),
+    });
+
+    if (!userObj) {
+      throw new Error('User not found');
+    }
+
+    await Users.confirmInvitation({
+      token,
+      password: '123',
+      passwordConfirmation: '123',
+      fullName: 'fullname',
+      username: 'username',
+    });
+
+    const result = await Users.findOne({
+      _id: userObj._id,
+    });
+
+    if (!result || !result.details) {
+      throw new Error('User not found');
+    }
+
+    expect(result.password).toBeDefined();
+    expect(result.details.fullName).toBe('fullname');
+    expect(result.username).toBe('username');
+
+    await Users.remove({ _id: userObj._id });
+
+    userObj = await userFactory({
+      email,
+      registrationToken: token,
+      registrationTokenExpires: moment(Date.now())
+        .add(7, 'days')
+        .toDate(),
+    });
+
+    try {
+      await Users.confirmInvitation({
+        token: '123321312312',
+        password: '',
+        passwordConfirmation: '',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Token is invalid or has expired');
+    }
+
+    try {
+      await Users.confirmInvitation({
+        token,
+        password: '',
+        passwordConfirmation: '',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Password can not be empty');
+    }
+
+    try {
+      await Users.confirmInvitation({
+        token,
+        password: '123',
+        passwordConfirmation: '1234',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Password does not match');
+    }
+
+    await Users.update(
+      { _id: userObj._id },
+      {
+        $set: {
+          registrationTokenExpires: moment(Date.now()).subtract(7, 'days'),
+        },
+      },
+    );
+
+    // Checking expired token
+    try {
+      await Users.confirmInvitation({
+        token,
+        password: '123',
+        passwordConfirmation: '123',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Token is invalid or has expired');
+    }
+  });
+
   test('Update user', async () => {
     const updateDoc = await userFactory({});
 
@@ -140,7 +267,6 @@ describe('User db utils', () => {
 
     expect(userObj.username).toBe(updateDoc.username);
     expect(userObj.email).toBe('123@gmail.com');
-    expect(userObj.role).toBe(userObj.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
@@ -163,17 +289,48 @@ describe('User db utils', () => {
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
   });
 
-  test('Remove user', async () => {
-    const deactivatedUser = await Users.removeUser(_user._id);
+  test('Set user to active', async () => {
+    // User not found
+    try {
+      await Users.setUserActiveOrInactive('noid');
+    } catch (e) {
+      expect(e.message).toBe('User not found');
+    }
+
+    // Can not remove owner
+    try {
+      const user = await userFactory({});
+      await Users.setUserActiveOrInactive(user._id);
+    } catch (e) {
+      expect(e.message).toBe('Can not deactivate owner');
+    }
+
+    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1, isOwner: false } });
+
+    const deactivatedUser = await Users.setUserActiveOrInactive(_user._id);
+
     // ensure deactivated
     expect(deactivatedUser.isActive).toBe(false);
   });
 
+  test('Set user to inactive', async () => {
+    await Users.updateOne(
+      { _id: _user._id },
+      { $unset: { registrationToken: 1 }, $set: { isActive: true, isOwner: false } },
+    );
+
+    const activatedUser = await Users.setUserActiveOrInactive(_user._id);
+
+    // ensure deactivated
+    expect(activatedUser.isActive).toBe(false);
+  });
+
   test('Edit profile', async () => {
     const updateDoc = await userFactory({});
+    const email = 'testEmail@yahoo.com';
 
     await Users.editProfile(_user._id, {
-      email: 'testEmail@yahoo.com',
+      email,
       username: updateDoc.username,
       details: updateDoc.details,
       links: updateDoc.links,
@@ -189,7 +346,7 @@ describe('User db utils', () => {
     }
     // TODO: find out why email field lowered automatically after mongoose v5.x
     expect(userObj.username).toBe(updateDoc.username);
-    expect(userObj.email).toBe('testemail@yahoo.com');
+    expect(userObj.email).toBe(email);
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);

@@ -58,6 +58,9 @@ describe('Conversation message mutations', () => {
   });
 
   test('Add conversation message', async () => {
+    process.env.DEFAULT_EMAIL_SERIVCE = ' ';
+    process.env.COMPANY_EMAIL_FROM = ' ';
+
     const args = {
       conversationId: _conversation._id,
       content: _conversationMessage.content,
@@ -110,6 +113,9 @@ describe('Conversation message mutations', () => {
   });
 
   test('Tweet conversation', async () => {
+    process.env.DEFAULT_EMAIL_SERIVCE = ' ';
+    process.env.COMPANY_EMAIL_FROM = ' ';
+
     const twit = {};
 
     twitMap[_integrationTwitter._id] = twit;
@@ -245,6 +251,9 @@ describe('Conversation message mutations', () => {
   });
 
   test('Assign conversation', async () => {
+    process.env.DEFAULT_EMAIL_SERIVCE = ' ';
+    process.env.COMPANY_EMAIL_FROM = ' ';
+
     const args = {
       conversationIds: [_conversation._id],
       assignedUserId: _user._id,
@@ -290,6 +299,9 @@ describe('Conversation message mutations', () => {
   });
 
   test('Change conversation status', async () => {
+    process.env.DEFAULT_EMAIL_SERIVCE = ' ';
+    process.env.COMPANY_EMAIL_FROM = ' ';
+
     const args = {
       _ids: [_conversation._id],
       status: 'closed',
@@ -309,6 +321,9 @@ describe('Conversation message mutations', () => {
   });
 
   test('Mark conversation as read', async () => {
+    process.env.DEFAULT_EMAIL_SERIVCE = ' ';
+    process.env.COMPANY_EMAIL_FROM = ' ';
+
     const mutation = `
       mutation conversationMarkAsRead($_id: String) {
         conversationMarkAsRead(_id: $_id) {

@@ -1,7 +1,7 @@
-import { ActivityLogs, Companies } from '../../../db/models';
+import { Companies } from '../../../db/models';
 import { ICompany } from '../../../db/models/definitions/companies';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { moduleRequireLogin } from '../../permissions';
+import { checkPermission } from '../../permissions';
 
 interface ICompaniesEdit extends ICompany {
   _id: string;
@@ -13,8 +13,6 @@ const companyMutations = {
    */
   async companiesAdd(_root, doc: ICompany, { user }: { user: IUserDocument }) {
     const company = await Companies.createCompany(doc, user);
-
-    await ActivityLogs.createCompanyRegistrationLog(company, user);
 
     return company;
   },
@@ -53,6 +51,10 @@ const companyMutations = {
   },
 };
 
-moduleRequireLogin(companyMutations);
+checkPermission(companyMutations, 'companiesAdd', 'companiesAdd');
+checkPermission(companyMutations, 'companiesEdit', 'companiesEdit');
+checkPermission(companyMutations, 'companiesEditCustomers', 'companiesEditCustomers');
+checkPermission(companyMutations, 'companiesRemove', 'companiesRemove');
+checkPermission(companyMutations, 'companiesMerge', 'companiesMerge');
 
 export default companyMutations;

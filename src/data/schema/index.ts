@@ -8,6 +8,8 @@ import { mutations as ChannelMutations, queries as ChannelQueries, types as Chan
 
 import { mutations as BrandMutations, queries as BrandQueries, types as BrandTypes } from './brand';
 
+import { mutations as PermissionMutations, queries as PermissionQueries, types as PermissionTypes } from './permission';
+
 import {
   mutations as IntegrationMutations,
   queries as IntegrationQueries,
@@ -73,11 +75,7 @@ import {
   types as ConversationTypes,
 } from './conversation';
 
-import {
-  mutations as ActivityLogMutations,
-  queries as ActivityLogQueries,
-  types as ActivityLogTypes,
-} from './activityLog';
+import { queries as ActivityLogQueries, types as ActivityLogTypes } from './activityLog';
 
 import { mutations as DealMutations, queries as DealQueries, types as DealTypes } from './deal';
 
@@ -130,6 +128,7 @@ export const types = `
   ${ImportHistoryTypes}
   ${MessengerAppTypes}
   ${AccountTypes}
+  ${PermissionTypes}
 `;
 
 export const queries = `
@@ -161,6 +160,7 @@ export const queries = `
     ${ImportHistoryQueries}
     ${MessengerAppQueries}
     ${AccountQueries}
+    ${PermissionQueries}
   }
 `;
 
@@ -184,7 +184,6 @@ export const mutations = `
     ${IntegrationMutations}
     ${KnowledgeBaseMutations}
     ${NotificationMutations}
-    ${ActivityLogMutations}
     ${DealMutations}
     ${ProductMutations}
     ${ConfigMutations}
@@ -192,6 +191,7 @@ export const mutations = `
     ${ImportHistoryMutations}
     ${MessengerAppMutations}
     ${AccountMutations}
+    ${PermissionMutations}
   }
 `;
 
@@ -199,9 +199,10 @@ export const subscriptions = `
   type Subscription {
     conversationChanged(_id: String!): ConversationChangedResponse
     conversationMessageInserted(_id: String!): ConversationMessage
-    conversationClientMessageInserted: ConversationMessage
+    conversationClientMessageInserted(userId: String!): ConversationMessage
     conversationAdminMessageInserted(customerId: String!): ConversationMessage
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
+    activityLogsChanged: Boolean
   }
 `;
 

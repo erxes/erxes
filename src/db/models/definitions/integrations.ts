@@ -61,11 +61,11 @@ export interface IMessengerData {
   notifyCustomer?: boolean;
   availabilityMethod?: string;
   isOnline?: boolean;
-  requireAuth?: boolean;
   onlineHours?: IMessengerOnlineHours[];
   timezone?: string;
   messages?: IMessageDataMessages;
   links?: ILink;
+  requireAuth?: boolean;
 }
 
 export interface IMessengerDataDocument extends IMessengerData, Document {}

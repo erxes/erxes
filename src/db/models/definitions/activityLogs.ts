@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import { ACTIVITY_ACTIONS, ACTIVITY_PERFORMER_TYPES, ACTIVITY_TYPES, COC_CONTENT_TYPES } from './constants';
+import { ACTIVITY_ACTIONS, ACTIVITY_CONTENT_TYPES, ACTIVITY_PERFORMER_TYPES, ACTIVITY_TYPES } from './constants';
 
 export interface IActionPerformer {
   type: string;
@@ -22,12 +22,12 @@ interface IActivityDocument extends IActivity, Document {
   id?: string;
 }
 
-export interface ICoc {
+export interface IContentType {
   id: string;
   type: string;
 }
 
-interface ICocDocument extends ICoc, Document {
+interface IContentTypeDocument extends IContentType, Document {
   id: string;
 }
 
@@ -35,8 +35,15 @@ export interface IActivityLogDocument extends Document {
   _id: string;
   activity: IActivityDocument;
   performedBy?: IActionPerformerDocument;
-  coc: ICocDocument;
+  contentType: IContentTypeDocument;
   createdAt: Date;
+}
+
+export interface IActivityLog {
+  contentType: string;
+  contentId: string;
+  activityType: string;
+  limit: number;
 }
 
 // Mongoose schemas ===========
@@ -105,7 +112,7 @@ const activitySchema = new Schema(
 
 /* the customer that is related to a given ActivityLog
  can be both Company or Customer documents */
-const cocSchema = new Schema(
+const contentTypeSchema = new Schema(
   {
     id: field({
       type: String,
@@ -113,7 +120,7 @@ const cocSchema = new Schema(
     }),
     type: field({
       type: String,
-      enum: COC_CONTENT_TYPES.ALL,
+      enum: ACTIVITY_CONTENT_TYPES.ALL,
       required: true,
     }),
   },
@@ -124,7 +131,9 @@ export const activityLogSchema = new Schema({
   _id: field({ pkey: true }),
   activity: { type: activitySchema },
   performedBy: { type: actionPerformerSchema, optional: true },
-  coc: { type: cocSchema },
+  contentType: { type: contentTypeSchema },
+  // TODO: remove
+  coc: { type: contentTypeSchema, optional: true },
 
   createdAt: field({
     type: Date,

@@ -22,7 +22,6 @@ describe('userQueries', () => {
           _id
           username
           email
-          role
           details {
             avatar
             fullName
@@ -46,10 +45,10 @@ describe('userQueries', () => {
 
     const response = await graphqlRequest(qry, 'users', {
       page: 1,
-      perPage: 2,
+      perPage: 20,
     });
-    // 1 in graphRequest + above 3
-    expect(response.length).toBe(2);
+
+    expect(response.length).toBe(5);
   });
 
   test('User detail', async () => {

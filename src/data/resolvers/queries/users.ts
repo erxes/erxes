@@ -1,27 +1,34 @@
 import { Conversations, Users } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions';
 import { paginate } from './utils';
 
 interface IListArgs {
   page?: number;
   perPage?: number;
   searchValue?: string;
+  isActive?: boolean;
 }
 
 const queryBuilder = async (params: IListArgs) => {
-  let selector: any = {};
+  const { searchValue, isActive } = params;
 
-  if (params.searchValue) {
+  const selector: any = {
+    isActive,
+  };
+
+  if (searchValue) {
     const fields = [
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') },
     ];
 
-    selector = { $or: fields };
+    selector.$or = fields;
   }
 
-  selector.isActive = { $ne: false };
+  if (isActive === undefined || isActive === null) {
+    selector.isActive = true;
+  }
 
   return selector;
 };
@@ -32,15 +39,16 @@ const userQueries = {
    */
   async users(_root, args: IListArgs) {
     const selector = await queryBuilder(args);
-    const users = paginate(Users.find(selector), args);
-    return users.sort({ username: 1 });
+    const sort = { username: 1 };
+
+    return paginate(Users.find(selector).sort(sort), args);
   },
 
   /**
    * Get one user
    */
   userDetail(_root, { _id }: { _id: string }) {
-    return Users.findOne({ _id, isActive: { $ne: false } });
+    return Users.findOne({ _id });
   },
 
   /**
@@ -76,8 +84,9 @@ const userQueries = {
   },
 };
 
-requireLogin(userQueries, 'users');
-requireLogin(userQueries, 'userDetail');
 requireLogin(userQueries, 'usersTotalCount');
+requireLogin(userQueries, 'userDetail');
+
+checkPermission(userQueries, 'users', 'showUsers', []);
 
 export default userQueries;

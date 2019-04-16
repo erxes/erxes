@@ -23,7 +23,7 @@ describe('Test products mutations', () => {
   beforeEach(async () => {
     // Creating test data
     product = await productFactory({ type: 'product' });
-    context = { user: await userFactory({ role: 'admin' }) };
+    context = { user: await userFactory({}) };
   });
 
   afterEach(async () => {

@@ -3,7 +3,6 @@ import { TAG_TYPES } from '../data/constants';
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, integrationFactory, tagsFactory } from '../db/factories';
 import { Brands, Channels, Integrations } from '../db/models';
-import { socUtils } from '../trackers/twitterTracker';
 
 describe('integrationQueries', () => {
   const qryIntegrations = `
@@ -245,18 +244,6 @@ describe('integrationQueries', () => {
     const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
     expect(response.byBrand[brand._id]).toBe(2);
-  });
-
-  test('Integration get twitter auth url', async () => {
-    socUtils.getTwitterAuthorizeUrl = jest.fn();
-
-    const qry = `
-      query integrationGetTwitterAuthUrl {
-        integrationGetTwitterAuthUrl
-      }
-    `;
-
-    await graphqlRequest(qry, 'integrationGetTwitterAuthUrl');
   });
 
   test('Integration get facebook apps list', async () => {

@@ -1,95 +1,21 @@
 import * as moment from 'moment';
-import { ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../db/models';
-import { IUserDocument } from '../../../db/models/definitions/users';
-import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
-import { createXlsFile, generateXlsx } from '../../utils';
+import { ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../../db/models';
+import { IUserDocument } from '../../../../db/models/definitions/users';
+import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../../constants';
+import { moduleCheckPermission } from '../../../permissions';
+import { createXlsFile, generateXlsx } from '../../../utils';
+import { getDateFieldAsStr, getDurationField } from '../aggregationUtils';
+import { IListArgs, IListArgsWithUserId, IVolumeReportExportArgs } from './types';
 import {
   findConversations,
   fixDates,
   generateMessageSelector,
-  generateUserSelector,
   getConversationSelector,
-  IListArgs,
-} from './insightUtils';
+  getFilterSelector,
+  getTimezone,
+} from './utils';
 
-interface IVolumeReportExportArgs {
-  date: string;
-  count: number;
-  customerCount: number;
-  customerCountPercentage: string;
-  messageCount: number;
-  resolvedCount: number;
-  averageResponseDuration: string;
-  firstResponseDuration: string;
-}
-
-interface IAddCellArgs {
-  sheet: any;
-  cols: string[];
-  rowIndex: number;
-  col: string;
-  value: string | number;
-}
-
-export interface IListArgsWithUserId extends IListArgs {
-  userId?: string;
-}
-
-/**
- * Time format HH:mm:ii
- */
-const convertTime = (duration: number) => {
-  const hours = Math.floor(duration / 3600);
-  const minutes = Math.floor((duration % 3600) / 60);
-  const seconds = Math.floor((duration % 3600) % 60);
-
-  const timeFormat = (num: number) => {
-    if (num < 10) {
-      return '0' + num.toString();
-    }
-
-    return num.toString();
-  };
-
-  return timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds);
-};
-
-/*
- * Sheet add cell
- */
-const addCell = (args: IAddCellArgs): void => {
-  const { cols, sheet, col, rowIndex, value } = args;
-
-  // Checking if existing column
-  if (cols.includes(col)) {
-    // If column already exists adding cell
-    sheet.cell(rowIndex, cols.indexOf(col) + 1).value(value);
-  } else {
-    // Creating column
-    sheet
-      .column(cols.length + 1)
-      .width(25)
-      .hidden(false);
-    sheet.cell(1, cols.length + 1).value(col);
-    // Creating cell
-    sheet.cell(rowIndex, cols.length + 1).value(value);
-
-    cols.push(col);
-  }
-};
-
-const nextTime = (start: Date, type?: string) => {
-  return new Date(
-    moment(start)
-      .add(1, type ? 'hours' : 'days')
-      .toString(),
-  );
-};
-
-const dateToString = (date: Date) => {
-  return moment(date).format('YYYY-MM-DD HH:mm');
-};
+import { addCell, addHeader, convertTime, dateToString, fixNumber, nextTime } from './exportUtils';
 
 const timeIntervals: string[] = [
   '0-5 second',
@@ -115,8 +41,9 @@ const insightExportQueries = {
   /*
    * Volume report export
    */
-  async insightVolumeReportExport(_root, args: IListArgs) {
+  async insightVolumeReportExport(_root, args: IListArgs, { user }: { user: IUserDocument }) {
     const { startDate, endDate, type } = args;
+
     let diffCount = 7;
     let timeFormat = 'YYYY-MM-DD';
     let aggregationTimeFormat = '%Y-%m-%d';
@@ -142,20 +69,11 @@ const insightExportQueries = {
       },
       {
         $project: {
-          date: {
-            $dateToString: {
-              format: aggregationTimeFormat,
-              date: '$createdAt',
-            },
-          },
+          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone: getTimezone(user) }),
           customerId: 1,
           status: 1,
-          closeTime: {
-            $divide: [{ $subtract: ['$closedAt', '$createdAt'] }, 1000],
-          },
-          firstRespondTime: {
-            $divide: [{ $subtract: ['$firstRespondedDate', '$createdAt'] }, 1000],
-          },
+          closeTime: getDurationField({ startField: '$closedAt', endField: '$createdAt' }),
+          firstRespondTime: getDurationField({ startField: '$firstRespondedDate', endField: '$createdAt' }),
         },
       },
       {
@@ -166,16 +84,16 @@ const insightExportQueries = {
             $sum: { $cond: [{ $eq: ['$status', 'closed'] }, 1, 0] },
           },
           totalCount: { $sum: 1 },
-          averageCloseTime: { $avg: '$closeTime' },
-          averageRespondTime: { $avg: '$firstRespondTime' },
+          totalResponseTime: { $sum: '$firstRespondTime' },
+          totalCloseTime: { $sum: '$closeTime' },
         },
       },
       {
         $project: {
           uniqueCustomerCount: { $size: '$uniqueCustomerIds' },
           totalCount: 1,
-          averageCloseTime: 1,
-          averageRespondTime: 1,
+          totalCloseTime: 1,
+          totalResponseTime: 1,
           resolvedCount: 1,
           percentage: {
             $multiply: [
@@ -191,16 +109,17 @@ const insightExportQueries = {
 
     const volumeDictionary = {};
 
-    let totalSumCount = 0;
     let totalCustomerCount = 0;
+    let totalUniqueCount = 0;
     let totalConversationMessages = 0;
-    let totalPercentage = 0;
     let totalResolved = 0;
-    let totalAverageClosed = 0;
-    let totalAverageRespond = 0;
-    let totalRowCount = 0;
 
-    aggregatedData.map(row => {
+    let averageResponseDuration = 0;
+    let firstResponseDuration = 0;
+    let totalClosedTime = 0;
+    let totalRespondTime = 0;
+
+    aggregatedData.forEach(row => {
       volumeDictionary[row._id] = row;
     });
 
@@ -208,16 +127,12 @@ const insightExportQueries = {
       {
         $match: {
           conversationId: { $in: conversationRawIds },
+          createdAt: { $gte: start, $lte: end },
         },
       },
       {
         $project: {
-          date: {
-            $dateToString: {
-              format: aggregationTimeFormat,
-              date: '$createdAt',
-            },
-          },
+          date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone: getTimezone(user) }),
           status: 1,
         },
       },
@@ -228,8 +143,9 @@ const insightExportQueries = {
         },
       },
     ]);
+
     const conversationDictionary = {};
-    messageAggregationData.map(row => {
+    messageAggregationData.forEach(row => {
       conversationDictionary[row._id] = row.totalCount;
       totalConversationMessages += row.totalCount;
     });
@@ -243,37 +159,40 @@ const insightExportQueries = {
       const {
         resolvedCount,
         totalCount,
-        averageCloseTime,
-        averageRespondTime,
+        totalResponseTime,
+        totalCloseTime,
         uniqueCustomerCount,
         percentage,
       } = volumeDictionary[dateKey] || {
         resolvedCount: 0,
         totalCount: 0,
-        averageCloseTime: 0,
-        averageRespondTime: 0,
+        totalResponseTime: 0,
+        totalCloseTime: 0,
         uniqueCustomerCount: 0,
         percentage: 0,
       };
-      const messageCount = conversationDictionary[dateKey];
+      const messageCount = conversationDictionary[dateKey] || 0;
 
-      totalSumCount += totalCount;
+      totalCustomerCount += totalCount;
       totalResolved += resolvedCount;
-      totalAverageClosed += averageCloseTime;
-      totalAverageRespond += averageRespondTime;
-      totalCustomerCount += uniqueCustomerCount;
-      totalPercentage += percentage;
-      totalRowCount += 1;
+
+      totalUniqueCount += uniqueCustomerCount;
+
+      totalClosedTime += totalCloseTime;
+      totalRespondTime += totalResponseTime;
+
+      averageResponseDuration = fixNumber(totalCloseTime / resolvedCount);
+      firstResponseDuration = fixNumber(totalResponseTime / totalCount);
 
       data.push({
         date: moment(begin).format(timeFormat),
-        count: totalCount,
-        customerCount: uniqueCustomerCount,
+        count: uniqueCustomerCount,
+        customerCount: totalCount,
         customerCountPercentage: `${percentage.toFixed(0)}%`,
         messageCount,
         resolvedCount,
-        averageResponseDuration: convertTime(averageCloseTime),
-        firstResponseDuration: convertTime(averageRespondTime),
+        averageResponseDuration: convertTime(averageResponseDuration),
+        firstResponseDuration: convertTime(firstResponseDuration),
       });
 
       if (next.getTime() < end.getTime()) {
@@ -287,21 +206,22 @@ const insightExportQueries = {
 
     data.push({
       date: 'Total',
-      count: totalSumCount,
+      count: totalUniqueCount,
       customerCount: totalCustomerCount,
-      customerCountPercentage: `${(totalPercentage / totalRowCount).toFixed(0)}%`,
+      customerCountPercentage: `${((totalUniqueCount / totalCustomerCount) * 100).toFixed(0)}%`,
       messageCount: totalConversationMessages,
       resolvedCount: totalResolved,
-      averageResponseDuration: convertTime(totalAverageClosed / totalRowCount),
-      firstResponseDuration: convertTime(totalAverageRespond / totalRowCount),
+      averageResponseDuration: convertTime(fixNumber(totalClosedTime / totalResolved)),
+      firstResponseDuration: convertTime(fixNumber(totalRespondTime / totalCustomerCount)),
     });
 
     const basicInfos = INSIGHT_BASIC_INFOS;
 
     // Reads default template
     const { workbook, sheet } = await createXlsFile();
+    await addHeader(`Volume Report By ${type || 'date'}`, args, sheet);
 
-    let rowIndex: number = 1;
+    let rowIndex: number = 3;
     const cols: string[] = [];
 
     for (const obj of data) {
@@ -320,27 +240,17 @@ const insightExportQueries = {
     }
 
     // Write to file.
-    return generateXlsx(workbook, `Volume report - ${dateToString(start)} - ${dateToString(end)}`);
+    return generateXlsx(workbook, `Volume report By ${type || 'date'} - ${dateToString(start)} - ${dateToString(end)}`);
   },
 
   /*
    * Operator Activity Report
    */
-  async insightActivityReportExport(_root, args: IListArgs) {
-    const { integrationType, brandId, startDate, endDate } = args;
+  async insightActivityReportExport(_root, args: IListArgs, { user }: { user: IUserDocument }) {
+    const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate, 1);
 
-    const messageSelector = await generateMessageSelector(
-      brandId,
-      integrationType,
-      // conversation selector
-      {},
-      // message selector
-      {
-        userId: generateUserSelector('response'),
-        createdAt: { $gte: start, $lte: end },
-      },
-    );
+    const messageSelector = await generateMessageSelector({ args, type: 'response' });
 
     const data = await ConversationMessages.aggregate([
       {
@@ -348,12 +258,7 @@ const insightExportQueries = {
       },
       {
         $project: {
-          date: {
-            $dateToString: {
-              format: '%Y-%m-%d %H',
-              date: '$createdAt',
-            },
-          },
+          date: await getDateFieldAsStr({ timeFormat: '%Y-%m-%d %H', timeZone: getTimezone(user) }),
           userId: 1,
         },
       },
@@ -375,19 +280,22 @@ const insightExportQueries = {
         },
       },
     ]);
+
     const userDataDictionary = {};
     const rawUserIds = {};
     const userTotals = {};
-    data.map(row => {
+    data.forEach(row => {
       userDataDictionary[`${row.userId}_${row.date}`] = row.count;
       rawUserIds[row.userId] = 1;
     });
     const userIds = Object.keys(rawUserIds);
+
     const users: any = {};
 
     // Reads default template
     const { workbook, sheet } = await createXlsFile();
-    let rowIndex = 1;
+    await addHeader('Operator Activity report', args, sheet);
+    let rowIndex = 3;
     const cols: string[] = [];
 
     let begin = start;
@@ -405,7 +313,9 @@ const insightExportQueries = {
 
       for (const userId of userIds) {
         if (!users[userId]) {
-          const { details, email } = (await Users.findOne({ _id: userId })) as IUserDocument;
+          const { details, email } = (await Users.findOne({
+            _id: userId,
+          })) as IUserDocument;
 
           users[userId] = (details && details.fullName) || email;
         }
@@ -451,19 +361,20 @@ const insightExportQueries = {
     }
 
     // Write to file.
-    return generateXlsx(workbook, `Activity report - ${dateToString(start)} - ${dateToString(end)}`);
+    return generateXlsx(workbook, `Operator Activity report - ${dateToString(start)} - ${dateToString(end)}`);
   },
 
   /*
    * First Response Report
    */
   async insightFirstResponseReportExport(_root, args: IListArgsWithUserId) {
-    const { integrationType, brandId, startDate, endDate, userId, type } = args;
+    const { startDate, endDate, userId, type } = args;
+    const filterSelector = getFilterSelector(args);
     const { start, end } = fixDates(startDate, endDate);
 
     // Reads default template
     const { workbook, sheet } = await createXlsFile();
-    let rowIndex = 1;
+    let rowIndex = 3;
     const cols: string[] = [];
 
     for (const t of timeIntervals) {
@@ -488,11 +399,11 @@ const insightExportQueries = {
         messageCounts.push(0);
       });
 
-      const conversations = await findConversations({ kind: integrationType, brandId }, conversationSelector);
+      const conversations = await findConversations(filterSelector, conversationSelector);
 
       // Processes total first response time for each users.
       for (const conversation of conversations) {
-        rowIndex = 1;
+        rowIndex = 3;
         const { firstRespondedDate, createdAt } = conversation;
 
         let responseTime = 0;
@@ -533,8 +444,20 @@ const insightExportQueries = {
       }
     };
 
+    let fullName = '';
+
+    if (userId) {
+      const { details, email } = (await Users.findOne({
+        _id: userId,
+      })) as IUserDocument;
+
+      fullName = `${(details && details.fullName) || email || ''} `;
+    }
+
     if (type === 'operator') {
       const users = await Users.find();
+
+      await addHeader(`${fullName} First Response`, args, sheet);
 
       for (const user of users) {
         const { _id, details, username } = user;
@@ -566,15 +489,8 @@ const insightExportQueries = {
         }
       };
 
+      await addHeader(`${fullName} First Response`, args, sheet);
       await generateData();
-    }
-
-    let fullName = '';
-
-    if (userId) {
-      const { details, email } = (await Users.findOne({ _id: userId })) as IUserDocument;
-
-      fullName = `${(details && details.fullName) || email || ''} `;
     }
 
     // Write to file.
@@ -584,27 +500,20 @@ const insightExportQueries = {
   /*
    * Tag Report
    */
-  async insightTagReportExport(_root, args: IListArgs) {
-    const { integrationType, brandId, startDate, endDate } = args;
+  async insightTagReportExport(_root, args: IListArgs, { user }: { user: IUserDocument }) {
+    const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
-
-    const integrationSelector: { brandId?: string; kind?: string } = {};
-
-    if (brandId) {
-      integrationSelector.brandId = brandId;
-    }
+    const filterSelector = getFilterSelector(args);
 
     const tags = await Tags.find({ type: TAG_TYPES.CONVERSATION }).select('name');
 
-    if (integrationType) {
-      integrationSelector.kind = integrationType;
-    }
-
-    const integrationIds = await Integrations.find(integrationSelector).select('_id');
+    const integrationIds = await Integrations.find(filterSelector.integration).select('_id');
 
     // Reads default template
     const { workbook, sheet } = await createXlsFile();
-    let rowIndex = 1;
+    await addHeader('Tag Report', args, sheet);
+
+    let rowIndex = 3;
     const cols: string[] = [];
 
     let begin = start;
@@ -617,7 +526,7 @@ const insightExportQueries = {
         $match: {
           $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
           integrationId: { $in: rawIntegrationIds },
-          createdAt: { $gte: start, $lte: end },
+          createdAt: filterSelector.createdAt,
         },
       },
       {
@@ -632,12 +541,7 @@ const insightExportQueries = {
         $group: {
           _id: {
             tagId: '$tagIds',
-            date: {
-              $dateToString: {
-                format: '%Y-%m-%d',
-                date: '$createdAt',
-              },
-            },
+            date: getDateFieldAsStr({ timeZone: getTimezone(user) }),
           },
           count: { $sum: 1 },
         },
@@ -717,6 +621,6 @@ const insightExportQueries = {
   },
 };
 
-moduleRequireLogin(insightExportQueries);
+moduleCheckPermission(insightExportQueries, 'manageExportInsights');
 
 export default insightExportQueries;

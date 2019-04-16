@@ -163,17 +163,12 @@ export const FIELD_CONTENT_TYPES = {
   ALL: ['form', 'customer', 'company'],
 };
 
-export const COC_CONTENT_TYPES = {
+export const ACTIVITY_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   USER: 'user',
   DEAL: 'deal',
   ALL: ['customer', 'company', 'user', 'deal'],
-};
-
-export const ROLES = {
-  ADMIN: 'admin',
-  CONTRIBUTOR: 'contributor',
 };
 
 export const PUBLISH_STATUSES = {
@@ -198,9 +193,10 @@ export const ACTIVITY_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
   DELETE: 'delete',
+  MERGE: 'merge',
   SEND: 'send',
 
-  ALL: ['create', 'update', 'delete', 'send'],
+  ALL: ['create', 'update', 'delete', 'merge', 'send'],
 };
 
 export const ACTIVITY_PERFORMER_TYPES = {
@@ -388,4 +384,16 @@ export const PROBABILITY = {
   WON: 'Won',
   LOST: 'Lost',
   ALL: ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', 'Won', 'Lost'],
+};
+
+export const STATUSES = {
+  ACTIVE: 'Active',
+  DELETED: 'Deleted',
+  ALL: ['Active', 'Deleted'],
+};
+
+export const EMAIL_TYPES = {
+  GMAIL: 'gmail',
+  OTHER: 'other',
+  ALL: ['gmail', 'other'],
 };

@@ -1,8 +1,9 @@
 import * as bcrypt from 'bcrypt';
 import * as faker from 'faker';
+import * as moment from 'moment';
 import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, channelFactory, userFactory } from '../db/factories';
+import { brandFactory, channelFactory, userFactory, usersGroupFactory } from '../db/factories';
 import { Brands, Channels, Users } from '../db/models';
 
 /*
@@ -44,29 +45,23 @@ describe('User mutations', () => {
   const commonParamDefs = `
     $username: String!
     $email: String!
-    $role: String!
     $details: UserDetails
     $links: UserLinks
     $channelIds: [String]
-    $password: String!
-    $passwordConfirmation: String!
   `;
 
   const commonParams = `
     username: $username
     email: $email
-    role: $role
     details: $details
     links: $links
     channelIds: $channelIds
-    password: $password
-    passwordConfirmation: $passwordConfirmation
   `;
 
   beforeEach(async () => {
     // Creating test data
     _user = await userFactory({});
-    _admin = await userFactory({ role: 'admin' });
+    _admin = await userFactory({});
     _channel = await channelFactory({});
     _brand = await brandFactory({});
 
@@ -81,6 +76,8 @@ describe('User mutations', () => {
   });
 
   test('Login', async () => {
+    process.env.HTTPS = 'false';
+
     const mutation = `
       mutation login($email: String! $password: String!) {
         login(email: $email password: $password)
@@ -96,6 +93,9 @@ describe('User mutations', () => {
   });
 
   test('Forgot password', async () => {
+    process.env.MAIN_APP_DOMAIN = ' ';
+    process.env.COMPANY_EMAIL_FROM = ' ';
+
     const mutation = `
       mutation forgotPassword($email: String!) {
         forgotPassword(email: $email)
@@ -150,84 +150,110 @@ describe('User mutations', () => {
     expect(bcrypt.compare(params.newPassword, updatedUser.password)).toBeTruthy();
   });
 
-  test('Add user', async () => {
-    const doc = {
-      ...args,
-      role: 'contributor',
-      passwordConfirmation: 'pass',
-      channelIds: [_channel._id],
-    };
+  test('usersInvite', async () => {
+    process.env.MAIN_APP_DOMAIN = ' ';
+    process.env.COMPANY_EMAIL_FROM = ' ';
 
     const spyEmail = jest.spyOn(utils, 'sendEmail');
 
     const mutation = `
-      mutation usersAdd(${commonParamDefs}) {
-        usersAdd(${commonParams}) {
-          _id
-          username
-          email
-          role
-          details {
-            fullName
-            avatar
-            location
-            position
-            description
-          }
-          links {
-            linkedIn
-            twitter
-            facebook
-            github
-            youtube
-            website
-          }
-        }
+      mutation usersInvite($entries: [InvitationEntry]) {
+        usersInvite(entries: $entries)
       }
     `;
 
-    const user = await graphqlRequest(mutation, 'usersAdd', doc, context);
+    const group = await usersGroupFactory();
 
-    const channel = await Channels.findOne({ _id: _channel._id });
+    const params = {
+      entries: [{ email: 'test@example.com', groupId: group._id }],
+    };
 
-    if (!channel) {
-      throw new Error('Channel not found');
+    await graphqlRequest(mutation, 'usersInvite', params, { user: _admin });
+
+    const user = await Users.findOne({ email: 'test@example.com' });
+
+    if (!user) {
+      throw new Error('User not found');
     }
 
-    expect(channel.memberIds).toContain(user._id);
-    expect(user.username).toBe(doc.username);
-    expect(user.email).toBe(doc.email.toLowerCase());
-    expect(user.role).toBe(doc.role);
-    expect(user.details.fullName).toBe(doc.details.fullName);
-    expect(user.details.avatar).toBe(doc.details.avatar);
-    expect(user.details.location).toBe(doc.details.location);
-    expect(user.details.position).toBe(doc.details.position);
-    expect(user.details.description).toBe(doc.details.description);
-    expect(user.links.linkedIn).toBe(doc.links.linkedIn);
-    expect(user.links.twitter).toBe(doc.links.twitter);
-    expect(user.links.facebook).toBe(doc.links.facebook);
-    expect(user.links.github).toBe(doc.links.github);
-    expect(user.links.youtube).toBe(doc.links.youtube);
-    expect(user.links.website).toBe(doc.links.website);
+    const token = user.registrationToken || '';
+
+    const { MAIN_APP_DOMAIN } = process.env;
+    const invitationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
 
     // send email call
     expect(spyEmail).toBeCalledWith({
-      toEmails: [doc.email],
-      subject: 'Invitation info',
+      toEmails: ['test@example.com'],
+      title: 'Team member invitation',
       template: {
-        name: 'invitation',
+        name: 'userInvitation',
         data: {
-          username: doc.username,
-          password: doc.password,
+          content: invitationUrl,
+          domain: MAIN_APP_DOMAIN,
         },
+        isCustom: true,
       },
     });
+  });
+
+  test('usersSeenOnBoard', async () => {
+    const mutation = `
+      mutation usersSeenOnBoard {
+        usersSeenOnBoard {
+          _id
+        }
+      }
+  `;
+
+    await graphqlRequest(mutation, 'usersSeenOnBoard', {}, context);
+    const userObj = await Users.findOne({ _id: _user._id });
+
+    if (!userObj) {
+      throw new Error('User not found');
+    }
+
+    // send email call
+    expect(userObj.hasSeenOnBoard).toBeTruthy();
+  });
+
+  test('usersConfirmInvitation', async () => {
+    await userFactory({
+      email: 'test@example.com',
+      registrationToken: '123',
+      registrationTokenExpires: moment(Date.now())
+        .add(7, 'days')
+        .toDate(),
+    });
+
+    const mutation = `
+      mutation usersConfirmInvitation($token: String, $password: String, $passwordConfirmation: String) {
+        usersConfirmInvitation(token: $token, password: $password, passwordConfirmation: $passwordConfirmation) {
+          _id
+        }
+      }
+  `;
+
+    const params = {
+      token: '123',
+      password: '123',
+      passwordConfirmation: '123',
+    };
+
+    await graphqlRequest(mutation, 'usersConfirmInvitation', params);
+
+    const userObj = await Users.findOne({ email: 'test@example.com' });
+
+    if (!userObj) {
+      throw new Error('User not found');
+    }
+
+    // send email call
+    expect(userObj).toBeDefined();
   });
 
   test('Edit user', async () => {
     const doc = {
       ...args,
-      role: 'contributor',
       passwordConfirmation: 'pass',
       channelIds: [_channel._id],
     };
@@ -238,7 +264,6 @@ describe('User mutations', () => {
           _id
           username
           email
-          role
           details {
             fullName
             avatar
@@ -258,7 +283,7 @@ describe('User mutations', () => {
       }
     `;
 
-    const user = await graphqlRequest(mutation, 'usersEdit', { _id: _user._id, ...doc }, context);
+    const user = await graphqlRequest(mutation, 'usersEdit', { _id: _user._id, ...doc }, { user: _admin });
 
     const channel = await Channels.findOne({ _id: _channel._id });
 
@@ -269,7 +294,6 @@ describe('User mutations', () => {
     expect(channel.memberIds).toContain(user._id);
     expect(user.username).toBe(doc.username);
     expect(user.email.toLowerCase()).toBe(doc.email.toLowerCase());
-    expect(user.role).toBe(doc.role);
     expect(user.details.fullName).toBe(doc.details.fullName);
     expect(user.details.avatar).toBe(doc.details.avatar);
     expect(user.details.location).toBe(doc.details.location);
@@ -375,12 +399,17 @@ describe('User mutations', () => {
 
   test('Remove user', async () => {
     const mutation = `
-      mutation usersRemove($_id: String!) {
-        usersRemove(_id: $_id)
+      mutation usersSetActiveStatus($_id: String!) {
+        usersSetActiveStatus(_id: $_id) {
+          _id
+          isActive
+        }
       }
     `;
 
-    await graphqlRequest(mutation, 'usersRemove', { _id: _user._id }, { user: _admin });
+    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1, isOwner: false } });
+
+    await graphqlRequest(mutation, 'usersSetActiveStatus', { _id: _user._id }, { user: _admin });
 
     const deactivedUser = await Users.findOne({ _id: _user._id });
 

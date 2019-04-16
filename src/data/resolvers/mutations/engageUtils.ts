@@ -13,7 +13,7 @@ import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { EMAIL_CONTENT_PLACEHOLDER, INTEGRATION_KIND_CHOICES, MESSAGE_KINDS, METHODS } from '../../constants';
-import { createTransporter } from '../../utils';
+import { createTransporter, getEnv } from '../../utils';
 import QueryBuilder from '../queries/segmentQueryBuilder';
 
 /**
@@ -58,25 +58,50 @@ const findCustomers = async ({
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
 
-  const dndAndValidEmailQuery = {
-    $and: [
-      {
-        $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }],
-      },
-      {
-        $and: [{ hasValidEmail: true }, { hasValidEmail: { $exists: true } }],
-      },
-    ],
-  };
-
   if (segmentId) {
     const segment = await Segments.findOne({ _id: segmentId });
     customerQuery = await QueryBuilder.segments(segment);
   }
 
-  return Customers.find({ ...customerQuery, ...dndAndValidEmailQuery });
+  return Customers.find({ ...customerQuery, $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }] });
 };
 
+const executeSendViaEmail = async (
+  userEmail: string,
+  attachments: any,
+  customer: ICustomerDocument,
+  replacedSubject: string,
+  replacedContent: string,
+  AWS_SES_CONFIG_SET: string,
+  messageId: string,
+  mailMessageId: string,
+) => {
+  const transporter = await createTransporter({ ses: true });
+  let mailAttachment = [];
+
+  if (attachments.length > 0) {
+    mailAttachment = attachments.map(file => {
+      return {
+        filename: file.name || '',
+        path: file.url || '',
+      };
+    });
+  }
+
+  transporter.sendMail({
+    from: userEmail,
+    to: customer.primaryEmail,
+    subject: replacedSubject,
+    attachments: mailAttachment,
+    html: replacedContent,
+    headers: {
+      'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET,
+      EngageMessageId: messageId,
+      CustomerId: customer._id,
+      MailMessageId: mailMessageId,
+    },
+  });
+};
 /**
  * Send via email
  */
@@ -89,7 +114,8 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
 
   const { templateId, subject, content, attachments = [] } = message.email.toJSON();
 
-  const { AWS_SES_CONFIG_SET, AWS_ENDPOINT } = process.env;
+  const AWS_SES_CONFIG_SET = getEnv({ name: 'AWS_SES_CONFIG_SET' });
+  const AWS_ENDPOINT = getEnv({ name: 'AWS_ENDPOINT' });
 
   const user = await Users.findOne({ _id: fromUserId });
 
@@ -98,6 +124,10 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
   }
 
   const userEmail = user.email;
+  if (!userEmail) {
+    throw new Error(`email not found with ${userEmail}`);
+  }
+
   const template = await EmailTemplates.findOne({ _id: templateId });
 
   // find matched customers
@@ -129,32 +159,16 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
     EngageMessages.addNewDeliveryReport(message._id, mailMessageId, customer._id);
 
     // send email =========
-    const transporter = await createTransporter({ ses: true });
-
-    let mailAttachment = [];
-
-    if (attachments.length > 0) {
-      mailAttachment = attachments.map(file => {
-        return {
-          filename: file.name || '',
-          path: file.url || '',
-        };
-      });
-    }
-
-    transporter.sendMail({
-      from: userEmail,
-      to: customer.primaryEmail,
-      subject: replacedSubject,
-      attachments: mailAttachment,
-      html: replacedContent,
-      headers: {
-        'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET,
-        EngageMessageId: message._id,
-        CustomerId: customer._id,
-        MailMessageId: mailMessageId,
-      },
-    });
+    utils.executeSendViaEmail(
+      userEmail,
+      attachments,
+      customer,
+      replacedSubject,
+      replacedContent,
+      AWS_SES_CONFIG_SET,
+      message._id,
+      mailMessageId,
+    );
   }
 };
 
@@ -195,7 +209,6 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
   for (const customer of customers) {
     // replace keys in content
     const replacedContent = replaceKeys({ content, customer, user });
-
     // create conversation
     const conversation = await Conversations.createConversation({
       userId: fromUserId,
@@ -222,7 +235,7 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
 /*
  *  Send engage messages
  */
-export const send = message => {
+export const send = (message: IEngageMessageDocument) => {
   const { method, kind } = message;
 
   if (method === METHODS.EMAIL) {
@@ -240,6 +253,10 @@ export const send = message => {
  */
 export const handleEngageUnSubscribe = (query: { cid: string }) =>
   Customers.updateOne({ _id: query.cid }, { $set: { doNotDisturb: 'Yes' } });
+
+export const utils = {
+  executeSendViaEmail,
+};
 
 export default {
   replaceKeys,

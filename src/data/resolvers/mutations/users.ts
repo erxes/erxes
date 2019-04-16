@@ -1,14 +1,11 @@
 import { Channels, Users } from '../../../db/models';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument } from '../../../db/models/definitions/users';
-import { requireAdmin, requireLogin } from '../../permissions';
-import utils from '../../utils';
+import { checkPermission, requireLogin } from '../../permissions';
+import utils, { authCookieOptions, getEnv } from '../../utils';
 
-interface IUsersAdd extends IUser {
+interface IUsersEdit extends IUser {
   channelIds?: string[];
-  passwordConfirmation?: string;
-}
-
-interface IUsersEdit extends IUsersAdd {
+  groupIds?: string[];
   _id: string;
 }
 
@@ -21,22 +18,7 @@ const userMutations = {
 
     const { token } = response;
 
-    const oneDay = 1 * 24 * 3600 * 1000; // 1 day
-
-    const cookieOptions = {
-      httpOnly: true,
-      expires: new Date(Date.now() + oneDay),
-      maxAge: oneDay,
-      secure: false,
-    };
-
-    const { HTTPS } = process.env;
-
-    if (HTTPS === 'true') {
-      cookieOptions.secure = true;
-    }
-
-    res.cookie('auth-token', token, cookieOptions);
+    res.cookie('auth-token', token, authCookieOptions());
 
     return 'loggedIn';
   },
@@ -56,7 +38,7 @@ const userMutations = {
     const token = await Users.forgotPassword(email);
 
     // send email ==============
-    const { MAIN_APP_DOMAIN } = process.env;
+    const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
     const link = `${MAIN_APP_DOMAIN}/reset-password?token=${token}`;
 
@@ -93,63 +75,17 @@ const userMutations = {
   },
 
   /*
-   * Create new user
-   */
-  async usersAdd(_root, args: IUsersAdd) {
-    const { username, password, passwordConfirmation, email, role, channelIds = [], details, links } = args;
-
-    if (password !== passwordConfirmation) {
-      throw new Error('Incorrect password confirmation');
-    }
-
-    const createdUser = await Users.createUser({
-      username,
-      password,
-      email,
-      role,
-      details,
-      links,
-    });
-
-    // add new user to channels
-    await Channels.updateUserChannels(channelIds, createdUser._id);
-
-    const toEmails = email ? [email] : [];
-
-    // send email ================
-    utils.sendEmail({
-      toEmails,
-      subject: 'Invitation info',
-      template: {
-        name: 'invitation',
-        data: {
-          username,
-          password,
-        },
-      },
-    });
-
-    return createdUser;
-  },
-
-  /*
    * Update user
    */
   async usersEdit(_root, args: IUsersEdit) {
-    const { _id, username, password, passwordConfirmation, email, role, channelIds = [], details, links } = args;
+    const { _id, username, email, channelIds = [], groupIds = [], details, links } = args;
 
-    if (password && password !== passwordConfirmation) {
-      throw new Error('Incorrect password confirmation');
-    }
-
-    // TODO check isOwner
     const updatedUser = await Users.updateUser(_id, {
       username,
-      password,
       email,
-      role,
       details,
       links,
+      groupIds,
     });
 
     // add new user to channels
@@ -188,41 +124,74 @@ const userMutations = {
 
     if (!password || !valid) {
       // bad password
-      throw new Error('Invalid password');
+      throw new Error('Invalid password. Try again');
     }
 
     return Users.editProfile(user._id, { username, email, details, links });
   },
 
   /*
-   * Remove user
+   * Set Active or inactive user
    */
-  async usersRemove(_root, { _id }: { _id: string }) {
-    const userToRemove = await Users.findOne({ _id });
-
-    if (!userToRemove) {
-      throw new Error('User not found');
+  async usersSetActiveStatus(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+    if (user._id === _id) {
+      throw new Error('You can not delete yourself');
     }
 
-    // can not remove owner
-    if (userToRemove.isOwner) {
-      throw new Error('Can not remove owner');
-    }
+    return Users.setUserActiveOrInactive(_id);
+  },
 
-    // if the user involved in any channel then can not delete this user
-    if ((await Channels.find({ userId: userToRemove._id }).countDocuments()) > 0) {
-      throw new Error('You cannot delete this user. This user belongs other channel.');
-    }
+  /*
+   * Invites users to team members
+   */
+  async usersInvite(_root, { entries }: { entries: Array<{ email: string; groupId: string }> }) {
+    for (const entry of entries) {
+      await Users.checkDuplication({ email: entry.email });
 
-    if (
-      (await Channels.find({
-        memberIds: { $in: [userToRemove._id] },
-      }).countDocuments()) > 0
-    ) {
-      throw new Error('You cannot delete this user. This user belongs other channel.');
-    }
+      const token = await Users.createUserWithConfirmation(entry);
 
-    return Users.removeUser(_id);
+      const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+      const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
+
+      utils.sendEmail({
+        toEmails: [entry.email],
+        title: 'Team member invitation',
+        template: {
+          name: 'userInvitation',
+          data: {
+            content: confirmationUrl,
+            domain: MAIN_APP_DOMAIN,
+          },
+          isCustom: true,
+        },
+      });
+    }
+  },
+
+  /*
+   * User has seen onboard
+   */
+  async usersSeenOnBoard(_root, {}, { user }: { user: IUserDocument }) {
+    return Users.updateOnBoardSeen({ _id: user._id });
+  },
+
+  async usersConfirmInvitation(
+    _root,
+    {
+      token,
+      password,
+      passwordConfirmation,
+      fullName,
+      username,
+    }: {
+      token: string;
+      password: string;
+      passwordConfirmation: string;
+      fullName?: string;
+      username?: string;
+    },
+  ) {
+    return Users.confirmInvitation({ token, password, passwordConfirmation, fullName, username });
   },
 
   usersConfigEmailSignatures(
@@ -238,12 +207,13 @@ const userMutations = {
   },
 };
 
-requireLogin(userMutations, 'usersAdd');
-requireLogin(userMutations, 'usersEdit');
 requireLogin(userMutations, 'usersChangePassword');
 requireLogin(userMutations, 'usersEditProfile');
 requireLogin(userMutations, 'usersConfigGetNotificationByEmail');
 requireLogin(userMutations, 'usersConfigEmailSignatures');
-requireAdmin(userMutations, 'usersRemove');
+
+checkPermission(userMutations, 'usersEdit', 'usersEdit');
+checkPermission(userMutations, 'usersInvite', 'usersInvite');
+checkPermission(userMutations, 'usersSetActiveStatus', 'usersSetActiveStatus');
 
 export default userMutations;

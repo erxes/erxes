@@ -1,10 +1,11 @@
 import { Accounts, Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
+import { IUserDocument } from '../../../db/models/definitions/users';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
 import { sendGmail, updateHistoryId } from '../../../trackers/gmail';
 import { socUtils } from '../../../trackers/twitterTracker';
-import { requireAdmin, requireLogin } from '../../permissions';
-import { sendPostRequest } from '../../utils';
+import { checkPermission } from '../../permissions';
+import { getEnv, sendPostRequest } from '../../utils';
 
 interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
@@ -91,9 +92,11 @@ const integrationMutations = {
       },
     });
 
-    const { INTEGRATION_ENDPOINT_URL, FACEBOOK_APP_ID, DOMAIN } = process.env;
+    const INTEGRATION_ENDPOINT_URL = getEnv({ name: 'INTEGRATION_ENDPOINT_URL', defaultValue: '' });
+    const FACEBOOK_APP_ID = getEnv({ name: 'FACEBOOK_APP_ID' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-    if (INTEGRATION_ENDPOINT_URL) {
+    if (INTEGRATION_ENDPOINT_URL !== '') {
       for (const pageId of pageIds) {
         await sendPostRequest(`${INTEGRATION_ENDPOINT_URL}/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, {
           endPoint: DOMAIN || '',
@@ -149,21 +152,28 @@ const integrationMutations = {
   /**
    * Send mail by gmail api
    */
-  integrationsSendGmail(_root, args) {
-    return sendGmail(args);
+  integrationsSendGmail(_root, args, { user }: { user: IUserDocument }) {
+    return sendGmail(args, user);
   },
 };
 
-requireLogin(integrationMutations, 'integrationsCreateMessengerIntegration');
-requireLogin(integrationMutations, 'integrationsEditMessengerIntegration');
-requireLogin(integrationMutations, 'integrationsSaveMessengerAppearanceData');
-requireLogin(integrationMutations, 'integrationsSaveMessengerConfigs');
-requireLogin(integrationMutations, 'integrationsCreateFormIntegration');
-requireLogin(integrationMutations, 'integrationsEditFormIntegration');
-requireLogin(integrationMutations, 'integrationsCreateTwitterIntegration');
-requireLogin(integrationMutations, 'integrationsCreateFacebookIntegration');
-requireLogin(integrationMutations, 'integrationsCreateGmailIntegration');
-requireLogin(integrationMutations, 'integrationsSendGmail');
-requireAdmin(integrationMutations, 'integrationsRemove');
+checkPermission(
+  integrationMutations,
+  'integrationsCreateMessengerIntegration',
+  'integrationsCreateMessengerIntegration',
+);
+checkPermission(
+  integrationMutations,
+  'integrationsSaveMessengerAppearanceData',
+  'integrationsSaveMessengerAppearanceData',
+);
+checkPermission(integrationMutations, 'integrationsSaveMessengerConfigs', 'integrationsSaveMessengerConfigs');
+checkPermission(integrationMutations, 'integrationsCreateFormIntegration', 'integrationsCreateFormIntegration');
+checkPermission(integrationMutations, 'integrationsEditFormIntegration', 'integrationsEditFormIntegration');
+checkPermission(integrationMutations, 'integrationsCreateTwitterIntegration', 'integrationsCreateTwitterIntegration');
+checkPermission(integrationMutations, 'integrationsCreateFacebookIntegration', 'integrationsCreateFacebookIntegration');
+checkPermission(integrationMutations, 'integrationsCreateGmailIntegration', 'integrationsCreateGmailIntegration');
+checkPermission(integrationMutations, 'integrationsSendGmail', 'integrationsSendGmail');
+checkPermission(integrationMutations, 'integrationsRemove', 'integrationsRemove');
 
 export default integrationMutations;

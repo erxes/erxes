@@ -13,7 +13,7 @@ import resolvers from './data/resolvers';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
 import { pubsub } from './data/resolvers/subscriptions';
 import typeDefs from './data/schema';
-import { checkFile, importXlsFile, uploadFile } from './data/utils';
+import { checkFile, getEnv, importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Conversations, Customers } from './db/models';
 import { init } from './startup';
@@ -22,7 +22,9 @@ import { getAttachment } from './trackers/gmail';
 // load environment variables
 dotenv.config();
 
-const { NODE_ENV, MAIN_APP_DOMAIN = '', WIDGETS_DOMAIN = '' } = process.env;
+const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
+const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN', defaultValue: '' });
 
 // connect to mongo database
 connect();
@@ -30,7 +32,11 @@ connect();
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(
+  bodyParser.json({
+    limit: '10mb',
+  }),
+);
 app.use(cookieParser());
 
 const corsOptions = {
@@ -59,6 +65,9 @@ if (NODE_ENV !== 'production') {
   };
 }
 
+const clients: string[] = [];
+const connectedClients: string[] = [];
+
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
@@ -84,25 +93,36 @@ const apolloServer = new ApolloServer({
 
           const customerId = webSocket.messengerData.customerId;
 
-          // mark as online
-          await Customers.markCustomerAsActive(customerId);
-
-          // customer has joined + time
-          const conversationMessages = await Conversations.changeCustomerStatus('joined', customerId, integrationId);
-
-          for (const _message of conversationMessages) {
-            pubsub.publish('conversationMessageInserted', {
-              conversationMessageInserted: _message,
-            });
+          if (!connectedClients.includes(customerId)) {
+            connectedClients.push(customerId);
           }
 
-          // notify as connected
-          pubsub.publish('customerConnectionChanged', {
-            customerConnectionChanged: {
-              _id: customerId,
-              status: 'connected',
-            },
-          });
+          // Waited for 5 seconds to reconnect in disconnect hook and disconnect hook
+          // removed this customer from connected clients list. So it means this customer
+          // is back online
+          if (!clients.includes(customerId)) {
+            clients.push(customerId);
+
+            // mark as online
+            await Customers.markCustomerAsActive(customerId);
+
+            // customer has joined + time
+            const conversationMessages = await Conversations.changeCustomerStatus('joined', customerId, integrationId);
+
+            for (const _message of conversationMessages) {
+              pubsub.publish('conversationMessageInserted', {
+                conversationMessageInserted: _message,
+              });
+            }
+
+            // notify as connected
+            pubsub.publish('customerConnectionChanged', {
+              customerConnectionChanged: {
+                _id: customerId,
+                status: 'connected',
+              },
+            });
+          }
         }
       });
     },
@@ -114,24 +134,39 @@ const apolloServer = new ApolloServer({
         const customerId = messengerData.customerId;
         const integrationId = messengerData.integrationId;
 
-        // mark as offline
-        await Customers.markCustomerAsNotActive(customerId);
+        // Temporarily marking as disconnected
+        // If client refreshes his browser, It will trigger disconnect, connect hooks.
+        // So to determine this issue. We are marking as disconnected here and waiting
+        // for 5 seconds to reconnect.
+        connectedClients.splice(connectedClients.indexOf(customerId), 1);
 
-        // customer has left + time
-        const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
+        setTimeout(async () => {
+          if (connectedClients.includes(customerId)) {
+            return;
+          }
 
-        for (const message of conversationMessages) {
-          pubsub.publish('conversationMessageInserted', {
-            conversationMessageInserted: message,
+          clients.splice(clients.indexOf(customerId), 1);
+
+          // mark as offline
+          await Customers.markCustomerAsNotActive(customerId);
+
+          // customer has left + time
+          const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
+
+          for (const message of conversationMessages) {
+            pubsub.publish('conversationMessageInserted', {
+              conversationMessageInserted: message,
+            });
+          }
+
+          // notify as disconnected
+          pubsub.publish('customerConnectionChanged', {
+            customerConnectionChanged: {
+              _id: customerId,
+              status: 'disconnected',
+            },
           });
-        }
-        // notify as disconnected
-        pubsub.publish('customerConnectionChanged', {
-          customerConnectionChanged: {
-            _id: customerId,
-            status: 'disconnected',
-          },
-        });
+        }, 10000);
       }
     },
   },
@@ -194,18 +229,18 @@ app.post('/import-file', (req: any, res) => {
 // get gmail attachment file
 app.get('/read-gmail-attachment', async (req: any, res) => {
   if (!req.query.message || !req.query.attach) {
-    return res.status(404).send('Not found');
+    return res.status(404).send('Attachment not found');
   }
 
   const attachment: { filename?: string; data?: string } = await getAttachment(req.query.message, req.query.attach);
 
   if (!attachment.data) {
-    return res.status(404).send('Not found');
+    return res.status(404).send('Attachment not found');
   }
 
   res.attachment(attachment.filename);
-
-  return res.send(Buffer.from(attachment.data, 'base64'));
+  res.write(attachment.data, 'base64');
+  res.end();
 });
 
 // engage unsubscribe
@@ -227,7 +262,7 @@ apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
 const httpServer = createServer(app);
 
 // subscriptions server
-const { PORT } = process.env;
+const PORT = getEnv({ name: 'PORT' });
 
 apolloServer.installSubscriptionHandlers(httpServer);
 

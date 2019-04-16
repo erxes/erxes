@@ -43,7 +43,7 @@ describe('mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ role: 'admin' });
+    _user = await userFactory({});
     _integration = await integrationFactory({});
     _brand = await brandFactory({});
 
@@ -284,6 +284,8 @@ describe('mutations', () => {
   test('Create facebook integration', async () => {
     process.env.FACEBOOK_APP_ID = '123321';
     process.env.DOMAIN = 'qwqwe';
+    process.env.INTEGRATION_ENDPOINT_URL = '';
+
     const account = await accountFactory({});
     const args = {
       brandId: _brand._id,

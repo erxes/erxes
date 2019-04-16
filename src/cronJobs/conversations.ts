@@ -79,7 +79,7 @@ export const sendMessageEmail = async () => {
 
     // send email
     utils.sendEmail({
-      to: customer.primaryEmail,
+      toEmails: [customer.primaryEmail],
       title: `Reply from "${brand.name}"`,
       template: {
         name: 'conversationCron',
