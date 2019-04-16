@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { Model, model } from 'mongoose';
 import * as sha256 from 'sha256';
-import { Session } from '.';
+import { Session, UsersGroups } from '.';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument, userSchema } from './definitions/users';
 
 const SALT_WORK_FACTOR = 10;
@@ -169,6 +169,10 @@ export const loadClass = () => {
     public static async createUserWithConfirmation({ email, groupId }: { email: string; groupId: string }) {
       // Checking duplicated email
       await Users.checkDuplication({ email });
+
+      if (!(await UsersGroups.findOne({ _id: groupId }))) {
+        throw new Error('Invalid group');
+      }
 
       const buffer = await crypto.randomBytes(20);
       const token = buffer.toString('hex');

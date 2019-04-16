@@ -3,7 +3,7 @@ import * as faker from 'faker';
 import * as moment from 'moment';
 import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, channelFactory, userFactory } from '../db/factories';
+import { brandFactory, channelFactory, userFactory, usersGroupFactory } from '../db/factories';
 import { Brands, Channels, Users } from '../db/models';
 
 /*
@@ -162,8 +162,10 @@ describe('User mutations', () => {
       }
     `;
 
+    const group = await usersGroupFactory();
+
     const params = {
-      entries: [{ email: 'test@example.com', groupId: 'groupId' }],
+      entries: [{ email: 'test@example.com', groupId: group._id }],
     };
 
     await graphqlRequest(mutation, 'usersInvite', params, { user: _admin });

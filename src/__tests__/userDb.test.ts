@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
-import { userFactory } from '../db/factories';
+import { userFactory, usersGroupFactory } from '../db/factories';
 import { Users } from '../db/models';
 
 beforeAll(() => {
@@ -115,8 +115,8 @@ describe('User db utils', () => {
   });
 
   test('createUserWithConfirmation', async () => {
-    const groupId = 'groupId';
-    const token = await Users.createUserWithConfirmation({ email: '123@gmail.com', groupId });
+    const group = await usersGroupFactory();
+    const token = await Users.createUserWithConfirmation({ email: '123@gmail.com', groupId: group._id });
 
     const userObj = await Users.findOne({ registrationToken: token }).lean();
 
@@ -126,7 +126,7 @@ describe('User db utils', () => {
 
     expect(userObj).toBeDefined();
     expect(userObj._id).toBeDefined();
-    expect(userObj.groupIds).toEqual([groupId]);
+    expect(userObj.groupIds).toEqual([group._id]);
     expect(userObj.registrationToken).toBeDefined();
   });
 
