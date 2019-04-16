@@ -102,7 +102,8 @@ const CollapsibleContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
   padding: ${dimensions.coreSpacing}px;
   background: ${collapsibleBackground};
-  box-shadow: inset 0px 11px 5px -10px #ddd, inset 0px -11px 5px -10px #ddd;
+  box-shadow: inset 0px 11px 5px -10px ${colors.colorShadowGray},
+    inset 0px -11px 5px -10px ${colors.colorShadowGray};
 
   img {
     width: 300px;
