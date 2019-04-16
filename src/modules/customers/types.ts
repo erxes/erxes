@@ -53,6 +53,7 @@ export interface ICustomerDoc {
   location?: {
     userAgent?: string;
     country?: string;
+    countryCode?: string;
     remoteAddress?: string;
     hostname?: string;
     language?: string;

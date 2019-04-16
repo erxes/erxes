@@ -1,9 +1,5 @@
 import { UserCommonInfos } from 'modules/auth/components';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import { ControlLabel, FormGroup } from 'modules/common/components';
 import { ColumnTitle } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IUserGroup } from 'modules/settings/permissions/types';

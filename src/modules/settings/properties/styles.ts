@@ -67,11 +67,20 @@ const SidebarContent = styled.div`
     ${dimensions.unitSpacing}px;
 `;
 
+const SelectInput = styled.div`
+  margin-bottom: 5px;
+
+  label {
+    margin-right: 5px;
+  }
+`;
+
 export {
   PropertyList,
   DropIcon,
   FieldType,
   InputDescription,
   CollapseRow,
-  SidebarContent
+  SidebarContent,
+  SelectInput
 };
