@@ -104,7 +104,7 @@ class UserInvitationForm extends React.Component<Props, State> {
     this.setState({ addMany: false });
   };
 
-  handleRemoveInput = (i: number) => {
+  handleRemoveEntry = (i: number) => {
     const { entries } = this.state;
 
     this.setState({ entries: entries.filter((item, index) => index !== i) });
@@ -118,7 +118,7 @@ class UserInvitationForm extends React.Component<Props, State> {
     }
 
     return (
-      <Icon icon="cancel-1" onClick={this.handleRemoveInput.bind(this, i)} />
+      <Icon icon="cancel-1" onClick={this.handleRemoveEntry.bind(this, i)} />
     );
   };
 
