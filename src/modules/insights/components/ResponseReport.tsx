@@ -29,7 +29,6 @@ type Props = {
   loading: {
     trend: boolean;
     summary: boolean;
-    insights: boolean;
     punch: boolean;
   };
 };
