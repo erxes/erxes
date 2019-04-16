@@ -1,7 +1,11 @@
 /* your custom css */
+<<<<<<< HEAD
 .headerTitleWithLogo {
   display: none !important;
 }
+=======
+
+>>>>>>> b39b53dfec18ec39817e890d81c2f025e49222e9
 @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
 }
 
@@ -15,4 +19,8 @@
 }
 
 @media only screen and (min-width: 1500px) {
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b39b53dfec18ec39817e890d81c2f025e49222e9
