@@ -1,32 +1,24 @@
-import * as moment from 'moment';
-import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
-import { IUserDocument } from '../../../db/models/definitions/users';
-import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../constants';
-import { checkPermission, moduleRequireLogin } from '../../permissions';
-import { getDateFieldAsStr, getDurationField } from './aggregationUtils';
+import { ConversationMessages, Conversations, Integrations, Tags } from '../../../../db/models';
+import { IUserDocument } from '../../../../db/models/definitions/users';
+import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../../constants';
+import { checkPermission, moduleRequireLogin } from '../../../permissions';
+import { getDateFieldAsStr, getDurationField } from '../aggregationUtils';
+import { IListArgs, IPieChartData } from './types';
 import {
   findConversations,
   fixChartData,
-  fixDate,
   fixDates,
   generateChartDataByCollection,
   generateChartDataBySelector,
   generateMessageSelector,
   generatePunchData,
   generateResponseData,
-  generateUserSelector,
+  getConversationDates,
   getConversationSelector,
   getFilterSelector,
   getSummaryData,
   getTimezone,
-  IListArgs,
-} from './insightUtils';
-
-interface IPieChartData {
-  id: string;
-  label: string;
-  value: number;
-}
+} from './utils';
 
 const insightQueries = {
   /**
@@ -60,6 +52,7 @@ const insightQueries = {
         ...conversationSelector,
         integrationId: { $in: integrationIds },
       });
+
       if (kind === INTEGRATION_KIND_CHOICES.FACEBOOK) {
         const { FEED, MESSENGER } = FACEBOOK_DATA_KINDS;
 
@@ -128,63 +121,53 @@ const insightQueries = {
    * Counts conversations by each hours in each days.
    */
   async insightsPunchCard(_root, args: IListArgs, { user }: { user: IUserDocument }) {
-    const { type, endDate } = args;
-    const filterSelector = getFilterSelector(args);
+    const { type } = args;
 
-    // check & convert endDate's value
-    const end = moment(fixDate(endDate)).format('YYYY-MM-DD');
-    const start = moment(end).add(-7, 'days');
+    const messageSelector = await generateMessageSelector({
+      args,
+      excludeBot: true,
+      type,
+    });
 
-    const conversationIds = await findConversations(
-      filterSelector,
-      {
-        createdAt: { $gte: start, $lte: end },
-      },
-      true,
-    );
-
-    const rawConversationIds = conversationIds.map(obj => obj._id);
-    const matchMessageSelector = {
-      conversationId: { $in: rawConversationIds },
-      fromBot: { $exists: false },
-      // client or user
-      userId: generateUserSelector(type),
-      createdAt: { $gte: start.toDate(), $lte: new Date(end) },
-    };
-
-    return generatePunchData(ConversationMessages, matchMessageSelector, user);
+    return generatePunchData(ConversationMessages, messageSelector, user);
   },
 
   /**
-   * Sends combined charting data for trends, summaries and team members.
+   * Sends combined charting data for trends.
    */
-  async insightsMain(_root, args: IListArgs) {
+  async insightsTrend(_root, args: IListArgs) {
     const { type } = args;
-    const messageSelector = await generateMessageSelector(
+
+    const messageSelector = await generateMessageSelector({
       args,
-      // message selector
-      {
-        userId: generateUserSelector(type),
-        // exclude bot messages
-        fromBot: { $exists: false },
-      },
-    );
+      excludeBot: true,
+      type,
+    });
 
-    const insightData: any = {};
+    return generateChartDataBySelector({ selector: messageSelector });
+  },
 
-    insightData.trend = await generateChartDataBySelector({ selector: messageSelector });
+  /**
+   * Sends summary datas.
+   */
+  async insightsSummaryData(_root, args: IListArgs) {
+    const { startDate, endDate, type } = args;
 
-    const { startDate, endDate } = args;
+    const messageSelector = await generateMessageSelector({
+      args,
+      excludeBot: true,
+      type,
+      createdAt: getConversationDates(args.endDate),
+    });
+
     const { start, end } = fixDates(startDate, endDate);
 
-    insightData.summary = await getSummaryData({
+    return getSummaryData({
       startDate: start,
       endDate: end,
       collection: ConversationMessages,
       selector: { ...messageSelector },
     });
-
-    return insightData;
   },
 
   /**
@@ -303,19 +286,15 @@ const insightQueries = {
 
     const conversationSelector = {
       createdAt: { $gte: start, $lte: end },
-      closedAt: { $ne: null },
-      closedUserId: { $ne: null },
+      closedAt: { $exists: true },
+      closedUserId: { $exists: true },
     };
 
     const conversationMatch = await getConversationSelector(args, { ...conversationSelector });
+
     const insightAggregateData = await Conversations.aggregate([
       {
         $match: conversationMatch,
-      },
-      {
-        $match: {
-          closedAt: { $exists: true },
-        },
       },
       {
         $project: {
@@ -373,6 +352,7 @@ const insightQueries = {
         },
       },
     ]);
+
     // Variables holds every user's response time.
     const teamMembers: any = [];
     const responseUserData: any = {};
@@ -380,6 +360,7 @@ const insightQueries = {
     let allResponseTime = 0;
     let totalCount = 0;
     const aggregatedTrend = {};
+
     for (const userData of insightAggregateData) {
       // responseUserData
       responseUserData[userData._id] = {

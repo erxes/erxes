@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import insightExportQueries from '../data/resolvers/queries/insightExport';
+import insightExportQueries from '../data/resolvers/queries/insights/insightExport';
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, conversationFactory, conversationMessageFactory, integrationFactory } from '../db/factories';
 import { Brands, ConversationMessages, Conversations, Integrations } from '../db/models';

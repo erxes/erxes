@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import dealInsightQueries from '../data/resolvers/queries/dealInsights';
+import dealInsightQueries from '../data/resolvers/queries/insights/dealInsights';
 import { graphqlRequest } from '../db/connection';
 import { dealBoardFactory, dealFactory, dealPipelineFactory, dealStageFactory, userFactory } from '../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';

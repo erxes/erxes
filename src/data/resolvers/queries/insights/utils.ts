@@ -8,108 +8,30 @@ import {
   DealStages,
   Integrations,
   Users,
-} from '../../../db/models';
-import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
-import { IConversationDocument } from '../../../db/models/definitions/conversations';
-import { IStageDocument } from '../../../db/models/definitions/deals';
-import { IUser } from '../../../db/models/definitions/users';
-import { INSIGHT_TYPES } from '../../constants';
-import { getDateFieldAsStr } from './aggregationUtils';
-
-interface IMessageSelector {
-  userId?: string;
-  createdAt?: { $gte: Date; $lte: Date };
-  fromBot?: { $exists: boolean };
-  conversationId?: {
-    $in: string[];
-  };
-}
-
-interface IGenerateChartData {
-  x: any;
-  y: number;
-}
-
-interface IGeneratePunchCard {
-  day: number;
-  hour: number;
-  date: number;
-  count: number;
-}
-
-interface IGenerateTimeIntervals {
-  title: string;
-  start: moment.Moment;
-  end: moment.Moment;
-}
-
-interface IGenerateUserChartData {
-  fullName?: string;
-  avatar?: string;
-  graph: IGenerateChartData[];
-}
-
-interface IFixDates {
-  start: Date;
-  end: Date;
-}
-
-interface IResponseUserData {
-  [index: string]: {
-    responseTime: number;
-    count: number;
-    summaries?: number[];
-  };
-}
-
-interface IGenerateResponseData {
-  trend: IGenerateChartData[];
-  time: number;
-  teamMembers: {
-    data: IGenerateUserChartData[];
-  };
-}
-
-export interface IListArgs {
-  integrationIds: string;
-  brandIds: string;
-  startDate: string;
-  endDate: string;
-  type: string;
-}
-
-export interface IDealListArgs {
-  pipelineIds: string;
-  boardId: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-}
-
-export interface IFilterSelector {
-  createdAt?: { $gte: Date; $lte: Date };
-  integration: {
-    kind?: { $in: string[] };
-    brandId?: { $in: string[] };
-  };
-}
-
-interface IDealSelector {
-  modifiedAt?: {
-    $gte: Date;
-    $lte: Date;
-  };
-  createdAt?: {
-    $gte: Date;
-    $lte: Date;
-  };
-  stageId?: object;
-}
-
-interface IStageSelector {
-  probability?: string;
-  pipelineId?: {};
-}
+} from '../../../../db/models';
+import { IMessageDocument } from '../../../../db/models/definitions/conversationMessages';
+import { IConversationDocument } from '../../../../db/models/definitions/conversations';
+import { IStageDocument } from '../../../../db/models/definitions/deals';
+import { IUser } from '../../../../db/models/definitions/users';
+import { INSIGHT_TYPES } from '../../../constants';
+import { getDateFieldAsStr } from '../aggregationUtils';
+import { fixDate } from '../utils';
+import {
+  IDealListArgs,
+  IDealSelector,
+  IFilterSelector,
+  IFixDates,
+  IGenerateChartData,
+  IGenerateMessage,
+  IGeneratePunchCard,
+  IGenerateResponseData,
+  IGenerateTimeIntervals,
+  IGenerateUserChartData,
+  IListArgs,
+  IMessageSelector,
+  IResponseUserData,
+  IStageSelector,
+} from './types';
 
 /**
  * Return filterSelector
@@ -208,7 +130,7 @@ export const findConversations = async (
   conversationSelector: any,
   selectIds?: boolean,
 ): Promise<IConversationDocument[]> => {
-  if (filterSelector.integration) {
+  if (Object.keys(filterSelector.integration).length > 0) {
     const integrationIds = await Integrations.find(filterSelector.integration).select('_id');
     conversationSelector.integrationId = integrationIds.map(row => row._id);
   }
@@ -287,16 +209,31 @@ export const getSummaryData = async ({
 /**
  * Builds messages find query selector.
  */
-export const generateMessageSelector = async (
-  args: IListArgs,
-  messageSelector: IMessageSelector,
-): Promise<IMessageSelector> => {
-  const filterSelector = await getFilterSelector(args);
-  messageSelector.createdAt = filterSelector.createdAt;
+export const generateMessageSelector = async ({
+  args,
+  createdAt,
+  type,
+  excludeBot,
+}: IGenerateMessage): Promise<IMessageSelector> => {
+  const filterSelector = getFilterSelector(args);
+  const updatedCreatedAt = createdAt || filterSelector.createdAt;
 
-  const conversationIds = await findConversations(filterSelector, { ...messageSelector }, true);
-  const rawConversationIds = conversationIds.map(obj => obj._id);
-  messageSelector.conversationId = { $in: rawConversationIds };
+  const messageSelector: any = {
+    createdAt: updatedCreatedAt,
+    userId: generateUserSelector(type),
+  };
+
+  if (excludeBot) {
+    messageSelector.fromBot = { $exists: false };
+  }
+
+  // While searching by integration
+  if (Object.keys(filterSelector.integration).length > 0) {
+    const conversationIds = await findConversations(filterSelector, { createdAt: updatedCreatedAt }, true);
+
+    const rawConversationIds = conversationIds.map(obj => obj._id);
+    messageSelector.conversationId = { $in: rawConversationIds };
+  }
 
   return messageSelector;
 };
@@ -518,20 +455,6 @@ export const getTime = (date: string | number): number => {
   return new Date(date).getTime();
 };
 
-/*
- * Converts given value to date or if value in valid date
- * then returns default value
- */
-export const fixDate = (value, defaultValue = new Date()): Date => {
-  const date = new Date(value);
-
-  if (!isNaN(date.getTime())) {
-    return date;
-  }
-
-  return defaultValue;
-};
-
 export const fixDates = (startValue: string, endValue: string, count?: number): IFixDates => {
   // convert given value or get today
   const endDate = fixDate(endValue);
@@ -546,6 +469,20 @@ export const fixDates = (startValue: string, endValue: string, count?: number): 
   const startDate = fixDate(startValue, startDateDefaultValue);
 
   return { start: startDate, end: endDate };
+};
+
+export const getConversationDates = (endValue: string): any => {
+  // convert given value or get today
+  const endDate = fixDate(endValue);
+
+  const month = moment(endDate).month();
+  const startDate = new Date(
+    moment(month + 1, 'MM')
+      .subtract(1, 'months')
+      .toString(),
+  );
+
+  return { $gte: startDate, $lte: endDate };
 };
 
 /*

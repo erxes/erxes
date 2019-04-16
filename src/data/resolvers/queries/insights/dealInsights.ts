@@ -1,20 +1,20 @@
 import * as moment from 'moment';
-import { Deals } from '../../../db/models';
-import { IUserDocument } from '../../../db/models/definitions/users';
-import { INSIGHT_TYPES } from '../../constants';
-import { moduleRequireLogin } from '../../permissions';
-import { getDateFieldAsStr } from './aggregationUtils';
+import { Deals } from '../../../../db/models';
+import { IUserDocument } from '../../../../db/models/definitions/users';
+import { INSIGHT_TYPES } from '../../../constants';
+import { moduleRequireLogin } from '../../../permissions';
+import { getDateFieldAsStr } from '../aggregationUtils';
+import { fixDate } from '../utils';
+import { IDealListArgs } from './types';
 import {
   fixChartData,
-  fixDate,
   fixDates,
   generateChartDataBySelector,
   generatePunchData,
   getDealSelector,
   getSummaryData,
   getTimezone,
-  IDealListArgs,
-} from './insightUtils';
+} from './utils';
 
 const dealInsightQueries = {
   /**

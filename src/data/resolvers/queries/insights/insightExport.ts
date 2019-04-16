@@ -1,132 +1,21 @@
 import * as moment from 'moment';
-import { Brands, ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../db/models';
-import { IUserDocument } from '../../../db/models/definitions/users';
-import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../constants';
-import { moduleCheckPermission } from '../../permissions';
-import { createXlsFile, generateXlsx } from '../../utils';
-import { getDateFieldAsStr, getDurationField } from './aggregationUtils';
+import { ConversationMessages, Conversations, Integrations, Tags, Users } from '../../../../db/models';
+import { IUserDocument } from '../../../../db/models/definitions/users';
+import { INSIGHT_BASIC_INFOS, TAG_TYPES } from '../../../constants';
+import { moduleCheckPermission } from '../../../permissions';
+import { createXlsFile, generateXlsx } from '../../../utils';
+import { getDateFieldAsStr, getDurationField } from '../aggregationUtils';
+import { IListArgs, IListArgsWithUserId, IVolumeReportExportArgs } from './types';
 import {
   findConversations,
   fixDates,
   generateMessageSelector,
-  generateUserSelector,
   getConversationSelector,
   getFilterSelector,
   getTimezone,
-  IListArgs,
-} from './insightUtils';
+} from './utils';
 
-interface IVolumeReportExportArgs {
-  date: string;
-  count: number;
-  customerCount: number;
-  customerCountPercentage: string;
-  messageCount: number;
-  resolvedCount: number;
-  averageResponseDuration: string;
-  firstResponseDuration: string;
-}
-
-interface IAddCellArgs {
-  sheet: any;
-  cols: string[];
-  rowIndex: number;
-  col: string;
-  value: string | number;
-}
-
-export interface IListArgsWithUserId extends IListArgs {
-  userId?: string;
-}
-
-/**
- * Fix number if it is either NaN or Infinity
- */
-
-const fixNumber = (num: number) => {
-  if (isNaN(num) || num === Infinity) {
-    return 0;
-  }
-  return num;
-};
-
-/**
- * Time format HH:mm:ii
- */
-const convertTime = (duration: number) => {
-  duration = duration / 1000;
-
-  const hours = Math.floor(duration / 3600);
-  const minutes = Math.floor((duration % 3600) / 60);
-  const seconds = Math.floor((duration % 3600) % 60);
-
-  const timeFormat = (num: number) => {
-    if (num < 10) {
-      return '0' + num.toString();
-    }
-
-    return num.toString();
-  };
-
-  return timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds);
-};
-
-/**
- * Add header into excel file
- * @param title
- * @param args
- * @param excel
- */
-const addHeader = async (title: string, args: IListArgs, excel: any): Promise<any> => {
-  const { integrationIds = '', brandIds = '', startDate, endDate } = args;
-  const selectedBrands = await Brands.find({ _id: { $in: brandIds.split(',') } }).select('name');
-  const brandNames = selectedBrands.map(row => row.name).join(',');
-  const { start, end } = fixDates(startDate, endDate);
-  excel.cell(1, 1).value(title);
-  excel.cell(2, 1).value('date:');
-  excel.cell(2, 2).value(`${dateToString(start)}-${dateToString(end)}`);
-  excel.cell(2, 4).value('Integration:');
-  excel.cell(2, 5).value(integrationIds);
-  excel.cell(2, 6).value('Brand:');
-  excel.cell(2, 7).value(brandNames || '');
-  return {};
-};
-
-/*
- * Sheet add cell
- */
-const addCell = (args: IAddCellArgs): void => {
-  const { cols, sheet, col, rowIndex, value } = args;
-
-  // Checking if existing column
-  if (cols.includes(col)) {
-    // If column already exists adding cell
-    sheet.cell(rowIndex, cols.indexOf(col) + 1).value(value);
-  } else {
-    // Creating column
-    sheet
-      .column(cols.length + 1)
-      .width(25)
-      .hidden(false);
-    sheet.cell(3, cols.length + 1).value(col);
-    // Creating cell
-    sheet.cell(rowIndex, cols.length + 1).value(value);
-
-    cols.push(col);
-  }
-};
-
-const nextTime = (start: Date, type?: string) => {
-  return new Date(
-    moment(start)
-      .add(1, type ? 'hours' : 'days')
-      .toString(),
-  );
-};
-
-const dateToString = (date: Date) => {
-  return moment(date).format('YYYY-MM-DD HH:mm');
-};
+import { addCell, addHeader, convertTime, dateToString, fixNumber, nextTime } from './exportUtils';
 
 const timeIntervals: string[] = [
   '0-5 second',
@@ -203,8 +92,6 @@ const insightExportQueries = {
         $project: {
           uniqueCustomerCount: { $size: '$uniqueCustomerIds' },
           totalCount: 1,
-          averageCloseTime: 1,
-          averageRespondTime: 1,
           totalCloseTime: 1,
           totalResponseTime: 1,
           resolvedCount: 1,
@@ -226,12 +113,11 @@ const insightExportQueries = {
     let totalUniqueCount = 0;
     let totalConversationMessages = 0;
     let totalResolved = 0;
-    let totalRespondTime = 0;
 
     let averageResponseDuration = 0;
     let firstResponseDuration = 0;
-    let totalAverageResponseDuration = 0;
-    let totalFirstResponseDuration = 0;
+    let totalClosedTime = 0;
+    let totalRespondTime = 0;
 
     aggregatedData.forEach(row => {
       volumeDictionary[row._id] = row;
@@ -290,14 +176,13 @@ const insightExportQueries = {
       totalCustomerCount += totalCount;
       totalResolved += resolvedCount;
 
-      totalRespondTime += totalResponseTime;
       totalUniqueCount += uniqueCustomerCount;
 
-      averageResponseDuration = fixNumber(totalCloseTime / resolvedCount);
-      firstResponseDuration = fixNumber(totalRespondTime / totalCount);
+      totalClosedTime += totalCloseTime;
+      totalRespondTime += totalResponseTime;
 
-      totalAverageResponseDuration += averageResponseDuration;
-      totalFirstResponseDuration += firstResponseDuration;
+      averageResponseDuration = fixNumber(totalCloseTime / resolvedCount);
+      firstResponseDuration = fixNumber(totalResponseTime / totalCount);
 
       data.push({
         date: moment(begin).format(timeFormat),
@@ -326,8 +211,8 @@ const insightExportQueries = {
       customerCountPercentage: `${((totalUniqueCount / totalCustomerCount) * 100).toFixed(0)}%`,
       messageCount: totalConversationMessages,
       resolvedCount: totalResolved,
-      averageResponseDuration: convertTime(totalAverageResponseDuration),
-      firstResponseDuration: convertTime(totalFirstResponseDuration),
+      averageResponseDuration: convertTime(fixNumber(totalClosedTime / totalResolved)),
+      firstResponseDuration: convertTime(fixNumber(totalRespondTime / totalCustomerCount)),
     });
 
     const basicInfos = INSIGHT_BASIC_INFOS;
@@ -365,13 +250,7 @@ const insightExportQueries = {
     const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate, 1);
 
-    const messageSelector = await generateMessageSelector(
-      args,
-      // message selector
-      {
-        userId: generateUserSelector('response'),
-      },
-    );
+    const messageSelector = await generateMessageSelector({ args, type: 'response' });
 
     const data = await ConversationMessages.aggregate([
       {
