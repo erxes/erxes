@@ -39,7 +39,7 @@ export interface IUserModel extends Model<IUserDocument> {
   configGetNotificationByEmail(_id: string, isAllowed: boolean): Promise<IUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): string;
-  createUserWithConfirmation({ email }: { email: string }): string;
+  createUserWithConfirmation({ email, groupId }: { email: string; groupId: string }): string;
   confirmInvitation({
     token,
     password,
@@ -166,7 +166,7 @@ export const loadClass = () => {
     /**
      * Create new user with invitation token
      */
-    public static async createUserWithConfirmation({ email }: { email: string }) {
+    public static async createUserWithConfirmation({ email, groupId }: { email: string; groupId: string }) {
       // Checking duplicated email
       await Users.checkDuplication({ email });
 
@@ -175,6 +175,7 @@ export const loadClass = () => {
 
       await Users.create({
         email,
+        groupIds: [groupId],
         registrationToken: token,
         registrationTokenExpires: Date.now() + 86400000,
       });

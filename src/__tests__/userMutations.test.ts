@@ -157,13 +157,13 @@ describe('User mutations', () => {
     const spyEmail = jest.spyOn(utils, 'sendEmail');
 
     const mutation = `
-      mutation usersInvite($emails: [String]) {
-        usersInvite(emails: $emails)
+      mutation usersInvite($entries: [InvitationEntry]) {
+        usersInvite(entries: $entries)
       }
-  `;
+    `;
 
     const params = {
-      emails: ['test@example.com'],
+      entries: [{ email: 'test@example.com', groupId: 'groupId' }],
     };
 
     await graphqlRequest(mutation, 'usersInvite', params, { user: _admin });
@@ -416,22 +416,6 @@ describe('User mutations', () => {
     }
 
     expect(deactivedUser.isActive).toBe(false);
-  });
-
-  test('Remove user with pending invitation status', async () => {
-    const mutation = `
-      mutation usersSetActiveStatus($_id: String!) {
-        usersSetActiveStatus(_id: $_id) {
-          _id
-        }
-      }
-    `;
-
-    await graphqlRequest(mutation, 'usersSetActiveStatus', { _id: _user._id }, { user: _admin });
-
-    const removedUser = await Users.findOne({ _id: _user._id });
-
-    expect(removedUser).toBeNull();
   });
 
   test('Config user email signature', async () => {
