@@ -18,18 +18,16 @@ pipeline:
     commands:
       - yarn tsc
 
-  publish:
-    image: plugins/docker
-    repo: goharbor.erxes.io/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
-    registry: goharbor.erxes.io
-    dockerfile: Dockerfile
-    secrets: [ docker_username, docker_password ]
-    tags:
-      - ${DRONE_BRANCH}-latest
-    when:
-      branch: develop
-      event: push
-      status: success
+  build:
+    image: node:8-slim
+    commands:
+      - yarn build
+      - mkdir prod
+      - cp -a dist prod
+      - cp -a node_modules prod
+      - cp package.json prod
+      - cp -a static prod
+      - cp .env.sample prod/.env
 
   docker:
     image: plugins/docker
@@ -43,6 +41,6 @@ pipeline:
     tags:
       - ${DRONE_BRANCH}-latest
     when:
-      branch: [ develop, master ]
+      branch: [master, develop]
       event: push
       status: success

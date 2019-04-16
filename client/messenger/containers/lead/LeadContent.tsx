@@ -1,20 +1,20 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
-import { Form as DumbForm } from "../../../form/components";
+import { Callout, Form as DumbForm } from "../../../form/components";
 import { ICurrentStatus, IForm, IFormDoc } from "../../../form/types";
 import { IEmailParams, IIntegration } from "../../../types";
 import queries from "../../graphql";
 import { LeadConsumer, LeadProvider } from "./LeadContext";
 
-const Form = (props: ChildProps<IProps, QueryResponse>) => {
+const LeadContent = (props: ChildProps<IProps, QueryResponse>) => {
   const data = props.data;
 
   if (!data || data.loading) {
     return null;
   }
 
-  if (!data.form) {
+  if (!data.form || !(data.form.title || "").trim()) {
     return null;
   }
 
@@ -46,7 +46,7 @@ const FormWithData = graphql<IProps, QueryResponse>(gql(queries.formQuery), {
       formId: form._id
     }
   })
-})(Form);
+})(LeadContent);
 
 const WithContext = () => (
   <LeadProvider>
@@ -57,10 +57,20 @@ const WithContext = () => (
         createNew,
         sendEmail,
         getIntegration,
-        getForm
+        getForm,
+        isCallOutVisible,
+        showForm
       }) => {
         const integration = getIntegration();
         const form = getForm();
+
+        const callout = form.callout;
+
+        if (isCallOutVisible && callout && !callout.skip) {
+          return (
+            <Callout onSubmit={showForm} configs={callout || {}} color={""} />
+          );
+        }
 
         return (
           <FormWithData

@@ -39,12 +39,13 @@ export default class KnowledgeBase extends React.Component<Props> {
     const { color } = this.props;
 
     return (
-      <div className="erxes-widget-kb">
+      <div className="erxes-widget-container">
         <SearchBar color={color} />
-
-        <div className="erxes-content">
-          <div className="erxes-knowledge-container">
-            {this.renderContent()}
+        <div className="erxes-widget-kb">
+          <div className="erxes-content">
+            <div className="erxes-knowledge-container">
+              {this.renderContent()}
+            </div>
           </div>
         </div>
       </div>

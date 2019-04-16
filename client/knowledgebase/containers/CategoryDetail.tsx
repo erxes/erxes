@@ -18,10 +18,12 @@ type QueryResponse = {
 const CategoryDetail = (props: ChildProps<Props, QueryResponse>) => {
   const { data } = props;
 
-  if (!data || data.loading) {
+  if (!data) {
     return null;
   }
-
+  if (data.loading) {
+    return <div className="loader bigger top-space" />;
+  }
   const extendedProps = {
     ...props,
     category: data.knowledgeBaseCategoriesDetail || null

@@ -14,6 +14,7 @@ const container = () => (
           setHeight={setHeight}
           configs={callout || {}}
           color={themeColor || ""}
+          hasTopBar={true}
         />
       );
     }}

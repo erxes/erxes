@@ -54,6 +54,10 @@
     }
   }
 
+  &:last-child .erxes-right-side {
+    border: none;
+  }
+
   .erxes-right-side {
     border-bottom: 1px solid $grey;
     margin-left: 75px;

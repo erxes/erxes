@@ -14,7 +14,7 @@ type Props = {
 
 class Supporters extends React.Component<Props> {
   getAvatar(avatar: string) {
-    if (!avatar || avatar === "/images/avatar-colored.svg") {
+    if (!avatar) {
       return defaultAvatar;
     }
 

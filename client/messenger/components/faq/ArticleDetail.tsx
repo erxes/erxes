@@ -36,14 +36,16 @@ export default function ArticleDetail({ article, goToCategory }: Props) {
         buttonIcon={iconLeft}
         onLeftButtonClick={onClick}
       />
-      <div className="erxes-content slide-in">
-        <div className="erxes-article-content">
-          <h2>{title}</h2>
-          <div className="date">
-            {__("Created ")}: <span>{moment(createdDate).format("lll")}</span>
+      <div className="erxes-content">
+        <div className="erxes-content slide-in">
+          <div className="erxes-article-content">
+            <h2>{title}</h2>
+            <div className="date">
+              {__("Created ")}: <span>{moment(createdDate).format("lll")}</span>
+            </div>
+            <p>{summary}</p>
+            <p dangerouslySetInnerHTML={{ __html: content }} />
           </div>
-          <p>{summary}</p>
-          <p dangerouslySetInnerHTML={{ __html: content }} />
         </div>
       </div>
     </>

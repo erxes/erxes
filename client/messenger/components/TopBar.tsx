@@ -1,6 +1,6 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import { iconClose, iconLeft } from "../../icons/Icons";
+import { iconClose, iconExit, iconLeft, iconMore } from "../../icons/Icons";
 import { __ } from "../../utils";
 
 type Props = {
@@ -18,6 +18,7 @@ type Props = {
 
 type State = {
   headHeight: any;
+  isVisibleDropdown: boolean;
 };
 
 class TopBar extends React.Component<Props, State> {
@@ -25,8 +26,8 @@ class TopBar extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { headHeight: props.prevHeight };
-    this.onRightButtonClick = this.onRightButtonClick.bind(this);
+    this.state = { headHeight: props.prevHeight, isVisibleDropdown: false };
+    this.endConversation = this.endConversation.bind(this);
   }
 
   updateHeight() {
@@ -45,29 +46,57 @@ class TopBar extends React.Component<Props, State> {
     this.updateHeight();
   }
 
-  onRightButtonClick() {
-    const { isChat, toggleLauncher, endConversation } = this.props;
+  toggleDropdown = () => {
+    this.setState({ isVisibleDropdown: !this.state.isVisibleDropdown });
+  };
+
+  endConversation() {
+    const { endConversation } = this.props;
 
     if (
-      isChat &&
       confirm((__("Do you want to end this conversation ?") || {}).toString())
     ) {
-      return endConversation();
+      endConversation();
     }
-
-    toggleLauncher(true);
   }
 
+  toggleLauncher = () => {
+    this.props.toggleLauncher(true);
+  };
+
   renderRightButton() {
+    const topBarClassNames = classNames("topbar-button", "right", "fade-in", {
+      "dropdown-open": this.state.isVisibleDropdown
+    });
+
+    if (!this.props.isChat) {
+      return (
+        <a
+          className={topBarClassNames}
+          onClick={this.toggleLauncher}
+          title="Close"
+        >
+          {iconClose}
+        </a>
+      );
+    }
+
     return (
-      <a
-        href="#"
-        className="topbar-button right fade-in"
-        onClick={this.onRightButtonClick}
-        title="End conversation"
-      >
-        {iconClose}
-      </a>
+      <button className={topBarClassNames} onClick={this.toggleDropdown}>
+        {iconMore}
+        <ul>
+          <li>
+            <a href="#" onClick={this.endConversation}>
+              {__("End conversation")}
+            </a>
+          </li>
+          <li>
+            <a href="#" onClick={this.toggleLauncher}>
+              {__("Close")}
+            </a>
+          </li>
+        </ul>
+      </button>
     );
   }
 
@@ -92,8 +121,7 @@ class TopBar extends React.Component<Props, State> {
     const { color, isExpanded, isChat, middle, toggleHead } = this.props;
 
     const topBarClassNames = classNames("erxes-topbar", {
-      expanded: isExpanded,
-      "end-chat": isChat
+      expanded: isExpanded
     });
 
     const middleClass = classNames("erxes-middle", "fade-in", {

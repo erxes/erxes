@@ -31,11 +31,7 @@ const container = (props: Props) => {
 
               sendMessage(message);
             }}
-            readMessages={conversationId => {
-              if (conversationId) {
-                readMessages(conversationId);
-              }
-            }}
+            readMessages={readMessages}
             sendFile={sendFile}
           />
         );

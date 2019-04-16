@@ -49,8 +49,8 @@ class ConversationDetail extends React.Component<
           return prev;
         }
 
-        // do not show internal messages
-        if (message.internal) {
+        // do not show internal or bot messages
+        if (message.internal || message.fromBot) {
           return prev;
         }
 

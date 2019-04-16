@@ -13,6 +13,7 @@ const messageFields = `
   content
   createdAt
   internal
+  fromBot
   engageData {
     content
     kind
@@ -257,6 +258,7 @@ const formConnectMutation = `
         _id
         title
         description
+        callout
       }
       integration {
         _id

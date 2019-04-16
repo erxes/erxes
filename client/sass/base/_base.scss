@@ -61,6 +61,9 @@ body {
     margin-top: 0;
     width: 28px;
   }
+  &.top-space{
+    margin-top:100px;
+  }
 }
 
 .erxes-tooltip {
@@ -211,6 +214,20 @@ body {
     color: $red;
     font-size: 12px;
     margin-left: 4px;
+  }
+}
+
+.erxes-callout-body {
+  color: lighten($black, 36%);
+  display: block;
+  margin-bottom: 10px;
+  overflow: hidden;
+  width: 100%;
+
+  img {
+    float: left;
+    margin-right: 10px;
+    max-width: 30%;
   }
 }
 
