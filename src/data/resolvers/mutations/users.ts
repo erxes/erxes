@@ -144,17 +144,17 @@ const userMutations = {
   /*
    * Invites users to team members
    */
-  async usersInvite(_root, { emails }: { emails: string[] }) {
-    await Users.checkDuplication({ emails });
+  async usersInvite(_root, { entries }: { entries: Array<{ email: string; groupId: string }> }) {
+    for (const entry of entries) {
+      await Users.checkDuplication({ email: entry.email });
 
-    for (const email of emails) {
-      const token = await Users.createUserWithConfirmation({ email });
+      const token = await Users.createUserWithConfirmation(entry);
 
       const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
       const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
 
       utils.sendEmail({
-        toEmails: [email],
+        toEmails: [entry.email],
         title: 'Team member invitation',
         template: {
           name: 'userInvitation',

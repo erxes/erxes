@@ -115,9 +115,10 @@ describe('User db utils', () => {
   });
 
   test('createUserWithConfirmation', async () => {
-    const token = await Users.createUserWithConfirmation({ email: '123@gmail.com' });
+    const groupId = 'groupId';
+    const token = await Users.createUserWithConfirmation({ email: '123@gmail.com', groupId });
 
-    const userObj = await Users.findOne({ registrationToken: token });
+    const userObj = await Users.findOne({ registrationToken: token }).lean();
 
     if (!userObj) {
       throw new Error('User not found');
@@ -125,6 +126,7 @@ describe('User db utils', () => {
 
     expect(userObj).toBeDefined();
     expect(userObj._id).toBeDefined();
+    expect(userObj.groupIds).toEqual([groupId]);
     expect(userObj.registrationToken).toBeDefined();
   });
 
@@ -306,6 +308,7 @@ describe('User db utils', () => {
     await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1, isOwner: false } });
 
     const deactivatedUser = await Users.setUserActiveOrInactive(_user._id);
+
     // ensure deactivated
     expect(deactivatedUser.isActive).toBe(false);
   });

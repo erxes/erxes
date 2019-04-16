@@ -7,6 +7,7 @@ export const types = `
     location: String
     description: String
   }
+
   input UserLinks {
     linkedIn: String
     twitter: String
@@ -15,10 +16,17 @@ export const types = `
     github: String
     website: String
   }
+
   input EmailSignature {
     brandId: String
     signature: String
   }
+
+  input InvitationEntry {
+    email: String
+    groupId: String
+  }
+
   type UserDetailsType {
     avatar: String
     fullName: String
@@ -27,6 +35,7 @@ export const types = `
     location: String
     description: String
   }
+
   type UserLinksType {
     linkedIn: String
     twitter: String
@@ -35,6 +44,7 @@ export const types = `
     youtube: String
     website: String
   }
+
   type User {
     _id: String!
     username: String
@@ -51,6 +61,7 @@ export const types = `
     isOwner: Boolean
     permissionActions: JSON
   }
+
   type UserConversationListResponse {
     list: [Conversation],
     totalCount: Float,
@@ -94,9 +105,9 @@ export const mutations = `
   usersEdit(_id: String!, ${commonParams}): User
   usersChangePassword(currentPassword: String!, newPassword: String!): User
   usersSetActiveStatus(_id: String!): User
-  usersInvite(emails: [String]): Boolean
+  usersInvite(entries: [InvitationEntry]): Boolean
   usersConfirmInvitation(token: String, password: String, passwordConfirmation: String, fullName: String, username: String): User
   usersSeenOnBoard: User
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
   usersConfigGetNotificationByEmail(isAllowed: Boolean): User
-  `;
+ `;
