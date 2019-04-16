@@ -93,16 +93,27 @@ const IntegrationItem = styledTS(styled.div)`
       margin-left: -10px;
       border-left: ${dimensions.coreSpacing}px solid transparent;
       border-right: ${dimensions.coreSpacing}px solid transparent;
-      border-bottom: ${dimensions.coreSpacing}px solid ${collapsibleBackground};
+      border-bottom: ${dimensions.coreSpacing}px solid #e8e8e8;
     }
   }
 `;
 
 const CollapsibleContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
-  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 5px;
+  padding: ${dimensions.coreSpacing}px;
   background: ${collapsibleBackground};
-  transition: height ease 0.3s;
+  box-shadow: inset 0px 11px 5px -10px #ddd, inset 0px -11px 5px -10px #ddd;
+
+  img {
+    width: 300px;
+    padding: 40px 0 20px;
+  }
+
+  table thead th {
+    background: none;
+    position: inherit;
+    z-index: 0;
+  }
 `;
 
 export {
