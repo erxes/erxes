@@ -5,6 +5,7 @@ import {
 } from 'modules/common/components';
 import * as moment from 'moment';
 import * as React from 'react';
+import { SelectInput } from '../styles';
 import { IField } from '../types';
 
 type Props = {
@@ -101,10 +102,10 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <div>
         {options.map((option, index) => (
-          <div key={index}>
+          <SelectInput key={index}>
             {this.renderInput({ ...attrs, option })}
             <span>{option}</span>
-          </div>
+          </SelectInput>
         ))}
       </div>
     );
@@ -187,9 +188,8 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel ignoreTrans={true}>
+        <ControlLabel ignoreTrans={true} required={field.isRequired}>
           {field.text}
-          {field.isRequired ? <span className="required">*</span> : null}
         </ControlLabel>
 
         {field.description ? <p>{field.description}</p> : null}

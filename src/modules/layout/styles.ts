@@ -1,3 +1,4 @@
+import { TabContainer } from 'modules/common/components/tabs/styles';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -117,6 +118,12 @@ const SideContent = styledTS<{
 }px 0;
   box-shadow: ${props =>
     props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
+
+  ${TabContainer} {
+    position: sticky;
+    top: 0;
+    background: ${colors.colorWhite};
+  }
 `;
 
 const SidebarHeader = styledTS<{

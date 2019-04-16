@@ -13,7 +13,7 @@ type Props = {
 class DevicePropertiesSection extends React.Component<Props> {
   renderDeviceProperty = (
     text: string,
-    value?: string,
+    value?: any,
     secondValue?: string,
     nowrap?: boolean
   ) => {
@@ -31,6 +31,19 @@ class DevicePropertiesSection extends React.Component<Props> {
     return null;
   };
 
+  renderFlag = (countryCode: string | undefined) => {
+    if (!countryCode) {
+      return null;
+    }
+
+    return (
+      <img
+        style={{ marginBottom: '2px' }}
+        src={`https://www.countryflags.io/${countryCode}/shiny/16.png`}
+      />
+    );
+  };
+
   renderContent() {
     const { customer } = this.props;
     const location = customer.location;
@@ -43,7 +56,11 @@ class DevicePropertiesSection extends React.Component<Props> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderDeviceProperty('Location', location.country)}
+        {this.renderDeviceProperty(
+          'Location',
+          this.renderFlag(location.countryCode),
+          location.country
+        )}
         {this.renderDeviceProperty(
           'Browser',
           ua.browser.name,
