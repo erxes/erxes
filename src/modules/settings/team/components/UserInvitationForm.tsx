@@ -172,7 +172,10 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     return (
       <form onSubmit={this.onInvite}>
-        <ControlLabel>Email address</ControlLabel>
+        <FlexRow>
+          <ControlLabel>Email address</ControlLabel>
+          <ControlLabel>Choose Group</ControlLabel>
+        </FlexRow>
 
         {entries.map((input, i) => (
           <FlexRow key={i}>
