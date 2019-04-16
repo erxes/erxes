@@ -124,7 +124,26 @@ a:hover {
   color: ${colors.colorWhite};
 }
 
-/* dropdow */
+/* transition */
+
+.fade-in-appear,
+.fade-in-enter {
+  opacity: 0.1;
+}
+
+.fade-in-appear-active,
+.fade-in-enter-active {
+  opacity: 1;
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.fade-in-exit,
+.fade-in-exit-active {
+  opacity: 0.1;
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+/* dropdown */
 
 .dropdown-menu {
   margin-top: 0 !important;

@@ -210,8 +210,12 @@ class UserList extends React.Component<FinalProps, States> {
           {this.renderStatus()}
 
           <ButtonContainer>
-            <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
-              Apply
+            <Button
+              btnStyle="primary"
+              icon="search"
+              onClick={this.onApplyClick}
+            >
+              Search
             </Button>
           </ButtonContainer>
         </FlexRow>
