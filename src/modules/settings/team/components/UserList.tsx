@@ -16,6 +16,7 @@ import { Input } from 'modules/common/components/form/styles';
 import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { FlexItem, FlexRow } from 'modules/insights/styles';
+import { IUserGroup } from 'modules/settings/permissions/types';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
@@ -25,13 +26,14 @@ import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
 import { ButtonContainer, FilterContainer, UserAvatar } from '../styles';
 
-type Props = {
-  statusChanged?: (id: string) => void;
+type IProps = {
+  changeStatus: (id: string) => void;
+  usersGroups: IUserGroup[];
 };
 
 type FinalProps = ICommonListProps &
   ICommonFormProps &
-  Props & { currentUser: IUser };
+  IProps & { currentUser: IUser };
 
 type States = {
   isActive: boolean;
@@ -70,6 +72,7 @@ class UserList extends React.Component<FinalProps, States> {
     return (
       <UserInvitationForm
         closeModal={props.closeModal}
+        usersGroups={this.props.usersGroups}
         save={this.props.save}
       />
     );
@@ -111,9 +114,9 @@ class UserList extends React.Component<FinalProps, States> {
   };
 
   visibleHandler = (user: IUser) => {
-    const { statusChanged } = this.props;
+    const { changeStatus } = this.props;
 
-    return statusChanged ? statusChanged(user._id) : null;
+    return changeStatus(user._id);
   };
 
   renderRows({ objects }: { objects: IUser[] }) {
@@ -265,9 +268,7 @@ class UserList extends React.Component<FinalProps, States> {
   }
 }
 
-const WithConsumer = (
-  props: ICommonListProps & ICommonFormProps & { currentUser: IUser }
-) => {
+const WithConsumer = (props: IProps & ICommonListProps & ICommonFormProps) => {
   return (
     <AppConsumer>
       {({ currentUser }) => (

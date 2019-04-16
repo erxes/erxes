@@ -9,17 +9,19 @@ import {
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { ICommonFormProps } from 'modules/settings/common/types';
+import { IUserGroup } from 'modules/settings/permissions/types';
 import * as React from 'react';
 import { Description } from '../../styles';
 import { FlexRow, LinkButton } from '../styles';
-import { IEmails } from '../types';
+import { IInvitationEntry } from '../types';
 
 type Props = {
   save: (params: { doc: any }, callback: () => void, object: any) => void;
+  usersGroups: IUserGroup[];
 } & ICommonFormProps;
 
 type State = {
-  inputs: IEmails[];
+  entries: IInvitationEntry[];
   addMany: boolean;
 };
 
@@ -28,7 +30,11 @@ class UserInvitationForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      inputs: [{ email: '' }, { email: '' }, { email: '' }],
+      entries: [
+        { email: '', groupId: '' },
+        { email: '', groupId: '' },
+        { email: '', groupId: '' }
+      ],
       addMany: false
     };
   }
@@ -36,35 +42,44 @@ class UserInvitationForm extends React.Component<Props, State> {
   onInvite = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { inputs } = this.state;
-    const filterInputs = inputs.filter(input => input.email);
-    const emails = filterInputs.map(item => item.email);
+    const { entries } = this.state;
 
-    if (emails.length === 0) {
-      return Alert.warning('No email address found!');
+    const validEntries: IInvitationEntry[] = [];
+
+    for (const entry of entries) {
+      if (entry.email && entry.groupId) {
+        validEntries.push(entry);
+      }
+    }
+
+    if (validEntries.length === 0) {
+      return Alert.warning('Please complete the form');
     }
 
     this.props.save(
-      { doc: { emails } },
+      { doc: { entries: validEntries } },
       () => {
-        this.setState({ inputs: [] });
+        this.setState({ entries: [] });
         this.props.closeModal();
       },
       null
     );
   };
 
-  onEmailValueChange = (i: number, e: React.FormEvent) => {
+  onChange = (i: number, type: 'email' | 'groupId', e: React.FormEvent) => {
     const { value } = e.target as HTMLInputElement;
 
-    const inputs = [...this.state.inputs];
-    inputs[i] = { ...inputs[i], email: value };
+    const entries = [...this.state.entries];
 
-    this.setState({ inputs });
+    entries[i] = { ...entries[i], [type]: value };
+
+    this.setState({ entries });
   };
 
   onAddMoreInput = () => {
-    this.setState({ inputs: [...this.state.inputs, { email: '' }] });
+    this.setState({
+      entries: [...this.state.entries, { email: '', groupId: '' }]
+    });
   };
 
   onAddManyEmail = () => {
@@ -72,7 +87,7 @@ class UserInvitationForm extends React.Component<Props, State> {
   };
 
   addInvitees = () => {
-    const { inputs } = this.state;
+    const { entries } = this.state;
 
     const values = (document.getElementById(
       'multipleEmailValue'
@@ -84,21 +99,21 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     const emails = values.split(',');
 
-    emails.map(e => inputs.splice(0, 0, { email: e }));
+    emails.map(e => entries.splice(0, 0, { email: e, groupId: '' }));
 
     this.setState({ addMany: false });
   };
 
   handleRemoveInput = (i: number) => {
-    const { inputs } = this.state;
+    const { entries } = this.state;
 
-    this.setState({ inputs: inputs.filter((item, index) => index !== i) });
+    this.setState({ entries: entries.filter((item, index) => index !== i) });
   };
 
   renderRemoveInput = (i: number) => {
-    const { inputs } = this.state;
+    const { entries } = this.state;
 
-    if (inputs.length <= 1) {
+    if (entries.length <= 1) {
       return null;
     }
 
@@ -141,8 +156,15 @@ class UserInvitationForm extends React.Component<Props, State> {
     );
   }
 
+  generateGroupsChoices = () => {
+    return this.props.usersGroups.map(group => ({
+      value: group._id,
+      label: group.name
+    }));
+  };
+
   renderContent() {
-    const { addMany, inputs } = this.state;
+    const { addMany, entries } = this.state;
 
     if (addMany) {
       return this.renderMultipleEmail();
@@ -151,15 +173,27 @@ class UserInvitationForm extends React.Component<Props, State> {
     return (
       <form onSubmit={this.onInvite}>
         <ControlLabel>Email address</ControlLabel>
-        {inputs.map((input, i) => (
+
+        {entries.map((input, i) => (
           <FlexRow key={i}>
             <FormControl
               id="emailValue"
               type="email"
               placeholder="name@example.com"
               value={input.email}
-              onChange={this.onEmailValueChange.bind(this, i)}
+              onChange={this.onChange.bind(this, i, 'email')}
             />
+
+            <FormControl
+              componentClass="select"
+              placeholder={__('Choose group')}
+              options={[
+                { value: '', label: '' },
+                ...this.generateGroupsChoices()
+              ]}
+              onChange={this.onChange.bind(this, i, 'groupId')}
+            />
+
             {this.renderRemoveInput(i)}
           </FlexRow>
         ))}
