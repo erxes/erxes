@@ -128,7 +128,7 @@ a:hover {
 
 .fade-in-appear,
 .fade-in-enter {
-  opacity: 0;
+  opacity: 0.1;
 }
 
 .fade-in-appear-active,
@@ -139,11 +139,11 @@ a:hover {
 
 .fade-in-exit,
 .fade-in-exit-active {
-  opacity: 0;
+  opacity: 0.1;
   transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
 }
 
-/* dropdow */
+/* dropdown */
 
 .dropdown-menu {
   margin-top: 0 !important;
