@@ -9,36 +9,47 @@
 // site configuration options.
 
 // List of projects/orgs using your project for the users page.
-const users = [
-  {
-    caption: 'User1',
-    // You will need to prepend the image path with your baseUrl
-    // if it is not '/', like: '/test-site/img/docusaurus.svg'.
-    image: '/img/docusaurus.svg',
-    infoLink: 'https://www.facebook.com',
-    pinned: true,
-    docsSideNavCollapsible: true
-  }
-];
+const users = [{
+  caption: 'User1',
+  // You will need to prepend the image path with your baseUrl
+  // if it is not '/', like: '/test-site/img/docusaurus.svg'.
+  image: '/img/docusaurus.svg',
+  infoLink: 'https://www.facebook.com',
+  pinned: true,
+  docsSideNavCollapsible: true
+}];
 
 const siteConfig = {
   title: 'Erxes', // Title for your website.
   tagline: 'Documentation',
-  url: 'https://your-docusaurus-test-site.com', // Your website URL
+  url: 'https://docs.erxes.io', // Your website URL
   baseUrl: '/', // Base URL for your project */
+  cname: 'docs.erxes.io',
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
 
   // Used for publishing and more
-  projectName: 'Erxes',
-  organizationName: 'Erxes Inc',
+  projectName: 'docs',
+  organizationName: 'erxes',
   // For top-level user or org sites, the organization is still the same.
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
   //   organizationName: 'JoelMarcey'
 
   // For no header links in the top nav bar -> headerLinks: [],
-  headerLinks: [{ doc: 'doc1', label: 'Docs' }, { doc: 'doc4', label: 'API' }, { page: 'help', label: 'Help' }, { blog: true, label: 'Blog' }],
+  headerLinks: [{
+    doc: 'doc1',
+    label: 'Docs'
+  }, {
+    doc: 'doc4',
+    label: 'API'
+  }, {
+    page: 'help',
+    label: 'Help'
+  }, {
+    blog: true,
+    label: 'Blog'
+  }],
 
   // If you have users set above, you add it here:
   users,
