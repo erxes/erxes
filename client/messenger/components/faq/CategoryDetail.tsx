@@ -51,7 +51,7 @@ class CategoryDetail extends React.Component<Props, IState> {
     const { searchString } = this.state;
 
     if (loading) {
-      return <div className="loader" />;
+      return <div className="loader bigger" />;
     }
 
     return (
@@ -78,7 +78,7 @@ class CategoryDetail extends React.Component<Props, IState> {
           buttonIcon={iconLeft}
           onLeftButtonClick={goToCategories}
         />
-        {this.renderContent()}
+        <div className="erxes-content">{this.renderContent()}</div>
       </>
     );
   }

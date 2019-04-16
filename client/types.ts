@@ -46,6 +46,7 @@ export interface IBrowserInfo {
   url?: string;
   city?: string;
   country?: string;
+  countryCode?: string;
   remoteAddress?: string;
   region?: string;
   hostname?: string;

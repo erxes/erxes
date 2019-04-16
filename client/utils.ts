@@ -22,7 +22,8 @@ export const getBrowserInfo = async () => {
       city: "",
       remoteAddress: "",
       region: "",
-      country: ""
+      country: "",
+      countryCode: ""
     };
   }
 
