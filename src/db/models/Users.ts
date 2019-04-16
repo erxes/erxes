@@ -296,14 +296,8 @@ export const loadClass = () => {
         return Users.findOne({ _id });
       }
 
-      if (user.registrationToken) {
-        await Users.remove({ _id });
-
-        return user;
-      }
-
       if (user.isOwner) {
-        throw new Error('Can not remove owner');
+        throw new Error('Can not deactivate owner');
       }
 
       await Users.updateOne({ _id }, { $set: { isActive: false } });

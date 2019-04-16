@@ -300,7 +300,7 @@ describe('User db utils', () => {
       const user = await userFactory({});
       await Users.setUserActiveOrInactive(user._id);
     } catch (e) {
-      expect(e.message).toBe('Can not remove owner');
+      expect(e.message).toBe('Can not deactivate owner');
     }
 
     await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1, isOwner: false } });
@@ -320,15 +320,6 @@ describe('User db utils', () => {
 
     // ensure deactivated
     expect(activatedUser.isActive).toBe(false);
-  });
-
-  test('Remove user With pending invitation status', async () => {
-    await Users.setUserActiveOrInactive(_user._id);
-
-    const user = await Users.findOne({ _id: _user._id });
-
-    // ensure deactivated
-    expect(user).toBeNull();
   });
 
   test('Edit profile', async () => {
