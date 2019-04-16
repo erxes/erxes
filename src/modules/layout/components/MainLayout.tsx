@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { IRouterProps } from 'modules/common/types';
+import { Welcome } from 'modules/onboard/containers';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { Navigation } from '../containers';
@@ -35,11 +36,13 @@ class MainLayout extends React.Component<IProps> {
 
   render() {
     const { currentUser, children } = this.props;
+    const hasSeenOnboard = (currentUser && currentUser.hasSeenOnBoard) || false;
 
     return (
       <Layout>
-        {currentUser && <Navigation />}
+        {currentUser && <Navigation currentUser={currentUser} />}
         {children}
+        <Welcome hasSeen={hasSeenOnboard} />
       </Layout>
     );
   }

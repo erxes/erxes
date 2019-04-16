@@ -7,6 +7,7 @@ import {
   Icon,
   ModalTrigger,
   Tags,
+  TextInfo,
   Tip
 } from '../../common/components';
 import Form from './Form';
@@ -41,7 +42,9 @@ function Row({ tag, type, count, remove, save }: Props) {
       <td>
         <Tags tags={[tag]} size="medium" />
       </td>
-      <td>{count}</td>
+      <td>
+        <TextInfo>{count || '0'}</TextInfo>
+      </td>
       <td>
         <ActionButtons>
           <ModalTrigger
@@ -51,7 +54,7 @@ function Row({ tag, type, count, remove, save }: Props) {
           />
 
           <Tip text={__('Delete')}>
-            <Button btnStyle="link" onClick={removeTag} icon="close-circled" />
+            <Button btnStyle="link" onClick={removeTag} icon="cancel-1" />
           </Tip>
         </ActionButtons>
       </td>

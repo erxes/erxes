@@ -5,47 +5,62 @@ import { queries as tagQueries } from 'modules/tags/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { TagsQueryResponse } from '../../../tags/types';
+import { ITag, TagsQueryResponse } from '../../../tags/types';
 import { queries as customerQueries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 
 const TagFilterContainer = (props: {
-  customersCountQuery: CountQueryResponse;
-  tagsQuery: TagsQueryResponse;
+  customersCountQuery?: CountQueryResponse;
+  tagsQuery?: TagsQueryResponse;
 }) => {
   const { customersCountQuery, tagsQuery } = props;
 
-  const counts = customersCountQuery.customerCounts || {};
+  const counts = (customersCountQuery
+    ? customersCountQuery.customerCounts
+    : null) || { byTag: {} };
+
+  let tagsLoading = false;
+  let tags: ITag[] = [];
+
+  if (tagsQuery) {
+    tagsLoading = tagsQuery.loading || false;
+    tags = tagsQuery.tags || [];
+  }
 
   return (
     <CountsByTag
-      tags={tagsQuery.tags || []}
+      tags={tags}
       counts={counts.byTag || {}}
       manageUrl="tags/customer"
-      loading={tagsQuery.loading}
+      loading={tagsLoading}
     />
   );
 };
 
-export default withProps<{}>(
+export default withProps<{ loadingMainQuery: boolean }>(
   compose(
-    graphql<{}, CountQueryResponse, { only: string }>(
-      gql(customerQueries.customerCounts),
-      {
-        name: 'customersCountQuery',
-        options: {
-          variables: { only: 'byTag' }
-        }
+    graphql<
+      { loadingMainQuery: boolean },
+      CountQueryResponse,
+      { only: string }
+    >(gql(customerQueries.customerCounts), {
+      name: 'customersCountQuery',
+      skip: ({ loadingMainQuery }) => loadingMainQuery,
+      options: {
+        variables: { only: 'byTag' }
       }
-    ),
-    graphql<{}, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
-      name: 'tagsQuery',
-      options: () => ({
-        variables: {
-          type: TAG_TYPES.CUSTOMER
-        },
-        fetchPolicy: 'network-only'
-      })
-    })
+    }),
+    graphql<{ loadingMainQuery: boolean }, TagsQueryResponse, { type: string }>(
+      gql(tagQueries.tags),
+      {
+        name: 'tagsQuery',
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
+        options: () => ({
+          variables: {
+            type: TAG_TYPES.CUSTOMER
+          }
+        })
+      }
+    )
   )(TagFilterContainer)
 );

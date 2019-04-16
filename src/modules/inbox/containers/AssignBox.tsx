@@ -70,9 +70,11 @@ const AssignBoxContainer = (props: FinalProps) => {
       });
   };
 
+  const verifiedUsers = usersQuery.users.filter(user => user.username) || [];
+
   const updatedProps = {
     ...props,
-    assignees: usersQuery.users || [],
+    assignees: verifiedUsers,
     assign,
     clear
   };

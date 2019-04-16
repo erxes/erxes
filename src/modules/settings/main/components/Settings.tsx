@@ -2,7 +2,14 @@ import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Box, BoxName, Divider, Row, RowTitle } from '../styles';
+import {
+  Box,
+  BoxName,
+  Divider,
+  MenusContainer,
+  Row,
+  RowTitle
+} from '../styles';
 
 class Settings extends React.Component {
   renderBox(name: string, image: string, to: string) {
@@ -20,7 +27,7 @@ class Settings extends React.Component {
     const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 
     const content = (
-      <div>
+      <MenusContainer>
         <Row>
           <RowTitle className="secondRow">{__('General Settings')}</RowTitle>
           <div>
@@ -41,13 +48,18 @@ class Settings extends React.Component {
             )}
             {this.renderBox(
               'Import histories',
-              '/images/icons/erxes-12.svg',
+              '/images/icons/erxes-07.svg',
               '/settings/importHistories'
             )}
             {this.renderBox(
               'Status',
               '/images/icons/erxes-06.svg',
               '/settings/status'
+            )}
+            {this.renderBox(
+              'Permission',
+              '/images/icons/erxes-20.svg',
+              '/settings/permissions'
             )}
           </div>
         </Row>
@@ -80,11 +92,6 @@ class Settings extends React.Component {
               '/images/icons/erxes-09.svg',
               '/settings/email-templates'
             )}
-          </div>
-        </Row>
-        <Row>
-          <RowTitle />
-          <div>
             {this.renderBox(
               'Email Appearance',
               '/images/icons/erxes-08.svg',
@@ -113,7 +120,7 @@ class Settings extends React.Component {
             )}
           </div>
         </Row>
-      </div>
+      </MenusContainer>
     );
 
     return (

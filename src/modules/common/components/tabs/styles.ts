@@ -7,7 +7,9 @@ const TabContainer = styledTS<{ grayBorder?: boolean; full?: boolean }>(
 )`
   border-bottom: 1px solid
     ${props => (props.grayBorder ? colors.borderDarker : colors.borderPrimary)};
-  margin-bottom: ${dimensions.coreSpacing}px;
+  margin-bottom: -1px;
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: ${props => props.full && 'space-evenly'};
   flex-shrink: 0;
@@ -27,8 +29,13 @@ const TabCaption = styled.span`
     color: ${colors.textPrimary};
   }
 
+  i {
+    margin-right: 3px;
+  }
+
   &.active {
     color: ${colors.textPrimary};
+    font-weight: 500;
 
     &:before {
       border-bottom: 3px solid ${colors.colorSecondary};
@@ -37,7 +44,7 @@ const TabCaption = styled.span`
       position: absolute;
       z-index: 1;
       left: 0;
-      bottom: -2px;
+      bottom: -1px;
     }
   }
 `;

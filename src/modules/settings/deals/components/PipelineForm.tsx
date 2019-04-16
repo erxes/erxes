@@ -55,7 +55,13 @@ class PipelineForm extends React.Component<Props, State> {
 
     const { save, closeModal, pipeline } = this.props;
 
-    save(this.generateDoc(), () => closeModal(), pipeline);
+    save(
+      this.generateDoc(),
+      () => {
+        closeModal();
+      },
+      pipeline
+    );
   };
 
   renderContent() {
@@ -63,9 +69,9 @@ class PipelineForm extends React.Component<Props, State> {
     const { stages } = this.state;
 
     return (
-      <React.Fragment>
+      <>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl
             id="pipeline-name"
@@ -77,7 +83,7 @@ class PipelineForm extends React.Component<Props, State> {
         </FormGroup>
 
         <Stages stages={stages} onChangeStages={this.onChangeStages} />
-      </React.Fragment>
+      </>
     );
   }
 
@@ -89,7 +95,7 @@ class PipelineForm extends React.Component<Props, State> {
     }
 
     return (
-      <Modal show={show} onHide={closeModal}>
+      <Modal show={show} onHide={closeModal} dialogClassName="transform">
         <form onSubmit={this.save}>
           <Modal.Header closeButton={true}>
             <Modal.Title>

@@ -58,7 +58,8 @@ class List extends React.Component<Props, {}> {
       tags,
       bulk,
       emptyBulk,
-      isAllSelected
+      isAllSelected,
+      integrations
     } = this.props;
 
     let actionBarLeft: React.ReactNode;
@@ -141,9 +142,9 @@ class List extends React.Component<Props, {}> {
           <DataWithLoader
             data={content}
             loading={loading}
-            count={totalCount}
-            emptyText="There is no lead."
-            emptyImage="/images/robots/robot-03.svg"
+            count={integrations.length}
+            emptyText="There is always a lead!"
+            emptyImage="/images/actions/3.svg"
           />
         }
       />

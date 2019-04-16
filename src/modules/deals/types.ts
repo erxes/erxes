@@ -2,7 +2,7 @@ import { IActivityLogForMonth } from '../activityLogs/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
-import { IProduct } from '../settings/productService/types';
+import { IProduct, IProductDoc } from '../settings/productService/types';
 
 export interface ICommonState {
   [key: string]: {
@@ -30,6 +30,7 @@ export interface IStage {
   itemId?: string;
   amount?: any;
   deals?: IDeal[];
+  dealsTotalCount: number;
 }
 
 export interface IDeal {
@@ -48,9 +49,22 @@ export interface IDeal {
   products: any;
 }
 
+export interface IDealTotalAmount {
+  _id: string;
+  dealCount: number;
+  dealAmounts: [
+    {
+      _id: string;
+      amount: number;
+      currency: string;
+    }
+  ];
+}
+
 export interface IProductData {
   _id: string;
   productId?: string;
+  product?: IProduct;
   uom?: string;
   currency?: string;
   quantity: number;
@@ -106,6 +120,12 @@ export type DealsQueryResponse = {
   deals: IDeal[];
   loading: boolean;
   refetch: () => void;
+  fetchMore: any;
+};
+
+export type DealsTotalAmountsQueryResponse = {
+  dealsTotalAmounts: IDealTotalAmount;
+  refetch: () => void;
 };
 
 export type DealDetailQueryResponse = {
@@ -155,7 +175,7 @@ export type PipelineDetailQueryResponse = {
 };
 
 export type ActivityLogQueryResponse = {
-  activityLogsDeal: IActivityLogForMonth[];
+  activityLogs: IActivityLogForMonth[];
   loading: boolean;
 };
 
@@ -166,5 +186,5 @@ export type ProductsQueryResponse = {
 };
 
 export type ProductAddMutationResponse = {
-  productAdd: (params: { variables: IProduct }) => Promise<void>;
+  productAdd: (params: { variables: IProductDoc }) => Promise<void>;
 };

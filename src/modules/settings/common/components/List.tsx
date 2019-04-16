@@ -4,8 +4,8 @@ import {
   ModalTrigger,
   Pagination
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import Sidebar from 'modules/settings/Sidebar';
 import * as React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
 import { ICommonListProps } from '../types';
@@ -15,7 +15,10 @@ type Props = {
   size?: string;
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
+  leftActionBar: React.ReactNode;
   breadcrumb?: IBreadCrumbItem[];
+  center?: boolean;
+  renderFilter?: () => any;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -25,12 +28,15 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       size,
       renderContent,
       renderForm,
+      renderFilter,
+      leftActionBar,
       breadcrumb,
       totalCount,
       objects,
       loading,
       save,
       refetch,
+      center,
       remove
     } = this.props;
 
@@ -44,7 +50,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       return renderForm({ ...props, save });
     };
 
-    const actionBarLeft = (
+    const actionBarRight = (
       <ModalTrigger
         title={title || ''}
         size={size}
@@ -56,18 +62,22 @@ class List extends React.Component<Props & ICommonListProps, {}> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb || []} />}
-        leftSidebar={<Sidebar />}
-        actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
+        actionBar={
+          <Wrapper.ActionBar left={leftActionBar} right={actionBarRight} />
+        }
         footer={<Pagination count={totalCount} />}
-        transparent={false}
+        center={center}
         content={
-          <DataWithLoader
-            data={renderContent({ objects, save, refetch, remove })}
-            loading={loading}
-            count={totalCount}
-            emptyText="There is no data."
-            emptyImage="/images/robots/robot-05.svg"
-          />
+          <>
+            {renderFilter && renderFilter()}
+            <DataWithLoader
+              data={renderContent({ objects, save, refetch, remove })}
+              loading={loading}
+              count={totalCount}
+              emptyText="Oops! No data here"
+              emptyImage="/images/actions/5.svg"
+            />
+          </>
         }
       />
     );

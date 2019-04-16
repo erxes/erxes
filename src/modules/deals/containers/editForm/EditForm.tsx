@@ -1,9 +1,8 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
 import { UsersQueryResponse } from '../../../settings/team/types';
 import { EditForm } from '../../components/editForm';
 import { mutations, queries } from '../../graphql';
@@ -42,12 +41,16 @@ class EditFormContainer extends React.Component<FinalProps> {
     this.removeDeal = this.removeDeal.bind(this);
   }
 
-  addDeal(doc: IDealParams, callback: () => void) {
+  addDeal(
+    doc: IDealParams,
+    callback: () => void,
+    msg = `You successfully added a deal`
+  ) {
     const { onAdd, addMutation, stageId } = this.props;
 
     addMutation({ variables: doc })
       .then(({ data: { dealsAdd } }) => {
-        Alert.success(__('Successfully saved.'));
+        Alert.success(msg);
 
         callback();
 
@@ -65,7 +68,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     editMutation({ variables: { _id: dealId, ...doc } })
       .then(({ data }) => {
-        Alert.success(__('Successfully saved.'));
+        Alert.success('You successfully updated a deal');
 
         callback();
 
@@ -85,6 +88,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       removeMutation({ variables: { _id: dealId } })
         .then(() => {
           callback();
+
+          Alert.success('You successfully deleted a deal');
 
           if (onRemove) {
             onRemove(dealId, stageId);
@@ -155,11 +160,15 @@ export default withProps<Props>(
     }),
     graphql<Props, SaveDealMutation, IDealParams>(gql(mutations.dealsEdit), {
       name: 'editMutation',
-      options: ({ dealId }: { dealId: string }) => ({
+      options: ({ dealId, stageId }: { stageId: string; dealId: string }) => ({
         refetchQueries: [
           {
             query: gql(queries.dealDetail),
             variables: { _id: dealId }
+          },
+          {
+            query: gql(queries.stageDetail),
+            variables: { _id: stageId }
           }
         ]
       })

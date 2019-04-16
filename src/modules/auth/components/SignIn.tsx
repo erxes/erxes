@@ -48,8 +48,7 @@ class SignIn extends React.Component<Props, State> {
         <form onSubmit={this.login}>
           <FormGroup>
             <FormControl
-              type="email"
-              placeholder={__('your@email.com')}
+              placeholder={__('Username or email')}
               value={this.state.email}
               required={true}
               onChange={this.handleEmailChange}

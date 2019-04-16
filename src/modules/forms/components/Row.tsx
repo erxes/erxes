@@ -25,17 +25,21 @@ type Props = {
 
 class Row extends React.Component<Props, {}> {
   remove = () => {
-    confirm().then(() => {
-      const { integration, remove } = this.props;
+    confirm()
+      .then(() => {
+        const { integration, remove } = this.props;
 
-      remove(integration._id, error => {
-        if (error) {
-          return Alert.error(error.message);
-        }
+        remove(integration._id, error => {
+          if (error) {
+            return Alert.error(error.message);
+          }
 
-        return Alert.success('Congrats');
+          return Alert.success('You successfully deleted a lead');
+        });
+      })
+      .catch(e => {
+        Alert.error(e.message);
       });
-    });
   };
 
   manageAction(integration) {

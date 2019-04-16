@@ -8,7 +8,7 @@ type OptionProps = {
   onSelect: (option: any[], e: any) => void;
 };
 
-class Option extends React.Component<OptionProps> {
+class Option extends React.PureComponent<OptionProps> {
   render() {
     const { option, onSelect } = this.props;
     const { onRemove } = option;
@@ -40,22 +40,25 @@ type Props = {
   value?: string;
   placeholder?: string;
   buttonText?: string;
+  regex?: RegExp;
 };
 
 type State = {
   adding: boolean;
   options: any[];
   selectedOption: string;
+  inputValue: string;
 };
 
-class ModifiableSelect extends React.Component<Props, State> {
+class ModifiableSelect extends React.PureComponent<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
       adding: false,
       options: props.options || [],
-      selectedOption: props.value
+      selectedOption: props.value,
+      inputValue: ''
     };
   }
 
@@ -75,30 +78,43 @@ class ModifiableSelect extends React.Component<Props, State> {
     return <span>{selectedOption}</span>;
   };
 
-  handleSave = () => {
-    const { options, selectedOption } = this.state;
-    const { onChange } = this.props;
-    const value = (document.getElementById(
-      'removableSelect-value'
-    ) as HTMLInputElement).value;
+  isValid(regex: RegExp) {
+    return regex.test(this.state.inputValue);
+  }
 
-    const updatedOption = options.length === 0 ? value : selectedOption;
+  saveValue() {
+    const { options, selectedOption, inputValue } = this.state;
+    const { onChange } = this.props;
+    const updatedOption = options.length === 0 ? inputValue : selectedOption;
 
     const state: State = {
       adding: false,
-      options: [...options, value],
-      selectedOption: updatedOption
+      options: [...options, inputValue],
+      selectedOption: updatedOption,
+      inputValue
     };
 
     this.setState({ ...state }, () => {
       onChange({ options: this.state.options, selectedOption: updatedOption });
+
+      this.setState({ inputValue: '' });
     });
 
     Alert.success('Successfully added');
+  }
 
-    (document.getElementById(
-      'removableSelect-value'
-    ) as HTMLInputElement).value = '';
+  handleSave = () => {
+    const { regex } = this.props;
+
+    if (regex) {
+      if (this.isValid(regex)) {
+        return this.saveValue();
+      }
+
+      return Alert.error('Invalid format');
+    }
+
+    return this.saveValue();
   };
 
   handleAdding = () => {
@@ -142,12 +158,18 @@ class ModifiableSelect extends React.Component<Props, State> {
     });
   };
 
+  handleInputChange = e => {
+    e.preventDefault();
+    this.setState({ inputValue: e.target.value });
+  };
+
   renderInput = () => {
     const { buttonText } = this.props;
 
     if (this.state.adding) {
       const onPress = e => {
         if (e.key === 'Enter') {
+          e.preventDefault();
           return this.handleSave();
         }
       };
@@ -156,13 +178,12 @@ class ModifiableSelect extends React.Component<Props, State> {
         <React.Fragment>
           <FormGroup>
             <FormControl
-              id="removableSelect-value"
               autoFocus={true}
               onKeyPress={onPress}
+              onChange={this.handleInputChange}
             />
           </FormGroup>
           <Button
-            type="success"
             icon="cancel-1"
             btnStyle="simple"
             size="small"
@@ -171,7 +192,6 @@ class ModifiableSelect extends React.Component<Props, State> {
             Cancel
           </Button>
           <Button
-            type="success"
             btnStyle="success"
             size="small"
             icon="checked-1"
@@ -193,7 +213,6 @@ class ModifiableSelect extends React.Component<Props, State> {
   render() {
     const { placeholder } = this.props;
     const { selectedOption } = this.state;
-
     const onChange = obj => this.setItem(obj);
 
     return (

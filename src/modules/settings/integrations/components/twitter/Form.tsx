@@ -1,60 +1,64 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import { Button } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, confirm } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { SelectBrand } from 'modules/settings/integrations/components';
-import { IAccount } from 'modules/settings/linkedAccounts/types';
+import Accounts from 'modules/settings/integrations/containers/Accounts';
 import * as React from 'react';
 
 type Props = {
   brands: IBrand[];
-  accounts: IAccount[];
   save: (
     { brandId, accountId }: { brandId: string; accountId: string }
   ) => void;
 };
 
-class Twitter extends React.Component<Props> {
-  handleSubmit = e => {
+class Twitter extends React.Component<Props, { accountId?: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {};
+  }
+
+  onAccountRemove() {
+    confirm().then(() => {
+      this.setState({ accountId: '' });
+    });
+  }
+
+  onAccountSelect = (accountId?: string) => {
+    this.setState({ accountId });
+  };
+
+  handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const { accountId } = this.state;
+
+    if (!accountId) {
+      return;
+    }
 
     this.props.save({
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value,
-      accountId: (document.getElementById('selectAccount') as HTMLInputElement)
-        .value
+      accountId
     });
   };
 
   render() {
-    const { accounts, brands } = this.props;
+    const { brands } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
         <SelectBrand brands={brands} />
 
-        <FormGroup>
-          <ControlLabel>Linked Accounts</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select account')}
-            id="selectAccount"
-          >
-            <option value="">Select account ...</option>
-
-            {accounts.map((account, index) => (
-              <option key={`account${index}`} value={account._id}>
-                {account.name}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
+        <Accounts
+          kind="twitter"
+          addLink="twitterLogin"
+          onRemove={this.onAccountRemove}
+          onSelect={this.onAccountSelect}
+        />
 
         <ModalFooter>
           <Button btnStyle="success" type="submit" icon="checked-1">

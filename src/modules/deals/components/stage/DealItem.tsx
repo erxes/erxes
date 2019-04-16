@@ -1,14 +1,13 @@
 import { __ } from 'modules/common/utils';
 import { EditForm } from 'modules/deals/containers/editForm';
 import {
-  Content,
-  Date,
   Deal,
-  DealContainer,
-  DealIndicator,
+  DealDate,
   Footer,
+  PriceContainer,
   Right
-} from 'modules/deals/styles/stage';
+} from 'modules/deals/styles/deal';
+import { Content, DealIndicator } from 'modules/deals/styles/stage';
 import { IDeal } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
 import * as moment from 'moment';
@@ -23,6 +22,7 @@ type Props = {
   onAdd: (stageId: string, deal: IDeal) => void;
   onRemove: (dealId: string, stageId: string) => void;
   onUpdate: (deal: IDeal) => void;
+  onTogglePopup: () => void;
 };
 
 export default class DealItem extends React.PureComponent<
@@ -40,10 +40,12 @@ export default class DealItem extends React.PureComponent<
       return null;
     }
 
-    return <Date>{moment(date).format('MMM D, h:mm a')}</Date>;
+    return <DealDate>{moment(date).format('MMM D, h:mm a')}</DealDate>;
   }
 
   toggleForm = () => {
+    this.props.onTogglePopup();
+
     const { isFormVisible } = this.state;
 
     this.setState({ isFormVisible: !isFormVisible });
@@ -107,14 +109,12 @@ export default class DealItem extends React.PureComponent<
 
           {companies.map((company, index) => (
             <div key={index}>
-              <DealIndicator color="#CEF753" />
+              <DealIndicator color="#EA475D" />
               {company.primaryName}
             </div>
           ))}
 
-          <br />
-
-          <DealContainer>
+          <PriceContainer>
             {renderDealAmount(deal.amount)}
 
             <Right>
@@ -122,20 +122,17 @@ export default class DealItem extends React.PureComponent<
                 <img
                   key={index}
                   src={user.details && user.details.avatar}
-                  width="24px"
-                  height="24px"
-                  style={{ marginLeft: '2px' }}
+                  width="22px"
+                  height="22px"
+                  style={{ marginLeft: '2px', borderRadius: '11px' }}
                 />
               ))}
             </Right>
-          </DealContainer>
+          </PriceContainer>
 
           <Footer>
-            <DealContainer>
-              {__('Last updated')}
-
-              <Right>{this.renderDate(deal.modifiedAt)}</Right>
-            </DealContainer>
+            {__('Last updated')}:
+            <Right>{this.renderDate(deal.modifiedAt)}</Right>
           </Footer>
         </Content>
         {this.renderForm()}

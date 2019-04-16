@@ -35,6 +35,7 @@ const users = `
   query users {
     users {
       _id
+      email
       details {
         avatar
         fullName

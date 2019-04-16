@@ -1,12 +1,13 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
+import { lighten } from 'modules/common/styles/color';
 import { WhiteBox } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const iconWrapperWidth = '80px';
+const iconWrapperWidth = 80;
 
 const Timeline = styled.div`
-  padding-left: ${iconWrapperWidth};
+  padding-left: ${iconWrapperWidth}px;
   position: relative;
 
   &:before {
@@ -15,23 +16,23 @@ const Timeline = styled.div`
     height: 100%;
     position: absolute;
     z-index: 1;
-    left: calc(${iconWrapperWidth} / 2);
+    margin-top: 1px;
+    left: ${iconWrapperWidth / 2}px;
   }
 `;
 
-const ActivityTitle = styled.h5`
-  color: ${colors.colorCoreGray};
-  padding: ${dimensions.coreSpacing * 1.5}px 0 ${dimensions.coreSpacing}px 0;
-  margin: 0;
-  font-weight: 400;
-  line-height: ${typography.lineHeightHeading4};
+const ActivityTitle = styled.h3`
+  padding: ${dimensions.unitSpacing}px 0;
+  font-weight: 300;
+  color: ${colors.textPrimary};
 `;
 
 const ActivityRow = styled(WhiteBox)`
   padding: ${dimensions.coreSpacing}px;
   position: relative;
   overflow: visible;
-  margin-bottom: ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  border-radius: 3px;
 
   &:last-of-type {
     margin-bottom: 0;
@@ -55,7 +56,6 @@ const FlexBody = styled.div`
 
   > div {
     font-size: ${typography.fontSizeHeading8}px;
-    color: ${colors.colorCoreGray};
   }
 
   span {
@@ -97,13 +97,13 @@ const ActivityIcon = styledTS<{ color?: string }>(styled.span)`
   display: inline-block;
   position: absolute;
   background-color: ${props => props.color};
-  height: calc(${iconWrapperWidth} * 0.4);
-  width: calc(${iconWrapperWidth} * 0.4);
-  line-height: calc(${iconWrapperWidth} * 0.4);
+  height: ${iconWrapperWidth * 0.4}px;
+  width: ${iconWrapperWidth * 0.4}px;
+  line-height: ${iconWrapperWidth * 0.4}px;
   text-align: center;
   border-radius: 50%;
-  left: calc(-${iconWrapperWidth} + ${iconWrapperWidth} * 0.3);
-  top: ${dimensions.unitSpacing}px;
+  left: ${-iconWrapperWidth + iconWrapperWidth * 0.3}px;
+  top: ${dimensions.coreSpacing}px;
   z-index: 2;
 
   & i {
@@ -120,11 +120,16 @@ const ActivityDate = styled.div`
   cursor: help;
 `;
 
-const ActivityContent = styled.div`
+const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
   margin-top: ${dimensions.unitSpacing}px;
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  background: ${colors.bgInternal};
+  padding: ${dimensions.unitSpacing}px;
+  background: ${props =>
+    props.isInternalNote ? colors.bgInternal : colors.borderPrimary};
   box-shadow: 0 1px 2px 0 ${colors.darkShadow};
+
+  p:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
 const EmailContent = styled.div`

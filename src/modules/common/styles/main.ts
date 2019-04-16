@@ -1,25 +1,32 @@
-import { MainLoader } from 'modules/common/components/Spinner';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const FullContent = styledTS<{ center: boolean }>(styled.div)`
+const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   min-height: 100%;
   justify-content: ${props => props.center && 'center'};
-  align-items: center;
+  align-items: ${props => (props.align ? 'flex-start' : 'center')};
+`;
+
+const MiddleContent = styledTS<{ transparent?: boolean }>(styled.div)`
+  width: 900px;
+  height: 100%;
+  height: calc(100% - 20px);
+  background: ${props => !props.transparent && colors.colorWhite};
+  margin: 10px 0;
 `;
 
 const BoxRoot = styled.div`
   text-align: center;
   float: left;
   background: ${colors.colorLightBlue};
-  box-shadow: 0 8px 5px ${rgba(colors.colorCoreGray, 0.08)};
+  box-shadow: 0 6px 10px 1px ${rgba(colors.colorCoreGray, 0.08)};
   margin-right: ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
-  border-radius: ${dimensions.unitSpacing / 2}px;
+  border-radius: ${dimensions.unitSpacing / 2 - 1}px;
   transition: all 0.25s ease;
 
   > a {
@@ -141,14 +148,6 @@ const ActivityContent = styledTS<{ isEmpty: boolean }>(styled.div)`
   height: ${props => props.isEmpty && '360px'};
 `;
 
-const Well = styled.div`
-  min-height: ${dimensions.coreSpacing}px;
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  margin-bottom: ${dimensions.coreSpacing}px;
-  background-color: ${colors.bgActive};
-  border-left: 2px solid ${colors.colorSecondary};
-`;
-
 const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
   &:after {
     cursor: pointer;
@@ -161,72 +160,17 @@ const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
   }
 `;
 
-const UploadLoader = styled.div`
-  position: absolute;
-  top: 70%;
-  left: 100px;
-
-  ${MainLoader} {
-    width: 15px;
-    height: 15px;
-    position: sticky;
-    margin-top: -15px;
-  }
-
-  span {
-    padding-right: ${dimensions.coreSpacing}px;
-    color: ${colors.colorCoreGray};
-  }
-`;
-
-const Avatar = styled.div`
-  color: ${colors.colorWhite};
-  position: relative;
-
-  input[type='file'] {
-    display: none;
-  }
-
-  .icon {
-    visibility: hidden;
-    transition: all 0.3s ease-in;
-    transition-timing-function: linear;
-    padding: 25px 35px;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.3);
-    position: absolute;
-    top: 25px;
-    left: 0;
-  }
-
-  img {
-    display: block;
-    width: 100px;
-    height: 100px;
-    border-radius: ${dimensions.headerSpacing}px;
-  }
-
-  &:hover {
-    .icon {
-      visibility: visible;
-      cursor: pointer;
-    }
-  }
-`;
-
 export {
   BoxRoot,
   FullContent,
   ModalFooter,
   InfoWrapper,
   Links,
-  Well,
   FormWrapper,
   FormColumn,
   ColumnTitle,
   CenterContent,
   ActivityContent,
   DropIcon,
-  UploadLoader,
-  Avatar
+  MiddleContent
 };

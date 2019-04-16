@@ -1,8 +1,11 @@
-import { __ } from 'modules/common/utils';
-
 const menuInbox = [
-  { title: __('Inbox'), link: '/inbox' },
-  { title: __('Insights'), link: '/insights' }
+  { title: 'Inbox', link: '/inbox' },
+  { title: 'Insights', link: '/insights' }
 ];
 
-export { menuInbox };
+const menuDeal = [
+  { title: 'Deal', link: '/deals' },
+  { title: 'Insights', link: '/deal/insights' }
+];
+
+export { menuInbox, menuDeal };

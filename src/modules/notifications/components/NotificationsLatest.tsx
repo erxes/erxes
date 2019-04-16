@@ -51,8 +51,8 @@ class NotificationsLatest extends React.Component<Props> {
     const emptyContent = (
       <PopoverContent>
         <EmptyState
-          text={__('No notifications')}
-          image="/images/robots/robot-05.svg"
+          text={__('Looks like you are all caught up')}
+          image="/images/actions/17.svg"
         />
       </PopoverContent>
     );

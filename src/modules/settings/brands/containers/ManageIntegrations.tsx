@@ -50,7 +50,7 @@ class ManageIntegrationsContainer extends React.Component<FinalProps> {
       }
     })
       .then(() => {
-        Alert.success('Successfully saved');
+        Alert.success('You successfully managed an integration');
       })
       .catch(e => {
         Alert.error(e.message);

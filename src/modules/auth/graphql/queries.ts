@@ -4,6 +4,7 @@ const currentUser = `
       _id
       username
       email
+      isOwner
       details {
         avatar
         fullName
@@ -20,13 +21,12 @@ const currentUser = `
         github
         website
       }
-
+      hasSeenOnBoard
       emailSignatures
       getNotificationByEmail
+      permissionActions
     }
   }
 `;
 
-export default {
-  currentUser
-};
+export default { currentUser };

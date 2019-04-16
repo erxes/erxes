@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { __, Alert, uploadHandler, withProps } from 'modules/common/utils';
+import { Alert, uploadHandler, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
@@ -71,7 +71,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('Success');
+          Alert.success('You successfully deleted a customer');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -87,7 +87,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then((result: any) => {
           callback();
-          Alert.success('Success');
+          Alert.success('You successfully merged a customer');
           history.push(`/customers/details/${result.data.customersMerge._id}`);
         })
         .catch(e => {
@@ -96,6 +96,11 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
     const exportCustomers = bulk => {
       const { queryParams } = this.props;
+
+      // queryParams page parameter needs convert to int.
+      if (queryParams.page) {
+        queryParams.page = parseInt(queryParams.page, 10);
+      }
 
       if (bulk.length > 0) {
         queryParams.ids = bulk.map(customer => customer._id);
@@ -113,6 +118,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           window.open(data.customersExport, '_blank');
         })
         .catch(error => {
+          this.setState({ loading: false });
           Alert.error(error.message);
         });
     };
@@ -134,7 +140,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         afterUpload: ({ response }) => {
           if (response.length === 0) {
             customersMainQuery.refetch();
-            Alert.success(__('All customers imported successfully'));
+            Alert.success('All customers imported successfully');
           } else {
             Alert.error(response[0]);
           }
@@ -193,6 +199,8 @@ const generateParams = ({ queryParams }) => {
     lifecycleState: queryParams.lifecycleState,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
+      ? parseInt(queryParams.sortDirection, 10)
+      : undefined
   };
 };
 
@@ -203,18 +211,14 @@ export default withProps<Props>(
       {
         name: 'customersMainQuery',
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
+          variables: generateParams({ queryParams })
         })
       }
     ),
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.customersListConfig),
       {
-        name: 'customersListConfigQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
+        name: 'customersListConfigQuery'
       }
     ),
 

@@ -53,7 +53,7 @@ class MessengerAppList extends React.Component<Props> {
       return (
         <EmptyState
           text="There aren’t any integrations at the moment."
-          image="/images/robots/robot-05.svg"
+          image="/images/actions/2.svg"
         />
       );
     }

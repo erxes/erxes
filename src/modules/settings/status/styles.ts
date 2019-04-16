@@ -1,17 +1,17 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const MiddleContent = styled.div`
-  width: 850px;
-`;
-
-const Box = styled.div`
+const Box = styledTS<{ noTopPadding?: boolean }>(styled.div)`
   padding: ${dimensions.coreSpacing}px;
   padding-bottom: 0;
+  padding-top: ${props => props.noTopPadding && '0'};
   background: ${colors.colorWhite};
-  margin-bottom: ${dimensions.coreSpacing}px;
-  border-radius: ${dimensions.unitSpacing}px;
-  box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.1);
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  &:last-of-type {
+    margin: 0;
+  }
 `;
 
 const Title = styled.h4`
@@ -35,4 +35,4 @@ const Group = styled.div`
   }
 `;
 
-export { MiddleContent, Title, Group, Box };
+export { Title, Group, Box };

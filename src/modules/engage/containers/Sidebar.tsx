@@ -43,10 +43,7 @@ const SidebarContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, CountQueryResponse>(gql(queries.kindCounts), {
-      name: 'kindCountsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'kindCountsQuery'
     }),
     graphql<Props, CountQueryResponse, { kind: string }>(
       gql(queries.statusCounts),
@@ -55,8 +52,7 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: {
             kind: queryParams.kind || ''
-          },
-          fetchPolicy: 'network-only'
+          }
         })
       }
     ),
@@ -77,8 +73,7 @@ export default withProps<Props>(
           variables: {
             kind: queryParams.kind || '',
             status: queryParams.status || ''
-          },
-          fetchPolicy: 'network-only'
+          }
         })
       }
     )

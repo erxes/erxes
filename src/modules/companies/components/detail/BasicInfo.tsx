@@ -7,13 +7,13 @@ import {
   NameCard
 } from 'modules/common/components';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
-import { __, confirm, searchCompany } from 'modules/common/utils';
+import { __, Alert, confirm, searchCompany } from 'modules/common/utils';
 import { TargetMerge } from 'modules/customers/components';
 import {
   LEAD_STATUS_TYPES,
   LIFECYCLE_STATE_TYPES
 } from 'modules/customers/constants';
-import { Action } from 'modules/customers/styles';
+import { Action, Name } from 'modules/customers/styles';
 import { Sidebar } from 'modules/layout/components';
 import {
   SidebarCounter,
@@ -58,7 +58,7 @@ class BasicInfo extends React.Component<Props> {
         {this.renderLink(links.twitter, 'twitter')}
         {this.renderLink(links.linkedIn, 'linkedin-logo')}
         {this.renderLink(links.youtube, 'youtube')}
-        {this.renderLink(links.github, 'github')}
+        {this.renderLink(links.github, 'github-circled')}
         {this.renderLink(links.website, 'earthgrid')}
       </Links>
     );
@@ -83,7 +83,12 @@ class BasicInfo extends React.Component<Props> {
       }));
     };
 
-    const onDelete = () => confirm().then(() => remove());
+    const onDelete = () =>
+      confirm()
+        .then(() => remove())
+        .catch(error => {
+          Alert.error(error.message);
+        });
 
     return (
       <Action>
@@ -125,10 +130,10 @@ class BasicInfo extends React.Component<Props> {
             <NameCard.Avatar company={company} size={50} />
           </AvatarWrapper>
 
-          <div className="name">
+          <Name>
             {company.primaryName}
             {this.renderLinks(links)}
-          </div>
+          </Name>
           <ModalTrigger
             title="Edit basic info"
             trigger={<Icon icon="edit" />}

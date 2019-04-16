@@ -12,7 +12,7 @@ import { KnowledgeBase } from '../../components/knowledgebase';
 import { mutations } from '../../graphql';
 import {
   IntegrationsQueryResponse,
-  messengerAppsAddKnowledgebaseMutationResponse
+  MessengerAppsAddKnowledgebaseMutationResponse
 } from '../../types';
 import { integrationsListParams } from '../utils';
 
@@ -26,7 +26,7 @@ type FinalProps = {
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
 } & IRouterProps &
   Props &
-  messengerAppsAddKnowledgebaseMutationResponse;
+  MessengerAppsAddKnowledgebaseMutationResponse;
 
 class KnowledgeBaseContainer extends React.Component<FinalProps> {
   render() {
@@ -47,7 +47,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
     const save = (variables, callback) => {
       saveMutation({ variables })
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success('You successfully added a knowledge base');
           callback();
           history.push('/settings/integrations');
         })
@@ -86,9 +86,25 @@ export default withProps<Props>(
     graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
       name: 'knowledgeBaseTopicsQuery'
     }),
-    graphql<Props, messengerAppsAddKnowledgebaseMutationResponse>(
+    graphql<Props, MessengerAppsAddKnowledgebaseMutationResponse>(
       gql(mutations.messengerAppsAddKnowledgebase),
-      { name: 'saveMutation' }
+      {
+        name: 'saveMutation',
+        options: () => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(queries.messengerApps),
+                variables: { kind: 'knowledgebase' }
+              },
+              {
+                query: gql(queries.messengerAppsCount),
+                variables: { kind: 'knowledgebase' }
+              }
+            ]
+          };
+        }
+      }
     ),
     withApollo
   )(withRouter<FinalProps>(KnowledgeBaseContainer))

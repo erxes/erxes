@@ -44,7 +44,7 @@ const getInstallCode = brandCode => {
   `;
 };
 
-class InstallCode extends React.Component<Props, State> {
+class InstallCode extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -70,12 +70,12 @@ class InstallCode extends React.Component<Props, State> {
 
   render() {
     return (
-      <React.Fragment>
+      <>
         <MarkdownWrapper>
           <ReactMarkdown source={this.state.code} />
           {this.state.code ? (
             <CopyToClipboard text={this.state.code} onCopy={this.onCopy}>
-              <Button size="small" btnStyle="primary" icon="copy">
+              <Button size="small" btnStyle="success" icon="copy">
                 {this.state.copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
@@ -90,10 +90,10 @@ class InstallCode extends React.Component<Props, State> {
             icon="cancel-1"
             onClick={this.props.closeModal}
           >
-            Cancel
+            Close
           </Button>
         </ModalFooter>
-      </React.Fragment>
+      </>
     );
   }
 }

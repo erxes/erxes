@@ -1,7 +1,11 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { List } from './containers';
+
+const List = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings - List Scripts" */ './containers/List')
+);
 
 const scripts = ({ location }) => {
   return <List queryParams={queryString.parse(location.search)} />;

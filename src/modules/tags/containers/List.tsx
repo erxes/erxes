@@ -31,7 +31,7 @@ const ListContainer = (props: FinalProps) => {
     confirm().then(() => {
       removeMutation({ variables: { ids: [tag._id] } })
         .then(() => {
-          Alert.success('success');
+          Alert.success('You successfully deleted a tag');
           tagsQuery.refetch();
         })
         .catch(e => {
@@ -50,7 +50,8 @@ const ListContainer = (props: FinalProps) => {
 
     mutation({ variables: doc })
       .then(() => {
-        Alert.success('Successfully saved');
+        Alert.success(`You successfully ${tag ? 'updated' : 'added'} a tag`);
+
         tagsQuery.refetch();
         callback();
       })
@@ -62,6 +63,7 @@ const ListContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     tags: tagsQuery.tags || [],
+    loading: tagsQuery.loading,
     type,
     remove,
     save

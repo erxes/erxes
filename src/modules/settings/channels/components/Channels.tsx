@@ -1,6 +1,7 @@
 import {
   Button,
   DataWithLoader,
+  HeaderDescription,
   ModalTrigger,
   Pagination
 } from 'modules/common/components';
@@ -59,7 +60,18 @@ class Channels extends React.Component<Props, {}> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={<Wrapper.ActionBar right={rightActionBar} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/31.svg"
+                title="Channels"
+                description="Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game."
+              />
+            }
+            right={rightActionBar}
+          />
+        }
         leftSidebar={
           <Sidebar
             currentChannelId={currentChannel._id}
@@ -77,8 +89,8 @@ class Channels extends React.Component<Props, {}> {
             }
             loading={loading}
             count={integrationsCount}
-            emptyText="There is no integration in this channel."
-            emptyImage="/images/robots/robot-05.svg"
+            emptyText="Choose from our many integrations and add to your channel"
+            emptyImage="/images/actions/2.svg"
           />
         }
       />

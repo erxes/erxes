@@ -1,3 +1,4 @@
+import { TabContainer } from 'modules/common/components/tabs/styles';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -33,8 +34,7 @@ const MainWrapper = styled.div`
 const Contents = styled.div`
   display: flex;
   flex: 1;
-  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px
-    ${dimensions.unitSpacing}px;
+  margin-left: ${dimensions.unitSpacing}px;
   max-height: 100%;
 
   @-moz-document url-prefix() {
@@ -42,18 +42,17 @@ const Contents = styled.div`
   }
 `;
 
-const MainContent = styledTS<{ transparent?: boolean }>(styled.section)`
+const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
+  styled.section
+)`
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 480px;
   box-shadow: ${props =>
     !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
-  margin-right: ${dimensions.unitSpacing}px;
-`;
-
-const ContentSpace = styled.div`
-  padding: ${dimensions.coreSpacing}px;
+  height: ${props => props.center && '100%'};
+  margin: ${props => !props.center && '10px 10px 10px 0'};
 `;
 
 const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
@@ -82,6 +81,10 @@ const ContenFooter = styled.div`
 `;
 
 const BarItems = styled.div`
+  .dropdown-menu {
+    min-width: 200px;
+  }
+
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }
@@ -110,9 +113,17 @@ const SideContent = styledTS<{
   width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
-  margin-right: ${dimensions.unitSpacing}px;
+  margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
+  dimensions.unitSpacing
+}px 0;
   box-shadow: ${props =>
     props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
+
+  ${TabContainer} {
+    position: sticky;
+    top: 0;
+    background: ${colors.colorWhite};
+  }
 `;
 
 const SidebarHeader = styledTS<{
@@ -143,7 +154,8 @@ const SidebarTitle = styledTS<{ children: any }>(
 `;
 
 const SidebarMainContent = styled.div`
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   flex: 1;
   position: relative;
 `;
@@ -374,12 +386,22 @@ const Authlayout = styled.div`
     background: transparent url('/images/twinkling.png') repeat top center;
     animation: ${twinkling} 200s linear infinite;
   }
+
+  @media (max-width: 768px) {
+    overflow: auto;
+    padding-bottom: ${dimensions.coreSpacing * 2}px;
+  }
 `;
 
 const AuthContent = styled.div`
   position: relative;
   top: 50%;
   transform: translateY(-50%);
+
+  @media (max-width: 768px) {
+    top: 0;
+    transform: translateY(0);
+  }
 `;
 
 const AuthDescription = styled.div`
@@ -465,7 +487,6 @@ export {
   ContentBox,
   ContenFooter,
   ContentHeader,
-  ContentSpace,
   HeaderItems,
   BarItems,
   SideContent,

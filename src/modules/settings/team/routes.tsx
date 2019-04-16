@@ -1,8 +1,19 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { UserList } from './containers';
-import { UserDetail } from './containers';
+
+const UserConfirmation = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings - UserConfirmation" */ './containers/UserConfirmation')
+);
+
+const UserDetail = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings - UserDetail" */ './containers/UserDetail')
+);
+
+const UserList = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings - UserList" */ './containers/UserList')
+);
 
 const team = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
@@ -14,6 +25,12 @@ const userDetail = ({ match, location }) => {
   const id = match.params.id;
 
   return <UserDetail _id={id} queryParams={queryParams} />;
+};
+
+export const userConfirmation = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <UserConfirmation queryParams={queryParams} />;
 };
 
 const routes = () => (

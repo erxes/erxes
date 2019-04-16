@@ -4,7 +4,6 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { ContentSpace, FlexContent, FlexItem } from 'modules/layout/styles';
 import AddConditionButton from 'modules/segments/components/AddConditionButton';
 import Conditions from 'modules/segments/components/Conditions';
 import {
@@ -69,8 +68,8 @@ class SegmentsForm extends React.Component<Props, State> {
 
   changeCondition = condition => {
     this.setState({
-      conditions: this.state.conditions.map(
-        c => (c.field === condition.field ? condition : c)
+      conditions: this.state.conditions.map(c =>
+        c.field === condition.field ? condition : c
       )
     });
 
@@ -178,78 +177,70 @@ class SegmentsForm extends React.Component<Props, State> {
       this.handleChange('color', (e.target as HTMLInputElement).value);
 
     return (
-      <FlexContent>
-        <FlexItem>
-          <form onSubmit={this.save}>
-            <FormGroup>
-              <ControlLabel>Name</ControlLabel>
-              <FormControl
-                type="text"
-                required={true}
-                value={this.state.name}
-                onChange={onChangeName}
-              />
-            </FormGroup>
+      <form onSubmit={this.save}>
+        <FormGroup>
+          <ControlLabel>Name</ControlLabel>
+          <FormControl
+            type="text"
+            required={true}
+            value={this.state.name}
+            onChange={onChangeName}
+          />
+        </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                type="text"
-                value={this.state.description || ''}
-                onChange={onChangeDesc}
-              />
-            </FormGroup>
+        <FormGroup>
+          <ControlLabel>Description</ControlLabel>
+          <FormControl
+            type="text"
+            value={this.state.description || ''}
+            onChange={onChangeDesc}
+          />
+        </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Sub segment of</ControlLabel>
-              <FormControl
-                componentClass="select"
-                value={this.state.subOf || ''}
-                onChange={onChangeSubOf}
-              >
-                <option value="">[not selected]</option>
-                {this.props.headSegments.map(segment => (
-                  <option value={segment._id} key={segment._id}>
-                    {segment.name}
-                  </option>
-                ))}
-              </FormControl>
-            </FormGroup>
+        <FormGroup>
+          <ControlLabel>Sub segment of</ControlLabel>
+          <FormControl
+            componentClass="select"
+            value={this.state.subOf || ''}
+            onChange={onChangeSubOf}
+          >
+            <option value="">[not selected]</option>
+            {this.props.headSegments.map(segment => (
+              <option value={segment._id} key={segment._id}>
+                {segment.name}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Color</ControlLabel>
-              <FormControl
-                type="color"
-                value={this.state.color}
-                onChange={onChangeColor}
-              />
-            </FormGroup>
+        <FormGroup>
+          <ControlLabel>Color</ControlLabel>
+          <FormControl
+            type="color"
+            value={this.state.color}
+            onChange={onChangeColor}
+          />
+        </FormGroup>
 
-            <Button
-              size="small"
-              btnStyle="success"
-              onClick={this.save}
-              icon="checked-1"
-            >
-              Save
-            </Button>
-          </form>
-        </FlexItem>
-      </FlexContent>
+        <Button
+          size="small"
+          btnStyle="success"
+          onClick={this.save}
+          icon="checked-1"
+        >
+          Save
+        </Button>
+      </form>
     );
   }
 
   render() {
     return (
       <SegmentWrapper>
-        <FlexContent>
-          <FlexItem>
-            <SegmentTitle>Filters</SegmentTitle>
-            {this.renderConditions()}
-            <ContentSpace />
-            {this.renderForm()}
-          </FlexItem>
-        </FlexContent>
+        <SegmentTitle>Filters</SegmentTitle>
+        {this.renderConditions()}
+        <hr />
+        {this.renderForm()}
       </SegmentWrapper>
     );
   }

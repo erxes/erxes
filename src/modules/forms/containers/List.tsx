@@ -3,7 +3,7 @@ import { Bulk } from 'modules/common/components';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { withProps } from '../../common/utils';
+import { Alert, withProps } from '../../common/utils';
 import { TagsQueryResponse } from '../../tags/types';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
@@ -45,13 +45,17 @@ class ListContainer extends React.Component<FinalProps, {}> {
     const remove = (integrationId: string, callback: (error?: any) => void) => {
       removeMutation({
         variables: { _id: integrationId }
-      }).then(() => {
-        // refresh queries
-        integrationsQuery.refetch();
-        integrationsTotalCountQuery.refetch();
+      })
+        .then(() => {
+          // refresh queries
+          integrationsQuery.refetch();
+          integrationsTotalCountQuery.refetch();
 
-        callback();
-      });
+          callback();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
     };
 
     const updatedProps = {
@@ -91,24 +95,19 @@ export default withProps<Props>(
             ...generatePaginationParams(queryParams),
             tag: queryParams.tag,
             kind: 'form'
-          },
-          fetchPolicy: 'network-only'
+          }
         };
       }
     }),
     graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
-      name: 'integrationsTotalCountQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'integrationsTotalCountQuery'
     }),
     graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
       name: 'tagsQuery',
       options: () => ({
         variables: {
           type: 'integration'
-        },
-        fetchPolicy: 'network-only'
+        }
       })
     }),
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(

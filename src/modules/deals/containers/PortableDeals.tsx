@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Deals } from '../components/portable';
@@ -23,7 +23,7 @@ class PortableDealsContainer extends React.Component<FinalProps> {
 
     addMutation({ variables: doc })
       .then(() => {
-        Alert.success(__('Successfully saved.'));
+        Alert.success('You successfully added a deal');
 
         callback();
 

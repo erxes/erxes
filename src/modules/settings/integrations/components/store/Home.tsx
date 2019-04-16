@@ -1,6 +1,6 @@
+import { HeaderDescription } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import Sidebar from 'modules/settings/integrations/components/Sidebar';
 import { INTEGRATIONS } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import Row from './Row';
@@ -42,7 +42,17 @@ class Home extends React.Component<Props> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        leftSidebar={<Sidebar />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/33.svg"
+                title="App store"
+                description="Set up your integrations and start connecting with your customers. Now you can reach them on wherever platform they feel most comfortable."
+              />
+            }
+          />
+        }
         content={this.renderContent()}
       />
     );

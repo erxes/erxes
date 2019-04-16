@@ -4,6 +4,7 @@ import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import Gmail from 'modules/settings/integrations/containers/google/Gmail';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { Meet } from '../../containers/google';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import Twitter from '../../containers/twitter/Form';
@@ -13,6 +14,8 @@ type Props = {
   integration: any;
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
+  messengerAppsCount?: number;
+  queryParams: any;
   totalCount: {
     messenger: number;
     form: number;
@@ -24,10 +27,14 @@ type Props = {
 
 class Entry extends React.Component<Props> {
   getCount = kind => {
-    const { totalCount } = this.props;
+    const { totalCount, messengerAppsCount } = this.props;
     const countByKind = totalCount[kind];
 
-    if (!countByKind) {
+    if (typeof messengerAppsCount === 'number') {
+      return <span>({messengerAppsCount})</span>;
+    }
+
+    if (typeof countByKind === 'undefined') {
       return null;
     }
 
@@ -35,6 +42,8 @@ class Entry extends React.Component<Props> {
   };
 
   renderCreate(createUrl, createModal) {
+    const { queryParams } = this.props;
+
     if (!createUrl && !createModal) {
       return null;
     }
@@ -70,7 +79,7 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger
-          title="Add knowledgeBase"
+          title="Add knowledge base"
           trigger={trigger}
           content={content}
         />
@@ -80,7 +89,7 @@ class Entry extends React.Component<Props> {
     if (createModal === 'twitter') {
       const trigger = <a>+ {__('Add')}</a>;
 
-      const content = props => <Twitter {...props} />;
+      const content = props => <Twitter {...props} queryParams={queryParams} />;
 
       return (
         <ModalTrigger
@@ -94,10 +103,24 @@ class Entry extends React.Component<Props> {
     if (createModal === 'gmail') {
       const trigger = <a>+ {__('Add')}</a>;
 
-      const content = props => <Gmail {...props} />;
+      const content = props => <Gmail {...props} queryParams={queryParams} />;
 
       return (
         <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === 'googleMeet') {
+      const trigger = <a>+ {__('Add')}</a>;
+
+      const content = props => <Meet {...props} queryParams={queryParams} />;
+
+      return (
+        <ModalTrigger
+          title="Add google meet"
+          trigger={trigger}
+          content={content}
+        />
       );
     }
 
@@ -116,7 +139,7 @@ class Entry extends React.Component<Props> {
     );
   };
 
-  BoxOnClick = () => {
+  boxOnClick = () => {
     return this.props.toggleBox(this.props.integration.kind);
   };
 
@@ -128,10 +151,10 @@ class Entry extends React.Component<Props> {
         key={integration.name}
         className={getClassName(integration.kind)}
       >
-        <Box onClick={this.BoxOnClick} isInMessenger={integration.inMessenger}>
+        <Box onClick={this.boxOnClick} isInMessenger={integration.inMessenger}>
           <img alt="logo" src={integration.logo} />
           <h5>
-            {integration.name} {this.getCount(integration.kind)}{' '}
+            {integration.name} {this.getCount(integration.kind)}
           </h5>
           <p>
             {integration.description}

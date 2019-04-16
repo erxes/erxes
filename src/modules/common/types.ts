@@ -29,3 +29,13 @@ export interface ISubMenuItem {
 export interface IQueryParams {
   [key: string]: string;
 }
+
+export interface ISelectedOption {
+  label: string;
+  value: string;
+}
+
+export type IDateColumn = {
+  month: number;
+  year: number;
+};

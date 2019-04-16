@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { FullContent } from 'modules/common/styles/main';
+import { ISelectedOption } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
@@ -16,7 +17,7 @@ import {
 } from '../styles';
 import { ExportArgs, IQueryParams } from '../types';
 import { OptionsType } from '../utils';
-import { Filter, Sidebar } from './';
+import { InboxFilter, Sidebar } from './';
 
 type Props = {
   brands: IBrand[];
@@ -46,7 +47,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
     );
   }
 
-  onSelectChange = (value: any) => {
+  onSelectChange = (value: ISelectedOption) => {
     const userId = value ? value.value : '';
     this.setState({ userId });
   };
@@ -70,7 +71,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
     const { userId } = this.state;
 
     if (!userId) {
-      Alert.error(__('Choose user'));
+      Alert.error('Choose user');
     } else {
       exportReport({ queryName: 'insightFirstResponseReportExport', userId });
     }
@@ -88,7 +89,11 @@ class ExportReport extends React.Component<Props, { userId: string }> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         <InsightContent>
           <InsightTitle>{__('Export Report')}</InsightTitle>
 

@@ -44,9 +44,9 @@ export default class ConversationList extends React.Component<Props> {
         </ConversationItems>
         {!loading && conversations.length === 0 && (
           <EmptyState
-            text="There is no message."
+            text="Let's get you messaging away!"
             size="full"
-            image="/images/robots/robot-02.svg"
+            image="/images/actions/6.svg"
           />
         )}
 

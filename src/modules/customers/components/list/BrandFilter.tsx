@@ -49,8 +49,8 @@ function Brands({ history, counts, brands, loading }: IProps) {
         data={data}
         loading={loading}
         count={brands.length}
-        emptyText="No brands"
-        emptyIcon="pie-graph"
+        emptyText="Now easier to find contacts according to your brand"
+        emptyIcon="leaf"
         size="small"
         objective={true}
       />

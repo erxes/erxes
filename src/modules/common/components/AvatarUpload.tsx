@@ -1,7 +1,58 @@
+import { colors } from 'modules/common/styles';
 import * as React from 'react';
-import { ControlLabel, FormControl, FormGroup, Icon, Spinner } from '.';
-import { Avatar, UploadLoader } from '../styles/main';
+import styled from 'styled-components';
+import { ControlLabel, FormGroup, Icon, Spinner } from '.';
 import { Alert, uploadHandler } from '../utils';
+
+const Avatar = styled.div`
+  width: 100px;
+  height: 100px;
+  position: relative;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+
+  label {
+    color: ${colors.colorWhite};
+    transition: background 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+
+    i {
+      visibility: hidden;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    &:hover {
+      cursor: pointer;
+      background-color: rgba(0, 0, 0, 0.4);
+
+      i {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+  }
+
+  input[type='file'] {
+    display: none;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+  }
+`;
 
 type Props = {
   avatar?: string;
@@ -74,29 +125,24 @@ class AvatarUpload extends React.Component<Props, State> {
       return null;
     }
 
-    return (
-      <UploadLoader>
-        <span>Uploading</span>
-        <Spinner />
-      </UploadLoader>
-    );
+    return <Spinner />;
   }
 
   render() {
     const { avatarPreviewStyle, avatarPreviewUrl } = this.state;
 
     return (
-      <Avatar>
-        <FormGroup>
-          <ControlLabel>Photo</ControlLabel>
+      <FormGroup>
+        <ControlLabel>Photo</ControlLabel>
+        <Avatar>
           <img alt="avatar" style={avatarPreviewStyle} src={avatarPreviewUrl} />
-          {this.renderUploadLoader()}
           <label>
-            <Icon icon="upload icon" size={30} />
-            <FormControl type="file" onChange={this.handleImageChange} />
+            <Icon icon="upload-1" size={30} />
+            <input type="file" onChange={this.handleImageChange} />
           </label>
-        </FormGroup>
-      </Avatar>
+          {this.renderUploadLoader()}
+        </Avatar>
+      </FormGroup>
     );
   }
 }

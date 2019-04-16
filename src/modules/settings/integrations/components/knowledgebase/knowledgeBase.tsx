@@ -2,12 +2,16 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Info
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import { ITopic } from 'modules/knowledgeBase/types';
 import * as React from 'react';
-import { IIntegration } from '../../types';
+import Select from 'react-select-plus';
+import { Options } from '../../styles';
+import { IIntegration, ISelectMessengerApps } from '../../types';
 
 type Props = {
   save: (
@@ -19,17 +23,50 @@ type Props = {
   closeModal: () => void;
 };
 
-class KnowledgeBase extends React.Component<Props> {
-  generateDoc() {
-    return {
-      name: (document.getElementById('name') as HTMLInputElement).value,
-      integrationId: (document.getElementById(
-        'selectIntegration'
-      ) as HTMLInputElement).value,
-      topicId: (document.getElementById('selectTopic') as HTMLInputElement)
-        .value
+type State = {
+  selectedMessenger?: ISelectMessengerApps;
+  selectedMessengerId: string;
+  selectedKb?: ISelectMessengerApps;
+  selectedTopicId: string;
+};
+
+class KnowledgeBase extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectedMessengerId: '',
+      selectedTopicId: ''
     };
   }
+
+  generateDoc() {
+    const { selectedMessengerId, selectedTopicId } = this.state;
+
+    return {
+      name: (document.getElementById('name') as HTMLInputElement).value,
+      integrationId: selectedMessengerId,
+      topicId: selectedTopicId
+    };
+  }
+
+  generateIntegrationsParams = integrations => {
+    return integrations.map(integration => ({
+      value: integration._id,
+      label: integration.name || integration.title,
+      brand: integration.brand
+    }));
+  };
+
+  onChangeMessenger = obj => {
+    this.setState({ selectedMessenger: obj });
+    this.setState({ selectedMessengerId: obj ? obj.value : '' });
+  };
+
+  onChangeTopics = obj => {
+    this.setState({ selectedKb: obj });
+    this.setState({ selectedTopicId: obj ? obj.value : '' });
+  };
 
   handleSubmit = e => {
     e.preventDefault();
@@ -37,41 +74,51 @@ class KnowledgeBase extends React.Component<Props> {
     this.props.save(this.generateDoc(), this.props.closeModal);
   };
 
+  renderOption = option => {
+    return (
+      <Options>
+        {option.label}
+        <i>{option.brand && option.brand.name}</i>
+      </Options>
+    );
+  };
+
   render() {
     const { integrations, topics, closeModal } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
+        <Info>
+          {__(
+            'You can choose from our many messenger integrations and add to your knowledge base. The knowledge base will appear in the tab of your messenger widget. To do this, please create and add to your knowledge base.'
+          )}
+        </Info>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Integration</ControlLabel>
+          <ControlLabel required={true}>Messenger integration</ControlLabel>
 
-          <FormControl componentClass="select" id="selectIntegration">
-            <option />
-            {integrations.map(i => (
-              <option key={i._id} value={i._id}>
-                {i.name}
-              </option>
-            ))}
-          </FormControl>
+          <Select
+            value={this.state.selectedMessenger}
+            options={this.generateIntegrationsParams(integrations)}
+            onChange={this.onChangeMessenger}
+            optionRenderer={this.renderOption}
+          />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Knowledge base topic</ControlLabel>
+          <ControlLabel required={true}>Knowledge base</ControlLabel>
 
-          <FormControl componentClass="select" id="selectTopic">
-            <option />
-            {topics.map(topic => (
-              <option key={topic._id} value={topic._id}>
-                {topic.title}
-              </option>
-            ))}
-          </FormControl>
+          <Select
+            value={this.state.selectedKb}
+            options={this.generateIntegrationsParams(topics)}
+            onChange={this.onChangeTopics}
+            optionRenderer={this.renderOption}
+          />
         </FormGroup>
 
         <ModalFooter>

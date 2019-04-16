@@ -1,45 +1,38 @@
-import * as React from 'react';
-import { SelectBrand } from '..';
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup,
   Spinner
-} from '../../../../common/components';
-import { ModalFooter } from '../../../../common/styles/main';
-import { __ } from '../../../../common/utils';
-import { IBrand } from '../../../brands/types';
-import { IAccount } from '../../../linkedAccounts/types';
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
+import * as React from 'react';
+import { SelectBrand } from '..';
+import Accounts from '../../containers/Accounts';
 import { CreateFacebookMutationVariables, IPages } from '../../types';
 
 type Props = {
-  save: (
+  onSave: (
     params: CreateFacebookMutationVariables,
-    callback?: () => void
+    callback: () => void
   ) => void;
-  onAccSelect: (doc: { appId?: string; accountId?: string }) => void;
+  onAccountSelect: (accountId?: string) => void;
   brands: IBrand[];
   pages: IPages[];
-  accounts: IAccount[];
+  onRemoveAccount: (accountId: string) => void;
   closeModal: () => void;
 };
 
 class Facebook extends React.Component<Props, { loading: boolean }> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       loading: false
     };
   }
-
-  onAccChange = () => {
-    const accountId = (document.getElementById('acc') as HTMLInputElement)
-      .value;
-
-    this.props.onAccSelect({ accountId });
-  };
 
   collectCheckboxValues(name: string): string[] {
     const values: string[] = [];
@@ -57,75 +50,72 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     return values;
   }
 
-  handleSubmit = e => {
+  handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const doc: CreateFacebookMutationVariables = {
       name: (document.getElementById('name') as HTMLInputElement).value,
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value,
-      accountId: (document.getElementById('acc') as HTMLInputElement).value,
       pageIds: this.collectCheckboxValues('pages')
-    };
-
-    const callback = () => {
-      this.setState({ loading: false }, () => this.props.closeModal());
     };
 
     this.setState({ loading: true });
 
-    this.props.save(doc, callback);
+    this.props.onSave(doc, () => {
+      this.setState({ loading: false }, () => this.props.closeModal());
+    });
   };
 
+  renderPages() {
+    const { pages } = this.props;
+
+    if (pages.length === 0) {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Pages</ControlLabel>
+
+        {pages.map(page => (
+          <div key={page.id}>
+            <FormControl
+              componentClass="checkbox"
+              name="pages"
+              key={page.id}
+              value={page.id}
+            >
+              {page.name}
+            </FormControl>
+          </div>
+        ))}
+      </FormGroup>
+    );
+  }
+
   render() {
-    const { pages, brands, accounts } = this.props;
+    const { brands, onRemoveAccount, onAccountSelect } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
         {this.state.loading && <Spinner />}
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
 
         <SelectBrand brands={brands} />
 
-        <FormGroup>
-          <ControlLabel>Linked Accounts</ControlLabel>
+        <Accounts
+          kind="facebook"
+          addLink="fblogin"
+          onSelect={onAccountSelect}
+          onRemove={onRemoveAccount}
+        />
 
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select account')}
-            onChange={this.onAccChange}
-            id="acc"
-          >
-            <option value="">Select account ...</option>
-
-            {accounts.map((account, index) => (
-              <option key={`account${index}`} value={account._id}>
-                {account.name}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Pages</ControlLabel>
-
-          {pages.map(page => (
-            <div key={page.id}>
-              <FormControl
-                componentClass="checkbox"
-                name="pages"
-                key={page.id}
-                value={page.id}
-              >
-                {page.name}
-              </FormControl>
-            </div>
-          ))}
-        </FormGroup>
+        {this.renderPages()}
 
         <ModalFooter>
           <Button btnStyle="success" type="submit" icon="checked-1">

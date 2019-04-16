@@ -2,10 +2,6 @@ pipeline:
   install:
     image: node:8-slim
     commands:
-      - node -v
-      - npm -v
-      - yarn --version
-      - yarn config set cache-folder .yarn-cache
       - yarn install
 
   linting:
@@ -17,3 +13,24 @@ pipeline:
     image: node:8-slim
     commands:
       - yarn tsc
+
+  build:
+    image: node:8-slim
+    commands:
+      - yarn build
+
+  docker:
+    image: plugins/docker
+    repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    dockerfile: Dockerfile
+    secrets:
+      - source: docker_hub_username
+        target: docker_username
+      - source: docker_hub_password
+        target: docker_password
+    tags:
+      - ${DRONE_BRANCH}-latest
+    when:
+      branch: [master, develop]
+      event: push
+      status: success

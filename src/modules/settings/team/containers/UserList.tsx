@@ -1,92 +1,117 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
+import { Alert } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
+import {
+  ICommonFormProps,
+  ICommonListProps
+} from 'modules/settings/common/types';
+import { queries as permissionQueries } from 'modules/settings/permissions/graphql';
+import { IUserGroup } from 'modules/settings/permissions/types';
+import * as React from 'react';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import { UserList } from '../components';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 
-const commonParamsDef = `
-  $username: String!,
-  $email: String!,
-  $role: String!
-  $details: UserDetails,
-  $links: UserLinks,
-  $channelIds: [String],
-  $password: String!,
-  $passwordConfirmation: String!
-`;
+type Props = ICommonListProps &
+  ICommonFormProps & {
+    statusChangedMutation: any;
+    listQuery: any;
+  };
 
-const commonParams = `
-  username: $username,
-  email: $email,
-  role: $role,
-  details: $details,
-  links: $links,
-  channelIds: $channelIds,
-  password: $password,
-  passwordConfirmation: $passwordConfirmation
-`;
+class UserListContainer extends React.Component<
+  Props,
+  { usersGroups: IUserGroup[] }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = { usersGroups: [] };
+  }
+
+  componentDidMount() {
+    client
+      .query({
+        query: gql(permissionQueries.usersGroups)
+      })
+      .then(({ data: { usersGroups } }: any) => {
+        this.setState({ usersGroups });
+      });
+  }
+
+  changeStatus = (id: string): void => {
+    const { statusChangedMutation, listQuery } = this.props;
+
+    statusChangedMutation({
+      variables: { _id: id }
+    })
+      .then(() => {
+        listQuery.refetch();
+
+        Alert.success('Congrats, Successfully updated.');
+      })
+      .catch((error: Error) => {
+        Alert.error(error.message);
+      });
+  };
+
+  render() {
+    return (
+      <UserList
+        {...this.props}
+        usersGroups={this.state.usersGroups}
+        changeStatus={this.changeStatus}
+      />
+    );
+  }
+}
+
+const options = ({ queryParams }: { queryParams: any }) => {
+  return {
+    variables: {
+      ...generatePaginationParams(queryParams),
+      searchValue: queryParams.searchValue,
+      isActive: queryParams.isActive === 'false' ? false : true
+    }
+  };
+};
 
 export default commonListComposer<{ queryParams: any; history: any }>({
+  text: 'team member',
+
   name: 'users',
 
   gqlListQuery: graphql(gql(queries.users), {
     name: 'listQuery',
-    options: ({ queryParams }: { queryParams: any }) => {
-      return {
-        notifyOnNetworkStatusChange: true,
-        variables: generatePaginationParams(queryParams)
-      };
-    }
+    options
   }),
-
-  gqlTotalCountQuery: graphql(
-    gql`
-      query totalUsersCount {
-        usersTotalCount
-      }
-    `,
+  gqlAddMutation: graphql(gql(mutations.usersInvite), {
+    name: 'addMutation'
+  }),
+  gqlEditMutation: graphql(gql(mutations.usersEdit), {
+    name: 'editMutation'
+  }),
+  gqlRemoveMutation: graphql<{ queryParams: any }>(
+    gql(mutations.usersSetActiveStatus),
     {
-      name: 'totalCountQuery'
+      name: 'statusChangedMutation',
+      options: ({ queryParams }) => ({
+        refetchQueries: [
+          {
+            query: gql(queries.users),
+            variables: {
+              ...generatePaginationParams(queryParams),
+              isActive: !(queryParams.isActive === 'false' ? false : true)
+            }
+          }
+        ]
+      })
     }
   ),
-
-  gqlAddMutation: graphql(
-    gql`
-      mutation usersAdd(${commonParamsDef}) {
-        usersAdd(${commonParams}) {
-          _id
-        }
-      }
-    `,
-    {
-      name: 'addMutation'
-    }
-  ),
-
-  gqlEditMutation: graphql(
-    gql`
-      mutation usersEdit($_id: String!, ${commonParamsDef}) {
-        usersEdit(_id: $_id, ${commonParams}) {
-          _id
-        }
-      }
-    `,
-    {
-      name: 'editMutation'
-    }
-  ),
-
-  gqlRemoveMutation: graphql(
-    gql`
-      mutation usersRemove($_id: String!) {
-        usersRemove(_id: $_id)
-      }
-    `,
-    {
-      name: 'removeMutation'
-    }
-  ),
-
-  ListComponent: UserList
+  gqlTotalCountQuery: graphql(gql(queries.usersTotalCount), {
+    name: 'totalCountQuery',
+    options
+  }),
+  ListComponent: UserListContainer
 });

@@ -53,6 +53,7 @@ export interface ICustomerDoc {
   location?: {
     userAgent?: string;
     country?: string;
+    countryCode?: string;
     remoteAddress?: string;
     hostname?: string;
     language?: string;
@@ -187,6 +188,8 @@ export type CustomerDetailQueryResponse = {
 };
 
 export type ActivityLogQueryResponse = {
-  activityLogsCustomer: IActivityLogForMonth[];
+  activityLogs: IActivityLogForMonth[];
   loading: boolean;
+  refetch: () => void;
+  subscribeToMore: any;
 };

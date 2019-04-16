@@ -42,8 +42,8 @@ class ArticleList extends React.Component<Props> {
         <DataWithLoader
           loading={loading}
           count={articles.length}
-          emptyText="There is no article"
-          emptyImage="/images/robots/robot-05.svg"
+          emptyText="Articles can address any number of issues your customers encounter. Types of knowledge articles can include solutions to common issues, product or feature documentation, FAQ's and much more."
+          emptyImage="/images/actions/8.svg"
           objective={true}
           data={this.renderArticles()}
         />

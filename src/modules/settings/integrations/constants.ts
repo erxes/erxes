@@ -673,7 +673,7 @@ export const INTEGRATIONS = [
     rows: [
       {
         name: 'Facebook',
-        description: 'See and reply to Facebook messages in your Team Inbox',
+        description: 'Connect to Facebook messages right from your Team Inbox',
         inMessenger: false,
         kind: 'facebook',
         logo: '/images/integrations/facebook.png',
@@ -681,7 +681,7 @@ export const INTEGRATIONS = [
       },
       {
         name: 'Twitter',
-        description: 'See and reply to Twitter DMs in your Team Inbox',
+        description: 'Tweet back to your DMs right from your Team Inbox',
         inMessenger: false,
         kind: 'twitter',
         logo: '/images/integrations/twitter.png',
@@ -694,6 +694,15 @@ export const INTEGRATIONS = [
         kind: 'messenger',
         logo: '/images/integrations/messenger.png',
         createUrl: '/settings/integrations/createMessenger'
+      },
+      {
+        name: 'Gmail',
+        description:
+          'Connect straight to your Gmail and get those emails going',
+        inMessenger: false,
+        kind: 'gmail',
+        logo: '/images/integrations/gmail.png',
+        createModal: 'gmail'
       }
     ]
   },
@@ -701,38 +710,25 @@ export const INTEGRATIONS = [
     name: 'row-2',
     rows: [
       {
-        name: 'Gmail',
-        description: 'See and reply to Gmail in your Team Inbox',
-        inMessenger: false,
-        kind: 'gmail',
-        logo: '/images/integrations/gmail.png',
-        createModal: 'gmail'
-      },
-      {
         name: 'Google meet',
         description: 'Start a video call from your conversation',
         inMessenger: true,
         kind: 'googleMeet',
         logo: '/images/integrations/google-meet.png',
-        createUrl: '/settings/integrations/google-calendar'
+        createModal: 'googleMeet'
       },
       {
         name: 'Lead',
-        description: 'See lead in your Widget',
+        description: 'Find your lead forms right here in your Widget',
         inMessenger: true,
         kind: 'lead',
         logo: '/images/integrations/lead.png',
         createModal: 'lead',
         createUrl: '/settings/integrations/lead'
-      }
-    ]
-  },
-  {
-    name: 'row-3',
-    rows: [
+      },
       {
         name: 'Knowledge Base',
-        description: 'See knowledge base in your Widget',
+        description: 'Get access to your Knowledge Base right in your Widget',
         inMessenger: true,
         kind: 'knowledgebase',
         logo: '/images/integrations/knowledge-base.png',
@@ -743,31 +739,28 @@ export const INTEGRATIONS = [
   },
   {
     title: 'Coming soon',
-    name: 'row-4',
+    name: 'row-3',
     rows: [
       {
         name: 'Viber',
-        description: 'See and reply to Viber messages in your Team Inbox',
+        description: `Soon you'll be able to connect Viber straight to your Team Inbox`,
         inMessenger: false,
         logo: '/images/integrations/viber.png'
       },
       {
         name: 'WhatsApp',
-        description: 'See and reply to Whatsapp messages in your Team Inbox',
+        description:
+          'Get a hold of your Whatsapp messages through your Team Inbox',
         inMessenger: false,
         logo: '/images/integrations/whatsapp.png'
       },
       {
         name: 'Wechat',
-        description: 'See and reply to Wechat messages in your Team Inbox',
+        description:
+          'Connect with Wechat and start messaging right from your Team Inbox',
         inMessenger: false,
         logo: '/images/integrations/wechat.png'
-      }
-    ]
-  },
-  {
-    name: 'row-5',
-    rows: [
+      },
       {
         name: 'Line',
         description: 'See and reply to Line messages in your Team Inbox',

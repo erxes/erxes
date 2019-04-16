@@ -19,11 +19,13 @@ import {
   IQueryParams,
   SummaryData
 } from '../types';
-import { Chart, Filter, Insights, PunchCard, Sidebar, Summary } from './';
+import { Chart, Insights, PunchCard, Sidebar, Summary } from './';
+import InboxFilter from './filter/InboxFilter';
 
 type loadingType = {
   punch: boolean;
-  main: boolean;
+  summary: boolean;
+  trend: boolean;
   insights: boolean;
 };
 
@@ -81,7 +83,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
     return (
       <InsightRow innerRef={innerRef}>
         {this.renderTitle(name)}
-        <Chart loading={loading.main} height={360} data={trend} />
+        <Chart loading={loading} height={360} data={trend} />
       </InsightRow>
     );
   }
@@ -121,10 +123,10 @@ class VolumeReport extends React.Component<Props, { width: number }> {
       <InsightContent>
         <InsightRow>
           {this.renderTitle('Volume summary')}
-          <Summary loading={loading.main} data={summary} />
+          <Summary loading={loading.summary} data={summary} />
         </InsightRow>
 
-        {this.renderTrend('Volume Trend', loading, trend)}
+        {this.renderTrend('Volume Trend', loading.trend, trend)}
 
         {this.renderPunchCard(loading, punch, width)}
 
@@ -147,7 +149,11 @@ class VolumeReport extends React.Component<Props, { width: number }> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         {this.renderCharts()}
       </InsightWrapper>
     );

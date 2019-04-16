@@ -57,6 +57,14 @@ a:hover {
   opacity: 0.8;
 }
 
+.modal.in .modal-dialog {
+  transform: none;
+}
+
+.modal.in .modal-dialog.transform {
+  transform: translate(0,0);
+}
+
 .modal-dialog {
   padding: 50px 0;
   margin: 0 auto;
@@ -75,7 +83,6 @@ a:hover {
 
 .modal-header {
   padding: 15px 40px;
-  height: 50px;
   border: 0;
   border-radius: 2px;
   background: #673FBD;
@@ -83,6 +90,8 @@ a:hover {
 
 .modal-header .close {
   outline: 0;
+  margin-top: -5px;
+  font-weight: 200;
 }
 
 .modal-title {
@@ -115,7 +124,26 @@ a:hover {
   color: ${colors.colorWhite};
 }
 
-/* dropdow */
+/* transition */
+
+.fade-in-appear,
+.fade-in-enter {
+  opacity: 0.1;
+}
+
+.fade-in-appear-active,
+.fade-in-enter-active {
+  opacity: 1;
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.fade-in-exit,
+.fade-in-exit-active {
+  opacity: 0.1;
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+/* dropdown */
 
 .dropdown-menu {
   margin-top: 0 !important;
@@ -706,17 +734,24 @@ a:hover {
   width: 8px;
   height: 10px;
   border-radius: 0;
-  
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(10, 50, 60, .1);
+  background: #bfc8cd;
+  border-radius: 1px;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #b0bbc0;
   border-radius: 1px;
 }
 
 ::-webkit-scrollbar-track {
   background: rgba(10, 45, 65, .08);
-  box-shadow: 0 0 5px 0 rgba(200,200,200,0.3) inset;
+}
+
+::-webkit-scrollbar-track:active {
+  background: rgba(10, 45, 65, .1);
 }
 `;
 

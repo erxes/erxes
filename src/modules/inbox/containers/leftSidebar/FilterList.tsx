@@ -1,8 +1,9 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { FilterByParams, Spinner } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
+import { NoHeight } from 'modules/inbox/styles';
 import { generateParams } from 'modules/inbox/utils';
 import * as React from 'react';
 
@@ -60,6 +61,9 @@ export default class FilterList extends React.PureComponent<Props, State> {
           if (this.mounted) {
             this.setState({ fields: data[dataName] });
           }
+        })
+        .catch(e => {
+          Alert.error(e.message);
         });
     }
 
@@ -73,6 +77,9 @@ export default class FilterList extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ counts: data.conversationCounts[counts], loading });
         }
+      })
+      .catch(e => {
+        Alert.error(e.message);
       });
   }
 
@@ -93,14 +100,16 @@ export default class FilterList extends React.PureComponent<Props, State> {
     }
 
     return (
-      <FilterByParams
-        fields={fields}
-        paramKey={paramKey}
-        counts={counts}
-        icon={icon}
-        loading={false}
-        searchable={false}
-      />
+      <NoHeight>
+        <FilterByParams
+          fields={fields}
+          paramKey={paramKey}
+          counts={counts}
+          icon={icon}
+          loading={false}
+          searchable={false}
+        />
+      </NoHeight>
     );
   }
 }

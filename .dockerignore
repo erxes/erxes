@@ -1,0 +1,7 @@
+.git
+.github
+.snyk
+*.md
+*.yml
+node_modules
+scripts

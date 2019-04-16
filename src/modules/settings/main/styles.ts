@@ -1,9 +1,14 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
+import { darken } from 'modules/common/styles/color';
 import { BoxRoot } from 'modules/common/styles/main';
 import styled from 'styled-components';
 
-const rowTitleSize = 230;
+const rowTitleSize = 250;
 const boxSize = 150;
+
+const MenusContainer = styled.div`
+  padding: ${dimensions.coreSpacing * 1.5}px 0;
+`;
 
 const Row = styled.div`
   display: flex;
@@ -29,14 +34,14 @@ const Box = styled(BoxRoot)`
 `;
 
 const Divider = styled.div`
-  border-bottom: 1px dotted ${colors.borderDarker};
+  border-bottom: 1px dotted ${darken(colors.borderDarker, 5)};
   padding-bottom: ${dimensions.coreSpacing}px;
-  margin-bottom: ${dimensions.coreSpacing}px;
-  margin-left: ${rowTitleSize}px;
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px
+    ${rowTitleSize}px;
 `;
 
 const BoxName = styled.span`
   font-size: ${typography.fontSizeUppercase}px;
 `;
 
-export { Row, RowTitle, Box, Divider, BoxName };
+export { Row, RowTitle, Box, Divider, BoxName, MenusContainer };

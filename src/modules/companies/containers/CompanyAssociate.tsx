@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { mutations as customerMutations } from 'modules/customers/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -27,7 +27,7 @@ const CompanyAssociate = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('Successfully saved');
+        Alert.success('You successfully updated a company list');
       })
       .catch(e => {
         Alert.error(e.message);

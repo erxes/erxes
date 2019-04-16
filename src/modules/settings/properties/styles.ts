@@ -17,25 +17,6 @@ const PropertyList = styled.ul`
   }
 `;
 
-const TypeList = styled(PropertyList)`
-  button {
-    margin-top: 10px;
-  }
-
-  li {
-    margin-bottom: 5px;
-    background-color: ${colors.colorWhite};
-    border: 1px solid ${colors.borderPrimary};
-    padding: 5px 10px;
-    display: flex;
-    justify-content: space-between;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-`;
-
 const InputDescription = styled.p`
   font-size: 12px;
   color: ${colors.colorCoreGray};
@@ -46,12 +27,6 @@ const FieldType = styled.span`
   font-size: 11px;
   color: ${colors.colorCoreGray};
   display: flex;
-`;
-
-const Actions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
 `;
 
 const CollapseRow = styled.div`
@@ -92,13 +67,20 @@ const SidebarContent = styled.div`
     ${dimensions.unitSpacing}px;
 `;
 
+const SelectInput = styled.div`
+  margin-bottom: 5px;
+
+  label {
+    margin-right: 5px;
+  }
+`;
+
 export {
   PropertyList,
   DropIcon,
-  TypeList,
-  Actions,
   FieldType,
   InputDescription,
   CollapseRow,
-  SidebarContent
+  SidebarContent,
+  SelectInput
 };

@@ -1,4 +1,5 @@
 import T from 'i18n-react';
+import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import Alert from './Alert';
 import colorParser from './colorParser';
@@ -57,6 +58,16 @@ export const generateRandomColorCode = () => {
     .slice(2, 8)}`;
 };
 
+export const isTimeStamp = value => {
+  if (typeof value === 'string') {
+    value = parseInt(value, 10);
+  }
+
+  return (
+    Number.isInteger(value) && value > 1000000000 && value <= 999999999999999
+  );
+};
+
 // Create an array with "stop" numbers, starting from "start"
 export const range = (start: number, stop: number) => {
   return Array.from(Array(stop), (_, i) => start + i);
@@ -88,6 +99,24 @@ export {
   searchCompany,
   searchUser,
   searchCustomer
+};
+
+export const can = (actionName: string, currentUser: IUser): boolean => {
+  if (!currentUser) {
+    return false;
+  }
+
+  if (currentUser.isOwner) {
+    return true;
+  }
+
+  if (!actionName) {
+    return false;
+  }
+
+  const actions = currentUser.permissionActions || [];
+
+  return actions[actionName] === true;
 };
 
 export const __ = (key: string, options?: any) => {

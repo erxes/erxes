@@ -147,7 +147,7 @@ class CreateMessenger extends React.Component<Props, State> {
     }
 
     if (!brandId) {
-      return Alert.error('Choose brand');
+      return Alert.error('Choose a brand');
     }
 
     const links = { facebook, twitter, youtube };
@@ -161,7 +161,11 @@ class CreateMessenger extends React.Component<Props, State> {
         availabilityMethod: this.state.availabilityMethod,
         isOnline: this.state.isOnline,
         timezone: this.state.timezone,
-        onlineHours: this.state.onlineHours,
+        onlineHours: (this.state.onlineHours || []).map(oh => ({
+          day: oh.day,
+          from: oh.from,
+          to: oh.to
+        })),
         supporterIds: this.state.supporterIds,
         messages,
         requireAuth,

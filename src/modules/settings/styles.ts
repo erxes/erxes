@@ -97,9 +97,17 @@ const SubHeading = styled.h4`
   text-transform: uppercase;
   font-weight: ${typography.fontWeightMedium};
   border-bottom: 1px dotted ${colors.colorShadowGray};
-  padding-bottom: ${coreSpace};
+  padding-bottom: ${dimensions.unitSpacing + 5}px;
   font-size: ${typography.fontSizeHeading8}px;
   margin: 0 0 ${coreSpace};
+
+  span {
+    display: block;
+    text-transform: none;
+    font-weight: normal;
+    margin-top: ${dimensions.unitSpacing}px;
+    color: ${colors.colorCoreGray};
+  }
 `;
 
 const MarkdownWrapper = styled.div`
@@ -238,6 +246,12 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
 `;
 
+const Description = styled.div`
+  color: ${colors.colorCoreGray};
+  padding: ${dimensions.coreSpacing}px 0;
+  font-size: 12px;
+`;
+
 export {
   ContentBox,
   ModuleBox,
@@ -252,5 +266,6 @@ export {
   ColorPicker,
   LogoContainer,
   SidebarListItem,
-  ActionButtons
+  ActionButtons,
+  Description
 };

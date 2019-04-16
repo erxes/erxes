@@ -16,7 +16,7 @@ import {
   HeaderContentSmall,
   HeaderRow,
   Left,
-  Right,
+  RightContent,
   SelectOption,
   SelectValue
 } from '../../styles/deal';
@@ -61,7 +61,7 @@ class Top extends React.Component<Props> {
   };
 
   renderDealMove() {
-    const { deal, stageId, onChangeField } = this.props;
+    const { deal, stageId } = this.props;
 
     return (
       <Move deal={deal} stageId={stageId} onChangeStage={this.onChangeStage} />
@@ -147,7 +147,7 @@ class Top extends React.Component<Props> {
               />
             </FormGroup>
           </Left>
-          <Right>
+          <RightContent>
             <FormGroup>
               <ControlLabel>Assigned to</ControlLabel>
               <Select
@@ -161,7 +161,7 @@ class Top extends React.Component<Props> {
                 multi={true}
               />
             </FormGroup>
-          </Right>
+          </RightContent>
         </FlexContent>
       </React.Fragment>
     );

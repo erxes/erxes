@@ -1,16 +1,29 @@
-import { colors } from 'modules/common/styles';
 import { FullContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { menuInbox } from 'modules/common/utils/menus';
+import { menuDeal, menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Box } from '../styles';
+import { DEAL_INSIGHTS, INBOX_INSIGHTS, INSIGHT_TYPES } from '../constants';
+import { Box, BoxContainer } from '../styles';
+import { IInsightType } from '../types';
 
-class InsightPage extends React.Component {
-  renderBox(name, image, to, desc) {
+type Props = {
+  type: string;
+};
+
+class InsightPage extends React.Component<Props> {
+  getInsights() {
+    const { type = INSIGHT_TYPES.INBOX } = this.props;
+
+    return type === INSIGHT_TYPES.INBOX ? INBOX_INSIGHTS : DEAL_INSIGHTS;
+  }
+
+  renderBox(insight: IInsightType) {
+    const { name, image, to, desc } = insight;
+
     return (
-      <Box>
+      <Box key={to}>
         <Link to={to}>
           <img src={image} alt={name} />
           <span>{__(name)}</span>
@@ -21,46 +34,30 @@ class InsightPage extends React.Component {
   }
 
   render() {
-    const breadcrumb = [{ title: __('Insights'), link: '/insights' }];
+    const { type } = this.props;
+
+    const breadcrumb = [{ title: __('Insights'), link: `/${type}/insights` }];
 
     const content = (
       <FullContent center={true}>
-        <div>
-          <div>
-            {this.renderBox(
-              'Volume Report',
-              '/images/icons/erxes-14.svg',
-              '/insights/volume-report',
-              'Feedbacks gathered through various customer engagement channels.'
-            )}
-            {this.renderBox(
-              'Response Report',
-              '/images/icons/erxes-15.svg',
-              '/insights/response-report',
-              'Total number of response for customer feedbacks, by each staff.'
-            )}
-          </div>
-          <div>
-            {this.renderBox(
-              'Response Close Report',
-              '/images/icons/erxes-17.svg',
-              '/insights/response-close-report',
-              'Average time of each staff solving problems that based on customer feedbacks.'
-            )}
-            {this.renderBox(
-              'First Response Report',
-              '/images/icons/erxes-16.svg',
-              '/insights/first-response',
-              'Responding time for a single feedback. Stats will define average response time by each staff.'
-            )}
-          </div>
-        </div>
+        <BoxContainer>
+          {this.getInsights().map((insight, index) => {
+            // show only first 4 insights
+            if (index < 4) {
+              return this.renderBox(insight);
+            }
+
+            return null;
+          })}
+        </BoxContainer>
       </FullContent>
     );
 
+    const submenu = type === INSIGHT_TYPES.INBOX ? menuInbox : menuDeal;
+
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} submenu={menuInbox} />}
+        header={<Wrapper.Header breadcrumb={breadcrumb} submenu={submenu} />}
         content={content}
         transparent={true}
       />

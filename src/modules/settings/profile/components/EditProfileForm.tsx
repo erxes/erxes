@@ -1,18 +1,26 @@
 import { UserCommonInfos } from 'modules/auth/components';
 import { IUser, IUserDoc } from 'modules/auth/types';
-import { Button, ModalTrigger } from 'modules/common/components';
+import { Button } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
+import { regexEmail } from 'modules/customers/utils';
 import * as React from 'react';
+import { Modal } from 'react-bootstrap';
 import { PasswordConfirmation } from '.';
 
 type Props = {
   currentUser: IUser;
   closeModal: () => void;
-  save: (variables: IUserDoc & { password?: string }) => void;
+  save: (
+    variables: IUserDoc & { password?: string },
+    callback: () => void
+  ) => void;
 };
 
 type State = {
   avatar: string;
+  isShowPasswordPopup: boolean;
 };
 
 class EditProfile extends React.Component<Props, State> {
@@ -22,37 +30,50 @@ class EditProfile extends React.Component<Props, State> {
     const { currentUser } = props;
     const { details } = currentUser;
 
-    this.state = { avatar: details ? details.avatar || '' : '' };
+    this.state = {
+      avatar: details ? details.avatar || '' : '',
+      isShowPasswordPopup: false
+    };
   }
 
   getInputElementValue(id) {
     return (document.getElementById(id) as HTMLInputElement).value;
   }
 
-  handleSubmit = password => {
-    this.props.save({
-      username: this.getInputElementValue('username'),
-      email: this.getInputElementValue('email'),
-      details: {
-        avatar: this.state.avatar,
-        shortName: this.getInputElementValue('shortName'),
-        fullName: this.getInputElementValue('fullName'),
-        position: this.getInputElementValue('position'),
-        location: this.getInputElementValue('user-location'),
-        description: this.getInputElementValue('description')
-      },
-      links: {
-        linkedIn: this.getInputElementValue('linkedin'),
-        twitter: this.getInputElementValue('twitter'),
-        facebook: this.getInputElementValue('facebook'),
-        youtube: this.getInputElementValue('youtube'),
-        github: this.getInputElementValue('github'),
-        website: this.getInputElementValue('website')
-      },
-      password
-    });
+  closeConfirm = () => {
+    this.setState({ isShowPasswordPopup: false });
+  };
 
+  closeAllModals = () => {
+    this.closeConfirm();
     this.props.closeModal();
+  };
+
+  handleSubmit = password => {
+    this.props.save(
+      {
+        username: this.getInputElementValue('username'),
+        email: this.getInputElementValue('email'),
+        details: {
+          avatar: this.state.avatar,
+          shortName: this.getInputElementValue('shortName'),
+          fullName: this.getInputElementValue('fullName'),
+          position: this.getInputElementValue('position'),
+          location: this.getInputElementValue('user-location'),
+          description: this.getInputElementValue('description')
+        },
+        links: {
+          linkedIn: this.getInputElementValue('linkedin'),
+          twitter: this.getInputElementValue('twitter'),
+          facebook: this.getInputElementValue('facebook'),
+          youtube: this.getInputElementValue('youtube'),
+          github: this.getInputElementValue('github'),
+          website: this.getInputElementValue('website')
+        },
+        password
+      },
+      this.closeAllModals
+    );
   };
 
   onAvatarUpload = url => {
@@ -63,23 +84,43 @@ class EditProfile extends React.Component<Props, State> {
     return this.handleSubmit(password);
   };
 
+  isValidEmail = () => {
+    return regexEmail.test(this.getInputElementValue('email'));
+  };
+
+  showConfirm = () => {
+    if (!this.isValidEmail()) {
+      return Alert.error('Invalid email');
+    }
+
+    return this.setState({ isShowPasswordPopup: true });
+  };
+
+  renderPasswordConfirmationModal() {
+    return (
+      <Modal show={this.state.isShowPasswordPopup} onHide={this.closeConfirm}>
+        <Modal.Header closeButton={true}>
+          <Modal.Title>{__('Enter your password to Confirm')}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <PasswordConfirmation
+            onSuccess={this.onSuccess}
+            closeModal={this.closeConfirm}
+          />
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   render() {
-    const saveButton = (
-      <Button btnStyle="success" icon="checked-1">
-        Save
-      </Button>
-    );
-
-    const content = props => (
-      <PasswordConfirmation {...props} onSuccess={this.onSuccess} />
-    );
-
     return (
       <React.Fragment>
         <UserCommonInfos
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
         />
+
+        {this.renderPasswordConfirmationModal()}
 
         <ModalFooter>
           <Button
@@ -91,11 +132,13 @@ class EditProfile extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <ModalTrigger
-            title="Enter your password to Confirm"
-            trigger={saveButton}
-            content={content}
-          />
+          <Button
+            btnStyle="success"
+            icon="checked-1"
+            onClick={this.showConfirm}
+          >
+            Save
+          </Button>
         </ModalFooter>
       </React.Fragment>
     );

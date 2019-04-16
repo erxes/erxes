@@ -207,7 +207,7 @@ const WidgetPreviewStyled = styled.div`
   position: absolute;
   right: 8px;
   width: 380px;
-  z-index: 2;
+  z-index: 1;
 `;
 
 const Links = styled.div`

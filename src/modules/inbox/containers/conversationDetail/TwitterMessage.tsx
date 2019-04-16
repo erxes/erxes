@@ -58,7 +58,7 @@ const TwitterMessageContainer = (props: FinalProps) => {
     retweetMutation({ variables })
       .then(() => {
         callback();
-        Alert.success('Successfully retweeted');
+        Alert.success(`You successfully retweeted`);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -75,7 +75,7 @@ const TwitterMessageContainer = (props: FinalProps) => {
     tweetMutation({ variables })
       .then(() => {
         callback();
-        Alert.success('Successfully tweeted');
+        Alert.success(`You successfully tweeted`);
       })
       .catch(e => {
         Alert.error(e.message);

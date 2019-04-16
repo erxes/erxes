@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import { queries, subscriptions } from 'modules/inbox/graphql';
 import { UnreadConversationsTotalCountQueryResponse } from 'modules/inbox/types';
 import * as React from 'react';
@@ -8,12 +9,15 @@ import { Navigation } from '../components';
 
 class NavigationContainer extends React.Component<{
   unreadConversationsCountQuery: UnreadConversationsTotalCountQueryResponse;
+  currentUser: IUser;
 }> {
   componentWillMount() {
-    this.props.unreadConversationsCountQuery.subscribeToMore({
+    const { unreadConversationsCountQuery, currentUser } = this.props;
+
+    unreadConversationsCountQuery.subscribeToMore({
       // listen for all conversation changes
       document: gql(subscriptions.conversationClientMessageInserted),
-
+      variables: { userId: currentUser._id },
       updateQuery: () => {
         this.props.unreadConversationsCountQuery.refetch();
 
@@ -37,7 +41,7 @@ class NavigationContainer extends React.Component<{
   }
 }
 
-export default withProps<{}>(
+export default withProps<{ currentUser: IUser }>(
   compose(
     graphql<{}, UnreadConversationsTotalCountQueryResponse>(
       gql(queries.unreadConversationsCount),

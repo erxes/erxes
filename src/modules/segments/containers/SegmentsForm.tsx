@@ -37,25 +37,41 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
   create = ({ doc }) => {
     const { contentType, segmentsAdd, history } = this.props;
 
-    segmentsAdd({ variables: { contentType, ...doc } }).then(() => {
-      Alert.success('Success');
-      history.push(`/segments/${contentType}`);
-    });
+    if (!doc.name) {
+      return Alert.error('Enter a name');
+    }
+
+    segmentsAdd({ variables: { contentType, ...doc } })
+      .then(() => {
+        Alert.success('You successfully added a segment');
+        history.push(`/segments/${contentType}`);
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   };
 
   edit = ({ _id, doc }) => {
     const { contentType, segmentsEdit, history } = this.props;
 
-    segmentsEdit({ variables: { _id, ...doc } }).then(() => {
-      Alert.success('Success');
-      history.push(`/segments/${contentType}`);
-    });
+    segmentsEdit({ variables: { _id, ...doc } })
+      .then(() => {
+        Alert.success('You successfully updated a segment');
+        history.push(`/segments/${contentType}`);
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   };
 
   count = (segment: ISegmentDoc) => {
     const { counts } = this.props;
 
-    counts.refetch({ byFakeSegment: segment });
+    try {
+      counts.refetch({ byFakeSegment: segment });
+    } catch (error) {
+      Alert.error(error.message);
+    }
   };
 
   render() {
@@ -93,6 +109,7 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
       headSegments: headSegments.filter(s => s.contentType === contentType),
       create: this.create,
       count: this.count,
+      counterLoading: counts.loading,
       total: counts[`${contentType}Counts`] || {},
       edit: this.edit
     };
@@ -100,6 +117,14 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
     return <SegmentsForm {...updatedProps} />;
   }
 }
+
+const generateRefetchQuery = ({ contentType }) => {
+  if (contentType === 'customer') {
+    return customerQueries.customerCounts;
+  }
+
+  return companyQueries.companyCounts;
+};
 
 export default withProps<Props>(
   compose(
@@ -146,7 +171,17 @@ export default withProps<Props>(
     graphql<Props, AddMutationResponse, AddMutationVariables>(
       gql(mutations.segmentsAdd),
       {
-        name: 'segmentsAdd'
+        name: 'segmentsAdd',
+        options: ({ contentType }) => {
+          return {
+            refetchQueries: [
+              {
+                query: gql(generateRefetchQuery({ contentType })),
+                variables: { only: 'bySegment' }
+              }
+            ]
+          };
+        }
       }
     ),
     graphql<

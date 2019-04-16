@@ -141,7 +141,7 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
         })
 
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success('You successfully updated a lead');
 
           fieldsQuery.refetch().then(() => {
             history.push('/forms');
@@ -168,10 +168,7 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
 export default withProps<Props>(
   compose(
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'brandsQuery'
     }),
     graphql<
       Props,
@@ -184,8 +181,7 @@ export default withProps<Props>(
           variables: {
             contentType: 'form',
             contentTypeId: formId
-          },
-          fetchPolicy: 'network-only'
+          }
         };
       }
     }),
@@ -196,8 +192,7 @@ export default withProps<Props>(
         options: ({ contentTypeId }) => ({
           variables: {
             _id: contentTypeId
-          },
-          fetchPolicy: 'network-only'
+          }
         })
       }
     ),

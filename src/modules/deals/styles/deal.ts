@@ -1,42 +1,58 @@
 import { colors } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { borderRadius, coreHeight } from './deminsions';
+import { borderRadius } from './common';
 
 const FlexContent = styled.div`
   display: flex;
 `;
 
-const Container = styledTS<{ isDragging?: boolean }>(styled.div)`
-  overflow: hidden;
-  margin-bottom: 10px;
-  padding: 10px;
-  outline: 0;
-  border-radius: ${borderRadius};
-  background-color: ${colors.colorWhite};
-  transition: box-shadow 0.3s ease-in-out;
+const Deal = styledTS<{ isDragging?: boolean }>(styled.div)`
+  margin-bottom: 8px;
+  background-color: rgb(255, 255, 255);
   box-shadow: ${props =>
     props.isDragging
-      ? `10px 15px 35px 4px rgba(0, 0, 0, 0.2)`
-      : '0 1px 2px 0 rgba(0, 0, 0, 0.2)'};
+      ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
+      : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
+  overflow: hidden;
+  padding: 8px;
+  outline: 0px;
+  font-size: 12px;
+  border-radius: ${borderRadius};
+  transition: box-shadow 0.3s ease-in-out 0s;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  will-change: transform;
+`;
 
-  h4 {
-    margin-top: 0;
-    font-weight: normal;
-    font-size: 14px;
-    margin-bottom: 5px;
-    flex: 1;
-    line-height: 1.4;
+const PriceContainer = styled.div`
+  overflow: auto;
+  margin-top: 5px;
+
+  ul {
+    float: left;
+  }
+`;
+
+const Right = styled.div`
+  float: right;
+`;
+
+const Footer = styled.div`
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px dotted #eee;
+  font-size: 11px;
+
+  ul {
+    float: left;
   }
 `;
 
 const DealDate = styled.span`
   font-size: 11px;
-  color: ${colors.colorCoreGray};
+  color: rgb(136, 136, 136);
   z-index: 10;
-  cursor: help;
-  margin-left: 5px;
-  flex-shrink: 0;
 `;
 
 const HeaderRow = styled(FlexContent)`
@@ -82,11 +98,9 @@ const HeaderContentSmall = styled.div`
 
 const Button = styled.div`
   padding: 7px 10px;
-  margin-bottom: 15px;
   background: ${colors.colorWhite};
-  border-radius: 5px;
   cursor: pointer;
-  border: 1px solid ${colors.borderPrimary};
+  border-bottom: 1px solid ${colors.borderDarker};
   transition: all 0.3s ease;
 
   &:hover {
@@ -121,7 +135,7 @@ const Left = styled.div`
   }
 `;
 
-const Right = styled.div`
+const RightContent = styled.div`
   width: 280px;
   flex-shrink: 0;
 
@@ -146,6 +160,7 @@ const Right = styled.div`
 
     &:hover {
       color: ${colors.textPrimary};
+      box-shadow: 0 0 12px 1px rgba(190, 190, 190, 0.7);
     }
   }
 `;
@@ -226,49 +241,6 @@ const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
   }
 `;
 
-const ItemList = styled.ul`
-  list-style: none;
-  margin: 0;
-  padding: 0 0 0 12px !important;
-  display: block;
-  overflow: hidden;
-  position: relative;
-
-  > li {
-    float: left;
-    line-height: 18px;
-
-    &:after {
-      content: ', ';
-      margin-right: 5px;
-    }
-
-    &:last-child:after {
-      display: none;
-    }
-  }
-`;
-
-const PortableItem = styledTS<{ uppercase: boolean }>(styled.li)`
-  text-transform: ${props => (props.uppercase ? 'uppercase' : 'normal')};
-  font-size: ${props => (props.uppercase ? '10px' : '12px')};
-  align-items: center;
-  vertical-align: bottom;
-
-  &:first-child:before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    float: left;
-    border-radius: 1px;
-    background: ${props =>
-      props.color ? `${props.color}` : `${colors.colorShadowGray}`};
-    position: absolute;
-    top: 4px;
-    left: 0;
-  }
-`;
-
 const SelectValue = styled.div`
   display: flex;
   justify-content: center;
@@ -308,32 +280,12 @@ const AddContainer = styled.form`
   }
 `;
 
-const ActionInfo = styled(SpaceContent)`
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed ${colors.colorShadowGray};
-
-  span {
-    font-size: 10px;
-  }
-`;
-
-const DealFooter = styled.div`
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed ${colors.colorShadowGray};
-
-  span {
-    font-size: 10px;
-  }
-`;
-
 const Status = styled.div`
   margin-bottom: 4px;
   overflow: hidden;
 
   > span {
-    border-radius: 2px;
+    border-radius: ${borderRadius};
     padding: 1px 4px;
     font-size: 10px;
     color: #fff;
@@ -342,7 +294,7 @@ const Status = styled.div`
 `;
 
 const UserCounterContainer = styled.ul`
-  margin-bottom: 0;
+  margin: 0;
   list-style: none;
   padding: 0;
   flex-shrink: 0;
@@ -370,7 +322,7 @@ const UserCounterContainer = styled.ul`
 `;
 
 export {
-  Container,
+  Deal,
   SpaceContent,
   FooterContent,
   DealDate,
@@ -384,18 +336,17 @@ export {
   FormFooter,
   FlexContent,
   Left,
-  Right,
+  RightContent,
   MoveContainer,
   Stages,
-  ItemList,
-  PortableItem,
   StageItem,
   SelectOption,
   SelectValue,
   Avatar,
   AddContainer,
-  ActionInfo,
   Status,
   UserCounterContainer,
-  DealFooter
+  PriceContainer,
+  Right,
+  Footer
 };

@@ -1,20 +1,20 @@
+import { ActivityInputs } from 'modules/activityLogs/components';
+import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
 import { Button } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { ICompany } from '../../../companies/types';
 import { ICustomer } from '../../../customers/types';
 import { IProduct } from '../../../settings/productService/types';
-import { Tab } from '../../containers';
-import { FlexContent, FormFooter } from '../../styles/deal';
+import { FlexContent, FormFooter, Left } from '../../styles/deal';
 import { IDeal, IDealParams } from '../../types';
 import { Sidebar, Top } from './';
 
 type Props = {
   deal: IDeal;
   users: IUser[];
-  addDeal: (doc: IDealParams, callback: () => void) => void;
+  addDeal: (doc: IDealParams, callback: () => void, msg?: string) => void;
   saveDeal: (doc: IDealParams, callback: () => void) => void;
   removeDeal: (dealId: string, callback: () => void) => void;
   closeModal: () => void;
@@ -105,11 +105,11 @@ class DealEditForm extends React.Component<Props, State> {
     const { closeModal, saveDeal } = this.props;
 
     if (!name) {
-      return Alert.error(__('Enter name'));
+      return Alert.error('Enter a name');
     }
 
     if (productsData.length === 0) {
-      return Alert.error(__('Please, select product & service'));
+      return Alert.error('Select product & service');
     }
 
     const doc = {
@@ -145,7 +145,11 @@ class DealEditForm extends React.Component<Props, State> {
       customerIds: deal.customers.map(customer => customer._id)
     };
 
-    addDeal(doc, () => closeModal && closeModal());
+    addDeal(
+      doc,
+      () => closeModal && closeModal(),
+      `You successfully copied a deal`
+    );
   };
 
   renderFormContent() {
@@ -165,7 +169,7 @@ class DealEditForm extends React.Component<Props, State> {
     } = this.state;
 
     return (
-      <React.Fragment>
+      <>
         <Top
           name={name}
           description={description}
@@ -179,7 +183,20 @@ class DealEditForm extends React.Component<Props, State> {
         />
 
         <FlexContent>
-          <Tab deal={deal} />
+          <Left>
+            <ActivityInputs
+              contentTypeId={deal._id}
+              contentType="deal"
+              showEmail={false}
+            />
+            <ActivityLogs
+              target={deal.name}
+              contentId={deal._id}
+              contentType="deal"
+              extraTabs={[]}
+            />
+          </Left>
+
           <Sidebar
             customers={customers}
             companies={companies}
@@ -192,13 +209,13 @@ class DealEditForm extends React.Component<Props, State> {
             saveProductsData={this.saveProductsData}
           />
         </FlexContent>
-      </React.Fragment>
+      </>
     );
   }
 
   render() {
     return (
-      <React.Fragment>
+      <>
         {this.renderFormContent()}
 
         <FormFooter>
@@ -214,7 +231,7 @@ class DealEditForm extends React.Component<Props, State> {
             Save
           </Button>
         </FormFooter>
-      </React.Fragment>
+      </>
     );
   }
 }

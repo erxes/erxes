@@ -1,6 +1,21 @@
 import { IActivityLogForMonth } from '../../activityLogs/types';
-import { IUser, IUserDoc } from '../../auth/types';
+import { IUser, IUserDetails, IUserDoc, IUserLinks } from '../../auth/types';
 import { IConversation } from '../../inbox/types';
+
+export type IInvitationEntry = {
+  email: string;
+  groupId: string;
+};
+
+export type UserMutationVariables = {
+  username: string;
+  email: string;
+  details?: IUserDetails;
+  links?: IUserLinks;
+  channelIds?: [string];
+  password: string;
+  passwordConfirmation: string;
+};
 
 export type UsersQueryResponse = {
   users: IUser[];
@@ -21,7 +36,7 @@ export type EditMutationResponse = {
 };
 
 export type ActivityLogQueryResponse = {
-  activityLogsUser: IActivityLogForMonth[];
+  activityLogs: IActivityLogForMonth[];
   loading: boolean;
 };
 
@@ -32,4 +47,18 @@ export type UserConverationsQueryResponse = {
   };
   loading: boolean;
   refetch: () => void;
+};
+
+export type ConfirmMutationVariables = {
+  token: string;
+  password: string;
+  passwordConfirmation: string;
+  fullName: string;
+  username: string;
+};
+
+export type ConfirmMutationResponse = {
+  usersConfirmInvitation: (
+    params: { variables: ConfirmMutationVariables }
+  ) => Promise<any>;
 };

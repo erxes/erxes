@@ -19,15 +19,17 @@ type Props = {
 
 class LeftSidebar extends React.Component<Props> {
   renderLink(link, icon) {
-    if (link) {
-      return (
-        <a href={link} target="_blank">
-          <Icon icon={icon} />
-        </a>
-      );
+    if (!link) {
+      return null;
     }
-    return null;
+
+    return (
+      <a href={link} target="_blank">
+        <Icon icon={icon} />
+      </a>
+    );
   }
+
   renderLinks(links) {
     return (
       <Links>
@@ -35,7 +37,7 @@ class LeftSidebar extends React.Component<Props> {
         {this.renderLink(links.twitter, 'twitter')}
         {this.renderLink(links.linkedIn, 'linkedin-logo')}
         {this.renderLink(links.youtube, 'youtube')}
-        {this.renderLink(links.github, 'github')}
+        {this.renderLink(links.github, 'github-circled')}
         {this.renderLink(links.website, 'earthgrid')}
       </Links>
     );
@@ -69,6 +71,18 @@ class LeftSidebar extends React.Component<Props> {
           </InfoWrapper>
           <SidebarList className="no-link">
             <li>
+              {__('Primary Email')}:
+              <SidebarCounter>{user.email || '-'}</SidebarCounter>
+            </li>
+            <li>
+              {__('User name')}:
+              <SidebarCounter>{user.username || '-'}</SidebarCounter>
+            </li>
+            <li>
+              {__('Short name')}:
+              <SidebarCounter>{details.shortName || '-'}</SidebarCounter>
+            </li>
+            <li>
               {__('Location')}:
               <SidebarCounter>{details.location || '-'}</SidebarCounter>
             </li>
@@ -77,7 +91,7 @@ class LeftSidebar extends React.Component<Props> {
               <SidebarCounter>{details.position || '-'}</SidebarCounter>
             </li>
             <li>
-              {__('Mini-resume')}:
+              {__('Description')}:
               <SidebarCounter nowrap={true}>
                 {details.description || '-'}
               </SidebarCounter>

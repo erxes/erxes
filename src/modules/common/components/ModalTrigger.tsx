@@ -1,6 +1,7 @@
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
+import * as RTG from 'react-transition-group';
 
 type Props = {
   title: string;
@@ -9,6 +10,7 @@ type Props = {
   size?: string;
   ignoreTrans?: boolean;
   dialogClassName?: string;
+  backDrop?: string;
 };
 
 type State = {
@@ -37,7 +39,8 @@ class ModalTrigger extends React.Component<Props, State> {
       size,
       ignoreTrans,
       dialogClassName,
-      content
+      content,
+      backDrop
     } = this.props;
 
     const { isOpen } = this.state;
@@ -51,7 +54,7 @@ class ModalTrigger extends React.Component<Props, State> {
     );
 
     return (
-      <React.Fragment>
+      <>
         {triggerComponent}
 
         <Modal
@@ -59,15 +62,18 @@ class ModalTrigger extends React.Component<Props, State> {
           bsSize={size}
           show={isOpen}
           onHide={this.closeModal}
+          backdrop={backDrop}
         >
           <Modal.Header closeButton={true}>
             <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {isOpen && content({ closeModal: this.closeModal })}
+            <RTG.Transition in={isOpen} timeout={300} unmountOnExit={true}>
+              {content({ closeModal: this.closeModal })}
+            </RTG.Transition>
           </Modal.Body>
         </Modal>
-      </React.Fragment>
+      </>
     );
   }
 }

@@ -7,25 +7,29 @@ import { queries as customerQueries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 
 const SegmentFilterContainer = (props: {
-  customersCountQuery: CountQueryResponse;
+  customersCountQuery?: CountQueryResponse;
 }) => {
   const { customersCountQuery } = props;
 
-  const counts = customersCountQuery.customerCounts || {};
+  const counts = (customersCountQuery
+    ? customersCountQuery.customerCounts
+    : null) || { bySegment: {} };
 
-  return <Segments contentType="customer" counts={counts.bySegment || {}} />;
+  return <Segments contentType="customer" counts={counts.bySegment} />;
 };
 
-export default withProps<{}>(
+export default withProps<{ loadingMainQuery: boolean }>(
   compose(
-    graphql<{}, CountQueryResponse, { only: string }>(
-      gql(customerQueries.customerCounts),
-      {
-        name: 'customersCountQuery',
-        options: {
-          variables: { only: 'bySegment' }
-        }
+    graphql<
+      { loadingMainQuery: boolean },
+      CountQueryResponse,
+      { only: string }
+    >(gql(customerQueries.customerCounts), {
+      name: 'customersCountQuery',
+      skip: ({ loadingMainQuery }) => loadingMainQuery,
+      options: {
+        variables: { only: 'bySegment' }
       }
-    )
+    })
   )(SegmentFilterContainer)
 );

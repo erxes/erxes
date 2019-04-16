@@ -1,7 +1,15 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { CustomerDetails, CustomersList } from './containers';
+
+const CustomerDetails = asyncComponent(() =>
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/CustomerDetails')
+);
+
+const CustomersList = asyncComponent(() =>
+  import(/* webpackChunkName: "CustomersList" */ './containers/CustomersList')
+);
 
 const detail = ({ match }) => {
   const id = match.params.id;

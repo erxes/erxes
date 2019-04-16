@@ -13,13 +13,14 @@ type Props = {
 };
 
 class PasswordConfirmation extends React.Component<Props> {
-  submit = e => {
+  submit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const password = (document.getElementById('password') as HTMLInputElement)
       .value;
 
     this.props.onSuccess(password);
+
     this.props.closeModal();
   };
 

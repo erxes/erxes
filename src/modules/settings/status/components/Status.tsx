@@ -1,9 +1,9 @@
-import { Icon } from 'modules/common/components';
-import { FullContent } from 'modules/common/styles/main';
+import { HeaderDescription, Icon } from 'modules/common/components';
+import { FullContent, MiddleContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
-import { Box, Group, MiddleContent, Title } from '../styles';
+import { Box, Group, Title } from '../styles';
 import { ProjectVersions, Version } from '../types';
 
 class Status extends React.Component<{ versions: ProjectVersions }> {
@@ -68,24 +68,34 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
     } = versions;
 
     const content = (
-      <FullContent center={true}>
-        <MiddleContent>
-          {this.renderData('Erxes Status', erxesVersion)}
+      <div>
+        {this.renderData('Erxes Status', erxesVersion)}
 
-          {this.renderData('Erxes API Status', apiVersion)}
+        {this.renderData('Erxes API Status', apiVersion)}
 
-          {this.renderData('Erxes Widget Status', widgetVersion)}
+        {this.renderData('Erxes Widget Status', widgetVersion)}
 
-          {this.renderData('Widget Api Version', widgetApiVersion)}
-        </MiddleContent>
-      </FullContent>
+        {this.renderData('Widget Api Version', widgetApiVersion)}
+      </div>
     );
 
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/28.svg"
+                title="System status"
+                description={`This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.`}
+              />
+            }
+          />
+        }
         content={content}
         transparent={true}
+        center={true}
       />
     );
   }

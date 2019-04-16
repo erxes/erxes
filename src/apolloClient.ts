@@ -11,7 +11,7 @@ import { Alert } from 'modules/common/utils';
 export const getEnv = () => {
   const wenv = (window as any).env || {};
 
-  const getItem = name => process.env[name] || wenv[name];
+  const getItem = name => wenv[name] || process.env[name];
 
   return {
     REACT_APP_API_URL: getItem('REACT_APP_API_URL'),
@@ -29,8 +29,16 @@ const httpLink = createHttpLink({
   credentials: 'include'
 });
 
-// Network error
-const errorLink = onError(({ networkError }) => {
+// Error handler
+const errorLink = onError(({ networkError, graphQLErrors }) => {
+  if (graphQLErrors && graphQLErrors.length > 0) {
+    const [error] = graphQLErrors;
+
+    if (error.message === 'Login required') {
+      window.location.reload();
+    }
+  }
+
   if (networkError) {
     Alert.error('Disconnect ...');
   }

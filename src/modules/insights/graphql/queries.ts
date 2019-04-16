@@ -1,15 +1,31 @@
 const listParamsDef = `
-  $integrationType: String,
-  $brandId: String,
+  $integrationIds: String,
+  $brandIds: String,
   $startDate: String,
   $endDate: String
 `;
 
 const listParamsValue = `
-  integrationType: $integrationType,
-  brandId: $brandId,
+  integrationIds: $integrationIds,
+  brandIds: $brandIds,
   startDate: $startDate,
   endDate: $endDate
+`;
+
+const dealParamsDef = `
+  $pipelineIds: String,
+  $boardId: String,
+  $startDate: String,
+  $endDate: String
+  $status: String
+`;
+
+const dealParamsValue = `
+  pipelineIds: $pipelineIds,
+  boardId: $boardId,
+  startDate: $startDate,
+  endDate: $endDate
+  status: $status
 `;
 
 const pieChart = `
@@ -19,16 +35,20 @@ const pieChart = `
 `;
 
 const punchCard = `
-  query insightsPunchCard($type: String, $integrationType: String,
-    $brandId: String, $endDate: String) {
-    insightsPunchCard(type: $type, integrationType: $integrationType,
-      brandId: $brandId, endDate: $endDate)
+  query insightsPunchCard($type: String, ${listParamsDef}) {
+    insightsPunchCard(type: $type, ${listParamsValue})
   }
 `;
 
-const main = `
-  query insightsMain($type: String, ${listParamsDef}) {
-    insightsMain(type: $type, ${listParamsValue})
+const trend = `
+  query insightsTrend($type: String, ${listParamsDef}) {
+    insightsTrend(type: $type, ${listParamsValue})
+  }
+`;
+
+const summaryData = `
+  query insightsSummaryData($type: String, ${listParamsDef}) {
+    insightsSummaryData(type: $type, ${listParamsValue})
   }
 `;
 
@@ -83,8 +103,27 @@ const insightTagReportExport = `
   }
 `;
 
+const dealInsightsMain = `
+  query dealInsightsMain(${dealParamsDef}) {
+    dealInsightsMain(${dealParamsValue})
+  }
+`;
+
+const dealInsightsPunchCard = `
+  query dealInsightsPunchCard(${dealParamsDef}) {
+    dealInsightsPunchCard(${dealParamsValue})
+  }
+`;
+
+const dealInsightsByTeamMember = `
+  query dealInsightsByTeamMember(${dealParamsDef}) {
+    dealInsightsByTeamMember(${dealParamsValue})
+  }
+`;
+
 export default {
-  main,
+  trend,
+  summaryData,
   pieChart,
   punchCard,
   firstResponse,
@@ -94,5 +133,9 @@ export default {
   insightVolumeReportExport,
   insightActivityReportExport,
   insightFirstResponseReportExport,
-  insightTagReportExport
+  insightTagReportExport,
+
+  dealInsightsMain,
+  dealInsightsPunchCard,
+  dealInsightsByTeamMember
 };

@@ -1,6 +1,5 @@
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
 import { DealSelect } from 'modules/deals/containers';
 import {
   AddContainer,
@@ -54,11 +53,11 @@ class DealAddForm extends React.Component<Props, State> {
     const { customerId, companyId, saveDeal, closeModal } = this.props;
 
     if (!stageId) {
-      return Alert.error(__('No stage'));
+      return Alert.error('No stage');
     }
 
     if (!name) {
-      return Alert.error(__('Enter name'));
+      return Alert.error('Enter name');
     }
 
     const doc = {
@@ -104,10 +103,10 @@ class DealAddForm extends React.Component<Props, State> {
     );
   }
 
-  render() {
-    const onChangeName = e =>
-      this.onChangeField('name', (e.target as HTMLInputElement).value);
+  onChangeName = e =>
+    this.onChangeField('name', (e.target as HTMLInputElement).value);
 
+  render() {
     return (
       <AddContainer onSubmit={this.save}>
         {this.renderSelect()}
@@ -115,7 +114,7 @@ class DealAddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel>Name</ControlLabel>
-            <FormControl autoFocus={true} onChange={onChangeName} />
+            <FormControl autoFocus={true} onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
 

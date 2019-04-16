@@ -53,10 +53,6 @@ const StageList = styled.div`
   > button {
     margin-top: 10px;
   }
-
-  ${SortItem} {
-    padding: 5px 15px;
-  }
 `;
 
 const StageItemContainer = styled(PipelineRowContainer)`
@@ -64,6 +60,10 @@ const StageItemContainer = styled(PipelineRowContainer)`
 
   > *:not(button) {
     margin-right: 10px;
+  }
+
+  button {
+    padding: 5px 8px;
   }
 `;
 

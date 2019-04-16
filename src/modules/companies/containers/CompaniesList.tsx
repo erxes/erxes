@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -68,7 +68,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('Success');
+          Alert.success('You successfully deleted a company');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -83,7 +83,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
         }
       })
         .then(response => {
-          Alert.success('Success');
+          Alert.success('You successfully merged companies');
           callback();
           history.push(
             `/companies/details/${response.data.companiesMerge._id}`
@@ -133,8 +133,9 @@ const generateParams = ({ queryParams }) => ({
     lifecycleState: queryParams.lifecycleState,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
-  },
-  fetchPolicy: 'network-only'
+      ? parseInt(queryParams.sortDirection, 10)
+      : undefined
+  }
 });
 
 export default withProps<Props>(
@@ -147,10 +148,7 @@ export default withProps<Props>(
       }
     ),
     graphql<{}, ListConfigQueryResponse, {}>(gql(queries.companiesListConfig), {
-      name: 'companiesListConfigQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'companiesListConfigQuery'
     }),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(

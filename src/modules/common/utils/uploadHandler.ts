@@ -1,4 +1,5 @@
 import { getEnv } from 'apolloClient';
+import { Alert } from 'modules/common/utils';
 
 type FileInfo = {
   name: string;
@@ -91,8 +92,8 @@ const uploadHandler = (params: Params) => {
           }
         })
 
-        .catch(e => {
-          console.log(e); // tslint:disable-line
+        .catch(error => {
+          Alert.error(error.message);
         });
     };
 

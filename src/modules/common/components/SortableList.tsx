@@ -41,7 +41,7 @@ class SortableList extends React.Component<Props> {
 
     return (
       <DragHandler>
-        <Icon icon="move" />
+        <Icon icon="move-1" />
       </DragHandler>
     );
   }
@@ -52,7 +52,7 @@ class SortableList extends React.Component<Props> {
     return (
       <Draggable draggableId={field._id} index={index} key={index}>
         {(provided, snapshot) => (
-          <React.Fragment>
+          <>
             <SortItem
               innerRef={provided.innerRef}
               {...provided.draggableProps}
@@ -65,7 +65,7 @@ class SortableList extends React.Component<Props> {
               {child(field)}
             </SortItem>
             {provided.placeholder}
-          </React.Fragment>
+          </>
         )}
       </Draggable>
     );

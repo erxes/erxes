@@ -1,3 +1,4 @@
+import { FullContent, MiddleContent } from 'modules/common/styles/main';
 import * as React from 'react';
 import { Contents } from '../styles';
 import ActionBar from './ActionBar';
@@ -13,6 +14,7 @@ type Props = {
   content: React.ReactNode;
   footer?: React.ReactNode;
   transparent?: boolean;
+  center?: boolean;
 };
 
 class Wrapper extends React.Component<Props> {
@@ -20,28 +22,45 @@ class Wrapper extends React.Component<Props> {
   static Sidebar = Sidebar;
   static ActionBar = ActionBar;
 
+  renderContent() {
+    const { actionBar, content, footer, transparent, center } = this.props;
+
+    if (center) {
+      return (
+        <FullContent center={true} align={true}>
+          <MiddleContent transparent={transparent}>
+            <PageContent
+              actionBar={actionBar}
+              footer={footer}
+              transparent={transparent || false}
+              center={center}
+            >
+              {content}
+            </PageContent>
+          </MiddleContent>
+        </FullContent>
+      );
+    }
+
+    return (
+      <PageContent
+        actionBar={actionBar}
+        footer={footer}
+        transparent={transparent || false}
+      >
+        {content}
+      </PageContent>
+    );
+  }
+
   render() {
-    const {
-      header,
-      leftSidebar,
-      actionBar,
-      content,
-      footer,
-      rightSidebar,
-      transparent
-    } = this.props;
+    const { header, leftSidebar, rightSidebar } = this.props;
 
     return (
       <Contents>
         {header}
         {leftSidebar}
-        <PageContent
-          actionBar={actionBar}
-          footer={footer}
-          transparent={transparent || false}
-        >
-          {content}
-        </PageContent>
+        {this.renderContent()}
         {rightSidebar}
       </Contents>
     );

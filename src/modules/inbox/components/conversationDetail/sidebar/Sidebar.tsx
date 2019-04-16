@@ -22,7 +22,8 @@ import {
   Actions,
   BasicInfo,
   SectionContainer,
-  SidebarCollapse
+  SidebarCollapse,
+  TabContent
 } from './styles';
 
 import { __ } from 'modules/common/utils';
@@ -236,8 +237,8 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     if (currentSubTab === 'details') {
       return (
-        <React.Fragment>
-          <DetailInfo customer={customer} /> <br />
+        <TabContent>
+          <DetailInfo customer={customer} />
           <Box
             title={__('Conversation details')}
             name="showConversationDetails"
@@ -279,7 +280,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             config,
             toggleSection
           })}
-        </React.Fragment>
+        </TabContent>
       );
     }
 
@@ -290,16 +291,14 @@ class Index extends React.Component<IndexProps, IndexState> {
     }
 
     return (
-      <React.Fragment>
-        <Box
-          title={__('Deals')}
-          name="showDeals"
-          isOpen={config.showDeals || false}
-          toggle={toggleSection}
-        >
-          <PortableDeals customerId={customer._id} isOpen={config.showDeals} />
-        </Box>
-      </React.Fragment>
+      <Box
+        title={__('Deals')}
+        name="showDeals"
+        isOpen={config.showDeals || false}
+        toggle={toggleSection}
+      >
+        <PortableDeals customerId={customer._id} isOpen={config.showDeals} />
+      </Box>
     );
   }
 
@@ -313,7 +312,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       const relatedOnClick = () => this.onSubtabClick('related');
 
       return (
-        <React.Fragment>
+        <>
           <BasicInfo>
             <InfoSection
               customer={customer}
@@ -344,12 +343,12 @@ class Index extends React.Component<IndexProps, IndexState> {
             </TabTitle>
           </Tabs>
           {this.renderTabSubContent()}
-        </React.Fragment>
+        </>
       );
     }
 
     return (
-      <React.Fragment>
+      <>
         <Box
           title={__('Companies')}
           name="showCompanies"
@@ -367,7 +366,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         >
           <Contacts companies={customer.companies} customerId={customer._id} />
         </Box>
-      </React.Fragment>
+      </>
     );
   }
 
@@ -383,13 +382,13 @@ class Index extends React.Component<IndexProps, IndexState> {
             className={currentTab === 'customer' ? 'active' : ''}
             onClick={customerOnClick}
           >
-            {__('CUSTOMER')}
+            {__('Customer')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'company' ? 'active' : ''}
             onClick={companyOnClick}
           >
-            {__('COMPANY')}
+            {__('Company')}
           </TabTitle>
         </Tabs>
         {this.renderTabContent()}

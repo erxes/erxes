@@ -6,11 +6,11 @@ import { ResponseReport, VolumeReport } from '../components';
 import { queries } from '../graphql';
 import {
   IParams,
-  IParamsWithType,
   IQueryParams,
-  MainQueryResponse,
   PieChartQueryResponse,
-  PunchCardQueryResponse
+  PunchCardQueryResponse,
+  SummaryDataQueryResponse,
+  TrendQueryResponse
 } from '../types';
 
 type Props = {
@@ -23,7 +23,8 @@ type FinalProps = {
   volumePieChartQuery: PieChartQueryResponse;
   brandsQuery: BrandsQueryResponse;
   punchCardQuery: PunchCardQueryResponse;
-  mainQuery: MainQueryResponse;
+  trendQuery: TrendQueryResponse;
+  summaryDataQuery: SummaryDataQueryResponse;
 } & Props;
 
 const VolumenAndResponseReportContainer = (props: FinalProps) => {
@@ -33,21 +34,24 @@ const VolumenAndResponseReportContainer = (props: FinalProps) => {
     brandsQuery,
     history,
     punchCardQuery,
-    mainQuery,
+    trendQuery,
+    summaryDataQuery,
     queryParams
   } = props;
 
-  const data = mainQuery.insightsMain || {};
+  const trend = trendQuery.insightsTrend || [];
+  const summary = summaryDataQuery.insightsSummaryData || [];
 
   const extendedProps = {
     history,
     queryParams,
-    trend: data.trend || [],
+    trend,
     brands: brandsQuery.brands || [],
     punch: punchCardQuery.insightsPunchCard || [],
-    summary: data.summary || [],
+    summary,
     loading: {
-      main: mainQuery.loading,
+      trend: trendQuery.loading,
+      summary: summaryDataQuery.loading,
       punch: punchCardQuery.loading,
       insights: volumePieChartQuery && volumePieChartQuery.loading
     }
@@ -65,45 +69,35 @@ const VolumenAndResponseReportContainer = (props: FinalProps) => {
   return <ResponseReport {...extendedProps} />;
 };
 
+const options = ({ queryParams, type }: IParams) => ({
+  fetchPolicy: 'network-only',
+  notifyOnNetworkStatusChange: true,
+  variables: {
+    type,
+    brandIds: queryParams.brandIds,
+    integrationIds: queryParams.integrationIds,
+    startDate: queryParams.startDate,
+    endDate: queryParams.endDate
+  }
+});
+
 export default compose(
   graphql(gql(queries.pieChart), {
     name: 'volumePieChartQuery',
     skip: ({ type }) => type === 'response',
-    options: ({ queryParams }: IParams) => ({
-      fetchPolicy: 'network-only',
-      variables: {
-        brandId: queryParams.brandId,
-        integrationType: queryParams.integrationType,
-        endDate: queryParams.endDate,
-        startDate: queryParams.startDate
-      }
-    })
+    options
   }),
   graphql(gql(queries.punchCard), {
     name: 'punchCardQuery',
-    options: ({ queryParams, type }: IParamsWithType) => ({
-      fetchPolicy: 'network-only',
-      variables: {
-        type,
-        brandId: queryParams.brandId,
-        integrationType: queryParams.integrationType,
-        endDate: queryParams.endDate
-      }
-    })
+    options
   }),
-  graphql(gql(queries.main), {
-    name: 'mainQuery',
-    options: ({ queryParams, type }: IParamsWithType) => ({
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true,
-      variables: {
-        type,
-        brandId: queryParams.brandId,
-        integrationType: queryParams.integrationType,
-        startDate: queryParams.startDate,
-        endDate: queryParams.endDate
-      }
-    })
+  graphql(gql(queries.trend), {
+    name: 'trendQuery',
+    options
+  }),
+  graphql(gql(queries.summaryData), {
+    name: 'summaryDataQuery',
+    options
   }),
   graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
     name: 'brandsQuery'

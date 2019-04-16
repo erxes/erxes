@@ -1,4 +1,9 @@
-import { Button, EmptyState, SortableList } from 'modules/common/components';
+import {
+  Button,
+  EmptyState,
+  HeaderDescription,
+  SortableList
+} from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { collectOrders } from 'modules/deals/utils';
 import { Wrapper } from 'modules/layout/components';
@@ -99,8 +104,8 @@ class Pipelines extends React.Component<Props, State> {
       return (
         <EmptyState
           size="full"
-          text="There is no pipeline"
-          image="/images/robots/robot-05.svg"
+          text="Get started on your pipeline"
+          image="/images/actions/16.svg"
         />
       );
     }
@@ -136,7 +141,16 @@ class Pipelines extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <Wrapper.ActionBar right={this.renderButton()} />
+        <Wrapper.ActionBar
+          left={
+            <HeaderDescription
+              icon="/images/actions/34.svg"
+              title={'Boards & Pipelines'}
+              description="Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check."
+            />
+          }
+          right={this.renderButton()}
+        />
         {this.renderContent()}
 
         <PipelineForm

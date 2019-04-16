@@ -42,7 +42,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
         .then(() => {
           categoriesQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success('You successfully deleted a category');
         })
         .catch(error => {
           Alert.error(error.message);

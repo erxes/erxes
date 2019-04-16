@@ -1,14 +1,15 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
-import { queries } from 'modules/settings/linkedAccounts/graphql';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
-import { compose, graphql, withApollo } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { BrandsQueryResponse } from '../../../brands/types';
-import { AccountsQueryResponse } from '../../../linkedAccounts/types';
 import {
   CreateFacebookMutationResponse,
   CreateFacebookMutationVariables,
@@ -16,13 +17,11 @@ import {
 } from '../../types';
 
 type Props = {
-  client: any;
   type?: string;
   closeModal: () => void;
 };
 
 type FinalProps = {
-  accountsQuery: AccountsQueryResponse;
   brandsQuery: BrandsQueryResponse;
 } & IRouterProps &
   Props &
@@ -30,6 +29,7 @@ type FinalProps = {
 
 type State = {
   pages: IPages[];
+  accountId?: string;
 };
 
 class FacebookContainer extends React.Component<FinalProps, State> {
@@ -39,21 +39,23 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     this.state = { pages: [] };
   }
 
-  onAccSelect = (doc: { accountId?: string }) => {
-    this.props.client
-      .query({
-        query: gql`
-          query integrationFacebookPagesList($accountId: String) {
-            integrationFacebookPagesList(accountId: $accountId)
-          }
-        `,
+  onAccountSelect = (accountId?: string) => {
+    if (!accountId) {
+      return this.setState({ pages: [], accountId: '' });
+    }
 
-        variables: doc
+    client
+      .query({
+        query: gql(queries.integrationFacebookPageList),
+        variables: { accountId }
       })
 
-      .then(({ data, loading }) => {
+      .then(({ data, loading }: any) => {
         if (!loading) {
-          this.setState({ pages: data.integrationFacebookPagesList });
+          this.setState({
+            pages: data.integrationFacebookPagesList,
+            accountId
+          });
         }
       })
 
@@ -62,41 +64,48 @@ class FacebookContainer extends React.Component<FinalProps, State> {
       });
   };
 
+  onRemoveAccount = () => {
+    this.setState({ pages: [] });
+  };
+
+  onSave = (
+    variables: CreateFacebookMutationVariables,
+    callback: () => void
+  ) => {
+    const { history, saveMutation } = this.props;
+    const { accountId } = this.state;
+
+    if (!accountId) {
+      return;
+    }
+
+    saveMutation({ variables: { ...variables, accountId } })
+      .then(() => {
+        callback();
+        Alert.success('You successfully added a integration');
+        history.push('/settings/integrations');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
   render() {
-    const {
-      history,
-      brandsQuery,
-      saveMutation,
-      accountsQuery,
-      closeModal
-    } = this.props;
+    const { brandsQuery, closeModal } = this.props;
 
     if (brandsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
     const brands = brandsQuery.brands;
-    const accounts = accountsQuery.accounts || [];
-
-    const save = (variables, callback) => {
-      saveMutation({ variables })
-        .then(() => {
-          Alert.success('Congrats');
-          callback();
-          history.push('/settings/integrations');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
 
     const updatedProps = {
       closeModal,
       brands,
       pages: this.state.pages,
-      onAccSelect: this.onAccSelect,
-      save,
-      accounts
+      onAccountSelect: this.onAccountSelect,
+      onRemoveAccount: this.onRemoveAccount,
+      onSave: this.onSave
     };
 
     return <Facebook {...updatedProps} />;
@@ -105,54 +114,30 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(
-      gql`
-        query brands {
-          brands {
-            _id
-            name
-          }
-        }
-      `,
-      {
-        name: 'brandsQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
+      name: 'brandsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<
       Props,
       CreateFacebookMutationResponse,
       CreateFacebookMutationVariables
-    >(
-      gql`
-        mutation integrationsCreateFacebookIntegration(
-          $brandId: String!
-          $name: String!
-          $accountId: String!
-          $pageIds: [String!]!
-        ) {
-          integrationsCreateFacebookIntegration(
-            brandId: $brandId
-            name: $name
-            pageIds: $pageIds
-            accountId: $accountId
-          ) {
-            _id
-          }
-        }
-      `,
-      { name: 'saveMutation' }
-    ),
-    graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
-      name: 'accountsQuery',
-      options: {
-        variables: {
-          kind: 'facebook'
-        }
+    >(gql(mutations.integrationsCreateFacebook), {
+      name: 'saveMutation',
+      options: () => {
+        return {
+          refetchQueries: [
+            {
+              query: gql(queries.integrations)
+            },
+            {
+              query: gql(queries.integrationTotalCount)
+            }
+          ]
+        };
       }
-    }),
-    withApollo
+    })
   )(withRouter<FinalProps>(FacebookContainer))
 );

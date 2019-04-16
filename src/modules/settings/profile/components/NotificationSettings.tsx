@@ -5,7 +5,13 @@ import {
   NotificationConfig,
   NotificationModule
 } from '../../../notifications/types';
-import { InlineItems, ModuleBox, SubHeading, SubItem } from '../../styles';
+import {
+  Description,
+  InlineItems,
+  ModuleBox,
+  SubHeading,
+  SubItem
+} from '../../styles';
 
 type Props = {
   modules: NotificationModule[];
@@ -78,7 +84,12 @@ class NotificationSettings extends React.Component<Props> {
   render() {
     const content = (
       <React.Fragment>
-        <SubHeading>{__('Notifications')}</SubHeading>
+        <SubHeading>
+          {__('Notifications')}
+          <span>
+            {__('Get notified and notify others to keep everything up to date')}
+          </span>
+        </SubHeading>
         <InlineItems>
           {__('Get notification by email')}
           <Toggle
@@ -90,6 +101,11 @@ class NotificationSettings extends React.Component<Props> {
             }}
           />
         </InlineItems>
+        <Description>
+          {__(
+            "If your team hasn't received messages that you sent on the site, we can send it to them via email"
+          )}
+        </Description>
         <ModuleBox>
           {this.props.modules.map((module, index) =>
             this.renderModule(module, index)

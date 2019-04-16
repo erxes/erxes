@@ -1,16 +1,30 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import { Home } from './containers';
+
+const Calendar = asyncComponent(() =>
+  import(/* webpackChunkName: "Calendar" */ './components/calendar/Calendar')
+);
+
+const DealBoard = asyncComponent(() =>
+  import(/* webpackChunkName: "DealBoard" */ './components/DealBoard')
+);
 
 const deals = () => {
   return <Redirect to="/deals/board" />;
 };
 
-const boards = ({ history, location }) => {
+const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <Home queryParams={queryParams} history={history} />;
+  return <DealBoard queryParams={queryParams} />;
+};
+
+const calendar = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <Calendar queryParams={queryParams} />;
 };
 
 const routes = () => {
@@ -23,6 +37,13 @@ const routes = () => {
         exact={true}
         path="/deals/board"
         component={boards}
+      />
+
+      <Route
+        key="deals/calendar"
+        exact={true}
+        path="/deals/calendar"
+        component={calendar}
       />
     </React.Fragment>
   );

@@ -1,6 +1,10 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
-import { Channels } from './containers';
+
+const Channels = asyncComponent(() =>
+  import(/* webpackChunkName: "Channels - Settings" */ './containers/Channels')
+);
 
 const routes = () => <Route path="/settings/channels/" component={Channels} />;
 

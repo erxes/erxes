@@ -21,7 +21,7 @@ class Empty extends React.Component<Props> {
       <EmptyState
         text="There is no brand."
         size="full"
-        image="/images/robots/robot-02.svg"
+        image="/images/actions/20.svg"
       />
     );
 

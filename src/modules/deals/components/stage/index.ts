@@ -1,4 +1,4 @@
-import DealAddForm from './DealAddForm';
+import DealAddForm from '../DealAddForm';
 import DealItem from './DealItem';
 import DealList from './DealList';
 import Stage from './Stage';

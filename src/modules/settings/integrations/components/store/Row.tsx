@@ -4,6 +4,7 @@ import { IntegrationList } from 'modules/settings/integrations/containers/common
 import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
+import StoreEntry from '../../containers/StoreEntry';
 import Entry from './Entry';
 import { CollapsibleContent, IntegrationRow } from './styles';
 
@@ -82,47 +83,64 @@ class Row extends React.Component<Props, State> {
     return <Pagination count={totalCount} />;
   }
 
-  renderList() {
-    const { queryParams, totalCount } = this.props;
-    const { isContentVisible, kind } = this.state;
-
-    if (!isContentVisible) {
-      return null;
+  isMessengerApp(kind: string | null) {
+    if (kind === 'lead' || kind === 'googleMeet' || kind === 'knowledgebase') {
+      return true;
     }
 
-    if (kind === 'googleMeet' || kind === 'lead' || kind === 'knowledgebase') {
+    return false;
+  }
+
+  renderEntry(integration, totalCount, queryParams) {
+    const kind = integration.kind;
+
+    const commonProp = {
+      key: integration.name,
+      integration,
+      toggleBox: this.toggleBox,
+      getClassName: this.getClassName,
+      totalCount,
+      queryParams
+    };
+
+    if (this.isMessengerApp(kind)) {
+      return <StoreEntry {...commonProp} kind={kind} />;
+    }
+
+    return <Entry {...commonProp} />;
+  }
+
+  renderList() {
+    const { queryParams, totalCount } = this.props;
+    const { kind } = this.state;
+
+    if (this.isMessengerApp(kind)) {
       return <MessengerAppList kind={kind} queryParams={queryParams} />;
     }
 
     return (
-      <React.Fragment>
+      <>
         <IntegrationList kind={kind} queryParams={queryParams} />
         {this.renderPagination(totalCount[kind || ''])}
-      </React.Fragment>
+      </>
     );
   }
 
   render() {
-    const { integrations, title, totalCount } = this.props;
+    const { integrations, title, totalCount, queryParams } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         {title && <h3>{__(title)}</h3>}
         <IntegrationRow>
-          {integrations.map(integration => (
-            <Entry
-              key={integration.name}
-              integration={integration}
-              toggleBox={this.toggleBox}
-              getClassName={this.getClassName}
-              totalCount={totalCount}
-            />
-          ))}
+          {integrations.map(integration =>
+            this.renderEntry(integration, totalCount, queryParams)
+          )}
         </IntegrationRow>
-        <Collapse in={this.state.isContentVisible}>
+        <Collapse in={this.state.isContentVisible} unmountOnExit={true}>
           <CollapsibleContent>{this.renderList()}</CollapsibleContent>
         </Collapse>
-      </React.Fragment>
+      </>
     );
   }
 }

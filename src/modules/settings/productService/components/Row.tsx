@@ -2,8 +2,8 @@ import {
   ActionButtons,
   Button,
   Icon,
-  Label,
   ModalTrigger,
+  TextInfo,
   Tip
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
@@ -61,9 +61,15 @@ class Row extends React.Component<Props> {
     return (
       <tr>
         <td>{product.name}</td>
-        <td>{product.type}</td>
+        <td>
+          <TextInfo>{product.type}</TextInfo>
+        </td>
         <td>{product.description}</td>
-        <td>{product.sku && <Label>{product.sku}</Label>}</td>
+        <td>
+          {product.sku && (
+            <TextInfo textStyle="primary">{product.sku}</TextInfo>
+          )}
+        </td>
         <td>
           <ActionButtons>
             {this.renderEditAction()}

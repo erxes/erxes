@@ -1,111 +1,21 @@
-import { ActivityList } from 'modules/activityLogs/components';
+import { ActivityInputs } from 'modules/activityLogs/components';
+import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
-import {
-  DataWithLoader,
-  Icon,
-  Tabs,
-  TabTitle
-} from 'modules/common/components';
-import { ActivityContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { ICompany, ICompanyActivityLog } from 'modules/companies/types';
-import { TabContent } from 'modules/customers/styles';
-import { hasAnyActivity } from 'modules/customers/utils';
-import { Form as NoteForm } from 'modules/internalNotes/containers';
+import { ICompany } from 'modules/companies/types';
 import { Wrapper } from 'modules/layout/components';
-import { WhiteBox } from 'modules/layout/styles';
-import { MailForm } from 'modules/settings/integrations/containers/google';
 import * as React from 'react';
-import { withRouter } from 'react-router';
-import { IRouterProps } from '../../../common/types';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 
-interface IProps extends IRouterProps {
+type Props = {
   company: ICompany;
   currentUser: IUser;
-  companyActivityLog: ICompanyActivityLog[];
   taggerRefetchQueries?: any[];
-  loadingLogs: boolean;
-}
-
-type State = {
-  currentTab: string;
-  currentSubtab: string;
 };
 
-class CompanyDetails extends React.Component<IProps, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentSubtab: 'activity',
-      currentTab: 'newNote'
-    };
-  }
-
-  onTabClick = currentSubtab => {
-    this.setState({ currentSubtab });
-  };
-
-  onChangeTab = currentTab => {
-    this.setState({ currentTab });
-  };
-
-  renderSubTabContent() {
-    const { currentSubtab } = this.state;
-
-    const {
-      currentUser,
-      companyActivityLog,
-      company,
-      loadingLogs
-    } = this.props;
-
-    const hasActivity = hasAnyActivity(companyActivityLog);
-
-    return (
-      <ActivityContent isEmpty={!hasActivity}>
-        <DataWithLoader
-          loading={loadingLogs}
-          count={!loadingLogs && hasActivity ? 1 : 0}
-          data={
-            <ActivityList
-              user={currentUser}
-              activities={companyActivityLog}
-              target={company.primaryName || ''}
-              type={currentSubtab}
-            />
-          }
-          emptyText="No Activities"
-          emptyImage="/images/robots/robot-03.svg"
-        />
-      </ActivityContent>
-    );
-  }
-
-  renderTabContent() {
-    const { company } = this.props;
-    const { currentTab } = this.state;
-
-    if (currentTab === 'newNote') {
-      return <NoteForm contentType="company" contentTypeId={company._id} />;
-    }
-
-    return (
-      <TabContent>
-        <MailForm
-          contentType="company"
-          contentTypeId={company._id}
-          toEmails={company.emails}
-          refetchQueries={['activityLogsCompany']}
-        />
-      </TabContent>
-    );
-  }
-
+class CompanyDetails extends React.Component<Props> {
   render() {
-    const { currentSubtab, currentTab } = this.state;
     const { company, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
@@ -114,49 +24,23 @@ class CompanyDetails extends React.Component<IProps, State> {
     ];
 
     const content = (
-      <div>
-        <WhiteBox>
-          <Tabs>
-            <TabTitle
-              className={currentTab === 'newNote' ? 'active' : ''}
-              onClick={this.onChangeTab.bind(this, 'newNote')}
-            >
-              <Icon icon="edit-1" /> {__('New note')}
-            </TabTitle>
-            <TabTitle
-              className={currentTab === 'email' ? 'active' : ''}
-              onClick={this.onChangeTab.bind(this, 'email')}
-            >
-              <Icon icon="email" /> {__('Email')}
-            </TabTitle>
-          </Tabs>
-
-          {this.renderTabContent()}
-        </WhiteBox>
-
-        <Tabs grayBorder={true}>
-          <TabTitle
-            className={currentSubtab === 'activity' ? 'active' : ''}
-            onClick={this.onTabClick.bind(this, 'activity')}
-          >
-            {__('Activity')}
-          </TabTitle>
-          <TabTitle
-            className={currentSubtab === 'notes' ? 'active' : ''}
-            onClick={this.onTabClick.bind(this, 'notes')}
-          >
-            {__('Notes')}
-          </TabTitle>
-          <TabTitle
-            className={currentSubtab === 'conversations' ? 'active' : ''}
-            onClick={this.onTabClick.bind(this, 'conversations')}
-          >
-            {__('Conversation')}
-          </TabTitle>
-        </Tabs>
-
-        {this.renderSubTabContent()}
-      </div>
+      <>
+        <ActivityInputs
+          contentTypeId={company._id}
+          contentType="company"
+          toEmails={company.emails}
+          showEmail={true}
+        />
+        <ActivityLogs
+          target={company.primaryName || ''}
+          contentId={company._id}
+          contentType="company"
+          extraTabs={[
+            { name: 'conversation', label: 'Conversation' },
+            { name: 'email', label: 'Email' }
+          ]}
+        />
+      </>
     );
 
     return (
@@ -176,4 +60,4 @@ class CompanyDetails extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(CompanyDetails);
+export default CompanyDetails;

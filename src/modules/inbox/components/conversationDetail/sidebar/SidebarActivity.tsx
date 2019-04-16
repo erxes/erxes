@@ -6,7 +6,7 @@ import { ICustomer } from 'modules/customers/types';
 import { hasAnyActivity } from 'modules/customers/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import * as React from 'react';
-import { ActivityLogContent, ActivityNote } from './styles';
+import { ActivityLogContent, NoteFormContainer } from './styles';
 
 type Props = {
   customer: ICustomer;
@@ -28,11 +28,11 @@ class SidebarActivity extends React.Component<Props> {
     const hasActivity = hasAnyActivity(activityLogsCustomer);
 
     return (
-      <React.Fragment>
-        <ActivityNote>
-          <span>{__('New note') as string}:</span>
+      <>
+        <NoteFormContainer>
+          <span>{__('Add a note') as string}:</span>
           <NoteForm contentType="customer" contentTypeId={customer._id} />
-        </ActivityNote>
+        </NoteFormContainer>
 
         <ActivityLogContent isEmpty={!hasActivity}>
           <DataWithLoader
@@ -47,10 +47,10 @@ class SidebarActivity extends React.Component<Props> {
               />
             }
             emptyText="No Activities"
-            emptyImage="/images/robots/robot-03.svg"
+            emptyImage="/images/actions/19.svg"
           />
         </ActivityLogContent>
-      </React.Fragment>
+      </>
     );
   }
 }

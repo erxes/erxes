@@ -5,7 +5,6 @@ import { Alert, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { Form } from 'modules/settings/integrations/components/messenger';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
-import { queries as integQueries } from 'modules/settings/integrations/graphql';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import {
   IMessengerData,
@@ -78,7 +77,7 @@ const CreateMessenger = (props: FinalProps) => {
       })
 
       .then(() => {
-        Alert.success('Successfully saved.');
+        Alert.success('You successfully added an integration');
         history.push('/settings/integrations?refetch=true');
       })
       .catch(error => {
@@ -133,7 +132,7 @@ export default withProps<Props>(
         return {
           refetchQueries: [
             {
-              query: gql(integQueries.integrations),
+              query: gql(queries.integrations),
               variables: integrationsListParams(queryParams)
             },
             {

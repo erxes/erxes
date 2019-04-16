@@ -7,8 +7,9 @@ import {
   SortHandler,
   Table
 } from 'modules/common/components';
-import { __, confirm, router } from 'modules/common/utils';
+import { __, Alert, confirm, router } from 'modules/common/utils';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
+import { TableHeadContent } from 'modules/customers/styles';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import { ManageColumns } from 'modules/settings/properties/containers';
@@ -123,8 +124,10 @@ class CompaniesList extends React.Component<IProps, State> {
               </th>
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>
-                  <SortHandler sortField={name} />
-                  {__(label)}
+                  <TableHeadContent>
+                    <SortHandler sortField={name} />
+                    {__(label)}
+                  </TableHeadContent>
                 </th>
               ))}
               <th>{__('Tags')}</th>
@@ -153,13 +156,13 @@ class CompaniesList extends React.Component<IProps, State> {
     );
 
     const editColumns = (
-      <Button btnStyle="simple" size="small">
+      <Button btnStyle="simple" size="small" icon="filter">
         Edit columns
       </Button>
     );
 
     const mergeButton = (
-      <Button btnStyle="primary" size="small" icon="shuffle">
+      <Button btnStyle="primary" size="small" icon="merge">
         Merge
       </Button>
     );
@@ -178,9 +181,13 @@ class CompaniesList extends React.Component<IProps, State> {
       );
 
       const onClick = () =>
-        confirm().then(() => {
-          this.removeCompanies(bulk);
-        });
+        confirm()
+          .then(() => {
+            this.removeCompanies(bulk);
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
 
       actionBarLeft = (
         <BarItems>
@@ -247,6 +254,7 @@ class CompaniesList extends React.Component<IProps, State> {
           trigger={addTrigger}
           size="lg"
           content={companyForm}
+          backDrop="static"
         />
       </BarItems>
     );
@@ -263,14 +271,14 @@ class CompaniesList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar loadingMainQuery={loading} />}
         content={
           <DataWithLoader
             data={mainContent}
             loading={loading}
             count={companies.length}
-            emptyText="No companies added yet!"
-            emptyImage="/images/robots/robot-04.svg"
+            emptyText="Add in your first company!"
+            emptyImage="/images/actions/1.svg"
           />
         }
       />

@@ -1,4 +1,8 @@
-import { DataWithLoader, Table } from 'modules/common/components';
+import {
+  DataWithLoader,
+  HeaderDescription,
+  Table
+} from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
@@ -57,6 +61,17 @@ class Histories extends React.Component<Props> {
     return (
       <Wrapper
         header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/27.svg"
+                title="Import histories"
+                description="Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here."
+              />
+            }
+          />
+        }
         leftSidebar={
           <Sidebar title="Import histories" currentType={currentType} />
         }
@@ -65,8 +80,8 @@ class Histories extends React.Component<Props> {
             data={this.renderHistories()}
             loading={loading}
             count={histories.length}
-            emptyText="There aren't any imports"
-            emptyImage="/images/robots/robot-01.svg"
+            emptyText="Oh dear! You have no imports"
+            emptyImage="/images/actions/15.svg"
           />
         }
       />

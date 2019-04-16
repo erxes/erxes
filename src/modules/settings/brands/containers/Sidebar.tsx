@@ -48,7 +48,7 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
         .then(() => {
           brandsQuery.refetch();
 
-          Alert.success('Successfully deleted.');
+          Alert.success('You successfully deleted a brand.');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -71,7 +71,9 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
       .then(() => {
         brandsQuery.refetch();
 
-        Alert.success('Successfully saved.');
+        Alert.success(
+          `You successfully ${brand ? 'updated' : 'added'} a brand.`
+        );
 
         callback();
       })
@@ -103,6 +105,10 @@ const commonOptions = ({ queryParams, currentBrandId }: Props) => {
       },
       {
         query: gql(queries.brands),
+        variables: {}
+      },
+      {
+        query: gql(queries.integrationsCount),
         variables: {}
       },
       {

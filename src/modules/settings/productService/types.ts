@@ -1,3 +1,12 @@
+export interface IProductDoc {
+  _id?: string;
+  type: string;
+  name?: string;
+  description?: string;
+  sku?: string;
+  createdAt?: Date;
+}
+
 export interface IProduct {
   _id: string;
   name: string;

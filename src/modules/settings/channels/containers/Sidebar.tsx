@@ -51,7 +51,7 @@ const SidebarContainer = (props: FinalProps) => {
         variables: { _id: channelId }
       })
         .then(() => {
-          Alert.success('Successfully deleted.');
+          Alert.success('You successfully deleted a channel.');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -73,7 +73,9 @@ const SidebarContainer = (props: FinalProps) => {
       variables: doc
     })
       .then(() => {
-        Alert.success('Successfully saved.');
+        Alert.success(
+          `You successfully ${channel ? 'updated' : 'added'} a new channel.`
+        );
 
         callback();
       })
@@ -106,6 +108,10 @@ const commonOptions = ({ queryParams, currentChannelId }: Props) => {
       },
       {
         query: gql(queries.channels),
+        variables: {}
+      },
+      {
+        query: gql(queries.integrationsCount),
         variables: {}
       },
       {

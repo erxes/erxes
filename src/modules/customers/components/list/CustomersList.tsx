@@ -1,8 +1,4 @@
-import * as React from 'react';
-import { Dropdown } from 'react-bootstrap';
-import { withRouter } from 'react-router';
-import { Link } from 'react-router-dom';
-import { CustomersMerge } from '..';
+import gql from 'graphql-tag';
 import {
   Button,
   DataWithLoader,
@@ -14,9 +10,16 @@ import {
   Pagination,
   SortHandler,
   Table
-} from '../../../common/components';
+} from 'modules/common/components';
+import { queries } from 'modules/customers/graphql';
+import { TableHeadContent } from 'modules/customers/styles';
+import * as React from 'react';
+import { Dropdown } from 'react-bootstrap';
+import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
+import { CustomersMerge } from '..';
 import { IRouterProps } from '../../../common/types';
-import { __, confirm, router } from '../../../common/utils';
+import { __, Alert, confirm, router } from '../../../common/utils';
 import { Widget } from '../../../engage/containers';
 import { Wrapper } from '../../../layout/components';
 import { BarItems } from '../../../layout/styles';
@@ -112,8 +115,10 @@ class CustomersList extends React.Component<IProps, State> {
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>
-                <SortHandler sortField={name} />
-                {__(label)}
+                <TableHeadContent>
+                  <SortHandler sortField={name} />
+                  {__(label)}
+                </TableHeadContent>
               </th>
             ))}
             <th>{__('Tags')}</th>
@@ -227,6 +232,7 @@ class CustomersList extends React.Component<IProps, State> {
                 title="Manage Columns"
                 trigger={editColumns}
                 content={manageColumns}
+                dialogClassName="transform"
               />
             </li>
             <li>
@@ -260,6 +266,7 @@ class CustomersList extends React.Component<IProps, State> {
           trigger={addTrigger}
           size="lg"
           content={customerForm}
+          backDrop="static"
         />
       </BarItems>
     );
@@ -267,7 +274,7 @@ class CustomersList extends React.Component<IProps, State> {
     let actionBarLeft: React.ReactNode;
 
     const mergeButton = (
-      <Button btnStyle="primary" size="small" icon="shuffle">
+      <Button btnStyle="primary" size="small" icon="merge">
         Merge
       </Button>
     );
@@ -280,9 +287,18 @@ class CustomersList extends React.Component<IProps, State> {
       );
 
       const onClick = () =>
-        confirm().then(() => {
-          this.removeCustomers(bulk);
-        });
+        confirm()
+          .then(() => {
+            this.removeCustomers(bulk);
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+
+      const refetchQuery = {
+        query: gql(queries.customerCounts),
+        variables: { only: 'byTag' }
+      };
 
       actionBarLeft = (
         <BarItems>
@@ -293,6 +309,7 @@ class CustomersList extends React.Component<IProps, State> {
             successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
+            refetchQueries={[refetchQuery]}
           />
           {bulk.length === 2 && (
             <ModalTrigger
@@ -327,14 +344,14 @@ class CustomersList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar loadingMainQuery={loading} />}
         content={
           <DataWithLoader
             data={this.renderContent()}
             loading={loading}
             count={customers.length}
-            emptyText="There is no customer."
-            emptyImage="/images/robots/robot-01.svg"
+            emptyText="Let's start taking care of your customers"
+            emptyImage="/images/actions/11.svg"
           />
         }
       />

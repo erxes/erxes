@@ -21,7 +21,9 @@ class Summary extends React.Component<Props> {
         <Col sm={3} key={Math.random()}>
           <SummaryItem isSmall={this.props.isSmall}>
             <SummaryTitle>
-              {index === 3 ? '4++' : `${index} - ${index + 1}`}
+              <span>
+                {index === 3 ? '4 sec ++' : `${index} - ${index + 1} sec`}
+              </span>
             </SummaryTitle>
             <SummaryCount>{item}</SummaryCount>
           </SummaryItem>

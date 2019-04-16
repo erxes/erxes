@@ -17,7 +17,12 @@ import { __, searchUser } from 'modules/common/utils';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { ICustomer, ICustomerDoc } from '../../types';
-import { leadStatusChoices, lifecycleStateChoices } from '../../utils';
+import {
+  leadStatusChoices,
+  lifecycleStateChoices,
+  regexEmail,
+  regexPhone
+} from '../../utils';
 
 type Props = {
   customer?: ICustomer;
@@ -64,7 +69,7 @@ class CustomerForm extends React.Component<Props, State> {
     return (document.getElementById(id) as HTMLInputElement).value;
   }
 
-  action = e => {
+  onSubmit = e => {
     const { phones, emails, primaryPhone, primaryEmail, avatar } = this.state;
 
     e.preventDefault();
@@ -120,9 +125,7 @@ class CustomerForm extends React.Component<Props, State> {
   }
 
   handleUserSearch = value => {
-    if (value) {
-      searchUser(value, users => this.setState({ users }));
-    }
+    searchUser(value, users => this.setState({ users }));
   };
 
   getVisitorInfo(customer, key) {
@@ -192,7 +195,7 @@ class CustomerForm extends React.Component<Props, State> {
     };
 
     return (
-      <form onSubmit={this.action}>
+      <form onSubmit={this.onSubmit}>
         <AvatarUpload
           avatar={customer.avatar}
           onAvatarUpload={this.onAvatarUpload}
@@ -211,9 +214,10 @@ class CustomerForm extends React.Component<Props, State> {
               <ModifiableSelect
                 value={primaryEmail}
                 options={this.getEmailsOptions(customer)}
-                placeholder="Primary email"
+                placeholder="Choose primary email"
                 buttonText="Add Email"
                 onChange={this.onEmailChange}
+                regex={regexEmail}
               />
             </FormGroup>
 
@@ -233,7 +237,7 @@ class CustomerForm extends React.Component<Props, State> {
               <ControlLabel>Owner</ControlLabel>
               <Select
                 placeholder={__('Search')}
-                onFocus={this.handleUserSearch.bind(this, ' ')}
+                onFocus={this.handleUserSearch.bind(this, '')}
                 onInputChange={this.handleUserSearch}
                 filterOptions={filteroptions}
                 onChange={this.onOwnerChange}
@@ -265,9 +269,10 @@ class CustomerForm extends React.Component<Props, State> {
               <ModifiableSelect
                 value={primaryPhone}
                 options={this.getPhonesOptions(customer)}
-                placeholder="Primary phone"
+                placeholder="Choose primary phone"
                 buttonText="Add Phone"
                 onChange={this.onPhoneChange}
+                regex={regexPhone}
               />
             </FormGroup>
 

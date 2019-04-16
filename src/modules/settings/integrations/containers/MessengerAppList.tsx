@@ -33,7 +33,7 @@ const MessengerAppContainer = (props: FinalProps) => {
     confirm().then(() => {
       removeMutation({ variables: { _id: app._id } })
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success('You successfully deleted a messenger');
         })
 
         .catch(error => {
@@ -71,6 +71,10 @@ export default withProps<Props>(
             refetchQueries: [
               {
                 query: gql(queries.messengerApps),
+                variables: { kind }
+              },
+              {
+                query: gql(queries.messengerAppsCount),
                 variables: { kind }
               }
             ]

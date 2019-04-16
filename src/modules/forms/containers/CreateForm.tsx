@@ -75,7 +75,7 @@ class CreateFormContainer extends React.Component<Props, {}> {
         })
 
         .then(() => {
-          Alert.success('Congrats');
+          Alert.success('You successfully added a lead');
           history.push('/forms');
         })
 
@@ -98,10 +98,7 @@ class CreateFormContainer extends React.Component<Props, {}> {
 export default withProps<{}>(
   compose(
     graphql<{}, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'brandsQuery'
     }),
     graphql<
       {},

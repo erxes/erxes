@@ -1,5 +1,6 @@
 import {
   Button,
+  HeaderDescription,
   Icon,
   ModalTrigger,
   Table,
@@ -81,8 +82,16 @@ class ScriptList extends React.Component<ICommonListProps> {
           { title: __('Settings'), link: '/settings' },
           { title: __('Scripts') }
         ]}
+        leftActionBar={
+          <HeaderDescription
+            icon="/images/actions/23.svg"
+            title="Scripts"
+            description={`Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites. Set up once and your marketing team will be able to easily create forms, add in chats and list FAQs on any of their businesses websites.`}
+          />
+        }
         renderForm={this.renderForm}
         renderContent={this.renderContent}
+        center={true}
         {...this.props}
       />
     );

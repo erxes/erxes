@@ -1,32 +1,32 @@
 import { colors } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { stageWidth } from './deminsions';
+import { borderRadius, stageWidth } from './common';
 
 const hoverColor = 'rgba(10,45,65,.13)';
-const stageGray = '#dee3e6';
+const stageGray = '#e5e8ec';
 const secondaryText = '#6a818c';
 
-const Container = styledTS<{ isDragging: boolean }>(styled.div)`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
-  margin: 0 4px;
+  margin: 0 5px;
   width: ${stageWidth}px;
   transition: background-color 0.3s ease;
-  border-radius: 4px;
+`;
+
+const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
+  display: flex;
+  flex-direction: column;
+  border-radius: 3px;
+  transition: box-shadow 0.3s ease;
+  background: ${stageGray};
+
   ${props => css`
     box-shadow: ${props.isDragging
-      ? `0 0 20px 2px rgba(0, 0, 0, 0.14)`
-      : 'none'};
+      ? 'rgba(0, 0, 0, 0.2) 0px 5px 20px 0px'
+      : 'rgba(0, 0, 0, 0.15) 0px 1px 5px 0px'};
   `};
-`;
-
-const DealContainer = styled.div`
-  overflow: auto;
-`;
-
-const Right = styled.div`
-  float: right;
 `;
 
 const Content = styled('div')`
@@ -37,36 +37,12 @@ const Content = styled('div')`
 
   h5 {
     margin-top: 0;
+    margin-bottom: 5px;
   }
-`;
-
-const Deal = styledTS<{ isDragging: boolean }>(styled.div)`
-  margin-bottom: 10px;
-  background-color: rgb(255, 255, 255);
-  box-shadow: ${props =>
-    props.isDragging
-      ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
-      : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
-  overflow: hidden;
-  padding: 8px;
-  outline: 0px;
-  border-radius: 3px;
-  transition: box-shadow 0.3s ease-in-out 0s;
-  -webkit-box-pack: justify;
-  justify-content: space-between;
-  will-change: transform;
-`;
-
-const Date = styled.div`
-  color: rgb(136, 136, 136);
-  font-size: 11px;
-  z-index: 10;
-  margin-left: 5px;
 `;
 
 const Indicator = styled.div`
   display: flex;
-  margin-top: 5px;
 
   > div {
     margin-right: 4px;
@@ -81,30 +57,22 @@ const DealIndicator = styledTS<{ color: string }>(styled.span)`
   display: inline-block;
   width: 8px;
   height: 8px;
-  margin: 8px 8px 0 0;
+  border-radius: 4px;
+  margin: 6px 6px 0 0;
   background-color: ${props => props.color}
 `;
 
-const Footer = styled.div`
-  padding-top: 8px;
-  margin-top: 8px;
-  border-top: 1px dashed #ccc;
-  font-size: 11px;
-`;
-
 const StageFooter = styled.div`
-  background: ${stageGray};
   border-radius: 0 0 3px 3px;
 `;
 
 const Header = styled.div`
-  padding: 10px 16px;
+  padding: 12px 16px;
   position: relative;
-  background: ${stageGray};
   border-radius: 3px 3px 0 0;
 
   h4 {
-    margin: 0;
+    margin: 0 0 5px;
     font-size: 14px;
     font-weight: bold;
 
@@ -116,18 +84,23 @@ const Header = styled.div`
   }
 `;
 
+const HeaderAmount = styled.div`
+  min-height: 28px;
+`;
+
 const Amount = styled.ul`
   list-style: none;
-  margin: 5px 0px 0px;
+  margin: 0;
   overflow: hidden;
   padding: 0;
   max-width: 230px;
+  font-size: 12px;
   display: inline-block;
 
   li {
     float: left;
     padding-right: 5px;
-    font-size: 12px;
+    line-height: 22px;
 
     span {
       font-weight: bold;
@@ -147,8 +120,9 @@ const Amount = styled.ul`
 
 const Body = styled.div`
   max-height: 100%;
-  overflow: auto;
-  background: ${stageGray};
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0 4px;
 `;
 
 const AddNew = styled.a`
@@ -158,6 +132,7 @@ const AddNew = styled.a`
   position: relative;
   user-select: none;
   border-radius: 0 0 3px 3px;
+  font-weight: 500;
 
   &:hover {
     background: ${hoverColor};
@@ -173,38 +148,54 @@ const IndicatorItem = styledTS<{ isPass: boolean }>(styled.div)`
   flex: 1;
   background: ${props => (props.isPass ? colors.colorCoreBlue : hoverColor)};
   height: 4px;
-  border-radius: 2px;
+  border-radius: ${borderRadius};
 `;
+
 const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
   background-color: ${({ isDraggingOver }) =>
     isDraggingOver && 'rgba(10, 45, 65, .1)'};
   display: flex;
   flex-direction: column;
-  padding: 0 8px;
+  padding: 0 4px;
   transition: background-color 0.1s ease, opacity 0.1s ease;
   user-select: none;
 `;
 
 const DropZone = styled.div`
-  min-height: 200px;
+  min-height: 160px;
+`;
+
+const EmptyContainer = styled.div`
+  height: 160px;
+`;
+
+const LoadingContent = styled.div`
+  background: #fff;
+  margin: 0 4px 8px 4px;
+  padding: 2px 0;
+  border-radius: ${borderRadius};
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
+
+  img {
+    width: 100%;
+  }
 `;
 
 export {
   AddNew,
   Container,
-  DealContainer,
-  Right,
   Content,
   Header,
+  HeaderAmount,
   Amount,
   Body,
   Indicator,
   DealIndicator,
   IndicatorItem,
   StageFooter,
-  Footer,
-  Deal,
-  Date,
   Wrapper,
-  DropZone
+  DropZone,
+  EmptyContainer,
+  LoadingContent,
+  StageRoot
 };
