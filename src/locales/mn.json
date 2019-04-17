@@ -571,7 +571,7 @@
   "Add Product / Service": "Бүтээгдэхүүн үйлчилгээ нэмэх",
   "Reply tweet": "Жиргээнд хариулах",
   "Tweet": "Жиргэх",
-  "Details": "Дэлгэрэнгүй мэдээлэл",
+  "Details": "Дэлгэрэнгүй",
   "View Profile": "Профайл харах",
   "Empty Notes": "Тэмдэглэл байхгүй байна",
   "Mini-resume": "Товч танилцуулга",
@@ -761,5 +761,6 @@
   "Choose the groups": "Групп сонгох",
   "Choose groups": "Групп сонгох",
   "Allow": "Зөвшөөрөх",
-  "Invitation Status": "Уригдсан эсэх"
+  "Invitation Status": "Уригдсан эсэх",
+  "Permission": "Эрхийн тохиргоо"
 }

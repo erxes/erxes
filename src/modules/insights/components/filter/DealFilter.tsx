@@ -118,8 +118,8 @@ class DealFilter extends React.Component<Props, States> {
     );
 
     const applyBtn = (
-      <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
-        Apply
+      <Button btnStyle="success" icon="filter" onClick={this.onApplyClick}>
+        Filter
       </Button>
     );
 

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import Filter from './Filter';
 import {
   AvatarImg,
@@ -119,9 +120,9 @@ class FilterableList extends React.Component<Props, State> {
             <PopoverList>
               {this.props.links.map(link => (
                 <li key={link.href}>
-                  <a onClick={link.onClick} href={link.href}>
+                  <Link onClick={link.onClick} to={link.href}>
                     {link.title}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </PopoverList>
