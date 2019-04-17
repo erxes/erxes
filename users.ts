@@ -116,5 +116,5 @@ export const userSchema = new Schema({
   links: field({ type: linkSchema, default: {} }),
   isActive: field({ type: Boolean, default: true }),
   groupIds: field({ type: [String] }),
-  deviceToken: field({ type: [String] }),
+  deviceToken: field({ type: [String], default: [] }),
 });
