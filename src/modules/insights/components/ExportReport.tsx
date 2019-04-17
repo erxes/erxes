@@ -101,7 +101,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             <div>
               {this.renderBox(
                 'Volume Report By Date',
-                '/images/icons/erxes-14.svg',
+                '/images/icons/erxes-21.svg',
                 'insightVolumeReportExport'
               )}
 
@@ -141,13 +141,13 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             <div>
               {this.renderBox(
                 'Duration of First Response Report',
-                '/images/icons/erxes-17.svg',
+                '/images/icons/erxes-06.svg',
                 'insightFirstResponseReportExport'
               )}
 
               {this.renderBox(
                 'First Response Report by Operators',
-                '/images/icons/erxes-18.svg',
+                '/images/icons/erxes-15.svg',
                 'insightFirstResponseReportExport',
                 'operator'
               )}
@@ -174,7 +174,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             <div>
               {this.renderBox(
                 'Tag Report',
-                '/images/icons/erxes-17.svg',
+                '/images/icons/erxes-18.svg',
                 'insightTagReportExport'
               )}
             </div>

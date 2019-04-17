@@ -7,7 +7,7 @@ export const INSIGHT_TYPES = {
 export const INBOX_INSIGHTS = [
   {
     name: 'Volume Report',
-    image: '/images/icons/erxes-14.svg',
+    image: '/images/icons/erxes-19.svg',
     to: '/insights/volume-report',
     desc:
       'Find feedback that has been gathered from various customer engagement channels.'
@@ -21,7 +21,7 @@ export const INBOX_INSIGHTS = [
   },
   {
     name: 'Response Close Report',
-    image: '/images/icons/erxes-17.svg',
+    image: '/images/icons/erxes-06.svg',
     to: '/insights/response-close-report',
     desc: `The average time a team member solved a customer's problem based on customer feedback.`
   },
