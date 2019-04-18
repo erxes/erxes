@@ -150,6 +150,26 @@ a:hover {
   transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
 }
 
+.slide-in-small-appear,
+.slide-in-small-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.slide-in-small-appear-active,
+.slide-in-small-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.slide-in-small-exit,
+.slide-in-small-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
 /* dropdown */
 
 .dropdown-menu {

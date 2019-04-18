@@ -37,14 +37,14 @@ class AuthLayout extends React.Component<Props, {}> {
     if (userAgent.indexOf('Mobile') !== -1) {
       if (userAgent.match(/iPhone|iPad|iPod/i)) {
         return this.renderContent(
-          'Download ios app for free on the App Store.',
-          'itms://itunes.apple.com/zw/app/erxes-inc/id1454657885?mt=8&fbclid=IwAR1_A-3dPkw4oUh3r-4lpAvs_Ie5FWOTy1dduFy7eJZbpWKJJ9ukzu9ZNUc'
+          'Download ios app for free on the App Store',
+          'https://itunes.apple.com/zw/app/erxes-inc/id1454657885?mt=8&fbclid=IwAR1_A-3dPkw4oUh3r-4lpAvs_Ie5FWOTy1dduFy7eJZbpWKJJ9ukzu9ZNUc'
         );
       }
 
       if (userAgent.match(/Android/i)) {
         return this.renderContent(
-          'Download android app for free on the Google play.',
+          'Download android app for free on the Google play',
           'https://play.google.com/store/apps/details?id=io.erxes.erxes_android&fbclid=IwAR1bVPBSE0pC_KUNNjOJQA4upb1AuTUfqFcDaHTHTptyke7rNvuvb2mgwb0'
         );
       }
