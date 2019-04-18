@@ -11,6 +11,7 @@ type Props = {
   pipeline: IPipeline;
   initialDealMap?: IDealMap;
   queryParams: any;
+  dealsChange: any;
 };
 
 type StageLoadMap = {
@@ -124,6 +125,14 @@ export class PipelineProvider extends React.Component<Props, State> {
       source,
       destination
     });
+
+    const dealId = result.draggableId;
+
+    // update deal to database
+    this.props.dealsChange(dealId);
+
+    const deal = dealMap[destination.droppableId].find(d => d._id === dealId);
+    deal.modifiedAt = new Date();
 
     this.setState({
       dealMap
