@@ -56,7 +56,10 @@ const WithQuery = withProps<Props>(
     graphql<Props, UsersAddMutationResponse, {}>(
       gql(teamQueries.usersTotalCount),
       {
-        name: 'usersCountQuery'
+        name: 'usersCountQuery',
+        options: () => ({
+          variables: { isActive: true }
+        })
       }
     )
   )(UserAddContainer)

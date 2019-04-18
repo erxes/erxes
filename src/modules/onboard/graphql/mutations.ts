@@ -20,9 +20,11 @@ const usersAdd = `
   }
 `;
 
-const usersRemove = `
-  mutation usersRemove($_id: String!) {
-    usersRemove(_id: $_id)
+const usersStatusChange = `
+  mutation usersSetActiveStatus($_id: String!) {
+    usersSetActiveStatus(_id: $_id) {
+      _id
+    }
   }
 `;
 
@@ -40,4 +42,4 @@ const userSeenOnboard = `
   }
 `;
 
-export default { usersAdd, usersRemove, usersInvite, userSeenOnboard };
+export default { usersAdd, usersInvite, userSeenOnboard, usersStatusChange };
