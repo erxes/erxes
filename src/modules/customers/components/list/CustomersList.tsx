@@ -12,7 +12,7 @@ import {
   Table
 } from 'modules/common/components';
 import { queries } from 'modules/customers/graphql';
-import { TableHeadContent } from 'modules/customers/styles';
+import { ImportButton, TableHeadContent } from 'modules/customers/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
@@ -245,22 +245,19 @@ class CustomersList extends React.Component<IProps, State> {
                 {__('Export customers')}
               </a>
             </li>
-            <li>
-              <a>
-                <label style={{ fontWeight: 'normal' }}>
-                  {__('Import customers')}
-                  <input
-                    type="file"
-                    onChange={handleXlsUpload}
-                    style={{ display: 'none' }}
-                    accept=".xlsx, .xls"
-                  />
-                </label>
-              </a>
-            </li>
           </Dropdown.Menu>
         </Dropdown>
 
+        <ImportButton>
+          <Icon icon="download-1" />
+          {__('Import customers')}
+          <input
+            type="file"
+            onChange={handleXlsUpload}
+            style={{ display: 'none' }}
+            accept=".xlsx, .xls"
+          />
+        </ImportButton>
         <ModalTrigger
           title="New customer"
           trigger={addTrigger}

@@ -227,6 +227,7 @@ class CompanyForm extends React.Component<Props, State> {
                 options={names || []}
                 placeholder="Primary name"
                 buttonText="Add name"
+                adding={true}
                 onChange={this.onChange.bind(this, 'names', 'primaryName')}
               />
             </FormGroup>

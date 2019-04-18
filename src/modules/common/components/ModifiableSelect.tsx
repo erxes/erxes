@@ -41,6 +41,7 @@ type Props = {
   placeholder?: string;
   buttonText?: string;
   regex?: RegExp;
+  adding?: boolean;
 };
 
 type State = {
@@ -55,7 +56,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      adding: false,
+      adding: props.adding || false,
       options: props.options || [],
       selectedOption: props.value,
       inputValue: ''
@@ -164,7 +165,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
   };
 
   renderInput = () => {
-    const { buttonText } = this.props;
+    const { buttonText, placeholder } = this.props;
 
     if (this.state.adding) {
       const onPress = e => {
@@ -180,6 +181,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
             <FormControl
               autoFocus={true}
               onKeyPress={onPress}
+              placeholder={placeholder}
               onChange={this.handleInputChange}
             />
           </FormGroup>

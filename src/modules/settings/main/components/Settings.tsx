@@ -11,7 +11,7 @@ import {
   RowTitle
 } from '../styles';
 
-class Settings extends React.Component {
+class Settings extends React.PureComponent {
   renderBox(name: string, image: string, to: string) {
     return (
       <Box>
@@ -29,7 +29,7 @@ class Settings extends React.Component {
     const content = (
       <MenusContainer>
         <Row>
-          <RowTitle className="secondRow">{__('General Settings')}</RowTitle>
+          <RowTitle>{__('General Settings')}</RowTitle>
           <div>
             {this.renderBox(
               'Account default',
@@ -42,9 +42,24 @@ class Settings extends React.Component {
               '/settings/team'
             )}
             {this.renderBox(
+              'Permission',
+              '/images/icons/erxes-20.svg',
+              '/settings/permissions'
+            )}
+            {this.renderBox(
               'Properties',
               '/images/icons/erxes-01.svg',
               '/settings/properties'
+            )}
+            {this.renderBox(
+              'Tags',
+              '/images/icons/erxes-18.svg',
+              '/tags/conversation'
+            )}
+            {this.renderBox(
+              'Segments',
+              '/images/icons/erxes-15.svg',
+              '/segments/customer'
             )}
             {this.renderBox(
               'Import histories',
@@ -55,11 +70,6 @@ class Settings extends React.Component {
               'Status',
               '/images/icons/erxes-06.svg',
               '/settings/status'
-            )}
-            {this.renderBox(
-              'Permission',
-              '/images/icons/erxes-20.svg',
-              '/settings/permissions'
             )}
           </div>
         </Row>
@@ -106,7 +116,7 @@ class Settings extends React.Component {
         </Row>
         <Divider />
         <Row>
-          <RowTitle className="secondRow">{__('Deal Settings')}</RowTitle>
+          <RowTitle>{__('Deal Settings')}</RowTitle>
           <div>
             {this.renderBox(
               'Boards & Pipelines',

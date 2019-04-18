@@ -4,7 +4,7 @@ import { WhiteBox } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const iconWrapperWidth = '80';
+const iconWrapperWidth = 80;
 
 const Timeline = styled.div`
   padding-left: ${iconWrapperWidth}px;
@@ -17,7 +17,7 @@ const Timeline = styled.div`
     position: absolute;
     z-index: 1;
     margin-top: 1px;
-    left: (${iconWrapperWidth} / 2) px;
+    left: ${iconWrapperWidth / 2}px;
   }
 `;
 
@@ -97,12 +97,12 @@ const ActivityIcon = styledTS<{ color?: string }>(styled.span)`
   display: inline-block;
   position: absolute;
   background-color: ${props => props.color};
-  height: (${iconWrapperWidth} * 0.4)px;
-  width: (${iconWrapperWidth} * 0.4)px;
-  line-height: (${iconWrapperWidth} * 0.4)px;
+  height: ${iconWrapperWidth * 0.4}px;
+  width: ${iconWrapperWidth * 0.4}px;
+  line-height: ${iconWrapperWidth * 0.4}px;
   text-align: center;
   border-radius: 50%;
-  left: (-${iconWrapperWidth} + ${iconWrapperWidth} * 0.3)px;
+  left: ${-iconWrapperWidth + iconWrapperWidth * 0.3}px;
   top: ${dimensions.coreSpacing}px;
   z-index: 2;
 

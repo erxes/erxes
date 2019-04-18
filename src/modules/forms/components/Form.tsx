@@ -297,7 +297,7 @@ class Form extends React.Component<Props, State> {
             />
           </Step>
           <Step
-            img="/images/icons/erxes-14.svg"
+            img="/images/icons/erxes-19.svg"
             title="Full Preview"
             nextButton={this.renderSaveButton()}
           >
