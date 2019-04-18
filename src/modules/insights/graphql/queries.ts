@@ -127,6 +127,11 @@ const dealInsightsByTeamMember = `
   }
 `;
 
+// const insightsConversationSummary = `
+//   query insightsConversationSummary(${listParamsDef}) {
+//     insightsConversationSummary(${listParamsValue})
+//   }
+// `;
 const insightsConversationSummary = `
   query insightsConversationSummary {
     insightsConversationSummary
