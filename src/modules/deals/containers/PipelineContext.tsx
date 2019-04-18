@@ -11,7 +11,7 @@ type Props = {
   pipeline: IPipeline;
   initialDealMap?: IDealMap;
   queryParams: any;
-  dealsChange: any;
+  dealsChange: (id: string) => void;
 };
 
 type StageLoadMap = {

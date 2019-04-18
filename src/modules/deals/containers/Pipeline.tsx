@@ -6,7 +6,13 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { EmptyState, Spinner } from '../../common/components';
 import { mutations, queries } from '../graphql';
-import { IDealMap, IPipeline, IStageMap, StagesQueryResponse } from '../types';
+import {
+  DealsChangeMutation,
+  IDealMap,
+  IPipeline,
+  IStageMap,
+  StagesQueryResponse
+} from '../types';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 import { Stage } from './stage';
 
@@ -20,10 +26,13 @@ type Props = {
   initialDealMap?: IDealMap;
   stageMap?: IStageMap;
   queryParams: any;
-  dealsChangeMutation?: any;
 };
 
-class WithStages extends React.Component<Props, {}> {
+type FinalProps = {
+  dealsChangeMutation: DealsChangeMutation;
+} & Props;
+
+class WithStages extends React.Component<FinalProps, {}> {
   countStages(obj) {
     return Object.keys(obj).length;
   }
@@ -108,7 +117,7 @@ class WithStages extends React.Component<Props, {}> {
 
 type WithStatesQueryProps = {
   stagesQuery: StagesQueryResponse;
-} & Props;
+} & FinalProps;
 
 const WithStatesQuery = (props: WithStatesQueryProps) => {
   const { stagesQuery } = props;
@@ -141,7 +150,7 @@ export default withProps<Props>(
         }
       })
     }),
-    graphql<Props, StagesQueryResponse>(gql(mutations.dealsChange), {
+    graphql<Props, DealsChangeMutation>(gql(mutations.dealsChange), {
       name: 'dealsChangeMutation'
     })
   )(WithStatesQuery)
