@@ -12,6 +12,7 @@ type Props = {
   applyBtn: React.ReactNode;
   history: any;
   queryParams: IQueryParams;
+  days?: number;
 };
 
 type States = {
@@ -21,11 +22,25 @@ type States = {
 };
 
 class Filter extends React.Component<Props, States> {
+  static defaultProps = {
+    days: 7
+  };
+
   constructor(props) {
     super(props);
 
+    let { startDate, endDate } = props.queryParams;
+
+    if (!startDate && !endDate) {
+      startDate = moment()
+        .add(-props.days, 'days')
+        .format('YYYY-MM-DD HH:mm');
+      endDate = moment().format('YYYY-MM-DD HH:mm');
+    }
+
     this.state = {
-      ...props.queryParams,
+      startDate,
+      endDate,
       // check condition for showing placeholder
       isChange: false
     };
