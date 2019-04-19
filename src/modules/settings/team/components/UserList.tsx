@@ -28,6 +28,7 @@ import { ButtonContainer, FilterContainer, UserAvatar } from '../styles';
 
 type IProps = {
   changeStatus: (id: string) => void;
+  resendInvitation: (email: string) => void;
   usersGroups: IUserGroup[];
 };
 
@@ -84,15 +85,10 @@ class UserList extends React.Component<FinalProps, States> {
 
   renderEditAction = (user: IUser) => {
     const { currentUser } = this.props;
-
-    if (user._id === currentUser._id) {
-      return null;
-    }
-
     const { save } = this.props;
 
     const editTrigger = (
-      <Button btnStyle="link">
+      <Button btnStyle="link" disabled={user._id === currentUser._id}>
         <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
@@ -113,16 +109,28 @@ class UserList extends React.Component<FinalProps, States> {
     );
   };
 
-  visibleHandler = (user: IUser) => {
-    const { changeStatus } = this.props;
+  renderResendInvitation(user: IUser) {
+    const onClick = () => {
+      this.props.resendInvitation(user.email);
+    };
 
-    return changeStatus(user._id);
-  };
+    return (
+      <Button
+        btnStyle="link"
+        disabled={user.status !== 'Pending Invitation'}
+        onClick={onClick}
+      >
+        <Tip text={__('Resend')}>
+          <Icon icon="repeat" />
+        </Tip>
+      </Button>
+    );
+  }
 
   renderRows({ objects }: { objects: IUser[] }) {
     return objects.map(object => {
       const onClick = () => this.onAvatarClick(object);
-      const onChange = () => this.visibleHandler(object);
+      const onChange = () => this.props.changeStatus(object._id);
 
       return (
         <tr key={object._id}>
@@ -146,8 +154,9 @@ class UserList extends React.Component<FinalProps, States> {
               }}
               onChange={onChange}
             />
-          </td>
-          <td>
+
+            {this.renderResendInvitation(object)}
+
             <ActionButtons>{this.renderEditAction(object)}</ActionButtons>
           </td>
         </tr>
@@ -231,8 +240,7 @@ class UserList extends React.Component<FinalProps, States> {
             <th>{__('Full name')}</th>
             <th>{__('Invitation status')}</th>
             <th>{__('Email')}</th>
-            <th>{__('Status')}</th>
-            <th />
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
