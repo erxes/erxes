@@ -31,6 +31,7 @@ export interface IUserModel extends Model<IUserDocument> {
     emails?: string[];
   }): never;
   getSecret(): string;
+  generateToken(): { token: string; expires: Date };
   createUser(doc: IUser): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
@@ -40,6 +41,7 @@ export interface IUserModel extends Model<IUserDocument> {
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): string;
   createUserWithConfirmation({ email, groupId }: { email: string; groupId: string }): string;
+  resendInvitation({ email }: { email: string }): string;
   confirmInvitation({
     token,
     password,
@@ -163,6 +165,16 @@ export const loadClass = () => {
       return Users.findOne({ _id });
     }
 
+    public static async generateToken() {
+      const buffer = await crypto.randomBytes(20);
+      const token = buffer.toString('hex');
+
+      return {
+        token,
+        expires: Date.now() + 86400000,
+      };
+    }
+
     /**
      * Create new user with invitation token
      */
@@ -174,15 +186,41 @@ export const loadClass = () => {
         throw new Error('Invalid group');
       }
 
-      const buffer = await crypto.randomBytes(20);
-      const token = buffer.toString('hex');
+      const { token, expires } = await User.generateToken();
 
       await Users.create({
         email,
         groupIds: [groupId],
         registrationToken: token,
-        registrationTokenExpires: Date.now() + 86400000,
+        registrationTokenExpires: expires,
       });
+
+      return token;
+    }
+
+    /**
+     * Resend invitation
+     */
+    public static async resendInvitation({ email }: { email: string }) {
+      const user = await Users.findOne({ email });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (!user.registrationToken) {
+        throw new Error('Invalid request');
+      }
+
+      const { token, expires } = await Users.generateToken();
+
+      await Users.updateOne(
+        { email },
+        {
+          registrationToken: token,
+          registrationTokenExpires: expires,
+        },
+      );
 
       return token;
     }

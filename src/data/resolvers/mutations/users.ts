@@ -9,6 +9,24 @@ interface IUsersEdit extends IUser {
   _id: string;
 }
 
+const sendInvitationEmail = ({ email, token }: { email: string; token: string }) => {
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+  const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
+
+  utils.sendEmail({
+    toEmails: [email],
+    title: 'Team member invitation',
+    template: {
+      name: 'userInvitation',
+      data: {
+        content: confirmationUrl,
+        domain: MAIN_APP_DOMAIN,
+      },
+      isCustom: true,
+    },
+  });
+};
+
 const userMutations = {
   /*
    * Login
@@ -150,22 +168,19 @@ const userMutations = {
 
       const token = await Users.createUserWithConfirmation(entry);
 
-      const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-      const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
-
-      utils.sendEmail({
-        toEmails: [entry.email],
-        title: 'Team member invitation',
-        template: {
-          name: 'userInvitation',
-          data: {
-            content: confirmationUrl,
-            domain: MAIN_APP_DOMAIN,
-          },
-          isCustom: true,
-        },
-      });
+      sendInvitationEmail({ email: entry.email, token });
     }
+  },
+
+  /*
+   * Resend invitation
+   */
+  async usersResendInvitation(_root, { email }: { email: string }) {
+    const token = await Users.resendInvitation({ email });
+
+    sendInvitationEmail({ email, token });
+
+    return token;
   },
 
   /*
@@ -214,6 +229,7 @@ requireLogin(userMutations, 'usersConfigEmailSignatures');
 
 checkPermission(userMutations, 'usersEdit', 'usersEdit');
 checkPermission(userMutations, 'usersInvite', 'usersInvite');
+checkPermission(userMutations, 'usersResendInvitation', 'usersInvite');
 checkPermission(userMutations, 'usersSetActiveStatus', 'usersSetActiveStatus');
 
 export default userMutations;

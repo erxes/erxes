@@ -128,6 +128,36 @@ describe('User db utils', () => {
     expect(userObj._id).toBeDefined();
     expect(userObj.groupIds).toEqual([group._id]);
     expect(userObj.registrationToken).toBeDefined();
+    expect(userObj.registrationTokenExpires).toBeDefined();
+  });
+
+  test('resendInvitation', async () => {
+    const email = '123@gmail.com';
+    const group = await usersGroupFactory();
+    const token = await Users.createUserWithConfirmation({ email, groupId: group._id });
+    const newToken = await Users.resendInvitation({ email });
+
+    const user = await Users.findOne({ email }).lean();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    expect(user.registrationToken).not.toBe(token);
+    expect(user.registrationToken).toBe(newToken);
+    expect(user.registrationTokenExpires).toBeDefined();
+  });
+
+  test('resendInvitation: invalid', async () => {
+    expect.assertions(1);
+
+    const user = await userFactory({});
+
+    try {
+      await Users.resendInvitation({ email: user.email || 'invalid' });
+    } catch (e) {
+      expect(e.message).toBe('Invalid request');
+    }
   });
 
   test('updateOnBoardSeen', async () => {

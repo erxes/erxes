@@ -108,8 +108,8 @@ export const userFactory = (params: IUserFactoryInput = {}) => {
       avatar: params.avatar || faker.image.imageUrl(),
       position: params.position || 'admin',
     },
-    registrationToken: params.registrationToken || faker.random.word(),
-    registrationTokenExpires: params.registrationTokenExpires || Date.now(),
+    registrationToken: params.registrationToken,
+    registrationTokenExpires: params.registrationTokenExpires,
     links: {
       twitter: params.twitter || faker.random.word(),
       facebook: params.facebook || faker.random.word(),

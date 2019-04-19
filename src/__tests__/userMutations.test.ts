@@ -194,6 +194,43 @@ describe('User mutations', () => {
         isCustom: true,
       },
     });
+
+    spyEmail.mockRestore();
+  });
+
+  test('usersResendInvitation', async () => {
+    process.env.MAIN_APP_DOMAIN = ' ';
+    process.env.COMPANY_EMAIL_FROM = ' ';
+
+    const spyEmail = jest.spyOn(utils, 'sendEmail');
+
+    const mutation = `
+      mutation usersResendInvitation($email: String!) {
+        usersResendInvitation(email: $email)
+      }
+    `;
+
+    const user = await userFactory({ registrationToken: 'token' });
+    const token = await graphqlRequest(mutation, 'usersResendInvitation', { email: user.email });
+
+    const { MAIN_APP_DOMAIN } = process.env;
+    const invitationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
+
+    // send email call
+    expect(spyEmail).toBeCalledWith({
+      toEmails: [user.email],
+      title: 'Team member invitation',
+      template: {
+        name: 'userInvitation',
+        data: {
+          content: invitationUrl,
+          domain: MAIN_APP_DOMAIN,
+        },
+        isCustom: true,
+      },
+    });
+
+    spyEmail.mockRestore();
   });
 
   test('usersSeenOnBoard', async () => {
