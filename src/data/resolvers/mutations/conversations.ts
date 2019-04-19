@@ -33,7 +33,11 @@ interface IConversationMessageAdd {
 /**
  * conversation notrification receiver ids
  */
-export const conversationNotifReceivers = (conversation: IConversationDocument, currentUserId: string): string[] => {
+export const conversationNotifReceivers = (
+  conversation: IConversationDocument,
+  currentUserId: string,
+  exclude: boolean = true,
+): string[] => {
   let userIds: string[] = [];
 
   // assigned user can get notifications
@@ -47,7 +51,9 @@ export const conversationNotifReceivers = (conversation: IConversationDocument, 
   }
 
   // exclude current user
-  userIds = _.without(userIds, currentUserId);
+  if (exclude) {
+    userIds = _.without(userIds, currentUserId);
+  }
 
   return userIds;
 };
@@ -147,6 +153,14 @@ const conversationMutations = {
       content: doc.content,
       link: `/inbox?_id=${conversation._id}`,
       receivers: conversationNotifReceivers(conversation, user._id),
+    });
+
+    // send mobile notification ======
+    utils.sendMobileNotification({
+      title,
+      body: strip(doc.content),
+      receivers: conversationNotifReceivers(conversation, user._id, false),
+      customerId: conversation.customerId,
     });
 
     // do not send internal message to third service integrations

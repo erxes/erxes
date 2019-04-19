@@ -69,7 +69,15 @@ export interface IUserModel extends Model<IUserDocument> {
   forgotPassword(email: string): string;
   createTokens(_user: IUserDocument, secret: string): string[];
   refreshTokens(refreshToken: string): { token: string; refreshToken: string; user: IUserDocument };
-  login({ email, password }: { email: string; password?: string }): { token: string; refreshToken: string };
+  login({
+    email,
+    password,
+    deviceToken,
+  }: {
+    email: string;
+    password?: string;
+    deviceToken?: string;
+  }): { token: string; refreshToken: string };
   logout(user: IUserDocument): string;
 }
 
@@ -523,7 +531,15 @@ export const loadClass = () => {
     /*
      * Validates user credentials and generates tokens
      */
-    public static async login({ email, password }: { email: string; password: string }) {
+    public static async login({
+      email,
+      password,
+      deviceToken,
+    }: {
+      email: string;
+      password: string;
+      deviceToken?: string;
+    }) {
       const user = await Users.findOne({
         $or: [{ email: { $regex: new RegExp(email, 'i') } }, { username: { $regex: new RegExp(email, 'i') } }],
       });
@@ -542,6 +558,16 @@ export const loadClass = () => {
 
       // create tokens
       const [token, refreshToken] = await this.createTokens(user, this.getSecret());
+
+      if (deviceToken) {
+        const deviceTokens: string[] = user.deviceTokens || [];
+
+        if (!deviceTokens.includes(deviceToken)) {
+          deviceTokens.push(deviceToken);
+
+          await user.update({ $set: { deviceTokens } });
+        }
+      }
 
       return {
         token,

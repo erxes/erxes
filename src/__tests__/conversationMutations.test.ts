@@ -104,7 +104,15 @@ describe('Conversation message mutations', () => {
       }
     `;
 
+    const spySendMobileNotification = jest.spyOn(utils, 'sendMobileNotification').mockReturnValueOnce({});
     const message = await graphqlRequest(mutation, 'conversationMessageAdd', args);
+
+    const calledArgs = spySendMobileNotification.mock.calls[0][0];
+
+    expect(calledArgs.title).toBe('You have a new message.');
+    expect(calledArgs.body).toBe(args.content);
+    expect(calledArgs.receivers).toEqual([_conversation.assignedUserId]);
+    expect(calledArgs.customerId).toEqual(_conversation.customerId);
 
     expect(message.content).toBe(args.content);
     expect(message.attachments[0]).toEqual({ url: 'url', name: 'name', type: 'doc', size: 10 });

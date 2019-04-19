@@ -11,3 +11,6 @@ dump.rdb
 *.swp
 *.swo
 .migrate
+
+# Firebase config key
+serviceAccount.json

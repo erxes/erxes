@@ -91,7 +91,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  login(email: String!, password: String!): String 
+  login(email: String!, password: String! deviceToken: String): String 
   logout: String
   forgotPassword(email: String!): String!
   resetPassword(token: String!, newPassword: String!): JSON

@@ -31,7 +31,7 @@ const userMutations = {
   /*
    * Login
    */
-  async login(_root, args: { email: string; password: string }, { res }) {
+  async login(_root, args: { email: string; password: string; deviceToken?: string }, { res }) {
     const response = await Users.login(args);
 
     const { token } = response;

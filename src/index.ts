@@ -26,6 +26,23 @@ const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
 const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN', defaultValue: '' });
 
+// firebase app initialization
+fs.exists(path.join(__dirname, '..', '/serviceAccount.json'), exists => {
+  if (!exists) {
+    return;
+  }
+
+  const admin = require('firebase-admin').default;
+  const serviceAccount = require('../serviceAccount.json');
+  const firebaseServiceAccount = serviceAccount;
+
+  if (firebaseServiceAccount.private_key) {
+    admin.initializeApp({
+      credential: admin.credential.cert(firebaseServiceAccount),
+    });
+  }
+});
+
 // connect to mongo database
 connect();
 

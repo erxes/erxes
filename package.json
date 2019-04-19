@@ -57,6 +57,7 @@
     "express": "^4.15.2",
     "fbgraph": "^1.4.1",
     "file-type": "^10.4.0",
+    "firebase-admin": "^7.2.0",
     "formidable": "^1.1.1",
     "git-repo-info": "2.0.0",
     "googleapis": "^33.0.0",

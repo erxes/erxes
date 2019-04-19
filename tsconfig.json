@@ -13,6 +13,6 @@
     "skipLibCheck": true,
     "strict": true
   },
-  "include": ["./src/**/*.ts", "./migrations/**/*.ts"],
+  "include": ["./src/**/*.ts", "./migrations/**/*.ts", "typings.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

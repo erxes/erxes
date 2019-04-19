@@ -79,16 +79,25 @@ describe('User mutations', () => {
     process.env.HTTPS = 'false';
 
     const mutation = `
-      mutation login($email: String! $password: String!) {
-        login(email: $email password: $password)
+      mutation login($email: String! $password: String! $deviceToken: String) {
+        login(email: $email password: $password deviceToken: $deviceToken)
       }
     `;
 
     const response = await graphqlRequest(mutation, 'login', {
       email: _user.email,
       password: 'pass',
+      deviceToken: '111',
     });
 
+    const updatedUser = await Users.findOne({ email: _user.email });
+
+    if (!updatedUser || !updatedUser.deviceTokens) {
+      throw new Error('Updated user not found');
+    }
+
+    expect(updatedUser.deviceTokens.length).toBe(1);
+    expect(updatedUser.deviceTokens).toContain('111');
     expect(response).toBe('loggedIn');
   });
 
