@@ -2,6 +2,9 @@
 .headerTitleWithLogo {
   display: none !important;
 }
+.navigationSlider .slidingNav ul li a {
+  background: #5629b6;
+}
 @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
 }
 
@@ -9,6 +12,14 @@
 }
 
 @media only screen and (max-width: 1023px) {
+  .fixedHeaderContainer header {
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  .postHeaderTitle {
+    margin-top: 20px !important;
+  }
 }
 
 @media only screen and (min-width: 1400px) {

@@ -9,15 +9,17 @@
 // site configuration options.
 
 // List of projects/orgs using your project for the users page.
-const users = [{
-  caption: 'User1',
-  // You will need to prepend the image path with your baseUrl
-  // if it is not '/', like: '/test-site/img/docusaurus.svg'.
-  image: '/img/docusaurus.svg',
-  infoLink: 'https://www.facebook.com',
-  pinned: true,
-  docsSideNavCollapsible: true
-}];
+const users = [
+  {
+    caption: 'User1',
+    // You will need to prepend the image path with your baseUrl
+    // if it is not '/', like: '/test-site/img/docusaurus.svg'.
+    image: '/img/docusaurus.svg',
+    infoLink: 'https://www.facebook.com',
+    pinned: true,
+    docsSideNavCollapsible: true
+  }
+];
 
 const siteConfig = {
   title: 'Erxes', // Title for your website.
@@ -37,19 +39,18 @@ const siteConfig = {
   //   organizationName: 'JoelMarcey'
 
   // For no header links in the top nav bar -> headerLinks: [],
-  headerLinks: [{
-    doc: 'doc1',
-    label: 'Docs'
-  }, {
-    doc: 'doc4',
-    label: 'API'
-  }, {
-    page: 'help',
-    label: 'Help'
-  }, {
-    blog: true,
-    label: 'Blog'
-  }],
+  headerLinks: [
+    {
+      doc: 'overview',
+      label: 'Docs'
+    },
+    {
+      href: 'https://erxes.io/en/pricing',
+      label: 'Pricing & Trial',
+      external: true
+    },
+    { href: 'https://medium.com/erxes', label: 'Blog', external: true }
+  ],
 
   // If you have users set above, you add it here:
   users,

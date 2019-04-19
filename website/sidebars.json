@@ -1,8 +1,8 @@
 {
   "docs": {
-    "Overview": ["doc1", "doc6"],
-    "User's Guide": ["doc2"],
-    "Administrator's guide": ["doc3"],
+    "Overview": ["overview", "product-overview", "security-overview", "architecture-overview"],
+    "User's Guide": ["users-guide"],
+    "Administrator's guide": ["doc2"],
     "Developer's guide": ["doc4"]
   },
   "docs-other": {
