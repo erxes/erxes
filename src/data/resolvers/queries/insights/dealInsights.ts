@@ -25,7 +25,7 @@ const dealInsightQueries = {
 
     // check & convert endDate's value
     const end = moment(fixDate(endDate)).format('YYYY-MM-DD');
-    const start = moment(end).add(-7, 'days');
+    const start = moment(end).add(-30, 'days');
 
     const matchMessageSelector = {
       // client or user
@@ -40,7 +40,7 @@ const dealInsightQueries = {
    */
   async dealInsightsMain(_root, args: IDealListArgs) {
     const { startDate, endDate, status } = args;
-    const { start, end } = fixDates(startDate, endDate);
+    const { start, end } = fixDates(startDate, endDate, 30);
 
     const selector = await getDealSelector(args);
 

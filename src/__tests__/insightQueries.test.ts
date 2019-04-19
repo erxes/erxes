@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import { CONVERSATION_STATUSES } from '../data/constants';
 import insightQueries from '../data/resolvers/queries/insights/insights';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -46,9 +47,6 @@ describe('insightQueries', () => {
       integrationId: integration._id,
     });
 
-    await conversationFactory({
-      integrationId: integration._id,
-    });
     await conversationMessageFactory({
       conversationId: conversation._id,
       userId: null,
@@ -96,8 +94,20 @@ describe('insightQueries', () => {
       }
     `;
 
-    const jsonResponse = await graphqlRequest(qry, 'insights', doc);
-    expect(jsonResponse.integration).toBeDefined();
+    const jsonResponseBefore = await graphqlRequest(qry, 'insights', doc);
+    expect(jsonResponseBefore.integration[5].value).toEqual(1);
+
+    // conversation that is closed automatically
+    await conversationFactory({
+      status: CONVERSATION_STATUSES.CLOSED,
+      integrationId: integration._id,
+      closedAt: undefined,
+      closedUserId: undefined,
+    });
+
+    const jsonResponseAfter = await graphqlRequest(qry, 'insights', doc);
+    // don't count an automatically closed conversation
+    expect(jsonResponseAfter.integration[5].value).toEqual(1);
   });
 
   test('insightsPunchCard', async () => {
@@ -135,8 +145,20 @@ describe('insightQueries', () => {
       }
     `;
 
-    const jsonResponse = await graphqlRequest(qry, 'insightsConversation', doc);
-    expect(jsonResponse.summary).toBeDefined();
+    const responseBefore = await graphqlRequest(qry, 'insightsConversation', doc);
+
+    expect(responseBefore.trend[0].y).toBe(1);
+
+    // conversation that is closed automatically
+    await conversationFactory({
+      status: CONVERSATION_STATUSES.CLOSED,
+      closedAt: undefined,
+      closedUserId: undefined,
+    });
+
+    const responseAfter = await graphqlRequest(qry, 'insightsConversation', doc);
+    // don't count an automatically closed conversation
+    expect(responseAfter.trend[0].y).toBe(1);
   });
 
   test('insightsFirstResponse', async () => {

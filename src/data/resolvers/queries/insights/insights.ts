@@ -18,6 +18,7 @@ import {
   getFilterSelector,
   getSummaryData,
   getTimezone,
+  noConversationSelector,
 } from './utils';
 
 const insightQueries = {
@@ -37,7 +38,7 @@ const insightQueries = {
 
     const conversationSelector = {
       createdAt: { $gte: start, $lte: end },
-      $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
+      ...noConversationSelector,
     };
 
     // count conversations by each integration kind
@@ -152,7 +153,6 @@ const insightQueries = {
    */
   async insightsSummaryData(_root, args: IListArgs) {
     const { startDate, endDate, type } = args;
-
     const messageSelector = await generateMessageSelector({
       args,
       excludeBot: true,
@@ -175,11 +175,14 @@ const insightQueries = {
    */
   async insightsConversation(_root, args: IListArgs) {
     const filterSelector = getFilterSelector(args);
+
     const conversationSelector = {
       createdAt: filterSelector.createdAt,
-      $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
+      ...noConversationSelector,
     };
+
     const conversations = await findConversations(filterSelector, { ...conversationSelector });
+
     const insightData: any = {
       summary: [],
       trend: await generateChartDataByCollection(conversations),
@@ -187,6 +190,7 @@ const insightQueries = {
 
     const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
+
     insightData.summary = await getSummaryData({
       startDate: start,
       endDate: end,

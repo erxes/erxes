@@ -13,7 +13,7 @@ import { IMessageDocument } from '../../../../db/models/definitions/conversation
 import { IConversationDocument } from '../../../../db/models/definitions/conversations';
 import { IStageDocument } from '../../../../db/models/definitions/deals';
 import { IUser } from '../../../../db/models/definitions/users';
-import { INSIGHT_TYPES } from '../../../constants';
+import { CONVERSATION_STATUSES, INSIGHT_TYPES } from '../../../constants';
 import { getDateFieldAsStr } from '../aggregationUtils';
 import { fixDate } from '../utils';
 import {
@@ -37,7 +37,7 @@ import {
  * Return filterSelector
  * @param args
  */
-export const getFilterSelector = (args: IListArgs): any => {
+export const getFilterSelector = (args: IListArgs, fieldName: string = 'createdAt'): any => {
   const selector: IFilterSelector = { integration: {} };
   const { startDate, endDate, integrationIds, brandIds } = args;
   const { start, end } = fixDates(startDate, endDate);
@@ -50,7 +50,7 @@ export const getFilterSelector = (args: IListArgs): any => {
     selector.integration.brandId = { $in: brandIds.split(',') };
   }
 
-  selector.createdAt = { $gte: start, $lte: end };
+  selector[fieldName] = { $gte: start, $lte: end };
 
   return selector;
 };
@@ -61,7 +61,7 @@ export const getFilterSelector = (args: IListArgs): any => {
  */
 export const getDealSelector = async (args: IDealListArgs): Promise<IDealSelector> => {
   const { startDate, endDate, boardId, pipelineIds, status } = args;
-  const { start, end } = fixDates(startDate, endDate);
+  const { start, end } = fixDates(startDate, endDate, 30);
 
   const selector: IDealSelector = {};
   const date = {
@@ -110,14 +110,19 @@ export const getDealSelector = async (args: IDealListArgs): Promise<IDealSelecto
  * @param conversationSelector
  * @param selectIds
  */
-export const getConversationSelector = async (args: IListArgs, conversationSelector: any): Promise<any> => {
-  const filterSelector = await getFilterSelector(args);
+export const getConversationSelector = async (
+  args: IListArgs,
+  conversationSelector: any,
+  fieldName: string = 'createdAt',
+): Promise<any> => {
+  const filterSelector = await getFilterSelector(args, fieldName);
 
-  if (filterSelector.integration) {
+  if (Object.keys(filterSelector.integration).length > 0) {
     const integrationIds = await Integrations.find(filterSelector.integration).select('_id');
     conversationSelector.integrationId = { $in: integrationIds.map(row => row._id) };
   }
-  conversationSelector.createdAt = filterSelector.createdAt;
+
+  conversationSelector[fieldName] = filterSelector[fieldName];
 
   return conversationSelector;
 };
@@ -230,7 +235,6 @@ export const generateMessageSelector = async ({
   // While searching by integration
   if (Object.keys(filterSelector.integration).length > 0) {
     const conversationIds = await findConversations(filterSelector, { createdAt: updatedCreatedAt }, true);
-
     const rawConversationIds = conversationIds.map(obj => obj._id);
     messageSelector.conversationId = { $in: rawConversationIds };
   }
@@ -538,4 +542,23 @@ export const generateResponseData = async (
 
 export const getTimezone = (user: IUser): string => {
   return (user.details ? user.details.location : '+08') || '+08';
+};
+
+export const noConversationSelector = {
+  $or: [
+    { userId: { $exists: true }, messageCount: { $gt: 1 } },
+    {
+      userId: { $exists: false },
+      $or: [
+        {
+          closedAt: { $exists: true },
+          closedUserId: { $exists: true },
+          status: CONVERSATION_STATUSES.CLOSED,
+        },
+        {
+          status: { $ne: CONVERSATION_STATUSES.CLOSED },
+        },
+      ],
+    },
+  ],
 };
