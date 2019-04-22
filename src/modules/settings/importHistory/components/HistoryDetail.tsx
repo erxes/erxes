@@ -18,24 +18,40 @@ class HistoryDetail extends React.Component<{
   percentage: number;
   importHistory: IImportHistory;
 }> {
-  renderContent = () => {
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.importHistory.status === 'Done') {
+      return true;
+    }
+
+    return nextProps.percentage !== this.props.percentage;
+  }
+
+  renderProgressBar = () => {
     const { importHistory } = this.props;
     let percentage = this.props.percentage;
-    const { errorMsgs = [] } = importHistory;
 
     if (importHistory.status === 'Done') {
       percentage = 100;
     }
 
     return (
+      <CircularProgressBar
+        percentage={percentage}
+        strokeWidth={50}
+        sqSize={600}
+      />
+    );
+  };
+
+  renderContent = () => {
+    const { importHistory } = this.props;
+    const { errorMsgs = [] } = importHistory;
+
+    return (
       <React.Fragment>
         <Box style={{ width: '100%' }}>
           <div style={{ margin: '0 auto', display: 'table' }}>
-            <CircularProgressBar
-              percentage={percentage}
-              strokeWidth={50}
-              sqSize={600}
-            />
+            {this.renderProgressBar()}
           </div>
         </Box>
 

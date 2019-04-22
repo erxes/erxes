@@ -17,7 +17,8 @@ class CircularProgressBar extends React.Component<{
     // Arc length at 100% coverage is the circle circumference
     const dashArray = radius * Math.PI * 2;
     // Scale 100% coverage overlay with the actual percent
-    const dashOffset = dashArray - (dashArray * this.props.percentage) / 100;
+    const dashOffset =
+      dashArray - (dashArray * Number(this.props.percentage)) / 100;
 
     return (
       <svg

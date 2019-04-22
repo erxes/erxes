@@ -43,7 +43,9 @@ class HistoryDetailContainer extends React.Component<
           return importHistoryDetailQuery.refetch();
         }
 
-        this.setState({ percentage });
+        if (percentage.toFixed(0) !== this.state.percentage) {
+          this.setState({ percentage: percentage.toFixed(0) });
+        }
       }
     });
   }
