@@ -45,8 +45,14 @@ const usersEditProfile = `
 `;
 
 const usersInvite = `
-  mutation usersInvite($emails: [String]) {
-    usersInvite(emails: $emails)
+  mutation usersInvite($entries: [InvitationEntry]) {
+    usersInvite(entries: $entries)
+  }
+`;
+
+const usersResendInvitation = `
+  mutation usersResendInvitation($email: String!) {
+    usersResendInvitation(email: $email)
   }
 `;
 
@@ -70,6 +76,7 @@ export default {
   usersEditProfile,
   usersEdit,
   usersInvite,
+  usersResendInvitation,
   usersConfirmInvitation,
   usersSetActiveStatus
 };

@@ -15,15 +15,19 @@ export const ButtonContainer = styled.div`
 
 export const FlexRow = styled.div`
   display: flex;
-  align-items: center;
 
   input {
-    margin-bottom: ${dimensions.coreSpacing}px;
+    margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
   }
 
   i {
     cursor: pointer;
     padding-left: ${dimensions.coreSpacing}px;
+  }
+
+  label:last-child {
+      margin-left: ${dimensions.coreSpacing + 13}%;
+    }
   }
 `;
 

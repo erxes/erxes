@@ -47,6 +47,8 @@ const InsightTitle = styled.h5`
 
   span {
     margin-left: ${dimensions.unitSpacing}px;
+    text-transform: lowercase;
+    font-size: 13px;
   }
 `;
 
@@ -99,6 +101,10 @@ const LoaderWrapper = styled(ChartWrapper)`
 const SummaryTitle = styled.div`
   margin-bottom: 5px;
   text-transform: uppercase;
+
+  span {
+    text-transform: lowercase;
+  }
 `;
 
 const SummaryCount = styled.span`
@@ -122,12 +128,8 @@ const SummaryItem = styledTS<{ isSmall?: boolean }>(styled.div)`
     padding: 8px;
     line-height: ${typography.fontSizeHeading7}px;
 
-    span {
+    > span {
       font-size: ${typography.fontSizeHeading7}px!important;
-    }
-  
-    div {
-      margin-bottom: 0px!important;
     }
   `}
 `;
@@ -167,6 +169,9 @@ const FullName = styled.span`
 
 const BoxContainer = styled.div`
   width: 680px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 `;
 
 const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
@@ -174,6 +179,7 @@ const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
   margin-top: 10px;
   margin-bottom: 10px;
+  flex-shrink: 0;
 
   > a {
     padding: 40px;
@@ -187,7 +193,6 @@ const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
     margin: 10px 0 0;
     font-size: 12px;
     color: ${colors.colorCoreLightGray};
-    min-height: 54px;
   }
 `;
 

@@ -40,9 +40,15 @@ const punchCard = `
   }
 `;
 
-const main = `
-  query insightsMain($type: String, ${listParamsDef}) {
-    insightsMain(type: $type, ${listParamsValue})
+const trend = `
+  query insightsTrend($type: String, ${listParamsDef}) {
+    insightsTrend(type: $type, ${listParamsValue})
+  }
+`;
+
+const summaryData = `
+  query insightsSummaryData($type: String, ${listParamsDef}) {
+    insightsSummaryData(type: $type, ${listParamsValue})
   }
 `;
 
@@ -116,7 +122,8 @@ const dealInsightsByTeamMember = `
 `;
 
 export default {
-  main,
+  trend,
+  summaryData,
   pieChart,
   punchCard,
   firstResponse,

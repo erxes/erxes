@@ -12,6 +12,7 @@ import { PopoverButton } from 'modules/inbox/styles';
 import { Sidebar } from 'modules/layout/components';
 import { TAG_TYPES } from 'modules/tags/constants';
 import * as React from 'react';
+import * as RTG from 'react-transition-group';
 import { IConversation } from '../../types';
 import AssignBoxPopover from '../assignBox/AssignBoxPopover';
 import { StatusFilterPopover } from './';
@@ -117,58 +118,62 @@ class LeftSidebar extends React.Component<Props, State> {
   renderAdditionalSidebar() {
     const { integrations, queryParams } = this.props;
 
-    if (!this.state.isOpen) {
-      return null;
-    }
-
     return (
-      <>
-        <FilterToggler groupText="Channels" toggleName="showChannels">
-          <FilterList
-            query={{
-              queryName: 'channelList',
-              dataName: 'channels'
-            }}
-            counts="byChannels"
-            paramKey="channelId"
-            queryParams={queryParams}
-          />
-        </FilterToggler>
+      <RTG.CSSTransition
+        in={this.state.isOpen}
+        appear={true}
+        timeout={300}
+        classNames="fade-in"
+        unmountOnExit={true}
+      >
+        <div>
+          <FilterToggler groupText="Channels" toggleName="showChannels">
+            <FilterList
+              query={{
+                queryName: 'channelList',
+                dataName: 'channels'
+              }}
+              counts="byChannels"
+              paramKey="channelId"
+              queryParams={queryParams}
+            />
+          </FilterToggler>
 
-        <FilterToggler groupText="Brands" toggleName="showBrands">
-          <FilterList
-            query={{ queryName: 'brandList', dataName: 'brands' }}
-            counts="byBrands"
-            queryParams={queryParams}
-            paramKey="brandId"
-          />
-        </FilterToggler>
+          <FilterToggler groupText="Brands" toggleName="showBrands">
+            <FilterList
+              query={{ queryName: 'brandList', dataName: 'brands' }}
+              counts="byBrands"
+              queryParams={queryParams}
+              paramKey="brandId"
+            />
+          </FilterToggler>
 
-        <FilterToggler groupText="Integrations" toggleName="showIntegrations">
-          <FilterList
-            fields={integrations}
-            queryParams={queryParams}
-            counts="byIntegrationTypes"
-            paramKey="integrationType"
-          />
-        </FilterToggler>
+          <FilterToggler groupText="Integrations" toggleName="showIntegrations">
+            <FilterList
+              fields={integrations}
+              queryParams={queryParams}
+              counts="byIntegrationTypes"
+              paramKey="integrationType"
+            />
+          </FilterToggler>
 
-        <FilterToggler groupText="Tags" toggleName="showTags">
-          <FilterList
-            query={{
-              queryName: 'tagList',
-              dataName: 'tags',
-              variables: {
-                type: TAG_TYPES.CONVERSATION
-              }
-            }}
-            queryParams={queryParams}
-            counts="byTags"
-            paramKey="tag"
-            icon="tag"
-          />
-        </FilterToggler>
-      </>
+          <FilterToggler groupText="Tags" toggleName="showTags">
+            <FilterList
+              query={{
+                queryName: 'tagList',
+                dataName: 'tags',
+                variables: {
+                  type: TAG_TYPES.CONVERSATION
+                }
+              }}
+              queryParams={queryParams}
+              counts="byTags"
+              paramKey="tag"
+              icon="tag"
+            />
+          </FilterToggler>
+        </div>
+      </RTG.CSSTransition>
     );
   }
 

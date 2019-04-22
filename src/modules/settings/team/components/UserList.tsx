@@ -16,6 +16,7 @@ import { Input } from 'modules/common/components/form/styles';
 import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { FlexItem, FlexRow } from 'modules/insights/styles';
+import { IUserGroup } from 'modules/settings/permissions/types';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
@@ -25,13 +26,15 @@ import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
 import { ButtonContainer, FilterContainer, UserAvatar } from '../styles';
 
-type Props = {
-  statusChanged?: (id: string) => void;
+type IProps = {
+  changeStatus: (id: string) => void;
+  resendInvitation: (email: string) => void;
+  usersGroups: IUserGroup[];
 };
 
 type FinalProps = ICommonListProps &
   ICommonFormProps &
-  Props & { currentUser: IUser };
+  IProps & { currentUser: IUser };
 
 type States = {
   isActive: boolean;
@@ -70,6 +73,7 @@ class UserList extends React.Component<FinalProps, States> {
     return (
       <UserInvitationForm
         closeModal={props.closeModal}
+        usersGroups={this.props.usersGroups}
         save={this.props.save}
       />
     );
@@ -81,15 +85,10 @@ class UserList extends React.Component<FinalProps, States> {
 
   renderEditAction = (user: IUser) => {
     const { currentUser } = this.props;
-
-    if (user._id === currentUser._id) {
-      return null;
-    }
-
     const { save } = this.props;
 
     const editTrigger = (
-      <Button btnStyle="link">
+      <Button btnStyle="link" disabled={user._id === currentUser._id}>
         <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
@@ -110,16 +109,28 @@ class UserList extends React.Component<FinalProps, States> {
     );
   };
 
-  visibleHandler = (user: IUser) => {
-    const { statusChanged } = this.props;
+  renderResendInvitation(user: IUser) {
+    const onClick = () => {
+      this.props.resendInvitation(user.email);
+    };
 
-    return statusChanged ? statusChanged(user._id) : null;
-  };
+    return (
+      <Button
+        btnStyle="link"
+        disabled={user.status !== 'Pending Invitation'}
+        onClick={onClick}
+      >
+        <Tip text={__('Resend')}>
+          <Icon icon="repeat" />
+        </Tip>
+      </Button>
+    );
+  }
 
   renderRows({ objects }: { objects: IUser[] }) {
     return objects.map(object => {
       const onClick = () => this.onAvatarClick(object);
-      const onChange = () => this.visibleHandler(object);
+      const onChange = () => this.props.changeStatus(object._id);
 
       return (
         <tr key={object._id}>
@@ -143,8 +154,9 @@ class UserList extends React.Component<FinalProps, States> {
               }}
               onChange={onChange}
             />
-          </td>
-          <td>
+
+            {this.renderResendInvitation(object)}
+
             <ActionButtons>{this.renderEditAction(object)}</ActionButtons>
           </td>
         </tr>
@@ -207,8 +219,12 @@ class UserList extends React.Component<FinalProps, States> {
           {this.renderStatus()}
 
           <ButtonContainer>
-            <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
-              Apply
+            <Button
+              btnStyle="primary"
+              icon="search"
+              onClick={this.onApplyClick}
+            >
+              Search
             </Button>
           </ButtonContainer>
         </FlexRow>
@@ -224,8 +240,7 @@ class UserList extends React.Component<FinalProps, States> {
             <th>{__('Full name')}</th>
             <th>{__('Invitation status')}</th>
             <th>{__('Email')}</th>
-            <th>{__('Status')}</th>
-            <th />
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
@@ -265,9 +280,7 @@ class UserList extends React.Component<FinalProps, States> {
   }
 }
 
-const WithConsumer = (
-  props: ICommonListProps & ICommonFormProps & { currentUser: IUser }
-) => {
+const WithConsumer = (props: IProps & ICommonListProps & ICommonFormProps) => {
   return (
     <AppConsumer>
       {({ currentUser }) => (

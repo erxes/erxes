@@ -125,7 +125,7 @@ class MessengerAdd extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Messenger name</ControlLabel>
+          <ControlLabel required={true}>Messenger name</ControlLabel>
 
           <FormControl
             value={name}
@@ -136,7 +136,7 @@ class MessengerAdd extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Messenger Language</ControlLabel>
+          <ControlLabel required={true}>Messenger Language</ControlLabel>
 
           <FormControl
             componentClass="select"

@@ -75,7 +75,11 @@ class InstallCode extends React.PureComponent<Props, State> {
           <ReactMarkdown source={this.state.code} />
           {this.state.code ? (
             <CopyToClipboard text={this.state.code} onCopy={this.onCopy}>
-              <Button size="small" btnStyle="success" icon="copy">
+              <Button
+                size="small"
+                btnStyle={this.state.copied ? 'primary' : 'success'}
+                icon="copy"
+              >
                 {this.state.copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>

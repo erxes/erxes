@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { lighten } from 'modules/common/styles/color';
 import { SidebarList } from 'modules/layout/styles';
 import styled from 'styled-components';
 
@@ -100,6 +101,27 @@ const TableHeadContent = styled.div`
   flex-direction: row;
 `;
 
+const ImportButton = styled.label`
+  border-radius: 30px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  padding: 6px 15px;
+  background: ${colors.colorSecondary};
+  font-size: 10px;
+  color: ${colors.colorWhite};
+  box-shadow: 0 2px 16px 0 ${lighten(colors.colorSecondary, 35)};
+
+  i {
+    margin-right: 5px;
+  }
+
+  &:hover {
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 2px 22px 0 ${lighten(colors.colorSecondary, 25)};
+  }
+`;
+
 export {
   InfoTitle,
   InfoDetail,
@@ -111,5 +133,6 @@ export {
   Name,
   Date,
   TabContent,
-  TableHeadContent
+  TableHeadContent,
+  ImportButton
 };

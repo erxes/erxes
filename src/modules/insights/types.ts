@@ -61,12 +61,13 @@ export type DealPunchCardQueryResponse = {
   loading: boolean;
 };
 
-export type MainQueryResponse = {
-  insightsMain: {
-    teamMembers: IChartParams[];
-    summary: SummaryData[];
-    trend: IChartParams[];
-  };
+export type SummaryDataQueryResponse = {
+  insightsSummaryData: SummaryData[];
+  loading: boolean;
+};
+
+export type TrendQueryResponse = {
+  insightsTrend: IChartParams[];
   loading: boolean;
 };
 

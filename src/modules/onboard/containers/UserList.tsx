@@ -7,8 +7,8 @@ import { ChildProps, compose, graphql } from 'react-apollo';
 import { UserList } from '../components';
 import { mutations } from '../graphql';
 import {
-  UserRemoveMutationResponse,
-  UserRemoveMutationVariables
+  UserStatusChangeMutationResponse,
+  UserStatusChangeMutationVariables
 } from '../types';
 
 type Props = {
@@ -16,21 +16,21 @@ type Props = {
 };
 
 type FinalProps = { usersQuery: UsersQueryResponse } & Props &
-  UserRemoveMutationResponse;
+  UserStatusChangeMutationResponse;
 
 const UserListContainer = (props: ChildProps<FinalProps>) => {
-  const { usersQuery, removeMutation } = props;
+  const { usersQuery, statusChangedMutation } = props;
 
   const users = usersQuery.users || [];
 
-  // remove action
-  const remove = userId => {
+  // deactivate action
+  const changeStatus = userId => {
     confirm().then(() => {
-      removeMutation({
+      statusChangedMutation({
         variables: { _id: userId }
       })
         .then(() => {
-          Alert.success('You successfully deleted a user');
+          Alert.success('You successfully deactivated a user');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -41,11 +41,18 @@ const UserListContainer = (props: ChildProps<FinalProps>) => {
   const updatedProps = {
     ...props,
     users,
-    remove,
+    deactivate: changeStatus,
     loading: usersQuery.loading
   };
 
   return <UserList {...updatedProps} />;
+};
+
+const commonOption = (userCount: number) => {
+  return {
+    perPage: userCount,
+    isActive: true
+  };
 };
 
 export default withProps<Props>(
@@ -55,26 +62,28 @@ export default withProps<Props>(
       {
         name: 'usersQuery',
         options: ({ userCount }: Props) => ({
-          variables: {
-            perPage: userCount
-          },
+          variables: commonOption(userCount),
           fetchPolicy: 'network-only'
         })
       }
     ),
-    graphql<UserRemoveMutationResponse, UserRemoveMutationVariables>(
-      gql(mutations.usersRemove),
-      {
-        name: 'removeMutation',
-        options: () => {
-          return {
-            refetchQueries: [
-              { query: gql(teamQueries.users) },
-              { query: gql(teamQueries.usersTotalCount) }
-            ]
-          };
-        }
-      }
-    )
+    graphql<
+      Props & UserStatusChangeMutationResponse,
+      UserStatusChangeMutationVariables
+    >(gql(mutations.usersStatusChange), {
+      name: 'statusChangedMutation',
+      options: ({ userCount }: Props) => ({
+        refetchQueries: [
+          {
+            query: gql(teamQueries.users),
+            variables: commonOption(userCount)
+          },
+          {
+            query: gql(teamQueries.usersTotalCount),
+            variables: commonOption(userCount)
+          }
+        ]
+      })
+    })
   )(UserListContainer)
 );
