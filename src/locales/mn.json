@@ -706,7 +706,7 @@
   "Let's start": "Эхлэх",
   "Start messaging now!": "Мессенжер үүсгэх",
   "Create channel": "Суваг үүсгэх",
-  "Get started on your channel": "Get started on your channel",
+  "Get started on your channel": "Сувагаа үүсгэцгээе",
   "Welcome": "Тавтай морил",
   "I'm ready to get started": "Би эхлэхэд бэлэн",
   "Nothing inserted": "Өгөгдөл оруулаагүй байна",
@@ -762,5 +762,13 @@
   "Choose groups": "Групп сонгох",
   "Allow": "Зөвшөөрөх",
   "Invitation Status": "Уригдсан эсэх",
-  "Permission": "Эрхийн тохиргоо"
+  "Permission": "Эрхийн тохиргоо",
+  "Continue": "Үргэлжлүүлэх",
+  "Create brand": "Брэнд үүсгэх",
+  "Create your first messenger": "Анхны мессенжерээ үүсгэх",
+  "Create your first live chat and in-app messaging. Stay up to date with every single customer feedback for more meaningful interactions.": "Create your first live chat and in-app messaging. Stay up to date with every single customer feedback for more meaningful interactions.",
+  "A channel gives a full view of all the brands and its applications all in one place. You can see all in-coming messages in your team inbox.": "A channel gives a full view of all the brands and its applications all in one place. You can see all in-coming messages in your team inbox.",
+  "Hooray and Congratulations! You've completed the initial setup!": "Баяр хүргэе! Та эхлэлийн тохиргооноо амжилттай хийлээ!",
+  "Paste the code below before the body tag on every page you want erxes chat to appear": "erxes чатыг гаргахыг хүссэн хуудас бүрийн </body> тагны өмнө доорх кодыг хуулж тавина.",
+  "Choose messengers": "Мессенжерээ сонгох"
 }

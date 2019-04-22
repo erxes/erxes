@@ -130,6 +130,7 @@ const MarkdownWrapper = styled.div`
     border: none;
     background: none;
     margin: 0;
+    padding: 20px;
   }
 `;
 

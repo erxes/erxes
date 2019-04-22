@@ -706,7 +706,7 @@
   "Start messaging now!": "Start messaging now!",
   "Create channel": "Create channel",
   "Get started on your channel": "Get started on your channel",
-  "Create messenger": "Create messenger",
+  "Create your first messenger": "Create your first messenger",
   "Welcome": "Welcome",
   "Nothing inserted": "Nothing inserted",
   "Empty emails": "Empty emails",
@@ -791,5 +791,12 @@
   "Choose groups": "Choose groups",
   "Allow": "Allow",
   "Invitation Status": "Invitation Status",
-  "Permission": "Permission"
+  "Permission": "Permission",
+  "Continue": "Continue",
+  "Create brand": "Create brand",
+  "Create your first live chat and in-app messaging. Stay up to date with every single customer feedback for more meaningful interactions.": "Create your first live chat and in-app messaging. Stay up to date with every single customer feedback for more meaningful interactions.",
+  "A channel gives a full view of all the brands and its applications all in one place. You can see all in-coming messages in your team inbox.": "A channel gives a full view of all the brands and its applications all in one place. You can see all in-coming messages in your team inbox.",
+  "Hooray and Congratulations! You've completed the initial setup!": "Hooray and Congratulations! You've completed the initial setup!",
+  "Paste the code below before the body tag on every page you want erxes chat to appear": "Paste the code below before the </body> tag on every page you want erxes chat to appear.",
+  "Choose messengers": "Choose messengers"
 }

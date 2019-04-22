@@ -10,13 +10,13 @@ export const STEPS = [
       'Grow and add users to your team! Assign, designate and let them do what they do best'
   },
   {
-    title: 'Create messenger',
+    title: 'Create your first messenger',
     description:
-      'Stay up to date with every single customer feedback and create more meaningful conversations'
+      'Create your first live chat and in-app messaging. Stay up to date with every single customer feedback for more meaningful interactions.'
   },
   {
     title: 'Create channel',
     description:
-      'Create brand channels that are specifically categorized by type and activity'
+      'A channel gives a full view of all the brands and its applications all in one place. You can see all in-coming messages in your team inbox.'
   }
 ];
