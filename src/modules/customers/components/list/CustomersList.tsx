@@ -253,7 +253,7 @@ class CustomersList extends React.Component<IProps, State> {
           {__('Import customers')}
           <input
             type="file"
-            onChange={handleXlsUpload}
+            onChange={uploadXls}
             style={{ display: 'none' }}
             accept=".xlsx, .xls"
           />
