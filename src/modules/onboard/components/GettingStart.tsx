@@ -1,3 +1,4 @@
+import { Icon, Tip } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
@@ -20,6 +21,20 @@ type Props = {
 };
 
 class GettingStart extends React.PureComponent<Props> {
+  renderInfo = information => {
+    if (!information) {
+      return null;
+    }
+
+    return (
+      <Tip text={__('erxes allows you to create multiple messengers')}>
+        <span>
+          <Icon icon="information" />
+        </span>
+      </Tip>
+    );
+  };
+
   render() {
     const { activeStep, goStep } = this.props;
 
@@ -50,7 +65,9 @@ class GettingStart extends React.PureComponent<Props> {
                     active={index + 1 === activeStep}
                     onClick={goStep.bind(this, index + 1)}
                   >
-                    <h4>{__(step.title)}</h4>
+                    <h4>
+                      {__(step.title)} {this.renderInfo(step.information)}
+                    </h4>
                     <p>{__(step.description)}</p>
                   </Item>
                 ))}
