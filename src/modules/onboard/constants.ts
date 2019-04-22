@@ -11,6 +11,7 @@ export const STEPS = [
   },
   {
     title: 'Create your first messenger',
+    information: 'erxes allows you to create multiple messengers',
     description:
       'Create your first live chat and in-app messaging. Stay up to date with every single customer feedback for more meaningful interactions.'
   },
