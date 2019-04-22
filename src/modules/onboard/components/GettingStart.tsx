@@ -19,11 +19,7 @@ type Props = {
   goStep: (step: number) => void;
 };
 
-type State = {
-  activeStep: number;
-};
-
-class GettingStart extends React.PureComponent<Props, State> {
+class GettingStart extends React.PureComponent<Props> {
   render() {
     const { activeStep, goStep } = this.props;
 

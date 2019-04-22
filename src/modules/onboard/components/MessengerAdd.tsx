@@ -8,8 +8,11 @@ import {
 import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
+import { InstallCode } from 'modules/settings/integrations/components';
 import { SelectBrand } from 'modules/settings/integrations/components';
+import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
+import { Modal } from 'react-bootstrap';
 import * as RTG from 'react-transition-group';
 import { MessengerList } from '../containers';
 import { Description, Footer, TopContent } from './styles';
@@ -17,6 +20,7 @@ import { Description, Footer, TopContent } from './styles';
 type Props = {
   brands: IBrand[];
   totalCount: number;
+  integration?: IIntegration;
   save: (
     params: {
       name: string;
@@ -26,12 +30,14 @@ type Props = {
     callback: () => void
   ) => void;
   changeStep: (increase: boolean) => void;
+  showInstallCode: boolean;
+  closeInstallCodeModal: () => void;
 };
 
 type State = {
   name: string;
   language: string;
-  brand: string;
+  brandId: string;
   showMessengers: boolean;
 };
 
@@ -39,7 +45,7 @@ class MessengerAdd extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { showMessengers: true, name: '', brand: '', language: '' };
+    this.state = { showMessengers: true, name: '', brandId: '', language: '' };
   }
 
   clearInput() {
@@ -51,34 +57,24 @@ class MessengerAdd extends React.Component<Props, State> {
   };
 
   goNext = () => {
+    if (this.props.closeInstallCodeModal) {
+      this.props.closeInstallCodeModal();
+    }
+
     this.props.changeStep(true);
   };
 
   save = e => {
     e.preventDefault();
-    const { name, brand, language } = this.state;
+    const { name, brandId, language } = this.state;
 
     this.props.save(
       {
         name,
-        brandId: brand,
+        brandId,
         languageCode: language
       },
       this.clearInput.bind(this)
-    );
-  };
-
-  saveNext = e => {
-    e.preventDefault();
-    const { name, brand, language } = this.state;
-
-    this.props.save(
-      {
-        name,
-        brandId: brand,
-        languageCode: language
-      },
-      this.goNext
     );
   };
 
@@ -119,6 +115,29 @@ class MessengerAdd extends React.Component<Props, State> {
     );
   };
 
+  renderInstallCode() {
+    const { integration, closeInstallCodeModal, showInstallCode } = this.props;
+
+    return (
+      <Modal show={showInstallCode} onHide={closeInstallCodeModal}>
+        <Modal.Header closeButton={true}>
+          <Modal.Title>{__('Install code')}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <InstallCode
+            integration={integration || ({} as IIntegration)}
+            closeModal={closeInstallCodeModal}
+            positivButton={
+              <Button btnStyle="success" onClick={this.goNext}>
+                {__('Next')} <Icon icon="rightarrow-2" />
+              </Button>
+            }
+          />
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   renderContent() {
     const { name } = this.state;
 
@@ -154,7 +173,7 @@ class MessengerAdd extends React.Component<Props, State> {
 
         <SelectBrand
           brands={this.props.brands || []}
-          onChange={this.handleChange.bind(this, 'brand')}
+          onChange={this.handleChange.bind(this, 'brandId')}
         />
 
         {this.renderOtherMessengers()}
@@ -164,26 +183,29 @@ class MessengerAdd extends React.Component<Props, State> {
 
   render() {
     return (
-      <form onSubmit={this.save}>
-        <TopContent>
-          <h2>{__('Start messaging now!')}</h2>
-          {this.renderContent()}
-        </TopContent>
-        <Footer>
-          <div>
-            <Button
-              btnStyle="link"
-              onClick={this.props.changeStep.bind(null, false)}
-            >
-              Previous
-            </Button>
-            <Button btnStyle="success" onClick={this.saveNext}>
-              {__('Next')} <Icon icon="rightarrow-2" />
-            </Button>
-          </div>
-          <a onClick={this.goNext}>{__('Skip for now')} »</a>
-        </Footer>
-      </form>
+      <>
+        <form onSubmit={this.save}>
+          <TopContent>
+            <h2>{__('Start messaging now!')}</h2>
+            {this.renderContent()}
+          </TopContent>
+          <Footer>
+            <div>
+              <Button
+                btnStyle="link"
+                onClick={this.props.changeStep.bind(null, false)}
+              >
+                Previous
+              </Button>
+              <Button btnStyle="success" onClick={this.save}>
+                {__('Continue')} <Icon icon="rightarrow-2" />
+              </Button>
+            </div>
+            <a onClick={this.goNext}>{__('Skip for now')} »</a>
+          </Footer>
+        </form>
+        {this.renderInstallCode()}
+      </>
     );
   }
 }
