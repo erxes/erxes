@@ -1,18 +1,71 @@
 import * as React from 'react';
+import { Spinner } from '../../../common/components';
 
 class CircularProgressBar extends React.Component<{
   sqSize?: number;
   strokeWidth?: number;
   percentage: number;
 }> {
+  renderText = text => {
+    return (
+      <text
+        className="circle-text"
+        x="50%"
+        y="50%"
+        dy=".3em"
+        textAnchor="middle"
+      >
+        {text}
+      </text>
+    );
+  };
+
+  renderPercentage = () => {
+    const { percentage } = this.props;
+
+    if (percentage === 0) {
+      return (
+        <React.Fragment>
+          {this.renderText(`Please wait while we are processing your data`)}
+          <svg
+            className="svg-spinner"
+            viewBox="0 0 50 50"
+            x="48%"
+            y="53%"
+            width={30}
+            height={30}
+          >
+            <circle
+              className="svg-spinner-path"
+              cx="25"
+              cy="25"
+              r="20"
+              fill="none"
+              stroke-width="5"
+            />
+          </svg>
+        </React.Fragment>
+      );
+    }
+
+    return (
+      <text
+        className="circle-text"
+        x="50%"
+        y="50%"
+        dy=".3em"
+        textAnchor="middle"
+      >
+        {percentage}%
+      </text>
+    );
+  };
+
   render() {
-    // Size of the enclosing square
     const sqSize = this.props.sqSize || 200;
     const strokeWidth = this.props.strokeWidth || 10;
 
-    // SVG centers the stroke width on the radius, subtract out so circle fits in square
     const radius = (sqSize - strokeWidth) / 2;
-    // Enclose cicle in a circumscribing square
     const viewBox = `0 0 ${sqSize} ${sqSize}`;
     // Arc length at 100% coverage is the circle circumference
     const dashArray = radius * Math.PI * 2;
@@ -37,7 +90,6 @@ class CircularProgressBar extends React.Component<{
             stroke: '#ddd'
           }}
         />
-
         <circle
           className="circle-progress"
           cx={sqSize / 2}
@@ -55,16 +107,8 @@ class CircularProgressBar extends React.Component<{
             fill: 'none'
           }}
         />
-
-        <text
-          className="circle-text"
-          x="50%"
-          y="50%"
-          dy=".3em"
-          textAnchor="middle"
-        >
-          {`${this.props.percentage}%`}
-        </text>
+        {/* <text className="circle-text" x="50%" y="50%" dy=".3em" textAnchor="middle"> */}
+        {this.renderPercentage()};{/* </text> */}
       </svg>
     );
   }
