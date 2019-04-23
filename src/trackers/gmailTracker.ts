@@ -147,7 +147,7 @@ const getMessagesByHistoryId = async (historyId: string, integrationId: string, 
   const auth = getOAuth(integrationId, credentials);
   const gmail = google.gmail('v1');
 
-  const response = await gmail.users.history.list({
+  const response: any = await gmail.users.history.list({
     auth,
     userId: 'me',
     startHistoryId: historyId,
@@ -158,18 +158,18 @@ const getMessagesByHistoryId = async (historyId: string, integrationId: string, 
   }
 
   for (const history of response.data.history) {
-    if (!history.messages) {
+    if (!history.messagesAdded) {
       continue;
     }
 
     await updateHistoryByLastReceived(integrationId, '' + history.id);
 
-    for (const message of history.messages) {
+    for (const item of history.messagesAdded) {
       try {
         const { data } = await gmail.users.messages.get({
           auth,
           userId: 'me',
-          id: message.id,
+          id: item.message.id,
         });
 
         // get gmailData
@@ -180,7 +180,7 @@ const getMessagesByHistoryId = async (historyId: string, integrationId: string, 
       } catch (e) {
         // catch & continue if email doesn't exist with message.id
         if (e.message === 'Not Found') {
-          console.log(`Email not found id with ${message.id}`);
+          console.log(`Email not found id with ${item.message.id}`);
         } else {
           console.log(e.message);
         }

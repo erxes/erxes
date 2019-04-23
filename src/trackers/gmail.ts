@@ -277,8 +277,7 @@ export const getOrCreateCustomer = async (integrationId: string, email: string) 
     }
   }
 
-  const customer = await Customers.findOne({ emails: { $in: [primaryEmail] } });
-
+  const customer = await Customers.findOne({ $or: [{ emails: { $in: [primaryEmail] } }, { primaryEmail }] });
   if (customer) {
     return customer;
   }
