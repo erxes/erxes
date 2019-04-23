@@ -19,9 +19,7 @@ class CircularProgressBar extends React.Component<{
     );
   };
 
-  renderPercentage = () => {
-    const { percentage } = this.props;
-
+  renderPercentage = percentage => {
     if (percentage === 0) {
       return (
         <React.Fragment>
@@ -51,6 +49,8 @@ class CircularProgressBar extends React.Component<{
   };
 
   render() {
+    const { percentage } = this.props;
+
     const sqSize = this.props.sqSize || 200;
     const strokeWidth = this.props.strokeWidth || 10;
 
@@ -59,8 +59,7 @@ class CircularProgressBar extends React.Component<{
     // Arc length at 100% coverage is the circle circumference
     const dashArray = radius * Math.PI * 2;
     // Scale 100% coverage overlay with the actual percent
-    const dashOffset =
-      dashArray - (dashArray * Number(this.props.percentage)) / 100;
+    const dashOffset = dashArray - (dashArray * Number(percentage)) / 100;
 
     return (
       <svg
@@ -96,7 +95,7 @@ class CircularProgressBar extends React.Component<{
             fill: 'none'
           }}
         />
-        {this.renderPercentage()};
+        {this.renderPercentage(percentage)};
       </svg>
     );
   }
