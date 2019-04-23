@@ -129,6 +129,7 @@ class DealFilter extends React.Component<Props, States> {
         history={history}
         content={content}
         applyBtn={applyBtn}
+        days={30}
       />
     );
   }

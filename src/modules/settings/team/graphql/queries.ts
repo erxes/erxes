@@ -29,12 +29,6 @@ const userDetail = `
   }
 `;
 
-const totalUsersCount = `
-  query totalUsersCount {
-    usersTotalCount
-  }
-`;
-
 const userConversations = `
   query userConversations($_id: String!, $perPage: Int) {
     userConversations(_id: $_id, perPage: $perPage) {

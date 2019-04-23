@@ -91,6 +91,9 @@ const SidebarContainer = (props: FinalProps) => {
 
         setTimeout(() => {
           history.push('/');
+          Alert.info(
+            "Hooray and Congratulations! You've completed the initial setup!"
+          );
         }, 800);
       })
       .catch(error => {

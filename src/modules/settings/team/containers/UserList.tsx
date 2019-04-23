@@ -56,12 +56,27 @@ class UserListContainer extends React.Component<
       });
   };
 
+  resendInvitation(email: string) {
+    client
+      .mutate({
+        mutation: gql(mutations.usersResendInvitation),
+        variables: { email }
+      })
+      .then(() => {
+        Alert.success('Successfully resent the invitation');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  }
+
   render() {
     return (
       <UserList
         {...this.props}
         usersGroups={this.state.usersGroups}
         changeStatus={this.changeStatus}
+        resendInvitation={this.resendInvitation}
       />
     );
   }

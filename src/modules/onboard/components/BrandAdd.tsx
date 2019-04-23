@@ -91,7 +91,7 @@ class BrandAdd extends React.Component<
     return (
       <>
         <FormGroup>
-          <ControlLabel>Brand Name</ControlLabel>
+          <ControlLabel required={true}>Brand Name</ControlLabel>
 
           <FormControl
             value={brandName}
