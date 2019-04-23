@@ -34,6 +34,8 @@ type Props = {
   rows?: number;
   inline?: boolean;
   className?: string;
+  errors?: any;
+  registerChild?: (child: any) => void;
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -55,6 +57,14 @@ class FormControl extends React.Component<Props> {
     defaultChecked: false,
     disabled: false
   };
+
+  componentDidMount() {
+    const { registerChild } = this.props;
+
+    if (registerChild) {
+      registerChild(this);
+    }
+  }
 
   render() {
     const props = this.props;
@@ -137,10 +147,20 @@ class FormControl extends React.Component<Props> {
     }
 
     if (elementType === 'textarea') {
-      return <Textarea {...props} />;
+      return (
+        <div>
+          <Textarea {...props} />
+          {this.props.errors[this.props.name || '']}
+        </div>
+      );
     }
 
-    return <Input {...attributes} />;
+    return (
+      <div>
+        <Input {...attributes} />
+        {this.props.errors[this.props.name || '']}
+      </div>
+    );
   }
 }
 

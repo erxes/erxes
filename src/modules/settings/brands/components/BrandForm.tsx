@@ -1,3 +1,4 @@
+import { Form } from 'modules/common/components/form';
 import * as React from 'react';
 import {
   Button,
@@ -42,56 +43,57 @@ class BrandForm extends React.Component<Props, {}> {
     };
   };
 
-  renderContent() {
+  renderContent = props => {
     const object = this.props.brand || ({} as IBrand);
 
     return (
       <div>
-        <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+        <div>
+          <FormGroup>
+            <ControlLabel>Name</ControlLabel>
 
-          <FormControl
-            id="brand-name"
-            defaultValue={object.name}
-            type="text"
-            required={true}
-          />
-        </FormGroup>
+            <FormControl
+              {...props}
+              name="brand-name"
+              defaultValue={object.name}
+              type="text"
+              required={true}
+            />
+          </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <FormGroup>
+            <ControlLabel>Description</ControlLabel>
 
-          <FormControl
-            id="brand-description"
-            componentClass="textarea"
-            rows={5}
-            defaultValue={object.description}
-          />
-        </FormGroup>
-      </div>
-    );
-  }
+            <FormControl
+              {...props}
+              name="brand-description"
+              componentClass="textarea"
+              rows={5}
+              defaultValue={object.description}
+            />
+          </FormGroup>
+        </div>
 
-  render() {
-    return (
-      <form onSubmit={this.save}>
-        {this.renderContent()}
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            icon="cancel-1"
-            onClick={this.props.closeModal}
-          >
+          <Button btnStyle="simple" type="button" icon="cancel-1">
             Cancel
           </Button>
 
-          <Button btnStyle="success" icon="checked-1" type="submit">
+          <Button
+            btnStyle="success"
+            icon="checked-1"
+            type="button"
+            onClick={props.runValidations}
+          >
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </div>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 
