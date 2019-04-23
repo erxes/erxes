@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Spinner } from '../../../common/components';
 
 class CircularProgressBar extends React.Component<{
   sqSize?: number;
@@ -48,17 +47,7 @@ class CircularProgressBar extends React.Component<{
       );
     }
 
-    return (
-      <text
-        className="circle-text"
-        x="50%"
-        y="50%"
-        dy=".3em"
-        textAnchor="middle"
-      >
-        {percentage}%
-      </text>
-    );
+    return this.renderText(`${percentage}%`);
   };
 
   render() {
@@ -107,8 +96,7 @@ class CircularProgressBar extends React.Component<{
             fill: 'none'
           }}
         />
-        {/* <text className="circle-text" x="50%" y="50%" dy=".3em" textAnchor="middle"> */}
-        {this.renderPercentage()};{/* </text> */}
+        {this.renderPercentage()};
       </svg>
     );
   }
