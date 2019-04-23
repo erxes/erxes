@@ -6,7 +6,7 @@ import {
   IIntegrationMessengerDataMessagesItem,
   IIntegrationUiOptions
 } from "../../types";
-import { scrollTo } from "../../utils";
+import { makeClickableLink, scrollTo } from "../../utils";
 import { setLocalStorageItem } from "../connection";
 import { IMessage } from "../types";
 import { Message } from "./";
@@ -45,7 +45,7 @@ class MessagesList extends React.Component<Props, State> {
   componentDidMount() {
     if (this.node) {
       this.node.scrollTop = this.node.scrollHeight;
-      this.makeClickableLink();
+      makeClickableLink("#erxes-messages a");
     }
   }
 
@@ -63,16 +63,8 @@ class MessagesList extends React.Component<Props, State> {
       if (this.node && this.shouldScrollBottom) {
         scrollTo(this.node, this.node.scrollHeight, 500);
       }
-      this.makeClickableLink();
+      makeClickableLink("#erxes-messages a");
     }
-  }
-
-  makeClickableLink() {
-    const nodes = Array.from(document.querySelectorAll("#erxes-messages a"));
-
-    nodes.forEach(node => {
-      node.setAttribute("target", "__blank");
-    });
   }
 
   onNotify = ({ type, value }: { type: string; value: string }) => {
