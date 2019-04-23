@@ -18,7 +18,8 @@ type State = {
 };
 
 class MessageSender extends React.Component<Props, State> {
-  private textarea: HTMLTextAreaElement | null = null;
+  private textarea: any;
+  private form: any;
 
   constructor(props: Props) {
     super(props);
@@ -54,14 +55,41 @@ class MessageSender extends React.Component<Props, State> {
     }
   }
 
-  onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  setHeight(height?: number) {
+    const textarea = this.textarea;
+    const form = this.form;
+    // for reset element's scrollHeight
+    textarea.style.height = 0;
+
+    if (height) {
+      return (form.style.height = textarea.style.height = `${height}px`);
+    }
+
+    form.style.height = textarea.style.height = `${textarea.scrollHeight}px`;
+  }
+
+  setArea = (textarea: HTMLTextAreaElement) => {
+    this.textarea = textarea;
+  };
+
+  setForm = (form: HTMLFormElement) => {
+    this.form = form;
+  };
+
+  sendMessage() {
     this.props.sendMessage(this.state.message);
     this.setState({ message: "" });
+    this.setHeight(60);
+  }
+
+  onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    this.sendMessage();
   }
 
   handleMessageChange(e: React.FormEvent<HTMLTextAreaElement>) {
     this.setState({ message: e.currentTarget.value });
+    this.setHeight();
   }
 
   handleOnBlur() {
@@ -73,18 +101,9 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   handleKeyPress(e: React.KeyboardEvent) {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-
-      const { message } = this.state;
-
-      if (e.shiftKey) {
-        this.setState({ message: `${message}\n` });
-      } else {
-        this.props.sendMessage(message);
-        this.setState({ message: "" });
-        this.readMessage();
-      }
+      this.sendMessage();
     }
   }
 
@@ -100,11 +119,13 @@ class MessageSender extends React.Component<Props, State> {
 
   render() {
     return (
-      <form className="erxes-message-sender" onSubmit={this.onSubmit}>
+      <form
+        className="erxes-message-sender"
+        ref={this.setForm}
+        onSubmit={this.onSubmit}
+      >
         <textarea
-          ref={textarea => {
-            this.textarea = textarea;
-          }}
+          ref={this.setArea}
           className="reply"
           placeholder={this.props.placeholder}
           value={this.state.message}

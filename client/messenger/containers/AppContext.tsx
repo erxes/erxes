@@ -414,22 +414,22 @@ export class AppProvider extends React.Component<{}, IState> {
       client
         .mutate({
           mutation: gql`
-        mutation insertMessage(
-            ${connection.queryVariables}
-            $message: String
-            $conversationId: String
-            $attachments: [AttachmentInput]
-          ) {
+            mutation insertMessage(
+              ${connection.queryVariables}
+              $message: String
+              $conversationId: String
+              $attachments: [AttachmentInput]
+            ) {
 
-          insertMessage(
-            ${connection.queryParams}
-            message: $message
-            conversationId: $conversationId
-            attachments: $attachments
-          ) {
-            ${graphqlTypes.messageFields}
-          }
-        }`,
+            insertMessage(
+              ${connection.queryParams}
+              message: $message
+              conversationId: $conversationId
+              attachments: $attachments
+            ) {
+              ${graphqlTypes.messageFields}
+            }
+          }`,
 
           variables: {
             integrationId: connection.data.integrationId,
