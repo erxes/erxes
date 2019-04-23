@@ -74,6 +74,28 @@ class PropertyGroupForm extends React.Component<Props, State> {
     this.setState({ isVisible });
   };
 
+  renderFieldVisible() {
+    if (!this.props.group) {
+      return;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>Visible</ControlLabel>
+        <div>
+          <Toggle
+            checked={this.state.isVisible}
+            onChange={this.visibleHandler}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+          />
+        </div>
+      </FormGroup>
+    );
+  }
+
   render() {
     const { group = { name: '' } } = this.props;
 
@@ -100,19 +122,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Visible</ControlLabel>
-          <div>
-            <Toggle
-              checked={this.state.isVisible}
-              icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
-              }}
-              onChange={this.visibleHandler}
-            />
-          </div>
-        </FormGroup>
+        {this.renderFieldVisible()}
 
         <ModalFooter>
           <Button
