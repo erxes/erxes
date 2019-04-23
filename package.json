@@ -16,7 +16,7 @@
   "scripts": {
     "start": "node dist",
     "dev": "NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src",
-    "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/private",
+    "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/",
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
