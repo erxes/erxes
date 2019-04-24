@@ -14,11 +14,12 @@ class LifecycleStateFilterContainer extends React.Component<Props> {
   render() {
     const { customersCountQuery } = this.props;
 
-    const counts =
-      (customersCountQuery ? customersCountQuery.customerCounts : null) || {};
+    const counts = (customersCountQuery
+      ? customersCountQuery.customerCounts
+      : null) || { byLifecycleState: {} };
 
     const updatedProps = {
-      counts,
+      counts: counts.byLifecycleState || {},
       loading: customersCountQuery ? customersCountQuery.loading : false
     };
 
