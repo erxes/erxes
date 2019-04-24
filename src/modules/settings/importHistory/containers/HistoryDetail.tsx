@@ -71,7 +71,8 @@ export default withProps<{ id: string }>(
           fetchPolicy: 'network-only',
           variables: {
             _id: id
-          }
+          },
+          pollInterval: 20000
         })
       }
     )
