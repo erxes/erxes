@@ -771,5 +771,6 @@
   "Hooray and Congratulations! You've completed the initial setup!": "Баяр хүргэе! Та эхлэлийн тохиргооноо амжилттай хийлээ!",
   "Paste the code below before the body tag on every page you want erxes chat to appear": "erxes чатыг гаргахыг хүссэн хуудас бүрийн </body> тагны өмнө доорх кодыг хуулж тавина.",
   "Choose messengers": "Мессенжерээ сонгох",
-  "erxes allows you to create multiple messengers": "erxes олон мессэнжэр үүсгэх боломжтой"
+  "erxes allows you to create multiple messengers": "erxes олон мессэнжэр үүсгэх боломжтой",
+  "Contacts": "Харилцагчид"
 }

@@ -8,4 +8,9 @@ const menuDeal = [
   { title: 'Insights', link: '/deal/insights' }
 ];
 
-export { menuInbox, menuDeal };
+const menuContacts = [
+  { title: 'Customers', link: '/customers' },
+  { title: 'Companies', link: '/companies' }
+];
+
+export { menuContacts, menuInbox, menuDeal };
