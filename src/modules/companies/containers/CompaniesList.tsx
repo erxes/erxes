@@ -134,6 +134,12 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
         e,
         type: 'company',
         afterUploadCallback: response => {
+          this.setState({ loading: false });
+
+          if (response.status === 'error') {
+            return Alert.error(response.error);
+          }
+
           if (response.id) {
             history.push(`/settings/importHistory/${response.id}`);
           }

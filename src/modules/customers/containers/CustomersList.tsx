@@ -131,11 +131,15 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           this.setState({ loading: true });
         },
         afterUploadCallback: response => {
+          this.setState({ loading: false });
+
+          if (response.status === 'error') {
+            return Alert.error(response.error);
+          }
+
           if (response.id) {
             history.push(`/settings/importHistory/${response.id}`);
           }
-
-          this.setState({ loading: false });
         }
       });
     };
