@@ -27,7 +27,7 @@ class GettingStart extends React.PureComponent<Props> {
     }
 
     return (
-      <Tip text={__('erxes allows you to create multiple messengers')}>
+      <Tip text={__(information)}>
         <span>
           <Icon icon="information" />
         </span>
