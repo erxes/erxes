@@ -106,12 +106,18 @@ class ImportIndicator extends React.Component<Props> {
   };
 
   render() {
+    const { importHistory } = this.props;
+
     return (
       <Indicator>
         <Box>
           {this.renderProgressBar()}
           <div>
-            <h5>{__('Import customers')}</h5>
+            <h5>
+              {importHistory.contentType === 'customer'
+                ? __('Import customers')
+                : __('Import companies')}
+            </h5>
             {this.showResult()}
           </div>
         </Box>

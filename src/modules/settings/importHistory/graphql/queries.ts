@@ -39,6 +39,7 @@ const historyDetailForLoad = `
       errorMsgs
       percentage
       status
+      contentType
     }
   }
 `;

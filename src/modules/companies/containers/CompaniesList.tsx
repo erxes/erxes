@@ -4,6 +4,7 @@ import { Bulk } from 'modules/common/components';
 import { __, Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { handleXlsUpload } from 'modules/customers/utils';
+import { importContacts } from 'modules/settings/importHistory/containers';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -141,7 +142,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
           }
 
           if (response.id) {
-            history.push(`/settings/importHistory/${response.id}`);
+            importContacts.load(response.id);
           }
         }
       });

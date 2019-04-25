@@ -113,7 +113,6 @@ class HistoryDetail extends React.Component<Props> {
         content={
           <DataWithLoader
             loading={this.props.loading}
-            count={errorMsgs.length}
             data={this.renderContent(importHistory)}
             emptyText="No errors"
             emptyImage="/images/actions/15.svg"
