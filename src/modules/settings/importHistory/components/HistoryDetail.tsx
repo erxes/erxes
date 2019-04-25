@@ -1,83 +1,96 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { HeaderDescription, Table } from '../../../common/components';
+import {
+  DataWithLoader,
+  HeaderDescription,
+  Table,
+  TextInfo
+} from '../../../common/components';
 import { colors, dimensions } from '../../../common/styles';
 import { __ } from '../../../common/utils';
 import { Wrapper } from '../../../layout/components';
 import { IImportHistory } from '../types';
-import CircularProgressBar from './CircularProgressBar';
 
-const Box = styled.div`
+const TopContent = styled.div`
   padding: ${dimensions.coreSpacing}px;
-  padding-bottom: 0;
-  background: ${colors.colorWhite};
-  margin-bottom: ${dimensions.unitSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
-class HistoryDetail extends React.Component<{
-  percentage: number;
-  importHistory: IImportHistory;
-}> {
-  shouldComponentUpdate(nextProps) {
-    if (nextProps.importHistory.status === 'Done') {
-      return true;
-    }
+const Row = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
 
-    return nextProps.percentage !== this.props.percentage;
+  > div {
+    margin-right: 20px;
+    flex-basis: 160px;
+    font-size: 14px;
+    font-weight: 500;
   }
+`;
 
-  renderProgressBar = () => {
-    const { importHistory } = this.props;
-    let percentage = this.props.percentage;
+type Props = {
+  importHistory: IImportHistory;
+  loading: boolean;
+};
 
-    if (importHistory.status === 'Done') {
-      percentage = 100;
-    }
-
-    return (
-      <CircularProgressBar
-        percentage={percentage}
-        strokeWidth={50}
-        sqSize={600}
-      />
-    );
-  };
-
-  renderContent = () => {
-    const { importHistory } = this.props;
+class HistoryDetail extends React.Component<Props> {
+  renderContent = (importHistory: IImportHistory) => {
+    const { status, total, failed, success } = importHistory;
     const { errorMsgs = [] } = importHistory;
 
     return (
       <React.Fragment>
-        <Box style={{ width: '100%' }}>
-          <div style={{ margin: '0 auto', display: 'table' }}>
-            {this.renderProgressBar()}
-          </div>
-        </Box>
-
-        <Box>
-          <Table striped={true} alignTop={true}>
-            <thead>
-              <tr>
-                <th>Errors</th>
-              </tr>
-            </thead>
-            <tbody>
-              {errorMsgs.map((msg, index) => {
-                return (
-                  <tr key={index}>
-                    <th>{msg}</th>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
-        </Box>
+        <TopContent>
+          <Row>
+            <div>{__('Status')}:</div>
+            <TextInfo textStyle="simple" hugeness="large">
+              {status}
+            </TextInfo>
+          </Row>
+          <Row>
+            <div>{__('Total')}:</div>
+            <TextInfo hugeness="large">{total}</TextInfo>
+          </Row>
+          <Row>
+            <div>{__('Success')}:</div>
+            <TextInfo textStyle="success" hugeness="large">
+              {success}
+            </TextInfo>
+          </Row>
+          <Row>
+            <div>{__('Failed')}:</div>
+            <TextInfo textStyle="danger" hugeness="large">
+              {failed}
+            </TextInfo>
+          </Row>
+        </TopContent>
+        <Table striped={true} alignTop={true}>
+          <thead>
+            <tr>
+              <th>{__('Errors')}</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {errorMsgs.map((msg, index) => {
+              return (
+                <tr key={index}>
+                  <td>{msg}</td>
+                  <td />
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
       </React.Fragment>
     );
   };
 
   render() {
+    const { importHistory } = this.props;
+    const { errorMsgs = [] } = importHistory;
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Import History ') }
@@ -97,8 +110,15 @@ class HistoryDetail extends React.Component<{
             }
           />
         }
-        content={this.renderContent()}
-        transparent={true}
+        content={
+          <DataWithLoader
+            loading={this.props.loading}
+            count={errorMsgs.length}
+            data={this.renderContent(importHistory)}
+            emptyText="No errors"
+            emptyImage="/images/actions/15.svg"
+          />
+        }
         center={true}
       />
     );

@@ -762,5 +762,11 @@
   "Choose groups": "Групп сонгох",
   "Allow": "Зөвшөөрөх",
   "Invitation Status": "Уригдсан эсэх",
-  "Permission": "Эрхийн тохиргоо"
+  "Permission": "Эрхийн тохиргоо",
+  "Import action is done": "Импорт хийж дууслаа",
+  "Show result": "Үр дүн харах",
+  "Please wait while we are processing your data": "Ачааллаж байна та түр хүлээнэ үү",
+  "more specific": "",
+  "errors acquired": "алдаа гарлаа",
+  "There are": "Импортлоход"
 }

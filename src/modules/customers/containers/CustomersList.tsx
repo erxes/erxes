@@ -2,6 +2,7 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
+import { importContacts } from 'modules/settings/importHistory/containers';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -35,6 +36,7 @@ type FinalProps = {
 
 type State = {
   loading: boolean;
+  responseId: string;
 };
 
 class CustomerListContainer extends React.Component<FinalProps, State> {
@@ -42,7 +44,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
+      responseId: ''
     };
   }
 
@@ -127,15 +130,10 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       handleXlsUpload({
         e,
         type: 'customer',
-        beforeUploadCallback: () => {
-          this.setState({ loading: true });
-        },
         afterUploadCallback: response => {
           if (response.id) {
-            history.push(`/settings/importHistory/${response.id}`);
+            importContacts.load(response.id);
           }
-
-          this.setState({ loading: false });
         }
       });
     };
@@ -156,6 +154,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       searchValue,
       loading: customersMainQuery.loading || this.state.loading,
       mergeCustomers,
+      responseId: this.state.responseId,
       removeCustomers
     };
 

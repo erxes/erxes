@@ -1,4 +1,5 @@
 import Histories from './Histories';
 import HistoryDetail from './HistoryDetail';
+import ImportIndicator from './ImportIndicator';
 
-export { Histories, HistoryDetail };
+export { Histories, HistoryDetail, ImportIndicator };

@@ -32,7 +32,19 @@ const historyDetail = `
   }
 `;
 
+const historyDetailForLoad = `
+  query importHistoryDetail($_id: String!) {
+    importHistoryDetail(_id: $_id) {
+      _id
+      errorMsgs
+      percentage
+      status
+    }
+  }
+`;
+
 export default {
   histories,
-  historyDetail
+  historyDetail,
+  historyDetailForLoad
 };

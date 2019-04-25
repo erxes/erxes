@@ -754,27 +754,30 @@ a:hover {
   background: rgba(10, 45, 65, .1);
 }
 
-.svg-spinner {
-  animation: rotate 2s linear infinite;
-  z-index: 2;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -25px 0 0 -25px;
-  width: 10px;
-  height: 10px;
-  
-  & .svg-spinner-path {
-    stroke: ${colors.colorCoreGray};
-    stroke-linecap: round;
-    animation: dash 1.5s ease-in-out infinite;
-  }
-  
+/* svg */
+
+.checkmark {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) forwards;
+}
+
+.svg-spinner-path {
+  stroke: ${colors.colorCoreGray};
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
 }
 
 @keyframes rotate {
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
   }
 }
 

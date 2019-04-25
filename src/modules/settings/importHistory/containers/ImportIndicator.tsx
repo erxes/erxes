@@ -2,17 +2,31 @@ import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { HistoryDetail } from '../components';
+import { ImportIndicator } from '../components';
 import { queries, subscriptions } from '../graphql';
 import { ImportHistoryDetailQueryResponse } from '../types';
 
 const subscription = gql(subscriptions.importSubscription);
 
-class HistoryDetailContainer extends React.Component<
-  { id: string } & {
-    importHistoryDetailQuery: ImportHistoryDetailQueryResponse;
+type Props = {
+  id: string;
+  close: () => void;
+  importHistoryDetailQuery: ImportHistoryDetailQueryResponse;
+};
+
+type State = {
+  percentage: number;
+};
+
+class ImportIndicatorContainer extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      percentage: 0
+    };
   }
-> {
+
   componentWillMount() {
     const { importHistoryDetailQuery, id } = this.props;
 
@@ -21,10 +35,14 @@ class HistoryDetailContainer extends React.Component<
       variables: { _id: id },
       updateQuery: (prev, { subscriptionData: { data } }) => {
         const { importHistoryChanged } = data;
-        const { status } = importHistoryChanged;
+        const { percentage, status } = importHistoryChanged;
 
         if (status === 'Done') {
           return importHistoryDetailQuery.refetch();
+        }
+
+        if (percentage.toFixed(0) !== this.state.percentage) {
+          this.setState({ percentage: percentage.toFixed(0) });
         }
       }
     });
@@ -35,18 +53,19 @@ class HistoryDetailContainer extends React.Component<
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
 
     return (
-      <HistoryDetail
+      <ImportIndicator
+        {...this.props}
+        percentage={this.state.percentage}
         importHistory={importHistory}
-        loading={importHistoryDetailQuery.loading}
       />
     );
   }
 }
 
-export default withProps<{ id: string }>(
+export default withProps<{ id: string; close: () => void }>(
   compose(
     graphql<{ id: string }, ImportHistoryDetailQueryResponse, { _id: string }>(
-      gql(queries.historyDetail),
+      gql(queries.historyDetailForLoad),
       {
         name: 'importHistoryDetailQuery',
         options: ({ id }) => ({
@@ -57,5 +76,5 @@ export default withProps<{ id: string }>(
         })
       }
     )
-  )(HistoryDetailContainer)
+  )(ImportIndicatorContainer)
 );

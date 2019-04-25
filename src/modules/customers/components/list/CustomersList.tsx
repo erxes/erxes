@@ -57,6 +57,7 @@ interface IProps extends IRouterProps {
   queryParams: any;
   exportCustomers: (bulk: string[]) => void;
   uploadXls: (e: React.FormEvent<HTMLInputElement>) => void;
+  responseId: string;
 }
 
 type State = {

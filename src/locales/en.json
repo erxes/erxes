@@ -791,5 +791,11 @@
   "Choose groups": "Choose groups",
   "Allow": "Allow",
   "Invitation Status": "Invitation Status",
-  "Permission": "Permission"
+  "Permission": "Permission",
+  "Import action is done": "Import action is done",
+  "Show result": "Show result",
+  "Please wait while we are processing your data": "Please wait while we are processing your data",
+  "more specific": "more specific",
+  "errors acquired": "errors acquired",
+  "There are": "There are"
 }
