@@ -1,4 +1,5 @@
 import { colors } from 'modules/common/styles';
+import { readFile } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
@@ -83,7 +84,7 @@ function Element({
 }
 
 class Avatar extends React.Component<Props> {
-  generateStyle(size = 40) {
+  generateStyle(size: number = 40) {
     return {
       width: size,
       height: size,
@@ -93,9 +94,11 @@ class Avatar extends React.Component<Props> {
     };
   }
 
-  renderImage(src) {
+  renderImage(src: string) {
     const { size } = this.props;
-    return <AvatarImage image={src} style={this.generateStyle(size)} />;
+    return (
+      <AvatarImage image={readFile(src)} style={this.generateStyle(size)} />
+    );
   }
 
   generateTypes() {
