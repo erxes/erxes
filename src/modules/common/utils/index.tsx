@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import T from 'i18n-react';
 import { IUser } from 'modules/auth/types';
 import * as React from 'react';
@@ -8,7 +9,7 @@ import router from './router';
 import { searchCompany, searchCustomer, searchUser } from './searchers';
 import toggleCheckBoxes from './toggleCheckBoxes';
 import uploadHandler from './uploadHandler';
-import urlParser from './urlParser';
+import urlParser, { isValidURL } from './urlParser';
 
 export const renderFullName = data => {
   if (data.firstName || data.lastName) {
@@ -127,6 +128,21 @@ export const __ = (key: string, options?: any) => {
   }
 
   return translation.toString();
+};
+
+/**
+ * Request to get file's URL for view and download
+ * @param {String} - value
+ * @return {String} - URL
+ */
+export const readFile = (value: string): string => {
+  if (isValidURL(value)) {
+    return value;
+  }
+
+  const { REACT_APP_API_URL } = getEnv();
+
+  return `${REACT_APP_API_URL}/read-file?key=${value}`;
 };
 
 export function withProps<IProps>(
