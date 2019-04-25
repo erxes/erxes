@@ -72,7 +72,8 @@ export default withProps<{ id: string; close: () => void }>(
           fetchPolicy: 'network-only',
           variables: {
             _id: id
-          }
+          },
+          pollInterval: 20000
         })
       }
     )
