@@ -146,11 +146,13 @@ export const readFile = (value: string): string => {
 };
 
 export const getUserAvatar = (user: IUserDoc) => {
-  if (!user || !user.details || !user.details.avatar) {
+  const { details = {} } = user;
+
+  if (!details.avatar) {
     return '/images/avatar-colored.svg';
   }
 
-  return readFile(user.details.avatar);
+  return readFile(details.avatar);
 };
 
 export function withProps<IProps>(
