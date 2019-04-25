@@ -1,41 +1,26 @@
 import { Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { colors } from '../../../common/styles';
 import { IImportHistory } from '../types';
-import CircularProgressBar from './CircularProgressBar';
 
 const Box = styled.div`
-  display: flex;
+  position: relative;
+  z-index: 3;
   color: ${colors.colorCoreDarkGray};
-  align-items: center;
-
-  h5 {
-    margin-top: 0;
-  }
-
-  svg {
-    font-size: 10px;
-    margin-right: 15px;
-    flex-shrink: 0;
-    align-self: baseline;
-
-    text {
-      fill: ${colors.colorCoreDarkGray};
-    }
-  }
+  text-align: center;
 `;
 
 const Indicator = styled.div`
   position: relative;
-  padding: 15px 30px 15px 20px;
-  border-radius: 4px;
-  background: ${colors.colorWhite};
-  width: 390px;
-  max-width: calc(100vw - 32px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  margin: 20px auto;
+  padding: 10px 30px;
+  background: #f7f1e0;
+  width: 100%;
+  height: 40px;
+  box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.05);
 
   > a {
     outline: none;
@@ -45,6 +30,19 @@ const Indicator = styled.div`
     font-size: 10px;
     color: ${colors.colorCoreGray};
   }
+`;
+
+const Progress = styledTS<{ percentage: number }>(styled.div)`
+  position: absolute;
+  width: ${props => props.percentage}%;
+  background: #e7e8ff;
+  left: 0;
+  top: 0;
+  bottom: 0;
+`;
+
+const Capitalize = styledTS<{ isCapital?: boolean }>(styled.span)`
+  text-transform: ${props => (props.isCapital ? 'capitalize' : 'none')};
 `;
 
 type Props = {
@@ -71,9 +69,7 @@ class ImportIndicator extends React.Component<Props> {
       percent = 100;
     }
 
-    return (
-      <CircularProgressBar percentage={percent} strokeWidth={2} sqSize={40} />
-    );
+    return <Progress percentage={percent} />;
   };
 
   showErrors = (errorMsgs: string[]) => {
@@ -88,42 +84,52 @@ class ImportIndicator extends React.Component<Props> {
     return null;
   };
 
+  renderType = (contentType: string, isCapital?: boolean) => {
+    return <Capitalize isCapital={isCapital}>{__(contentType)}</Capitalize>;
+  };
+
   showResult = () => {
-    const { importHistory, id } = this.props;
-    const { errorMsgs = [] } = importHistory;
+    const { importHistory, id, percentage } = this.props;
+    const { errorMsgs = [], contentType } = importHistory;
 
     if (this.isDone()) {
       return (
         <div>
-          {__('Import action is done')}. {this.showErrors(errorMsgs)}{' '}
-          <a href={`/settings/importHistory/${id}`}>{__('Show result')}</a>{' '}
-          {__('more specific')}
+          {this.renderType(contentType, true)}{' '}
+          {__('data successfully imported')}. {this.showErrors(errorMsgs)}{' '}
+          <Link to={`/settings/importHistory/${id}`}>{__('Show result')}</Link>.
         </div>
       );
     }
 
-    return __('Please wait while we are processing your data');
+    return (
+      <div>
+        {__('Importing')} {this.renderType(contentType)} {__('data')} -{' '}
+        <b>{percentage}%</b>
+      </div>
+    );
+  };
+
+  renderCloseButton = () => {
+    const { importHistory, close } = this.props;
+
+    if (importHistory.status === 'Done') {
+      return (
+        <a href="#" onClick={close}>
+          <Icon icon="cancel" />
+        </a>
+      );
+    }
+
+    return null;
   };
 
   render() {
-    const { importHistory } = this.props;
-
     return (
       <Indicator>
-        <Box>
-          {this.renderProgressBar()}
-          <div>
-            <h5>
-              {importHistory.contentType === 'customer'
-                ? __('Import customers')
-                : __('Import companies')}
-            </h5>
-            {this.showResult()}
-          </div>
-        </Box>
-        <a href="#" onClick={this.props.close}>
-          <Icon icon="cancel" />
-        </a>
+        {this.renderProgressBar()}
+        <Box>{this.showResult()}</Box>
+        {this.renderCloseButton()}
       </Indicator>
     );
   }

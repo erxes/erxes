@@ -7,6 +7,16 @@ type Props = {
 };
 
 function CircularProgressBar({ sqSize, strokeWidth, percentage }: Props) {
+  const circleSize = sqSize || 100;
+  const borderWidth = strokeWidth || 5;
+
+  const radius = (circleSize - borderWidth) / 2;
+  const viewBox = `0 0 ${sqSize} ${sqSize}`;
+  // Arc length at 100% coverage is the circle circumference
+  const dashArray = radius * Math.PI * 2;
+  // Scale 100% coverage overlay with the actual percent
+  const dashOffset = dashArray - (dashArray * Number(percentage)) / 100;
+
   const renderText = value => {
     if (value === 100) {
       return (
@@ -14,8 +24,8 @@ function CircularProgressBar({ sqSize, strokeWidth, percentage }: Props) {
           className="checkmark"
           fill="none"
           stroke="#2cab28"
-          strokeWidth="2"
-          d="M12 20.2l5.1 6.2 12.7-12.8"
+          strokeWidth="3"
+          d="M22 30.2l5.1 6.2 12.7-12.8"
         />
       );
     }
@@ -32,12 +42,18 @@ function CircularProgressBar({ sqSize, strokeWidth, percentage }: Props) {
       return (
         <>
           {renderText(0)}
-          <svg viewBox="0 0 50 50" x="0" y="0" width={40} height={40}>
+          <svg
+            viewBox={`0 0 ${sqSize} ${sqSize}`}
+            x="0"
+            y="0"
+            width={sqSize}
+            height={sqSize}
+          >
             <circle
               className="svg-spinner-path"
-              cx="25"
-              cy="25"
-              r="24"
+              cx={circleSize / 2}
+              cy={circleSize / 2}
+              r={circleSize / 2 - 2}
               fill="none"
               strokeWidth="2"
             />
@@ -48,16 +64,6 @@ function CircularProgressBar({ sqSize, strokeWidth, percentage }: Props) {
 
     return renderText(percentage);
   };
-
-  const circleSize = sqSize || 100;
-  const borderWidth = strokeWidth || 5;
-
-  const radius = (circleSize - borderWidth) / 2;
-  const viewBox = `0 0 ${sqSize} ${sqSize}`;
-  // Arc length at 100% coverage is the circle circumference
-  const dashArray = radius * Math.PI * 2;
-  // Scale 100% coverage overlay with the actual percent
-  const dashOffset = dashArray - (dashArray * Number(percentage)) / 100;
 
   return (
     <svg width={sqSize} height={sqSize} viewBox={viewBox}>

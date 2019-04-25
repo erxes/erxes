@@ -10,8 +10,15 @@ type Props = {
 
 const container = (props: Props) => (
   <AppProvider currentUser={props.currentUser}>
-    <AppConsumer>{() => <MainLayout {...props} />}</AppConsumer>
+    <AppConsumer>
+      {({ isImporting, closeImportBar }) => (
+        <MainLayout
+          {...props}
+          isImporting={isImporting}
+          closeImportBar={closeImportBar}
+        />
+      )}
+    </AppConsumer>
   </AppProvider>
 );
-
 export default container;

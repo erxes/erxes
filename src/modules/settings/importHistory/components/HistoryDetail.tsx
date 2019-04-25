@@ -10,10 +10,24 @@ import { colors, dimensions } from '../../../common/styles';
 import { __ } from '../../../common/utils';
 import { Wrapper } from '../../../layout/components';
 import { IImportHistory } from '../types';
+import CircularProgressBar from './CircularProgressBar';
 
 const TopContent = styled.div`
   padding: ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin-right: 40px;
+    flex-shrink: 0;
+    align-self: baseline;
+    margin-top: 10px;
+
+    text {
+      fill: ${colors.colorCoreDarkGray};
+    }
+  }
 `;
 
 const Row = styled.div`
@@ -32,9 +46,23 @@ const Row = styled.div`
 type Props = {
   importHistory: IImportHistory;
   loading: boolean;
+  percentage: number;
 };
 
 class HistoryDetail extends React.Component<Props> {
+  renderProgressBar = () => {
+    const { percentage, importHistory } = this.props;
+    let percent = percentage;
+
+    if (importHistory.status === 'Done') {
+      percent = 100;
+    }
+
+    return (
+      <CircularProgressBar sqSize={60} strokeWidth={3} percentage={percent} />
+    );
+  };
+
   renderContent = (importHistory: IImportHistory) => {
     const { status, total, failed, success } = importHistory;
     const { errorMsgs = [] } = importHistory;
@@ -42,28 +70,31 @@ class HistoryDetail extends React.Component<Props> {
     return (
       <React.Fragment>
         <TopContent>
-          <Row>
-            <div>{__('Status')}:</div>
-            <TextInfo textStyle="simple" hugeness="large">
-              {status}
-            </TextInfo>
-          </Row>
-          <Row>
-            <div>{__('Total')}:</div>
-            <TextInfo hugeness="large">{total}</TextInfo>
-          </Row>
-          <Row>
-            <div>{__('Success')}:</div>
-            <TextInfo textStyle="success" hugeness="large">
-              {success}
-            </TextInfo>
-          </Row>
-          <Row>
-            <div>{__('Failed')}:</div>
-            <TextInfo textStyle="danger" hugeness="large">
-              {failed}
-            </TextInfo>
-          </Row>
+          {this.renderProgressBar()}
+          <div>
+            <Row>
+              <div>{__('Status')}:</div>
+              <TextInfo textStyle="simple" hugeness="large">
+                {status}
+              </TextInfo>
+            </Row>
+            <Row>
+              <div>{__('Total')}:</div>
+              <TextInfo hugeness="large">{total}</TextInfo>
+            </Row>
+            <Row>
+              <div>{__('Success')}:</div>
+              <TextInfo textStyle="success" hugeness="large">
+                {success}
+              </TextInfo>
+            </Row>
+            <Row>
+              <div>{__('Failed')}:</div>
+              <TextInfo textStyle="danger" hugeness="large">
+                {failed}
+              </TextInfo>
+            </Row>
+          </div>
         </TopContent>
         <Table striped={true} alignTop={true}>
           <thead>

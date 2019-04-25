@@ -11,20 +11,34 @@ const subscription = gql(subscriptions.importSubscription);
 class HistoryDetailContainer extends React.Component<
   { id: string } & {
     importHistoryDetailQuery: ImportHistoryDetailQueryResponse;
-  }
+  },
+  { percentage: number }
 > {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      percentage: 0
+    };
+  }
+
   componentWillMount() {
     const { importHistoryDetailQuery, id } = this.props;
 
     importHistoryDetailQuery.subscribeToMore({
       document: subscription,
       variables: { _id: id },
+
       updateQuery: (prev, { subscriptionData: { data } }) => {
         const { importHistoryChanged } = data;
-        const { status } = importHistoryChanged;
+        const { percentage, status } = importHistoryChanged;
 
         if (status === 'Done') {
           return importHistoryDetailQuery.refetch();
+        }
+
+        if (percentage.toFixed(0) !== this.state.percentage) {
+          this.setState({ percentage: percentage.toFixed(0) });
         }
       }
     });
@@ -38,6 +52,7 @@ class HistoryDetailContainer extends React.Component<
       <HistoryDetail
         importHistory={importHistory}
         loading={importHistoryDetailQuery.loading}
+        percentage={this.state.percentage}
       />
     );
   }

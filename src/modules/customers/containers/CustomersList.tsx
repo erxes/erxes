@@ -1,8 +1,8 @@
 import client from 'apolloClient';
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import { importContacts } from 'modules/settings/importHistory/containers';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -24,6 +24,7 @@ import { handleXlsUpload } from '../utils';
 
 type Props = {
   queryParams: any;
+  showImportBar: () => void;
 };
 
 type FinalProps = {
@@ -55,7 +56,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersListConfigQuery,
       customersRemove,
       customersMerge,
-      history
+      history,
+      showImportBar
     } = this.props;
 
     let columnsConfig =
@@ -138,7 +140,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           }
 
           if (response.id) {
-            importContacts.load(response.id);
+            localStorage.setItem('erxes_import_data', response.id);
+            showImportBar();
           }
         }
       });
@@ -197,7 +200,7 @@ const generateParams = ({ queryParams }) => {
   };
 };
 
-export default withProps<Props>(
+const CustomerListWithProps = withProps<Props>(
   compose(
     graphql<Props, MainQueryResponse, ListQueryVariables>(
       gql(queries.customersMain),
@@ -233,3 +236,15 @@ export default withProps<Props>(
     )
   )(withRouter<IRouterProps>(CustomerListContainer))
 );
+
+const WithConsumer = props => {
+  return (
+    <AppConsumer>
+      {({ showImportBar }) => (
+        <CustomerListWithProps {...props} showImportBar={showImportBar} />
+      )}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer;

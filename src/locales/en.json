@@ -792,10 +792,10 @@
   "Allow": "Allow",
   "Invitation Status": "Invitation Status",
   "Permission": "Permission",
-  "Import action is done": "Import action is done",
+  "data successfully imported": "data successfully imported",
   "Show result": "Show result",
-  "Please wait while we are processing your data": "Please wait while we are processing your data",
-  "more specific": "more specific",
+  "Importing": "Importing",
+  "data": "data",
   "errors acquired": "errors acquired",
   "There are": "There are"
 }

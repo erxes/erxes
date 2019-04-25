@@ -1,10 +1,10 @@
 import client from 'apolloClient';
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
 import { __, Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { handleXlsUpload } from 'modules/customers/utils';
-import { importContacts } from 'modules/settings/importHistory/containers';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -24,6 +24,7 @@ import {
 
 type Props = {
   queryParams?: any;
+  showImportBar: () => void;
 };
 
 type FinalProps = {
@@ -53,7 +54,8 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       companiesListConfigQuery,
       companiesRemove,
       companiesMerge,
-      history
+      history,
+      showImportBar
     } = this.props;
     let columnsConfig =
       companiesListConfigQuery.fieldsDefaultColumnsConfig || [];
@@ -142,7 +144,8 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
           }
 
           if (response.id) {
-            importContacts.load(response.id);
+            localStorage.setItem('erxes_import_data', response.id);
+            showImportBar();
           }
         }
       });
@@ -190,7 +193,7 @@ const generateParams = ({ queryParams }) => ({
   }
 });
 
-export default withProps<Props>(
+const CompanyListWithProps = withProps<Props>(
   compose(
     graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
       gql(queries.companiesMain),
@@ -220,3 +223,15 @@ export default withProps<Props>(
     )
   )(withRouter<IRouterProps>(CompanyListContainer))
 );
+
+const WithConsumer = props => {
+  return (
+    <AppConsumer>
+      {({ showImportBar }) => (
+        <CompanyListWithProps {...props} showImportBar={showImportBar} />
+      )}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer;

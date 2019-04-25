@@ -45,11 +45,14 @@ moment.updateLocale('en', {
 interface IState {
   currentUser?: IUser;
   currentLanguage: string;
+  isImporting: boolean;
 }
 
 interface IStore extends IState {
   currentUser?: IUser;
   changeLanguage: (languageCode: string) => void;
+  closeImportBar: () => void;
+  showImportBar: () => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -68,10 +71,35 @@ export class AppProvider extends React.Component<
 
     this.state = {
       currentUser: props.currentUser,
-      currentLanguage
+      currentLanguage,
+      isImporting: false
     };
 
     this.setLocale(currentLanguage);
+  }
+
+  checkIsImportingData = () => {
+    const lastImport = localStorage.getItem('erxes_import_data');
+
+    if (lastImport) {
+      return this.setState({ isImporting: true });
+    }
+
+    return this.setState({ isImporting: false });
+  };
+
+  closeImportBar = () => {
+    this.setState({ isImporting: false });
+
+    localStorage.setItem('erxes_import_data', '');
+  };
+
+  showImportBar = () => {
+    this.setState({ isImporting: true });
+  };
+
+  componentDidMount() {
+    this.checkIsImportingData();
   }
 
   setLocale = (currentLanguage: string): void => {
@@ -90,14 +118,17 @@ export class AppProvider extends React.Component<
   };
 
   public render() {
-    const { currentUser, currentLanguage } = this.state;
+    const { currentUser, currentLanguage, isImporting } = this.state;
 
     return (
       <AppContext.Provider
         value={{
           currentUser,
           currentLanguage,
-          changeLanguage: this.changeLanguage
+          changeLanguage: this.changeLanguage,
+          closeImportBar: this.closeImportBar,
+          showImportBar: this.showImportBar,
+          isImporting
         }}
       >
         {this.props.children}

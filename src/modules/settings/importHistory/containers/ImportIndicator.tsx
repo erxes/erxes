@@ -29,7 +29,6 @@ class ImportIndicatorContainer extends React.Component<Props, State> {
 
   componentWillMount() {
     const { importHistoryDetailQuery, id } = this.props;
-
     importHistoryDetailQuery.subscribeToMore({
       document: subscription,
       variables: { _id: id },
@@ -38,6 +37,9 @@ class ImportIndicatorContainer extends React.Component<Props, State> {
         const { percentage, status } = importHistoryChanged;
 
         if (status === 'Done') {
+          // clear local storage
+          localStorage.setItem('erxes_import_data', '');
+
           return importHistoryDetailQuery.refetch();
         }
 
@@ -62,7 +64,7 @@ class ImportIndicatorContainer extends React.Component<Props, State> {
   }
 }
 
-export default withProps<{ id: string; close: () => void }>(
+export default withProps<{ id: string; close?: () => void }>(
   compose(
     graphql<{ id: string }, ImportHistoryDetailQueryResponse, { _id: string }>(
       gql(queries.historyDetailForLoad),
