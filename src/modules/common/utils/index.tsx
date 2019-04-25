@@ -1,6 +1,6 @@
 import { getEnv } from 'apolloClient';
 import T from 'i18n-react';
-import { IUser } from 'modules/auth/types';
+import { IUser, IUserDoc } from 'modules/auth/types';
 import * as React from 'react';
 import Alert from './Alert';
 import colorParser from './colorParser';
@@ -9,7 +9,7 @@ import router from './router';
 import { searchCompany, searchCustomer, searchUser } from './searchers';
 import toggleCheckBoxes from './toggleCheckBoxes';
 import uploadHandler from './uploadHandler';
-import urlParser, { isValidURL } from './urlParser';
+import urlParser from './urlParser';
 
 export const renderFullName = data => {
   if (data.firstName || data.lastName) {
@@ -136,13 +136,21 @@ export const __ = (key: string, options?: any) => {
  * @return {String} - URL
  */
 export const readFile = (value: string): string => {
-  if (isValidURL(value)) {
+  if (urlParser.isValidURL(value)) {
     return value;
   }
 
   const { REACT_APP_API_URL } = getEnv();
 
   return `${REACT_APP_API_URL}/read-file?key=${value}`;
+};
+
+export const getUserAvatar = (user: IUserDoc) => {
+  if (!user || !user.details || !user.details.avatar) {
+    return '/images/avatar-colored.svg';
+  }
+
+  return readFile(user.details.avatar);
 };
 
 export function withProps<IProps>(
