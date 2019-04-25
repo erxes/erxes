@@ -131,6 +131,12 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         e,
         type: 'customer',
         afterUploadCallback: response => {
+          this.setState({ loading: false });
+
+          if (response.status === 'error') {
+            return Alert.error(response.error);
+          }
+
           if (response.id) {
             importContacts.load(response.id);
           }
