@@ -1,4 +1,4 @@
-import { Button } from 'modules/common/components';
+import { Button, TextInfo } from 'modules/common/components';
 import { confirm } from 'modules/common/utils';
 import * as moment from 'moment';
 import * as React from 'react';
@@ -22,9 +22,15 @@ function HistoryRow({ history, removeHistory, onClick }: Props) {
 
   return (
     <tr onClick={onRowClick}>
-      <td>{history.success || 0}</td>
-      <td>{history.failed || 1}</td>
-      <td>{history.total || 1}</td>
+      <td>
+        <TextInfo textStyle="success">{history.success || 0}</TextInfo>
+      </td>
+      <td>
+        <TextInfo textStyle="danger">{history.failed || 1}</TextInfo>
+      </td>
+      <td>
+        <TextInfo>{history.total || 1}</TextInfo>
+      </td>
       <td>{moment(history.date).format('lll')}</td>
       <td>{details.fullName || '-'}</td>
       <td>

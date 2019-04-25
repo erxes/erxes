@@ -760,7 +760,7 @@ a:hover {
   transform-origin: 50% 50%;
   stroke-dasharray: 40;
   stroke-dashoffset: 40;
-  animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) forwards;
+  animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) .1s forwards;
 }
 
 .svg-spinner-path {

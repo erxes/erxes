@@ -97,7 +97,7 @@ class ImportIndicator extends React.Component<Props> {
         <div>
           {__('Import action is done')}. {this.showErrors(errorMsgs)}{' '}
           <a href={`/settings/importHistory/${id}`}>{__('Show result')}</a>{' '}
-          {__('more specific')}.
+          {__('more specific')}
         </div>
       );
     }
