@@ -17,7 +17,8 @@ const users = [
     image: '/img/docusaurus.svg',
     infoLink: 'https://www.facebook.com',
     pinned: true,
-    docsSideNavCollapsible: true
+    docsSideNavCollapsible: true,
+    onPageNav: 'separate'
   }
 ];
 
