@@ -1,16 +1,8 @@
 ---
-id: doc6
-title: Erxes
-sidebar_label: dada
+id: overview
+title: Erxes Overview
+sidebar_label: Overview
 ---
-
-New: If you want to try out erxes without installing any additional tools on your computer check out our docker images.
-
-All you have to do is docker and docker-compose installed on your computer. Read more here.
-
----
-
-kk
 
 <!-- Check the [documentation](https://docusaurus.io) for how to use Docusaurus.
 
