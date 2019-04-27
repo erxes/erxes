@@ -2,10 +2,8 @@
   "docs": {
     "Overview": ["overview", "product-overview", "security-overview", "architecture-overview", "deployment-overview", "integrations-overview", "cdi", "cco", "faq"],
     "User's Guide": ["getting-started"],
-    "Administrator's guide": ["installation-guide"],
-    "Developer's guide": ["doc4"]
-  },
-  "docs-other": {
-    "First Category": ["doc5"]
+    "Administrator's guide": [],
+    "Developer's Guide": ["doc4"],
+    "Installation Guide": ["installation/ubuntu", "installation/docker"]
   }
 }
