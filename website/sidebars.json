@@ -36,6 +36,6 @@
       "administration/migration",
       "administration/permissions"
     ],
-    "Developer's guide": ["doc4","android-sdk","ios-sdk"]
+    "Developer's guide": ["doc4", "push-notifications", "sdk/android-sdk","sdk/ios-sdk"]
   }
 }
