@@ -38,6 +38,8 @@ sudo systemctl start redis-server
 ```shell
 sudo apt-get install -y nginx
 ```
+Serve static content + reverse proxy
+
 
 ### Install Node.js v8.x
 
@@ -251,3 +253,71 @@ erxes is [CreateReactApp](https://github.com/facebook/create-react-app) frontend
 
 ### erxes-widgets-api
 `yarn dev` - start NodeJS express development server on 3100 port by default.
+
+
+## Starting on boot
+
+### Systemd
+MongoDB, Nginx, Redis systemd service files will be already created by default. To make sure it's enabled on boot run following commands.
+
+```shell
+sudo systemctl enable mongod
+sudo systemctl enable nginx
+sudo systemctl enable redis-server
+```
+
+Create new systemd service file
+
+
+#### erxes-api
+`sudo vim /lib/systemd/system/erxes-api.service`
+
+```
+[Unit]
+Description=erxes-api
+Documentation=https://docs.erxes.io
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /home/user/erxes.io/erxes-api/dist/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### erxes-widgets
+`sudo vim /lib/systemd/system/erxes-widgets.service`
+
+```
+[Unit]
+Description=erxes-widgets
+Documentation=https://docs.erxes.io
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /home/user/erxes.io/erxes-widgets/dist/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### erxes-widgets-api
+`sudo vim /lib/systemd/system/erxes-widgets-api.service`
+```
+[Unit]
+Description=erxes-widgets-api
+Documentation=https://docs.erxes.io
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /home/user/erxes.io/erxes-widgets-api/dist/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```

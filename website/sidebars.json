@@ -17,7 +17,8 @@
     ],
     "Installation Guide": [
       "installation/ubuntu",
-      "installation/docker"
+      "installation/docker",
+      "installation/kubernetes"
     ],
     "User's Guide": [
       "getting-started",
