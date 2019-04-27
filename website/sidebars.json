@@ -1,11 +1,21 @@
 {
-  "docs": {
-    "Overview": ["overview", "product-overview", "security-overview", "architecture-overview", "deployment-overview", "integrations-overview", "cdi", "cco", "faq"],
-    "User's Guide": ["getting-started"],
-    "Administrator's guide": ["doc2"],
-    "Developer's guide": ["doc4"]
-  },
-  "docs-other": {
-    "First Category": ["doc5"]
-  }
+	"docs": {
+		"Overview": [
+			"overview",
+			"product-overview",
+			"security-overview",
+			"architecture-overview",
+			"deployment-overview",
+			"integrations-overview",
+			"cdi",
+			"cco",
+			"faq"
+		],
+		"User's Guide": [ "getting-started", "contacts", "marketing", "notification" ],
+		"Administrator's guide": [ "doc2" ],
+		"Developer's guide": [ "doc4" ]
+	},
+	"docs-other": {
+		"First Category": [ "doc5" ]
+	}
 }
