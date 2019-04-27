@@ -2,7 +2,7 @@
   "docs": {
     "Overview": ["overview", "product-overview", "security-overview", "architecture-overview", "deployment-overview", "integrations-overview", "cdi", "cco", "faq"],
     "User's Guide": ["getting-started"],
-    "Administrator's guide": ["doc2"],
+    "Administrator's guide": ["installation-guide"],
     "Developer's guide": ["doc4"]
   },
   "docs-other": {
