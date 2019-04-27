@@ -42,7 +42,8 @@
     "Developer's guide": [
       "doc4",
       "android-sdk",
-      "ios-sdk"
+      "ios-sdk",
+      "contributing/coding-standarts"
     ]
   }
 }
