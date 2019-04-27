@@ -1,22 +1,22 @@
 ---
 id: support-guide
-title: How to setup Customer Support Settings?
+title: How to setup customer Support Settings?
 sidebar_label: Customer support
 ---
 
 <!--Content-->
 
-+ Customer Support settings include following features:
++ Customer support settings include following features:
 
 <div>
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-1.png"/>
 </div>
 
 
-1. App Store
-2. Response Template
+1. App store
+2. Response template
 
-## Setup Facebook Integration
+## Setup facebook integration
 
 Integration is a way of communicating with customers who are emerging into the organizations' website, Facebook, Twitter through erxes.io platform. Integration can be created on every brands' social media page. Thence, we would be able to track the percentage of customers who are emerging into the organizations' Facebook page and website form.
 
@@ -46,7 +46,7 @@ Integration is a way of communicating with customers who are emerging into the o
 
 ---
 
-## Link Facebook Account
+## Link facebook account
 
 <div>
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-6.png" style="width:400px;height:350px;" />
@@ -64,7 +64,7 @@ Integration is a way of communicating with customers who are emerging into the o
 
 ---
 
-## Setup Messenger Integration
+## Setup messenger integration
 Integration is a way of communicating with customers who are emerging into the organizations' website, Facebook, Twitter through erxes.io platform. Integration can be created on every brands' social media page. Thence, we would be able to track the percentage of customers who are emerging into the organizations' Facebook page and website form.
 
 + Please follow the steps for setup: General Settings->App Store > Add Messenger
@@ -80,7 +80,7 @@ Integration is a way of communicating with customers who are emerging into the o
 
 ---
 
-## Created Integration Appearance
+## Created integration appearance
 Analyze how many percentage of your customers engage through messenger, form, and social accounts from the following features: Team Inbox and Customers 
 
 <div>
@@ -90,7 +90,7 @@ Analyze how many percentage of your customers engage through messenger, form, an
 
 ---
 
-## Setup Response Template
+## Setup response template
 Add in ready made response templates. Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle.
 
 + Please follow the steps for setup: General Settings->App Store > Add Messenger
@@ -103,7 +103,7 @@ Add in ready made response templates. Manage and edit your response templates ac
 
 ---
 
-## Create Response Template
+## Create response template
 
 <div>
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-12.png" style="width:650px;height:680px;"/>
@@ -120,7 +120,7 @@ Add in ready made response templates. Manage and edit your response templates ac
 
 ---
 
-## Appearance of Created Response Template  
+## Appearance of created response template  
 
 <div>
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-13.png" style="width:650px;height:680px;"/>
@@ -132,7 +132,7 @@ Add in ready made response templates. Manage and edit your response templates ac
 
 ---
 
-## Setup Tag
+## Setup tag
 Tag means to categorize things into one abstract group. In other words, organizations can create and classify their own abstract categories. It can also classify every messages that is not restricted to clients. 
 
 + Please follow the steps for setup: Certain Features ->Tags > Add Tag
@@ -153,7 +153,7 @@ Tag means to categorize things into one abstract group. In other words, organiza
 
 ---
 
-## How to add Tag
+## How to add tag
 Click Add Tag on the top right corner of the certain feature you may want to add tag. You may create tags for each features 
 
 + Please follow the steps for setup: Certain Features ->Tags > Add Tag
@@ -172,14 +172,15 @@ Click Add Tag on the top right corner of the certain feature you may want to add
 
 ---
 
-## Appearance of Created Tags in Features
+## Appearance of created tags in features
 
 <div>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-19.png" style="width:400px;height:280px;"/>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-20.png" style="width:400px;height:280px;"/>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-21.png" style="width:400px;height:280px;"/>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-22.png" style="width:400px;height:280px;"/>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-23.png" style="width:400px;height:280px;"/>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-19.png" style="width:250px;height:220px;"/>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-20.png" style="width:250px;height:220px;"/>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-21.png" style="width:250px;height:220px;"/>
+  <br/>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-22.png" style="width:250px;height:150px;margin-bottom:25px;"/>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-23.png" style="width:220px;height:200px;"/>
 </div>
 
 1. Team Inbox
@@ -188,7 +189,7 @@ Click Add Tag on the top right corner of the certain feature you may want to add
 4. Leads
 5. Engage
 
-## Setup Segment 
+## Setup segment 
 Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple various sources.
 
 + Please follow the steps for setup: Certain Features ->Segment > Add Segment
@@ -206,7 +207,7 @@ Segment is a customer data management and analytics solution that helps you make
 
 ---
 
-## Create Segment
+## Create segment
 Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple various sources.
 
 + Please follow the steps for setup: Certain Features ->Segment > Add Segment
