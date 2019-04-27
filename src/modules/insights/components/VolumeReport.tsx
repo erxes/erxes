@@ -14,7 +14,7 @@ import {
 } from '../styles';
 import {
   IChartParams,
-  InsightData,
+  IPieChartData,
   IPunchCardData,
   IQueryParams,
   SummaryData
@@ -26,7 +26,8 @@ type loadingType = {
   punch: boolean;
   summary: boolean;
   trend: boolean;
-  insights: boolean;
+  integrations: boolean;
+  tags: boolean;
 };
 
 type Props = {
@@ -37,7 +38,8 @@ type Props = {
   punch: IPunchCardData[];
   summary: SummaryData[];
   loading: loadingType;
-  insights: InsightData;
+  integrations: IPieChartData[];
+  tags: IPieChartData[];
 };
 
 class VolumeReport extends React.Component<Props, { width: number }> {
@@ -52,7 +54,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.loading.insights && !this.props.loading.insights) {
+    if (prevProps.loading.integrations && !this.props.loading.integrations) {
       this.calculateWidth();
     }
   }
@@ -115,7 +117,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   }
 
   renderCharts() {
-    const { trend, punch, insights, summary, loading } = this.props;
+    const { trend, punch, integrations, tags, summary, loading } = this.props;
 
     const width = this.state.width;
 
@@ -134,10 +136,10 @@ class VolumeReport extends React.Component<Props, { width: number }> {
           {this.renderTitle('Insights')}
           <FlexRow>
             <Insights
-              loading={loading.insights}
-              data={insights.integration || []}
+              loading={loading.integrations}
+              data={integrations || []}
             />
-            <Insights loading={loading.insights} data={insights.tag || []} />
+            <Insights loading={loading.tags} data={tags || []} />
           </FlexRow>
         </InsightRow>
       </InsightContent>

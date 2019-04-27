@@ -5,11 +5,12 @@ import { BrandsQueryResponse } from '../../settings/brands/types';
 import { ResponseReport, VolumeReport } from '../components';
 import { queries } from '../graphql';
 import {
+  IntegrationChartQueryResponse,
   IParams,
   IQueryParams,
-  PieChartQueryResponse,
   PunchCardQueryResponse,
   SummaryDataQueryResponse,
+  TagChartQueryResponse,
   TrendQueryResponse
 } from '../types';
 
@@ -20,7 +21,8 @@ type Props = {
 };
 
 type FinalProps = {
-  volumePieChartQuery: PieChartQueryResponse;
+  volumeIntegrationChartQuery: IntegrationChartQueryResponse;
+  volumeTagChartQuery: TagChartQueryResponse;
   brandsQuery: BrandsQueryResponse;
   punchCardQuery: PunchCardQueryResponse;
   trendQuery: TrendQueryResponse;
@@ -30,7 +32,8 @@ type FinalProps = {
 const VolumenAndResponseReportContainer = (props: FinalProps) => {
   const {
     type,
-    volumePieChartQuery,
+    volumeIntegrationChartQuery,
+    volumeTagChartQuery,
     brandsQuery,
     history,
     punchCardQuery,
@@ -53,14 +56,17 @@ const VolumenAndResponseReportContainer = (props: FinalProps) => {
       trend: trendQuery.loading,
       summary: summaryDataQuery.loading,
       punch: punchCardQuery.loading,
-      insights: volumePieChartQuery && volumePieChartQuery.loading
+      integrations:
+        volumeIntegrationChartQuery && volumeIntegrationChartQuery.loading,
+      tags: volumeTagChartQuery && volumeTagChartQuery.loading
     }
   };
 
   if (type === 'volume') {
     const volumeProps = {
       ...extendedProps,
-      insights: volumePieChartQuery.insights || {}
+      integrations: volumeIntegrationChartQuery.insightsIntegrations || [],
+      tags: volumeTagChartQuery.insightsTags || []
     };
 
     return <VolumeReport {...volumeProps} />;
@@ -82,8 +88,13 @@ const options = ({ queryParams, type }: IParams) => ({
 });
 
 export default compose(
-  graphql(gql(queries.pieChart), {
-    name: 'volumePieChartQuery',
+  graphql(gql(queries.integrationChart), {
+    name: 'volumeIntegrationChartQuery',
+    skip: ({ type }) => type === 'response',
+    options
+  }),
+  graphql(gql(queries.tagChart), {
+    name: 'volumeTagChartQuery',
     skip: ({ type }) => type === 'response',
     options
   }),
