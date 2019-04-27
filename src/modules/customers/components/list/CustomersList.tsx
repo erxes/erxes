@@ -11,6 +11,7 @@ import {
   SortHandler,
   Table
 } from 'modules/common/components';
+import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
 import { ImportButton, TableHeadContent } from 'modules/customers/styles';
 import * as React from 'react';
@@ -337,7 +338,11 @@ class CustomersList extends React.Component<IProps, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+          <Wrapper.Header
+            breadcrumb={breadcrumb}
+            queryParams={queryParams}
+            submenu={menuContacts}
+          />
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

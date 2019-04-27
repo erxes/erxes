@@ -173,16 +173,9 @@ class Navigation extends React.Component<{
             </Tip>
           </WithPermission>
           <WithPermission action="showCustomers">
-            <Tip placement="right" text={__('Customers').toString()}>
+            <Tip placement="right" text={__('Contacts').toString()}>
               <NavLink to="/customers">
                 <NavIcon className="icon-users" />
-              </NavLink>
-            </Tip>
-          </WithPermission>
-          <WithPermission action="showCompanies">
-            <Tip placement="right" text={__('Companies').toString()}>
-              <NavLink to="/companies">
-                <NavIcon className="icon-briefcase" />
               </NavLink>
             </Tip>
           </WithPermission>

@@ -12,16 +12,16 @@ const PageHeader = styled.div`
 
 const ButtonGroup = styled.div`
   display: inline-block;
-  border-radius: 3px;
+  border-radius: 18px;
   background: rgba(0, 0, 0, 0.06);
   border: 1px solid ${colors.borderPrimary};
 
   a {
-    padding: 7px 16px;
+    padding: 7px 20px;
     display: inline-block;
     color: ${colors.colorCoreGray};
     font-weight: 500;
-    border-radius: 2px;
+    border-radius: 17px;
 
     i {
       margin-right: 5px;
@@ -30,6 +30,7 @@ const ButtonGroup = styled.div`
     &.active {
       color: ${colors.colorCoreDarkGray};
       background: ${colors.colorWhite};
+      box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
 
       i {
         color: ${colors.colorSecondary};
@@ -53,10 +54,10 @@ const HeaderItems = styled(BarItems)`
 `;
 
 const HeaderButton = styled.div`
-  padding: 0 10px;
+  padding: 0 12px;
   line-height: 32px;
   height: 34px;
-  border-radius: 3px;
+  border-radius: 4px;
   transition: background 0.3s ease;
   font-size: 14px;
   font-weight: 500;
@@ -92,12 +93,17 @@ const HeaderLink = styled(HeaderButton)`
   margin-left: 10px;
   font-size: 12px;
   background: rgba(0, 0, 0, 0.04);
+  border-radius: 17px;
 
   a {
     color: ${colors.colorCoreGray};
-    padding: 0 12px;
+    padding: 0 11px;
     display: block;
     line-height: 34px;
+
+    &:hover {
+      color: ${colors.colorCoreDarkGray};
+    }
   }
 `;
 

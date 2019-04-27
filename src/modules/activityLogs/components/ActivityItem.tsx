@@ -17,29 +17,44 @@ const ActivityItem = (props: Props) => {
   }
 
   if (data.action === 'email-send') {
-    const content = JSON.parse(data.content);
+    try {
+      const content = JSON.parse(data.content);
 
-    return (
-      <ActivityRow
-        data={data}
-        body={
-          <>
-            <p>{content.subject}</p>
-            <div>
-              {data.caption}
-              <Icon icon="rightarrow" /> To: <span>{content.toEmails}</span>
-              {content.cc && <span>Cc: {content.cc}</span>}
-              {content.bcc && <span>Bcc: {content.bcc}</span>}
-            </div>
-          </>
-        }
-        content={
-          <EmailContent
-            dangerouslySetInnerHTML={{ __html: xss(content.body) }}
-          />
-        }
-      />
-    );
+      return (
+        <ActivityRow
+          data={data}
+          body={
+            <>
+              <p>{content.subject}</p>
+              <div>
+                {data.caption}
+                <Icon icon="rightarrow" /> To: <span>{content.toEmails}</span>
+                {content.cc && <span>Cc: {content.cc}</span>}
+                {content.bcc && <span>Bcc: {content.bcc}</span>}
+              </div>
+            </>
+          }
+          content={
+            <EmailContent
+              dangerouslySetInnerHTML={{ __html: xss(content.body) }}
+            />
+          }
+        />
+      );
+      // means email from customer or company detail
+    } catch (e) {
+      return (
+        <ActivityRow
+          data={data}
+          body={data.caption}
+          content={
+            <EmailContent
+              dangerouslySetInnerHTML={{ __html: xss(data.content) }}
+            />
+          }
+        />
+      );
+    }
   }
 
   return (
