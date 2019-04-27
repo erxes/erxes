@@ -5,6 +5,7 @@
     "User's Guide": [
       "getting-started",
       "signing-in",
+      "initial-setup",
       "sales",
       "deal",
       "support-guide",
@@ -33,6 +34,7 @@
       "sdk/ios-sdk",
       "coding-standarts",
       "contributing",
+      "extend",
       "graphql-api"
     ]
   }
