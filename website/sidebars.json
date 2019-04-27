@@ -4,6 +4,6 @@
     "Installation Guide": ["installation/ubuntu", "installation/docker"],
     "User's Guide": ["getting-started", "support-guide", "leads/leads", "engage/engage"],
     "Administrator's guide": ["doc2"],
-    "Developer's guide": ["doc4"]
+    "Developer's guide": ["doc4", "extend"]
   }
 }
