@@ -12,7 +12,14 @@
       "faq"
     ],
     "Installation Guide": ["installation/ubuntu", "installation/docker"],
-    "User's Guide": ["getting-started", "support-guide", "leads/leads", "engage/engage", "general-settings"],
+    "User's Guide": [
+      "getting-started",
+      "support-guide",
+      "leads/leads",
+      "engage/engage",
+      "general-settings",
+      "signing-in"
+    ],
     "Administrator's guide": [
       "administration/environment-variables",
       "administration/file-upload",
@@ -22,8 +29,5 @@
       "administration/permissions"
     ],
     "Developer's guide": ["doc4"]
-  },
-  "docs-other": {
-    "First Category": ["doc5"]
   }
 }
