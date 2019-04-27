@@ -1,6 +1,6 @@
 {
   "docs": {
-    "Overview": ["overview", "product-overview", "security-overview", "architecture-overview", "deployment-overview", "integrations-overview", "cdi", "cco", "faq"],
+    "Overview": ["overview", "security-overview", "architecture-overview", "deployment-overview", "integrations-overview", "cdi", "cco", "faq"],
     "User's Guide": ["getting-started", "signing-in"],
     "Administrator's guide": ["doc2"],
     "Developer's guide": ["doc4"]
