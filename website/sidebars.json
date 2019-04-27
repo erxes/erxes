@@ -1,26 +1,16 @@
 {
   "docs": {
-    "Overview": [
-      "overview",
-      "signing-in",
-      "product-overview",
-      "architecture-overview",
-      "deployment-overview",
-      "integrations-overview",
-      "team-inbox",
-      "knowledge-base",
-      "mobile-apps"
-    ],
+    "Overview": ["overview", "architecture-overview", "deployment-overview", "integrations-overview"],
     "Installation Guide": ["installation/ubuntu", "installation/docker", "installation/kubernetes"],
     "User's Guide": [
       "getting-started",
+      "signing-in",
       "sales",
       "deal",
       "support-guide",
       "leads/leads",
       "engage/engage",
       "general-settings",
-      "signing-in",
       "insights",
       "team-inbox",
       "knowledge-base",
@@ -37,6 +27,13 @@
       "administration/migration",
       "administration/permissions"
     ],
-    "Developer's guide": ["push-notifications", "sdk/android-sdk", "sdk/ios-sdk", "coding-standarts", "contributing"]
+    "Developer's guide": [
+      "push-notifications",
+      "sdk/android-sdk",
+      "sdk/ios-sdk",
+      "coding-standarts",
+      "contributing",
+      "graphql-api"
+    ]
   }
 }
