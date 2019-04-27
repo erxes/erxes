@@ -2,6 +2,7 @@
   "docs": {
     "Overview": [
       "overview",
+      "signing-in",
       "product-overview",
       "security-overview",
       "architecture-overview",
