@@ -5,23 +5,25 @@
 .navigationSlider .slidingNav ul li a {
   background: #5629b6;
 }
-img{
-  max-width:100%;
-  
+img {
+  max-width: 100%;
 }
-.notice{
+.notice {
   background: #fef4f6;
-    color: #f0506e;
-    padding:10px 20px;
-    border-radius: 5px;
+  color: #f0506e;
+  padding: 10px 20px;
+  border-radius: 5px;
 }
 
 @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
 }
 
 @media only screen and (min-width: 1024px) {
-  img.fl{
-    float:left;
+  img.fl {
+    float: left;
+  }
+  .hw {
+    width: 49%;
   }
 }
 
