@@ -11,8 +11,15 @@
       "cco",
       "faq"
     ],
-    "User's Guide": ["getting-started", "leads/leads", "engage/engage"],
-    "Administrator's guide": ["doc2"],
+    "User's Guide": ["getting-started", "leads/leads", "engage/engage", "general-settings"],
+    "Administrator's guide": [
+      "administration/environment-variables",
+      "administration/file-upload",
+      "administration/initial-data",
+      "administration/integrations",
+      "administration/migration",
+      "administration/permissions"
+    ],
     "Developer's guide": ["doc4"]
   },
   "docs-other": {
