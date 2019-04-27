@@ -1,4 +1,0 @@
----
-id: permission
-title: Permission
----
