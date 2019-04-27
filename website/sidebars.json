@@ -1,9 +1,9 @@
 {
   "docs": {
     "Overview": ["overview", "product-overview", "security-overview", "architecture-overview", "deployment-overview", "integrations-overview", "cdi", "cco", "faq"],
-    "User's Guide": ["getting-started"],
+    "User's Guide": ["getting-started","team-inbox","knowledge-base","mobile-apps"],
     "Administrator's guide": ["doc2"],
-    "Developer's guide": ["doc4"]
+    "Developer's guide": ["doc4","android-sdk","ios-sdk"]
   },
   "docs-other": {
     "First Category": ["doc5"]
