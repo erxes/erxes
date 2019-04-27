@@ -8,9 +8,6 @@
       "architecture-overview",
       "deployment-overview",
       "integrations-overview",
-      "cdi",
-      "cco",
-      "faq",
       "team-inbox",
       "knowledge-base",
       "mobile-apps"
@@ -36,6 +33,6 @@
       "administration/migration",
       "administration/permissions"
     ],
-    "Developer's guide": ["doc4","android-sdk","ios-sdk"]
+    "Developer's guide": ["android-sdk", "ios-sdk"]
   }
 }
