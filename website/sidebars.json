@@ -1,6 +1,7 @@
 {
   "docs": {
     "Overview": ["overview", "product-overview", "security-overview", "architecture-overview", "deployment-overview", "integrations-overview", "cdi", "cco", "faq"],
+    "Installation Guide": ["installation/ubuntu", "installation/docker"]
     "User's Guide": ["getting-started", "support-guide", "leads/leads", "engage/engage"],
     "Administrator's guide": ["doc2"],
     "Developer's guide": ["doc4"]
