@@ -77,7 +77,7 @@ You can view full contact details by clicking on the customer from customers fea
 + Please follow the steps for setup: __Companies__
 
 <div>
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/Screen+Shot+2019-04-27+at+10.57.18+AM.png"/>
+<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/marketing-11.png"/>
 </div>
 
 1. Filter Companies by __Segments, Tags, Lead Status, Lifecycle States, and Brand__ 
