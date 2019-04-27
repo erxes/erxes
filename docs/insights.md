@@ -21,7 +21,7 @@ Insights include following features:
 
 ---
 
-## Volume Report
+## Volume report
 
 Find feedback that has been gathered from various customer engagement channels. Filter feedbacks by Integrations, Brands and Date 
 
@@ -34,7 +34,7 @@ Find feedback that has been gathered from various customer engagement channels. 
 3. See Volume Trend by Graph
 
 <aside class="notice">
-*You can view your Response Report in a comprehensive way with our Volume Trend
+* You can view your Response Report in a comprehensive way with our Volume Trend
 </aside>
 
 --- 
@@ -49,7 +49,7 @@ Find feedback that has been gathered from various customer engagement channels. 
 
 ---
 
-## Response Report
+## Response report
 
 A report on the total number of customer feedback responses given by team members. Filter feedbacks by Integrations, Brands and Date 
 
@@ -71,7 +71,7 @@ A report on the total number of customer feedback responses given by team member
 
 ---
 
-## Response Close Report
+## Response close report
 
 The average time of a team members solved customer’s problems based on feedback. Filter by Integrations, Brands, and by Date
 
@@ -86,7 +86,7 @@ The average time of a team members solved customer’s problems based on feedbac
 
 ---
 
-## First Response Report
+## First response report
 ​
 Find stats that defines the average response time by each team member. Filter by Integrations, Brands, and by Date
 
@@ -104,7 +104,7 @@ Find stats that defines the average response time by each team member. Filter by
 
 ---
 
-## Export Report
+## Export report
 
 Export Reports within Excel file to analyze your employees productivity and usage of the system with Insights. You can export productivity of your employees with 7 types of report.
 
@@ -135,7 +135,7 @@ Export Reports within Excel file to analyze your employees productivity and usag
 
 ---
 
-### Export Volume Report by Date
+### Export volume report by date
 
 Export Volume Report by Date, feedback that has been gathered from various customer engagement channel. The following exported Volume Report by Date indicates the followings: Conversations by customer count, Customer count, Customer Count Percentage and Conversation message count by __Integration__. Resolved conversation, Average duration of total and Average duration of first response by __Brand__. And, total counts and percentage of customers
 
@@ -145,7 +145,7 @@ Export Volume Report by Date, feedback that has been gathered from various custo
 
 ---
 
-### Volume Report by Time
+### Volume report by time
 
 Export Volume Report by Time, feedback that has been gathered from various customer engagement channel. The following exported Volume Report by Time indicates the followings: Conversations by customer count, Customer count, Customer Count Percentage, and Conversation message count by __Integration__. Resolved conversation, Average duration of total and Average duration of first response by __Brand__.
 
@@ -155,7 +155,7 @@ Export Volume Report by Time, feedback that has been gathered from various custo
 
 ---
 
-### Operator Activity Report
+### Operator activity report
 
 Export Operator Activity Report. The following exported Operator Activity Report indicates the conversation by the Operators by date. The following exported Operator Activity Report indicates the followings: Conversations by customer filtered by __Integration and Brand__.
 
@@ -169,7 +169,7 @@ Export Operator Activity Report. The following exported Operator Activity Report
 
 ---
 
-### Duration of First Response Report
+### Duration of first response report
 
 Duration of First Response Report, feedback that has been gathered from various customer engagement channel. The following exported Duration of First Response Report by team members indicates the followings: Team members duration of first response report by __Integration and Brand__.
 
@@ -183,7 +183,7 @@ Duration of First Response Report, feedback that has been gathered from various 
 
 ---
 
-### First Response Report by Operators
+### First response report by operators
 
 Duration of First Response Report by Operator, feedback that has been gathered from various customer engagement channel. The following exported Duration of First Response Report by team members indicates the followings: First Response Report by Operators by __Integration and Brand__.
 
@@ -197,7 +197,7 @@ Duration of First Response Report by Operator, feedback that has been gathered f
 
 ---
 
-### First Response Report by Operator
+### First response report by operator
 
 Duration of First Response Report by Operator, feedback that has been gathered from various customer engagement channel. The following exported Duration of First Response Report by each team member indicates the followings: First Response Report by Operators by __Integration and Brand__.
 
@@ -211,7 +211,7 @@ Duration of First Response Report by Operator, feedback that has been gathered f
 
 ---
 
-### Tag Report
+### Tag report
 
 Tag report is identified as the number of tags made by team members.
 
