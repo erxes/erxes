@@ -272,12 +272,36 @@ Datas’ imported by the customers and companies will be seen at Import Historie
 
 - Please follow the steps for setup: General Settings->Import Histories
 
+### Import histories list
+
 <div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general28.png"/>
-    <aside class="notice">
-        *The repeated datas will be considered as unsuccessful
-    </aside>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/importhistory1.png"/>
 </div>
+
+1. Customer's import history
+2. Company's import history
+3. Successfully imported count
+4. Failed import count
+5. Total import count
+6. Imported date
+7. Imported user
+
+### Import histories detail
+
+<div>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/importhistory2.png"/>
+</div>
+
+1. Import history's progress par by percentage
+2. Error messages
+
+### Importing in the background
+
+<div>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/importhistory3.png"/>
+</div>
+
+1. You can see the importing process's percentage while browsing other modules. This is background process
 
 ## Permissions
 
