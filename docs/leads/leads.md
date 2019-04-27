@@ -124,8 +124,10 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 - Please follow the steps for setup: **Leads->Create Leads->Type->Callout->Form->Options->Thank Content-> Full Preview**
 
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-9.png"/>
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-10.png"/>
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-11.png"/>
+<div>
+<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-10.png" class="hw"/>
+<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-11.png" class="hw"/>
+</div>
 
 <aside class="notice">
 * Full Preview of Created Lead in Desktop, Tablet and Mobile

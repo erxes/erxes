@@ -1,29 +1,23 @@
 ---
 id: overview
-title: Erxes Overview
-sidebar_label: Overview
+title: Overview
 ---
 
-<!-- Check the [documentation](https://docusaurus.io) for how to use Docusaurus.
+erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales and customer service tools are merged into one platform for greater output. 
 
-## Lorem
+We offers an all-in-one messaging platform for teams and individuals to take care of their customers, from leads, to engagement, and support. And the best part is that erxes is an Open (Source) platform.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque elementum dignissim ultricies. Fusce rhoncus ipsum tempor eros aliquam consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus elementum massa eget nulla aliquet sagittis. Proin odio tortor, vulputate ut odio in, ultrices ultricies augue. Cras ornare ultrices lorem malesuada iaculis. Etiam sit amet libero tempor, pulvinar mauris sed, sollicitudin sapien.
+Thousands of organizations use erxes around the world in 7 languages within its features.
 
-## Mauris In Code
+---
 
-```
-Mauris vestibulum
-```
+### Features
 
-## Nulla
-
-Nulla facilisi. Maecenas sodales nec purus eget posuere. Sed sapien quam, pretium a risus in, porttitor dapibus erat. Sed sit amet fringilla ipsum, eget iaculis augue. Integer sollicitudin tortor quis ultricies aliquam. Suspendisse fringilla nunc in tellus cursus, at placerat tellus scelerisque. Sed tempus elit a sollicitudin rhoncus. Nulla facilisi. Morbi nec dolor dolor. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Cras et aliquet lectus. Pellentesque sit amet eros nisi. Quisque ac sapien in sapien congue accumsan. Nullam in posuere ante. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Proin lacinia leo a nibh fringilla pharetra.
-
-## Orci
-
-Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin venenatis lectus dui, vel ultrices ante bibendum hendrerit. Aenean egestas feugiat dui id hendrerit. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Curabitur in tellus laoreet, eleifend nunc id, viverra leo. Proin vulputate non dolor vel vulputate. Curabitur pretium lobortis felis, sit amet finibus lorem suscipit ut. Sed non mollis risus. Duis sagittis, mi in euismod tincidunt, nunc mauris vestibulum urna, at euismod est elit quis erat. Phasellus accumsan vitae neque eu placerat. In elementum arcu nec tellus imperdiet, eget maximus nulla sodales. Curabitur eu sapien eget nisl sodales fermentum.
-
-## Phasellus
-
-Phasellus pulvinar ex id commodo imperdiet. Praesent odio nibh, sollicitudin sit amet faucibus id, placerat at metus. Donec vitae eros vitae tortor hendrerit finibus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Quisque vitae purus dolor. Duis suscipit ac nulla et finibus. Phasellus ac sem sed dui dictum gravida. Phasellus eleifend vestibulum facilisis. Integer pharetra nec enim vitae mattis. Duis auctor, lectus quis condimentum bibendum, nunc dolor aliquam massa, id bibendum orci velit quis magna. Ut volutpat nulla nunc, sed interdum magna condimentum non. Sed urna metus, scelerisque vitae consectetur a, feugiat quis magna. Donec dignissim ornare nisl, eget tempor risus malesuada quis. -->
++ __Team Inbox__ - Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and whenever they want.
++ __Messenger__ - Enable businesses to capture every single customer feedback and educate customers through knowledge-base right from the erxes Messenger.
++ __Sales Pipeline__ - Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
++ __Lead generation__ - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.
++ __Engage__ - Start converting your prospects into potential customers through email, SMS, messenger or more interactions to drive them to a successful close.
++ __CRM__ - Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your interactions with your customers.
++ __Knowledgebase__ - Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions
++ __App store__ - Publish an integration app on the erxes App Store among powerful tools like Gmail, Facebook page, Messenger, Twitter and Google Meet.

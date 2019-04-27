@@ -2,16 +2,29 @@
   "docs": {
     "Overview": [
       "overview",
+      "signing-in",
       "product-overview",
       "security-overview",
       "architecture-overview",
       "deployment-overview",
       "integrations-overview",
-      "cdi",
-      "cco",
-      "faq"
+      "team-inbox",
+      "knowledge-base",
+      "mobile-apps"
     ],
-    "User's Guide": ["getting-started", "leads/leads", "engage/engage", "general-settings"],
+    "Installation Guide": ["installation/ubuntu", "installation/docker"],
+    "User's Guide": [
+      "getting-started",
+      "support-guide",
+      "leads/leads",
+      "engage/engage",
+      "general-settings",
+      "signing-in",
+      "insights",
+      "team-inbox",
+      "knowledge-base",
+      "mobile-apps"
+    ],
     "Administrator's guide": [
       "administration/environment-variables",
       "administration/file-upload",
@@ -19,9 +32,6 @@
       "administration/integrations",
       "administration/migration"
     ],
-    "Developer's guide": ["doc4"]
-  },
-  "docs-other": {
-    "First Category": ["doc5"]
+    "Developer's guide": ["android-sdk", "ios-sdk"]
   }
 }
