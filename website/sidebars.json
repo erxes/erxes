@@ -17,8 +17,7 @@
       "administration/file-upload",
       "administration/initial-data",
       "administration/integrations",
-      "administration/migration",
-      "administration/permissions"
+      "administration/migration"
     ],
     "Developer's guide": ["doc4"]
   },

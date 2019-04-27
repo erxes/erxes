@@ -10,7 +10,7 @@ title: General Settings
 - General settings include following features:
 
 <div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general1.png"/>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general1.jpg"/>
 </div>
 
 1. Account Default
@@ -55,7 +55,7 @@ Team members are responsible to represent the company as well as to solve proble
 - Please follow the steps for setup: General Settings-> Team Members-> Invite Team Members
 
 <div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general3.png"/>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general2.jpg"/>
 </div>
 
 1. Click Invite Team Members
@@ -71,15 +71,15 @@ Team members are responsible to represent the company as well as to solve proble
 - Please follow the steps for setup: General Settings-> Team Members-> Invite Team Members
 
 <div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general4.png"/>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general5.png"/>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general4.jpg"/>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general5.jpg"/>
     <aside class="notice">
     * Click  “Save” button to invite more team members’. The Invitation will be sent to the team member’s email address
     </aside>
 </div>
 
 1.  Insert team member’s Email Address
-2.  Save the team member’s email address
+2.  Choose permission group
 3.  Invite team member
 4.  Invited team member’s status
 
@@ -91,9 +91,6 @@ Team members are responsible to represent the company as well as to solve proble
 
 <div>
 <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general6.png"/>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general7.png"/>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general8.png">
-  <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general10.png"/>
     <aside class="notice">
     *By filling out the team member’s information accurately, It will be further seen in the team Inbox assigned section of the system
     </aside>
@@ -116,8 +113,13 @@ Team members are responsible to represent the company as well as to solve proble
 A type of products or a particular company under a particular name.By creating a brand and channels, it enables you to analyze customers basic needs and the most unresolved questions asked through the certain brands and channels. Created Brands will be used in the following features: Team Inbox, Customers, Companies, and Leads
 
 - Please follow the steps for setup: General Settings-> Brands > Create Brand
+
   <div>
-      <aside class="notice">*It enables you to filter and analyze your customers and companies by created brands</aside>
+  <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general11.png"/>
+  <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general12.png"/>
+      <aside class="notice">
+      *It enables you to filter and analyze your customers and companies by created brands
+      </aside>
   </div>
 
 1. Click Add button to create a brand
@@ -129,12 +131,21 @@ A type of products or a particular company under a particular name.By creating a
 
 ### Step 1
 
+ <div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general13.png"/>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general14.png"/>
+  </div>
+
 - Please follow the steps for setup: General Settings-> Brands > Create Brand->Integration settings
 
 1. Click Add button
 2. Click Manage Integration
 
 ### Step 2
+
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general15.png"/>
+  </div>
 
 - Please follow the steps for setup: General Settings-> Brands > Create Brand->Integration settings
 
@@ -143,21 +154,46 @@ A type of products or a particular company under a particular name.By creating a
 
 ### Step 3
 
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general16.png"/>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general17.png"/>
+  </div>
+
 - Please follow the steps for setup: General Settings-> Brands > Create Brand->Integration settings
 
-1.  Added Integrations for the Brand
-2.  Select the added Integration
-3.  Insert the name of Integration
-4.  Choose a Brand
-5.  Save the Brand
+1.  Integration list
+2.  Added Integrations for the Brand
+3.  Select the added Integration
+4.  Insert the name of Integration
+5.  Choose a Brand
+6.  Save the Brand
 
 ## How to setup Channels
+
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general18.png"/>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general19.png"/>
+    <aside class="notice">
+    *You may filter and analyze customers and companies under a certain brand by channels 
+    </aside>
+</div>
 
 Channel consists of typical brands specifically categorized by its type and activity. By creating a brand and channels, it enables you to analyze customers basic needs and the most unresolved questions asked through the certain brands and channels
 
 - Please follow the steps for setup: General Settings-> Channels> Create Channels
 
+1. Click Add button to create new channel
+2. Insert Channel Name
+3. Insert Channel Description
+4. Choose team members’ for the channel
+5. Save your created Channel
+
 ## Setup Integrations for Channels
+
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general20.png"/>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general21.png"/>
+</div>
 
 ### Step 1
 
@@ -167,6 +203,11 @@ Channel consists of typical brands specifically categorized by its type and acti
 2. Click Manage Integration
 
 ### Step 2
+
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general22.png"/>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general23.png"/>
+</div>
 
 - Please follow the steps for setup: General Settings-> Channels> Create Channels-> Manage Integration
 
@@ -179,6 +220,10 @@ Channel consists of typical brands specifically categorized by its type and acti
 
 ### Step 1
 
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general24.png"/>
+</div>
+
 User may create a properties to save customers and companies information and save customers and companies database. Following actions are available : Edit, Delete,Transfer unused properties
 
 - Please follow the steps for setup: General Settings->Properties> Customer/Company-> Add Group & Field
@@ -190,23 +235,32 @@ User may create a properties to save customers and companies information and sav
 
 - Please follow the steps for setup: General Settings->Properties> Customer/Company-> Add Group & Field
 
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general25.png"/>
+</div>
+
 1. Insert Group Name
 2. Insert Description for group
 3. Click Save to create group
-4. Insert a property name
-5. Insert description for the property
-6. Choose group
-7. Choose property type
-8. Choose property validation
-9. Click Save to create property
+
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general26.png"/>
+</div>
+
+1. Insert a property name
+2. Insert description for the property
+3. Choose group
+4. Choose property type
+5. Choose property validation
+6. Click Save to create property
 
 ### Step 3 Created Group & Field Appearance
 
 <div>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general27.png"/>
     <aside class="notice">
-
+    Customer or companies will fill this property
     </aside>
-
 </div>
 
 1. Created Group
@@ -219,7 +273,55 @@ Datas’ imported by the customers and companies will be seen at Import Historie
 - Please follow the steps for setup: General Settings->Import Histories
 
 <div>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general28.png"/>
     <aside class="notice">
         *The repeated datas will be considered as unsuccessful
     </aside>
 </div>
+
+## Permissions
+
+You can specify the user's actions through this permission feature
+
+- Please follow the steps for setup: General Settings-> Permissions
+
+<div>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/permission1.jpg"/>
+</div>
+
+1. Filter by module
+2. Filter by action
+3. Filter by permission group
+4. Filter by user
+5. Create new permission
+6. View user groups
+
+### Permission groups
+
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/permission2.jpg"/>
+</div>
+
+1. Create new Permission group
+2. Switch to permissions list
+
+### Create Permission
+
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/permission3.jpg"/>
+</div>
+
+1. Choose module
+2. Choose actions
+3. Choose permission groups
+4. Choose users
+5. Allow or decline
+
+### Create user group
+
+<div>
+    <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/permisiion4.jpg"/>
+</div>
+
+1. Fill the permission group name
+2. Description of the group
