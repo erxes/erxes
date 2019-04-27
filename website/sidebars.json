@@ -15,7 +15,10 @@
       "knowledge-base",
       "mobile-apps"
     ],
-    "Installation Guide": ["installation/ubuntu", "installation/docker"],
+    "Installation Guide": [
+      "installation/ubuntu",
+      "installation/docker"
+    ],
     "User's Guide": [
       "getting-started",
       "support-guide",
@@ -36,5 +39,10 @@
       "administration/migration",
       "administration/permissions"
     ],
-    "Developer's guide": ["doc4", "android-sdk", "ios-sdk"]
+    "Developer's guide": [
+      "doc4",
+      "android-sdk",
+      "ios-sdk"
+    ]
   }
+}
