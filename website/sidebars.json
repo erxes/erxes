@@ -1,8 +1,26 @@
 {
   "docs": {
-    "Overview": ["overview", "security-overview", "architecture-overview", "deployment-overview", "integrations-overview", "cdi", "cco", "faq"],
-    "User's Guide": ["getting-started", "signing-in"],
-    "Administrator's guide": ["doc2"],
+    "Overview": [
+      "overview",
+      "product-overview",
+      "security-overview",
+      "architecture-overview",
+      "deployment-overview",
+      "integrations-overview",
+      "cdi",
+      "cco",
+      "faq"
+    ],
+    "Installation Guide": ["installation/ubuntu", "installation/docker"],
+    "User's Guide": ["getting-started", "support-guide", "leads/leads", "engage/engage", "general-settings"],
+    "Administrator's guide": [
+      "administration/environment-variables",
+      "administration/file-upload",
+      "administration/initial-data",
+      "administration/integrations",
+      "administration/migration",
+      "administration/permissions"
+    ],
     "Developer's guide": ["doc4"]
   },
   "docs-other": {
