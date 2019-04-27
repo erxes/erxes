@@ -19,7 +19,8 @@
       "leads/leads",
       "engage/engage",
       "general-settings",
-      "signing-in"
+      "signing-in",
+      "insights"
     ],
     "Administrator's guide": [
       "administration/environment-variables",
