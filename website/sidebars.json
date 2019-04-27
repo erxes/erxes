@@ -11,9 +11,11 @@
       "knowledge-base",
       "mobile-apps"
     ],
-    "Installation Guide": ["installation/ubuntu", "installation/docker"],
+    "Installation Guide": ["installation/ubuntu", "installation/docker", "installation/kubernetes"],
     "User's Guide": [
       "getting-started",
+      "sales",
+      "deal",
       "support-guide",
       "leads/leads",
       "engage/engage",
@@ -35,6 +37,6 @@
       "administration/migration",
       "administration/permissions"
     ],
-    "Developer's guide": ["push-notifications", "sdk/android-sdk", "sdk/ios-sdk"]
+    "Developer's guide": ["push-notifications", "sdk/android-sdk", "sdk/ios-sdk", "coding-standarts", "contributing"]
   }
 }
