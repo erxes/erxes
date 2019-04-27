@@ -43,7 +43,8 @@
       "doc4",
       "android-sdk",
       "ios-sdk",
-      "contributing/coding-standarts"
+      "coding-standarts",
+      "contributing"
     ]
   }
 }
