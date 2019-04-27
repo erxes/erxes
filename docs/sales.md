@@ -1,6 +1,6 @@
 ---
 id: sales
-title: Sales Team Settings?
+title: Sales Team Settings
 ---
 
 <!-- Content -->
