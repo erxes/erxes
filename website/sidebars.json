@@ -22,6 +22,8 @@
     ],
     "User's Guide": [
       "getting-started",
+      "sales",
+      "deal",
       "support-guide",
       "leads/leads",
       "engage/engage",
@@ -43,7 +45,9 @@
     "Developer's guide": [
       "doc4",
       "android-sdk",
-      "ios-sdk"
+      "ios-sdk",
+      "coding-standarts",
+      "contributing"
     ]
   }
 }
