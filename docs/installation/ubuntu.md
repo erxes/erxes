@@ -143,67 +143,32 @@ cd ~/erxes.io/erxes-widgets-api-0.9.15 && yarn install
 
 ## Configuration
 
-Our application use [dotenv](https://github.com/motdotla/dotenv) to process the configuration.
-
-Copy default settings from `.env.sample` file and configure it on your own:
+Copy all settings from `.env.sample` file and configure it on your own. Do it on all reposotiries.
 ```Shell
 cp .env.sample .env
 ```
 
+Following command will create default admin account
 
-`cd erxes-api && yarn initProject` - script will create admin account for you.
+```shell
+cd ~/erxes.io/erxes-api-0.9.15 && yarn initProject`
 ```
-(username: admin@erxes.io , password: erxes)
+with following credentials
+```shell
+username: admin@erxes.io
+password: erxes
 ```
 
 ***
 
 ## Running erxes
-This is how the erxes directory should look like similar to this:
 
-_I've listed only important files to run erxes at the moment._
-```
-erxes
-├── ecosystem.json
-├── erxes
-│   ├── .env
-│   ├── node_modules
-│   ├── package.json
-│   ├── public
-│   ├── scripts
-│   ├── src
-│   ├── stories
-├── erxes-api
-│   ├── .env
-│   ├── node_modules
-│   ├── package.json
-│   ├── scripts
-│   ├── src
-├── erxes-widgets
-│   ├── client
-│   ├── .env
-│   ├── node_modules
-│   ├── locales
-│   ├── package.json
-│   ├── scripts
-│   ├── server
-└── erxes-widgets-api
-    ├── .env
-    ├── node_modules
-    ├── package.json
-    ├── scripts
-    └── src
-```
-**Development server**
+### erxes
 
-Run `yarn dev` in erxes-widgets-api, erxes-widgets, erxes-api folders.
+erxes is CreateReactApp frontend project. Production build command will generate
+### erxes-api
 
-Run `yarn start` in erxes folder.
 
-**Production server**
+### erxes-widgets
 
-Run `yarn build` in erxes, erxes-api, erxes-widgets, erxes-widgets-api folders to create production optimized build files.
-```Shell
-cd erxes.io
-PM2 start ecosystem.json
-```
+### erxes-widgets-api
