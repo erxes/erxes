@@ -33,6 +33,12 @@ sudo apt-get install redis-server
 sudo systemctl start redis-server
 ```
 
+### Install Nginx
+
+```shell
+sudo apt-get install -y nginx
+```
+
 ### Install Node.js v8.x
 
 ```shell
@@ -141,69 +147,107 @@ cd ~/erxes.io/erxes-widgets-0.9.15 && yarn install
 cd ~/erxes.io/erxes-widgets-api-0.9.15 && yarn install
 ```
 
+***
+
 ## Configuration
 
-Our application use [dotenv](https://github.com/motdotla/dotenv) to process the configuration.
-
-Copy default settings from `.env.sample` file and configure it on your own:
+Copy all settings from `.env.sample` file and configure it on your own. Do it on all reposotiries.
 ```Shell
 cp .env.sample .env
 ```
 
+Following command will create default admin account
 
-`cd erxes-api && yarn initProject` - script will create admin account for you.
+```shell
+cd ~/erxes.io/erxes-api-0.9.15 && yarn initProject`
 ```
-(username: admin@erxes.io , password: erxes)
+with following credentials
+```shell
+username: admin@erxes.io
+password: erxes
 ```
 
 ***
 
-## Running erxes
-This is how the erxes directory should look like similar to this:
+## Production server
 
-_I've listed only important files to run erxes at the moment._
+### nginx settings
+
 ```
-erxes
-├── ecosystem.json
-├── erxes
-│   ├── .env
-│   ├── node_modules
-│   ├── package.json
-│   ├── public
-│   ├── scripts
-│   ├── src
-│   ├── stories
-├── erxes-api
-│   ├── .env
-│   ├── node_modules
-│   ├── package.json
-│   ├── scripts
-│   ├── src
-├── erxes-widgets
-│   ├── client
-│   ├── .env
-│   ├── node_modules
-│   ├── locales
-│   ├── package.json
-│   ├── scripts
-│   ├── server
-└── erxes-widgets-api
-    ├── .env
-    ├── node_modules
-    ├── package.json
-    ├── scripts
-    └── src
+server {
+        listen 80;
+        server_name erxes.example.com;
+        # Don't forget to update below path with /path/to/erxes/build;
+        root /home/user/erxes.io/erxes/build;
+        index index.html;
+        error_log /var/log/nginx/erxes.error.log;
+
+        location / {
+                try_files $uri /index.html;
+        }
+
+        # Assumming widgets-api project is running on 3100 port.
+        location /widgets-api/ {
+                proxy_pass http://127.0.0.1:3100/;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        # Assumming widgets project is running on 3200 port.
+        location /widgets/ {
+                proxy_pass http://127.0.0.1:3200/;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        # Assumming api project is running on 3300 port.
+        location /api/ {
+                proxy_pass http://127.0.0.1:3300/;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "Upgrade";
+        }
+}
 ```
-**Development server**
 
-Run `yarn dev` in erxes-widgets-api, erxes-widgets, erxes-api folders.
+### erxes
 
-Run `yarn start` in erxes folder.
+erxes is [CreateReactApp](https://github.com/facebook/create-react-app) frontend project.
 
-**Production server**
+`yarn build` - build production optimized files in `build` directory and nginx will serve those static files.
 
-Run `yarn build` in erxes, erxes-api, erxes-widgets, erxes-widgets-api folders to create production optimized build files.
-```Shell
-cd erxes.io
-PM2 start ecosystem.json
-```
+### erxes-api
+`yarn build` - build production optimized files in `dist` directory.
+
+`yarn start` - start NodeJS express server on 3300 port by default.
+
+### erxes-widgets
+`yarn build` - build production optimized files in `dist` directory.
+
+`yarn start` - start NodeJS express server on 3200 port by default.
+
+### erxes-widgets-api
+`yarn build` - build production optimized files in `dist` directory.
+
+`yarn start` - start NodeJS express server on 3100 port by default.
+
+***
+
+## Development server
+
+### erxes
+`yarn start` - command will run development Nodejs server for CRA on port 3000 by default.
+
+### erxes-api
+`yarn dev` - start NodeJS express development server on 3300 port by default.
+
+### erxes-widgets
+`yarn dev` - start NodeJS express development server on 3200 port by default.
+
+### erxes-widgets-api
+`yarn dev` - start NodeJS express development server on 3100 port by default.
