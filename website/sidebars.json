@@ -3,7 +3,7 @@
     "Overview": ["overview", "product-overview", "security-overview", "architecture-overview", "deployment-overview", "integrations-overview", "cdi", "cco", "faq"],
     "User's Guide": ["getting-started"],
     "Administrator's guide": [],
-    "Developer's Guide": ["doc4"],
+    "Developer's Guide": ["doc4", "extend"],
     "Installation Guide": ["installation/ubuntu", "installation/docker"]
   }
 }
