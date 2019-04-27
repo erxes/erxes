@@ -23,14 +23,18 @@
       "insights",
       "team-inbox",
       "knowledge-base",
-      "mobile-apps"
+      "mobile-apps",
+      "contacts",
+      "marketing",
+      "notification"
     ],
     "Administrator's guide": [
       "administration/environment-variables",
       "administration/file-upload",
       "administration/initial-data",
       "administration/integrations",
-      "administration/migration"
+      "administration/migration",
+      "administration/permissions"
     ],
     "Developer's guide": ["android-sdk", "ios-sdk"]
   }
