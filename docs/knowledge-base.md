@@ -14,15 +14,16 @@ Educate both your customers and staff by creating a help center related to your 
 
 ---
 
-## Knowledge Base
+## Knowledge base
 
 Knowledge Base is a part of your widget section where you address common concerns, questions or objections that customers have.
 + Please follow the steps for setup: Knowledge Base
 
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image1.png"/>
 ---
 
 
-## Add Knowledge Base
+## Add knowledge base
 
 + Please follow the steps for setup: Knowledge Base-> Add Knowledge Base
 
@@ -33,13 +34,21 @@ Knowledge Base is a part of your widget section where you address common concern
 5. Choose a custom color
 6. Choose language
 7. Click Save
-
+<div >
+<img style="width:49%" src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image2.png"/>
+<img style="width:49%" src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image3.png"/>
+</div>
 ---
 
-## Manage Knowledge Base
+## Manage knowledge base
 
 
 + Please follow the steps for setup: Knowledge Base-> Add Knowledge base-> Manage Knowledge Base
+
+<div >
+<img style="width:49%" src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image4.png"/>
+<img style="width:49%" src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image5.png"/>
+</div>
 
 <aside class="notice">
 *Manage Created Knowledge Base
@@ -47,7 +56,7 @@ Knowledge Base is a part of your widget section where you address common concern
 
 ---
 
-## Add Category
+## Add category
 
 + Please follow the steps for setup: Knowledge Base-> Add Knowledge Base->Add Category
 
@@ -57,8 +66,15 @@ Knowledge Base is a part of your widget section where you address common concern
 4. Choose icon
 5. Click Save
 
+
+<div >
+<img style="width:49%" src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image6.png"/>
+<img style="width:49%" src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image7.png"/>
+</div>
+
+
 ---
-## Add Article in Category
+## Add article in category
 
 + Please follow the steps for setup: Knowledge Base-> Add Knowledge Base->Add Category->Add Article
 
@@ -67,6 +83,7 @@ Knowledge Base is a part of your widget section where you address common concern
 3. Insert content answer
 4. Select Status 
 5. Click Save
+<img  src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image8.png"/>
 
 <aside class="notice">
 *You may add article in each category
