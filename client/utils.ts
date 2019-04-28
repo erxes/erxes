@@ -122,6 +122,14 @@ export const scrollTo = (element: any, to: number, duration: number) => {
   animateScroll();
 };
 
+export const makeClickableLink = (selector: string) => {
+  const nodes = Array.from(document.querySelectorAll(selector));
+
+  nodes.forEach(node => {
+    node.setAttribute("target", "__blank");
+  });
+};
+
 export const getEnv = (): ENV => {
   return (window as any).erxesEnv;
 };
