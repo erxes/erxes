@@ -18,6 +18,7 @@ import graphqlTypes from "../graphql";
 import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from "../types";
 
 interface IState {
+  sendingMessage: boolean;
   lastUnreadMessage?: IMessage;
   isMessengerVisible: boolean;
   isSavingNotified: boolean;
@@ -81,6 +82,7 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     this.state = {
+      sendingMessage: false,
       lastUnreadMessage: undefined,
       isMessengerVisible: false,
       isSavingNotified: false,
@@ -360,19 +362,19 @@ export class AppProvider extends React.Component<{}, IState> {
 
   sendMessage = (message: string, attachments?: IAttachment[]) => {
     // current conversation
-    const currentConversationId = this.state.activeConversation;
+    const { activeConversation, sendingMessage } = this.state;
 
     let optimisticResponse;
     let update;
 
     // generate optimistic response
-    if (currentConversationId) {
+    if (activeConversation) {
       optimisticResponse = {
         __typename: "Mutation",
         insertMessage: {
           __typename: "ConversationMessage",
           _id: Math.round(Math.random() * -1000000),
-          conversationId: currentConversationId,
+          conversationId: activeConversation,
           customerId: connection.data.customerId,
           user: null,
           content: message,
@@ -410,6 +412,13 @@ export class AppProvider extends React.Component<{}, IState> {
       };
     }
 
+    // Preventing from creating new conversations
+    if (!activeConversation && sendingMessage) {
+      return "Already sending";
+    }
+
+    this.setState({ sendingMessage: true });
+
     return (
       client
         .mutate({
@@ -434,7 +443,7 @@ export class AppProvider extends React.Component<{}, IState> {
           variables: {
             integrationId: connection.data.integrationId,
             customerId: connection.data.customerId,
-            conversationId: currentConversationId,
+            conversationId: activeConversation,
             message,
             attachments
           },
@@ -444,11 +453,19 @@ export class AppProvider extends React.Component<{}, IState> {
 
         // after mutation
         .then(({ data }: any) => {
+          this.setState({ sendingMessage: false });
+
           const { insertMessage } = data;
 
-          if (!currentConversationId) {
+          if (!activeConversation) {
             this.changeConversation(insertMessage.conversationId);
           }
+        })
+
+        .catch((e: Error) => {
+          this.setState({ sendingMessage: false });
+
+          console.log(e.message);
         })
     );
   };
