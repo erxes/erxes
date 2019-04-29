@@ -54,7 +54,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.loading.integrations && !this.props.loading.integrations) {
+    if (prevProps.loading.trend && !this.props.loading.trend) {
       this.calculateWidth();
     }
   }
@@ -77,20 +77,24 @@ class VolumeReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderTrend(name, loading, trend) {
-    const innerRef = node => {
-      this.wrapper = node;
-    };
+  renderTrend(name, loading, data) {
+    if (data.length === 0) {
+      return null;
+    }
 
     return (
-      <InsightRow innerRef={innerRef}>
+      <InsightRow>
         {this.renderTitle(name)}
-        <Chart loading={loading} height={360} data={trend} />
+        <Chart loading={loading} height={360} data={data} />
       </InsightRow>
     );
   }
 
-  renderPunchCard(loading, punch, width) {
+  renderPunchCard(loading, data, width) {
+    if (data.length === 0) {
+      return null;
+    }
+
     let content = (
       <LoaderWrapper>
         <Spinner objective={true} />
@@ -98,7 +102,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
     );
 
     if (!loading.punch) {
-      content = <PunchCard data={punch} width={width} />;
+      content = <PunchCard data={data} width={width} />;
     }
 
     return (
@@ -121,8 +125,12 @@ class VolumeReport extends React.Component<Props, { width: number }> {
 
     const width = this.state.width;
 
+    const innerRef = node => {
+      this.wrapper = node;
+    };
+
     return (
-      <InsightContent>
+      <InsightContent innerRef={innerRef}>
         <InsightRow>
           {this.renderTitle('Volume summary')}
           <Summary loading={loading.summary} data={summary} />
