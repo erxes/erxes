@@ -21,7 +21,7 @@ You can upload the files through google's cloud service.
 Below configurations must be configured. You can see more info from Environment variable settings
 
 ```
-GOOGLE_PROJECT_ID
-GOOGLE_APPLICATION_CREDENTIALS
-BUCKET
+GOOGLE_PROJECT_ID=''
+GOOGLE_APPLICATION_CREDENTIALS=''
+GOOGLE_CLOUD_STORAGE_BUCKET=''
 ```
