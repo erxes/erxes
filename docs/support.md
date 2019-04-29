@@ -1,6 +1,6 @@
 ---
 id: support-guide
-title: How to setup customer Support Settings?
+title: How to setup customer support settings?
 sidebar_label: Customer support
 ---
 
