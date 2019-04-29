@@ -135,8 +135,6 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
   renderCharts() {
     const { trend, summary, punch, loading } = this.props;
 
-    console.log('punch: ', punch); //tslint:disable-line
-
     const width = this.state.width;
 
     const innerRef = node => {
