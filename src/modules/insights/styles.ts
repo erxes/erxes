@@ -43,7 +43,7 @@ const InsightTitle = styled.h5`
   text-transform: uppercase;
   font-weight: ${typography.fontWeightRegular};
   padding: ${dimensions.unitSpacing}px 0;
-  margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
+  margin: 0 0 ${dimensions.unitSpacing}px;
 
   span {
     margin-left: ${dimensions.unitSpacing}px;

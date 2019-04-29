@@ -1,4 +1,4 @@
-import { Tip } from 'modules/common/components';
+import { EmptyState, Tip } from 'modules/common/components';
 import * as React from 'react';
 import {
   ChartWrapper,
@@ -106,6 +106,14 @@ class PunchCard extends React.Component<Props> {
   }
 
   render() {
+    if (this.props.data.length === 0) {
+      return (
+        <ChartWrapper>
+          <EmptyState text="There is no data" size="full" icon="piechart" />
+        </ChartWrapper>
+      );
+    }
+
     return (
       <ChartWrapper>
         <PunchCardWrapper paddingLeft={paddinLeftSize}>

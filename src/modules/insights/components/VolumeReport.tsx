@@ -78,10 +78,6 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   }
 
   renderTrend(name, loading, data) {
-    if (data.length === 0) {
-      return null;
-    }
-
     return (
       <InsightRow>
         {this.renderTitle(name)}
@@ -91,10 +87,6 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   }
 
   renderPunchCard(loading, data, width) {
-    if (data.length === 0) {
-      return null;
-    }
-
     let content = (
       <LoaderWrapper>
         <Spinner objective={true} />
@@ -141,13 +133,13 @@ class VolumeReport extends React.Component<Props, { width: number }> {
         {this.renderPunchCard(loading, punch, width)}
 
         <InsightRow>
-          {this.renderTitle('Insights')}
           <FlexRow>
             <Insights
+              title="Integrations"
               loading={loading.integrations}
               data={integrations || []}
             />
-            <Insights loading={loading.tags} data={tags || []} />
+            <Insights title="Tags" loading={loading.tags} data={tags || []} />
           </FlexRow>
         </InsightRow>
       </InsightContent>
