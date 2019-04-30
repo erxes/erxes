@@ -1,7 +1,10 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { lighten } from 'modules/common/styles/color';
+import { rotate } from 'modules/common/utils/animations';
 import { SidebarList } from 'modules/layout/styles';
 import styled from 'styled-components';
+
+const size = 14;
 
 const Info = styled.div`
   margin-top: 5px;
@@ -105,14 +108,17 @@ const ImportButton = styled.label`
   border-radius: 30px;
   transition: all 0.3s ease;
   text-transform: uppercase;
-  padding: 6px 15px;
+  padding: 6px 15px 6px 32px;
   background: ${colors.colorSecondary};
   font-size: 10px;
   color: ${colors.colorWhite};
   box-shadow: 0 2px 16px 0 ${lighten(colors.colorSecondary, 35)};
+  position: relative;
 
   i {
-    margin-right: 5px;
+    top: 5px;
+    position: absolute;
+    left: 12px;
   }
 
   &:hover {
@@ -120,6 +126,16 @@ const ImportButton = styled.label`
     text-decoration: none;
     box-shadow: 0 2px 22px 0 ${lighten(colors.colorSecondary, 25)};
   }
+`;
+
+const ImportLoader = styled.i`
+  width: ${size}px;
+  height: ${size}px;
+  animation: ${rotate} 0.75s linear infinite;
+  border: 1px solid ${colors.borderDarker};
+  border-top-color: ${colors.colorPrimary};
+  border-right-color: ${colors.colorPrimary};
+  border-radius: 100%;
 `;
 
 export {
@@ -134,5 +150,6 @@ export {
   Date,
   TabContent,
   TableHeadContent,
-  ImportButton
+  ImportButton,
+  ImportLoader
 };

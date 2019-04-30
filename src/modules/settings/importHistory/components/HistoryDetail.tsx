@@ -18,6 +18,10 @@ const TopContent = styled.div`
   display: flex;
   align-items: center;
 
+  > div {
+    flex: 1;
+  }
+
   svg {
     margin-right: 40px;
     flex-shrink: 0;

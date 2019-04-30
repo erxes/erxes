@@ -16,15 +16,19 @@ const Box = styled.div`
 
 const Indicator = styled.div`
   position: relative;
-  padding: 10px 30px;
-  background: #f7f1e0;
+  padding: 8px 30px;
+  background: ${colors.bgMain};
   width: 100%;
-  height: 40px;
+  height: 36px;
   box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.05);
+
+  a:hover {
+    cursor: pointer;
+  }
 
   > a {
     outline: none;
-    top: 13px;
+    top: 11px;
     right: 20px;
     position: absolute;
     font-size: 10px;
@@ -35,10 +39,13 @@ const Indicator = styled.div`
 const Progress = styledTS<{ percentage: number }>(styled.div)`
   position: absolute;
   width: ${props => props.percentage}%;
-  background: #e7e8ff;
+  background: #dddeff;
   left: 0;
   top: 0;
   bottom: 0;
+  background-image: linear-gradient(45deg,rgba(255,255,255,.1) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.1) 75%,transparent 75%,transparent);
+  background-size: 16px 16px;
+  border-radius: 2px;
 `;
 
 const Capitalize = styledTS<{ isCapital?: boolean }>(styled.span)`
@@ -47,9 +54,10 @@ const Capitalize = styledTS<{ isCapital?: boolean }>(styled.span)`
 
 type Props = {
   percentage: number;
-  close: () => void;
   id: string;
   importHistory: IImportHistory;
+  close: () => void;
+  cancel: (id: string) => void;
 };
 
 class ImportIndicator extends React.Component<Props> {
@@ -88,6 +96,11 @@ class ImportIndicator extends React.Component<Props> {
     return <Capitalize isCapital={isCapital}>{__(contentType)}</Capitalize>;
   };
 
+  cancel = () => {
+    const { cancel, id } = this.props;
+    cancel(id);
+  };
+
   showResult = () => {
     const { importHistory, id, percentage } = this.props;
     const { errorMsgs = [], contentType } = importHistory;
@@ -105,7 +118,8 @@ class ImportIndicator extends React.Component<Props> {
     return (
       <div>
         {__('Importing')} {this.renderType(contentType)} {__('data')} -{' '}
-        <b>{percentage}%</b>
+        <b>{percentage}%</b> You can <a onClick={this.cancel}>{__('cancel')}</a>{' '}
+        anytime.
       </div>
     );
   };

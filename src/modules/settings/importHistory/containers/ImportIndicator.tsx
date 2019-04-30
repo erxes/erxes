@@ -1,10 +1,14 @@
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ImportIndicator } from '../components';
-import { queries, subscriptions } from '../graphql';
-import { ImportHistoryDetailQueryResponse } from '../types';
+import { mutations, queries, subscriptions } from '../graphql';
+import {
+  CancelMutationResponse,
+  ImportHistoryDetailQueryResponse
+} from '../types';
 
 const subscription = gql(subscriptions.importSubscription);
 
@@ -12,19 +16,27 @@ type Props = {
   id: string;
   close: () => void;
   importHistoryDetailQuery: ImportHistoryDetailQueryResponse;
+  closeImportBar: () => void;
 };
 
 type State = {
   percentage: number;
 };
 
-class ImportIndicatorContainer extends React.Component<Props, State> {
+class ImportIndicatorContainer extends React.Component<
+  Props & CancelMutationResponse,
+  State
+> {
   constructor(props) {
     super(props);
 
     this.state = {
       percentage: 0
     };
+  }
+
+  componentDidMount() {
+    this.props.importHistoryDetailQuery.refetch();
   }
 
   componentWillMount() {
@@ -51,20 +63,41 @@ class ImportIndicatorContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { importHistoryDetailQuery } = this.props;
+    const {
+      importHistoryDetailQuery,
+      importHistoriesCancel,
+      closeImportBar
+    } = this.props;
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
+
+    const cancelImport = id => {
+      confirm().then(() => {
+        importHistoriesCancel({
+          variables: { _id: id }
+        })
+          .then(() => {
+            Alert.success('You canceled importing action.');
+            closeImportBar();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+            closeImportBar();
+          });
+      });
+    };
 
     return (
       <ImportIndicator
         {...this.props}
         percentage={this.state.percentage}
         importHistory={importHistory}
+        cancel={cancelImport}
       />
     );
   }
 }
 
-export default withProps<{ id: string; close?: () => void }>(
+const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
   compose(
     graphql<{ id: string }, ImportHistoryDetailQueryResponse, { _id: string }>(
       gql(queries.historyDetailForLoad),
@@ -78,6 +111,24 @@ export default withProps<{ id: string; close?: () => void }>(
           pollInterval: 20000
         })
       }
+    ),
+    graphql<Props, CancelMutationResponse, { _id: string }>(
+      gql(mutations.importHistoriesRemove),
+      {
+        name: 'importHistoriesCancel'
+      }
     )
   )(ImportIndicatorContainer)
 );
+
+const WithConsumer = props => {
+  return (
+    <AppConsumer>
+      {({ closeImportBar }) => (
+        <ImportIndicatorWithProps {...props} closeImportBar={closeImportBar} />
+      )}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer;

@@ -12,7 +12,11 @@ import {
   Table
 } from 'modules/common/components';
 import { queries } from 'modules/customers/graphql';
-import { ImportButton, TableHeadContent } from 'modules/customers/styles';
+import {
+  ImportButton,
+  ImportLoader,
+  TableHeadContent
+} from 'modules/customers/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
@@ -57,6 +61,7 @@ interface IProps extends IRouterProps {
   queryParams: any;
   exportCustomers: (bulk: string[]) => void;
   uploadXls: (e: React.FormEvent<HTMLInputElement>) => void;
+  uploadingXls: boolean;
   responseId: string;
 }
 
@@ -174,7 +179,8 @@ class CustomersList extends React.Component<IProps, State> {
       history,
       queryParams,
       exportCustomers,
-      uploadXls
+      uploadXls,
+      uploadingXls
     } = this.props;
 
     const addTrigger = (
@@ -250,13 +256,14 @@ class CustomersList extends React.Component<IProps, State> {
         </Dropdown>
 
         <ImportButton>
-          <Icon icon="download-1" />
+          {uploadingXls ? <ImportLoader /> : <Icon icon="download-1" />}
           {__('Import customers')}
           <input
             type="file"
             onChange={uploadXls}
             style={{ display: 'none' }}
             accept=".xlsx, .xls"
+            disabled={uploadingXls}
           />
         </ImportButton>
         <ModalTrigger
