@@ -76,7 +76,7 @@ class PunchCard extends React.Component<Props> {
     for (let i = 0; i < 24; i++) {
       html.push(
         <PunchCell key={Math.random()} height={cellHeight}>
-          {i}
+          {i}h
         </PunchCell>
       );
     }
