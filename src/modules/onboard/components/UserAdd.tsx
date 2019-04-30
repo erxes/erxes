@@ -1,6 +1,7 @@
 import {
   Button,
   ControlLabel,
+  FormControl,
   FormGroup,
   Icon,
   ModifiableList
@@ -9,24 +10,21 @@ import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import * as RTG from 'react-transition-group';
+import { IUserGroup } from '../../settings/permissions/types';
+import { FlexRow, LinkButton } from '../../settings/team/styles';
+import { IInvitationEntry } from '../../settings/team/types';
 import { UserList } from '../containers';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
   usersTotalCount: number;
+  usersGroups: IUserGroup[];
   changeStep: (increase: boolean) => void;
-  save: (
-    params: {
-      doc: {
-        emails: string[];
-      };
-    },
-    callback: () => void
-  ) => void;
+  save: (params: { doc: any }, callback: () => void) => void;
 };
 
 type State = {
-  emails: string[];
+  entries: IInvitationEntry[];
   showUsers?: boolean;
 };
 
@@ -36,41 +34,80 @@ class UserAdd extends React.Component<Props, State> {
 
     this.state = {
       showUsers: true,
-      emails: []
+      entries: [
+        { email: '', groupId: '' },
+        { email: '', groupId: '' },
+        { email: '', groupId: '' }
+      ]
     };
   }
 
-  afterSave() {
-    this.setState({ emails: [] });
-
-    this.props.changeStep(true);
-  }
+  onAddMoreInput = () => {
+    this.setState({
+      entries: [...this.state.entries, { email: '', groupId: '' }]
+    });
+  };
 
   toggleUsers = () => {
     this.setState({ showUsers: !this.state.showUsers });
   };
 
-  generateDoc = () => {
-    const { emails } = this.state;
-
-    return {
-      doc: { emails }
-    };
+  generateGroupsChoices = () => {
+    return this.props.usersGroups.map(group => ({
+      value: group._id,
+      label: group.name
+    }));
   };
 
-  save = e => {
+  save = (e: React.FormEvent) => {
     e.preventDefault();
-    const { save } = this.props;
 
-    if (this.state.emails.length === 0) {
-      return Alert.warning('Empty emails');
+    const { entries } = this.state;
+
+    const validEntries: IInvitationEntry[] = [];
+
+    for (const entry of entries) {
+      if (entry.email && entry.groupId) {
+        validEntries.push(entry);
+      }
     }
 
-    save(this.generateDoc(), this.afterSave.bind(this));
+    if (validEntries.length === 0) {
+      return Alert.warning('Please complete the form');
+    }
+
+    this.props.save({ doc: { entries: validEntries } }, () => {
+      this.setState({ entries: [] });
+      this.props.changeStep(true);
+    });
   };
 
-  onChangeEmails = options => {
-    this.setState({ emails: options });
+  onChange = (i: number, type: 'email' | 'groupId', e: React.FormEvent) => {
+    const { value } = e.target as HTMLInputElement;
+
+    const entries = [...this.state.entries];
+
+    entries[i] = { ...entries[i], [type]: value };
+
+    this.setState({ entries });
+  };
+
+  handleRemoveEntry = (i: number) => {
+    const { entries } = this.state;
+
+    this.setState({ entries: entries.filter((item, index) => index !== i) });
+  };
+
+  renderRemoveInput = (i: number) => {
+    const { entries } = this.state;
+
+    if (entries.length <= 1) {
+      return null;
+    }
+
+    return (
+      <Icon icon="cancel-1" onClick={this.handleRemoveEntry.bind(this, i)} />
+    );
   };
 
   renderOtherUsers = () => {
@@ -106,18 +143,39 @@ class UserAdd extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { showUsers, emails } = this.state;
+    const { entries } = this.state;
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel>Emails</ControlLabel>
-          <ModifiableList
-            options={emails}
-            addButtonLabel="Add another"
-            onChangeOption={this.onChangeEmails}
-          />
-        </FormGroup>
+        {entries.map((input, i) => (
+          <FlexRow key={i}>
+            <FormControl
+              id="emailValue"
+              type="email"
+              placeholder="name@example.com"
+              value={input.email}
+              onChange={this.onChange.bind(this, i, 'email')}
+            />
+
+            <FormControl
+              componentClass="select"
+              placeholder={__('Choose group')}
+              options={[
+                { value: '', label: '' },
+                ...this.generateGroupsChoices()
+              ]}
+              onChange={this.onChange.bind(this, i, 'groupId')}
+            />
+
+            {this.renderRemoveInput(i)}
+          </FlexRow>
+        ))}
+
+        <div>
+          <LinkButton onClick={this.onAddMoreInput}>
+            <Icon icon="add" /> {__('Add another email')}
+          </LinkButton>
+        </div>
 
         {this.renderOtherUsers()}
       </>
@@ -131,6 +189,10 @@ class UserAdd extends React.Component<Props, State> {
       <form onSubmit={this.save}>
         <TopContent>
           <h2>{__(`Let's grow your team`)}</h2>
+          <FlexRow>
+            <ControlLabel>Email address</ControlLabel>
+            <ControlLabel>Choose Group</ControlLabel>
+          </FlexRow>
           {this.renderContent()}
         </TopContent>
         <Footer>

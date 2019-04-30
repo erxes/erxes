@@ -48,24 +48,15 @@ export default class {
   private queryData: any;
   private currentUser: IUser;
   private target?: string;
-  private type: string = '';
 
   /**
    * A constructor method
    * @param {Ojbect} queryData - The query received from the back end
    */
   constructor({ activities, user, target, type }: Props) {
-    if (type === 'conversations') {
-      this.type = 'conversation-create';
-    }
-    if (type === 'notes') {
-      this.type = 'internal_note-create';
-    }
-
     this.queryData = activities;
 
-    // TODO: checkout without {}
-    this.currentUser = user || ({} as IUser);
+    this.currentUser = user;
     this.target = target || 'N/A';
   }
 
@@ -113,6 +104,10 @@ export default class {
    * @return {String} return String
    */
   _getUserName(by) {
+    if (!by) {
+      return 'System';
+    }
+
     if (by._id === this.currentUser._id) {
       return 'You';
     } else {
@@ -131,13 +126,14 @@ export default class {
 
     switch (action) {
       case 'customer-create':
-        caption = by.details.fullName ? (
-          <span>
-            {source} registered {target} to Erxes
-          </span>
-        ) : (
-          <span>{target} registered to Erxes</span>
-        );
+        caption =
+          by && by.details.fullName ? (
+            <span>
+              {source} registered {target} to Erxes
+            </span>
+          ) : (
+            <span>{target} registered to Erxes</span>
+          );
         break;
 
       case 'segment-create':

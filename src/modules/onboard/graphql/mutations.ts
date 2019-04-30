@@ -29,8 +29,8 @@ const usersStatusChange = `
 `;
 
 const usersInvite = `
-  mutation usersInvite($emails: [String]) {
-    usersInvite(emails: $emails)
+  mutation usersInvite($entries: [InvitationEntry]) {
+    usersInvite(entries: $entries)
   }
 `;
 

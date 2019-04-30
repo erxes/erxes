@@ -8,6 +8,7 @@ import {
   Table
 } from 'modules/common/components';
 import { __, Alert, confirm, router } from 'modules/common/utils';
+import { menuContacts } from 'modules/common/utils/menus';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
 import { TableHeadContent } from 'modules/customers/styles';
 import { Wrapper } from 'modules/layout/components';
@@ -267,7 +268,11 @@ class CompaniesList extends React.Component<IProps, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+          <Wrapper.Header
+            breadcrumb={breadcrumb}
+            queryParams={queryParams}
+            submenu={menuContacts}
+          />
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

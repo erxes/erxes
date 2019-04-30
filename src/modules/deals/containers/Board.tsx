@@ -18,7 +18,7 @@ type FinalProps = {
 const WithPipelinesQuery = (props: FinalProps) => {
   const { pipelineDetailQuery, queryParams } = props;
 
-  if (!pipelineDetailQuery) {
+  if (!pipelineDetailQuery || !pipelineDetailQuery.dealPipelineDetail) {
     return (
       <EmptyState
         image="/images/actions/18.svg"
