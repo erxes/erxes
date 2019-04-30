@@ -140,6 +140,7 @@ const customerCounts = `
     $page: Int,
     $perPage: Int,
     $segment: String,
+    $brand: String,
     $tag: String,
     $ids: [String],
     $only: String
@@ -148,6 +149,7 @@ const customerCounts = `
       page: $page,
       perPage: $perPage,
       segment: $segment,
+      brand: $brand,
       tag: $tag,
       ids: $ids,
       only: $only

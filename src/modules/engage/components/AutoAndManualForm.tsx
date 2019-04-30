@@ -19,19 +19,14 @@ import {
   IEngageMessenger,
   IEngageScheduleDate
 } from '../types';
-import { ChannelStep, MessageStep, SegmentStep } from './step';
+import { ChannelStep, MessageStep } from './step';
+import MessageTypeStep from './step/MessageTypeStep';
 
 type Props = {
   message?: IEngageMessage;
   brands: IBrand[];
   users: IUser[];
-  segments: ISegment[];
-  headSegments: ISegment[];
-  segmentFields: ISegment[];
   templates: IEmailTemplate[];
-  segmentAdd: (params: { doc: ISegmentDoc }) => void;
-  customerCounts?: IActivityLogForMonth[];
-  count: (segment: ISegmentDoc) => void;
   kind: string;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
@@ -47,6 +42,7 @@ type State = {
   method: string;
   title: string;
   segmentId: string;
+  brandId: string;
   content: string;
   fromUserId: string;
   messenger?: IEngageMessenger;
@@ -59,7 +55,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     super(props);
 
     const message = props.message || {};
-    const messenger = message.messenger || {};
+    const messenger = message.messenger || ({} as IEngageMessenger);
     const email = message.email || {};
 
     const content = messenger.content ? messenger.content : email.content || '';
@@ -70,6 +66,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       method: message.method || 'email',
       title: message.title || '',
       segmentId: message.segmentId || '',
+      brandId: messenger.brandId || '',
       content,
       fromUserId: message.fromUserId,
       messenger: message.messenger,
@@ -131,7 +128,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       email,
       fromUserId,
       content,
-      scheduleDate
+      scheduleDate,
+      segmentId,
+      brandId
     } = this.state;
 
     const onChange = e =>
@@ -162,15 +161,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"
           >
-            <SegmentStep
+            <MessageTypeStep
               onChange={this.changeState}
-              segments={this.props.segments}
-              headSegments={this.props.headSegments}
-              segmentFields={this.props.segmentFields}
-              segmentAdd={this.props.segmentAdd}
-              counts={this.props.customerCounts}
-              count={this.props.count}
-              segmentId={this.state.segmentId}
+              segmentId={segmentId}
+              brandId={brandId}
             />
           </Step>
 

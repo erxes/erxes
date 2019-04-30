@@ -1,3 +1,4 @@
+import { BrandStep, SegmentStep } from './audience';
 import AutoAndManualForm from './AutoAndManualForm';
 import EmailStatistics from './EmailStatistics';
 import MessageForm from './MessageForm';
@@ -17,5 +18,7 @@ export {
   VisitorForm,
   Widget,
   MessengerPreview,
-  Sidebar
+  Sidebar,
+  SegmentStep,
+  BrandStep
 };

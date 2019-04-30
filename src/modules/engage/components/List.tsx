@@ -5,38 +5,32 @@ import * as React from 'react';
 import { Segmentli } from '../styles';
 
 type Props = {
-  segments: ISegment[];
-  changeSegments: (value: string) => void;
+  list: ISegment[] | any;
+  changeList: (value: string) => void;
   counts: any;
   defaultValue: string;
 };
 
 type State = {
-  chosenSegment: string;
+  selected: string;
 };
 
-class Segments extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      chosenSegment: ''
-    };
-  }
+class List extends React.Component<Props, State> {
+  state = { selected: '' };
 
   componentDidMount() {
     if (this.props.defaultValue !== '') {
-      this.setState({ chosenSegment: this.props.defaultValue });
+      this.setState({ selected: this.props.defaultValue });
     }
   }
 
-  onClickSegment = segmentId => {
-    if (segmentId === this.state.chosenSegment) {
-      this.setState({ chosenSegment: '' });
-      this.props.changeSegments('');
+  onClickSegment = id => {
+    if (id === this.state.selected) {
+      this.setState({ selected: '' });
+      this.props.changeList('');
     } else {
-      this.props.changeSegments(segmentId);
-      this.setState({ chosenSegment: segmentId });
+      this.props.changeList(id);
+      this.setState({ selected: id });
     }
   };
 
@@ -48,10 +42,7 @@ class Segments extends React.Component<Props, State> {
     }
 
     return orderedSegments.map(segment => (
-      <Segmentli
-        key={segment._id}
-        chosen={this.state.chosenSegment === segment._id}
-      >
+      <Segmentli key={segment._id} chosen={this.state.selected === segment._id}>
         <a tabIndex={0} onClick={this.onClickSegment.bind(this, segment._id)}>
           {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
           <Icon icon="piechart icon" style={{ color: segment.color }} />
@@ -63,18 +54,18 @@ class Segments extends React.Component<Props, State> {
   }
 
   render() {
-    const { segments } = this.props;
+    const { list } = this.props;
 
-    const orderedSegments: ISegment[] = [];
+    const orderedList: ISegment[] | any = [];
 
-    segments.forEach(segment => {
-      if (!segment.subOf) {
-        orderedSegments.push(segment, ...segment.getSubSegments);
+    list.forEach(obj => {
+      if (!obj.subOf) {
+        orderedList.push(obj, ...obj.getSubSegments);
       }
     });
 
-    return <SidebarList>{this.renderItems(orderedSegments)}</SidebarList>;
+    return <SidebarList>{this.renderItems(orderedList)}</SidebarList>;
   }
 }
 
-export default Segments;
+export default List;
