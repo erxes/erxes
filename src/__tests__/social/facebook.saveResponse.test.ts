@@ -1,17 +1,13 @@
-import * as sinon from 'sinon';
 import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS } from '../../data/constants';
 import { integrationFactory } from '../../db/factories';
 import { ConversationMessages, Conversations, Customers } from '../../db/models';
 import { SaveWebhookResponse } from '../../trackers/facebook';
-import { graphRequest } from '../../trackers/facebookTracker';
 
 describe('facebook integration: save webhook response', () => {
   let senderId = '2242424244';
   const pageId = '2252525525';
   const postId = '242422242424244';
   const recipientId = '242422242424244';
-  let getMock;
-  let postMock;
 
   let saveWebhookResponse;
   let integration;
@@ -24,51 +20,21 @@ describe('facebook integration: save webhook response', () => {
       },
     });
 
-    getMock = sinon.stub(graphRequest, 'get').callsFake(path => {
-      // mock get page access token
-      if (path.includes('/?fields=access_token')) {
-        return {
-          access_token: '244242442442',
-        };
-      }
-
-      // mock get post object
-      if (path === postId) {
-        return {
-          id: postId,
-        };
-      }
-
-      // mock get picture
-      if (path.includes('/picture?')) {
-        return expect({}).toThrowError('Not Facebook User');
-      }
-
-      // mock get user info
-      return {
-        first_name: 'Dombo',
-        last_name: 'Gombo',
-        name: 'Dombo Gombo',
-      };
-    });
-
-    postMock = sinon.stub(graphRequest, 'post').callsFake(() => {
-      return new Promise(resolve => {
-        resolve({
-          id: 'commentId',
-          message_id: 'message_id',
-        });
-      });
-    });
-
     saveWebhookResponse = new SaveWebhookResponse('access_token', integration, {});
+    saveWebhookResponse.getPageAccessToken = () => ({ access_token: '244242442442' });
+    saveWebhookResponse.getProfilePic = () => '/pic';
+    saveWebhookResponse.getFacebookUser = () => ({
+      first_name: 'Dombo',
+      last_name: 'Gombo',
+      name: 'Dombo Gombo',
+    });
+    saveWebhookResponse.getParentPost = () => ({ id: postId });
+    saveWebhookResponse.getPost = () => ({ id: postId });
+    saveWebhookResponse.findPostComments = () => [];
+    saveWebhookResponse.restoreOldPosts = () => false;
   });
 
   afterEach(async () => {
-    // unwraps the spy
-    getMock.restore();
-    postMock.restore();
-
     // clear previous datas
     await Conversations.deleteMany({});
     await Customers.deleteMany({});
@@ -114,6 +80,7 @@ describe('facebook integration: save webhook response', () => {
         },
       ],
     };
+
     await saveWebhookResponse.start();
 
     expect(await Conversations.find().countDocuments()).toBe(1); // 1 conversation
@@ -245,6 +212,18 @@ describe('facebook integration: save webhook response', () => {
     expect(await ConversationMessages.find().countDocuments()).toBe(2);
   });
 
+  test('processMessengerEvent', async () => {
+    expect.assertions(1);
+
+    saveWebhookResponse.processMessengerEvent(senderId, recipientId);
+
+    try {
+      saveWebhookResponse.processMessengerEvent(senderId, recipientId);
+    } catch (e) {
+      expect(e.message).toBe('Already processing');
+    }
+  });
+
   test('via feed event', async () => {
     // first time ========================
 
@@ -338,9 +317,6 @@ describe('facebook integration: save webhook response', () => {
     expect(message.facebookData.photos).toHaveLength(0);
 
     // second time ========================
-    sinon.stub(saveWebhookResponse, 'restoreOldPosts').callsFake(() => {
-      return false;
-    });
 
     // customer commented hi on above post again
     messageText = 'hi';

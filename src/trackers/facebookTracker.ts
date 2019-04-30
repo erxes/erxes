@@ -40,7 +40,7 @@ export const graphRequest = {
 export const trackIntegrations = expressApp => {
   const FACEBOOK_APP_ID = getEnv({ name: 'FACEBOOK_APP_ID' });
 
-  expressApp.get(`/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, (req, res) => {
+  expressApp.get(`/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, async (req, res) => {
     const query = req.query;
 
     // when the endpoint is registered as a webhook, it must echo back
@@ -54,13 +54,16 @@ export const trackIntegrations = expressApp => {
     }
   });
 
-  expressApp.post(`/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, (req, res) => {
-    res.statusCode = 200;
-
+  expressApp.post(`/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, async (req, res) => {
     // receive per app webhook response
-    receiveWebhookResponse(req.body);
-
-    res.end('success');
+    try {
+      await receiveWebhookResponse(req.body);
+      res.statusCode = 200;
+      res.end('success');
+    } catch (e) {
+      res.statusCode = 500;
+      res.end(e.message);
+    }
   });
 };
 

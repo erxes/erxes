@@ -1,6 +1,5 @@
-import { Accounts, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
-
 import { publishClientMessage, publishMessage } from '../data/resolvers/mutations/conversations';
+import { Accounts, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
 
 import {
   CONVERSATION_STATUSES,
@@ -87,6 +86,8 @@ export const getPageList = async (accessToken?: string) => {
  * create conversation, customer, message using transmitted data
  */
 
+const messengerProcessingMap = {};
+
 export class SaveWebhookResponse {
   public currentPageId?: string | null;
   public data: any;
@@ -134,6 +135,138 @@ export class SaveWebhookResponse {
     }
   }
 
+  // GraphAPI related begin =================
+
+  /*
+   * Get page access token
+   */
+  public async getPageAccessToken() {
+    // get page access token
+    const response = await graphRequest.get(`${this.currentPageId}/?fields=access_token`, this.userAccessToken);
+
+    // access token expired
+    if (response === 'Error processing https request') {
+      throw new Error("getOrCreateConversationByFeed: Couldn't get Page access token");
+    }
+
+    return response;
+  }
+
+  // get profile pic
+  public async getProfilePic(fbId: string) {
+    try {
+      const response: any = await graphRequest.get(`/${fbId}/picture?height=600`);
+      return response.image ? response.location : '';
+    } catch (e) {
+      return null;
+    }
+  }
+
+  public async getFacebookUser(fbUserId: string) {
+    const pageTokenResponse = await this.getPageAccessToken();
+    const pageToken = pageTokenResponse.access_token;
+
+    return graphRequest.get(`/${fbUserId}`, pageToken);
+  }
+
+  public async getParentPost(postId: string, accessToken: string) {
+    const fields = `/${postId}?fields=caption,description,link,picture,source,message,from,created_time,comments.summary(true)`;
+    return graphRequest.get(fields, accessToken);
+  }
+
+  public async getPost(postId: string) {
+    const token = await this.getPageAccessToken();
+
+    return graphRequest.get(postId, token.access_token);
+  }
+
+  public findPostComments(accessToken: string, postId: string) {
+    return findPostComments(accessToken, postId, []);
+  }
+
+  /**
+   * Restore deleted facebook converation's data
+   */
+  public async restoreOldPosts({
+    conversation,
+    facebookData,
+  }: {
+    conversation: IConversationDocument;
+    facebookData: IMsgFacebook;
+  }): Promise<null | IMessageDocument> {
+    const { item, postId } = facebookData;
+
+    if (!postId) {
+      return null;
+    }
+
+    if (item !== 'comment') {
+      return null;
+    }
+
+    const parentPost = await ConversationMessages.findOne({
+      conversationId: conversation._id,
+      'facebookData.isPost': true,
+      'facebookData.postId': postId,
+    });
+
+    if (parentPost) {
+      return null;
+    }
+
+    // getting page access token
+    const accessTokenResponse: any = await this.getPageAccessToken();
+    const accessToken = accessTokenResponse.access_token;
+
+    // getting parent post if comment has no parent
+    // get post info
+    const postResponse: IPost = await this.getParentPost(postId, accessToken);
+
+    const postParams = await this.handlePosts({
+      ...postResponse,
+      item: 'status',
+      post_id: postResponse.id,
+    });
+
+    const post = await this.createMessage({
+      conversation,
+      content: postResponse.message || '...',
+      facebookData: {
+        senderId: postResponse.from.id,
+        senderName: postResponse.from.name,
+        commentCount: postResponse.comments.summary.total_count,
+        ...postParams,
+      },
+      restoring: true,
+    });
+
+    // getting all the comments of post
+    const postComments = await this.findPostComments(accessToken, postId);
+
+    // creating conversation message for each comment
+    for (const comment of postComments) {
+      await this.createMessage({
+        conversation,
+        content: comment.message,
+        facebookData: {
+          postId: postResponse.id,
+          commentId: comment.id,
+          item: 'comment',
+          senderId: comment.from.id,
+          senderName: comment.from.name,
+          parentId: comment.parent && comment.parent.id,
+          createdTime: (comment.created_time || 0 * 1000).toString(),
+          commentCount: comment.comments.summary.total_count,
+        },
+        restoring: true,
+      });
+    }
+
+    return post;
+  }
+
+  // ================= GraphAPI related end
+
   /*
    * Via page messenger
    */
@@ -154,14 +287,6 @@ export class SaveWebhookResponse {
       // someone posted on our wall
       await this.getOrCreateConversationByFeed(event.value);
     }
-  }
-
-  /*
-   * Get page access token
-   */
-  public getPageAccessToken() {
-    // get page access token
-    return graphRequest.get(`${this.currentPageId}/?fields=access_token`, this.userAccessToken);
   }
 
   /**
@@ -433,23 +558,6 @@ export class SaveWebhookResponse {
 
     const messageText = value.message || '...';
 
-    // value.post_id is returning different value even though same post
-    // with the previous one. So fetch post info via graph api and
-    // save returned value. This value will always be the same
-    let postId = value.post_id;
-
-    let response: any = await this.getPageAccessToken();
-
-    // access token expired
-    if (response === 'Error processing https request') {
-      throw new Error("getOrCreateConversationByFeed: Couldn't get Page access token");
-    }
-
-    // get post object
-    response = await graphRequest.get(postId, response.access_token);
-
-    postId = response.id;
-
     let status = CONVERSATION_STATUSES.NEW;
 
     // if we are posting from our page, close it automatically
@@ -457,17 +565,25 @@ export class SaveWebhookResponse {
       status = CONVERSATION_STATUSES.CLOSED;
     }
 
+    // value.post_id is returning different value even though same post
+    // with the previous one. So fetch post info via graph api and
+    // save returned value. This value will always be the same
+    const post_id = value.post_id;
+
+    // get post object
+    const post = await this.getPost(post_id);
+
     await this.getOrCreateConversation({
       findSelector: {
         'facebookData.kind': FACEBOOK_DATA_KINDS.FEED,
-        'facebookData.postId': postId,
+        'facebookData.postId': post.id,
       },
       status,
       facebookData: {
         kind: FACEBOOK_DATA_KINDS.FEED,
         senderId,
         senderName,
-        postId,
+        postId: post.id,
       },
 
       // message data
@@ -478,6 +594,25 @@ export class SaveWebhookResponse {
         ...msgFacebookData,
       },
     });
+  }
+
+  /*
+   * Check concurrent messenger event proccessing to prevent creating
+   * extra conversation
+   */
+  public processMessengerEvent(senderId: string, recipientId: string): { key1: string; key2: string } {
+    const key1 = `${senderId}:${recipientId}`;
+    const key2 = `${recipientId}:${senderId}`;
+
+    // preventing from creating extra conversation
+    if (messengerProcessingMap[key1] || messengerProcessingMap[key2]) {
+      throw new Error('Already processing');
+    }
+
+    messengerProcessingMap[key1] = true;
+    messengerProcessingMap[key2] = true;
+
+    return { key1, key2 };
   }
 
   /*
@@ -504,6 +639,9 @@ export class SaveWebhookResponse {
     ) {
       return null;
     }
+
+    // check concurrent processing
+    const { key1, key2 } = this.processMessengerEvent(senderId, recipientId);
 
     await this.getOrCreateConversation({
       // try to find conversation by senderId, recipientId keys
@@ -537,6 +675,9 @@ export class SaveWebhookResponse {
         messageId,
       },
     });
+
+    delete messengerProcessingMap[key1];
+    delete messengerProcessingMap[key2];
   }
 
   /**
@@ -555,28 +696,14 @@ export class SaveWebhookResponse {
       return customer;
     }
 
-    let avatar;
+    let avatar: string = '';
 
     if (!fbUserName) {
-      const pageTokenResponse = await this.getPageAccessToken();
-      const pageToken = pageTokenResponse.access_token;
+      const fbUser = await this.getFacebookUser(fbUserId);
 
-      const fbUserResponse = await graphRequest.get(`/${fbUserId}`, pageToken);
-
-      fbUserName = `${fbUserResponse.first_name} ${fbUserResponse.last_name}`;
-
-      avatar = fbUserResponse.profile_pic;
+      fbUserName = `${fbUser.first_name} ${fbUser.last_name}`;
+      avatar = fbUser.profile_pic;
     }
-
-    // get profile pic
-    const getProfilePic = async (fbId: string) => {
-      try {
-        const response: any = await graphRequest.get(`/${fbId}/picture?height=600`);
-        return response.image ? response.location : '';
-      } catch (e) {
-        return null;
-      }
-    };
 
     // when feed response will contain name field
     // when messeger response will not contain name field
@@ -586,7 +713,7 @@ export class SaveWebhookResponse {
     const createdCustomer = await Customers.createCustomer({
       firstName,
       integrationId,
-      avatar: avatar ? avatar : (await getProfilePic(fbUserId)) || '',
+      avatar: avatar || (await this.getProfilePic(fbUserId)),
       facebookData: {
         id: fbUserId,
       },
@@ -647,88 +774,6 @@ export class SaveWebhookResponse {
     publishMessage(message, conversation.customerId);
 
     return message;
-  }
-
-  /**
-   * Restore deleted facebook converation's data
-   */
-  public async restoreOldPosts({
-    conversation,
-    facebookData,
-  }: {
-    conversation: IConversationDocument;
-    facebookData: IMsgFacebook;
-  }): Promise<null | IMessageDocument> {
-    const { item, postId } = facebookData;
-
-    if (!postId) {
-      return null;
-    }
-
-    if (item !== 'comment') {
-      return null;
-    }
-
-    const parentPost = await ConversationMessages.findOne({
-      conversationId: conversation._id,
-      'facebookData.isPost': true,
-      'facebookData.postId': postId,
-    });
-
-    if (parentPost) {
-      return null;
-    }
-
-    // getting page access token
-    const accessTokenResponse: any = await this.getPageAccessToken();
-    const accessToken = accessTokenResponse.access_token;
-
-    // creating parent post if comment has no parent
-    // get post info
-    const fields = `/${postId}?fields=caption,description,link,picture,source,message,from,created_time,comments.summary(true)`;
-    const postResponse: IPost = await graphRequest.get(fields, accessToken);
-
-    const postParams = await this.handlePosts({
-      ...postResponse,
-      item: 'status',
-      post_id: postResponse.id,
-    });
-
-    const post = await this.createMessage({
-      conversation,
-      content: postResponse.message || '...',
-      facebookData: {
-        senderId: postResponse.from.id,
-        senderName: postResponse.from.name,
-        commentCount: postResponse.comments.summary.total_count,
-        ...postParams,
-      },
-      restoring: true,
-    });
-
-    // getting all the comments of post
-    const postComments = await findPostComments(accessToken, postId, []);
-
-    // creating conversation message for each comment
-    for (const comment of postComments) {
-      await this.createMessage({
-        conversation,
-        content: comment.message,
-        facebookData: {
-          postId: postResponse.id,
-          commentId: comment.id,
-          item: 'comment',
-          senderId: comment.from.id,
-          senderName: comment.from.name,
-          parentId: comment.parent && comment.parent.id,
-          createdTime: (comment.created_time || 0 * 1000).toString(),
-          commentCount: comment.comments.summary.total_count,
-        },
-        restoring: true,
-      });
-    }
-
-    return post;
   }
 }
 

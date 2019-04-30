@@ -181,6 +181,7 @@ const facebookSchema = new Schema(
     messageId: field({
       type: String,
       optional: true,
+      index: true,
     }),
 
     // comment, reaction, etc ...
