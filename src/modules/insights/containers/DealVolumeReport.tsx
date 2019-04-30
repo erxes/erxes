@@ -35,7 +35,7 @@ const DealVolumeReportContainer = (props: FinalProps) => {
   } = props;
 
   const data = mainQuery.dealInsightsMain || {};
-  let teamMembers: IChartParams[] = [];
+  let teamMembers;
 
   if (status) {
     teamMembers = insightsByTeamMemberQuery.dealInsightsByTeamMember || [];

@@ -72,10 +72,6 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
   }
 
   renderTrend(name, loading, data) {
-    if (data.length === 0) {
-      return null;
-    }
-
     return (
       <InsightRow>
         {this.renderTitle(name)}
@@ -85,10 +81,6 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
   }
 
   renderPunchCard(loading, data, width) {
-    if (data.length === 0) {
-      return null;
-    }
-
     let content = (
       <LoaderWrapper>
         <Spinner objective={true} />
@@ -117,7 +109,7 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
   renderTeamMembers() {
     const { teamMembers, loading } = this.props;
 
-    if (teamMembers.length === 0) {
+    if (!teamMembers) {
       return null;
     }
 

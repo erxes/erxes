@@ -23,8 +23,6 @@ class Insights extends React.Component<Props> {
       );
     }
 
-    console.log('data: ', data); //tslint:disable-line
-
     let content;
 
     if (data.length === 0) {

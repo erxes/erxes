@@ -1,4 +1,4 @@
-import { Button, ControlLabel } from 'modules/common/components';
+import { ControlLabel } from 'modules/common/components';
 import { ISelectedOption } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
@@ -43,13 +43,15 @@ class InboxFilter extends React.Component<Props, States> {
     this.setState({ brandIds: brands.map(el => el.value) });
   };
 
-  onApplyClick = () => {
+  onApplyClick = ({ startDate, endDate }) => {
     const { history } = this.props;
     const { integrationIds, brandIds } = this.state;
 
     router.setParams(history, {
       integrationIds: (integrationIds || []).join(','),
-      brandIds: (brandIds || []).join(',')
+      brandIds: (brandIds || []).join(','),
+      startDate,
+      endDate
     });
   };
 
@@ -112,18 +114,12 @@ class InboxFilter extends React.Component<Props, States> {
       </>
     );
 
-    const applyBtn = (
-      <Button btnStyle="success" icon="filter" onClick={this.onApplyClick}>
-        Filter
-      </Button>
-    );
-
     return (
       <Filter
         queryParams={queryParams}
         history={history}
         content={content}
-        applyBtn={applyBtn}
+        onApplyClick={this.onApplyClick}
       />
     );
   }
