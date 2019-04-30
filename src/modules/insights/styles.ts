@@ -20,7 +20,7 @@ const InsightWrapper = styled.div`
 `;
 
 const InsightContent = styled.div`
-  padding: 0 30px 30px 30px;
+  padding: 30px;
   overflow: auto;
 `;
 
