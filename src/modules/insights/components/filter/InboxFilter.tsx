@@ -72,7 +72,7 @@ class InboxFilter extends React.Component<Props, States> {
           value={this.state.integrationIds || []}
           onChange={this.onTypeChange}
           optionRenderer={options}
-          options={integrationOptions([__('All'), ...integrations])}
+          options={integrationOptions([...integrations])}
           multi={true}
         />
       </FlexItem>
@@ -97,7 +97,7 @@ class InboxFilter extends React.Component<Props, States> {
           value={this.state.brandIds || []}
           onChange={this.onBrandChange}
           optionRenderer={options}
-          options={selectOptions([{ _id: '', name: __('All') }, ...brands])}
+          options={selectOptions([...brands])}
           multi={true}
         />
       </FlexItem>

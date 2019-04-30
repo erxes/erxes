@@ -38,10 +38,12 @@ class Filter extends React.Component<Props, States> {
   }
 
   onDateInputChange = (type: string, date) => {
+    const formatted = date ? date.format('YYYY-MM-DD HH:mm') : '';
+
     if (type === 'endDate') {
-      this.setState({ endDate: date });
+      this.setState({ endDate: formatted });
     } else {
-      this.setState({ startDate: date });
+      this.setState({ startDate: formatted });
     }
   };
 

@@ -78,7 +78,7 @@ class DealFilter extends React.Component<Props, States> {
           value={this.state.pipelineIds || []}
           onChange={this.onPipelineChange}
           optionRenderer={options}
-          options={selectOptions([{ _id: '', name: __('All') }, ...pipelines])}
+          options={selectOptions([...pipelines])}
           multi={true}
         />
       </FlexItem>
