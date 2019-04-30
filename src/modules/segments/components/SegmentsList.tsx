@@ -10,6 +10,7 @@ import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { ISegment } from '../types';
+import Sidebar from './Sidebar';
 
 type Props = {
   contentType?: string;
@@ -98,6 +99,7 @@ class SegmentsList extends React.Component<Props> {
         header={<Wrapper.Header breadcrumb={[{ title: __('Segments') }]} />}
         actionBar={actionBar}
         content={this.renderContent()}
+        leftSidebar={<Sidebar />}
       />
     );
   }
