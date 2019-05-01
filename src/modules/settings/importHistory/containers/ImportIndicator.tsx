@@ -113,7 +113,7 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
       }
     ),
     graphql<Props, CancelMutationResponse, { _id: string }>(
-      gql(mutations.importHistoriesRemove),
+      gql(mutations.importCancel),
       {
         name: 'importHistoriesCancel'
       }
