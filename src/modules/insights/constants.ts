@@ -36,13 +36,15 @@ export const INBOX_INSIGHTS = [
     name: 'Volume Report By Customer',
     image: '/images/icons/erxes-22.svg',
     to: '/insights/summary-report',
-    desc: ''
+    desc:
+      'You can find stats that defines the average response time by each team member.'
   },
   {
     name: 'Export Report',
     image: '/images/icons/erxes-23.svg',
     to: '/insights/export-report',
-    desc: ''
+    desc:
+      'You can find stats that defines the average response time by each team member.'
   }
 ];
 
