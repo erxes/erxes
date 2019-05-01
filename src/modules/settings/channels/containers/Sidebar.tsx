@@ -44,6 +44,8 @@ const SidebarContainer = (props: FinalProps) => {
   const members = usersQuery.users || [];
   const channelsTotalCount = channelsCountQuery.channelsTotalCount || 0;
 
+  console.log('members: ', members); //tslint:disable-line
+
   // remove action
   const remove = channelId => {
     confirm().then(() => {
@@ -141,7 +143,10 @@ export default withProps<Props>(
     graphql<Props, UsersQueryResponse, {}>(gql(queries.users), {
       name: 'usersQuery',
       options: () => ({
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
+        variables: {
+          perPage: 100
+        }
       })
     }),
     graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {

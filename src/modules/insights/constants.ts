@@ -34,13 +34,13 @@ export const INBOX_INSIGHTS = [
   },
   {
     name: 'Volume Report By Customer',
-    image: '',
+    image: '/images/icons/erxes-22.svg',
     to: '/insights/summary-report',
     desc: ''
   },
   {
     name: 'Export Report',
-    image: '',
+    image: '/images/icons/erxes-23.svg',
     to: '/insights/export-report',
     desc: ''
   }

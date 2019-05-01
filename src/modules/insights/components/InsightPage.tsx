@@ -41,14 +41,7 @@ class InsightPage extends React.Component<Props> {
     const content = (
       <FullContent center={true}>
         <BoxContainer>
-          {this.getInsights().map((insight, index) => {
-            // show only first 4 insights
-            if (index < 4) {
-              return this.renderBox(insight);
-            }
-
-            return null;
-          })}
+          {this.getInsights().map(insight => this.renderBox(insight))}
         </BoxContainer>
       </FullContent>
     );
