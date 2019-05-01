@@ -141,7 +141,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           this.setState({ uploadingXls: false });
 
           if (response.status === 'error') {
-            return Alert.error(response.error);
+            return Alert.error(response.message);
           }
 
           if (response.id) {

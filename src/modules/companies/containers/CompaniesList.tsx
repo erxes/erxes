@@ -140,7 +140,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
           this.setState({ loading: false });
 
           if (response.status === 'error') {
-            return Alert.error(response.error);
+            return Alert.error(response.message);
           }
 
           if (response.id) {
