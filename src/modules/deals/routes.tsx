@@ -16,13 +16,13 @@ const DealBoard = asyncComponent(() =>
 );
 
 const deals = () => {
-  let dealsLink = '/deal/deals/board';
+  let dealsLink = '/deal/board';
 
   const lastBoardId = localStorage.getItem(STORAGE_BOARD_KEY);
   const lastPipelineId = localStorage.getItem(STORAGE_PIPELINE_KEY);
 
   if (lastBoardId && lastPipelineId) {
-    dealsLink = `/deal/deals/board?id=${lastBoardId}&pipelineId=${lastPipelineId}`;
+    dealsLink = `/deal/board?id=${lastBoardId}&pipelineId=${lastPipelineId}`;
   }
 
   return <Redirect to={dealsLink} />;
@@ -48,14 +48,14 @@ const routes = () => {
       <Route
         key="deals/board"
         exact={true}
-        path="/deal/deals/board"
+        path="/deal/board"
         component={boards}
       />
 
       <Route
         key="deals/calendar"
         exact={true}
-        path="/deal/deals/calendar"
+        path="/deal/calendar"
         component={calendar}
       />
     </React.Fragment>
