@@ -35,7 +35,7 @@ class ResponseCloseReport extends React.Component<Props> {
 
   renderBreadCrumnb() {
     return [
-      { title: __('Insights'), link: '/insights' },
+      { title: __('Insights'), link: '/inbox/insights' },
       { title: __('Response Close Report') }
     ];
   }

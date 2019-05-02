@@ -148,7 +148,7 @@ export default class {
         caption = (
           <span>
             {target} sent a&nbsp;
-            <Link to={`/inbox?_id=${id}`}>
+            <Link to={`/inbox/inbox?_id=${id}`}>
               <strong>conversation</strong>
             </Link>
             &nbsp;message
