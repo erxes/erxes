@@ -51,7 +51,11 @@ class UserDetails extends React.Component<Props> {
                   <strong> conversation </strong>
                 </Link>
                 with{' '}
-                <Link to={`/customers/details/${conversation.customer._id}`}>
+                <Link
+                  to={`/contacts/customers/details/${
+                    conversation.customer._id
+                  }`}
+                >
                   <strong>{renderFullName(conversation.customer)}</strong>
                 </Link>
               </div>
