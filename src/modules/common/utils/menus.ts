@@ -4,7 +4,7 @@ const menuInbox = [
 ];
 
 const menuDeal = [
-  { title: 'Deal', link: '/deals' },
+  { title: 'Deal', link: '/deal/deals/board' },
   { title: 'Insights', link: '/deal/insights' }
 ];
 
