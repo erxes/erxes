@@ -213,7 +213,7 @@ class ChannelForm extends React.Component<Props, State> {
               {__('Finish')} <Icon icon="rightarrow-2" />
             </Button>
           </div>
-          <Link to="/inbox/inbox">{__('Go to Inbox')} »</Link>
+          <Link to="/inbox/index">{__('Go to Inbox')} »</Link>
         </Footer>
       </form>
     );

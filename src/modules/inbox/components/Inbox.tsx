@@ -15,7 +15,7 @@ type Props = {
 function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
   const breadcrumb = [{ title: __('Inbox') }];
 
-  const menuInbox = [{ title: 'Inbox', link: '/inbox/inbox' }];
+  const menuInbox = [{ title: 'Inbox', link: '/inbox/index' }];
 
   if (can('showInsights', currentUser)) {
     menuInbox.push({ title: 'Insights', link: '/inbox/insights' });

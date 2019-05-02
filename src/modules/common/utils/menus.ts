@@ -1,5 +1,5 @@
 const menuInbox = [
-  { title: 'Inbox', link: '/inbox/inbox' },
+  { title: 'Inbox', link: '/inbox/index' },
   { title: 'Insights', link: '/inbox/insights' }
 ];
 
