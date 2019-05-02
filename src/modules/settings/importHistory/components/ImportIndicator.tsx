@@ -1,8 +1,9 @@
 import { Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { stripe } from 'modules/common/utils/animations';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors } from '../../../common/styles';
 import { IImportHistory } from '../types';
@@ -36,16 +37,26 @@ const Indicator = styled.div`
   }
 `;
 
-const Progress = styledTS<{ percentage: number }>(styled.div)`
+const Progress = styled.div`
   position: absolute;
-  width: ${props => props.percentage}%;
   background: #dddeff;
   left: 0;
   top: 0;
   bottom: 0;
-  background-image: linear-gradient(45deg,rgba(255,255,255,.1) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.1) 75%,transparent 75%,transparent);
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.1) 75%,
+    transparent 75%,
+    transparent
+  );
   background-size: 16px 16px;
   border-radius: 2px;
+  transition: width 0.5s ease;
+  animation: ${stripe} 1s linear infinite;
 `;
 
 const Capitalize = styledTS<{ isCapital?: boolean }>(styled.span)`
@@ -77,7 +88,7 @@ class ImportIndicator extends React.Component<Props> {
       percent = 100;
     }
 
-    return <Progress percentage={percent} />;
+    return <Progress style={{ width: `${percent}%` }} />;
   };
 
   showErrors = (errorMsgs: string[]) => {
@@ -117,8 +128,8 @@ class ImportIndicator extends React.Component<Props> {
 
     return (
       <div>
-        {__('Importing')} {this.renderType(contentType)} {__('data')} -{' '}
-        <b>{percentage}%</b> You can <a onClick={this.cancel}>{__('cancel')}</a>{' '}
+        <b>[{percentage}%]</b> {__('Importing')} {this.renderType(contentType)}{' '}
+        {__('data')}. You can <a onClick={this.cancel}>{__('cancel')}</a>{' '}
         anytime.
       </div>
     );

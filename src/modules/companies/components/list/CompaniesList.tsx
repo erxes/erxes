@@ -11,9 +11,10 @@ import {
 } from 'modules/common/components';
 import { __, Alert, confirm, router } from 'modules/common/utils';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
-import { ImportButton, TableHeadContent } from 'modules/customers/styles';
+import { TableHeadContent } from 'modules/customers/styles';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
+import { DataImporter } from 'modules/settings/importHistory/containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
 import { TaggerPopover } from 'modules/tags/components';
 import * as React from 'react';
@@ -277,16 +278,7 @@ class CompaniesList extends React.Component<IProps, State> {
           </Dropdown.Menu>
         </Dropdown>
 
-        <ImportButton>
-          <Icon icon="download-1" />
-          {__('Import companies')}
-          <input
-            type="file"
-            onChange={uploadXls}
-            style={{ display: 'none' }}
-            accept=".xlsx, .xls"
-          />
-        </ImportButton>
+        <DataImporter text={__('Import companies')} type="company" />
 
         <ModalTrigger
           title="New company"

@@ -1,5 +1,4 @@
 import client from 'apolloClient';
-import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
@@ -20,7 +19,6 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
-import { handleXlsUpload } from '../utils';
 
 type Props = {
   queryParams: any;
@@ -38,7 +36,6 @@ type FinalProps = {
 type State = {
   loading: boolean;
   responseId: string;
-  uploadingXls: boolean;
 };
 
 class CustomerListContainer extends React.Component<FinalProps, State> {
@@ -47,7 +44,6 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       loading: false,
-      uploadingXls: false,
       responseId: ''
     };
   }
@@ -58,8 +54,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersListConfigQuery,
       customersRemove,
       customersMerge,
-      history,
-      showImportBar
+      history
     } = this.props;
 
     let columnsConfig =
@@ -130,28 +125,6 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const uploadXls = e => {
-      handleXlsUpload({
-        e,
-        type: 'customer',
-        beforeUploadCallback: () => {
-          this.setState({ uploadingXls: true });
-        },
-        afterUploadCallback: response => {
-          this.setState({ uploadingXls: false });
-
-          if (response.status === 'error') {
-            return Alert.error(response.message);
-          }
-
-          if (response.id) {
-            localStorage.setItem('erxes_import_data', response.id);
-            showImportBar();
-          }
-        }
-      });
-    };
-
     const searchValue = this.props.queryParams.searchValue || '';
 
     const { list = [], totalCount = 0 } =
@@ -163,8 +136,6 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customers: list,
       totalCount,
       exportCustomers,
-      uploadingXls: this.state.uploadingXls,
-      uploadXls,
       integrations: KIND_CHOICES.ALL_LIST,
       searchValue,
       loading: customersMainQuery.loading || this.state.loading,
@@ -206,7 +177,7 @@ const generateParams = ({ queryParams }) => {
   };
 };
 
-const CustomerListWithProps = withProps<Props>(
+export default withProps<Props>(
   compose(
     graphql<Props, MainQueryResponse, ListQueryVariables>(
       gql(queries.customersMain),
@@ -242,15 +213,3 @@ const CustomerListWithProps = withProps<Props>(
     )
   )(withRouter<IRouterProps>(CustomerListContainer))
 );
-
-const WithConsumer = props => {
-  return (
-    <AppConsumer>
-      {({ showImportBar }) => (
-        <CustomerListWithProps {...props} showImportBar={showImportBar} />
-      )}
-    </AppConsumer>
-  );
-};
-
-export default WithConsumer;

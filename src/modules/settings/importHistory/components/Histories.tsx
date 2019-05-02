@@ -6,6 +6,7 @@ import {
 import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
+import { DataImporter } from 'modules/settings/importHistory/containers';
 import * as React from 'react';
 import Sidebar from '../../properties/components/Sidebar';
 import { IImportHistory } from '../types';
@@ -51,6 +52,17 @@ class Histories extends React.Component<Props & IRouterProps> {
     );
   };
 
+  renderImportButton = () => {
+    const { currentType } = this.props;
+
+    return (
+      <DataImporter
+        type={currentType}
+        text={`${__('Import')} ${currentType}`}
+      />
+    );
+  };
+
   onClick = id => {
     const { history } = this.props;
 
@@ -78,6 +90,7 @@ class Histories extends React.Component<Props & IRouterProps> {
                 description="Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here."
               />
             }
+            right={this.renderImportButton()}
           />
         }
         leftSidebar={

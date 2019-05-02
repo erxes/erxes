@@ -1,10 +1,8 @@
 import client from 'apolloClient';
-import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
 import { __, Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import { handleXlsUpload } from 'modules/customers/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -24,7 +22,6 @@ import {
 
 type Props = {
   queryParams?: any;
-  showImportBar: () => void;
 };
 
 type FinalProps = {
@@ -54,8 +51,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       companiesListConfigQuery,
       companiesRemove,
       companiesMerge,
-      history,
-      showImportBar
+      history
     } = this.props;
     let columnsConfig =
       companiesListConfigQuery.fieldsDefaultColumnsConfig || [];
@@ -132,25 +128,6 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const uploadXls = e => {
-      handleXlsUpload({
-        e,
-        type: 'company',
-        afterUploadCallback: response => {
-          this.setState({ loading: false });
-
-          if (response.status === 'error') {
-            return Alert.error(response.message);
-          }
-
-          if (response.id) {
-            localStorage.setItem('erxes_import_data', response.id);
-            showImportBar();
-          }
-        }
-      });
-    };
-
     const updatedProps = {
       ...this.props,
       columnsConfig,
@@ -158,7 +135,6 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       searchValue,
       companies: list,
       loading: companiesMainQuery.loading || this.state.loading,
-      uploadXls,
       exportCompanies,
       removeCompanies,
       mergeCompanies
@@ -193,7 +169,7 @@ const generateParams = ({ queryParams }) => ({
   }
 });
 
-const CompanyListWithProps = withProps<Props>(
+export default withProps<Props>(
   compose(
     graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
       gql(queries.companiesMain),
@@ -223,15 +199,3 @@ const CompanyListWithProps = withProps<Props>(
     )
   )(withRouter<IRouterProps>(CompanyListContainer))
 );
-
-const WithConsumer = props => {
-  return (
-    <AppConsumer>
-      {({ showImportBar }) => (
-        <CompanyListWithProps {...props} showImportBar={showImportBar} />
-      )}
-    </AppConsumer>
-  );
-};
-
-export default WithConsumer;

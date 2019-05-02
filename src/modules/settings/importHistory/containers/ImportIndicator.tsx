@@ -65,14 +65,14 @@ class ImportIndicatorContainer extends React.Component<
   render() {
     const {
       importHistoryDetailQuery,
-      importHistoriesCancel,
+      importCancel,
       closeImportBar
     } = this.props;
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
 
     const cancelImport = id => {
       confirm().then(() => {
-        importHistoriesCancel({
+        importCancel({
           variables: { _id: id }
         })
           .then(() => {
@@ -115,7 +115,7 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
     graphql<Props, CancelMutationResponse, { _id: string }>(
       gql(mutations.importCancel),
       {
-        name: 'importHistoriesCancel'
+        name: 'importCancel'
       }
     )
   )(ImportIndicatorContainer)
