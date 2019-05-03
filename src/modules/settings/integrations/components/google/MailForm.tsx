@@ -175,6 +175,8 @@ class MailForm extends React.Component<Props, State> {
   onAfterSend = () => {
     this.discard();
 
+    this.setState({ isSending: false });
+
     const { closeModal } = this.props;
 
     if (closeModal) {
