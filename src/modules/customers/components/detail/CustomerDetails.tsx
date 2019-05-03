@@ -18,7 +18,8 @@ class CustomerDetails extends React.Component<Props> {
     const { customer, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
-      { title: __('Customers'), link: '/customers' },
+      { title: __('Contacts'), link: '/contacts' },
+      { title: __('Customers'), link: '/contacts/customers' },
       { title: renderFullName(customer) }
     ];
 
