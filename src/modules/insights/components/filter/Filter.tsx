@@ -5,17 +5,20 @@ import * as React from 'react';
 import * as Datetime from 'react-datetime';
 import { FlexItem, FlexRow, InsightFilter, InsightTitle } from '../../styles';
 import { IQueryParams } from '../../types';
+import { formatDate } from '../../utils';
 
 type Props = {
   content: React.ReactNode;
-  onApplyClick: (args: { startDate: Date; endDate: Date }) => void;
+  onApplyClick: (
+    args: { startDate: moment.Moment; endDate: moment.Moment }
+  ) => void;
   history: any;
   queryParams: IQueryParams;
 };
 
 type States = {
-  startDate: Date;
-  endDate: Date;
+  startDate: moment.Moment;
+  endDate: moment.Moment;
 };
 
 class Filter extends React.Component<Props, States> {
@@ -25,25 +28,21 @@ class Filter extends React.Component<Props, States> {
     let { startDate, endDate } = props.queryParams;
 
     if (!startDate && !endDate) {
-      startDate = moment()
-        .add(-7, 'days')
-        .format('YYYY-MM-DD HH:mm');
-      endDate = moment().format('YYYY-MM-DD HH:mm');
+      startDate = moment().add(-7, 'days');
+      endDate = moment();
     }
 
     this.state = {
-      startDate,
-      endDate
+      startDate: moment(startDate),
+      endDate: moment(endDate)
     };
   }
 
   onDateInputChange = (type: string, date) => {
-    const formatted = date ? date.format('YYYY-MM-DD HH:mm') : '';
-
     if (type === 'endDate') {
-      this.setState({ endDate: formatted });
+      this.setState({ endDate: date });
     } else {
-      this.setState({ startDate: formatted });
+      this.setState({ startDate: date });
     }
   };
 

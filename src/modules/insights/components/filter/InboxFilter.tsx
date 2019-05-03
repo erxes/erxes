@@ -7,6 +7,7 @@ import * as React from 'react';
 import Select from 'react-select-plus';
 import { FlexItem } from '../../styles';
 import { IQueryParams } from '../../types';
+import { formatDate } from '../../utils';
 import { integrationOptions, selectOptions } from '../../utils';
 import Filter from './Filter';
 
@@ -50,8 +51,8 @@ class InboxFilter extends React.Component<Props, States> {
     router.setParams(history, {
       integrationIds: (integrationIds || []).join(','),
       brandIds: (brandIds || []).join(','),
-      startDate,
-      endDate
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate)
     });
   };
 
