@@ -20,18 +20,18 @@ function HistoryRow({ history, removeHistory, onClick }: Props) {
 
   const onRowClick = () => onClick(history._id);
 
+  const withClick = (children: React.ReactNode) => {
+    return <td onClick={onRowClick}>{children}</td>;
+  };
+
   return (
-    <tr onClick={onRowClick}>
-      <td>
+    <tr>
+      {withClick(
         <TextInfo textStyle="success">{history.success || 0}</TextInfo>
-      </td>
-      <td>
-        <TextInfo textStyle="danger">{history.failed || 1}</TextInfo>
-      </td>
-      <td>
-        <TextInfo>{history.total || 1}</TextInfo>
-      </td>
-      <td>{moment(history.date).format('lll')}</td>
+      )}
+      {withClick(<TextInfo textStyle="danger">{history.failed || 1}</TextInfo>)}
+      {withClick(<TextInfo>{history.total || 1}</TextInfo>)}
+      {withClick(moment(history.date).format('lll'))}
       <td>{details.fullName || '-'}</td>
       <td>
         <Button btnStyle="link" icon="cancel-1" onClick={onRemove} />
