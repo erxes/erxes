@@ -48,7 +48,6 @@ interface IProps extends IRouterProps {
   mergeCompanies: () => void;
   queryParams: any;
   exportCompanies: (bulk: string[]) => void;
-  uploadXls: (e: React.FormEvent<HTMLInputElement>) => void;
 }
 
 type State = {
@@ -115,7 +114,6 @@ class CompaniesList extends React.Component<IProps, State> {
       totalCount,
       mergeCompanies,
       queryParams,
-      uploadXls,
       exportCompanies
     } = this.props;
 
@@ -277,9 +275,11 @@ class CompaniesList extends React.Component<IProps, State> {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-
-        <DataImporter text={__('Import companies')} type="company" />
-
+        <Link to="/settings/importHistories?type=company">
+          <Button btnStyle="primary" size="small" icon="login-1">
+            {__('Go to import')}
+          </Button>
+        </Link>
         <ModalTrigger
           title="New company"
           trigger={addTrigger}

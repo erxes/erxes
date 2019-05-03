@@ -1,4 +1,5 @@
 import {
+  Button,
   DataWithLoader,
   HeaderDescription,
   Table
@@ -6,6 +7,7 @@ import {
 import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
+import { BarItems } from 'modules/layout/styles';
 import { DataImporter } from 'modules/settings/importHistory/containers';
 import * as React from 'react';
 import Sidebar from '../../properties/components/Sidebar';
@@ -54,12 +56,22 @@ class Histories extends React.Component<Props & IRouterProps> {
 
   renderImportButton = () => {
     const { currentType } = this.props;
+    let url = 'https://s3.amazonaws.com/erxes/company_template.xlsx';
+
+    if (currentType === 'customer') {
+      url = 'https://s3.amazonaws.com/erxes/customer_template.xlsx';
+    }
 
     return (
-      <DataImporter
-        type={currentType}
-        text={`${__('Import')} ${currentType}`}
-      />
+      <BarItems>
+        <Button btnStyle="primary" size="small" icon="download-1" href={url}>
+          {__('Download template')}
+        </Button>
+        <DataImporter
+          type={currentType}
+          text={`${__('Import')} ${currentType}`}
+        />
+      </BarItems>
     );
   };
 

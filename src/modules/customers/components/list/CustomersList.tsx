@@ -247,7 +247,11 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-        <DataImporter text={__('Import customers')} type="customer" />
+        <Link to="/settings/importHistories?type=customer">
+          <Button btnStyle="primary" size="small" icon="login-1">
+            {__('Go to import')}
+          </Button>
+        </Link>
         <ModalTrigger
           title="New customer"
           trigger={addTrigger}

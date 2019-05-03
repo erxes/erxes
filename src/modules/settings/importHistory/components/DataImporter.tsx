@@ -11,10 +11,10 @@ const ImportButton = styled.label`
   transition: all 0.3s ease;
   text-transform: uppercase;
   padding: 6px 15px 6px 32px;
-  background: ${colors.colorSecondary};
+  background: ${colors.colorCoreGreen};
   font-size: 10px;
   color: ${colors.colorWhite};
-  box-shadow: 0 2px 16px 0 ${lighten(colors.colorSecondary, 35)};
+  box-shadow: 0 2px 16px 0 ${lighten(colors.colorCoreGreen, 35)};
   position: relative;
 
   i {
