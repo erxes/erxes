@@ -1,7 +1,7 @@
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
-import { Route } from 'react-router-dom';
+import { Redirect, Route } from 'react-router-dom';
 
 const CustomerDetails = asyncComponent(() =>
   import(/* webpackChunkName: "CustomerDetails" */ './containers/CustomerDetails')
@@ -10,6 +10,10 @@ const CustomerDetails = asyncComponent(() =>
 const CustomersList = asyncComponent(() =>
   import(/* webpackChunkName: "CustomersList" */ './containers/CustomersList')
 );
+
+const contacts = () => {
+  return <Redirect to="/contacts/customers" />;
+};
 
 const detail = ({ match }) => {
   const id = match.params.id;
@@ -25,14 +29,21 @@ const list = ({ location }) => {
 const routes = () => {
   return (
     <React.Fragment>
+      <Route key="/contacts" exact={true} path="/contacts" render={contacts} />
+
       <Route
-        key="/customers/details/:id"
+        key="/contacts/customers/details/:id"
         exact={true}
-        path="/customers/details/:id"
+        path="/contacts/customers/details/:id"
         component={detail}
       />
 
-      <Route key="/customers" exact={true} path="/customers" component={list} />
+      <Route
+        key="/contacts/customers"
+        exact={true}
+        path="/contacts/customers"
+        component={list}
+      />
     </React.Fragment>
   );
 };

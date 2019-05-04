@@ -45,12 +45,12 @@ class MainActionBar extends React.Component<Props> {
     const { currentBoard, currentPipeline } = this.props;
 
     if (currentBoard && currentPipeline) {
-      return `/deals/${type}?id=${currentBoard._id}&pipelineId=${
+      return `/deal/${type}?id=${currentBoard._id}&pipelineId=${
         currentPipeline._id
       }`;
     }
 
-    return `/deals/${type}`;
+    return `/deal/${type}`;
   };
 
   renderBoards() {
@@ -65,7 +65,7 @@ class MainActionBar extends React.Component<Props> {
         return null;
       }
 
-      let link = `/deals/${getType()}?id=${board._id}`;
+      let link = `/deal/${getType()}?id=${board._id}`;
 
       const { pipelines = [] } = board;
 
