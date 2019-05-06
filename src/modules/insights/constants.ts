@@ -9,8 +9,7 @@ export const INBOX_INSIGHTS = [
     name: 'Volume Report',
     image: '/images/icons/erxes-19.svg',
     to: '/inbox/insights/volume-report',
-    desc:
-      'Find feedback that has been gathered from various customer engagement channels.'
+    desc: `Total conversation's session count, made with customers through every integration`
   },
   {
     name: 'Response Report',
@@ -36,13 +35,13 @@ export const INBOX_INSIGHTS = [
     name: 'Volume Report By Customer',
     image: '/images/icons/erxes-22.svg',
     to: '/inbox/insights/summary-report',
-    desc: ''
+    desc: 'Total messages count, sent by customers through every integration'
   },
   {
     name: 'Export Report',
     image: '/images/icons/erxes-23.svg',
     to: '/inbox/insights/export-report',
-    desc: ''
+    desc: 'Download insight data as an excel sheet'
   }
 ];
 
