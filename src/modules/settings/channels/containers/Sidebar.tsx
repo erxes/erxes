@@ -141,10 +141,7 @@ export default withProps<Props>(
     graphql<Props, UsersQueryResponse, {}>(gql(queries.users), {
       name: 'usersQuery',
       options: () => ({
-        fetchPolicy: 'network-only',
-        variables: {
-          perPage: 100
-        }
+        fetchPolicy: 'network-only'
       })
     }),
     graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
