@@ -100,13 +100,6 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/inbox/insights' },
-      { title: __('Response Report') }
-    ];
-  }
-
   renderCharts() {
     const { trend, punch, summary, loading } = this.props;
 
@@ -144,12 +137,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
-          />
-        }
+        header={<Wrapper.Header submenu={menuInbox} />}
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

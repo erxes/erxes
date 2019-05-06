@@ -88,13 +88,6 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/deal/insights' },
-      { title: __('Volume Report') }
-    ];
-  }
-
   renderTeamMembers() {
     const { teamMembers, loading } = this.props;
 
@@ -148,12 +141,7 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuDeal}
-          />
-        }
+        header={<Wrapper.Header submenu={menuDeal} />}
         leftSidebar={<Sidebar type={INSIGHT_TYPES.DEAL} />}
         content={this.renderContent()}
       />

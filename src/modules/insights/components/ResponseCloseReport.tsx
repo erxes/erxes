@@ -82,12 +82,7 @@ class ResponseCloseReport extends React.Component<Props> {
   render() {
     return (
       <Wrapper
-        header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
-          />
-        }
+        header={<Wrapper.Header submenu={menuInbox} />}
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

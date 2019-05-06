@@ -13,8 +13,6 @@ type Props = {
 };
 
 function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
-  const breadcrumb = [{ title: __('Inbox') }];
-
   const menuInbox = [{ title: 'Inbox', link: '/inbox/index' }];
 
   if (can('showInsights', currentUser)) {
@@ -23,11 +21,7 @@ function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
 
   return (
     <Contents>
-      <Header
-        queryParams={queryParams}
-        breadcrumb={breadcrumb}
-        submenu={menuInbox}
-      />
+      <Header queryParams={queryParams} submenu={menuInbox} />
       <Sidebar
         queryParams={queryParams}
         currentConversationId={currentConversationId}

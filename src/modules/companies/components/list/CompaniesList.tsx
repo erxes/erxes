@@ -263,16 +263,11 @@ class CompaniesList extends React.Component<IProps, State> {
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
-    const breadcrumb = [{ title: __(`Companies`) + ` (${totalCount})` }];
 
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            breadcrumb={breadcrumb}
-            queryParams={queryParams}
-            submenu={menuContacts}
-          />
+          <Wrapper.Header queryParams={queryParams} submenu={menuContacts} />
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

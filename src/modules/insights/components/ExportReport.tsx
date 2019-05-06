@@ -194,12 +194,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
   render() {
     return (
       <Wrapper
-        header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
-          />
-        }
+        header={<Wrapper.Header submenu={menuInbox} />}
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

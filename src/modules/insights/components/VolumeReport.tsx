@@ -107,13 +107,6 @@ class VolumeReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/inbox/insights' },
-      { title: __('Volume Report') }
-    ];
-  }
-
   renderCharts() {
     const { trend, punch, insights, summary, loading } = this.props;
 
@@ -162,12 +155,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
-          />
-        }
+        header={<Wrapper.Header submenu={menuInbox} />}
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

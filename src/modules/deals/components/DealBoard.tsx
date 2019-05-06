@@ -25,11 +25,9 @@ class DealBoard extends React.Component<Props> {
   }
 
   render() {
-    const breadcrumb = [{ title: __('Deal') }];
-
     return (
       <BoardContainer>
-        <Header breadcrumb={breadcrumb} submenu={menuDeal} />
+        <Header submenu={menuDeal} />
         <BoardContent transparent={true}>
           {this.renderActionBar()}
           <ScrolledContent transparent={true}>

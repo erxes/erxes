@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { IBreadCrumbItem, ISubMenuItem } from '../../common/types';
 
 type Props = {
-  breadcrumb: IBreadCrumbItem[];
+  breadcrumb?: IBreadCrumbItem[];
   submenu?: ISubMenuItem[];
   queryParams?: any;
 };
@@ -21,16 +21,10 @@ const PageHeader = styled.div`
 `;
 
 function Header({ breadcrumb, queryParams, submenu }: Props) {
-  let breadCrumbVisible = true;
-
-  if (submenu) {
-    breadCrumbVisible = false;
-  }
-
   return (
     <PageHeader>
-      <BreadCrumb breadcrumbs={breadcrumb} isVisible={breadCrumbVisible} />
-      <Submenu items={submenu} />
+      {breadcrumb && <BreadCrumb breadcrumbs={breadcrumb} />}
+      {submenu && <Submenu items={submenu} />}
       {queryParams && <Filter queryParams={queryParams} />}
     </PageHeader>
   );

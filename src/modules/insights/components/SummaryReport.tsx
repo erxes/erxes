@@ -1,4 +1,3 @@
-import { Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
@@ -74,8 +73,6 @@ class SummaryReport extends React.Component<Props, { width: number }> {
   renderCharts() {
     const { trend, summary, loading } = this.props;
 
-    const width = this.state.width;
-
     return (
       <InsightContent>
         <InsightRow>
@@ -106,12 +103,7 @@ class SummaryReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
-          />
-        }
+        header={<Wrapper.Header submenu={menuInbox} />}
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />
