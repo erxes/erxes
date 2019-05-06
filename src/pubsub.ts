@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import * as Redis from 'ioredis';
+import { ActivityLogs } from './db/models';
 
 // load environment variables
 dotenv.config();
@@ -30,7 +31,7 @@ const redisOptions = {
   },
 };
 
-const pubsub = new RedisPubSub({
+export const graphqlPubsub = new RedisPubSub({
   connectionListener: error => {
     if (error) {
       console.error(error);
@@ -40,4 +41,20 @@ const pubsub = new RedisPubSub({
   subscriber: new Redis(redisOptions),
 });
 
-export default pubsub;
+export const broker = new Redis(redisOptions);
+
+broker.subscribe('widgetNotification');
+
+broker.on('message', (channel, message) => {
+  if (channel === 'widgetNotification') {
+    const { action, data } = JSON.parse(message);
+
+    if (action === 'callPublish') {
+      graphqlPubsub.publish(data.trigger, { [data.trigger]: data.payload });
+    }
+
+    if (action === 'activityLog') {
+      ActivityLogs.createLogFromWidget(data.type, data.payload);
+    }
+  }
+});

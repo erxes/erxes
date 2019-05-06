@@ -1,10 +1,10 @@
-import pubsub from './pubsub';
+import { graphqlPubsub } from '../../../pubsub';
 
 export default {
   /*
    * Listen for activity log connection
    */
   activityLogsChanged: {
-    subscribe: () => pubsub.asyncIterator('activityLogsChanged'),
+    subscribe: () => graphqlPubsub.asyncIterator('activityLogsChanged'),
   },
 };

@@ -1,5 +1,5 @@
 import { withFilter } from 'apollo-server-express';
-import pubsub from './pubsub';
+import { graphqlPubsub } from '../../../pubsub';
 
 export default {
   /*
@@ -7,7 +7,7 @@ export default {
    */
   customerConnectionChanged: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator('customerConnectionChanged'),
+      () => graphqlPubsub.asyncIterator('customerConnectionChanged'),
       // filter by customerId
       (payload, variables) => {
         return payload.customerConnectionChanged._id === variables._id;

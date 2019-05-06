@@ -11,11 +11,11 @@ import * as path from 'path';
 import { userMiddleware } from './auth';
 import resolvers from './data/resolvers';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
-import { pubsub } from './data/resolvers/subscriptions';
 import typeDefs from './data/schema';
 import { checkFile, getEnv, importXlsFile, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Conversations, Customers } from './db/models';
+import { graphqlPubsub } from './pubsub';
 import { init } from './startup';
 import { getAttachment } from './trackers/gmail';
 
@@ -127,13 +127,13 @@ const apolloServer = new ApolloServer({
             const conversationMessages = await Conversations.changeCustomerStatus('joined', customerId, integrationId);
 
             for (const _message of conversationMessages) {
-              pubsub.publish('conversationMessageInserted', {
+              graphqlPubsub.publish('conversationMessageInserted', {
                 conversationMessageInserted: _message,
               });
             }
 
             // notify as connected
-            pubsub.publish('customerConnectionChanged', {
+            graphqlPubsub.publish('customerConnectionChanged', {
               customerConnectionChanged: {
                 _id: customerId,
                 status: 'connected',
@@ -171,13 +171,13 @@ const apolloServer = new ApolloServer({
           const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
 
           for (const message of conversationMessages) {
-            pubsub.publish('conversationMessageInserted', {
+            graphqlPubsub.publish('conversationMessageInserted', {
               conversationMessageInserted: message,
             });
           }
 
           // notify as disconnected
-          pubsub.publish('customerConnectionChanged', {
+          graphqlPubsub.publish('customerConnectionChanged', {
             customerConnectionChanged: {
               _id: customerId,
               status: 'disconnected',
