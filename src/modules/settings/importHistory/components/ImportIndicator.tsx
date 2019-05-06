@@ -84,6 +84,8 @@ class ImportIndicator extends React.Component<Props> {
     const { percentage } = this.props;
     let percent = percentage;
 
+    console.log(this.props.importHistory); //tslint:disable-line
+
     if (this.isDone()) {
       percent = 100;
     }

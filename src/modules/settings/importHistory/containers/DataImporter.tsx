@@ -5,7 +5,7 @@ import { DataImporter } from '../components';
 import { handleXlsUpload } from '../utils';
 
 type Props = {
-  showImportBar: () => void;
+  showLoadingBar: () => void;
   type: string;
   text: string;
 };
@@ -24,7 +24,7 @@ class DataImporterContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { showImportBar, type } = this.props;
+    const { showLoadingBar, type } = this.props;
 
     const uploadXls = e => {
       handleXlsUpload({
@@ -42,7 +42,7 @@ class DataImporterContainer extends React.Component<Props, State> {
 
           if (response.id) {
             localStorage.setItem('erxes_import_data', response.id);
-            showImportBar();
+            showLoadingBar();
           }
         }
       });
@@ -61,8 +61,8 @@ class DataImporterContainer extends React.Component<Props, State> {
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ showImportBar }) => (
-        <DataImporterContainer {...props} showImportBar={showImportBar} />
+      {({ showLoadingBar }) => (
+        <DataImporterContainer {...props} showLoadingBar={showLoadingBar} />
       )}
     </AppConsumer>
   );

@@ -11,11 +11,11 @@ type Props = {
 const container = (props: Props) => (
   <AppProvider currentUser={props.currentUser}>
     <AppConsumer>
-      {({ isImporting, closeImportBar }) => (
+      {({ isLoading, closeLoadingBar }) => (
         <MainLayout
           {...props}
-          isImporting={isImporting}
-          closeImportBar={closeImportBar}
+          isLoading={isLoading}
+          closeLoadingBar={closeLoadingBar}
         />
       )}
     </AppConsumer>

@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, router, withProps } from 'modules/common/utils';
@@ -10,6 +11,7 @@ import { ImportHistoriesQueryResponse, RemoveMutationResponse } from '../types';
 
 type Props = {
   queryParams: any;
+  showLoadingBar: () => void;
 };
 
 type FinalProps = {
@@ -32,7 +34,12 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { historiesQuery, history, importHistoriesRemove } = this.props;
+    const {
+      historiesQuery,
+      history,
+      importHistoriesRemove,
+      showLoadingBar
+    } = this.props;
 
     if (!router.getParam(history, 'type')) {
       router.setParams(history, { type: 'customer' }, true);
@@ -41,14 +48,14 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     const currentType = router.getParam(history, 'type');
 
     const removeHistory = historyId => {
-      this.setState({ loading: true });
+      localStorage.setItem('erxes_import_data', historyId);
+      showLoadingBar();
 
       importHistoriesRemove({
         variables: { _id: historyId }
       })
         .then(() => {
           Alert.success('You successfully removed all customers');
-          this.setState({ loading: false });
         })
         .catch(e => {
           Alert.error(e.message);
@@ -67,7 +74,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
   }
 }
 
-export default withProps<Props>(
+const HistoriesWithProps = withProps<Props>(
   compose(
     graphql<Props, ImportHistoriesQueryResponse, { type: string }>(
       gql(queries.histories),
@@ -92,3 +99,15 @@ export default withProps<Props>(
     )
   )(withRouter<FinalProps>(HistoriesContainer))
 );
+
+const WithConsumer = props => {
+  return (
+    <AppConsumer>
+      {({ showLoadingBar }) => (
+        <HistoriesWithProps {...props} showLoadingBar={showLoadingBar} />
+      )}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer;

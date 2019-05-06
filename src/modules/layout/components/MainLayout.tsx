@@ -10,8 +10,8 @@ import { Layout } from '../styles';
 interface IProps extends IRouterProps {
   currentUser?: IUser;
   children: React.ReactNode;
-  isImporting: boolean;
-  closeImportBar: () => void;
+  isLoading: boolean;
+  closeLoadingBar: () => void;
 }
 
 class MainLayout extends React.Component<IProps> {
@@ -42,15 +42,15 @@ class MainLayout extends React.Component<IProps> {
   };
 
   render() {
-    const { currentUser, children, isImporting, closeImportBar } = this.props;
+    const { currentUser, children, isLoading, closeLoadingBar } = this.props;
     const hasSeenOnboard = (currentUser && currentUser.hasSeenOnBoard) || false;
 
     return (
       <>
-        {isImporting && (
-          <ImportIndicator id={this.getLastImport()} close={closeImportBar} />
+        {isLoading && (
+          <ImportIndicator id={this.getLastImport()} close={closeLoadingBar} />
         )}
-        <Layout isSqueezed={isImporting}>
+        <Layout isSqueezed={isLoading}>
           {currentUser && <Navigation currentUser={currentUser} />}
           {children}
           <Welcome hasSeen={hasSeenOnboard} />

@@ -16,7 +16,7 @@ type Props = {
   id: string;
   close: () => void;
   importHistoryDetailQuery: ImportHistoryDetailQueryResponse;
-  closeImportBar: () => void;
+  closeLoadingBar: () => void;
 };
 
 type State = {
@@ -66,7 +66,7 @@ class ImportIndicatorContainer extends React.Component<
     const {
       importHistoryDetailQuery,
       importCancel,
-      closeImportBar
+      closeLoadingBar
     } = this.props;
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
 
@@ -77,11 +77,11 @@ class ImportIndicatorContainer extends React.Component<
         })
           .then(() => {
             Alert.success('You canceled importing action.');
-            closeImportBar();
+            closeLoadingBar();
           })
           .catch(e => {
             Alert.error(e.message);
-            closeImportBar();
+            closeLoadingBar();
           });
       });
     };
@@ -124,8 +124,11 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ closeImportBar }) => (
-        <ImportIndicatorWithProps {...props} closeImportBar={closeImportBar} />
+      {({ closeLoadingBar }) => (
+        <ImportIndicatorWithProps
+          {...props}
+          closeLoadingBar={closeLoadingBar}
+        />
       )}
     </AppConsumer>
   );

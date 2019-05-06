@@ -45,14 +45,14 @@ moment.updateLocale('en', {
 interface IState {
   currentUser?: IUser;
   currentLanguage: string;
-  isImporting: boolean;
+  isLoading: boolean;
 }
 
 interface IStore extends IState {
   currentUser?: IUser;
   changeLanguage: (languageCode: string) => void;
-  closeImportBar: () => void;
-  showImportBar: () => void;
+  closeLoadingBar: () => void;
+  showLoadingBar: () => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -72,34 +72,34 @@ export class AppProvider extends React.Component<
     this.state = {
       currentUser: props.currentUser,
       currentLanguage,
-      isImporting: false
+      isLoading: false
     };
 
     this.setLocale(currentLanguage);
   }
 
-  checkIsImportingData = () => {
+  checkIsLoadingData = () => {
     const lastImport = localStorage.getItem('erxes_import_data');
 
     if (lastImport) {
-      return this.setState({ isImporting: true });
+      return this.setState({ isLoading: true });
     }
 
-    return this.setState({ isImporting: false });
+    return this.setState({ isLoading: false });
   };
 
-  closeImportBar = () => {
-    this.setState({ isImporting: false });
+  closeLoadingBar = () => {
+    this.setState({ isLoading: false });
 
     localStorage.setItem('erxes_import_data', '');
   };
 
-  showImportBar = () => {
-    this.setState({ isImporting: true });
+  showLoadingBar = () => {
+    this.setState({ isLoading: true });
   };
 
   componentDidMount() {
-    this.checkIsImportingData();
+    this.checkIsLoadingData();
   }
 
   setLocale = (currentLanguage: string): void => {
@@ -118,7 +118,7 @@ export class AppProvider extends React.Component<
   };
 
   public render() {
-    const { currentUser, currentLanguage, isImporting } = this.state;
+    const { currentUser, currentLanguage, isLoading } = this.state;
 
     return (
       <AppContext.Provider
@@ -126,9 +126,9 @@ export class AppProvider extends React.Component<
           currentUser,
           currentLanguage,
           changeLanguage: this.changeLanguage,
-          closeImportBar: this.closeImportBar,
-          showImportBar: this.showImportBar,
-          isImporting
+          closeLoadingBar: this.closeLoadingBar,
+          showLoadingBar: this.showLoadingBar,
+          isLoading
         }}
       >
         {this.props.children}

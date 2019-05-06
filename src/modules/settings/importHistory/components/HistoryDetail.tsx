@@ -72,7 +72,7 @@ class HistoryDetail extends React.Component<Props> {
     const { errorMsgs = [] } = importHistory;
 
     return (
-      <React.Fragment>
+      <>
         <TopContent>
           {this.renderProgressBar()}
           <div>
@@ -118,13 +118,12 @@ class HistoryDetail extends React.Component<Props> {
             })}
           </tbody>
         </Table>
-      </React.Fragment>
+      </>
     );
   };
 
   render() {
     const { importHistory } = this.props;
-    const { errorMsgs = [] } = importHistory;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
