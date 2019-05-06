@@ -21,7 +21,7 @@ class Contacts extends React.Component<Props> {
         <NameCard.Avatar customer={customer} size={30} />
         {renderFullName(customer)}
 
-        <Link to={`/customers/details/${customer._id}`}>
+        <Link to={`/contacts/customers/details/${customer._id}`}>
           <Icon icon="logout-2" />
         </Link>
       </Contact>

@@ -186,7 +186,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
 
   renderBreadCrumnb() {
     return [
-      { title: __('Insights'), link: '/insights' },
+      { title: __('Insights'), link: '/inbox/insights' },
       { title: __('Export Report') }
     ];
   }

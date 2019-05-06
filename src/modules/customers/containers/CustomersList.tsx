@@ -88,7 +88,9 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         .then((result: any) => {
           callback();
           Alert.success('You successfully merged a customer');
-          history.push(`/customers/details/${result.data.customersMerge._id}`);
+          history.push(
+            `/contacts/customers/details/${result.data.customersMerge._id}`
+          );
         })
         .catch(e => {
           Alert.error(e.message);
@@ -221,7 +223,6 @@ export default withProps<Props>(
         name: 'customersListConfigQuery'
       }
     ),
-
     // mutations
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.customersRemove),

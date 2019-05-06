@@ -109,7 +109,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
 
   renderBreadCrumnb() {
     return [
-      { title: __('Insights'), link: '/insights' },
+      { title: __('Insights'), link: '/inbox/insights' },
       { title: __('Volume Report') }
     ];
   }

@@ -108,13 +108,11 @@ class WorkArea extends React.Component<FinalProps, State> {
   addMessage = ({
     variables,
     optimisticResponse,
-    callback,
-    kind
+    callback
   }: {
     variables: any;
     optimisticResponse: any;
     callback?: (e?) => void;
-    kind: string;
   }) => {
     const { addMessageMutation, currentId } = this.props;
 
@@ -180,9 +178,22 @@ class WorkArea extends React.Component<FinalProps, State> {
   };
 
   loadMoreMessages = () => {
-    const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
+    const {
+      currentId,
+      currentConversation,
+      messagesTotalCountQuery,
+      messagesQuery
+    } = this.props;
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
     const { conversationMessages } = messagesQuery;
+
+    // do not fetch for facebook feed
+    if (
+      currentConversation.facebookData &&
+      currentConversation.facebookData.kind === 'feed'
+    ) {
+      return;
+    }
 
     const loading = messagesQuery.loading || messagesTotalCountQuery.loading;
     const hasMore =

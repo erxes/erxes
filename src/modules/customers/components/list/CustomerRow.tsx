@@ -90,7 +90,7 @@ function CustomerRow({
   };
 
   const onTrClick = () => {
-    history.push(`/customers/details/${customer._id}`);
+    history.push(`/contacts/customers/details/${customer._id}`);
   };
 
   return (

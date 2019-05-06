@@ -42,7 +42,7 @@ function CustomerSection({ name, customers, onSelect }: Props) {
       <SectionBody>
         {customersObj.map((customer, index) => (
           <SectionBodyItem key={index}>
-            <Link to={`/customers/details/${customer._id}`}>
+            <Link to={`/contacts/customers/details/${customer._id}`}>
               <Icon icon="logout-2" />
             </Link>
             <span>{renderFullName(customer)}</span>
