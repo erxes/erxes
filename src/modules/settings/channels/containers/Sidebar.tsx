@@ -44,8 +44,6 @@ const SidebarContainer = (props: FinalProps) => {
   const members = usersQuery.users || [];
   const channelsTotalCount = channelsCountQuery.channelsTotalCount || 0;
 
-  console.log('members: ', members); //tslint:disable-line
-
   // remove action
   const remove = channelId => {
     confirm().then(() => {
