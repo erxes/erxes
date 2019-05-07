@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { ActivityLogs } from '.';
 import {
   boardSchema,
   dealSchema,
@@ -314,11 +315,16 @@ export const loadDealClass = () => {
         stageId: doc.stageId,
       }).countDocuments();
 
-      return Deals.create({
+      const deal = await Deals.create({
         ...doc,
         order: dealsCount,
         modifiedAt: new Date(),
       });
+
+      // create log
+      await ActivityLogs.createDealLog(deal);
+
+      return deal;
     }
 
     /**

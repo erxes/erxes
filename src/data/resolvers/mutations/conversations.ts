@@ -11,13 +11,13 @@ import { IMessageDocument } from '../../../db/models/definitions/conversationMes
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { graphqlPubsub } from '../../../pubsub';
 import { facebookReply, IFacebookReply } from '../../../trackers/facebook';
 import { sendGmail } from '../../../trackers/gmail';
 import { favorite, retweet, tweet, tweetReply } from '../../../trackers/twitter';
 import { IMailParams } from '../../../trackers/types';
 import { checkPermission, requireLogin } from '../../permissions';
 import utils from '../../utils';
-import { pubsub } from '../subscriptions';
 
 interface IConversationMessageAdd {
   conversationId: string;
@@ -64,7 +64,7 @@ export const conversationNotifReceivers = (
  */
 export const publishConversationsChanged = (_ids: string[], type: string): string[] => {
   for (const _id of _ids) {
-    pubsub.publish('conversationChanged', {
+    graphqlPubsub.publish('conversationChanged', {
       conversationChanged: { conversationId: _id, type },
     });
   }
@@ -80,7 +80,7 @@ export const publishMessage = (message?: IMessageDocument | null, customerId?: s
     return;
   }
 
-  pubsub.publish('conversationMessageInserted', {
+  graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
   });
 
@@ -90,39 +90,20 @@ export const publishMessage = (message?: IMessageDocument | null, customerId?: s
     const extendedMessage = message.toJSON();
     extendedMessage.customerId = customerId;
 
-    pubsub.publish('conversationAdminMessageInserted', {
+    graphqlPubsub.publish('conversationAdminMessageInserted', {
       conversationAdminMessageInserted: extendedMessage,
     });
   }
 };
-/**
- * Publish conversation client message inserted
- */
+
 export const publishClientMessage = (message: IMessageDocument) => {
   // notifying to total unread count
-  pubsub.publish('conversationClientMessageInserted', {
+  graphqlPubsub.publish('conversationClientMessageInserted', {
     conversationClientMessageInserted: message,
   });
 };
 
 const conversationMutations = {
-  /**
-   * Calling this mutation from widget api run new message subscription
-   */
-  async conversationPublishClientMessage(_root, { _id }: { _id: string }) {
-    const message = await ConversationMessages.findOne({ _id });
-
-    if (!message) {
-      throw new Error('Message not found');
-    }
-
-    // notifying to conversationd detail
-    publishMessage(message);
-
-    // notifying to total unread count
-    publishClientMessage(message);
-  },
-
   /**
    * Create new message in conversation
    */

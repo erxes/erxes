@@ -1,9 +1,6 @@
 import activityLogs from './activityLogs';
 import conversations from './conversations';
 import customers from './customers';
-import pubsub from './pubsub';
-
-export { pubsub };
 
 let subscriptions: any = {
   ...conversations,

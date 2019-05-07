@@ -219,10 +219,18 @@ const conversationQueries = {
   ) {
     const query = { conversationId };
 
+    if (limit) {
+      const messages = await ConversationMessages.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip || 0)
+        .limit(limit);
+
+      return messages.reverse();
+    }
+
     return ConversationMessages.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip || 0)
-      .limit(limit || 50);
+      .sort({ createdAt: 1 })
+      .limit(50);
   },
 
   /**
