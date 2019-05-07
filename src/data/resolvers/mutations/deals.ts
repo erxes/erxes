@@ -133,7 +133,7 @@ const dealMutations = {
   /**
    * Change deal
    */
-  dealsChange(_root, { _id, ...doc }: { _id: string; stageId: string }, { user }: { user: IUserDocument }) {
+  dealsChange(_root, { _id, ...doc }: { _id: string }, { user }: { user: IUserDocument }) {
     return Deals.updateDeal(_id, {
       ...doc,
       modifiedAt: new Date(),
@@ -169,7 +169,6 @@ checkPermission(dealMutations, 'dealStagesUpdateOrder', 'dealStagesUpdateOrder')
 checkPermission(dealMutations, 'dealStagesRemove', 'dealStagesRemove');
 checkPermission(dealMutations, 'dealsAdd', 'dealsAdd');
 checkPermission(dealMutations, 'dealsEdit', 'dealsEdit');
-checkPermission(dealMutations, 'dealsChange', 'dealsChange');
 checkPermission(dealMutations, 'dealsUpdateOrder', 'dealsUpdateOrder');
 checkPermission(dealMutations, 'dealsRemove', 'dealsRemove');
 

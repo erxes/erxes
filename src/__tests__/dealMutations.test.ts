@@ -361,21 +361,19 @@ describe('Test deals mutations', () => {
   test('Change deal', async () => {
     const args = {
       _id: deal._id,
-      stageId: 'fakeStageId',
     };
 
     const mutation = `
-      mutation dealsChange($_id: String!, $stageId: String!) {
-        dealsChange(_id: $_id, stageId: $stageId) {
+      mutation dealsChange($_id: String!) {
+        dealsChange(_id: $_id) {
           _id
-          stageId
         }
       }
     `;
 
     const updatedDeal = await graphqlRequest(mutation, 'dealsChange', args, context);
 
-    expect(updatedDeal.stageId).toEqual(args.stageId);
+    expect(updatedDeal._id).toEqual(args._id);
   });
 
   test('Deal update orders', async () => {
