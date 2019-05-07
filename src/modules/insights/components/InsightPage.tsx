@@ -55,7 +55,7 @@ class InsightPage extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header submenu={submenu} />}
+        header={<Wrapper.Header title={__('Insights')} submenu={submenu} />}
         content={content}
         transparent={true}
       />

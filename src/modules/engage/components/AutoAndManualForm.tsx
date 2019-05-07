@@ -38,7 +38,8 @@ type Props = {
     type: string,
     doc: IEngageMessageDoc
   ) => { status: string; doc?: IEngageMessageDoc };
-  renderTitle: () => IBreadCrumbItem[];
+  renderTitle: () => string;
+  breadcrumbs: IBreadCrumbItem[];
 };
 
 type State = {
@@ -122,7 +123,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderTitle } = this.props;
+    const { renderTitle, breadcrumbs } = this.props;
 
     const {
       activeStep,
@@ -139,7 +140,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     return (
       <StepWrapper>
-        <Wrapper.Header breadcrumb={renderTitle()} />
+        <Wrapper.Header title={renderTitle()} breadcrumb={breadcrumbs} />
 
         <TitleContainer>
           <div>{__('Title')}</div>

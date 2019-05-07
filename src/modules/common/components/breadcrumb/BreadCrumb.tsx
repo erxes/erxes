@@ -1,5 +1,4 @@
 import { IBreadCrumbItem } from 'modules/common/types';
-import { __, setTitle } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
 import { dimensions } from '../../styles';
@@ -16,26 +15,6 @@ const Items = styled.ul`
 class BreadCrumb extends React.Component<{
   breadcrumbs: IBreadCrumbItem[];
 }> {
-  setTabTitle() {
-    const { breadcrumbs } = this.props;
-    const page = breadcrumbs.pop();
-
-    if (page) {
-      setTitle(
-        page.title,
-        page.title === `${__('Inbox')}` && document.title.startsWith('(1)')
-      );
-    }
-  }
-
-  componentDidUpdate() {
-    this.setTabTitle();
-  }
-
-  componentDidMount() {
-    this.setTabTitle();
-  }
-
   render() {
     const { breadcrumbs } = this.props;
 

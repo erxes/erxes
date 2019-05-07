@@ -135,7 +135,9 @@ class Settings extends React.PureComponent {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('Settings')} breadcrumb={breadcrumb} />
+        }
         content={content}
         transparent={true}
       />

@@ -27,7 +27,13 @@ function Empty({ queryParams, currentUser }: Props) {
 
   return (
     <Wrapper
-      header={<Wrapper.Header queryParams={queryParams} submenu={menuInbox} />}
+      header={
+        <Wrapper.Header
+          title={__('Inbox')}
+          queryParams={queryParams}
+          submenu={menuInbox}
+        />
+      }
       content={content}
       leftSidebar={<Sidebar queryParams={queryParams} />}
     />

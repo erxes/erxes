@@ -141,7 +141,7 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={<Wrapper.Header submenu={menuDeal} />}
+        header={<Wrapper.Header title={__('Insights')} submenu={menuDeal} />}
         leftSidebar={<Sidebar type={INSIGHT_TYPES.DEAL} />}
         content={this.renderContent()}
       />

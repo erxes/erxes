@@ -155,7 +155,9 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={<Wrapper.Header submenu={menuInbox} />}
+        header={
+          <Wrapper.Header title={__('Volume Report')} submenu={menuInbox} />
+        }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

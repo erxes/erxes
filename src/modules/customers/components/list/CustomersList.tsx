@@ -336,7 +336,11 @@ class CustomersList extends React.Component<IProps, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header queryParams={queryParams} submenu={menuContacts} />
+          <Wrapper.Header
+            title={__(`Customers`) + ` (${totalCount})`}
+            queryParams={queryParams}
+            submenu={menuContacts}
+          />
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

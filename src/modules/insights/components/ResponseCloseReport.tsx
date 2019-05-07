@@ -33,13 +33,6 @@ class ResponseCloseReport extends React.Component<Props> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/inbox/insights' },
-      { title: __('Response Close Report') }
-    ];
-  }
-
   renderCharts() {
     const { trend, teamMembers, time, isLoading } = this.props;
 
@@ -82,7 +75,12 @@ class ResponseCloseReport extends React.Component<Props> {
   render() {
     return (
       <Wrapper
-        header={<Wrapper.Header submenu={menuInbox} />}
+        header={
+          <Wrapper.Header
+            title={__('Response Close Report')}
+            submenu={menuInbox}
+          />
+        }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

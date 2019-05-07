@@ -21,7 +21,7 @@ function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
 
   return (
     <Contents>
-      <Header queryParams={queryParams} submenu={menuInbox} />
+      <Header title={'Inbox'} queryParams={queryParams} submenu={menuInbox} />
       <Sidebar
         queryParams={queryParams}
         currentConversationId={currentConversationId}

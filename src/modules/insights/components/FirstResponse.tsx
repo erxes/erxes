@@ -79,7 +79,12 @@ class FirstResponse extends React.Component<Props> {
   render() {
     return (
       <Wrapper
-        header={<Wrapper.Header submenu={menuInbox} />}
+        header={
+          <Wrapper.Header
+            title={__('First Response Report')}
+            submenu={menuInbox}
+          />
+        }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

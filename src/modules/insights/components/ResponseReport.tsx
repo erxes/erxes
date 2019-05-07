@@ -137,7 +137,9 @@ class ResponseReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={<Wrapper.Header submenu={menuInbox} />}
+        header={
+          <Wrapper.Header title={__('Response Report')} submenu={menuInbox} />
+        }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
       />

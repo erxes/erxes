@@ -258,11 +258,12 @@ class UserList extends React.Component<FinalProps, States> {
   render() {
     return (
       <List
-        title="Invite team members"
+        formTitle="Invite team members"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Team members') }
         ]}
+        title={__('Team members')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/21.svg"

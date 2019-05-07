@@ -127,7 +127,9 @@ class List extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('General')} breadcrumb={breadcrumb} />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={
