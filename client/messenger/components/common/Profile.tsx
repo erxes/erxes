@@ -10,6 +10,7 @@ import {
   youtube
 } from "../../../icons/Icons";
 import { IParticipator, IUserDetails, IUserLinks } from "../../../types";
+import { readFile } from "../../../utils";
 import { SocialLink } from "./";
 
 type Props = {
@@ -55,7 +56,7 @@ function Profile(props: Props) {
     <div className="erxes-profile">
       <div className="top-content">
         <div className="avatar">
-          <img src={avatar} alt={userDetail.fullName} />
+          <img src={readFile(avatar)} alt={userDetail.fullName} />
           <span className={stateClass} />
         </div>
         <div className="user-name">

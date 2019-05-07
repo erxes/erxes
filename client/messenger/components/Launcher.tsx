@@ -1,6 +1,7 @@
 import * as classNames from "classnames";
 import * as React from "react";
 import { IIntegrationUiOptions } from "../../types";
+import { readFile } from "../../utils";
 import { Notifier } from "../containers";
 import { IMessage } from "../types";
 
@@ -57,7 +58,7 @@ function Launcher(props: Props) {
         style={{
           backgroundColor: color,
           color,
-          backgroundImage: logo ? `url(${logo})` : "",
+          backgroundImage: logo ? `url(${readFile(logo)})` : "",
           backgroundSize: logo ? "" : "20px"
         }}
       >

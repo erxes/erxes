@@ -1,4 +1,5 @@
 import * as React from "react";
+import { readFile } from "../../utils";
 import { ICallout } from "../types";
 import { TopBar } from "./";
 
@@ -22,7 +23,9 @@ class Callout extends React.Component<Props> {
       return null;
     }
 
-    return <img onLoad={this.props.setHeight} src={image} alt={title} />;
+    return (
+      <img onLoad={this.props.setHeight} src={readFile(image)} alt={title} />
+    );
   }
 
   renderHead(title: string, color: string) {

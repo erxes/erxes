@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import * as React from "react";
 import { defaultAvatar } from "../../icons/Icons";
-import { __, makeClickableLink } from "../../utils";
+import { __, makeClickableLink, readFile } from "../../utils";
 import { IKbArticle } from "../types";
 import { BackButton } from "./";
 
@@ -46,7 +46,10 @@ export default class ArticleDetail extends React.PureComponent<Props> {
           <h1>{title}</h1>
           <div className="item-meta flex-item">
             <div className="avatars">
-              <img alt={authorDetails.fullName} src={authorDetails.avatar} />
+              <img
+                alt={authorDetails.fullName}
+                src={readFile(authorDetails.avatar)}
+              />
             </div>
             <div>
               <div>

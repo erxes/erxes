@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import * as React from "react";
 import { defaultAvatar } from "../../icons/Icons";
-import { __ } from "../../utils";
+import { __, readFile } from "../../utils";
 import { IKbArticle } from "../types";
 
 type Props = {
@@ -34,7 +34,7 @@ export default class Article extends React.Component<Props> {
           <div className="avatars">
             <img
               alt={authorDetails.fullName}
-              src={authorDetails.avatar || defaultAvatar}
+              src={readFile(authorDetails.avatar || defaultAvatar)}
             />
           </div>
           <div>

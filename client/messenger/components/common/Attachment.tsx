@@ -1,5 +1,6 @@
 import * as React from "react";
 import { iconAttach } from "../../../icons/Icons";
+import { readFile } from "../../../utils";
 import { IAttachment } from "../../types";
 
 function Attachment({ attachment }: { attachment: IAttachment }) {
@@ -8,7 +9,7 @@ function Attachment({ attachment }: { attachment: IAttachment }) {
     const fileExtension = attachmentName.split(".").pop() || "";
 
     if (["png", "jpeg", "jpg"].indexOf(fileExtension) > -1) {
-      return <img role="presentation" src={attachment.url} />;
+      return <img role="presentation" src={readFile(attachment.url)} />;
     }
 
     return (
@@ -22,7 +23,7 @@ function Attachment({ attachment }: { attachment: IAttachment }) {
   return (
     <a
       className="download-attachment"
-      href={attachment.url}
+      href={readFile(attachment.url)}
       target="_blank"
       title="Download"
       rel="noopener noreferrer"
