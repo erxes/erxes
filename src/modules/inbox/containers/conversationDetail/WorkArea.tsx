@@ -185,7 +185,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       messagesQuery
     } = this.props;
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
-    const { conversationMessages } = messagesQuery;
+    const conversationMessages = messagesQuery.conversationMessages || [];
 
     // do not fetch for facebook feed
     if (
