@@ -173,7 +173,7 @@ const isValidURL = (url: string) => {
 export const readFile = (value: string): string => {
   const { MAIN_API_URL } = getEnv();
 
-  if (!value || isValidURL(value)) {
+  if (!value || isValidURL(value) || value.includes("/")) {
     return value;
   }
 
