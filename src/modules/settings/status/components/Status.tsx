@@ -80,7 +80,9 @@ class Status extends React.PureComponent<{ versions: ProjectVersions }> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('System status')} breadcrumb={breadcrumb} />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={

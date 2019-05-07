@@ -41,7 +41,9 @@ class Home extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('App store')} breadcrumb={breadcrumb} />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={

@@ -11,7 +11,6 @@ type Props = {
 };
 
 function Empty({ queryParams, currentUser }: Props) {
-  const breadcrumb = [{ title: __('Inbox') }];
   const menuInbox = [{ title: 'Inbox', link: '/inbox/index' }];
 
   if (can('showInsights', currentUser)) {
@@ -30,8 +29,8 @@ function Empty({ queryParams, currentUser }: Props) {
     <Wrapper
       header={
         <Wrapper.Header
+          title={__('Inbox')}
           queryParams={queryParams}
-          breadcrumb={breadcrumb}
           submenu={menuInbox}
         />
       }
