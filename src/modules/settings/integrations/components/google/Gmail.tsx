@@ -7,15 +7,13 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
-import { SelectBrand } from '..';
 import Accounts from '../../containers/Accounts';
+import SelectBrand from '../../containers/SelectBrand';
 import { CreateGmailMutationVariables } from '../../types';
 
 type Props = {
   save: (params: CreateGmailMutationVariables, callback: () => void) => void;
-  brands: IBrand[];
   closeModal: () => void;
 };
 
@@ -63,8 +61,6 @@ class Gmail extends React.Component<
   };
 
   render() {
-    const { brands } = this.props;
-
     return (
       <form onSubmit={this.handleSubmit}>
         {this.state.loading && <Spinner />}
@@ -74,7 +70,7 @@ class Gmail extends React.Component<
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
 
-        <SelectBrand brands={brands} />
+        <SelectBrand />
 
         <Accounts
           kind="gmail"

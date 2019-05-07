@@ -6,10 +6,9 @@ import {
   Icon
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import { InstallCode } from 'modules/settings/integrations/components';
-import { SelectBrand } from 'modules/settings/integrations/components';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
@@ -18,7 +17,6 @@ import { MessengerList } from '../containers';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
-  brands: IBrand[];
   totalCount: number;
   integration?: IIntegration;
   save: (
@@ -171,10 +169,7 @@ class MessengerAdd extends React.Component<Props, State> {
           </FormControl>
         </FormGroup>
 
-        <SelectBrand
-          brands={this.props.brands || []}
-          onChange={this.handleChange.bind(this, 'brandId')}
-        />
+        <SelectBrand onChange={this.handleChange.bind(this, 'brandId')} />
 
         {this.renderOtherMessengers()}
       </>

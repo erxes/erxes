@@ -1,13 +1,11 @@
 import { Button } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, confirm } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
-import { SelectBrand } from 'modules/settings/integrations/components';
-import Accounts from 'modules/settings/integrations/containers/Accounts';
 import * as React from 'react';
+import Accounts from '../../containers/Accounts';
+import SelectBrand from '../../containers/SelectBrand';
 
 type Props = {
-  brands: IBrand[];
   save: (
     { brandId, accountId }: { brandId: string; accountId: string }
   ) => void;
@@ -47,11 +45,9 @@ class Twitter extends React.Component<Props, { accountId?: string }> {
   };
 
   render() {
-    const { brands } = this.props;
-
     return (
       <form onSubmit={this.handleSubmit}>
-        <SelectBrand brands={brands} />
+        <SelectBrand />
 
         <Accounts
           kind="twitter"
