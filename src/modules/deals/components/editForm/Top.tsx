@@ -4,7 +4,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import { __, readFile } from 'modules/common/utils';
 import * as React from 'react';
 import * as Datetime from 'react-datetime';
 import Select from 'react-select-plus';
@@ -81,7 +81,7 @@ class Top extends React.Component<Props> {
 
     const content = option => (
       <React.Fragment>
-        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+        <Avatar src={readFile(option.avatar) || '/images/avatar-colored.svg'} />
         {option.label}
       </React.Fragment>
     );

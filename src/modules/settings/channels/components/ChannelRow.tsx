@@ -1,6 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import { __, getUserAvatar } from 'modules/common/utils';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
@@ -55,13 +55,7 @@ class ChannelRow extends React.Component<Props, {}> {
   renderMember = member => {
     return (
       <Tip key={member._id} text={member.details.fullName} placement="top">
-        <MemberImg
-          key={member._id}
-          src={
-            (member.details && member.details.avatar) ||
-            '/images/avatar-colored.svg'
-          }
-        />
+        <MemberImg key={member._id} src={getUserAvatar(member)} />
       </Tip>
     );
   };

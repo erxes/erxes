@@ -1,5 +1,6 @@
+import { getEnv } from 'apolloClient';
 import T from 'i18n-react';
-import { IUser } from 'modules/auth/types';
+import { IUser, IUserDoc } from 'modules/auth/types';
 import * as React from 'react';
 import Alert from './Alert';
 import colorParser from './colorParser';
@@ -127,6 +128,31 @@ export const __ = (key: string, options?: any) => {
   }
 
   return translation.toString();
+};
+
+/**
+ * Request to get file's URL for view and download
+ * @param {String} - value
+ * @return {String} - URL
+ */
+export const readFile = (value: string): string => {
+  if (!value || urlParser.isValidURL(value)) {
+    return value;
+  }
+
+  const { REACT_APP_API_URL } = getEnv();
+
+  return `${REACT_APP_API_URL}/read-file?key=${value}`;
+};
+
+export const getUserAvatar = (user: IUserDoc) => {
+  const { details = {} } = user;
+
+  if (!details.avatar) {
+    return '/images/avatar-colored.svg';
+  }
+
+  return readFile(details.avatar);
 };
 
 export function withProps<IProps>(

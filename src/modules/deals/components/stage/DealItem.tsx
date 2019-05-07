@@ -1,4 +1,5 @@
-import { __ } from 'modules/common/utils';
+import { IUserDoc } from 'modules/auth/types';
+import { __, getUserAvatar, readFile } from 'modules/common/utils';
 import { EditForm } from 'modules/deals/containers/editForm';
 import {
   Deal,
@@ -121,7 +122,7 @@ export default class DealItem extends React.PureComponent<
               {(deal.assignedUsers || []).map((user, index) => (
                 <img
                   key={index}
-                  src={user.details && user.details.avatar}
+                  src={getUserAvatar(user)}
                   width="22px"
                   height="22px"
                   style={{ marginLeft: '2px', borderRadius: '11px' }}
