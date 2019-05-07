@@ -200,6 +200,7 @@ const generateParams = ({ queryParams }) => {
     leadStatus: queryParams.leadStatus,
     lifecycleState: queryParams.lifecycleState,
     sortField: queryParams.sortField,
+    type: queryParams.type,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined
