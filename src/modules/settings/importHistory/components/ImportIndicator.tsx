@@ -69,6 +69,7 @@ type Props = {
   importHistory: IImportHistory;
   close: () => void;
   cancel: (id: string) => void;
+  isRemovingImport: boolean;
 };
 
 class ImportIndicator extends React.Component<Props> {
@@ -114,35 +115,64 @@ class ImportIndicator extends React.Component<Props> {
     cancel(id);
   };
 
-  showResult = () => {
-    const { importHistory, id, percentage } = this.props;
+  getSuccessText() {
+    const { isRemovingImport, importHistory, id } = this.props;
     const { errorMsgs = [], contentType } = importHistory;
 
-    if (this.isDone()) {
+    if (isRemovingImport) {
       return (
         <div>
-          {this.renderType(contentType, true)}{' '}
-          {__('data successfully imported')}. {this.showErrors(errorMsgs)}{' '}
-          <Link to={`/settings/importHistory/${id}`}>{__('Show result')}</Link>.
+          {this.renderType(contentType, true)} {__('data successfully removed')}
+          .
         </div>
       );
     }
 
     return (
       <div>
-        <b>[{percentage}%]</b> {__('Importing')} {this.renderType(contentType)}{' '}
-        {__('data')}. You can <a onClick={this.cancel}>{__('cancel')}</a>{' '}
-        anytime.
+        {this.renderType(contentType, true)} {__('data successfully imported')}.{' '}
+        {this.showErrors(errorMsgs)}{' '}
+        <Link to={`/settings/importHistory/${id}`}>{__('Show result')}</Link>.
+      </div>
+    );
+  }
+
+  getIndicatorText() {
+    const { isRemovingImport, importHistory } = this.props;
+    const { contentType } = importHistory;
+
+    if (isRemovingImport) {
+      return (
+        <>
+          {__('Removing')} {this.renderType(contentType)} {__('data')}.
+        </>
+      );
+    }
+
+    return (
+      <>
+        {__('Importing')} {this.renderType(contentType)} {__('data')}. You can{' '}
+        <a onClick={this.cancel}>{__('cancel')}</a> anytime.
+      </>
+    );
+  }
+
+  renderProgress = () => {
+    if (this.isDone()) {
+      return this.getSuccessText();
+    }
+
+    return (
+      <div>
+        <b>[{this.props.percentage}%]</b> {this.getIndicatorText()}
       </div>
     );
   };
 
   renderCloseButton = () => {
-    const { importHistory, close } = this.props;
-
-    if (importHistory.status === 'Done') {
+    if (this.isDone()) {
       return (
-        <a href="#" onClick={close}>
+        <a href="#" onClick={this.props.close}>
           <Icon icon="cancel" />
         </a>
       );
@@ -155,7 +185,7 @@ class ImportIndicator extends React.Component<Props> {
     return (
       <Indicator>
         {this.renderProgressBar()}
-        <Box>{this.showResult()}</Box>
+        <Box>{this.renderProgress()}</Box>
         {this.renderCloseButton()}
       </Indicator>
     );

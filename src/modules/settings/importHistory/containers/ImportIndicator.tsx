@@ -17,6 +17,7 @@ type Props = {
   close: () => void;
   importHistoryDetailQuery: ImportHistoryDetailQueryResponse;
   closeLoadingBar: () => void;
+  isRemovingImport: boolean;
 };
 
 type State = {
@@ -48,6 +49,8 @@ class ImportIndicatorContainer extends React.Component<
         const { importHistoryChanged } = data;
         const { percentage, status } = importHistoryChanged;
 
+        console.log(data); // tslint:disable-line
+
         if (status === 'Done') {
           // clear local storage
           localStorage.setItem('erxes_import_data', '');
@@ -66,8 +69,10 @@ class ImportIndicatorContainer extends React.Component<
     const {
       importHistoryDetailQuery,
       importCancel,
-      closeLoadingBar
+      closeLoadingBar,
+      isRemovingImport
     } = this.props;
+
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
 
     const cancelImport = id => {
@@ -92,6 +97,7 @@ class ImportIndicatorContainer extends React.Component<
         percentage={this.state.percentage}
         importHistory={importHistory}
         cancel={cancelImport}
+        isRemovingImport={isRemovingImport}
       />
     );
   }
@@ -124,10 +130,11 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ closeLoadingBar }) => (
+      {({ closeLoadingBar, isRemovingImport }) => (
         <ImportIndicatorWithProps
           {...props}
           closeLoadingBar={closeLoadingBar}
+          isRemovingImport={isRemovingImport}
         />
       )}
     </AppConsumer>

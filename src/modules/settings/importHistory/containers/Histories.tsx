@@ -11,7 +11,8 @@ import { ImportHistoriesQueryResponse, RemoveMutationResponse } from '../types';
 
 type Props = {
   queryParams: any;
-  showLoadingBar: () => void;
+  showLoadingBar: (isRemovingImport: boolean) => void;
+  closeLoadingBar: () => void;
 };
 
 type FinalProps = {
@@ -38,7 +39,8 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       historiesQuery,
       history,
       importHistoriesRemove,
-      showLoadingBar
+      showLoadingBar,
+      closeLoadingBar
     } = this.props;
 
     if (!router.getParam(history, 'type')) {
@@ -49,16 +51,17 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
 
     const removeHistory = historyId => {
       localStorage.setItem('erxes_import_data', historyId);
-      showLoadingBar();
+      showLoadingBar(true);
 
       importHistoriesRemove({
         variables: { _id: historyId }
       })
         .then(() => {
-          Alert.success('You successfully removed all customers');
+          closeLoadingBar();
         })
         .catch(e => {
           Alert.error(e.message);
+          closeLoadingBar();
         });
     };
 
@@ -103,8 +106,12 @@ const HistoriesWithProps = withProps<Props>(
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ showLoadingBar }) => (
-        <HistoriesWithProps {...props} showLoadingBar={showLoadingBar} />
+      {({ showLoadingBar, closeLoadingBar }) => (
+        <HistoriesWithProps
+          {...props}
+          showLoadingBar={showLoadingBar}
+          closeLoadingBar={closeLoadingBar}
+        />
       )}
     </AppConsumer>
   );
