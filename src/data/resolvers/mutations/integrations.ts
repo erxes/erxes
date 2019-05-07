@@ -3,6 +3,7 @@ import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/def
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
 import { sendGmail, updateHistoryId } from '../../../trackers/gmail';
+import { utils } from '../../../trackers/gmailTracker';
 import { socUtils } from '../../../trackers/twitterTracker';
 import { checkPermission } from '../../permissions';
 import { getEnv, sendPostRequest } from '../../utils';
@@ -118,7 +119,17 @@ const integrationMutations = {
   /**
    * Delete an integration
    */
-  integrationsRemove(_root, { _id }: { _id: string }) {
+  async integrationsRemove(_root, { _id }: { _id: string }) {
+    const integration = await Integrations.findOne({ _id });
+    if (integration && integration.kind === 'gmail' && integration.gmailData) {
+      const account = await Accounts.findOne({ _id: integration.gmailData.accountId });
+      if (account) {
+        const credentials = await Accounts.getGmailCredentials(account.uid);
+        // remove email from google push notification
+        await utils.stopReceivingEmail(account.uid, credentials);
+      }
+    }
+
     return Integrations.removeIntegration(_id);
   },
 
