@@ -187,7 +187,6 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 }
 
 const generateParams = ({ queryParams, type }) => {
-  console.log(type); //tslint:disable-line
   return {
     ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
