@@ -30,7 +30,8 @@ type Props = {
     type: string,
     doc: IEngageMessageDoc
   ) => { status: string; doc?: IEngageMessageDoc };
-  renderTitle: () => IBreadCrumbItem[];
+  renderTitle: () => string;
+  breadcrumbs: IBreadCrumbItem[];
 };
 
 type State = {
@@ -107,14 +108,14 @@ class VisitorForm extends React.Component<Props, State> {
       scheduleDate
     } = this.state;
 
-    const { kind, users, brands } = this.props;
+    const { renderTitle, breadcrumbs, kind, users, brands } = this.props;
 
     const onChange = e =>
       this.changeState('title', (e.target as HTMLInputElement).value);
 
     return (
       <StepWrapper>
-        <Wrapper.Header breadcrumb={this.props.renderTitle()} />
+        <Wrapper.Header title={renderTitle()} breadcrumb={breadcrumbs} />
 
         <TitleContainer>
           <div>{__('Title')}</div>

@@ -772,12 +772,11 @@ export const INTEGRATIONS = [
 ];
 
 export const LANGUAGES = [
-  {
-    label: 'Монгол',
-    value: 'mn'
-  },
-  {
-    label: 'English',
-    value: 'en'
-  }
+  { label: 'Монгол', value: 'mn' },
+  { label: 'English', value: 'en' },
+  { label: 'French', value: 'fr' },
+  { label: 'Deustch', value: 'de' },
+  { label: 'Korean', value: 'kr' },
+  { label: 'Spanish', value: 'es' },
+  { label: 'Portuguese', value: 'pt_br' }
 ];

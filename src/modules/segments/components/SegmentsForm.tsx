@@ -361,14 +361,16 @@ class SegmentsForm extends React.Component<Props, State> {
   render() {
     const { contentType, segment } = this.props;
 
+    const title = segment ? __('Edit segment') : __('New segment');
+
     const breadcrumb = [
       { title: __('Segments'), link: `/segments/${contentType}` },
-      { title: segment ? __('Edit segment') : __('New segment') }
+      { title }
     ];
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         content={this.renderContent()}
         footer={this.renderFooter()}
         rightSidebar={this.renderSidebar()}
