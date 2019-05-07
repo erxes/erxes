@@ -59,6 +59,33 @@ const ResultCount = styled.div`
   }
 `;
 
+const Field = styled.div`
+  visibility: hidden;
+  position: absolute;
+  right: -96%;
+  top: 0;
+  padding: ${dimensions.unitSpacing}px;
+  width: 250px;
+  background: ${colors.colorWhite};
+  box-shadow: 0 0 ${dimensions.coreSpacing}px 3px rgba(0, 0, 0, 0.15);
+`;
+
+const PopoverList = styled.div`
+  position: relative;
+
+  &:hover {
+    ${Field} {
+      visibility: visible;
+    }
+  }
+`;
+
+const FieldType = styled.div`
+  padding: 10px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  color: ${colors.colorCoreGray};
+`;
+
 export {
   SegmentWrapper,
   ConditionWrapper,
@@ -66,5 +93,8 @@ export {
   SegmentContainer,
   ConditionItem,
   SegmentResult,
-  ResultCount
+  ResultCount,
+  PopoverList,
+  FieldType,
+  Field
 };
