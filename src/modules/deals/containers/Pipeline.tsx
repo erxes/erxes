@@ -1,18 +1,12 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { EmptyState, Spinner } from '../../common/components';
-import { mutations, queries } from '../graphql';
-import {
-  DealsChangeMutation,
-  IDealMap,
-  IPipeline,
-  IStageMap,
-  StagesQueryResponse
-} from '../types';
+import { withProps } from '../../common/utils';
+import { queries } from '../graphql';
+import { IDealMap, IPipeline, IStageMap, StagesQueryResponse } from '../types';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 import { Stage } from './stage';
 
@@ -28,23 +22,13 @@ type Props = {
   queryParams: any;
 };
 
-type FinalProps = {
-  dealsChangeMutation: DealsChangeMutation;
-} & Props;
-
-class WithStages extends React.Component<FinalProps, {}> {
+class WithStages extends React.Component<Props, {}> {
   countStages(obj) {
     return Object.keys(obj).length;
   }
 
   render() {
-    const {
-      initialDealMap,
-      pipeline,
-      stageMap,
-      queryParams,
-      dealsChangeMutation
-    } = this.props;
+    const { initialDealMap, pipeline, stageMap, queryParams } = this.props;
     const stagesCount = this.countStages(stageMap);
 
     if (stagesCount === 0) {
@@ -57,18 +41,11 @@ class WithStages extends React.Component<FinalProps, {}> {
       );
     }
 
-    const dealsChange = (id: string) => {
-      dealsChangeMutation({ variables: { _id: id } }).catch(error => {
-        Alert.error(error.message);
-      });
-    };
-
     return (
       <PipelineProvider
         pipeline={pipeline}
         initialDealMap={initialDealMap}
         queryParams={queryParams}
-        dealsChange={dealsChange}
       >
         <PipelineConsumer>
           {({ stageLoadMap, dealMap, onDragEnd, stageIds }) => (
@@ -117,7 +94,7 @@ class WithStages extends React.Component<FinalProps, {}> {
 
 type WithStatesQueryProps = {
   stagesQuery: StagesQueryResponse;
-} & FinalProps;
+} & Props;
 
 const WithStatesQuery = (props: WithStatesQueryProps) => {
   const { stagesQuery } = props;
@@ -149,9 +126,6 @@ export default withProps<Props>(
           search: queryParams.search
         }
       })
-    }),
-    graphql<Props, DealsChangeMutation>(gql(mutations.dealsChange), {
-      name: 'dealsChangeMutation'
     })
   )(WithStatesQuery)
 );

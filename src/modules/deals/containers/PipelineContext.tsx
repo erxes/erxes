@@ -11,7 +11,6 @@ type Props = {
   pipeline: IPipeline;
   initialDealMap?: IDealMap;
   queryParams: any;
-  dealsChange: (id: string) => void;
 };
 
 type StageLoadMap = {
@@ -129,7 +128,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     const dealId = result.draggableId;
 
     // update deal to database
-    this.props.dealsChange(dealId);
+    this.dealsChange(dealId);
 
     const deal = dealMap[destination.droppableId].find(d => d._id === dealId);
     deal.modifiedAt = new Date();
@@ -143,6 +142,19 @@ export class PipelineProvider extends React.Component<Props, State> {
       source.droppableId,
       destination.droppableId
     ]);
+  };
+
+  dealsChange = (dealId: string) => {
+    client
+      .mutate({
+        mutation: gql(mutations.dealsChange),
+        variables: {
+          _id: dealId
+        }
+      })
+      .catch((e: Error) => {
+        Alert.error(e.message);
+      });
   };
 
   saveStageOrders = (stageIds: string[]) => {
