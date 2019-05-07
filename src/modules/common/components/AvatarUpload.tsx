@@ -2,7 +2,7 @@ import { colors } from 'modules/common/styles';
 import * as React from 'react';
 import styled from 'styled-components';
 import { ControlLabel, FormGroup, Icon, Spinner } from '.';
-import { Alert, uploadHandler } from '../utils';
+import { Alert, readFile, uploadHandler } from '../utils';
 
 const Avatar = styled.div`
   width: 100px;
@@ -135,7 +135,11 @@ class AvatarUpload extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>Photo</ControlLabel>
         <Avatar>
-          <img alt="avatar" style={avatarPreviewStyle} src={avatarPreviewUrl} />
+          <img
+            alt="avatar"
+            style={avatarPreviewStyle}
+            src={readFile(avatarPreviewUrl)}
+          />
           <label>
             <Icon icon="upload-1" size={30} />
             <input type="file" onChange={this.handleImageChange} />

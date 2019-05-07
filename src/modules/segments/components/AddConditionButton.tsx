@@ -1,8 +1,9 @@
 import { Button, FilterableList } from 'modules/common/components';
-import { dateUnits, operators, types } from 'modules/customers/constants';
+import { dateUnits, types } from 'modules/customers/constants';
 import * as React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { OverlayTrigger, Popover, Tooltip } from 'react-bootstrap';
 import { ISegmentCondition } from '../types';
+import { Field, FieldType, PopoverList } from './styles';
 
 type Props = {
   fields: any[];
@@ -27,14 +28,61 @@ class AddConditionButton extends React.Component<Props> {
     this.overlayTrigger.hide();
   };
 
-  renderPopover() {
+  renderFields(type: string) {
+    const { fields } = this.props;
+
+    let items = fields.filter(
+      field =>
+        field._id.indexOf('twitterData') &&
+        field._id.indexOf('facebookData') &&
+        field._id.indexOf('links') &&
+        field._id.indexOf('customFieldsData') &&
+        field._id.indexOf('messengerData')
+    );
+
+    if (type === 'messenger-data') {
+      items = fields.filter(field => field._id.includes('messengerData'));
+    }
+
+    if (type === 'customer-field-data') {
+      items = fields.filter(field => field._id.includes('customFieldsData'));
+    }
+
+    if (type === 'other-properties') {
+      items = fields.filter(field =>
+        ['twitterData', 'facebookData', 'links'].some(e =>
+          field._id.includes(e)
+        )
+      );
+    }
+
     return (
-      <Popover id="condition-popover" title="Select a field">
+      <Field>
         <FilterableList
-          items={this.props.fields}
+          items={items}
           onClick={this.addCondition}
           showCheckmark={false}
         />
+      </Field>
+    );
+  }
+
+  renderFieldType(type: string, title: string) {
+    return (
+      <PopoverList>
+        <FieldType>{title}</FieldType>
+        {this.renderFields(type)}
+      </PopoverList>
+    );
+  }
+
+  renderPopover() {
+    return (
+      <Popover id="condition-popover" title="Select a field">
+        {this.renderFieldType('basic-info', 'Basic Info')}
+        {this.renderFieldType('messenger-data', 'Messenger data')}
+        {this.renderFieldType('customer-field-data', 'Customer field data')}
+        {this.renderFieldType('other-properties', 'Other properties')}
       </Popover>
     );
   }

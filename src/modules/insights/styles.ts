@@ -168,7 +168,7 @@ const FullName = styled.span`
 `;
 
 const BoxContainer = styled.div`
-  width: 680px;
+  width: 1020px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -177,8 +177,7 @@ const BoxContainer = styled.div`
 const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   width: 320px;
   border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin: 10px;
   flex-shrink: 0;
 
   > a {

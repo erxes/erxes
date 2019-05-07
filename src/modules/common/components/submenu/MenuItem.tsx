@@ -33,7 +33,7 @@ function MenuItem({ to, title, children, ...props }: Props) {
 
   return (
     <Item>
-      <NavLink {...props} {...linkProps} activeClassName="active">
+      <NavLink {...props} {...linkProps} exact={true}>
         {children}
       </NavLink>
     </Item>

@@ -19,7 +19,7 @@ class CustomerDetails extends React.Component<Props> {
 
     const breadcrumb = [
       { title: __('Contacts'), link: '/contacts' },
-      { title: __('Customers'), link: '/contacts/customers' },
+      { title: __('Customers'), link: '/contacts/customers/all' },
       { title: renderFullName(customer) }
     ];
 
