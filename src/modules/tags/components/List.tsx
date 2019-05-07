@@ -65,7 +65,7 @@ function List({ tags, type, remove, save, loading }: Props) {
 
   return (
     <Wrapper
-      header={<Wrapper.Header breadcrumb={breadcrumb} />}
+      header={<Wrapper.Header title={__(type)} breadcrumb={breadcrumb} />}
       actionBar={actionBar}
       content={
         <DataWithLoader

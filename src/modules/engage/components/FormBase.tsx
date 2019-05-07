@@ -7,7 +7,8 @@ type Props = {
   kind: string;
   content: (
     params: {
-      renderTitle: () => IBreadCrumbItem[];
+      renderTitle: () => string;
+      breadcrumbs: IBreadCrumbItem[];
       validateDoc: (
         type: string,
         doc: IEngageMessageDoc
@@ -90,14 +91,20 @@ class FormBase extends React.Component<Props> {
       title = __('Visitor auto message');
     }
 
-    return [{ title: __('Engage'), link: '/engage' }, { title }];
+    return title;
   }
 
   render() {
+    const breadcrumbs = [
+      { title: __('Engage'), link: '/engage' },
+      { title: this.renderTitle() }
+    ];
+
     return (
       <React.Fragment>
         {this.props.content({
           renderTitle: () => this.renderTitle(),
+          breadcrumbs,
           validateDoc: this.validateDoc
         })}
       </React.Fragment>

@@ -33,13 +33,6 @@ class ResponseCloseReport extends React.Component<Props> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/inbox/insights' },
-      { title: __('Response Close Report') }
-    ];
-  }
-
   renderCharts() {
     const { trend, teamMembers, time, isLoading } = this.props;
 
@@ -84,7 +77,7 @@ class ResponseCloseReport extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
+            title={__('Response Close Report')}
             submenu={menuInbox}
           />
         }

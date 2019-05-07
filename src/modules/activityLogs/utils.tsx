@@ -104,6 +104,10 @@ export default class {
    * @return {String} return String
    */
   _getUserName(by) {
+    if (!this.currentUser) {
+      return null;
+    }
+
     if (!by) {
       return 'System';
     }
