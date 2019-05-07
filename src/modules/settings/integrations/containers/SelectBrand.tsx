@@ -15,6 +15,8 @@ import { SelectBrand } from '../components';
 
 type Props = {
   onChange: () => void;
+  defaultValue: string;
+  isVisible: boolean;
 };
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;

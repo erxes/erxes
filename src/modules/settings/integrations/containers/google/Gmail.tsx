@@ -1,8 +1,6 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
-import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import Gmail from 'modules/settings/integrations/components/google/Gmail';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';

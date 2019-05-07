@@ -25,11 +25,16 @@ type Props = {
     callback: () => void
   ) => void;
   defaultValue?: string;
+  isVisible?: boolean;
 };
 
-class Sidebar extends React.Component<Props, {}> {
+class SelectBrand extends React.Component<Props, {}> {
   renderAddBrand = () => {
-    const { save } = this.props;
+    const { save, isVisible } = this.props;
+
+    if (isVisible) {
+      return;
+    }
 
     const trigger = <Button>Add brand</Button>;
 
@@ -68,4 +73,4 @@ class Sidebar extends React.Component<Props, {}> {
   }
 }
 
-export default Sidebar;
+export default SelectBrand;

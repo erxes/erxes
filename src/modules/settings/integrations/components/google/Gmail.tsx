@@ -8,8 +8,7 @@ import {
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import Accounts from '../../containers/Accounts';
-import SelectBrand from '../../containers/SelectBrand';
+import { Accounts, SelectBrand } from '../../containers/';
 import { CreateGmailMutationVariables } from '../../types';
 
 type Props = {

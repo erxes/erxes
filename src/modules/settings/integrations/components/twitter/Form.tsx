@@ -2,8 +2,7 @@ import { Button } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, confirm } from 'modules/common/utils';
 import * as React from 'react';
-import Accounts from '../../containers/Accounts';
-import SelectBrand from '../../containers/SelectBrand';
+import { Accounts, SelectBrand } from '../../containers/';
 
 type Props = {
   save: (

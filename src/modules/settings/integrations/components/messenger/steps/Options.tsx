@@ -7,7 +7,7 @@ import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import * as React from 'react';
 import Toggle from 'react-toggle';
-import SelectBrand from '../../../containers/SelectBrand';
+import { SelectBrand } from '../../../containers/';
 
 type Props = {
   onChange: (

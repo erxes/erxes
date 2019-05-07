@@ -8,7 +8,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import { InstallCode } from 'modules/settings/integrations/components';
-import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
+import { SelectBrand } from 'modules/settings/integrations/containers';
 import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
@@ -169,7 +169,10 @@ class MessengerAdd extends React.Component<Props, State> {
           </FormControl>
         </FormGroup>
 
-        <SelectBrand onChange={this.handleChange.bind(this, 'brandId')} />
+        <SelectBrand
+          onChange={this.handleChange.bind(this, 'brandId')}
+          isVisible={true}
+        />
 
         {this.renderOtherMessengers()}
       </>
