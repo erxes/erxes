@@ -175,7 +175,7 @@ export default class Builder {
 
     // filter by type
     if (this.params.type) {
-      this.queries.type = { isUser: this.params.type === 'user' };
+      this.queries.type = { isUser: this.params.type === 'user' ? true : { $ne: true } };
     }
 
     // filter by segment
