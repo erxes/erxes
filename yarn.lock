@@ -151,7 +151,7 @@
     through2 "^2.0.3"
     uuid "^3.1.0"
 
-"@google-cloud/storage@^2.3.0":
+"@google-cloud/storage@^2.3.0", "@google-cloud/storage@^2.5.0":
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/@google-cloud/storage/-/storage-2.5.0.tgz#9dd3566d8155cf5ba0c212208f69f9ecd47fbd7e"
   dependencies:

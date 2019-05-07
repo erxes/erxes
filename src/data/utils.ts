@@ -1,3 +1,4 @@
+import { Storage } from '@google-cloud/storage';
 import * as AWS from 'aws-sdk';
 import * as EmailValidator from 'email-deep-validator';
 import * as fileType from 'file-type';
@@ -50,20 +51,54 @@ export const checkFile = async file => {
   return 'ok';
 };
 
-/*
- * Save binary data to amazon s3
+/**
+ * Create AWS instance
  */
-export const uploadFile = async (file: { name: string; path: string }): Promise<string> => {
+const createAWS = () => {
   const AWS_ACCESS_KEY_ID = getEnv({ name: 'AWS_ACCESS_KEY_ID' });
   const AWS_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SECRET_ACCESS_KEY' });
   const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
-  const AWS_PREFIX = getEnv({ name: 'AWS_PREFIX', defaultValue: '' });
+
+  if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
+    throw new Error('AWS credentials are not configured');
+  }
 
   // initialize s3
-  const s3 = new AWS.S3({
+  return new AWS.S3({
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
   });
+};
+
+/**
+ * Create Google Cloud Storage instance
+ */
+const createGCS = () => {
+  const GOOGLE_APPLICATION_CREDENTIALS = getEnv({ name: 'GOOGLE_APPLICATION_CREDENTIALS' });
+  const GOOGLE_PROJECT_ID = getEnv({ name: 'GOOGLE_PROJECT_ID' });
+  const BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
+
+  if (!GOOGLE_PROJECT_ID || !GOOGLE_APPLICATION_CREDENTIALS || !BUCKET) {
+    throw new Error('Google Cloud Storage credentials are not configured');
+  }
+
+  // initializing Google Cloud Storage
+  return new Storage({
+    projectId: GOOGLE_PROJECT_ID,
+    keyFilename: GOOGLE_APPLICATION_CREDENTIALS,
+  });
+};
+
+/*
+ * Save binary data to amazon s3
+ */
+export const uploadFileAWS = async (file: { name: string; path: string }): Promise<string> => {
+  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
+  const AWS_PREFIX = getEnv({ name: 'AWS_PREFIX', defaultValue: '' });
+  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
+
+  // initialize s3
+  const s3 = createAWS();
 
   // generate unique name
   const fileName = `${AWS_PREFIX}${Math.random()}${file.name}`;
@@ -78,7 +113,7 @@ export const uploadFile = async (file: { name: string; path: string }): Promise<
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: buffer,
-        ACL: 'public-read',
+        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined,
       },
       (err, res) => {
         if (err) {
@@ -90,7 +125,102 @@ export const uploadFile = async (file: { name: string; path: string }): Promise<
     );
   });
 
-  return response.Location;
+  return IS_PUBLIC === 'true' ? response.Location : fileName;
+};
+
+/*
+ * Save file to google cloud storage
+ */
+export const uploadFileGCS = async (file: { name: string; path: string; type: string }): Promise<string> => {
+  const BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
+  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
+
+  // initialize GCS
+  const storage = createGCS();
+
+  // select bucket
+  const bucket = storage.bucket(BUCKET);
+
+  // generate unique name
+  const fileName = `${Math.random()}${file.name}`;
+
+  bucket.file(fileName);
+
+  const response: any = await new Promise((resolve, reject) => {
+    bucket.upload(
+      file.path,
+      {
+        metadata: { contentType: file.type },
+        public: IS_PUBLIC === 'true',
+      },
+      (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+
+        if (res) {
+          return resolve(res);
+        }
+      },
+    );
+  });
+
+  const { metadata, name } = response;
+
+  return IS_PUBLIC === 'true' ? metadata.mediaLink : name;
+};
+
+/**
+ * Read file from GCS, AWS
+ */
+export const readFileRequest = async (key: string): Promise<any> => {
+  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_TYPE', defaultValue: 'AWS' });
+
+  if (UPLOAD_SERVICE_TYPE === 'GCS') {
+    const GCS_BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
+    const storage = createGCS();
+
+    const bucket = storage.bucket(GCS_BUCKET);
+
+    const file = bucket.file(key);
+
+    // get a file buffer
+    const [contents] = await file.download({});
+
+    return contents;
+  }
+
+  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
+  const s3 = createAWS();
+
+  return new Promise((resolve, reject) => {
+    s3.getObject(
+      {
+        Bucket: AWS_BUCKET,
+        Key: key,
+      },
+      (error, response) => {
+        if (error) {
+          return reject(error);
+        }
+
+        return resolve(response.Body);
+      },
+    );
+  });
+};
+
+/*
+ * Save binary data to amazon s3
+ */
+export const uploadFile = async (file): Promise<string> => {
+  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_TYPE', defaultValue: 'AWS' });
+
+  if (UPLOAD_SERVICE_TYPE === 'AWS') {
+    return uploadFileAWS(file);
+  }
+
+  return uploadFileGCS(file);
 };
 
 /**

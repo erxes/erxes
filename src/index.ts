@@ -12,7 +12,7 @@ import { userMiddleware } from './auth';
 import resolvers from './data/resolvers';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
 import typeDefs from './data/schema';
-import { checkFile, getEnv, importXlsFile, uploadFile } from './data/utils';
+import { checkFile, getEnv, importXlsFile, readFileRequest, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Conversations, Customers } from './db/models';
 import { graphqlPubsub } from './pubsub';
@@ -27,13 +27,13 @@ const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
 const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN', defaultValue: '' });
 
 // firebase app initialization
-fs.exists(path.join(__dirname, '..', '/serviceAccount.json'), exists => {
+fs.exists(path.join(__dirname, '..', '/google_cred.json'), exists => {
   if (!exists) {
     return;
   }
 
   const admin = require('firebase-admin').default;
-  const serviceAccount = require('../serviceAccount.json');
+  const serviceAccount = require('../google_cred.json');
   const firebaseServiceAccount = serviceAccount;
 
   if (firebaseServiceAccount.private_key) {
@@ -194,6 +194,25 @@ app.use('/static', express.static(path.join(__dirname, 'private')));
 // for health check
 app.get('/status', async (_req, res) => {
   res.end('ok');
+});
+
+// read file
+app.get('/read-file', async (req: any, res) => {
+  const key = req.query.key;
+
+  if (!key) {
+    return res.send('Invalid key');
+  }
+
+  try {
+    const response = await readFileRequest(key);
+
+    res.attachment(key);
+
+    return res.send(response);
+  } catch (e) {
+    return res.end(e.message);
+  }
 });
 
 // file upload

@@ -12,5 +12,5 @@ dump.rdb
 *.swo
 .migrate
 
-# Firebase config key
-serviceAccount.json
+# Google config file
+google_cred.json
