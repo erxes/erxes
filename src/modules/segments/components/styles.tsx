@@ -1,5 +1,6 @@
 import { Input, SelectWrapper } from 'modules/common/components/form/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import { FlexItem } from 'modules/layout/styles';
 import styled from 'styled-components';
 
@@ -87,7 +88,7 @@ const PopoverList = styled.div`
 const FieldType = styled.div`
   padding: 10px;
   border-bottom: 1px solid ${colors.borderPrimary};
-  color: ${colors.colorCoreGray};
+  color: ${rgba(colors.textPrimary, 0.8)};
 `;
 
 export {
