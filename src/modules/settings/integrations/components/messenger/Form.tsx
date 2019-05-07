@@ -248,7 +248,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
     return (
       <StepWrapper>
-        <Wrapper.Header breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Messenger')} breadcrumb={breadcrumb} />
 
         <TitleContainer>
           <div>{__('Title')}</div>

@@ -19,7 +19,7 @@ class CustomerDetails extends React.Component<Props> {
 
     const breadcrumb = [
       { title: __('Contacts'), link: '/contacts' },
-      { title: __('Customers'), link: '/contacts/customers' },
+      { title: __('Customers'), link: '/contacts/customers/all' },
       { title: renderFullName(customer) }
     ];
 
@@ -45,7 +45,12 @@ class CustomerDetails extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header
+            title={renderFullName(customer)}
+            breadcrumb={breadcrumb}
+          />
+        }
         leftSidebar={
           <LeftSidebar
             wide={true}

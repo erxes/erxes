@@ -76,19 +76,12 @@ class FirstResponse extends React.Component<Props> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/inbox/insights' },
-      { title: __('First Response Report') }
-    ];
-  }
-
   render() {
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
+            title={__('First Response Report')}
             submenu={menuInbox}
           />
         }

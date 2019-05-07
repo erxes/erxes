@@ -76,10 +76,9 @@ class UserDetails extends React.Component<Props> {
     const { user, channels, renderEditForm } = this.props;
     const { details = {} } = user;
 
-    const breadcrumb = [
-      { title: 'Users', link: '/settings/team' },
-      { title: details.fullName || 'N/A' }
-    ];
+    const title = details.fullName || 'N/A';
+
+    const breadcrumb = [{ title: 'Users', link: '/settings/team' }, { title }];
 
     const content = (
       <>
@@ -100,7 +99,7 @@ class UserDetails extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         leftSidebar={
           <LeftSidebar
             user={user}

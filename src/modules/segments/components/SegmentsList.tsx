@@ -96,7 +96,12 @@ class SegmentsList extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: __('Segments') }]} />}
+        header={
+          <Wrapper.Header
+            title={__('Segments')}
+            breadcrumb={[{ title: __('Segments') }]}
+          />
+        }
         actionBar={actionBar}
         content={this.renderContent()}
         leftSidebar={<Sidebar />}

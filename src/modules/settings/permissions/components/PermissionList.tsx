@@ -201,12 +201,14 @@ class PermissionList extends React.Component<Props> {
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
-      { title: 'Permissions' }
+      { title: __('Permissions') }
     ];
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('Permissions')} breadcrumb={breadcrumb} />
+        }
         actionBar={this.renderActionBar()}
         footer={<Pagination count={totalCount} />}
         content={
