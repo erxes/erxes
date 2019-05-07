@@ -218,9 +218,8 @@ class WorkArea extends React.Component<FinalProps, State> {
             return prev;
           }
 
-          const prevMessageIds = (prev.conversationMessages || []).map(
-            m => m._id
-          );
+          const prevConversationMessages = prev.conversationMessages || [];
+          const prevMessageIds = prevConversationMessages.map(m => m._id);
 
           const fetchedMessages: IMessage[] = [];
 
@@ -234,7 +233,7 @@ class WorkArea extends React.Component<FinalProps, State> {
             ...prev,
             conversationMessages: [
               ...fetchedMessages,
-              ...prev.conversationMessages
+              ...prevConversationMessages
             ]
           };
         }
