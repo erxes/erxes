@@ -33,47 +33,29 @@ class AddConditionButton extends React.Component<Props> {
 
     let items = fields.filter(
       field =>
-        field._id !==
-        field._id.includes(
-          'links' &&
-            'messengerData' &&
-            'twitterData' &&
-            'facebookData' &&
-            'customFieldsData'
-        )
+        field._id.indexOf('twitterData') &&
+        field._id.indexOf('facebookData') &&
+        field._id.indexOf('links') &&
+        field._id.indexOf('customFieldsData') &&
+        field._id.indexOf('messengerData')
     );
 
     if (type === 'messenger-data') {
-      items = fields.filter(
-        field => field._id === field._id.includes('messengerData')
-      );
+      items = fields.filter(field => field._id.includes('messengerData'));
     }
 
     if (type === 'customer-field-data') {
-      items = fields.filter(
-        field => field._id === field._id.includes('customFieldsData')
-      );
+      items = fields.filter(field => field._id.includes('customFieldsData'));
     }
 
     if (type === 'other-properties') {
-      items = fields.filter(
-        field =>
-          field._id ===
-          field._id.includes('twitterData' && 'facebookData' && 'links')
+      items = fields.filter(field =>
+        ['twitterData', 'facebookData', 'links'].some(e =>
+          field._id.includes(e)
+        )
       );
     }
-    // tslint:disable-next-line:no-console
-    console.log(
-      fields.filter(field =>
-        [
-          'links',
-          'messengerData',
-          'twitterData',
-          'facebookData',
-          'customFieldsData'
-        ].some(e => !field._id.includes(e))
-      )
-    );
+
     return (
       <Field>
         <FilterableList

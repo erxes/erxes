@@ -62,12 +62,16 @@ const ResultCount = styled.div`
 const Field = styled.div`
   visibility: hidden;
   position: absolute;
-  right: -96%;
+  left: ${dimensions.headerSpacing + dimensions.headerSpacing}%;
   top: 0;
   padding: ${dimensions.unitSpacing}px;
-  width: 250px;
+  width: 270px;
   background: ${colors.colorWhite};
   box-shadow: 0 0 ${dimensions.coreSpacing}px 3px rgba(0, 0, 0, 0.15);
+
+  input {
+    transition: inherit;
+  }
 `;
 
 const PopoverList = styled.div`
