@@ -136,9 +136,7 @@ export const __ = (key: string, options?: any) => {
  * @return {String} - URL
  */
 export const readFile = (value: string): string => {
-  const { FILE_SYSTEM_PUBLIC } = getEnv();
-
-  if (FILE_SYSTEM_PUBLIC === 'true' || !value || urlParser.isValidURL(value)) {
+  if (!value || urlParser.isValidURL(value)) {
     return value;
   }
 
