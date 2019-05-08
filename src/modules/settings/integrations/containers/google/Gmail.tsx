@@ -1,12 +1,9 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
-import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import Gmail from 'modules/settings/integrations/components/google/Gmail';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { BrandsQueryResponse } from '../../../brands/types';
 import { mutations } from '../../graphql';
 import {
   CreateGmailMutationResponse,
@@ -19,7 +16,6 @@ type Props = {
 };
 
 type FinalProps = {
-  brandsQuery: BrandsQueryResponse;
   queryParams: any;
 } & IRouterProps &
   Props &
@@ -27,13 +23,7 @@ type FinalProps = {
 
 class GmailContainer extends React.Component<FinalProps> {
   render() {
-    const { brandsQuery, saveMutation, closeModal } = this.props;
-
-    if (brandsQuery.loading) {
-      return <Spinner objective={true} />;
-    }
-
-    const brands = brandsQuery.brands;
+    const { saveMutation, closeModal } = this.props;
 
     const save = (
       variables: CreateGmailMutationVariables,
@@ -51,7 +41,6 @@ class GmailContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       closeModal,
-      brands,
       save
     };
 
@@ -61,12 +50,6 @@ class GmailContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
     graphql<Props, CreateGmailMutationResponse, CreateGmailMutationVariables>(
       gql(mutations.integrationsCreateGmailIntegration),
       { name: 'saveMutation' }

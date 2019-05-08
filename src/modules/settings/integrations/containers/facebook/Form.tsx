@@ -1,15 +1,13 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
-import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { BrandsQueryResponse } from '../../../brands/types';
+
 import {
   CreateFacebookMutationResponse,
   CreateFacebookMutationVariables,
@@ -21,11 +19,7 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {
-  brandsQuery: BrandsQueryResponse;
-} & IRouterProps &
-  Props &
-  CreateFacebookMutationResponse;
+type FinalProps = {} & IRouterProps & Props & CreateFacebookMutationResponse;
 
 type State = {
   pages: IPages[];
@@ -49,7 +43,6 @@ class FacebookContainer extends React.Component<FinalProps, State> {
         query: gql(queries.integrationFacebookPageList),
         variables: { accountId }
       })
-
       .then(({ data, loading }: any) => {
         if (!loading) {
           this.setState({
@@ -58,7 +51,6 @@ class FacebookContainer extends React.Component<FinalProps, State> {
           });
         }
       })
-
       .catch(error => {
         Alert.error(error.message);
       });
@@ -91,17 +83,10 @@ class FacebookContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { brandsQuery, closeModal } = this.props;
-
-    if (brandsQuery.loading) {
-      return <Spinner objective={true} />;
-    }
-
-    const brands = brandsQuery.brands;
+    const { closeModal } = this.props;
 
     const updatedProps = {
       closeModal,
-      brands,
       pages: this.state.pages,
       onAccountSelect: this.onAccountSelect,
       onRemoveAccount: this.onRemoveAccount,
@@ -114,12 +99,6 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
     graphql<
       Props,
       CreateFacebookMutationResponse,

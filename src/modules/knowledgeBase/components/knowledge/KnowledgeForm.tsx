@@ -7,6 +7,8 @@ import {
   FormGroup
 } from 'modules/common/components';
 import colors from 'modules/common/styles/colors';
+import { SelectBrand } from 'modules/settings/integrations/containers';
+
 import { ModalFooter } from 'modules/common/styles/main';
 import { IBrand } from 'modules/settings/brands/types';
 import {
@@ -19,8 +21,8 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import * as ReactMarkdown from 'react-markdown';
+
 import { ITopic } from '../../types';
-import SelectBrand from '../SelectBrand';
 
 type Props = {
   topic: ITopic;
@@ -180,7 +182,6 @@ class KnowledgeForm extends React.Component<Props, State> {
   renderContent(
     topic = { title: '', description: '', languageCode: '', brand: { _id: '' } }
   ) {
-    const { brands } = this.props;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
 
@@ -213,7 +214,6 @@ class KnowledgeForm extends React.Component<Props, State> {
 
         <FormGroup>
           <SelectBrand
-            brands={brands}
             defaultValue={brandId}
             onChange={this.handleBrandChange}
           />
