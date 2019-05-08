@@ -141,6 +141,7 @@ class List extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
+            title={__('Engage')}
             breadcrumb={[{ title: __('Engage') }]}
             queryParams={queryParams}
           />

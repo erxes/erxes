@@ -110,7 +110,6 @@ class Step extends React.Component<Props> {
       img,
       title,
       children,
-      next,
       nextButton,
       onClick
     } = this.props;

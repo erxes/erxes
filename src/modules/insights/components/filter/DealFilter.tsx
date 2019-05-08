@@ -48,13 +48,15 @@ class DealFilter extends React.Component<Props, States> {
     });
   };
 
-  onApplyClick = () => {
+  onApplyClick = ({ startDate, endDate }) => {
     const { history } = this.props;
     const { pipelineIds, boardId } = this.state;
 
     router.setParams(history, {
       pipelineIds: (pipelineIds || []).join(','),
-      boardId
+      boardId,
+      startDate,
+      endDate
     });
   };
 
@@ -76,7 +78,7 @@ class DealFilter extends React.Component<Props, States> {
           value={this.state.pipelineIds || []}
           onChange={this.onPipelineChange}
           optionRenderer={options}
-          options={selectOptions([{ _id: '', name: __('All') }, ...pipelines])}
+          options={selectOptions([...pipelines])}
           multi={true}
         />
       </FlexItem>
@@ -117,19 +119,12 @@ class DealFilter extends React.Component<Props, States> {
       </>
     );
 
-    const applyBtn = (
-      <Button btnStyle="success" icon="filter" onClick={this.onApplyClick}>
-        Filter
-      </Button>
-    );
-
     return (
       <Filter
         queryParams={queryParams}
         history={history}
         content={content}
-        applyBtn={applyBtn}
-        days={30}
+        onApplyClick={this.onApplyClick}
       />
     );
   }

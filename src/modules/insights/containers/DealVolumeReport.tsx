@@ -38,7 +38,7 @@ const DealVolumeReportContainer = (props: FinalProps) => {
   let teamMembers;
 
   if (status) {
-    teamMembers = insightsByTeamMemberQuery.dealInsightsByTeamMember;
+    teamMembers = insightsByTeamMemberQuery.dealInsightsByTeamMember || [];
   }
 
   const extendedProps = {

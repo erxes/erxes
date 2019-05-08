@@ -735,8 +735,8 @@
   "Today": "Өнөөдөр",
   "Monthly view": "Сараар харах",
   "Filter by": "Шүүх",
-  "Creating a brand and by adding channels, you are able to better analyze your customers needs and help solve their problems": "Creating a brand and by adding channels, you are able to better analyze your customers needs and help solve their problems",
-  "Grow and add users to your team! Assign, designate and let them do what they do best": "Grow and add users to your team! Assign, designate and let them do what they do best",
+  "Creating a brand and by adding channels, you are able to better analyze your customers needs and help solve their problems": "Брэнд үүсгэн сувгуудаа нэмснээр та хэрэглэгдчийнхээ хэрэгцээ шаардлагыг шинжилж ойлгон асуудлыг нь шийдэж туслах боломжтой.",
+  "Grow and add users to your team! Assign, designate and let them do what they do best": "Багийн гишүүдээ нэмж багаа өргөжүүлснээр хамгийн сайн чадах ажлыг нь гишүүддээ даалгаж хоёр талын сэтгэл ханамжтай ажиллаарай.",
   "Stay up to date with every single customer feedback and create more meaningful conversations": "Stay up to date with every single customer feedback and create more meaningful conversations",
   "Create brand channels that are specifically categorized by type and activity": "Create brand channels that are specifically categorized by type and activity",
   "Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel.": "Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel.",
@@ -766,10 +766,14 @@
   "Continue": "Үргэлжлүүлэх",
   "Create brand": "Брэнд үүсгэх",
   "Create your first messenger": "Анхны мессенжерээ үүсгэх",
-  "Create your first live chat and in-app messaging. Stay up to date with every single customer feedback for more meaningful interactions.": "Create your first live chat and in-app messaging. Stay up to date with every single customer feedback for more meaningful interactions.",
-  "A channel gives a full view of all the brands and its applications all in one place. You can see all in-coming messages in your team inbox.": "A channel gives a full view of all the brands and its applications all in one place. You can see all in-coming messages in your team inbox.",
+  "Create your first live chat and in-app messaging Stay up to date with every single customer feedback for more meaningful interactions": "Хэрэглэгчтэй харилцах чат үүсгэснээр тэднээс ирсэн нэг ч хүсэлт, санал гомдлыг алдалгүй, тухай бүрт нь хэрэглэгчид ойр байх боломжтой.",
+  "A channel gives a full view of all the brands and its applications all in one place You can see all in-coming messages in your team inbox": "Суваг үүсгэснээр бүх брэнд болон холбогдсон интеграциудыг нэг дороос харж, тухайн брэндэд ирэх бүх зурвас багийн инбоксд харагдана.",
   "Hooray and Congratulations! You've completed the initial setup!": "Баяр хүргэе! Та эхлэлийн тохиргооноо амжилттай хийлээ!",
   "Paste the code below before the body tag on every page you want erxes chat to appear": "erxes чатыг гаргахыг хүссэн хуудас бүрийн </body> тагны өмнө доорх кодыг хуулж тавина.",
   "Choose messengers": "Мессенжерээ сонгох",
-  "erxes allows you to create multiple messengers": "erxes олон мессэнжэр үүсгэх боломжтой"
+  "erxes allows you to create multiple messengers": "erxes олон мессэнжэр үүсгэх боломжтой",
+  "erxes allows you to create multiple brands": "erxes олон бренд үүсгэх боломжтой",
+  "erxes allows you to create multiple channels": "erxes олон сувагууд үүсгэх боломжтой",
+  "Contacts": "Харилцагчид",
+  "Visitors": "Зочид"
 }
