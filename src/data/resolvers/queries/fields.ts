@@ -69,7 +69,11 @@ const fieldQueries = {
 
         const lastCustomers = await Customers.find({
           integrationId: integration._id,
-          'messengerData.customData': { $exists: true },
+          $and: [
+            { 'messengerData.customData': { $exists: true } },
+            { 'messengerData.customData': { $ne: null } },
+            { 'messengerData.customData': { $ne: {} } },
+          ],
         })
           .sort({ createdAt: -1 })
           .limit(1);
