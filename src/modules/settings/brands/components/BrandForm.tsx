@@ -1,8 +1,8 @@
-import { Form } from 'modules/common/components/form';
 import * as React from 'react';
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from '../../../common/components';
@@ -75,7 +75,12 @@ class BrandForm extends React.Component<Props, {}> {
         </div>
 
         <ModalFooter>
-          <Button btnStyle="simple" type="button" icon="cancel-1">
+          <Button
+            btnStyle="simple"
+            type="button"
+            icon="cancel-1"
+            onClick={this.props.closeModal}
+          >
             Cancel
           </Button>
 
@@ -93,7 +98,7 @@ class BrandForm extends React.Component<Props, {}> {
   };
 
   render() {
-    return <Form renderContent={this.renderContent} />;
+    return <Form onSubmit={this.save} renderContent={this.renderContent} />;
   }
 }
 

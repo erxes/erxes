@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 type Props = {
+  onSubmit: (e: any) => void;
   renderContent: (
     props: {
       errors: any[];
