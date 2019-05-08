@@ -171,7 +171,7 @@ class MessengerAdd extends React.Component<Props, State> {
 
         <SelectBrand
           onChange={this.handleChange.bind(this, 'brandId')}
-          isVisible={true}
+          creatable={false}
         />
 
         {this.renderOtherMessengers()}

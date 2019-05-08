@@ -25,23 +25,23 @@ type Props = {
     callback: () => void
   ) => void;
   defaultValue?: string;
-  isVisible?: boolean;
+  creatable?: boolean;
 };
 
 class SelectBrand extends React.Component<Props, {}> {
   renderAddBrand = () => {
-    const { save, isVisible } = this.props;
+    const { save, creatable = true } = this.props;
 
-    if (isVisible) {
+    if (!creatable) {
       return;
     }
 
-    const trigger = <Button>Add brand</Button>;
+    const trigger = <Button>Create brand</Button>;
 
     const content = props => <BrandForm {...props} save={save} />;
 
     return (
-      <ModalTrigger title="Add brand" trigger={trigger} content={content} />
+      <ModalTrigger title="Create brand" trigger={trigger} content={content} />
     );
   };
 
