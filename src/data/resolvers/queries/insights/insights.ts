@@ -1,22 +1,21 @@
 import { ConversationMessages, Conversations, Integrations, Tags } from '../../../../db/models';
 import { IUserDocument } from '../../../../db/models/definitions/users';
 import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../../constants';
-import { checkPermission, moduleRequireLogin } from '../../../permissions';
+import { moduleCheckPermission, moduleRequireLogin } from '../../../permissions';
 import { getDateFieldAsStr, getDurationField } from '../aggregationUtils';
 import { IListArgs, IPieChartData } from './types';
 import {
-  findConversations,
   fixChartData,
   fixDates,
   generateChartDataByCollection,
   generateChartDataBySelector,
-  generateMessageSelector,
   generatePunchData,
   generateResponseData,
-  getConversationDates,
   getConversationSelector,
   getFilterSelector,
+  getMessageSelector,
   getSummaryData,
+  getSummaryDates,
   getTimezone,
   noConversationSelector,
 } from './utils';
@@ -26,20 +25,12 @@ const insightQueries = {
    * Builds insights charting data contains
    * count of conversations in various integrations kinds.
    */
-  async insights(_root, args: IListArgs) {
-    const { startDate, endDate } = args;
+  async insightsIntegrations(_root, args: IListArgs) {
     const filterSelector = getFilterSelector(args);
-    const { start, end } = fixDates(startDate, endDate);
 
-    const insights: { integration: IPieChartData[]; tag: IPieChartData[] } = {
-      integration: [],
-      tag: [],
-    };
+    const conversationSelector = await getConversationSelector(filterSelector);
 
-    const conversationSelector = {
-      createdAt: { $gte: start, $lte: end },
-      ...noConversationSelector,
-    };
+    const integrations: IPieChartData[] = [];
 
     // count conversations by each integration kind
     for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
@@ -54,35 +45,56 @@ const insightQueries = {
         integrationId: { $in: integrationIds },
       });
 
-      if (kind === INTEGRATION_KIND_CHOICES.FACEBOOK) {
-        const { FEED, MESSENGER } = FACEBOOK_DATA_KINDS;
+      if (value > 0) {
+        if (kind === INTEGRATION_KIND_CHOICES.FACEBOOK) {
+          const { FEED, MESSENGER } = FACEBOOK_DATA_KINDS;
 
-        const feedCount = await Conversations.countDocuments({
-          ...conversationSelector,
-          integrationId: { $in: integrationIds },
-          'facebookData.kind': FEED,
-        });
+          const feedCount = await Conversations.countDocuments({
+            ...conversationSelector,
+            integrationId: { $in: integrationIds },
+            'facebookData.kind': FEED,
+          });
 
-        insights.integration.push({
-          id: `${kind} ${FEED}`,
-          label: `${kind} ${FEED}`,
-          value: feedCount,
-        });
+          integrations.push({
+            id: `${kind} ${FEED}`,
+            label: `${kind} ${FEED}`,
+            value: feedCount,
+          });
 
-        insights.integration.push({
-          id: `${kind} ${MESSENGER}`,
-          label: `${kind} ${MESSENGER}`,
-          value: value - feedCount,
-        });
-      } else {
-        insights.integration.push({ id: kind, label: kind, value });
+          integrations.push({
+            id: `${kind} ${MESSENGER}`,
+            label: `${kind} ${MESSENGER}`,
+            value: value - feedCount,
+          });
+        } else {
+          integrations.push({ id: kind, label: kind, value });
+        }
       }
     }
+
+    return integrations;
+  },
+
+  /**
+   * Builds insights charting data contains
+   * count of conversations in various integrations tags.
+   */
+  async insightsTags(_root, args: IListArgs) {
+    const filterSelector = getFilterSelector(args);
+
+    const conversationSelector = {
+      createdAt: filterSelector.createdAt,
+      ...noConversationSelector,
+    };
+
+    const tagDatas: IPieChartData[] = [];
 
     const tags = await Tags.find({ type: TAG_TYPES.CONVERSATION }).select('name');
 
     const integrationIdsByTag = await Integrations.find(filterSelector.integration).select('_id');
+
     const rawIntegrationIdsByTag = integrationIdsByTag.map(row => row._id);
+
     const tagData = await Conversations.aggregate([
       {
         $match: {
@@ -102,6 +114,7 @@ const insightQueries = {
     ]);
 
     const tagDictionaryData = {};
+
     tagData.forEach(row => {
       tagDictionaryData[row._id] = row.count;
     });
@@ -111,24 +124,18 @@ const insightQueries = {
       // find conversation counts of given tag
       const value = tagDictionaryData[tag._id];
       if (tag._id in tagDictionaryData) {
-        insights.tag.push({ id: tag.name, label: tag.name, value });
+        tagDatas.push({ id: tag.name, label: tag.name, value });
       }
     }
 
-    return insights;
+    return tagDatas;
   },
 
   /**
    * Counts conversations by each hours in each days.
    */
   async insightsPunchCard(_root, args: IListArgs, { user }: { user: IUserDocument }) {
-    const { type } = args;
-
-    const messageSelector = await generateMessageSelector({
-      args,
-      excludeBot: true,
-      type,
-    });
+    const messageSelector = await getMessageSelector({ args });
 
     return generatePunchData(ConversationMessages, messageSelector, user);
   },
@@ -137,13 +144,7 @@ const insightQueries = {
    * Sends combined charting data for trends.
    */
   async insightsTrend(_root, args: IListArgs) {
-    const { type } = args;
-
-    const messageSelector = await generateMessageSelector({
-      args,
-      excludeBot: true,
-      type,
-    });
+    const messageSelector = await getMessageSelector({ args });
 
     return generateChartDataBySelector({ selector: messageSelector });
   },
@@ -152,21 +153,19 @@ const insightQueries = {
    * Sends summary datas.
    */
   async insightsSummaryData(_root, args: IListArgs) {
-    const { startDate, endDate, type } = args;
-    const messageSelector = await generateMessageSelector({
+    const selector = await getMessageSelector({
       args,
-      excludeBot: true,
-      type,
-      createdAt: getConversationDates(args.endDate),
+      createdAt: getSummaryDates(args.endDate),
     });
 
+    const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
 
     return getSummaryData({
-      startDate: start,
-      endDate: end,
+      start,
+      end,
       collection: ConversationMessages,
-      selector: { ...messageSelector },
+      selector,
     });
   },
 
@@ -176,12 +175,9 @@ const insightQueries = {
   async insightsConversation(_root, args: IListArgs) {
     const filterSelector = getFilterSelector(args);
 
-    const conversationSelector = {
-      createdAt: filterSelector.createdAt,
-      ...noConversationSelector,
-    };
+    const selector = await getConversationSelector(filterSelector);
 
-    const conversations = await findConversations(filterSelector, { ...conversationSelector });
+    const conversations = await Conversations.find(selector);
 
     const insightData: any = {
       summary: [],
@@ -192,10 +188,10 @@ const insightQueries = {
     const { start, end } = fixDates(startDate, endDate);
 
     insightData.summary = await getSummaryData({
-      startDate: start,
-      endDate: end,
+      start,
+      end,
       collection: Conversations,
-      selector: { ...conversationSelector },
+      selector,
     });
 
     return insightData;
@@ -226,7 +222,9 @@ const insightQueries = {
 
     let allResponseTime = 0;
 
-    const conversations = await findConversations(filterSelector, conversationSelector);
+    const selector = await getConversationSelector(filterSelector, conversationSelector);
+
+    const conversations = await Conversations.find(selector);
 
     if (conversations.length < 1) {
       return insightData;
@@ -294,7 +292,7 @@ const insightQueries = {
       closedUserId: { $exists: true },
     };
 
-    const conversationMatch = await getConversationSelector(args, { ...conversationSelector });
+    const conversationMatch = await getConversationSelector(getFilterSelector(args), { ...conversationSelector });
 
     const insightAggregateData = await Conversations.aggregate([
       {
@@ -417,6 +415,6 @@ const insightQueries = {
 
 moduleRequireLogin(insightQueries);
 
-checkPermission(insightQueries, 'insights', 'showInsights');
+moduleCheckPermission(insightQueries, 'showInsights');
 
 export default insightQueries;

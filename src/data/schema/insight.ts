@@ -16,7 +16,8 @@ const dealParams = `
 `;
 
 export const queries = `
-  insights(${params}): JSON
+  insightsIntegrations(${params}): JSON
+  insightsTags(${params}): JSON
   insightsPunchCard(type: String, ${params}): JSON
   insightsTrend(type: String, ${params}): JSON
   insightsSummaryData(type: String, ${params}): JSON

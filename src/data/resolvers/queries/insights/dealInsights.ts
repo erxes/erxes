@@ -1,10 +1,8 @@
-import * as moment from 'moment';
 import { Deals } from '../../../../db/models';
 import { IUserDocument } from '../../../../db/models/definitions/users';
 import { INSIGHT_TYPES } from '../../../constants';
 import { moduleRequireLogin } from '../../../permissions';
 import { getDateFieldAsStr } from '../aggregationUtils';
-import { fixDate } from '../utils';
 import { IDealListArgs } from './types';
 import {
   fixChartData,
@@ -21,18 +19,9 @@ const dealInsightQueries = {
    * Counts deals by each hours in each days.
    */
   async dealInsightsPunchCard(_root, args: IDealListArgs, { user }: { user: IUserDocument }) {
-    const { endDate } = args;
+    const selector = await getDealSelector(args);
 
-    // check & convert endDate's value
-    const end = moment(fixDate(endDate)).format('YYYY-MM-DD');
-    const start = moment(end).add(-30, 'days');
-
-    const matchMessageSelector = {
-      // client or user
-      createdAt: { $gte: start.toDate(), $lte: new Date(end) },
-    };
-
-    return generatePunchData(Deals, matchMessageSelector, user);
+    return generatePunchData(Deals, selector, user);
   },
 
   /**
@@ -40,7 +29,7 @@ const dealInsightQueries = {
    */
   async dealInsightsMain(_root, args: IDealListArgs) {
     const { startDate, endDate, status } = args;
-    const { start, end } = fixDates(startDate, endDate, 30);
+    const { start, end } = fixDates(startDate, endDate);
 
     const selector = await getDealSelector(args);
 
@@ -55,8 +44,8 @@ const dealInsightQueries = {
     });
 
     insightData.summary = await getSummaryData({
-      startDate: start,
-      endDate: end,
+      start,
+      end,
       collection: Deals,
       selector: { ...selector },
       dateFieldName,

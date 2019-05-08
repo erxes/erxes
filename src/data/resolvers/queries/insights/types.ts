@@ -130,6 +130,10 @@ export interface IGenerateMessage {
     $gte: Date;
     $lte: Date;
   };
-  type: string;
-  excludeBot?: boolean;
+}
+
+export interface IResponseFirstResponseExport {
+  intervals: any[];
+  title: string;
+  _id: string;
 }

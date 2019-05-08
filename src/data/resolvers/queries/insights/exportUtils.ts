@@ -22,7 +22,15 @@ export const convertTime = (duration: number) => {
   const minutes = Math.floor((duration % 3600) / 60);
   const seconds = Math.floor((duration % 3600) % 60);
 
-  return hours.toString() + 'h : ' + minutes.toString() + 'm : ' + seconds.toString() + 's';
+  const timeFormat = (num: number) => {
+    if (num < 10) {
+      return '0' + num.toString();
+    }
+
+    return num.toString();
+  };
+
+  return timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds);
 };
 
 /**
