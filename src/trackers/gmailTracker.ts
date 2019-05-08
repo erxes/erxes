@@ -1,8 +1,10 @@
 import * as PubSub from '@google-cloud/pubsub';
 import { google } from 'googleapis';
+import * as request from 'request';
 import { getEnv } from '../data/utils';
 import { Accounts } from '../db/models';
 import { IGmail as IMsgGmail } from '../db/models/definitions/conversationMessages';
+
 import {
   getGmailUpdates,
   parseMessage,
@@ -25,10 +27,6 @@ export const trackGmailLogin = expressApp => {
     }
 
     const credentials: any = await getAccessToken(req.query.code);
-
-    if (!credentials.refresh_token) {
-      return res.send('You must remove Erxes from your gmail apps before reconnecting this account.');
-    }
 
     // get email address connected with
     const { data } = await getGmailUserProfile(credentials);
@@ -140,6 +138,56 @@ const getGmailAttachment = async (credentials: any, gmailData: IMsgGmail, attach
     });
 };
 
+const parseBatchResponse = (body: string) => {
+  // Not the same delimiter in the response as we specify ourselves in the request,
+  // so we have to extract it.
+  const delimiter = body.substr(0, body.indexOf('\r\n'));
+  const parts = body.split(delimiter);
+  // The first part will always be an empty string. Just remove it.
+  parts.shift();
+  // The last part will be the "--". Just remove it.
+  parts.pop();
+
+  const result: any = [];
+  for (const part of parts) {
+    const p = part.substring(part.indexOf('{'), part.lastIndexOf('}') + 1);
+    result.push(JSON.parse(p));
+  }
+  return result;
+};
+
+const batchRequest = (token, messages) => {
+  const boundary = 'erxes';
+  let body = '';
+  for (const item of messages) {
+    body += `--${boundary}\n`;
+    body += 'Content-Type: application/http\n\n';
+    body += `GET /gmail/v1/users/me/messages/${item.message.id}?format=full\n`;
+  }
+  body += `--${boundary}--\n`;
+  const headers = {
+    'Content-Type': 'multipart/mixed; boundary=' + boundary,
+    Authorization: 'Bearer ' + token,
+  };
+
+  return new Promise((resolve, reject) => {
+    request.post(
+      'https://www.googleapis.com/batch/gmail/v1',
+      {
+        body,
+        headers,
+      },
+      (error, response, _body) => {
+        if (!error && response.statusCode === 200) {
+          const payloads = parseBatchResponse(_body);
+          return resolve(payloads);
+        }
+        return reject(error);
+      },
+    );
+  });
+};
+
 /**
  * Get new messages by stored history id
  */
@@ -153,6 +201,10 @@ const getMessagesByHistoryId = async (historyId: string, integrationId: string, 
     startHistoryId: historyId,
   });
 
+  if (response.data.historyId) {
+    await updateHistoryByLastReceived(integrationId, '' + response.data.historyId);
+  }
+
   if (!response.data.history) {
     return;
   }
@@ -161,26 +213,17 @@ const getMessagesByHistoryId = async (historyId: string, integrationId: string, 
     if (!history.messagesAdded) {
       continue;
     }
-
-    await updateHistoryByLastReceived(integrationId, '' + history.id);
-
-    for (const item of history.messagesAdded) {
+    const messages: any = await batchRequest(credentials.access_token, history.messagesAdded);
+    for (const message of messages) {
       try {
-        const { data } = await gmail.users.messages.get({
-          auth,
-          userId: 'me',
-          id: item.message.id,
-        });
-
-        // get gmailData
-        const gmailData = await parseMessage(data);
+        const gmailData = await parseMessage(message);
         if (gmailData) {
           await syncConversation(integrationId, gmailData);
         }
       } catch (e) {
         // catch & continue if email doesn't exist with message.id
         if (e.message === 'Not Found') {
-          console.log(`Email not found id with ${item.message.id}`);
+          console.log(`Email not found id with ${message.id}`);
         } else {
           console.log(e.message);
         }
@@ -225,7 +268,7 @@ export const trackGmail = async () => {
         const data = JSON.parse(message.data.toString());
         await getGmailUpdates(data);
       } catch (error) {
-        console.log(error.message);
+        console.log('getGmailUpdates: ', error.message);
       }
 
       // All notifications need to be acknowledged as per the Cloud Pub/Sub
