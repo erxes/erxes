@@ -35,6 +35,7 @@ type Props = {
   toEmail?: string;
   toEmails?: string[];
   subject?: string;
+  threadId?: string;
   closeModal?: () => void;
 
   send: (
@@ -402,13 +403,32 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
+  renderSubject() {
+    // if reply
+    if (this.props.threadId) {
+      return null;
+    }
+
+    const textOnChange = e =>
+      this.onChange('subject', (e.target as HTMLInputElement).value);
+
+    return (
+      <ControlWrapper>
+        <FormControl
+          type="text"
+          onChange={textOnChange}
+          placeholder="Subject"
+          value={this.state.subject}
+        />
+      </ControlWrapper>
+    );
+  }
+
   render() {
     const onClickIsCC = () => this.onClick('isCc');
     const onClickIsBCC = () => this.onClick('isBcc');
     const formOnChange = e =>
       this.onChange('from', (e.target as HTMLInputElement).value);
-    const textOnChange = e =>
-      this.onChange('subject', (e.target as HTMLInputElement).value);
 
     return (
       <>
@@ -440,14 +460,7 @@ class MailForm extends React.Component<Props, State> {
           </FormControl>
         </ControlWrapper>
 
-        <ControlWrapper>
-          <FormControl
-            type="text"
-            onChange={textOnChange}
-            placeholder="Subject"
-            value={this.state.subject}
-          />
-        </ControlWrapper>
+        {this.renderSubject()}
 
         <MailEditorWrapper>
           <ErxesEditor

@@ -136,7 +136,7 @@ export const __ = (key: string, options?: any) => {
  * @return {String} - URL
  */
 export const readFile = (value: string): string => {
-  if (!value || urlParser.isValidURL(value)) {
+  if (!value || urlParser.isValidURL(value) || value.includes('/')) {
     return value;
   }
 
