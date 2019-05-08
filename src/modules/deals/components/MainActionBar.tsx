@@ -101,7 +101,7 @@ class MainActionBar extends React.Component<Props> {
       return (
         <li key={pipeline._id}>
           <Link
-            to={`/deals/${getType()}?id=${currentBoard._id}&pipelineId=${
+            to={`/deal/${getType()}?id=${currentBoard._id}&pipelineId=${
               pipeline._id
             }`}
           >
