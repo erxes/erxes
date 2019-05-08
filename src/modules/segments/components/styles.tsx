@@ -73,6 +73,23 @@ const Field = styled.div`
   input {
     transition: inherit;
   }
+
+  label {
+    padding: 0 ${dimensions.coreSpacing}px;
+  }
+`;
+
+const FieldType = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  color: ${rgba(colors.textPrimary, 0.8)};
+  transition: all ease 0.3s;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
 `;
 
 const PopoverList = styled.div`
@@ -83,12 +100,6 @@ const PopoverList = styled.div`
       visibility: visible;
     }
   }
-`;
-
-const FieldType = styled.div`
-  padding: 10px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  color: ${rgba(colors.textPrimary, 0.8)};
 `;
 
 export {
