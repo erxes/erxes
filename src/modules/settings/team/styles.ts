@@ -1,19 +1,19 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 
-export const FilterContainer = styled.div`
+const FilterContainer = styled.div`
   position: relative;
   padding: ${dimensions.coreSpacing}px;
   z-index: ${dimensions.unitSpacing};
 `;
 
-export const ButtonContainer = styled.div`
+const ButtonContainer = styled.div`
   button {
     margin: ${dimensions.coreSpacing}px 0 0 ${dimensions.coreSpacing}px;
   }
 `;
 
-export const FlexRow = styled.div`
+const FlexRow = styled.div`
   display: flex;
 
   input {
@@ -31,13 +31,20 @@ export const FlexRow = styled.div`
   }
 `;
 
-export const UserAvatar = styled.td`
+const UserAvatar = styled.td`
   &:hover {
     cursor: pointer;
   }
 `;
 
-export const LinkButton = styled.a`
+const AlignedTd = styled.td`
+  > * {
+    vertical-align: middle;
+    margin-left: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const LinkButton = styled.a`
   color: ${colors.colorPrimary};
   cursor: pointer;
   margin-right: ${dimensions.unitSpacing - 5}px;
@@ -47,3 +54,12 @@ export const LinkButton = styled.a`
     color: ${colors.colorPrimary};
   }
 `;
+
+export {
+  FilterContainer,
+  FlexRow,
+  ButtonContainer,
+  UserAvatar,
+  AlignedTd,
+  LinkButton
+};
