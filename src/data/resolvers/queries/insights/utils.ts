@@ -145,7 +145,7 @@ export const getSummaryData = async ({
   dateFieldName?: string;
 }): Promise<any> => {
   const intervals = generateTimeIntervals(start, end);
-  const facets = {};
+  const summaries: Array<{ title?: string; count?: number }> = [];
 
   // finds a respective message counts for different time intervals.
   for (const interval of intervals) {
@@ -155,8 +155,7 @@ export const getSummaryData = async ({
       $gte: interval.start.toDate(),
       $lte: interval.end.toDate(),
     };
-
-    facets[interval.title] = [
+    const [intervalCount] = await collection.aggregate([
       {
         $match: facetMessageSelector,
       },
@@ -172,23 +171,11 @@ export const getSummaryData = async ({
           count: 1,
         },
       },
-    ];
-  }
-
-  const [legend] = await collection.aggregate([
-    {
-      $facet: facets,
-    },
-  ]);
-
-  const summaries: Array<{ title?: string; count?: number }> = [];
-
-  for (const interval of intervals) {
-    const count = legend[interval.title][0] ? legend[interval.title][0].count : 0;
+    ]);
 
     summaries.push({
       title: interval.title,
-      count,
+      count: intervalCount ? intervalCount.count : 0,
     });
   }
 
