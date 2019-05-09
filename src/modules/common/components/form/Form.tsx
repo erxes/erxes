@@ -48,7 +48,7 @@ class Form extends React.Component<Props, State> {
       return 'Required';
     }
 
-    return true;
+    return this.props.onSubmit;
   };
 
   render() {
