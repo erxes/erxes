@@ -31,7 +31,7 @@ class ImportIndicator extends React.Component<Props> {
     const { percentage } = this.props;
     let percent = percentage;
 
-    if (this.isDone()) {
+    if (this.isDone() || percent > 100) {
       percent = 100;
     }
 
