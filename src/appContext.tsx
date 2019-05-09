@@ -46,14 +46,15 @@ interface IState {
   currentUser?: IUser;
   currentLanguage: string;
   isLoading: boolean;
-  isRemovingImport: boolean;
+  removingIndicator: React.ReactNode;
 }
 
 interface IStore extends IState {
   currentUser?: IUser;
   changeLanguage: (languageCode: string) => void;
   closeLoadingBar: () => void;
-  showLoadingBar: (isRemovingImport: boolean) => void;
+  showLoadingBar: () => void;
+  setRemoveProgress: (removingIndicator: React.ReactNode) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -74,7 +75,7 @@ export class AppProvider extends React.Component<
       currentUser: props.currentUser,
       currentLanguage,
       isLoading: false,
-      isRemovingImport: false
+      removingIndicator: null
     };
 
     this.setLocale(currentLanguage);
@@ -96,8 +97,12 @@ export class AppProvider extends React.Component<
     localStorage.setItem('erxes_import_data', '');
   };
 
-  showLoadingBar = (isRemovingImport: boolean) => {
-    this.setState({ isLoading: true, isRemovingImport });
+  showLoadingBar = () => {
+    this.setState({ isLoading: true });
+  };
+
+  setRemoveProgress = (removingIndicator: React.ReactNode) => {
+    this.setState({ removingIndicator });
   };
 
   componentDidMount() {
@@ -124,7 +129,7 @@ export class AppProvider extends React.Component<
       currentUser,
       currentLanguage,
       isLoading,
-      isRemovingImport
+      removingIndicator
     } = this.state;
 
     return (
@@ -135,8 +140,9 @@ export class AppProvider extends React.Component<
           changeLanguage: this.changeLanguage,
           closeLoadingBar: this.closeLoadingBar,
           showLoadingBar: this.showLoadingBar,
+          setRemoveProgress: this.setRemoveProgress,
           isLoading,
-          isRemovingImport
+          removingIndicator
         }}
       >
         {this.props.children}

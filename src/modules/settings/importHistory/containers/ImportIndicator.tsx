@@ -17,7 +17,6 @@ type Props = {
   close: () => void;
   importHistoryDetailQuery: ImportHistoryDetailQueryResponse;
   closeLoadingBar: () => void;
-  isRemovingImport: boolean;
 };
 
 type State = {
@@ -69,8 +68,7 @@ class ImportIndicatorContainer extends React.Component<
     const {
       importHistoryDetailQuery,
       importCancel,
-      closeLoadingBar,
-      isRemovingImport
+      closeLoadingBar
     } = this.props;
 
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
@@ -97,7 +95,6 @@ class ImportIndicatorContainer extends React.Component<
         percentage={this.state.percentage}
         importHistory={importHistory}
         cancel={cancelImport}
-        isRemovingImport={isRemovingImport}
       />
     );
   }
@@ -130,11 +127,10 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ closeLoadingBar, isRemovingImport }) => (
+      {({ closeLoadingBar }) => (
         <ImportIndicatorWithProps
           {...props}
           closeLoadingBar={closeLoadingBar}
-          isRemovingImport={isRemovingImport}
         />
       )}
     </AppConsumer>

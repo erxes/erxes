@@ -30,7 +30,7 @@ const ImportButton = styled.label`
   &:hover {
     cursor: pointer;
     text-decoration: none;
-    box-shadow: 0 2px 22px 0 ${lighten(colors.colorSecondary, 25)};
+    box-shadow: 0 2px 22px 0 ${lighten(colors.colorCoreGreen, 25)};
   }
 `;
 

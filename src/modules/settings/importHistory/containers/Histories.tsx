@@ -5,14 +5,14 @@ import { Alert, router, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { RemoveIndicator } from '.';
 import { Histories } from '../components';
 import { mutations, queries } from '../graphql';
 import { ImportHistoriesQueryResponse, RemoveMutationResponse } from '../types';
 
 type Props = {
   queryParams: any;
-  showLoadingBar: (isRemovingImport: boolean) => void;
-  closeLoadingBar: () => void;
+  setRemoveProgress: (removeIndicator: React.ReactNode) => void;
 };
 
 type FinalProps = {
@@ -39,8 +39,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       historiesQuery,
       history,
       importHistoriesRemove,
-      showLoadingBar,
-      closeLoadingBar
+      setRemoveProgress
     } = this.props;
 
     if (!router.getParam(history, 'type')) {
@@ -50,18 +49,15 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     const currentType = router.getParam(history, 'type');
 
     const removeHistory = historyId => {
-      localStorage.setItem('erxes_import_data', historyId);
-      showLoadingBar(true);
+      setRemoveProgress(<RemoveIndicator id={historyId} />);
 
       importHistoriesRemove({
         variables: { _id: historyId }
       })
-        .then(() => {
-          closeLoadingBar();
-        })
+        .then()
         .catch(e => {
           Alert.error(e.message);
-          closeLoadingBar();
+          setRemoveProgress(null);
         });
     };
 
@@ -106,12 +102,8 @@ const HistoriesWithProps = withProps<Props>(
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ showLoadingBar, closeLoadingBar }) => (
-        <HistoriesWithProps
-          {...props}
-          showLoadingBar={showLoadingBar}
-          closeLoadingBar={closeLoadingBar}
-        />
+      {({ setRemoveProgress }) => (
+        <HistoriesWithProps {...props} setRemoveProgress={setRemoveProgress} />
       )}
     </AppConsumer>
   );

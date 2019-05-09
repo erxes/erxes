@@ -1,7 +1,12 @@
 import { IUser } from 'modules/auth/types';
+import { ProgressBar } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { Welcome } from 'modules/onboard/containers';
-import { ImportIndicator } from 'modules/settings/importHistory/containers';
+import {
+  ImportIndicator,
+  RemoveIndicator
+} from 'modules/settings/importHistory/containers';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { Navigation } from '../containers';
@@ -12,6 +17,7 @@ interface IProps extends IRouterProps {
   children: React.ReactNode;
   isLoading: boolean;
   closeLoadingBar: () => void;
+  removingIndicator: React.ReactNode;
 }
 
 class MainLayout extends React.Component<IProps> {
@@ -41,16 +47,38 @@ class MainLayout extends React.Component<IProps> {
     return localStorage.getItem('erxes_import_data') || '';
   };
 
+  checkRemoveImport = () => {
+    if (this.props.removingIndicator) {
+      return true;
+    }
+
+    return false;
+  };
+
+  renderBackgroundProccess = () => {
+    const { isLoading, closeLoadingBar, removingIndicator } = this.props;
+
+    if (isLoading) {
+      return (
+        <ImportIndicator id={this.getLastImport()} close={closeLoadingBar} />
+      );
+    }
+
+    if (this.checkRemoveImport()) {
+      return removingIndicator;
+    }
+
+    return null;
+  };
+
   render() {
-    const { currentUser, children, isLoading, closeLoadingBar } = this.props;
+    const { currentUser, children, isLoading } = this.props;
     const hasSeenOnboard = (currentUser && currentUser.hasSeenOnBoard) || false;
 
     return (
       <>
-        {isLoading && (
-          <ImportIndicator id={this.getLastImport()} close={closeLoadingBar} />
-        )}
-        <Layout isSqueezed={isLoading}>
+        {this.renderBackgroundProccess()}
+        <Layout isSqueezed={isLoading || this.checkRemoveImport()}>
           {currentUser && <Navigation currentUser={currentUser} />}
           {children}
           <Welcome hasSeen={hasSeenOnboard} />
