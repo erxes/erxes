@@ -155,23 +155,25 @@ export const getSummaryData = async ({
       $gte: interval.start.toDate(),
       $lte: interval.end.toDate(),
     };
-    const [intervalCount] = await collection.aggregate([
-      {
-        $match: facetMessageSelector,
-      },
-      {
-        $group: {
-          _id: null,
-          count: { $sum: 1 },
+    const [intervalCount] = await collection
+      .aggregate([
+        {
+          $match: facetMessageSelector,
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          count: 1,
+        {
+          $group: {
+            _id: null,
+            count: { $sum: 1 },
+          },
         },
-      },
-    ]);
+        {
+          $project: {
+            _id: 0,
+            count: 1,
+          },
+        },
+      ])
+      .option({ hint: { createdAt: 1 }, allowDiskUse: true });
 
     summaries.push({
       title: interval.title,
