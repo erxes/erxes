@@ -13,10 +13,14 @@ export interface IImportHistory {
   errorMsgs: string[];
 }
 
+export interface IImportHistoryItem {
+  list: IImportHistory[];
+  count: number;
+}
 // query types
 
 export type ImportHistoriesQueryResponse = {
-  importHistories: IImportHistory[];
+  importHistories: IImportHistoryItem;
   loading: boolean;
   refetch: () => void;
 };

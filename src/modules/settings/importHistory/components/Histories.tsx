@@ -2,6 +2,7 @@ import {
   Button,
   DataWithLoader,
   HeaderDescription,
+  Pagination,
   Table
 } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
@@ -20,6 +21,7 @@ type Props = {
   histories: IImportHistory[];
   removeHistory: (historyId: string) => void;
   loading: boolean;
+  totalCount: number;
 };
 
 class Histories extends React.Component<Props & IRouterProps> {
@@ -82,7 +84,7 @@ class Histories extends React.Component<Props & IRouterProps> {
   };
 
   render() {
-    const { currentType, histories, loading } = this.props;
+    const { currentType, histories, loading, totalCount } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -108,6 +110,7 @@ class Histories extends React.Component<Props & IRouterProps> {
         leftSidebar={
           <Sidebar title="Import histories" currentType={currentType} />
         }
+        footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
             data={this.renderHistories()}

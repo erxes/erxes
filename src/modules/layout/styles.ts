@@ -82,6 +82,8 @@ const ContenFooter = styled.div`
 `;
 
 const BarItems = styled.div`
+  white-space: nowrap;
+
   .dropdown-menu {
     min-width: 200px;
   }

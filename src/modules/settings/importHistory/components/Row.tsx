@@ -1,5 +1,5 @@
-import { Button, TextInfo } from 'modules/common/components';
-import { confirm } from 'modules/common/utils';
+import { Button, TextInfo, Tip } from 'modules/common/components';
+import { __, confirm } from 'modules/common/utils';
 import * as moment from 'moment';
 import * as React from 'react';
 
@@ -34,7 +34,14 @@ function HistoryRow({ history, removeHistory, onClick }: Props) {
       {withClick(moment(history.date).format('lll'))}
       <td>{details.fullName || '-'}</td>
       <td>
-        <Button btnStyle="link" icon="cancel-1" onClick={onRemove} />
+        <Tip text={__('Remove contacts')}>
+          <Button
+            size="small"
+            btnStyle="warning"
+            icon="removeuser"
+            onClick={onRemove}
+          />
+        </Tip>
       </td>
     </tr>
   );

@@ -2,6 +2,7 @@ import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, router, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -61,17 +62,25 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
         });
     };
 
+    const histories = historiesQuery.importHistories || {};
+
     const updatedProps = {
       ...this.props,
-      histories: historiesQuery.importHistories || [],
+      histories: histories.list || [],
       loading: historiesQuery.loading || this.state.loading,
       removeHistory,
-      currentType
+      currentType,
+      totalCount: histories.count || 0
     };
 
     return <Histories {...updatedProps} />;
   }
 }
+
+const historiesListParams = queryParams => ({
+  ...generatePaginationParams(queryParams),
+  type: queryParams.type || 'customer'
+});
 
 const HistoriesWithProps = withProps<Props>(
   compose(
@@ -81,9 +90,7 @@ const HistoriesWithProps = withProps<Props>(
         name: 'historiesQuery',
         options: ({ queryParams }) => ({
           fetchPolicy: 'network-only',
-          variables: {
-            type: queryParams.type || 'customer'
-          }
+          variables: historiesListParams(queryParams)
         })
       }
     ),
