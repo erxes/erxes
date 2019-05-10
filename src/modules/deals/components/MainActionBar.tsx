@@ -100,14 +100,23 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   onClearDate = (name: string) => {
+    if (name === 'startDate') {
+      this.setState({ startDate: '' });
+    } else {
+      this.setState({ endDate: '' });
+    }
+
     this.props.onSelect(name, '');
-    // this.setState({ [name]: '' });
   };
 
-  onDateInputChange = (type: string, date) => {
-    const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
+  onDateInputChange = (type: string, date: moment.Moment) => {
+    const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : '';
 
-    // this.setState({ [type]: formatDate } as Pick<State, keyof State>);
+    if (type === 'startDate') {
+      this.setState({ startDate: formatDate });
+    } else {
+      this.setState({ endDate: formatDate });
+    }
 
     this.props.onSelect(type, formatDate);
   };
