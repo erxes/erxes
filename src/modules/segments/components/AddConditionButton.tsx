@@ -6,9 +6,9 @@ import {
 } from 'modules/common/components';
 import { dateUnits, types } from 'modules/customers/constants';
 import * as React from 'react';
-import { OverlayTrigger, Popover, Tooltip } from 'react-bootstrap';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ISegmentCondition } from '../types';
-import { Field, FieldType, PopoverList } from './styles';
+import { Field, FieldTitle, FieldType, PopoverList } from './styles';
 
 type Props = {
   fields: any[];
@@ -45,10 +45,6 @@ class AddConditionButton extends React.Component<Props> {
         field._id.indexOf('messengerData')
     );
 
-    if (type === 'messenger-data') {
-      items = fields.filter(field => field._id.includes('messengerData'));
-    }
-
     if (type === 'customer-field-data') {
       items = fields.filter(field => field._id.includes('customFieldsData'));
     }
@@ -61,9 +57,26 @@ class AddConditionButton extends React.Component<Props> {
       );
     }
 
+    if (type === 'messenger-data') {
+      items = fields.filter(field => field._id.includes('messengerData'));
+
+      return (
+        <Field>
+          <h3 className="popover-title">Choose brand</h3>
+          {items.map((item, index) => {
+            return (
+              <PopoverList key={index}>
+                <FieldType>{item.title.split(':')[0]}</FieldType>
+              </PopoverList>
+            );
+          })}
+        </Field>
+      );
+    }
+
     return (
       <Field>
-        <ControlLabel>{title}</ControlLabel>
+        <h3 className="popover-title">{title}</h3>
         <FilterableList
           items={items}
           onClick={this.addCondition}

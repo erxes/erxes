@@ -65,8 +65,7 @@ const Field = styled.div`
   position: absolute;
   left: ${dimensions.headerSpacing + dimensions.headerSpacing}%;
   top: 0;
-  padding: ${dimensions.unitSpacing}px;
-  width: 270px;
+  width: 260px;
   background: ${colors.colorWhite};
   box-shadow: 0 0 ${dimensions.coreSpacing}px 3px rgba(0, 0, 0, 0.15);
 
@@ -92,6 +91,15 @@ const FieldType = styled.div`
   }
 `;
 
+const FieldTitle = styled.div`
+  text-transform: uppercase;
+  display: inline-block;
+  font-weight: 500;
+  color: rgba(68, 68, 68, 0.8);
+  font-size: 11px;
+  margin-bottom: 5px;
+`;
+
 const PopoverList = styled.div`
   position: relative;
 
@@ -111,6 +119,7 @@ export {
   SegmentResult,
   ResultCount,
   PopoverList,
+  FieldTitle,
   FieldType,
   Field
 };
