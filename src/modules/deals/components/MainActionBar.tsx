@@ -215,6 +215,13 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   renderDates() {
+    const { history } = this.props;
+
+    // Do not show date filter in Calendar
+    if (history.location.pathname.includes('calendar')) {
+      return null;
+    }
+
     const { startDate, endDate } = this.state;
 
     const dateProps = {
