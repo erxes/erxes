@@ -99,6 +99,32 @@ const Date = styled.time`
 const TableHeadContent = styled.div`
   display: flex;
   flex-direction: row;
+  padding: 0 0 0 20px;
+  position: relative;
+  cursor: pointer;
+
+  .up {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 6px solid #d0d0d0;
+    position: absolute;
+    left: 2px;
+    top: 3px;
+  }
+  .down {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #d0d0d0;
+    position: absolute;
+    left: 2px;
+    top: 11px;
+  }
+  .down.active {
+    border-top: 6px solid #6569df;
+  }
+  .up.active {
+    border-bottom: 6px solid #6569df;
+  }
 `;
 
 const ImportButton = styled.label`
