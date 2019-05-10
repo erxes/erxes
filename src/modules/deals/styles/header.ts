@@ -99,6 +99,12 @@ const HeaderLink = styled(HeaderButton)`
     display: block;
     line-height: 34px;
   }
+  .filter-button {
+    color: #888;
+    padding: 0 12px;
+    display: block;
+    line-height: 34px;
+  }
 `;
 
 export {
