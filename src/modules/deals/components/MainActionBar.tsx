@@ -67,18 +67,11 @@ class MainActionBar extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    let { startDate, endDate } = props.queryParams;
-
-    if (!startDate && !endDate) {
-      startDate = moment()
-        .add(-props.days, 'days')
-        .format('YYYY-MM-DD HH:mm');
-      endDate = moment().format('YYYY-MM-DD HH:mm');
-    }
+    const { startDate, endDate } = props.queryParams;
 
     this.state = {
-      startDate,
-      endDate,
+      startDate: startDate || '',
+      endDate: endDate || '',
       isHidden: true
     };
   }
@@ -105,6 +98,11 @@ class MainActionBar extends React.Component<Props, State> {
   onSelectChange(name: string, values: [string]) {
     this.props.onSelect(name, values);
   }
+
+  onClearDate = (name: string) => {
+    this.props.onSelect(name, '');
+    // this.setState({ [name]: '' });
+  };
 
   onDateInputChange = (type: string, date) => {
     const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
@@ -177,6 +175,92 @@ class MainActionBar extends React.Component<Props, State> {
     });
   }
 
+  renderDatePicker({ label, value, name, dateProps }) {
+    return (
+      <FormGroup>
+        <ControlLabel>{label}</ControlLabel>
+        <Datetime
+          {...dateProps}
+          value={value}
+          onChange={this.onDateInputChange.bind(this, name)}
+          className="date-form"
+        />
+        <div className="clear-date">
+          <Tip text={__('Delete')}>
+            <Button
+              btnStyle="link"
+              icon="cancel-1"
+              onClick={this.onClearDate.bind(this, name)}
+            />
+          </Tip>
+        </div>
+      </FormGroup>
+    );
+  }
+
+  renderDates() {
+    const { startDate, endDate } = this.state;
+
+    const dateProps = {
+      inputProps: { placeholder: 'Click to select a date' },
+      timeFormat: 'HH:mm',
+      dateFormat: 'YYYY/MM/DD'
+    };
+
+    return (
+      <div className="date-filter">
+        <h5>{__('Filter by date')}</h5>
+        {this.renderDatePicker({
+          label: __('Start date'),
+          value: startDate,
+          name: 'startDate',
+          dateProps
+        })}
+
+        {this.renderDatePicker({
+          label: __('End date'),
+          value: endDate,
+          name: 'endDate',
+          dateProps
+        })}
+      </div>
+    );
+  }
+
+  renderSelectors({ label, name, options, generator }) {
+    const { queryParams } = this.props;
+
+    const content = option => (
+      <React.Fragment>
+        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+        {option.label}
+      </React.Fragment>
+    );
+
+    const selectOption = option => (
+      <SelectOption className="simple-option">{content(option)}</SelectOption>
+    );
+
+    const selectValue = option => <SelectValue>{content(option)}</SelectValue>;
+
+    const onChange = (selector, list) => {
+      return this.onSelectChange(selector, list.map(item => item.value));
+    };
+
+    return (
+      <Select
+        placeholder={__(label)}
+        value={queryParams[name]}
+        onChange={onChange.bind(this, name)}
+        optionRenderer={selectOption}
+        valueRenderer={selectValue}
+        removeSelected={true}
+        options={generator(options)}
+        multi={true}
+      />
+    );
+  }
+
   render() {
     const {
       currentBoard,
@@ -189,31 +273,8 @@ class MainActionBar extends React.Component<Props, State> {
       products
     } = this.props;
 
-    const dateProps = {
-      inputProps: { placeholder: 'Click to select a date' },
-      timeFormat: 'HH:mm',
-      dateFormat: 'YYYY/MM/DD'
-    };
-
-    const content = option => (
-      <React.Fragment>
-        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
-        {option.label}
-      </React.Fragment>
-    );
-
     const boardLink = this.onFilterClick('board');
     const calendarLink = this.onFilterClick('calendar');
-
-    const selectOption = option => (
-      <SelectOption className="simple-option">{content(option)}</SelectOption>
-    );
-
-    const selectValue = option => <SelectValue>{content(option)}</SelectValue>;
-
-    const onChange = (name, list) => {
-      return this.onSelectChange(name, list.map(item => item.value));
-    };
 
     const actionBarLeft = (
       <HeaderItems>
@@ -255,81 +316,35 @@ class MainActionBar extends React.Component<Props, State> {
     const DealFilter = () => (
       <FilterBox>
         <h4>{__('Filter')}</h4>
-        <Select
-          placeholder={__('Choose team members')}
-          value={queryParams.assignedUserIds}
-          onChange={onChange.bind(this, 'assignedUserIds')}
-          optionRenderer={selectOption}
-          valueRenderer={selectValue}
-          removeSelected={true}
-          options={selectUserOptions(users)}
-          multi={true}
-        />
+        {this.renderSelectors({
+          label: 'Choose products',
+          name: 'productIds',
+          options: products,
+          generator: selectProductOptions
+        })}
 
-        <Select
-          placeholder={__('Choose product')}
-          value={queryParams.productIds}
-          onChange={onChange.bind(this, 'productIds')}
-          optionRenderer={selectOption}
-          valueRenderer={selectValue}
-          removeSelected={true}
-          options={selectProductOptions(products)}
-          multi={true}
-        />
+        {this.renderSelectors({
+          label: 'Choose team members',
+          name: 'assignedUserIds',
+          options: users,
+          generator: selectUserOptions
+        })}
 
-        <Select
-          placeholder={__('Choose companies')}
-          value={queryParams.companyIds}
-          onChange={onChange.bind(this, 'companyIds')}
-          optionRenderer={selectOption}
-          valueRenderer={selectValue}
-          removeSelected={true}
-          options={selectCompanyOptions(companies)}
-          multi={true}
-        />
+        {this.renderSelectors({
+          label: 'Choose companies',
+          name: 'companyIds',
+          options: companies,
+          generator: selectCompanyOptions
+        })}
 
-        <Select
-          placeholder={__('Choose customers')}
-          value={queryParams.customerIds}
-          onChange={onChange.bind(this, 'customerIds')}
-          optionRenderer={selectOption}
-          valueRenderer={selectValue}
-          removeSelected={true}
-          options={selectCustomerOptions(customers)}
-          multi={true}
-        />
+        {this.renderSelectors({
+          label: 'Choose customers',
+          name: 'customerIds',
+          options: customers,
+          generator: selectCustomerOptions
+        })}
 
-        <div className="date-filter">
-          <h5>{__('Filter by date')}</h5>
-          <FormGroup>
-            <ControlLabel>Start date</ControlLabel>
-            <Datetime
-              {...dateProps}
-              value={this.state.startDate}
-              onChange={this.onDateInputChange.bind(this, 'startDate')}
-              className="date-form"
-            />
-            <div className="clear-date">
-              <Tip text={__('Delete')}>
-                <Button btnStyle="link" icon="cancel-1" />
-              </Tip>
-            </div>
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>End date</ControlLabel>
-            <Datetime
-              {...dateProps}
-              value={this.state.endDate}
-              onChange={this.onDateInputChange.bind(this, 'endDate')}
-              className="date-form"
-            />
-            <div className="clear-date">
-              <Tip text={__('Delete')}>
-                <Button btnStyle="link" icon="cancel-1" />
-              </Tip>
-            </div>
-          </FormGroup>
-        </div>
+        {this.renderDates()}
       </FilterBox>
     );
 
