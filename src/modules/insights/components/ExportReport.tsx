@@ -113,7 +113,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
               )}
 
               {this.renderBox(
-                'Operator Activiy Report',
+                'Operator Activity Report',
                 '/images/icons/erxes-16.svg',
                 'insightActivityReportExport'
               )}
