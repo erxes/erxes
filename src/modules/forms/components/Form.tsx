@@ -1,4 +1,10 @@
-import { Button, FormControl, Step, Steps } from 'modules/common/components';
+import {
+  Button,
+  ConditionsRule,
+  FormControl,
+  Step,
+  Steps
+} from 'modules/common/components';
 import {
   StepWrapper,
   TitleContainer
@@ -20,7 +26,6 @@ import {
   FormStep,
   FullPreviewStep,
   OptionStep,
-  Rule,
   SuccessStep
 } from './step';
 
@@ -304,7 +309,7 @@ class Form extends React.Component<Props, State> {
             />
           </Step>
           <Step img="/images/icons/erxes-02.svg" title="Rule">
-            <Rule rules={rules || []} onChange={this.onChange} />
+            <ConditionsRule rules={rules || []} onChange={this.onChange} />
           </Step>
           <Step
             img="/images/icons/erxes-19.svg"

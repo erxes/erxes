@@ -9,19 +9,19 @@ import {
   RULE_CONDITIONS,
   VISITOR_AUDIENCE_RULES
 } from 'modules/engage/constants';
-import { IFormRule } from 'modules/forms/types';
 import * as React from 'react';
+import { IConditionsRule } from '../../types';
 
 type Props = {
-  rules: IFormRule[];
-  onChange: (name: 'rules', rules: IFormRule[]) => void;
+  rules: IConditionsRule[];
+  onChange: (name: 'rules', rules: IConditionsRule[]) => void;
 };
 
 type State = {
-  rules: IFormRule[];
+  rules: IConditionsRule[];
 };
 
-class Rule extends React.Component<Props, State> {
+class ConditionsRule extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -134,4 +134,4 @@ class Rule extends React.Component<Props, State> {
   }
 }
 
-export default Rule;
+export default ConditionsRule;

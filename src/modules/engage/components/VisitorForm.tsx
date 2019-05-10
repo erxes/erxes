@@ -1,11 +1,15 @@
 import { IUser } from 'modules/auth/types';
-import { FormControl, Step, Steps } from 'modules/common/components';
+import {
+  ConditionsRule,
+  FormControl,
+  Step,
+  Steps
+} from 'modules/common/components';
 import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import ConditionStep from 'modules/engage/components/step/ConditionStep';
 import { MESSAGE_KINDS, METHODS } from 'modules/engage/constants';
 import {
   IEngageMessage,
@@ -126,7 +130,7 @@ class VisitorForm extends React.Component<Props, State> {
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"
           >
-            <ConditionStep
+            <ConditionsRule
               rules={this.state.rules}
               onChange={this.changeState}
             />
