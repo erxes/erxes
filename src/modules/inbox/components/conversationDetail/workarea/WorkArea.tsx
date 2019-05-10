@@ -1,7 +1,7 @@
 import { Button, Icon, Label, Tags } from 'modules/common/components';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { IAttachmentPreview } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, getUserAvatar } from 'modules/common/utils';
 import { AssignBoxPopover } from 'modules/inbox/components';
 import { Resolver, Tagger } from 'modules/inbox/containers';
 import { RespondBox } from 'modules/inbox/containers/conversationDetail';
@@ -152,13 +152,7 @@ export default class WorkArea extends React.Component<Props, State> {
     const assignTrigger = (
       <AssignTrigger>
         {assignedUser && assignedUser._id ? (
-          <AvatarImg
-            src={
-              assignedUser.details
-                ? assignedUser.details.avatar
-                : '/images/avatar-colored.svg'
-            }
-          />
+          <AvatarImg src={getUserAvatar(assignedUser)} />
         ) : (
           <Button btnStyle="simple" size="small">
             Member

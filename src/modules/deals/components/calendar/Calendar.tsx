@@ -65,7 +65,7 @@ class CalendarView extends React.Component<Props> {
 
     return (
       <BoardContainer>
-        <Header breadcrumb={breadcrumb} />
+        <Header title={__('Deal')} breadcrumb={breadcrumb} />
         <BoardContent transparent={true}>
           {this.renderActionBar(renderMiddleContent)}
           <ScrolledContent transparent={true}>

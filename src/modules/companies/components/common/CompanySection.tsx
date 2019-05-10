@@ -47,7 +47,7 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
     <SectionBody>
       {companies.map((company, index) => (
         <SectionBodyItem key={index}>
-          <Link to={`/companies/details/${company._id}`}>
+          <Link to={`/contacts/companies/details/${company._id}`}>
             <Icon icon="logout-2" />
           </Link>
           <span>{company.primaryName || 'N/A'}</span>

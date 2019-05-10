@@ -1,5 +1,5 @@
 import { ResponsiveLine } from '@nivo/line';
-import { Spinner } from 'modules/common/components';
+import { EmptyState, Spinner } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import * as React from 'react';
 import { ChartWrapper, LoaderWrapper } from '../styles';
@@ -15,6 +15,14 @@ interface IProps {
 class Chart extends React.Component<IProps> {
   render() {
     const { data, height, loading } = this.props;
+
+    if (this.props.data.length === 0) {
+      return (
+        <ChartWrapper>
+          <EmptyState text="There is no data" size="full" icon="piechart" />
+        </ChartWrapper>
+      );
+    }
 
     if (loading) {
       return (

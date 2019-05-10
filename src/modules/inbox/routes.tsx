@@ -9,7 +9,7 @@ const Inbox = asyncComponent(() =>
 );
 
 const index = () => {
-  return <Redirect to="/inbox" />;
+  return <Redirect to="/inbox/index" />;
 };
 
 const inbox = (props: IRouterProps) => {
@@ -24,8 +24,14 @@ const inbox = (props: IRouterProps) => {
 const routes = () => {
   return (
     <React.Fragment>
-      <Route exact={true} path="/" key="index" render={index} />
-      <Route exact={true} key="inbox" path="/inbox" render={inbox} />
+      <Route exact={true} path="/" key="root" render={index} />
+      <Route exact={true} path="/inbox" key="inbox" render={index} />
+      <Route
+        exact={true}
+        path="/inbox/index"
+        key="inbox/index"
+        render={inbox}
+      />
     </React.Fragment>
   );
 };

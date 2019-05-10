@@ -55,7 +55,12 @@ class KnowledgeBase extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
+        header={
+          <Wrapper.Header
+            title={`${currentCategory.title || ''}`}
+            breadcrumb={this.breadcrumb()}
+          />
+        }
         leftSidebar={
           <KnowledgeList
             currentCategoryId={currentCategory._id}

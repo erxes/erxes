@@ -86,7 +86,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
           Alert.success('You successfully merged companies');
           callback();
           history.push(
-            `/companies/details/${response.data.companiesMerge._id}`
+            `/contacts/companies/details/${response.data.companiesMerge._id}`
           );
         })
         .catch(e => {
