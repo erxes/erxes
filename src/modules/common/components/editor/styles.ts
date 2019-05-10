@@ -94,8 +94,10 @@ const RichEditorControlsRoot = styledTS<{ isTopPopup: boolean }>(styled.div)`
     height: 36px;
     outline: 0;
     color: ${colors.colorCoreGray};
-    display: inline-block;
-    vertical-align: top;
+    position: absolute;
+    top: 0;
+    right: 10px;
+    background: ${colors.colorWhite};
   }
 
   .draftJsEmojiPlugin__emojiSelectPopover__1J1s0 {
