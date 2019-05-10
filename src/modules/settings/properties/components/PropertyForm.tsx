@@ -6,7 +6,7 @@ import {
   ModifiableList
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { IField, IFieldGroup } from '../types';
 
@@ -81,6 +81,10 @@ class PropertyForm extends React.Component<Props, State> {
     const description = (document.getElementById(
       'description'
     ) as HTMLInputElement).value;
+
+    if (groupId === '' || !groupId) {
+      return Alert.error('Please choose property group');
+    }
 
     const { field, add, edit } = this.props;
     const { type, options } = this.state;
