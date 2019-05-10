@@ -14,7 +14,7 @@ type Props = {
 
 class DealBoard extends React.Component<Props> {
   renderContent() {
-    return <div>Content</div>;
+    return <div>Ticket</div>;
   }
 
   render() {
