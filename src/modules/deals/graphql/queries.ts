@@ -50,7 +50,7 @@ const pipelines = `
   }
 `;
 
-const pipelineDetail = `
+const dealPipelineDetail = `
   query dealPipelineDetail($_id: String!) {
     dealPipelineDetail(_id: $_id) {
       _id
@@ -207,7 +207,7 @@ export default {
   boardDetail,
   pipelines,
   pipelineGetLast,
-  pipelineDetail,
+  dealPipelineDetail,
   stages,
   stageDetail,
   deals,

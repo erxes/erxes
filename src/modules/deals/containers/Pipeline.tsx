@@ -20,6 +20,7 @@ type Props = {
   initialDealMap?: IDealMap;
   stageMap?: IStageMap;
   queryParams: any;
+  type: string;
 };
 
 class WithStages extends React.Component<Props, {}> {
@@ -97,13 +98,13 @@ type WithStatesQueryProps = {
 } & Props;
 
 const WithStatesQuery = (props: WithStatesQueryProps) => {
-  const { stagesQuery } = props;
+  const { stagesQuery, type } = props;
 
   if (stagesQuery.loading) {
     return <Spinner />;
   }
 
-  const stages = stagesQuery.dealStages;
+  const stages = stagesQuery[type + 'Stages'];
 
   const dealMap: IDealMap = {};
   const stageMap: IStageMap = {};

@@ -176,7 +176,8 @@ export type BoardDetailQueryResponse = {
 };
 
 export type PipelineDetailQueryResponse = {
-  dealPipelineDetail: IPipeline;
+  dealPipelineDetail?: IPipeline;
+  ticketPipelineDetail?: IPipeline;
   loading: boolean;
 };
 

@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
-import { EmptyState, Spinner } from 'modules/common/components';
-import { withProps } from 'modules/common/utils';
+import { EmptyState } from 'modules/common/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
@@ -9,6 +8,7 @@ import Pipeline from './Pipeline';
 
 type Props = {
   queryParams: any;
+  type: string;
 };
 
 type FinalProps = {
@@ -16,9 +16,9 @@ type FinalProps = {
 } & Props;
 
 const WithPipelinesQuery = (props: FinalProps) => {
-  const { pipelineDetailQuery, queryParams } = props;
+  const { pipelineDetailQuery, queryParams, type } = props;
 
-  if (!pipelineDetailQuery || !pipelineDetailQuery.dealPipelineDetail) {
+  if (!pipelineDetailQuery || !pipelineDetailQuery[type + 'PipelineDetail']) {
     return (
       <EmptyState
         image="/images/actions/18.svg"
@@ -33,28 +33,41 @@ const WithPipelinesQuery = (props: FinalProps) => {
     return null;
   }
 
-  const pipeline = pipelineDetailQuery.dealPipelineDetail;
+  const pipeline = pipelineDetailQuery[type + 'PipelineDetail'];
 
   return (
     <Pipeline
       pipeline={pipeline}
       key={pipeline._id}
       queryParams={queryParams}
+      type={type}
     />
   );
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, PipelineDetailQueryResponse, { _id?: string }>(
-      gql(queries.pipelineDetail),
-      {
-        name: 'pipelineDetailQuery',
-        skip: ({ queryParams }) => !queryParams.pipelineId,
-        options: ({ queryParams }) => ({
-          variables: { _id: queryParams && queryParams.pipelineId }
-        })
-      }
-    )
-  )(WithPipelinesQuery)
-);
+const withProps = (
+  props: Props,
+  Wrapped: new (props: Props) => React.Component<Props>
+) => {
+  return <Wrapped {...props} />;
+};
+
+export default (props: Props) => {
+  const { type } = props;
+
+  return withProps(
+    props,
+    compose(
+      graphql<Props, PipelineDetailQueryResponse, { _id?: string }>(
+        gql(queries[type + 'PipelineDetail']),
+        {
+          name: 'pipelineDetailQuery',
+          skip: ({ queryParams }) => !queryParams.pipelineId,
+          options: ({ queryParams }) => ({
+            variables: { _id: queryParams && queryParams.pipelineId }
+          })
+        }
+      )
+    )(WithPipelinesQuery)
+  );
+};

@@ -17,7 +17,7 @@ class DealBoard extends React.Component<Props> {
   renderContent() {
     const { queryParams } = this.props;
 
-    return <Board queryParams={queryParams} />;
+    return <Board queryParams={queryParams} type="deal" />;
   }
 
   renderActionBar() {
