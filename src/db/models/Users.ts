@@ -544,7 +544,7 @@ export const loadClass = () => {
         $or: [{ email: { $regex: new RegExp(email, 'i') } }, { username: { $regex: new RegExp(email, 'i') } }],
       });
 
-      if (!user) {
+      if (!user || !user.password) {
         // user with provided email not found
         throw new Error('Invalid login');
       }
