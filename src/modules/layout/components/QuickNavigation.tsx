@@ -64,7 +64,7 @@ const QuickNavigation = ({
   const workflowContent = props => (
     <WorkFlowImage
       alt="workflow-diagram"
-      src="/images/workflow-diagram.png"
+      src="/images/workflow-diagram.svg"
       {...props}
     />
   );
@@ -139,7 +139,7 @@ const QuickNavigation = ({
             <MenuItem divider={true} />
             <ModalTrigger
               title="Workflow: Brand > Integration > Channel > Team member > Team Inbox"
-              size="lg"
+              dialogClassName="middle"
               trigger={
                 <li>
                   <a>{__('Workflow')}</a>
