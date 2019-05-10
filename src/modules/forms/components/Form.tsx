@@ -283,6 +283,9 @@ class Form extends React.Component<Props, State> {
               fields={fields}
             />
           </Step>
+          <Step img="/images/icons/erxes-02.svg" title="Rule">
+            <ConditionsRule rules={rules || []} onChange={this.onChange} />
+          </Step>
           <Step img="/images/icons/erxes-06.svg" title="Options">
             <OptionStep
               onChange={this.onChange}
@@ -308,9 +311,6 @@ class Form extends React.Component<Props, State> {
               successAction={successAction}
               formData={formData}
             />
-          </Step>
-          <Step img="/images/icons/erxes-02.svg" title="Rule">
-            <ConditionsRule rules={rules || []} onChange={this.onChange} />
           </Step>
           <Step
             img="/images/icons/erxes-19.svg"
