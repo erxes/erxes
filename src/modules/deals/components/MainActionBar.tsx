@@ -20,7 +20,14 @@ import { Dropdown } from 'react-bootstrap';
 import * as Datetime from 'react-datetime';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import { Avatar, FilterBox, SelectOption, SelectValue } from '../styles/deal';
+import {
+  Avatar,
+  ClearDate,
+  DateFilter,
+  FilterBox,
+  SelectOption,
+  SelectValue
+} from '../styles/deal';
 import {
   ButtonGroup,
   HeaderButton,
@@ -194,7 +201,7 @@ class MainActionBar extends React.Component<Props, State> {
           onChange={this.onDateInputChange.bind(this, name)}
           className="date-form"
         />
-        <div className="clear-date">
+        <ClearDate>
           <Tip text={__('Delete')}>
             <Button
               btnStyle="link"
@@ -202,7 +209,7 @@ class MainActionBar extends React.Component<Props, State> {
               onClick={this.onClearDate.bind(this, name)}
             />
           </Tip>
-        </div>
+        </ClearDate>
       </FormGroup>
     );
   }
@@ -217,7 +224,7 @@ class MainActionBar extends React.Component<Props, State> {
     };
 
     return (
-      <div className="date-filter">
+      <DateFilter>
         <h5>{__('Filter by date')}</h5>
         {this.renderDatePicker({
           label: __('Start date'),
@@ -232,7 +239,7 @@ class MainActionBar extends React.Component<Props, State> {
           name: 'endDate',
           dateProps
         })}
-      </div>
+      </DateFilter>
     );
   }
 
