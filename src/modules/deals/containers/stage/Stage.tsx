@@ -20,13 +20,7 @@ type WrapperProps = {
   loadingState: 'readyToLoad' | 'loaded';
   deals: IDeal[];
   length: number;
-  search?: string;
-  customerIds?: string[];
-  companyIds?: string[];
-  assignedUserIds?: string[];
-  productIds?: string[];
-  startDate?: string;
-  endDate?: string;
+  queryParams: any;
 };
 
 type StageProps = {
@@ -61,29 +55,8 @@ class StageContainer extends React.PureComponent<
     scheduleStage(stage._id);
   }
 
-  generateFilterParams() {
-    const {
-      search,
-      assignedUserIds,
-      companyIds,
-      customerIds,
-      productIds,
-      startDate,
-      endDate
-    } = this.props;
-    return {
-      search,
-      startDate,
-      endDate,
-      assignedUserIds,
-      companyIds,
-      customerIds,
-      productIds
-    };
-  }
-
   loadMore = () => {
-    const { onLoad, stage, deals } = this.props;
+    const { onLoad, stage, deals, queryParams } = this.props;
 
     if (deals.length === stage.dealsTotalCount) {
       return;
@@ -95,7 +68,7 @@ class StageContainer extends React.PureComponent<
         variables: {
           stageId: stage._id,
           skip: deals.length,
-          ...this.generateFilterParams()
+          ...getFilterParams(queryParams)
         }
       })
       .then(({ data }: any) => {
@@ -145,31 +118,31 @@ class StageContainer extends React.PureComponent<
   }
 }
 
+const getFilterParams = queryParams => {
+  if (!queryParams) {
+    return {};
+  }
+
+  return {
+    search: queryParams.search,
+    customerIds: queryParams.customerIds,
+    companyIds: queryParams.companyIds,
+    assignedUserIds: queryParams.assignedUserIds,
+    productIds: queryParams.productIds,
+    startDate: queryParams.startDate,
+    endDate: queryParams.startDate
+  };
+};
+
 const WithData = withProps<StageProps>(
   compose(
     graphql<StageProps>(gql(queries.deals), {
       name: 'dealsQuery',
       skip: ({ loadingState }) => loadingState !== 'readyToLoad',
-      options: ({
-        stage,
-        search,
-        assignedUserIds,
-        customerIds,
-        companyIds,
-        productIds,
-        startDate,
-        endDate,
-        loadingState
-      }) => ({
+      options: ({ stage, loadingState, queryParams }) => ({
         variables: {
           stageId: stage._id,
-          search,
-          companyIds,
-          customerIds,
-          assignedUserIds,
-          startDate,
-          endDate,
-          productIds
+          ...getFilterParams(queryParams)
         },
         fetchPolicy:
           loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
