@@ -80,6 +80,8 @@ class WithStages extends React.Component<Props, {}> {
                           customerIds={queryParams.customerIds}
                           companyIds={queryParams.companyIds}
                           productIds={queryParams.productIds}
+                          startDate={queryParams.startDate}
+                          endDate={queryParams.endDate}
                           loadingState={stageLoadMap[stageId]}
                         />
                       );
@@ -127,7 +129,13 @@ export default withProps<Props>(
       options: ({ pipeline, queryParams }) => ({
         variables: {
           pipelineId: pipeline._id,
-          search: queryParams.search
+          search: queryParams.search,
+          customerIds: queryParams.customerIds,
+          companyIds: queryParams.companyIds,
+          assignedUserIds: queryParams.assignedUserIds,
+          productIds: queryParams.productIds,
+          startDate: queryParams.startDate,
+          endDate: queryParams.endDate
         }
       })
     })

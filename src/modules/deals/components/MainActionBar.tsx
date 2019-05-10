@@ -20,7 +20,6 @@ import { Dropdown } from 'react-bootstrap';
 import * as Datetime from 'react-datetime';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import * as RTG from 'react-transition-group';
 import { Avatar, FilterBox, SelectOption, SelectValue } from '../styles/deal';
 import {
   ButtonGroup,
@@ -55,11 +54,11 @@ type Props = {
 };
 
 type State = {
-  isChange: boolean;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   isHidden: boolean;
 };
+
 // get selected deal type from URL
 const getType = () =>
   window.location.href.includes('calendar') ? 'calendar' : 'board';
@@ -80,8 +79,6 @@ class MainActionBar extends React.Component<Props, State> {
     this.state = {
       startDate,
       endDate,
-      // check condition for showing placeholder
-      isChange: false,
       isHidden: true
     };
   }
@@ -108,6 +105,18 @@ class MainActionBar extends React.Component<Props, State> {
   onSelectChange(name: string, values: [string]) {
     this.props.onSelect(name, values);
   }
+
+  onDateInputChange = (type: string, date) => {
+    const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
+
+    // this.setState({ [type]: formatDate } as Pick<State, keyof State>);
+
+    this.props.onSelect(type, formatDate);
+  };
+
+  toggleHidden = () => {
+    this.setState({ isHidden: !this.state.isHidden });
+  };
 
   renderBoards() {
     const { currentBoard, boards } = this.props;
@@ -168,26 +177,6 @@ class MainActionBar extends React.Component<Props, State> {
     });
   }
 
-  onDateInputChange = (type: string, date) => {
-    if (type === 'endDate') {
-      this.setState({ endDate: date, isChange: true });
-    } else {
-      this.setState({ startDate: date, isChange: true });
-    }
-  };
-
-  onFilterByDate = (type: string, date) => {
-    const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
-    router.setParams(this.props.history, { [type]: formatDate });
-  };
-  toggleHidden = () => {
-    this.setState({
-      isHidden: !this.state.isHidden
-    });
-  };
-  // onChangeDate = () =>{
-  //   this.setState({setParams()})
-  // }
   render() {
     const {
       currentBoard,
@@ -317,7 +306,6 @@ class MainActionBar extends React.Component<Props, State> {
             <Datetime
               {...dateProps}
               value={this.state.startDate}
-              onBlur={this.onFilterByDate.bind(this, 'startDate')}
               onChange={this.onDateInputChange.bind(this, 'startDate')}
               className="date-form"
             />
@@ -332,7 +320,6 @@ class MainActionBar extends React.Component<Props, State> {
             <Datetime
               {...dateProps}
               value={this.state.endDate}
-              onBlur={this.onFilterByDate.bind(this, 'endDate')}
               onChange={this.onDateInputChange.bind(this, 'endDate')}
               className="date-form"
             />

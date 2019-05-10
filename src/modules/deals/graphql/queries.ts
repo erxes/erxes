@@ -69,8 +69,26 @@ const pipelineGetLast = `
 `;
 
 const stages = `
-  query dealStages($pipelineId: String!, $search: String) {
-    dealStages(pipelineId: $pipelineId, search: $search) {
+  query dealStages(
+    $pipelineId: String!, 
+    $search: String,
+    $customerIds: [String],
+    $companyIds: [String],
+    $assignedUserIds: [String],
+    $productIds: [String]
+    $startDate: String
+    $endDate: String
+  ) {
+    dealStages(
+      pipelineId: $pipelineId, 
+      search: $search
+      customerIds: $customerIds,
+      companyIds: $companyIds,
+      assignedUserIds: $assignedUserIds,
+      productIds: $productIds
+      startDate: $startDate
+      endDate: $endDate
+    ) {
       _id
       name
       order
@@ -133,8 +151,26 @@ const dealFields = `
 `;
 
 const dealsTotalAmounts = `
-  query dealsTotalAmounts($date: DealDate $pipelineId: String) {
-    dealsTotalAmounts(date: $date pipelineId: $pipelineId) {
+  query dealsTotalAmounts(
+    $date: DealDate 
+    $pipelineId: String
+    $customerIds: [String]
+    $companyIds: [String]
+    $assignedUserIds: [String]
+    $productIds: [String]
+    $startDate: String
+    $endDate: String
+  ) {
+    dealsTotalAmounts(
+      date: $date 
+      pipelineId: $pipelineId
+      customerIds: $customerIds,
+      companyIds: $companyIds,
+      assignedUserIds: $assignedUserIds,
+      productIds: $productIds
+      startDate: $startDate
+      endDate: $endDate
+    ) {
       _id
       dealCount
       dealAmounts {
@@ -157,6 +193,8 @@ const deals = `
     $companyIds: [String]
     $assignedUserIds: [String]
     $productIds: [String]
+    $startDate: String
+    $endDate: String
   ) {
     deals(
       pipelineId: $pipelineId,
@@ -168,6 +206,8 @@ const deals = `
       customerIds: $customerIds
       assignedUserIds: $assignedUserIds
       productIds: $productIds
+      startDate: $startDate
+      endDate: $endDate
     ) {
       ${dealFields}
     }

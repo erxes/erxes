@@ -43,6 +43,7 @@ class CalendarView extends React.Component<Props> {
       <DealColumn
         updatedAt={`${key}-${this.state[key]}`}
         date={date}
+        queryParams={queryParams}
         onColumnUpdated={this.onColumnUpdated}
         pipelineId={queryParams.pipelineId}
       />
