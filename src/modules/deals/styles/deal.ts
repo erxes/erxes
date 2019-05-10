@@ -356,18 +356,18 @@ const FilterBox = styled.div`
     border-radius: 0;
     font-size: 12px;
   }
-  .date-filter {
-    h5 {
-      text-align: center;
-      margin-top: 25px;
-    }
+`;
+const DateFilter = styled.div`
+  h5 {
+    text-align: center;
+    margin-top: 25px;
   }
-  .clear-date {
-    button {
-      position: absolute;
-      right: -10px;
-      bottom: 0px;
-    }
+`;
+const ClearDate = styled.div`
+  button {
+    position: absolute;
+    right: -10px;
+    bottom: 0px;
   }
 `;
 export {
@@ -398,5 +398,7 @@ export {
   PriceContainer,
   Right,
   Footer,
-  FilterBox
+  FilterBox,
+  DateFilter,
+  ClearDate
 };
