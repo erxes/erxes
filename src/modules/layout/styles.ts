@@ -479,6 +479,39 @@ const SectionBodyItem = styled.div`
   }
 `;
 
+const BrowserSupportContainer = styledTS<{ isOpen?: boolean }>(styled.div)`
+  width:400px;
+  position:absolute;
+  top:0px;
+  left:50%;
+  margin-left: -200px;
+  z-index:9;
+  text-align:center;
+  background-color: ${colors.colorCoreRed};
+  display: ${props => !props.isOpen && 'none'};
+  transition: 0.5s ease;
+  border-bottom-left-radius:5px;
+  border-bottom-right-radius:5px;
+
+  i{
+    position:absolute;
+    right:12px;
+    top:0px;
+    color:white;
+    line-height:250%;
+  }
+
+  i:hover{
+    cursor:pointer;
+  }
+  
+  p{
+    margin:0px;
+    padding:7px 10px;
+    color:white;
+  }
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -512,5 +545,6 @@ export {
   AuthDescription,
   SectionContainer,
   SectionBody,
-  SectionBodyItem
+  SectionBodyItem,
+  BrowserSupportContainer
 };

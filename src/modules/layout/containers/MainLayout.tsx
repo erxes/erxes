@@ -10,7 +10,11 @@ type Props = {
 
 const container = (props: Props) => (
   <AppProvider currentUser={props.currentUser}>
-    <AppConsumer>{() => <MainLayout {...props} />}</AppConsumer>
+    <AppConsumer>
+      {({ browserSupported }) => (
+        <MainLayout {...props} browserSupported={browserSupported} />
+      )}
+    </AppConsumer>
   </AppProvider>
 );
 

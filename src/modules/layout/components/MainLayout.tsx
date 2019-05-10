@@ -5,13 +5,23 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 import { Navigation } from '../containers';
 import { Layout } from '../styles';
+import { BrowserSupport } from './';
 
 interface IProps extends IRouterProps {
   currentUser?: IUser;
   children: React.ReactNode;
+  browserSupported: boolean;
 }
 
-class MainLayout extends React.Component<IProps> {
+class MainLayout extends React.Component<IProps, { isOpen: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isOpen: true
+    };
+  }
+
   componentDidMount() {
     const { history, currentUser } = this.props;
 
@@ -34,15 +44,25 @@ class MainLayout extends React.Component<IProps> {
     );
   }
 
+  renderWarning() {
+    const { currentUser, browserSupported } = this.props;
+    const hasSeenOnboard = (currentUser && currentUser.hasSeenOnBoard) || false;
+
+    if (browserSupported) {
+      return <BrowserSupport />;
+    }
+
+    return <Welcome hasSeen={hasSeenOnboard} />;
+  }
+
   render() {
     const { currentUser, children } = this.props;
-    const hasSeenOnboard = (currentUser && currentUser.hasSeenOnBoard) || false;
 
     return (
       <Layout>
         {currentUser && <Navigation currentUser={currentUser} />}
         {children}
-        <Welcome hasSeen={hasSeenOnboard} />
+        {this.renderWarning()}
       </Layout>
     );
   }

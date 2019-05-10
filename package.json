@@ -32,6 +32,7 @@
     "classnames": "^2.2.5",
     "color": "^3.0.0",
     "crypto": "^1.0.1",
+    "detect-browser": "^4.5.0",
     "draft-js": "^0.10.5",
     "draft-js-anchor-plugin": "^2.0.2",
     "draft-js-buttons": "^2.0.1",

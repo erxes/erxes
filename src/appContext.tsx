@@ -1,3 +1,4 @@
+import { detect } from 'detect-browser';
 import T from 'i18n-react';
 import translations from 'locales';
 import { IUser } from 'modules/auth/types';
@@ -50,9 +51,11 @@ interface IState {
 interface IStore extends IState {
   currentUser?: IUser;
   changeLanguage: (languageCode: string) => void;
+  browserSupported: boolean;
 }
 
 const AppContext = React.createContext({} as IStore);
+const browser = detect();
 
 export const AppConsumer = AppContext.Consumer;
 
@@ -92,11 +95,56 @@ export class AppProvider extends React.Component<
   public render() {
     const { currentUser, currentLanguage } = this.state;
 
+    let browserSupported = true;
+
+    switch (browser && browser.name) {
+      case 'chrome':
+        if (browser) {
+          const version = Number(
+            browser.version && browser.version.split('.')[0]
+          );
+          if (version > 58) {
+            break;
+          }
+        }
+      case 'firefox':
+        if (browser) {
+          const version = Number(
+            browser.version && browser.version.split('.')[0]
+          );
+          if (version > 59) {
+            break;
+          }
+        }
+      case 'edge':
+        if (browser) {
+          const version = Number(
+            browser.version && browser.version.split('.')[0]
+          );
+          if (version > 16) {
+            break;
+          }
+        }
+      case 'safari':
+        if (browser) {
+          const version = Number(
+            browser.version && browser.version.split('.')[0]
+          );
+          if (version > 11) {
+            break;
+          }
+        }
+
+      default:
+        browserSupported = false;
+    }
+
     return (
       <AppContext.Provider
         value={{
           currentUser,
           currentLanguage,
+          browserSupported,
           changeLanguage: this.changeLanguage
         }}
       >
