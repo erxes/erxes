@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import {
   DropdownToggle,
   EmptyState,
@@ -9,6 +10,8 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import Select from 'react-select-plus';
+import { Avatar, SelectOption, SelectValue } from '../styles/deal';
 import {
   ButtonGroup,
   HeaderButton,
@@ -17,7 +20,10 @@ import {
   HeaderLink,
   PageHeader
 } from '../styles/header';
+
 import { IBoard, IPipeline } from '../types';
+
+import { selectUserOptions } from '../utils';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -27,13 +33,19 @@ type Props = {
   middleContent?: () => React.ReactNode;
   history: any;
   queryParams: any;
+  customerIds?: string[];
+  companyIds?: string[];
+  assignedUserIds?: string[];
+  users: IUser[];
 };
-
+type State = {
+  assignedUserIds: string[];
+};
 // get selected deal type from URL
 const getType = () =>
   window.location.href.includes('calendar') ? 'calendar' : 'board';
 
-class MainActionBar extends React.Component<Props> {
+class MainActionBar extends React.Component<Props, State> {
   onSearch = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;
@@ -112,13 +124,38 @@ class MainActionBar extends React.Component<Props> {
     });
   }
 
+  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
+    this.setState({ [name]: value } as Pick<State, keyof State>);
+  };
+
+  userOnChange = usrs => {
+    this.onChangeField('assignedUserIds', usrs.map(user => user.value));
+  };
+
   render() {
     const {
       currentBoard,
       currentPipeline,
       middleContent,
-      queryParams
+      queryParams,
+      customerIds,
+      companyIds,
+      assignedUserIds,
+      users
     } = this.props;
+
+    const content = option => (
+      <React.Fragment>
+        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+        {option.label}
+      </React.Fragment>
+    );
+
+    const userOption = option => (
+      <SelectOption className="simple-option">{content(option)}</SelectOption>
+    );
+
+    const userValue = option => <SelectValue>{content(option)}</SelectValue>;
 
     const boardLink = this.onFilterClick('board');
     const calendarLink = this.onFilterClick('calendar');
@@ -163,6 +200,18 @@ class MainActionBar extends React.Component<Props> {
     const actionBarRight = (
       <HeaderItems>
         {middleContent && middleContent()}
+        <div style={{ display: 'inline-block' }}>
+          <Select
+            placeholder={__('Filter')}
+            value={assignedUserIds}
+            onChange={this.userOnChange}
+            optionRenderer={userOption}
+            valueRenderer={userValue}
+            removeSelected={true}
+            options={selectUserOptions(users)}
+            multi={true}
+          />
+        </div>
 
         <div style={{ display: 'inline-block' }}>
           <FormControl

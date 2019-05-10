@@ -1,14 +1,18 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
+import { UsersQueryResponse } from 'modules/settings/team/types';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+
 import { MainActionBar as DumbMainActionBar } from '../components';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
+
 import { queries } from '../graphql';
 import { PageHeader } from '../styles/header';
+
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
@@ -24,6 +28,7 @@ type FinalProps = {
   boardsQuery: BoardsQueryResponse;
   boardGetLastQuery?: BoardsGetLastQueryResponse;
   boardDetailQuery?: BoardDetailQueryResponse;
+  usersQuery: UsersQueryResponse;
 } & Props;
 
 const getBoardId = ({ location }) => {
@@ -46,6 +51,7 @@ class Main extends React.Component<FinalProps> {
       boardsQuery,
       boardGetLastQuery,
       boardDetailQuery,
+      usersQuery,
       middleContent
     } = this.props;
 
@@ -112,6 +118,7 @@ class Main extends React.Component<FinalProps> {
         currentBoard={currentBoard}
         currentPipeline={currentPipeline}
         boards={boardsQuery.dealBoards || []}
+        users={usersQuery.users || []}
       />
     );
   }
@@ -143,7 +150,10 @@ const MainActionBar = withProps<Props>(
           };
         }
       }
-    )
+    ),
+    graphql<Props, UsersQueryResponse>(gql(queries.users), {
+      name: 'usersQuery'
+    })
   )(Main)
 );
 

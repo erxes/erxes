@@ -163,6 +163,7 @@ const deals = `
       skip: $skip,
       search: $search
       companyIds: $companyIds
+      customerIds: $customerIds
     ) {
       ${dealFields}
     }
