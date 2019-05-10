@@ -1,6 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import { IRule } from './engages';
+import { ruleSchema } from './common/schemas';
+import { IRule } from './common/types';
 
 export interface ICallout extends Document {
   title?: string;
@@ -46,25 +47,6 @@ const calloutSchema = new Schema(
   { _id: false },
 );
 
-// schema for form's rules
-const rulesSchema = new Schema(
-  {
-    _id: field({ type: String }),
-
-    // browserLanguage, currentUrl, etc ...
-    kind: field({ type: String }),
-
-    // Browser language, Current url etc ...
-    text: field({ type: String }),
-
-    // is, isNot, startsWith
-    condition: field({ type: String }),
-
-    value: field({ type: String }),
-  },
-  { _id: false },
-);
-
 // schema for form submission details
 const submissionSchema = new Schema(
   {
@@ -94,5 +76,5 @@ export const formSchema = new Schema({
   viewCount: field({ type: Number }),
   contactsGathered: field({ type: Number }),
   submissions: field({ type: [submissionSchema] }),
-  rules: field({ type: [rulesSchema] }),
+  rules: field({ type: [ruleSchema] }),
 });
