@@ -13,11 +13,9 @@ type Props = {
 };
 
 class DealBoard extends React.Component<Props> {
-  // renderContent() {
-  //   const { queryParams } = this.props;
-
-  //   return <Board queryParams={queryParams} />;
-  // }
+  renderContent() {
+    return <div>Content</div>;
+  }
 
   render() {
     const title = __('Ticket');
@@ -28,7 +26,7 @@ class DealBoard extends React.Component<Props> {
         <BoardContent transparent={true}>
           <MainActionBar />
           <ScrolledContent transparent={true}>
-            {/* {this.renderContent()} */}
+            {this.renderContent()}
           </ScrolledContent>
         </BoardContent>
       </BoardContainer>
