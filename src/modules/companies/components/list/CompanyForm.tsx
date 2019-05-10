@@ -153,11 +153,16 @@ class CompanyForm extends React.Component<Props, State> {
 
   handleSelect = <T extends keyof State>(
     name: T,
-    selectedOption: { value: string }
+    selectedOption: { value: string; label: string }
   ) => {
-    this.setState({
-      [name]: selectedOption ? selectedOption.value : null
-    } as Pick<State, keyof State>);
+    this.setState(
+      {
+        [name]: selectedOption ? selectedOption.value : null
+      } as Pick<State, keyof State>,
+      () => {
+        this.handleUserSearch(selectedOption ? selectedOption.label : '');
+      }
+    );
   };
 
   /*
