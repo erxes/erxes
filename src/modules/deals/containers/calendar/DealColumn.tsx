@@ -99,6 +99,7 @@ type Props = {
   updatedAt: string;
   pipelineId: string;
   date: IDateColumn;
+  queryParams: any;
   onColumnUpdated: (date: IDateColumn) => void;
 };
 
@@ -108,10 +109,20 @@ export default withProps<Props>(
       gql(queries.deals),
       {
         name: 'dealsQuery',
-        options: ({ date, pipelineId }: Props) => {
+        options: ({ date, pipelineId, queryParams }: Props) => {
+          //tslint:disable
+          console.log(queryParams);
           return {
             notifyOnNetworkStatusChange: true,
-            variables: { skip: 0, date, pipelineId }
+            variables: {
+              skip: 0,
+              date,
+              pipelineId,
+              customerIds: queryParams.customerIds,
+              companyIds: queryParams.companyIds,
+              assignedUserIds: queryParams.assignedUserIds,
+              productIds: queryParams.productIds
+            }
           };
         }
       }
@@ -120,8 +131,15 @@ export default withProps<Props>(
       gql(queries.dealsTotalAmounts),
       {
         name: 'dealsTotalAmountsQuery',
-        options: ({ date, pipelineId }: Props) => ({
-          variables: { date, pipelineId }
+        options: ({ date, pipelineId, queryParams }: Props) => ({
+          variables: {
+            date,
+            pipelineId,
+            customerIds: queryParams.customerIds,
+            companyIds: queryParams.companyIds,
+            assignedUserIds: queryParams.assignedUserIds,
+            productIds: queryParams.productIds
+          }
         })
       }
     )

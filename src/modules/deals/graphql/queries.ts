@@ -69,8 +69,22 @@ const pipelineGetLast = `
 `;
 
 const stages = `
-  query dealStages($pipelineId: String!, $search: String) {
-    dealStages(pipelineId: $pipelineId, search: $search) {
+  query dealStages(
+      $pipelineId: String!, 
+      $search: String,
+      $customerIds: [String],
+      $companyIds: [String],
+      $assignedUserIds: [String],
+      $productIds: [String]
+    ) {
+    dealStages(
+      pipelineId: $pipelineId, 
+      search: $search
+      customerIds: $customerIds,
+      companyIds: $companyIds,
+      assignedUserIds: $assignedUserIds,
+      productIds: $productIds
+    ) {
       _id
       name
       order
@@ -133,8 +147,22 @@ const dealFields = `
 `;
 
 const dealsTotalAmounts = `
-  query dealsTotalAmounts($date: DealDate $pipelineId: String) {
-    dealsTotalAmounts(date: $date pipelineId: $pipelineId) {
+  query dealsTotalAmounts(
+      $date: DealDate 
+      $pipelineId: String
+      $customerIds: [String]
+      $companyIds: [String]
+      $assignedUserIds: [String]
+      $productIds: [String]
+    ) {
+    dealsTotalAmounts(
+      date: $date 
+      pipelineId: $pipelineId
+      customerIds: $customerIds,
+      companyIds: $companyIds,
+      assignedUserIds: $assignedUserIds,
+      productIds: $productIds
+    ) {
       _id
       dealCount
       dealAmounts {

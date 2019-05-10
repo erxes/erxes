@@ -50,14 +50,11 @@ type Props = {
   assignedUserIds?: string[];
 };
 
-type State = {
-  assignedUserIds: string[];
-};
 // get selected deal type from URL
 const getType = () =>
   window.location.href.includes('calendar') ? 'calendar' : 'board';
 
-class MainActionBar extends React.Component<Props, State> {
+class MainActionBar extends React.Component<Props> {
   onSearch = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;
@@ -140,14 +137,6 @@ class MainActionBar extends React.Component<Props, State> {
     });
   }
 
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
-  };
-
-  userOnChange = usrs => {
-    this.onChangeField('assignedUserIds', usrs.map(user => user.value));
-  };
-
   render() {
     const {
       currentBoard,
@@ -227,18 +216,6 @@ class MainActionBar extends React.Component<Props, State> {
     const actionBarRight = (
       <HeaderItems>
         {middleContent && middleContent()}
-        <div style={{ display: 'inline-block' }}>
-          <Select
-            placeholder={__('Filter')}
-            value={assignedUserIds}
-            onChange={this.userOnChange}
-            optionRenderer={userOption}
-            valueRenderer={userValue}
-            removeSelected={true}
-            options={selectUserOptions(users)}
-            multi={true}
-          />
-        </div>
 
         <Select
           placeholder={__('Choose team members')}

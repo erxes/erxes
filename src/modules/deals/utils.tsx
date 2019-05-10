@@ -23,7 +23,7 @@ export function selectOptions(array: Options[] = []) {
 }
 
 // get config options for react-select-plus
-export function selectProductOptions(array: any) {
+export function selectProductOptions(array: IProduct[] = []) {
   return array.map(item => {
     const product = item || ({} as IProduct);
 

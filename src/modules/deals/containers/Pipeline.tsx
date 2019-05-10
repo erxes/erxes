@@ -127,7 +127,11 @@ export default withProps<Props>(
       options: ({ pipeline, queryParams }) => ({
         variables: {
           pipelineId: pipeline._id,
-          search: queryParams.search
+          search: queryParams.search,
+          customerIds: queryParams.customerIds,
+          companyIds: queryParams.companyIds,
+          assignedUserIds: queryParams.assignedUserIds,
+          productIds: queryParams.productIds
         }
       })
     })
