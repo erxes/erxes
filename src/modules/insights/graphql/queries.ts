@@ -121,6 +121,12 @@ const dealInsightsByTeamMember = `
   }
 `;
 
+const insightsConversationSummary = `
+  query insightsConversationSummary {
+    insightsConversationSummary
+  }
+`;
+
 export default {
   trend,
   summaryData,
@@ -134,6 +140,7 @@ export default {
   insightActivityReportExport,
   insightFirstResponseReportExport,
   insightTagReportExport,
+  insightsConversationSummary,
 
   dealInsightsMain,
   dealInsightsPunchCard,

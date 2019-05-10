@@ -66,6 +66,11 @@ export type SummaryDataQueryResponse = {
   loading: boolean;
 };
 
+export type ConversationSummaryDataQueryResponse = {
+  insightsConversationSummary: SummaryData[];
+  loading: boolean;
+};
+
 export type TrendQueryResponse = {
   insightsTrend: IChartParams[];
   loading: boolean;

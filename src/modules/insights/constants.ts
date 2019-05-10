@@ -43,6 +43,12 @@ export const INBOX_INSIGHTS = [
     image: '',
     to: '/insights/export-report',
     desc: ''
+  },
+  {
+    name: 'Response Frequency Report',
+    image: '',
+    to: '/insights/conversation-report',
+    desc: ''
   }
 ];
 
