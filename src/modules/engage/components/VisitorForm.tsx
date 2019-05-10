@@ -15,13 +15,12 @@ import {
   IEngageMessage,
   IEngageMessageDoc,
   IEngageMessenger,
-  IEngageRule,
   IEngageScheduleDate
 } from 'modules/engage/types';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
-import { IBreadCrumbItem } from '../../common/types';
+import { IBreadCrumbItem, IConditionsRule } from '../../common/types';
 import MessengerForm from './MessengerForm';
 
 type Props = {
@@ -45,7 +44,7 @@ type State = {
   title: string;
   content: string;
   fromUserId: string;
-  rules: IEngageRule[];
+  rules: IConditionsRule[];
   messenger?: IEngageMessenger;
   scheduleDate?: IEngageScheduleDate;
 };

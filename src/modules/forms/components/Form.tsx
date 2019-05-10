@@ -9,9 +9,10 @@ import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
+import { IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import { IFormIntegration, IFormRule } from 'modules/forms/types';
+import { IFormIntegration } from 'modules/forms/types';
 import { Wrapper } from 'modules/layout/components';
 import { IFormData } from 'modules/settings/integrations/types';
 import { IField } from 'modules/settings/properties/types';
@@ -67,7 +68,7 @@ type State = {
   logoPreviewStyle?: { opacity?: string };
   defaultValue: { [key: string]: boolean };
   logo?: string;
-  rules?: IFormRule[];
+  rules?: IConditionsRule[];
 
   successAction?: string;
   fromEmail?: string;
