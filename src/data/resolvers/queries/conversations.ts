@@ -228,7 +228,9 @@ const conversationQueries = {
       return messages.reverse();
     }
 
-    return ConversationMessages.find(query).sort({ createdAt: 1 });
+    return ConversationMessages.find(query)
+      .sort({ createdAt: 1 })
+      .limit(50);
   },
 
   /**

@@ -81,7 +81,7 @@ const permissionQueries = {
    */
   permissionsTotalCount(_root, args) {
     const filter = generateSelector(args);
-    return Permissions.find(filter).count();
+    return Permissions.find(filter).countDocuments();
   },
 };
 
@@ -101,7 +101,7 @@ const usersGroupQueries = {
    * @return {Promise} total count
    */
   usersGroupsTotalCount() {
-    return UsersGroups.find({}).count();
+    return UsersGroups.find({}).countDocuments();
   },
 };
 

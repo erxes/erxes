@@ -9,11 +9,29 @@ interface IUsersEdit extends IUser {
   _id: string;
 }
 
+const sendInvitationEmail = ({ email, token }: { email: string; token: string }) => {
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+  const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
+
+  utils.sendEmail({
+    toEmails: [email],
+    title: 'Team member invitation',
+    template: {
+      name: 'userInvitation',
+      data: {
+        content: confirmationUrl,
+        domain: MAIN_APP_DOMAIN,
+      },
+      isCustom: true,
+    },
+  });
+};
+
 const userMutations = {
   /*
    * Login
    */
-  async login(_root, args: { email: string; password: string }, { res }) {
+  async login(_root, args: { email: string; password: string; deviceToken?: string }, { res }) {
     const response = await Users.login(args);
 
     const { token } = response;
@@ -78,13 +96,11 @@ const userMutations = {
    * Update user
    */
   async usersEdit(_root, args: IUsersEdit) {
-    const { _id, username, email, role, channelIds = [], groupIds = [], details, links } = args;
+    const { _id, username, email, channelIds = [], groupIds = [], details, links } = args;
 
-    // TODO check isOwner
     const updatedUser = await Users.updateUser(_id, {
       username,
       email,
-      role,
       details,
       links,
       groupIds,
@@ -126,7 +142,7 @@ const userMutations = {
 
     if (!password || !valid) {
       // bad password
-      throw new Error('Invalid password');
+      throw new Error('Invalid password. Try again');
     }
 
     return Users.editProfile(user._id, { username, email, details, links });
@@ -146,28 +162,25 @@ const userMutations = {
   /*
    * Invites users to team members
    */
-  async usersInvite(_root, { emails }: { emails: string[] }) {
-    await Users.checkDuplication({ emails });
+  async usersInvite(_root, { entries }: { entries: Array<{ email: string; groupId: string }> }) {
+    for (const entry of entries) {
+      await Users.checkDuplication({ email: entry.email });
 
-    for (const email of emails) {
-      const token = await Users.createUserWithConfirmation({ email });
+      const token = await Users.createUserWithConfirmation(entry);
 
-      const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-      const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
-
-      utils.sendEmail({
-        toEmails: [email],
-        title: 'Team member invitation',
-        template: {
-          name: 'userInvitation',
-          data: {
-            content: confirmationUrl,
-            domain: MAIN_APP_DOMAIN,
-          },
-          isCustom: true,
-        },
-      });
+      sendInvitationEmail({ email: entry.email, token });
     }
+  },
+
+  /*
+   * Resend invitation
+   */
+  async usersResendInvitation(_root, { email }: { email: string }) {
+    const token = await Users.resendInvitation({ email });
+
+    sendInvitationEmail({ email, token });
+
+    return token;
   },
 
   /*
@@ -216,6 +229,7 @@ requireLogin(userMutations, 'usersConfigEmailSignatures');
 
 checkPermission(userMutations, 'usersEdit', 'usersEdit');
 checkPermission(userMutations, 'usersInvite', 'usersInvite');
+checkPermission(userMutations, 'usersResendInvitation', 'usersInvite');
 checkPermission(userMutations, 'usersSetActiveStatus', 'usersSetActiveStatus');
 
 export default userMutations;

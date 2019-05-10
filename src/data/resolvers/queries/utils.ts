@@ -17,3 +17,17 @@ export const dealsCommonFilter = (filter, { search }: { search?: string }) => {
     $or: [{ name: new RegExp(`.*${search || ''}.*`, 'i') }, { description: new RegExp(`.*${search || ''}.*`, 'i') }],
   };
 };
+
+/*
+ * Converts given value to date or if value in valid date
+ * then returns default value
+ */
+export const fixDate = (value, defaultValue = new Date()): Date => {
+  const date = new Date(value);
+
+  if (!isNaN(date.getTime())) {
+    return date;
+  }
+
+  return defaultValue;
+};

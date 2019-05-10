@@ -1,50 +1,36 @@
-import * as moment from 'moment';
-import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
-import { IUserDocument } from '../../../db/models/definitions/users';
-import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../constants';
-import { checkPermission, moduleRequireLogin } from '../../permissions';
-import { getDateFieldAsStr, getDurationField } from './aggregationUtils';
+import { ConversationMessages, Conversations, Integrations, Tags } from '../../../../db/models';
+import { IUserDocument } from '../../../../db/models/definitions/users';
+import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../../constants';
+import { moduleCheckPermission, moduleRequireLogin } from '../../../permissions';
+import { getDateFieldAsStr, getDurationField } from '../aggregationUtils';
+import { IListArgs, IPieChartData } from './types';
 import {
-  findConversations,
   fixChartData,
-  fixDate,
   fixDates,
-  generateChartData,
-  generateMessageSelector,
+  generateChartDataByCollection,
+  generateChartDataBySelector,
+  generatePunchData,
   generateResponseData,
-  generateUserSelector,
   getConversationSelector,
   getFilterSelector,
+  getMessageSelector,
   getSummaryData,
+  getSummaryDates,
   getTimezone,
-  IListArgs,
-} from './insightUtils';
-
-interface IPieChartData {
-  id: string;
-  label: string;
-  value: number;
-}
+  noConversationSelector,
+} from './utils';
 
 const insightQueries = {
   /**
    * Builds insights charting data contains
    * count of conversations in various integrations kinds.
    */
-  async insights(_root, args: IListArgs) {
-    const { startDate, endDate } = args;
+  async insightsIntegrations(_root, args: IListArgs) {
     const filterSelector = getFilterSelector(args);
-    const { start, end } = fixDates(startDate, endDate);
 
-    const insights: { integration: IPieChartData[]; tag: IPieChartData[] } = {
-      integration: [],
-      tag: [],
-    };
+    const conversationSelector = await getConversationSelector(filterSelector);
 
-    const conversationSelector = {
-      createdAt: { $gte: start, $lte: end },
-      $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
-    };
+    const integrations: IPieChartData[] = [];
 
     // count conversations by each integration kind
     for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
@@ -58,35 +44,57 @@ const insightQueries = {
         ...conversationSelector,
         integrationId: { $in: integrationIds },
       });
-      if (kind === INTEGRATION_KIND_CHOICES.FACEBOOK) {
-        const { FEED, MESSENGER } = FACEBOOK_DATA_KINDS;
 
-        const feedCount = await Conversations.countDocuments({
-          ...conversationSelector,
-          integrationId: { $in: integrationIds },
-          'facebookData.kind': FEED,
-        });
+      if (value > 0) {
+        if (kind === INTEGRATION_KIND_CHOICES.FACEBOOK) {
+          const { FEED, MESSENGER } = FACEBOOK_DATA_KINDS;
 
-        insights.integration.push({
-          id: `${kind} ${FEED}`,
-          label: `${kind} ${FEED}`,
-          value: feedCount,
-        });
+          const feedCount = await Conversations.countDocuments({
+            ...conversationSelector,
+            integrationId: { $in: integrationIds },
+            'facebookData.kind': FEED,
+          });
 
-        insights.integration.push({
-          id: `${kind} ${MESSENGER}`,
-          label: `${kind} ${MESSENGER}`,
-          value: value - feedCount,
-        });
-      } else {
-        insights.integration.push({ id: kind, label: kind, value });
+          integrations.push({
+            id: `${kind} ${FEED}`,
+            label: `${kind} ${FEED}`,
+            value: feedCount,
+          });
+
+          integrations.push({
+            id: `${kind} ${MESSENGER}`,
+            label: `${kind} ${MESSENGER}`,
+            value: value - feedCount,
+          });
+        } else {
+          integrations.push({ id: kind, label: kind, value });
+        }
       }
     }
+
+    return integrations;
+  },
+
+  /**
+   * Builds insights charting data contains
+   * count of conversations in various integrations tags.
+   */
+  async insightsTags(_root, args: IListArgs) {
+    const filterSelector = getFilterSelector(args);
+
+    const conversationSelector = {
+      createdAt: filterSelector.createdAt,
+      ...noConversationSelector,
+    };
+
+    const tagDatas: IPieChartData[] = [];
 
     const tags = await Tags.find({ type: TAG_TYPES.CONVERSATION }).select('name');
 
     const integrationIdsByTag = await Integrations.find(filterSelector.integration).select('_id');
+
     const rawIntegrationIdsByTag = integrationIdsByTag.map(row => row._id);
+
     const tagData = await Conversations.aggregate([
       {
         $match: {
@@ -106,6 +114,7 @@ const insightQueries = {
     ]);
 
     const tagDictionaryData = {};
+
     tagData.forEach(row => {
       tagDictionaryData[row._id] = row.count;
     });
@@ -115,107 +124,49 @@ const insightQueries = {
       // find conversation counts of given tag
       const value = tagDictionaryData[tag._id];
       if (tag._id in tagDictionaryData) {
-        insights.tag.push({ id: tag.name, label: tag.name, value });
+        tagDatas.push({ id: tag.name, label: tag.name, value });
       }
     }
 
-    return insights;
+    return tagDatas;
   },
 
   /**
    * Counts conversations by each hours in each days.
    */
   async insightsPunchCard(_root, args: IListArgs, { user }: { user: IUserDocument }) {
-    const { type, endDate } = args;
-    const filterSelector = getFilterSelector(args);
+    const messageSelector = await getMessageSelector({ args });
 
-    // check & convert endDate's value
-    const end = moment(fixDate(endDate)).format('YYYY-MM-DD');
-    const start = moment(end).add(-7, 'days');
-
-    const conversationIds = await findConversations(
-      filterSelector,
-      {
-        createdAt: { $gte: start, $lte: end },
-      },
-      true,
-    );
-
-    const rawConversationIds = conversationIds.map(obj => obj._id);
-    const matchMessageSelector = {
-      conversationId: { $in: rawConversationIds },
-      fromBot: { $exists: false },
-      // client or user
-      userId: generateUserSelector(type),
-      createdAt: { $gte: start.toDate(), $lte: new Date(end) },
-    };
-
-    // TODO: need improvements on timezone calculation.
-    const punchData = await ConversationMessages.aggregate([
-      {
-        $match: matchMessageSelector,
-      },
-      {
-        $project: {
-          hour: { $hour: { date: '$createdAt', timezone: '+08' } },
-          day: { $isoDayOfWeek: { date: '$createdAt', timezone: '+08' } },
-          date: await getDateFieldAsStr({ timeZone: getTimezone(user) }),
-        },
-      },
-      {
-        $group: {
-          _id: {
-            hour: '$hour',
-            day: '$day',
-            date: '$date',
-          },
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          day: '$_id.day',
-          hour: '$_id.hour',
-          date: '$_id.date',
-          count: 1,
-        },
-      },
-    ]);
-
-    return punchData;
+    return generatePunchData(ConversationMessages, messageSelector, user);
   },
 
   /**
-   * Sends combined charting data for trends, summaries and team members.
+   * Sends combined charting data for trends.
    */
-  async insightsMain(_root, args: IListArgs) {
-    const { type } = args;
-    const messageSelector = await generateMessageSelector(
-      args,
-      // message selector
-      {
-        userId: generateUserSelector(type),
-        // exclude bot messages
-        fromBot: { $exists: false },
-      },
-    );
+  async insightsTrend(_root, args: IListArgs) {
+    const messageSelector = await getMessageSelector({ args });
 
-    const insightData: any = {
-      summary: [],
-      trend: await generateChartData({ messageSelector }),
-    };
+    return generateChartDataBySelector({ selector: messageSelector });
+  },
+
+  /**
+   * Sends summary datas.
+   */
+  async insightsSummaryData(_root, args: IListArgs) {
+    const selector = await getMessageSelector({
+      args,
+      createdAt: getSummaryDates(args.endDate),
+    });
 
     const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
-    insightData.summary = await getSummaryData({
-      startDate: start,
-      endDate: end,
-      collection: ConversationMessages,
-      selector: { ...messageSelector },
-    });
 
-    return insightData;
+    return getSummaryData({
+      start,
+      end,
+      collection: ConversationMessages,
+      selector,
+    });
   },
 
   /**
@@ -223,23 +174,24 @@ const insightQueries = {
    */
   async insightsConversation(_root, args: IListArgs) {
     const filterSelector = getFilterSelector(args);
-    const conversationSelector = {
-      createdAt: filterSelector.createdAt,
-      $or: [{ userId: { $exists: true }, messageCount: { $gt: 1 } }, { userId: { $exists: false } }],
-    };
-    const conversations = await findConversations(filterSelector, { ...conversationSelector });
+
+    const selector = await getConversationSelector(filterSelector);
+
+    const conversations = await Conversations.find(selector);
+
     const insightData: any = {
       summary: [],
-      trend: await generateChartData({ collection: conversations }),
+      trend: await generateChartDataByCollection(conversations),
     };
 
     const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
+
     insightData.summary = await getSummaryData({
-      startDate: start,
-      endDate: end,
+      start,
+      end,
       collection: Conversations,
-      selector: { ...conversationSelector },
+      selector,
     });
 
     return insightData;
@@ -270,7 +222,9 @@ const insightQueries = {
 
     let allResponseTime = 0;
 
-    const conversations = await findConversations(filterSelector, conversationSelector);
+    const selector = await getConversationSelector(filterSelector, conversationSelector);
+
+    const conversations = await Conversations.find(selector);
 
     if (conversations.length < 1) {
       return insightData;
@@ -334,19 +288,15 @@ const insightQueries = {
 
     const conversationSelector = {
       createdAt: { $gte: start, $lte: end },
-      closedAt: { $ne: null },
-      closedUserId: { $ne: null },
+      closedAt: { $exists: true },
+      closedUserId: { $exists: true },
     };
 
-    const conversationMatch = await getConversationSelector(args, { ...conversationSelector });
+    const conversationMatch = await getConversationSelector(getFilterSelector(args), { ...conversationSelector });
+
     const insightAggregateData = await Conversations.aggregate([
       {
         $match: conversationMatch,
-      },
-      {
-        $match: {
-          closedAt: { $exists: true },
-        },
       },
       {
         $project: {
@@ -404,6 +354,7 @@ const insightQueries = {
         },
       },
     ]);
+
     // Variables holds every user's response time.
     const teamMembers: any = [];
     const responseUserData: any = {};
@@ -411,6 +362,7 @@ const insightQueries = {
     let allResponseTime = 0;
     let totalCount = 0;
     const aggregatedTrend = {};
+
     for (const userData of insightAggregateData) {
       // responseUserData
       responseUserData[userData._id] = {
@@ -463,6 +415,6 @@ const insightQueries = {
 
 moduleRequireLogin(insightQueries);
 
-checkPermission(insightQueries, 'insights', 'showInsights');
+moduleCheckPermission(insightQueries, 'showInsights');
 
 export default insightQueries;

@@ -39,7 +39,7 @@ describe('Companies mutations', () => {
     // Creating test data
     _company = await companyFactory({});
     _customer = await customerFactory({});
-    _user = await userFactory({ role: 'admin' });
+    _user = await userFactory({});
 
     context = { user: _user };
   });

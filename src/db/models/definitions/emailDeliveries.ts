@@ -11,7 +11,7 @@ interface IAttachmentParams {
 
 export interface IEmailDeliveries {
   cocType: string;
-  cocId: string;
+  cocId?: string;
   subject: string;
   body: string;
   toEmails: string;

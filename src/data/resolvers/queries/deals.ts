@@ -119,7 +119,7 @@ const dealQueries = {
     const stageIds = await DealStages.find({ pipelineId }).distinct('_id');
     const filter = { stageId: { $in: stageIds }, closeDate: dateSelector(date) };
 
-    const dealCount = await Deals.find(filter).count();
+    const dealCount = await Deals.find(filter).countDocuments();
     const amountList = await Deals.aggregate([
       {
         $match: filter,

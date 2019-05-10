@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { ActivityLogs } from '.';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { IInternalNote, IInternalNoteDocument, internalNoteSchema } from './definitions/internalNotes';
 import { IUserDocument } from './definitions/users';
@@ -30,13 +31,18 @@ export const loadClass = () => {
       { contentType, contentTypeId, ...fields }: IInternalNote,
       user: IUserDocument,
     ) {
-      return InternalNotes.create({
+      const internalNote = await InternalNotes.create({
         contentType,
         contentTypeId,
         createdUserId: user._id,
         createdDate: new Date(),
         ...fields,
       });
+
+      // create log
+      await ActivityLogs.createInternalNoteLog(internalNote);
+
+      return internalNote;
     }
 
     /*

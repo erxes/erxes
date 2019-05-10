@@ -21,6 +21,7 @@ export interface IListArgs {
   endDate?: string;
   lifecycleState?: string;
   leadStatus?: string;
+  type?: string;
   sortField?: string;
   sortDirection?: number;
   byFakeSegment?: any;
@@ -161,6 +162,7 @@ export default class Builder {
   public async buildAllQueries(): Promise<void> {
     this.queries = {
       default: this.defaultFilters(),
+      type: {},
       segment: {},
       tag: {},
       ids: {},
@@ -170,6 +172,11 @@ export default class Builder {
       form: {},
       integrationType: {},
     };
+
+    // filter by type
+    if (this.params.type) {
+      this.queries.type = { isUser: this.params.type === 'user' ? true : { $ne: true } };
+    }
 
     // filter by segment
     if (this.params.segment) {
@@ -231,6 +238,7 @@ export default class Builder {
   public mainQuery(): any {
     return {
       ...this.queries.default,
+      ...this.queries.type,
       ...this.queries.segment,
       ...this.queries.tag,
       ...this.queries.segment,

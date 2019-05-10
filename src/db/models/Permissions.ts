@@ -95,7 +95,7 @@ export const permissionLoadClass = () => {
      * @return {Promise}
      */
     public static async removePermission(ids: string[]) {
-      const count = await Permissions.find({ _id: { $in: ids } }).count();
+      const count = await Permissions.find({ _id: { $in: ids } }).countDocuments();
 
       if (count !== ids.length) {
         throw new Error('Permission not found');
@@ -157,7 +157,7 @@ permissionLoadClass();
 userGroupLoadClass();
 
 // tslint:disable-next-line
-export const Permissions = model<IPermissionDocument, IPermissionModel>('permission', permissionSchema);
+export const Permissions = model<IPermissionDocument, IPermissionModel>('permissions', permissionSchema);
 
 // tslint:disable-next-line
 export const UsersGroups = model<IUserGroupDocument, IUserGroupModel>('user_groups', userGroupSchema);

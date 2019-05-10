@@ -11,11 +11,11 @@ import * as path from 'path';
 import { userMiddleware } from './auth';
 import resolvers from './data/resolvers';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
-import { pubsub } from './data/resolvers/subscriptions';
 import typeDefs from './data/schema';
-import { checkFile, getEnv, importXlsFile, uploadFile } from './data/utils';
+import { checkFile, getEnv, importXlsFile, readFileRequest, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Conversations, Customers } from './db/models';
+import { graphqlPubsub } from './pubsub';
 import { init } from './startup';
 import { getAttachment } from './trackers/gmail';
 
@@ -25,6 +25,23 @@ dotenv.config();
 const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
 const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN', defaultValue: '' });
+
+// firebase app initialization
+fs.exists(path.join(__dirname, '..', '/google_cred.json'), exists => {
+  if (!exists) {
+    return;
+  }
+
+  const admin = require('firebase-admin').default;
+  const serviceAccount = require('../google_cred.json');
+  const firebaseServiceAccount = serviceAccount;
+
+  if (firebaseServiceAccount.private_key) {
+    admin.initializeApp({
+      credential: admin.credential.cert(firebaseServiceAccount),
+    });
+  }
+});
 
 // connect to mongo database
 connect();
@@ -110,13 +127,13 @@ const apolloServer = new ApolloServer({
             const conversationMessages = await Conversations.changeCustomerStatus('joined', customerId, integrationId);
 
             for (const _message of conversationMessages) {
-              pubsub.publish('conversationMessageInserted', {
+              graphqlPubsub.publish('conversationMessageInserted', {
                 conversationMessageInserted: _message,
               });
             }
 
             // notify as connected
-            pubsub.publish('customerConnectionChanged', {
+            graphqlPubsub.publish('customerConnectionChanged', {
               customerConnectionChanged: {
                 _id: customerId,
                 status: 'connected',
@@ -154,13 +171,13 @@ const apolloServer = new ApolloServer({
           const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
 
           for (const message of conversationMessages) {
-            pubsub.publish('conversationMessageInserted', {
+            graphqlPubsub.publish('conversationMessageInserted', {
               conversationMessageInserted: message,
             });
           }
 
           // notify as disconnected
-          pubsub.publish('customerConnectionChanged', {
+          graphqlPubsub.publish('customerConnectionChanged', {
             customerConnectionChanged: {
               _id: customerId,
               status: 'disconnected',
@@ -177,6 +194,25 @@ app.use('/static', express.static(path.join(__dirname, 'private')));
 // for health check
 app.get('/status', async (_req, res) => {
   res.end('ok');
+});
+
+// read file
+app.get('/read-file', async (req: any, res) => {
+  const key = req.query.key;
+
+  if (!key) {
+    return res.send('Invalid key');
+  }
+
+  try {
+    const response = await readFileRequest(key);
+
+    res.attachment(key);
+
+    return res.send(response);
+  } catch (e) {
+    return res.end(e.message);
+  }
 });
 
 // file upload

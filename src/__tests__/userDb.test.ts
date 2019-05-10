@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
-import { userFactory } from '../db/factories';
+import { userFactory, usersGroupFactory } from '../db/factories';
 import { Users } from '../db/models';
 
 beforeAll(() => {
@@ -40,7 +40,6 @@ describe('User db utils', () => {
     expect(userObj._id).toBeDefined();
     expect(userObj.username).toBe(_user.username);
     expect(userObj.email).toBe('qwerty@qwerty.com');
-    expect(userObj.role).toBe(_user.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(_user.details.position);
     expect(userObj.details.fullName).toBe(_user.details.fullName);
@@ -116,9 +115,10 @@ describe('User db utils', () => {
   });
 
   test('createUserWithConfirmation', async () => {
-    const token = await Users.createUserWithConfirmation({ email: '123@gmail.com' });
+    const group = await usersGroupFactory();
+    const token = await Users.createUserWithConfirmation({ email: '123@gmail.com', groupId: group._id });
 
-    const userObj = await Users.findOne({ registrationToken: token });
+    const userObj = await Users.findOne({ registrationToken: token }).lean();
 
     if (!userObj) {
       throw new Error('User not found');
@@ -126,7 +126,38 @@ describe('User db utils', () => {
 
     expect(userObj).toBeDefined();
     expect(userObj._id).toBeDefined();
+    expect(userObj.groupIds).toEqual([group._id]);
     expect(userObj.registrationToken).toBeDefined();
+    expect(userObj.registrationTokenExpires).toBeDefined();
+  });
+
+  test('resendInvitation', async () => {
+    const email = '123@gmail.com';
+    const group = await usersGroupFactory();
+    const token = await Users.createUserWithConfirmation({ email, groupId: group._id });
+    const newToken = await Users.resendInvitation({ email });
+
+    const user = await Users.findOne({ email }).lean();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    expect(user.registrationToken).not.toBe(token);
+    expect(user.registrationToken).toBe(newToken);
+    expect(user.registrationTokenExpires).toBeDefined();
+  });
+
+  test('resendInvitation: invalid', async () => {
+    expect.assertions(1);
+
+    const user = await userFactory({});
+
+    try {
+      await Users.resendInvitation({ email: user.email || 'invalid' });
+    } catch (e) {
+      expect(e.message).toBe('Invalid request');
+    }
   });
 
   test('updateOnBoardSeen', async () => {
@@ -266,7 +297,6 @@ describe('User db utils', () => {
 
     expect(userObj.username).toBe(updateDoc.username);
     expect(userObj.email).toBe('123@gmail.com');
-    expect(userObj.role).toBe(userObj.role);
     expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
@@ -302,12 +332,13 @@ describe('User db utils', () => {
       const user = await userFactory({});
       await Users.setUserActiveOrInactive(user._id);
     } catch (e) {
-      expect(e.message).toBe('Can not remove owner');
+      expect(e.message).toBe('Can not deactivate owner');
     }
 
     await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1, isOwner: false } });
 
     const deactivatedUser = await Users.setUserActiveOrInactive(_user._id);
+
     // ensure deactivated
     expect(deactivatedUser.isActive).toBe(false);
   });
@@ -322,15 +353,6 @@ describe('User db utils', () => {
 
     // ensure deactivated
     expect(activatedUser.isActive).toBe(false);
-  });
-
-  test('Remove user With pending invitation status', async () => {
-    await Users.setUserActiveOrInactive(_user._id);
-
-    const user = await Users.findOne({ _id: _user._id });
-
-    // ensure deactivated
-    expect(user).toBeNull();
   });
 
   test('Edit profile', async () => {

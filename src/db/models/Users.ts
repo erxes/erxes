@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { Model, model } from 'mongoose';
 import * as sha256 from 'sha256';
-import { Session } from '.';
+import { Session, UsersGroups } from '.';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument, userSchema } from './definitions/users';
 
 const SALT_WORK_FACTOR = 10;
@@ -16,7 +16,6 @@ interface IEditProfile {
 }
 
 interface IUpdateUser extends IEditProfile {
-  role?: string;
   password?: string;
   groupIds?: string[];
 }
@@ -32,6 +31,7 @@ export interface IUserModel extends Model<IUserDocument> {
     emails?: string[];
   }): never;
   getSecret(): string;
+  generateToken(): { token: string; expires: Date };
   createUser(doc: IUser): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUpdateUser): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
@@ -40,7 +40,8 @@ export interface IUserModel extends Model<IUserDocument> {
   configGetNotificationByEmail(_id: string, isAllowed: boolean): Promise<IUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): string;
-  createUserWithConfirmation({ email }: { email: string }): string;
+  createUserWithConfirmation({ email, groupId }: { email: string; groupId: string }): string;
+  resendInvitation({ email }: { email: string }): string;
   confirmInvitation({
     token,
     password,
@@ -68,7 +69,15 @@ export interface IUserModel extends Model<IUserDocument> {
   forgotPassword(email: string): string;
   createTokens(_user: IUserDocument, secret: string): string[];
   refreshTokens(refreshToken: string): { token: string; refreshToken: string; user: IUserDocument };
-  login({ email, password }: { email: string; password?: string }): { token: string; refreshToken: string };
+  login({
+    email,
+    password,
+    deviceToken,
+  }: {
+    email: string;
+    password?: string;
+    deviceToken?: string;
+  }): { token: string; refreshToken: string };
   logout(user: IUserDocument): string;
 }
 
@@ -120,7 +129,7 @@ export const loadClass = () => {
     /**
      * Create new user
      */
-    public static async createUser({ username, email, password, role, details, links, groupIds }: IUser) {
+    public static async createUser({ username, email, password, details, links, groupIds }: IUser) {
       // empty string password validation
       if (password === '') {
         throw new Error('Password can not be empty');
@@ -132,7 +141,6 @@ export const loadClass = () => {
       return Users.create({
         username,
         email,
-        role,
         details,
         links,
         groupIds,
@@ -145,11 +153,8 @@ export const loadClass = () => {
     /**
      * Update user information
      */
-    public static async updateUser(
-      _id: string,
-      { username, email, password, role, details, links, groupIds }: IUpdateUser,
-    ) {
-      const doc = { username, email, password, role, details, links, groupIds };
+    public static async updateUser(_id: string, { username, email, password, details, links, groupIds }: IUpdateUser) {
+      const doc = { username, email, password, details, links, groupIds };
 
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
@@ -168,21 +173,62 @@ export const loadClass = () => {
       return Users.findOne({ _id });
     }
 
-    /**
-     * Create new user with invitation token
-     */
-    public static async createUserWithConfirmation({ email }: { email: string }) {
-      // Checking duplicated email
-      await Users.checkDuplication({ email });
-
+    public static async generateToken() {
       const buffer = await crypto.randomBytes(20);
       const token = buffer.toString('hex');
 
+      return {
+        token,
+        expires: Date.now() + 86400000,
+      };
+    }
+
+    /**
+     * Create new user with invitation token
+     */
+    public static async createUserWithConfirmation({ email, groupId }: { email: string; groupId: string }) {
+      // Checking duplicated email
+      await Users.checkDuplication({ email });
+
+      if (!(await UsersGroups.findOne({ _id: groupId }))) {
+        throw new Error('Invalid group');
+      }
+
+      const { token, expires } = await User.generateToken();
+
       await Users.create({
         email,
+        groupIds: [groupId],
         registrationToken: token,
-        registrationTokenExpires: Date.now() + 86400000,
+        registrationTokenExpires: expires,
       });
+
+      return token;
+    }
+
+    /**
+     * Resend invitation
+     */
+    public static async resendInvitation({ email }: { email: string }) {
+      const user = await Users.findOne({ email });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (!user.registrationToken) {
+        throw new Error('Invalid request');
+      }
+
+      const { token, expires } = await Users.generateToken();
+
+      await Users.updateOne(
+        { email },
+        {
+          registrationToken: token,
+          registrationTokenExpires: expires,
+        },
+      );
 
       return token;
     }
@@ -301,14 +347,8 @@ export const loadClass = () => {
         return Users.findOne({ _id });
       }
 
-      if (user.registrationToken) {
-        await Users.remove({ _id });
-
-        return user;
-      }
-
       if (user.isOwner) {
-        throw new Error('Can not remove owner');
+        throw new Error('Can not deactivate owner');
       }
 
       await Users.updateOne({ _id }, { $set: { isActive: false } });
@@ -443,7 +483,6 @@ export const loadClass = () => {
         _id: _user._id,
         email: _user.email,
         details: _user.details,
-        role: _user.role,
         isOwner: _user.isOwner,
       };
 
@@ -492,7 +531,15 @@ export const loadClass = () => {
     /*
      * Validates user credentials and generates tokens
      */
-    public static async login({ email, password }: { email: string; password: string }) {
+    public static async login({
+      email,
+      password,
+      deviceToken,
+    }: {
+      email: string;
+      password: string;
+      deviceToken?: string;
+    }) {
       const user = await Users.findOne({
         $or: [{ email: { $regex: new RegExp(email, 'i') } }, { username: { $regex: new RegExp(email, 'i') } }],
       });
@@ -511,6 +558,16 @@ export const loadClass = () => {
 
       // create tokens
       const [token, refreshToken] = await this.createTokens(user, this.getSecret());
+
+      if (deviceToken) {
+        const deviceTokens: string[] = user.deviceTokens || [];
+
+        if (!deviceTokens.includes(deviceToken)) {
+          deviceTokens.push(deviceToken);
+
+          await user.update({ $set: { deviceTokens } });
+        }
+      }
 
       return {
         token,

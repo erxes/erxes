@@ -7,29 +7,7 @@ import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IUserDocument } from '../db/models/definitions/users';
 import EmailDeliveries from '../db/models/EmailDeliveries';
 import { utils } from './gmailTracker';
-
-interface IAttachmentParams {
-  data: string;
-  filename: string;
-  size: number;
-  mimeType: string;
-}
-
-interface IMailParams {
-  integrationId: string;
-  cocType: string;
-  cocId: string;
-  subject: string;
-  body: string;
-  toEmails: string;
-  cc?: string;
-  bcc?: string;
-  attachments?: IAttachmentParams[];
-  references?: string;
-  headerId?: string;
-  threadId?: string;
-  fromEmail?: string;
-}
+import { IMailParams } from './types';
 
 /**
  * Create string sequence that generates email body encrypted to base64
@@ -122,7 +100,7 @@ export const sendGmail = async (mailParams: IMailParams, user: IUserDocument) =>
   const emailDelivery = {
     fromEmail,
     cocType: mailParams.cocType,
-    cocId: mailParams.cocId,
+    cocId: mailParams.cocId || '',
     subject: mailParams.subject,
     body: mailParams.body,
     toEmails: mailParams.toEmails,
@@ -299,8 +277,7 @@ export const getOrCreateCustomer = async (integrationId: string, email: string) 
     }
   }
 
-  const customer = await Customers.findOne({ emails: { $in: [primaryEmail] } });
-
+  const customer = await Customers.findOne({ $or: [{ emails: { $in: [primaryEmail] } }, { primaryEmail }] });
   if (customer) {
     return customer;
   }

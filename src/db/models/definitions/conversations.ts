@@ -178,7 +178,7 @@ const gmailSchema = new Schema(
 export const conversationSchema = new Schema({
   _id: field({ pkey: true }),
   content: field({ type: String }),
-  integrationId: field({ type: String }),
+  integrationId: field({ type: String, index: true }),
   customerId: field({ type: String }),
   userId: field({ type: String }),
   assignedUserId: field({ type: String }),
@@ -200,6 +200,7 @@ export const conversationSchema = new Schema({
   status: field({
     type: String,
     enum: CONVERSATION_STATUSES.ALL,
+    index: true,
   }),
   messageCount: field({ type: Number }),
   tagIds: field({ type: [String] }),

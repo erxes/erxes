@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { validateEmail } from '../../data/utils';
-import { Conversations, Deals, EngageMessages, Fields, InternalNotes } from './';
+import { ActivityLogs, Conversations, Deals, EngageMessages, Fields, InternalNotes } from './';
 import { CUSTOMER_BASIC_INFOS, STATUSES } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument, IFacebookData, ITwitterData } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
@@ -133,11 +133,16 @@ export const loadClass = () => {
         doc.hasValidEmail = true;
       }
 
-      return Customers.create({
+      const customer = await Customers.create({
         createdAt: new Date(),
         modifiedAt: new Date(),
         ...doc,
       });
+
+      // create log
+      await ActivityLogs.createCustomerLog(customer);
+
+      return customer;
     }
 
     /*
@@ -282,6 +287,9 @@ export const loadClass = () => {
       await EngageMessages.changeCustomer(customer._id, customerIds);
       await InternalNotes.changeCustomer(customer._id, customerIds);
       await Deals.changeCustomer(customer._id, customerIds);
+
+      // create log
+      await ActivityLogs.createCustomerLog(customer);
 
       return customer;
     }

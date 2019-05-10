@@ -196,11 +196,6 @@ export const COC_LIFECYCLE_STATE_TYPES = [
   'other',
 ];
 
-export const ROLES = {
-  ADMIN: 'admin',
-  CONTRIBUTOR: 'contributor',
-};
-
 export const PUBLISH_STATUSES = {
   DRAFT: 'draft',
   PUBLISH: 'publish',
@@ -293,9 +288,9 @@ export const COMPANY_BASIC_INFOS = [
 ];
 
 export const INSIGHT_BASIC_INFOS = {
-  count: 'Conversations by customer count',
+  count: 'Customer count',
   messageCount: 'Conversation message count',
-  customerCount: 'Customer count',
+  customerCount: 'Conversations by customer count',
   customerCountPercentage: 'Customer Count Percentage',
   resolvedCount: 'Resolved conversation',
   averageResponseDuration: 'Average duration of total',
@@ -328,3 +323,9 @@ export const PROBABILITY = {
 };
 
 export const FACEBOOK_POST_TYPES = ['status', 'video', 'photo', 'post', 'share'];
+
+export const INSIGHT_TYPES = {
+  DEAL: 'deal',
+  CONVERSATION: 'conversation',
+  ALL: ['deal', 'conversation'],
+};

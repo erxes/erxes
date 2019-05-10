@@ -11,9 +11,13 @@ interface IListArgs {
 }
 
 const queryBuilder = async (params: IListArgs) => {
-  const selector: any = {};
+  const { searchValue, isActive } = params;
 
-  if (params.searchValue) {
+  const selector: any = {
+    isActive,
+  };
+
+  if (searchValue) {
     const fields = [
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') },
@@ -22,8 +26,8 @@ const queryBuilder = async (params: IListArgs) => {
     selector.$or = fields;
   }
 
-  if (params.isActive !== undefined && params.isActive !== null) {
-    selector.isActive = params.isActive;
+  if (isActive === undefined || isActive === null) {
+    selector.isActive = true;
   }
 
   return selector;

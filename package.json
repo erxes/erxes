@@ -1,6 +1,6 @@
 {
   "name": "erxes-api",
-  "version": "0.9.14",
+  "version": "0.9.15",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-api",
@@ -16,7 +16,7 @@
   "scripts": {
     "start": "node dist",
     "dev": "NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src",
-    "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/private",
+    "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/",
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@google-cloud/pubsub": "0.18.0",
+    "@google-cloud/storage": "^2.5.0",
     "apollo-server-express": "^2.3.1",
     "aws-sdk": "^2.151.0",
     "bcrypt": "^3.0.2",
@@ -57,6 +58,7 @@
     "express": "^4.15.2",
     "fbgraph": "^1.4.1",
     "file-type": "^10.4.0",
+    "firebase-admin": "^7.2.0",
     "formidable": "^1.1.1",
     "git-repo-info": "2.0.0",
     "googleapis": "^33.0.0",

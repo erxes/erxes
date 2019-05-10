@@ -22,7 +22,6 @@ describe('userQueries', () => {
           _id
           username
           email
-          role
           details {
             avatar
             fullName

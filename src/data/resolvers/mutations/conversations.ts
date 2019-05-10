@@ -1,16 +1,23 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Customers, Integrations } from '../../../db/models';
-import { CONVERSATION_STATUSES, KIND_CHOICES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import {
+  ACTIVITY_CONTENT_TYPES,
+  CONVERSATION_STATUSES,
+  KIND_CHOICES,
+  NOTIFICATION_TYPES,
+} from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { graphqlPubsub } from '../../../pubsub';
 import { facebookReply, IFacebookReply } from '../../../trackers/facebook';
+import { sendGmail } from '../../../trackers/gmail';
 import { favorite, retweet, tweet, tweetReply } from '../../../trackers/twitter';
+import { IMailParams } from '../../../trackers/types';
 import { checkPermission, requireLogin } from '../../permissions';
 import utils from '../../utils';
-import { pubsub } from '../subscriptions';
 
 interface IConversationMessageAdd {
   conversationId: string;
@@ -26,7 +33,11 @@ interface IConversationMessageAdd {
 /**
  * conversation notrification receiver ids
  */
-export const conversationNotifReceivers = (conversation: IConversationDocument, currentUserId: string): string[] => {
+export const conversationNotifReceivers = (
+  conversation: IConversationDocument,
+  currentUserId: string,
+  exclude: boolean = true,
+): string[] => {
   let userIds: string[] = [];
 
   // assigned user can get notifications
@@ -40,7 +51,9 @@ export const conversationNotifReceivers = (conversation: IConversationDocument, 
   }
 
   // exclude current user
-  userIds = _.without(userIds, currentUserId);
+  if (exclude) {
+    userIds = _.without(userIds, currentUserId);
+  }
 
   return userIds;
 };
@@ -51,7 +64,7 @@ export const conversationNotifReceivers = (conversation: IConversationDocument, 
  */
 export const publishConversationsChanged = (_ids: string[], type: string): string[] => {
   for (const _id of _ids) {
-    pubsub.publish('conversationChanged', {
+    graphqlPubsub.publish('conversationChanged', {
       conversationChanged: { conversationId: _id, type },
     });
   }
@@ -67,7 +80,7 @@ export const publishMessage = (message?: IMessageDocument | null, customerId?: s
     return;
   }
 
-  pubsub.publish('conversationMessageInserted', {
+  graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
   });
 
@@ -77,39 +90,20 @@ export const publishMessage = (message?: IMessageDocument | null, customerId?: s
     const extendedMessage = message.toJSON();
     extendedMessage.customerId = customerId;
 
-    pubsub.publish('conversationAdminMessageInserted', {
+    graphqlPubsub.publish('conversationAdminMessageInserted', {
       conversationAdminMessageInserted: extendedMessage,
     });
   }
 };
-/**
- * Publish conversation client message inserted
- */
+
 export const publishClientMessage = (message: IMessageDocument) => {
   // notifying to total unread count
-  pubsub.publish('conversationClientMessageInserted', {
+  graphqlPubsub.publish('conversationClientMessageInserted', {
     conversationClientMessageInserted: message,
   });
 };
 
 const conversationMutations = {
-  /**
-   * Calling this mutation from widget api run new message subscription
-   */
-  async conversationPublishClientMessage(_root, { _id }: { _id: string }) {
-    const message = await ConversationMessages.findOne({ _id });
-
-    if (!message) {
-      throw new Error('Message not found');
-    }
-
-    // notifying to conversationd detail
-    publishMessage(message);
-
-    // notifying to total unread count
-    publishClientMessage(message);
-  },
-
   /**
    * Create new message in conversation
    */
@@ -140,6 +134,14 @@ const conversationMutations = {
       content: doc.content,
       link: `/inbox?_id=${conversation._id}`,
       receivers: conversationNotifReceivers(conversation, user._id),
+    });
+
+    // send mobile notification ======
+    utils.sendMobileNotification({
+      title,
+      body: strip(doc.content),
+      receivers: conversationNotifReceivers(conversation, user._id, false),
+      customerId: conversation.customerId,
     });
 
     // do not send internal message to third service integrations
@@ -180,6 +182,33 @@ const conversationMutations = {
           data: doc.content,
         },
       });
+    }
+
+    if (kind === KIND_CHOICES.GMAIL) {
+      const firstMessage = await ConversationMessages.findOne({ conversationId: conversation._id }).sort({
+        createdAt: 1,
+      });
+
+      if (firstMessage && firstMessage.gmailData) {
+        const gmailData = firstMessage.gmailData;
+
+        const args: IMailParams = {
+          integrationId: integration._id,
+          cocType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+          cocId: conversation.customerId || '',
+          subject: `Re: ${gmailData.subject}`,
+          body: doc.content,
+          toEmails: gmailData.from,
+          cc: gmailData.cc || '',
+          bcc: gmailData.bcc || '',
+          headerId: gmailData.headerId,
+          threadId: gmailData.threadId,
+        };
+
+        await sendGmail(args, user);
+      }
+
+      return null;
     }
 
     const message = await ConversationMessages.addMessage(doc, user._id);

@@ -28,7 +28,7 @@ describe('form and formField mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({ role: 'admin' });
+    _user = await userFactory({});
     _form = await formFactory({});
 
     context = { user: _user };

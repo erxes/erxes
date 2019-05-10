@@ -54,7 +54,16 @@ const countBySegment = async (qb: any, mainQuery: any): Promise<ICountBy> => {
 
   // Count customers by segment
   for (const s of segments) {
-    counts[s._id] = await count(await qb.segmentFilter(s._id), mainQuery);
+    try {
+      counts[s._id] = await count(await qb.segmentFilter(s._id), mainQuery);
+    } catch (e) {
+      // catch mongo error
+      if (e.name === 'CastError') {
+        counts[s._id] = 0;
+      } else {
+        throw new Error(e);
+      }
+    }
   }
 
   return counts;

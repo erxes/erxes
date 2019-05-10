@@ -171,11 +171,6 @@ export const ACTIVITY_CONTENT_TYPES = {
   ALL: ['customer', 'company', 'user', 'deal'],
 };
 
-export const ROLES = {
-  ADMIN: 'admin',
-  CONTRIBUTOR: 'contributor',
-};
-
 export const PUBLISH_STATUSES = {
   DRAFT: 'draft',
   PUBLISH: 'publish',
