@@ -330,7 +330,7 @@ const FilterBox = styled.div`
   transition: 0.3s;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 10px 0px;
   border-radius: 10px 0 0 10px;
-  z-index: 1;
+  z-index: 42;
   -webkit-transition: all 1s ease;
   -moz-transition: all 1s ease;
   -o-transition: all 1s ease;
