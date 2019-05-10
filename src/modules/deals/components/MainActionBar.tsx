@@ -5,6 +5,7 @@ import {
   DropdownToggle,
   EmptyState,
   FormControl,
+  FormGroup,
   Icon,
   Tip
 } from 'modules/common/components';
@@ -12,7 +13,6 @@ import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
-import { FlexItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import * as moment from 'moment';
 import * as React from 'react';
@@ -310,26 +310,38 @@ class MainActionBar extends React.Component<Props, State> {
           multi={true}
         />
 
-        <div>
-          <FlexItem>
+        <div className="date-filter">
+          <h5>{__('Filter by date')}</h5>
+          <FormGroup>
             <ControlLabel>Start date</ControlLabel>
             <Datetime
               {...dateProps}
               value={this.state.startDate}
               onBlur={this.onFilterByDate.bind(this, 'startDate')}
               onChange={this.onDateInputChange.bind(this, 'startDate')}
+              className="date-form"
             />
-          </FlexItem>
-          <FlexItem>
+            <div className="clear-date">
+              <Tip text={__('Delete')}>
+                <Button btnStyle="link" icon="cancel-1" />
+              </Tip>
+            </div>
+          </FormGroup>
+          <FormGroup>
             <ControlLabel>End date</ControlLabel>
             <Datetime
               {...dateProps}
               value={this.state.endDate}
               onBlur={this.onFilterByDate.bind(this, 'endDate')}
               onChange={this.onDateInputChange.bind(this, 'endDate')}
+              className="date-form"
             />
-          </FlexItem>
-          {/* <Button onClick={this.onChangeDate()}>Filter</Button> */}
+            <div className="clear-date">
+              <Tip text={__('Delete')}>
+                <Button btnStyle="link" icon="cancel-1" />
+              </Tip>
+            </div>
+          </FormGroup>
         </div>
       </FilterBox>
     );

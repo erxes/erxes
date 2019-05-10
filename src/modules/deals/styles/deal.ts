@@ -325,7 +325,7 @@ const FilterBox = styled.div`
   top: 120px;
   right: 0;
   background: #fff;
-  padding: 10px 30px 30px;
+  padding: 10px 30px 10px;
   width: 300px;
   transition: 0.3s;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 10px 0px;
@@ -343,6 +343,31 @@ const FilterBox = styled.div`
   }
   .Select {
     margin-bottom: 10px;
+  }
+  .date-form input {
+    display: block;
+    border: none;
+    width: 100%;
+    height: 34px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    font-size: 12px;
+  }
+  .date-filter {
+    h5 {
+      text-align: center;
+      margin-top: 25px;
+    }
+  }
+  .clear-date {
+    button {
+      position: absolute;
+      right: -10px;
+      bottom: 0px;
+    }
   }
 `;
 export {
