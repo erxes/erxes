@@ -6,7 +6,7 @@ import {
   ModifiableList
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { IField, IFieldGroup } from '../types';
 
@@ -94,6 +94,14 @@ class PropertyForm extends React.Component<Props, State> {
       groupId
     };
 
+    if (!groupId) {
+      return Alert.error('Choose group!');
+    }
+
+    if (!type) {
+      return Alert.error('Insert type!');
+    }
+
     if (field) {
       edit({ _id: field._id, doc });
     } else {
@@ -146,8 +154,13 @@ class PropertyForm extends React.Component<Props, State> {
     return (
       <form onSubmit={this.onSubmit}>
         <FormGroup>
-          <ControlLabel>Name:</ControlLabel>
-          <FormControl type="text" id="text" defaultValue={field.text || ''} />
+          <ControlLabel required={true}>Name:</ControlLabel>
+          <FormControl
+            type="text"
+            id="text"
+            defaultValue={field.text || ''}
+            required={true}
+          />
         </FormGroup>
 
         <FormGroup>
@@ -160,7 +173,7 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Group:</ControlLabel>
+          <ControlLabel required={true}>Group:</ControlLabel>
           <FormControl
             id="groupId"
             componentClass="select"
@@ -179,7 +192,7 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Type:</ControlLabel>
+          <ControlLabel required={true}>Type:</ControlLabel>
 
           <FormControl
             componentClass="select"
