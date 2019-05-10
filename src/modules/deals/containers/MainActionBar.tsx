@@ -178,13 +178,9 @@ const MainActionBar = withProps<Props>(
       {
         name: 'boardDetailQuery',
         skip: props => !getBoardId(props),
-        options: props => {
-          return {
-            variables: {
-              _id: getBoardId(props)
-            }
-          };
-        }
+        options: props => ({
+          variables: { _id: getBoardId(props) }
+        })
       }
     ),
     graphql<Props, UsersQueryResponse>(gql(queries.users), {

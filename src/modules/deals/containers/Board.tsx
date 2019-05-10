@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { EmptyState, Spinner } from 'modules/common/components';
+import { EmptyState } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
