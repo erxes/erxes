@@ -70,13 +70,15 @@ const pipelineGetLast = `
 
 const stages = `
   query dealStages(
-      $pipelineId: String!, 
-      $search: String,
-      $customerIds: [String],
-      $companyIds: [String],
-      $assignedUserIds: [String],
-      $productIds: [String]
-    ) {
+    $pipelineId: String!, 
+    $search: String,
+    $customerIds: [String],
+    $companyIds: [String],
+    $assignedUserIds: [String],
+    $productIds: [String]
+    $startDate: String
+    $endDate: String
+  ) {
     dealStages(
       pipelineId: $pipelineId, 
       search: $search
@@ -84,6 +86,8 @@ const stages = `
       companyIds: $companyIds,
       assignedUserIds: $assignedUserIds,
       productIds: $productIds
+      startDate: $startDate
+      endDate: $endDate
     ) {
       _id
       name
@@ -148,13 +152,15 @@ const dealFields = `
 
 const dealsTotalAmounts = `
   query dealsTotalAmounts(
-      $date: DealDate 
-      $pipelineId: String
-      $customerIds: [String]
-      $companyIds: [String]
-      $assignedUserIds: [String]
-      $productIds: [String]
-    ) {
+    $date: DealDate 
+    $pipelineId: String
+    $customerIds: [String]
+    $companyIds: [String]
+    $assignedUserIds: [String]
+    $productIds: [String]
+    $startDate: String
+    $endDate: String
+  ) {
     dealsTotalAmounts(
       date: $date 
       pipelineId: $pipelineId
@@ -162,6 +168,8 @@ const dealsTotalAmounts = `
       companyIds: $companyIds,
       assignedUserIds: $assignedUserIds,
       productIds: $productIds
+      startDate: $startDate
+      endDate: $endDate
     ) {
       _id
       dealCount
@@ -185,6 +193,8 @@ const deals = `
     $companyIds: [String]
     $assignedUserIds: [String]
     $productIds: [String]
+    $startDate: String
+    $endDate: String
   ) {
     deals(
       pipelineId: $pipelineId,
@@ -196,6 +206,8 @@ const deals = `
       customerIds: $customerIds
       assignedUserIds: $assignedUserIds
       productIds: $productIds
+      startDate: $startDate
+      endDate: $endDate
     ) {
       ${dealFields}
     }

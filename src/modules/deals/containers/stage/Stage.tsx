@@ -25,6 +25,8 @@ type WrapperProps = {
   companyIds?: string[];
   assignedUserIds?: string[];
   productIds?: string[];
+  startDate?: string;
+  endDate?: string;
 };
 
 type StageProps = {
@@ -65,9 +67,19 @@ class StageContainer extends React.PureComponent<
       assignedUserIds,
       companyIds,
       customerIds,
-      productIds
+      productIds,
+      startDate,
+      endDate
     } = this.props;
-    return { search, assignedUserIds, companyIds, customerIds, productIds };
+    return {
+      search,
+      startDate,
+      endDate,
+      assignedUserIds,
+      companyIds,
+      customerIds,
+      productIds
+    };
   }
 
   loadMore = () => {
@@ -145,6 +157,8 @@ const WithData = withProps<StageProps>(
         customerIds,
         companyIds,
         productIds,
+        startDate,
+        endDate,
         loadingState
       }) => ({
         variables: {
@@ -153,6 +167,8 @@ const WithData = withProps<StageProps>(
           companyIds,
           customerIds,
           assignedUserIds,
+          startDate,
+          endDate,
           productIds
         },
         fetchPolicy:

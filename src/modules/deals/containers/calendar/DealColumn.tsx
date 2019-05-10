@@ -103,6 +103,21 @@ type Props = {
   onColumnUpdated: (date: IDateColumn) => void;
 };
 
+const getCommonParams = queryParams => {
+  if (!queryParams) {
+    return {};
+  }
+
+  return {
+    customerIds: queryParams.customerIds,
+    companyIds: queryParams.companyIds,
+    assignedUserIds: queryParams.assignedUserIds,
+    productIds: queryParams.productIds,
+    startDate: queryParams.startDate,
+    endDate: queryParams.startDate
+  };
+};
+
 export default withProps<Props>(
   compose(
     graphql<Props, DealsQueryResponse, { skip: number; date: IDateColumn }>(
@@ -110,18 +125,13 @@ export default withProps<Props>(
       {
         name: 'dealsQuery',
         options: ({ date, pipelineId, queryParams }: Props) => {
-          //tslint:disable
-          console.log(queryParams);
           return {
             notifyOnNetworkStatusChange: true,
             variables: {
               skip: 0,
               date,
               pipelineId,
-              customerIds: queryParams.customerIds,
-              companyIds: queryParams.companyIds,
-              assignedUserIds: queryParams.assignedUserIds,
-              productIds: queryParams.productIds
+              ...getCommonParams(queryParams)
             }
           };
         }
@@ -135,10 +145,7 @@ export default withProps<Props>(
           variables: {
             date,
             pipelineId,
-            customerIds: queryParams.customerIds,
-            companyIds: queryParams.companyIds,
-            assignedUserIds: queryParams.assignedUserIds,
-            productIds: queryParams.productIds
+            ...getCommonParams(queryParams)
           }
         })
       }

@@ -320,7 +320,31 @@ const UserCounterContainer = styled.ul`
     }
   }
 `;
-
+const FilterBox = styled.div`
+  position: fixed;
+  top: 120px;
+  right: 0;
+  background: #fff;
+  padding: 10px 30px 30px;
+  width: 300px;
+  transition: 0.3s;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 10px 0px;
+  border-radius: 10px 0 0 10px;
+  z-index: 1;
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  -o-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  transition: all 1s ease;
+  h4 {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .Select {
+    margin-bottom: 10px;
+  }
+`;
 export {
   Deal,
   SpaceContent,
@@ -348,5 +372,6 @@ export {
   UserCounterContainer,
   PriceContainer,
   Right,
-  Footer
+  Footer,
+  FilterBox
 };

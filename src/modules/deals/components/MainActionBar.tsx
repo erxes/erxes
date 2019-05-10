@@ -7,16 +7,19 @@ import {
   Icon,
   Tip
 } from 'modules/common/components';
+import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import { FlexItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
+import * as moment from 'moment';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
+import * as Datetime from 'react-datetime';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import { Avatar, SelectOption, SelectValue } from '../styles/deal';
+import { Avatar, FilterBox, SelectOption, SelectValue } from '../styles/deal';
 import {
   ButtonGroup,
   HeaderButton,
@@ -25,7 +28,6 @@ import {
   HeaderLink,
   PageHeader
 } from '../styles/header';
-
 import { IBoard, IPipeline } from '../types';
 import {
   selectCompanyOptions,
@@ -50,11 +52,36 @@ type Props = {
   assignedUserIds?: string[];
 };
 
+type State = {
+  startDate: string;
+  endDate: string;
+  isHidden: boolean;
+};
+
 // get selected deal type from URL
 const getType = () =>
   window.location.href.includes('calendar') ? 'calendar' : 'board';
 
-class MainActionBar extends React.Component<Props> {
+class MainActionBar extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    let { startDate, endDate } = props.queryParams;
+
+    if (!startDate && !endDate) {
+      startDate = moment()
+        .add(-props.days, 'days')
+        .format('YYYY-MM-DD HH:mm');
+      endDate = moment().format('YYYY-MM-DD HH:mm');
+    }
+
+    this.state = {
+      startDate,
+      endDate,
+      isHidden: true
+    };
+  }
+
   onSearch = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;
@@ -77,6 +104,18 @@ class MainActionBar extends React.Component<Props> {
   onSelectChange(name: string, values: [string]) {
     this.props.onSelect(name, values);
   }
+
+  onDateInputChange = (type: string, date) => {
+    const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : null;
+
+    // this.setState({ [type]: formatDate } as Pick<State, keyof State>);
+
+    this.props.onSelect(type, formatDate);
+  };
+
+  toggleHidden = () => {
+    this.setState({ isHidden: !this.state.isHidden });
+  };
 
   renderBoards() {
     const { currentBoard, boards } = this.props;
@@ -146,9 +185,14 @@ class MainActionBar extends React.Component<Props> {
       users,
       customers,
       companies,
-      products,
-      assignedUserIds
+      products
     } = this.props;
+
+    const dateProps = {
+      inputProps: { placeholder: 'Click to select a date' },
+      timeFormat: 'HH:mm',
+      dateFormat: 'YYYY/MM/DD'
+    };
 
     const content = option => (
       <React.Fragment>
@@ -156,12 +200,6 @@ class MainActionBar extends React.Component<Props> {
         {option.label}
       </React.Fragment>
     );
-
-    const userOption = option => (
-      <SelectOption className="simple-option">{content(option)}</SelectOption>
-    );
-
-    const userValue = option => <SelectValue>{content(option)}</SelectValue>;
 
     const boardLink = this.onFilterClick('board');
     const calendarLink = this.onFilterClick('calendar');
@@ -213,10 +251,9 @@ class MainActionBar extends React.Component<Props> {
       </HeaderItems>
     );
 
-    const actionBarRight = (
-      <HeaderItems>
-        {middleContent && middleContent()}
-
+    const DealFilter = () => (
+      <FilterBox>
+        <h4>{__('Filter')}</h4>
         <Select
           placeholder={__('Choose team members')}
           value={queryParams.assignedUserIds}
@@ -261,6 +298,31 @@ class MainActionBar extends React.Component<Props> {
           multi={true}
         />
 
+        <div>
+          <FlexItem>
+            <ControlLabel>Start date</ControlLabel>
+            <Datetime
+              {...dateProps}
+              value={this.state.startDate}
+              onChange={this.onDateInputChange.bind(this, 'startDate')}
+            />
+          </FlexItem>
+          <FlexItem>
+            <ControlLabel>End date</ControlLabel>
+            <Datetime
+              {...dateProps}
+              value={this.state.endDate}
+              onChange={this.onDateInputChange.bind(this, 'endDate')}
+            />
+          </FlexItem>
+        </div>
+      </FilterBox>
+    );
+
+    const actionBarRight = (
+      <HeaderItems>
+        {middleContent && middleContent()}
+
         <div style={{ display: 'inline-block' }}>
           <FormControl
             defaultValue={queryParams.search}
@@ -269,6 +331,14 @@ class MainActionBar extends React.Component<Props> {
             autoFocus={true}
           />
         </div>
+        <HeaderLink>
+          <Tip text={__('Filter')}>
+            <div onClick={this.toggleHidden} className="filter-button">
+              <Icon icon="filter" />
+            </div>
+          </Tip>
+        </HeaderLink>
+        {!this.state.isHidden && <DealFilter />}
         <ButtonGroup>
           <Link
             to={boardLink}
