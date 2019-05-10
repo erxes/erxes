@@ -70,13 +70,29 @@ export class PipelineProvider extends React.Component<Props, State> {
 
   componentWillReceiveProps(nextProps: Props) {
     const {
-      queryParams: { search }
+      queryParams: {
+        search,
+        assignedUserIds,
+        customerIds,
+        companyIds,
+        productIds
+      }
     } = this.props;
 
     const nextSearch = nextProps.queryParams.search;
+    const nextAssignedUserIds = nextProps.queryParams.assignedUserIds;
+    const nextCustomerIds = nextProps.queryParams.customerIds;
+    const nextCompanyIds = nextProps.queryParams.companyIds;
+    const nextProductIds = nextProps.queryParams.productIds;
 
     // Reset deals on search parameter change
-    if (search !== nextSearch) {
+    if (
+      search !== nextSearch ||
+      assignedUserIds !== nextAssignedUserIds ||
+      customerIds !== nextCustomerIds ||
+      companyIds !== nextCompanyIds ||
+      productIds !== nextProductIds
+    ) {
       const { stageIds } = this.state;
 
       PipelineProvider.tasks = [];

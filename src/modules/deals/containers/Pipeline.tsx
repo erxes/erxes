@@ -76,6 +76,10 @@ class WithStages extends React.Component<Props, {}> {
                           stage={stage}
                           deals={dealMap[stageId]}
                           search={queryParams.search}
+                          assignedUserIds={queryParams.assignedUserIds}
+                          customerIds={queryParams.customerIds}
+                          companyIds={queryParams.companyIds}
+                          productIds={queryParams.productIds}
                           loadingState={stageLoadMap[stageId]}
                         />
                       );

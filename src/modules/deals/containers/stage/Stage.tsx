@@ -23,6 +23,8 @@ type WrapperProps = {
   search?: string;
   customerIds?: string[];
   companyIds?: string[];
+  assignedUserIds?: string[];
+  productIds?: string[];
 };
 
 type StageProps = {
@@ -57,8 +59,19 @@ class StageContainer extends React.PureComponent<
     scheduleStage(stage._id);
   }
 
+  generateFilterParams() {
+    const {
+      search,
+      assignedUserIds,
+      companyIds,
+      customerIds,
+      productIds
+    } = this.props;
+    return { search, assignedUserIds, companyIds, customerIds, productIds };
+  }
+
   loadMore = () => {
-    const { onLoad, stage, deals, search } = this.props;
+    const { onLoad, stage, deals } = this.props;
 
     if (deals.length === stage.dealsTotalCount) {
       return;
@@ -69,8 +82,8 @@ class StageContainer extends React.PureComponent<
         query: gql(queries.deals),
         variables: {
           stageId: stage._id,
-          search,
-          skip: deals.length
+          skip: deals.length,
+          ...this.generateFilterParams()
         }
       })
       .then(({ data }: any) => {
@@ -125,12 +138,22 @@ const WithData = withProps<StageProps>(
     graphql<StageProps>(gql(queries.deals), {
       name: 'dealsQuery',
       skip: ({ loadingState }) => loadingState !== 'readyToLoad',
-      options: ({ stage, search, customerIds, companyIds, loadingState }) => ({
+      options: ({
+        stage,
+        search,
+        assignedUserIds,
+        customerIds,
+        companyIds,
+        productIds,
+        loadingState
+      }) => ({
         variables: {
           stageId: stage._id,
           search,
           companyIds,
-          customerIds
+          customerIds,
+          assignedUserIds,
+          productIds
         },
         fetchPolicy:
           loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',

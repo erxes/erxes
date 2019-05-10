@@ -155,6 +155,8 @@ const deals = `
     $search: String
     $customerIds: [String]
     $companyIds: [String]
+    $assignedUserIds: [String]
+    $productIds: [String]
   ) {
     deals(
       pipelineId: $pipelineId,
@@ -163,6 +165,9 @@ const deals = `
       skip: $skip,
       search: $search
       companyIds: $companyIds
+      customerIds: $customerIds
+      assignedUserIds: $assignedUserIds
+      productIds: $productIds
     ) {
       ${dealFields}
     }

@@ -1,6 +1,9 @@
 import { Tip } from 'modules/common/components';
+import { ICompany } from 'modules/companies/types';
+import { ICustomer } from 'modules/customers/types';
 import { DealDate } from 'modules/deals/styles/deal';
 import { Amount } from 'modules/deals/styles/stage';
+import { IProduct } from 'modules/settings/productService/types';
 import * as moment from 'moment';
 import * as React from 'react';
 import { IUser, IUserDetails } from '../auth/types';
@@ -17,6 +20,18 @@ type Options = {
 // get options for react-select-plus
 export function selectOptions(array: Options[] = []) {
   return array.map(item => ({ value: item._id, label: item.name }));
+}
+
+// get config options for react-select-plus
+export function selectProductOptions(array: any) {
+  return array.map(item => {
+    const product = item || ({} as IProduct);
+
+    return {
+      value: product._id,
+      label: product.name
+    };
+  });
 }
 
 // get config options for react-select-plus
@@ -37,6 +52,32 @@ export function selectUserOptions(array: IUser[] = []) {
       value: user._id,
       label: details.fullName || user.email,
       avatar: details.avatar
+    };
+  });
+}
+
+// get customer options for react-select-plus
+export function selectCustomerOptions(array: ICustomer[] = []) {
+  return array.map(item => {
+    const customer = item || ({} as ICustomer);
+
+    return {
+      value: customer._id,
+      label: customer.firstName || customer.emails,
+      avatar: customer.avatar
+    };
+  });
+}
+
+// get company options for react-select-plus
+export function selectCompanyOptions(array: ICompany[] = []) {
+  return array.map(item => {
+    const company = item || ({} as ICompany);
+
+    return {
+      value: company._id,
+      label: company.primaryName,
+      avatar: company.avatar
     };
   });
 }

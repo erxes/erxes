@@ -1,6 +1,12 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
+import { queries as companyQueries } from 'modules/companies/graphql';
+import { CompaniesQueryResponse } from 'modules/companies/types';
+import { queries as customerQueries } from 'modules/customers/graphql';
+import { CustomersQueryResponse } from 'modules/customers/types';
+import { queries as productQueries } from 'modules/settings/productService/graphql';
+import { UsersQueryResponse } from 'modules/settings/team/types';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -13,7 +19,7 @@ import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
   BoardsQueryResponse,
-  IPipeline
+  ProductsQueryResponse
 } from '../types';
 
 type Props = {
@@ -24,6 +30,10 @@ type FinalProps = {
   boardsQuery: BoardsQueryResponse;
   boardGetLastQuery?: BoardsGetLastQueryResponse;
   boardDetailQuery?: BoardDetailQueryResponse;
+  usersQuery?: UsersQueryResponse;
+  customersQuery?: CustomersQueryResponse;
+  companiesQueries?: CompaniesQueryResponse;
+  productsQuery?: ProductsQueryResponse;
 } & Props;
 
 const getBoardId = ({ location }) => {
@@ -39,6 +49,10 @@ class Main extends React.Component<FinalProps> {
     routerUtils.setParams(this.props.history, { search });
   };
 
+  onSelect = (name: string, values: string) => {
+    routerUtils.setParams(this.props.history, { [name]: values });
+  };
+
   render() {
     const {
       history,
@@ -46,6 +60,10 @@ class Main extends React.Component<FinalProps> {
       boardsQuery,
       boardGetLastQuery,
       boardDetailQuery,
+      usersQuery,
+      customersQuery,
+      companiesQueries,
+      productsQuery,
       middleContent
     } = this.props;
 
@@ -56,6 +74,11 @@ class Main extends React.Component<FinalProps> {
     const queryParams = generateQueryParams({ location });
     const boardId = getBoardId({ location });
     const { pipelineId } = queryParams;
+
+    const users = usersQuery ? usersQuery.users : [];
+    const customers = customersQuery ? customersQuery.customers : [];
+    const companies = companiesQueries ? companiesQueries.companies : [];
+    const products = productsQuery ? productsQuery.products : [];
 
     if (boardId && pipelineId) {
       localStorage.setItem(STORAGE_BOARD_KEY, boardId);
@@ -107,11 +130,16 @@ class Main extends React.Component<FinalProps> {
       <DumbMainActionBar
         middleContent={middleContent}
         onSearch={this.onSearch}
+        onSelect={this.onSelect}
         queryParams={queryParams}
         history={history}
         currentBoard={currentBoard}
         currentPipeline={currentPipeline}
         boards={boardsQuery.dealBoards || []}
+        users={users}
+        customers={customers}
+        companies={companies}
+        products={products}
       />
     );
   }
@@ -129,6 +157,18 @@ const MainActionBar = withProps<Props>(
     graphql<Props, BoardsGetLastQueryResponse>(gql(queries.boardGetLast), {
       name: 'boardGetLastQuery',
       skip: getBoardId
+    }),
+    graphql<Props, UsersQueryResponse>(gql(queries.users), {
+      name: 'usersQuery'
+    }),
+    graphql<Props, CustomersQueryResponse>(gql(customerQueries.customers), {
+      name: 'customersQuery'
+    }),
+    graphql<Props, CompaniesQueryResponse>(gql(companyQueries.companies), {
+      name: 'companiesQueries'
+    }),
+    graphql<{}, ProductsQueryResponse>(gql(productQueries.products), {
+      name: 'productsQuery'
     }),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
