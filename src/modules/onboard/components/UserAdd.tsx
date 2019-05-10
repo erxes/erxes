@@ -191,7 +191,7 @@ class UserAdd extends React.Component<Props, State> {
           <h2>{__(`Let's grow your team`)}</h2>
           <FlexRow>
             <ControlLabel>Email address</ControlLabel>
-            <ControlLabel>Choose Group</ControlLabel>
+            <ControlLabel>Permission</ControlLabel>
           </FlexRow>
           {this.renderContent()}
         </TopContent>

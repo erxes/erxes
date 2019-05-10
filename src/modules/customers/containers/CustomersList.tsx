@@ -23,6 +23,7 @@ import {
 
 type Props = {
   queryParams: any;
+  type?: string;
 };
 
 type FinalProps = {
@@ -185,7 +186,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
   }
 }
 
-const generateParams = ({ queryParams }) => {
+const generateParams = ({ queryParams, type }) => {
   return {
     ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
@@ -200,6 +201,7 @@ const generateParams = ({ queryParams }) => {
     leadStatus: queryParams.leadStatus,
     lifecycleState: queryParams.lifecycleState,
     sortField: queryParams.sortField,
+    type,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined
@@ -212,8 +214,8 @@ export default withProps<Props>(
       gql(queries.customersMain),
       {
         name: 'customersMainQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams })
+        options: ({ queryParams, type }) => ({
+          variables: generateParams({ queryParams, type })
         })
       }
     ),

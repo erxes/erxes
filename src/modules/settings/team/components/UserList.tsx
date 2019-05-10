@@ -24,7 +24,12 @@ import { UserInvitationForm } from '.';
 import { List } from '../../common/components';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
-import { ButtonContainer, FilterContainer, UserAvatar } from '../styles';
+import {
+  AlignedTd,
+  ButtonContainer,
+  FilterContainer,
+  UserAvatar
+} from '../styles';
 
 type IProps = {
   changeStatus: (id: string) => void;
@@ -114,14 +119,14 @@ class UserList extends React.Component<FinalProps, States> {
       this.props.resendInvitation(user.email);
     };
 
+    if (user.status !== 'Pending Invitation') {
+      return null;
+    }
+
     return (
-      <Button
-        btnStyle="link"
-        disabled={user.status !== 'Pending Invitation'}
-        onClick={onClick}
-      >
+      <Button btnStyle="link" onClick={onClick}>
         <Tip text={__('Resend')}>
-          <Icon icon="repeat" />
+          <Icon icon="reload" />
         </Tip>
       </Button>
     );
@@ -145,7 +150,7 @@ class UserList extends React.Component<FinalProps, States> {
             </TextInfo>
           </td>
           <td>{object.email}</td>
-          <td>
+          <AlignedTd>
             <Toggle
               defaultChecked={object.isActive}
               icons={{
@@ -155,10 +160,11 @@ class UserList extends React.Component<FinalProps, States> {
               onChange={onChange}
             />
 
-            {this.renderResendInvitation(object)}
-
-            <ActionButtons>{this.renderEditAction(object)}</ActionButtons>
-          </td>
+            <ActionButtons>
+              {this.renderResendInvitation(object)}
+              {this.renderEditAction(object)}
+            </ActionButtons>
+          </AlignedTd>
         </tr>
       );
     });

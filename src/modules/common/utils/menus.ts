@@ -9,8 +9,9 @@ const menuDeal = [
 ];
 
 const menuContacts = [
-  { title: 'Customers', link: '/contacts/customers' },
-  { title: 'Companies', link: '/contacts/companies' }
+  { title: 'Customers', link: '/contacts/customers/all' },
+  { title: 'Companies', link: '/contacts/companies' },
+  { title: 'Visitors', link: '/contacts/customers/visitors' }
 ];
 
 export { menuContacts, menuInbox, menuDeal };

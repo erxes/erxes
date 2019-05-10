@@ -34,11 +34,6 @@ export interface IPieChartData {
   value: number;
 }
 
-export interface InsightData {
-  integration: IPieChartData[];
-  tag: IPieChartData[];
-}
-
 export interface IPunchCardData {
   count: number;
   day: number;
@@ -92,8 +87,13 @@ export type SummaryQueryResponse = {
   loading: boolean;
 };
 
-export type PieChartQueryResponse = {
-  insights: { tag: IPieChartData[]; integration: IPieChartData[] };
+export type IntegrationChartQueryResponse = {
+  insightsIntegrations: IPieChartData[];
+  loading: boolean;
+};
+
+export type TagChartQueryResponse = {
+  insightsTags: IPieChartData[];
   loading: boolean;
 };
 
