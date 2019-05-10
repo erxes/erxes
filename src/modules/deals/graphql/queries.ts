@@ -150,20 +150,19 @@ const deals = `
   query deals(
     $pipelineId: String,
     $stageId: String, 
-    $customerId: String, 
-    $companyId: String ,
     $date: DealDate,
     $skip: Int,
     $search: String
+    $customerIds: [String]
+    $companyIds: [String]
   ) {
     deals(
       pipelineId: $pipelineId,
       stageId: $stageId, 
-      customerId: $customerId, 
-      companyId: $companyId,
       date: $date,
       skip: $skip,
       search: $search
+      companyIds: $companyIds
     ) {
       ${dealFields}
     }

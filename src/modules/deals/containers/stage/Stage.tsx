@@ -21,6 +21,8 @@ type WrapperProps = {
   deals: IDeal[];
   length: number;
   search?: string;
+  customerIds?: string[];
+  companyIds?: string[];
 };
 
 type StageProps = {
@@ -123,10 +125,12 @@ const WithData = withProps<StageProps>(
     graphql<StageProps>(gql(queries.deals), {
       name: 'dealsQuery',
       skip: ({ loadingState }) => loadingState !== 'readyToLoad',
-      options: ({ stage, search, loadingState }) => ({
+      options: ({ stage, search, customerIds, companyIds, loadingState }) => ({
         variables: {
           stageId: stage._id,
-          search
+          search,
+          companyIds,
+          customerIds
         },
         fetchPolicy:
           loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
