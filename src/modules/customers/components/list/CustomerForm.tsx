@@ -183,7 +183,7 @@ class CustomerForm extends React.Component<Props, State> {
         ownerId: selectedOption ? selectedOption.value : null
       },
       () => {
-        this.handleUserSearch(selectedOption.label);
+        this.handleUserSearch(selectedOption ? selectedOption.label : '');
       }
     );
   };
