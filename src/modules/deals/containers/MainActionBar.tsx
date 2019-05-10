@@ -11,10 +11,13 @@ import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+
 import { MainActionBar as DumbMainActionBar } from '../components';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
+
 import { queries } from '../graphql';
 import { PageHeader } from '../styles/header';
+
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
@@ -183,7 +186,10 @@ const MainActionBar = withProps<Props>(
           };
         }
       }
-    )
+    ),
+    graphql<Props, UsersQueryResponse>(gql(queries.users), {
+      name: 'usersQuery'
+    })
   )(Main)
 );
 

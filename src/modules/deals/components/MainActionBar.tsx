@@ -25,6 +25,7 @@ import {
   HeaderLink,
   PageHeader
 } from '../styles/header';
+
 import { IBoard, IPipeline } from '../types';
 import {
   selectCompanyOptions,
@@ -46,12 +47,12 @@ type Props = {
   customers: ICustomer[];
   companies: ICompany[];
   products: IProduct[];
+  assignedUserIds?: string[];
 };
 
 type State = {
   assignedUserIds: string[];
 };
-
 // get selected deal type from URL
 const getType = () =>
   window.location.href.includes('calendar') ? 'calendar' : 'board';
@@ -139,6 +140,14 @@ class MainActionBar extends React.Component<Props, State> {
     });
   }
 
+  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
+    this.setState({ [name]: value } as Pick<State, keyof State>);
+  };
+
+  userOnChange = usrs => {
+    this.onChangeField('assignedUserIds', usrs.map(user => user.value));
+  };
+
   render() {
     const {
       currentBoard,
@@ -148,8 +157,22 @@ class MainActionBar extends React.Component<Props, State> {
       users,
       customers,
       companies,
-      products
+      products,
+      assignedUserIds
     } = this.props;
+
+    const content = option => (
+      <React.Fragment>
+        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+        {option.label}
+      </React.Fragment>
+    );
+
+    const userOption = option => (
+      <SelectOption className="simple-option">{content(option)}</SelectOption>
+    );
+
+    const userValue = option => <SelectValue>{content(option)}</SelectValue>;
 
     const boardLink = this.onFilterClick('board');
     const calendarLink = this.onFilterClick('calendar');
@@ -163,13 +186,6 @@ class MainActionBar extends React.Component<Props, State> {
     const onChange = (name, list) => {
       return this.onSelectChange(name, list.map(item => item.value));
     };
-
-    const content = option => (
-      <React.Fragment>
-        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
-        {option.label}
-      </React.Fragment>
-    );
 
     const actionBarLeft = (
       <HeaderItems>
@@ -211,6 +227,18 @@ class MainActionBar extends React.Component<Props, State> {
     const actionBarRight = (
       <HeaderItems>
         {middleContent && middleContent()}
+        <div style={{ display: 'inline-block' }}>
+          <Select
+            placeholder={__('Filter')}
+            value={assignedUserIds}
+            onChange={this.userOnChange}
+            optionRenderer={userOption}
+            valueRenderer={userValue}
+            removeSelected={true}
+            options={selectUserOptions(users)}
+            multi={true}
+          />
+        </div>
 
         <Select
           placeholder={__('Choose team members')}
