@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
+import { IRule } from './engages';
 
 export interface ICallout extends Document {
   title?: string;
@@ -14,14 +15,6 @@ interface ISubmission extends Document {
   submittedAt: Date;
 }
 
-interface IRule extends Document {
-  _id: string;
-  kind: string;
-  text: string;
-  condition: string;
-  value: string;
-}
-
 export interface IForm {
   title: string;
   code?: string;
@@ -29,7 +22,7 @@ export interface IForm {
   buttonText?: string;
   themeColor?: string;
   callout?: ICallout;
-  rules?: IRule[];
+  rules?: IRule;
 }
 
 export interface IFormDocument extends IForm, Document {
