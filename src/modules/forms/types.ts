@@ -11,6 +11,13 @@ export interface ICallout {
   featuredImage?: string;
   skip?: boolean;
 }
+export interface IFormRule {
+  _id: string;
+  kind?: string;
+  text: string;
+  condition: string;
+  value: string;
+}
 
 export interface IForm {
   _id: string;
@@ -20,6 +27,7 @@ export interface IForm {
   buttonText?: string;
   themeColor?: string;
   callout?: ICallout;
+  rules?: IFormRule[];
   createdUserId?: string;
   createdUser?: IUser;
   createdDate?: Date;

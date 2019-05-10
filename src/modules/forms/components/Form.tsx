@@ -5,19 +5,22 @@ import {
 } from 'modules/common/components/step/styles';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
+import { IFormIntegration, IFormRule } from 'modules/forms/types';
 import { Wrapper } from 'modules/layout/components';
 import { IFormData } from 'modules/settings/integrations/types';
 import { IField } from 'modules/settings/properties/types';
+
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { IBrand } from '../../settings/brands/types';
-import { IFormIntegration } from '../types';
+
 import {
   CallOut,
   ChooseType,
   FormStep,
   FullPreviewStep,
   OptionStep,
+  Rule,
   SuccessStep
 } from './step';
 
@@ -59,6 +62,7 @@ type State = {
   logoPreviewStyle?: { opacity?: string };
   defaultValue: { [key: string]: boolean };
   logo?: string;
+  rules?: IFormRule[];
 
   successAction?: string;
   fromEmail?: string;
@@ -96,6 +100,7 @@ class Form extends React.Component<Props, State> {
       adminEmailContent: formData.adminEmailContent || '',
       thankContent: formData.thankContent || 'Thank you.',
       redirectUrl: formData.redirectUrl || '',
+      rules: integration.form ? integration.form.rules : [],
 
       brand: integration.brandId,
       language: integration.languageCode,
@@ -120,7 +125,7 @@ class Form extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, calloutTitle, title } = this.state;
+    const { brand, calloutTitle, title, rules } = this.state;
 
     if (!title) {
       return Alert.error('Write title');
@@ -157,7 +162,8 @@ class Form extends React.Component<Props, State> {
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logoPreviewUrl,
           skip: this.state.isSkip
-        }
+        },
+        rules
       },
       fields: this.state.fields
     });
@@ -210,7 +216,8 @@ class Form extends React.Component<Props, State> {
       title,
       successAction,
       formBtnText,
-      isSkip
+      isSkip,
+      rules
     } = this.state;
 
     const { integration, brands } = this.props;
@@ -295,6 +302,9 @@ class Form extends React.Component<Props, State> {
               successAction={successAction}
               formData={formData}
             />
+          </Step>
+          <Step img="/images/icons/erxes-02.svg" title="Rule">
+            <Rule rules={rules || []} onChange={this.onChange} />
           </Step>
           <Step
             img="/images/icons/erxes-19.svg"
