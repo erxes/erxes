@@ -12,6 +12,8 @@ const basicFields = `
   isUser
   visitorContactInfo
 
+  modifiedAt
+
   position
   department
   leadStatus
