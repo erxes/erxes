@@ -166,3 +166,11 @@ export interface IDealInput {
   description?: string;
   productsData: IDealProductInput;
 }
+
+export interface IRule {
+  _id: string;
+  kind?: string;
+  text: string;
+  condition: string;
+  value: string;
+}

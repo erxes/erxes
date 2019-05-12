@@ -6,16 +6,11 @@ type Props = {
   isFormVisible: boolean;
   isCalloutVisible: boolean;
   containerClass: string;
-  init: () => void;
   closePopup: () => void;
   loadType: string;
 };
 
 class App extends React.Component<Props> {
-  componentDidMount() {
-    this.props.init();
-  }
-
   renderCloseButton() {
     const { loadType, closePopup } = this.props;
 

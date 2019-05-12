@@ -47,12 +47,6 @@ function revertViewPort() {
   }
 }
 
-function delaydAddClass(str: string) {
-  hideDelayTimer = setTimeout(() => {
-    erxesContainer.className += str;
-  }, delay);
-}
-
 function delaydToggleClass(str: string, isVisible: boolean) {
   hideDelayTimer = setTimeout(() => {
     erxesContainer.classList.toggle(str, isVisible);
