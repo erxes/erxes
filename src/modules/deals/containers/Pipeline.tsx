@@ -22,7 +22,40 @@ type Props = {
   queryParams: any;
 };
 
-class WithStages extends React.Component<Props, {}> {
+class WithStages extends React.Component<WithStatesQueryProps, {}> {
+  componentWillReceiveProps(nextProps) {
+    const {
+      stagesQuery,
+      queryParams: {
+        assignedUserIds,
+        customerIds,
+        productIds,
+        companyIds,
+        startDate,
+        endDate,
+        pipelineId
+      }
+    } = this.props;
+
+    const nextAssignedUserIds = nextProps.queryParams.assignedUserIds;
+    const nextCustomerIds = nextProps.queryParams.customerIds;
+    const nextProductIds = nextProps.queryParams.productIds;
+    const nextCompanyIds = nextProps.queryParams.companyIds;
+    const nextStartDate = nextProps.queryParams.startDate;
+    const nextEndDate = nextProps.queryParams.endDate;
+
+    if (
+      assignedUserIds !== nextAssignedUserIds ||
+      customerIds !== nextCustomerIds ||
+      companyIds !== nextCompanyIds ||
+      productIds !== nextProductIds ||
+      startDate !== nextStartDate ||
+      endDate !== nextEndDate
+    ) {
+      stagesQuery.refetch({ pipelineId });
+    }
+  }
+
   countStages(obj) {
     return Object.keys(obj).length;
   }
