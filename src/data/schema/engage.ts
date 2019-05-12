@@ -41,14 +41,6 @@ export const types = `
     time: Date,
   }
 
-  input EngageMessageMessengerRule {
-    _id : String!,
-    kind: String!,
-    text: String!,
-    condition: String!,
-    value: String,
-  }
-
   input EngageMessageEmail {
     templateId: String,
     subject: String!,
@@ -61,7 +53,7 @@ export const types = `
     kind: String,
     sentAs: String,
     content: String,
-    rules: [EngageMessageMessengerRule],
+    rules: [InputRule],
   }
 `;
 

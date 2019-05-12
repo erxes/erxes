@@ -19,6 +19,7 @@ export const types = `
     createdUser: User
     createdDate: Date
     viewCount: Int
+    rules: [Rule]
     contactsGathered: Int
     tagIds: [String]
     getTags: [Tag]
@@ -30,7 +31,8 @@ const commonFields = `
   description: String,
   buttonText: String,
   themeColor: String,
-  callout: JSON
+  callout: JSON,
+  rules: [InputRule]
 `;
 
 export const queries = `
