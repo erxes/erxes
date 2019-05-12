@@ -20,7 +20,7 @@ const commonParamsDef = `
   $buttonText: String,
   $themeColor: String,
   $callout: JSON,
-  $rules:[JSON]
+  $rules:[InputRule]
 `;
 
 const commonParams = `
