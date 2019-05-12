@@ -11,11 +11,10 @@ type Props = {
 };
 
 function Empty({ queryParams, currentUser }: Props) {
-  const breadcrumb = [{ title: __('Inbox') }];
-  const menuInbox = [{ title: 'Inbox', link: '/inbox' }];
+  const menuInbox = [{ title: 'Inbox', link: '/inbox/index' }];
 
   if (can('showInsights', currentUser)) {
-    menuInbox.push({ title: 'Insights', link: '/insights' });
+    menuInbox.push({ title: 'Insights', link: '/inbox/insights' });
   }
 
   const content = (
@@ -30,8 +29,8 @@ function Empty({ queryParams, currentUser }: Props) {
     <Wrapper
       header={
         <Wrapper.Header
+          title={__('Inbox')}
           queryParams={queryParams}
-          breadcrumb={breadcrumb}
           submenu={menuInbox}
         />
       }

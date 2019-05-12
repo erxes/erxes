@@ -27,7 +27,7 @@ class Empty extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={__('Brands')} breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar queryParams={queryParams} />}
         content={content}
       />

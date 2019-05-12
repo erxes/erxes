@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { EmptyState } from '..';
 import Filter from './Filter';
 import {
   AvatarImg,
@@ -75,6 +76,15 @@ class FilterableList extends React.Component<Props, State> {
   renderItems() {
     const { showCheckmark = true } = this.props;
     const { items, key } = this.state;
+
+    if (items.length === 0) {
+      return (
+        <EmptyState
+          text="There aren’t any data at the moment."
+          icon="clipboard-1"
+        />
+      );
+    }
 
     return items.map(item => {
       // filter items by key

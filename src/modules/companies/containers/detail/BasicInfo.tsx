@@ -33,7 +33,7 @@ const BasicInfoContainer = (props: FinalProps) => {
     companiesRemove({ variables: { companyIds: [_id] } })
       .then(() => {
         Alert.success('You successfully deleted a company');
-        history.push('/companies');
+        history.push('/contacts/companies');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -49,7 +49,9 @@ const BasicInfoContainer = (props: FinalProps) => {
     })
       .then(response => {
         Alert.success('You successfully merged companies');
-        history.push(`/companies/details/${response.data.companiesMerge._id}`);
+        history.push(
+          `/contacts/companies/details/${response.data.companiesMerge._id}`
+        );
       })
       .catch(e => {
         Alert.error(e.message);

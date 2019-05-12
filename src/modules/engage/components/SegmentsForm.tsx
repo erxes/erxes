@@ -87,7 +87,7 @@ class SegmentsForm extends React.Component<Props, State> {
 
   removeCondition = conditionField => {
     this.setState({
-      conditions: this.state.conditions.filter(c => c.field !== conditionField)
+      conditions: this.state.conditions.filter(c => c._id !== conditionField)
     });
   };
 

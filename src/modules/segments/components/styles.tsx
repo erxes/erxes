@@ -1,5 +1,6 @@
 import { Input, SelectWrapper } from 'modules/common/components/form/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import { FlexItem } from 'modules/layout/styles';
 import styled from 'styled-components';
 
@@ -59,6 +60,48 @@ const ResultCount = styled.div`
   }
 `;
 
+const Field = styled.div`
+  visibility: hidden;
+  position: absolute;
+  left: ${dimensions.headerSpacing + dimensions.headerSpacing}%;
+  top: 0;
+  padding: ${dimensions.unitSpacing}px;
+  width: 270px;
+  background: ${colors.colorWhite};
+  box-shadow: 0 0 ${dimensions.coreSpacing}px 3px rgba(0, 0, 0, 0.15);
+
+  input {
+    transition: inherit;
+  }
+
+  label {
+    padding: 0 ${dimensions.coreSpacing}px;
+  }
+`;
+
+const FieldType = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  color: ${rgba(colors.textPrimary, 0.8)};
+  transition: all ease 0.3s;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
+`;
+
+const PopoverList = styled.div`
+  position: relative;
+
+  &:hover {
+    ${Field} {
+      visibility: visible;
+    }
+  }
+`;
+
 export {
   SegmentWrapper,
   ConditionWrapper,
@@ -66,5 +109,8 @@ export {
   SegmentContainer,
   ConditionItem,
   SegmentResult,
-  ResultCount
+  ResultCount,
+  PopoverList,
+  FieldType,
+  Field
 };

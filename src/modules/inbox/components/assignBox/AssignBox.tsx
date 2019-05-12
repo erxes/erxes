@@ -1,5 +1,5 @@
 import { FilterableList } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import { __, getUserAvatar } from 'modules/common/utils';
 import Alert from 'modules/common/utils/Alert';
 import * as React from 'react';
 import { IUser } from '../../../auth/types';
@@ -77,9 +77,7 @@ class AssignBox extends React.Component<Props, State> {
         _id: assignee._id,
         title:
           (assignee.details && assignee.details.fullName) || assignee.email,
-        avatar:
-          (assignee.details && assignee.details.avatar) ||
-          '/images/avatar-colored.svg',
+        avatar: getUserAvatar(assignee),
         selectedBy: state
       };
     });

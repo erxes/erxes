@@ -46,11 +46,12 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
   render() {
     return (
       <List
-        title="New response template"
+        formTitle="New response template"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Response templates') }
         ]}
+        title={__('Response templates')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/24.svg"

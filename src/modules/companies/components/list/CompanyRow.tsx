@@ -82,7 +82,7 @@ function CompanyRow({
   };
 
   const onTrClick = () => {
-    history.push(`companies/details/${company._id}`);
+    history.push(`/contacts/companies/details/${company._id}`);
   };
 
   return (

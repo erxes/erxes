@@ -333,13 +333,11 @@ class CustomersList extends React.Component<IProps, State> {
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
     );
 
-    const breadcrumb = [{ title: __(`Customers`) + ` (${totalCount})` }];
-
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            breadcrumb={breadcrumb}
+            title={__(`Customers`) + ` (${totalCount})`}
             queryParams={queryParams}
             submenu={menuContacts}
           />

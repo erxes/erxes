@@ -83,15 +83,11 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
       counts
     } = this.props;
 
-    if (
-      segmentDetailQuery.loading ||
-      headSegmentsQuery.loading ||
-      combinedFieldsQuery.loading
-    ) {
+    if (segmentDetailQuery.loading) {
       return null;
     }
 
-    const fields = combinedFieldsQuery.fieldsCombinedByContentType.map(
+    const fields = (combinedFieldsQuery.fieldsCombinedByContentType || []).map(
       ({ name, label }) => ({
         _id: name,
         title: label,
@@ -100,7 +96,7 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
     );
 
     const segment = segmentDetailQuery.segmentDetail;
-    const headSegments = headSegmentsQuery.segmentsGetHeads;
+    const headSegments = headSegmentsQuery.segmentsGetHeads || [];
 
     const updatedProps = {
       ...this.props,

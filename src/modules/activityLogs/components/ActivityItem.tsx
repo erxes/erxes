@@ -1,5 +1,6 @@
 import { ActivityContent, EmailContent } from 'modules/activityLogs/styles';
 import { Icon } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import * as xss from 'xss';
 import ActivityRow from './ActivityRow';
@@ -10,33 +11,68 @@ type Props = {
 
 const ActivityItem = (props: Props) => {
   const { data } = props;
+  const { action, content, caption } = data;
+
   let isInternalNote = false;
 
-  if (data.action === 'internal_note-create') {
+  if (action === 'internal_note-create') {
     isInternalNote = true;
   }
 
-  if (data.action === 'email-send') {
+  if (action.includes('merge')) {
+    const ids = content.split(',');
+    const type = action.includes('customer') ? 'customers' : 'companies';
+
+    return (
+      <ActivityRow
+        data={caption}
+        body={
+          <>
+            {__('Merged')}
+
+            {ids.map((id: string, index: number) => {
+              return (
+                <a
+                  style={{ display: 'inline-block', padding: '0px 3px' }}
+                  key={id}
+                  href={`/${type}/details/${id}`}
+                  target="__blank"
+                >
+                  {index + 1},
+                </a>
+              );
+            })}
+
+            {type}
+          </>
+        }
+        content={''}
+      />
+    );
+  }
+
+  if (action === 'email-send') {
     try {
-      const content = JSON.parse(data.content);
+      const parsedContent = JSON.parse(content);
 
       return (
         <ActivityRow
           data={data}
           body={
             <>
-              <p>{content.subject}</p>
+              <p>{parsedContent.subject}</p>
               <div>
-                {data.caption}
-                <Icon icon="rightarrow" /> To: <span>{content.toEmails}</span>
-                {content.cc && <span>Cc: {content.cc}</span>}
-                {content.bcc && <span>Bcc: {content.bcc}</span>}
+                {caption}
+                <Icon icon="rightarrow" /> To:{' '}
+                <span>{parsedContent.toEmails}</span>
+                {parsedContent.cc && <span>Cc: {parsedContent.cc}</span>}
+                {parsedContent.bcc && <span>Bcc: {parsedContent.bcc}</span>}
               </div>
             </>
           }
           content={
             <EmailContent
-              dangerouslySetInnerHTML={{ __html: xss(content.body) }}
+              dangerouslySetInnerHTML={{ __html: xss(parsedContent.body) }}
             />
           }
         />
@@ -46,11 +82,9 @@ const ActivityItem = (props: Props) => {
       return (
         <ActivityRow
           data={data}
-          body={data.caption}
+          body={caption}
           content={
-            <EmailContent
-              dangerouslySetInnerHTML={{ __html: xss(data.content) }}
-            />
+            <EmailContent dangerouslySetInnerHTML={{ __html: xss(content) }} />
           }
         />
       );
@@ -60,11 +94,11 @@ const ActivityItem = (props: Props) => {
   return (
     <ActivityRow
       data={data}
-      body={data.caption}
+      body={caption}
       content={
         <ActivityContent
           isInternalNote={isInternalNote}
-          dangerouslySetInnerHTML={{ __html: xss(data.content) }}
+          dangerouslySetInnerHTML={{ __html: xss(content) }}
         />
       }
     />
