@@ -1,7 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import { ruleSchema } from './common/schemas';
-import { IRule } from './common/types';
+import { IRule, ruleSchema } from './common';
 import { MESSENGER_KINDS, METHODS, SENT_AS_CHOICES } from './constants';
 
 export interface IScheduleDate {
