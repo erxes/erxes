@@ -10,18 +10,18 @@ import {
   VISITOR_AUDIENCE_RULES
 } from 'modules/engage/constants';
 import * as React from 'react';
-import { IEngageRule } from '../../types';
+import { IConditionsRule } from '../../types';
 
 type Props = {
-  rules: IEngageRule[];
-  onChange: (name: 'rules', rules: IEngageRule[]) => void;
+  rules: IConditionsRule[];
+  onChange: (name: 'rules', rules: IConditionsRule[]) => void;
 };
 
 type State = {
-  rules: IEngageRule[];
+  rules: IConditionsRule[];
 };
 
-class ConditionStep extends React.Component<Props, State> {
+class ConditionsRule extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -134,4 +134,4 @@ class ConditionStep extends React.Component<Props, State> {
   }
 }
 
-export default ConditionStep;
+export default ConditionsRule;

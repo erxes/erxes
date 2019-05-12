@@ -1,3 +1,4 @@
+import { IConditionsRule } from 'modules/common/types';
 import { IUser } from '../auth/types';
 import { IAttachment } from '../common/types';
 import { ISegment, ISegmentCondition } from '../segments/types';
@@ -11,20 +12,12 @@ export interface IEngageScheduleDate {
   time: Date;
 }
 
-export interface IEngageRule {
-  _id: string;
-  kind?: string;
-  text: string;
-  condition: string;
-  value: string;
-}
-
 export interface IEngageMessenger {
   brandId: string;
   kind?: string;
   sentAs: string;
   content: string;
-  rules?: IEngageRule[];
+  rules?: IConditionsRule[];
 }
 
 export interface IEngageEmail {
