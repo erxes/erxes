@@ -132,8 +132,15 @@ const customerQueries = {
 
     const sort = sortBuilder(params);
 
-    const list = await paginate(Customers.find(qb.mainQuery()).sort(sort), params);
-    const totalCount = await Customers.find(qb.mainQuery()).countDocuments();
+    const list = await paginate(
+      Customers.find(qb.mainQuery())
+        .sort(sort)
+        .hint({ status: 1 }),
+      params,
+    );
+    const totalCount = await Customers.find(qb.mainQuery())
+      .hint({ status: 1 })
+      .countDocuments();
 
     return { list, totalCount };
   },
