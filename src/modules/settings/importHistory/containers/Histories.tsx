@@ -6,14 +6,14 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { RemoveIndicator } from '.';
 import { Histories } from '../components';
 import { mutations, queries } from '../graphql';
 import { ImportHistoriesQueryResponse, RemoveMutationResponse } from '../types';
 
 type Props = {
   queryParams: any;
-  setRemoveProgress: (removeIndicator: React.ReactNode) => void;
+  showLoadingBar: (isRemovingImport: boolean) => void;
+  closeLoadingBar: () => void;
 };
 
 type FinalProps = {
@@ -40,7 +40,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       historiesQuery,
       history,
       importHistoriesRemove,
-      setRemoveProgress
+      showLoadingBar
     } = this.props;
 
     if (!router.getParam(history, 'type')) {
@@ -50,15 +50,19 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     const currentType = router.getParam(history, 'type');
 
     const removeHistory = historyId => {
-      setRemoveProgress(<RemoveIndicator id={historyId} />);
+      localStorage.setItem('erxes_import_data', historyId);
+      localStorage.setItem('erxes_import_data_type', 'remove');
+
+      showLoadingBar(true);
 
       importHistoriesRemove({
         variables: { _id: historyId }
       })
-        .then()
+        .then(() => {
+          historiesQuery.refetch();
+        })
         .catch(e => {
           Alert.error(e.message);
-          setRemoveProgress(null);
         });
     };
 
@@ -109,8 +113,12 @@ const HistoriesWithProps = withProps<Props>(
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ setRemoveProgress }) => (
-        <HistoriesWithProps {...props} setRemoveProgress={setRemoveProgress} />
+      {({ showLoadingBar, closeLoadingBar }) => (
+        <HistoriesWithProps
+          {...props}
+          showLoadingBar={showLoadingBar}
+          closeLoadingBar={closeLoadingBar}
+        />
       )}
     </AppConsumer>
   );

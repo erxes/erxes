@@ -95,7 +95,7 @@ function CircularProgressBar({ sqSize, strokeWidth, percentage }: Props) {
           fill: 'none'
         }}
       />
-      {renderPercentage()};
+      {renderPercentage()}
     </svg>
   );
 }

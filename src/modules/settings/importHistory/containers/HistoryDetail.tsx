@@ -47,12 +47,14 @@ class HistoryDetailContainer extends React.Component<
   render() {
     const { importHistoryDetailQuery } = this.props;
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
+    const percentage =
+      Math.trunc(importHistory.percentage) || this.state.percentage;
 
     return (
       <HistoryDetail
         importHistory={importHistory}
         loading={importHistoryDetailQuery.loading}
-        percentage={this.state.percentage}
+        percentage={percentage}
       />
     );
   }

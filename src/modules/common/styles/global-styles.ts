@@ -784,16 +784,16 @@ a:hover {
 
 @keyframes dash {
   0% {
-    stroke-dasharray: 1, 150;
+    stroke-dasharray: 0, 150;
     stroke-dashoffset: 0;
   }
   50% {
     stroke-dasharray: 90, 150;
-    stroke-dashoffset: -35;
+    stroke-dashoffset: -30;
   }
   100% {
     stroke-dasharray: 90, 150;
-    stroke-dashoffset: -124;
+    stroke-dashoffset: -100;
   }
 }
 `;

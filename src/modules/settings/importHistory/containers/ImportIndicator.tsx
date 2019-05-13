@@ -17,6 +17,7 @@ type Props = {
   close: () => void;
   importHistoryDetailQuery: ImportHistoryDetailQueryResponse;
   closeLoadingBar: () => void;
+  isRemovingImport: boolean;
 };
 
 type State = {
@@ -35,8 +36,10 @@ class ImportIndicatorContainer extends React.Component<
     };
   }
 
-  componentDidMount() {
-    this.props.importHistoryDetailQuery.refetch();
+  clearLocalStorage() {
+    // clear local storage
+    localStorage.setItem('erxes_import_data', '');
+    localStorage.setItem('erxes_import_data_type', '');
   }
 
   componentWillMount() {
@@ -48,11 +51,12 @@ class ImportIndicatorContainer extends React.Component<
         const { importHistoryChanged } = data;
         const { percentage, status } = importHistoryChanged;
 
-        console.log(data); // tslint:disable-line
+        if (status === 'Removed') {
+          this.clearLocalStorage();
+        }
 
         if (status === 'Done') {
-          // clear local storage
-          localStorage.setItem('erxes_import_data', '');
+          this.clearLocalStorage();
 
           return importHistoryDetailQuery.refetch();
         }
@@ -68,10 +72,13 @@ class ImportIndicatorContainer extends React.Component<
     const {
       importHistoryDetailQuery,
       importCancel,
-      closeLoadingBar
+      closeLoadingBar,
+      isRemovingImport
     } = this.props;
 
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
+    const percentage =
+      Math.trunc(importHistory.percentage) || this.state.percentage;
 
     const cancelImport = id => {
       confirm().then(() => {
@@ -92,9 +99,10 @@ class ImportIndicatorContainer extends React.Component<
     return (
       <ImportIndicator
         {...this.props}
-        percentage={this.state.percentage}
+        percentage={percentage}
         importHistory={importHistory}
         cancel={cancelImport}
+        isRemovingImport={isRemovingImport}
       />
     );
   }
@@ -127,10 +135,11 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ closeLoadingBar }) => (
+      {({ closeLoadingBar, isRemovingImport }) => (
         <ImportIndicatorWithProps
           {...props}
           closeLoadingBar={closeLoadingBar}
+          isRemovingImport={isRemovingImport}
         />
       )}
     </AppConsumer>

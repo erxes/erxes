@@ -16,26 +16,39 @@ type Props = {
   importHistory: IImportHistory;
   close: () => void;
   cancel: (id: string) => void;
+  isRemovingImport: boolean;
 };
 
 class ImportIndicator extends React.Component<Props> {
   isDone = () => {
-    if (this.props.importHistory.status === 'Done') {
+    const { importHistory, isRemovingImport } = this.props;
+    const { status } = importHistory;
+
+    if ((!isRemovingImport && status === 'Done') || status === 'Removed') {
       return true;
     }
 
     return false;
   };
 
+  renderType = (contentType: string, isCapital?: boolean) => {
+    return <Capitalize isCapital={isCapital}>{__(contentType)}</Capitalize>;
+  };
+
   getPercentage = () => {
-    const { percentage } = this.props;
+    const { percentage, isRemovingImport } = this.props;
     let percent = percentage;
 
-    if (this.isDone() || percent > 100) {
+    if (this.isDone() || percent > 100 || isRemovingImport) {
       percent = 100;
     }
 
     return percent;
+  };
+
+  cancelCurrentImport = () => {
+    const { cancel, id } = this.props;
+    cancel(id);
   };
 
   showErrors = (errorMsgs: string[]) => {
@@ -50,36 +63,58 @@ class ImportIndicator extends React.Component<Props> {
     return null;
   };
 
-  renderType = (contentType: string, isCapital?: boolean) => {
-    return <Capitalize isCapital={isCapital}>{__(contentType)}</Capitalize>;
-  };
-
-  cancel = () => {
-    const { cancel, id } = this.props;
-    cancel(id);
-  };
-
-  renderProgress = () => {
-    const { importHistory, id } = this.props;
+  getSuccessText() {
+    const { isRemovingImport, importHistory } = this.props;
+    const id = importHistory._id;
     const { errorMsgs = [], contentType } = importHistory;
 
-    if (this.isDone()) {
+    if (isRemovingImport) {
       return (
         <div>
-          {this.renderType(contentType, true)}{' '}
-          {__('data successfully imported')}. {this.showErrors(errorMsgs)}{' '}
-          <Link to={`/settings/importHistory/${id}`}>{__('Show result')}</Link>.
+          {this.renderType(contentType, true)} {__('data successfully removed')}
+          .
         </div>
+      );
+    }
+
+    return (
+      <div>
+        {this.renderType(contentType, true)} {__('data successfully imported')}.{' '}
+        {this.showErrors(errorMsgs)}{' '}
+        {id && (
+          <Link to={`/settings/importHistory/${id}`}>{__('Show result')}.</Link>
+        )}
+      </div>
+    );
+  }
+
+  getIndicatorText() {
+    const { isRemovingImport, importHistory } = this.props;
+    const { contentType } = importHistory;
+
+    if (isRemovingImport) {
+      return (
+        <>
+          {__('Removing')} {this.renderType(contentType)} {__('data')}.
+        </>
       );
     }
 
     return (
       <>
         <b>[{this.props.percentage}%]</b> {__('Importing')}{' '}
-        {this.renderType(contentType)} {__('data')}. You can{' '}
-        <a onClick={this.cancel}>{__('cancel')}</a> anytime.
+        {this.renderType(contentType)} {__('data')}. {__('You can')}{' '}
+        <a onClick={this.cancelCurrentImport}>{__('cancel')}</a> anytime.
       </>
     );
+  }
+
+  renderProgress = () => {
+    if (this.isDone()) {
+      return this.getSuccessText();
+    }
+
+    return <div>{this.getIndicatorText()}</div>;
   };
 
   renderCloseButton = () => {

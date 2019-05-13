@@ -78,13 +78,13 @@ class HistoryDetail extends React.Component<Props> {
           <div>
             <Row>
               <div>{__('Status')}:</div>
-              <TextInfo textStyle="simple" hugeness="large">
-                {status}
-              </TextInfo>
+              <TextInfo hugeness="large">{status}</TextInfo>
             </Row>
             <Row>
               <div>{__('Total')}:</div>
-              <TextInfo hugeness="large">{total}</TextInfo>
+              <TextInfo hugeness="large" textStyle="simple">
+                {total}
+              </TextInfo>
             </Row>
             <Row>
               <div>{__('Success')}:</div>
@@ -127,6 +127,7 @@ class HistoryDetail extends React.Component<Props> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
+      { title: __('Import histories'), link: '/settings/importHistories' },
       { title: __('Import History ') }
     ];
 
@@ -138,7 +139,7 @@ class HistoryDetail extends React.Component<Props> {
             left={
               <HeaderDescription
                 icon="/images/actions/28.svg"
-                title="Import history status"
+                title="Import history"
                 description={`You can track your recently imported customers or companies here`}
               />
             }

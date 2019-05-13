@@ -46,15 +46,14 @@ interface IState {
   currentUser?: IUser;
   currentLanguage: string;
   isLoading: boolean;
-  removingIndicator: React.ReactNode;
+  isRemovingImport: boolean;
 }
 
 interface IStore extends IState {
   currentUser?: IUser;
   changeLanguage: (languageCode: string) => void;
   closeLoadingBar: () => void;
-  showLoadingBar: () => void;
-  setRemoveProgress: (removingIndicator: React.ReactNode) => void;
+  showLoadingBar: (isRemovingImport: boolean) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -75,7 +74,7 @@ export class AppProvider extends React.Component<
       currentUser: props.currentUser,
       currentLanguage,
       isLoading: false,
-      removingIndicator: null
+      isRemovingImport: false
     };
 
     this.setLocale(currentLanguage);
@@ -83,12 +82,14 @@ export class AppProvider extends React.Component<
 
   checkIsLoadingData = () => {
     const lastImport = localStorage.getItem('erxes_import_data');
+    const type = localStorage.getItem('erxes_import_data_type');
+    const isRemovingImport = type === 'remove' ? true : false;
 
     if (lastImport) {
-      return this.setState({ isLoading: true });
+      return this.setState({ isLoading: true, isRemovingImport });
     }
 
-    return this.setState({ isLoading: false });
+    return this.setState({ isLoading: false, isRemovingImport: false });
   };
 
   closeLoadingBar = () => {
@@ -97,12 +98,8 @@ export class AppProvider extends React.Component<
     localStorage.setItem('erxes_import_data', '');
   };
 
-  showLoadingBar = () => {
-    this.setState({ isLoading: true });
-  };
-
-  setRemoveProgress = (removingIndicator: React.ReactNode) => {
-    this.setState({ removingIndicator });
+  showLoadingBar = (isRemovingImport: boolean) => {
+    this.setState({ isLoading: true, isRemovingImport });
   };
 
   componentDidMount() {
@@ -129,7 +126,7 @@ export class AppProvider extends React.Component<
       currentUser,
       currentLanguage,
       isLoading,
-      removingIndicator
+      isRemovingImport
     } = this.state;
 
     return (
@@ -140,9 +137,8 @@ export class AppProvider extends React.Component<
           changeLanguage: this.changeLanguage,
           closeLoadingBar: this.closeLoadingBar,
           showLoadingBar: this.showLoadingBar,
-          setRemoveProgress: this.setRemoveProgress,
           isLoading,
-          removingIndicator
+          isRemovingImport
         }}
       >
         {this.props.children}
