@@ -170,6 +170,7 @@ class MessengerAdd extends React.Component<Props, State> {
         </FormGroup>
 
         <SelectBrand
+          isRequired={true}
           onChange={this.handleChange.bind(this, 'brandId')}
           creatable={false}
         />

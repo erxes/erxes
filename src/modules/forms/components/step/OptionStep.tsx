@@ -82,6 +82,7 @@ class OptionStep extends React.Component<Props, {}> {
         <LeftItem>
           <FormGroup>
             <SelectBrand
+              isRequired={true}
               onChange={onChange}
               defaultValue={brand ? brand._id : ' '}
             />

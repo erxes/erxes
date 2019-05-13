@@ -46,7 +46,7 @@ class Twitter extends React.Component<Props, { accountId?: string }> {
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
-        <SelectBrand />
+        <SelectBrand isRequired={true} />
 
         <Accounts
           kind="twitter"
