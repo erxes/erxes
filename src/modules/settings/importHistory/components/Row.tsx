@@ -1,5 +1,6 @@
 import { Button, TextInfo, Tip } from 'modules/common/components';
 import { __, confirm } from 'modules/common/utils';
+import { Date } from 'modules/customers/styles';
 import * as moment from 'moment';
 import * as React from 'react';
 
@@ -31,7 +32,7 @@ function HistoryRow({ history, removeHistory, onClick }: Props) {
       )}
       {withClick(<TextInfo textStyle="danger">{history.failed || 1}</TextInfo>)}
       {withClick(<TextInfo>{history.total || 1}</TextInfo>)}
-      {withClick(moment(history.date).format('lll'))}
+      {withClick(<Date>{moment(history.date).format('lll')}</Date>)}
       <td>{details.fullName || '-'}</td>
       <td>
         <Tip text={__('Remove contacts')}>
