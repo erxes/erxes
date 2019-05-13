@@ -17,6 +17,16 @@ const PropertyList = styled.ul`
   }
 `;
 
+const Row = styled.div`
+  display: flex;
+  height: 100%;
+
+  > button {
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+`;
+
 const InputDescription = styled.p`
   font-size: 12px;
   color: ${colors.colorCoreGray};
@@ -80,6 +90,7 @@ export {
   DropIcon,
   FieldType,
   InputDescription,
+  Row,
   CollapseRow,
   SidebarContent,
   SelectInput
