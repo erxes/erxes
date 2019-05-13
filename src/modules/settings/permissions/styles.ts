@@ -8,10 +8,13 @@ const FilterWrapper = styled.div`
 
 const FilterItem = styled.div`
   position: relative;
-  z-index: 100;
   float: left;
   min-width: 180px;
   margin-right: 20px;
 `;
 
-export { FilterWrapper, FilterItem };
+const NotWrappable = styled.div`
+  white-space: nowrap;
+`;
+
+export { FilterWrapper, FilterItem, NotWrappable };

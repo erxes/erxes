@@ -1,17 +1,26 @@
-import { Button, FormControl, Step, Steps } from 'modules/common/components';
+import {
+  Button,
+  ConditionsRule,
+  FormControl,
+  Step,
+  Steps
+} from 'modules/common/components';
 import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
+import { IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
+import { IFormIntegration } from 'modules/forms/types';
 import { Wrapper } from 'modules/layout/components';
 import { IFormData } from 'modules/settings/integrations/types';
 import { IField } from 'modules/settings/properties/types';
+
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { IBrand } from '../../settings/brands/types';
-import { IFormIntegration } from '../types';
+
 import {
   CallOut,
   ChooseType,
@@ -59,6 +68,7 @@ type State = {
   logoPreviewStyle?: { opacity?: string };
   defaultValue: { [key: string]: boolean };
   logo?: string;
+  rules?: IConditionsRule[];
 
   successAction?: string;
   fromEmail?: string;
@@ -96,6 +106,7 @@ class Form extends React.Component<Props, State> {
       adminEmailContent: formData.adminEmailContent || '',
       thankContent: formData.thankContent || 'Thank you.',
       redirectUrl: formData.redirectUrl || '',
+      rules: integration.form ? integration.form.rules : [],
 
       brand: integration.brandId,
       language: integration.languageCode,
@@ -120,7 +131,7 @@ class Form extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, calloutTitle, title } = this.state;
+    const { brand, calloutTitle, title, rules } = this.state;
 
     if (!title) {
       return Alert.error('Write title');
@@ -157,7 +168,14 @@ class Form extends React.Component<Props, State> {
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logoPreviewUrl,
           skip: this.state.isSkip
-        }
+        },
+        rules: (rules || []).map(rule => ({
+          _id: rule._id,
+          kind: rule.kind,
+          text: rule.text,
+          condition: rule.condition,
+          value: rule.value
+        }))
       },
       fields: this.state.fields
     });
@@ -210,7 +228,8 @@ class Form extends React.Component<Props, State> {
       title,
       successAction,
       formBtnText,
-      isSkip
+      isSkip,
+      rules
     } = this.state;
 
     const { integration, brands } = this.props;
@@ -269,6 +288,9 @@ class Form extends React.Component<Props, State> {
               theme={theme}
               fields={fields}
             />
+          </Step>
+          <Step img="/images/icons/erxes-02.svg" title="Rule">
+            <ConditionsRule rules={rules || []} onChange={this.onChange} />
           </Step>
           <Step img="/images/icons/erxes-06.svg" title="Options">
             <OptionStep

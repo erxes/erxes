@@ -70,6 +70,10 @@ a:hover {
   margin: 0 auto;
 }
 
+.modal-dialog.middle {
+  width: 65%;
+}
+
 .modal-dialog.full {
   width: 85%;
 }

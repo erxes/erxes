@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const FilterContainer = styled.div`
   position: relative;
   padding: ${dimensions.coreSpacing}px;
-  z-index: ${dimensions.unitSpacing};
+  z-index: 2;
 `;
 
 const ButtonContainer = styled.div`

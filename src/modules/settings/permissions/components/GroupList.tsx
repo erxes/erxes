@@ -1,18 +1,16 @@
 import {
-  ActionButtons,
   Button,
   DataWithLoader,
   Icon,
+  LoadMore,
   ModalTrigger,
-  Pagination,
-  Table,
   Tip
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import { BarItems } from 'modules/layout/styles';
+import { Sidebar } from 'modules/layout/components';
+import { HelperButtons, SidebarList } from 'modules/layout/styles';
+import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { IUserGroup, IUserGroupDocument } from '../types';
 import GroupForm from './GroupForm';
 
@@ -67,73 +65,49 @@ class GroupList extends React.Component<Props> {
 
   renderObjects(objects: IUserGroupDocument[]) {
     return objects.map(object => (
-      <tr key={object._id}>
-        <td>{object.name}</td>
-        <td>{object.description}</td>
-        <td>
-          <ActionButtons>
-            {this.renderEditActions(object)}
-            {this.renderRemoveActions(object)}
-          </ActionButtons>
-        </td>
-      </tr>
+      <SidebarListItem key={object._id} isActive={false}>
+        <a>{object.name}</a>
+        <ActionButtons>
+          {this.renderEditActions(object)}
+          {this.renderRemoveActions(object)}
+        </ActionButtons>
+      </SidebarListItem>
     ));
   }
 
   renderContent() {
     const { objects } = this.props;
 
-    return (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
-        <thead>
-          <tr>
-            <th>{__('Name')}</th>
-            <th>{__('Description')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderObjects(objects)}</tbody>
-      </Table>
-    );
+    return this.renderObjects(objects);
   }
 
-  renderActionBar() {
+  renderSidebarHeader() {
+    const { save } = this.props;
+    const { Header } = Sidebar;
+
     const trigger = (
-      <Button btnStyle="success" size="small" icon="add">
-        New Group
-      </Button>
+      <HelperButtons>
+        <a>
+          <Icon icon="add" />
+        </a>
+      </HelperButtons>
     );
 
-    const rightActionBar = (
-      <BarItems>
+    return (
+      <Header uppercase={true}>
+        {__('User groups')}
+
         {this.renderFormTrigger(trigger, null)}
-        <Link to="/settings/permissions">
-          <Button type="success" size="small" icon="user-2">
-            Permissions
-          </Button>
-        </Link>
-      </BarItems>
+      </Header>
     );
-
-    return <Wrapper.ActionBar right={rightActionBar} />;
   }
 
   render() {
     const { totalCount, loading } = this.props;
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Users groups') }
-    ];
-
     return (
-      <Wrapper
-        header={
-          <Wrapper.Header title={__('Users groups')} breadcrumb={breadcrumb} />
-        }
-        actionBar={this.renderActionBar()}
-        footer={<Pagination count={totalCount} />}
-        content={
+      <Sidebar full={true} header={this.renderSidebarHeader()}>
+        <SidebarList>
           <DataWithLoader
             data={this.renderContent()}
             loading={loading}
@@ -141,8 +115,9 @@ class GroupList extends React.Component<Props> {
             emptyText="There is no data."
             emptyImage="/images/actions/26.svg"
           />
-        }
-      />
+          <LoadMore all={totalCount} loading={loading} />
+        </SidebarList>
+      </Sidebar>
     );
   }
 }
