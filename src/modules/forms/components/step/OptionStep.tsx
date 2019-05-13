@@ -5,6 +5,7 @@ import {
 } from 'modules/common/components';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import { SelectBrand } from 'modules/settings/integrations/containers';
 import { IField } from 'modules/settings/properties/types';
 import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
@@ -27,7 +28,6 @@ type Props = {
   ) => void;
   fields?: IField[];
   brand?: IBrand;
-  brands?: IBrand[];
   onFieldEdit?: () => void;
 };
 
@@ -57,7 +57,7 @@ class OptionStep extends React.Component<Props, {}> {
   }
 
   render() {
-    const { brands, language, brand } = this.props;
+    const { language, brand } = this.props;
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -81,23 +81,11 @@ class OptionStep extends React.Component<Props, {}> {
       <FlexItem>
         <LeftItem>
           <FormGroup>
-            <ControlLabel>Brand</ControlLabel>
-            <FormControl
-              componentClass="select"
-              defaultValue={brand ? brand._id : ''}
-              id="selectBrand"
+            <SelectBrand
               onChange={onChange}
-            >
-              <option />
-              {brands &&
-                brands.map(brandOption => (
-                  <option key={brandOption._id} value={brandOption._id}>
-                    {brandOption.name}
-                  </option>
-                ))}
-            </FormControl>
+              defaultValue={brand ? brand._id : ' '}
+            />
           </FormGroup>
-
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
             <FormControl
