@@ -1,15 +1,50 @@
+import { colors } from 'modules/common/styles';
 import { IRouterProps } from 'modules/common/types';
 import { router } from 'modules/common/utils';
-import { TableHeadContent } from 'modules/customers/styles';
 import * as React from 'react';
 import { withRouter } from 'react-router';
+import styled from 'styled-components';
+
+const SortWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 0 0 0 17px;
+  position: relative;
+  cursor: pointer;
+
+  .arrow {
+    position: absolute;
+    left: 0;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+
+    &.up {
+      border-bottom: 5px solid #bbb;
+      top: 2px;
+
+      &.active {
+        border-bottom-color: ${colors.colorSecondary};
+      }
+    }
+
+    &.down {
+      border-top: 5px solid #bbb;
+      top: 9px;
+
+      &.active {
+        border-top-color: ${colors.colorSecondary};
+      }
+    }
+  }
+`;
+
 interface IProps extends IRouterProps {
   sortField?: string;
   label?: string;
 }
 
 type State = {
-  sortValue: any;
+  sortValue: string | number;
 };
 
 class SortHandler extends React.Component<IProps, State> {
@@ -18,12 +53,10 @@ class SortHandler extends React.Component<IProps, State> {
     const { history } = props;
     const sortValue = router.getParam(history, 'sortDirection');
 
-    this.state = {
-      sortValue
-    };
+    this.state = { sortValue };
   }
 
-  sortHandler(field, direction) {
+  sortHandle(field, direction) {
     const { history } = this.props;
 
     router.setParams(history, { sortField: field, sortDirection: direction });
@@ -47,24 +80,18 @@ class SortHandler extends React.Component<IProps, State> {
     const { sortValue } = this.state;
 
     if (!sortValue) {
-      this.setState({
-        sortValue: -1
-      });
+      this.setState({ sortValue: -1 });
 
-      return this.sortHandler(sortField, -1);
+      return this.sortHandle(sortField, -1);
     }
 
     if (sortValue < 0) {
-      this.setState({
-        sortValue: 1
-      });
+      this.setState({ sortValue: 1 });
 
-      return this.sortHandler(sortField, 1);
+      return this.sortHandle(sortField, 1);
     }
 
-    this.setState({
-      sortValue: undefined
-    });
+    this.setState({ sortValue: '' });
 
     return router.removeParams(history, 'sortDirection', 'sortField');
   };
@@ -73,13 +100,15 @@ class SortHandler extends React.Component<IProps, State> {
     const { sortField, label } = this.props;
 
     return (
-      <TableHeadContent onClick={this.onClickSort}>
-        <div className="table-sorter">
-          <span className={`up ${this.checkSortActive(sortField, -1)}`} />
-          <span className={`down ${this.checkSortActive(sortField, 1)}`} />
+      <SortWrapper onClick={this.onClickSort}>
+        <div>
+          <span className={`arrow up ${this.checkSortActive(sortField, -1)}`} />
+          <span
+            className={`arrow down ${this.checkSortActive(sortField, 1)}`}
+          />
         </div>
         {label}
-      </TableHeadContent>
+      </SortWrapper>
     );
   }
 }
