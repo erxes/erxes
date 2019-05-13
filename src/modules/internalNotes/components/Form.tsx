@@ -28,20 +28,17 @@ const EditorWrapper = styled.div`
 `;
 
 class Form extends React.PureComponent<
-  { create: (content: string) => void },
-  { editorState: EditorState }
+  { create: (content: string, mentionedUserIds: string[]) => void },
+  { editorState: EditorState; mentionedUserIds: string[] }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      editorState: createStateFromHTML(EditorState.createEmpty(), '')
+      editorState: createStateFromHTML(EditorState.createEmpty(), ''),
+      mentionedUserIds: []
     };
   }
-
-  getContent = editorState => {
-    return toHTML(editorState);
-  };
 
   onChangeContent = editorState => {
     this.setState({ editorState });
@@ -84,7 +81,8 @@ class Form extends React.PureComponent<
   };
 
   onSend = () => {
-    this.props.create(this.getContent(this.state.editorState));
+    const { editorState, mentionedUserIds } = this.state;
+    this.props.create(toHTML(editorState), mentionedUserIds);
 
     this.clearContent();
   };
@@ -116,12 +114,18 @@ class Form extends React.PureComponent<
     );
   }
 
+  collectMentions = (mentionedUserIds: string[]) => {
+    this.setState({ mentionedUserIds });
+  };
+
   render() {
     const props = {
       editorState: this.state.editorState,
       onChange: this.onChangeContent,
       keyBindingFn: this.keyBindingFn,
-      placeholder: __('Write your note here')
+      placeholder: __('Write your note here'),
+      useMention: true,
+      collectMentions: this.collectMentions
     };
 
     return (

@@ -1,6 +1,3 @@
-import createMentionPlugin, {
-  defaultSuggestionsFilter
-} from 'bat-draft-js-mention-plugin';
 import {
   ContentState,
   EditorState,
@@ -25,7 +22,7 @@ import { IResponseTemplate } from '../../../../settings/responseTemplates/types'
 
 type EditorProps = {
   onChange: (content: string) => void;
-  onAddMention: (mentions: any) => void;
+  collectMentions: (mentionedUserIds: string[]) => void;
   onShifEnter: () => void;
   showMentions: boolean;
   responseTemplate: string;
@@ -38,6 +35,7 @@ type EditorProps = {
 type State = {
   editorState: EditorState;
   collectedMentions: any;
+  mentionedUserIds: string[];
   suggestions: any;
   templatesState: any;
 };
@@ -49,35 +47,6 @@ type TemplateListProps = {
     templates: IResponseTemplate[];
   };
   onSelect: (index: number) => void;
-};
-
-const MentionEntry = props => {
-  const { mention, theme, searchValue, ...parentProps } = props;
-
-  return (
-    <div {...parentProps}>
-      <div className="mentionSuggestionsEntryContainer">
-        <div className="mentionSuggestionsEntryContainerLeft">
-          <img
-            alt={mention.get('name')}
-            role="presentation"
-            src={mention.get('avatar') || '/images/avatar-colored.svg'}
-            className="mentionSuggestionsEntryAvatar"
-          />
-        </div>
-
-        <div className="mentionSuggestionsEntryContainerRight">
-          <div className="mentionSuggestionsEntryText">
-            {mention.get('name')}
-          </div>
-
-          <div className="mentionSuggestionsEntryTitle">
-            {mention.get('title')}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 const extractEntries = mention => {
@@ -153,21 +122,16 @@ class TemplateList extends React.Component<TemplateListProps, {}> {
 }
 
 export default class Editor extends React.Component<EditorProps, State> {
-  private mentionPlugin;
-
   constructor(props) {
     super(props);
 
     this.state = {
       editorState: EditorState.createEmpty(),
       collectedMentions: [],
+      mentionedUserIds: [],
       suggestions: this.props.mentions.toArray(),
       templatesState: null
     };
-
-    this.mentionPlugin = createMentionPlugin({
-      mentionPrefix: '@'
-    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -179,7 +143,7 @@ export default class Editor extends React.Component<EditorProps, State> {
 
       // calling onChange, because draftjs's onChange is not trigerring after
       // this setState
-      this.props.onChange(this.getContent(editorState));
+      this.props.onChange(toHTML(editorState));
 
       // set editor state from response template
       this.setState({ editorState });
@@ -189,7 +153,7 @@ export default class Editor extends React.Component<EditorProps, State> {
   onChange = editorState => {
     this.setState({ editorState });
 
-    this.props.onChange(this.getContent(editorState));
+    this.props.onChange(toHTML(editorState));
 
     window.requestAnimationFrame(() => {
       this.onTemplatesStateChange(this.getTemplatesState());
@@ -304,55 +268,6 @@ export default class Editor extends React.Component<EditorProps, State> {
     );
   }
 
-  onSearchChange = ({ value }) => {
-    this.setState({
-      suggestions: defaultSuggestionsFilter(
-        value,
-        this.props.mentions.toArray()
-      )
-    });
-  };
-
-  onAddMention = object => {
-    const mention = extractEntries(object);
-
-    const collectedMentions = this.state.collectedMentions;
-
-    collectedMentions.push(mention);
-
-    this.setState({ collectedMentions });
-  };
-
-  getContent = (editorState: EditorState) => {
-    let content = toHTML(editorState);
-
-    // some mentioned people may have been deleted
-    const finalMentions: any = [];
-
-    // replace mention content
-    this.state.collectedMentions.forEach(m => {
-      const toFind = `@${m.name}`;
-      const re = new RegExp(toFind, 'g');
-
-      // collect only not removed mentions
-      const findResult = content.match(re);
-
-      if (findResult && findResult.length > 0) {
-        finalMentions.push(m);
-      }
-
-      content = content.replace(
-        re,
-        `<b data-user-id='${m._id}'>@${m.name}</b>`
-      );
-    });
-
-    // send mentioned user to parent
-    this.props.onAddMention(finalMentions.map(mention => mention._id));
-
-    return content;
-  };
-
   keyBindingFn = e => {
     // handle new line
     if (e.key === 'Enter' && e.shiftKey) {
@@ -389,19 +304,6 @@ export default class Editor extends React.Component<EditorProps, State> {
   };
 
   render() {
-    const { MentionSuggestions } = this.mentionPlugin;
-    const plugins = [this.mentionPlugin];
-
-    const pluginContent = (
-      <MentionSuggestions
-        onSearchChange={this.onSearchChange}
-        suggestions={this.props.showMentions ? this.state.suggestions : []}
-        entryComponent={MentionEntry}
-        onAddMention={this.onAddMention}
-        onChange={this.onChange}
-      />
-    );
-
     const props = {
       ...this.props,
       editorState: this.state.editorState,
@@ -411,8 +313,8 @@ export default class Editor extends React.Component<EditorProps, State> {
       onDownArrow: this.onDownArrow,
       handleFileInput: this.props.handleFileInput,
       isTopPopup: true,
-      plugins,
-      pluginContent
+      useMention: this.props.showMentions,
+      collectMentions: this.props.collectMentions
     };
 
     return (

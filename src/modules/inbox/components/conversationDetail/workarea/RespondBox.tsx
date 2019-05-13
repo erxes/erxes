@@ -93,7 +93,7 @@ class RespondBox extends React.Component<Props, State> {
   };
 
   // save mentioned user to state
-  onAddMention = (mentionedUserIds: string[]) => {
+  collectMentions = (mentionedUserIds: string[]) => {
     this.setState({ mentionedUserIds });
   };
 
@@ -322,7 +322,7 @@ class RespondBox extends React.Component<Props, State> {
           <Editor
             key={this.state.editorKey}
             onChange={this.onEditorContentChange}
-            onAddMention={this.onAddMention}
+            collectMentions={this.collectMentions}
             onShifEnter={this.onShifEnter}
             placeholder={placeholder}
             mentions={this.props.teamMembers}

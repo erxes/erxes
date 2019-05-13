@@ -1,5 +1,12 @@
-import * as Draft from 'draft-js';
-import { ContentState, EditorState, RichUtils } from 'draft-js';
+import createMentionPlugin from 'bat-draft-js-mention-plugin';
+import {
+  ContentState,
+  convertFromHTML,
+  EditorState,
+  Modifier,
+  RichUtils,
+  SelectionState
+} from 'draft-js';
 import createLinkPlugin from 'draft-js-anchor-plugin';
 import {
   BlockquoteButton,
@@ -17,6 +24,7 @@ import createToolbarPlugin, { Separator } from 'draft-js-static-toolbar-plugin';
 import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
 import HeadlinesButton from './HeadlinesButton';
+import Mention from './Mention';
 import { RichEditorControlsRoot, RichEditorRoot } from './styles';
 
 type ErxesEditorProps = {
@@ -33,13 +41,19 @@ type ErxesEditorProps = {
   onDownArrow?: (e: KeyboardEvent) => void;
   handleFileInput?: (e: React.FormEvent<HTMLInputElement>) => void;
   placeholder?: string | React.ReactNode;
+  useMention?: boolean;
+  collectMentions?: (mentionedUserIds: string[]) => void;
 };
 
-export class ErxesEditor extends React.Component<ErxesEditorProps> {
+export class ErxesEditor extends React.Component<
+  ErxesEditorProps,
+  { collectUsers: any[] }
+> {
   editor: Editor = this.refs.editor;
   private linkPlugin;
   private toolbarPlugin;
   private emojiPlugin;
+  private mentionPlugin;
 
   constructor(props) {
     super(props);
@@ -74,6 +88,14 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
         };
       }
     });
+
+    this.mentionPlugin = createMentionPlugin({
+      mentionPrefix: '@'
+    });
+
+    this.state = {
+      collectUsers: []
+    };
   }
 
   focus = () => {
@@ -118,22 +140,72 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
     }
   };
 
+  onAddMention = (collectUsers: any[]) => {
+    const { editorState, collectMentions, onChange } = this.props;
+    let content = toHTML(editorState);
+
+    const finalMentions: any = [];
+
+    collectUsers.forEach(m => {
+      const toFind = `@${m.name}`;
+      const re = new RegExp(toFind, 'g');
+
+      // collect only not removed mentions
+      const findResult = content.match(re);
+
+      if (findResult && findResult.length > 0) {
+        finalMentions.push(m);
+
+        content = content.replace(
+          re,
+          `<b data-user-id='${m._id}'>@${m.name}</b>`
+        );
+      }
+    });
+
+    if (collectMentions) {
+      collectMentions(finalMentions.map(user => user._id));
+    }
+
+    onChange(
+      EditorState.moveFocusToEnd(createStateFromHTML(editorState, content))
+    );
+  };
+
+  onChange = (editorState: EditorState) => {
+    this.props.onChange(editorState);
+  };
+
   render() {
     const {
-      editorState,
       controls,
       onUpArrow,
       onDownArrow,
       bordered,
       isTopPopup = false,
-      plugins
+      plugins,
+      useMention,
+      editorState
     } = this.props;
 
     const updatedPlugins = [
       this.toolbarPlugin,
       this.linkPlugin,
-      this.emojiPlugin
+      this.emojiPlugin,
+      this.mentionPlugin
     ].concat(plugins || []);
+
+    let showMention;
+
+    if (useMention) {
+      showMention = (
+        <Mention
+          onChange={this.onChange}
+          plugin={this.mentionPlugin}
+          onAddMention={this.onAddMention}
+        />
+      );
+    }
 
     // plugins
     const { Toolbar } = this.toolbarPlugin;
@@ -163,7 +235,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
             editorState={editorState}
             handleKeyCommand={this.handleKeyCommand}
             onTab={this.onTab}
-            onChange={this.props.onChange}
+            onChange={this.onChange}
             placeholder={this.props.placeholder}
             keyBindingFn={this.props.keyBindingFn}
             onUpArrow={onUpArrow}
@@ -198,6 +270,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
           </Toolbar>
         </RichEditorControlsRoot>
         {this.props.pluginContent}
+        {showMention}
       </RichEditorRoot>
     );
   }
@@ -214,7 +287,7 @@ export const createStateFromHTML = (
     return editorState;
   }
 
-  const { contentBlocks, entityMap } = Draft.convertFromHTML(html);
+  const { contentBlocks, entityMap } = convertFromHTML(html);
 
   if (!contentBlocks) {
     return editorState;
