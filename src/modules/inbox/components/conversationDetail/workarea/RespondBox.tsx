@@ -68,6 +68,10 @@ class RespondBox extends React.Component<Props, State> {
   componentDidUpdate(prevProps, prevState) {
     const { sending, content } = this.state;
 
+    if (this.props.conversation._id !== prevProps.conversation._id) {
+      this.setState({ isInternal: false });
+    }
+
     if (sending && content !== prevState.content) {
       this.setState({ sending: false });
     }
@@ -258,8 +262,12 @@ class RespondBox extends React.Component<Props, State> {
     return null;
   }
 
+  getUnsendMessage(id: string) {
+    return localStorage.getItem(id);
+  }
+
   render() {
-    const { isInternal, responseTemplate } = this.state;
+    const { isInternal, responseTemplate, content } = this.state;
     const { responseTemplates, conversation } = this.props;
 
     const integration = conversation.integration || ({} as IIntegration);

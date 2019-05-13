@@ -24,6 +24,7 @@ import {
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 
 type EditorProps = {
+  defaultContent?: string;
   onChange: (content: string) => void;
   onAddMention: (mentions: any) => void;
   onShifEnter: () => void;
@@ -159,7 +160,10 @@ export default class Editor extends React.Component<EditorProps, State> {
     super(props);
 
     this.state = {
-      editorState: EditorState.createEmpty(),
+      editorState: createStateFromHTML(
+        EditorState.createEmpty(),
+        props.defaultContent || ''
+      ),
       collectedMentions: [],
       suggestions: this.props.mentions.toArray(),
       templatesState: null
