@@ -18,9 +18,6 @@ interface ITeamMembers {
 const MentionEntry = props => {
   const { mention, theme, searchValue, ...parentProps } = props;
 
-  // parentProps.className = parentProps.className + ' ' + 'mentionSuggestionsContainer';
-  console.log('parentProps: ', parentProps); // tslint:disable-line
-
   return (
     <div {...parentProps}>
       <div className="mentionSuggestionsEntryContainer">
