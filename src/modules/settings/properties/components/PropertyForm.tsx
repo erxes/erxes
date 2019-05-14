@@ -158,7 +158,7 @@ class PropertyForm extends React.Component<Props, State> {
     );
 
     return (
-      <ModalTrigger title="Add Property" trigger={trigger} content={content} />
+      <ModalTrigger title="Create group" trigger={trigger} content={content} />
     );
   };
 
