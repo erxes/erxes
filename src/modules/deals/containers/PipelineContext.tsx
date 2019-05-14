@@ -89,7 +89,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     const nextStartDate = nextProps.queryParams.startDate;
     const nextEndDate = nextProps.queryParams.endDate;
 
-    // Reset deals on search parameter change
+    // Reset deals on filter and search parameter change
     if (
       search !== nextSearch ||
       assignedUserIds !== nextAssignedUserIds ||
