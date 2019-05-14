@@ -20,7 +20,7 @@ const InsightWrapper = styled.div`
 `;
 
 const InsightContent = styled.div`
-  padding: 0 30px 30px 30px;
+  padding: 30px;
   overflow: auto;
 `;
 
@@ -43,7 +43,7 @@ const InsightTitle = styled.h5`
   text-transform: uppercase;
   font-weight: ${typography.fontWeightRegular};
   padding: ${dimensions.unitSpacing}px 0;
-  margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
+  margin: 0 0 ${dimensions.unitSpacing}px;
 
   span {
     margin-left: ${dimensions.unitSpacing}px;
@@ -168,7 +168,7 @@ const FullName = styled.span`
 `;
 
 const BoxContainer = styled.div`
-  width: 680px;
+  width: 1020px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -177,8 +177,7 @@ const BoxContainer = styled.div`
 const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   width: 320px;
   border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin: 10px;
   flex-shrink: 0;
 
   > a {

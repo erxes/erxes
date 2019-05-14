@@ -12,6 +12,8 @@ const basicFields = `
   isUser
   visitorContactInfo
 
+  modifiedAt
+
   position
   department
   leadStatus
@@ -61,6 +63,7 @@ const listParamsDef = `
   $perPage: Int,
   $segment: String,
   $tag: String,
+  $type: String,
   $ids: [String],
   $searchValue: String,
   $brand: String,
@@ -79,6 +82,7 @@ const listParamsValue = `
   perPage: $perPage,
   segment: $segment,
   tag: $tag,
+  type: $type,
   ids: $ids,
   searchValue: $searchValue,
   brand: $brand,

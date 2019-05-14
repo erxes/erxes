@@ -1,5 +1,5 @@
 import { Button, FormControl, Icon, Tip } from 'modules/common/components';
-import { __, Alert, uploadHandler } from 'modules/common/utils';
+import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
 import * as React from 'react';
 
 import {
@@ -224,7 +224,9 @@ class RespondBox extends React.Component<Props, State> {
               <AttachmentThumb>
                 {attachment.type.startsWith('image') && (
                   <PreviewImg
-                    style={{ backgroundImage: `url('${attachment.url}')` }}
+                    style={{
+                      backgroundImage: `url(${readFile(attachment.url)})`
+                    }}
                   />
                 )}
               </AttachmentThumb>

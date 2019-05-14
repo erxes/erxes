@@ -92,9 +92,9 @@ const stagesUpdateOrder = `
 `;
 
 const dealsChange = `
-  mutation dealsChange($_id: String!, $stageId: String!) {
-    dealsChange(_id: $_id, stageId: $stageId) {
-      ${commonReturn}
+  mutation dealsChange($_id: String!) {
+    dealsChange(_id: $_id) {
+      _id
     }
   }
 `;

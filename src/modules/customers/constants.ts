@@ -98,13 +98,10 @@ export const CUSTOMER_DATAS = {
 
 export const LEAD_STATUS_TYPES = {
   new: 'New',
-  open: 'Open',
   inProgress: 'In Progress',
-  openDeal: 'Open Deal',
-  unqualified: 'Unqualified',
   attemptedToContact: 'Attempted to contact',
-  connected: 'Connected',
-  badTiming: 'Bad Timing'
+  badTiming: 'Bad Timing',
+  unqualified: 'Unqualified'
 };
 
 export const LIFECYCLE_STATE_TYPES = {

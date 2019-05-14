@@ -9,14 +9,15 @@ import {
   Icon,
   Tip
 } from 'modules/common/components';
-import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
+import { PopoverHeader } from 'modules/notifications/components/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
+import { Overlay, Popover } from 'react-bootstrap';
 import * as Datetime from 'react-datetime';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
@@ -25,6 +26,8 @@ import {
   ClearDate,
   DateFilter,
   FilterBox,
+  FilterBtn,
+  FilterLabel,
   SelectOption,
   SelectValue
 } from '../styles/deal';
@@ -63,7 +66,8 @@ type Props = {
 type State = {
   startDate: string;
   endDate: string;
-  isHidden: boolean;
+  show: boolean;
+  target: any;
 };
 
 // get selected deal type from URL
@@ -79,9 +83,14 @@ class MainActionBar extends React.Component<Props, State> {
     this.state = {
       startDate: startDate || '',
       endDate: endDate || '',
-      isHidden: true
+      show: false,
+      target: null
     };
   }
+
+  handleClick = ({ target }) => {
+    this.setState(s => ({ target, show: !s.show }));
+  };
 
   onSearch = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
@@ -90,16 +99,22 @@ class MainActionBar extends React.Component<Props, State> {
     }
   };
 
+  toggleFilter = () => {
+    this.setState({ show: !this.state.show });
+  };
+  hideFilter = () => {
+    this.setState({ show: false });
+  };
   onFilterClick = (type: string) => {
     const { currentBoard, currentPipeline } = this.props;
 
     if (currentBoard && currentPipeline) {
-      return `/deals/${type}?id=${currentBoard._id}&pipelineId=${
+      return `/deal/${type}?id=${currentBoard._id}&pipelineId=${
         currentPipeline._id
       }`;
     }
 
-    return `/deals/${type}`;
+    return `/deal/${type}`;
   };
 
   onSelectChange(name: string, values: [string]) {
@@ -128,10 +143,6 @@ class MainActionBar extends React.Component<Props, State> {
     this.props.onSelect(type, formatDate);
   };
 
-  toggleHidden = () => {
-    this.setState({ isHidden: !this.state.isHidden });
-  };
-
   renderBoards() {
     const { currentBoard, boards } = this.props;
 
@@ -144,7 +155,7 @@ class MainActionBar extends React.Component<Props, State> {
         return null;
       }
 
-      let link = `/deals/${getType()}?id=${board._id}`;
+      let link = `/deal/${getType()}?id=${board._id}`;
 
       const { pipelines = [] } = board;
 
@@ -180,7 +191,7 @@ class MainActionBar extends React.Component<Props, State> {
       return (
         <li key={pipeline._id}>
           <Link
-            to={`/deals/${getType()}?id=${currentBoard._id}&pipelineId=${
+            to={`/deal/${getType()}?id=${currentBoard._id}&pipelineId=${
               pipeline._id
             }`}
           >
@@ -194,7 +205,7 @@ class MainActionBar extends React.Component<Props, State> {
   renderDatePicker({ label, value, name, dateProps }) {
     return (
       <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
+        <FilterLabel>{label}</FilterLabel>
         <Datetime
           {...dateProps}
           value={value}
@@ -232,7 +243,6 @@ class MainActionBar extends React.Component<Props, State> {
 
     return (
       <DateFilter>
-        <h5>{__('Filter by date')}</h5>
         {this.renderDatePicker({
           label: __('Start date'),
           value: startDate,
@@ -336,39 +346,50 @@ class MainActionBar extends React.Component<Props, State> {
       </HeaderItems>
     );
 
-    const DealFilter = () => (
-      <FilterBox>
-        <h4>{__('Filter')}</h4>
-        {this.renderSelectors({
-          label: 'Choose products',
-          name: 'productIds',
-          options: products,
-          generator: selectProductOptions
-        })}
+    const DealFilter = (
+      <Overlay
+        show={this.state.show}
+        onHide={this.hideFilter}
+        placement="bottom"
+        rootClose={true}
+        containerPadding={20}
+        target={this.state.target}
+      >
+        <Popover id="popover-contained">
+          <PopoverHeader>{__('Filter')}</PopoverHeader>
+          <FilterBox>
+            {this.renderSelectors({
+              label: 'Choose products',
+              name: 'productIds',
+              options: products,
+              generator: selectProductOptions
+            })}
 
-        {this.renderSelectors({
-          label: 'Choose team members',
-          name: 'assignedUserIds',
-          options: users,
-          generator: selectUserOptions
-        })}
+            {this.renderSelectors({
+              label: 'Choose team members',
+              name: 'assignedUserIds',
+              options: users,
+              generator: selectUserOptions
+            })}
 
-        {this.renderSelectors({
-          label: 'Choose companies',
-          name: 'companyIds',
-          options: companies,
-          generator: selectCompanyOptions
-        })}
+            {this.renderSelectors({
+              label: 'Choose companies',
+              name: 'companyIds',
+              options: companies,
+              generator: selectCompanyOptions
+            })}
 
-        {this.renderSelectors({
-          label: 'Choose customers',
-          name: 'customerIds',
-          options: customers,
-          generator: selectCustomerOptions
-        })}
+            {this.renderSelectors({
+              label: 'Choose customers',
+              name: 'customerIds',
+              options: customers,
+              generator: selectCustomerOptions
+            })}
 
-        {this.renderDates()}
-      </FilterBox>
+            {this.renderDates()}
+          </FilterBox>
+        </Popover>
+      </Overlay>
     );
 
     const actionBarRight = (
@@ -384,13 +405,12 @@ class MainActionBar extends React.Component<Props, State> {
           />
         </div>
         <HeaderLink>
-          <Tip text={__('Filter')}>
-            <div onClick={this.toggleHidden} className="filter-button">
-              <Icon icon="filter" />
-            </div>
-          </Tip>
+          <FilterBtn onClick={this.handleClick}>
+            <Icon icon="filter" />
+          </FilterBtn>
+          {DealFilter}
         </HeaderLink>
-        {!this.state.isHidden && <DealFilter />}
+
         <ButtonGroup>
           <Link
             to={boardLink}

@@ -70,6 +70,10 @@ a:hover {
   margin: 0 auto;
 }
 
+.modal-dialog.middle {
+  width: 65%;
+}
+
 .modal-dialog.full {
   width: 85%;
 }
@@ -147,7 +151,6 @@ a:hover {
 
 .dropdown-menu {
   margin-top: 0 !important;
-  border-radius: 0;
   border: none;
   font-size: ${typography.fontSizeBody}px;
   color: ${colors.textPrimary};
@@ -230,7 +233,7 @@ a:hover {
 .popover {
   font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
   border: none;
-  border-radius: 0;
+  border-radius: 4px;
   font-size: inherit;
   padding: 0;
   color: ${colors.textPrimary};
@@ -271,7 +274,7 @@ a:hover {
   font-size: ${typography.fontSizeUppercase}px;
   text-transform: uppercase;
   color: ${colors.colorCoreGray};
-  border-radius: 0;
+  border-radius: 4px 4px 0 0;
 }
 
 .popover-content {

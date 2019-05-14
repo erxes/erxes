@@ -59,7 +59,12 @@ class Brands extends React.Component<Props, {}> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header
+            title={`${currentBrand.name || ''}`}
+            breadcrumb={breadcrumb}
+          />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={

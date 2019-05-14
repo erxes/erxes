@@ -104,6 +104,10 @@ export default class {
    * @return {String} return String
    */
   _getUserName(by) {
+    if (!this.currentUser) {
+      return null;
+    }
+
     if (!by) {
       return 'System';
     }
@@ -148,7 +152,7 @@ export default class {
         caption = (
           <span>
             {target} sent a&nbsp;
-            <Link to={`/inbox?_id=${id}`}>
+            <Link to={`/inbox/index?_id=${id}`}>
               <strong>conversation</strong>
             </Link>
             &nbsp;message

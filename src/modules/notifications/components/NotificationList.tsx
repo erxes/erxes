@@ -78,7 +78,10 @@ class NotificationList extends React.Component<Props, { bulk: string[] }> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header breadcrumb={[{ title: __('Notifications') }]} />
+          <Wrapper.Header
+            title={__('Notifications')}
+            breadcrumb={[{ title: __('Notifications') }]}
+          />
         }
         actionBar={actionBar}
         content={content}
