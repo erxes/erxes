@@ -71,6 +71,7 @@ const ContentHeader = styledTS<{ background: string }>(styled.div)`
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
   justify-content: space-between;
+  z-index: 2;
 `;
 
 const ContenFooter = styled.div`

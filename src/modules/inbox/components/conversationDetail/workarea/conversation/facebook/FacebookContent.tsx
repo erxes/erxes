@@ -55,6 +55,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
     }
 
     const { scrollBottom } = this.props;
+    let href = link;
 
     if (link.includes('youtube.com')) {
       const iframeSrc = link.split('v=')[1].substring(0, 11);
@@ -98,8 +99,12 @@ export default class FacebookContent extends React.Component<Props, {}> {
       );
     }
 
+    if (!link.startsWith('https://')) {
+      href = `https://www.facebook.com/${link}`;
+    }
+
     return (
-      <a href={`https://www.facebook.com/${link}`} target="_blank">
+      <a href={href} target="_blank">
         {link}
       </a>
     );

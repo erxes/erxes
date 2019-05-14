@@ -178,9 +178,14 @@ class CustomerForm extends React.Component<Props, State> {
   };
 
   onOwnerChange = selectedOption => {
-    this.setState({
-      ownerId: selectedOption ? selectedOption.value : null
-    });
+    this.setState(
+      {
+        ownerId: selectedOption ? selectedOption.value : null
+      },
+      () => {
+        this.handleUserSearch(selectedOption ? selectedOption.label : '');
+      }
+    );
   };
 
   render() {

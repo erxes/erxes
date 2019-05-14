@@ -45,6 +45,13 @@ const integrations = `
           featuredImage
           skip
         }
+        rules {
+          _id
+          kind
+          text
+          condition
+          value
+        }
       }
     }
   }
@@ -88,6 +95,13 @@ const integrationDetail = `
           buttonText
           featuredImage
           skip
+        }
+        rules {
+          _id
+          kind
+          text
+          condition
+          value
         }
       }
     }

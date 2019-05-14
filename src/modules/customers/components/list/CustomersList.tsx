@@ -13,7 +13,7 @@ import {
 } from 'modules/common/components';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
-import { ImportButton, TableHeadContent } from 'modules/customers/styles';
+import { ImportButton } from 'modules/customers/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
@@ -116,10 +116,7 @@ class CustomersList extends React.Component<IProps, State> {
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>
-                <TableHeadContent>
-                  <SortHandler sortField={name} />
-                  {__(label)}
-                </TableHeadContent>
+                <SortHandler sortField={name} label={__(label)} />
               </th>
             ))}
             <th>{__('Tags')}</th>
