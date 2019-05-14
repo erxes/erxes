@@ -73,7 +73,7 @@ const FlexItem = styled.div`
     border: none;
     background: none;
     border-bottom: 1px solid ${colors.colorShadowGray};
-    padding: 17px 14px;
+    padding: 5px 0;
     font-size: ${typography.fontSizeBody}px;
 
     &:focus {
