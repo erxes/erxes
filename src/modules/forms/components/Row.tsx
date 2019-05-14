@@ -106,7 +106,7 @@ class Row extends React.Component<Props, {}> {
         <td>{form.viewCount || 0}</td>
         <td>{percentage.substring(0, 4)} %</td>
         <td>
-          <Link to={`/contacts/customers?form=${integration.formId}`}>
+          <Link to={`/contacts/customers/all?form=${integration.formId}`}>
             {form.contactsGathered || 0}
           </Link>
         </td>

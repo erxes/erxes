@@ -48,6 +48,10 @@ const NavItem = styled.div`
   }
 `;
 
+const WorkFlowImage = styled.img`
+  width: 100%;
+`;
+
 const QuickNavigation = ({
   logout,
   currentUser
@@ -57,6 +61,13 @@ const QuickNavigation = ({
 }) => {
   const passContent = props => <ChangePassword {...props} />;
   const signatureContent = props => <Signature {...props} />;
+  const workflowContent = props => (
+    <WorkFlowImage
+      alt="workflow-diagram"
+      src="/images/workflow-diagram.svg"
+      {...props}
+    />
+  );
   const notificationContent = props => (
     <NotificationSettings currentUser={currentUser} {...props} />
   );
@@ -123,6 +134,18 @@ const QuickNavigation = ({
                 </li>
               }
               content={notificationContent}
+            />
+
+            <MenuItem divider={true} />
+            <ModalTrigger
+              title="Workflow: Brand > Integration > Channel > Team member > Team Inbox"
+              dialogClassName="middle"
+              trigger={
+                <li>
+                  <a>{__('Workflow')}</a>
+                </li>
+              }
+              content={workflowContent}
             />
 
             <MenuItem divider={true} />

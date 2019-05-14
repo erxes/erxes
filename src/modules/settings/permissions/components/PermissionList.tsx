@@ -3,20 +3,19 @@ import {
   ActionButtons,
   Button,
   DataWithLoader,
-  FormControl,
   Icon,
   ModalTrigger,
   Pagination,
   Table,
+  TextInfo,
   Tip
 } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { BarItems } from 'modules/layout/styles';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import { FilterItem, FilterWrapper } from '../styles';
+import { GroupList } from '../containers';
+import { FilterItem, FilterWrapper, NotWrappable } from '../styles';
 import {
   IActions,
   IModule,
@@ -76,11 +75,11 @@ class PermissionList extends React.Component<Props> {
           <td>{object.user ? object.user.email : ''}</td>
           <td>{object.group ? object.group.name : ''}</td>
           <td>
-            <FormControl
-              componentClass="checkbox"
-              disabled={true}
-              defaultChecked={object.allowed}
-            />
+            {object.allowed ? (
+              <TextInfo textStyle="success">{__('Allowed')}</TextInfo>
+            ) : (
+              <TextInfo textStyle="danger">{__('Not Allowed')}</TextInfo>
+            )}
           </td>
           <td>
             <ActionButtons>
@@ -139,19 +138,14 @@ class PermissionList extends React.Component<Props> {
     );
 
     const actionBarRight = (
-      <BarItems>
+      <NotWrappable>
         <ModalTrigger
           title="New Permission"
           size={'lg'}
           trigger={trigger}
           content={this.renderForm}
         />
-        <Link to="/settings/users/groups">
-          <Button type="success" size="small" icon="users">
-            User groups
-          </Button>
-        </Link>
-      </BarItems>
+      </NotWrappable>
     );
 
     const actionBarLeft = (
@@ -197,7 +191,7 @@ class PermissionList extends React.Component<Props> {
   }
 
   render() {
-    const { isLoading, totalCount } = this.props;
+    const { isLoading, totalCount, queryParams } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
@@ -210,6 +204,7 @@ class PermissionList extends React.Component<Props> {
           <Wrapper.Header title={__('Permissions')} breadcrumb={breadcrumb} />
         }
         actionBar={this.renderActionBar()}
+        leftSidebar={<GroupList queryParams={queryParams} />}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader

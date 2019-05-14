@@ -173,6 +173,7 @@ export type BoardsGetLastQueryResponse = {
 
 export type BoardDetailQueryResponse = {
   dealBoardDetail: IBoard;
+  loading: boolean;
 };
 
 export type PipelineDetailQueryResponse = {

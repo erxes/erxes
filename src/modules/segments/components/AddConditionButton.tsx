@@ -1,4 +1,9 @@
-import { Button, FilterableList } from 'modules/common/components';
+import {
+  Button,
+  ControlLabel,
+  FilterableList,
+  Icon
+} from 'modules/common/components';
 import { dateUnits, types } from 'modules/customers/constants';
 import * as React from 'react';
 import { OverlayTrigger, Popover, Tooltip } from 'react-bootstrap';
@@ -28,7 +33,7 @@ class AddConditionButton extends React.Component<Props> {
     this.overlayTrigger.hide();
   };
 
-  renderFields(type: string) {
+  renderFields(type: string, title: string) {
     const { fields } = this.props;
 
     let items = fields.filter(
@@ -58,6 +63,7 @@ class AddConditionButton extends React.Component<Props> {
 
     return (
       <Field>
+        <ControlLabel>{title}</ControlLabel>
         <FilterableList
           items={items}
           onClick={this.addCondition}
@@ -67,11 +73,14 @@ class AddConditionButton extends React.Component<Props> {
     );
   }
 
-  renderFieldType(type: string, title: string) {
+  renderFieldType(type: string, title: string, icon: string) {
     return (
       <PopoverList>
-        <FieldType>{title}</FieldType>
-        {this.renderFields(type)}
+        <FieldType>
+          {title}
+          <Icon icon={icon} />
+        </FieldType>
+        {this.renderFields(type, title)}
       </PopoverList>
     );
   }
@@ -79,10 +88,22 @@ class AddConditionButton extends React.Component<Props> {
   renderPopover() {
     return (
       <Popover id="condition-popover" title="Select a field">
-        {this.renderFieldType('basic-info', 'Basic Info')}
-        {this.renderFieldType('messenger-data', 'Messenger data')}
-        {this.renderFieldType('customer-field-data', 'Customer field data')}
-        {this.renderFieldType('other-properties', 'Other properties')}
+        {this.renderFieldType('basic-info', 'Basic Info', 'information')}
+        {this.renderFieldType(
+          'messenger-data',
+          'Messenger data',
+          'speech-bubble-2'
+        )}
+        {this.renderFieldType(
+          'customer-field-data',
+          'Customer field data',
+          'user-1'
+        )}
+        {this.renderFieldType(
+          'other-properties',
+          'Other properties',
+          'settings-3'
+        )}
       </Popover>
     );
   }

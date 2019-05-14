@@ -4,11 +4,10 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import * as React from 'react';
 import Toggle from 'react-toggle';
-import { SelectBrand } from '../..';
+import { SelectBrand } from '../../../containers/';
 
 type Props = {
   onChange: (
@@ -16,7 +15,6 @@ type Props = {
     value: string
   ) => void;
   brandId?: string;
-  brands?: IBrand[];
   languageCode: string;
   notifyCustomer?: boolean;
   requireAuth: boolean;
@@ -72,11 +70,7 @@ class Options extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
 
-          <SelectBrand
-            brands={this.props.brands || []}
-            defaultValue={this.props.brandId}
-            onChange={brandOnChange}
-          />
+          <SelectBrand onChange={brandOnChange} />
 
           <FormGroup>
             <ControlLabel>Require Authentication</ControlLabel>

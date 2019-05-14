@@ -19,7 +19,7 @@ const commonOptions = () => ({
   refetchQueries: [{ query: gql(queries.usersGroups) }]
 });
 
-export default commonListComposer({
+export default commonListComposer<Props>({
   name: 'usersGroups',
 
   gqlListQuery: graphql<Props, UsersGroupsQueryResponse>(
@@ -30,8 +30,7 @@ export default commonListComposer({
         return {
           notifyOnNetworkStatusChange: true,
           variables: {
-            page: queryParams.page,
-            perPage: queryParams.perPage || 20
+            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
           }
         };
       }

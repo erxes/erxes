@@ -268,7 +268,6 @@ class CreateMessenger extends React.Component<Props, State> {
             >
               <Options
                 onChange={this.onChange}
-                brands={this.props.brands}
                 brandId={brandId}
                 notifyCustomer={notifyCustomer}
                 languageCode={languageCode}
