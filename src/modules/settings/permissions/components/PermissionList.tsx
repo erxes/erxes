@@ -15,7 +15,7 @@ import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { GroupList } from '../containers';
-import { FilterItem, FilterWrapper, NotWrappable } from '../styles';
+import { Capitalize, FilterItem, FilterWrapper, NotWrappable } from '../styles';
 import {
   IActions,
   IModule,
@@ -70,7 +70,9 @@ class PermissionList extends React.Component<Props> {
 
       return (
         <tr key={object._id}>
-          <td>{object.module}</td>
+          <td>
+            <Capitalize>{object.module}</Capitalize>
+          </td>
           <td>{permissionAction.map(action => action.label)}</td>
           <td>{object.user ? object.user.email : ''}</td>
           <td>{object.group ? object.group.name : ''}</td>
