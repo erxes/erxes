@@ -65,12 +65,35 @@ class RespondBox extends React.Component<Props, State> {
     };
   }
 
+  isContentWritten() {
+    const { content } = this.state;
+
+    // draftjs empty content
+    if (content === '<p><br></p>' || content === '') {
+      return false;
+    }
+
+    return true;
+  }
+
+  shouldComponentUpdate(nextProps: Props) {
+    if (this.props.conversation._id !== nextProps.conversation._id) {
+      if (this.isContentWritten()) {
+        localStorage.setItem(this.props.conversation._id, this.state.content);
+      } else {
+        // if clear content
+        localStorage.removeItem(this.props.conversation._id);
+      }
+
+      // clear previous content
+      this.setState({ content: '' });
+    }
+
+    return true;
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const { sending, content } = this.state;
-
-    if (this.props.conversation._id !== prevProps.conversation._id) {
-      this.setState({ isInternal: false });
-    }
 
     if (sending && content !== prevState.content) {
       this.setState({ sending: false });
@@ -90,6 +113,10 @@ class RespondBox extends React.Component<Props, State> {
       });
     }
   }
+
+  getUnsendMessage = (id: string) => {
+    return localStorage.getItem(id) || '';
+  };
 
   // save editor current content to state
   onEditorContentChange = (content: string) => {
@@ -262,12 +289,8 @@ class RespondBox extends React.Component<Props, State> {
     return null;
   }
 
-  getUnsendMessage(id: string) {
-    return localStorage.getItem(id);
-  }
-
   render() {
-    const { isInternal, responseTemplate, content } = this.state;
+    const { isInternal, responseTemplate } = this.state;
     const { responseTemplates, conversation } = this.props;
 
     const integration = conversation.integration || ({} as IIntegration);
@@ -328,6 +351,8 @@ class RespondBox extends React.Component<Props, State> {
           isInactive={this.state.isInactive}
         >
           <Editor
+            currentConversation={conversation._id}
+            defaultContent={this.getUnsendMessage(conversation._id)}
             key={this.state.editorKey}
             onChange={this.onEditorContentChange}
             onAddMention={this.onAddMention}

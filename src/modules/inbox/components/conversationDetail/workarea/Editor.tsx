@@ -24,6 +24,7 @@ import {
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 
 type EditorProps = {
+  currentConversation: string;
   defaultContent?: string;
   onChange: (content: string) => void;
   onAddMention: (mentions: any) => void;
@@ -162,7 +163,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     this.state = {
       editorState: createStateFromHTML(
         EditorState.createEmpty(),
-        props.defaultContent || ''
+        props.defaultContent
       ),
       collectedMentions: [],
       suggestions: this.props.mentions.toArray(),
@@ -186,6 +187,16 @@ export default class Editor extends React.Component<EditorProps, State> {
       this.props.onChange(this.getContent(editorState));
 
       // set editor state from response template
+      this.setState({ editorState });
+    }
+
+    // check switch conversation and fill default content
+    if (nextProps.currentConversation !== this.props.currentConversation) {
+      const editorState = createStateFromHTML(
+        EditorState.createEmpty(),
+        nextProps.defaultContent
+      );
+
       this.setState({ editorState });
     }
   }
