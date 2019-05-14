@@ -90,6 +90,8 @@ a:hover {
   border: 0;
   border-radius: 2px;
   background: #673FBD;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .modal-header .close {
