@@ -1,4 +1,6 @@
 import * as React from 'react';
+import * as validator from 'validator';
+import { Error } from './styles';
 
 type Props = {
   onSubmit: (e: any) => void;
@@ -44,16 +46,36 @@ class Form extends React.Component<Props, State> {
     const value = (document.getElementsByName(child.props.name) as any)[0]
       .value;
 
-    if (!value) {
-      return 'Required';
+    if (child.props.type === 'email' && !validator.isEmail(value)) {
+      return (
+        <Error>Invalid email format! Please enter a valid email address.</Error>
+      );
     }
 
-    return this.props.onSubmit;
+    if (child.props.max && !validator.isLength('length', { min: 4, max: 6 })) {
+      return <Error>Maximum length is {child.props.max} characters!</Error>;
+    }
+
+    if (
+      child.props.type === 'url' &&
+      !validator.isURL(value, {
+        protocols: ['http', 'https', 'ftp'],
+        require_protocol: true
+      })
+    ) {
+      return <Error>Invalid link!</Error>;
+    }
+
+    if (child.props.required && !value) {
+      return <Error>Required field!</Error>;
+    }
+
+    return null;
   };
 
   render() {
     return (
-      <form>
+      <form onSubmit={this.props.onSubmit}>
         {this.props.renderContent({
           errors: this.state.errors,
           registerChild: this.registerChild,

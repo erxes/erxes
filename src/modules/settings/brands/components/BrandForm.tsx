@@ -50,7 +50,7 @@ class BrandForm extends React.Component<Props, {}> {
       <div>
         <div>
           <FormGroup>
-            <ControlLabel>Name</ControlLabel>
+            <ControlLabel required={true}>Name</ControlLabel>
 
             <FormControl
               {...props}

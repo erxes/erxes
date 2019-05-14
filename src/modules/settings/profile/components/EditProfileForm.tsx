@@ -1,10 +1,8 @@
 import { UserCommonInfos } from 'modules/auth/components';
 import { IUser, IUserDoc } from 'modules/auth/types';
-import { Button } from 'modules/common/components';
+import { Button, Form } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { Alert } from 'modules/common/utils';
-import { regexEmail } from 'modules/customers/utils';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import { PasswordConfirmation } from '.';
@@ -84,19 +82,11 @@ class EditProfile extends React.Component<Props, State> {
     return this.handleSubmit(password);
   };
 
-  isValidEmail = () => {
-    return regexEmail.test(this.getInputElementValue('email'));
-  };
-
   showConfirm = () => {
-    if (!this.isValidEmail()) {
-      return Alert.error('Invalid email');
-    }
-
     return this.setState({ isShowPasswordPopup: true });
   };
 
-  renderPasswordConfirmationModal() {
+  renderPasswordConfirmationModal(props) {
     return (
       <Modal show={this.state.isShowPasswordPopup} onHide={this.closeConfirm}>
         <Modal.Header closeButton={true}>
@@ -104,6 +94,7 @@ class EditProfile extends React.Component<Props, State> {
         </Modal.Header>
         <Modal.Body>
           <PasswordConfirmation
+            {...props}
             onSuccess={this.onSuccess}
             closeModal={this.closeConfirm}
           />
@@ -112,15 +103,16 @@ class EditProfile extends React.Component<Props, State> {
     );
   }
 
-  render() {
+  renderContent = props => {
     return (
-      <React.Fragment>
+      <>
         <UserCommonInfos
+          {...props}
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
         />
 
-        {this.renderPasswordConfirmationModal()}
+        {this.renderPasswordConfirmationModal(props)}
 
         <ModalFooter>
           <Button
@@ -135,12 +127,18 @@ class EditProfile extends React.Component<Props, State> {
           <Button
             btnStyle="success"
             icon="checked-1"
-            onClick={this.showConfirm}
+            onClick={props.runValidations}
           >
             Save
           </Button>
         </ModalFooter>
-      </React.Fragment>
+      </>
+    );
+  };
+
+  render() {
+    return (
+      <Form onSubmit={this.showConfirm} renderContent={this.renderContent} />
     );
   }
 }

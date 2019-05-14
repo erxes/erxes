@@ -278,6 +278,14 @@ const Checkbox = styled(inputStyle)`
   }
 `;
 
+const Error = styled.label`
+  color: ${colors.colorCoreRed};
+  transition: all 0.3s linear;
+  padding-top: ${dimensions.unitSpacing - 5}px;
+  display: block;
+  font-weight: 500;
+`;
+
 export {
   Input,
   SelectWrapper,
@@ -287,5 +295,6 @@ export {
   Checkbox,
   FormLabel,
   Label,
-  Formgroup
+  Formgroup,
+  Error
 };
