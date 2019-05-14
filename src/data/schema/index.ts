@@ -1,5 +1,7 @@
 import { gql } from 'apollo-server-express';
 
+import { types as CommonTypes } from './common';
+
 import { mutations as UserMutations, queries as UserQueries, types as UserTypes } from './user';
 
 import { mutations as CompanyMutations, queries as CompanyQueries, types as CompanyTypes } from './company';
@@ -100,7 +102,7 @@ import { mutations as AccountMutations, queries as AccountQueries, types as Acco
 export const types = `
   scalar JSON
   scalar Date
-
+  ${CommonTypes}
   ${UserTypes}
   ${InternalNoteTypes}
   ${ActivityLogTypes}
