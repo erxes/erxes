@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 const MainDescription = styled.div`
   max-width: 610px;
-  padding: 30px 0;
+  padding: 30px 10px 30px;
   display: flex;
   align-items: center;
   font-size: 12px;
