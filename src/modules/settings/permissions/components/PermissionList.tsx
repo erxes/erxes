@@ -169,15 +169,6 @@ class PermissionList extends React.Component<Props> {
         </FilterItem>
         <FilterItem>
           <Select
-            placeholder={__('Choose group')}
-            options={generateListParams(groups)}
-            onChange={this.setFilter.bind(this, 'groupId')}
-            value={queryParams.groupId}
-          />
-        </FilterItem>
-
-        <FilterItem>
-          <Select
             placeholder={__('Choose user')}
             options={generateListParams(users)}
             onChange={this.setFilter.bind(this, 'userId')}

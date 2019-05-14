@@ -9,7 +9,7 @@ const FilterWrapper = styled.div`
 const FilterItem = styled.div`
   position: relative;
   float: left;
-  min-width: 180px;
+  min-width: 200px;
   margin-right: 20px;
 `;
 
