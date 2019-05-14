@@ -10,7 +10,6 @@ import {
 import { __, Alert, confirm, router } from 'modules/common/utils';
 import { menuContacts } from 'modules/common/utils/menus';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
-import { TableHeadContent } from 'modules/customers/styles';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import { ManageColumns } from 'modules/settings/properties/containers';
@@ -125,10 +124,7 @@ class CompaniesList extends React.Component<IProps, State> {
               </th>
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>
-                  <TableHeadContent>
-                    <SortHandler sortField={name} />
-                    {__(label)}
-                  </TableHeadContent>
+                  <SortHandler sortField={name} label={__(label)} />
                 </th>
               ))}
               <th>{__('Tags')}</th>
