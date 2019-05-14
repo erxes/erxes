@@ -6,23 +6,27 @@ import {
   ModalTrigger,
   Tip
 } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import { IRouterProps } from 'modules/common/types';
+import { __, router } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import * as React from 'react';
+import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 import { IUserGroup, IUserGroupDocument } from '../types';
 import GroupForm from './GroupForm';
 
-type Props = {
+interface IProps extends IRouterProps {
+  queryParams: any;
   totalCount: number;
   loading: boolean;
   objects: IUserGroupDocument[];
   save: (doc: IUserGroup, callback: () => void, object: any) => void;
   remove: (id: string) => void;
-};
+}
 
-class GroupList extends React.Component<Props> {
+class GroupList extends React.Component<IProps> {
   renderFormTrigger(trigger: React.ReactNode, object) {
     const content = props => this.renderForm({ ...props, object });
 
@@ -37,6 +41,17 @@ class GroupList extends React.Component<Props> {
     const extendedProps = { ...props, save };
 
     return <GroupForm {...extendedProps} />;
+  };
+
+  isActive = (id: string) => {
+    const { queryParams } = this.props;
+    const currentGroup = queryParams.groupId || '';
+
+    return currentGroup === id;
+  };
+
+  clearGroupFilter = () => {
+    router.setParams(this.props.history, { groupId: null });
   };
 
   renderEditActions(object: IUserGroupDocument) {
@@ -65,8 +80,8 @@ class GroupList extends React.Component<Props> {
 
   renderObjects(objects: IUserGroupDocument[]) {
     return objects.map(object => (
-      <SidebarListItem key={object._id} isActive={false}>
-        <a>{object.name}</a>
+      <SidebarListItem key={object._id} isActive={this.isActive(object._id)}>
+        <Link to={`?groupId=${object._id}`}>{object.name}</Link>
         <ActionButtons>
           {this.renderEditActions(object)}
           {this.renderRemoveActions(object)}
@@ -82,22 +97,26 @@ class GroupList extends React.Component<Props> {
   }
 
   renderSidebarHeader() {
-    const { save } = this.props;
     const { Header } = Sidebar;
 
     const trigger = (
-      <HelperButtons>
-        <a>
-          <Icon icon="add" />
-        </a>
-      </HelperButtons>
+      <a>
+        <Icon icon="add" />
+      </a>
     );
 
     return (
       <Header uppercase={true}>
         {__('User groups')}
 
-        {this.renderFormTrigger(trigger, null)}
+        <HelperButtons>
+          {this.renderFormTrigger(trigger, null)}
+          {router.getParam(this.props.history, 'groupId') && (
+            <a tabIndex={0} onClick={this.clearGroupFilter}>
+              <Icon icon="cancel-1" />
+            </a>
+          )}
+        </HelperButtons>
       </Header>
     );
   }
@@ -122,4 +141,4 @@ class GroupList extends React.Component<Props> {
   }
 }
 
-export default GroupList;
+export default withRouter<IProps>(GroupList);
