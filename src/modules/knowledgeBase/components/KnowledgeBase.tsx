@@ -17,13 +17,18 @@ class KnowledgeBase extends React.Component<Props> {
       title: '',
       firstTopic: { title: '' }
     };
-    const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };
-
-    return [
-      { title: __('Knowledge base'), link: '/knowledgeBase' },
-      { title: `${currentKnowledgeBase.title || 'No Category'}` },
-      { title: `${currentCategory.title || ''}` }
-    ];
+    const currentKnowledgeBase = currentCategory.firstTopic || {
+      title: '...'
+    };
+    if (!currentKnowledgeBase) {
+      return [{ title: __('Knowledge base'), link: '/knowledgeBase' }];
+    } else {
+      return [
+        { title: __('Knowledge base'), link: '/knowledgeBase' },
+        { title: `${currentKnowledgeBase.title || 'No Category'}` },
+        { title: `${currentCategory.title || ''}` }
+      ];
+    }
   }
 
   render() {

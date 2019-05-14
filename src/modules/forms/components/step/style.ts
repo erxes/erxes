@@ -76,6 +76,21 @@ const ColorPicker = styled.div`
   margin: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing / 2}px;
 `;
 
+const PipColorContainer = styled.div`
+  width: 100%;
+  margin: 35px 0 0;
+  display: inline-flex;
+  background: #fff;
+  padding: 12px 0 5px 10px;
+  border: 1px solid #eeeded;
+  > label {
+    text-transform: uppercase;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 300;
+  }
+`;
+
 const Picker = styled.div`
   width: 80px;
   height: 15px;
@@ -270,6 +285,7 @@ export {
   FlexItem,
   FlexColumn,
   ColorPicker,
+  PipColorContainer,
   Picker,
   BackgroundSelector,
   Box,
