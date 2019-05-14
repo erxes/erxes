@@ -617,7 +617,7 @@ a:hover {
   color: ${colors.colorCoreDarkGray};
 }
 
-.draftJsMentionPlugin__mentionSuggestions__2DWjA {
+.mentionSuggestions {
   position: absolute;
   min-width: 220px;
   width: 100%;
@@ -634,17 +634,21 @@ a:hover {
   overflow: auto;
 }
 
-.draftJsMentionPlugin__mentionSuggestionsEntry__3mSwm {
+.mentionSuggestionsBottom {
+  bottom: auto !important;
+}
+
+.mentionSuggestionsEntry {
   padding: 5px 10px;
   transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
   font-size: ${typography.fontSizeBody}px;
 }
 
-.draftJsMentionPlugin__mentionSuggestionsEntry__3mSwm:active {
+.mentionSuggestionsEntry:active {
   background-color: ${colors.borderPrimary};
 }
 
-.draftJsMentionPlugin__mentionSuggestionsEntryFocused__3LcTd {
+.mentionSuggestionsEntryFocused {
   background-color: ${colors.bgUnread};
 }
 

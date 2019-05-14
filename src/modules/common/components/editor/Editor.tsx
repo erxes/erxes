@@ -43,6 +43,7 @@ type ErxesEditorProps = {
   placeholder?: string | React.ReactNode;
   useMention?: boolean;
   collectMentions?: (mentionedUserIds: string[]) => void;
+  mentionPosition?: string;
 };
 
 export class ErxesEditor extends React.Component<
@@ -90,7 +91,15 @@ export class ErxesEditor extends React.Component<
     });
 
     this.mentionPlugin = createMentionPlugin({
-      mentionPrefix: '@'
+      mentionPrefix: '@',
+      theme: {
+        mentionSuggestions: `mentionSuggestions${
+          props.mentionPosition === 'bottom' ? ' mentionSuggestionsBottom' : ''
+        }`,
+        mentionSuggestionsEntry: 'mentionSuggestionsEntry',
+        mentionSuggestionsEntryFocused:
+          'mentionSuggestionsEntry mentionSuggestionsEntryFocused'
+      }
     });
 
     this.state = {

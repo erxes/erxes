@@ -125,7 +125,8 @@ class Form extends React.PureComponent<
       keyBindingFn: this.keyBindingFn,
       placeholder: __('Write your note here'),
       useMention: true,
-      collectMentions: this.collectMentions
+      collectMentions: this.collectMentions,
+      mentionPosition: 'bottom'
     };
 
     return (
