@@ -3,9 +3,7 @@ import {
   ContentState,
   convertFromHTML,
   EditorState,
-  Modifier,
-  RichUtils,
-  SelectionState
+  RichUtils
 } from 'draft-js';
 import createLinkPlugin from 'draft-js-anchor-plugin';
 import {
@@ -181,10 +179,6 @@ export class ErxesEditor extends React.Component<
     );
   };
 
-  onChange = (editorState: EditorState) => {
-    this.props.onChange(editorState);
-  };
-
   render() {
     const {
       controls,
@@ -208,11 +202,7 @@ export class ErxesEditor extends React.Component<
 
     if (useMention) {
       showMention = (
-        <Mention
-          onChange={this.onChange}
-          plugin={this.mentionPlugin}
-          onAddMention={this.onAddMention}
-        />
+        <Mention plugin={this.mentionPlugin} onAddMention={this.onAddMention} />
       );
     }
 
@@ -244,7 +234,7 @@ export class ErxesEditor extends React.Component<
             editorState={editorState}
             handleKeyCommand={this.handleKeyCommand}
             onTab={this.onTab}
-            onChange={this.onChange}
+            onChange={this.props.onChange}
             placeholder={this.props.placeholder}
             keyBindingFn={this.props.keyBindingFn}
             onUpArrow={onUpArrow}

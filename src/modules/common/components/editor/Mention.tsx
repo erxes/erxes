@@ -1,5 +1,4 @@
 import { defaultSuggestionsFilter } from 'bat-draft-js-mention-plugin';
-import { EditorState } from 'draft-js';
 import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
 import { queries } from 'modules/inbox/graphql';
@@ -54,7 +53,6 @@ const extractEntries = mention => {
 };
 
 type Props = {
-  onChange: (editorState: EditorState) => void;
   onAddMention: (collectedUsers: any[]) => void;
   plugin: any;
 };
@@ -74,7 +72,7 @@ class Mention extends React.Component<FinalProps, State> {
 
     this.state = {
       collectedUsers: [],
-      suggestions: this.props.mentions.toArray()
+      suggestions: props.mentions.toArray()
     };
   }
 
@@ -124,7 +122,9 @@ const MentionContainer = (props: UserProps) => {
 
   const teamMembers: ITeamMembers[] = [];
 
-  for (const user of usersQuery.users || []) {
+  const users = usersQuery.users || [];
+
+  for (const user of users) {
     teamMembers.push({
       _id: user._id,
       name: user.username,
