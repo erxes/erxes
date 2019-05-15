@@ -148,11 +148,13 @@ const facebookSchema = new Schema(
     postId: field({
       type: String,
       optional: true,
+      index: true,
     }),
 
     commentId: field({
       type: String,
       optional: true,
+      index: true,
     }),
 
     // parent comment id
@@ -216,6 +218,7 @@ const facebookSchema = new Schema(
     senderId: field({
       type: String,
       optional: true,
+      index: true,
     }),
 
     senderName: field({

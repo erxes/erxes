@@ -54,6 +54,13 @@ interface IReactionParams {
   from: IFbUser;
 }
 
+interface IFacebookMessageSelector {
+  facebookData: {
+    postId?: string;
+    commentId?: string;
+  };
+}
+
 export interface IFacebookReply {
   text?: string;
   attachment?: any;
@@ -379,7 +386,7 @@ export class SaveWebhookResponse {
   /**
    * Increase or decrease like count
    */
-  public async updateLikeCount(type: string, selector: any) {
+  public async updateLikeCount(type: string, selector: IFacebookMessageSelector) {
     let count = -1;
 
     if (type === 'add') {
@@ -394,7 +401,7 @@ export class SaveWebhookResponse {
   /**
    * Updates reaction
    */
-  public async updateReactions(type: string, selector: any, reactionType: string, from: IFbUser) {
+  public async updateReactions(type: string, selector: IFacebookMessageSelector, reactionType: string, from: IFbUser) {
     const reactionField = `facebookData.reactions.${reactionType}`;
 
     if (type === 'add') {
@@ -413,14 +420,14 @@ export class SaveWebhookResponse {
    */
   public async handleReactions(reactionParams: IReactionParams) {
     const { verb, post_id, comment_id, reaction_type, item, from } = reactionParams;
-    let selector = {};
+    let selector: IFacebookMessageSelector = { facebookData: {} };
 
     if (post_id) {
-      selector = { 'facebookData.postId': post_id };
+      selector = { facebookData: { postId: post_id } };
     }
 
     if (comment_id) {
-      selector = { 'facebookData.commentId': comment_id };
+      selector = { facebookData: { commentId: comment_id } };
     }
 
     // Receiving like
@@ -526,6 +533,7 @@ export class SaveWebhookResponse {
     let msgFacebookData = {};
 
     // sending to comment handler if comment
+    // TODO: prechecking is too costly.
     if (item === 'comment' && comment_id) {
       // if already saved then ignore it
       const conversationMessage = await ConversationMessages.findOne({
@@ -788,7 +796,6 @@ export const receiveWebhookResponse = async data => {
 
   for (const integration of integrations) {
     const { facebookData } = integration;
-
     if (!facebookData) {
       throw new Error('Could not find integrations facebookData');
     }
