@@ -7,7 +7,6 @@ import { __, withProps } from '../utils';
 
 type Props = {
   searchValue: string;
-  perPage: number;
   value: string;
   queryName: string;
   name: string;
@@ -48,10 +47,7 @@ class SelectWithSearch extends React.Component<Props> {
 
     const datas = customQuery[queryName] || [];
 
-    const onChange = list => {
-      onSelect(name, list.map(item => item.value));
-    };
-
+    const onChange = list => onSelect(name, list.map(item => item.value));
     const onSearch = searchValue => search(searchValue);
 
     return (
@@ -61,25 +57,23 @@ class SelectWithSearch extends React.Component<Props> {
         onChange={onChange}
         optionRenderer={selectOption}
         valueRenderer={selectValue}
-        removeSelected={true}
-        options={options(datas)}
         onInputChange={onSearch}
+        options={options(datas)}
+        removeSelected={true}
         multi={true}
       />
     );
   }
 }
 
-const getOptions = ({ searchValue, perPage }) => ({
-  variables: { searchValue, perPage }
-});
-
 const withQuery = ({ customQuery }) =>
   withProps<Props>(
     compose(
-      graphql<Props>(gql(customQuery), {
+      graphql<Props, {}, { searchValue: string }>(gql(customQuery), {
         name: 'customQuery',
-        options: searchProps => getOptions(searchProps)
+        options: ({ searchValue }) => ({
+          variables: { searchValue }
+        })
       })
     )(SelectWithSearch)
   );
@@ -94,40 +88,35 @@ type WrapperProps = {
   customQuery?: any;
 };
 
-let WithQuery;
-
-export default class Wrapper extends React.Component<
+class Wrapper extends React.Component<
   WrapperProps,
-  { perPage: number; searchValue: string }
+  { searchValue: string },
+  { WithQuery: React.ReactNode }
 > {
+  private WithQuery;
+
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '' };
+    this.WithQuery = withQuery({ customQuery: this.props.customQuery });
 
-    WithQuery = withQuery({ customQuery: this.props.customQuery });
+    this.state = { searchValue: '' };
   }
 
-  search = (value, loadmore) => {
-    let perPage = 20;
-
-    if (loadmore) {
-      perPage = this.state.perPage + 20;
-    }
-
-    return this.setState({ perPage, searchValue: value });
-  };
+  search = (searchValue: string) => this.setState({ searchValue });
 
   render() {
-    const { searchValue, perPage } = this.state;
+    const { searchValue } = this.state;
+    const Component = this.WithQuery;
 
     return (
-      <WithQuery
+      <Component
         {...this.props}
         search={this.search}
         searchValue={searchValue}
-        perPage={perPage}
       />
     );
   }
 }
+
+export default Wrapper;

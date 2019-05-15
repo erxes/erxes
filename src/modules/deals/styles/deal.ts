@@ -321,21 +321,8 @@ const UserCounterContainer = styled.ul`
   }
 `;
 const FilterBox = styled.div`
-  position: fixed;
-  top: 120px;
-  right: 0;
-  background: #fff;
-  padding: 10px 30px 10px;
+  padding: 0 20px 0 20px;
   width: 300px;
-  transition: 0.3s;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 10px 0px;
-  border-radius: 10px 0 0 10px;
-  z-index: 42;
-  -webkit-transition: all 1s ease;
-  -moz-transition: all 1s ease;
-  -o-transition: all 1s ease;
-  -ms-transition: all 1s ease;
-  transition: all 1s ease;
   h4 {
     text-align: center;
     font-size: 16px;
@@ -358,6 +345,7 @@ const FilterBox = styled.div`
   }
 `;
 const DateFilter = styled.div`
+  margin-top: 20px;
   h5 {
     text-align: center;
     margin-top: 25px;
@@ -369,6 +357,15 @@ const ClearDate = styled.div`
     right: -10px;
     bottom: 0px;
   }
+`;
+const FilterBtn = styled.div`
+  color: #888;
+  padding: 0 11px;
+  display: block;
+  line-height: 34px;
+`;
+const FilterLabel = styled.div`
+  font-size: 12px;
 `;
 export {
   Deal,
@@ -400,5 +397,7 @@ export {
   Footer,
   FilterBox,
   DateFilter,
-  ClearDate
+  ClearDate,
+  FilterBtn,
+  FilterLabel
 };
