@@ -102,7 +102,7 @@ const MessengerPreview = styled(WebPreview)`
   min-height: 500px;
 `;
 
-const Segmentli = styledTS<{ chosen: boolean }>(styled.li)`
+const ListCounter = styledTS<{ chosen: boolean }>(styled.li)`
   list-style-type: none;
   text-align: left;
   display: list-item;
@@ -233,7 +233,7 @@ export {
   PreviewContent,
   Messenger,
   MessengerPreview,
-  Segmentli,
+  ListCounter,
   Recipients,
   Recipient,
   StepContent,

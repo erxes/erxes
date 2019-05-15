@@ -50,49 +50,52 @@ class SegmentStep extends React.Component<Props, State> {
     this.props.onChange('segmentId', segmentId);
   };
 
+  renderComponentContent = ({
+    actionSelector,
+    customerCounts,
+    listContent
+  }) => {
+    const { renderContent } = this.props;
+    const { createSegment } = this.state;
+
+    const componentContent = (
+      <>
+        {listContent}
+        <Show show={createSegment}>
+          <SegmentsForm
+            fields={this.props.segmentFields}
+            create={this.props.segmentAdd}
+            headSegments={this.props.headSegments}
+            count={this.props.count}
+            createSegment={this.createSegment}
+          />
+        </Show>
+      </>
+    );
+
+    return renderContent({ actionSelector, componentContent, customerCounts });
+  };
+
   render() {
-    const { renderContent, counts, segments } = this.props;
+    const { counts, segments } = this.props;
     const { createSegment, segmentId } = this.state;
 
     const onChange = () => this.createSegment(false);
     const onChangeSegment = () => this.createSegment(true);
 
-    const content = ({ actionSelector, customerCounts, listContent }) => {
-      const componentContent = (
-        <>
-          {listContent}
-          <Show show={createSegment}>
-            <SegmentsForm
-              fields={this.props.segmentFields}
-              create={this.props.segmentAdd}
-              headSegments={this.props.headSegments}
-              count={this.props.count}
-              createSegment={this.createSegment}
-            />
-          </Show>
-        </>
-      );
-
-      return (
-        <>
-          {renderContent({ actionSelector, componentContent, customerCounts })}
-        </>
-      );
-    };
-
     return (
       <Common
-        content={content}
-        customers={counts[segmentId] || 0}
+        id={segmentId}
+        type="segment"
         name="createSegment"
-        checked={createSegment}
         onChange={onChange}
         onChangeToggle={onChangeSegment}
-        title="segment"
-        list={segments}
         changeList={this.changeSegment}
         listCount={counts}
-        id={segmentId}
+        customers={counts[segmentId] || 0}
+        list={segments}
+        checked={createSegment}
+        content={this.renderComponentContent}
       />
     );
   }

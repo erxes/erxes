@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
-import { BrandsQueryResponse } from 'modules/settings/brands/types';
+import { TagStep } from 'modules/engage/components/step/audience';
+import { TagsQueryResponse } from 'modules/tags/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { BrandStep } from '../../components';
 import { queries } from '../../graphql';
 
 type Props = {
@@ -19,35 +19,36 @@ type Props = {
       customerCounts: React.ReactNode;
     }
   ) => React.ReactNode;
-  onChange: (name: 'brandId', value: string) => void;
-  brandId: string;
+  onChange: (name: 'tagId', value: string) => void;
+  tagId: string;
 };
 
 type FinalProps = {
-  brandsQuery: BrandsQueryResponse;
+  tagsQuery: TagsQueryResponse;
   customerCountsQuery: CountQueryResponse;
 } & Props;
 
-const BrandStepContianer = (props: FinalProps) => {
-  const { brandsQuery, customerCountsQuery } = props;
+const TagStepContianer = (props: FinalProps) => {
+  const { tagsQuery, customerCountsQuery } = props;
 
   const customerCounts = customerCountsQuery.customerCounts || {
-    byBrand: {}
+    byTag: {}
   };
 
   const updatedProps = {
     ...props,
-    brands: brandsQuery.brands || [],
-    counts: customerCounts.byBrand || {}
+    tags: tagsQuery.tags || [],
+    counts: customerCounts.byTag || {}
   };
 
-  return <BrandStep {...updatedProps} />;
+  return <TagStep {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery'
+    graphql<Props, TagsQueryResponse>(gql(queries.tags), {
+      name: 'tagsQuery',
+      options: () => ({ variables: { type: 'engageMessage' } })
     }),
     graphql<Props, CountQueryResponse, { only: string }>(
       gql(queries.customerCounts),
@@ -55,10 +56,10 @@ export default withProps<Props>(
         name: 'customerCountsQuery',
         options: {
           variables: {
-            only: 'byBrand'
+            only: 'byTag'
           }
         }
       }
     )
-  )(BrandStepContianer)
+  )(TagStepContianer)
 );

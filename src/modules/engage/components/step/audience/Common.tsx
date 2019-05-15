@@ -33,71 +33,14 @@ type Props = {
   onChangeToggle: any;
   checked: boolean;
   name: string;
-  title: string;
+  type: string;
   list: ISegment[] | any;
   listCount: any;
   changeList: any;
   id: string;
 };
 
-class Common extends React.Component<Props> {
-  render() {
-    const {
-      content,
-      customers,
-      onChange,
-      checked,
-      name,
-      title,
-      onChangeToggle,
-      list,
-      changeList,
-      listCount,
-      id
-    } = this.props;
-
-    const customerCounts = counts(customers);
-
-    const actionSelector = (
-      <RadioContainer>
-        <FormControl
-          componentClass="radio"
-          onChange={onChange}
-          name={name}
-          value={false}
-          checked={checked === false}
-        >
-          {__(`Choose a ${title}`)}
-        </FormControl>
-
-        <FormControl
-          componentClass="radio"
-          onChange={onChangeToggle}
-          name={name}
-          checked={checked === true}
-          value={true}
-        >
-          {__(`Create a ${title}`)}
-        </FormControl>
-      </RadioContainer>
-    );
-
-    const listContent = checked ? null : (
-      <ListContainer>
-        <List
-          list={list}
-          changeList={changeList}
-          counts={listCount}
-          defaultValue={id}
-        />
-      </ListContainer>
-    );
-
-    return content({ actionSelector, customerCounts, listContent });
-  }
-}
-
-function counts(customers: number): React.ReactNode {
+function counts(customers: number) {
   return (
     <CustomerCounts>
       <Icon icon="users" size={50} />
@@ -107,5 +50,64 @@ function counts(customers: number): React.ReactNode {
     </CustomerCounts>
   );
 }
+
+const Common = (props: Props) => {
+  const renderRadioControl = ({ label, ...args }) => {
+    return (
+      <FormControl {...args} componentClass="radio" name={props.name}>
+        {label}
+      </FormControl>
+    );
+  };
+
+  const {
+    content,
+    onChange,
+    checked,
+    type,
+    onChangeToggle,
+    list,
+    customers,
+    changeList,
+    listCount,
+    id
+  } = props;
+
+  const actionSelector = (
+    <RadioContainer>
+      {renderRadioControl({
+        onChange,
+        value: false,
+        checked: checked === false,
+        label: __(`Choose a ${type}`)
+      })}
+
+      {renderRadioControl({
+        onChange: onChangeToggle,
+        value: true,
+        checked: checked === true,
+        label: __(`Create a ${type}`)
+      })}
+    </RadioContainer>
+  );
+
+  const listContent = checked ? null : (
+    <ListContainer>
+      <List
+        list={list}
+        type={type}
+        changeList={changeList}
+        counts={listCount}
+        defaultValue={id}
+      />
+    </ListContainer>
+  );
+
+  return content({
+    actionSelector,
+    listContent,
+    customerCounts: counts(customers)
+  });
+};
 
 export default Common;

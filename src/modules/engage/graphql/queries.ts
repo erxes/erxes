@@ -179,6 +179,19 @@ const segments = `
   }
 `;
 
+const tags = `
+  query tagsQuery($type: String) {
+    tags(type: $type) {
+      _id
+      name
+      type
+      colorCode
+      createdAt
+      objectCount
+    }
+  }
+`;
+
 const brands = `
   query brands {
     brands {
@@ -249,5 +262,6 @@ export default {
   combinedFields,
   kindCounts,
   statusCounts,
-  tagCounts
+  tagCounts,
+  tags
 };

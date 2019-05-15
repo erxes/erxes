@@ -6,11 +6,9 @@ import {
 } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { ISegment, ISegmentDoc } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import * as React from 'react';
-import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IBreadCrumbItem } from '../../common/types';
 import {
   IEngageEmail,
@@ -43,6 +41,7 @@ type State = {
   title: string;
   segmentId: string;
   brandId: string;
+  tagId: string;
   content: string;
   fromUserId: string;
   messenger?: IEngageMessenger;
@@ -67,6 +66,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       title: message.title || '',
       segmentId: message.segmentId || '',
       brandId: messenger.brandId || '',
+      tagId: messenger.tagId || '',
       content,
       fromUserId: message.fromUserId,
       messenger: message.messenger,
@@ -130,7 +130,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       content,
       scheduleDate,
       segmentId,
-      brandId
+      brandId,
+      tagId
     } = this.state;
 
     const onChange = e =>
@@ -165,6 +166,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
               onChange={this.changeState}
               segmentId={segmentId}
               brandId={brandId}
+              tagId={tagId}
             />
           </Step>
 

@@ -1,11 +1,13 @@
 import { EmptyState, Icon } from 'modules/common/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { ISegment } from 'modules/segments/types';
+import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
-import { Segmentli } from '../styles';
+import { ListCounter } from '../styles';
 
 type Props = {
-  list: ISegment[] | any;
+  list: IBrand | ISegment[] | any;
+  type: string;
   changeList: (value: string) => void;
   counts: any;
   defaultValue: string;
@@ -24,7 +26,7 @@ class List extends React.Component<Props, State> {
     }
   }
 
-  onClickSegment = id => {
+  onClick = id => {
     if (id === this.state.selected) {
       this.setState({ selected: '' });
       this.props.changeList('');
@@ -34,35 +36,41 @@ class List extends React.Component<Props, State> {
     }
   };
 
-  renderItems(orderedSegments) {
-    const { counts } = this.props;
+  renderItems(orderedList) {
+    const { counts, type } = this.props;
 
-    if (orderedSegments.length === 0) {
-      return <EmptyState icon="piechart" text="No segments" size="small" />;
+    if (orderedList.length === 0) {
+      return <EmptyState icon="piechart" text={`No ${type}`} size="small" />;
     }
 
-    return orderedSegments.map(segment => (
-      <Segmentli key={segment._id} chosen={this.state.selected === segment._id}>
-        <a tabIndex={0} onClick={this.onClickSegment.bind(this, segment._id)}>
-          {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-          <Icon icon="piechart icon" style={{ color: segment.color }} />
-          {segment.name}
-          <SidebarCounter>{counts[segment._id]}</SidebarCounter>
+    return orderedList.map(item => (
+      <ListCounter key={item._id} chosen={this.state.selected === item._id}>
+        <a tabIndex={0} onClick={this.onClick.bind(this, item._id)}>
+          {item.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
+          <Icon icon="piechart icon" style={{ color: item.color }} />
+          {item.name}
+          <SidebarCounter>{counts[item._id] || 0}</SidebarCounter>
         </a>
-      </Segmentli>
+      </ListCounter>
     ));
   }
 
   render() {
-    const { list } = this.props;
+    const { list, type } = this.props;
 
-    const orderedList: ISegment[] | any = [];
+    const order = segments => {
+      const orderedSegments: ISegment[] = [];
 
-    list.forEach(obj => {
-      if (!obj.subOf) {
-        orderedList.push(obj, ...obj.getSubSegments);
-      }
-    });
+      segments.forEach(segment => {
+        if (!segment.subOf) {
+          orderedSegments.push(segment, ...segment.getSubSegments);
+        }
+      });
+
+      return orderedSegments;
+    };
+
+    const orderedList = type === 'segment' ? order(list) : list;
 
     return <SidebarList>{this.renderItems(orderedList)}</SidebarList>;
   }

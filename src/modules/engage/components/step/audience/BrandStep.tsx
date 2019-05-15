@@ -6,6 +6,7 @@ type Props = {
   brandId: string;
   renderContent: any;
   brands: IBrand[];
+  counts: any;
   onChange: (name: 'brandId', value: string) => void;
 };
 
@@ -37,27 +38,38 @@ class BrandStep extends React.Component<Props, State> {
     this.props.onChange('brandId', brandId);
   };
 
+  renderComponentContent = ({
+    actionSelector,
+    customerCounts,
+    listContent
+  }) => {
+    const { renderContent } = this.props;
+
+    const componentContent = <>{listContent}</>;
+
+    return renderContent({ actionSelector, componentContent, customerCounts });
+  };
+
   render() {
-    const { renderContent, brands } = this.props;
+    const { brands, counts } = this.props;
     const { brandId, createBrand } = this.state;
 
     const onChange = () => this.createBrand(false);
     const onChangeBrand = () => this.createBrand(true);
-    const content = args => <>{renderContent(args)}</>;
 
     return (
       <Common
-        content={content}
-        customers={0}
+        id={brandId}
+        type="brand"
         name="createBrand"
-        checked={createBrand}
         onChange={onChange}
         onChangeToggle={onChangeBrand}
-        title="brand"
-        list={brands}
-        listCount={0}
         changeList={this.changeBrand}
-        id={brandId}
+        listCount={counts}
+        customers={counts[brandId] || 0}
+        list={brands}
+        checked={createBrand}
+        content={this.renderComponentContent}
       />
     );
   }

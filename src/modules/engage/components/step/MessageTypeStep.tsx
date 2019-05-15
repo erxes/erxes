@@ -1,29 +1,25 @@
 import {
   ControlLabel,
   FormControl,
-  FormGroup,
-  Icon
+  FormGroup
 } from 'modules/common/components';
 import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { MESSAGE_AUDIENCES } from 'modules/engage/constants';
 import * as React from 'react';
-import { BrandStep, SegmentStep } from '../../containers';
+import { BrandStep, SegmentStep, TagStep } from '../../containers';
 
 type Props = {
-  onChange: (name: 'brandId' | 'segmentId', value: string) => void;
+  onChange: (name: 'brandId' | 'segmentId' | 'tagId', value: string) => void;
   segmentId: string;
   brandId: string;
+  tagId: string;
 };
 
-type State = {
-  type: string;
-};
-
-class MessageTypeStep extends React.Component<Props, State> {
+class MessageTypeStep extends React.Component<Props, { type: string }> {
   state = { type: 'segment' };
 
-  onSelectorChange = (e: React.FormEvent<HTMLElement>) => {
+  onChange = (e: React.FormEvent<HTMLElement>) => {
     this.setState({ type: (e.target as HTMLInputElement).value });
   };
 
@@ -34,10 +30,9 @@ class MessageTypeStep extends React.Component<Props, State> {
         <FormControl
           id="type"
           value={this.state.type}
-          defaultValue="segments"
           componentClass="select"
           options={MESSAGE_AUDIENCES}
-          onChange={this.onSelectorChange}
+          onChange={this.onChange}
         />
       </FormGroup>
     );
@@ -60,7 +55,7 @@ class MessageTypeStep extends React.Component<Props, State> {
 
   render() {
     const { type } = this.state;
-    const { segmentId, brandId, onChange } = this.props;
+    const { segmentId, brandId, tagId, onChange } = this.props;
 
     const commonProps = {
       renderContent: args => this.renderContent(args),
@@ -69,6 +64,10 @@ class MessageTypeStep extends React.Component<Props, State> {
 
     if (type === 'brand') {
       return <BrandStep {...commonProps} brandId={brandId} />;
+    }
+
+    if (type === 'tag') {
+      return <TagStep {...commonProps} tagId={tagId} />;
     }
 
     return <SegmentStep {...commonProps} segmentId={segmentId} />;
