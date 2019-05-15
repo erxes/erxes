@@ -37,11 +37,11 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       pipeline
     } = this.props;
 
-    if (stagesQuery.loading || usersQuery.loading) {
+    if ((stagesQuery && stagesQuery.loading) || usersQuery.loading) {
       return <Spinner />;
     }
 
-    const stages = stagesQuery.dealStages;
+    const stages = stagesQuery ? stagesQuery.dealStages : [];
     const members = usersQuery.users || [];
     const memberIds = pipeline ? pipeline.memberIds || [] : [];
 
@@ -70,6 +70,7 @@ export default withProps<Props>(
       gql(queries.stages),
       {
         name: 'stagesQuery',
+        skip: props => !props.pipeline,
         options: ({ pipeline }: { pipeline?: IPipeline }) => ({
           variables: { pipelineId: pipeline ? pipeline._id : '' },
           fetchPolicy: 'network-only'
