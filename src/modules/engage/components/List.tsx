@@ -47,7 +47,10 @@ class List extends React.Component<Props, State> {
       <ListCounter key={item._id} chosen={this.state.selected === item._id}>
         <a tabIndex={0} onClick={this.onClick.bind(this, item._id)}>
           {item.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-          <Icon icon="piechart icon" style={{ color: item.color }} />
+          <Icon
+            icon="piechart icon"
+            style={{ color: item.color || item.colorCode }}
+          />
           {item.name}
           <SidebarCounter>{counts[item._id] || 0}</SidebarCounter>
         </a>
