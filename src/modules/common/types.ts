@@ -47,3 +47,9 @@ export type IDateColumn = {
   month: number;
   year: number;
 };
+
+export interface IFormProps {
+  errors: any[];
+  registerChild: (child: any) => void;
+  runValidations?: () => void;
+}

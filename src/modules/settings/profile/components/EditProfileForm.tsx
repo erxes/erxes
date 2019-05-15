@@ -103,16 +103,18 @@ class EditProfile extends React.Component<Props, State> {
     );
   }
 
-  renderContent = props => {
+  renderContent = formProps => {
+    // tslint:disable-next-line:no-console
+    console.log(formProps.errors);
     return (
-      <>
+      <form onSubmit={this.showConfirm}>
         <UserCommonInfos
-          {...props}
+          formProps={formProps}
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
         />
 
-        {this.renderPasswordConfirmationModal(props)}
+        {this.renderPasswordConfirmationModal(formProps)}
 
         <ModalFooter>
           <Button
@@ -125,21 +127,20 @@ class EditProfile extends React.Component<Props, State> {
           </Button>
 
           <Button
+            type="submit"
             btnStyle="success"
             icon="checked-1"
-            onClick={props.runValidations}
+            onClick={formProps.runValidations}
           >
             Save
           </Button>
         </ModalFooter>
-      </>
+      </form>
     );
   };
 
   render() {
-    return (
-      <Form onSubmit={this.showConfirm} renderContent={this.renderContent} />
-    );
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

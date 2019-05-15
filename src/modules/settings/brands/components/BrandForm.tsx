@@ -98,7 +98,7 @@ class BrandForm extends React.Component<Props, {}> {
   };
 
   render() {
-    return <Form onSubmit={this.save} renderContent={this.renderContent} />;
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

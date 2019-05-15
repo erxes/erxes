@@ -9,6 +9,7 @@ import {
   FormColumn,
   FormWrapper
 } from 'modules/common/styles/main';
+import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { timezones } from 'modules/settings/integrations/constants';
 import * as React from 'react';
@@ -17,13 +18,12 @@ import { IUser } from '../types';
 type Props = {
   user: IUser;
   onAvatarUpload: (url: string) => void;
-  errors?: any[];
-  registerChild?: (child: any) => void;
+  formProps?: IFormProps;
 };
 
 class UserCommonInfos extends React.PureComponent<Props> {
   render() {
-    const { user, onAvatarUpload, errors, registerChild } = this.props;
+    const { user, onAvatarUpload, formProps } = this.props;
     const details = user.details || {};
     const links = user.links || {};
 
@@ -39,8 +39,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="fullName"
                 name="fullName"
                 defaultValue={details.fullName || ''}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
             <FormGroup>
@@ -50,8 +49,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="shortName"
                 name="shortName"
                 defaultValue={details.shortName || ''}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
             <FormGroup>
@@ -61,8 +59,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="email"
                 name="email"
                 defaultValue={user.email}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
                 required={true}
               />
             </FormGroup>
@@ -75,8 +72,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 max={250}
                 componentClass="textarea"
                 defaultValue={details.description || ''}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
           </FormColumn>
@@ -89,8 +85,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 name="username"
                 defaultValue={user.username}
                 required={true}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
             <FormGroup>
@@ -100,8 +95,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="position"
                 name="position"
                 defaultValue={details.position || ''}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
             <FormGroup>
@@ -112,8 +106,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="user-location"
                 name="user-location"
                 options={timezones}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
           </FormColumn>
@@ -128,8 +121,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="linkedin"
                 name="linkedin"
                 defaultValue={links.linkedIn || ''}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
             <FormGroup>
@@ -139,8 +131,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="twitter"
                 name="twitter"
                 defaultValue={links.twitter || ''}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
             <FormGroup>
@@ -150,8 +141,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="facebook"
                 name="facebook"
                 defaultValue={links.facebook || ''}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
           </FormColumn>
@@ -163,8 +153,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="youtube"
                 name="youtube"
                 defaultValue={links.youtube || ''}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
             <FormGroup>
@@ -174,8 +163,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="github"
                 name="github"
                 defaultValue={links.github || ''}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
             <FormGroup>
@@ -185,8 +173,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 id="website"
                 name="website"
                 defaultValue={links.website || ''}
-                errors={errors}
-                registerChild={registerChild}
+                {...formProps}
               />
             </FormGroup>
           </FormColumn>

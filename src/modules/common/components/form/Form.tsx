@@ -1,16 +1,10 @@
+import { IFormProps } from 'modules/common/types';
 import * as React from 'react';
 import * as validator from 'validator';
 import { Error } from './styles';
 
 type Props = {
-  onSubmit: (e: any) => void;
-  renderContent: (
-    props: {
-      errors: any[];
-      registerChild: (child: any) => void;
-      runValidations: () => void;
-    }
-  ) => any;
+  renderContent: (props: IFormProps) => any;
 };
 
 type State = {
@@ -46,6 +40,10 @@ class Form extends React.Component<Props, State> {
     const value = (document.getElementsByName(child.props.name) as any)[0]
       .value;
 
+    if (child.props.required && !value) {
+      return <Error>Required field!</Error>;
+    }
+
     if (child.props.type === 'email' && !validator.isEmail(value)) {
       return (
         <Error>Invalid email format! Please enter a valid email address.</Error>
@@ -57,6 +55,7 @@ class Form extends React.Component<Props, State> {
     }
 
     if (
+      value &&
       child.props.type === 'url' &&
       !validator.isURL(value, {
         protocols: ['http', 'https', 'ftp'],
@@ -66,22 +65,18 @@ class Form extends React.Component<Props, State> {
       return <Error>Invalid link!</Error>;
     }
 
-    if (child.props.required && !value) {
-      return <Error>Required field!</Error>;
-    }
-
     return null;
   };
 
   render() {
     return (
-      <form onSubmit={this.props.onSubmit}>
+      <>
         {this.props.renderContent({
           errors: this.state.errors,
           registerChild: this.registerChild,
           runValidations: this.runValidations
         })}
-      </form>
+      </>
     );
   }
 }
