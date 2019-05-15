@@ -7,9 +7,9 @@ import MessageList from './MessageList';
 import MessageListRow from './MessageListRow';
 import MessengerForm from './MessengerForm';
 import MessengerPreview from './MessengerPreview';
-import SegmentsForm from './SegmentsForm';
 import Sidebar from './Sidebar';
-import { BrandStep, SegmentStep } from './step';
+import { BrandStep, SegmentStep, TagsStep } from './step';
+import SegmentsForm from './step/forms/SegmentsForm';
 import VisitorForm from './VisitorForm';
 import Widget from './Widget';
 
@@ -28,5 +28,6 @@ export {
   EmailForm,
   EmailStatistics,
   SegmentStep,
-  BrandStep
+  BrandStep,
+  TagsStep
 };

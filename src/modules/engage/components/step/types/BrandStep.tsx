@@ -1,7 +1,7 @@
 import { Show } from 'modules/engage/styles';
-import { IBrand, IBrandDoc } from 'modules/settings/brands/types';
+import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
-import BrandForm from '../../BrandForm';
+import { BrandForm } from '../forms';
 import Common from './Common';
 
 type Props = {

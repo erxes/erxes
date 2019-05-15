@@ -1,8 +1,13 @@
 import gql from 'graphql-tag';
-import { withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
-import { TagStep } from 'modules/engage/components/step';
-import { TagsQueryResponse } from 'modules/tags/types';
+import { TagsStep } from 'modules/engage/components/step';
+import { mutations } from 'modules/tags/graphql';
+import {
+  AddMutationResponse,
+  MutationVariables,
+  TagsQueryResponse
+} from 'modules/tags/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
@@ -26,10 +31,23 @@ type Props = {
 type FinalProps = {
   tagsQuery: TagsQueryResponse;
   customerCountsQuery: CountQueryResponse;
-} & Props;
+} & Props &
+  AddMutationResponse;
 
-const TagStepContianer = (props: FinalProps) => {
-  const { tagsQuery, customerCountsQuery } = props;
+const TagsStepContianer = (props: FinalProps) => {
+  const { tagsQuery, addMutation, customerCountsQuery } = props;
+
+  const tagAdd = ({ doc }) => {
+    addMutation({ variables: { ...doc, type: 'engageMessage' } })
+      .then(() => {
+        tagsQuery.refetch();
+        customerCountsQuery.refetch();
+        Alert.success('You have successfully added a tag');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
 
   const customerCounts = customerCountsQuery.customerCounts || {
     byTag: {}
@@ -38,10 +56,11 @@ const TagStepContianer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     tags: tagsQuery.tags || [],
-    counts: customerCounts.byTag || {}
+    counts: customerCounts.byTag || {},
+    tagAdd
   };
 
-  return <TagStep {...updatedProps} />;
+  return <TagsStep {...updatedProps} />;
 };
 
 export default withProps<Props>(
@@ -60,6 +79,9 @@ export default withProps<Props>(
           }
         }
       }
-    )
-  )(TagStepContianer)
+    ),
+    graphql<Props, AddMutationResponse, MutationVariables>(gql(mutations.add), {
+      name: 'addMutation'
+    })
+  )(TagsStepContianer)
 );

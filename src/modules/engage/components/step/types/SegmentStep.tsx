@@ -2,7 +2,7 @@ import { __ } from 'modules/common/utils';
 import { Show } from 'modules/engage/styles';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import * as React from 'react';
-import { SegmentsForm } from '../..';
+import { SegmentsForm } from '../forms';
 import Common from './Common';
 
 type Props = {

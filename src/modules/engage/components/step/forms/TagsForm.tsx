@@ -4,54 +4,71 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { Alert, generateRandomColorCode } from 'modules/common/utils';
+import { StepFormWrapper } from 'modules/engage/styles';
 import * as React from 'react';
-import { StepFormWrapper } from '../styles';
 
 type Props = {
-  create: (params: { doc: { name: string; description: string } }) => void;
-  createBrand: (value: boolean) => void;
+  create: (
+    params: {
+      doc: {
+        name: string;
+        description: string;
+        colorCode: string;
+      };
+    }
+  ) => void;
+  createTag: (value: boolean) => void;
 };
 
 type State = {
   name: string;
   description: string;
+  colorCode: string;
 };
 
-class BrandForm extends React.Component<Props, State> {
+class TagsForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
       name: '',
-      description: ''
+      description: '',
+      colorCode: generateRandomColorCode() || ''
     };
   }
 
   save = e => {
     e.preventDefault();
 
-    const { create, createBrand } = this.props;
-    const { name, description } = this.state;
+    const { create, createTag } = this.props;
+    const { name, description, colorCode } = this.state;
 
     if (name.length === 0) {
-      return Alert.error('Please write your brand name');
+      return Alert.error('Please insert a tag name');
     }
 
     if (description.length === 0) {
-      return Alert.error('Please write your description');
+      return Alert.error('Please insert a tag description');
+    }
+
+    if (colorCode.length === 0) {
+      return Alert.error('Please choose a tag color code');
     }
 
     create(this.generateDoc());
-    createBrand(false);
+    createTag(false);
   };
 
   generateDoc = () => {
     return {
       doc: {
-        name: (document.getElementById('brand-name') as HTMLInputElement).value,
+        name: (document.getElementById('tag-name') as HTMLInputElement).value,
         description: (document.getElementById(
-          'brand-description'
+          'tag-description'
+        ) as HTMLInputElement).value,
+        colorCode: (document.getElementById(
+          'tag-colorCode'
         ) as HTMLInputElement).value
       }
     };
@@ -68,13 +85,16 @@ class BrandForm extends React.Component<Props, State> {
     const onChangeDesc = e =>
       this.handleChange('description', (e.target as HTMLInputElement).value);
 
+    const onChangeColor = e =>
+      this.handleChange('colorCode', (e.target as HTMLInputElement).value);
+
     return (
       <div>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
 
           <FormControl
-            id="brand-name"
+            id="tag-name"
             type="text"
             required={true}
             onChange={onChangeName}
@@ -85,10 +105,19 @@ class BrandForm extends React.Component<Props, State> {
           <ControlLabel>Description</ControlLabel>
 
           <FormControl
-            id="brand-description"
+            id="tag-description"
             componentClass="textarea"
             onChange={onChangeDesc}
             rows={5}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Color code</ControlLabel>
+          <FormControl
+            type="color"
+            onChange={onChangeColor}
+            id="tag-colorCode"
           />
         </FormGroup>
       </div>
@@ -111,4 +140,4 @@ class BrandForm extends React.Component<Props, State> {
   }
 }
 
-export default BrandForm;
+export default TagsForm;

@@ -1,5 +1,5 @@
 import BrandStep from './BrandStep';
 import SegmentStep from './SegmentStep';
-import TagStep from './TagStep';
+import TagsStep from './TagsStep';
 
-export { SegmentStep, BrandStep, TagStep };
+export { SegmentStep, BrandStep, TagsStep };

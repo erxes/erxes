@@ -4,6 +4,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import { StepFormWrapper } from 'modules/engage/styles';
 import AddConditionButton from 'modules/segments/components/AddConditionButton';
 import Conditions from 'modules/segments/components/Conditions';
 import {
@@ -17,7 +18,6 @@ import {
   ISegmentField
 } from 'modules/segments/types';
 import * as React from 'react';
-import { StepFormWrapper } from '../styles';
 
 type Props = {
   fields: ISegmentField[];

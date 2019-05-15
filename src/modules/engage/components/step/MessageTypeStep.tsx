@@ -7,7 +7,7 @@ import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { MESSAGE_TYPES } from 'modules/engage/constants';
 import * as React from 'react';
-import { BrandStep, SegmentStep, TagStep } from '../../containers';
+import { BrandStep, SegmentStep, TagsStep } from '../../containers';
 
 type Props = {
   onChange: (name: 'brandId' | 'segmentId' | 'tagId', value: string) => void;
@@ -67,7 +67,7 @@ class MessageTypeStep extends React.Component<Props, { type: string }> {
     }
 
     if (type === 'tag') {
-      return <TagStep {...commonProps} tagId={tagId} />;
+      return <TagsStep {...commonProps} tagId={tagId} />;
     }
 
     return <SegmentStep {...commonProps} segmentId={segmentId} />;
