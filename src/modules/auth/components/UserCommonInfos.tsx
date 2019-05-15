@@ -117,7 +117,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>LinkedIn</ControlLabel>
               <FormControl
-                type="url"
+                type="text"
                 id="linkedin"
                 name="linkedin"
                 defaultValue={links.linkedIn || ''}
@@ -127,7 +127,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Twitter</ControlLabel>
               <FormControl
-                type="url"
+                type="text"
                 id="twitter"
                 name="twitter"
                 defaultValue={links.twitter || ''}
@@ -137,7 +137,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Facebook</ControlLabel>
               <FormControl
-                type="url"
+                type="text"
                 id="facebook"
                 name="facebook"
                 defaultValue={links.facebook || ''}
@@ -149,7 +149,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Youtube</ControlLabel>
               <FormControl
-                type="url"
+                type="text"
                 id="youtube"
                 name="youtube"
                 defaultValue={links.youtube || ''}
@@ -159,7 +159,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Github</ControlLabel>
               <FormControl
-                type="url"
+                type="text"
                 id="github"
                 name="github"
                 defaultValue={links.github || ''}
@@ -169,7 +169,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Website</ControlLabel>
               <FormControl
-                type="url"
+                type="text"
                 id="website"
                 name="website"
                 defaultValue={links.website || ''}

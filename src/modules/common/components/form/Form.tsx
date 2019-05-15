@@ -9,6 +9,7 @@ type Props = {
 
 type State = {
   errors: any;
+  values: any;
 };
 
 class Form extends React.Component<Props, State> {
@@ -18,7 +19,8 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      errors: {}
+      errors: {},
+      values: {}
     };
   }
 
@@ -28,12 +30,18 @@ class Form extends React.Component<Props, State> {
 
   runValidations = () => {
     const errors = {};
+    const values = {};
 
     for (const child of this.children) {
       errors[child.props.name] = this.validate(child);
+      values[child.props.name] = this.getValue(child);
     }
 
-    this.setState({ errors });
+    this.setState({ errors, values });
+  };
+
+  getValue = child => {
+    return (document.getElementsByName(child.props.name) as any)[0].value;
   };
 
   validate = child => {
@@ -73,6 +81,7 @@ class Form extends React.Component<Props, State> {
       <>
         {this.props.renderContent({
           errors: this.state.errors,
+          values: this.state.values,
           registerChild: this.registerChild,
           runValidations: this.runValidations
         })}

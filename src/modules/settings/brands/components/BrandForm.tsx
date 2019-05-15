@@ -1,12 +1,13 @@
-import * as React from 'react';
 import {
   Button,
   ControlLabel,
   Form,
   FormControl,
   FormGroup
-} from '../../../common/components';
-import { ModalFooter } from '../../../common/styles/main';
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IFormProps } from 'modules/common/types';
+import * as React from 'react';
 import { IBrand } from '../types';
 
 type Props = {
@@ -25,9 +26,10 @@ type Props = {
 };
 
 class BrandForm extends React.Component<Props, {}> {
-  save = e => {
+  save = (e: React.FormEvent) => {
     e.preventDefault();
-
+    // tslint:disable-next-line:no-console
+    console.log(e);
     const { save, brand, closeModal } = this.props;
     save(this.generateDoc(), () => closeModal(), brand);
   };
@@ -43,36 +45,34 @@ class BrandForm extends React.Component<Props, {}> {
     };
   };
 
-  renderContent = props => {
+  renderContent = formProps => {
     const object = this.props.brand || ({} as IBrand);
 
     return (
-      <div>
-        <div>
-          <FormGroup>
-            <ControlLabel required={true}>Name</ControlLabel>
+      <form onSubmit={this.save}>
+        <FormGroup>
+          <ControlLabel required={true}>Name</ControlLabel>
 
-            <FormControl
-              {...props}
-              name="brand-name"
-              defaultValue={object.name}
-              type="text"
-              required={true}
-            />
-          </FormGroup>
+          <FormControl
+            {...formProps}
+            name="brand-name"
+            defaultValue={object.name}
+            type="text"
+            required={true}
+          />
+        </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Description</ControlLabel>
+        <FormGroup>
+          <ControlLabel>Description</ControlLabel>
 
-            <FormControl
-              {...props}
-              name="brand-description"
-              componentClass="textarea"
-              rows={5}
-              defaultValue={object.description}
-            />
-          </FormGroup>
-        </div>
+          <FormControl
+            {...formProps}
+            name="brand-description"
+            componentClass="textarea"
+            rows={5}
+            defaultValue={object.description}
+          />
+        </FormGroup>
 
         <ModalFooter>
           <Button
@@ -87,13 +87,13 @@ class BrandForm extends React.Component<Props, {}> {
           <Button
             btnStyle="success"
             icon="checked-1"
-            type="button"
-            onClick={props.runValidations}
+            type="submit"
+            onClick={formProps.runValidations}
           >
             Save
           </Button>
         </ModalFooter>
-      </div>
+      </form>
     );
   };
 

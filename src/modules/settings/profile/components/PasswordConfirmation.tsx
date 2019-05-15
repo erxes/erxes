@@ -5,11 +5,13 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IFormProps } from 'modules/common/types';
 import * as React from 'react';
 
 type Props = {
   onSuccess: (password: string) => void;
   closeModal: () => void;
+  formProps?: IFormProps;
 };
 
 class PasswordConfirmation extends React.Component<Props> {
@@ -29,7 +31,14 @@ class PasswordConfirmation extends React.Component<Props> {
       <form onSubmit={this.submit}>
         <FormGroup>
           <ControlLabel>Enter your password to Confirm</ControlLabel>
-          <FormControl autoFocus={true} id="password" type="password" />
+          <FormControl
+            autoFocus={true}
+            type="password"
+            id="password"
+            name="password"
+            required={true}
+            {...this.props.formProps}
+          />
         </FormGroup>
         <ModalFooter>
           <Button

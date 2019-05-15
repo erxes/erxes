@@ -50,6 +50,7 @@ export type IDateColumn = {
 
 export interface IFormProps {
   errors: any[];
+  values: any[];
   registerChild: (child: any) => void;
   runValidations?: () => void;
 }

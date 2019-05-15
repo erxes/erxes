@@ -2,6 +2,7 @@ import { UserCommonInfos } from 'modules/auth/components';
 import { IUser, IUserDoc } from 'modules/auth/types';
 import { Button, Form } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
@@ -82,11 +83,13 @@ class EditProfile extends React.Component<Props, State> {
     return this.handleSubmit(password);
   };
 
-  showConfirm = () => {
+  showConfirm = (e: React.FormEvent) => {
+    e.preventDefault();
+
     return this.setState({ isShowPasswordPopup: true });
   };
 
-  renderPasswordConfirmationModal(props) {
+  renderPasswordConfirmationModal(formProps: IFormProps) {
     return (
       <Modal show={this.state.isShowPasswordPopup} onHide={this.closeConfirm}>
         <Modal.Header closeButton={true}>
@@ -94,7 +97,7 @@ class EditProfile extends React.Component<Props, State> {
         </Modal.Header>
         <Modal.Body>
           <PasswordConfirmation
-            {...props}
+            formProps={formProps}
             onSuccess={this.onSuccess}
             closeModal={this.closeConfirm}
           />
@@ -104,8 +107,6 @@ class EditProfile extends React.Component<Props, State> {
   }
 
   renderContent = formProps => {
-    // tslint:disable-next-line:no-console
-    console.log(formProps.errors);
     return (
       <form onSubmit={this.showConfirm}>
         <UserCommonInfos
@@ -119,7 +120,6 @@ class EditProfile extends React.Component<Props, State> {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            type="button"
             onClick={this.props.closeModal}
             icon="cancel-1"
           >
@@ -127,7 +127,6 @@ class EditProfile extends React.Component<Props, State> {
           </Button>
 
           <Button
-            type="submit"
             btnStyle="success"
             icon="checked-1"
             onClick={formProps.runValidations}
