@@ -5,6 +5,8 @@ export interface IPipeline {
   name: string;
   boardId?: string;
   order?: number;
+  type?: string;
+  memberIds?: string[];
   createdAt?: Date;
 }
 

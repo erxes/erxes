@@ -22,6 +22,8 @@ const pipelines = `
       _id
       name
       boardId
+      type
+      memberIds
     }
   }
 `;
@@ -37,9 +39,23 @@ const stages = `
   }
 `;
 
+const users = `
+  query users {
+    users {
+      _id
+      email
+      details {
+        avatar
+        fullName
+      }
+    }
+  }
+`;
+
 export default {
   boards,
   pipelines,
   stages,
-  boardGetLast
+  boardGetLast,
+  users
 };

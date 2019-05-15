@@ -1,6 +1,8 @@
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import { Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
+import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PipelineForm } from '../components';
@@ -21,17 +23,31 @@ type Props = {
 
 type FinalProps = {
   stagesQuery: StagesQueryResponse;
+  usersQuery: UsersQueryResponse;
 } & Props;
 
-class EditPipelineFormContainer extends React.Component<FinalProps> {
+class PipelineFormContainer extends React.Component<FinalProps> {
   render() {
-    const { stagesQuery, boardId, save, closeModal, pipeline } = this.props;
+    const {
+      stagesQuery,
+      usersQuery,
+      boardId,
+      save,
+      closeModal,
+      pipeline
+    } = this.props;
 
-    if (stagesQuery.loading) {
+    if (stagesQuery.loading || usersQuery.loading) {
       return <Spinner />;
     }
 
     const stages = stagesQuery.dealStages;
+    const members = usersQuery.users || [];
+    const memberIds = pipeline ? pipeline.memberIds || [] : [];
+
+    let selectedMembers: IUser[] = [];
+
+    selectedMembers = members.filter(user => memberIds.includes(user._id));
 
     const extendedProps = {
       ...this.props,
@@ -39,14 +55,16 @@ class EditPipelineFormContainer extends React.Component<FinalProps> {
       boardId,
       save,
       closeModal,
-      pipeline
+      pipeline,
+      members,
+      selectedMembers
     };
 
     return <PipelineForm {...extendedProps} />;
   }
 }
 
-const EditPipelineForm = withProps<Props>(
+export default withProps<Props>(
   compose(
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
       gql(queries.stages),
@@ -57,18 +75,12 @@ const EditPipelineForm = withProps<Props>(
           fetchPolicy: 'network-only'
         })
       }
-    )
-  )(EditPipelineFormContainer)
+    ),
+    graphql<Props, UsersQueryResponse, {}>(gql(queries.users), {
+      name: 'usersQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    })
+  )(PipelineFormContainer)
 );
-
-const PipelineFormContainer = (props: Props) => {
-  const { pipeline } = props;
-
-  if (pipeline) {
-    return <EditPipelineForm {...props} />;
-  }
-
-  return <PipelineForm {...props} />;
-};
-
-export default PipelineFormContainer;

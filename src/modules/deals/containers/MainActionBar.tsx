@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
+import { PipelineQueryResponse } from 'modules/settings/deals/types';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -13,7 +14,8 @@ import { PageHeader } from '../styles/header';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
-  BoardsQueryResponse
+  BoardsQueryResponse,
+  PipelineDetailQueryResponse
 } from '../types';
 
 type Props = {
@@ -21,6 +23,7 @@ type Props = {
 } & IRouterProps;
 
 type FinalProps = {
+  pipelinesQuery: PipelineQueryResponse;
   boardsQuery: BoardsQueryResponse;
   boardGetLastQuery?: BoardsGetLastQueryResponse;
   boardDetailQuery?: BoardDetailQueryResponse;
@@ -46,10 +49,11 @@ class Main extends React.Component<FinalProps> {
       boardsQuery,
       boardGetLastQuery,
       boardDetailQuery,
+      pipelinesQuery,
       middleContent
     } = this.props;
 
-    if (boardsQuery.loading) {
+    if (boardsQuery.loading || pipelinesQuery.loading) {
       return <PageHeader />;
     }
 
@@ -116,7 +120,7 @@ class Main extends React.Component<FinalProps> {
       return null;
     }
 
-    const pipelines = currentBoard.pipelines || [];
+    const pipelines = pipelinesQuery.dealPipelines || [];
     const currentPipeline = pipelineId
       ? pipelines.find(pipe => pipe._id === pipelineId)
       : pipelines[0];
@@ -128,6 +132,7 @@ class Main extends React.Component<FinalProps> {
         queryParams={queryParams}
         history={history}
         currentBoard={currentBoard}
+        pipelines={pipelines}
         currentPipeline={currentPipeline}
         boards={boardsQuery.dealBoards || []}
       />
@@ -148,6 +153,15 @@ const MainActionBar = withProps<Props>(
       name: 'boardGetLastQuery',
       skip: getBoardId
     }),
+    graphql<Props, PipelineDetailQueryResponse, { boardId: string }>(
+      gql(queries.pipelines),
+      {
+        name: 'pipelinesQuery',
+        options: props => ({
+          variables: { boardId: getBoardId(props) }
+        })
+      }
+    ),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
       {
