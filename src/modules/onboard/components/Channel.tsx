@@ -118,7 +118,7 @@ class ChannelForm extends React.Component<Props, State> {
           <Icon icon="checked-1" /> {__('You already have')}{' '}
           <b>{channelsTotalCount}</b> {__('channels')}.{' '}
           <a href="javascript:;" onClick={this.toggleChannels}>
-            {showChannels ? __('Show') : __('Hide')} ›
+            {showChannels ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 

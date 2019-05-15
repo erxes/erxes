@@ -130,7 +130,7 @@ class UserAdd extends React.Component<Props, State> {
           <Icon icon="checked-1" /> {__('There is another')}{' '}
           <b>{usersTotalCount}</b> {__('users')}.{' '}
           <a href="javascript:;" onClick={this.toggleUsers}>
-            {showUsers ? __('Show') : __('Hide')} ›
+            {showUsers ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 

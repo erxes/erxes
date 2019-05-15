@@ -96,7 +96,7 @@ class MessengerAdd extends React.Component<Props, State> {
           <Icon icon="checked-1" /> {__('You already have')} <b>{totalCount}</b>{' '}
           {__('messengers')}.
           <a href="javascript:;" onClick={this.toggleMessengers}>
-            {showMessengers ? __('Show') : __('Hide')} ›
+            {showMessengers ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 
