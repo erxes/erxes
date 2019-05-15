@@ -152,6 +152,12 @@ export type StagesQueryResponse = {
 
 export type SaveDealMutation = ({ variables: IDealParams }) => Promise<any>;
 
+export type DealsChangeMutation = (
+  {
+    variables: { _id }
+  }
+) => Promise<any>;
+
 export type RemoveDealVariables = {
   _id: string;
 };
@@ -167,6 +173,7 @@ export type BoardsGetLastQueryResponse = {
 
 export type BoardDetailQueryResponse = {
   dealBoardDetail: IBoard;
+  loading: boolean;
 };
 
 export type PipelineDetailQueryResponse = {

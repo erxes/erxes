@@ -134,7 +134,12 @@ class List extends React.Component<Props, {}> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: __('Leads') }]} />}
+        header={
+          <Wrapper.Header
+            title={__('Leads')}
+            breadcrumb={[{ title: __('Leads') }]}
+          />
+        }
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

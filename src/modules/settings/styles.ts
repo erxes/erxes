@@ -249,7 +249,6 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
 
 const Description = styled.div`
   color: ${colors.colorCoreGray};
-  padding: ${dimensions.coreSpacing}px 0;
   font-size: 12px;
 `;
 

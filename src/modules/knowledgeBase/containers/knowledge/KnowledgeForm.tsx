@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { queries } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { BrandsQueryResponse } from '../../../settings/brands/types';
 import { KnowledgeForm } from '../../components';
-import { queries } from '../../graphql';
 import { ITopic } from '../../types';
 
 type Props = {
@@ -49,7 +49,7 @@ const TopicAddFormContainer = ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(gql(queries.getBrandList), {
+    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
       name: 'getBrandListQuery',
       options: () => ({
         fetchPolicy: 'network-only'

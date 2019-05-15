@@ -141,7 +141,9 @@ class Properties extends React.Component<Props> {
             right={this.renderActionBar()}
           />
         }
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
+        }
         leftSidebar={<Sidebar title="Properties" currentType={currentType} />}
         content={this.renderProperties()}
       />

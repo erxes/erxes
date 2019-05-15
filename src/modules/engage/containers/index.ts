@@ -1,4 +1,3 @@
-import { BrandStep, SegmentStep, TagStep } from './audience';
 import AutoAndManualForm from './AutoAndManualForm';
 import EmailStatistics from './EmailStatistics';
 import MessageForm from './MessageForm';
@@ -6,6 +5,7 @@ import MessageList from './MessageList';
 import MessageListRow from './MessageListRow';
 import MessengerPreview from './MessengerPreview';
 import Sidebar from './Sidebar';
+import { BrandStep, SegmentStep, TagStep } from './types';
 import VisitorForm from './VisitorForm';
 import Widget from './Widget';
 

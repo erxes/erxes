@@ -125,6 +125,14 @@ export class PipelineProvider extends React.Component<Props, State> {
       destination
     });
 
+    const dealId = result.draggableId;
+
+    // update deal to database
+    this.dealsChange(dealId);
+
+    const deal = dealMap[destination.droppableId].find(d => d._id === dealId);
+    deal.modifiedAt = new Date();
+
     this.setState({
       dealMap
     });
@@ -134,6 +142,19 @@ export class PipelineProvider extends React.Component<Props, State> {
       source.droppableId,
       destination.droppableId
     ]);
+  };
+
+  dealsChange = (dealId: string) => {
+    client
+      .mutate({
+        mutation: gql(mutations.dealsChange),
+        variables: {
+          _id: dealId
+        }
+      })
+      .catch((e: Error) => {
+        Alert.error(e.message);
+      });
   };
 
   saveStageOrders = (stageIds: string[]) => {

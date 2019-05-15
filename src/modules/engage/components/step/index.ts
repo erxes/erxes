@@ -1,6 +1,5 @@
-import { BrandStep, SegmentStep } from './audience';
 import ChannelStep from './ChannelStep';
-import ConditionStep from './ConditionStep';
 import MessageStep from './MessageStep';
+import { BrandStep, SegmentStep, TagStep } from './types';
 
-export { ChannelStep, MessageStep, SegmentStep, BrandStep, ConditionStep };
+export { ChannelStep, MessageStep, SegmentStep, BrandStep, TagStep };

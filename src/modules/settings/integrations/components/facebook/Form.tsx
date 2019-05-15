@@ -7,10 +7,8 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
-import { SelectBrand } from '..';
-import Accounts from '../../containers/Accounts';
+import { Accounts, SelectBrand } from '../../containers/';
 import { CreateFacebookMutationVariables, IPages } from '../../types';
 
 type Props = {
@@ -19,7 +17,6 @@ type Props = {
     callback: () => void
   ) => void;
   onAccountSelect: (accountId?: string) => void;
-  brands: IBrand[];
   pages: IPages[];
   onRemoveAccount: (accountId: string) => void;
   closeModal: () => void;
@@ -95,7 +92,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
   }
 
   render() {
-    const { brands, onRemoveAccount, onAccountSelect } = this.props;
+    const { onRemoveAccount, onAccountSelect } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -106,7 +103,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
 
-        <SelectBrand brands={brands} />
+        <SelectBrand />
 
         <Accounts
           kind="facebook"

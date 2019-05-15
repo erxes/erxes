@@ -59,7 +59,12 @@ class Channels extends React.Component<Props, {}> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header
+            title={`${currentChannel.name || ''}`}
+            breadcrumb={breadcrumb}
+          />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={

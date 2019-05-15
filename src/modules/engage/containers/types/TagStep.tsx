@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
-import { TagStep } from 'modules/engage/components/step/audience';
+import { TagStep } from 'modules/engage/components/step';
 import { TagsQueryResponse } from 'modules/tags/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';

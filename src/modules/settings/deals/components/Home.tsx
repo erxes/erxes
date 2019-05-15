@@ -18,7 +18,7 @@ class Home extends React.Component<Props, {}> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={__('Deal')} breadcrumb={breadcrumb} />}
         leftSidebar={<Boards currentBoardId={boardId} />}
         content={<Pipelines boardId={boardId} />}
       />

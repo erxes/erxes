@@ -6,10 +6,9 @@ import {
   Icon
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import { InstallCode } from 'modules/settings/integrations/components';
-import { SelectBrand } from 'modules/settings/integrations/components';
+import { SelectBrand } from 'modules/settings/integrations/containers';
 import { IIntegration } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
@@ -18,7 +17,6 @@ import { MessengerList } from '../containers';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
-  brands: IBrand[];
   totalCount: number;
   integration?: IIntegration;
   save: (
@@ -98,7 +96,7 @@ class MessengerAdd extends React.Component<Props, State> {
           <Icon icon="checked-1" /> {__('You already have')} <b>{totalCount}</b>{' '}
           {__('messengers')}.
           <a href="javascript:;" onClick={this.toggleMessengers}>
-            {showMessengers ? __('Show') : __('Hide')} ›
+            {showMessengers ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 
@@ -150,6 +148,7 @@ class MessengerAdd extends React.Component<Props, State> {
             value={name}
             onChange={this.handleChange.bind(this, 'name')}
             type="text"
+            autoFocus={true}
             required={true}
           />
         </FormGroup>
@@ -172,8 +171,8 @@ class MessengerAdd extends React.Component<Props, State> {
         </FormGroup>
 
         <SelectBrand
-          brands={this.props.brands || []}
           onChange={this.handleChange.bind(this, 'brandId')}
+          creatable={false}
         />
 
         {this.renderOtherMessengers()}

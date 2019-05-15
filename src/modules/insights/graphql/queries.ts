@@ -28,9 +28,15 @@ const dealParamsValue = `
   status: $status
 `;
 
-const pieChart = `
-  query insights(${listParamsDef}) {
-    insights(${listParamsValue})
+const integrationChart = `
+  query insightsIntegrations(${listParamsDef}) {
+    insightsIntegrations(${listParamsValue})
+  }
+`;
+
+const tagChart = `
+  query insightsTags(${listParamsDef}) {
+    insightsTags(${listParamsValue})
   }
 `;
 
@@ -124,7 +130,8 @@ const dealInsightsByTeamMember = `
 export default {
   trend,
   summaryData,
-  pieChart,
+  integrationChart,
+  tagChart,
   punchCard,
   firstResponse,
   responseClose,

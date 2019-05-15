@@ -90,12 +90,12 @@ function CustomerRow({
   };
 
   const onTrClick = () => {
-    history.push(`/customers/details/${customer._id}`);
+    history.push(`/contacts/customers/details/${customer._id}`);
   };
 
   return (
     <tr onClick={onTrClick}>
-      <td onClick={onClick}>
+      <td style={{ width: '50px' }} onClick={onClick}>
         <FormControl
           checked={isChecked}
           componentClass="checkbox"

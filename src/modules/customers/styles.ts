@@ -96,11 +96,6 @@ const Date = styled.time`
   font-size: 12px;
 `;
 
-const TableHeadContent = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
 const ImportButton = styled.label`
   border-radius: 30px;
   transition: all 0.3s ease;
@@ -133,6 +128,5 @@ export {
   Name,
   Date,
   TabContent,
-  TableHeadContent,
   ImportButton
 };

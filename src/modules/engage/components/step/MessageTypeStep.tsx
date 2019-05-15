@@ -5,7 +5,7 @@ import {
 } from 'modules/common/components';
 import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { MESSAGE_AUDIENCES } from 'modules/engage/constants';
+import { MESSAGE_TYPES } from 'modules/engage/constants';
 import * as React from 'react';
 import { BrandStep, SegmentStep, TagStep } from '../../containers';
 
@@ -31,7 +31,7 @@ class MessageTypeStep extends React.Component<Props, { type: string }> {
           id="type"
           value={this.state.type}
           componentClass="select"
-          options={MESSAGE_AUDIENCES}
+          options={MESSAGE_TYPES}
           onChange={this.onChange}
         />
       </FormGroup>
