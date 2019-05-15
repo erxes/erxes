@@ -7,6 +7,7 @@ import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { MESSAGE_TYPES } from 'modules/engage/constants';
 import * as React from 'react';
+import styled from 'styled-components';
 import { BrandStep, SegmentStep, TagsStep } from '../../containers';
 
 type Props = {
@@ -15,6 +16,10 @@ type Props = {
   brandId: string;
   tagId: string;
 };
+
+const Select = styled.div`
+  margin: 20px;
+`;
 
 class MessageTypeStep extends React.Component<Props, { type: string }> {
   state = { type: 'segment' };
@@ -25,16 +30,18 @@ class MessageTypeStep extends React.Component<Props, { type: string }> {
 
   renderSelector() {
     return (
-      <FormGroup>
-        <ControlLabel>Choose type:</ControlLabel>
-        <FormControl
-          id="type"
-          value={this.state.type}
-          componentClass="select"
-          options={MESSAGE_TYPES}
-          onChange={this.onChange}
-        />
-      </FormGroup>
+      <Select>
+        <FormGroup>
+          <ControlLabel>Choose a message type:</ControlLabel>
+          <FormControl
+            id="type"
+            value={this.state.type}
+            componentClass="select"
+            options={MESSAGE_TYPES}
+            onChange={this.onChange}
+          />
+        </FormGroup>
+      </Select>
     );
   }
 
