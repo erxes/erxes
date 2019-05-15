@@ -42,19 +42,12 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('Conversation Report') }
-    ];
-  }
-
   render() {
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
+            title={__('First Response Report')}
             submenu={menuInbox}
           />
         }
