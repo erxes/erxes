@@ -224,6 +224,14 @@ const DateTimePicker = styled.div`
   }
 `;
 
+const StepFormWrapper = styled.div`
+  padding: 20px;
+`;
+
+const Show = styledTS<{ show: boolean }>(styled.div)`
+  display: ${props => (props.show ? 'block' : 'none')};
+`;
+
 export {
   EngageTitle,
   HelperText,
@@ -245,5 +253,7 @@ export {
   DateTimePicker,
   SelectMonth,
   LauncherContainer,
-  WidgetPreview
+  WidgetPreview,
+  StepFormWrapper,
+  Show
 };

@@ -1,7 +1,12 @@
 import gql from 'graphql-tag';
-import { withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
-import { BrandsQueryResponse } from 'modules/settings/brands/types';
+import { mutations } from 'modules/settings/brands/graphql';
+import {
+  BrandAddMutationResponse,
+  BrandMutationVariables,
+  BrandsQueryResponse
+} from 'modules/settings/brands/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandStep } from '../../components';
@@ -26,10 +31,23 @@ type Props = {
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
   customerCountsQuery: CountQueryResponse;
-} & Props;
+} & Props &
+  BrandAddMutationResponse;
 
 const BrandStepContianer = (props: FinalProps) => {
-  const { brandsQuery, customerCountsQuery } = props;
+  const { brandsQuery, addMutation, customerCountsQuery } = props;
+
+  const brandAdd = ({ doc }) => {
+    addMutation({ variables: { ...doc } })
+      .then(() => {
+        brandsQuery.refetch();
+        customerCountsQuery.refetch();
+        Alert.success('You successfully added a brand');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
 
   const customerCounts = customerCountsQuery.customerCounts || {
     byBrand: {}
@@ -38,7 +56,8 @@ const BrandStepContianer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     brands: brandsQuery.brands || [],
-    counts: customerCounts.byBrand || {}
+    counts: customerCounts.byBrand || {},
+    brandAdd
   };
 
   return <BrandStep {...updatedProps} />;
@@ -58,6 +77,12 @@ export default withProps<Props>(
             only: 'byBrand'
           }
         }
+      }
+    ),
+    graphql<Props, BrandAddMutationResponse, BrandMutationVariables>(
+      gql(mutations.brandAdd),
+      {
+        name: 'addMutation'
       }
     )
   )(BrandStepContianer)

@@ -1,5 +1,7 @@
-import { IBrand } from 'modules/settings/brands/types';
+import { Show } from 'modules/engage/styles';
+import { IBrand, IBrandDoc } from 'modules/settings/brands/types';
 import * as React from 'react';
+import BrandForm from '../../BrandForm';
 import Common from './Common';
 
 type Props = {
@@ -8,6 +10,7 @@ type Props = {
   brands: IBrand[];
   counts: any;
   onChange: (name: 'brandId', value: string) => void;
+  brandAdd: (params: { doc: { name: string; description: string } }) => void;
 };
 
 type State = {
@@ -43,9 +46,17 @@ class BrandStep extends React.Component<Props, State> {
     customerCounts,
     listContent
   }) => {
-    const { renderContent } = this.props;
+    const { renderContent, brandAdd } = this.props;
+    const { createBrand } = this.state;
 
-    const componentContent = <>{listContent}</>;
+    const componentContent = (
+      <>
+        {listContent}
+        <Show show={createBrand}>
+          <BrandForm create={brandAdd} createBrand={this.createBrand} />
+        </Show>
+      </>
+    );
 
     return renderContent({ actionSelector, componentContent, customerCounts });
   };

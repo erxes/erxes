@@ -17,11 +17,7 @@ import {
   ISegmentField
 } from 'modules/segments/types';
 import * as React from 'react';
-import styled from 'styled-components';
-
-const SegmentWrapper = styled.div`
-  padding: 20px;
-`;
+import { StepFormWrapper } from '../styles';
 
 type Props = {
   fields: ISegmentField[];
@@ -236,12 +232,12 @@ class SegmentsForm extends React.Component<Props, State> {
 
   render() {
     return (
-      <SegmentWrapper>
+      <StepFormWrapper>
         <SegmentTitle>Filters</SegmentTitle>
         {this.renderConditions()}
         <hr />
         {this.renderForm()}
-      </SegmentWrapper>
+      </StepFormWrapper>
     );
   }
 }

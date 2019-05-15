@@ -1,14 +1,9 @@
 import { __ } from 'modules/common/utils';
+import { Show } from 'modules/engage/styles';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import * as React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { SegmentsForm } from '../..';
 import Common from './Common';
-
-const Show = styledTS<{ show: boolean }>(styled.div)`
-  display: ${props => (props.show ? 'block' : 'none')};
-`;
 
 type Props = {
   onChange: (name: 'segmentId', value: string) => void;
