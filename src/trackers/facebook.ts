@@ -55,10 +55,7 @@ interface IReactionParams {
 }
 
 interface IFacebookMessageSelector {
-  facebookData: {
-    postId?: string;
-    commentId?: string;
-  };
+  [key: string]: string;
 }
 
 export interface IFacebookReply {
@@ -420,14 +417,14 @@ export class SaveWebhookResponse {
    */
   public async handleReactions(reactionParams: IReactionParams) {
     const { verb, post_id, comment_id, reaction_type, item, from } = reactionParams;
-    let selector: IFacebookMessageSelector = { facebookData: {} };
+    let selector: IFacebookMessageSelector = {};
 
     if (post_id) {
-      selector = { facebookData: { postId: post_id } };
+      selector = { 'facebookData.postId': post_id };
     }
 
     if (comment_id) {
-      selector = { facebookData: { commentId: comment_id } };
+      selector = { 'facebookData.commentId': comment_id };
     }
 
     // Receiving like
