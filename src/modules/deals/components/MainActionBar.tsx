@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import {
   Button,
   ControlLabel,
@@ -9,25 +8,22 @@ import {
   Icon,
   Tip
 } from 'modules/common/components';
-import { router } from 'modules/common/utils';
+import {
+  selectOption,
+  selectValue
+} from 'modules/common/components/SelectWithSearch';
 import { __ } from 'modules/common/utils';
-import { ICompany } from 'modules/companies/types';
-import { ICustomer } from 'modules/customers/types';
+import { SelectCompanies } from 'modules/companies/containers';
+import { SelectCustomers } from 'modules/customers/containers/common';
 import { IProduct } from 'modules/settings/productService/types';
+import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import * as Datetime from 'react-datetime';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import {
-  Avatar,
-  ClearDate,
-  DateFilter,
-  FilterBox,
-  SelectOption,
-  SelectValue
-} from '../styles/deal';
+import { ClearDate, DateFilter, FilterBox } from '../styles/deal';
 import {
   ButtonGroup,
   HeaderButton,
@@ -37,12 +33,7 @@ import {
   PageHeader
 } from '../styles/header';
 import { IBoard, IPipeline } from '../types';
-import {
-  selectCompanyOptions,
-  selectCustomerOptions,
-  selectProductOptions,
-  selectUserOptions
-} from '../utils';
+import { selectProductOptions } from '../utils';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -53,9 +44,6 @@ type Props = {
   middleContent?: () => React.ReactNode;
   history: any;
   queryParams: any;
-  users: IUser[];
-  customers: ICustomer[];
-  companies: ICompany[];
   products: IProduct[];
   assignedUserIds?: string[];
 };
@@ -101,10 +89,6 @@ class MainActionBar extends React.Component<Props, State> {
 
     return `/deal/${type}`;
   };
-
-  onSelectChange(name: string, values: [string]) {
-    this.props.onSelect(name, values);
-  }
 
   onClearDate = (name: string) => {
     if (name === 'startDate') {
@@ -251,23 +235,10 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   renderSelectors({ label, name, options, generator }) {
-    const { queryParams } = this.props;
-
-    const content = option => (
-      <React.Fragment>
-        <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
-        {option.label}
-      </React.Fragment>
-    );
-
-    const selectOption = option => (
-      <SelectOption className="simple-option">{content(option)}</SelectOption>
-    );
-
-    const selectValue = option => <SelectValue>{content(option)}</SelectValue>;
+    const { queryParams, onSelect } = this.props;
 
     const onChange = (selector, list) => {
-      return this.onSelectChange(selector, list.map(item => item.value));
+      return onSelect(selector, list.map(item => item.value));
     };
 
     return (
@@ -290,10 +261,8 @@ class MainActionBar extends React.Component<Props, State> {
       currentPipeline,
       middleContent,
       queryParams,
-      users,
-      customers,
-      companies,
-      products
+      products,
+      onSelect
     } = this.props;
 
     const boardLink = this.onFilterClick('board');
@@ -346,26 +315,11 @@ class MainActionBar extends React.Component<Props, State> {
           generator: selectProductOptions
         })}
 
-        {this.renderSelectors({
-          label: 'Choose team members',
-          name: 'assignedUserIds',
-          options: users,
-          generator: selectUserOptions
-        })}
+        <SelectCompanies queryParams={queryParams} onSelect={onSelect} />
 
-        {this.renderSelectors({
-          label: 'Choose companies',
-          name: 'companyIds',
-          options: companies,
-          generator: selectCompanyOptions
-        })}
+        <SelectCustomers queryParams={queryParams} onSelect={onSelect} />
 
-        {this.renderSelectors({
-          label: 'Choose customers',
-          name: 'customerIds',
-          options: customers,
-          generator: selectCustomerOptions
-        })}
+        <SelectTeamMembers queryParams={queryParams} onSelect={onSelect} />
 
         {this.renderDates()}
       </FilterBox>

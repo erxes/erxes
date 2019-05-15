@@ -42,46 +42,6 @@ export function selectConfigOptions(array: string[] = [], CONSTANT: any) {
   }));
 }
 
-// get user options for react-select-plus
-export function selectUserOptions(array: IUser[] = []) {
-  return array.map(item => {
-    const user = item || ({} as IUser);
-    const details = item.details || ({} as IUserDetails);
-
-    return {
-      value: user._id,
-      label: details.fullName || user.email,
-      avatar: details.avatar
-    };
-  });
-}
-
-// get customer options for react-select-plus
-export function selectCustomerOptions(array: ICustomer[] = []) {
-  return array.map(item => {
-    const customer = item || ({} as ICustomer);
-
-    return {
-      value: customer._id,
-      label: customer.firstName || customer.emails,
-      avatar: customer.avatar
-    };
-  });
-}
-
-// get company options for react-select-plus
-export function selectCompanyOptions(array: ICompany[] = []) {
-  return array.map(item => {
-    const company = item || ({} as ICompany);
-
-    return {
-      value: company._id,
-      label: company.primaryName,
-      avatar: company.avatar
-    };
-  });
-}
-
 export function collectOrders(array: Options[] = []) {
   return array.map((item: Options, index: number) => ({
     _id: item._id,
