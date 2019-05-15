@@ -178,7 +178,8 @@ export const LANGUAGES = [
   { label: 'Deustch', value: 'de' },
   { label: 'Korean', value: 'kr' },
   { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'pt_br' }
+  { label: 'Portuguese', value: 'pt_br' },
+  { label: 'Chinese', value: 'zh' }
 ];
 
 export const MEASUREMENTS = [
