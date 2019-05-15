@@ -148,6 +148,7 @@ class MessengerAdd extends React.Component<Props, State> {
             value={name}
             onChange={this.handleChange.bind(this, 'name')}
             type="text"
+            autoFocus={true}
             required={true}
           />
         </FormGroup>

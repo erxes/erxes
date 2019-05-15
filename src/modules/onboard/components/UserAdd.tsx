@@ -2,16 +2,19 @@ import {
   Button,
   ControlLabel,
   FormControl,
-  FormGroup,
-  Icon,
-  ModifiableList
+  Icon
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import * as RTG from 'react-transition-group';
 import { IUserGroup } from '../../settings/permissions/types';
-import { FlexRow, LinkButton } from '../../settings/team/styles';
+import {
+  FlexRow,
+  InviteOption,
+  LinkButton,
+  RemoveRow
+} from '../../settings/team/styles';
 import { IInvitationEntry } from '../../settings/team/types';
 import { UserList } from '../containers';
 import { Description, Footer, TopContent } from './styles';
@@ -106,7 +109,9 @@ class UserAdd extends React.Component<Props, State> {
     }
 
     return (
-      <Icon icon="cancel-1" onClick={this.handleRemoveEntry.bind(this, i)} />
+      <RemoveRow onClick={this.handleRemoveEntry.bind(this, i)}>
+        <Icon icon="cancel" />
+      </RemoveRow>
     );
   };
 
@@ -154,6 +159,7 @@ class UserAdd extends React.Component<Props, State> {
               type="email"
               placeholder="name@example.com"
               value={input.email}
+              autoFocus={i === 0}
               onChange={this.onChange.bind(this, i, 'email')}
             />
 
@@ -171,11 +177,11 @@ class UserAdd extends React.Component<Props, State> {
           </FlexRow>
         ))}
 
-        <div>
+        <InviteOption>
           <LinkButton onClick={this.onAddMoreInput}>
             <Icon icon="add" /> {__('Add another email')}
           </LinkButton>
-        </div>
+        </InviteOption>
 
         {this.renderOtherUsers()}
       </>

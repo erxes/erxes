@@ -97,6 +97,7 @@ class BrandAdd extends React.Component<
             value={brandName}
             onChange={this.handleInput}
             type="text"
+            autoFocus={true}
             required={true}
           />
         </FormGroup>

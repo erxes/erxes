@@ -12,7 +12,7 @@ import { ICommonFormProps } from 'modules/settings/common/types';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import * as React from 'react';
 import { Description } from '../../styles';
-import { FlexRow, LinkButton } from '../styles';
+import { FlexRow, InviteOption, LinkButton, RemoveRow } from '../styles';
 import { IInvitationEntry } from '../types';
 
 type Props = {
@@ -118,7 +118,9 @@ class UserInvitationForm extends React.Component<Props, State> {
     }
 
     return (
-      <Icon icon="cancel-1" onClick={this.handleRemoveEntry.bind(this, i)} />
+      <RemoveRow onClick={this.handleRemoveEntry.bind(this, i)}>
+        <Icon icon="cancel" />
+      </RemoveRow>
     );
   };
 
@@ -149,7 +151,7 @@ class UserInvitationForm extends React.Component<Props, State> {
             icon="checked-1"
             onClick={this.addInvitees}
           >
-            Add Invitees
+            Add Invites
           </Button>
         </ModalFooter>
       </>
@@ -184,6 +186,7 @@ class UserInvitationForm extends React.Component<Props, State> {
               type="email"
               placeholder="name@example.com"
               value={input.email}
+              autoFocus={i === 0}
               onChange={this.onChange.bind(this, i, 'email')}
             />
 
@@ -201,16 +204,15 @@ class UserInvitationForm extends React.Component<Props, State> {
           </FlexRow>
         ))}
 
-        <div>
+        <InviteOption>
           <LinkButton onClick={this.onAddMoreInput}>
             <Icon icon="add" /> {__('Add another')}
-          </LinkButton>
-          {__('or')}
+          </LinkButton>{' '}
+          {__('or')}{' '}
           <LinkButton onClick={this.onAddManyEmail}>
-            {' '}
             {__('add many at once')}{' '}
           </LinkButton>
-        </div>
+        </InviteOption>
 
         <ModalFooter>
           <Button
