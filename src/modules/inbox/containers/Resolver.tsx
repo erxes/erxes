@@ -28,6 +28,11 @@ const ResolverContainer = (props: FinalProps) => {
       .then(() => {
         if (status === CONVERSATION_STATUSES.CLOSED) {
           Alert.success('The conversation has been resolved!');
+
+          // clear saved messages from storage
+          conversationIds.map(c => {
+            localStorage.removeItem(c);
+          });
         } else {
           Alert.info(
             'The conversation has been reopened and restored to Inbox.'
