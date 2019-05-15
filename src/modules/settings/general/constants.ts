@@ -5,8 +5,9 @@ export const LANGUAGES = [
   { label: 'Deustch', value: 'de' },
   { label: 'Korean', value: 'kr' },
   { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'pt_br' },
-  { label: 'Japanese', value: 'jp' }
+  { label: 'Portuguese', value: 'ptBr' },
+  { label: 'Japanese', value: 'jp' },
+  { label: 'Russian', value: 'ru' }
 ];
 
 export const CURRENCIES = [
