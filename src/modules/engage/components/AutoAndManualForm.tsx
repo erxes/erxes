@@ -40,9 +40,9 @@ type State = {
   maxStep: number;
   method: string;
   title: string;
-  segmentId: string;
-  brandId: string;
-  tagId: string;
+  segmentIds: string[];
+  brandIds: string[];
+  tagIds: string[];
   content: string;
   fromUserId: string;
   messenger?: IEngageMessenger;
@@ -65,9 +65,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       maxStep: 3,
       method: message.method || 'email',
       title: message.title || '',
-      segmentId: message.segmentId || '',
-      brandId: messenger.brandId || '',
-      tagId: messenger.tagId || '',
+      segmentIds: message.segmentIds || [],
+      brandIds: message.brandIds || [],
+      tagIds: message.tagIds || [],
       content,
       fromUserId: message.fromUserId,
       messenger: message.messenger,
@@ -82,7 +82,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
   save = (type: string): Promise<any> | void => {
     const doc = {
-      segmentId: this.state.segmentId,
+      segmentIds: this.state.segmentIds,
+      tagIds: this.state.tagIds,
+      brandIds: this.state.brandIds,
       title: this.state.title,
       fromUserId: this.state.fromUserId,
       method: this.state.method
@@ -130,9 +132,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       fromUserId,
       content,
       scheduleDate,
-      segmentId,
-      brandId,
-      tagId
+      segmentIds,
+      brandIds,
+      tagIds
     } = this.state;
 
     const onChange = e =>
@@ -165,9 +167,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
           >
             <MessageTypeStep
               onChange={this.changeState}
-              segmentId={segmentId}
-              brandId={brandId}
-              tagId={tagId}
+              segmentIds={segmentIds}
+              brandIds={brandIds}
+              tagIds={tagIds}
             />
           </Step>
 

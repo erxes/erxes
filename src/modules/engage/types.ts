@@ -41,7 +41,9 @@ export interface IEngageStats {
 export interface IEngageMessageDoc {
   kind?: string;
   type?: string;
-  segmentId?: string;
+  segmentIds?: string[];
+  tagIds?: string[];
+  brandIds?: string[];
   customerIds?: string[];
   title: string;
   fromUserId?: string;

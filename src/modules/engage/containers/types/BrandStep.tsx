@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
+import { sumCounts } from 'modules/engage/components/step/types/utils';
 import { mutations } from 'modules/settings/brands/graphql';
 import {
   BrandAddMutationResponse,
@@ -24,8 +25,11 @@ type Props = {
       customerCounts: React.ReactNode;
     }
   ) => React.ReactNode;
-  onChange: (name: 'brandId', value: string) => void;
-  brandId: string;
+  onChange: (
+    name: 'brandIds' | 'tagIds' | 'segmentIds',
+    value: string[]
+  ) => void;
+  brandIds: string[];
 };
 
 type FinalProps = {
@@ -53,10 +57,16 @@ const BrandStepContianer = (props: FinalProps) => {
     byBrand: {}
   };
 
+  const countValues = customerCounts.byBrand || {};
+  const counts = (ids: string[]) => {
+    return sumCounts(ids, countValues);
+  };
+
   const updatedProps = {
     ...props,
     brands: brandsQuery.brands || [],
-    counts: customerCounts.byBrand || {},
+    listCount: countValues,
+    counts,
     brandAdd
   };
 

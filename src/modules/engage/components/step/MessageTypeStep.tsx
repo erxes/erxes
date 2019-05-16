@@ -11,10 +11,13 @@ import styled from 'styled-components';
 import { BrandStep, SegmentStep, TagsStep } from '../../containers';
 
 type Props = {
-  onChange: (name: 'brandId' | 'segmentId' | 'tagId', value: string) => void;
-  segmentId: string;
-  brandId: string;
-  tagId: string;
+  onChange: (
+    name: 'brandIds' | 'tagIds' | 'segmentIds',
+    value: string[]
+  ) => void;
+  segmentIds: string[];
+  brandIds: string[];
+  tagIds: string[];
 };
 
 const Select = styled.div`
@@ -62,7 +65,7 @@ class MessageTypeStep extends React.Component<Props, { type: string }> {
 
   render() {
     const { type } = this.state;
-    const { segmentId, brandId, tagId, onChange } = this.props;
+    const { segmentIds, brandIds, tagIds, onChange } = this.props;
 
     const commonProps = {
       renderContent: args => this.renderContent(args),
@@ -70,14 +73,14 @@ class MessageTypeStep extends React.Component<Props, { type: string }> {
     };
 
     if (type === 'brand') {
-      return <BrandStep {...commonProps} brandId={brandId} />;
+      return <BrandStep {...commonProps} brandIds={brandIds} />;
     }
 
     if (type === 'tag') {
-      return <TagsStep {...commonProps} tagId={tagId} />;
+      return <TagsStep {...commonProps} tagIds={tagIds} />;
     }
 
-    return <SegmentStep {...commonProps} segmentId={segmentId} />;
+    return <SegmentStep {...commonProps} segmentIds={segmentIds} />;
   }
 }
 

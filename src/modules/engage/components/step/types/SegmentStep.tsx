@@ -6,19 +6,23 @@ import { SegmentsForm } from '../forms';
 import Common from './Common';
 
 type Props = {
-  onChange: (name: 'segmentId', value: string) => void;
+  onChange: (
+    name: 'brandIds' | 'tagIds' | 'segmentIds',
+    value: string[]
+  ) => void;
   renderContent: any;
   segments: ISegment[];
   headSegments: ISegment[];
   segmentFields: ISegmentField[];
   segmentAdd: (params: { doc: ISegmentDoc }) => void;
-  counts: any;
+  counts: (ids: string[]) => number;
+  listCount: any;
   count: (segment: ISegmentDoc) => void;
-  segmentId: string;
+  segmentIds: string[];
 };
 
 type State = {
-  segmentId: string;
+  segmentIds: string[];
   createSegment: boolean;
 };
 
@@ -27,7 +31,7 @@ class SegmentStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      segmentId: props.segmentId || '',
+      segmentIds: props.segmentIds || [],
       createSegment: false
     };
   }
@@ -36,13 +40,13 @@ class SegmentStep extends React.Component<Props, State> {
     this.setState({ createSegment });
 
     if (createSegment === true) {
-      this.changeSegment('');
+      this.changeSegment([]);
     }
   };
 
-  changeSegment = (segmentId: string) => {
-    this.setState({ segmentId });
-    this.props.onChange('segmentId', segmentId);
+  changeSegment = (segmentIds: string[]) => {
+    this.setState({ segmentIds });
+    this.props.onChange('segmentIds', segmentIds);
   };
 
   renderComponentContent = ({
@@ -72,22 +76,22 @@ class SegmentStep extends React.Component<Props, State> {
   };
 
   render() {
-    const { counts, segments } = this.props;
-    const { createSegment, segmentId } = this.state;
+    const { counts, segments, listCount } = this.props;
+    const { createSegment, segmentIds } = this.state;
 
     const onChange = () => this.createSegment(false);
     const onChangeSegment = () => this.createSegment(true);
 
     return (
       <Common
-        id={segmentId}
+        ids={segmentIds}
         type="segment"
         name="createSegment"
         onChange={onChange}
         onChangeToggle={onChangeSegment}
         changeList={this.changeSegment}
-        listCount={counts}
-        customers={counts[segmentId] || 0}
+        counts={listCount}
+        customers={counts(segmentIds)}
         list={segments}
         checked={createSegment}
         content={this.renderComponentContent}

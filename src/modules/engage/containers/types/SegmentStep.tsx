@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
+import { sumCounts } from 'modules/engage/components/step/types/utils';
 import {
   AddMutationResponse,
   AddMutationVariables,
@@ -25,8 +26,11 @@ type Props = {
       customerCounts: React.ReactNode;
     }
   ) => React.ReactNode;
-  onChange: (name: 'segmentId', value: string) => void;
-  segmentId: string;
+  onChange: (
+    name: 'brandIds' | 'tagIds' | 'segmentIds',
+    value: string[]
+  ) => void;
+  segmentIds: string[];
 };
 
 type FinalProps = {
@@ -48,6 +52,11 @@ const SegmentStepContainer = (props: FinalProps) => {
 
   const customerCounts = customerCountsQuery.customerCounts || {
     bySegment: {}
+  };
+
+  const countValues = customerCounts.bySegment || {};
+  const counts = (ids: string[]) => {
+    return sumCounts(ids, countValues);
   };
 
   const segmentFields = combinedFieldsQuery.fieldsCombinedByContentType
@@ -84,7 +93,8 @@ const SegmentStepContainer = (props: FinalProps) => {
     segmentFields,
     segmentAdd,
     segments: segmentsQuery.segments || [],
-    counts: customerCounts.bySegment || {},
+    listCount: countValues,
+    counts,
     count
   };
 

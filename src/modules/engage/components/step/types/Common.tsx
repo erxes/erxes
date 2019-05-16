@@ -2,6 +2,8 @@ import { FormControl, Icon } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import { ISegment } from 'modules/segments/types';
+import { IBrand } from 'modules/settings/brands/types';
+import { ITag } from 'modules/tags/types';
 import * as React from 'react';
 import styled from 'styled-components';
 import { List } from '../..';
@@ -27,20 +29,20 @@ const CustomerCounts = styled.div`
 `;
 
 type Props = {
-  content: any;
+  content: ({ actionSelector, listContent, customerCounts }) => any;
   customers: number;
-  onChange: any;
-  onChangeToggle: any;
+  onChange: () => void;
+  onChangeToggle: () => void;
   checked: boolean;
   name: string;
   type: string;
-  list: ISegment[] | any;
-  listCount: any;
-  changeList: any;
-  id: string;
+  list: ISegment[] | IBrand[] | ITag[];
+  counts: any;
+  changeList: (name: string[]) => void;
+  ids: string[];
 };
 
-function counts(customers: number) {
+function renderCounts(customers: number) {
   return (
     <CustomerCounts>
       <Icon icon="users" size={50} />
@@ -69,8 +71,8 @@ const Common = (props: Props) => {
     list,
     customers,
     changeList,
-    listCount,
-    id
+    counts,
+    ids
   } = props;
 
   const actionSelector = (
@@ -97,8 +99,8 @@ const Common = (props: Props) => {
         list={list}
         type={type}
         changeList={changeList}
-        counts={listCount}
-        defaultValue={id}
+        counts={counts}
+        defaultValue={ids}
       />
     </ListContainer>
   );
@@ -106,7 +108,7 @@ const Common = (props: Props) => {
   return content({
     actionSelector,
     listContent,
-    customerCounts: counts(customers)
+    customerCounts: renderCounts(customers)
   });
 };
 

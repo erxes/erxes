@@ -5,16 +5,19 @@ import { TagsForm } from '../forms';
 import Common from './Common';
 
 type Props = {
-  tagId: string;
+  tagIds: string[];
   renderContent: any;
   tags: ITag[];
   counts: any;
-  onChange: (name: 'tagId', value: string) => void;
+  onChange: (
+    name: 'brandIds' | 'tagIds' | 'segmentIds',
+    value: string[]
+  ) => void;
   tagAdd: (params: { doc: { name: string; description: string } }) => void;
 };
 
 type State = {
-  tagId: string;
+  tagIds: string[];
   createTag: boolean;
 };
 
@@ -23,7 +26,7 @@ class TagStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      tagId: props.tagId || '',
+      tagIds: props.tagIds || [],
       createTag: false
     };
   }
@@ -32,13 +35,13 @@ class TagStep extends React.Component<Props, State> {
     this.setState({ createTag });
 
     if (createTag === true) {
-      this.changeTag('');
+      this.changeTag([]);
     }
   };
 
-  changeTag = (tagId: string) => {
-    this.setState({ tagId });
-    this.props.onChange('tagId', tagId);
+  changeTag = (tagIds: string[]) => {
+    this.setState({ tagIds });
+    this.props.onChange('tagIds', tagIds);
   };
 
   renderComponentContent = ({
@@ -63,21 +66,21 @@ class TagStep extends React.Component<Props, State> {
 
   render() {
     const { tags, counts } = this.props;
-    const { tagId, createTag } = this.state;
+    const { tagIds, createTag } = this.state;
 
     const onChange = () => this.createTag(false);
     const onChangeBrand = () => this.createTag(true);
 
     return (
       <Common
-        id={tagId}
+        ids={tagIds}
         type="tag"
         name="createTag"
         onChange={onChange}
         onChangeToggle={onChangeBrand}
         changeList={this.changeTag}
-        listCount={counts}
-        customers={counts[tagId] || 0}
+        counts={counts}
+        customers={0}
         list={tags}
         checked={createTag}
         content={this.renderComponentContent}

@@ -5,16 +5,19 @@ import { BrandForm } from '../forms';
 import Common from './Common';
 
 type Props = {
-  brandId: string;
+  brandIds: string[];
   renderContent: any;
   brands: IBrand[];
   counts: any;
-  onChange: (name: 'brandId', value: string) => void;
+  onChange: (
+    name: 'brandIds' | 'tagIds' | 'segmentIds',
+    value: string[]
+  ) => void;
   brandAdd: (params: { doc: { name: string; description: string } }) => void;
 };
 
 type State = {
-  brandId: string;
+  brandIds: string[];
   createBrand: boolean;
 };
 
@@ -23,7 +26,7 @@ class BrandStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      brandId: props.brandId || '',
+      brandIds: props.brandIds || [],
       createBrand: false
     };
   }
@@ -32,13 +35,14 @@ class BrandStep extends React.Component<Props, State> {
     this.setState({ createBrand });
 
     if (createBrand === true) {
-      this.changeBrand('');
+      this.changeBrand([]);
     }
   };
 
-  changeBrand = (brandId: string) => {
-    this.setState({ brandId });
-    this.props.onChange('brandId', brandId);
+  changeBrand = (brandIds: string[]) => {
+    this.setState({ brandIds }, () => {
+      this.props.onChange('brandIds', brandIds);
+    });
   };
 
   renderComponentContent = ({
@@ -63,21 +67,21 @@ class BrandStep extends React.Component<Props, State> {
 
   render() {
     const { brands, counts } = this.props;
-    const { brandId, createBrand } = this.state;
+    const { brandIds, createBrand } = this.state;
 
     const onChange = () => this.createBrand(false);
     const onChangeBrand = () => this.createBrand(true);
 
     return (
       <Common
-        id={brandId}
+        ids={brandIds}
         type="brand"
         name="createBrand"
         onChange={onChange}
         onChangeToggle={onChangeBrand}
         changeList={this.changeBrand}
-        listCount={counts}
-        customers={counts[brandId] || 0}
+        counts={counts}
+        customers={0}
         list={brands}
         checked={createBrand}
         content={this.renderComponentContent}
