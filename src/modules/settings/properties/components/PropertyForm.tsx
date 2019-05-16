@@ -8,10 +8,9 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
+import { Row } from 'modules/settings/integrations/styles';
 import * as React from 'react';
-
-import PropertyGroupForm from '../containers/PropertyGroupForm';
-import { Row } from '../styles';
+import { PropertyGroupForm } from '../containers';
 import { IField, IFieldGroup } from '../types';
 
 type Doc = {

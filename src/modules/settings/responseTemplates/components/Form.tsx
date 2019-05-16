@@ -74,7 +74,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             id="template-name"
             defaultValue={object.name}
