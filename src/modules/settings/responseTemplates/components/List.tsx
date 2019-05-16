@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { List, RowActions } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
-import { Form } from '../containers';
+import { Form } from '../components';
 
 class ResponseTemplateList extends React.Component<ICommonListProps> {
   renderForm = props => {

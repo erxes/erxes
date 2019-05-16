@@ -17,6 +17,7 @@ type Props = {
   onChange: () => void;
   defaultValue: string;
   creatable: boolean;
+  isRequired?: boolean;
 };
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
