@@ -5,7 +5,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
@@ -80,14 +80,25 @@ class PipelineForm extends React.Component<Props, State> {
     };
   };
 
+  closeModal = () => {
+    this.setState({ selectedMembers: [], type: 'public', stages: [] });
+    this.props.closeModal();
+  };
+
   save = e => {
     e.preventDefault();
 
+    const { selectedMembers, type } = this.state;
     const { save, closeModal, pipeline } = this.props;
+
+    if (type === 'private' && selectedMembers.length === 0) {
+      return Alert.error('Choose members');
+    }
 
     save(
       this.generateDoc(),
       () => {
+        this.setState({ selectedMembers: [], type: 'public', stages: [] });
         closeModal();
       },
       pipeline
@@ -111,6 +122,7 @@ class PipelineForm extends React.Component<Props, State> {
       <FormGroup>
         <SelectMemberStyled>
           <ControlLabel>Members</ControlLabel>
+
           <Select
             placeholder={__('Choose members')}
             onChange={onChange}
@@ -139,9 +151,10 @@ class PipelineForm extends React.Component<Props, State> {
             autoFocus={true}
             required={true}
           />
+        </FormGroup>
 
-          <ControlLabel required={true}>Type</ControlLabel>
-
+        <ControlLabel required={true}>Type</ControlLabel>
+        <FormGroup>
           <FormControl
             id="type"
             componentClass="select"
@@ -151,8 +164,8 @@ class PipelineForm extends React.Component<Props, State> {
             <option value="public">{__('Public')}</option>
             <option value="private">{__('Private')}</option>
           </FormControl>
-          {this.renderSelectMembers()}
         </FormGroup>
+        {this.renderSelectMembers()}
 
         <Stages stages={stages} onChangeStages={this.onChangeStages} />
       </>
@@ -160,14 +173,14 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { show, pipeline, closeModal } = this.props;
+    const { show, pipeline } = this.props;
 
     if (!show) {
       return null;
     }
 
     return (
-      <Modal show={show} onHide={closeModal} dialogClassName="transform">
+      <Modal show={show} onHide={this.closeModal} dialogClassName="transform">
         <form onSubmit={this.save}>
           <Modal.Header closeButton={true}>
             <Modal.Title>
@@ -182,7 +195,7 @@ class PipelineForm extends React.Component<Props, State> {
                 btnStyle="simple"
                 type="button"
                 icon="cancel-1"
-                onClick={closeModal}
+                onClick={this.closeModal}
               >
                 Cancel
               </Button>
