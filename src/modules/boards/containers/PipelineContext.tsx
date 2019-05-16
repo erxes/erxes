@@ -4,13 +4,14 @@ import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
 import { mutations, queries } from '../graphql';
-import { IDeal, IDealMap, IDragResult, IPipeline } from '../types';
-import { collectOrders, reorder, reorderDealMap } from '../utils';
+import { IDragResult, IItemMap, IPipeline, Item } from '../types';
+import { collectOrders, reorder, reorderItemMap } from '../utils';
 
 type Props = {
   pipeline: IPipeline;
-  initialDealMap?: IDealMap;
+  initialItemMap?: IItemMap;
   queryParams: any;
+  type: string;
 };
 
 type StageLoadMap = {
@@ -18,21 +19,21 @@ type StageLoadMap = {
 };
 
 type State = {
-  dealMap: IDealMap;
+  itemMap: IItemMap;
   stageLoadMap: StageLoadMap;
   stageIds: string[];
 };
 
 interface IStore {
-  dealMap: IDealMap;
+  itemMap: IItemMap;
   stageLoadMap: StageLoadMap;
   stageIds: string[];
-  onLoadStage: (stageId: string, deals: IDeal[]) => void;
+  onLoadStage: (stageId: string, items: Item[]) => void;
   scheduleStage: (stageId: string) => void;
   onDragEnd: (result: IDragResult) => void;
-  onAddDeal: (stageId: string, deal: IDeal) => void;
-  onRemoveDeal: (dealId: string, stageId: string) => void;
-  onUpdateDeal: (deal: IDeal, prevStageId?: string) => void;
+  onAddItem: (stageId: string, item: Item) => void;
+  onRemoveItem: (itemId: string, stageId: string) => void;
+  onUpdateItem: (item: Item, prevStageId?: string) => void;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -56,12 +57,12 @@ export class PipelineProvider extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { initialDealMap } = props;
+    const { initialItemMap } = props;
 
     this.state = {
-      dealMap: initialDealMap || {},
+      itemMap: initialItemMap || {},
       stageLoadMap: {},
-      stageIds: Object.keys(initialDealMap || {})
+      stageIds: Object.keys(initialItemMap || {})
     };
 
     PipelineProvider.tasks = [];
@@ -75,7 +76,7 @@ export class PipelineProvider extends React.Component<Props, State> {
 
     const nextSearch = nextProps.queryParams.search;
 
-    // Reset deals on search parameter change
+    // Reset items on search parameter change
     if (search !== nextSearch) {
       const { stageIds } = this.state;
 
@@ -119,37 +120,37 @@ export class PipelineProvider extends React.Component<Props, State> {
       return this.saveStageOrders(stageIds);
     }
 
-    const { dealMap } = reorderDealMap({
-      dealMap: this.state.dealMap,
+    const { itemMap } = reorderItemMap({
+      itemMap: this.state.itemMap,
       source,
       destination
     });
 
-    const dealId = result.draggableId;
+    const itemId = result.draggableId;
 
-    // update deal to database
-    this.dealsChange(dealId);
+    // update item to database
+    this.itemChange(itemId);
 
-    const deal = dealMap[destination.droppableId].find(d => d._id === dealId);
-    deal.modifiedAt = new Date();
+    const item = itemMap[destination.droppableId].find(d => d._id === itemId);
+    item.modifiedAt = new Date();
 
     this.setState({
-      dealMap
+      itemMap
     });
 
     // save orders to database
-    return this.saveDealOrders(dealMap, [
+    return this.saveDealOrders(itemMap, [
       source.droppableId,
       destination.droppableId
     ]);
   };
 
-  dealsChange = (dealId: string) => {
+  itemChange = (itemId: string) => {
     client
       .mutate({
         mutation: gql(mutations.dealsChange),
         variables: {
-          _id: dealId
+          _id: itemId
         }
       })
       .catch((e: Error) => {
@@ -158,9 +159,11 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   saveStageOrders = (stageIds: string[]) => {
+    const { type } = this.props;
+
     client
       .mutate({
-        mutation: gql(mutations.stagesUpdateOrder),
+        mutation: gql(mutations[type + 'StagesUpdateOrder']),
         variables: {
           orders: stageIds.map((stageId, index) => ({
             _id: stageId,
@@ -173,9 +176,11 @@ export class PipelineProvider extends React.Component<Props, State> {
       });
   };
 
-  saveDealOrders = (dealMap: IDealMap, stageIds: string[]) => {
+  saveDealOrders = (itemMap: IItemMap, stageIds: string[]) => {
+    const { type } = this.props;
+
     for (const stageId of stageIds) {
-      const orders = collectOrders(dealMap[stageId]);
+      const orders = collectOrders(itemMap[stageId]);
 
       if (orders.length === 0) {
         continue;
@@ -183,14 +188,14 @@ export class PipelineProvider extends React.Component<Props, State> {
 
       client
         .mutate({
-          mutation: gql(mutations.dealsUpdateOrder),
+          mutation: gql(mutations[type + 'sUpdateOrder']),
           variables: {
             orders,
             stageId
           },
           refetchQueries: [
             {
-              query: gql(queries.stageDetail),
+              query: gql(queries[type + 'StageDetail']),
               variables: { _id: stageId }
             }
           ]
@@ -202,13 +207,13 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   /*
-   * - Stage container is sending loaded to deals
-   * - Storing sent deals to global dealMmap
+   * - Stage container is sending loaded to items
+   * - Storing sent items to global dealMmap
    * - Mark stage's task as complete
    * - Mark stage's loading state as loaded
    */
-  onLoadStage = (stageId: string, deals: IDeal[]) => {
-    const { dealMap, stageLoadMap } = this.state;
+  onLoadStage = (stageId: string, items: Item[]) => {
+    const { itemMap, stageLoadMap } = this.state;
     const task = PipelineProvider.tasks.find(t => t.stageId === stageId);
 
     if (task) {
@@ -216,7 +221,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
 
     this.setState({
-      dealMap: { ...dealMap, [stageId]: deals },
+      itemMap: { ...itemMap, [stageId]: items },
       stageLoadMap: { ...stageLoadMap, [stageId]: 'loaded' }
     });
   };
@@ -273,74 +278,74 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
   };
 
-  onAddDeal = (stageId: string, deal: IDeal) => {
-    const { dealMap } = this.state;
-    const deals = dealMap[stageId];
+  onAddItem = (stageId: string, item: Item) => {
+    const { itemMap } = this.state;
+    const items = itemMap[stageId];
 
     invalidateCalendarCache();
 
     this.setState({
-      dealMap: { ...dealMap, [stageId]: [...deals, deal] }
+      itemMap: { ...itemMap, [stageId]: [...items, item] }
     });
   };
 
-  onRemoveDeal = (dealId: string, stageId: string) => {
-    const { dealMap } = this.state;
+  onRemoveItem = (itemId: string, stageId: string) => {
+    const { itemMap } = this.state;
 
-    const deals = dealMap[stageId].filter(deal => deal._id !== dealId);
+    const items = itemMap[stageId].filter(item => item._id !== itemId);
 
     invalidateCalendarCache();
 
     this.setState({
-      dealMap: { ...dealMap, [stageId]: deals }
+      itemMap: { ...itemMap, [stageId]: items }
     });
   };
 
-  onUpdateDeal = (deal: IDeal, prevStageId?: string) => {
+  onUpdateItem = (item: Item, prevStageId?: string) => {
     invalidateCalendarCache();
 
-    const { stageId } = deal;
-    const { dealMap } = this.state;
+    const { stageId } = item;
+    const { itemMap } = this.state;
 
     // Moved to anothor board or pipeline
-    if (!dealMap[stageId] && prevStageId) {
-      return this.onRemoveDeal(deal._id, prevStageId);
+    if (!itemMap[stageId] && prevStageId) {
+      return this.onRemoveItem(item._id, prevStageId);
     }
 
     // Moved between stages
     if (prevStageId && stageId !== prevStageId) {
       // remove from old stage
-      const prevStageDeals = dealMap[prevStageId].filter(
-        (d: IDeal) => d._id !== deal._id
+      const prevStageItems = itemMap[prevStageId].filter(
+        (d: Item) => d._id !== item._id
       );
 
       // add to new stage's front
-      const deals = [...dealMap[stageId]];
-      deals.unshift(deal);
+      const items = [...itemMap[stageId]];
+      items.unshift(item);
 
-      const newDealMap = {
-        ...dealMap,
-        [stageId]: deals,
-        [prevStageId]: prevStageDeals
+      const newitemMap = {
+        ...itemMap,
+        [stageId]: items,
+        [prevStageId]: prevStageItems
       };
 
-      this.setState({ dealMap: newDealMap }, () => {
-        this.saveDealOrders(newDealMap, [stageId]);
+      this.setState({ itemMap: newitemMap }, () => {
+        this.saveDealOrders(newitemMap, [stageId]);
       });
     } else {
-      const deals = [...dealMap[stageId]];
-      const index = deals.findIndex(d => d._id === deal._id);
+      const items = [...itemMap[stageId]];
+      const index = items.findIndex(d => d._id === item._id);
 
-      deals[index] = deal;
+      items[index] = item;
 
       this.setState({
-        dealMap: { ...dealMap, [stageId]: deals }
+        itemMap: { ...itemMap, [stageId]: items }
       });
     }
   };
 
   render() {
-    const { dealMap, stageLoadMap, stageIds } = this.state;
+    const { itemMap, stageLoadMap, stageIds } = this.state;
 
     return (
       <PipelineContext.Provider
@@ -348,10 +353,10 @@ export class PipelineProvider extends React.Component<Props, State> {
           onDragEnd: this.onDragEnd,
           onLoadStage: this.onLoadStage,
           scheduleStage: this.scheduleStage,
-          onAddDeal: this.onAddDeal,
-          onRemoveDeal: this.onRemoveDeal,
-          onUpdateDeal: this.onUpdateDeal,
-          dealMap,
+          onAddItem: this.onAddItem,
+          onRemoveItem: this.onRemoveItem,
+          onUpdateItem: this.onUpdateItem,
+          itemMap,
           stageLoadMap,
           stageIds
         }}

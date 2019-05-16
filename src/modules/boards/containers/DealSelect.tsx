@@ -110,7 +110,7 @@ export default withProps<Props>(
       }
     ),
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
-      gql(queries.stages),
+      gql(queries.dealStages),
       {
         name: 'stagesQuery',
         options: ({ pipelineId = '' }) => ({

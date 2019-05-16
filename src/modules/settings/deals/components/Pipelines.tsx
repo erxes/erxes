@@ -1,3 +1,4 @@
+import { collectOrders } from 'modules/boards/utils';
 import {
   Button,
   EmptyState,
@@ -5,7 +6,6 @@ import {
   SortableList
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { collectOrders } from 'modules/deals/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { PipelineForm } from '../containers';

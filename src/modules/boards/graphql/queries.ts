@@ -80,7 +80,7 @@ const dealStages = `
   }
 `;
 
-const stageDetail = `
+const dealStageDetail = `
   query dealStageDetail($_id: String!) {
     dealStageDetail(_id: $_id) {
       _id
@@ -209,7 +209,7 @@ export default {
   pipelineGetLast,
   dealPipelineDetail,
   dealStages,
-  stageDetail,
+  dealStageDetail,
   deals,
   dealDetail,
   productDetail,

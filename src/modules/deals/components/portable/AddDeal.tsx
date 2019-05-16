@@ -1,6 +1,6 @@
+import { DealSelect } from 'modules/boards/containers';
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import { DealSelect } from 'modules/deals/containers';
 import {
   AddContainer,
   FormFooter,

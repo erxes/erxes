@@ -4,6 +4,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import { PipelineDetailQueryResponse } from '../types';
+import { withProps } from '../utils';
 import Pipeline from './Pipeline';
 
 type Props = {
@@ -45,21 +46,12 @@ const WithPipelinesQuery = (props: FinalProps) => {
   );
 };
 
-const withProps = (
-  props: Props,
-  Wrapped: new (props: Props) => React.Component<Props>
-) => {
-  return <Wrapped {...props} />;
-};
-
-export default (props: Props) => {
-  const { type } = props;
-
-  return withProps(
+export default (props: Props) =>
+  withProps<Props>(
     props,
     compose(
       graphql<Props, PipelineDetailQueryResponse, { _id?: string }>(
-        gql(queries[type + 'PipelineDetail']),
+        gql(queries[props.type + 'PipelineDetail']),
         {
           name: 'pipelineDetailQuery',
           skip: ({ queryParams }) => !queryParams.pipelineId,
@@ -70,4 +62,3 @@ export default (props: Props) => {
       )
     )(WithPipelinesQuery)
   );
-};

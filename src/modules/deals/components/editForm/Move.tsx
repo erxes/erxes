@@ -1,6 +1,7 @@
+import { DealSelect } from 'modules/boards/containers';
+import { IStage } from 'modules/boards/types';
 import { Icon, Tip } from 'modules/common/components';
 import * as React from 'react';
-import { DealSelect } from '../../containers';
 import {
   MoveContainer,
   MoveFormContainer,
@@ -8,7 +9,7 @@ import {
   StageItem,
   Stages
 } from '../../styles/deal';
-import { IDeal, IStage } from '../../types';
+import { IDeal } from '../../types';
 
 type Props = {
   deal?: IDeal;

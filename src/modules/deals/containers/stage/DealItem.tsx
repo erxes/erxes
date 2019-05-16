@@ -1,7 +1,7 @@
+import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import { DealItem } from 'modules/deals/components/stage';
-import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
-import { PipelineConsumer } from '../PipelineContext';
+import { IDeal } from '../../types';
 
 type Props = {
   stageId: string;
@@ -14,7 +14,7 @@ type Props = {
 export default (props: Props) => {
   return (
     <PipelineConsumer>
-      {({ onAddDeal, onRemoveDeal, onUpdateDeal }) => {
+      {({ onAddItem, onRemoveItem, onUpdateItem }) => {
         return (
           <DealItem
             stageId={props.stageId}
@@ -22,9 +22,9 @@ export default (props: Props) => {
             isDragging={props.isDragging}
             provided={props.provided}
             onTogglePopup={props.onTogglePopup}
-            onAdd={onAddDeal}
-            onRemove={onRemoveDeal}
-            onUpdate={onUpdateDeal}
+            onAdd={onAddItem}
+            onRemove={onRemoveItem}
+            onUpdate={onUpdateItem}
           />
         );
       }}

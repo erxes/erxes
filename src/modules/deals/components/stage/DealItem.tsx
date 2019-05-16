@@ -1,5 +1,4 @@
-import { IUserDoc } from 'modules/auth/types';
-import { __, getUserAvatar, readFile } from 'modules/common/utils';
+import { __, getUserAvatar } from 'modules/common/utils';
 import { EditForm } from 'modules/deals/containers/editForm';
 import {
   Deal,
@@ -9,11 +8,11 @@ import {
   Right
 } from 'modules/deals/styles/deal';
 import { Content, DealIndicator } from 'modules/deals/styles/stage';
-import { IDeal } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
+import { IDeal } from '../../types';
 
 type Props = {
   stageId: string;

@@ -1,5 +1,9 @@
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
+import { DealAddForm } from 'modules/deals/components/stage';
+import { renderDealAmount } from 'modules/deals/utils';
+import * as React from 'react';
+import { Draggable } from 'react-beautiful-dnd';
 import {
   AddNew,
   Body,
@@ -11,23 +15,21 @@ import {
   LoadingContent,
   StageFooter,
   StageRoot
-} from 'modules/deals/styles/stage';
-import { IDeal, IStage } from 'modules/deals/types';
-import { renderDealAmount } from 'modules/deals/utils';
-import * as React from 'react';
-import { Draggable } from 'react-beautiful-dnd';
-import { DealAddForm } from '.';
-import DealList from './DealList';
+} from '../../styles/stage';
+import { IStage, Item } from '../../types';
+import ItemList from './ItemList';
 
 type Props = {
-  loadingDeals: boolean;
+  loadingItems: boolean;
   index: number;
   stage: IStage;
   length: number;
-  deals: IDeal[];
-  addDeal: (name: string, callback: () => void) => void;
+  items: Item[];
+  type: string;
+  addItem: (name: string, callback: () => void) => void;
   loadMore: () => void;
 };
+
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
 
@@ -38,7 +40,7 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   componentDidMount() {
-    // Load deals until scroll created
+    // Load items until scroll created
     const handle = setInterval(() => {
       const { current } = this.bodyRef;
 
@@ -52,9 +54,9 @@ export default class Stage extends React.Component<Props, {}> {
         clearInterval(handle);
       }
 
-      const { deals, stage, loadMore } = this.props;
+      const { items, stage, loadMore } = this.props;
 
-      if (deals.length < stage.dealsTotalCount) {
+      if (items.length < stage.dealsTotalCount) {
         loadMore();
       } else {
         clearInterval(handle);
@@ -73,7 +75,7 @@ export default class Stage extends React.Component<Props, {}> {
   };
 
   renderAddDealTrigger() {
-    const { addDeal } = this.props;
+    const { addItem } = this.props;
 
     const trigger = (
       <StageFooter>
@@ -84,7 +86,7 @@ export default class Stage extends React.Component<Props, {}> {
       </StageFooter>
     );
 
-    const content = props => <DealAddForm {...props} add={addDeal} />;
+    const content = props => <DealAddForm {...props} add={addItem} />;
 
     return (
       <ModalTrigger title="Add a deal" trigger={trigger} content={content} />
@@ -105,14 +107,14 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   shouldComponentUpdate(nextProps: Props) {
-    const { stage, index, length, deals, loadingDeals } = this.props;
+    const { stage, index, length, items, loadingItems } = this.props;
 
     if (
       index !== nextProps.index ||
-      loadingDeals !== nextProps.loadingDeals ||
+      loadingItems !== nextProps.loadingItems ||
       length !== nextProps.length ||
       JSON.stringify(stage) !== JSON.stringify(nextProps.stage) ||
-      JSON.stringify(deals) !== JSON.stringify(nextProps.deals)
+      JSON.stringify(items) !== JSON.stringify(nextProps.items)
     ) {
       return true;
     }
@@ -121,9 +123,9 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   renderDealList() {
-    const { stage, deals, loadingDeals } = this.props;
+    const { stage, items, loadingItems } = this.props;
 
-    if (loadingDeals) {
+    if (loadingItems) {
       return (
         <LoadingContent>
           <img src="/images/loading-content.gif" />
@@ -132,11 +134,11 @@ export default class Stage extends React.Component<Props, {}> {
     }
 
     return (
-      <DealList
+      <ItemList
         listId={stage._id}
         listType="DEAL"
         stageId={stage._id}
-        deals={deals}
+        items={items}
       />
     );
   }

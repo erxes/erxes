@@ -1,5 +1,5 @@
+import { MainActionBar } from 'modules/boards/containers';
 import { __ } from 'modules/common/utils';
-import { MainActionBar } from 'modules/deals/containers';
 import {
   BoardContainer,
   BoardContent,

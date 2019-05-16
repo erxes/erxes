@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
+import { IPipeline, StagesQueryResponse } from 'modules/boards/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { Move } from '../../components/editForm';
 import { queries } from '../../graphql';
-import { IDeal, IPipeline, StagesQueryResponse } from '../../types';
+import { IDeal } from '../../types';
 
 type Props = {
   deal: IDeal;
@@ -36,7 +37,7 @@ export default withProps<Props>(
       { deal: { pipeline: IPipeline } },
       StagesQueryResponse,
       { pipelineId: string }
-    >(gql(queries.stages), {
+    >(gql(queries.dealStages), {
       name: 'stagesQuery',
       options: ({ deal: { pipeline } }) => ({
         variables: {

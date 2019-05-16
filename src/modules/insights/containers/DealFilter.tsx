@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
-import { queries as dealQueries } from 'modules/deals/graphql';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
   BoardsQueryResponse
-} from 'modules/deals/types';
+} from 'modules/boards/types';
+import { queries as dealQueries } from 'modules/deals/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DealFilter } from '../components';

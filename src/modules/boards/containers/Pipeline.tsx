@@ -4,9 +4,9 @@ import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { EmptyState, Spinner } from '../../common/components';
-import { withProps } from '../../common/utils';
 import { queries } from '../graphql';
-import { IDealMap, IPipeline, IStageMap, StagesQueryResponse } from '../types';
+import { IItemMap, IPipeline, IStageMap, StagesQueryResponse } from '../types';
+import { withProps } from '../utils';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 import { Stage } from './stage';
 
@@ -17,7 +17,7 @@ const Container = styled.div`
 
 type Props = {
   pipeline: IPipeline;
-  initialDealMap?: IDealMap;
+  initialItemMap?: IItemMap;
   stageMap?: IStageMap;
   queryParams: any;
   type: string;
@@ -29,7 +29,13 @@ class WithStages extends React.Component<Props, {}> {
   }
 
   render() {
-    const { initialDealMap, pipeline, stageMap, queryParams } = this.props;
+    const {
+      initialItemMap,
+      pipeline,
+      stageMap,
+      queryParams,
+      type
+    } = this.props;
     const stagesCount = this.countStages(stageMap);
 
     if (stagesCount === 0) {
@@ -45,11 +51,12 @@ class WithStages extends React.Component<Props, {}> {
     return (
       <PipelineProvider
         pipeline={pipeline}
-        initialDealMap={initialDealMap}
+        initialItemMap={initialItemMap}
         queryParams={queryParams}
+        type={type}
       >
         <PipelineConsumer>
-          {({ stageLoadMap, dealMap, onDragEnd, stageIds }) => (
+          {({ stageLoadMap, itemMap, onDragEnd, stageIds }) => (
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable
                 droppableId="pipeline"
@@ -71,11 +78,12 @@ class WithStages extends React.Component<Props, {}> {
 
                       return (
                         <Stage
+                          type={type}
                           key={stageId}
                           index={index}
                           length={stagesCount}
                           stage={stage}
-                          deals={dealMap[stageId]}
+                          items={itemMap[stageId]}
                           search={queryParams.search}
                           loadingState={stageLoadMap[stageId]}
                         />
@@ -106,27 +114,29 @@ const WithStatesQuery = (props: WithStatesQueryProps) => {
 
   const stages = stagesQuery[type + 'Stages'];
 
-  const dealMap: IDealMap = {};
+  const itemMap: IItemMap = {};
   const stageMap: IStageMap = {};
 
   for (const stage of stages) {
-    dealMap[stage._id] = [];
+    itemMap[stage._id] = [];
     stageMap[stage._id] = stage;
   }
 
-  return <WithStages {...props} stageMap={stageMap} initialDealMap={dealMap} />;
+  return <WithStages {...props} stageMap={stageMap} initialItemMap={itemMap} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, StagesQueryResponse>(gql(queries.stages), {
-      name: 'stagesQuery',
-      options: ({ pipeline, queryParams }) => ({
-        variables: {
-          pipelineId: pipeline._id,
-          search: queryParams.search
-        }
+export default (props: Props) =>
+  withProps<Props>(
+    props,
+    compose(
+      graphql<Props, StagesQueryResponse>(gql(queries[props.type + 'Stages']), {
+        name: 'stagesQuery',
+        options: ({ pipeline, queryParams }) => ({
+          variables: {
+            pipelineId: pipeline._id,
+            search: queryParams.search
+          }
+        })
       })
-    })
-  )(WithStatesQuery)
-);
+    )(WithStatesQuery)
+  );
