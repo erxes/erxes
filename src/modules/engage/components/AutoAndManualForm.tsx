@@ -80,6 +80,14 @@ class AutoAndManualForm extends React.Component<Props, State> {
     this.setState({ [key]: value } as Pick<State, keyof State>);
   };
 
+  clearState = () => {
+    this.setState({
+      segmentIds: [],
+      brandIds: [],
+      tagIds: []
+    });
+  };
+
   save = (type: string): Promise<any> | void => {
     const doc = {
       segmentIds: this.state.segmentIds,
@@ -167,6 +175,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           >
             <MessageTypeStep
               onChange={this.changeState}
+              clearState={this.clearState}
               segmentIds={segmentIds}
               brandIds={brandIds}
               tagIds={tagIds}

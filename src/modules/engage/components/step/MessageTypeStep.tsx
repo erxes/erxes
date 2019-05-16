@@ -11,6 +11,7 @@ import styled from 'styled-components';
 import { BrandStep, SegmentStep, TagsStep } from '../../containers';
 
 type Props = {
+  clearState: () => void;
   onChange: (
     name: 'brandIds' | 'tagIds' | 'segmentIds',
     value: string[]
@@ -29,6 +30,7 @@ class MessageTypeStep extends React.Component<Props, { type: string }> {
 
   onChange = (e: React.FormEvent<HTMLElement>) => {
     this.setState({ type: (e.target as HTMLInputElement).value });
+    this.props.clearState();
   };
 
   renderSelector() {

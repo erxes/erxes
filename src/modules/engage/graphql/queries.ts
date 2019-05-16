@@ -58,7 +58,9 @@ const engageMessages = `
 const engageDetailFields = `
   _id
   kind
-  segmentId
+  segmentIds
+  tagIds
+  brandIds
   customerIds
   title
   fromUserId
