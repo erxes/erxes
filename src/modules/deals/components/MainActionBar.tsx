@@ -12,6 +12,7 @@ import {
   valueRenderer
 } from 'modules/common/components/SelectWithSearch';
 import { __ } from 'modules/common/utils';
+import { router as routerUtils } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { SelectCustomers } from 'modules/customers/containers/common';
 import { PopoverHeader } from 'modules/notifications/components/styles';
@@ -29,7 +30,7 @@ import {
   ClearFilter,
   DateFilter,
   FilterBox,
-  FilterLabel
+  FilterItem
 } from '../styles/deal';
 import {
   ButtonGroup,
@@ -60,6 +61,7 @@ type Props = {
 type State = {
   show: boolean;
   target: any;
+  active: boolean;
 };
 
 // get selected deal type from URL
@@ -77,7 +79,8 @@ class MainActionBar extends React.Component<Props, State> {
 
     this.state = {
       show: false,
-      target: null
+      target: null,
+      active: false
     };
   }
 
@@ -96,6 +99,11 @@ class MainActionBar extends React.Component<Props, State> {
     this.setState({ show: !this.state.show });
   };
 
+  toggleClass() {
+    const currentState = this.state.active;
+    this.setState({ active: !currentState });
+  }
+
   hideFilter = () => {
     this.setState({ show: false });
   };
@@ -112,9 +120,20 @@ class MainActionBar extends React.Component<Props, State> {
     return `/deal/${type}`;
   };
 
+  onClear = (name: string) => {
+    // tslint:disable-next-line:no-console
+    console.log(name, 'tttt');
+    routerUtils.removeParams(this.props.history, name);
+  };
+
   clearFilter = () => {
     this.props.clearFilter();
   };
+
+  // onClearDate = (name: string) => {
+  //   this.setState({ nextDay: '' });
+  //   this.props.onSelect(name, '');
+  // };
 
   renderBoards() {
     const { currentBoard, boards } = this.props;
@@ -184,23 +203,36 @@ class MainActionBar extends React.Component<Props, State> {
     }
 
     const { onSelect } = this.props;
-
     const renderLink = (label, name) => {
       return (
-        <Button btnStyle="link" onClick={onSelect.bind(this, name, true)}>
-          {label}
-        </Button>
+        <FilterItem>
+          <li
+            onClick={onSelect.bind(this, name, true)}
+            className={this.state.active ? 'filtering' : 'null'}
+          >
+            {label}
+          </li>
+          <ClearDate>
+            <Tip text={__('Remove this filter')}>
+              <Button
+                btnStyle="link"
+                icon="cancel-1"
+                onClick={this.onClear.bind(this, name)}
+              />
+            </Tip>
+          </ClearDate>
+        </FilterItem>
       );
     };
 
     return (
-      <>
+      <DateFilter>
         {renderLink('Due in the next day', 'nextDay')}
         {renderLink('Due in the next week', 'nextWeek')}
+        {renderLink('Due in the next month', 'nextMonth')}
         {renderLink('Has no close date', 'noCloseDate')}
         {renderLink('Over due', 'overdue')}
-        {renderLink('Due in next month', 'nextMonth')}
-      </>
+      </DateFilter>
     );
   }
 
@@ -313,7 +345,7 @@ class MainActionBar extends React.Component<Props, State> {
               block={true}
               size="small"
             >
-              Clear filter
+              {__('Clear filter')}
             </Button>
           </ClearFilter>
         </Popover>
