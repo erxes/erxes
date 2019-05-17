@@ -15,6 +15,11 @@ type Props = {
   search: (search: string, loadMore?: boolean) => void;
   options?: any;
   customQuery?: any;
+  customOption?: {
+    value: string;
+    label: string;
+    avatar?: string;
+  };
 };
 
 const content = option => (
@@ -42,7 +47,8 @@ class SelectWithSearch extends React.Component<Props> {
       onSelect,
       name,
       value,
-      search
+      search,
+      customOption
     } = this.props;
 
     const datas = customQuery[queryName] || [];
@@ -50,7 +56,9 @@ class SelectWithSearch extends React.Component<Props> {
     const onChange = list => onSelect(name, list.map(item => item.value));
     const onSearch = searchValue => search(searchValue);
 
-    const selectOption = options(datas);
+    const selectOption = customOption
+      ? [customOption, ...options(datas)]
+      : options(datas);
 
     return (
       <Select
@@ -88,6 +96,11 @@ type WrapperProps = {
   onSelect: (name: string, values) => void;
   options?: any;
   customQuery?: any;
+  customOption?: {
+    value: string;
+    label: string;
+    avatar?: string;
+  };
 };
 
 class Wrapper extends React.Component<

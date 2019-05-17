@@ -17,7 +17,7 @@ export function selectUserOptions(array: IUser[] = []) {
   });
 }
 
-export default ({ queryParams, onSelect }) => (
+export default ({ queryParams, onSelect, customOption }) => (
   <SelectWithSearch
     label="Choose team members"
     queryName="users"
@@ -26,5 +26,6 @@ export default ({ queryParams, onSelect }) => (
     value={queryParams.assignedUserIds}
     options={selectUserOptions}
     onSelect={onSelect}
+    customOption={customOption}
   />
 );

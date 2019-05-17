@@ -286,6 +286,11 @@ class MainActionBar extends React.Component<Props, State> {
     const calendarLink = this.onFilterClick('calendar');
     const hasFilter = isFiltered();
 
+    const teamMemberCustomOption = {
+      value: '',
+      label: 'Assigned to no one'
+    };
+
     const actionBarLeft = (
       <HeaderItems>
         <HeaderLabel>
@@ -344,7 +349,11 @@ class MainActionBar extends React.Component<Props, State> {
 
             <SelectCompanies queryParams={queryParams} onSelect={onSelect} />
             <SelectCustomers queryParams={queryParams} onSelect={onSelect} />
-            <SelectTeamMembers queryParams={queryParams} onSelect={onSelect} />
+            <SelectTeamMembers
+              queryParams={queryParams}
+              onSelect={onSelect}
+              customOption={teamMemberCustomOption}
+            />
 
             {this.renderDates()}
 
