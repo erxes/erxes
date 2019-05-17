@@ -128,9 +128,9 @@ const getFilterParams = queryParams => {
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
     assignedUserIds: queryParams.assignedUserIds,
-    productIds: queryParams.productIds,
-    startDate: queryParams.startDate,
-    endDate: queryParams.startDate
+    nextDay: queryParams.nextDay,
+    nextWeek: queryParams.nextWeek,
+    productIds: queryParams.productIds
   };
 };
 

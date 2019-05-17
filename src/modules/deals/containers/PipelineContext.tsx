@@ -76,8 +76,8 @@ export class PipelineProvider extends React.Component<Props, State> {
         customerIds,
         companyIds,
         productIds,
-        startDate,
-        endDate
+        nextDay,
+        nextWeek
       }
     } = this.props;
 
@@ -86,8 +86,8 @@ export class PipelineProvider extends React.Component<Props, State> {
     const nextCustomerIds = nextProps.queryParams.customerIds;
     const nextCompanyIds = nextProps.queryParams.companyIds;
     const nextProductIds = nextProps.queryParams.productIds;
-    const nextStartDate = nextProps.queryParams.startDate;
-    const nextEndDate = nextProps.queryParams.endDate;
+    const nextPropNextDay = nextProps.queryParams.nextDay;
+    const nextPropNextWeek = nextProps.queryParams.nextWeek;
 
     // Reset deals on filter and search parameter change
     if (
@@ -96,8 +96,8 @@ export class PipelineProvider extends React.Component<Props, State> {
       customerIds !== nextCustomerIds ||
       companyIds !== nextCompanyIds ||
       productIds !== nextProductIds ||
-      startDate !== nextStartDate ||
-      endDate !== nextEndDate
+      nextDay !== nextPropNextDay ||
+      nextWeek !== nextPropNextWeek
     ) {
       const { stageIds } = this.state;
 

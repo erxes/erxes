@@ -52,8 +52,6 @@ type Props = {
 };
 
 type State = {
-  startDate: string;
-  endDate: string;
   show: boolean;
   target: any;
 };
@@ -62,15 +60,16 @@ type State = {
 const getType = () =>
   window.location.href.includes('calendar') ? 'calendar' : 'board';
 
+const teamMemberCustomOption = {
+  value: '',
+  label: 'Assigned to no one'
+};
+
 class MainActionBar extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { startDate, endDate } = props.queryParams;
-
     this.state = {
-      startDate: startDate || '',
-      endDate: endDate || '',
       show: false,
       target: null
     };
@@ -109,28 +108,6 @@ class MainActionBar extends React.Component<Props, State> {
 
   clearFilter = () => {
     this.props.clearFilter();
-  };
-
-  onClearDate = (name: string) => {
-    if (name === 'startDate') {
-      this.setState({ startDate: '' });
-    } else {
-      this.setState({ endDate: '' });
-    }
-
-    this.props.onSelect(name, '');
-  };
-
-  onDateInputChange = (type: string, date: moment.Moment) => {
-    const formatDate = date ? moment(date).format('YYYY-MM-DD HH:mm') : '';
-
-    if (type === 'startDate') {
-      this.setState({ startDate: formatDate });
-    } else {
-      this.setState({ endDate: formatDate });
-    }
-
-    this.props.onSelect(type, formatDate);
   };
 
   renderBoards() {
@@ -192,29 +169,6 @@ class MainActionBar extends React.Component<Props, State> {
     });
   }
 
-  renderDatePicker({ label, value, name, dateProps }) {
-    return (
-      <FormGroup>
-        <FilterLabel>{label}</FilterLabel>
-        <Datetime
-          {...dateProps}
-          value={value}
-          onChange={this.onDateInputChange.bind(this, name)}
-          className="date-form"
-        />
-        <ClearDate>
-          <Tip text={__('Delete')}>
-            <Button
-              btnStyle="link"
-              icon="cancel-1"
-              onClick={this.onClearDate.bind(this, name)}
-            />
-          </Tip>
-        </ClearDate>
-      </FormGroup>
-    );
-  }
-
   renderDates() {
     const { history } = this.props;
 
@@ -223,30 +177,21 @@ class MainActionBar extends React.Component<Props, State> {
       return null;
     }
 
-    const { startDate, endDate } = this.state;
+    const { onSelect } = this.props;
 
-    const dateProps = {
-      inputProps: { placeholder: 'Click to select a date' },
-      timeFormat: 'HH:mm',
-      dateFormat: 'YYYY/MM/DD'
+    const renderLink = (label, name) => {
+      return (
+        <Button btnStyle="link" onClick={onSelect.bind(this, name, true)}>
+          {label}
+        </Button>
+      );
     };
 
     return (
-      <DateFilter>
-        {this.renderDatePicker({
-          label: __('Start date'),
-          value: startDate,
-          name: 'startDate',
-          dateProps
-        })}
-
-        {this.renderDatePicker({
-          label: __('End date'),
-          value: endDate,
-          name: 'endDate',
-          dateProps
-        })}
-      </DateFilter>
+      <>
+        {renderLink('Due in the next day', 'nextDay')}
+        {renderLink('Due in the next week', 'nextWeek')}
+      </>
     );
   }
 
@@ -285,11 +230,6 @@ class MainActionBar extends React.Component<Props, State> {
     const boardLink = this.onFilterClick('board');
     const calendarLink = this.onFilterClick('calendar');
     const hasFilter = isFiltered();
-
-    const teamMemberCustomOption = {
-      value: '',
-      label: 'Assigned to no one'
-    };
 
     const actionBarLeft = (
       <HeaderItems>
