@@ -74,7 +74,7 @@ const withQuery = ({ customQuery }) =>
       graphql<Props, {}, { searchValue: string }>(gql(customQuery), {
         name: 'customQuery',
         options: ({ searchValue }) => ({
-          variables: { searchValue, perPage: 20 }
+          variables: { searchValue, perPage: 10 }
         })
       })
     )(SelectWithSearch)

@@ -105,8 +105,16 @@ const HeaderLink = styled(HeaderButton)`
       color: ${colors.colorCoreDarkGray};
     }
   }
-  .filter-button {
-    color: #888;
+
+  .filter-success {
+    color: ${colors.colorWhite};
+    padding: 0 12px;
+    display: block;
+    line-height: 34px;
+  }
+
+  .filter-link {
+    color: ${colors.colorCoreGray};
     padding: 0 12px;
     display: block;
     line-height: 34px;

@@ -2,10 +2,7 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
-import { CompaniesQueryResponse } from 'modules/companies/types';
-import { CustomersQueryResponse } from 'modules/customers/types';
 import { queries as productQueries } from 'modules/settings/productService/graphql';
-import { UsersQueryResponse } from 'modules/settings/team/types';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -38,6 +35,14 @@ const getBoardId = ({ location }) => {
   return queryParams.id;
 };
 
+const commonParams = [
+  'companyIds',
+  'customerIds',
+  'assignedUserIds',
+  'productIds',
+  'startDate',
+  'endDate'
+];
 /*
  * Main board component
  */
@@ -50,16 +55,20 @@ class Main extends React.Component<FinalProps> {
     routerUtils.setParams(this.props.history, { [name]: values });
   };
 
+  isFiltered = (): boolean => {
+    const params = generateQueryParams(this.props.history);
+
+    for (const param in params) {
+      if (commonParams.includes(param)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   clearFilter = () => {
-    routerUtils.removeParams(
-      this.props.history,
-      'companyIds',
-      'customerIds',
-      'assignedUserIds',
-      'productIds',
-      'startDate',
-      'endDate'
-    );
+    routerUtils.removeParams(this.props.history, ...commonParams);
   };
 
   render() {
@@ -152,6 +161,7 @@ class Main extends React.Component<FinalProps> {
         middleContent={middleContent}
         onSearch={this.onSearch}
         onSelect={this.onSelect}
+        isFiltered={this.isFiltered}
         clearFilter={this.clearFilter}
         queryParams={queryParams}
         history={history}

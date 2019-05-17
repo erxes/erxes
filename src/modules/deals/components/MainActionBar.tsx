@@ -24,13 +24,7 @@ import { Overlay, Popover } from 'react-bootstrap';
 import * as Datetime from 'react-datetime';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import {
-  ClearDate,
-  DateFilter,
-  FilterBox,
-  FilterBtn,
-  FilterLabel
-} from '../styles/deal';
+import { ClearDate, DateFilter, FilterBox, FilterLabel } from '../styles/deal';
 import {
   ButtonGroup,
   HeaderButton,
@@ -45,6 +39,7 @@ import { selectProductOptions } from '../utils';
 type Props = {
   onSearch: (search: string) => void;
   onSelect: (name: string, values) => void;
+  isFiltered: () => boolean;
   clearFilter: () => void;
   currentBoard?: IBoard;
   currentPipeline?: IPipeline;
@@ -283,11 +278,13 @@ class MainActionBar extends React.Component<Props, State> {
       middleContent,
       queryParams,
       products,
-      onSelect
+      onSelect,
+      isFiltered
     } = this.props;
 
     const boardLink = this.onFilterClick('board');
     const calendarLink = this.onFilterClick('calendar');
+    const hasFilter = isFiltered();
 
     const actionBarLeft = (
       <HeaderItems>
@@ -376,10 +373,18 @@ class MainActionBar extends React.Component<Props, State> {
             autoFocus={true}
           />
         </div>
+
         <HeaderLink>
-          <FilterBtn onClick={this.handleClick}>
-            <Icon icon="filter" />
-          </FilterBtn>
+          <Tip text={__('Filter')}>
+            <Button
+              btnStyle={hasFilter ? 'success' : 'link'}
+              className={hasFilter ? 'filter-success' : 'filter-link'}
+              icon="filter"
+              onClick={this.handleClick}
+            >
+              {hasFilter && 'Filtering is on'}
+            </Button>
+          </Tip>
           {DealFilter}
         </HeaderLink>
 
