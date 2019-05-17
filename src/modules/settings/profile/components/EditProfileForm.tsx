@@ -1,4 +1,5 @@
 import { UserCommonInfos } from 'modules/auth/components';
+import TestInfos from 'modules/auth/components/TestInfos';
 import { IUser, IUserDoc } from 'modules/auth/types';
 import { Button, Form } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
@@ -105,7 +106,7 @@ class EditProfile extends React.Component<Props, State> {
   renderContent = formProps => {
     return (
       <form onSubmit={this.showConfirm}>
-        <UserCommonInfos
+        <TestInfos
           formProps={formProps}
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}

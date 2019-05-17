@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { Button, FormControl, FormGroup, Icon } from '.';
+import { IFormProps } from '../types';
 import { __, Alert } from '../utils';
 
 type OptionProps = {
@@ -42,6 +43,9 @@ type Props = {
   buttonText?: string;
   regex?: RegExp;
   adding?: boolean;
+  formProps?: IFormProps;
+  type?: string;
+  required?: boolean;
 };
 
 type State = {
@@ -94,7 +98,8 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
       selectedOption: updatedOption,
       inputValue
     };
-
+    // tslint:disable-next-line:no-console
+    console.log('lol');
     this.setState({ ...state }, () => {
       onChange({ options: this.state.options, selectedOption: updatedOption });
 
@@ -165,7 +170,13 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
   };
 
   renderInput = () => {
-    const { buttonText, placeholder } = this.props;
+    const { buttonText, placeholder, formProps, type, required } = this.props;
+
+    let onClick = formProps && formProps.runValidations;
+
+    if (formProps && formProps.errors.addOption === null) {
+      onClick = this.handleSave;
+    }
 
     if (this.state.adding) {
       const onPress = e => {
@@ -179,10 +190,14 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
         <React.Fragment>
           <FormGroup>
             <FormControl
+              name="addOption"
+              type={type}
               autoFocus={true}
               onKeyPress={onPress}
               placeholder={placeholder}
               onChange={this.handleInputChange}
+              required={required}
+              {...formProps}
             />
           </FormGroup>
           <Button
@@ -197,7 +212,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
             btnStyle="success"
             size="small"
             icon="checked-1"
-            onClick={this.handleSave}
+            onClick={onClick}
           >
             Save
           </Button>
