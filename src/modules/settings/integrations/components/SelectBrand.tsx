@@ -26,6 +26,7 @@ type Props = {
   ) => void;
   defaultValue?: string;
   creatable?: boolean;
+  isRequired?: boolean;
 };
 
 class SelectBrand extends React.Component<Props, {}> {
@@ -46,11 +47,11 @@ class SelectBrand extends React.Component<Props, {}> {
   };
 
   render() {
-    const { brands, onChange, defaultValue, save } = this.props;
+    const { brands, onChange, defaultValue, isRequired } = this.props;
 
     return (
       <FormGroup>
-        <ControlLabel required={true}>Brand</ControlLabel>
+        <ControlLabel required={isRequired}>Brand</ControlLabel>
         <Row>
           <FormControl
             componentClass="select"
@@ -58,6 +59,7 @@ class SelectBrand extends React.Component<Props, {}> {
             defaultValue={defaultValue}
             onChange={onChange}
             id="selectBrand"
+            required={isRequired}
           >
             <option />
             {brands.map(brand => (

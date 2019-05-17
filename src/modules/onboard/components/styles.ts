@@ -128,7 +128,7 @@ const LeftContent = styled.div`
 `;
 
 const TopContent = styled.div`
-  margin-bottom: 50px;
+  margin-bottom: 40px;
   position: relative;
 
   h2 {

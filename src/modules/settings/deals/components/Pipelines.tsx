@@ -66,11 +66,11 @@ class Pipelines extends React.Component<Props, State> {
     });
   };
 
-  onChangePipelines(pipelines) {
+  onChangePipelines = pipelines => {
     this.setState({ pipelines });
 
     this.props.updateOrder(collectOrders(pipelines));
-  }
+  };
 
   renderRows() {
     const child = pipeline => {

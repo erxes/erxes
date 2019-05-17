@@ -8,6 +8,7 @@ import {
 import { __, Alert } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
+import { LANGUAGES } from 'modules/settings/general/constants';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
 import {
   IIntegration,
@@ -17,7 +18,6 @@ import {
 } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { LANGUAGES } from '../../constants';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 

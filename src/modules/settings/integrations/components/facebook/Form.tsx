@@ -103,7 +103,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
 
-        <SelectBrand />
+        <SelectBrand isRequired={true} />
 
         <Accounts
           kind="facebook"

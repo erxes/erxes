@@ -96,7 +96,7 @@ class MessengerAdd extends React.Component<Props, State> {
           <Icon icon="checked-1" /> {__('You already have')} <b>{totalCount}</b>{' '}
           {__('messengers')}.
           <a href="javascript:;" onClick={this.toggleMessengers}>
-            {showMessengers ? __('Show') : __('Hide')} ›
+            {showMessengers ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 
@@ -148,6 +148,7 @@ class MessengerAdd extends React.Component<Props, State> {
             value={name}
             onChange={this.handleChange.bind(this, 'name')}
             type="text"
+            autoFocus={true}
             required={true}
           />
         </FormGroup>
@@ -170,6 +171,7 @@ class MessengerAdd extends React.Component<Props, State> {
         </FormGroup>
 
         <SelectBrand
+          isRequired={true}
           onChange={this.handleChange.bind(this, 'brandId')}
           creatable={false}
         />
