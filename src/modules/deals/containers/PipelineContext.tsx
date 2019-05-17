@@ -78,6 +78,7 @@ export class PipelineProvider extends React.Component<Props, State> {
         productIds,
         nextDay,
         nextWeek,
+        nextMonth,
         noCloseDate,
         overdue
       }
@@ -90,6 +91,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     const nextProductIds = nextProps.queryParams.productIds;
     const nextPropNextDay = nextProps.queryParams.nextDay;
     const nextPropNextWeek = nextProps.queryParams.nextWeek;
+    const nextPropNextMonth = nextProps.queryParams.nextMonth;
     const nextNoCloseDate = nextProps.queryParams.noCloseDate;
     const nextOverdue = nextProps.queryParams.overdue;
 
@@ -102,7 +104,7 @@ export class PipelineProvider extends React.Component<Props, State> {
       productIds !== nextProductIds ||
       nextDay !== nextPropNextDay ||
       nextWeek !== nextPropNextWeek ||
-      nextWeek !== nextPropNextWeek ||
+      nextMonth !== nextPropNextMonth ||
       noCloseDate !== nextNoCloseDate ||
       overdue !== nextOverdue
     ) {

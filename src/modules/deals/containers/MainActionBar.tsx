@@ -41,6 +41,7 @@ const commonParams = [
   'assignedUserIds',
   'nextDay',
   'nextWeek',
+  'nextMonth',
   'overdue',
   'noCloseDate',
   'productIds'

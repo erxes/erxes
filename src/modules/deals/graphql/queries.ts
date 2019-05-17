@@ -77,6 +77,7 @@ const stages = `
     $assignedUserIds: [String],
     $nextDay: String,
     $nextWeek: String,
+    $nextMonth: String,
     $noCloseDate: String,
     $overdue: String
     $productIds: [String]
@@ -89,6 +90,7 @@ const stages = `
       assignedUserIds: $assignedUserIds,
       nextDay: $nextDay,
       nextWeek: $nextWeek,
+      nextMonth: $nextMonth,
       noCloseDate: $noCloseDate,
       overdue: $overdue
       productIds: $productIds
@@ -164,6 +166,7 @@ const dealsTotalAmounts = `
     $productIds: [String]
     $nextDay: String
     $nextWeek: String 
+    $nextMonth: String 
     $noCloseDate: String 
     $overdue: String
   ) {
@@ -176,6 +179,7 @@ const dealsTotalAmounts = `
       productIds: $productIds
       nextDay: $nextDay
       nextWeek: $nextWeek
+      nextMonth: $nextMonth
       noCloseDate: $noCloseDate
       overdue: $overdue
     ) {
@@ -203,6 +207,7 @@ const deals = `
     $productIds: [String]
     $nextDay: String,
     $nextWeek: String,
+    $nextMonth: String,
     $noCloseDate: String
     $overdue: String
   ) {
@@ -218,6 +223,7 @@ const deals = `
       productIds: $productIds
       nextDay: $nextDay
       nextWeek: $nextWeek
+      nextMonth: $nextMonth
       noCloseDate: $noCloseDate
       overdue: $overdue
     ) {

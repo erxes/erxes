@@ -130,6 +130,7 @@ const getFilterParams = queryParams => {
     assignedUserIds: queryParams.assignedUserIds,
     nextDay: queryParams.nextDay,
     nextWeek: queryParams.nextWeek,
+    nextMonth: queryParams.nextMonth,
     noCloseDate: queryParams.noCloseDate,
     overdue: queryParams.overdue,
     productIds: queryParams.productIds
