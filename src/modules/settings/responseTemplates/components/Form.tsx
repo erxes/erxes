@@ -10,15 +10,14 @@ import {
   toHTML
 } from 'modules/common/components/editor/Editor';
 import { __ } from 'modules/common/utils';
+import { SelectBrand } from 'modules/settings/integrations/containers';
 import * as React from 'react';
-import { IBrand } from '../../brands/types';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
 import { IResponseTemplate } from '../types';
 
 type Props = {
   object?: IResponseTemplate;
-  brands: IBrand[];
 };
 
 type State = {
@@ -50,9 +49,8 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   generateDoc = () => {
     return {
       doc: {
-        brandId: (document.getElementById(
-          'template-brand-id'
-        ) as HTMLInputElement).value,
+        brandId: (document.getElementById('selectBrand') as HTMLInputElement)
+          .value,
         name: (document.getElementById('template-name') as HTMLInputElement)
           .value,
         content: this.getContent(this.state.editorState)
@@ -61,7 +59,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   };
 
   renderContent = () => {
-    const { brands } = this.props;
     const object = this.props.object || ({} as IResponseTemplate);
 
     const props = {
@@ -73,24 +70,11 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return (
       <React.Fragment>
         <FormGroup>
-          <ControlLabel>Brand</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select Brand')}
-            defaultValue={object.brandId}
-            id="template-brand-id"
-          >
-            {brands.map(brand => (
-              <option key={brand._id} value={brand._id}>
-                {brand.name}
-              </option>
-            ))}
-          </FormControl>
+          <SelectBrand isRequired={true} defaultValue={object.brandId} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             id="template-name"
             defaultValue={object.name}

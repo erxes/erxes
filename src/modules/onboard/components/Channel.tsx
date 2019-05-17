@@ -118,7 +118,7 @@ class ChannelForm extends React.Component<Props, State> {
           <Icon icon="checked-1" /> {__('You already have')}{' '}
           <b>{channelsTotalCount}</b> {__('channels')}.{' '}
           <a href="javascript:;" onClick={this.toggleChannels}>
-            {showChannels ? __('Show') : __('Hide')} ›
+            {showChannels ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 
@@ -152,18 +152,19 @@ class ChannelForm extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl
             value={this.state.channelName}
             onChange={this.handleInput}
             type="text"
+            autoFocus={true}
             required={true}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Users</ControlLabel>
+          <ControlLabel required={true}>Users</ControlLabel>
 
           <Select
             placeholder={__('Choose members')}
@@ -175,7 +176,7 @@ class ChannelForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Messengers</ControlLabel>
+          <ControlLabel required={true}>Messengers</ControlLabel>
 
           <Select
             placeholder={__('Choose messengers')}
@@ -210,7 +211,7 @@ class ChannelForm extends React.Component<Props, State> {
               disabled={this.isFilledValues()}
               onClick={this.save}
             >
-              {__('Finish')} <Icon icon="rightarrow-2" />
+              {__('Finish')} <Icon icon="checked" />
             </Button>
           </div>
           <Link to="/inbox/index">{__('Go to Inbox')} »</Link>
