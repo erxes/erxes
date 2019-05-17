@@ -31,7 +31,7 @@ class EditPipelineFormContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const stages = stagesQuery.dealStages;
+    const stages = stagesQuery.stages;
 
     const extendedProps = {
       ...this.props,

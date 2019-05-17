@@ -1,70 +1,74 @@
 const commonParamsDef = `
   $name: String!,
+  $type: String!
 `;
 
 const commonParams = `
   name: $name,
+  type: $type
 `;
 
 const boardAdd = `
-  mutation dealBoardsAdd(${commonParamsDef}) {
-    dealBoardsAdd(${commonParams}) {
+  mutation boardsAdd(${commonParamsDef}) {
+    boardsAdd(${commonParams}) {
       _id
     }
   }
 `;
 
 const boardEdit = `
-  mutation dealBoardsEdit($_id: String!, ${commonParamsDef}) {
-    dealBoardsEdit(_id: $_id, ${commonParams}) {
+  mutation boardsEdit($_id: String!, ${commonParamsDef}) {
+    boardsEdit(_id: $_id, ${commonParams}) {
       _id
     }
   }
 `;
 
 const boardRemove = `
-  mutation dealBoardsRemove($_id: String!) {
-    dealBoardsRemove(_id: $_id)
+  mutation boardsRemove($_id: String!) {
+    boardsRemove(_id: $_id)
   }
 `;
 
 const commonPipelineParamsDef = `
   $name: String!,
   $boardId: String!,
-  $stages: JSON
+  $stages: JSON,
+  $type: String!
 `;
 
 const commonPipelineParams = `
   name: $name,
   boardId: $boardId,
-  stages: $stages
+  stages: $stages,
+  type: $type
 `;
 
 const pipelineAdd = `
-  mutation dealPipelinesAdd(${commonPipelineParamsDef}) {
-    dealPipelinesAdd(${commonPipelineParams}) {
+  mutation pipelinesAdd(${commonPipelineParamsDef}) {
+    pipelinesAdd(${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineEdit = `
-  mutation dealPipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
-    dealPipelinesEdit(_id: $_id, ${commonPipelineParams}) {
+  mutation pipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
+    pipelinesEdit(_id: $_id, ${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineRemove = `
-  mutation dealPipelinesRemove($_id: String!) {
-    dealPipelinesRemove(_id: $_id)
+  mutation pipelinesRemove($_id: String!) {
+    pipelinesRemove(_id: $_id)
   }
 `;
 
 const pipelinesUpdateOrder = `
-  mutation dealPipelinesUpdateOrder($orders: [OrderItem]) {
-    dealPipelinesUpdateOrder(orders: $orders) {
+  mutation pipelinesUpdateOrder($orders: [OrderItem]) {
+    pipelinesUpdateOrder(orders: $orders) {
       _id
     }
   }

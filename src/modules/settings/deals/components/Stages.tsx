@@ -31,7 +31,8 @@ class Stages extends React.Component<Props, {}> {
 
     stages.push({
       _id: Math.random().toString(),
-      name: ''
+      name: '',
+      type: 'deal'
     });
 
     onChangeStages(stages);

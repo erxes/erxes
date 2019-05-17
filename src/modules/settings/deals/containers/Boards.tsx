@@ -37,7 +37,7 @@ class BoardsContainer extends React.Component<FinalProps> {
       removeMutation
     } = this.props;
 
-    const boards = boardsQuery.dealBoards || [];
+    const boards = boardsQuery.boards || [];
 
     // remove action
     const remove = boardId => {
@@ -99,13 +99,16 @@ class BoardsContainer extends React.Component<FinalProps> {
 }
 
 const generateOptions = () => ({
-  refetchQueries: ['dealBoards', 'dealBoardGetLast', 'dealPipelines']
+  refetchQueries: ['boards', 'boardGetLast', 'pipelines']
 });
 
 export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
-      name: 'boardsQuery'
+      name: 'boardsQuery',
+      options: () => ({
+        variables: { type: 'deal' }
+      })
     }),
     graphql<Props, AddBoardMutationResponse, {}>(gql(mutations.boardAdd), {
       name: 'addMutation',

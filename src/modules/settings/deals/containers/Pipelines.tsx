@@ -43,7 +43,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const pipelines = pipelinesQuery.dealPipelines;
+    const pipelines = pipelinesQuery.pipelines;
 
     // remove action
     const remove = pipelineId => {

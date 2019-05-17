@@ -33,7 +33,8 @@ class BoardForm extends React.Component<Props, {}> {
     return {
       doc: {
         name: (document.getElementById('channel-name') as HTMLInputElement)
-          .value
+          .value,
+        type: 'deal'
       }
     };
   };

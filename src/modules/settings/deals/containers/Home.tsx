@@ -40,7 +40,7 @@ const LastBoard = (props: LastBoardProps) => {
     return <Spinner objective={true} />;
   }
 
-  const lastBoard = boardGetLastQuery.dealBoardGetLast || {};
+  const lastBoard = boardGetLastQuery.boardGetLast || {};
 
   const extendedProps = {
     ...props,
@@ -52,7 +52,10 @@ const LastBoard = (props: LastBoardProps) => {
 
 const LastBoardContainer = compose(
   graphql(gql(queries.boardGetLast), {
-    name: 'boardGetLastQuery'
+    name: 'boardGetLastQuery',
+    options: () => ({
+      variables: { type: 'deal' }
+    })
   })
 )(LastBoard);
 

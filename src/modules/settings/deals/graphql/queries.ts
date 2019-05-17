@@ -1,6 +1,6 @@
 const boards = `
-  query dealBoards {
-    dealBoards {
+  query boards($type: String!) {
+    boards(type: $type) {
       _id
       name
     }
@@ -8,8 +8,8 @@ const boards = `
 `;
 
 const boardGetLast = `
-  query dealBoardGetLast {
-    dealBoardGetLast {
+  query boardGetLast($type: String!) {
+    boardGetLast(type: $type) {
       _id
       name
     }
@@ -17,8 +17,8 @@ const boardGetLast = `
 `;
 
 const pipelines = `
-  query dealPipelines($boardId: String!) {
-    dealPipelines(boardId: $boardId) {
+  query pipelines($boardId: String!) {
+    pipelines(boardId: $boardId) {
       _id
       name
       boardId
@@ -27,8 +27,8 @@ const pipelines = `
 `;
 
 const stages = `
-  query dealStages($pipelineId: String!) {
-    dealStages(pipelineId: $pipelineId) {
+  query stages($pipelineId: String!) {
+    stages(pipelineId: $pipelineId) {
       _id
       name
       probability

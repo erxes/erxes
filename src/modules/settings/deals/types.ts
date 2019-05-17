@@ -22,7 +22,6 @@ export interface IStage {
   probability?: string;
   pipelineId: string;
   amount?: JSON;
-  deals?: IDeal[];
   order?: number;
   createdAt?: Date;
 }
@@ -34,31 +33,31 @@ export interface IOrder {
 
 // queries
 export type BoardsQueryResponse = {
-  dealBoards: IBoard[];
+  boards: IBoard[];
   loading: boolean;
   refetch: () => void;
 };
 
 export type BoardsGetLastQueryResponse = {
-  dealBoardGetLast: IBoard;
+  boardGetLast: IBoard;
   loading: boolean;
   refetch: () => void;
 };
 
 export type BoardsDetailQueryResponse = {
-  dealBoardDetail: IBoard;
+  boardDetail: IBoard;
   loading: boolean;
   refetch: () => void;
 };
 
 export type PipelineQueryResponse = {
-  dealPipelines: IPipeline[];
+  pipelines: IPipeline[];
   loading: boolean;
   refetch: () => void;
 };
 
 export type StagesQueryResponse = {
-  dealStages: IStage[];
+  stages: IStage[];
   loading: boolean;
   refetch: () => void;
 };
