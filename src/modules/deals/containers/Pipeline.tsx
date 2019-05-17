@@ -33,7 +33,9 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
         companyIds,
         nextDay,
         nextWeek,
+        nextMonth,
         noCloseDate,
+        overdue,
         pipelineId
       }
     } = this.props;
@@ -44,7 +46,9 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
     const nextCompanyIds = nextProps.queryParams.companyIds;
     const nextPropNextDay = nextProps.queryParams.nextDay;
     const nextPropNextWeek = nextProps.queryParams.nextWeek;
+    const nextPropNextMonth = nextProps.queryParams.nextMonth;
     const nextNoCloseDate = nextProps.queryParams.noCloseDate;
+    const nextOverdue = nextProps.queryParams.overdue;
 
     if (
       assignedUserIds !== nextAssignedUserIds ||
@@ -53,7 +57,9 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
       productIds !== nextProductIds ||
       nextDay !== nextPropNextDay ||
       noCloseDate !== nextNoCloseDate ||
-      nextWeek !== nextPropNextWeek
+      nextWeek !== nextPropNextWeek ||
+      nextMonth !== nextPropNextMonth ||
+      overdue !== nextOverdue
     ) {
       stagesQuery.refetch({ pipelineId });
     }
@@ -166,7 +172,9 @@ export default withProps<Props>(
           productIds: queryParams.productIds,
           nextDay: queryParams.nextDay,
           nextWeek: queryParams.nextWeek,
-          noCloseDate: queryParams.noCloseDate
+          nextMonth: queryParams.nextMonth,
+          noCloseDate: queryParams.noCloseDate,
+          overdue: queryParams.overdue
         }
       })
     })
