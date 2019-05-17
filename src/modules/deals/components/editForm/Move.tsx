@@ -100,6 +100,7 @@ class DealMove extends React.Component<Props, State> {
 
     return (
       <DealSelect
+        type="deal"
         stageId={stageId}
         boardId={boardId}
         pipelineId={pipelineId}

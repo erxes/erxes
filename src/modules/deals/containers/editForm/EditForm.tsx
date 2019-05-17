@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { queries as boardQueries } from 'modules/boards/graphql';
 import { Spinner } from 'modules/common/components';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
@@ -152,7 +153,7 @@ export default withProps<Props>(
       options: ({ stageId }: { stageId: string }) => ({
         refetchQueries: [
           {
-            query: gql(queries.stageDetail),
+            query: gql(boardQueries.stageDetail),
             variables: { _id: stageId }
           }
         ]
@@ -167,7 +168,7 @@ export default withProps<Props>(
             variables: { _id: dealId }
           },
           {
-            query: gql(queries.stageDetail),
+            query: gql(boardQueries.stageDetail),
             variables: { _id: stageId }
           }
         ]
@@ -180,7 +181,7 @@ export default withProps<Props>(
         options: ({ stageId }: { stageId: string }) => ({
           refetchQueries: [
             {
-              query: gql(queries.stageDetail),
+              query: gql(boardQueries.stageDetail),
               variables: { _id: stageId }
             }
           ]

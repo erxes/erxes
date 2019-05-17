@@ -1,97 +1,3 @@
-const boards = `
-  query dealBoards {
-    dealBoards {
-      _id
-      name
-
-      pipelines {
-        _id
-        name
-      }
-    }
-  }
-`;
-
-const boardGetLast = `
-  query dealBoardGetLast {
-    dealBoardGetLast {
-      _id
-      name
-
-      pipelines {
-        _id
-        name
-      }
-    }
-  }
-`;
-
-const boardDetail = `
-  query dealBoardDetail($_id: String!) {
-    dealBoardDetail(_id: $_id) {
-      _id
-      name
-
-      pipelines {
-        _id
-        name
-      }
-    }
-  }
-`;
-
-const pipelines = `
-  query dealPipelines($boardId: String!) {
-    dealPipelines(boardId: $boardId) {
-      _id
-      name
-      boardId
-    }
-  }
-`;
-
-const dealPipelineDetail = `
-  query dealPipelineDetail($_id: String!) {
-    dealPipelineDetail(_id: $_id) {
-      _id
-      name
-    }
-  }
-`;
-
-const pipelineGetLast = `
-  query dealPipelineGetLast {
-    dealPipelineGetLast {
-      _id
-      name
-    }
-  }
-`;
-
-const dealStages = `
-  query dealStages($pipelineId: String!, $search: String) {
-    dealStages(pipelineId: $pipelineId, search: $search) {
-      _id
-      name
-      order
-      amount
-      dealsTotalCount
-    }
-  }
-`;
-
-const stageDetail = `
-  query dealStageDetail($_id: String!) {
-    dealStageDetail(_id: $_id) {
-      _id
-      name
-      pipelineId
-      amount
-      dealsTotalCount
-    }
-  }
-`;
-
 const dealFields = `
   _id
   name
@@ -133,7 +39,7 @@ const dealFields = `
 `;
 
 const dealsTotalAmounts = `
-  query dealsTotalAmounts($date: DealDate $pipelineId: String) {
+  query dealsTotalAmounts($date: ItemDate $pipelineId: String) {
     dealsTotalAmounts(date: $date pipelineId: $pipelineId) {
       _id
       dealCount
@@ -152,7 +58,7 @@ const deals = `
     $stageId: String, 
     $customerId: String, 
     $companyId: String ,
-    $date: DealDate,
+    $date: ItemDate,
     $skip: Int,
     $search: String
   ) {
@@ -202,14 +108,6 @@ const users = `
 `;
 
 export default {
-  boards,
-  boardGetLast,
-  boardDetail,
-  pipelines,
-  pipelineGetLast,
-  dealPipelineDetail,
-  dealStages,
-  stageDetail,
   deals,
   dealDetail,
   productDetail,

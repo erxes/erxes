@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import { EmptyState } from 'modules/common/components';
+import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import { PipelineDetailQueryResponse } from '../types';
-import { withProps } from '../utils';
 import Pipeline from './Pipeline';
 
 type Props = {
@@ -19,7 +19,7 @@ type FinalProps = {
 const WithPipelinesQuery = (props: FinalProps) => {
   const { pipelineDetailQuery, queryParams, type } = props;
 
-  if (!pipelineDetailQuery || !pipelineDetailQuery[type + 'PipelineDetail']) {
+  if (!pipelineDetailQuery || !pipelineDetailQuery.pipelineDetail) {
     return (
       <EmptyState
         image="/images/actions/18.svg"
@@ -34,31 +34,29 @@ const WithPipelinesQuery = (props: FinalProps) => {
     return null;
   }
 
-  const pipeline = pipelineDetailQuery[type + 'PipelineDetail'];
+  const pipeline = pipelineDetailQuery.pipelineDetail;
 
   return (
     <Pipeline
+      type={type}
       pipeline={pipeline}
       key={pipeline._id}
       queryParams={queryParams}
-      type={type}
     />
   );
 };
 
-export default (props: Props) =>
-  withProps<Props>(
-    props,
-    compose(
-      graphql<Props, PipelineDetailQueryResponse, { _id?: string }>(
-        gql(queries[props.type + 'PipelineDetail']),
-        {
-          name: 'pipelineDetailQuery',
-          skip: ({ queryParams }) => !queryParams.pipelineId,
-          options: ({ queryParams }) => ({
-            variables: { _id: queryParams && queryParams.pipelineId }
-          })
-        }
-      )
-    )(WithPipelinesQuery)
-  );
+export default withProps<Props>(
+  compose(
+    graphql<Props, PipelineDetailQueryResponse, { _id?: string }>(
+      gql(queries.pipelineDetail),
+      {
+        name: 'pipelineDetailQuery',
+        skip: ({ queryParams }) => !queryParams.pipelineId,
+        options: ({ queryParams }) => ({
+          variables: { _id: queryParams && queryParams.pipelineId }
+        })
+      }
+    )
+  )(WithPipelinesQuery)
+);

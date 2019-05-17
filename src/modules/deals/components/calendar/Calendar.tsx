@@ -51,7 +51,7 @@ class CalendarView extends React.Component<Props> {
   };
 
   renderActionBar = (renderMiddleContent: () => React.ReactNode) => {
-    return <MainActionBar middleContent={renderMiddleContent} />;
+    return <MainActionBar type="deal" middleContent={renderMiddleContent} />;
   };
 
   renderMonthView(renderMonths: () => React.ReactNode[]) {

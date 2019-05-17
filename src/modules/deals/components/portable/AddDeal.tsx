@@ -93,6 +93,7 @@ class DealAddForm extends React.Component<Props, State> {
 
     return (
       <DealSelect
+        type="deal"
         stageId={stageId}
         pipelineId={pipelineId}
         boardId={boardId}

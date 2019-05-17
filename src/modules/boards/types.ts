@@ -26,8 +26,7 @@ export interface IStage {
   index?: number;
   itemId?: string;
   amount?: any;
-  deals?: IDeal[];
-  dealsTotalCount: number;
+  itemsTotalCount: number;
 }
 
 export interface IItem {
@@ -43,11 +42,6 @@ export interface IItem {
   customers: ICustomer[];
   pipeline: IPipeline;
   stage?: IStage;
-}
-
-// example interface
-export interface ITicket extends IItem {
-  ticketType: string;
 }
 
 export interface IDraggableLocation {
@@ -73,25 +67,25 @@ export interface IStageMap {
   [key: string]: IStage;
 }
 
-export type Item = IDeal | ITicket;
+export type Item = IDeal;
 
 export interface IItemMap {
   [key: string]: Item[];
 }
 
 export type BoardsQueryResponse = {
-  dealBoards: IBoard[];
+  boards: IBoard[];
   loading: boolean;
 };
 
 export type PipelinesQueryResponse = {
-  dealPipelines: IPipeline[];
+  pipelines: IPipeline[];
   loading: boolean;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
 };
 
 export type StagesQueryResponse = {
-  dealStages: IStage[];
+  stages: IStage[];
   loading: boolean;
   refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
 };
@@ -103,23 +97,17 @@ export type DealsChangeMutation = (
 ) => Promise<any>;
 
 export type BoardsGetLastQueryResponse = {
-  dealBoardGetLast: IBoard;
+  boardGetLast: IBoard;
   loading: boolean;
 };
 
 export type BoardDetailQueryResponse = {
-  dealBoardDetail: IBoard;
+  boardDetail: IBoard;
   loading: boolean;
 };
 
 export type PipelineDetailQueryResponse = {
-  dealPipelineDetail?: IPipeline;
-  ticketPipelineDetail?: IPipeline;
-  loading: boolean;
-};
-
-export type ActivityLogQueryResponse = {
-  activityLogs: IActivityLogForMonth[];
+  pipelineDetail: IPipeline;
   loading: boolean;
 };
 

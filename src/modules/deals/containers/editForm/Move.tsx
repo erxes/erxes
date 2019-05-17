@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { queries as boardQueries } from 'modules/boards/graphql';
 import { IPipeline, StagesQueryResponse } from 'modules/boards/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -37,7 +38,7 @@ export default withProps<Props>(
       { deal: { pipeline: IPipeline } },
       StagesQueryResponse,
       { pipelineId: string }
-    >(gql(queries.dealStages), {
+    >(gql(boardQueries.stages), {
       name: 'stagesQuery',
       options: ({ deal: { pipeline } }) => ({
         variables: {

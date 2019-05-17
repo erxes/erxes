@@ -25,6 +25,7 @@ type State = {
 };
 
 interface IStore {
+  type: string;
   itemMap: IItemMap;
   stageLoadMap: StageLoadMap;
   stageIds: string[];
@@ -159,11 +160,9 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   saveStageOrders = (stageIds: string[]) => {
-    const { type } = this.props;
-
     client
       .mutate({
-        mutation: gql(mutations[type + 'StagesUpdateOrder']),
+        mutation: gql(mutations.stagesUpdateOrder),
         variables: {
           orders: stageIds.map((stageId, index) => ({
             _id: stageId,
@@ -177,8 +176,6 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   saveDealOrders = (itemMap: IItemMap, stageIds: string[]) => {
-    const { type } = this.props;
-
     for (const stageId of stageIds) {
       const orders = collectOrders(itemMap[stageId]);
 
@@ -188,14 +185,14 @@ export class PipelineProvider extends React.Component<Props, State> {
 
       client
         .mutate({
-          mutation: gql(mutations[type + 'sUpdateOrder']),
+          mutation: gql(mutations.updateOrder),
           variables: {
             orders,
             stageId
           },
           refetchQueries: [
             {
-              query: gql(queries[type + 'StageDetail']),
+              query: gql(queries.stageDetail),
               variables: { _id: stageId }
             }
           ]
@@ -350,6 +347,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     return (
       <PipelineContext.Provider
         value={{
+          type: this.props.type,
           onDragEnd: this.onDragEnd,
           onLoadStage: this.onLoadStage,
           scheduleStage: this.scheduleStage,

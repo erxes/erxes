@@ -17,6 +17,7 @@ import {
 } from '../types';
 
 type Props = {
+  type: string;
   middleContent?: () => React.ReactNode;
 } & IRouterProps;
 
@@ -71,8 +72,8 @@ class Main extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
-    const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
+    const lastBoard = boardGetLastQuery && boardGetLastQuery.boardGetLast;
+    const currentBoard = boardDetailQuery && boardDetailQuery.boardDetail;
 
     // if there is no boardId in queryparams and there is one in localstorage
     // then put those in queryparams
@@ -129,7 +130,7 @@ class Main extends React.Component<FinalProps> {
         history={history}
         currentBoard={currentBoard}
         currentPipeline={currentPipeline}
-        boards={boardsQuery.dealBoards || []}
+        boards={boardsQuery.boards || []}
       />
     );
   }
@@ -142,11 +143,17 @@ const generateQueryParams = ({ location }) => {
 const MainActionBar = withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
-      name: 'boardsQuery'
+      name: 'boardsQuery',
+      options: ({ type }) => ({
+        variables: { type }
+      })
     }),
     graphql<Props, BoardsGetLastQueryResponse>(gql(queries.boardGetLast), {
       name: 'boardGetLastQuery',
-      skip: getBoardId
+      skip: getBoardId,
+      options: ({ type }) => ({
+        variables: { type }
+      })
     }),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),

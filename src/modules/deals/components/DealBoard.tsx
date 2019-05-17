@@ -21,7 +21,7 @@ class DealBoard extends React.Component<Props> {
   }
 
   renderActionBar() {
-    return <MainActionBar />;
+    return <MainActionBar type="deal" />;
   }
 
   render() {

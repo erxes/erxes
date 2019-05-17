@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { __, Alert } from 'modules/common/utils';
+import { queries as dealsQueries } from 'modules/deals/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../../components/stage';
@@ -53,6 +54,8 @@ class StageContainer extends React.PureComponent<
   componentDidMount() {
     const { scheduleStage, stage } = this.props;
 
+    console.log('componentDidMount this.props: ', this.props); //tslint:disable-line
+
     // register stage to queue on first render
     scheduleStage(stage._id);
   }
@@ -60,13 +63,13 @@ class StageContainer extends React.PureComponent<
   loadMore = () => {
     const { onLoad, stage, items, search } = this.props;
 
-    if (items.length === stage.dealsTotalCount) {
+    if (items.length === stage.itemsTotalCount) {
       return;
     }
 
     client
       .query({
-        query: gql(queries.deals),
+        query: gql(dealsQueries.deals),
         variables: {
           stageId: stage._id,
           search,
@@ -125,7 +128,7 @@ const WithData = (props: StageProps) =>
   withProps<StageProps>(
     props,
     compose(
-      graphql<StageProps>(gql(queries[props.type + 's']), {
+      graphql<StageProps>(gql(dealsQueries[props.type + 's']), {
         name: 'itemsQuery',
         skip: ({ loadingState }) => loadingState !== 'readyToLoad',
         options: ({ stage, search, loadingState }) => ({
@@ -146,7 +149,7 @@ const WithData = (props: StageProps) =>
           options: ({ stage }) => ({
             refetchQueries: [
               {
-                query: gql(queries[props.type + 'StageDetail']),
+                query: gql(queries.stageDetail),
                 variables: { _id: stage && stage._id }
               }
             ]

@@ -75,17 +75,17 @@ const dealsRemove = `
   }
 `;
 
-const dealsUpdateOrder = `
-  mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-    dealsUpdateOrder(stageId: $stageId, orders: $orders) {
+const updateOrder = `
+  mutation updateOrder($stageId: String!, $orders: [OrderItem]) {
+    updateOrder(stageId: $stageId, orders: $orders) {
       _id
     }
   }
 `;
 
-const dealStagesUpdateOrder = `
-  mutation dealStagesUpdateOrder($orders: [OrderItem]) {
-    dealStagesUpdateOrder(orders: $orders) {
+const stagesUpdateOrder = `
+  mutation stagesUpdateOrder($orders: [OrderItem]) {
+    stagesUpdateOrder(orders: $orders) {
       _id
     }
   }
@@ -99,20 +99,11 @@ const dealsChange = `
   }
 `;
 
-const stagesChange = `
-  mutation dealStagesChange($_id: String!, $pipelineId: String!) {
-    dealStagesChange(_id: $_id, pipelineId: $pipelineId) {
-      _id
-    }
-  }
-`;
-
 export default {
   dealsAdd,
   dealsEdit,
   dealsRemove,
-  dealsUpdateOrder,
-  dealStagesUpdateOrder,
-  dealsChange,
-  stagesChange
+  updateOrder,
+  stagesUpdateOrder,
+  dealsChange
 };

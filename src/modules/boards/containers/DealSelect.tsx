@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Alert, withProps } from '../../common/utils';
+import { Alert } from '../../common/utils';
 import { DealSelect } from '../components';
 import { queries } from '../graphql';
 import {
@@ -10,8 +10,10 @@ import {
   PipelinesQueryResponse,
   StagesQueryResponse
 } from '../types';
+import { withProps } from '../utils';
 
 type Props = {
+  type: string;
   stageId?: string;
   boardId: string;
   pipelineId: string;
@@ -77,9 +79,9 @@ class DealSelectContainer extends React.Component<FinalProps> {
   render() {
     const { boardsQuery, pipelinesQuery, stagesQuery } = this.props;
 
-    const boards = boardsQuery.dealBoards || [];
-    const pipelines = pipelinesQuery.dealPipelines || [];
-    const stages = stagesQuery.dealStages || [];
+    const boards = boardsQuery.boards || [];
+    const pipelines = pipelinesQuery.pipelines || [];
+    const stages = stagesQuery.stages || [];
 
     const extendedProps = {
       ...this.props,
@@ -95,28 +97,33 @@ class DealSelectContainer extends React.Component<FinalProps> {
   }
 }
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
-      name: 'boardsQuery'
-    }),
-    graphql<Props, PipelinesQueryResponse, { boardId: string }>(
-      gql(queries.pipelines),
-      {
-        name: 'pipelinesQuery',
-        options: ({ boardId = '' }) => ({
-          variables: { boardId }
+export default (props: Props) =>
+  withProps<Props>(
+    props,
+    compose(
+      graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
+        name: 'boardsQuery',
+        options: () => ({
+          variables: { type: props.type }
         })
-      }
-    ),
-    graphql<Props, StagesQueryResponse, { pipelineId: string }>(
-      gql(queries.dealStages),
-      {
-        name: 'stagesQuery',
-        options: ({ pipelineId = '' }) => ({
-          variables: { pipelineId }
-        })
-      }
-    )
-  )(DealSelectContainer)
-);
+      }),
+      graphql<Props, PipelinesQueryResponse, { boardId: string }>(
+        gql(queries.pipelines),
+        {
+          name: 'pipelinesQuery',
+          options: ({ boardId = '' }) => ({
+            variables: { boardId }
+          })
+        }
+      ),
+      graphql<Props, StagesQueryResponse, { pipelineId: string }>(
+        gql(queries.stages),
+        {
+          name: 'stagesQuery',
+          options: ({ pipelineId = '' }) => ({
+            variables: { pipelineId }
+          })
+        }
+      )
+    )(DealSelectContainer)
+  );

@@ -56,7 +56,7 @@ export default class Stage extends React.Component<Props, {}> {
 
       const { items, stage, loadMore } = this.props;
 
-      if (items.length < stage.dealsTotalCount) {
+      if (items.length < stage.itemsTotalCount) {
         loadMore();
       } else {
         clearInterval(handle);
@@ -122,7 +122,7 @@ export default class Stage extends React.Component<Props, {}> {
     return false;
   }
 
-  renderDealList() {
+  renderItemList() {
     const { stage, items, loadingItems } = this.props;
 
     if (loadingItems) {
@@ -158,13 +158,13 @@ export default class Stage extends React.Component<Props, {}> {
               <Header {...provided.dragHandleProps}>
                 <h4>
                   {stage.name}
-                  <span>{stage.dealsTotalCount}</span>
+                  <span>{stage.itemsTotalCount}</span>
                 </h4>
                 <HeaderAmount>{renderDealAmount(stage.amount)}</HeaderAmount>
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
-                {this.renderDealList()}
+                {this.renderItemList()}
               </Body>
               {this.renderAddDealTrigger()}
             </StageRoot>

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
@@ -6,7 +7,6 @@ import styled from 'styled-components';
 import { EmptyState, Spinner } from '../../common/components';
 import { queries } from '../graphql';
 import { IItemMap, IPipeline, IStageMap, StagesQueryResponse } from '../types';
-import { withProps } from '../utils';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 import { Stage } from './stage';
 
@@ -33,8 +33,8 @@ class WithStages extends React.Component<Props, {}> {
       initialItemMap,
       pipeline,
       stageMap,
-      queryParams,
-      type
+      type,
+      queryParams
     } = this.props;
     const stagesCount = this.countStages(stageMap);
 
@@ -106,13 +106,13 @@ type WithStatesQueryProps = {
 } & Props;
 
 const WithStatesQuery = (props: WithStatesQueryProps) => {
-  const { stagesQuery, type } = props;
+  const { stagesQuery } = props;
 
   if (stagesQuery.loading) {
     return <Spinner />;
   }
 
-  const stages = stagesQuery[type + 'Stages'];
+  const stages = stagesQuery.stages;
 
   const itemMap: IItemMap = {};
   const stageMap: IStageMap = {};
@@ -125,18 +125,16 @@ const WithStatesQuery = (props: WithStatesQueryProps) => {
   return <WithStages {...props} stageMap={stageMap} initialItemMap={itemMap} />;
 };
 
-export default (props: Props) =>
-  withProps<Props>(
-    props,
-    compose(
-      graphql<Props, StagesQueryResponse>(gql(queries[props.type + 'Stages']), {
-        name: 'stagesQuery',
-        options: ({ pipeline, queryParams }) => ({
-          variables: {
-            pipelineId: pipeline._id,
-            search: queryParams.search
-          }
-        })
+export default withProps<Props>(
+  compose(
+    graphql<Props, StagesQueryResponse>(gql(queries.stages), {
+      name: 'stagesQuery',
+      options: ({ pipeline, queryParams }) => ({
+        variables: {
+          pipelineId: pipeline._id,
+          search: queryParams.search
+        }
       })
-    )(WithStatesQuery)
-  );
+    })
+  )(WithStatesQuery)
+);
