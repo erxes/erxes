@@ -1,13 +1,13 @@
+import * as React from 'react';
 import {
   Button,
   ControlLabel,
   Form,
   FormControl,
   FormGroup
-} from 'modules/common/components';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IFormProps } from 'modules/common/types';
-import * as React from 'react';
+} from '../../../common/components';
+import { ModalFooter } from '../../../common/styles/main';
+import { IFormProps } from '../../../common/types';
 import { IBrand } from '../types';
 
 type Props = {
@@ -26,36 +26,30 @@ type Props = {
 };
 
 class BrandForm extends React.Component<Props, {}> {
-  save = (e: React.FormEvent) => {
-    e.preventDefault();
-    // tslint:disable-next-line:no-console
-    console.log(e);
-    const { save, brand, closeModal } = this.props;
-    save(this.generateDoc(), () => closeModal(), brand);
-  };
-
-  generateDoc = () => {
+  generateDoc = values => {
     return {
-      doc: {
-        name: (document.getElementById('brand-name') as HTMLInputElement).value,
-        description: (document.getElementById(
-          'brand-description'
-        ) as HTMLInputElement).value
-      }
+      doc: values
     };
   };
 
   renderContent = formProps => {
     const object = this.props.brand || ({} as IBrand);
 
+    const onSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+
+      const { save, brand, closeModal } = this.props;
+      save(this.generateDoc(formProps.values), () => closeModal(), brand);
+    };
+
     return (
-      <form onSubmit={this.save}>
+      <form onSubmit={onSubmit}>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl
             {...formProps}
-            name="brand-name"
+            name="name"
             defaultValue={object.name}
             type="text"
             required={true}
@@ -67,7 +61,7 @@ class BrandForm extends React.Component<Props, {}> {
 
           <FormControl
             {...formProps}
-            name="brand-description"
+            name="description"
             componentClass="textarea"
             rows={5}
             defaultValue={object.description}

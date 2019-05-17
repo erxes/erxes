@@ -36,7 +36,6 @@ class UserCommonInfos extends React.PureComponent<Props> {
               <ControlLabel>Full name</ControlLabel>
               <FormControl
                 type="text"
-                id="fullName"
                 name="fullName"
                 defaultValue={details.fullName || ''}
                 {...formProps}
@@ -46,7 +45,6 @@ class UserCommonInfos extends React.PureComponent<Props> {
               <ControlLabel>Short name</ControlLabel>
               <FormControl
                 type="text"
-                id="shortName"
                 name="shortName"
                 defaultValue={details.shortName || ''}
                 {...formProps}
@@ -56,7 +54,6 @@ class UserCommonInfos extends React.PureComponent<Props> {
               <ControlLabel required={true}>Email</ControlLabel>
               <FormControl
                 type="email"
-                id="email"
                 name="email"
                 defaultValue={user.email}
                 {...formProps}
@@ -67,7 +64,6 @@ class UserCommonInfos extends React.PureComponent<Props> {
               <ControlLabel>Description</ControlLabel>
               <FormControl
                 type="text"
-                id="description"
                 name="description"
                 max={250}
                 componentClass="textarea"
@@ -81,7 +77,6 @@ class UserCommonInfos extends React.PureComponent<Props> {
               <ControlLabel required={true}>Username</ControlLabel>
               <FormControl
                 type="text"
-                id="username"
                 name="username"
                 defaultValue={user.username}
                 required={true}
@@ -92,7 +87,6 @@ class UserCommonInfos extends React.PureComponent<Props> {
               <ControlLabel>Position</ControlLabel>
               <FormControl
                 type="text"
-                id="position"
                 name="position"
                 defaultValue={details.position || ''}
                 {...formProps}
@@ -103,8 +97,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
               <FormControl
                 componentClass="select"
                 defaultValue={details.location}
-                id="user-location"
-                name="user-location"
+                name="userLocation"
                 options={timezones}
                 {...formProps}
               />
@@ -117,8 +110,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>LinkedIn</ControlLabel>
               <FormControl
-                type="text"
-                id="linkedin"
+                type="url"
                 name="linkedin"
                 defaultValue={links.linkedIn || ''}
                 {...formProps}
@@ -127,8 +119,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Twitter</ControlLabel>
               <FormControl
-                type="text"
-                id="twitter"
+                type="url"
                 name="twitter"
                 defaultValue={links.twitter || ''}
                 {...formProps}
@@ -137,8 +128,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Facebook</ControlLabel>
               <FormControl
-                type="text"
-                id="facebook"
+                type="url"
                 name="facebook"
                 defaultValue={links.facebook || ''}
                 {...formProps}
@@ -149,8 +139,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Youtube</ControlLabel>
               <FormControl
-                type="text"
-                id="youtube"
+                type="url"
                 name="youtube"
                 defaultValue={links.youtube || ''}
                 {...formProps}
@@ -159,8 +148,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Github</ControlLabel>
               <FormControl
-                type="text"
-                id="github"
+                type="url"
                 name="github"
                 defaultValue={links.github || ''}
                 {...formProps}
@@ -169,8 +157,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Website</ControlLabel>
               <FormControl
-                type="text"
-                id="website"
+                type="url"
                 name="website"
                 defaultValue={links.website || ''}
                 {...formProps}

@@ -35,10 +35,6 @@ class EditProfile extends React.Component<Props, State> {
     };
   }
 
-  getInputElementValue(id) {
-    return (document.getElementById(id) as HTMLInputElement).value;
-  }
-
   closeConfirm = () => {
     this.setState({ isShowPasswordPopup: false });
   };
@@ -48,26 +44,26 @@ class EditProfile extends React.Component<Props, State> {
     this.props.closeModal();
   };
 
-  handleSubmit = password => {
+  handleSubmit = (password: string, values: any) => {
     this.props.save(
       {
-        username: this.getInputElementValue('username'),
-        email: this.getInputElementValue('email'),
+        username: values.username,
+        email: values.email,
         details: {
           avatar: this.state.avatar,
-          shortName: this.getInputElementValue('shortName'),
-          fullName: this.getInputElementValue('fullName'),
-          position: this.getInputElementValue('position'),
-          location: this.getInputElementValue('user-location'),
-          description: this.getInputElementValue('description')
+          shortName: values.shortName,
+          fullName: values.fullName,
+          position: values.position,
+          location: values.userLocation,
+          description: values.description
         },
         links: {
-          linkedIn: this.getInputElementValue('linkedin'),
-          twitter: this.getInputElementValue('twitter'),
-          facebook: this.getInputElementValue('facebook'),
-          youtube: this.getInputElementValue('youtube'),
-          github: this.getInputElementValue('github'),
-          website: this.getInputElementValue('website')
+          linkedIn: values.linkedin,
+          twitter: values.twitter,
+          facebook: values.facebook,
+          youtube: values.youtube,
+          github: values.github,
+          website: values.website
         },
         password
       },
@@ -79,8 +75,8 @@ class EditProfile extends React.Component<Props, State> {
     this.setState({ avatar: url });
   };
 
-  onSuccess = password => {
-    return this.handleSubmit(password);
+  onSuccess = (password: string, values: any[]) => {
+    return this.handleSubmit(password, values);
   };
 
   showConfirm = (e: React.FormEvent) => {
@@ -127,6 +123,7 @@ class EditProfile extends React.Component<Props, State> {
           </Button>
 
           <Button
+            type="submit"
             btnStyle="success"
             icon="checked-1"
             onClick={formProps.runValidations}

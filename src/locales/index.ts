@@ -10,6 +10,6 @@ const jp = require('./jp.json');
 const ru = require('./ru.json');
 const zh = require('./zh.json');
 
-const languages: any = { en, mn, de, es, kr, pt_br, fr, zh, jp, ru };
+const languages: any = { en, mn, de, es, kr, ptBr, fr, zh, jp, ru };
 
 export default languages;

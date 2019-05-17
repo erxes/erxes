@@ -9,9 +9,9 @@ import { IFormProps } from 'modules/common/types';
 import * as React from 'react';
 
 type Props = {
-  onSuccess: (password: string) => void;
+  onSuccess: (password: string, values: any[]) => void;
   closeModal: () => void;
-  formProps?: IFormProps;
+  formProps: IFormProps;
 };
 
 class PasswordConfirmation extends React.Component<Props> {
@@ -21,8 +21,7 @@ class PasswordConfirmation extends React.Component<Props> {
     const password = (document.getElementById('password') as HTMLInputElement)
       .value;
 
-    this.props.onSuccess(password);
-
+    this.props.onSuccess(password, this.props.formProps.values);
     this.props.closeModal();
   };
 
