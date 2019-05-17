@@ -24,7 +24,13 @@ import { Overlay, Popover } from 'react-bootstrap';
 import * as Datetime from 'react-datetime';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import { ClearDate, DateFilter, FilterBox, FilterLabel } from '../styles/deal';
+import {
+  ClearDate,
+  ClearFilter,
+  DateFilter,
+  FilterBox,
+  FilterLabel
+} from '../styles/deal';
 import {
   ButtonGroup,
   HeaderButton,
@@ -356,7 +362,8 @@ class MainActionBar extends React.Component<Props, State> {
             />
 
             {this.renderDates()}
-
+          </FilterBox>
+          <ClearFilter>
             <Button
               btnStyle="primary"
               onClick={this.clearFilter}
@@ -365,7 +372,7 @@ class MainActionBar extends React.Component<Props, State> {
             >
               Clear filter
             </Button>
-          </FilterBox>
+          </ClearFilter>
         </Popover>
       </Overlay>
     );

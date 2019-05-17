@@ -323,7 +323,7 @@ const UserCounterContainer = styled.ul`
 const FilterBox = styled.div`
   padding: 10px 20px 10px 20px;
   width: 300px;
-  max-height: 450px;
+  max-height: 400px;
   overflow-y: scroll;
   overflow-x: hidden;
   h4 {
@@ -370,6 +370,9 @@ const FilterBtn = styled.div`
 const FilterLabel = styled.div`
   font-size: 12px;
 `;
+const ClearFilter = styled.div`
+  padding: 20px;
+`;
 export {
   Deal,
   SpaceContent,
@@ -402,5 +405,6 @@ export {
   DateFilter,
   ClearDate,
   FilterBtn,
-  FilterLabel
+  FilterLabel,
+  ClearFilter
 };
