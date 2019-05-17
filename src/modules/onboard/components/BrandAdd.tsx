@@ -24,7 +24,11 @@ class BrandAdd extends React.Component<
   constructor(props: Props) {
     super(props);
 
-    this.state = { showBrands: true, brandName: '' };
+    console.log(props.brandsTotalCount); //tslint:disable-line
+    this.state = {
+      showBrands: true,
+      brandName: ''
+    };
   }
 
   clearInput() {
@@ -68,7 +72,7 @@ class BrandAdd extends React.Component<
           <Icon icon="checked-1" /> {__('You already have')}{' '}
           <b>{brandsTotalCount}</b> {__('brands')}.{' '}
           <a href="javascript:;" onClick={this.toggleBrands}>
-            {showBrands ? __('Show') : __('Hide')} ›
+            {showBrands ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 
@@ -97,6 +101,7 @@ class BrandAdd extends React.Component<
             value={brandName}
             onChange={this.handleInput}
             type="text"
+            autoFocus={true}
             required={true}
           />
         </FormGroup>

@@ -7,7 +7,8 @@ export const LANGUAGES = [
   { label: 'Spanish', value: 'es' },
   { label: 'Portuguese', value: 'ptBr' },
   { label: 'Japanese', value: 'jp' },
-  { label: 'Russian', value: 'ru' }
+  { label: 'Russian', value: 'ru' },
+  { label: 'Chinese', value: 'zh' }
 ];
 
 export const CURRENCIES = [

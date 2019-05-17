@@ -70,6 +70,10 @@ a:hover {
   margin: 0 auto;
 }
 
+.modal-dialog.middle {
+  width: 65%;
+}
+
 .modal-dialog.full {
   width: 85%;
 }
@@ -86,11 +90,13 @@ a:hover {
   border: 0;
   border-radius: 2px;
   background: #673FBD;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .modal-header .close {
   outline: 0;
-  margin-top: -5px;
+  margin-top: -4px;
   font-weight: 200;
 }
 
@@ -351,14 +357,13 @@ a:hover {
 .Select-placeholder,
 .Select-input,
 .Select--single > .Select-control .Select-value {
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .Select-clear {
   font-size: ${typography.fontSizeHeading6}px;
   line-height: 1.4;
-  margin-top: 1px;
 }
 
 .Select-clear-zone:hover {
@@ -366,11 +371,11 @@ a:hover {
 }
 
 .Select--multi .Select-multi-value-wrapper {
-  padding: 0 5px;
+  padding: 0 5px 0 0;
 }
 
 .Select--multi .Select-input {
-  margin-left: 5px;
+  margin-left: 0;
 }
 
 .Select--multi .Select-value {
@@ -421,7 +426,8 @@ a:hover {
 }
 
 .Select-arrow-zone {
-  padding-right: 10px;
+  padding-right: 0;
+  width: 20px;
 }
 
 .Select-arrow-zone > .Select-arrow {

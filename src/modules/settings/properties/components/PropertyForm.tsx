@@ -3,11 +3,14 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
+  ModalTrigger,
   ModifiableList
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
+import { Row } from 'modules/settings/integrations/styles';
 import * as React from 'react';
+import { PropertyGroupForm } from '../containers';
 import { IField, IFieldGroup } from '../types';
 
 type Doc = {
@@ -22,6 +25,7 @@ type Doc = {
 type Props = {
   add: (params: { doc: Doc }) => void;
   edit: ({ _id, doc }: { _id: string; doc: Doc }) => void;
+  queryParams: any;
 
   field?: IField;
   groups: IFieldGroup[];
@@ -79,7 +83,7 @@ class PropertyForm extends React.Component<Props, State> {
     ) as HTMLInputElement).value;
     const text = (document.getElementById('text') as HTMLInputElement).value;
     const description = (document.getElementById(
-      'description'
+      'description-property'
     ) as HTMLInputElement).value;
 
     const { field, add, edit } = this.props;
@@ -93,6 +97,14 @@ class PropertyForm extends React.Component<Props, State> {
       options,
       groupId
     };
+
+    if (!groupId) {
+      return Alert.error('Choose group!');
+    }
+
+    if (!type) {
+      return Alert.error('Insert type!');
+    }
 
     if (field) {
       edit({ _id: field._id, doc });
@@ -136,6 +148,19 @@ class PropertyForm extends React.Component<Props, State> {
     );
   };
 
+  renderAddGroup = () => {
+    const { queryParams } = this.props;
+
+    const trigger = <Button>Create group</Button>;
+    const content = props => (
+      <PropertyGroupForm {...props} queryParams={queryParams} />
+    );
+
+    return (
+      <ModalTrigger title="Create group" trigger={trigger} content={content} />
+    );
+  };
+
   render() {
     const {
       groups,
@@ -146,40 +171,48 @@ class PropertyForm extends React.Component<Props, State> {
     return (
       <form onSubmit={this.onSubmit}>
         <FormGroup>
-          <ControlLabel>Name:</ControlLabel>
-          <FormControl type="text" id="text" defaultValue={field.text || ''} />
+          <ControlLabel required={true}>Name:</ControlLabel>
+          <FormControl
+            type="text"
+            id="text"
+            defaultValue={field.text || ''}
+            required={true}
+          />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Description:</ControlLabel>
           <FormControl
-            id="description"
+            id="description-property"
             componentClass="textarea"
             defaultValue={field.description || ''}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Group:</ControlLabel>
-          <FormControl
-            id="groupId"
-            componentClass="select"
-            defaultValue={
-              field.groupId || groups.length > 0 ? groups[0]._id : ''
-            }
-          >
-            {groups.map(group => {
-              return (
-                <option key={group._id} value={group._id}>
-                  {group.name}
-                </option>
-              );
-            })}
-          </FormControl>
+          <ControlLabel required={true}>Group:</ControlLabel>
+          <Row>
+            <FormControl
+              id="groupId"
+              componentClass="select"
+              defaultValue={
+                field.groupId || groups.length > 0 ? groups[0]._id : ''
+              }
+            >
+              {groups.map(group => {
+                return (
+                  <option key={group._id} value={group._id}>
+                    {group.name}
+                  </option>
+                );
+              })}
+            </FormControl>
+            {this.renderAddGroup()}
+          </Row>
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Type:</ControlLabel>
+          <ControlLabel required={true}>Type:</ControlLabel>
 
           <FormControl
             componentClass="select"
