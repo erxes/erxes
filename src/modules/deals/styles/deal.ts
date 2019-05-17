@@ -321,7 +321,7 @@ const UserCounterContainer = styled.ul`
   }
 `;
 const FilterBox = styled.div`
-  padding: 0 20px 0 20px;
+  padding: 10px 20px 10px 20px;
   width: 300px;
   h4 {
     text-align: center;

@@ -8,8 +8,8 @@ import {
   Tip
 } from 'modules/common/components';
 import {
-  selectOption,
-  selectValue
+  optionRenderer,
+  valueRenderer
 } from 'modules/common/components/SelectWithSearch';
 import { __ } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
@@ -45,6 +45,7 @@ import { selectProductOptions } from '../utils';
 type Props = {
   onSearch: (search: string) => void;
   onSelect: (name: string, values) => void;
+  clearFilter: () => void;
   currentBoard?: IBoard;
   currentPipeline?: IPipeline;
   boards: IBoard[];
@@ -94,9 +95,11 @@ class MainActionBar extends React.Component<Props, State> {
   toggleFilter = () => {
     this.setState({ show: !this.state.show });
   };
+
   hideFilter = () => {
     this.setState({ show: false });
   };
+
   onFilterClick = (type: string) => {
     const { currentBoard, currentPipeline } = this.props;
 
@@ -107,6 +110,10 @@ class MainActionBar extends React.Component<Props, State> {
     }
 
     return `/deal/${type}`;
+  };
+
+  clearFilter = () => {
+    this.props.clearFilter();
   };
 
   onClearDate = (name: string) => {
@@ -260,8 +267,8 @@ class MainActionBar extends React.Component<Props, State> {
         placeholder={__(label)}
         value={queryParams[name]}
         onChange={onChange.bind(this, name)}
-        optionRenderer={selectOption}
-        valueRenderer={selectValue}
+        optionRenderer={optionRenderer}
+        valueRenderer={valueRenderer}
         removeSelected={true}
         options={generator(options)}
         multi={true}
@@ -343,6 +350,15 @@ class MainActionBar extends React.Component<Props, State> {
             <SelectTeamMembers queryParams={queryParams} onSelect={onSelect} />
 
             {this.renderDates()}
+
+            <Button
+              btnStyle="primary"
+              onClick={this.clearFilter}
+              block={true}
+              size="small"
+            >
+              Clear filter
+            </Button>
           </FilterBox>
         </Popover>
       </Overlay>

@@ -24,11 +24,11 @@ const content = option => (
   </React.Fragment>
 );
 
-export const selectOption = option => (
+export const optionRenderer = option => (
   <SelectOption className="simple-propOption">{content(option)}</SelectOption>
 );
 
-export const selectValue = option => (
+export const valueRenderer = option => (
   <SelectValue>{content(option)}</SelectValue>
 );
 
@@ -50,15 +50,17 @@ class SelectWithSearch extends React.Component<Props> {
     const onChange = list => onSelect(name, list.map(item => item.value));
     const onSearch = searchValue => search(searchValue);
 
+    const selectOption = options(datas);
+
     return (
       <Select
         placeholder={__(label)}
         value={value}
         onChange={onChange}
-        optionRenderer={selectOption}
-        valueRenderer={selectValue}
+        optionRenderer={optionRenderer}
+        valueRenderer={valueRenderer}
         onInputChange={onSearch}
-        options={options(datas)}
+        options={selectOption}
         removeSelected={true}
         multi={true}
       />
@@ -72,7 +74,7 @@ const withQuery = ({ customQuery }) =>
       graphql<Props, {}, { searchValue: string }>(gql(customQuery), {
         name: 'customQuery',
         options: ({ searchValue }) => ({
-          variables: { searchValue }
+          variables: { searchValue, perPage: 20 }
         })
       })
     )(SelectWithSearch)

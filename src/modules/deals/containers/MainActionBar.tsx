@@ -50,6 +50,18 @@ class Main extends React.Component<FinalProps> {
     routerUtils.setParams(this.props.history, { [name]: values });
   };
 
+  clearFilter = () => {
+    routerUtils.removeParams(
+      this.props.history,
+      'companyIds',
+      'customerIds',
+      'assignedUserIds',
+      'productIds',
+      'startDate',
+      'endDate'
+    );
+  };
+
   render() {
     const {
       history,
@@ -140,6 +152,7 @@ class Main extends React.Component<FinalProps> {
         middleContent={middleContent}
         onSearch={this.onSearch}
         onSelect={this.onSelect}
+        clearFilter={this.clearFilter}
         queryParams={queryParams}
         history={history}
         currentBoard={currentBoard}
@@ -165,7 +178,10 @@ const MainActionBar = withProps<Props>(
       skip: getBoardId
     }),
     graphql<{}, ProductsQueryResponse>(gql(productQueries.products), {
-      name: 'productsQuery'
+      name: 'productsQuery',
+      options: {
+        fetchPolicy: 'network-only'
+      }
     }),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
