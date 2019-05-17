@@ -323,7 +323,7 @@ const UserCounterContainer = styled.ul`
 const FilterBox = styled.div`
   padding: 10px 20px 10px 20px;
   width: 300px;
-  max-height: 500px;
+  max-height: 450px;
   overflow-y: scroll;
   overflow-x: hidden;
   h4 {
