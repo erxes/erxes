@@ -78,7 +78,8 @@ export class PipelineProvider extends React.Component<Props, State> {
         productIds,
         nextDay,
         nextWeek,
-        noCloseDate
+        noCloseDate,
+        overdue
       }
     } = this.props;
 
@@ -90,6 +91,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     const nextPropNextDay = nextProps.queryParams.nextDay;
     const nextPropNextWeek = nextProps.queryParams.nextWeek;
     const nextNoCloseDate = nextProps.queryParams.noCloseDate;
+    const nextOverdue = nextProps.queryParams.overdue;
 
     // Reset deals on filter and search parameter change
     if (
@@ -100,7 +102,9 @@ export class PipelineProvider extends React.Component<Props, State> {
       productIds !== nextProductIds ||
       nextDay !== nextPropNextDay ||
       nextWeek !== nextPropNextWeek ||
-      noCloseDate !== nextNoCloseDate
+      nextWeek !== nextPropNextWeek ||
+      noCloseDate !== nextNoCloseDate ||
+      overdue !== nextOverdue
     ) {
       const { stageIds } = this.state;
 

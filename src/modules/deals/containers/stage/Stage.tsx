@@ -131,6 +131,7 @@ const getFilterParams = queryParams => {
     nextDay: queryParams.nextDay,
     nextWeek: queryParams.nextWeek,
     noCloseDate: queryParams.noCloseDate,
+    overdue: queryParams.overdue,
     productIds: queryParams.productIds
   };
 };

@@ -78,6 +78,7 @@ const stages = `
     $nextDay: String,
     $nextWeek: String,
     $noCloseDate: String,
+    $overdue: String
     $productIds: [String]
   ) {
     dealStages(
@@ -89,6 +90,7 @@ const stages = `
       nextDay: $nextDay,
       nextWeek: $nextWeek,
       noCloseDate: $noCloseDate,
+      overdue: $overdue
       productIds: $productIds
     ) {
       _id
@@ -163,6 +165,7 @@ const dealsTotalAmounts = `
     $nextDay: String
     $nextWeek: String 
     $noCloseDate: String 
+    $overdue: String
   ) {
     dealsTotalAmounts(
       date: $date 
@@ -174,6 +177,7 @@ const dealsTotalAmounts = `
       nextDay: $nextDay
       nextWeek: $nextWeek
       noCloseDate: $noCloseDate
+      overdue: $overdue
     ) {
       _id
       dealCount
@@ -200,6 +204,7 @@ const deals = `
     $nextDay: String,
     $nextWeek: String,
     $noCloseDate: String
+    $overdue: String
   ) {
     deals(
       pipelineId: $pipelineId,
@@ -214,6 +219,7 @@ const deals = `
       nextDay: $nextDay
       nextWeek: $nextWeek
       noCloseDate: $noCloseDate
+      overdue: $overdue
     ) {
       ${dealFields}
     }
