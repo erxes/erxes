@@ -11,7 +11,8 @@ sidebar_label: iOS SDK
 + Minimum deployment target : iOS 9.0
 + Swift 4 compatible
 + Objective-C compatible
-+ brandCode - uniquely generated code for your brand which you can find in your messenger installation code
+
+brandCode - uniquely generated code for your brand which you can find in your messenger installation code
 
 ## Installation with Swift
 
@@ -146,7 +147,7 @@ NSMutableDictionary *messengerData = [[NSMutableDictionary alloc] init];
 [Erxes startWithEmail:@"" phone:@"" data:messengerData];
 ```
 
-##### To end current user session:
+##### To end current user session: 
 ```smalltalk
 [Erxes endSessionWithCompletionHandler:^{
         // do your stuff
