@@ -75,9 +75,10 @@ const stages = `
     $customerIds: [String],
     $companyIds: [String],
     $assignedUserIds: [String],
+    $nextDay: String,
+    $nextWeek: String,
+    $noCloseDate: String,
     $productIds: [String]
-    $startDate: String
-    $endDate: String
   ) {
     dealStages(
       pipelineId: $pipelineId, 
@@ -85,9 +86,10 @@ const stages = `
       customerIds: $customerIds,
       companyIds: $companyIds,
       assignedUserIds: $assignedUserIds,
+      nextDay: $nextDay,
+      nextWeek: $nextWeek,
+      noCloseDate: $noCloseDate,
       productIds: $productIds
-      startDate: $startDate
-      endDate: $endDate
     ) {
       _id
       name
@@ -158,8 +160,9 @@ const dealsTotalAmounts = `
     $companyIds: [String]
     $assignedUserIds: [String]
     $productIds: [String]
-    $startDate: String
-    $endDate: String
+    $nextDay: String
+    $nextWeek: String 
+    $noCloseDate: String 
   ) {
     dealsTotalAmounts(
       date: $date 
@@ -168,8 +171,9 @@ const dealsTotalAmounts = `
       companyIds: $companyIds,
       assignedUserIds: $assignedUserIds,
       productIds: $productIds
-      startDate: $startDate
-      endDate: $endDate
+      nextDay: $nextDay
+      nextWeek: $nextWeek
+      noCloseDate: $noCloseDate
     ) {
       _id
       dealCount
@@ -193,8 +197,9 @@ const deals = `
     $companyIds: [String]
     $assignedUserIds: [String]
     $productIds: [String]
-    $startDate: String
-    $endDate: String
+    $nextDay: String,
+    $nextWeek: String,
+    $noCloseDate: String
   ) {
     deals(
       pipelineId: $pipelineId,
@@ -206,8 +211,9 @@ const deals = `
       customerIds: $customerIds
       assignedUserIds: $assignedUserIds
       productIds: $productIds
-      startDate: $startDate
-      endDate: $endDate
+      nextDay: $nextDay
+      nextWeek: $nextWeek
+      noCloseDate: $noCloseDate
     ) {
       ${dealFields}
     }

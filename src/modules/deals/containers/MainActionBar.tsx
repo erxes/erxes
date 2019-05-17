@@ -39,10 +39,12 @@ const commonParams = [
   'companyIds',
   'customerIds',
   'assignedUserIds',
-  'productIds',
-  'startDate',
-  'endDate'
+  'nextDay',
+  'nextWeek',
+  'noCloseDate',
+  'productIds'
 ];
+
 /*
  * Main board component
  */
