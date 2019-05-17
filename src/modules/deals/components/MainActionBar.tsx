@@ -191,6 +191,7 @@ class MainActionBar extends React.Component<Props, State> {
       <>
         {renderLink('Due in the next day', 'nextDay')}
         {renderLink('Due in the next week', 'nextWeek')}
+        {renderLink('Has no close date', 'noCloseDate')}
       </>
     );
   }

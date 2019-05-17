@@ -130,6 +130,7 @@ const getFilterParams = queryParams => {
     assignedUserIds: queryParams.assignedUserIds,
     nextDay: queryParams.nextDay,
     nextWeek: queryParams.nextWeek,
+    noCloseDate: queryParams.noCloseDate,
     productIds: queryParams.productIds
   };
 };

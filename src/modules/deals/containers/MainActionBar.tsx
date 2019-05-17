@@ -41,8 +41,10 @@ const commonParams = [
   'assignedUserIds',
   'nextDay',
   'nextWeek',
+  'noCloseDate',
   'productIds'
 ];
+
 /*
  * Main board component
  */
