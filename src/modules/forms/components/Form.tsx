@@ -19,7 +19,6 @@ import { IField } from 'modules/settings/properties/types';
 
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { IBrand } from '../../settings/brands/types';
 
 import {
   CallOut,
@@ -32,7 +31,6 @@ import {
 
 type Props = {
   integration?: IFormIntegration;
-  brands: IBrand[];
   fields: IField[];
   loading?: boolean;
 
@@ -232,7 +230,7 @@ class Form extends React.Component<Props, State> {
       rules
     } = this.state;
 
-    const { integration, brands } = this.props;
+    const { integration } = this.props;
 
     const formData = integration && integration.formData;
     const brand = integration && integration.brand;
@@ -302,7 +300,6 @@ class Form extends React.Component<Props, State> {
               color={color}
               brand={brand}
               theme={theme}
-              brands={brands}
               fields={fields}
               language={language}
             />

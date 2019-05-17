@@ -9,7 +9,7 @@ const FilterWrapper = styled.div`
 const FilterItem = styled.div`
   position: relative;
   float: left;
-  min-width: 180px;
+  min-width: 200px;
   margin-right: 20px;
 `;
 
@@ -17,4 +17,9 @@ const NotWrappable = styled.div`
   white-space: nowrap;
 `;
 
-export { FilterWrapper, FilterItem, NotWrappable };
+const Capitalize = styled.span`
+  text-transform: capitalize;
+  font-weight: 500;
+`;
+
+export { FilterWrapper, FilterItem, NotWrappable, Capitalize };

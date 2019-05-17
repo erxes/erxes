@@ -168,6 +168,9 @@ class WorkArea extends React.Component<FinalProps, State> {
       .then(() => {
         if (callback) {
           callback();
+
+          // clear saved messages from storage
+          localStorage.removeItem(currentId || '');
         }
       })
       .catch(e => {
