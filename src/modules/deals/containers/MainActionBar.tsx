@@ -59,6 +59,10 @@ class Main extends React.Component<FinalProps> {
     routerUtils.setParams(this.props.history, { [name]: values });
   };
 
+  onClear = (name: string) => {
+    routerUtils.removeParams(this.props.history, name);
+  };
+
   isFiltered = (): boolean => {
     const params = generateQueryParams(this.props.history);
 
@@ -164,6 +168,7 @@ class Main extends React.Component<FinalProps> {
       <DumbMainActionBar
         middleContent={middleContent}
         onSearch={this.onSearch}
+        onClear={this.onClear}
         onSelect={this.onSelect}
         isFiltered={this.isFiltered}
         clearFilter={this.clearFilter}

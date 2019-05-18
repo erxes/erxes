@@ -3,7 +3,6 @@ import {
   DropdownToggle,
   EmptyState,
   FormControl,
-  FormGroup,
   Icon,
   Tip
 } from 'modules/common/components';
@@ -12,17 +11,14 @@ import {
   valueRenderer
 } from 'modules/common/components/SelectWithSearch';
 import { __ } from 'modules/common/utils';
-import { router as routerUtils } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { SelectCustomers } from 'modules/customers/containers/common';
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
-import * as moment from 'moment';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Overlay, Popover } from 'react-bootstrap';
-import * as Datetime from 'react-datetime';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import {
@@ -46,6 +42,7 @@ import { selectProductOptions } from '../utils';
 type Props = {
   onSearch: (search: string) => void;
   onSelect: (name: string, values) => void;
+  onClear: (name: string, values) => void;
   isFiltered: () => boolean;
   clearFilter: () => void;
   currentBoard?: IBoard;
@@ -61,7 +58,6 @@ type Props = {
 type State = {
   show: boolean;
   target: any;
-  active: boolean;
 };
 
 // get selected deal type from URL
@@ -79,8 +75,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     this.state = {
       show: false,
-      target: null,
-      active: false
+      target: null
     };
   }
 
@@ -99,11 +94,6 @@ class MainActionBar extends React.Component<Props, State> {
     this.setState({ show: !this.state.show });
   };
 
-  toggleClass() {
-    const currentState = this.state.active;
-    this.setState({ active: !currentState });
-  }
-
   hideFilter = () => {
     this.setState({ show: false });
   };
@@ -120,20 +110,9 @@ class MainActionBar extends React.Component<Props, State> {
     return `/deal/${type}`;
   };
 
-  onClear = (name: string) => {
-    // tslint:disable-next-line:no-console
-    console.log(name, 'tttt');
-    routerUtils.removeParams(this.props.history, name);
-  };
-
   clearFilter = () => {
     this.props.clearFilter();
   };
-
-  // onClearDate = (name: string) => {
-  //   this.setState({ nextDay: '' });
-  //   this.props.onSelect(name, '');
-  // };
 
   renderBoards() {
     const { currentBoard, boards } = this.props;
@@ -202,22 +181,17 @@ class MainActionBar extends React.Component<Props, State> {
       return null;
     }
 
-    const { onSelect } = this.props;
+    const { onSelect, onClear } = this.props;
     const renderLink = (label, name) => {
       return (
         <FilterItem>
-          <li
-            onClick={onSelect.bind(this, name, true)}
-            className={this.state.active ? 'filtering' : 'null'}
-          >
-            {label}
-          </li>
+          <li onClick={onSelect.bind(this, name, true)}>{label}</li>
           <ClearDate>
             <Tip text={__('Remove this filter')}>
               <Button
                 btnStyle="link"
                 icon="cancel-1"
-                onClick={this.onClear.bind(this, name)}
+                onClick={onClear.bind(this, name)}
               />
             </Tip>
           </ClearDate>
