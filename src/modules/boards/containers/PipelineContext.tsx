@@ -41,10 +41,6 @@ const PipelineContext = React.createContext({} as IStore);
 
 export const PipelineConsumer = PipelineContext.Consumer;
 
-const invalidateCalendarCache = () => {
-  localStorage.setItem('dealCalendarCacheInvalidated', 'true');
-};
-
 type Task = {
   handler: (stageId: string) => void;
   stageId: string;
@@ -283,8 +279,6 @@ export class PipelineProvider extends React.Component<Props, State> {
     const { itemMap } = this.state;
     const items = itemMap[stageId];
 
-    invalidateCalendarCache();
-
     this.setState({
       itemMap: { ...itemMap, [stageId]: [...items, item] }
     });
@@ -295,16 +289,12 @@ export class PipelineProvider extends React.Component<Props, State> {
 
     const items = itemMap[stageId].filter(item => item._id !== itemId);
 
-    invalidateCalendarCache();
-
     this.setState({
       itemMap: { ...itemMap, [stageId]: items }
     });
   };
 
   onUpdateItem = (item: Item, prevStageId?: string) => {
-    invalidateCalendarCache();
-
     const { stageId } = item;
     const { itemMap } = this.state;
 

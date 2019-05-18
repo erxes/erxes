@@ -25,7 +25,7 @@ type Props = {
   stage: IStage;
   length: number;
   items: Item[];
-  addItem: (name: string, callback: () => void) => void;
+  addDeal: (name: string, callback: () => void) => void;
   loadMore: () => void;
 };
 
@@ -74,7 +74,7 @@ export default class Stage extends React.Component<Props, {}> {
   };
 
   renderAddDealTrigger() {
-    const { addItem } = this.props;
+    const { addDeal } = this.props;
 
     const trigger = (
       <StageFooter>
@@ -85,7 +85,7 @@ export default class Stage extends React.Component<Props, {}> {
       </StageFooter>
     );
 
-    const content = props => <DealAddForm {...props} add={addItem} />;
+    const content = props => <DealAddForm {...props} add={addDeal} />;
 
     return (
       <ModalTrigger title="Add a deal" trigger={trigger} content={content} />

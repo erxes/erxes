@@ -14,6 +14,7 @@ import {
   RemoveDealMutation,
   SaveDealMutation
 } from '../../types';
+import { invalidateCalendarCache } from '../../utils';
 
 type Props = {
   dealId: string;
@@ -74,6 +75,8 @@ class EditFormContainer extends React.Component<FinalProps> {
         callback();
 
         if (onUpdate) {
+          invalidateCalendarCache();
+
           onUpdate(data.dealsEdit, stageId);
         }
       })
@@ -93,6 +96,8 @@ class EditFormContainer extends React.Component<FinalProps> {
           Alert.success('You successfully deleted a deal');
 
           if (onRemove) {
+            invalidateCalendarCache();
+
             onRemove(dealId, stageId);
           }
         })

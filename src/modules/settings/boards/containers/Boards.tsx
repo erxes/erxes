@@ -1,7 +1,8 @@
 import gql from 'graphql-tag';
+import { STORAGE_BOARD_KEY } from 'modules/boards/constants';
+import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import { STORAGE_BOARD_KEY } from 'modules/deals/constants';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -17,6 +18,7 @@ import {
 type Props = {
   history?: any;
   currentBoardId?: string;
+  type: string;
 };
 
 type FinalProps = {
@@ -34,7 +36,8 @@ class BoardsContainer extends React.Component<FinalProps> {
       boardsQuery,
       addMutation,
       editMutation,
-      removeMutation
+      removeMutation,
+      type
     } = this.props;
 
     const boards = boardsQuery.boards || [];
@@ -47,11 +50,18 @@ class BoardsContainer extends React.Component<FinalProps> {
         })
           .then(() => {
             // if deleted board is default board
-            if (localStorage.getItem(STORAGE_BOARD_KEY) === boardId) {
-              localStorage.removeItem(STORAGE_BOARD_KEY);
+            const { defaultBoards } = getDefaultBoardAndPipelines(type);
+            const defaultBoardId = defaultBoards[type];
+
+            if (defaultBoardId === boardId) {
+              defaultBoards.deal = '';
+              localStorage.setItem(
+                STORAGE_BOARD_KEY,
+                JSON.stringify(defaultBoards)
+              );
             }
 
-            history.push('/settings/boards/');
+            history.push('/settings/boards/' + type);
 
             Alert.success('You successfully deleted a board');
           })

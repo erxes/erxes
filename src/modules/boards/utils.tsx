@@ -1,3 +1,7 @@
+import {
+  STORAGE_BOARD_KEY,
+  STORAGE_PIPELINE_KEY
+} from 'modules/boards/constants';
 import * as React from 'react';
 import { IDraggableLocation, IItemMap } from './types';
 
@@ -89,3 +93,16 @@ export function withProps<Props>(
 ) {
   return <Wrapped {...props} />;
 }
+
+export const getDefaultBoardAndPipelines = (type: string) => {
+  const emptyObj = '{ "' + type + '": "" }';
+
+  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || emptyObj;
+  const defaultPipelines =
+    localStorage.getItem(STORAGE_PIPELINE_KEY) || emptyObj;
+
+  return {
+    defaultBoards: JSON.parse(defaultBoards),
+    defaultPipelines: JSON.parse(defaultPipelines)
+  };
+};

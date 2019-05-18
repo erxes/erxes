@@ -1,10 +1,15 @@
 import gql from 'graphql-tag';
+import {
+  STORAGE_BOARD_KEY,
+  STORAGE_PIPELINE_KEY
+} from 'modules/boards/constants';
 import { queries } from 'modules/boards/graphql';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
   BoardsQueryResponse
 } from 'modules/boards/types';
+import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
@@ -13,7 +18,6 @@ import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { PageHeader } from '../styles/header';
 
 type Props = {
@@ -58,9 +62,19 @@ class Main extends React.Component<FinalProps> {
     const boardId = getBoardId({ location });
     const { pipelineId } = queryParams;
 
+    const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines(
+      'deal'
+    );
+
     if (boardId && pipelineId) {
-      localStorage.setItem(STORAGE_BOARD_KEY, boardId);
-      localStorage.setItem(STORAGE_PIPELINE_KEY, pipelineId);
+      defaultBoards.deal = boardId;
+      defaultPipelines.deal = pipelineId;
+
+      localStorage.setItem(STORAGE_BOARD_KEY, JSON.stringify(defaultBoards));
+      localStorage.setItem(
+        STORAGE_PIPELINE_KEY,
+        JSON.stringify(defaultPipelines)
+      );
     }
 
     // wait for load
@@ -77,10 +91,15 @@ class Main extends React.Component<FinalProps> {
 
     // if there is no boardId in queryparams and there is one in localstorage
     // then put those in queryparams
-    if (!boardId && localStorage.getItem(STORAGE_BOARD_KEY)) {
+    const [defaultBoardId, defaultPipelineId] = [
+      defaultBoards.deal,
+      defaultPipelines.deal
+    ];
+
+    if (!boardId && defaultBoardId) {
       routerUtils.setParams(history, {
-        id: localStorage.getItem(STORAGE_BOARD_KEY),
-        pipelineId: localStorage.getItem(STORAGE_PIPELINE_KEY)
+        id: defaultBoardId,
+        pipelineId: defaultPipelineId
       });
 
       return null;
@@ -107,8 +126,14 @@ class Main extends React.Component<FinalProps> {
     // If there is an invalid boardId localstorage then remove invalid keys
     // and reload the page
     if (!currentBoard && boardId) {
-      localStorage.setItem(STORAGE_BOARD_KEY, '');
-      localStorage.setItem(STORAGE_PIPELINE_KEY, '');
+      defaultBoards.deal = '';
+      defaultPipelines.deal = '';
+
+      localStorage.setItem(STORAGE_BOARD_KEY, JSON.stringify(defaultBoards));
+      localStorage.setItem(
+        STORAGE_PIPELINE_KEY,
+        JSON.stringify(defaultPipelines)
+      );
       window.location.href = '/deal/board';
       return null;
     }

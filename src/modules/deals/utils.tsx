@@ -54,3 +54,7 @@ export const renderDealAmount = amount => {
     </Amount>
   );
 };
+
+export const invalidateCalendarCache = () => {
+  localStorage.setItem('dealCalendarCacheInvalidated', 'true');
+};

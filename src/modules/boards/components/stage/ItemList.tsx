@@ -90,10 +90,11 @@ type InnerListProps = {
 class InnerList extends React.PureComponent<InnerListProps> {
   render() {
     const { stageId, items, dropProvided, type } = this.props;
+
     if (items.length === 0) {
       return (
         <EmptyContainer innerRef={dropProvided.innerRef}>
-          <EmptyState icon="clipboard" text="No item" size="small" />
+          <EmptyState icon="clipboard" text={`No ${type}`} size="small" />
         </EmptyContainer>
       );
     }

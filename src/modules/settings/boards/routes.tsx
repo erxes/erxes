@@ -6,6 +6,12 @@ const Home = asyncComponent(() =>
   import(/* webpackChunkName: "Settings - Board Home" */ './containers/Home')
 );
 
-const routes = () => <Route path="/settings/boards/" component={Home} />;
+const DealHome = () => {
+  return <Home type="deal" />;
+};
+
+const routes = () => (
+  <Route path="/settings/boards/deal" component={DealHome} />
+);
 
 export default routes;

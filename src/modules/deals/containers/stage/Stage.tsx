@@ -14,6 +14,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../../components/stage';
 import { mutations, queries } from '../../graphql';
+import { invalidateCalendarCache } from '../../utils';
 
 type WrapperProps = {
   stage: IStage;
@@ -78,7 +79,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   };
 
   // create item
-  addItem = (name: string, callback: () => void) => {
+  addDeal = (name: string, callback: () => void) => {
     const { stage, onAddItem, addMutation } = this.props;
 
     if (!stage) {
@@ -88,6 +89,8 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     return addMutation({ variables: { name, stageId: stage._id } })
       .then(({ data }) => {
         Alert.success('You successfully added a deal');
+
+        invalidateCalendarCache();
 
         onAddItem(stage._id, data.dealsAdd);
 
@@ -110,7 +113,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         items={items}
         loadingItems={loadingItems}
         loadMore={this.loadMore}
-        addItem={this.addItem}
+        addDeal={this.addDeal}
       />
     );
   }

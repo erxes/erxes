@@ -152,7 +152,7 @@ class MainActionBar extends React.Component<Props> {
         </Dropdown>
         <HeaderLink>
           <Tip text={__('Manage Board & Pipeline')}>
-            <Link to="/settings/boards">
+            <Link to="/settings/boards/deal">
               <Icon icon="settings" />
             </Link>
           </Tip>

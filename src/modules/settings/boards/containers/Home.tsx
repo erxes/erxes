@@ -14,7 +14,11 @@ type HomeContainerProps = {
   boardId: string;
 };
 
-class HomeContainer extends React.Component<HomeContainerProps> {
+type TypeProps = {
+  type: string;
+};
+
+class HomeContainer extends React.Component<HomeContainerProps & TypeProps> {
   componentWillReceiveProps(nextProps) {
     const { history, boardId } = nextProps;
 
@@ -33,7 +37,7 @@ type LastBoardProps = {
 };
 
 // Getting lastBoard id to currentBoard
-const LastBoard = (props: LastBoardProps) => {
+const LastBoard = (props: LastBoardProps & TypeProps) => {
   const { boardGetLastQuery } = props;
 
   if (boardGetLastQuery.loading) {
@@ -59,8 +63,10 @@ const LastBoardContainer = compose(
   })
 )(LastBoard);
 
+type MainProps = IRouterProps & TypeProps;
+
 // Main home component
-const MainContainer = (props: IRouterProps) => {
+const MainContainer = (props: MainProps) => {
   const { history } = props;
   const boardId = routerUtils.getParam(history, 'boardId');
 
@@ -73,4 +79,4 @@ const MainContainer = (props: IRouterProps) => {
   return <LastBoardContainer {...props} />;
 };
 
-export default withRouter<IRouterProps>(MainContainer);
+export default withRouter<MainProps>(MainContainer);
