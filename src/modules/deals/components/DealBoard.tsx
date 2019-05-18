@@ -1,8 +1,9 @@
-import { Board, MainActionBar } from 'modules/boards/containers';
+import { Board } from 'modules/boards/containers';
 import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
+import { MainActionBar } from '../containers';
 import {
   BoardContainer,
   BoardContent,

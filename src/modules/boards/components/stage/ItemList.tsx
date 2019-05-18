@@ -1,9 +1,9 @@
 import { EmptyState } from 'modules/common/components';
-import { DealItem } from 'modules/deals/containers/stage';
 import * as React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { DropZone, EmptyContainer, Wrapper } from '../../styles/stage';
+import { DropZone, EmptyContainer, Wrapper } from '../../styles';
 import { Item } from '../../types';
+import { ItemSelector } from './';
 
 type Props = {
   listId: string;
@@ -14,9 +14,11 @@ type Props = {
   style?: any;
   // may not be provided - and might be null
   ignoreContainerClipping?: boolean;
+  type: string;
 };
+
 class DraggableContainer extends React.Component<
-  { stageId: string; item: Item; index: number },
+  { stageId: string; item: Item; index: number; type: string },
   { isDragDisabled: boolean }
 > {
   constructor(props) {
@@ -32,7 +34,7 @@ class DraggableContainer extends React.Component<
   };
 
   render() {
-    const { stageId, item, index } = this.props;
+    const { stageId, item, index, type } = this.props;
     const { isDragDisabled } = this.state;
 
     return (
@@ -43,13 +45,14 @@ class DraggableContainer extends React.Component<
         isDragDisabled={isDragDisabled}
       >
         {(dragProvided, dragSnapshot) => (
-          <DealItem
+          <ItemSelector
             key={item._id}
             stageId={stageId}
-            deal={item}
+            item={item}
             isDragging={dragSnapshot.isDragging}
             onTogglePopup={this.onTogglePopup}
             provided={dragProvided}
+            type={type}
           />
         )}
       </Draggable>
@@ -57,12 +60,13 @@ class DraggableContainer extends React.Component<
   }
 }
 
-class InnerDealList extends React.PureComponent<{
+class InnerItemList extends React.PureComponent<{
   stageId: string;
   items: Item[];
+  type: string;
 }> {
   render() {
-    const { stageId, items } = this.props;
+    const { stageId, items, type } = this.props;
 
     return items.map((item, index: number) => (
       <DraggableContainer
@@ -70,6 +74,7 @@ class InnerDealList extends React.PureComponent<{
         stageId={stageId}
         item={item}
         index={index}
+        type={type}
       />
     ));
   }
@@ -79,29 +84,30 @@ type InnerListProps = {
   dropProvided;
   stageId: string;
   items: Item[];
+  type: string;
 };
 
 class InnerList extends React.PureComponent<InnerListProps> {
   render() {
-    const { stageId, items, dropProvided } = this.props;
+    const { stageId, items, dropProvided, type } = this.props;
     if (items.length === 0) {
       return (
         <EmptyContainer innerRef={dropProvided.innerRef}>
-          <EmptyState icon="clipboard" text="No deal" size="small" />
+          <EmptyState icon="clipboard" text="No item" size="small" />
         </EmptyContainer>
       );
     }
 
     return (
       <DropZone innerRef={dropProvided.innerRef}>
-        <InnerDealList stageId={stageId} items={items} />
+        <InnerItemList stageId={stageId} items={items} type={type} />
         {dropProvided.placeholder}
       </DropZone>
     );
   }
 }
 
-export default class DealList extends React.Component<Props> {
+export default class ItemList extends React.Component<Props> {
   static defaultProps = {
     listId: 'LIST'
   };
@@ -113,7 +119,8 @@ export default class DealList extends React.Component<Props> {
       listType,
       style,
       stageId,
-      items
+      items,
+      type
     } = this.props;
 
     return (
@@ -132,6 +139,7 @@ export default class DealList extends React.Component<Props> {
               stageId={stageId}
               items={items}
               dropProvided={dropProvided}
+              type={type}
             />
             {dropProvided.placeholder}
           </Wrapper>

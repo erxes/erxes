@@ -9,6 +9,7 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { IBoard, IPipeline } from '../../boards/types';
 import {
   ButtonGroup,
   HeaderButton,
@@ -17,7 +18,6 @@ import {
   HeaderLink,
   PageHeader
 } from '../styles/header';
-import { IBoard, IPipeline } from '../types';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -152,7 +152,7 @@ class MainActionBar extends React.Component<Props> {
         </Dropdown>
         <HeaderLink>
           <Tip text={__('Manage Board & Pipeline')}>
-            <Link to="/settings/deals">
+            <Link to="/settings/boards">
               <Icon icon="settings" />
             </Link>
           </Tip>

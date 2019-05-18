@@ -5,7 +5,6 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { Move } from '../../components/editForm';
-import { queries } from '../../graphql';
 import { IDeal } from '../../types';
 
 type Props = {
@@ -21,7 +20,7 @@ class DealMoveContainer extends React.Component<{ stagesQuery: any }> {
   render() {
     const { stagesQuery } = this.props;
 
-    const stages = stagesQuery.dealStages || [];
+    const stages = stagesQuery.stages || [];
 
     const updatedProps = {
       ...this.props,

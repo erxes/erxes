@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Alert } from '../../common/utils';
-import { DealSelect } from '../components';
+import { BoardSelect } from '../components';
 import { queries } from '../graphql';
 import {
   BoardsQueryResponse,
@@ -29,14 +29,14 @@ type FinalProps = {
   stagesQuery: StagesQueryResponse;
 } & Props;
 
-class DealSelectContainer extends React.Component<FinalProps> {
+class BoardSelectContainer extends React.Component<FinalProps> {
   onChangeBoard = (boardId: string) => {
     this.props.onChangeBoard(boardId);
 
     this.props.pipelinesQuery
       .refetch({ boardId })
       .then(({ data }) => {
-        const pipelines = data.dealPipelines;
+        const pipelines = data.pipelines;
 
         if (pipelines.length > 0) {
           this.onChangePipeline(pipelines[0]._id);
@@ -53,7 +53,7 @@ class DealSelectContainer extends React.Component<FinalProps> {
     stagesQuery
       .refetch({ pipelineId })
       .then(({ data }) => {
-        const stages = data.dealStages;
+        const stages = data.stages;
 
         this.props.onChangePipeline(pipelineId, stages);
 
@@ -93,7 +93,7 @@ class DealSelectContainer extends React.Component<FinalProps> {
       onChangeStage: this.onChangeStage
     };
 
-    return <DealSelect {...extendedProps} />;
+    return <BoardSelect {...extendedProps} />;
   }
 }
 
@@ -125,5 +125,5 @@ export default (props: Props) =>
           })
         }
       )
-    )(DealSelectContainer)
+    )(BoardSelectContainer)
   );

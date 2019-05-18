@@ -1,4 +1,4 @@
-import { IPipeline, IStage } from '../settings/deals/types';
+import { IPipeline, IStage } from '../settings/boards/types';
 import { IDeal } from './types';
 
 type StagesWithDeals = IStage & { deals: IDeal[] };

@@ -2,7 +2,8 @@ import { colors, dimensions } from 'modules/common/styles';
 import { BarItems } from 'modules/layout/styles';
 import styled from 'styled-components';
 
-const PageHeader = styled.div`
+// header
+export const PageHeader = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 10px 20px 6px;
@@ -10,7 +11,7 @@ const PageHeader = styled.div`
   min-height: 50px;
 `;
 
-const ButtonGroup = styled.div`
+export const ButtonGroup = styled.div`
   display: inline-block;
   border-radius: 18px;
   background: rgba(0, 0, 0, 0.06);
@@ -47,13 +48,13 @@ const ButtonGroup = styled.div`
   }
 `;
 
-const HeaderItems = styled(BarItems)`
+export const HeaderItems = styled(BarItems)`
   > * + * {
     margin-left: ${dimensions.coreSpacing}px;
   }
 `;
 
-const HeaderButton = styled.div`
+export const HeaderButton = styled.div`
   padding: 0 12px;
   line-height: 32px;
   height: 34px;
@@ -80,7 +81,7 @@ const HeaderButton = styled.div`
   }
 `;
 
-const HeaderLabel = styled.span`
+export const HeaderLabel = styled.span`
   font-size: 10px;
   text-transform: uppercase;
   margin-right: -18px;
@@ -88,7 +89,7 @@ const HeaderLabel = styled.span`
   color: ${colors.colorCoreGray};
 `;
 
-const HeaderLink = styled(HeaderButton)`
+export const HeaderLink = styled(HeaderButton)`
   padding: 0;
   margin-left: 10px;
   font-size: 12px;
@@ -106,12 +107,3 @@ const HeaderLink = styled(HeaderButton)`
     }
   }
 `;
-
-export {
-  ButtonGroup,
-  PageHeader,
-  HeaderButton,
-  HeaderLabel,
-  HeaderItems,
-  HeaderLink
-};

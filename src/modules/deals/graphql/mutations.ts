@@ -75,44 +75,8 @@ const dealsRemove = `
   }
 `;
 
-const dealsUpdateOrder = `
-  mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-    dealsUpdateOrder(stageId: $stageId, orders: $orders) {
-      _id
-    }
-  }
-`;
-
-const dealStagesUpdateOrder = `
-  mutation dealStagesUpdateOrder($orders: [OrderItem]) {
-    dealStagesUpdateOrder(orders: $orders) {
-      _id
-    }
-  }
-`;
-
-const dealsChange = `
-  mutation dealsChange($_id: String!) {
-    dealsChange(_id: $_id) {
-      _id
-    }
-  }
-`;
-
-const stagesChange = `
-  mutation dealStagesChange($_id: String!, $pipelineId: String!) {
-    dealStagesChange(_id: $_id, pipelineId: $pipelineId) {
-      _id
-    }
-  }
-`;
-
 export default {
   dealsAdd,
   dealsEdit,
-  dealsRemove,
-  dealsUpdateOrder,
-  dealStagesUpdateOrder,
-  dealsChange,
-  stagesChange
+  dealsRemove
 };

@@ -1,6 +1,6 @@
 import Board from './Board';
-import DealSelect from './DealSelect';
-import MainActionBar from './MainActionBar';
+import BoardSelect from './BoardSelect';
 import Pipeline from './Pipeline';
+import StageSelector from './StageSelector';
 
-export { MainActionBar, Board, Pipeline, DealSelect };
+export { Board, Pipeline, BoardSelect, StageSelector };

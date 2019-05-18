@@ -1,3 +1,5 @@
+import ItemList from 'modules/boards/components/stage/ItemList';
+import { IStage, Item } from 'modules/boards/types';
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { DealAddForm } from 'modules/deals/components/stage';
@@ -16,8 +18,6 @@ import {
   StageFooter,
   StageRoot
 } from '../../styles/stage';
-import { IStage, Item } from '../../types';
-import ItemList from './ItemList';
 
 type Props = {
   loadingItems: boolean;
@@ -25,7 +25,6 @@ type Props = {
   stage: IStage;
   length: number;
   items: Item[];
-  type: string;
   addItem: (name: string, callback: () => void) => void;
   loadMore: () => void;
 };
@@ -139,6 +138,7 @@ export default class Stage extends React.Component<Props, {}> {
         listType="DEAL"
         stageId={stage._id}
         items={items}
+        type="deal"
       />
     );
   }

@@ -1,4 +1,4 @@
-import { DealSelect } from 'modules/boards/containers';
+import { BoardSelect } from 'modules/boards/containers';
 import { IStage } from 'modules/boards/types';
 import { Icon, Tip } from 'modules/common/components';
 import * as React from 'react';
@@ -90,7 +90,7 @@ class DealMove extends React.Component<Props, State> {
     );
   }
 
-  renderDealSelect() {
+  renderBoardSelect() {
     if (!this.state.show) {
       return null;
     }
@@ -99,7 +99,7 @@ class DealMove extends React.Component<Props, State> {
     const { boardId, pipelineId } = this.state;
 
     return (
-      <DealSelect
+      <BoardSelect
         type="deal"
         stageId={stageId}
         boardId={boardId}
@@ -123,7 +123,7 @@ class DealMove extends React.Component<Props, State> {
             {pipeline && pipeline.name} <Icon icon="downarrow" size={10} />
           </PipelineName>
 
-          {this.renderDealSelect()}
+          {this.renderBoardSelect()}
         </MoveFormContainer>
 
         {this.renderStages()}

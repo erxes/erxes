@@ -1,20 +1,20 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
-import { IRouterProps } from 'modules/common/types';
-import { router as routerUtils, withProps } from 'modules/common/utils';
-import queryString from 'query-string';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
-import { MainActionBar as DumbMainActionBar } from '../components';
-import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
-import { queries } from '../graphql';
-import { PageHeader } from '../styles/header';
+import { queries } from 'modules/boards/graphql';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
   BoardsQueryResponse
-} from '../types';
+} from 'modules/boards/types';
+import { Spinner } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
+import { router as routerUtils, withProps } from 'modules/common/utils';
+import { MainActionBar as DumbMainActionBar } from 'modules/deals/components';
+import queryString from 'query-string';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
+import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
+import { PageHeader } from '../styles/header';
 
 type Props = {
   type: string;

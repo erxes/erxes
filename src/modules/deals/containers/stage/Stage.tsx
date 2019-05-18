@@ -1,20 +1,19 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { __, Alert } from 'modules/common/utils';
-import { queries as dealsQueries } from 'modules/deals/graphql';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { Stage } from '../../components/stage';
-import { mutations, queries } from '../../graphql';
+import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
+import { queries as boardsQueries } from 'modules/boards/graphql';
 import {
   IStage,
   Item,
   ItemParams,
   ItemsQueryResponse,
   SaveItemMutation
-} from '../../types';
-import { withProps } from '../../utils';
-import { PipelineConsumer } from '../PipelineContext';
+} from 'modules/boards/types';
+import { __, Alert, withProps } from 'modules/common/utils';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { Stage } from '../../components/stage';
+import { mutations, queries } from '../../graphql';
 
 type WrapperProps = {
   stage: IStage;
@@ -23,7 +22,6 @@ type WrapperProps = {
   items: Item[];
   length: number;
   search?: string;
-  type: string;
 };
 
 type StageProps = {
@@ -37,24 +35,19 @@ type FinalStageProps = {
   itemsQuery?: ItemsQueryResponse;
 } & StageProps;
 
-class StageContainer extends React.PureComponent<
-  FinalStageProps,
-  { loadedDeals: boolean }
-> {
+class StageContainer extends React.PureComponent<FinalStageProps> {
   componentWillReceiveProps(nextProps: FinalStageProps) {
     const { stage, loadingState, onLoad, itemsQuery } = nextProps;
 
     if (itemsQuery && !itemsQuery.loading && loadingState !== 'loaded') {
       // Send loaded items to PipelineContext so that context is able to set it
-      // to global dealsMap
+      // to global itemsMap
       onLoad(stage._id, itemsQuery.deals || []);
     }
   }
 
   componentDidMount() {
     const { scheduleStage, stage } = this.props;
-
-    console.log('componentDidMount this.props: ', this.props); //tslint:disable-line
 
     // register stage to queue on first render
     scheduleStage(stage._id);
@@ -69,7 +62,7 @@ class StageContainer extends React.PureComponent<
 
     client
       .query({
-        query: gql(dealsQueries.deals),
+        query: gql(queries.deals),
         variables: {
           stageId: stage._id,
           search,
@@ -77,7 +70,7 @@ class StageContainer extends React.PureComponent<
         }
       })
       .then(({ data }: any) => {
-        onLoad(stage._id, [...items, ...(data.items || [])]);
+        onLoad(stage._id, [...items, ...(data.deals || [])]);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -86,7 +79,7 @@ class StageContainer extends React.PureComponent<
 
   // create item
   addItem = (name: string, callback: () => void) => {
-    const { stage, onAddItem, addMutation, type } = this.props;
+    const { stage, onAddItem, addMutation } = this.props;
 
     if (!stage) {
       return null;
@@ -94,9 +87,9 @@ class StageContainer extends React.PureComponent<
 
     return addMutation({ variables: { name, stageId: stage._id } })
       .then(({ data }) => {
-        Alert.success('You successfully added a ' + type);
+        Alert.success('You successfully added a deal');
 
-        onAddItem(stage._id, data[type + 'sAdd']);
+        onAddItem(stage._id, data.dealsAdd);
 
         callback();
       })
@@ -106,12 +99,11 @@ class StageContainer extends React.PureComponent<
   };
 
   render() {
-    const { index, length, stage, items, itemsQuery, type } = this.props;
+    const { index, length, stage, items, itemsQuery } = this.props;
     const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
 
     return (
       <Stage
-        type={type}
         stage={stage}
         index={index}
         length={length}
@@ -124,40 +116,35 @@ class StageContainer extends React.PureComponent<
   }
 }
 
-const WithData = (props: StageProps) =>
-  withProps<StageProps>(
-    props,
-    compose(
-      graphql<StageProps>(gql(dealsQueries[props.type + 's']), {
-        name: 'itemsQuery',
-        skip: ({ loadingState }) => loadingState !== 'readyToLoad',
-        options: ({ stage, search, loadingState }) => ({
-          variables: {
-            stageId: stage._id,
-            search
-          },
-          fetchPolicy:
-            loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
-          notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
-        })
-      }),
-      // mutation
-      graphql<StageProps, SaveItemMutation, ItemParams>(
-        gql(mutations[props.type + 'sAdd']),
-        {
-          name: 'addMutation',
-          options: ({ stage }) => ({
-            refetchQueries: [
-              {
-                query: gql(queries.stageDetail),
-                variables: { _id: stage && stage._id }
-              }
-            ]
-          })
-        }
-      )
-    )(StageContainer)
-  );
+const WithData = withProps<StageProps>(
+  compose(
+    graphql<StageProps>(gql(queries.deals), {
+      name: 'itemsQuery',
+      skip: ({ loadingState }) => loadingState !== 'readyToLoad',
+      options: ({ stage, search, loadingState }) => ({
+        variables: {
+          stageId: stage._id,
+          search
+        },
+        fetchPolicy:
+          loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
+        notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
+      })
+    }),
+    // mutation
+    graphql<StageProps, SaveItemMutation, ItemParams>(gql(mutations.dealsAdd), {
+      name: 'addMutation',
+      options: ({ stage }) => ({
+        refetchQueries: [
+          {
+            query: gql(boardsQueries.stageDetail),
+            variables: { _id: stage && stage._id }
+          }
+        ]
+      })
+    })
+  )(StageContainer)
+);
 
 export default (props: WrapperProps) => {
   return (

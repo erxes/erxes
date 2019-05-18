@@ -140,16 +140,18 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
 
     // save orders to database
-    return this.saveDealOrders(itemMap, [
+    return this.saveItemOrders(itemMap, [
       source.droppableId,
       destination.droppableId
     ]);
   };
 
   itemChange = (itemId: string) => {
+    const { type } = this.props;
+
     client
       .mutate({
-        mutation: gql(mutations.dealsChange),
+        mutation: gql(mutations[type + 'sChange']),
         variables: {
           _id: itemId
         }
@@ -175,7 +177,9 @@ export class PipelineProvider extends React.Component<Props, State> {
       });
   };
 
-  saveDealOrders = (itemMap: IItemMap, stageIds: string[]) => {
+  saveItemOrders = (itemMap: IItemMap, stageIds: string[]) => {
+    const { type } = this.props;
+
     for (const stageId of stageIds) {
       const orders = collectOrders(itemMap[stageId]);
 
@@ -185,7 +189,7 @@ export class PipelineProvider extends React.Component<Props, State> {
 
       client
         .mutate({
-          mutation: gql(mutations.updateOrder),
+          mutation: gql(mutations[type + 'sUpdateOrder']),
           variables: {
             orders,
             stageId
@@ -205,7 +209,7 @@ export class PipelineProvider extends React.Component<Props, State> {
 
   /*
    * - Stage container is sending loaded to items
-   * - Storing sent items to global dealMmap
+   * - Storing sent items to global itemsMap
    * - Mark stage's task as complete
    * - Mark stage's loading state as loaded
    */
@@ -327,7 +331,7 @@ export class PipelineProvider extends React.Component<Props, State> {
       };
 
       this.setState({ itemMap: newitemMap }, () => {
-        this.saveDealOrders(newitemMap, [stageId]);
+        this.saveItemOrders(newitemMap, [stageId]);
       });
     } else {
       const items = [...itemMap[stageId]];

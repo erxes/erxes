@@ -1,4 +1,3 @@
-import { MainActionBar } from 'modules/boards/containers';
 import { __ } from 'modules/common/utils';
 import {
   BoardContainer,
@@ -24,7 +23,6 @@ class DealBoard extends React.Component<Props> {
       <BoardContainer>
         <Header title={title} breadcrumb={[{ title }]} />
         <BoardContent transparent={true}>
-          <MainActionBar type="ticket" />
           <ScrolledContent transparent={true}>
             {this.renderContent()}
           </ScrolledContent>

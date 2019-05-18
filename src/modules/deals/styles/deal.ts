@@ -1,3 +1,4 @@
+import { SelectContainer } from 'modules/boards/styles';
 import { colors } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -176,17 +177,6 @@ const MoveFormContainer = styled.div`
   position: relative;
 `;
 
-const SelectContainer = styled.div`
-  position: absolute;
-  top: 30px;
-  left: 0;
-  width: 300px;
-  padding: 20px;
-  z-index: 100;
-  box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
-  background: ${colors.colorWhite};
-`;
-
 const PipelineName = styled.div`
   font-weight: bold;
 
@@ -331,7 +321,6 @@ export {
   HeaderContentSmall,
   Button,
   MoveFormContainer,
-  SelectContainer,
   PipelineName,
   FormFooter,
   FlexContent,

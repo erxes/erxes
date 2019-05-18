@@ -1,4 +1,4 @@
-import { DealSelect } from 'modules/boards/containers';
+import { BoardSelect } from 'modules/boards/containers';
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import {
@@ -92,7 +92,7 @@ class DealAddForm extends React.Component<Props, State> {
     const brIdOnChange = brId => this.onChangeField('boardId', brId);
 
     return (
-      <DealSelect
+      <BoardSelect
         type="deal"
         stageId={stageId}
         pipelineId={pipelineId}

@@ -1,3 +1,4 @@
+import { Item } from 'modules/boards/types';
 import { __, getUserAvatar } from 'modules/common/utils';
 import { EditForm } from 'modules/deals/containers/editForm';
 import {
@@ -12,16 +13,15 @@ import { renderDealAmount } from 'modules/deals/utils';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
-import { IDeal } from '../../types';
 
 type Props = {
   stageId: string;
-  deal: IDeal;
+  item: Item;
   isDragging: boolean;
   provided;
-  onAdd: (stageId: string, deal: IDeal) => void;
+  onAdd: (stageId: string, item: Item) => void;
   onRemove: (dealId: string, stageId: string) => void;
-  onUpdate: (deal: IDeal) => void;
+  onUpdate: (item: Item) => void;
   onTogglePopup: () => void;
 };
 
@@ -52,7 +52,7 @@ export default class DealItem extends React.PureComponent<
   };
 
   renderForm = () => {
-    const { stageId, deal, onAdd, onRemove, onUpdate } = this.props;
+    const { stageId, item, onAdd, onRemove, onUpdate } = this.props;
     const { isFormVisible } = this.state;
 
     if (!isFormVisible) {
@@ -67,7 +67,7 @@ export default class DealItem extends React.PureComponent<
         <Modal.Body>
           <EditForm
             stageId={stageId}
-            dealId={deal._id}
+            dealId={item._id}
             onAdd={onAdd}
             onRemove={onRemove}
             onUpdate={onUpdate}
@@ -79,9 +79,9 @@ export default class DealItem extends React.PureComponent<
   };
 
   render() {
-    const { deal, isDragging, provided } = this.props;
-    const products = (deal.products || []).map(p => p.product);
-    const { customers, companies } = deal;
+    const { item, isDragging, provided } = this.props;
+    const products = (item.products || []).map(p => p.product);
+    const { customers, companies } = item;
 
     return (
       <Deal
@@ -91,7 +91,7 @@ export default class DealItem extends React.PureComponent<
         {...provided.dragHandleProps}
       >
         <Content onClick={this.toggleForm}>
-          <h5>{deal.name}</h5>
+          <h5>{item.name}</h5>
 
           {products.map((product, index) => (
             <div key={index}>
@@ -115,10 +115,10 @@ export default class DealItem extends React.PureComponent<
           ))}
 
           <PriceContainer>
-            {renderDealAmount(deal.amount)}
+            {renderDealAmount(item.amount)}
 
             <Right>
-              {(deal.assignedUsers || []).map((user, index) => (
+              {(item.assignedUsers || []).map((user, index) => (
                 <img
                   key={index}
                   src={getUserAvatar(user)}
@@ -132,7 +132,7 @@ export default class DealItem extends React.PureComponent<
 
           <Footer>
             {__('Last updated')}:
-            <Right>{this.renderDate(deal.modifiedAt)}</Right>
+            <Right>{this.renderDate(item.modifiedAt)}</Right>
           </Footer>
         </Content>
         {this.renderForm()}

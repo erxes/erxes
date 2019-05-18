@@ -1,4 +1,3 @@
-import DealSelect from './DealSelect';
-import MainActionBar from './MainActionBar';
+import BoardSelect from './BoardSelect';
 
-export { MainActionBar, DealSelect };
+export { BoardSelect };

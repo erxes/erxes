@@ -1,4 +1,4 @@
 import ItemList from './ItemList';
-import Stage from './Stage';
+import ItemSelector from './ItemSelector';
 
-export { ItemList, Stage };
+export { ItemList, ItemSelector };

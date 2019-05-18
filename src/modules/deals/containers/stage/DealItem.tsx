@@ -1,11 +1,11 @@
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
+import { Item } from 'modules/boards/types';
 import { DealItem } from 'modules/deals/components/stage';
 import * as React from 'react';
-import { IDeal } from '../../types';
 
 type Props = {
   stageId: string;
-  deal: IDeal;
+  item: Item;
   isDragging: boolean;
   provided;
   onTogglePopup: () => void;
@@ -18,7 +18,7 @@ export default (props: Props) => {
         return (
           <DealItem
             stageId={props.stageId}
-            deal={props.deal}
+            item={props.item}
             isDragging={props.isDragging}
             provided={props.provided}
             onTogglePopup={props.onTogglePopup}

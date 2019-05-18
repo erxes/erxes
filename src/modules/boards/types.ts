@@ -1,5 +1,4 @@
 import { DealsQueryResponse, IDeal, IDealParams } from 'modules/deals/types';
-import { IActivityLogForMonth } from '../activityLogs/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';

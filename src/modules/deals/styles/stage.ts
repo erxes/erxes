@@ -151,24 +151,6 @@ const IndicatorItem = styledTS<{ isPass: boolean }>(styled.div)`
   border-radius: ${borderRadius};
 `;
 
-const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
-  background-color: ${({ isDraggingOver }) =>
-    isDraggingOver && 'rgba(10, 45, 65, .1)'};
-  display: flex;
-  flex-direction: column;
-  padding: 0 4px;
-  transition: background-color 0.1s ease, opacity 0.1s ease;
-  user-select: none;
-`;
-
-const DropZone = styled.div`
-  min-height: 160px;
-`;
-
-const EmptyContainer = styled.div`
-  height: 160px;
-`;
-
 const LoadingContent = styled.div`
   background: #fff;
   margin: 0 4px 8px 4px;
@@ -193,9 +175,6 @@ export {
   DealIndicator,
   IndicatorItem,
   StageFooter,
-  Wrapper,
-  DropZone,
-  EmptyContainer,
   LoadingContent,
   StageRoot
 };

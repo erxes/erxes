@@ -7,8 +7,8 @@ import styled from 'styled-components';
 import { EmptyState, Spinner } from '../../common/components';
 import { queries } from '../graphql';
 import { IItemMap, IPipeline, IStageMap, StagesQueryResponse } from '../types';
+import { StageSelector } from './';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
-import { Stage } from './stage';
 
 const Container = styled.div`
   height: 100%;
@@ -77,7 +77,7 @@ class WithStages extends React.Component<Props, {}> {
                       }
 
                       return (
-                        <Stage
+                        <StageSelector
                           type={type}
                           key={stageId}
                           index={index}
