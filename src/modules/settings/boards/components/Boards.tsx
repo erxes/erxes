@@ -3,8 +3,8 @@ import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
 import * as React from 'react';
+import { BoardForm, BoardRow } from '.';
 import { IBoard } from '../types';
-import { BoardForm, BoardRow } from './';
 
 type Props = {
   currentBoardId?: string;

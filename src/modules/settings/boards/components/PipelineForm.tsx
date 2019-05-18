@@ -6,8 +6,8 @@ import {
 } from 'modules/common/components';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
+import { Stages } from '.';
 import { IPipeline, IStage } from '../types';
-import { Stages } from './';
 
 type Props = {
   show?: boolean;

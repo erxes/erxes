@@ -1,5 +1,3 @@
-import { IDeal } from '../../deals/types';
-
 export interface IPipeline {
   _id: string;
   name: string;

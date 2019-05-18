@@ -13,12 +13,12 @@ class Home extends React.Component<Props, {}> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Deal'), link: '/settings/deals/' }
+      { title: __('Board'), link: '/settings/boards/' }
     ];
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Deal')} breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={__('Board')} breadcrumb={breadcrumb} />}
         leftSidebar={<Boards currentBoardId={boardId} />}
         content={<Pipelines boardId={boardId} />}
       />

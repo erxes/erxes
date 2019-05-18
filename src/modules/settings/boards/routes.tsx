@@ -3,9 +3,9 @@ import * as React from 'react';
 import { Route } from 'react-router-dom';
 
 const Home = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - Deal Home" */ './containers/Home')
+  import(/* webpackChunkName: "Settings - Board Home" */ './containers/Home')
 );
 
-const routes = () => <Route path="/settings/deals/" component={Home} />;
+const routes = () => <Route path="/settings/boards/" component={Home} />;
 
 export default routes;

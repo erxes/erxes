@@ -51,7 +51,7 @@ class BoardsContainer extends React.Component<FinalProps> {
               localStorage.removeItem(STORAGE_BOARD_KEY);
             }
 
-            history.push('/settings/deals/');
+            history.push('/settings/boards/');
 
             Alert.success('You successfully deleted a board');
           })
