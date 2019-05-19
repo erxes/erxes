@@ -53,18 +53,29 @@ class SelectWithSearch extends React.Component<Props> {
 
     const datas = customQuery[queryName] || [];
 
-    const onChange = list => onSelect(name, list.map(item => item.value));
-    const onSearch = searchValue => search(searchValue);
+    const prependOption = option => {
+      return option ? [option, ...options(datas)] : options(datas);
+    };
 
-    const selectOption = customOption
-      ? [customOption, ...options(datas)]
-      : options(datas);
+    const onChange = items => {
+      onSelect(name, items.map(item => item.value));
+    };
+
+    const onSearch = searchValue => {
+      if (searchValue) {
+        search(searchValue);
+      }
+    };
+
+    const selectOption = prependOption(customOption);
 
     return (
       <Select
         placeholder={__(label)}
         value={value}
         onChange={onChange}
+        onSelectResetsInput={false}
+        onCloseResetsInput={false}
         optionRenderer={optionRenderer}
         valueRenderer={valueRenderer}
         onInputChange={onSearch}
@@ -82,7 +93,7 @@ const withQuery = ({ customQuery }) =>
       graphql<Props, {}, { searchValue: string }>(gql(customQuery), {
         name: 'customQuery',
         options: ({ searchValue }) => ({
-          variables: { searchValue, perPage: 10 }
+          variables: { searchValue, perPage: 5 }
         })
       })
     )(SelectWithSearch)
