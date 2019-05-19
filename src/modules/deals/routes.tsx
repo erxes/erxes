@@ -15,9 +15,7 @@ const DealBoard = asyncComponent(() =>
 const deals = () => {
   let dealsLink = '/deal/board';
 
-  const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines(
-    'deal'
-  );
+  const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
   const [defaultBoardId, defaultPipelineId] = [
     defaultBoards.deal,

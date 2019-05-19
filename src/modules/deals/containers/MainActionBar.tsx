@@ -62,9 +62,7 @@ class Main extends React.Component<FinalProps> {
     const boardId = getBoardId({ location });
     const { pipelineId } = queryParams;
 
-    const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines(
-      'deal'
-    );
+    const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
     if (boardId && pipelineId) {
       defaultBoards.deal = boardId;
