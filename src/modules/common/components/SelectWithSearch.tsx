@@ -37,7 +37,18 @@ export const valueRenderer = option => (
   <SelectValue>{content(option)}</SelectValue>
 );
 
-class SelectWithSearch extends React.Component<Props> {
+class SelectWithSearch extends React.Component<
+  Props,
+  { selectedItems: any[] }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectedItems: []
+    };
+  }
+
   render() {
     const {
       queryName,
@@ -51,14 +62,14 @@ class SelectWithSearch extends React.Component<Props> {
       customOption
     } = this.props;
 
-    const datas = customQuery[queryName] || [];
+    const { selectedItems } = this.state;
 
-    const prependOption = option => {
-      return option ? [option, ...options(datas)] : options(datas);
-    };
+    const datas = customQuery[queryName] || [];
 
     const onChange = items => {
       onSelect(name, items.map(item => item.value));
+
+      this.setState({ selectedItems: [...items] });
     };
 
     const onSearch = searchValue => {
@@ -67,7 +78,13 @@ class SelectWithSearch extends React.Component<Props> {
       }
     };
 
-    const selectOptions = prependOption(customOption);
+    const onOpen = () => search('');
+
+    const selectOptions = [...selectedItems, ...options(datas)];
+
+    if (customOption) {
+      selectOptions.unshift(customOption);
+    }
 
     return (
       <Select
@@ -75,14 +92,12 @@ class SelectWithSearch extends React.Component<Props> {
         value={value}
         loadingPlaceholder={__('Loading...')}
         isLoading={customQuery.loading}
+        onOpen={onOpen}
         onChange={onChange}
-        onSelectResetsInput={false}
-        onCloseResetsInput={false}
         optionRenderer={optionRenderer}
         valueRenderer={valueRenderer}
         onInputChange={onSearch}
         options={selectOptions}
-        removeSelected={true}
         multi={true}
       />
     );
@@ -95,7 +110,7 @@ const withQuery = ({ customQuery }) =>
       graphql<Props, {}, { searchValue: string }>(gql(customQuery), {
         name: 'customQuery',
         options: ({ searchValue }) => ({
-          variables: { searchValue, perPage: 5 }
+          variables: { searchValue }
         })
       })
     )(SelectWithSearch)
