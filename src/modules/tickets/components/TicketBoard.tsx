@@ -1,3 +1,4 @@
+import { Board, MainActionBar } from 'modules/boards/containers';
 import { __ } from 'modules/common/utils';
 import {
   BoardContainer,
@@ -13,7 +14,13 @@ type Props = {
 
 class DealBoard extends React.Component<Props> {
   renderContent() {
-    return <div>Ticket</div>;
+    const { queryParams } = this.props;
+
+    return <Board queryParams={queryParams} type="ticket" />;
+  }
+
+  renderActionBar() {
+    return <MainActionBar type="ticket" />;
   }
 
   render() {
@@ -23,6 +30,7 @@ class DealBoard extends React.Component<Props> {
       <BoardContainer>
         <Header title={title} breadcrumb={[{ title }]} />
         <BoardContent transparent={true}>
+          {this.renderActionBar()}
           <ScrolledContent transparent={true}>
             {this.renderContent()}
           </ScrolledContent>

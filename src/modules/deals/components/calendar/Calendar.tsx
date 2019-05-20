@@ -1,10 +1,11 @@
+import { MainActionBar } from 'modules/boards/containers';
 import { Calendar } from 'modules/common/components';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import styled from 'styled-components';
-import { DealColumn, MainActionBar } from '../../containers';
+import { DealColumn } from '../../containers';
 import {
   BoardContainer,
   BoardContent,

@@ -13,12 +13,13 @@ import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
-import { MainActionBar as DumbMainActionBar } from 'modules/deals/components';
+import { MainActionBar as DealMainActionBar } from 'modules/deals/components';
+import { MainActionBar as TicketMainActionBar } from 'modules/tickets/components';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { PageHeader } from '../styles/header';
+import { PageHeader } from '../../deals/styles/header';
 
 type Props = {
   type: string;
@@ -51,7 +52,8 @@ class Main extends React.Component<FinalProps> {
       boardsQuery,
       boardGetLastQuery,
       boardDetailQuery,
-      middleContent
+      middleContent,
+      type
     } = this.props;
 
     if (boardsQuery.loading) {
@@ -63,12 +65,12 @@ class Main extends React.Component<FinalProps> {
     const { pipelineId } = queryParams;
 
     const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines(
-      'deal'
+      type
     );
 
     if (boardId && pipelineId) {
-      defaultBoards.deal = boardId;
-      defaultPipelines.deal = pipelineId;
+      defaultBoards[type] = boardId;
+      defaultPipelines[type] = pipelineId;
 
       localStorage.setItem(STORAGE_BOARD_KEY, JSON.stringify(defaultBoards));
       localStorage.setItem(
@@ -92,8 +94,8 @@ class Main extends React.Component<FinalProps> {
     // if there is no boardId in queryparams and there is one in localstorage
     // then put those in queryparams
     const [defaultBoardId, defaultPipelineId] = [
-      defaultBoards.deal,
-      defaultPipelines.deal
+      defaultBoards[type],
+      defaultPipelines[type]
     ];
 
     if (!boardId && defaultBoardId) {
@@ -126,15 +128,15 @@ class Main extends React.Component<FinalProps> {
     // If there is an invalid boardId localstorage then remove invalid keys
     // and reload the page
     if (!currentBoard && boardId) {
-      defaultBoards.deal = '';
-      defaultPipelines.deal = '';
+      delete defaultBoards[type];
+      delete defaultPipelines[type];
 
       localStorage.setItem(STORAGE_BOARD_KEY, JSON.stringify(defaultBoards));
       localStorage.setItem(
         STORAGE_PIPELINE_KEY,
         JSON.stringify(defaultPipelines)
       );
-      window.location.href = '/deal/board';
+      window.location.href = `/${type}/board`;
       return null;
     }
 
@@ -147,17 +149,26 @@ class Main extends React.Component<FinalProps> {
       ? pipelines.find(pipe => pipe._id === pipelineId)
       : pipelines[0];
 
-    return (
-      <DumbMainActionBar
-        middleContent={middleContent}
-        onSearch={this.onSearch}
-        queryParams={queryParams}
-        history={history}
-        currentBoard={currentBoard}
-        currentPipeline={currentPipeline}
-        boards={boardsQuery.boards || []}
-      />
-    );
+    const props = {
+      middleContent,
+      onSearch: this.onSearch,
+      queryParams,
+      history,
+      currentBoard,
+      currentPipeline,
+      boards: boardsQuery.boards || []
+    };
+
+    switch (type) {
+      case 'deal': {
+        return <DealMainActionBar {...props} />;
+      }
+      case 'ticket': {
+        return <TicketMainActionBar {...props} />;
+      }
+    }
+
+    return null;
   }
 }
 

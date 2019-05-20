@@ -11,7 +11,7 @@ type Props = {
   type: string;
 };
 
-export default React.memo(({ type, ...itemProps }: Props) => {
+export default ({ type, ...itemProps }: Props) => {
   switch (type) {
     case 'deal': {
       return <DealItem {...itemProps} />;
@@ -19,4 +19,4 @@ export default React.memo(({ type, ...itemProps }: Props) => {
   }
 
   return null;
-});
+};

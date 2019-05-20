@@ -1,4 +1,5 @@
 import { Stage as DealStage } from 'modules/deals/containers/stage';
+import { Stage as TicketStage } from 'modules/tickets/containers';
 import * as React from 'react';
 import { IStage, Item } from '../types';
 
@@ -12,12 +13,15 @@ type Props = {
   type: string;
 };
 
-export default React.memo(({ type, ...stageProps }: Props) => {
+export default ({ type, ...stageProps }: Props) => {
   switch (type) {
     case 'deal': {
       return <DealStage {...stageProps} />;
     }
+    case 'ticket': {
+      return <TicketStage {...stageProps} />;
+    }
   }
 
   return null;
-});
+};
