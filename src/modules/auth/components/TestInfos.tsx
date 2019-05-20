@@ -14,7 +14,6 @@ import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { timezones } from 'modules/settings/integrations/constants';
 import * as React from 'react';
-import * as Datetime from 'react-datetime';
 import { IUser } from '../types';
 
 type Props = {
@@ -31,8 +30,6 @@ type State = {
 };
 
 class TestInfos extends React.PureComponent<Props, State> {
-  private selectedCheckboxes;
-
   constructor(props) {
     super(props);
 

@@ -150,7 +150,7 @@ class FormControl extends React.Component<Props> {
       return (
         <div>
           <Textarea {...props} />
-          {/* {this.props.errors[this.props.name || '']} */}
+          {this.props.errors[this.props.name || '']}
         </div>
       );
     }
@@ -158,7 +158,7 @@ class FormControl extends React.Component<Props> {
     return (
       <div>
         <Input {...attributes} />
-        {/* {this.props.errors[this.props.name || '']} */}
+        {this.props.errors[this.props.name || '']}
       </div>
     );
   }

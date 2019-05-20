@@ -73,11 +73,9 @@ class Form extends React.Component<Props, State> {
       return <Error>Invalid link!</Error>;
     }
 
-    if (
-      value &&
-      child.props.type === 'number' &&
-      !validator.isFloat(value.toString())
-    ) {
+    if (value && child.props.type === 'number' && !validator.isInt(value)) {
+      // tslint:disable-next-line:no-console
+      console.log(child.props.name, '-', value, '-', child.props.type);
       return <Error>Invalid number format! Please enter a valid number.</Error>;
     }
 
