@@ -4,15 +4,10 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import {
-  ColorPicker,
-  Picker,
-  PipColorContainer
-} from 'modules/forms/components/step/style';
+
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { ChromePicker } from 'react-color';
+
 import { IPipeline, IStage } from '../types';
 import { Stages } from './';
 
@@ -31,7 +26,6 @@ type Props = {
 
 type State = {
   stages: IStage[];
-  color: string;
   theme: string;
 };
 
@@ -41,17 +35,12 @@ class PipelineForm extends React.Component<Props, State> {
 
     this.state = {
       stages: (props.stages || []).map(stage => ({ ...stage })),
-      color: '#673FBD',
       theme: ''
     };
   }
 
   onChangeStages = stages => {
     this.setState({ stages });
-  };
-
-  onColorChange = e => {
-    this.setState({ color: e.hex, theme: '#673FBD' });
   };
 
   generateDoc = () => {
@@ -83,13 +72,7 @@ class PipelineForm extends React.Component<Props, State> {
 
   renderContent() {
     const { pipeline } = this.props;
-    const { stages, color } = this.state;
-
-    const popoverTop = (
-      <Popover id="color-picker">
-        <ChromePicker color={color} onChange={this.onColorChange} />
-      </Popover>
-    );
+    const { stages } = this.state;
     return (
       <>
         <FormGroup>
@@ -105,19 +88,6 @@ class PipelineForm extends React.Component<Props, State> {
         </FormGroup>
 
         <Stages stages={stages} onChangeStages={this.onChangeStages} />
-        <OverlayTrigger
-          trigger="click"
-          rootClose={true}
-          placement="bottom"
-          overlay={popoverTop}
-        >
-          <PipColorContainer>
-            <label>Change background color</label>
-            <ColorPicker>
-              <Picker style={{ backgroundColor: color }} />
-            </ColorPicker>
-          </PipColorContainer>
-        </OverlayTrigger>
       </>
     );
   }

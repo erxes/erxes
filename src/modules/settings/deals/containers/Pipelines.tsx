@@ -5,6 +5,7 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Pipelines } from '../components';
 import { mutations, queries } from '../graphql';
+
 import {
   AddPipelineMutationResponse,
   AddPipelineMutationVariables,
