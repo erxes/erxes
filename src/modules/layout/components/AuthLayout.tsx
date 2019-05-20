@@ -1,15 +1,51 @@
+import { Button } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Col, Grid } from 'react-bootstrap';
-import { AuthContent, AuthDescription, Authlayout } from '../styles';
+import {
+  AppName,
+  AuthContent,
+  AuthDescription,
+  Authlayout,
+  CenterContent,
+  SmallWrapper
+} from '../styles';
 
 type Props = {
   content: React.ReactNode;
 };
 
 class AuthLayout extends React.Component<Props, {}> {
+  renderRecommendMobileVersion() {
+    if (navigator.userAgent.indexOf('Mobile') !== -1) {
+      return (
+        <SmallWrapper>
+          <CenterContent>
+            <AppName>
+              <b>Erxes Inc</b>
+              <span>Download ios app for free on the App Store.</span>
+            </AppName>
+            <Button btnStyle="link" size="small">
+              Get
+            </Button>
+          </CenterContent>
+          {/* <img src="/images/ios.png" /> */}
+        </SmallWrapper>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { content } = this.props;
+
+    // tslint:disable-next-line:no-console
+    console.log(
+      window.orientation,
+      navigator.userAgent,
+      navigator.userAgent.indexOf('Mobile') !== -1
+    );
 
     return (
       <Authlayout>
@@ -32,6 +68,7 @@ class AuthLayout extends React.Component<Props, {}> {
             </Col>
           </Grid>
         </AuthContent>
+        {this.renderRecommendMobileVersion()}
       </Authlayout>
     );
   }

@@ -3,7 +3,7 @@ import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../common/styles';
-import { lighten } from '../common/styles/color';
+import { lighten, rgba } from '../common/styles/color';
 
 const UserHelper = styled.div`
   height: 50px;
@@ -480,7 +480,42 @@ const SectionBodyItem = styled.div`
   }
 `;
 
+const SmallWrapper = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 12px;
+  background: linear-gradient(
+    to right,
+    ${colors.colorSecondary},
+    ${colors.colorCoreTeal}
+  );
+  color: ${colors.colorWhite};
+  transition: all ease 0.3s;
+  padding: 15px ${dimensions.coreSpacing}px;
+  box-shadow: 0 -5px ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.4)};
+
+  button {
+    border: 1px solid ${colors.colorWhite};
+    color: ${colors.colorWhite};
+  }
+`;
+
+const CenterContent = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const AppName = styled.div`
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+`;
+
 export {
+  AppName,
   Layout,
   MainWrapper,
   Contents,
@@ -488,6 +523,7 @@ export {
   ContentBox,
   ContenFooter,
   ContentHeader,
+  CenterContent,
   HeaderItems,
   BarItems,
   SideContent,
@@ -513,5 +549,6 @@ export {
   AuthDescription,
   SectionContainer,
   SectionBody,
-  SectionBodyItem
+  SectionBodyItem,
+  SmallWrapper
 };
