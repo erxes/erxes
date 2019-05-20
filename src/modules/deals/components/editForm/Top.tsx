@@ -131,6 +131,7 @@ class Top extends React.Component<Props> {
                 value={closeDate}
                 closeOnSelect={true}
                 onChange={dateOnChange}
+                utc={true}
               />
             </FormGroup>
           </HeaderContentSmall>
