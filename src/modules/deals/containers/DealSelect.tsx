@@ -78,7 +78,7 @@ class DealSelectContainer extends React.Component<FinalProps> {
     const { boardsQuery, pipelinesQuery, stagesQuery } = this.props;
 
     const boards = boardsQuery.dealBoards || [];
-    const pipelines = pipelinesQuery.dealPipelines || [];
+    const pipelines = pipelinesQuery.dealPipelinesVisiblity || [];
     const stages = stagesQuery.dealStages || [];
 
     const extendedProps = {

@@ -139,7 +139,7 @@ export type BoardsQueryResponse = {
 };
 
 export type PipelinesQueryResponse = {
-  dealPipelines: IPipeline[];
+  dealPipelinesVisiblity: IPipeline[];
   loading: boolean;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
 };

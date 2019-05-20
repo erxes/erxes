@@ -41,8 +41,8 @@ const boardDetail = `
 `;
 
 const pipelines = `
-  query dealPipelines($boardId: String!) {
-    dealPipelines(boardId: $boardId) {
+  query dealPipelinesVisiblity($boardId: String!) {
+    dealPipelinesVisiblity(boardId: $boardId) {
       _id
       name
       boardId
@@ -55,6 +55,7 @@ const pipelineDetail = `
     dealPipelineDetail(_id: $_id) {
       _id
       name
+      boardId
     }
   }
 `;

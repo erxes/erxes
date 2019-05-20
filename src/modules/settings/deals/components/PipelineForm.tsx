@@ -29,7 +29,7 @@ type Props = {
 
 type State = {
   stages: IStage[];
-  type: string;
+  visiblity: string;
   selectedMembers: IUser[];
 };
 
@@ -39,7 +39,9 @@ class PipelineForm extends React.Component<Props, State> {
 
     this.state = {
       stages: (props.stages || []).map(stage => ({ ...stage })),
-      type: props.pipeline ? props.pipeline.type || 'public' : 'public',
+      visiblity: props.pipeline
+        ? props.pipeline.visiblity || 'public'
+        : 'public',
       selectedMembers: this.generateMembersParams(props.selectedMembers)
     };
   }
@@ -48,9 +50,9 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ stages });
   };
 
-  onChangeType = (e: React.FormEvent<HTMLElement>) => {
+  onChangeVisiblity = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
-      type: (e.currentTarget as HTMLInputElement).value
+      visiblity: (e.currentTarget as HTMLInputElement).value
     });
   };
 
@@ -74,31 +76,30 @@ class PipelineForm extends React.Component<Props, State> {
           .value,
         boardId: pipeline ? pipeline.boardId : this.props.boardId,
         stages: this.state.stages.filter(el => el.name),
-        type: this.state.type,
+        visiblity: this.state.visiblity,
         memberIds: this.collectValues(this.state.selectedMembers)
       }
     };
   };
 
   closeModal = () => {
-    this.setState({ selectedMembers: [], type: 'public', stages: [] });
     this.props.closeModal();
   };
 
   save = e => {
     e.preventDefault();
 
-    const { selectedMembers, type } = this.state;
+    const { selectedMembers, visiblity } = this.state;
     const { save, closeModal, pipeline } = this.props;
 
-    if (type === 'private' && selectedMembers.length === 0) {
+    if (visiblity === 'private' && selectedMembers.length === 0) {
       return Alert.error('Choose members');
     }
 
     save(
       this.generateDoc(),
       () => {
-        this.setState({ selectedMembers: [], type: 'public', stages: [] });
+        this.setState({ selectedMembers: [], visiblity: 'public', stages: [] });
         closeModal();
       },
       pipeline
@@ -107,14 +108,14 @@ class PipelineForm extends React.Component<Props, State> {
 
   renderSelectMembers() {
     const { members } = this.props;
-    const { type } = this.state;
+    const { visiblity } = this.state;
     const self = this;
 
     const onChange = items => {
       self.setState({ selectedMembers: items });
     };
 
-    if (type === 'public') {
+    if (visiblity === 'public') {
       return;
     }
 
@@ -137,7 +138,7 @@ class PipelineForm extends React.Component<Props, State> {
 
   renderContent() {
     const { pipeline } = this.props;
-    const { stages, type } = this.state;
+    const { stages, visiblity } = this.state;
 
     return (
       <>
@@ -153,13 +154,13 @@ class PipelineForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <ControlLabel required={true}>Type</ControlLabel>
+        <ControlLabel required={true}>Visiblity</ControlLabel>
         <FormGroup>
           <FormControl
-            id="type"
+            id="visiblity"
             componentClass="select"
-            value={type}
-            onChange={this.onChangeType}
+            value={visiblity}
+            onChange={this.onChangeVisiblity}
           >
             <option value="public">{__('Public')}</option>
             <option value="private">{__('Private')}</option>

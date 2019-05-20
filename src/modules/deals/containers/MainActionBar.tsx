@@ -15,7 +15,7 @@ import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
   BoardsQueryResponse,
-  PipelineDetailQueryResponse
+  PipelinesQueryResponse
 } from '../types';
 
 type Props = {
@@ -23,7 +23,7 @@ type Props = {
 } & IRouterProps;
 
 type FinalProps = {
-  pipelinesQuery: PipelineQueryResponse;
+  pipelinesQuery: PipelinesQueryResponse;
   boardsQuery: BoardsQueryResponse;
   boardGetLastQuery?: BoardsGetLastQueryResponse;
   boardDetailQuery?: BoardDetailQueryResponse;
@@ -120,7 +120,7 @@ class Main extends React.Component<FinalProps> {
       return null;
     }
 
-    const pipelines = pipelinesQuery.dealPipelines || [];
+    const pipelines = pipelinesQuery.dealPipelinesVisiblity || [];
     const currentPipeline = pipelineId
       ? pipelines.find(pipe => pipe._id === pipelineId)
       : pipelines[0];
@@ -153,7 +153,7 @@ const MainActionBar = withProps<Props>(
       name: 'boardGetLastQuery',
       skip: getBoardId
     }),
-    graphql<Props, PipelineDetailQueryResponse, { boardId: string }>(
+    graphql<Props, PipelinesQueryResponse, { boardId: string }>(
       gql(queries.pipelines),
       {
         name: 'pipelinesQuery',
