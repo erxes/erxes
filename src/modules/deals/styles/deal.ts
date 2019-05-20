@@ -347,36 +347,42 @@ const FilterBox = styled.div`
     font-size: 12px;
   }
 `;
+const Itemli = styledTS<{ selected: boolean }>(styled.li)`
+  text-transform: none;
+  outline: 0;
+  padding: 5px 15px;
+  background: ${props => (props.selected ? '#6569DF' : 'rgba(0, 0, 0, 0.04)')};
+  color: ${props => (props.selected ? '#FFF' : '#888')};
+  font-size: 12px;
+  width: 100%;
+  margin-left: 0;
+  margin-top: 10px;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  list-style: none;
+  border-radius: 30px;
+`;
+
 const DateFilter = styled.div`
   margin-top: 20px;
-  li {
-    text-transform: none;
-    outline: 0;
-    padding: 5px 15px;
-    background: rgba(0, 0, 0, 0.04);
-    font-size: 12px;
-    width: 100%;
-    margin-left: 0;
-    margin-top: 10px;
-    text-align: left;
-    cursor: pointer;
-    position: relative;
-    list-style: none;
-    border-radius: 30px;
-    color: #888;
-  }
 `;
 const FilterItem = styled.div`
   position: relative;
 `;
-const ClearDate = styled.div`
+const ClearDate = styledTS<{ selected: boolean }>(styled.div)`
   button {
     position: absolute;
+    color: ${props => (props.selected ? '#FFF' : '#888')};
     right: 0;
     bottom: 0px;
     width: 32px;
     padding: 5px 10px;
     background: none;
+
+    &:hover {
+      color: ${props => (props.selected ? '#FFF' : '#888')};
+    }
   }
 `;
 const FilterBtn = styled.div`
@@ -444,5 +450,6 @@ export {
   FilterLabel,
   ClearFilter,
   FilterItem,
+  Itemli,
   RemoveFilter
 };

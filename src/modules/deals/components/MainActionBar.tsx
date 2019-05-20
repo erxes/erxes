@@ -28,6 +28,7 @@ import {
   FilterBox,
   FilterBtn,
   FilterItem,
+  Itemli,
   RemoveFilter
 } from '../styles/deal';
 import {
@@ -191,10 +192,17 @@ class MainActionBar extends React.Component<Props, State> {
     const { onDateFilterSelect, onClear } = this.props;
 
     const renderLink = (label, name) => {
+      const selected = queryParams[name] && queryParams[name].length > 0;
+
       return (
         <FilterItem>
-          <li onClick={onDateFilterSelect.bind(this, name, 'true')}>{label}</li>
-          <ClearDate>
+          <Itemli
+            selected={selected}
+            onClick={onDateFilterSelect.bind(this, name, 'true')}
+          >
+            {label}
+          </Itemli>
+          <ClearDate selected={selected}>
             <Tip text={__('Remove this filter')}>
               <Button
                 btnStyle="link"
