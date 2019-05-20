@@ -50,7 +50,7 @@ class BoardsContainer extends React.Component<FinalProps> {
         })
           .then(() => {
             // if deleted board is default board
-            const { defaultBoards } = getDefaultBoardAndPipelines(type);
+            const { defaultBoards } = getDefaultBoardAndPipelines();
             const defaultBoardId = defaultBoards[type];
 
             if (defaultBoardId === boardId) {

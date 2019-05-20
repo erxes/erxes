@@ -94,12 +94,9 @@ export function withProps<Props>(
   return <Wrapped {...props} />;
 }
 
-export const getDefaultBoardAndPipelines = (type: string) => {
-  const emptyObj = '{ "' + type + '": "" }';
-
-  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || emptyObj;
-  const defaultPipelines =
-    localStorage.getItem(STORAGE_PIPELINE_KEY) || emptyObj;
+export const getDefaultBoardAndPipelines = () => {
+  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || '{}';
+  const defaultPipelines = localStorage.getItem(STORAGE_PIPELINE_KEY) || '{}';
 
   return {
     defaultBoards: JSON.parse(defaultBoards),
