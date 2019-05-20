@@ -26,7 +26,9 @@ import {
   ClearFilter,
   DateFilter,
   FilterBox,
-  FilterItem
+  FilterBtn,
+  FilterItem,
+  RemoveFilter
 } from '../styles/deal';
 import {
   ButtonGroup,
@@ -345,14 +347,27 @@ class MainActionBar extends React.Component<Props, State> {
 
         <HeaderLink>
           <Tip text={__('Filter')}>
-            <Button
-              btnStyle={hasFilter ? 'success' : 'link'}
-              className={hasFilter ? 'filter-success' : 'filter-link'}
-              icon="filter"
-              onClick={this.handleClick}
-            >
-              {hasFilter && 'Filtering is on'}
-            </Button>
+            <FilterBtn>
+              <div className={hasFilter ? 'filter-on' : ''}>
+                <Button
+                  btnStyle={hasFilter ? 'success' : 'link'}
+                  className={hasFilter ? 'filter-success' : 'filter-link'}
+                  icon="filter"
+                  onClick={this.handleClick}
+                >
+                  {hasFilter && 'Filtering is on'}
+                </Button>
+                {hasFilter && (
+                  <RemoveFilter>
+                    <Button
+                      btnStyle="link"
+                      icon="cancel-1"
+                      onClick={this.clearFilter}
+                    />
+                  </RemoveFilter>
+                )}
+              </div>
+            </FilterBtn>
           </Tip>
           {DealFilter}
         </HeaderLink>
