@@ -67,19 +67,21 @@ class SelectWithSearch extends React.Component<Props> {
       }
     };
 
-    const selectOption = prependOption(customOption);
+    const selectOptions = prependOption(customOption);
 
     return (
       <Select
         placeholder={__(label)}
         value={value}
+        loadingPlaceholder={__('Loading...')}
+        isLoading={customQuery.loading}
         onChange={onChange}
         onSelectResetsInput={false}
         onCloseResetsInput={false}
         optionRenderer={optionRenderer}
         valueRenderer={valueRenderer}
         onInputChange={onSearch}
-        options={selectOption}
+        options={selectOptions}
         removeSelected={true}
         multi={true}
       />
