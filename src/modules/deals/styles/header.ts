@@ -110,6 +110,8 @@ const HeaderLink = styled(HeaderButton)`
     padding: 5px 15px;
     background: #3ccc38;
     font-size: 10px;
+    text-decoration: underline;
+    box-shadow: none;
   }
 
   .filter-link {
@@ -117,6 +119,9 @@ const HeaderLink = styled(HeaderButton)`
     padding: 0 12px;
     display: block;
     line-height: 34px;
+    span {
+      margin-left: 0;
+    }
   }
 `;
 

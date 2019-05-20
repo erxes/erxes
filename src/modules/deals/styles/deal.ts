@@ -380,10 +380,14 @@ const ClearDate = styled.div`
   }
 `;
 const FilterBtn = styled.div`
-  color: #888;
-  padding: 0 11px;
-  display: block;
-  line-height: 34px;
+  .filter-on {
+    background: #3ccc38;
+    border-radius: 30px;
+    box-shadow: 0 2px 16px 0 hsl(118.39999999999998, 59.2%, 73.9%);
+  }
+  span {
+    margin-left: 0;
+  }
 `;
 const FilterLabel = styled.div`
   font-size: 12px;
@@ -392,6 +396,17 @@ const ClearFilter = styled.div`
   padding: 20px;
   button {
     width: 97%;
+  }
+`;
+const RemoveFilter = styled.span`
+  button {
+    padding: 0;
+    color: #fff;
+    margin-right: 12px;
+    margin-left: -5px;
+    &:hover {
+      color: #eee;
+    }
   }
 `;
 export {
@@ -428,5 +443,6 @@ export {
   FilterBtn,
   FilterLabel,
   ClearFilter,
-  FilterItem
+  FilterItem,
+  RemoveFilter
 };
