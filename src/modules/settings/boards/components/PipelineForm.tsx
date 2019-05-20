@@ -10,6 +10,7 @@ import { Stages } from '.';
 import { IPipeline, IStage } from '../types';
 
 type Props = {
+  type: string;
   show?: boolean;
   boardId: string;
   pipeline?: IPipeline;
@@ -38,13 +39,13 @@ class PipelineForm extends React.Component<Props, State> {
   };
 
   generateDoc = () => {
-    const { pipeline } = this.props;
+    const { pipeline, type } = this.props;
 
     return {
       doc: {
         name: (document.getElementById('pipeline-name') as HTMLInputElement)
           .value,
-        type: 'deal',
+        type,
         boardId: pipeline ? pipeline.boardId : this.props.boardId,
         stages: this.state.stages.filter(el => el.name)
       }
@@ -66,7 +67,7 @@ class PipelineForm extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { pipeline } = this.props;
+    const { pipeline, type } = this.props;
     const { stages } = this.state;
 
     return (
@@ -83,7 +84,11 @@ class PipelineForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <Stages stages={stages} onChangeStages={this.onChangeStages} />
+        <Stages
+          type={type}
+          stages={stages}
+          onChangeStages={this.onChangeStages}
+        />
       </>
     );
   }

@@ -8,6 +8,7 @@ import { IBoard } from '../types';
 
 type Props = {
   currentBoardId?: string;
+  type: string;
   boards: IBoard[];
   remove: (boardId: string) => void;
   save: (
@@ -38,7 +39,7 @@ class Boards extends React.Component<Props, {}> {
   }
 
   renderSidebarHeader() {
-    const { save } = this.props;
+    const { save, type } = this.props;
     const { Header } = Sidebar;
 
     const addBoard = (
@@ -50,7 +51,7 @@ class Boards extends React.Component<Props, {}> {
     );
 
     const content = props => {
-      return this.renderBoardForm({ ...props, save });
+      return this.renderBoardForm({ ...props, save, type });
     };
 
     return (

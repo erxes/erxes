@@ -16,6 +16,7 @@ type Props = {
     callback: () => void,
     brand: IBoard
   ) => void;
+  type: string;
 };
 
 class BoardForm extends React.Component<Props, {}> {
@@ -34,7 +35,7 @@ class BoardForm extends React.Component<Props, {}> {
       doc: {
         name: (document.getElementById('channel-name') as HTMLInputElement)
           .value,
-        type: 'deal'
+        type: this.props.type
       }
     };
   };

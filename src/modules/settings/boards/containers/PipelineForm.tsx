@@ -17,6 +17,7 @@ type Props = {
   ) => void;
   closeModal: () => void;
   show: boolean;
+  type: string;
 };
 
 type FinalProps = {

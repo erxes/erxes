@@ -54,7 +54,8 @@ class BoardsContainer extends React.Component<FinalProps> {
             const defaultBoardId = defaultBoards[type];
 
             if (defaultBoardId === boardId) {
-              defaultBoards.deal = '';
+              delete defaultBoards[type];
+
               localStorage.setItem(
                 STORAGE_BOARD_KEY,
                 JSON.stringify(defaultBoards)
@@ -116,8 +117,8 @@ export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: 'boardsQuery',
-      options: () => ({
-        variables: { type: 'deal' }
+      options: ({ type }) => ({
+        variables: { type }
       })
     }),
     graphql<Props, AddBoardMutationResponse, {}>(gql(mutations.boardAdd), {

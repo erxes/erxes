@@ -10,8 +10,15 @@ const DealHome = () => {
   return <Home type="deal" />;
 };
 
+const TicketHome = () => {
+  return <Home type="ticket" />;
+};
+
 const routes = () => (
-  <Route path="/settings/boards/deal" component={DealHome} />
+  <React.Fragment>
+    <Route path="/settings/boards/deal" component={DealHome} />
+    <Route path="/settings/boards/ticket" component={TicketHome} />
+  </React.Fragment>
 );
 
 export default routes;

@@ -7,6 +7,7 @@ import StageItem from './StageItem';
 type Props = {
   onChangeStages: (stages: IStage[]) => void;
   stages: any;
+  type: string;
 };
 
 class Stages extends React.Component<Props, {}> {
@@ -27,12 +28,12 @@ class Stages extends React.Component<Props, {}> {
   };
 
   add = () => {
-    const { stages, onChangeStages } = this.props;
+    const { stages, onChangeStages, type } = this.props;
 
     stages.push({
       _id: Math.random().toString(),
       name: '',
-      type: 'deal'
+      type
     });
 
     onChangeStages(stages);

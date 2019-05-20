@@ -19,6 +19,7 @@ import {
 
 type Props = {
   boardId: string;
+  type: string;
 };
 
 type FinalProps = {

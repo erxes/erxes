@@ -14,6 +14,7 @@ import { PipelineContainer } from '../styles';
 import { IPipeline, IStage } from '../types';
 
 type Props = {
+  type: string;
   pipelines: IPipeline[];
   save: (
     params: { doc: { name: string; boardId?: string; stages: IStage[] } },
@@ -136,7 +137,7 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   render() {
-    const { boardId, save } = this.props;
+    const { boardId, save, type } = this.props;
     const { currentPipeline, showModal } = this.state;
 
     return (
@@ -154,6 +155,7 @@ class Pipelines extends React.Component<Props, State> {
         {this.renderContent()}
 
         <PipelineForm
+          type={type}
           boardId={boardId}
           save={save}
           pipeline={currentPipeline}

@@ -1,14 +1,13 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
-import { router as routerUtils } from 'modules/common/utils';
+import { router as routerUtils, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Home } from '../components';
 import { queries } from '../graphql';
 import { BoardsGetLastQueryResponse } from '../types';
-
 type HomeContainerProps = {
   history?: any;
   boardId: string;
@@ -54,16 +53,21 @@ const LastBoard = (props: LastBoardProps & TypeProps) => {
   return <HomeContainer {...extendedProps} />;
 };
 
-const LastBoardContainer = compose(
-  graphql(gql(queries.boardGetLast), {
-    name: 'boardGetLastQuery',
-    options: () => ({
-      variables: { type: 'deal' }
-    })
-  })
-)(LastBoard);
-
 type MainProps = IRouterProps & TypeProps;
+
+const LastBoardContainer = withProps<MainProps>(
+  compose(
+    graphql<MainProps, BoardsGetLastQueryResponse, {}>(
+      gql(queries.boardGetLast),
+      {
+        name: 'boardGetLastQuery',
+        options: ({ type }) => ({
+          variables: { type }
+        })
+      }
+    )
+  )(LastBoard)
+);
 
 // Main home component
 const MainContainer = (props: MainProps) => {

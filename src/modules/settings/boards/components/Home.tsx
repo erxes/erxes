@@ -23,13 +23,21 @@ class Home extends React.Component<Props, {}> {
 
         break;
       }
+      case 'ticket': {
+        breadcrumb.push({
+          title: __('Ticket'),
+          link: '/settings/boards/ticket'
+        });
+
+        break;
+      }
     }
 
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Board')} breadcrumb={breadcrumb} />}
         leftSidebar={<Boards type={type} currentBoardId={boardId} />}
-        content={<Pipelines boardId={boardId} />}
+        content={<Pipelines type={type} boardId={boardId} />}
       />
     );
   }
