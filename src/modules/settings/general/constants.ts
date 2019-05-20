@@ -1,3 +1,16 @@
+export const LANGUAGES = [
+  { label: 'Mongolian', value: 'mn' },
+  { label: 'English', value: 'en' },
+  { label: 'French', value: 'fr' },
+  { label: 'Deustch', value: 'de' },
+  { label: 'Korean', value: 'kr' },
+  { label: 'Spanish', value: 'es' },
+  { label: 'Portuguese', value: 'ptBr' },
+  { label: 'Japanese', value: 'jp' },
+  { label: 'Russian', value: 'ru' },
+  { label: 'Chinese', value: 'zh' }
+];
+
 export const CURRENCIES = [
   { value: 'AED', label: 'United Arab Emirates Dirham' },
   { value: 'AFN', label: 'Afghan Afghani' },
@@ -169,16 +182,6 @@ export const CURRENCIES = [
   { value: 'ZAR', label: 'South African Rand' },
   { value: 'ZMW', label: 'Zambian Kwacha' },
   { value: 'ZWL', label: 'Zimbabwean Dollar' }
-];
-
-export const LANGUAGES = [
-  { label: 'Mongolian', value: 'mn' },
-  { label: 'English', value: 'en' },
-  { label: 'French', value: 'fr' },
-  { label: 'Deustch', value: 'de' },
-  { label: 'Korean', value: 'kr' },
-  { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'pt_br' }
 ];
 
 export const MEASUREMENTS = [
