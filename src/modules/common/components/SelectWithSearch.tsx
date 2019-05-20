@@ -7,7 +7,7 @@ import { __, withProps } from '../utils';
 
 type Props = {
   searchValue: string;
-  value: string;
+  value: string[];
   queryName: string;
   name: string;
   label: string;
@@ -39,14 +39,27 @@ export const valueRenderer = option => (
 
 class SelectWithSearch extends React.Component<
   Props,
-  { selectedItems: any[] }
+  { selectedItems?: any[] }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      selectedItems: []
+      selectedItems: undefined
     };
+  }
+
+  componentWillUpdate(nextProps: Props) {
+    const { queryName, customQuery, value = [] } = nextProps;
+
+    const datas = customQuery[queryName] || [];
+    const loading = customQuery[queryName].loading;
+
+    if (!this.state.selectedItems && !loading) {
+      this.setState({
+        selectedItems: datas.filter(data => value.includes(data._id))
+      });
+    }
   }
 
   render() {
@@ -79,10 +92,10 @@ class SelectWithSearch extends React.Component<
     };
 
     const onOpen = () => {
-      search('');
+      search(' ');
     };
 
-    const selectOptions = [...selectedItems, ...options(datas)];
+    const selectOptions = [...(selectedItems || []), ...options(datas)];
 
     if (customOption) {
       selectOptions.unshift(customOption);
@@ -94,13 +107,10 @@ class SelectWithSearch extends React.Component<
         value={value}
         onOpen={onOpen}
         onChange={onChange}
-        onSelectResetsInput={false}
-        onCloseResetsInput={false}
         optionRenderer={optionRenderer}
         valueRenderer={valueRenderer}
         onInputChange={onSearch}
         options={selectOptions}
-        removeSelected={true}
         multi={true}
       />
     );
@@ -110,12 +120,23 @@ class SelectWithSearch extends React.Component<
 const withQuery = ({ customQuery }) =>
   withProps<Props>(
     compose(
-      graphql<Props, {}, { searchValue: string }>(gql(customQuery), {
-        name: 'customQuery',
-        options: ({ searchValue }) => ({
-          variables: { searchValue }
-        })
-      })
+      graphql<Props, {}, { searchValue?: string; ids?: string[] }>(
+        gql(customQuery),
+        {
+          name: 'customQuery',
+          options: ({ searchValue, value }) => {
+            if (searchValue) {
+              return {
+                variables: { searchValue }
+              };
+            }
+
+            return {
+              variables: { ids: value }
+            };
+          }
+        }
+      )
     )(SelectWithSearch)
   );
 
