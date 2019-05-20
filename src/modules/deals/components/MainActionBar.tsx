@@ -43,7 +43,8 @@ import { selectProductOptions } from '../utils';
 
 type Props = {
   onSearch: (search: string) => void;
-  onSelect: (name: string, values) => void;
+  onSelect: (name: string, values: string) => void;
+  onDateFilterSelect: (name: string, value: string) => void;
   onClear: (name: string, values) => void;
   isFiltered: () => boolean;
   clearFilter: () => void;
@@ -180,18 +181,19 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   renderDates() {
-    const { history } = this.props;
+    const { history, queryParams } = this.props;
 
     // Do not show date filter in Calendar
     if (history.location.pathname.includes('calendar')) {
       return null;
     }
 
-    const { onSelect, onClear } = this.props;
+    const { onDateFilterSelect, onClear } = this.props;
+
     const renderLink = (label, name) => {
       return (
         <FilterItem>
-          <li onClick={onSelect.bind(this, name, true)}>{label}</li>
+          <li onClick={onDateFilterSelect.bind(this, name, 'true')}>{label}</li>
           <ClearDate>
             <Tip text={__('Remove this filter')}>
               <Button
