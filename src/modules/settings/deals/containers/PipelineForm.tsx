@@ -5,6 +5,7 @@ import { withProps } from 'modules/common/utils';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { queries as userquery } from '../../team/graphql';
 import { PipelineForm } from '../components';
 import { queries } from '../graphql';
 import { IPipeline, IStage, StagesQueryResponse } from '../types';
@@ -77,7 +78,7 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, UsersQueryResponse, {}>(gql(queries.users), {
+    graphql<Props, UsersQueryResponse, {}>(gql(userquery.usersForSelector), {
       name: 'usersQuery',
       options: () => ({
         fetchPolicy: 'network-only'
