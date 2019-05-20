@@ -59,7 +59,7 @@ class PipelineForm extends React.Component<Props, State> {
   generateMembersParams = members => {
     return members.map(member => ({
       value: member._id,
-      label: (member.details && member.details.fullName) || ''
+      label: (member.details && member.details.fullName) || member.email || ''
     }));
   };
 

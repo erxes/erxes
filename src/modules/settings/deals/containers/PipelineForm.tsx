@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-import { IUser } from 'modules/auth/types';
 import { Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
 import { UsersQueryResponse } from 'modules/settings/team/types';
@@ -43,12 +42,12 @@ class PipelineFormContainer extends React.Component<FinalProps> {
     }
 
     const stages = stagesQuery ? stagesQuery.dealStages : [];
-    const members = usersQuery.users || [];
+    const members = usersQuery.users.filter(user => user.username) || [];
     const memberIds = pipeline ? pipeline.memberIds || [] : [];
 
-    let selectedMembers: IUser[] = [];
-
-    selectedMembers = members.filter(user => memberIds.includes(user._id));
+    const selectedMembers = members.filter(user =>
+      memberIds.includes(user._id)
+    );
 
     const extendedProps = {
       ...this.props,

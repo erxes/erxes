@@ -50,7 +50,6 @@ const PipelineRowContainer = styled.div`
 `;
 
 const StageList = styled.div`
-  z-index: -1;
   > button {
     margin-top: 10px;
   }
@@ -69,10 +68,10 @@ const StageItemContainer = styled(PipelineRowContainer)`
 `;
 
 const SelectMemberStyled = styled.div`
-  .Select-menu-outer {
-    z-index: 2001;
-  }
+  position: relative;
+  z-index: 2001;
 `;
+
 export {
   BoardItem,
   PipelineContainer,
