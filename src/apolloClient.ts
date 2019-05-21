@@ -49,7 +49,7 @@ const httpLinkWithMiddleware = errorLink.concat(httpLink);
 
 // Subscription config
 export const wsLink = new WebSocketLink({
-  uri: REACT_APP_API_SUBSCRIPTION_URL || '',
+  uri: REACT_APP_API_SUBSCRIPTION_URL || 'ws://localhost',
   options: {
     reconnect: true,
     timeout: 30000
