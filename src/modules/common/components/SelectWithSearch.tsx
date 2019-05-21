@@ -3,6 +3,7 @@ import { Avatar, SelectOption, SelectValue } from 'modules/deals/styles/deal';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Select from 'react-select-plus';
+import { OptionType } from '../types';
 import { __, withProps } from '../utils';
 
 type Props = {
@@ -10,12 +11,6 @@ type Props = {
   value: string[];
   search: (search: string, loadMore?: boolean) => void;
 } & WrapperProps;
-
-type OptionType = {
-  label: string;
-  value: string;
-  avatar?: string;
-};
 
 const content = (option: OptionType): React.ReactNode => (
   <React.Fragment>
