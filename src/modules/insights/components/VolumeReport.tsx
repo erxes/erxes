@@ -23,23 +23,23 @@ import { Chart, Insights, PunchCard, Sidebar, Summary } from './';
 import InboxFilter from './filter/InboxFilter';
 
 type loadingType = {
-  punch: boolean;
-  summary: boolean;
+  punchCard: boolean;
+  summaryData: boolean;
   trend: boolean;
-  integrations: boolean;
-  tags: boolean;
+  integrationChart: boolean;
+  tagChart: boolean;
 };
 
 type Props = {
   brands: IBrand[];
-  trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  punch: IPunchCardData[];
-  summary: SummaryData[];
   loading: loadingType;
-  integrations: IPieChartData[];
-  tags: IPieChartData[];
+  summaryData: SummaryData[];
+  trend: IChartParams[];
+  punchCard: IPunchCardData[];
+  integrationChart: IPieChartData[];
+  tagChart: IPieChartData[];
 };
 
 class VolumeReport extends React.Component<Props, { width: number }> {
@@ -77,7 +77,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderTrend(name, loading, data) {
+  renderTrend(name: string, loading: boolean, data: IChartParams[]) {
     return (
       <InsightRow>
         {this.renderTitle(name)}
@@ -106,7 +106,14 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   }
 
   renderCharts() {
-    const { trend, punch, integrations, tags, summary, loading } = this.props;
+    const {
+      trend,
+      punchCard,
+      integrationChart,
+      tagChart,
+      summaryData,
+      loading
+    } = this.props;
 
     const width = this.state.width;
 
@@ -118,21 +125,25 @@ class VolumeReport extends React.Component<Props, { width: number }> {
       <InsightContent innerRef={innerRef}>
         <InsightRow>
           {this.renderTitle('Volume summary')}
-          <Summary loading={loading.summary} data={summary} />
+          <Summary loading={loading.summaryData} data={summaryData} />
         </InsightRow>
 
         {this.renderTrend('Volume Trend', loading.trend, trend)}
 
-        {this.renderPunchCard(loading, punch, width)}
+        {this.renderPunchCard(loading, punchCard, width)}
 
         <InsightRow>
           <FlexRow>
             <Insights
               title="Integrations"
-              loading={loading.integrations}
-              data={integrations || []}
+              loading={loading.integrationChart}
+              data={integrationChart || []}
             />
-            <Insights title="Tags" loading={loading.tags} data={tags || []} />
+            <Insights
+              title="Tags"
+              loading={loading.tagChart}
+              data={tagChart || []}
+            />
           </FlexRow>
         </InsightRow>
       </InsightContent>
