@@ -108,7 +108,6 @@ class SelectWithSearch extends React.Component<
 
     return (
       <Select
-        key={Math.random()}
         placeholder={__(label)}
         value={values}
         loadingPlaceholder={__('Loading...')}
