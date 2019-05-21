@@ -19,7 +19,7 @@ type Props = {
 
 const Container = styled.div`
   position: relative;
-  height: 100%;
+  height: 90%;
 `;
 
 const ContentBody = styled.div`

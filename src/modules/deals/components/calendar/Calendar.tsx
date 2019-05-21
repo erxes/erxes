@@ -17,7 +17,8 @@ type Props = {
 
 const Container = styled.div`
   display: flex;
-  height: 100%;
+  height: auto;
+  max-width: 240px;
 `;
 
 const toKey = ({ year, month }: IDateColumn) => {
