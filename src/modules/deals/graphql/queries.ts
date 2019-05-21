@@ -41,8 +41,8 @@ const boardDetail = `
 `;
 
 const pipelines = `
-  query dealPipelinesVisiblity($boardId: String!) {
-    dealPipelinesVisiblity(boardId: $boardId) {
+  query dealPipelines($boardId: String!) {
+    dealPipelines(boardId: $boardId) {
       _id
       name
       boardId

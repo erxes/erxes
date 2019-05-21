@@ -1,8 +1,6 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
-import { PipelineQueryResponse } from 'modules/settings/deals/types';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -14,8 +12,7 @@ import { PageHeader } from '../styles/header';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
-  BoardsQueryResponse,
-  PipelinesQueryResponse
+  BoardsQueryResponse
 } from '../types';
 
 type Props = {
@@ -23,7 +20,6 @@ type Props = {
 } & IRouterProps;
 
 type FinalProps = {
-  pipelinesQuery: PipelinesQueryResponse;
   boardsQuery: BoardsQueryResponse;
   boardGetLastQuery?: BoardsGetLastQueryResponse;
   boardDetailQuery?: BoardDetailQueryResponse;
@@ -49,11 +45,10 @@ class Main extends React.Component<FinalProps> {
       boardsQuery,
       boardGetLastQuery,
       boardDetailQuery,
-      pipelinesQuery,
       middleContent
     } = this.props;
 
-    if (boardsQuery.loading || pipelinesQuery.loading) {
+    if (boardsQuery.loading) {
       return <PageHeader />;
     }
 
@@ -64,15 +59,6 @@ class Main extends React.Component<FinalProps> {
     if (boardId && pipelineId) {
       localStorage.setItem(STORAGE_BOARD_KEY, boardId);
       localStorage.setItem(STORAGE_PIPELINE_KEY, pipelineId);
-    }
-
-    // wait for load
-    if (boardDetailQuery && boardDetailQuery.loading) {
-      return <Spinner />;
-    }
-
-    if (boardGetLastQuery && boardGetLastQuery.loading) {
-      return <Spinner />;
     }
 
     const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
@@ -107,20 +93,11 @@ class Main extends React.Component<FinalProps> {
       return null;
     }
 
-    // If there is an invalid boardId localstorage then remove invalid keys
-    // and reload the page
-    if (!currentBoard && boardId) {
-      localStorage.setItem(STORAGE_BOARD_KEY, '');
-      localStorage.setItem(STORAGE_PIPELINE_KEY, '');
-      window.location.href = '/deal/board';
-      return null;
-    }
-
     if (!currentBoard) {
       return null;
     }
 
-    const pipelines = pipelinesQuery.dealPipelinesVisiblity || [];
+    const pipelines = currentBoard.pipelines || [];
     const currentPipeline = pipelineId
       ? pipelines.find(pipe => pipe._id === pipelineId)
       : pipelines[0];
@@ -132,7 +109,6 @@ class Main extends React.Component<FinalProps> {
         queryParams={queryParams}
         history={history}
         currentBoard={currentBoard}
-        pipelines={pipelines}
         currentPipeline={currentPipeline}
         boards={boardsQuery.dealBoards || []}
       />
@@ -153,15 +129,6 @@ const MainActionBar = withProps<Props>(
       name: 'boardGetLastQuery',
       skip: getBoardId
     }),
-    graphql<Props, PipelinesQueryResponse, { boardId: string }>(
-      gql(queries.pipelines),
-      {
-        name: 'pipelinesQuery',
-        options: props => ({
-          variables: { boardId: getBoardId(props) }
-        })
-      }
-    ),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
       {

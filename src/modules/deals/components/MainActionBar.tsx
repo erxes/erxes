@@ -24,7 +24,6 @@ type Props = {
   currentBoard?: IBoard;
   currentPipeline?: IPipeline;
   boards: IBoard[];
-  pipelines: IPipeline[];
   middleContent?: () => React.ReactNode;
   history: any;
   queryParams: any;
@@ -46,16 +45,16 @@ class MainActionBar extends React.Component<Props> {
     const { currentBoard, currentPipeline } = this.props;
 
     if (currentBoard && currentPipeline) {
-      return `/deal/${type}?id=${currentBoard._id}&pipelineId=${
+      return `/deals/${type}?id=${currentBoard._id}&pipelineId=${
         currentPipeline._id
       }`;
     }
 
-    return `/deal/${type}`;
+    return `/deals/${type}`;
   };
 
   renderBoards() {
-    const { currentBoard, boards, pipelines } = this.props;
+    const { currentBoard, boards } = this.props;
 
     if ((currentBoard && boards.length === 1) || boards.length === 0) {
       return <EmptyState icon="layout" text="No other boards" size="small" />;
@@ -67,6 +66,8 @@ class MainActionBar extends React.Component<Props> {
       }
 
       let link = `/deal/${getType()}?id=${board._id}`;
+
+      const { pipelines = [] } = board;
 
       if (pipelines.length > 0) {
         link = `${link}&pipelineId=${pipelines[0]._id}`;
@@ -81,7 +82,8 @@ class MainActionBar extends React.Component<Props> {
   }
 
   renderPipelines() {
-    const { currentBoard, currentPipeline, pipelines } = this.props;
+    const { currentBoard, currentPipeline } = this.props;
+    const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
     if ((currentPipeline && pipelines.length === 1) || pipelines.length === 0) {
       return <EmptyState icon="stop" text="No other pipeline" size="small" />;

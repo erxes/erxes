@@ -103,6 +103,7 @@ const usersForSelector = `
     users {
       _id
       email
+      username
       details {
         avatar
         fullName

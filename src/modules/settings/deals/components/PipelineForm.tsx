@@ -5,7 +5,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { __, Alert } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
@@ -89,12 +89,7 @@ class PipelineForm extends React.Component<Props, State> {
   save = e => {
     e.preventDefault();
 
-    const { selectedMembers, visiblity } = this.state;
     const { save, closeModal, pipeline } = this.props;
-
-    if (visiblity === 'private' && selectedMembers.length === 0) {
-      return Alert.error('Choose members');
-    }
 
     save(
       this.generateDoc(),
@@ -109,6 +104,7 @@ class PipelineForm extends React.Component<Props, State> {
   renderSelectMembers() {
     const { members } = this.props;
     const { visiblity } = this.state;
+
     const self = this;
 
     const onChange = items => {
