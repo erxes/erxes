@@ -12,14 +12,16 @@ import {
   FormWrapper,
   ModalFooter
 } from 'modules/common/styles/main';
+import { Option } from 'modules/common/types';
 import { __, searchCompany, searchUser } from 'modules/common/utils';
+import { SelectCompanies } from 'modules/companies/containers';
 import { regexEmail, regexPhone } from 'modules/customers/utils';
 import {
   leadStatusChoices,
   lifecycleStateChoices
 } from 'modules/customers/utils';
+import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
-import Select from 'react-select-plus';
 import { IUser } from '../../../auth/types';
 import {
   COMPANY_BUSINESS_TYPES,
@@ -68,14 +70,6 @@ class CompanyForm extends React.Component<Props, State> {
       users: [],
       avatar: company.avatar
     };
-  }
-
-  componentDidMount() {
-    const company = this.props.company || ({} as ICompany);
-
-    if (company.owner && company.owner.details) {
-      this.handleUserSearch(company.owner.details.fullName);
-    }
   }
 
   getInputElementValue(id) {
@@ -152,17 +146,12 @@ class CompanyForm extends React.Component<Props, State> {
   }
 
   handleSelect = <T extends keyof State>(
-    name: T,
-    selectedOption: { value: string; label: string }
+    selectedOption: { value: string; label: string },
+    name: T
   ) => {
-    this.setState(
-      {
-        [name]: selectedOption ? selectedOption.value : null
-      } as Pick<State, keyof State>,
-      () => {
-        this.handleUserSearch(selectedOption ? selectedOption.label : '');
-      }
-    );
+    this.setState({
+      [name]: selectedOption ? selectedOption.value : null
+    } as Pick<State, keyof State>);
   };
 
   /*
@@ -210,10 +199,14 @@ class CompanyForm extends React.Component<Props, State> {
       emails
     } = company;
 
-    const { parentCompanyId, ownerId, companies, users } = this.state;
+    const { parentCompanyId, ownerId } = this.state;
 
-    const filterOptions = options => {
-      return options;
+    const onSelectOwner = value => {
+      return this.handleSelect(value, 'ownerId');
+    };
+
+    const onSelectParentCompany = value => {
+      return this.handleSelect(value, 'parentCompanyId');
     };
 
     return (
@@ -246,14 +239,12 @@ class CompanyForm extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
-              <Select
-                placeholder="Search"
-                onFocus={this.handleUserSearch.bind(this, '')}
-                onInputChange={this.handleUserSearch}
-                filterOptions={filterOptions}
-                onChange={this.handleSelect.bind(this, 'ownerId')}
+              <SelectTeamMembers
+                label="Choose an owner"
+                name="ownerId"
                 value={ownerId}
-                options={this.generateUserParams(users)}
+                onSelect={onSelectOwner}
+                multi={false}
               />
             </FormGroup>
 
@@ -290,14 +281,12 @@ class CompanyForm extends React.Component<Props, State> {
           <FormColumn>
             <FormGroup>
               <ControlLabel>Parent Company</ControlLabel>
-              <Select
-                placeholder={__('Search')}
-                onFocus={this.handleCompanySearch.bind(this, ' ')}
-                onInputChange={this.handleCompanySearch}
-                filterOptions={filterOptions}
-                onChange={this.handleSelect.bind(this, 'parentCompanyId')}
+              <SelectCompanies
+                label="Choose parent company"
+                name="parentCompanyId"
                 value={parentCompanyId}
-                options={this.generateCompanyParams(companies)}
+                onSelect={onSelectParentCompany}
+                multi={false}
               />
             </FormGroup>
             {this.renderFormGroup('Business Type', {

@@ -281,21 +281,25 @@ class MainActionBar extends React.Component<Props, State> {
           <FilterBox>
             <SelectProducts
               label="Choose products"
+              name="productIds"
               queryParams={queryParams}
               onSelect={onSelect}
             />
             <SelectCompanies
               label="Choose companies"
+              name="companyIds"
               queryParams={queryParams}
               onSelect={onSelect}
             />
             <SelectCustomers
               label="Choose customers"
+              name="customerIds"
               queryParams={queryParams}
               onSelect={onSelect}
             />
             <SelectTeamMembers
               label="Choose team members"
+              name="assignedUserIds"
               queryParams={queryParams}
               onSelect={onSelect}
               customOption={teamMemberCustomOption}

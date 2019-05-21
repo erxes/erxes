@@ -8,7 +8,7 @@ import { __, withProps } from '../utils';
 
 type Props = {
   searchValue: string;
-  value: string[];
+  values: string | string[] | undefined;
   search: (search: string, loadMore?: boolean) => void;
 } & WrapperProps;
 
@@ -40,19 +40,14 @@ class SelectWithSearch extends React.Component<
   }
 
   componentWillUpdate(nextProps: Props) {
-    const {
-      queryName,
-      customQuery,
-      options,
-      value = [] as string[]
-    } = nextProps;
+    const { queryName, customQuery, options, values = [] } = nextProps;
 
     const datas = customQuery[queryName] || [];
     const loading = customQuery.loading;
 
     if (!this.state.selectedItems && !loading) {
       this.setState({
-        selectedItems: options(datas.filter(data => value.includes(data._id)))
+        selectedItems: options(datas.filter(data => values.includes(data._id)))
       });
     }
   }
@@ -65,7 +60,7 @@ class SelectWithSearch extends React.Component<
       label,
       onSelect,
       name,
-      value,
+      values,
       search,
       multi,
       customOption
@@ -113,9 +108,9 @@ class SelectWithSearch extends React.Component<
 
     return (
       <Select
-        key={value}
+        key={Math.random()}
         placeholder={__(label)}
-        value={value}
+        value={values}
         loadingPlaceholder={__('Loading...')}
         isLoading={customQuery.loading}
         onOpen={onOpen}
@@ -137,7 +132,7 @@ const withQuery = ({ customQuery }) =>
         gql(customQuery),
         {
           name: 'customQuery',
-          options: ({ searchValue, value }) => {
+          options: ({ searchValue, values }) => {
             if (searchValue === 'reload') {
               return {
                 variables: { searchValue: '' },
@@ -150,7 +145,9 @@ const withQuery = ({ customQuery }) =>
               return { variables: { searchValue } };
             }
 
-            return { variables: { ids: value } };
+            return {
+              variables: { ids: typeof values === 'string' ? [values] : values }
+            };
           }
         }
       )
@@ -158,7 +155,7 @@ const withQuery = ({ customQuery }) =>
   );
 
 type WrapperProps = {
-  value?: string;
+  values: string | string[] | undefined;
   queryName: string;
   name: string;
   label: string;

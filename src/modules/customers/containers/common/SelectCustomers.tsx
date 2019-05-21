@@ -21,7 +21,8 @@ export default ({
   onSelect,
   value,
   multi = true,
-  label
+  label,
+  name
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -29,9 +30,8 @@ export default ({
   multi?: boolean;
   customOption?: Option;
   value?: string;
-  setParam?: boolean;
+  name: string;
 }) => {
-  const name = 'customerIds';
   const defaultValue = queryParams ? queryParams[name] : value;
 
   return (
@@ -40,7 +40,13 @@ export default ({
       queryName="customers"
       name={name}
       customQuery={queries.customers}
-      value={defaultValue}
+      values={
+        typeof defaultValue === 'string'
+          ? multi
+            ? [defaultValue]
+            : defaultValue
+          : defaultValue
+      }
       options={selectCustomerOptions}
       onSelect={onSelect}
       multi={multi}

@@ -14,7 +14,7 @@ import {
   ModalFooter
 } from 'modules/common/styles/main';
 import { IQueryParams } from 'modules/common/types';
-import { __, searchUser } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
 import { ICustomer, ICustomerDoc } from '../../types';
@@ -57,14 +57,6 @@ class CustomerForm extends React.Component<Props, State> {
       users: [],
       avatar: customer.avatar
     };
-  }
-
-  componentDidMount() {
-    const { customer } = this.props;
-
-    if (customer && customer.owner && customer.owner.details) {
-      this.handleUserSearch(customer.owner.details.fullName);
-    }
   }
 
   getInputElementValue(id) {
@@ -126,10 +118,6 @@ class CustomerForm extends React.Component<Props, State> {
     }));
   }
 
-  handleUserSearch = value => {
-    searchUser(value, users => this.setState({ users }));
-  };
-
   getVisitorInfo(customer, key) {
     return customer.visitorContactInfo && customer.visitorContactInfo[key];
   }
@@ -184,7 +172,7 @@ class CustomerForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { closeModal, queryParams } = this.props;
+    const { closeModal } = this.props;
 
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
@@ -232,6 +220,7 @@ class CustomerForm extends React.Component<Props, State> {
               <ControlLabel>Owner</ControlLabel>
               <SelectTeamMembers
                 label="Choose an owner"
+                name="ownerId"
                 value={this.state.ownerId}
                 onSelect={this.onOwnerChange}
                 multi={false}
