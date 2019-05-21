@@ -56,6 +56,10 @@ class PipelineForm extends React.Component<Props, State> {
     });
   };
 
+  onChangeMembers = items => {
+    this.setState({ selectedMembers: items });
+  };
+
   generateMembersParams = members => {
     return members.map(member => ({
       value: member._id,
@@ -103,13 +107,7 @@ class PipelineForm extends React.Component<Props, State> {
 
   renderSelectMembers() {
     const { members } = this.props;
-    const { visiblity } = this.state;
-
-    const self = this;
-
-    const onChange = items => {
-      self.setState({ selectedMembers: items });
-    };
+    const { visiblity, selectedMembers } = this.state;
 
     if (visiblity === 'public') {
       return;
@@ -122,9 +120,9 @@ class PipelineForm extends React.Component<Props, State> {
 
           <Select
             placeholder={__('Choose members')}
-            onChange={onChange}
-            value={self.state.selectedMembers}
-            options={self.generateMembersParams(members)}
+            onChange={this.onChangeMembers}
+            value={selectedMembers}
+            options={this.generateMembersParams(members)}
             multi={true}
           />
         </SelectMemberStyled>

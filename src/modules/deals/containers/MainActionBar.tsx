@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import queryString from 'query-string';
@@ -61,6 +62,15 @@ class Main extends React.Component<FinalProps> {
       localStorage.setItem(STORAGE_PIPELINE_KEY, pipelineId);
     }
 
+    // wait for load
+    if (boardDetailQuery && boardDetailQuery.loading) {
+      return <Spinner />;
+    }
+
+    if (boardGetLastQuery && boardGetLastQuery.loading) {
+      return <Spinner />;
+    }
+
     const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
     const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
 
@@ -90,6 +100,15 @@ class Main extends React.Component<FinalProps> {
         pipelineId: firstPipeline._id
       });
 
+      return null;
+    }
+
+    // If there is an invalid boardId localstorage then remove invalid keys
+    // and reload the page
+    if (!currentBoard && boardId) {
+      localStorage.setItem(STORAGE_BOARD_KEY, '');
+      localStorage.setItem(STORAGE_PIPELINE_KEY, '');
+      window.location.href = '/deal/board';
       return null;
     }
 
