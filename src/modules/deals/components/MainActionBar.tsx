@@ -27,10 +27,10 @@ import {
   DateFilter,
   FilterBox,
   FilterBtn,
+  FilterDetail,
   FilterItem,
-  Itemli,
   RemoveFilter
-} from '../styles/deal';
+} from '../styles/filter';
 import {
   ButtonGroup,
   HeaderButton,
@@ -83,7 +83,7 @@ class MainActionBar extends React.Component<Props, State> {
     };
   }
 
-  handleClick = ({ target }) => {
+  showFilter = ({ target }) => {
     this.setState(s => ({ target, show: !s.show }));
   };
 
@@ -116,10 +116,6 @@ class MainActionBar extends React.Component<Props, State> {
 
   onClear = (name: string) => {
     this.props.onSelect(name, '');
-  };
-
-  clearFilter = () => {
-    this.props.clearFilter();
   };
 
   renderBoards() {
@@ -184,7 +180,6 @@ class MainActionBar extends React.Component<Props, State> {
   renderDates() {
     const { history, queryParams } = this.props;
 
-    // Do not show date filter in Calendar
     if (history.location.pathname.includes('calendar')) {
       return null;
     }
@@ -196,12 +191,12 @@ class MainActionBar extends React.Component<Props, State> {
 
       return (
         <FilterItem>
-          <Itemli
+          <FilterDetail
             selected={selected}
             onClick={onDateFilterSelect.bind(this, name, 'true')}
           >
-            {label}
-          </Itemli>
+            {__(label)}
+          </FilterDetail>
           <ClearDate selected={selected}>
             <Tip text={__('Remove this filter')}>
               <Button
@@ -217,11 +212,11 @@ class MainActionBar extends React.Component<Props, State> {
 
     return (
       <DateFilter>
-        {renderLink('Due in the next day', 'nextDay')}
+        {renderLink('Due to the next day', 'nextDay')}
         {renderLink('Due in the next week', 'nextWeek')}
         {renderLink('Due in the next month', 'nextMonth')}
         {renderLink('Has no close date', 'noCloseDate')}
-        {renderLink('Over due', 'overdue')}
+        {renderLink('Overdue', 'overdue')}
       </DateFilter>
     );
   }
@@ -261,11 +256,11 @@ class MainActionBar extends React.Component<Props, State> {
     const boardLink = this.onFilterClick('board');
     const calendarLink = this.onFilterClick('calendar');
     const hasFilter = isFiltered();
-
+    const active = isFiltered();
     const actionBarLeft = (
       <HeaderItems>
         <HeaderLabel>
-          <Icon icon="layout" /> Board:{' '}
+          <Icon icon="layout" /> {__('Board')}:{' '}
         </HeaderLabel>
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
@@ -277,7 +272,7 @@ class MainActionBar extends React.Component<Props, State> {
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
         </Dropdown>
         <HeaderLabel>
-          <Icon icon="verticalalignment" /> Pipeline:{' '}
+          <Icon icon="verticalalignment" /> {__('Pipeline')}:{' '}
         </HeaderLabel>
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
@@ -312,7 +307,7 @@ class MainActionBar extends React.Component<Props, State> {
           <PopoverHeader>{__('Filter')}</PopoverHeader>
           <FilterBox>
             {this.renderSelectors({
-              label: 'Choose products',
+              label: __('Choose products'),
               name: 'productIds',
               options: products,
               generator: selectProductOptions
@@ -331,7 +326,7 @@ class MainActionBar extends React.Component<Props, State> {
           <ClearFilter>
             <Button
               btnStyle="primary"
-              onClick={this.clearFilter}
+              onClick={this.props.clearFilter}
               block={true}
               size="small"
             >
@@ -349,7 +344,7 @@ class MainActionBar extends React.Component<Props, State> {
         <div style={{ display: 'inline-block' }}>
           <FormControl
             defaultValue={queryParams.search}
-            placeholder="Search ..."
+            placeholder={__('Search ...')}
             onKeyPress={this.onSearch}
             autoFocus={true}
           />
@@ -357,26 +352,24 @@ class MainActionBar extends React.Component<Props, State> {
 
         <HeaderLink>
           <Tip text={__('Filter')}>
-            <FilterBtn>
-              <div className={hasFilter ? 'filter-on' : ''}>
-                <Button
-                  btnStyle={hasFilter ? 'success' : 'link'}
-                  className={hasFilter ? 'filter-success' : 'filter-link'}
-                  icon="filter"
-                  onClick={this.handleClick}
-                >
-                  {hasFilter && 'Filtering is on'}
-                </Button>
-                {hasFilter && (
-                  <RemoveFilter>
-                    <Button
-                      btnStyle="link"
-                      icon="cancel-1"
-                      onClick={this.clearFilter}
-                    />
-                  </RemoveFilter>
-                )}
-              </div>
+            <FilterBtn active={active}>
+              <Button
+                btnStyle={hasFilter ? 'success' : 'link'}
+                className={hasFilter ? 'filter-success' : 'filter-link'}
+                icon="filter"
+                onClick={this.showFilter}
+              >
+                {hasFilter && __('Filtering is on')}
+              </Button>
+              {hasFilter && (
+                <RemoveFilter>
+                  <Button
+                    btnStyle="link"
+                    icon="cancel-1"
+                    onClick={this.props.clearFilter}
+                  />
+                </RemoveFilter>
+              )}
             </FilterBtn>
           </Tip>
           {DealFilter}

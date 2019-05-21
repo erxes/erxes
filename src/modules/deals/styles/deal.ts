@@ -320,101 +320,7 @@ const UserCounterContainer = styled.ul`
     }
   }
 `;
-const FilterBox = styled.div`
-  padding: 10px 20px 0 20px;
-  width: 300px;
-  max-height: 400px;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  h4 {
-    text-align: center;
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .Select {
-    margin-bottom: 10px;
-  }
-  .date-form input {
-    display: block;
-    border: none;
-    width: 100%;
-    height: 34px;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    background: none;
-    box-shadow: none;
-    border-radius: 0;
-    font-size: 12px;
-  }
-`;
-const Itemli = styledTS<{ selected: boolean }>(styled.li)`
-  text-transform: none;
-  outline: 0;
-  padding: 5px 15px;
-  background: ${props => (props.selected ? '#6569DF' : 'rgba(0, 0, 0, 0.04)')};
-  color: ${props => (props.selected ? '#FFF' : '#888')};
-  font-size: 12px;
-  width: 100%;
-  margin-left: 0;
-  margin-top: 10px;
-  text-align: left;
-  cursor: pointer;
-  position: relative;
-  list-style: none;
-  border-radius: 30px;
-`;
 
-const DateFilter = styled.div`
-  margin-top: 20px;
-`;
-const FilterItem = styled.div`
-  position: relative;
-`;
-const ClearDate = styledTS<{ selected: boolean }>(styled.div)`
-  button {
-    position: absolute;
-    color: ${props => (props.selected ? '#FFF' : '#888')};
-    right: 0;
-    bottom: 0px;
-    width: 32px;
-    padding: 5px 10px;
-    background: none;
-
-    &:hover {
-      color: ${props => (props.selected ? '#FFF' : '#888')};
-    }
-  }
-`;
-const FilterBtn = styled.div`
-  .filter-on {
-    background: #3ccc38;
-    border-radius: 30px;
-    box-shadow: 0 2px 16px 0 hsl(118.39999999999998, 59.2%, 73.9%);
-  }
-  span {
-    margin-left: 0;
-  }
-`;
-const FilterLabel = styled.div`
-  font-size: 12px;
-`;
-const ClearFilter = styled.div`
-  padding: 20px;
-  button {
-    width: 97%;
-  }
-`;
-const RemoveFilter = styled.span`
-  button {
-    padding: 0;
-    color: #fff;
-    margin-right: 12px;
-    margin-left: -5px;
-    &:hover {
-      color: #eee;
-    }
-  }
-`;
 export {
   Deal,
   SpaceContent,
@@ -442,14 +348,5 @@ export {
   UserCounterContainer,
   PriceContainer,
   Right,
-  Footer,
-  FilterBox,
-  DateFilter,
-  ClearDate,
-  FilterBtn,
-  FilterLabel,
-  ClearFilter,
-  FilterItem,
-  Itemli,
-  RemoveFilter
+  Footer
 };
