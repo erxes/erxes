@@ -19,6 +19,12 @@ import {
 } from '../types';
 import { Chart, InboxFilter, PunchCard, Sidebar, Summary } from './';
 
+type ILoading = {
+  summaryData: boolean;
+  trend: boolean;
+  punchCard: boolean;
+};
+
 type Props = {
   brands: IBrand[];
   queryParams: IQueryParams;
@@ -26,11 +32,7 @@ type Props = {
   summaryData: SummaryData[];
   trend: IChartParams[];
   punchCard: IPunchCardData[];
-  loading: {
-    summaryData: boolean;
-    trend: boolean;
-    punchCard: boolean;
-  };
+  loading: ILoading;
 };
 
 class ResponseReport extends React.Component<Props, { width: number }> {
@@ -68,7 +70,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderTrend(name, loading, trend) {
+  renderTrend(name: string, loading: boolean, trend: IChartParams[]) {
     const innerRef = node => {
       this.wrapper = node;
     };
@@ -81,14 +83,14 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderPunchCard(loading, punch, width) {
+  renderPunchCard(loading: ILoading, punch: IPunchCardData[], width: number) {
     let content = (
       <LoaderWrapper>
         <Spinner objective={true} />
       </LoaderWrapper>
     );
 
-    if (!loading.punch) {
+    if (!loading.punchCard) {
       content = <PunchCard data={punch} width={width} />;
     }
 
