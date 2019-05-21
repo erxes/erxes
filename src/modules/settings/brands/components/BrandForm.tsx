@@ -1,3 +1,5 @@
+import gql from 'graphql-tag';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import * as React from 'react';
 import {
   Button,
@@ -6,6 +8,7 @@ import {
   FormGroup
 } from '../../../common/components';
 import { ModalFooter } from '../../../common/styles/main';
+import { mutations, queries } from '../graphql';
 import { IBrand } from '../types';
 
 type Props = {
@@ -42,6 +45,15 @@ class BrandForm extends React.Component<Props, {}> {
     };
   };
 
+  generateDocs = () => {
+    return {
+      name: (document.getElementById('brand-name') as HTMLInputElement).value,
+      description: (document.getElementById(
+        'brand-description'
+      ) as HTMLInputElement).value
+    };
+  };
+
   renderContent() {
     const object = this.props.brand || ({} as IBrand);
 
@@ -72,6 +84,16 @@ class BrandForm extends React.Component<Props, {}> {
     );
   }
 
+  commonOptions = () => {
+    return {
+      refetchQueries: [
+        {
+          query: gql(queries.brands)
+        }
+      ]
+    };
+  };
+
   render() {
     return (
       <form onSubmit={this.save}>
@@ -89,6 +111,15 @@ class BrandForm extends React.Component<Props, {}> {
           <Button btnStyle="success" icon="checked-1" type="submit">
             Save
           </Button>
+
+          <ButtonMutate
+            mutation={mutations.brandAdd}
+            getVariables={this.generateDocs}
+            callback={this.props.closeModal}
+            refetchQueries={this.commonOptions()}
+          >
+            Save
+          </ButtonMutate>
         </ModalFooter>
       </form>
     );
