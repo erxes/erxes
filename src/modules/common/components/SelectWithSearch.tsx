@@ -29,7 +29,7 @@ export const valueRenderer = (option: OptionType): React.ReactNode => (
 
 class SelectWithSearch extends React.Component<
   Props,
-  { selectedItems?: any[] }
+  { selectedItems?: OptionType[] }
 > {
   constructor(props) {
     super(props);
