@@ -86,14 +86,14 @@ class VolumeReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderPunchCard(loading, data, width) {
+  renderPunchCard(loading: loadingType, data: IPunchCardData[], width: number) {
     let content = (
       <LoaderWrapper>
         <Spinner objective={true} />
       </LoaderWrapper>
     );
 
-    if (!loading.punch) {
+    if (!loading.punchCard) {
       content = <PunchCard data={data} width={width} />;
     }
 
