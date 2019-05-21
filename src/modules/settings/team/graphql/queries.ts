@@ -61,12 +61,14 @@ const channels = `
 
 const listParamsDef = `
   $searchValue: String,
-  $isActive: Boolean
+  $isActive: Boolean,
+  $ids: [String]
 `;
 
 const listParamsValue = `
   searchValue: $searchValue,
-  isActive: $isActive
+  isActive: $isActive,
+  ids: $ids
 `;
 
 const users = `
