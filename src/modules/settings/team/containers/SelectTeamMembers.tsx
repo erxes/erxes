@@ -22,12 +22,11 @@ export default ({
   queryParams,
   onSelect,
   customOption,
-  setParam = true,
   value,
   multi = true,
   label
 }: {
-  queryParams: IQueryParams;
+  queryParams?: IQueryParams;
   label: string;
   onSelect: (value: string, name: string) => void;
   multi?: boolean;
@@ -36,7 +35,7 @@ export default ({
   setParam?: boolean;
 }) => {
   const name = 'assignedUserIds';
-  const defaultValue = setParam ? queryParams[name] : value;
+  const defaultValue = queryParams ? queryParams[name] : value;
 
   return (
     <SelectWithSearch

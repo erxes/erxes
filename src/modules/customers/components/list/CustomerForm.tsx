@@ -231,11 +231,9 @@ class CustomerForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
               <SelectTeamMembers
-                label="Choose owner"
+                label="Choose an owner"
                 value={this.state.ownerId}
-                queryParams={queryParams}
                 onSelect={this.onOwnerChange}
-                setParam={false}
                 multi={false}
               />
             </FormGroup>
