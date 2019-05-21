@@ -1,16 +1,17 @@
 import { SelectWithSearch } from 'modules/common/components';
+import { Option } from 'modules/common/types';
 import * as React from 'react';
 import { queries } from '../graphql';
 import { ICompany } from '../types';
 
 // get company options for react-select-plus
-export function selectCompanyOptions(array: ICompany[] = []) {
+export function selectCompanyOptions(array: ICompany[] = []): Option[] {
   return array.map(item => {
     const company = item || ({} as ICompany);
 
     return {
       value: company._id,
-      label: company.primaryName,
+      label: company.primaryName || '',
       avatar: company.avatar
     };
   });

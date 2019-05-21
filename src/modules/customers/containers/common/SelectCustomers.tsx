@@ -1,10 +1,10 @@
 import { SelectWithSearch } from 'modules/common/components';
-import { OptionType } from 'modules/common/types';
+import { Option } from 'modules/common/types';
 import { queries } from 'modules/customers/graphql';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 
-function selectCustomerOptions(array: ICustomer[] = []): OptionType[] {
+function selectCustomerOptions(array: ICustomer[] = []): Option[] {
   return array.map(item => {
     const customer = item || ({} as ICustomer);
 

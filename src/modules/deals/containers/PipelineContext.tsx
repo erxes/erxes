@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
 import { mutations, queries } from '../graphql';
@@ -10,7 +11,8 @@ import { collectOrders, reorder, reorderDealMap } from '../utils';
 type Props = {
   pipeline: IPipeline;
   initialDealMap?: IDealMap;
-  queryParams: any;
+  queryParams: IQueryParams;
+  getQueryParams: (queryParams: IQueryParams, args: any) => boolean;
 };
 
 type StageLoadMap = {
@@ -69,45 +71,9 @@ export class PipelineProvider extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const {
-      queryParams: {
-        search,
-        assignedUserIds,
-        customerIds,
-        companyIds,
-        productIds,
-        nextDay,
-        nextWeek,
-        nextMonth,
-        noCloseDate,
-        overdue
-      }
-    } = this.props;
+    const { queryParams, getQueryParams } = this.props;
 
-    const nextSearch = nextProps.queryParams.search;
-    const nextAssignedUserIds = nextProps.queryParams.assignedUserIds;
-    const nextCustomerIds = nextProps.queryParams.customerIds;
-    const nextCompanyIds = nextProps.queryParams.companyIds;
-    const nextProductIds = nextProps.queryParams.productIds;
-    const nextPropNextDay = nextProps.queryParams.nextDay;
-    const nextPropNextWeek = nextProps.queryParams.nextWeek;
-    const nextPropNextMonth = nextProps.queryParams.nextMonth;
-    const nextNoCloseDate = nextProps.queryParams.noCloseDate;
-    const nextOverdue = nextProps.queryParams.overdue;
-
-    // Reset deals on filter and search parameter change
-    if (
-      search !== nextSearch ||
-      assignedUserIds !== nextAssignedUserIds ||
-      customerIds !== nextCustomerIds ||
-      companyIds !== nextCompanyIds ||
-      productIds !== nextProductIds ||
-      nextDay !== nextPropNextDay ||
-      nextWeek !== nextPropNextWeek ||
-      nextMonth !== nextPropNextMonth ||
-      noCloseDate !== nextNoCloseDate ||
-      overdue !== nextOverdue
-    ) {
+    if (getQueryParams(queryParams, nextProps)) {
       const { stageIds } = this.state;
 
       PipelineProvider.tasks = [];

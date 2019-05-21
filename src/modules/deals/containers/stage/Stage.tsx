@@ -10,6 +10,7 @@ import {
   IStage,
   SaveDealMutation
 } from 'modules/deals/types';
+import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PipelineConsumer } from '../PipelineContext';
@@ -20,7 +21,7 @@ type WrapperProps = {
   loadingState: 'readyToLoad' | 'loaded';
   deals: IDeal[];
   length: number;
-  queryParams: any;
+  queryParams: IQueryParams;
 };
 
 type StageProps = {

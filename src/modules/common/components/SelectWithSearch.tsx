@@ -3,7 +3,7 @@ import { Avatar, SelectOption, SelectValue } from 'modules/deals/styles/deal';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Select from 'react-select-plus';
-import { OptionType } from '../types';
+import { Option } from '../types';
 import { __, withProps } from '../utils';
 
 type Props = {
@@ -12,24 +12,24 @@ type Props = {
   search: (search: string, loadMore?: boolean) => void;
 } & WrapperProps;
 
-const content = (option: OptionType): React.ReactNode => (
+const content = (option: Option): React.ReactNode => (
   <React.Fragment>
     <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
     {option.label}
   </React.Fragment>
 );
 
-export const optionRenderer = (option: OptionType): React.ReactNode => (
+export const optionRenderer = (option: Option): React.ReactNode => (
   <SelectOption className="simple-propOption">{content(option)}</SelectOption>
 );
 
-export const valueRenderer = (option: OptionType): React.ReactNode => (
+export const valueRenderer = (option: Option): React.ReactNode => (
   <SelectValue>{content(option)}</SelectValue>
 );
 
 class SelectWithSearch extends React.Component<
   Props,
-  { selectedItems?: OptionType[] }
+  { selectedItems?: Option[] }
 > {
   constructor(props) {
     super(props);

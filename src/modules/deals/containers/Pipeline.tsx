@@ -23,23 +23,30 @@ type Props = {
 };
 
 class WithStages extends React.Component<WithStatesQueryProps, {}> {
-  componentWillReceiveProps(nextProps) {
-    const {
-      stagesQuery,
-      queryParams: {
-        assignedUserIds,
-        customerIds,
-        productIds,
-        companyIds,
-        nextDay,
-        nextWeek,
-        nextMonth,
-        noCloseDate,
-        overdue,
-        pipelineId
-      }
-    } = this.props;
+  componentWillReceiveProps(nextProps: Props) {
+    const { stagesQuery, queryParams } = this.props;
+    const { pipelineId } = queryParams;
 
+    if (this.getQueryParams(queryParams, nextProps)) {
+      stagesQuery.refetch({ pipelineId });
+    }
+  }
+
+  getQueryParams = (queryParams, nextProps: Props) => {
+    const {
+      search,
+      assignedUserIds,
+      customerIds,
+      productIds,
+      companyIds,
+      nextDay,
+      nextWeek,
+      nextMonth,
+      noCloseDate,
+      overdue
+    } = queryParams;
+
+    const nextSearch = nextProps.queryParams.search;
     const nextAssignedUserIds = nextProps.queryParams.assignedUserIds;
     const nextCustomerIds = nextProps.queryParams.customerIds;
     const nextProductIds = nextProps.queryParams.productIds;
@@ -50,7 +57,8 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
     const nextNoCloseDate = nextProps.queryParams.noCloseDate;
     const nextOverdue = nextProps.queryParams.overdue;
 
-    if (
+    return (
+      search !== nextSearch ||
       assignedUserIds !== nextAssignedUserIds ||
       customerIds !== nextCustomerIds ||
       companyIds !== nextCompanyIds ||
@@ -60,10 +68,8 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
       nextWeek !== nextPropNextWeek ||
       nextMonth !== nextPropNextMonth ||
       overdue !== nextOverdue
-    ) {
-      stagesQuery.refetch({ pipelineId });
-    }
-  }
+    );
+  };
 
   countStages(obj) {
     return Object.keys(obj).length;
@@ -88,6 +94,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
         pipeline={pipeline}
         initialDealMap={initialDealMap}
         queryParams={queryParams}
+        getQueryParams={this.getQueryParams}
       >
         <PipelineConsumer>
           {({ stageLoadMap, dealMap, onDragEnd, stageIds }) => (

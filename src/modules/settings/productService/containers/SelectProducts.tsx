@@ -1,10 +1,11 @@
 import { SelectWithSearch } from 'modules/common/components';
+import { Option } from 'modules/common/types';
 import * as React from 'react';
 import { queries } from '../graphql';
 import { IProduct } from '../types';
 
 // get config options for react-select-plus
-export function selectProductOptions(array: IProduct[] = []) {
+export function selectProductOptions(array: IProduct[] = []): Option[] {
   return array.map(item => {
     const product = item || ({} as IProduct);
 
