@@ -13,9 +13,10 @@ import {
   FormWrapper,
   ModalFooter
 } from 'modules/common/styles/main';
+import { IQueryParams } from 'modules/common/types';
 import { __, searchUser } from 'modules/common/utils';
+import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
-import Select from 'react-select-plus';
 import { ICustomer, ICustomerDoc } from '../../types';
 import {
   leadStatusChoices,
@@ -28,6 +29,7 @@ type Props = {
   customer?: ICustomer;
   action: (params: { doc: ICustomerDoc }) => void;
   closeModal: () => void;
+  queryParams: IQueryParams;
 };
 
 type State = {
@@ -178,26 +180,14 @@ class CustomerForm extends React.Component<Props, State> {
   };
 
   onOwnerChange = selectedOption => {
-    this.setState(
-      {
-        ownerId: selectedOption ? selectedOption.value : null
-      },
-      () => {
-        this.handleUserSearch(selectedOption ? selectedOption.label : '');
-      }
-    );
+    this.setState({ ownerId: selectedOption ? selectedOption.value : '' });
   };
 
   render() {
-    const { closeModal } = this.props;
-    const { users } = this.state;
+    const { closeModal, queryParams } = this.props;
 
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
-
-    const filteroptions = options => {
-      return options;
-    };
 
     return (
       <form onSubmit={this.onSubmit}>
@@ -240,14 +230,13 @@ class CustomerForm extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
-              <Select
-                placeholder={__('Search')}
-                onFocus={this.handleUserSearch.bind(this, '')}
-                onInputChange={this.handleUserSearch}
-                filterOptions={filteroptions}
-                onChange={this.onOwnerChange}
+              <SelectTeamMembers
+                label="Choose owner"
                 value={this.state.ownerId}
-                options={this.generateUserParams(users)}
+                queryParams={queryParams}
+                onSelect={this.onOwnerChange}
+                setParam={false}
+                multi={false}
               />
             </FormGroup>
 

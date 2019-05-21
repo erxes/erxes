@@ -19,11 +19,11 @@ const content = (option: Option): React.ReactNode => (
   </React.Fragment>
 );
 
-export const optionRenderer = (option: Option): React.ReactNode => (
+export const selectOptionRenderer = (option: Option): React.ReactNode => (
   <SelectOption className="simple-propOption">{content(option)}</SelectOption>
 );
 
-export const valueRenderer = (option: Option): React.ReactNode => (
+export const selectValueRenderer = (option: Option): React.ReactNode => (
   <SelectValue>{content(option)}</SelectValue>
 );
 
@@ -48,7 +48,7 @@ class SelectWithSearch extends React.Component<
     } = nextProps;
 
     const datas = customQuery[queryName] || [];
-    const loading = customQuery[queryName].loading;
+    const loading = customQuery.loading;
 
     if (!this.state.selectedItems && !loading) {
       this.setState({
@@ -67,6 +67,7 @@ class SelectWithSearch extends React.Component<
       name,
       value,
       search,
+      multi,
       customOption
     } = this.props;
 
@@ -74,11 +75,19 @@ class SelectWithSearch extends React.Component<
 
     const datas = customQuery[queryName] || [];
 
-    const onChange = items => {
-      onSelect(name, items.map(item => item.value));
+    const selectMultiple = items => {
+      onSelect(items.map(item => item.value), name);
 
       this.setState({ selectedItems: [...items] });
     };
+
+    const selectSingle = item => {
+      onSelect(item, name);
+
+      this.setState({ selectedItems: [item] });
+    };
+
+    const onChange = multi ? selectMultiple : selectSingle;
 
     const onSearch = (searchValue: string) => {
       if (searchValue) {
@@ -86,9 +95,7 @@ class SelectWithSearch extends React.Component<
       }
     };
 
-    const onOpen = () => {
-      search('reload');
-    };
+    const onOpen = () => search('reload');
 
     const selectOptions = [...(selectedItems || []), ...options(datas)];
 
@@ -96,8 +103,17 @@ class SelectWithSearch extends React.Component<
       selectOptions.unshift(customOption);
     }
 
+    let optionRenderer;
+    let valueRenderer;
+
+    if (multi) {
+      optionRenderer = selectOptionRenderer;
+      valueRenderer = selectValueRenderer;
+    }
+
     return (
       <Select
+        key={value}
         placeholder={__(label)}
         value={value}
         loadingPlaceholder={__('Loading...')}
@@ -108,7 +124,7 @@ class SelectWithSearch extends React.Component<
         valueRenderer={valueRenderer}
         onInputChange={onSearch}
         options={selectOptions}
-        multi={true}
+        multi={multi}
       />
     );
   }
@@ -142,16 +158,17 @@ const withQuery = ({ customQuery }) =>
   );
 
 type WrapperProps = {
-  value: string;
+  value?: string;
   queryName: string;
   name: string;
   label: string;
-  onSelect: (name: string, values) => void;
+  onSelect: (values: string, name: string) => void;
   options?: any;
   customQuery?: any;
+  multi?: boolean;
   customOption?: {
-    value: string;
-    label: string;
+    value?: string;
+    label?: string;
     avatar?: string;
   };
 };

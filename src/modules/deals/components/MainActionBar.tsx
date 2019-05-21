@@ -6,10 +6,6 @@ import {
   Icon,
   Tip
 } from 'modules/common/components';
-import {
-  optionRenderer,
-  valueRenderer
-} from 'modules/common/components/SelectWithSearch';
 import { __ } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { SelectCustomers } from 'modules/customers/containers/common';
@@ -21,7 +17,6 @@ import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Overlay, Popover } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import Select from 'react-select-plus';
 import {
   ClearDate,
   ClearFilter,
@@ -221,34 +216,12 @@ class MainActionBar extends React.Component<Props, State> {
     );
   }
 
-  renderSelectors({ label, name, options, generator }) {
-    const { queryParams, onSelect } = this.props;
-
-    const onChange = (selector, list) => {
-      return onSelect(selector, list.map(item => item.value));
-    };
-
-    return (
-      <Select
-        placeholder={__(label)}
-        value={queryParams[name]}
-        onChange={onChange.bind(this, name)}
-        optionRenderer={optionRenderer}
-        valueRenderer={valueRenderer}
-        removeSelected={true}
-        options={generator(options)}
-        multi={true}
-      />
-    );
-  }
-
   render() {
     const {
       currentBoard,
       currentPipeline,
       middleContent,
       queryParams,
-      products,
       onSelect,
       isFiltered
     } = this.props;
@@ -306,10 +279,23 @@ class MainActionBar extends React.Component<Props, State> {
         <Popover id="popover-contained">
           <PopoverHeader>{__('Filter')}</PopoverHeader>
           <FilterBox>
-            <SelectProducts queryParams={queryParams} onSelect={onSelect} />
-            <SelectCompanies queryParams={queryParams} onSelect={onSelect} />
-            <SelectCustomers queryParams={queryParams} onSelect={onSelect} />
+            <SelectProducts
+              label="Choose products"
+              queryParams={queryParams}
+              onSelect={onSelect}
+            />
+            <SelectCompanies
+              label="Choose companies"
+              queryParams={queryParams}
+              onSelect={onSelect}
+            />
+            <SelectCustomers
+              label="Choose customers"
+              queryParams={queryParams}
+              onSelect={onSelect}
+            />
             <SelectTeamMembers
+              label="Choose team members"
               queryParams={queryParams}
               onSelect={onSelect}
               customOption={teamMemberCustomOption}

@@ -1,5 +1,5 @@
 import { SelectWithSearch } from 'modules/common/components';
-import { Option } from 'modules/common/types';
+import { IQueryParams, Option } from 'modules/common/types';
 import * as React from 'react';
 import { queries } from '../graphql';
 import { IProduct } from '../types';
@@ -16,14 +16,35 @@ export function selectProductOptions(array: IProduct[] = []): Option[] {
   });
 }
 
-export default ({ queryParams, onSelect }) => (
-  <SelectWithSearch
-    label="Choose products"
-    queryName="products"
-    name="productIds"
-    customQuery={queries.products}
-    value={queryParams.productIds}
-    options={selectProductOptions}
-    onSelect={onSelect}
-  />
-);
+export default ({
+  queryParams,
+  onSelect,
+  value,
+  setParam = true,
+  multi = true,
+  label
+}: {
+  queryParams: IQueryParams;
+  label: string;
+  onSelect: (value: string, name: string) => void;
+  multi?: boolean;
+  customOption?: Option;
+  value?: string;
+  setParam?: boolean;
+}) => {
+  const name = 'productIds';
+  const defaultValue = setParam ? queryParams[name] : value;
+
+  return (
+    <SelectWithSearch
+      label={label}
+      queryName="products"
+      name={name}
+      customQuery={queries.products}
+      value={defaultValue}
+      options={selectProductOptions}
+      onSelect={onSelect}
+      multi={multi}
+    />
+  );
+};

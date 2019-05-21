@@ -1,6 +1,6 @@
 import { IUser, IUserDetails } from 'modules/auth/types';
 import { SelectWithSearch } from 'modules/common/components';
-import { Option } from 'modules/common/types';
+import { IQueryParams, Option } from 'modules/common/types';
 import * as React from 'react';
 import { queries } from '../graphql';
 
@@ -18,15 +18,37 @@ export function selectUserOptions(array: IUser[] = []): Option[] {
   });
 }
 
-export default ({ queryParams, onSelect, customOption }) => (
-  <SelectWithSearch
-    label="Choose team members"
-    queryName="users"
-    name="assignedUserIds"
-    customQuery={queries.users}
-    value={queryParams.assignedUserIds}
-    options={selectUserOptions}
-    onSelect={onSelect}
-    customOption={customOption}
-  />
-);
+export default ({
+  queryParams,
+  onSelect,
+  customOption,
+  setParam = true,
+  value,
+  multi = true,
+  label
+}: {
+  queryParams: IQueryParams;
+  label: string;
+  onSelect: (value: string, name: string) => void;
+  multi?: boolean;
+  customOption?: Option;
+  value?: string;
+  setParam?: boolean;
+}) => {
+  const name = 'assignedUserIds';
+  const defaultValue = setParam ? queryParams[name] : value;
+
+  return (
+    <SelectWithSearch
+      label={label}
+      queryName="users"
+      name={name}
+      value={defaultValue}
+      options={selectUserOptions}
+      onSelect={onSelect}
+      customQuery={queries.users}
+      customOption={customOption}
+      multi={multi}
+    />
+  );
+};

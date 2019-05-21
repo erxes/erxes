@@ -76,7 +76,7 @@ class Main extends React.Component<FinalProps> {
     routerUtils.setParams(history, query, true);
   };
 
-  onSelect = (name: string, values: string) => {
+  onSelect = (values: string, name: string) => {
     routerUtils.setParams(this.props.history, { [name]: values });
   };
 

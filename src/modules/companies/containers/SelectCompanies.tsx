@@ -1,5 +1,5 @@
 import { SelectWithSearch } from 'modules/common/components';
-import { Option } from 'modules/common/types';
+import { IQueryParams, Option } from 'modules/common/types';
 import * as React from 'react';
 import { queries } from '../graphql';
 import { ICompany } from '../types';
@@ -17,14 +17,35 @@ export function selectCompanyOptions(array: ICompany[] = []): Option[] {
   });
 }
 
-export default ({ queryParams, onSelect }) => (
-  <SelectWithSearch
-    label="Choose companies"
-    queryName="companies"
-    name="companyIds"
-    customQuery={queries.companies}
-    value={queryParams.companyIds}
-    options={selectCompanyOptions}
-    onSelect={onSelect}
-  />
-);
+export default ({
+  queryParams,
+  onSelect,
+  value,
+  setParam = true,
+  multi = true,
+  label
+}: {
+  queryParams: IQueryParams;
+  label: string;
+  onSelect: (value: string, name: string) => void;
+  multi?: boolean;
+  customOption?: Option;
+  value?: string;
+  setParam?: boolean;
+}) => {
+  const name = 'companyIds';
+  const defaultValue = setParam ? queryParams[name] : value;
+
+  return (
+    <SelectWithSearch
+      label={label}
+      queryName="companies"
+      name={name}
+      value={defaultValue}
+      options={selectCompanyOptions}
+      onSelect={onSelect}
+      customQuery={queries.companies}
+      multi={multi}
+    />
+  );
+};
