@@ -21,12 +21,12 @@ class AuthLayout extends React.Component<Props, {}> {
       <SmallWrapper>
         <CenterContent>
           <AppName>
-            <b>Erxes Inc</b>
-            <span>{desciption}</span>
+            <b>{__('erxes Inc')}</b>
+            <span>{__(desciption)}</span>
           </AppName>
           <a href={link} target="_blank">
             <Button btnStyle="link" size="small">
-              Get
+              {__('Get')}
             </Button>
           </a>
         </CenterContent>
