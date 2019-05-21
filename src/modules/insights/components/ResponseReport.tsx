@@ -21,15 +21,15 @@ import { Chart, InboxFilter, PunchCard, Sidebar, Summary } from './';
 
 type Props = {
   brands: IBrand[];
-  trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  punch: IPunchCardData[];
-  summary: SummaryData[];
+  summaryData: SummaryData[];
+  trend: IChartParams[];
+  punchCard: IPunchCardData[];
   loading: {
+    summaryData: boolean;
     trend: boolean;
-    summary: boolean;
-    punch: boolean;
+    punchCard: boolean;
   };
 };
 
@@ -50,7 +50,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.loading.punch && !this.props.loading.punch) {
+    if (prevProps.loading.punch && !this.props.loading.punchCard) {
       this.calculateWidth();
     }
   }
@@ -101,7 +101,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
   }
 
   renderCharts() {
-    const { trend, punch, summary, loading } = this.props;
+    const { trend, punchCard, summaryData, loading } = this.props;
 
     const width = this.state.width;
 
@@ -109,12 +109,12 @@ class ResponseReport extends React.Component<Props, { width: number }> {
       <InsightContent>
         <InsightRow>
           {this.renderTitle('Response Times summary')}
-          <Summary loading={loading.summary} data={summary} />
+          <Summary loading={loading.summaryData} data={summaryData} />
         </InsightRow>
 
         {this.renderTrend('Response Trend', loading.trend, trend)}
 
-        {this.renderPunchCard(loading, punch, width)}
+        {this.renderPunchCard(loading, punchCard, width)}
       </InsightContent>
     );
   }
