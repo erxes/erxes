@@ -28,6 +28,7 @@ type Props = {
 };
 
 type State = {
+  name: string;
   stages: IStage[];
   visiblity: string;
   selectedMembers: IUser[];
@@ -38,6 +39,7 @@ class PipelineForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      name: props.pipeline ? props.pipeline.name : '',
       stages: (props.stages || []).map(stage => ({ ...stage })),
       visiblity: props.pipeline
         ? props.pipeline.visiblity || 'public'
@@ -58,6 +60,10 @@ class PipelineForm extends React.Component<Props, State> {
 
   onChangeMembers = items => {
     this.setState({ selectedMembers: items });
+  };
+
+  onChangeName = value => {
+    this.setState({ name: value });
   };
 
   generateMembersParams = members => {
@@ -98,7 +104,12 @@ class PipelineForm extends React.Component<Props, State> {
     save(
       this.generateDoc(),
       () => {
-        this.setState({ selectedMembers: [], visiblity: 'public', stages: [] });
+        this.setState({
+          selectedMembers: [],
+          visiblity: 'public',
+          stages: [],
+          name: ''
+        });
         closeModal();
       },
       pipeline
@@ -131,8 +142,7 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { pipeline } = this.props;
-    const { stages, visiblity } = this.state;
+    const { stages, visiblity, name } = this.state;
 
     return (
       <>
@@ -141,8 +151,9 @@ class PipelineForm extends React.Component<Props, State> {
 
           <FormControl
             id="pipeline-name"
-            defaultValue={pipeline ? pipeline.name : ''}
+            defaultValue={name}
             type="text"
+            onChange={this.onChangeName}
             autoFocus={true}
             required={true}
           />
