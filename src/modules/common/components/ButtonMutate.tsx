@@ -2,19 +2,23 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
+import { withRouter } from 'react-router';
 import Button from '../components/Button';
+import { IRouterProps } from '../types';
 
-type Props = {
+interface IProps extends IRouterProps {
   mutation: string;
+  queryParams?: any;
   getVariables: () => void;
-  successMessage: string;
+  successMessage?: string;
   btnSize?: string;
   callback?: () => void;
   children?: React.ReactNode;
   refetchQueries?: any;
-};
+  history: any;
+}
 
-class ButtonMutate extends React.Component<Props> {
+class ButtonMutate extends React.Component<IProps> {
   static defaultProps = {
     successMessage: 'Successfull',
     btnSize: 'small'
@@ -25,7 +29,7 @@ class ButtonMutate extends React.Component<Props> {
       mutation,
       callback,
       getVariables,
-      successMessage,
+      successMessage = '',
       refetchQueries
     } = this.props;
 
@@ -49,7 +53,11 @@ class ButtonMutate extends React.Component<Props> {
   };
 
   render() {
-    const { children, btnSize } = this.props;
+    const { children, btnSize, queryParams } = this.props;
+
+    // tslint:disable-next-line:no-console
+    console.log(queryParams);
+
     return (
       <Button btnStyle="success" size={btnSize} onClick={this.mutate}>
         {children}
@@ -58,4 +66,4 @@ class ButtonMutate extends React.Component<Props> {
   }
 }
 
-export default ButtonMutate;
+export default withRouter<IProps>(ButtonMutate);

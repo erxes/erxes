@@ -54,7 +54,11 @@ class GroupForm extends React.Component<Props> {
         </FormGroup>
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
-          <FormControl id="group-description" defaultValue={description} />
+          <FormControl
+            componentClass="textarea"
+            id="group-description"
+            defaultValue={description}
+          />
         </FormGroup>
       </>
     );
