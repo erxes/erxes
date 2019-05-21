@@ -390,7 +390,7 @@ const Authlayout = styled.div`
 
   @media (max-width: 768px) {
     overflow: auto;
-    padding-bottom: ${dimensions.coreSpacing * 2}px;
+    padding-bottom: ${dimensions.coreSpacing * 5}px;
   }
 `;
 
@@ -480,7 +480,7 @@ const SectionBodyItem = styled.div`
   }
 `;
 
-const SmallWrapper = styled.div`
+const MobileRecommend = styled.div`
   position: fixed;
   left: 0;
   right: 0;
@@ -494,28 +494,21 @@ const SmallWrapper = styled.div`
   color: ${colors.colorWhite};
   transition: all ease 0.3s;
   padding: 15px ${dimensions.coreSpacing}px;
-  box-shadow: 0 -5px ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.4)};
-
-  button {
-    border: 1px solid ${colors.colorWhite};
-    color: ${colors.colorWhite};
-  }
+  box-shadow: 0 -5px ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
 `;
 
 const CenterContent = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`;
 
-const AppName = styled.div`
-  display: flex;
-  flex-direction: column;
-  font-size: 11px;
+  > a {
+    border: 1px solid ${colors.colorWhite};
+    color: ${colors.colorWhite};
+  }
 `;
 
 export {
-  AppName,
   Layout,
   MainWrapper,
   Contents,
@@ -550,5 +543,5 @@ export {
   SectionContainer,
   SectionBody,
   SectionBodyItem,
-  SmallWrapper
+  MobileRecommend
 };

@@ -3,12 +3,11 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Col, Grid } from 'react-bootstrap';
 import {
-  AppName,
   AuthContent,
   AuthDescription,
   Authlayout,
   CenterContent,
-  SmallWrapper
+  MobileRecommend
 } from '../styles';
 
 type Props = {
@@ -18,32 +17,32 @@ type Props = {
 class AuthLayout extends React.Component<Props, {}> {
   renderContent(desciption: string, link: string) {
     return (
-      <SmallWrapper>
+      <MobileRecommend>
         <CenterContent>
-          <AppName>
+          <div>
             <b>{__('erxes Inc')}</b>
-            <span>{__(desciption)}</span>
-          </AppName>
-          <a href={link} target="_blank">
-            <Button btnStyle="link" size="small">
-              {__('Get')}
-            </Button>
-          </a>
+            <div>{__(desciption)}</div>
+          </div>
+          <Button btnStyle="link" size="small" href={link}>
+            {__('Get')}
+          </Button>
         </CenterContent>
-      </SmallWrapper>
+      </MobileRecommend>
     );
   }
 
   renderRecommendMobileVersion() {
-    if (navigator.userAgent.indexOf('Mobile') !== -1) {
-      if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+    const { userAgent } = navigator;
+
+    if (userAgent.indexOf('Mobile') !== -1) {
+      if (userAgent.match(/iPhone|iPad|iPod/i)) {
         return this.renderContent(
           'Download ios app for free on the App Store.',
           'itms://itunes.apple.com/zw/app/erxes-inc/id1454657885?mt=8&fbclid=IwAR1_A-3dPkw4oUh3r-4lpAvs_Ie5FWOTy1dduFy7eJZbpWKJJ9ukzu9ZNUc'
         );
       }
 
-      if (navigator.userAgent.match(/Android/i)) {
+      if (userAgent.match(/Android/i)) {
         return this.renderContent(
           'Download android app for free on the Google play.',
           'https://play.google.com/store/apps/details?id=io.erxes.erxes_android&fbclid=IwAR1bVPBSE0pC_KUNNjOJQA4upb1AuTUfqFcDaHTHTptyke7rNvuvb2mgwb0'
