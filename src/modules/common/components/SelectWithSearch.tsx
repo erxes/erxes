@@ -50,14 +50,14 @@ class SelectWithSearch extends React.Component<
   }
 
   componentWillUpdate(nextProps: Props) {
-    const { queryName, customQuery, value = [] } = nextProps;
+    const { queryName, customQuery, value = [], options } = nextProps;
 
     const datas = customQuery[queryName] || [];
     const loading = customQuery[queryName].loading;
 
     if (!this.state.selectedItems && !loading) {
       this.setState({
-        selectedItems: datas.filter(data => value.includes(data._id))
+        selectedItems: options(datas.filter(data => value.includes(data._id)))
       });
     }
   }
@@ -92,7 +92,7 @@ class SelectWithSearch extends React.Component<
     };
 
     const onOpen = () => {
-      search(' ');
+      search('reload');
     };
 
     const selectOptions = [...(selectedItems || []), ...options(datas)];
@@ -105,6 +105,8 @@ class SelectWithSearch extends React.Component<
       <Select
         placeholder={__(label)}
         value={value}
+        loadingPlaceholder={__('Loading...')}
+        isLoading={customQuery.loading}
         onOpen={onOpen}
         onChange={onChange}
         optionRenderer={optionRenderer}
@@ -125,15 +127,19 @@ const withQuery = ({ customQuery }) =>
         {
           name: 'customQuery',
           options: ({ searchValue, value }) => {
-            if (searchValue) {
+            if (searchValue === 'reload') {
               return {
-                variables: { searchValue }
+                variables: { searchValue: '' },
+                fetchPolicy: 'network-only',
+                notifyOnNetworkStatusChange: true
               };
             }
 
-            return {
-              variables: { ids: value }
-            };
+            if (searchValue) {
+              return { variables: { searchValue } };
+            }
+
+            return { variables: { ids: value } };
           }
         }
       )
@@ -160,12 +166,12 @@ class Wrapper extends React.Component<
   { searchValue: string },
   { WithQuery: React.ReactNode }
 > {
-  private WithQuery;
+  private withQuery;
 
   constructor(props) {
     super(props);
 
-    this.WithQuery = withQuery({ customQuery: this.props.customQuery });
+    this.withQuery = withQuery({ customQuery: this.props.customQuery });
 
     this.state = { searchValue: '' };
   }
@@ -174,7 +180,7 @@ class Wrapper extends React.Component<
 
   render() {
     const { searchValue } = this.state;
-    const Component = this.WithQuery;
+    const Component = this.withQuery;
 
     return (
       <Component

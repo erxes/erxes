@@ -26,7 +26,9 @@ import {
   ClearFilter,
   DateFilter,
   FilterBox,
-  FilterItem
+  FilterBtn,
+  FilterItem,
+  RemoveFilter
 } from '../styles/deal';
 import {
   ButtonGroup,
@@ -41,7 +43,8 @@ import { selectProductOptions } from '../utils';
 
 type Props = {
   onSearch: (search: string) => void;
-  onSelect: (name: string, values) => void;
+  onSelect: (name: string, values: string) => void;
+  onDateFilterSelect: (name: string, value: string) => void;
   onClear: (name: string, values) => void;
   isFiltered: () => boolean;
   clearFilter: () => void;
@@ -178,18 +181,19 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   renderDates() {
-    const { history } = this.props;
+    const { history, queryParams } = this.props;
 
     // Do not show date filter in Calendar
     if (history.location.pathname.includes('calendar')) {
       return null;
     }
 
-    const { onSelect, onClear } = this.props;
+    const { onDateFilterSelect, onClear } = this.props;
+
     const renderLink = (label, name) => {
       return (
         <FilterItem>
-          <li onClick={onSelect.bind(this, name, true)}>{label}</li>
+          <li onClick={onDateFilterSelect.bind(this, name, 'true')}>{label}</li>
           <ClearDate>
             <Tip text={__('Remove this filter')}>
               <Button
@@ -345,14 +349,27 @@ class MainActionBar extends React.Component<Props, State> {
 
         <HeaderLink>
           <Tip text={__('Filter')}>
-            <Button
-              btnStyle={hasFilter ? 'success' : 'link'}
-              className={hasFilter ? 'filter-success' : 'filter-link'}
-              icon="filter"
-              onClick={this.handleClick}
-            >
-              {hasFilter && 'Filtering is on'}
-            </Button>
+            <FilterBtn>
+              <div className={hasFilter ? 'filter-on' : ''}>
+                <Button
+                  btnStyle={hasFilter ? 'success' : 'link'}
+                  className={hasFilter ? 'filter-success' : 'filter-link'}
+                  icon="filter"
+                  onClick={this.handleClick}
+                >
+                  {hasFilter && 'Filtering is on'}
+                </Button>
+                {hasFilter && (
+                  <RemoveFilter>
+                    <Button
+                      btnStyle="link"
+                      icon="cancel-1"
+                      onClick={this.clearFilter}
+                    />
+                  </RemoveFilter>
+                )}
+              </div>
+            </FilterBtn>
           </Tip>
           {DealFilter}
         </HeaderLink>

@@ -35,16 +35,20 @@ const getBoardId = ({ location }) => {
   return queryParams.id;
 };
 
-const commonParams = [
-  'companyIds',
-  'customerIds',
-  'assignedUserIds',
+const dateFilterParams = [
   'nextDay',
   'nextWeek',
   'nextMonth',
   'overdue',
-  'noCloseDate',
-  'productIds'
+  'noCloseDate'
+];
+
+const commonParams = [
+  'companyIds',
+  'customerIds',
+  'assignedUserIds',
+  'productIds',
+  ...dateFilterParams
 ];
 
 /*
@@ -53,6 +57,23 @@ const commonParams = [
 class Main extends React.Component<FinalProps> {
   onSearch = (search: string) => {
     routerUtils.setParams(this.props.history, { search });
+  };
+
+  onDateFilterSelect = (name: string, value: string) => {
+    const { history } = this.props;
+    const query = { [name]: value };
+    const params = generateQueryParams(history);
+
+    // Remove current selected date filter
+    for (const param in params) {
+      if (dateFilterParams.includes(param)) {
+        delete params[param];
+
+        return routerUtils.replaceParam(history, params, query);
+      }
+    }
+
+    routerUtils.setParams(history, query, true);
   };
 
   onSelect = (name: string, values: string) => {
@@ -168,6 +189,7 @@ class Main extends React.Component<FinalProps> {
       <DumbMainActionBar
         middleContent={middleContent}
         onSearch={this.onSearch}
+        onDateFilterSelect={this.onDateFilterSelect}
         onClear={this.onClear}
         onSelect={this.onSelect}
         isFiltered={this.isFiltered}
@@ -197,10 +219,7 @@ const MainActionBar = withProps<Props>(
       skip: getBoardId
     }),
     graphql<{}, ProductsQueryResponse>(gql(productQueries.products), {
-      name: 'productsQuery',
-      options: {
-        fetchPolicy: 'network-only'
-      }
+      name: 'productsQuery'
     }),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
