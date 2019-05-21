@@ -1,12 +1,8 @@
 import { Tip } from 'modules/common/components';
-import { ICompany } from 'modules/companies/types';
-import { ICustomer } from 'modules/customers/types';
 import { DealDate } from 'modules/deals/styles/deal';
 import { Amount } from 'modules/deals/styles/stage';
-import { IProduct } from 'modules/settings/productService/types';
 import * as moment from 'moment';
 import * as React from 'react';
-import { IUser, IUserDetails } from '../auth/types';
 import { IDealMap, IDraggableLocation } from './types';
 
 type Options = {
@@ -20,18 +16,6 @@ type Options = {
 // get options for react-select-plus
 export function selectOptions(array: Options[] = []) {
   return array.map(item => ({ value: item._id, label: item.name }));
-}
-
-// get config options for react-select-plus
-export function selectProductOptions(array: IProduct[] = []) {
-  return array.map(item => {
-    const product = item || ({} as IProduct);
-
-    return {
-      value: product._id,
-      label: product.name
-    };
-  });
 }
 
 // get config options for react-select-plus

@@ -47,3 +47,9 @@ export type IDateColumn = {
   month: number;
   year: number;
 };
+
+export type OptionType = {
+  label: string;
+  value: string;
+  avatar?: string;
+};

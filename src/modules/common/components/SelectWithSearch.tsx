@@ -3,50 +3,58 @@ import { Avatar, SelectOption, SelectValue } from 'modules/deals/styles/deal';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Select from 'react-select-plus';
+import { OptionType } from '../types';
 import { __, withProps } from '../utils';
 
 type Props = {
   searchValue: string;
-  value: string;
-  queryName: string;
-  name: string;
-  label: string;
-  onSelect: (name: string, values) => void;
+  value: string[];
   search: (search: string, loadMore?: boolean) => void;
-  options?: any;
-  customQuery?: any;
-  customOption?: {
-    value: string;
-    label: string;
-    avatar?: string;
-  };
-};
+} & WrapperProps;
 
-const content = option => (
+const content = (option: OptionType): React.ReactNode => (
   <React.Fragment>
     <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
     {option.label}
   </React.Fragment>
 );
 
-export const optionRenderer = option => (
+export const optionRenderer = (option: OptionType): React.ReactNode => (
   <SelectOption className="simple-propOption">{content(option)}</SelectOption>
 );
 
-export const valueRenderer = option => (
+export const valueRenderer = (option: OptionType): React.ReactNode => (
   <SelectValue>{content(option)}</SelectValue>
 );
 
 class SelectWithSearch extends React.Component<
   Props,
-  { selectedItems: any[] }
+  { selectedItems?: OptionType[] }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      selectedItems: []
+      selectedItems: undefined
     };
+  }
+
+  componentWillUpdate(nextProps: Props) {
+    const {
+      queryName,
+      customQuery,
+      options,
+      value = [] as string[]
+    } = nextProps;
+
+    const datas = customQuery[queryName] || [];
+    const loading = customQuery[queryName].loading;
+
+    if (!this.state.selectedItems && !loading) {
+      this.setState({
+        selectedItems: options(datas.filter(data => value.includes(data._id)))
+      });
+    }
   }
 
   render() {
@@ -72,15 +80,17 @@ class SelectWithSearch extends React.Component<
       this.setState({ selectedItems: [...items] });
     };
 
-    const onSearch = searchValue => {
+    const onSearch = (searchValue: string) => {
       if (searchValue) {
         search(searchValue);
       }
     };
 
-    const onOpen = () => search('');
+    const onOpen = () => {
+      search('reload');
+    };
 
-    const selectOptions = [...selectedItems, ...options(datas)];
+    const selectOptions = [...(selectedItems || []), ...options(datas)];
 
     if (customOption) {
       selectOptions.unshift(customOption);
@@ -107,12 +117,27 @@ class SelectWithSearch extends React.Component<
 const withQuery = ({ customQuery }) =>
   withProps<Props>(
     compose(
-      graphql<Props, {}, { searchValue: string }>(gql(customQuery), {
-        name: 'customQuery',
-        options: ({ searchValue }) => ({
-          variables: { searchValue }
-        })
-      })
+      graphql<Props, {}, { searchValue?: string; ids?: string[] }>(
+        gql(customQuery),
+        {
+          name: 'customQuery',
+          options: ({ searchValue, value }) => {
+            if (searchValue === 'reload') {
+              return {
+                variables: { searchValue: '' },
+                fetchPolicy: 'network-only',
+                notifyOnNetworkStatusChange: true
+              };
+            }
+
+            if (searchValue) {
+              return { variables: { searchValue } };
+            }
+
+            return { variables: { ids: value } };
+          }
+        }
+      )
     )(SelectWithSearch)
   );
 
@@ -136,12 +161,12 @@ class Wrapper extends React.Component<
   { searchValue: string },
   { WithQuery: React.ReactNode }
 > {
-  private WithQuery;
+  private withQuery;
 
   constructor(props) {
     super(props);
 
-    this.WithQuery = withQuery({ customQuery: this.props.customQuery });
+    this.withQuery = withQuery({ customQuery: this.props.customQuery });
 
     this.state = { searchValue: '' };
   }
@@ -150,7 +175,7 @@ class Wrapper extends React.Component<
 
   render() {
     const { searchValue } = this.state;
-    const Component = this.WithQuery;
+    const Component = this.withQuery;
 
     return (
       <Component
