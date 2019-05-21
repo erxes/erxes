@@ -8,32 +8,27 @@ import { __, withProps } from '../utils';
 type Props = {
   searchValue: string;
   value: string[];
-  queryName: string;
-  name: string;
-  label: string;
-  onSelect: (name: string, values) => void;
   search: (search: string, loadMore?: boolean) => void;
-  options?: any;
-  customQuery?: any;
-  customOption?: {
-    value: string;
-    label: string;
-    avatar?: string;
-  };
+} & WrapperProps;
+
+type OptionType = {
+  label: string;
+  value: string;
+  avatar?: string;
 };
 
-const content = option => (
+const content = (option: OptionType): React.ReactNode => (
   <React.Fragment>
     <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
     {option.label}
   </React.Fragment>
 );
 
-export const optionRenderer = option => (
+export const optionRenderer = (option: OptionType): React.ReactNode => (
   <SelectOption className="simple-propOption">{content(option)}</SelectOption>
 );
 
-export const valueRenderer = option => (
+export const valueRenderer = (option: OptionType): React.ReactNode => (
   <SelectValue>{content(option)}</SelectValue>
 );
 
@@ -50,7 +45,12 @@ class SelectWithSearch extends React.Component<
   }
 
   componentWillUpdate(nextProps: Props) {
-    const { queryName, customQuery, value = [], options } = nextProps;
+    const {
+      queryName,
+      customQuery,
+      options,
+      value = [] as string[]
+    } = nextProps;
 
     const datas = customQuery[queryName] || [];
     const loading = customQuery[queryName].loading;
@@ -85,7 +85,7 @@ class SelectWithSearch extends React.Component<
       this.setState({ selectedItems: [...items] });
     };
 
-    const onSearch = searchValue => {
+    const onSearch = (searchValue: string) => {
       if (searchValue) {
         search(searchValue);
       }

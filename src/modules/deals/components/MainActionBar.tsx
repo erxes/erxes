@@ -14,6 +14,7 @@ import { __ } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { SelectCustomers } from 'modules/customers/containers/common';
 import { PopoverHeader } from 'modules/notifications/components/styles';
+import { SelectProducts } from 'modules/settings/productService/containers';
 import { IProduct } from 'modules/settings/productService/types';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
@@ -40,7 +41,6 @@ import {
   PageHeader
 } from '../styles/header';
 import { IBoard, IPipeline } from '../types';
-import { selectProductOptions } from '../utils';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -311,13 +311,7 @@ class MainActionBar extends React.Component<Props, State> {
         <Popover id="popover-contained">
           <PopoverHeader>{__('Filter')}</PopoverHeader>
           <FilterBox>
-            {this.renderSelectors({
-              label: 'Choose products',
-              name: 'productIds',
-              options: products,
-              generator: selectProductOptions
-            })}
-
+            <SelectProducts queryParams={queryParams} onSelect={onSelect} />
             <SelectCompanies queryParams={queryParams} onSelect={onSelect} />
             <SelectCustomers queryParams={queryParams} onSelect={onSelect} />
             <SelectTeamMembers
