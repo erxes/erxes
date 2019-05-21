@@ -38,7 +38,7 @@ class AuthLayout extends React.Component<Props, {}> {
       if (userAgent.match(/iPhone|iPad|iPod/i)) {
         return this.renderContent(
           'Download ios app for free on the App Store.',
-          'itms://itunes.apple.com/zw/app/erxes-inc/id1454657885?mt=8&fbclid=IwAR1_A-3dPkw4oUh3r-4lpAvs_Ie5FWOTy1dduFy7eJZbpWKJJ9ukzu9ZNUc'
+          'https://itunes.apple.com/zw/app/erxes-inc/id1454657885?mt=8&fbclid=IwAR1_A-3dPkw4oUh3r-4lpAvs_Ie5FWOTy1dduFy7eJZbpWKJJ9ukzu9ZNUc'
         );
       }
 
