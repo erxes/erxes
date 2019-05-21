@@ -3,7 +3,7 @@ import { Avatar, SelectOption, SelectValue } from 'modules/deals/styles/deal';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Select from 'react-select-plus';
-import { Option } from '../types';
+import { IOption } from '../types';
 import { __, withProps } from '../utils';
 
 type Props = {
@@ -12,42 +12,44 @@ type Props = {
   search: (search: string, loadMore?: boolean) => void;
 } & WrapperProps;
 
-const content = (option: Option): React.ReactNode => (
+const content = (option: IOption): React.ReactNode => (
   <React.Fragment>
     <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
     {option.label}
   </React.Fragment>
 );
 
-export const selectOptionRenderer = (option: Option): React.ReactNode => (
+export const selectOptionRenderer = (option: IOption): React.ReactNode => (
   <SelectOption className="simple-propOption">{content(option)}</SelectOption>
 );
 
-export const selectValueRenderer = (option: Option): React.ReactNode => (
+export const selectValueRenderer = (option: IOption): React.ReactNode => (
   <SelectValue>{content(option)}</SelectValue>
 );
 
 class SelectWithSearch extends React.Component<
   Props,
-  { selectedItems?: Option[] }
+  { selectedOptions?: IOption[] }
 > {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
-      selectedItems: undefined
+      selectedOptions: undefined
     };
   }
 
   componentWillUpdate(nextProps: Props) {
-    const { queryName, customQuery, options, values = [] } = nextProps;
+    const { queryName, customQuery, generateOptions, values = [] } = nextProps;
 
     const datas = customQuery[queryName] || [];
     const loading = customQuery.loading;
 
-    if (!this.state.selectedItems && !loading) {
+    if (!this.state.selectedOptions && !loading) {
       this.setState({
-        selectedItems: options(datas.filter(data => values.includes(data._id)))
+        selectedOptions: generateOptions(
+          datas.filter(data => values.includes(data._id))
+        )
       });
     }
   }
@@ -56,7 +58,7 @@ class SelectWithSearch extends React.Component<
     const {
       queryName,
       customQuery,
-      options,
+      generateOptions,
       label,
       onSelect,
       name,
@@ -66,20 +68,20 @@ class SelectWithSearch extends React.Component<
       customOption
     } = this.props;
 
-    const { selectedItems } = this.state;
+    const { selectedOptions } = this.state;
 
     const datas = customQuery[queryName] || [];
 
-    const selectMultiple = items => {
-      onSelect(items.map(item => item.value), name);
+    const selectMultiple = (ops: IOption[]) => {
+      onSelect(ops.map(option => option.value), name);
 
-      this.setState({ selectedItems: [...items] });
+      this.setState({ selectedOptions: [...ops] });
     };
 
-    const selectSingle = item => {
-      onSelect(item, name);
+    const selectSingle = (option: IOption) => {
+      onSelect(option.value, name);
 
-      this.setState({ selectedItems: [item] });
+      this.setState({ selectedOptions: [option] });
     };
 
     const onChange = multi ? selectMultiple : selectSingle;
@@ -92,7 +94,11 @@ class SelectWithSearch extends React.Component<
 
     const onOpen = () => search('reload');
 
-    const selectOptions = [...(selectedItems || []), ...options(datas)];
+    const ids = datas.map(data => data._id);
+    const uniqueSelectedOptions = (selectedOptions || []).filter(
+      option => !ids.includes(option.value)
+    );
+    const selectOptions = [...uniqueSelectedOptions, ...generateOptions(datas)];
 
     if (customOption) {
       selectOptions.unshift(customOption);
@@ -158,13 +164,13 @@ type WrapperProps = {
   queryName: string;
   name: string;
   label: string;
-  onSelect: (values: string, name: string) => void;
-  options?: any;
+  onSelect: (values: string[] | string, name: string) => void;
+  generateOptions: (datas: any[]) => IOption[];
   customQuery?: any;
   multi?: boolean;
   customOption?: {
-    value?: string;
-    label?: string;
+    value: string;
+    label: string;
     avatar?: string;
   };
 };

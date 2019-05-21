@@ -1,11 +1,11 @@
 import { IUser, IUserDetails } from 'modules/auth/types';
 import { SelectWithSearch } from 'modules/common/components';
-import { IQueryParams, Option } from 'modules/common/types';
+import { IOption, IQueryParams } from 'modules/common/types';
 import * as React from 'react';
 import { queries } from '../graphql';
 
 // get user options for react-select-plus
-export function selectUserOptions(array: IUser[] = []): Option[] {
+export function generateUserOptions(array: IUser[] = []): IOption[] {
   return array.map(item => {
     const user = item || ({} as IUser);
     const details = item.details || ({} as IUserDetails);
@@ -29,9 +29,9 @@ export default ({
 }: {
   queryParams?: IQueryParams;
   label: string;
-  onSelect: (value: string, name: string) => void;
+  onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
-  customOption?: Option;
+  customOption?: IOption;
   value?: string;
   name: string;
 }) => {
@@ -49,7 +49,7 @@ export default ({
             : defaultValue
           : defaultValue
       }
-      options={selectUserOptions}
+      generateOptions={generateUserOptions}
       onSelect={onSelect}
       customQuery={queries.users}
       customOption={customOption}

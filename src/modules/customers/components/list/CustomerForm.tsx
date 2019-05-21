@@ -167,8 +167,8 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState({ phones: options, primaryPhone: selectedOption });
   };
 
-  onOwnerChange = selectedOption => {
-    this.setState({ ownerId: selectedOption ? selectedOption.value : '' });
+  onOwnerChange = ownerId => {
+    this.setState({ ownerId });
   };
 
   render() {

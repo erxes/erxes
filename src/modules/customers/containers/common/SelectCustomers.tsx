@@ -1,10 +1,10 @@
 import { SelectWithSearch } from 'modules/common/components';
-import { IQueryParams, Option } from 'modules/common/types';
+import { IOption, IQueryParams } from 'modules/common/types';
 import { queries } from 'modules/customers/graphql';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 
-function selectCustomerOptions(array: ICustomer[] = []): Option[] {
+function generateCustomerOptions(array: ICustomer[] = []): IOption[] {
   return array.map(item => {
     const customer = item || ({} as ICustomer);
 
@@ -26,9 +26,9 @@ export default ({
 }: {
   queryParams?: IQueryParams;
   label: string;
-  onSelect: (value: string, name: string) => void;
+  onSelect: (values: string[] | string, name: string) => void;
   multi?: boolean;
-  customOption?: Option;
+  customOption?: IOption;
   value?: string;
   name: string;
 }) => {
@@ -47,7 +47,7 @@ export default ({
             : defaultValue
           : defaultValue
       }
-      options={selectCustomerOptions}
+      generateOptions={generateCustomerOptions}
       onSelect={onSelect}
       multi={multi}
     />

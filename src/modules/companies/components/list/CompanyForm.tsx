@@ -12,7 +12,6 @@ import {
   FormWrapper,
   ModalFooter
 } from 'modules/common/styles/main';
-import { Option } from 'modules/common/types';
 import { __, searchCompany, searchUser } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { regexEmail, regexPhone } from 'modules/customers/utils';
@@ -145,12 +144,9 @@ class CompanyForm extends React.Component<Props, State> {
     }));
   }
 
-  handleSelect = <T extends keyof State>(
-    selectedOption: { value: string; label: string },
-    name: T
-  ) => {
+  handleSelect = <T extends keyof State>(selectedOption: string, name: T) => {
     this.setState({
-      [name]: selectedOption ? selectedOption.value : null
+      [name]: selectedOption
     } as Pick<State, keyof State>);
   };
 

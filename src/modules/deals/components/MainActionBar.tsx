@@ -39,7 +39,7 @@ import { IBoard, IPipeline } from '../types';
 
 type Props = {
   onSearch: (search: string) => void;
-  onSelect: (name: string, values: string) => void;
+  onSelect: (values: string[] | string, name: string) => void;
   onDateFilterSelect: (name: string, value: string) => void;
   onClear: (name: string, values) => void;
   isFiltered: () => boolean;
@@ -181,7 +181,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     const { onDateFilterSelect, onClear } = this.props;
 
-    const renderLink = (label, name) => {
+    const renderLink = (label: string, name: string) => {
       const selected = queryParams[name] && queryParams[name].length > 0;
 
       return (

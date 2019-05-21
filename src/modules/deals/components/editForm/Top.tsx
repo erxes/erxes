@@ -5,7 +5,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { __, readFile } from 'modules/common/utils';
-import { selectUserOptions } from 'modules/settings/team/containers/SelectTeamMembers';
+import { generateUserOptions } from 'modules/settings/team/containers/SelectTeamMembers';
 import * as React from 'react';
 import * as Datetime from 'react-datetime';
 import Select from 'react-select-plus';
@@ -158,7 +158,7 @@ class Top extends React.Component<Props> {
                 optionRenderer={userOption}
                 valueRenderer={userValue}
                 removeSelected={true}
-                options={selectUserOptions(users)}
+                options={generateUserOptions(users)}
                 multi={true}
               />
             </FormGroup>

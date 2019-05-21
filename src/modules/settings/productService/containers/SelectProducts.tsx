@@ -1,11 +1,11 @@
 import { SelectWithSearch } from 'modules/common/components';
-import { IQueryParams, Option } from 'modules/common/types';
+import { IOption, IQueryParams } from 'modules/common/types';
 import * as React from 'react';
 import { queries } from '../graphql';
 import { IProduct } from '../types';
 
 // get config options for react-select-plus
-export function selectProductOptions(array: IProduct[] = []): Option[] {
+export function generateProductOptions(array: IProduct[] = []): IOption[] {
   return array.map(item => {
     const product = item || ({} as IProduct);
 
@@ -26,9 +26,9 @@ export default ({
 }: {
   queryParams?: IQueryParams;
   label: string;
-  onSelect: (value: string, name: string) => void;
+  onSelect: (values: string[] | string, name: string) => void;
   multi?: boolean;
-  customOption?: Option;
+  customOption?: IOption;
   value?: string;
   setParam?: boolean;
   name: string;
@@ -48,7 +48,7 @@ export default ({
             : defaultValue
           : defaultValue
       }
-      options={selectProductOptions}
+      generateOptions={generateProductOptions}
       onSelect={onSelect}
       multi={multi}
     />

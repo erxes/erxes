@@ -48,7 +48,7 @@ export type IDateColumn = {
   year: number;
 };
 
-export type Option = {
+export type IOption = {
   label: string;
   value: string;
   avatar?: string;
