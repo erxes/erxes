@@ -45,14 +45,16 @@ moment.updateLocale('en', {
 interface IState {
   currentUser?: IUser;
   currentLanguage: string;
-  isLoading: boolean;
+  isShownIndicator: boolean;
   isRemovingImport: boolean;
+  isDoneIndicatorAction: boolean;
 }
 
 interface IStore extends IState {
   currentUser?: IUser;
   changeLanguage: (languageCode: string) => void;
   closeLoadingBar: () => void;
+  doneIndicatorAction: () => void;
   showLoadingBar: (isRemovingImport: boolean) => void;
 }
 
@@ -73,38 +75,47 @@ export class AppProvider extends React.Component<
     this.state = {
       currentUser: props.currentUser,
       currentLanguage,
-      isLoading: false,
-      isRemovingImport: false
+      isShownIndicator: false,
+      isRemovingImport: false,
+      isDoneIndicatorAction: false
     };
 
     this.setLocale(currentLanguage);
   }
 
-  checkIsLoadingData = () => {
+  checkisShownIndicatorData = () => {
     const lastImport = localStorage.getItem('erxes_import_data');
     const type = localStorage.getItem('erxes_import_data_type');
     const isRemovingImport = type === 'remove' ? true : false;
 
     if (lastImport) {
-      return this.setState({ isLoading: true, isRemovingImport });
+      return this.setState({ isShownIndicator: true, isRemovingImport });
     }
 
-    return this.setState({ isLoading: false, isRemovingImport: false });
+    return this.setState({ isShownIndicator: false, isRemovingImport: false });
   };
 
   closeLoadingBar = () => {
-    this.setState({ isLoading: false });
+    this.setState({ isShownIndicator: false });
 
     localStorage.setItem('erxes_import_data', '');
     localStorage.setItem('erxes_import_data_type', '');
   };
 
   showLoadingBar = (isRemovingImport: boolean) => {
-    this.setState({ isLoading: true, isRemovingImport });
+    this.setState({
+      isDoneIndicatorAction: false,
+      isShownIndicator: true,
+      isRemovingImport
+    });
+  };
+
+  doneIndicatorAction = () => {
+    this.setState({ isDoneIndicatorAction: true });
   };
 
   componentDidMount() {
-    this.checkIsLoadingData();
+    this.checkisShownIndicatorData();
   }
 
   setLocale = (currentLanguage: string): void => {
@@ -126,8 +137,9 @@ export class AppProvider extends React.Component<
     const {
       currentUser,
       currentLanguage,
-      isLoading,
-      isRemovingImport
+      isShownIndicator,
+      isRemovingImport,
+      isDoneIndicatorAction
     } = this.state;
 
     return (
@@ -138,8 +150,10 @@ export class AppProvider extends React.Component<
           changeLanguage: this.changeLanguage,
           closeLoadingBar: this.closeLoadingBar,
           showLoadingBar: this.showLoadingBar,
-          isLoading,
-          isRemovingImport
+          doneIndicatorAction: this.doneIndicatorAction,
+          isShownIndicator,
+          isRemovingImport,
+          isDoneIndicatorAction
         }}
       >
         {this.props.children}

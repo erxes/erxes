@@ -14,6 +14,7 @@ type Props = {
   queryParams: any;
   showLoadingBar: (isRemovingImport: boolean) => void;
   closeLoadingBar: () => void;
+  isDoneIndicatorAction: boolean;
 };
 
 type FinalProps = {
@@ -35,6 +36,12 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     };
   }
 
+  componentDidUpdate(prevProps: FinalProps) {
+    if (this.props.isDoneIndicatorAction !== prevProps.isDoneIndicatorAction) {
+      this.props.historiesQuery.refetch();
+    }
+  }
+
   render() {
     const {
       historiesQuery,
@@ -51,6 +58,9 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     const currentType = router.getParam(history, 'type');
 
     const removeHistory = historyId => {
+      // reset top indicator
+      closeLoadingBar();
+
       localStorage.setItem('erxes_import_data', historyId);
       localStorage.setItem('erxes_import_data_type', 'remove');
 
@@ -115,11 +125,12 @@ const HistoriesWithProps = withProps<Props>(
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ showLoadingBar, closeLoadingBar }) => (
+      {({ showLoadingBar, closeLoadingBar, isDoneIndicatorAction }) => (
         <HistoriesWithProps
           {...props}
           showLoadingBar={showLoadingBar}
           closeLoadingBar={closeLoadingBar}
+          isDoneIndicatorAction={isDoneIndicatorAction}
         />
       )}
     </AppConsumer>

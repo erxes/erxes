@@ -6,6 +6,7 @@ import { handleXlsUpload } from '../utils';
 
 type Props = {
   showLoadingBar: () => void;
+  closeLoadingBar: () => void;
   type: string;
   text: string;
 };
@@ -24,9 +25,11 @@ class DataImporterContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { showLoadingBar, type } = this.props;
+    const { showLoadingBar, type, closeLoadingBar } = this.props;
 
     const uploadXls = e => {
+      closeLoadingBar();
+
       handleXlsUpload({
         e,
         type,
@@ -61,8 +64,12 @@ class DataImporterContainer extends React.Component<Props, State> {
 const WithConsumer = props => {
   return (
     <AppConsumer>
-      {({ showLoadingBar }) => (
-        <DataImporterContainer {...props} showLoadingBar={showLoadingBar} />
+      {({ showLoadingBar, closeLoadingBar }) => (
+        <DataImporterContainer
+          {...props}
+          showLoadingBar={showLoadingBar}
+          closeLoadingBar={closeLoadingBar}
+        />
       )}
     </AppConsumer>
   );

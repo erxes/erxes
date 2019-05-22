@@ -11,7 +11,7 @@ import { Layout } from '../styles';
 interface IProps extends IRouterProps {
   currentUser?: IUser;
   children: React.ReactNode;
-  isLoading: boolean;
+  isShownIndicator: boolean;
   closeLoadingBar: () => void;
 }
 
@@ -43,9 +43,9 @@ class MainLayout extends React.Component<IProps> {
   };
 
   renderBackgroundProccess = () => {
-    const { isLoading, closeLoadingBar } = this.props;
+    const { isShownIndicator, closeLoadingBar } = this.props;
 
-    if (isLoading) {
+    if (isShownIndicator) {
       return (
         <ImportIndicator id={this.getLastImport()} close={closeLoadingBar} />
       );
@@ -55,13 +55,13 @@ class MainLayout extends React.Component<IProps> {
   };
 
   render() {
-    const { currentUser, children, isLoading } = this.props;
+    const { currentUser, children, isShownIndicator } = this.props;
     const hasSeenOnboard = (currentUser && currentUser.hasSeenOnBoard) || false;
 
     return (
       <>
         {this.renderBackgroundProccess()}
-        <Layout isSqueezed={isLoading}>
+        <Layout isSqueezed={isShownIndicator}>
           {currentUser && <Navigation currentUser={currentUser} />}
           {children}
           <Welcome hasSeen={hasSeenOnboard} />
