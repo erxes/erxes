@@ -43,6 +43,7 @@ export interface IProduct {
   type?: string;
   description?: string;
   sku?: string;
+  productId?: string;
 }
 
 export interface IProductDocument extends IProduct, Document {
