@@ -14,12 +14,16 @@ describe('Test deals mutations', () => {
     $name: String!,
     $boardId: String!,
     $stages: JSON
+    $visiblity: String!,
+    $memberIds: [String],
   `;
 
   const commonPipelineParams = `
     name: $name
     boardId: $boardId
     stages: $stages
+    visiblity: $visiblity
+    memberIds: $memberIds
   `;
 
   const commonStageParamDefs = `
@@ -113,6 +117,7 @@ describe('Test deals mutations', () => {
       name: 'deal pipeline',
       boardId: board._id,
       stages: [stage.toJSON()],
+      visiblity: 'public',
     };
 
     const mutation = `
@@ -145,6 +150,7 @@ describe('Test deals mutations', () => {
       name: 'deal pipeline',
       boardId: board._id,
       stages: [stage.toJSON()],
+      visiblity: 'public',
     };
 
     const mutation = `

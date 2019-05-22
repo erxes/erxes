@@ -685,6 +685,7 @@ export const dealPipelineFactory = (params: IDealPipelineFactoryInput = {}) => {
   const pipeline = new DealPipelines({
     name: faker.random.word(),
     boardId: params.boardId || faker.random.word(),
+    visiblity: 'public',
   });
 
   return pipeline.save();
