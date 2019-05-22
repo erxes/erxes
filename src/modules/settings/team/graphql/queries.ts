@@ -98,6 +98,20 @@ const users = `
   }
 `;
 
+const usersForSelector = `
+  query users {
+    users {
+      _id
+      email
+      username
+      details {
+        avatar
+        fullName
+      }
+    }
+  }
+`;
+
 const usersTotalCount = `
   query usersTotalCount(${listParamsDef}) {
     usersTotalCount(${listParamsValue})
@@ -109,5 +123,6 @@ export default {
   channels,
   userConversations,
   users,
-  usersTotalCount
+  usersTotalCount,
+  usersForSelector
 };
