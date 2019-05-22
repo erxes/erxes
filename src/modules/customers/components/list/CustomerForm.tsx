@@ -104,20 +104,6 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState({ avatar: url });
   };
 
-  generateUserParams(users) {
-    return users.map(user => ({
-      value: user._id,
-      label: user.details.fullName || ''
-    }));
-  }
-
-  generateConstantParams(constants) {
-    return constants.map(constant => ({
-      value: constant,
-      label: constant
-    }));
-  }
-
   getVisitorInfo(customer, key) {
     return customer.visitorContactInfo && customer.visitorContactInfo[key];
   }

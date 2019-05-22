@@ -29,7 +29,7 @@ export default ({
   onSelect: (values: string[] | string, name: string) => void;
   multi?: boolean;
   customOption?: IOption;
-  value?: string;
+  value?: string | string[];
   setParam?: boolean;
   name: string;
 }) => {

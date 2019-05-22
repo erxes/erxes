@@ -32,7 +32,7 @@ export default ({
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
   customOption?: IOption;
-  value?: string;
+  value?: string | string[];
   name: string;
 }) => {
   const defaultValue = queryParams ? queryParams[name] : value;

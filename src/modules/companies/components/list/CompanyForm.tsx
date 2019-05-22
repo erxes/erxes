@@ -123,20 +123,6 @@ class CompanyForm extends React.Component<Props, State> {
     this.setState({ avatar: url });
   };
 
-  generateCompanyParams(companies) {
-    return companies.map(company => ({
-      value: company._id,
-      label: company.primaryName || ''
-    }));
-  }
-
-  generateUserParams(users) {
-    return users.map(user => ({
-      value: user._id,
-      label: user.details.fullName || ''
-    }));
-  }
-
   generateConstantParams(constants) {
     return constants.map(constant => ({
       value: constant,
