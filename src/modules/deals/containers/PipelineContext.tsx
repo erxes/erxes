@@ -128,7 +128,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     const dealId = result.draggableId;
 
     // update deal to database
-    this.dealsChange(dealId);
+    this.dealsChange(dealId, destination.droppableId);
 
     const deal = dealMap[destination.droppableId].find(d => d._id === dealId);
     deal.modifiedAt = new Date();
@@ -144,12 +144,13 @@ export class PipelineProvider extends React.Component<Props, State> {
     ]);
   };
 
-  dealsChange = (dealId: string) => {
+  dealsChange = (dealId: string, destinationStageId?: string) => {
     client
       .mutate({
         mutation: gql(mutations.dealsChange),
         variables: {
-          _id: dealId
+          _id: dealId,
+          destinationStageId
         }
       })
       .catch((e: Error) => {
