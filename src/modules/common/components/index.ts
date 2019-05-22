@@ -33,6 +33,7 @@ import NameCard from './nameCard/NameCard';
 import Pagination from './pagination/Pagination';
 import ProgressBar from './ProgressBar';
 import ConditionsRule from './rule/ConditionsRule';
+import SelectWithSearch from './SelectWithSearch';
 import SortableList from './SortableList';
 import SortHandler from './SortHandler';
 import Spinner from './Spinner';
@@ -103,6 +104,7 @@ export {
   Info,
   Calendar,
   WithPermission,
-  ProgressBar,
-  ConditionsRule
+  ConditionsRule,
+  SelectWithSearch,
+  ProgressBar
 };
