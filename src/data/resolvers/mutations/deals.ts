@@ -180,33 +180,33 @@ const dealMutations = {
     const assignedUserIds = deal.assignedUserIds || [];
 
     // new assignee users
-    const newInvite = assignedUserIds.filter(userId => oldAssignedUserIds.indexOf(userId) < 0);
+    const newUserIds = assignedUserIds.filter(userId => oldAssignedUserIds.indexOf(userId) < 0);
 
-    if (newInvite.length > 0) {
+    if (newUserIds.length > 0) {
       await sendDealNotifications(
         deal,
         user,
         NOTIFICATION_TYPES.DEAL_ADD,
-        newInvite,
+        newUserIds,
         `'{userName}' invited you to the deal: '${deal.name}'.`,
       );
     }
 
     // remove from assignee users
-    const delInvite = oldAssignedUserIds.filter(userId => assignedUserIds.indexOf(userId) < 0);
+    const removedUserIds = oldAssignedUserIds.filter(userId => assignedUserIds.indexOf(userId) < 0);
 
-    if (delInvite.length > 0) {
+    if (removedUserIds.length > 0) {
       await sendDealNotifications(
         deal,
         user,
         NOTIFICATION_TYPES.DEAL_REMOVE_ASSIGN,
-        delInvite,
+        removedUserIds,
         `'{userName}' removed you from deal: '${deal.name}'.`,
       );
     }
 
     // dont assignee change and other edit
-    if (delInvite.length === 0 && newInvite.length === 0) {
+    if (removedUserIds.length === 0 && newUserIds.length === 0) {
       await sendDealNotifications(
         deal,
         user,
@@ -235,7 +235,7 @@ const dealMutations = {
       modifiedBy: user._id,
     });
 
-    let content = `'{userName}' changed(moved) order your deal:'${deal.name}'`;
+    let content = `'{userName}' changed order your deal:'${deal.name}'`;
 
     if (oldStageId !== destinationStageId) {
       const stage = await DealStages.findOne({ _id: destinationStageId });
@@ -244,10 +244,11 @@ const dealMutations = {
         throw new Error('Stage not found');
       }
 
-      content = `'{userName}' changed(moved) your deal '${deal.name}' to the '${stage.name}'.`;
+      content = `'{userName}' moved your deal '${deal.name}' to the '${stage.name}'.`;
     }
 
     await sendDealNotifications(deal, user, NOTIFICATION_TYPES.DEAL_CHANGE, deal.assignedUserIds || [], content);
+
     return deal;
   },
 
