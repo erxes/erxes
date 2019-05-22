@@ -63,6 +63,9 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
         })
         .catch(e => {
           Alert.error(e.message);
+          // clear local storage
+          localStorage.setItem('erxes_import_data', '');
+          localStorage.setItem('erxes_import_data_type', '');
         });
     };
 
