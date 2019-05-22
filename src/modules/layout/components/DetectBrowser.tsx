@@ -2,20 +2,20 @@ import { dimensions } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import { AlertItem } from 'modules/common/utils/Alert/Alert';
 import * as React from 'react';
+import * as RTG from 'react-transition-group';
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { Icon } from '../../common/components';
 
-const OldBrowserWarning = styledTS<{ visible?: boolean }>(styled(AlertItem))`
-  position: absolute;
-  left: ${dimensions.headerSpacing - 15}%;
-  max-width: 500px;
-  text-align: center;
-  visibility: ${props => (props.visible ? 'visible' : 'hidden')};
+const OldBrowserWarning = styled(AlertItem)`
+  position: fixed;
+  left: ${dimensions.headerSpacing}%;
+  margin-left: -250px;
+  width: 500px;
   transition: all 0.1s;
 
   > div {
     margin-top: ${dimensions.unitSpacing - 5}px;
+    font-size: 12px;
   }
 
   .icon-cancel {
@@ -28,7 +28,7 @@ type State = {
   isVisible: boolean;
 };
 
-class DetectBrowser extends React.Component<{}, State> {
+class DetectBrowser extends React.PureComponent<{}, State> {
   constructor(props: {}) {
     super(props);
 
@@ -39,27 +39,35 @@ class DetectBrowser extends React.Component<{}, State> {
     this.setState({ isVisible: false });
   };
 
-  renderWarning(name: string, oldVersionNumber: number) {
+  renderWarning(name: string, minVersion: number) {
     const { userAgent } = navigator;
 
     const splittedVersion = userAgent.split(name)[1];
     const browserVersion = splittedVersion.split('.')[0];
 
-    if (Number(browserVersion) < oldVersionNumber) {
+    if (Number(browserVersion) < minVersion) {
       return (
-        <OldBrowserWarning type="error" visible={this.state.isVisible}>
-          <b>
-            <Icon icon="information" />{' '}
-            {__('Please upgrade your browser to use erxes!')}
-            <Icon icon="cancel" size={12} onClick={this.closeAlert} />
-          </b>
-          <div>
-            {__(
-              'Unfortunately, You are running on a browser that may not be fully compatible with erxes. '
-            )}
-            {__(`Please use ${name} version ${oldVersionNumber}+.`)}
-          </div>
-        </OldBrowserWarning>
+        <RTG.CSSTransition
+          in={this.state.isVisible}
+          appear={true}
+          timeout={300}
+          classNames="slide-in-small"
+          unmountOnExit={true}
+        >
+          <OldBrowserWarning type="error">
+            <b>
+              {__('Please upgrade your browser to use erxes!')}
+              <Icon icon="cancel" size={10} onClick={this.closeAlert} />
+            </b>
+            <div>
+              {__(
+                'Unfortunately, You are running on a browser that may not be fully compatible with erxes'
+              )}{' '}
+              {__(`Please use recommended version`)} - {name.replace('/', '')}{' '}
+              {minVersion}+.
+            </div>
+          </OldBrowserWarning>
+        </RTG.CSSTransition>
       );
     }
 
