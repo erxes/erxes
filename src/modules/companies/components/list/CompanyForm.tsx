@@ -12,7 +12,7 @@ import {
   FormWrapper,
   ModalFooter
 } from 'modules/common/styles/main';
-import { __, searchCompany, searchUser } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { regexEmail, regexPhone } from 'modules/customers/utils';
 import {
@@ -134,20 +134,6 @@ class CompanyForm extends React.Component<Props, State> {
     this.setState({
       [name]: selectedOption
     } as Pick<State, keyof State>);
-  };
-
-  /*
-   * Used filterOptions={(options) => options} in component to solve
-   * `react-select leaving out a particular option` issue
-   */
-  handleCompanySearch = value => {
-    if (value) {
-      searchCompany(value, companies => this.setState({ companies }));
-    }
-  };
-
-  handleUserSearch = value => {
-    searchUser(value, users => this.setState({ users }));
   };
 
   renderFormGroup = (label, props) => {
