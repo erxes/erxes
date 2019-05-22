@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { Tip } from 'modules/common/components';
+import { getUserAvatar } from 'modules/common/utils';
 import { UserCounterContainer } from 'modules/deals/styles/deal';
 import * as React from 'react';
 
@@ -24,7 +25,7 @@ class UserCounter extends React.Component<Props, { show: boolean }> {
         <Tip text={item.details.fullName || item.email}>
           <img
             alt={item.details.fullName || item.email}
-            src={item.details.avatar || '/images/avatar-colored.svg'}
+            src={getUserAvatar(item)}
           />
         </Tip>
       </li>
@@ -33,8 +34,8 @@ class UserCounter extends React.Component<Props, { show: boolean }> {
 
   renderOtherUsers(users) {
     if (this.state.show) {
-      return users.map(
-        (user, index) => (index > 0 ? this.renderUserItem(user) : null)
+      return users.map((user, index) =>
+        index > 0 ? this.renderUserItem(user) : null
       );
     }
 

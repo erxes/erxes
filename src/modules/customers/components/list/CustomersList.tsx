@@ -11,9 +11,8 @@ import {
   SortHandler,
   Table
 } from 'modules/common/components';
+import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
-import { TableHeadContent } from 'modules/customers/styles';
-import { DataImporter } from 'modules/settings/importHistory/containers';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
@@ -116,10 +115,7 @@ class CustomersList extends React.Component<IProps, State> {
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>
-                <TableHeadContent>
-                  <SortHandler sortField={name} />
-                  {__(label)}
-                </TableHeadContent>
+                <SortHandler sortField={name} label={__(label)} />
               </th>
             ))}
             <th>{__('Tags')}</th>
@@ -326,12 +322,14 @@ class CustomersList extends React.Component<IProps, State> {
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
     );
 
-    const breadcrumb = [{ title: __(`Customers`) + ` (${totalCount})` }];
-
     return (
       <Wrapper
         header={
-          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+          <Wrapper.Header
+            title={__(`Customers`) + ` (${totalCount})`}
+            queryParams={queryParams}
+            submenu={menuContacts}
+          />
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

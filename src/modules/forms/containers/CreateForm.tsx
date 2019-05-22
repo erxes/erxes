@@ -12,14 +12,11 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { BrandsQueryResponse } from '../../settings/brands/types';
 import { Form } from '../components';
-import { mutations, queries } from '../graphql';
+import { mutations } from '../graphql';
 import { AddFormMutationResponse, AddFormMutationVariables } from '../types';
 
-type Props = {
-  brandsQuery: BrandsQueryResponse;
-} & IRouterProps &
+type Props = {} & IRouterProps &
   AddIntegrationMutationResponse &
   AddFieldsMutationResponse &
   AddFormMutationResponse;
@@ -27,18 +24,11 @@ type Props = {
 class CreateFormContainer extends React.Component<Props, {}> {
   render() {
     const {
-      brandsQuery,
       addIntegrationMutation,
       addFormMutation,
       addFieldsMutation,
       history
     } = this.props;
-
-    if (brandsQuery.loading) {
-      return false;
-    }
-
-    const brands = brandsQuery.brands || [];
 
     const save = doc => {
       let formId;
@@ -86,7 +76,6 @@ class CreateFormContainer extends React.Component<Props, {}> {
 
     const updatedProps = {
       ...this.props,
-      brands,
       fields: [],
       save
     };
@@ -97,9 +86,6 @@ class CreateFormContainer extends React.Component<Props, {}> {
 
 export default withProps<{}>(
   compose(
-    graphql<{}, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery'
-    }),
     graphql<
       {},
       AddIntegrationMutationResponse,

@@ -50,7 +50,7 @@ class GroupForm extends React.Component<Props> {
       <>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <FormControl id="group-name" defaultValue={name} />
+          <FormControl id="group-name" defaultValue={name} autoFocus={true} />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Description</ControlLabel>

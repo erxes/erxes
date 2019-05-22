@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import { EmptyState, Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -21,6 +21,12 @@ class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
 
     if (customerDetailQuery.loading) {
       return <Spinner objective={true} />;
+    }
+
+    if (!customerDetailQuery.customerDetail) {
+      return (
+        <EmptyState text="Customer not found" image="/images/actions/17.svg" />
+      );
     }
 
     const taggerRefetchQueries = [

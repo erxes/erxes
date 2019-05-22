@@ -36,19 +36,10 @@ class InsightPage extends React.Component<Props> {
   render() {
     const { type } = this.props;
 
-    const breadcrumb = [{ title: __('Insights'), link: `/${type}/insights` }];
-
     const content = (
       <FullContent center={true}>
         <BoxContainer>
-          {this.getInsights().map((insight, index) => {
-            // show only first 4 insights
-            if (index < 4) {
-              return this.renderBox(insight);
-            }
-
-            return null;
-          })}
+          {this.getInsights().map(insight => this.renderBox(insight))}
         </BoxContainer>
       </FullContent>
     );
@@ -57,7 +48,7 @@ class InsightPage extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} submenu={submenu} />}
+        header={<Wrapper.Header title={__('Insights')} submenu={submenu} />}
         content={content}
         transparent={true}
       />

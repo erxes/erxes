@@ -10,8 +10,8 @@ import {
   Table
 } from 'modules/common/components';
 import { __, Alert, confirm, router } from 'modules/common/utils';
+import { menuContacts } from 'modules/common/utils/menus';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
-import { TableHeadContent } from 'modules/customers/styles';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import { DataImporter } from 'modules/settings/importHistory/containers';
@@ -131,10 +131,7 @@ class CompaniesList extends React.Component<IProps, State> {
               </th>
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>
-                  <TableHeadContent>
-                    <SortHandler sortField={name} />
-                    {__(label)}
-                  </TableHeadContent>
+                  <SortHandler sortField={name} label={__(label)} />
                 </th>
               ))}
               <th>{__('Tags')}</th>
@@ -293,12 +290,15 @@ class CompaniesList extends React.Component<IProps, State> {
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
-    const breadcrumb = [{ title: __(`Companies`) + ` (${totalCount})` }];
 
     return (
       <Wrapper
         header={
-          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+          <Wrapper.Header
+            title={__(`Companies`) + ` (${totalCount})`}
+            queryParams={queryParams}
+            submenu={menuContacts}
+          />
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

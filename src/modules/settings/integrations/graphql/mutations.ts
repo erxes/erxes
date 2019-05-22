@@ -44,6 +44,11 @@ const integrationsCreateMessenger = `
   mutation integrationsCreateMessengerIntegration(${commonParamsDef}) {
     integrationsCreateMessengerIntegration(${commonParams}) {
       _id
+      brand {
+        _id
+        name
+        code
+      }
     }
   }
 `;

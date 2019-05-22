@@ -43,3 +43,7 @@ export function convertTime(second?: number) {
     's'
   );
 }
+
+export function formatDate(date) {
+  return date.format('YYYY-MM-DD HH:mm');
+}

@@ -1,11 +1,17 @@
 const menuInbox = [
-  { title: 'Inbox', link: '/inbox' },
-  { title: 'Insights', link: '/insights' }
+  { title: 'Inbox', link: '/inbox/index' },
+  { title: 'Insights', link: '/inbox/insights' }
 ];
 
 const menuDeal = [
-  { title: 'Deal', link: '/deals' },
+  { title: 'Deal', link: '/deal/board' },
   { title: 'Insights', link: '/deal/insights' }
 ];
 
-export { menuInbox, menuDeal };
+const menuContacts = [
+  { title: 'Customers', link: '/contacts/customers/all' },
+  { title: 'Companies', link: '/contacts/companies' },
+  { title: 'Visitors', link: '/contacts/customers/visitors' }
+];
+
+export { menuContacts, menuInbox, menuDeal };

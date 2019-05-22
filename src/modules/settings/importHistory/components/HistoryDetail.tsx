@@ -133,7 +133,12 @@ class HistoryDetail extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header
+            title={__('Import History ')}
+            breadcrumb={breadcrumb}
+          />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={
