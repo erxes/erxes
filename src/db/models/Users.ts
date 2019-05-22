@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { Model, model } from 'mongoose';

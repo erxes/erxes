@@ -1,4 +1,3 @@
-import { Storage } from '@google-cloud/storage';
 import * as AWS from 'aws-sdk';
 import * as EmailValidator from 'email-deep-validator';
 import * as fileType from 'file-type';
@@ -8,9 +7,7 @@ import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
-import { Companies, Customers, Notifications, Users } from '../db/models';
-import { IUserDocument } from '../db/models/definitions/users';
-import { can } from './permissions/utils';
+import { Customers, Notifications, Users } from '../db/models';
 
 /*
  * Check that given file is not harmful
@@ -81,6 +78,8 @@ const createGCS = () => {
   if (!GOOGLE_PROJECT_ID || !GOOGLE_APPLICATION_CREDENTIALS || !BUCKET) {
     throw new Error('Google Cloud Storage credentials are not configured');
   }
+
+  const Storage = require('@google-cloud/storage').Storage;
 
   // initializing Google Cloud Storage
   return new Storage({
@@ -385,81 +384,6 @@ export const sendNotification = async ({
         notification: doc,
       },
     },
-  });
-};
-
-/**
- * Receives and saves xls file in private/xlsImports folder
- * and imports customers to the database
- */
-export const importXlsFile = async (file: any, type: string, { user }: { user: IUserDocument }) => {
-  return new Promise(async (resolve, reject) => {
-    if (!(await can('importXlsFile', user._id))) {
-      return reject('Permission denied!');
-    }
-
-    const readStream = fs.createReadStream(file.path);
-
-    // Directory to save file
-    const downloadDir = `${__dirname}/../private/xlsTemplateOutputs/${file.name}`;
-
-    // Converting pipe into promise
-    const pipe = stream =>
-      new Promise((resolver, rejecter) => {
-        stream.on('finish', resolver);
-        stream.on('error', rejecter);
-      });
-
-    // Creating streams
-    const writeStream = fs.createWriteStream(downloadDir);
-    const streamObj = readStream.pipe(writeStream);
-
-    pipe(streamObj)
-      .then(async () => {
-        // After finished saving instantly create and load workbook from xls
-        const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
-
-        // Deleting file after read
-        fs.unlink(downloadDir, () => {
-          return true;
-        });
-
-        const usedRange = workbook.sheet(0).usedRange();
-
-        if (!usedRange) {
-          return reject(['Invalid file']);
-        }
-
-        const usedSheets = usedRange.value();
-
-        // Getting columns
-        const fieldNames = usedSheets[0];
-
-        let collection;
-
-        // Removing column
-        usedSheets.shift();
-
-        switch (type) {
-          case 'customers':
-            collection = Customers;
-            break;
-
-          case 'companies':
-            collection = Companies;
-            break;
-
-          default:
-            reject(['Invalid import type']);
-        }
-
-        const response = await collection.bulkInsert(fieldNames, usedSheets, user);
-
-        resolve(response);
-      })
-      .catch(e => {
-        reject(e);
-      });
   });
 };
 

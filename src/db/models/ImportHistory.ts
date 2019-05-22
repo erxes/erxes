@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose';
-import { Companies, Customers } from '.';
 import { IImportHistory, IImportHistoryDocument, importHistorySchema } from './definitions/importHistory';
 import { IUserDocument } from './definitions/users';
 
@@ -29,18 +28,6 @@ export const loadClass = () => {
 
       if (!historyObj) {
         throw new Error('Import history not found');
-      }
-
-      const { ids = [], contentType } = historyObj;
-
-      let removeMethod = Customers.removeCustomer;
-
-      if (contentType === 'company') {
-        removeMethod = Companies.removeCompany;
-      }
-
-      for (const id of ids) {
-        await removeMethod(id);
       }
 
       await ImportHistories.deleteOne({ _id });

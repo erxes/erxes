@@ -73,6 +73,8 @@ const listQuery = async (params: IListArgs) => {
   if (params.searchValue) {
     const fields = [
       { names: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
+      { primaryEmail: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { primaryPhone: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { emails: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
       { phones: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
       { website: new RegExp(`.*${params.searchValue}.*`, 'i') },

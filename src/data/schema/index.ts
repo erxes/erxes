@@ -205,6 +205,7 @@ export const subscriptions = `
     conversationAdminMessageInserted(customerId: String!): ConversationMessage
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
     activityLogsChanged: Boolean
+    importHistoryChanged(_id: String!): ImportHistory
   }
 `;
 

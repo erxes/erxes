@@ -1,9 +1,7 @@
 import { Model, model } from 'mongoose';
 import 'mongoose-type-email';
-import { Accounts, ConversationMessages, Conversations, Customers, Forms } from '.';
+import { ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from '../../data/constants';
-import { getEnv } from '../../data/utils';
-import { getPageInfo, subscribePage } from '../../trackers/facebookTracker';
 import {
   IFacebookData,
   IFormData,
@@ -131,29 +129,6 @@ export const loadClass = () => {
       brandId: string;
       facebookData: IFacebookData;
     }) {
-      getEnv({ name: 'FACEBOOK_APP_ID' });
-      getEnv({ name: 'DOMAIN' });
-
-      const { pageIds, accountId } = facebookData;
-
-      const account = await Accounts.findOne({ _id: accountId });
-
-      if (!account) {
-        throw new Error('Account not found');
-      }
-
-      for (const pageId of pageIds) {
-        const pageInfo = await getPageInfo(pageId, account.token);
-
-        const pageToken = pageInfo.access_token;
-
-        const res = await subscribePage(pageId, pageToken);
-
-        if (res.success !== true) {
-          throw new Error('Couldnt subscribe page');
-        }
-      }
-
       return this.createIntegration({
         name,
         brandId,

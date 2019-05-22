@@ -1,9 +1,8 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs, Customers, Deals, Fields, InternalNotes } from './';
 import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
-import { COMPANY_BASIC_INFOS, STATUSES } from './definitions/constants';
+import { STATUSES } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
-import { bulkInsert } from './utils';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   checkDuplication(
@@ -212,22 +211,6 @@ export const loadClass = () => {
       await ActivityLogs.createCompanyLog(company);
 
       return company;
-    }
-
-    /**
-     * Imports customers with basic fields and custom properties
-     */
-    public static async bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument) {
-      const params = {
-        fieldNames,
-        fieldValues,
-        user,
-        basicInfos: COMPANY_BASIC_INFOS,
-        contentType: 'company',
-        create: (doc, userObj) => this.createCompany(doc, userObj),
-      };
-
-      return bulkInsert(params);
     }
   }
 

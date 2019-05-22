@@ -1,10 +1,9 @@
 import { Model, model } from 'mongoose';
 import { validateEmail } from '../../data/utils';
 import { ActivityLogs, Conversations, Deals, EngageMessages, Fields, InternalNotes } from './';
-import { CUSTOMER_BASIC_INFOS, STATUSES } from './definitions/constants';
+import { STATUSES } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument, IFacebookData, ITwitterData } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
-import { bulkInsert } from './utils';
 
 interface ICustomerFieldsInput {
   twitterData?: ITwitterData;
@@ -292,22 +291,6 @@ export const loadClass = () => {
       await ActivityLogs.createCustomerLog(customer);
 
       return customer;
-    }
-
-    /**
-     * Imports customers with basic fields and custom properties
-     */
-    public static async bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument) {
-      const params = {
-        fieldNames,
-        fieldValues,
-        user,
-        basicInfos: CUSTOMER_BASIC_INFOS,
-        contentType: 'customer',
-        create: this.createCustomer,
-      };
-
-      return bulkInsert(params);
     }
   }
 
