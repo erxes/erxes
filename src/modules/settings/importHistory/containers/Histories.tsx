@@ -40,7 +40,8 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       historiesQuery,
       history,
       importHistoriesRemove,
-      showLoadingBar
+      showLoadingBar,
+      closeLoadingBar
     } = this.props;
 
     if (!router.getParam(history, 'type')) {
@@ -63,9 +64,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
         })
         .catch(e => {
           Alert.error(e.message);
-          // clear local storage
-          localStorage.setItem('erxes_import_data', '');
-          localStorage.setItem('erxes_import_data_type', '');
+          closeLoadingBar();
         });
     };
 

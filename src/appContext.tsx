@@ -96,6 +96,7 @@ export class AppProvider extends React.Component<
     this.setState({ isLoading: false });
 
     localStorage.setItem('erxes_import_data', '');
+    localStorage.setItem('erxes_import_data_type', '');
   };
 
   showLoadingBar = (isRemovingImport: boolean) => {
