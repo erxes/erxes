@@ -17,7 +17,7 @@ const params = `
 `;
 
 export const queries = `
-  products(type: String, searchValue: String, page: Int, perPage: Int): [Product]
+  products(type: String, searchValue: String, page: Int, perPage: Int ids: [String]): [Product]
   productsTotalCount(type: String): Int
 `;
 

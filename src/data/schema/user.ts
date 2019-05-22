@@ -79,7 +79,8 @@ const commonParams = `
 
 const commonSelector = `
   searchValue: String,
-  isActive: Boolean
+  isActive: Boolean,
+  ids: [String]
 `;
 
 export const queries = `
