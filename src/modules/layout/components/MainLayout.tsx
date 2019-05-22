@@ -1,6 +1,8 @@
 import { IUser } from 'modules/auth/types';
 import { IRouterProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { Welcome } from 'modules/onboard/containers';
+import { ImportIndicator } from 'modules/settings/importHistory/containers';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { Navigation } from '../containers';
@@ -9,6 +11,8 @@ import { Layout } from '../styles';
 interface IProps extends IRouterProps {
   currentUser?: IUser;
   children: React.ReactNode;
+  isShownIndicator: boolean;
+  closeLoadingBar: () => void;
 }
 
 class MainLayout extends React.Component<IProps> {
@@ -34,16 +38,35 @@ class MainLayout extends React.Component<IProps> {
     );
   }
 
+  getLastImport = () => {
+    return localStorage.getItem('erxes_import_data') || '';
+  };
+
+  renderBackgroundProccess = () => {
+    const { isShownIndicator, closeLoadingBar } = this.props;
+
+    if (isShownIndicator) {
+      return (
+        <ImportIndicator id={this.getLastImport()} close={closeLoadingBar} />
+      );
+    }
+
+    return null;
+  };
+
   render() {
-    const { currentUser, children } = this.props;
+    const { currentUser, children, isShownIndicator } = this.props;
     const hasSeenOnboard = (currentUser && currentUser.hasSeenOnBoard) || false;
 
     return (
-      <Layout>
-        {currentUser && <Navigation currentUser={currentUser} />}
-        {children}
-        <Welcome hasSeen={hasSeenOnboard} />
-      </Layout>
+      <>
+        {this.renderBackgroundProccess()}
+        <Layout isSqueezed={isShownIndicator}>
+          {currentUser && <Navigation currentUser={currentUser} />}
+          {children}
+          <Welcome hasSeen={hasSeenOnboard} />
+        </Layout>
+      </>
     );
   }
 }

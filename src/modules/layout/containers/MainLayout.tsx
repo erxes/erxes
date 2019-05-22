@@ -10,8 +10,15 @@ type Props = {
 
 const container = (props: Props) => (
   <AppProvider currentUser={props.currentUser}>
-    <AppConsumer>{() => <MainLayout {...props} />}</AppConsumer>
+    <AppConsumer>
+      {({ isShownIndicator, closeLoadingBar }) => (
+        <MainLayout
+          {...props}
+          isShownIndicator={isShownIndicator}
+          closeLoadingBar={closeLoadingBar}
+        />
+      )}
+    </AppConsumer>
   </AppProvider>
 );
-
 export default container;
