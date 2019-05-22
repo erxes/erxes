@@ -16,6 +16,10 @@ module.exports.up = next => {
     MONGO_URL,
     { useNewUrlParser: true, useCreateIndex: true },
     async () => {
+      if (await UsersGroups.findOne({ name: 'Admin' })) {
+        return;
+      }
+
       const userGroup = await UsersGroups.create({ name: 'Admin', description: 'Admin permission' });
       const moduleKeys = Object.keys(moduleObjects);
       const groupId = userGroup._id;
