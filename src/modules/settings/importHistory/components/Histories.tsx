@@ -1,10 +1,15 @@
 import {
+  Button,
   DataWithLoader,
   HeaderDescription,
+  Pagination,
   Table
 } from 'modules/common/components';
+import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
+import { BarItems } from 'modules/layout/styles';
+import { DataImporter } from 'modules/settings/importHistory/containers';
 import * as React from 'react';
 import Sidebar from '../../properties/components/Sidebar';
 import { IImportHistory } from '../types';
@@ -16,14 +21,15 @@ type Props = {
   histories: IImportHistory[];
   removeHistory: (historyId: string) => void;
   loading: boolean;
+  totalCount: number;
 };
 
-class Histories extends React.Component<Props> {
+class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
     const { histories, removeHistory } = this.props;
 
     return (
-      <Table>
+      <Table hover={true}>
         <thead>
           <tr>
             <th>{__('Success')}</th>
@@ -41,6 +47,7 @@ class Histories extends React.Component<Props> {
                 key={history._id}
                 history={history}
                 removeHistory={removeHistory}
+                onClick={this.onClick}
               />
             );
           })}
@@ -49,8 +56,35 @@ class Histories extends React.Component<Props> {
     );
   };
 
+  renderImportButton = () => {
+    const { currentType } = this.props;
+    let url = 'https://s3.amazonaws.com/erxes/company_template.xlsx';
+
+    if (currentType === 'customer') {
+      url = 'https://s3.amazonaws.com/erxes/customer_template.xlsx';
+    }
+
+    return (
+      <BarItems>
+        <Button btnStyle="primary" size="small" icon="download-1" href={url}>
+          {__('Download template')}
+        </Button>
+        <DataImporter
+          type={currentType}
+          text={`${__('Import')} ${currentType}`}
+        />
+      </BarItems>
+    );
+  };
+
+  onClick = id => {
+    const { history } = this.props;
+
+    history.push(`/settings/importHistory/${id}`);
+  };
+
   render() {
-    const { currentType, histories, loading } = this.props;
+    const { currentType, histories, loading, totalCount } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -72,11 +106,13 @@ class Histories extends React.Component<Props> {
                 description="Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here."
               />
             }
+            right={this.renderImportButton()}
           />
         }
         leftSidebar={
           <Sidebar title="Import histories" currentType={currentType} />
         }
+        footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
             data={this.renderHistories()}

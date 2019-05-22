@@ -15,11 +15,12 @@ const UserHelper = styled.div`
   }
 `;
 
-const Layout = styled.main`
-  height: 100%;
+const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
+  height: ${props => (props.isSqueezed ? 'calc(100% - 36px)' : '100%')};
   display: flex;
   flex: 1;
   max-width: 100%;
+  position: relative;
 `;
 
 const MainWrapper = styled.div`
@@ -82,6 +83,8 @@ const ContenFooter = styled.div`
 `;
 
 const BarItems = styled.div`
+  white-space: nowrap;
+
   .dropdown-menu {
     min-width: 200px;
   }
