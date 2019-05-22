@@ -70,7 +70,7 @@ class DetectBrowser extends React.Component<{}, State> {
     const { userAgent } = navigator;
 
     if (userAgent.indexOf('Chrome') !== -1) {
-      return this.renderWarning('Chrome/', 90);
+      return this.renderWarning('Chrome/', 58);
     }
 
     if (
