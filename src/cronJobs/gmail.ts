@@ -27,7 +27,7 @@ export const callGmailUsersWatch = async () => {
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
 
-schedule.scheduleJob('0 22 * * *', () => {
+schedule.scheduleJob('0 22 * * * *', () => {
   callGmailUsersWatch();
 });
 

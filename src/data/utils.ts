@@ -344,19 +344,13 @@ export const sendNotification = async ({
   receivers,
   ...doc
 }: {
-  createdUser: string;
+  createdUser?: string;
   receivers: string[];
   title: string;
   content: string;
   notifType: string;
   link: string;
 }) => {
-  const createdUserObj = await Users.findOne({ _id: createdUser });
-
-  if (!createdUserObj) {
-    throw new Error('Created user not found');
-  }
-
   // collecting emails
   const recipients = await Users.find({ _id: { $in: receivers } });
 

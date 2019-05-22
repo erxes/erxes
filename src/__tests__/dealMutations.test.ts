@@ -367,12 +367,14 @@ describe('Test deals mutations', () => {
   test('Change deal', async () => {
     const args = {
       _id: deal._id,
+      destinationStageId: deal.stageId || '',
     };
 
     const mutation = `
-      mutation dealsChange($_id: String!) {
-        dealsChange(_id: $_id) {
-          _id
+      mutation dealsChange($_id: String!, $destinationStageId: String) {
+        dealsChange(_id: $_id, destinationStageId: $destinationStageId) {
+          _id,
+          stageId
         }
       }
     `;

@@ -12,7 +12,7 @@ export interface INotification {
 
 export interface INotificationDocument extends INotification, Document {
   _id: string;
-  createdUser: string;
+  createdUser?: string;
   receiver: string;
   date: Date;
   isRead: boolean;

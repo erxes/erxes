@@ -93,7 +93,24 @@ export const NOTIFICATION_TYPES = {
   CONVERSATION_ADD_MESSAGE: 'conversationAddMessage',
   CONVERSATION_ASSIGNEE_CHANGE: 'conversationAssigneeChange',
   CONVERSATION_STATE_CHANGE: 'conversationStateChange',
-  ALL: ['channelMembersChange', 'conversationAddMessage', 'conversationAssigneeChange', 'conversationStateChange'],
+  DEAL_ADD: 'dealAdd',
+  DEAL_REMOVE_ASSIGN: 'dealRemoveAssign',
+  DEAL_EDIT: 'dealEdit',
+  DEAL_CHANGE: 'dealChange',
+  DEAL_DUE_DATE: 'dealDueDate',
+  DEAL_DELETE: 'dealDelete',
+  ALL: [
+    'channelMembersChange',
+    'conversationAddMessage',
+    'conversationAssigneeChange',
+    'conversationStateChange',
+    'dealAdd',
+    'dealRemoveAssign',
+    'dealEdit',
+    'dealChange',
+    'dealDueDate',
+    'dealDelete',
+  ],
 };
 
 export const NOTIFICATION_MODULES = [
@@ -123,6 +140,37 @@ export const NOTIFICATION_MODULES = [
       {
         name: 'channelMembersChange',
         text: 'Members change',
+      },
+    ],
+  },
+
+  {
+    name: 'deals',
+    description: 'Deals',
+    types: [
+      {
+        name: 'dealAdd',
+        text: 'Assigned a new deal  card',
+      },
+      {
+        name: 'dealRemoveAssign',
+        text: 'Removed from the deal card',
+      },
+      {
+        name: 'dealEdit',
+        text: 'Deal card edited',
+      },
+      {
+        name: 'dealChange',
+        text: 'Moved between stages',
+      },
+      {
+        name: 'dealDueDate',
+        text: 'Due date is near',
+      },
+      {
+        name: 'dealDelete',
+        text: 'Deal card deleted',
       },
     ],
   },
