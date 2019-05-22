@@ -16,19 +16,19 @@ class Chart extends React.Component<IProps> {
   render() {
     const { data, height, loading } = this.props;
 
-    if (this.props.data.length === 0) {
-      return (
-        <ChartWrapper>
-          <EmptyState text="There is no data" size="full" icon="piechart" />
-        </ChartWrapper>
-      );
-    }
-
     if (loading) {
       return (
         <LoaderWrapper>
           <Spinner objective={true} />
         </LoaderWrapper>
+      );
+    }
+
+    if (this.props.data.length === 0) {
+      return (
+        <ChartWrapper>
+          <EmptyState text="There is no data" size="full" icon="piechart" />
+        </ChartWrapper>
       );
     }
 
