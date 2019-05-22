@@ -22,6 +22,8 @@ const pipelines = `
       _id
       name
       boardId
+      visiblity
+      memberIds
     }
   }
 `;

@@ -55,6 +55,7 @@ const pipelineDetail = `
     dealPipelineDetail(_id: $_id) {
       _id
       name
+      boardId
     }
   }
 `;
