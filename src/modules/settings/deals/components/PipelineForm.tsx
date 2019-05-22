@@ -38,13 +38,13 @@ class PipelineForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { pipeline, stages, selectedMembers } = this.props;
+
     this.state = {
-      name: props.pipeline ? props.pipeline.name : '',
-      stages: (props.stages || []).map(stage => ({ ...stage })),
-      visiblity: props.pipeline
-        ? props.pipeline.visiblity || 'public'
-        : 'public',
-      selectedMembers: this.generateMembersParams(props.selectedMembers)
+      name: pipeline ? pipeline.name : '',
+      stages: (stages || []).map(stage => ({ ...stage })),
+      visiblity: pipeline ? pipeline.visiblity || 'public' : 'public',
+      selectedMembers: this.generateMembersParams(selectedMembers)
     };
   }
 
