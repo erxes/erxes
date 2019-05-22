@@ -58,7 +58,7 @@ const fieldQueries = {
     };
 
     let schema: any = Companies.schema;
-    let fields: Array<{ _id: number; name: string; label?: string }> = [];
+    let fields: Array<{ _id: number; name: string; label?: string; brand?: string }> = [];
 
     if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
       const messengerIntegrations = await Integrations.find({ kind: INTEGRATION_KIND_CHOICES.MESSENGER });
@@ -88,7 +88,8 @@ const fieldQueries = {
               fields.push({
                 _id: Math.random(),
                 name: `messengerData.customData.${customDataField}`,
-                label: `${brand.name}: ${customDataField}`,
+                label: customDataField,
+                brand: brand.name,
               });
             }
           }
