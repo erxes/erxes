@@ -185,6 +185,7 @@ const facebookSchema = new Schema(
     id: field({
       type: String,
       label: 'Facebook ID',
+      index: true,
     }),
     profilePic: field({
       type: String,
