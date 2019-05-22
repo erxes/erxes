@@ -3,7 +3,7 @@ import * as React from 'react';
 
 type Props = {
   data: any;
-  count: any;
+  count?: any;
   loading: boolean;
   emptyText?: string;
   emptyIcon?: string;

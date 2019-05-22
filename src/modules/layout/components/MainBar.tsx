@@ -14,7 +14,7 @@ const TopBar = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
   box-shadow: 0 1px 6px ${colors.colorShadowGray};
-  position: fixed;
+  position: absolute;
   left: 0;
   right: 0;
   top: 0;

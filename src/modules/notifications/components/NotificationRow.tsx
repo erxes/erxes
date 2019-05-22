@@ -24,6 +24,18 @@ class NotificationRow extends React.Component<IProps> {
     history.push(notification.link);
   };
 
+  getTitle = (title, user) => {
+    if (!user) {
+      return title.replace('{userName}', '');
+    }
+
+    if (!(user.details && user.details.fullName)) {
+      return title.replace('{userName}', user.email);
+    }
+
+    return title.replace('{userName}', user.details.fullName);
+  };
+
   render() {
     const { notification } = this.props;
     const { isRead, createdUser } = notification;
@@ -33,7 +45,7 @@ class NotificationRow extends React.Component<IProps> {
       <li className={classes} onClick={this.markAsRead}>
         <NameCard
           user={createdUser}
-          firstLine={notification.title}
+          firstLine={this.getTitle(notification.title, createdUser)}
           secondLine={moment(notification.date).format('DD MMM YYYY, HH:mm')}
         />
       </li>
