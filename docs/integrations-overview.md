@@ -8,22 +8,22 @@ Avoid all the switching between apps like Twitter, Instagram and Facebook with o
 
 There are some integrations that we have developed.
 
-* [Facebook integration guide](/adminstrations/integrations)
+* [Facebook integration guide](administration/integrations#facebook-integration)
 
 Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox.
 
-* [Twitter integration guide](/adminstrations/integrations)
+* [Twitter integration guide](administration/integrations#twitter-integration)
 
 Erxes app can be integrated with twitter developer API and that means we can receive our twitter accounts DMs, Tweets directly into our erxes app's inbox.
 
-* [Gmail integration guide](/adminstrations/integrations)
+* [Gmail integration guide](administration/integrations#gmail-integration)
 
 Erxes app can be integrated with Gmail API and that means we can receive our gmail inbox messages directly to our erxes app's inbox.
 
-* [AWS S3 integration](/adminstrations/integrations)
+* [AWS S3 integration](administration/integrations#aws-s3-integration)
 
 Erxes app can be integrated with AWS S3 service and that means we can upload files and photos to our erxes app.
 
-* [AWS SES integration](/adminstrations/integrations)
+* [AWS SES integration](administration/integrations#aws-ses-integration)
 
 Erxes app can be integrated with AWS SES service and that means we can send emails to customers we want. Moreover, we can monitor about how many emails have sent successfully, how many emails are opened by customers and so on.

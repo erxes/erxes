@@ -2,12 +2,19 @@
 .headerTitleWithLogo {
   display: none !important;
 }
+
 .navigationSlider .slidingNav ul li a {
   background: #5629b6;
 }
+
+.nav-site {
+  background: #5629b6 !important;
+}
+
 img {
   max-width: 100%;
 }
+
 .notice {
   background: #fef4f6;
   color: #f0506e;
@@ -24,7 +31,6 @@ img {
 .footerLink {
   text-decoration: underline;
   color: gray;
-
 }
 
 @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
@@ -43,10 +49,41 @@ img {
   .fixedHeaderContainer header {
     align-items: center;
     justify-content: center;
-    margin-top: 10px;
   }
   .postHeaderTitle {
     margin-top: 20px !important;
+  }
+
+  .navSearchWrapper {
+    padding-top: 10px;
+    padding-right: 10%;
+    padding-top: 40px;
+    width: 85%;
+  }
+
+  .navSearchWrapper::before {
+    top: 55px;
+  }
+
+  .navSearchWrapper::after {
+    top: 57px;
+    left: 34px;
+  }
+
+  #search_input_react {
+    height: 30px;
+  }
+
+  .navigationSlider .slidingNav ul li a {
+    margin-top: 50px;
+  }
+
+  .docMainWrapper {
+    margin-top: 50px;
+  }
+
+  .post {
+    padding-top:0px;
   }
 }
 
