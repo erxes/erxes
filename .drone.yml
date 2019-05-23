@@ -1,6 +1,6 @@
 pipeline:
   install:
-    image: node:8-slim
+    image: node:10-slim
     commands:
       - node -v
       - npm -v
@@ -9,17 +9,17 @@ pipeline:
       - yarn install
 
   linting:
-    image: node:8-slim
+    image: node:10-slim
     commands:
       - yarn lint
 
   typescript:
-    image: node:8-slim
+    image: node:10-slim
     commands:
       - yarn tsc
 
   build:
-    image: node:8-slim
+    image: node:10-slim
     commands:
       - yarn build
       - mkdir prod
