@@ -825,6 +825,9 @@
   "Choose team members": "Choose team members",
   "erxes Inc": "erxes Inc",
   "Get": "Get",
-  "Download ios app for free on the App Store.": "Download ios app for free on the App Store.",
-  "Download android app for free on the Google play.": "Download android app for free on the Google play."
+  "Download ios app for free on the App Store": "Download ios app for free on the App Store.",
+  "Download android app for free on the Google play": "Download android app for free on the Google play.",
+  "Please upgrade your browser to use erxes!": "Please upgrade your browser to use erxes!",
+  "Unfortunately, You are running on a browser that may not be fully compatible with erxes": "Unfortunately, You are running on a browser that may not be fully compatible with erxes.",
+  "Please use recommended version": "Please use recommended version"
 }

@@ -7,6 +7,7 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 import { Navigation } from '../containers';
 import { Layout } from '../styles';
+import DetectBrowser from './DetectBrowser';
 
 interface IProps extends IRouterProps {
   currentUser?: IUser;
@@ -65,6 +66,7 @@ class MainLayout extends React.Component<IProps> {
           {currentUser && <Navigation currentUser={currentUser} />}
           {children}
           <Welcome hasSeen={hasSeenOnboard} />
+          <DetectBrowser />
         </Layout>
       </>
     );
