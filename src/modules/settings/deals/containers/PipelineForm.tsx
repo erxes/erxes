@@ -1,8 +1,11 @@
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import { Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
+import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { queries as userQuery } from '../../team/graphql';
 import { PipelineForm } from '../components';
 import { queries } from '../graphql';
 import { IPipeline, IStage, StagesQueryResponse } from '../types';
@@ -21,17 +24,35 @@ type Props = {
 
 type FinalProps = {
   stagesQuery: StagesQueryResponse;
+  usersQuery: UsersQueryResponse;
 } & Props;
 
-class EditPipelineFormContainer extends React.Component<FinalProps> {
+class PipelineFormContainer extends React.Component<FinalProps> {
   render() {
-    const { stagesQuery, boardId, save, closeModal, pipeline } = this.props;
+    const {
+      stagesQuery,
+      usersQuery,
+      boardId,
+      save,
+      closeModal,
+      pipeline
+    } = this.props;
 
-    if (stagesQuery.loading) {
+    if ((stagesQuery && stagesQuery.loading) || usersQuery.loading) {
       return <Spinner />;
     }
 
-    const stages = stagesQuery.dealStages;
+    const stages = stagesQuery ? stagesQuery.dealStages : [];
+    const members = usersQuery.users.filter(user => user.username) || [];
+    const memberIds = pipeline ? pipeline.memberIds || [] : [];
+
+    let selectedMembers: IUser[] = [];
+
+    if (pipeline) {
+      selectedMembers = members.filter(member =>
+        memberIds.includes(member._id)
+      );
+    }
 
     const extendedProps = {
       ...this.props,
@@ -39,36 +60,33 @@ class EditPipelineFormContainer extends React.Component<FinalProps> {
       boardId,
       save,
       closeModal,
-      pipeline
+      pipeline,
+      members,
+      selectedMembers
     };
 
     return <PipelineForm {...extendedProps} />;
   }
 }
 
-const EditPipelineForm = withProps<Props>(
+export default withProps<Props>(
   compose(
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
       gql(queries.stages),
       {
         name: 'stagesQuery',
+        skip: props => !props.pipeline,
         options: ({ pipeline }: { pipeline?: IPipeline }) => ({
           variables: { pipelineId: pipeline ? pipeline._id : '' },
           fetchPolicy: 'network-only'
         })
       }
-    )
-  )(EditPipelineFormContainer)
+    ),
+    graphql<Props, UsersQueryResponse, {}>(gql(userQuery.users), {
+      name: 'usersQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    })
+  )(PipelineFormContainer)
 );
-
-const PipelineFormContainer = (props: Props) => {
-  const { pipeline } = props;
-
-  if (pipeline) {
-    return <EditPipelineForm {...props} />;
-  }
-
-  return <PipelineForm {...props} />;
-};
-
-export default PipelineFormContainer;

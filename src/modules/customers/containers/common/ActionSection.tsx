@@ -1,7 +1,8 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { ActionSection } from 'modules/customers/components/common';
-import { mutations } from 'modules/customers/graphql';
+import { mutations, queries } from 'modules/customers/graphql';
 import {
   ICustomer,
   MergeMutationResponse,
@@ -60,10 +61,30 @@ const ActionSectionContainer = (props: FinalProps) => {
       });
   };
 
+  const searchCustomer = (
+    searchValue: string,
+    callback: (data?: any) => void
+  ) => {
+    client
+      .query({
+        query: gql(queries.customers),
+        variables: { searchValue, page: 1, perPage: 10 }
+      })
+      .then((response: any) => {
+        if (typeof callback === 'function') {
+          callback(response.data.customers);
+        }
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   const updatedProps = {
     ...props,
     remove,
-    merge
+    merge,
+    searchCustomer
   };
 
   return <ActionSection {...updatedProps} />;

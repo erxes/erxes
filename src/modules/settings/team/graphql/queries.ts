@@ -61,12 +61,14 @@ const channels = `
 
 const listParamsDef = `
   $searchValue: String,
-  $isActive: Boolean
+  $isActive: Boolean,
+  $ids: [String]
 `;
 
 const listParamsValue = `
   searchValue: $searchValue,
-  isActive: $isActive
+  isActive: $isActive,
+  ids: $ids
 `;
 
 const users = `
@@ -98,6 +100,20 @@ const users = `
   }
 `;
 
+const usersForSelector = `
+  query users {
+    users {
+      _id
+      email
+      username
+      details {
+        avatar
+        fullName
+      }
+    }
+  }
+`;
+
 const usersTotalCount = `
   query usersTotalCount(${listParamsDef}) {
     usersTotalCount(${listParamsValue})
@@ -109,5 +125,6 @@ export default {
   channels,
   userConversations,
   users,
-  usersTotalCount
+  usersTotalCount,
+  usersForSelector
 };

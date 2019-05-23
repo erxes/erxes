@@ -214,6 +214,7 @@ class KnowledgeForm extends React.Component<Props, State> {
 
         <FormGroup>
           <SelectBrand
+            isRequired={true}
             defaultValue={brandId}
             onChange={this.handleBrandChange}
           />

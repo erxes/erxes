@@ -69,7 +69,7 @@ class Gmail extends React.Component<
           <FormControl id="name" type="text" required={true} />
         </FormGroup>
 
-        <SelectBrand />
+        <SelectBrand isRequired={true} />
 
         <Accounts
           kind="gmail"
