@@ -17,7 +17,7 @@ module.exports.up = next => {
     { useNewUrlParser: true, useCreateIndex: true },
     async () => {
       if (await UsersGroups.findOne({ name: 'Admin' })) {
-        return;
+        return next();
       }
 
       const userGroup = await UsersGroups.create({ name: 'Admin', description: 'Admin permission' });
