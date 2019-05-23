@@ -4,4 +4,4 @@ COPY . /erxes-api
 RUN chown -R node:node /erxes-api
 USER node
 EXPOSE 3300
-CMD ["yarn", "start"]
+CMD ["node", "--max_old_space_size=8192", "--experimental-worker", "dist"]
