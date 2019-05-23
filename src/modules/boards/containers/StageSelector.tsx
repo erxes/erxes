@@ -13,15 +13,13 @@ type Props = {
   type: string;
 };
 
-export default ({ type, ...stageProps }: Props) => {
-  switch (type) {
-    case 'deal': {
-      return <DealStage {...stageProps} />;
-    }
-    case 'ticket': {
-      return <TicketStage {...stageProps} />;
-    }
-  }
+const STAGES = {
+  deal: DealStage,
+  ticket: TicketStage
+};
 
-  return null;
+export default ({ type, ...stageProps }: Props) => {
+  const Stage = STAGES[type];
+
+  return <Stage {...stageProps} />;
 };

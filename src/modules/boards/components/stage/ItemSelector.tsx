@@ -1,22 +1,22 @@
 import { DealItem } from 'modules/deals/containers/stage';
 import * as React from 'react';
-import { Item } from '../../types';
+import { Item as ItemType } from '../../types';
 
 type Props = {
   stageId: string;
-  item: Item;
+  item: ItemType;
   isDragging: boolean;
   provided;
   onTogglePopup: () => void;
   type: string;
 };
 
-export default ({ type, ...itemProps }: Props) => {
-  switch (type) {
-    case 'deal': {
-      return <DealItem {...itemProps} />;
-    }
-  }
+const ITEMS = {
+  deal: DealItem
+};
 
-  return null;
+export default ({ type, ...itemProps }: Props) => {
+  const Item = ITEMS[type];
+
+  return <Item {...itemProps} />;
 };
