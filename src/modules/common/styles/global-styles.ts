@@ -23,6 +23,7 @@ body {
     display: flex;
     flex: 1;
     height: 100%;
+    flex-direction: column;
   }
 }
 
@@ -777,6 +778,48 @@ a:hover {
 
 ::-webkit-scrollbar-track:active {
   background: rgba(10, 45, 65, .1);
+}
+
+/* svg */
+
+.checkmark {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) .1s forwards;
+}
+
+.svg-spinner-path {
+  stroke: ${colors.colorCoreGray};
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 0, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -30;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -100;
+  }
 }
 `;
 

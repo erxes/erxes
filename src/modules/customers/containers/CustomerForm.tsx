@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IQueryParams } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import {
   AddMutationResponse,
@@ -14,6 +15,7 @@ import { mutations } from '../graphql';
 type Props = {
   customer: ICustomer;
   closeModal: () => void;
+  queryParams: IQueryParams;
 };
 
 type FinalProps = Props & EditMutationResponse & AddMutationResponse;

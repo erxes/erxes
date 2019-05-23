@@ -24,12 +24,12 @@ type Props = {
 const ChannelFormContainer = (props: Props) => {
   const { channel, save, members } = props;
 
-  let selectedMembers: IUser[] = [];
+  let selectedMembers: string[] = [];
 
   if (channel) {
-    selectedMembers = members.filter(user =>
-      channel.memberIds.includes(user._id)
-    );
+    selectedMembers = members
+      .filter(user => channel.memberIds.includes(user._id))
+      .map(user => user._id);
   }
 
   const updatedProps = {

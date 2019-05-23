@@ -5,9 +5,9 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { __, readFile } from 'modules/common/utils';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import * as React from 'react';
 import * as Datetime from 'react-datetime';
-import Select from 'react-select-plus';
 import { Move } from '../../containers/editForm';
 import {
   Avatar,
@@ -21,7 +21,6 @@ import {
   SelectValue
 } from '../../styles/deal';
 import { IDeal } from '../../types';
-import { selectUserOptions } from '../../utils';
 
 type Props = {
   deal: IDeal;
@@ -75,22 +74,8 @@ class Top extends React.Component<Props> {
       closeDate,
       amount,
       assignedUserIds,
-      users,
       onChangeField
     } = this.props;
-
-    const content = option => (
-      <React.Fragment>
-        <Avatar src={readFile(option.avatar) || '/images/avatar-colored.svg'} />
-        {option.label}
-      </React.Fragment>
-    );
-
-    const userValue = option => <SelectValue>{content(option)}</SelectValue>;
-
-    const userOption = option => (
-      <SelectOption className="simple-option">{content(option)}</SelectOption>
-    );
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
@@ -100,8 +85,7 @@ class Top extends React.Component<Props> {
     const descriptionOnChange = e =>
       onChangeField('description', (e.target as HTMLInputElement).value);
 
-    const userOnChange = usrs =>
-      onChangeField('assignedUserIds', usrs.map(user => user.value));
+    const userOnChange = usrs => onChangeField('assignedUserIds', usrs);
 
     return (
       <React.Fragment>
@@ -131,6 +115,7 @@ class Top extends React.Component<Props> {
                 value={closeDate}
                 closeOnSelect={true}
                 onChange={dateOnChange}
+                utc={true}
               />
             </FormGroup>
           </HeaderContentSmall>
@@ -150,15 +135,11 @@ class Top extends React.Component<Props> {
           <RightContent>
             <FormGroup>
               <ControlLabel>Assigned to</ControlLabel>
-              <Select
-                placeholder={__('Choose users')}
+              <SelectTeamMembers
+                label="Choose users"
+                name="assignedUserIds"
                 value={assignedUserIds}
-                onChange={userOnChange}
-                optionRenderer={userOption}
-                valueRenderer={userValue}
-                removeSelected={true}
-                options={selectUserOptions(users)}
-                multi={true}
+                onSelect={userOnChange}
               />
             </FormGroup>
           </RightContent>
