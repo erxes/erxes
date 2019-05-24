@@ -1,20 +1,17 @@
-import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import { InsightContent, InsightTitle, InsightWrapper } from '../styles';
-import { ExportArgs, IQueryParams, SummaryData } from '../types';
+import { IQueryParams, SummaryData } from '../types';
 import { InboxFilter, Sidebar, Summary } from './';
 
 type Props = {
   brands: IBrand[];
-  users: IUser[];
   queryParams: IQueryParams;
   history: any;
-  conversationReport: (args: ExportArgs) => void;
-  summaryData: SummaryData[];
+  conversationReport: SummaryData[];
 };
 
 class ConversationReport extends React.Component<Props, { userId: string }> {
@@ -25,7 +22,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
   }
 
   renderContent() {
-    const { brands, history, queryParams, summaryData } = this.props;
+    const { brands, history, queryParams, conversationReport } = this.props;
 
     return (
       <InsightWrapper>
@@ -36,7 +33,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
         />
         <InsightContent>
           <InsightTitle>{__('response frequency averages block')}</InsightTitle>
-          <Summary data={summaryData} loading={false} />
+          <Summary data={conversationReport} loading={false} />
         </InsightContent>
       </InsightWrapper>
     );
