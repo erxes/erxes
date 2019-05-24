@@ -6,9 +6,9 @@ import {
 import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { MESSAGE_TYPES } from 'modules/engage/constants';
+import { SelectMessageType } from 'modules/engage/styles';
 import * as React from 'react';
-import styled from 'styled-components';
-import { BrandStep, SegmentStep, TagsStep } from '../../containers';
+import { BrandStep, SegmentStep, TagStep } from '../../containers';
 
 type Props = {
   clearState: () => void;
@@ -21,42 +21,46 @@ type Props = {
   tagIds: string[];
 };
 
-const Select = styled.div`
-  margin: 20px;
-`;
+type State = {
+  messageType: string;
+};
 
-class MessageTypeStep extends React.Component<Props, { type: string }> {
-  state = { type: 'segment' };
+class MessageTypeStep extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = { messageType: 'segment' };
+  }
 
   onChange = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({ type: (e.target as HTMLInputElement).value });
+    this.setState({ messageType: (e.target as HTMLInputElement).value });
     this.props.clearState();
   };
 
   renderSelector() {
     return (
-      <Select>
+      <SelectMessageType>
         <FormGroup>
           <ControlLabel>Choose a message type:</ControlLabel>
           <FormControl
-            id="type"
-            value={this.state.type}
+            id="messageType"
+            value={this.state.messageType}
             componentClass="select"
             options={MESSAGE_TYPES}
             onChange={this.onChange}
           />
         </FormGroup>
-      </Select>
+      </SelectMessageType>
     );
   }
 
-  renderContent = ({ actionSelector, componentContent, customerCounts }) => {
+  renderContent = ({ actionSelector, selectedComponent, customerCounts }) => {
     return (
       <FlexItem>
         <FlexItem direction="column" overflow="auto">
           {this.renderSelector()}
           {actionSelector}
-          {componentContent}
+          {selectedComponent}
         </FlexItem>
         <FlexItem direction="column" v="center" h="center">
           {customerCounts}
@@ -65,24 +69,34 @@ class MessageTypeStep extends React.Component<Props, { type: string }> {
     );
   };
 
-  render() {
-    const { type } = this.state;
-    const { segmentIds, brandIds, tagIds, onChange } = this.props;
+  stepComponent() {
+    let Component;
 
+    switch (this.state.messageType) {
+      case 'brand':
+        Component = BrandStep;
+        break;
+      case 'tag':
+        Component = TagStep;
+        break;
+      default:
+        Component = SegmentStep;
+        break;
+    }
+
+    return Component;
+  }
+
+  render() {
     const commonProps = {
-      renderContent: args => this.renderContent(args),
-      onChange
+      ...this.props,
+      messageType: this.state.messageType,
+      renderContent: args => this.renderContent(args)
     };
 
-    if (type === 'brand') {
-      return <BrandStep {...commonProps} brandIds={brandIds} />;
-    }
+    const Component = this.stepComponent();
 
-    if (type === 'tag') {
-      return <TagsStep {...commonProps} tagIds={tagIds} />;
-    }
-
-    return <SegmentStep {...commonProps} segmentIds={segmentIds} />;
+    return <Component {...commonProps} />;
   }
 }
 

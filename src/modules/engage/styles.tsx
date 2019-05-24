@@ -228,8 +228,28 @@ const StepFormWrapper = styled.div`
   padding: 20px;
 `;
 
-const Show = styledTS<{ show: boolean }>(styled.div)`
-  display: ${props => (props.show ? 'block' : 'none')};
+const ListWrapper = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
+const RadioContainer = styled.div`
+  border-bottom: 1px dotted ${colors.borderPrimary};
+
+  > * {
+    padding: ${dimensions.coreSpacing}px;
+  }
+`;
+
+const CustomerCounts = styled.div`
+  text-align: center;
+
+  > i {
+    color: ${colors.colorCoreLightGray};
+  }
+`;
+
+const SelectMessageType = styled.div`
+  margin: 20px;
 `;
 
 export {
@@ -255,5 +275,8 @@ export {
   LauncherContainer,
   WidgetPreview,
   StepFormWrapper,
-  Show
+  ListWrapper,
+  RadioContainer,
+  CustomerCounts,
+  SelectMessageType
 };

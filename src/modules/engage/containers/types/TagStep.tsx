@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
-import { TagsStep } from 'modules/engage/components/step';
+import { TagStep } from 'modules/engage/components/step';
 import { sumCounts } from 'modules/engage/components/step/types/utils';
 import { mutations } from 'modules/tags/graphql';
 import {
@@ -14,14 +14,16 @@ import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 
 type Props = {
+  tagIds: string[];
+  messageType: string;
   renderContent: (
     {
       actionSelector,
-      content,
+      selectedComponent,
       customerCounts
     }: {
       actionSelector: React.ReactNode;
-      content: React.ReactNode;
+      selectedComponent: React.ReactNode;
       customerCounts: React.ReactNode;
     }
   ) => React.ReactNode;
@@ -29,7 +31,6 @@ type Props = {
     name: 'brandIds' | 'tagIds' | 'segmentIds',
     value: string[]
   ) => void;
-  tagIds: string[];
 };
 
 type FinalProps = {
@@ -38,11 +39,11 @@ type FinalProps = {
 } & Props &
   AddMutationResponse;
 
-const TagsStepContianer = (props: FinalProps) => {
+const TagStepContianer = (props: FinalProps) => {
   const { tagsQuery, addMutation, customerCountsQuery } = props;
 
   const tagAdd = ({ doc }) => {
-    addMutation({ variables: { ...doc, type: 'engageMessage' } })
+    addMutation({ variables: { ...doc, type: 'customer' } })
       .then(() => {
         tagsQuery.refetch();
         customerCountsQuery.refetch();
@@ -58,26 +59,24 @@ const TagsStepContianer = (props: FinalProps) => {
   };
 
   const countValues = customerCounts.byTag || {};
-  const counts = (ids: string[]) => {
-    return sumCounts(ids, countValues);
-  };
+  const customersCount = (ids: string[]) => sumCounts(ids, countValues);
 
   const updatedProps = {
     ...props,
     tags: tagsQuery.tags || [],
-    listCount: countValues,
-    counts,
+    targetCount: countValues,
+    customersCount,
     tagAdd
   };
 
-  return <TagsStep {...updatedProps} />;
+  return <TagStep {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
     graphql<Props, TagsQueryResponse>(gql(queries.tags), {
       name: 'tagsQuery',
-      options: () => ({ variables: { type: 'engageMessage' } })
+      options: () => ({ variables: { type: 'customer' } })
     }),
     graphql<Props, CountQueryResponse, { only: string }>(
       gql(queries.customerCounts),
@@ -93,5 +92,5 @@ export default withProps<Props>(
     graphql<Props, AddMutationResponse, MutationVariables>(gql(mutations.add), {
       name: 'addMutation'
     })
-  )(TagsStepContianer)
+  )(TagStepContianer)
 );

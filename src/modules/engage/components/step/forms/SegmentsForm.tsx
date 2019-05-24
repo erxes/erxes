@@ -24,7 +24,7 @@ type Props = {
   create: (params: { doc: ISegmentDoc }) => void;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
-  createSegment: (value: boolean) => void;
+  showForm: (value: boolean) => void;
 };
 
 type State = {
@@ -112,7 +112,7 @@ class SegmentsForm extends React.Component<Props, State> {
     }
 
     this.props.create(params);
-    this.props.createSegment(false);
+    this.props.showForm(false);
   };
 
   renderConditions() {

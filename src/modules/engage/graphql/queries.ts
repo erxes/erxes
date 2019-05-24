@@ -3,6 +3,9 @@ const listParamsDef = `
   $status: String
   $tag: String
   $ids: [String]
+  $tagIds: [String]
+  $brandIds: [String]
+  $segmentIds: [String]
   $page: Int
   $perPage: Int
 `;
@@ -12,6 +15,9 @@ const listParamsValue = `
   status: $status
   tag: $tag
   ids: $ids
+  tagIds: $tagIds
+  brandIds: $brandIds
+  segmentIds: $segmentIds
   page: $page
   perPage: $perPage
 `;
@@ -27,10 +33,10 @@ const engageMessages = `
       createdDate
       kind
       method
-      brand {
+      brands {
         name
       }
-      segment {
+      segments {
         _id
         name
       }
@@ -43,6 +49,8 @@ const engageMessages = `
         }
       }
       tagIds
+      brandIds 
+      segmentIds 
       stats
       getTags {
         _id

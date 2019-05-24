@@ -1,7 +1,7 @@
 import { IConditionsRule } from 'modules/common/types';
 import { IUser } from '../auth/types';
 import { IAttachment } from '../common/types';
-import { ISegment, ISegmentCondition } from '../segments/types';
+import { ISegment, ISegmentCondition, ISegmentDoc } from '../segments/types';
 import { IBrand } from '../settings/brands/types';
 import { ITag } from '../tags/types';
 
@@ -165,4 +165,16 @@ export type AddMutationResponse = {
   messagesAddMutation: (
     params: { variables: IEngageMessageDoc }
   ) => Promise<any>;
+};
+
+export type BrandAdd = (
+  params: { doc: { name: string; description: string } }
+) => void;
+export type TagAdd = (
+  params: { doc: { name: string; description: string } }
+) => void;
+export type SegmentAdd = (params: { doc: ISegmentDoc }) => void;
+
+export type TargetCount = {
+  [key: string]: number;
 };

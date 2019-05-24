@@ -10,7 +10,7 @@ import * as React from 'react';
 
 type Props = {
   create: (params: { doc: { name: string; description: string } }) => void;
-  createBrand: (value: boolean) => void;
+  showForm: (value: boolean) => void;
 };
 
 type State = {
@@ -31,7 +31,7 @@ class BrandForm extends React.Component<Props, State> {
   save = e => {
     e.preventDefault();
 
-    const { create, createBrand } = this.props;
+    const { create, showForm } = this.props;
     const { name, description } = this.state;
 
     if (name.length === 0) {
@@ -43,7 +43,7 @@ class BrandForm extends React.Component<Props, State> {
     }
 
     create(this.generateDoc());
-    createBrand(false);
+    showForm(false);
   };
 
   generateDoc = () => {

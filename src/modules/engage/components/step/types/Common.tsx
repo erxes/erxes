@@ -1,115 +1,166 @@
 import { FormControl, Icon } from 'modules/common/components';
-import { colors, dimensions } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import { ISegment } from 'modules/segments/types';
+import { CustomerCounts, RadioContainer } from 'modules/engage/styles';
+import {
+  BrandAdd,
+  SegmentAdd,
+  TagAdd,
+  TargetCount
+} from 'modules/engage/types';
+import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { ITag } from 'modules/tags/types';
 import * as React from 'react';
-import styled from 'styled-components';
-import { List } from '../..';
-
-const ListContainer = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-`;
-
-const RadioContainer = styled.div`
-  border-bottom: 1px dotted ${colors.borderPrimary};
-
-  > * {
-    padding: ${dimensions.coreSpacing}px;
-  }
-`;
-
-const CustomerCounts = styled.div`
-  text-align: center;
-
-  > i {
-    color: ${colors.colorCoreLightGray};
-  }
-`;
+import { Targets } from '../..';
 
 type Props = {
-  content: ({ actionSelector, listContent, customerCounts }) => any;
-  customers: number;
-  onChange: () => void;
-  onChangeToggle: () => void;
-  checked: boolean;
   name: string;
-  type: string;
-  list: ISegment[] | IBrand[] | ITag[];
-  counts: any;
-  changeList: (name: string[]) => void;
-  ids: string[];
+  label: string;
+  targetIds: string[];
+  messageType: string;
+  targets: ISegment[] | IBrand[] | ITag[];
+  save: BrandAdd | SegmentAdd | TagAdd;
+  targetCount: TargetCount;
+  Form: any;
+  formProps?: {
+    count?: (segment: ISegmentDoc) => void;
+    headSegments?: ISegment[];
+    segmentFields?: ISegmentField[];
+  };
+  customersCount: (ids: string[]) => number;
+  onChange: (
+    name: 'brandIds' | 'tagIds' | 'segmentIds',
+    value: string[]
+  ) => void;
+  content: (
+    {
+      actionSelector,
+      selectedComponent,
+      customerCounts
+    }: {
+      actionSelector: React.ReactNode;
+      selectedComponent;
+      customerCounts: React.ReactNode;
+    }
+  ) => React.ReactNode;
 };
 
-function renderCounts(customers: number) {
-  return (
-    <CustomerCounts>
-      <Icon icon="users" size={50} />
-      <p>
-        {customers} {__('customers')}
-      </p>
-    </CustomerCounts>
-  );
-}
+type State = {
+  targetIds: string[];
+  show: boolean;
+};
 
-const Common = (props: Props) => {
-  const renderRadioControl = ({ label, ...args }) => {
+class Common extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      targetIds: props.targetIds || [],
+      show: false
+    };
+  }
+
+  toggleForm = () => {
+    this.setState(s => ({ show: !s.show }));
+  };
+
+  showForm = (show: boolean) => {
+    this.setState({ show });
+  };
+
+  onChangeStep = (name, targetIds: string[]) => {
+    this.setState({ targetIds }, () => {
+      this.props.onChange(name, targetIds);
+    });
+  };
+
+  renderCounts() {
+    const { targetIds } = this.state;
+
     return (
-      <FormControl {...args} componentClass="radio" name={props.name}>
-        {label}
+      <CustomerCounts>
+        <Icon icon="users" size={50} />
+        <p>
+          {this.props.customersCount(targetIds)} {__('customers')}
+        </p>
+      </CustomerCounts>
+    );
+  }
+
+  renderRadioControl = ({ title, ...args }) => {
+    const { label } = this.props;
+
+    return (
+      <FormControl
+        {...args}
+        name={label}
+        onChange={this.toggleForm}
+        value={this.state.show}
+        componentClass="radio"
+      >
+        {title}
       </FormControl>
     );
   };
 
-  const {
-    content,
-    onChange,
-    checked,
-    type,
-    onChangeToggle,
-    list,
-    customers,
-    changeList,
-    counts,
-    ids
-  } = props;
+  renderActionSelector() {
+    const { show } = this.state;
+    const { messageType } = this.props;
 
-  const actionSelector = (
-    <RadioContainer>
-      {renderRadioControl({
-        onChange,
-        value: false,
-        checked: checked === false,
-        label: __(`Choose a ${type}`)
-      })}
+    return (
+      <RadioContainer>
+        {this.renderRadioControl({
+          checked: show === false,
+          title: __(`Choose a ${messageType}`)
+        })}
 
-      {renderRadioControl({
-        onChange: onChangeToggle,
-        value: true,
-        checked: checked === true,
-        label: __(`Create a ${type}`)
-      })}
-    </RadioContainer>
-  );
+        {this.renderRadioControl({
+          checked: show === true,
+          title: __(`Create a ${messageType}`)
+        })}
+      </RadioContainer>
+    );
+  }
 
-  const listContent = checked ? null : (
-    <ListContainer>
-      <List
-        list={list}
-        type={type}
-        changeList={changeList}
-        counts={counts}
-        defaultValue={ids}
+  renderSelectedComponent() {
+    const {
+      targets,
+      messageType,
+      targetCount,
+      targetIds,
+      name,
+      Form,
+      formProps,
+      save
+    } = this.props;
+
+    if (this.state.show) {
+      return <Form {...formProps} create={save} showForm={this.showForm} />;
+    }
+
+    return (
+      <Targets
+        name={name}
+        targets={targets}
+        messageType={messageType}
+        targetCount={targetCount}
+        defaultValues={targetIds}
+        onChangeStep={this.onChangeStep}
       />
-    </ListContainer>
-  );
+    );
+  }
 
-  return content({
-    actionSelector,
-    listContent,
-    customerCounts: renderCounts(customers)
-  });
-};
+  render() {
+    const actionSelector = this.renderActionSelector();
+    const selectedComponent = this.renderSelectedComponent();
+    const customerCounts = this.renderCounts();
+
+    return this.props.content({
+      actionSelector,
+      selectedComponent,
+      customerCounts
+    });
+  }
+}
 
 export default Common;

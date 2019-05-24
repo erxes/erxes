@@ -14,22 +14,23 @@ import { BrandStep } from '../../components';
 import { queries } from '../../graphql';
 
 type Props = {
-  renderContent: (
-    {
-      actionSelector,
-      content,
-      customerCounts
-    }: {
-      actionSelector: React.ReactNode;
-      content: React.ReactNode;
-      customerCounts: React.ReactNode;
-    }
-  ) => React.ReactNode;
+  messageType: string;
+  brandIds: string[];
   onChange: (
     name: 'brandIds' | 'tagIds' | 'segmentIds',
     value: string[]
   ) => void;
-  brandIds: string[];
+  renderContent: (
+    {
+      actionSelector,
+      selectedComponent,
+      customerCounts
+    }: {
+      actionSelector: React.ReactNode;
+      selectedComponent: React.ReactNode;
+      customerCounts: React.ReactNode;
+    }
+  ) => React.ReactNode;
 };
 
 type FinalProps = {
@@ -58,15 +59,13 @@ const BrandStepContianer = (props: FinalProps) => {
   };
 
   const countValues = customerCounts.byBrand || {};
-  const counts = (ids: string[]) => {
-    return sumCounts(ids, countValues);
-  };
+  const customersCount = (ids: string[]) => sumCounts(ids, countValues);
 
   const updatedProps = {
     ...props,
     brands: brandsQuery.brands || [],
-    listCount: countValues,
-    counts,
+    targetCount: countValues,
+    customersCount,
     brandAdd
   };
 

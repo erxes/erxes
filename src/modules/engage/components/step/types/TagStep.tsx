@@ -1,24 +1,20 @@
-import { __ } from 'modules/common/utils';
 import { TargetCount } from 'modules/engage/types';
-import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
+import { ITag } from 'modules/tags/types';
 import * as React from 'react';
-import { SegmentsForm } from '../forms';
+import { TagsForm } from '../forms';
 import Common from './Common';
 
 type Props = {
+  tagIds: string[];
   messageType: string;
+  tags: ITag[];
   targetCount: TargetCount;
-  segmentIds: string[];
-  segments: ISegment[];
-  headSegments: ISegment[];
-  segmentFields: ISegmentField[];
   customersCount: (ids: string[]) => number;
-  segmentAdd: (params: { doc: ISegmentDoc }) => void;
-  count: (segment: ISegmentDoc) => void;
   onChange: (
     name: 'brandIds' | 'tagIds' | 'segmentIds',
     value: string[]
   ) => void;
+  tagAdd: (params: { doc: { name: string; description: string } }) => void;
   renderContent: (
     {
       actionSelector,
@@ -32,43 +28,33 @@ type Props = {
   ) => React.ReactNode;
 };
 
-const SegmentStep = (props: Props) => {
+const TagStep = (props: Props) => {
   const {
-    segmentAdd,
+    tagAdd,
     onChange,
-    segments,
-    segmentIds,
+    tags,
+    tagIds,
     targetCount,
     customersCount,
     messageType,
-    renderContent,
-    segmentFields,
-    headSegments,
-    count
+    renderContent
   } = props;
-
-  const formProps = {
-    fields: segmentFields,
-    headSegments,
-    count
-  };
 
   return (
     <Common
-      name="segmentIds"
-      label="Create a segment"
-      targetIds={segmentIds}
+      name="tagIds"
+      label="Create a tag"
+      targetIds={tagIds}
       messageType={messageType}
-      targets={segments}
+      targets={tags}
       targetCount={targetCount}
       customersCount={customersCount}
       onChange={onChange}
-      save={segmentAdd}
-      Form={SegmentsForm}
+      save={tagAdd}
+      Form={TagsForm}
       content={renderContent}
-      formProps={formProps}
     />
   );
 };
 
-export default SegmentStep;
+export default TagStep;

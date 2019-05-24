@@ -15,22 +15,23 @@ import { SegmentStep } from '../../components';
 import { mutations, queries } from '../../graphql';
 
 type Props = {
-  renderContent: (
-    {
-      actionSelector,
-      content,
-      customerCounts
-    }: {
-      actionSelector: React.ReactNode;
-      content: React.ReactNode;
-      customerCounts: React.ReactNode;
-    }
-  ) => React.ReactNode;
+  segmentIds: string[];
+  messageType: string;
   onChange: (
     name: 'brandIds' | 'tagIds' | 'segmentIds',
     value: string[]
   ) => void;
-  segmentIds: string[];
+  renderContent: (
+    {
+      actionSelector,
+      selectedComponent,
+      customerCounts
+    }: {
+      actionSelector: React.ReactNode;
+      selectedComponent: React.ReactNode;
+      customerCounts: React.ReactNode;
+    }
+  ) => React.ReactNode;
 };
 
 type FinalProps = {
@@ -55,9 +56,7 @@ const SegmentStepContainer = (props: FinalProps) => {
   };
 
   const countValues = customerCounts.bySegment || {};
-  const counts = (ids: string[]) => {
-    return sumCounts(ids, countValues);
-  };
+  const customersCount = (ids: string[]) => sumCounts(ids, countValues);
 
   const segmentFields = combinedFieldsQuery.fieldsCombinedByContentType
     ? combinedFieldsQuery.fieldsCombinedByContentType.map(
@@ -93,8 +92,8 @@ const SegmentStepContainer = (props: FinalProps) => {
     segmentFields,
     segmentAdd,
     segments: segmentsQuery.segments || [],
-    listCount: countValues,
-    counts,
+    targetCount: countValues,
+    customersCount,
     count
   };
 

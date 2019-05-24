@@ -18,7 +18,7 @@ type Props = {
       };
     }
   ) => void;
-  createTag: (value: boolean) => void;
+  showForm: (value: boolean) => void;
 };
 
 type State = {
@@ -41,7 +41,7 @@ class TagsForm extends React.Component<Props, State> {
   save = e => {
     e.preventDefault();
 
-    const { create, createTag } = this.props;
+    const { create, showForm } = this.props;
     const { name, description, colorCode } = this.state;
 
     if (name.length === 0) {
@@ -57,7 +57,7 @@ class TagsForm extends React.Component<Props, State> {
     }
 
     create(this.generateDoc());
-    createTag(false);
+    showForm(false);
   };
 
   generateDoc = () => {

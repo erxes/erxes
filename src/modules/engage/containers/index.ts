@@ -5,7 +5,7 @@ import MessageList from './MessageList';
 import MessageListRow from './MessageListRow';
 import MessengerPreview from './MessengerPreview';
 import Sidebar from './Sidebar';
-import { BrandStep, SegmentStep, TagsStep } from './types';
+import { BrandStep, SegmentStep, TagStep } from './types';
 import VisitorForm from './VisitorForm';
 import Widget from './Widget';
 
@@ -21,5 +21,5 @@ export {
   Sidebar,
   SegmentStep,
   BrandStep,
-  TagsStep
+  TagStep
 };
