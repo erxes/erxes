@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import debounce from 'lodash/debounce';
 import { Avatar, SelectOption, SelectValue } from 'modules/deals/styles/deal';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -88,7 +89,7 @@ class SelectWithSearch extends React.Component<
 
     const onSearch = (searchValue: string) => {
       if (searchValue) {
-        search(searchValue);
+        debounce(() => search(searchValue), 500)();
       }
     };
 
