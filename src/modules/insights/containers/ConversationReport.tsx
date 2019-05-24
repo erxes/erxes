@@ -26,8 +26,16 @@ class ConversationReportContainer extends React.Component<Props> {
       history,
       queryParams,
       brands: brandsQuery.brands || [],
-      conversationReport:
-        insightsConversationSummaryQuery.insightsConversationSummary || []
+      conversationReport: insightsConversationSummaryQuery.insightsConversationSummary || {
+        avg: [
+          { title: 'Average all operator response time', count: 0 },
+          { title: 'Average all customer response time', count: 0 },
+          { title: 'Average internal response time', count: 0 },
+          { title: 'All average', count: 0 }
+        ],
+        trend: [],
+        teamMembers: []
+      }
     };
 
     return <ConversationReport {...extendedProps} />;

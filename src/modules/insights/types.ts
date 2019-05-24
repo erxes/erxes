@@ -62,7 +62,10 @@ export type SummaryDataQueryResponse = {
 };
 
 export type ConversationSummaryDataQueryResponse = {
-  insightsConversationSummary: SummaryData[];
+  insightsConversationSummary: {
+    avg: Array<{ [key: string]: number }>;
+    trend: IChartParams[];
+  };
   loading: boolean;
 };
 

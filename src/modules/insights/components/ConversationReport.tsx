@@ -3,15 +3,23 @@ import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
-import { InsightContent, InsightTitle, InsightWrapper } from '../styles';
-import { IQueryParams, SummaryData } from '../types';
-import { InboxFilter, Sidebar, Summary } from './';
+import {
+  InsightContent,
+  InsightRow,
+  InsightTitle,
+  InsightWrapper
+} from '../styles';
+import { IChartParams, IQueryParams } from '../types';
+import { Chart, InboxFilter, Sidebar, Summary } from './';
 
 type Props = {
   brands: IBrand[];
   queryParams: IQueryParams;
   history: any;
-  conversationReport: SummaryData[];
+  conversationReport: {
+    avg: Array<{ [key: string]: number }>;
+    trend: IChartParams[];
+  };
 };
 
 class ConversationReport extends React.Component<Props, { userId: string }> {
@@ -32,8 +40,21 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
           queryParams={queryParams}
         />
         <InsightContent>
-          <InsightTitle>{__('response frequency averages block')}</InsightTitle>
-          <Summary data={conversationReport} loading={false} />
+          <InsightRow>
+            <InsightTitle>
+              {__('response frequency averages block')}
+            </InsightTitle>
+            <Summary data={conversationReport.avg} loading={false} />
+          </InsightRow>
+
+          <InsightRow>
+            <InsightTitle>{__('Trend')}</InsightTitle>
+            <Chart
+              loading={false}
+              height={300}
+              data={conversationReport.trend}
+            />
+          </InsightRow>
         </InsightContent>
       </InsightWrapper>
     );
