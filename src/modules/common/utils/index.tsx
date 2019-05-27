@@ -6,7 +6,6 @@ import Alert from './Alert';
 import colorParser from './colorParser';
 import confirm from './confirmation/confirm';
 import router from './router';
-import { searchCompany, searchCustomer, searchUser } from './searchers';
 import toggleCheckBoxes from './toggleCheckBoxes';
 import uploadHandler from './uploadHandler';
 import urlParser from './urlParser';
@@ -96,10 +95,7 @@ export {
   confirm,
   toggleCheckBoxes,
   urlParser,
-  colorParser,
-  searchCompany,
-  searchUser,
-  searchCustomer
+  colorParser
 };
 
 export const can = (actionName: string, currentUser: IUser): boolean => {

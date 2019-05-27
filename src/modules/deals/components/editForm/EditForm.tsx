@@ -116,7 +116,7 @@ class DealEditForm extends React.Component<Props, State> {
       name,
       companyIds: companies.map(company => company._id),
       customerIds: customers.map(customer => customer._id),
-      closeDate: closeDate && new Date(closeDate),
+      closeDate,
       description,
       productsData,
       stageId,

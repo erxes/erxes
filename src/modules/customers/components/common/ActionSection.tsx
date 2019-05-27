@@ -4,7 +4,7 @@ import {
   Icon,
   ModalTrigger
 } from 'modules/common/components';
-import { __, Alert, confirm, searchCustomer } from 'modules/common/utils';
+import { __, Alert, confirm } from 'modules/common/utils';
 import { CustomersMerge, TargetMerge } from 'modules/customers/components';
 import { CustomerForm } from 'modules/customers/containers';
 import { ICustomer } from 'modules/customers/types';
@@ -15,6 +15,7 @@ type Props = {
   customer: ICustomer;
   remove: () => void;
   merge: (doc: { ids: string[]; data: ICustomer }) => void;
+  searchCustomer: (value: string, callback: (objects: any[]) => void) => void;
   isSmall?: boolean;
 };
 
@@ -59,7 +60,7 @@ class ActionSection extends React.Component<Props> {
   }
 
   render() {
-    const { customer, merge, remove } = this.props;
+    const { customer, merge, remove, searchCustomer } = this.props;
 
     const onClick = () =>
       confirm()

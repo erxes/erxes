@@ -94,7 +94,7 @@ const HeaderLink = styled(HeaderButton)`
   font-size: 12px;
   background: rgba(0, 0, 0, 0.04);
   border-radius: 17px;
-
+  line-height: 21px;
   a {
     color: ${colors.colorCoreGray};
     padding: 0 11px;
@@ -103,6 +103,24 @@ const HeaderLink = styled(HeaderButton)`
 
     &:hover {
       color: ${colors.colorCoreDarkGray};
+    }
+  }
+
+  .filter-success {
+    padding: 5px 15px;
+    background: #3ccc38;
+    font-size: 10px;
+    text-decoration: underline;
+    box-shadow: none;
+  }
+
+  .filter-link {
+    color: ${colors.colorCoreGray};
+    padding: 0 12px;
+    display: block;
+    line-height: 34px;
+    span {
+      margin-left: 0;
     }
   }
 `;

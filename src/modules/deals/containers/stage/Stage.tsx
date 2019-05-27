@@ -10,6 +10,7 @@ import {
   IStage,
   SaveDealMutation
 } from 'modules/deals/types';
+import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PipelineConsumer } from '../PipelineContext';
@@ -20,7 +21,7 @@ type WrapperProps = {
   loadingState: 'readyToLoad' | 'loaded';
   deals: IDeal[];
   length: number;
-  search?: string;
+  queryParams: IQueryParams;
 };
 
 type StageProps = {
@@ -56,7 +57,7 @@ class StageContainer extends React.PureComponent<
   }
 
   loadMore = () => {
-    const { onLoad, stage, deals, search } = this.props;
+    const { onLoad, stage, deals, queryParams } = this.props;
 
     if (deals.length === stage.dealsTotalCount) {
       return;
@@ -67,8 +68,8 @@ class StageContainer extends React.PureComponent<
         query: gql(queries.deals),
         variables: {
           stageId: stage._id,
-          search,
-          skip: deals.length
+          skip: deals.length,
+          ...getFilterParams(queryParams)
         }
       })
       .then(({ data }: any) => {
@@ -118,15 +119,34 @@ class StageContainer extends React.PureComponent<
   }
 }
 
+const getFilterParams = queryParams => {
+  if (!queryParams) {
+    return {};
+  }
+
+  return {
+    search: queryParams.search,
+    customerIds: queryParams.customerIds,
+    companyIds: queryParams.companyIds,
+    assignedUserIds: queryParams.assignedUserIds,
+    nextDay: queryParams.nextDay,
+    nextWeek: queryParams.nextWeek,
+    nextMonth: queryParams.nextMonth,
+    noCloseDate: queryParams.noCloseDate,
+    overdue: queryParams.overdue,
+    productIds: queryParams.productIds
+  };
+};
+
 const WithData = withProps<StageProps>(
   compose(
     graphql<StageProps>(gql(queries.deals), {
       name: 'dealsQuery',
       skip: ({ loadingState }) => loadingState !== 'readyToLoad',
-      options: ({ stage, search, loadingState }) => ({
+      options: ({ stage, loadingState, queryParams }) => ({
         variables: {
           stageId: stage._id,
-          search
+          ...getFilterParams(queryParams)
         },
         fetchPolicy:
           loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',

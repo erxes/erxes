@@ -1,5 +1,6 @@
 import ActionBar from './ActionBar';
 import AuthLayout from './AuthLayout';
+import DetectBrowser from './DetectBrowser';
 import Header from './Header';
 import MainBar from './MainBar';
 import MainLayout from './MainLayout';
@@ -21,5 +22,6 @@ export {
   NotFound,
   PageContent,
   Sidebar,
-  Wrapper
+  Wrapper,
+  DetectBrowser
 };
