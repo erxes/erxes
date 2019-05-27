@@ -36,6 +36,7 @@ import {
   PageHeader
 } from '../styles/header';
 import { IBoard, IPipeline } from '../types';
+import ColorChooser from './ColorChooser';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -230,6 +231,9 @@ class MainActionBar extends React.Component<Props, State> {
     const calendarLink = this.onFilterClick('calendar');
     const hasFilter = isFiltered();
     const active = isFiltered();
+
+    const pipelineId = currentPipeline ? currentPipeline._id : '';
+
     const actionBarLeft = (
       <HeaderItems>
         <HeaderLabel>
@@ -358,6 +362,8 @@ class MainActionBar extends React.Component<Props, State> {
           </Tip>
           {DealFilter}
         </HeaderLink>
+
+        <ColorChooser pipelineId={pipelineId} />
 
         <ButtonGroup>
           <Link

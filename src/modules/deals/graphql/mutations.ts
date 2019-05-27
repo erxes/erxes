@@ -107,6 +107,12 @@ const stagesChange = `
   }
 `;
 
+const changeBackground = `
+  mutation dealPipelinesChangeBackground($_id: String!, $backgroundColor: String) {
+    dealPipelinesChangeBackground(_id: $_id, backgroundColor: $backgroundColor)
+  }
+`;
+
 export default {
   dealsAdd,
   dealsEdit,
@@ -114,5 +120,6 @@ export default {
   dealsUpdateOrder,
   stagesUpdateOrder,
   dealsChange,
-  stagesChange
+  stagesChange,
+  changeBackground
 };

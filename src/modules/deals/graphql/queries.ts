@@ -80,6 +80,7 @@ const pipelineDetail = `
       _id
       name
       boardId
+      backgroundColor
     }
   }
 `;

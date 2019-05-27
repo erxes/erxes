@@ -4,6 +4,7 @@ export interface IPipeline {
   _id: string;
   name: string;
   boardId?: string;
+  backgroundColor?: string;
   order?: number;
   visiblity?: string;
   memberIds?: string[];

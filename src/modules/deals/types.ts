@@ -20,6 +20,7 @@ export interface IBoard {
 export interface IPipeline {
   _id: string;
   name: string;
+  backgroundColor?: string;
 }
 
 export interface IStage {
@@ -195,3 +196,9 @@ export type ProductsQueryResponse = {
 export type ProductAddMutationResponse = {
   productAdd: (params: { variables: IProductDoc }) => Promise<void>;
 };
+
+export type ChangeBackgroundMutation = (
+  {
+    variables: { _id, backgrondColor }
+  }
+) => Promise<any>;

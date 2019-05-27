@@ -1,6 +1,11 @@
 import { Calendar } from 'modules/common/components';
-import { IDateColumn } from 'modules/common/types';
+import { IDateColumn, IQueryParams } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import DealProvider, {
+  DealConsumer
+} from 'modules/deals/containers/DealContext';
+import withPipelineDetail from 'modules/deals/containers/withPipeline';
+import { IPipeline } from 'modules/deals/types';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -8,11 +13,12 @@ import { DealColumn, MainActionBar } from '../../containers';
 import {
   BoardContainer,
   BoardContent,
-  ScrolledContent
+  PipelineContent
 } from '../../styles/common';
 
 type Props = {
-  queryParams: any;
+  queryParams: IQueryParams;
+  pipeline: IPipeline;
 };
 
 const Container = styled.div`
@@ -54,8 +60,17 @@ class CalendarView extends React.Component<Props> {
     return <MainActionBar middleContent={renderMiddleContent} />;
   };
 
-  renderMonthView(renderMonths: () => React.ReactNode[]) {
-    return <Container>{renderMonths()}</Container>;
+  renderMonthView(
+    renderMonths: () => React.ReactNode[],
+    backgroundColor: string = ''
+  ) {
+    const { pipeline } = this.props;
+
+    return (
+      <PipelineContent color={backgroundColor || pipeline.backgroundColor}>
+        <Container>{renderMonths()}</Container>
+      </PipelineContent>
+    );
   }
 
   renderContent = (
@@ -65,15 +80,19 @@ class CalendarView extends React.Component<Props> {
     const breadcrumb = [{ title: __('Deal') }];
 
     return (
-      <BoardContainer>
-        <Header title={__('Deal')} breadcrumb={breadcrumb} />
-        <BoardContent transparent={true}>
-          {this.renderActionBar(renderMiddleContent)}
-          <ScrolledContent transparent={true}>
-            {this.renderMonthView(renderMonths)}
-          </ScrolledContent>
-        </BoardContent>
-      </BoardContainer>
+      <DealProvider>
+        <DealConsumer>
+          {({ backgroundColor }) => (
+            <BoardContainer>
+              <Header title={__('Deal')} breadcrumb={breadcrumb} />
+              <BoardContent transparent={true}>
+                {this.renderActionBar(renderMiddleContent)}
+                {this.renderMonthView(renderMonths, backgroundColor)}
+              </BoardContent>
+            </BoardContainer>
+          )}
+        </DealConsumer>
+      </DealProvider>
     );
   };
 
@@ -87,4 +106,4 @@ class CalendarView extends React.Component<Props> {
   }
 }
 
-export default CalendarView;
+export default withPipelineDetail(CalendarView);

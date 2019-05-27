@@ -1,24 +1,20 @@
-import gql from 'graphql-tag';
 import { EmptyState } from 'modules/common/components';
-import { withProps } from 'modules/common/utils';
+import { IQueryParams } from 'modules/common/types';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { queries } from '../graphql';
-import { PipelineDetailQueryResponse } from '../types';
+import { PipelineContent } from '../styles/common';
+import { IPipeline, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
 
 type Props = {
-  queryParams: any;
+  backgroundColor?: string;
+  queryParams: IQueryParams;
+  pipeline: IPipeline;
 };
 
-type FinalProps = {
-  pipelineDetailQuery: PipelineDetailQueryResponse;
-} & Props;
+const Board = (props: Props) => {
+  const { pipeline, queryParams, backgroundColor } = props;
 
-const WithPipelinesQuery = (props: FinalProps) => {
-  const { pipelineDetailQuery, queryParams } = props;
-
-  if (!pipelineDetailQuery || !pipelineDetailQuery.dealPipelineDetail) {
+  if (!pipeline) {
     return (
       <EmptyState
         image="/images/actions/18.svg"
@@ -29,32 +25,17 @@ const WithPipelinesQuery = (props: FinalProps) => {
     );
   }
 
-  if (pipelineDetailQuery.loading) {
-    return null;
-  }
-
-  const pipeline = pipelineDetailQuery.dealPipelineDetail;
+  const color = backgroundColor || pipeline.backgroundColor || '';
 
   return (
-    <Pipeline
-      pipeline={pipeline}
-      key={pipeline._id}
-      queryParams={queryParams}
-    />
+    <PipelineContent color={color}>
+      <Pipeline
+        key={pipeline._id}
+        queryParams={queryParams}
+        pipeline={pipeline}
+      />
+    </PipelineContent>
   );
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, PipelineDetailQueryResponse, { _id?: string }>(
-      gql(queries.pipelineDetail),
-      {
-        name: 'pipelineDetailQuery',
-        skip: ({ queryParams }) => !queryParams.pipelineId,
-        options: ({ queryParams }) => ({
-          variables: { _id: queryParams && queryParams.pipelineId }
-        })
-      }
-    )
-  )(WithPipelinesQuery)
-);
+export default Board;

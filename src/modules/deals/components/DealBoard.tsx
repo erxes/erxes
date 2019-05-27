@@ -1,23 +1,30 @@
+import { IQueryParams } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import { Board, MainActionBar } from '../containers';
-import {
-  BoardContainer,
-  BoardContent,
-  ScrolledContent
-} from '../styles/common';
+import DealProvider, { DealConsumer } from '../containers/DealContext';
+import withPipelineDetail from '../containers/withPipeline';
+import { BoardContainer, BoardContent } from '../styles/common';
+import { IPipeline } from '../types';
 
 type Props = {
-  queryParams: any;
+  queryParams: IQueryParams;
+  pipeline: IPipeline;
 };
 
 class DealBoard extends React.Component<Props> {
-  renderContent() {
-    const { queryParams } = this.props;
+  renderContent(backgroundColor: string = '') {
+    const { queryParams, pipeline } = this.props;
 
-    return <Board queryParams={queryParams} />;
+    return (
+      <Board
+        queryParams={queryParams}
+        pipeline={pipeline}
+        backgroundColor={backgroundColor}
+      />
+    );
   }
 
   renderActionBar() {
@@ -26,17 +33,21 @@ class DealBoard extends React.Component<Props> {
 
   render() {
     return (
-      <BoardContainer>
-        <Header title={__('Deal')} submenu={menuDeal} />
-        <BoardContent transparent={true}>
-          {this.renderActionBar()}
-          <ScrolledContent transparent={true}>
-            {this.renderContent()}
-          </ScrolledContent>
-        </BoardContent>
-      </BoardContainer>
+      <DealProvider>
+        <DealConsumer>
+          {({ backgroundColor }) => (
+            <BoardContainer>
+              <Header title={__('Deal')} submenu={menuDeal} />
+              <BoardContent transparent={true}>
+                {this.renderActionBar()}
+                {this.renderContent(backgroundColor)}
+              </BoardContent>
+            </BoardContainer>
+          )}
+        </DealConsumer>
+      </DealProvider>
     );
   }
 }
 
-export default DealBoard;
+export default withPipelineDetail(DealBoard);

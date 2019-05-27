@@ -14,15 +14,19 @@ const BoardContainer = styled(Contents)`
   }
 `;
 
-const BoardContent = styled(MainContent)`
-  margin: 0;
-  background: #6569df;
+const PipelineContent = styled(ContentBox)`
+  padding: 9px 5px 6px 8px;
+  background: ${props => props.color || '#6569df'};
+  width: 100%;
+  height: 100%;
+  margin: -1px;
 `;
 
-const ScrolledContent = styled(ContentBox)`
-  padding: 4px 0 8px;
-  margin: 6px 10px 4px 5px;
+const BoardContent = styled(MainContent)`
+  margin: 0;
 `;
+
+const ScrolledContent = styled(ContentBox)``;
 
 export {
   BoardContainer,
@@ -31,5 +35,6 @@ export {
   ScrolledContent,
   stageWidth,
   stageHeight,
-  borderRadius
+  borderRadius,
+  PipelineContent
 };
