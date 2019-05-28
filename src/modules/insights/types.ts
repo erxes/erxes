@@ -65,6 +65,7 @@ export type ConversationSummaryDataQueryResponse = {
   insightsConversationSummary: {
     avg: Array<{ [key: string]: number }>;
     trend: IChartParams[];
+    teamMembers: IChartParams[];
   };
   loading: boolean;
 };

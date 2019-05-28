@@ -10,7 +10,7 @@ import {
   InsightWrapper
 } from '../styles';
 import { IChartParams, IQueryParams } from '../types';
-import { Chart, InboxFilter, Sidebar, Summary } from './';
+import { Chart, InboxFilter, Sidebar, Summary, TeamMembers } from './';
 
 type Props = {
   brands: IBrand[];
@@ -19,6 +19,7 @@ type Props = {
   conversationReport: {
     avg: Array<{ [key: string]: number }>;
     trend: IChartParams[];
+    teamMembers: IChartParams[];
   };
 };
 
@@ -53,6 +54,14 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
               loading={false}
               height={300}
               data={conversationReport.trend}
+            />
+          </InsightRow>
+
+          <InsightRow>
+            <InsightTitle>{__('Team Member')}</InsightTitle>
+            <TeamMembers
+              loading={false}
+              datas={conversationReport.teamMembers || []}
             />
           </InsightRow>
         </InsightContent>
