@@ -1,6 +1,6 @@
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import { Item } from 'modules/boards/types';
-import { DealItem } from 'modules/deals/components/stage';
+import { DealItem } from 'modules/deals/components/';
 import * as React from 'react';
 
 type Props = {

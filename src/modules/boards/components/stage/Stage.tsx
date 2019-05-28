@@ -2,10 +2,7 @@ import ItemList from 'modules/boards/components/stage/ItemList';
 import { IStage, Item } from 'modules/boards/types';
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { DealAddForm } from 'modules/deals/components/stage';
-import { renderDealAmount } from 'modules/deals/utils';
-import * as React from 'react';
-import { Draggable } from 'react-beautiful-dnd';
+import { DealAddForm } from 'modules/deals/components';
 import {
   AddNew,
   Body,
@@ -17,7 +14,11 @@ import {
   LoadingContent,
   StageFooter,
   StageRoot
-} from '../../styles/stage';
+} from 'modules/deals/styles/stage';
+import { renderDealAmount } from 'modules/deals/utils';
+import * as React from 'react';
+import { Draggable } from 'react-beautiful-dnd';
+import { STAGE_CONSTANTS } from '../../constants';
 
 type Props = {
   loadingItems: boolean;
@@ -25,8 +26,13 @@ type Props = {
   stage: IStage;
   length: number;
   items: Item[];
-  addDeal: (name: string, callback: () => void) => void;
+  addItem: (name: string, callback: () => void) => void;
   loadMore: () => void;
+  type: string;
+};
+
+const ADD_FORM = {
+  deal: DealAddForm
 };
 
 export default class Stage extends React.Component<Props, {}> {
@@ -73,23 +79,24 @@ export default class Stage extends React.Component<Props, {}> {
     }
   };
 
-  renderAddDealTrigger() {
-    const { addDeal } = this.props;
+  renderAddItemTrigger() {
+    const { addItem, type } = this.props;
+    const addText = STAGE_CONSTANTS[type].addText;
 
     const trigger = (
       <StageFooter>
         <AddNew>
           <Icon icon="plus" />
-          {__('Add a deal')}
+          {__(addText)}
         </AddNew>
       </StageFooter>
     );
 
-    const content = props => <DealAddForm {...props} add={addDeal} />;
+    const AddForm = ADD_FORM[type];
 
-    return (
-      <ModalTrigger title="Add a deal" trigger={trigger} content={content} />
-    );
+    const content = props => <AddForm {...props} add={addItem} />;
+
+    return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }
 
   renderIndicator() {
@@ -166,7 +173,7 @@ export default class Stage extends React.Component<Props, {}> {
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
                 {this.renderItemList()}
               </Body>
-              {this.renderAddDealTrigger()}
+              {this.renderAddItemTrigger()}
             </StageRoot>
           </Container>
         )}

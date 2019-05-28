@@ -1,4 +1,4 @@
-import { DealItem } from 'modules/deals/containers/stage';
+import { DealItem } from 'modules/deals/containers/';
 import * as React from 'react';
 import { Item as ItemType } from '../../types';
 

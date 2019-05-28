@@ -1,3 +1,5 @@
+import { queries as dealQueries } from 'modules/deals/graphql';
+
 const boards = `
   query boards($type: String!) {
     boards(type: $type) {
@@ -84,6 +86,7 @@ const stageDetail = `
 `;
 
 export default {
+  deals: dealQueries.deals,
   boards,
   boardGetLast,
   boardDetail,

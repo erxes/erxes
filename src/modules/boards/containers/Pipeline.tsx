@@ -1,13 +1,13 @@
 import gql from 'graphql-tag';
+import { EmptyState, Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
-import { EmptyState, Spinner } from '../../common/components';
 import { queries } from '../graphql';
 import { IItemMap, IPipeline, IStageMap, StagesQueryResponse } from '../types';
-import { StageSelector } from './';
+import { Stage } from './';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 
 const Container = styled.div`
@@ -126,14 +126,13 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
                       }
 
                       return (
-                        <StageSelector
+                        <Stage
                           type={type}
                           key={stageId}
                           index={index}
                           length={stagesCount}
                           stage={stage}
                           items={itemMap[stageId]}
-                          search={queryParams.search}
                           queryParams={queryParams}
                           loadingState={stageLoadMap[stageId]}
                         />

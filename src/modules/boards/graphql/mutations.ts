@@ -1,3 +1,5 @@
+import { mutations as dealMutations } from 'modules/deals/graphql';
+
 const dealsUpdateOrder = `
   mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
     dealsUpdateOrder(stageId: $stageId, orders: $orders) {
@@ -23,6 +25,7 @@ const dealsChange = `
 `;
 
 export default {
+  dealsAdd: dealMutations.dealsAdd,
   dealsUpdateOrder,
   stagesUpdateOrder,
   dealsChange

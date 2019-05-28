@@ -1,6 +1,8 @@
 import Calendar from './calendar/Calendar';
 import DealColumn from './calendar/DealColumn';
+import DealAddForm from './DealAddForm';
 import DealBoard from './DealBoard';
+import DealItem from './DealItem';
 import MainActionBar from './MainActionBar';
 import ProductForm from './product/ProductForm';
 import ProductItemForm from './product/ProductItemForm';
@@ -13,5 +15,7 @@ export {
   ProductItemForm,
   DealColumn,
   DealBoard,
-  MainActionBar
+  MainActionBar,
+  DealAddForm,
+  DealItem
 };
