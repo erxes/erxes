@@ -26,7 +26,15 @@ type Props = {
   closeModal: () => void;
 };
 
-class BrandForm extends React.Component<Props, {}> {
+class BrandForm extends React.Component<Props, { isSubmitted: boolean }> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isSubmitted: false
+    };
+  }
+
   save = e => {
     e.preventDefault();
 
@@ -52,6 +60,12 @@ class BrandForm extends React.Component<Props, {}> {
         'brand-description'
       ) as HTMLInputElement).value
     };
+  };
+
+  submitForm = e => {
+    e.preventDefault();
+
+    this.setState({ isSubmitted: true });
   };
 
   renderContent() {
@@ -96,7 +110,7 @@ class BrandForm extends React.Component<Props, {}> {
 
   render() {
     return (
-      <form onSubmit={this.save}>
+      <form onSubmit={this.submitForm}>
         {this.renderContent()}
         <ModalFooter>
           <Button
@@ -117,6 +131,7 @@ class BrandForm extends React.Component<Props, {}> {
             getVariables={this.generateDocs}
             callback={this.props.closeModal}
             refetchQueries={this.commonOptions()}
+            isSubmitted={this.state.isSubmitted}
           >
             Save
           </ButtonMutate>

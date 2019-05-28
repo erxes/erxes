@@ -16,12 +16,19 @@ interface IProps extends IRouterProps {
   children?: React.ReactNode;
   refetchQueries?: any;
   history: any;
+  isSubmitted: boolean;
 }
 
 class ButtonMutate extends React.Component<IProps> {
   static defaultProps = {
     successMessage: 'Successfull',
     btnSize: 'small'
+  };
+
+  componentDidUpdate = (prevProps: IProps) => {
+    if (prevProps.isSubmitted !== this.props.isSubmitted) {
+      this.mutate();
+    }
   };
 
   mutate = () => {
