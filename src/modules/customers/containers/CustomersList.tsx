@@ -1,7 +1,6 @@
 import client from 'apolloClient';
-import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { Alert, uploadHandler, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
@@ -23,6 +22,7 @@ import {
 
 type Props = {
   queryParams: any;
+  showImportBar: () => void;
   type?: string;
 };
 
@@ -36,6 +36,7 @@ type FinalProps = {
 
 type State = {
   loading: boolean;
+  responseId: string;
 };
 
 class CustomerListContainer extends React.Component<FinalProps, State> {
@@ -43,7 +44,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
+      responseId: ''
     };
   }
 
@@ -126,35 +128,6 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const handleXlsUpload = e => {
-      const xlsFile = e.target.files;
-
-      const { REACT_APP_API_URL } = getEnv();
-
-      uploadHandler({
-        files: xlsFile,
-        extraFormData: [{ key: 'type', value: 'customers' }],
-        url: `${REACT_APP_API_URL}/import-file`,
-        responseType: 'json',
-        beforeUpload: () => {
-          this.setState({ loading: true });
-        },
-
-        afterUpload: ({ response }) => {
-          if (response.length === 0) {
-            customersMainQuery.refetch();
-            Alert.success('All customers imported successfully');
-          } else {
-            Alert.error(response[0]);
-          }
-
-          this.setState({ loading: false });
-        }
-      });
-
-      e.target.value = null;
-    };
-
     const searchValue = this.props.queryParams.searchValue || '';
 
     const { list = [], totalCount = 0 } =
@@ -166,11 +139,11 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customers: list,
       totalCount,
       exportCustomers,
-      handleXlsUpload,
       integrations: KIND_CHOICES.ALL_LIST,
       searchValue,
       loading: customersMainQuery.loading || this.state.loading,
       mergeCustomers,
+      responseId: this.state.responseId,
       removeCustomers
     };
 

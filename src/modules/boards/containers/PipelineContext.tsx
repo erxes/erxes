@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
 import { mutations, queries } from '../graphql';
@@ -10,8 +11,9 @@ import { collectOrders, reorder, reorderItemMap } from '../utils';
 type Props = {
   pipeline: IPipeline;
   initialItemMap?: IItemMap;
-  queryParams: any;
   type: string;
+  queryParams: IQueryParams;
+  getQueryParams: (queryParams: IQueryParams, args: any) => boolean;
 };
 
 type StageLoadMap = {
@@ -67,14 +69,9 @@ export class PipelineProvider extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const {
-      queryParams: { search }
-    } = this.props;
+    const { queryParams, getQueryParams } = this.props;
 
-    const nextSearch = nextProps.queryParams.search;
-
-    // Reset items on search parameter change
-    if (search !== nextSearch) {
+    if (getQueryParams(queryParams, nextProps)) {
       const { stageIds } = this.state;
 
       PipelineProvider.tasks = [];
@@ -142,14 +139,14 @@ export class PipelineProvider extends React.Component<Props, State> {
     ]);
   };
 
-  itemChange = (itemId: string) => {
+  itemChange = (itemId: string, destinationStageId?: string) => {
     const { type } = this.props;
-
     client
       .mutate({
         mutation: gql(mutations[type + 'sChange']),
         variables: {
-          _id: itemId
+          _id: itemId,
+          destinationStageId
         }
       })
       .catch((e: Error) => {

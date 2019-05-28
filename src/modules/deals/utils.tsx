@@ -5,6 +5,19 @@ import * as moment from 'moment';
 import * as React from 'react';
 import { IUser, IUserDetails } from '../auth/types';
 
+type Options = {
+  _id: string;
+  name?: string;
+  type?: string;
+  index?: number;
+  itemId?: string;
+};
+
+// get options for react-select-plus
+export function selectOptions(array: Options[] = []) {
+  return array.map(item => ({ value: item._id, label: item.name }));
+}
+
 // get config options for react-select-plus
 export function selectConfigOptions(array: string[] = [], CONSTANT: any) {
   return array.map(item => ({

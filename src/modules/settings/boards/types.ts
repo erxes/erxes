@@ -3,6 +3,8 @@ export interface IPipeline {
   name: string;
   boardId?: string;
   order?: number;
+  visiblity?: string;
+  memberIds?: string[];
   createdAt?: Date;
 }
 
@@ -102,6 +104,8 @@ export type AddPipelineMutationVariables = {
   name: string;
   boardId: string;
   stages: IStage;
+  visiblity: string;
+  memberIds: string[];
 };
 
 export type AddPipelineMutationResponse = {
@@ -117,6 +121,8 @@ export type EditPipelineMutationVariables = {
   name: string;
   boardId: string;
   stages: IStage;
+  visiblity: string;
+  memberIds: string[];
 };
 
 export type EditPipelineMutationResponse = {

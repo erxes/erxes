@@ -7,7 +7,7 @@ import {
   NameCard
 } from 'modules/common/components';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
-import { __, Alert, confirm, searchCompany } from 'modules/common/utils';
+import { __, Alert, confirm } from 'modules/common/utils';
 import { TargetMerge } from 'modules/customers/components';
 import {
   LEAD_STATUS_TYPES,
@@ -30,6 +30,7 @@ type Props = {
   company: ICompany;
   remove: () => void;
   merge: (params: { ids: string[]; data: any }) => void;
+  searchCompany: (value: string, callback: (objects: any[]) => void) => void;
 };
 
 class BasicInfo extends React.Component<Props> {
@@ -73,7 +74,7 @@ class BasicInfo extends React.Component<Props> {
   };
 
   renderAction() {
-    const { remove, merge, company } = this.props;
+    const { remove, merge, company, searchCompany } = this.props;
 
     const targetMergeOptions = companies => {
       return companies.map((c, key) => ({

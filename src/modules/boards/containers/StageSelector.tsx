@@ -11,6 +11,7 @@ type Props = {
   length: number;
   search?: string;
   type: string;
+  queryParams: any;
 };
 
 const STAGES = {

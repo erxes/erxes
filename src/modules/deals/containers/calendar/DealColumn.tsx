@@ -99,7 +99,21 @@ type Props = {
   updatedAt: string;
   pipelineId: string;
   date: IDateColumn;
+  queryParams: any;
   onColumnUpdated: (date: IDateColumn) => void;
+};
+
+const getCommonParams = queryParams => {
+  if (!queryParams) {
+    return {};
+  }
+
+  return {
+    customerIds: queryParams.customerIds,
+    companyIds: queryParams.companyIds,
+    assignedUserIds: queryParams.assignedUserIds,
+    productIds: queryParams.productIds
+  };
 };
 
 export default withProps<Props>(
@@ -108,10 +122,15 @@ export default withProps<Props>(
       gql(queries.deals),
       {
         name: 'dealsQuery',
-        options: ({ date, pipelineId }: Props) => {
+        options: ({ date, pipelineId, queryParams }: Props) => {
           return {
             notifyOnNetworkStatusChange: true,
-            variables: { skip: 0, date, pipelineId }
+            variables: {
+              skip: 0,
+              date,
+              pipelineId,
+              ...getCommonParams(queryParams)
+            }
           };
         }
       }
@@ -120,8 +139,12 @@ export default withProps<Props>(
       gql(queries.dealsTotalAmounts),
       {
         name: 'dealsTotalAmountsQuery',
-        options: ({ date, pipelineId }: Props) => ({
-          variables: { date, pipelineId }
+        options: ({ date, pipelineId, queryParams }: Props) => ({
+          variables: {
+            date,
+            pipelineId,
+            ...getCommonParams(queryParams)
+          }
         })
       }
     )

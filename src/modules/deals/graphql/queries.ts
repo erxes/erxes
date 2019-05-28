@@ -1,3 +1,27 @@
+const commonParams = `
+  $customerIds: [String],
+  $companyIds: [String],
+  $assignedUserIds: [String],
+  $nextDay: String,
+  $nextWeek: String,
+  $nextMonth: String,
+  $noCloseDate: String,
+  $overdue: String
+  $productIds: [String]
+`;
+
+const commonParamDefs = `
+  customerIds: $customerIds,
+  companyIds: $companyIds,
+  assignedUserIds: $assignedUserIds,
+  nextDay: $nextDay,
+  nextWeek: $nextWeek,
+  nextMonth: $nextMonth,
+  noCloseDate: $noCloseDate,
+  overdue: $overdue
+  productIds: $productIds
+`;
+
 const dealFields = `
   _id
   name
@@ -39,8 +63,16 @@ const dealFields = `
 `;
 
 const dealsTotalAmounts = `
-  query dealsTotalAmounts($date: ItemDate, $pipelineId: String) {
-    dealsTotalAmounts(date: $date, pipelineId: $pipelineId) {
+  query dealsTotalAmounts(
+    $date: ItemDate 
+    $pipelineId: String
+    ${commonParams}
+  ) {
+    dealsTotalAmounts(
+      date: $date 
+      pipelineId: $pipelineId
+      ${commonParamDefs}
+    ) {
       _id
       dealCount
       dealAmounts {
@@ -55,21 +87,19 @@ const dealsTotalAmounts = `
 const deals = `
   query deals(
     $pipelineId: String,
-    $stageId: String, 
-    $customerId: String, 
-    $companyId: String ,
+    $stageId: String,
     $date: ItemDate,
     $skip: Int,
     $search: String
+    ${commonParams}
   ) {
     deals(
       pipelineId: $pipelineId,
       stageId: $stageId, 
-      customerId: $customerId, 
-      companyId: $companyId,
       date: $date,
       skip: $skip,
       search: $search
+      ${commonParamDefs}
     ) {
       ${dealFields}
     }

@@ -14,7 +14,7 @@ type Props = {
 
 const PageHeader = styled.div`
   height: ${dimensions.headerSpacing}px;
-  position: fixed;
+  position: absolute;
   top: 0;
   display: flex;
   align-items: center;

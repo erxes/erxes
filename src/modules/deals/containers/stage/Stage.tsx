@@ -9,7 +9,7 @@ import {
   ItemsQueryResponse,
   SaveItemMutation
 } from 'modules/boards/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../../components/stage';
@@ -119,8 +119,16 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   }
 }
 
-const WithData = withProps<StageProps>(
-  compose(
+export function withProps<IProps>(
+  Wrapped: new (props: IProps) => React.Component<IProps>
+) {
+  class WithProps extends React.Component<IProps, {}> {
+    render() {
+      return <Wrapped {...this.props} />;
+    }
+  }
+
+  return compose(
     graphql<StageProps>(gql(queries.deals), {
       name: 'itemsQuery',
       skip: ({ loadingState }) => loadingState !== 'readyToLoad',
@@ -146,8 +154,10 @@ const WithData = withProps<StageProps>(
         ]
       })
     })
-  )(StageContainer)
-);
+  )(WithProps);
+}
+
+const WithData = withProps<FinalStageProps>(StageContainer);
 
 export default (props: WrapperProps) => {
   return (

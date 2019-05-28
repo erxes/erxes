@@ -3,7 +3,6 @@ import { ActivityLogs } from 'modules/activityLogs/containers';
 import { __, renderFullName } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
-import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../types';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';

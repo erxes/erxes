@@ -160,11 +160,18 @@ export const companiesListConfig = `
   }
 `;
 
+const companiesExport = `
+  query companiesExport(${listParamsDef}) {
+    companiesExport(${listParamsValue})
+  }
+`;
+
 export default {
   companies,
   companiesMain,
   companyCounts,
   companyDetail,
   tags,
-  companiesListConfig
+  companiesListConfig,
+  companiesExport
 };

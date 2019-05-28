@@ -1,31 +1,48 @@
-import { Button } from 'modules/common/components';
-import { confirm } from 'modules/common/utils';
+import { Button, TextInfo, Tip } from 'modules/common/components';
+import { __, confirm } from 'modules/common/utils';
+import { Date } from 'modules/customers/styles';
 import * as moment from 'moment';
 import * as React from 'react';
 
 type Props = {
   history?: any;
   removeHistory: (historyId: string) => void;
+  onClick: (id: string) => void;
 };
 
-function HistoryRow({ history, removeHistory }: Props) {
+function HistoryRow({ history, removeHistory, onClick }: Props) {
   const { user = {} } = history;
   const { details = {} } = user;
 
-  const onClick = () =>
+  const onRemove = () =>
     confirm().then(() => {
       removeHistory(history._id);
     });
 
+  const onRowClick = () => onClick(history._id);
+
+  const withClick = (children: React.ReactNode) => {
+    return <td onClick={onRowClick}>{children}</td>;
+  };
+
   return (
     <tr>
-      <td>{history.success || 0}</td>
-      <td>{history.failed || 1}</td>
-      <td>{history.total || 1}</td>
-      <td>{moment(history.date).format('lll')}</td>
+      {withClick(
+        <TextInfo textStyle="success">{history.success || 0}</TextInfo>
+      )}
+      {withClick(<TextInfo textStyle="danger">{history.failed || 1}</TextInfo>)}
+      {withClick(<TextInfo>{history.total || 1}</TextInfo>)}
+      {withClick(<Date>{moment(history.date).format('lll')}</Date>)}
       <td>{details.fullName || '-'}</td>
       <td>
-        <Button btnStyle="link" icon="cancel-1" onClick={onClick} />
+        <Tip text={__('Remove contacts')}>
+          <Button
+            size="small"
+            btnStyle="warning"
+            icon="removeuser"
+            onClick={onRemove}
+          />
+        </Tip>
       </td>
     </tr>
   );
