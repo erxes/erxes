@@ -33,13 +33,13 @@ export const INBOX_INSIGHTS = [
   },
   {
     name: 'Volume Report By Customer',
-    image: '/images/icons/erxes-22.svg',
+    image: '/images/icons/erxes-23.svg',
     to: '/inbox/insights/summary-report',
     desc: 'Total messages count, sent by customers through every integration'
   },
   {
     name: 'Export Report',
-    image: '/images/icons/erxes-23.svg',
+    image: '/images/icons/erxes-22.svg',
     to: '/inbox/insights/export-report',
     desc: 'Download insight data as an excel sheet'
   }

@@ -30,7 +30,7 @@ const formInvalid = `
 
 const Formgroup = styled.div`
   margin-bottom: 20px;
-
+  position: relative;
   > label {
     margin-right: ${dimensions.unitSpacing}px;
   }
@@ -47,7 +47,7 @@ const Input = styledTS<{ round?: boolean }>(styled.input)`
   border: none;
   width: 100%;
   height: ${textInputHeight};
-  padding: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px 0;
   color: ${colors.textPrimary};
   border-bottom: 1px solid ${colors.colorShadowGray};
   background: none;
@@ -85,7 +85,7 @@ const SelectWrapper = styled.div`
 
   &:after {
     position: absolute;
-    right: 10px;
+    right: 5px;
     top: 12px;
     content: '\\e827';
     font-size: 10px;
@@ -108,7 +108,7 @@ const Select = styled(Input.withComponent('select'))`
 
   border: none;
   height: ${textInputHeight};
-  padding: 0 ${dimensions.unitSpacing}px;
+  padding: 0;
   width: calc(100% + ${dimensions.coreSpacing}px);
   -webkit-appearance: none;
 `;

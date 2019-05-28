@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const FilterContainer = styled.div`
   position: relative;
   padding: ${dimensions.coreSpacing}px;
-  z-index: ${dimensions.unitSpacing};
+  z-index: 2;
 `;
 
 const ButtonContainer = styled.div`
@@ -15,19 +15,40 @@ const ButtonContainer = styled.div`
 
 const FlexRow = styled.div`
   display: flex;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  padding: 5px 30px 5px 0;
+  position: relative;
+  align-items: center;
 
+  label {
+    margin: 0;
+    font-weight: 500;
+    color: ${colors.colorCoreBlack};
+  }
+
+  > *:first-child,
   input {
-    margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+    margin-right: ${dimensions.unitSpacing}px;
+    flex: 3;
   }
 
-  i {
+  > *:nth-child(2),
+  > div {
+    flex: 2;
+  }
+`;
+
+const RemoveRow = styled.a`
+  position: absolute;
+  right: 0;
+  margin-left: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing / 2}px;
+  font-size: 10px;
+  color: ${colors.colorCoreDarkGray};
+
+  &:hover {
     cursor: pointer;
-    padding-left: ${dimensions.coreSpacing}px;
-  }
-
-  label:last-child {
-      margin-left: ${dimensions.coreSpacing + 13}%;
-    }
+    color: ${colors.colorCoreRed};
   }
 `;
 
@@ -44,14 +65,15 @@ const AlignedTd = styled.td`
   }
 `;
 
+const InviteOption = styled.div`
+  margin-top: ${dimensions.coreSpacing}px;
+`;
+
 const LinkButton = styled.a`
-  color: ${colors.colorPrimary};
   cursor: pointer;
-  margin-right: ${dimensions.unitSpacing - 5}px;
 
   &:hover {
     text-decoration: underline;
-    color: ${colors.colorPrimary};
   }
 `;
 
@@ -61,5 +83,7 @@ export {
   ButtonContainer,
   UserAvatar,
   AlignedTd,
-  LinkButton
+  LinkButton,
+  RemoveRow,
+  InviteOption
 };

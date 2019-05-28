@@ -1,7 +1,9 @@
 import {
   Button,
   DataWithLoader,
+  DropdownToggle,
   FormControl,
+  Icon,
   ModalTrigger,
   Pagination,
   SortHandler,
@@ -10,13 +12,15 @@ import {
 import { __, Alert, confirm, router } from 'modules/common/utils';
 import { menuContacts } from 'modules/common/utils/menus';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
-import { TableHeadContent } from 'modules/customers/styles';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
+import { DataImporter } from 'modules/settings/importHistory/containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
 import { TaggerPopover } from 'modules/tags/components';
 import * as React from 'react';
+import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 import { CompaniesMerge } from '..';
 import { IRouterProps } from '../../../common/types';
 import { IConfigColumn } from '../../../settings/properties/types';
@@ -43,6 +47,7 @@ interface IProps extends IRouterProps {
   ) => void;
   mergeCompanies: () => void;
   queryParams: any;
+  exportCompanies: (bulk: string[]) => void;
 }
 
 type State = {
@@ -108,7 +113,8 @@ class CompaniesList extends React.Component<IProps, State> {
       emptyBulk,
       totalCount,
       mergeCompanies,
-      queryParams
+      queryParams,
+      exportCompanies
     } = this.props;
 
     const mainContent = (
@@ -125,10 +131,7 @@ class CompaniesList extends React.Component<IProps, State> {
               </th>
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>
-                  <TableHeadContent>
-                    <SortHandler sortField={name} />
-                    {__(label)}
-                  </TableHeadContent>
+                  <SortHandler sortField={name} label={__(label)} />
                 </th>
               ))}
               <th>{__('Tags')}</th>
@@ -156,11 +159,7 @@ class CompaniesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = (
-      <Button btnStyle="simple" size="small" icon="filter">
-        Edit columns
-      </Button>
-    );
+    const editColumns = <a>{__('Edit columns')}</a>;
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
@@ -245,11 +244,39 @@ class CompaniesList extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <ModalTrigger
-          title="Choose which column you see"
-          trigger={editColumns}
-          content={manageColumns}
-        />
+
+        <Dropdown id="dropdown-engage" pullRight={true}>
+          <DropdownToggle bsRole="toggle">
+            <Button btnStyle="simple" size="small">
+              {__('Customize ')} <Icon icon="downarrow" />
+            </Button>
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <li>
+              <ModalTrigger
+                title="Manage Columns"
+                trigger={editColumns}
+                content={manageColumns}
+                dialogClassName="transform"
+              />
+            </li>
+            <li>
+              <Link to="/settings/properties?type=company">
+                {__('Properties')}
+              </Link>
+            </li>
+            <li>
+              <a onClick={exportCompanies.bind(this, bulk)}>
+                {__('Export companies')}
+              </a>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+        <Link to="/settings/importHistories?type=company">
+          <Button btnStyle="primary" size="small" icon="login-1">
+            {__('Go to import')}
+          </Button>
+        </Link>
         <ModalTrigger
           title="New company"
           trigger={addTrigger}

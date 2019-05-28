@@ -31,6 +31,9 @@ import ModifiableList from './ModifiableList';
 import ModifiableSelect from './ModifiableSelect';
 import NameCard from './nameCard/NameCard';
 import Pagination from './pagination/Pagination';
+import ProgressBar from './ProgressBar';
+import ConditionsRule from './rule/ConditionsRule';
+import SelectWithSearch from './SelectWithSearch';
 import SortableList from './SortableList';
 import SortHandler from './SortHandler';
 import Spinner from './Spinner';
@@ -100,5 +103,8 @@ export {
   TextInfo,
   Info,
   Calendar,
-  WithPermission
+  WithPermission,
+  ConditionsRule,
+  SelectWithSearch,
+  ProgressBar
 };

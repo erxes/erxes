@@ -14,11 +14,11 @@ type Props = {
 
 const PageHeader = styled.div`
   height: ${dimensions.headerSpacing}px;
-  position: fixed;
+  position: absolute;
   top: 0;
   display: flex;
   align-items: center;
-  z-index: 2;
+  z-index: 3;
   padding-left: ${dimensions.unitSpacing}px;
 `;
 

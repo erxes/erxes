@@ -31,6 +31,10 @@ const RowTitle = styled.h3`
 const Box = styled(BoxRoot)`
   width: ${boxSize}px;
   height: ${boxSize}px;
+
+  img {
+    height: 83px;
+  }
 `;
 
 const Divider = styled.div`

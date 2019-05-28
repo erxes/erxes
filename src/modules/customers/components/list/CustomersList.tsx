@@ -13,7 +13,6 @@ import {
 } from 'modules/common/components';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
-import { ImportButton, TableHeadContent } from 'modules/customers/styles';
 import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
@@ -57,7 +56,7 @@ interface IProps extends IRouterProps {
   ) => Promise<void>;
   queryParams: any;
   exportCustomers: (bulk: string[]) => void;
-  handleXlsUpload: (e: React.FormEvent<HTMLInputElement>) => void;
+  responseId: string;
 }
 
 type State = {
@@ -116,10 +115,7 @@ class CustomersList extends React.Component<IProps, State> {
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>
-                <TableHeadContent>
-                  <SortHandler sortField={name} />
-                  {__(label)}
-                </TableHeadContent>
+                <SortHandler sortField={name} label={__(label)} />
               </th>
             ))}
             <th>{__('Tags')}</th>
@@ -173,8 +169,7 @@ class CustomersList extends React.Component<IProps, State> {
       location,
       history,
       queryParams,
-      exportCustomers,
-      handleXlsUpload
+      exportCustomers
     } = this.props;
 
     const addTrigger = (
@@ -248,17 +243,11 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-
-        <ImportButton>
-          <Icon icon="download-1" />
-          {__('Import customers')}
-          <input
-            type="file"
-            onChange={handleXlsUpload}
-            style={{ display: 'none' }}
-            accept=".xlsx, .xls"
-          />
-        </ImportButton>
+        <Link to="/settings/importHistories?type=customer">
+          <Button btnStyle="primary" size="small" icon="login-1">
+            {__('Go to import')}
+          </Button>
+        </Link>
         <ModalTrigger
           title="New customer"
           trigger={addTrigger}
