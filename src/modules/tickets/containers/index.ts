@@ -1,3 +1,3 @@
-import Stage from './Stage';
+import TicketItem from './TicketItem';
 
-export { Stage };
+export { TicketItem };

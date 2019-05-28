@@ -1,4 +1,5 @@
 import { DealItem } from 'modules/deals/containers/';
+import { TicketItem } from 'modules/tickets/containers/';
 import * as React from 'react';
 import { Item as ItemType } from '../../types';
 
@@ -11,12 +12,23 @@ type Props = {
   type: string;
 };
 
-const ITEMS = {
-  deal: DealItem
-};
+export default class extends React.Component<Props> {
+  private ITEMS;
 
-export default ({ type, ...itemProps }: Props) => {
-  const Item = ITEMS[type];
+  constructor(props) {
+    super(props);
 
-  return <Item {...itemProps} />;
-};
+    this.ITEMS = {
+      deal: DealItem,
+      ticket: TicketItem
+    };
+  }
+
+  render() {
+    const { type, ...itemProps } = this.props;
+
+    const Item = this.ITEMS[type];
+
+    return <Item {...itemProps} />;
+  }
+}

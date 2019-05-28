@@ -1,5 +1,3 @@
-import ItemList from 'modules/boards/components/stage/ItemList';
-import { IStage, Item } from 'modules/boards/types';
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { DealAddForm } from 'modules/deals/components';
@@ -15,10 +13,13 @@ import {
   StageFooter,
   StageRoot
 } from 'modules/deals/styles/stage';
-import { renderDealAmount } from 'modules/deals/utils';
+import { TicketAddForm } from 'modules/tickets/components';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { STAGE_CONSTANTS } from '../../constants';
+import { IStage, Item } from '../../types';
+import { renderAmount } from '../../utils';
+import ItemList from '../stage/ItemList';
 
 type Props = {
   loadingItems: boolean;
@@ -30,18 +31,19 @@ type Props = {
   loadMore: () => void;
   type: string;
 };
-
-const ADD_FORM = {
-  deal: DealAddForm
-};
-
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
+  private ADD_FORM;
 
   constructor(props: Props) {
     super(props);
 
     this.bodyRef = React.createRef();
+
+    this.ADD_FORM = {
+      deal: DealAddForm,
+      ticket: TicketAddForm
+    };
   }
 
   componentDidMount() {
@@ -92,7 +94,7 @@ export default class Stage extends React.Component<Props, {}> {
       </StageFooter>
     );
 
-    const AddForm = ADD_FORM[type];
+    const AddForm = this.ADD_FORM[type];
 
     const content = props => <AddForm {...props} add={addItem} />;
 
@@ -129,7 +131,7 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   renderItemList() {
-    const { stage, items, loadingItems } = this.props;
+    const { stage, items, loadingItems, type } = this.props;
 
     if (loadingItems) {
       return (
@@ -145,7 +147,7 @@ export default class Stage extends React.Component<Props, {}> {
         listType="DEAL"
         stageId={stage._id}
         items={items}
-        type="deal"
+        type={type}
       />
     );
   }
@@ -167,7 +169,7 @@ export default class Stage extends React.Component<Props, {}> {
                   {stage.name}
                   <span>{stage.itemsTotalCount}</span>
                 </h4>
-                <HeaderAmount>{renderDealAmount(stage.amount)}</HeaderAmount>
+                <HeaderAmount>{renderAmount(stage.amount)}</HeaderAmount>
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>

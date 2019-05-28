@@ -2,6 +2,7 @@ import {
   STORAGE_BOARD_KEY,
   STORAGE_PIPELINE_KEY
 } from 'modules/boards/constants';
+import { Amount } from 'modules/deals/styles/stage';
 import * as React from 'react';
 import { IDraggableLocation, IItemMap } from './types';
 
@@ -102,4 +103,20 @@ export const getDefaultBoardAndPipelines = () => {
     defaultBoards: JSON.parse(defaultBoards),
     defaultPipelines: JSON.parse(defaultPipelines)
   };
+};
+
+export const renderAmount = amount => {
+  if (Object.keys(amount).length === 0) {
+    return null;
+  }
+
+  return (
+    <Amount>
+      {Object.keys(amount).map(key => (
+        <li key={key}>
+          {amount[key].toLocaleString()} <span>{key}</span>
+        </li>
+      ))}
+    </Amount>
+  );
 };

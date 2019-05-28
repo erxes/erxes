@@ -1,5 +1,4 @@
 import { Item } from 'modules/boards/types';
-import { renderAmount } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
 import { EditForm } from 'modules/deals/containers/editForm';
 import {
@@ -80,7 +79,6 @@ export default class DealItem extends React.PureComponent<
 
   render() {
     const { item, isDragging, provided } = this.props;
-    const products = (item.products || []).map(p => p.product);
     const { customers, companies } = item;
 
     return (
@@ -92,13 +90,6 @@ export default class DealItem extends React.PureComponent<
       >
         <Content onClick={this.toggleForm}>
           <h5>{item.name}</h5>
-
-          {products.map((product, index) => (
-            <div key={index}>
-              <DealIndicator color="#63D2D6" />
-              {product.name}
-            </div>
-          ))}
 
           {customers.map((customer, index) => (
             <div key={index}>
@@ -115,8 +106,6 @@ export default class DealItem extends React.PureComponent<
           ))}
 
           <PriceContainer>
-            {renderAmount(item.amount)}
-
             <Right>
               {(item.assignedUsers || []).map((user, index) => (
                 <img

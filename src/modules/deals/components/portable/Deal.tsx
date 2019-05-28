@@ -1,8 +1,8 @@
+import { renderAmount } from 'modules/boards/utils';
 import { ModalTrigger } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { EditForm } from 'modules/deals/containers/editForm';
 import { Content } from 'modules/deals/styles/stage';
-import { renderDealAmount, renderDealDate } from 'modules/deals/utils';
 import * as React from 'react';
 import { Items, UserCounter } from '.';
 import { __ } from '../../../common/utils';
@@ -15,6 +15,7 @@ import {
   Status
 } from '../../styles/deal';
 import { IDeal } from '../../types';
+import { renderDealDate } from '../../utils';
 
 type Props = {
   deal: IDeal;
@@ -89,7 +90,7 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
           <Items color="#EA475D" items={deal.companies || []} />
         </Content>
         <PriceContainer>
-          {renderDealAmount(deal.amount)}
+          {renderAmount(deal.amount)}
 
           <Right>
             <UserCounter users={deal.assignedUsers || []} />

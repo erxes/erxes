@@ -1,4 +1,5 @@
 import { mutations as dealMutations } from 'modules/deals/graphql';
+import { mutations as ticketMutations } from 'modules/tickets/graphql';
 
 const dealsUpdateOrder = `
   mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
@@ -26,6 +27,7 @@ const dealsChange = `
 
 export default {
   dealsAdd: dealMutations.dealsAdd,
+  ticketsAdd: ticketMutations.ticketsAdd,
   dealsUpdateOrder,
   stagesUpdateOrder,
   dealsChange

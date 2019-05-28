@@ -13,7 +13,6 @@ import { __, Alert, withProps } from 'modules/common/utils';
 import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { invalidateCalendarCache } from '../../deals/utils';
 import { Stage } from '../components/stage';
 import { STAGE_CONSTANTS } from '../constants';
 import { mutations, queries } from '../graphql';
@@ -41,12 +40,13 @@ type FinalStageProps = {
 
 class StageContainer extends React.PureComponent<FinalStageProps> {
   componentWillReceiveProps(nextProps: FinalStageProps) {
-    const { stage, loadingState, onLoad, itemsQuery } = nextProps;
+    const { stage, loadingState, onLoad, itemsQuery, type } = nextProps;
 
     if (itemsQuery && !itemsQuery.loading && loadingState !== 'loaded') {
+      const queryName = STAGE_CONSTANTS[type].queryName;
       // Send loaded items to PipelineContext so that context is able to set it
       // to global itemsMap
-      onLoad(stage._id, itemsQuery.deals || []);
+      onLoad(stage._id, itemsQuery[queryName] || []);
     }
   }
 
@@ -97,8 +97,6 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     return addMutation({ variables: { name, stageId: stage._id } })
       .then(({ data }) => {
         Alert.success(successText);
-
-        invalidateCalendarCache();
 
         onAddItem(stage._id, data[mutationName]);
 

@@ -1,14 +1,13 @@
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
 import {
   AddContainer,
   FormFooter,
   HeaderContent,
   HeaderRow
-} from '../styles/deal';
-import { invalidateCalendarCache } from '../utils';
+} from 'modules/deals/styles/deal';
+import * as React from 'react';
 
 type Props = {
   add: (name: string, callback: () => void) => void;
@@ -20,7 +19,7 @@ type State = {
   disabled: boolean;
 };
 
-class DealAddForm extends React.Component<Props, State> {
+class TicketAddForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -52,8 +51,6 @@ class DealAddForm extends React.Component<Props, State> {
       this.setState({ disabled: false });
 
       closeModal();
-
-      invalidateCalendarCache();
     });
   };
 
@@ -90,4 +87,4 @@ class DealAddForm extends React.Component<Props, State> {
   }
 }
 
-export default DealAddForm;
+export default TicketAddForm;
