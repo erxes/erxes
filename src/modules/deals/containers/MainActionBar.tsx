@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
+import { queries as productQueries } from 'modules/settings/productService/graphql';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -10,10 +11,12 @@ import { MainActionBar as DumbMainActionBar } from '../components';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
 import { PageHeader } from '../styles/header';
+
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
-  BoardsQueryResponse
+  BoardsQueryResponse,
+  ProductsQueryResponse
 } from '../types';
 
 type Props = {
@@ -24,12 +27,29 @@ type FinalProps = {
   boardsQuery: BoardsQueryResponse;
   boardGetLastQuery?: BoardsGetLastQueryResponse;
   boardDetailQuery?: BoardDetailQueryResponse;
+  productsQuery?: ProductsQueryResponse;
 } & Props;
 
 const getBoardId = ({ location }) => {
   const queryParams = generateQueryParams({ location });
   return queryParams.id;
 };
+
+const dateFilterParams = [
+  'nextDay',
+  'nextWeek',
+  'nextMonth',
+  'overdue',
+  'noCloseDate'
+];
+
+const commonParams = [
+  'companyIds',
+  'customerIds',
+  'assignedUserIds',
+  'productIds',
+  ...dateFilterParams
+];
 
 /*
  * Main board component
@@ -39,6 +59,47 @@ class Main extends React.Component<FinalProps> {
     routerUtils.setParams(this.props.history, { search });
   };
 
+  onDateFilterSelect = (name: string, value: string) => {
+    const { history } = this.props;
+    const query = { [name]: value };
+    const params = generateQueryParams(history);
+
+    // Remove current selected date filter
+    for (const param in params) {
+      if (dateFilterParams.includes(param)) {
+        delete params[param];
+
+        return routerUtils.replaceParam(history, params, query);
+      }
+    }
+
+    routerUtils.setParams(history, query, true);
+  };
+
+  onSelect = (values: string[] | string, name: string) => {
+    routerUtils.setParams(this.props.history, { [name]: values });
+  };
+
+  onClear = (name: string) => {
+    routerUtils.removeParams(this.props.history, name);
+  };
+
+  isFiltered = (): boolean => {
+    const params = generateQueryParams(this.props.history);
+
+    for (const param in params) {
+      if (commonParams.includes(param)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  clearFilter = () => {
+    routerUtils.removeParams(this.props.history, ...commonParams);
+  };
+
   render() {
     const {
       history,
@@ -46,6 +107,7 @@ class Main extends React.Component<FinalProps> {
       boardsQuery,
       boardGetLastQuery,
       boardDetailQuery,
+      productsQuery,
       middleContent
     } = this.props;
 
@@ -56,6 +118,8 @@ class Main extends React.Component<FinalProps> {
     const queryParams = generateQueryParams({ location });
     const boardId = getBoardId({ location });
     const { pipelineId } = queryParams;
+
+    const products = productsQuery ? productsQuery.products : [];
 
     if (boardId && pipelineId) {
       localStorage.setItem(STORAGE_BOARD_KEY, boardId);
@@ -125,11 +189,17 @@ class Main extends React.Component<FinalProps> {
       <DumbMainActionBar
         middleContent={middleContent}
         onSearch={this.onSearch}
+        onDateFilterSelect={this.onDateFilterSelect}
+        onClear={this.onClear}
+        onSelect={this.onSelect}
+        isFiltered={this.isFiltered}
+        clearFilter={this.clearFilter}
         queryParams={queryParams}
         history={history}
         currentBoard={currentBoard}
         currentPipeline={currentPipeline}
         boards={boardsQuery.dealBoards || []}
+        products={products}
       />
     );
   }
@@ -148,18 +218,17 @@ const MainActionBar = withProps<Props>(
       name: 'boardGetLastQuery',
       skip: getBoardId
     }),
+    graphql<{}, ProductsQueryResponse>(gql(productQueries.products), {
+      name: 'productsQuery'
+    }),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
       {
         name: 'boardDetailQuery',
         skip: props => !getBoardId(props),
-        options: props => {
-          return {
-            variables: {
-              _id: getBoardId(props)
-            }
-          };
-        }
+        options: props => ({
+          variables: { _id: getBoardId(props) }
+        })
       }
     )
   )(Main)

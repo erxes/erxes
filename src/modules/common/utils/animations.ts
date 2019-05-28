@@ -73,4 +73,22 @@ const twinkling = keyframes`
   }
 `;
 
-export { rotate, fadeIn, slideDown, slideLeft, slideRight, shake, twinkling };
+const stripe = keyframes`
+  from {
+    background-position: 16px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+`;
+
+export {
+  rotate,
+  fadeIn,
+  slideDown,
+  slideLeft,
+  slideRight,
+  shake,
+  twinkling,
+  stripe
+};
