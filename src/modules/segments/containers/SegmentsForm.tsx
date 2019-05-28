@@ -86,11 +86,13 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
     if (segmentDetailQuery.loading) {
       return null;
     }
-
+    // tslint:disable-next-line:no-console
+    console.log(combinedFieldsQuery);
     const fields = (combinedFieldsQuery.fieldsCombinedByContentType || []).map(
-      ({ name, label }) => ({
+      ({ name, label, brand }) => ({
         _id: name,
         title: label,
+        brand,
         selectedBy: 'none'
       })
     );

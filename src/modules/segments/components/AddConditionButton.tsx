@@ -35,7 +35,8 @@ class AddConditionButton extends React.Component<Props> {
 
   renderFields(type: string, title: string) {
     const { fields } = this.props;
-
+    // // tslint:disable-next-line:no-console
+    // console.log(fields);
     let items = fields.filter(
       field =>
         field._id.indexOf('twitterData') &&
