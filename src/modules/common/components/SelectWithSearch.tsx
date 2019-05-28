@@ -136,7 +136,7 @@ const withQuery = ({ customQuery }) =>
       graphql<
         Props,
         {},
-        { searchValue?: string; ids?: string[]; filterOptions?: any }
+        { searchValue?: string; ids?: string[]; filterParams?: any }
       >(gql(customQuery), {
         name: 'customQuery',
         options: ({ searchValue, filterParams, values }) => {
