@@ -8,8 +8,8 @@ import {
   PipelineName,
   StageItem,
   Stages
-} from '../../styles/deal';
-import { IDeal } from '../../types';
+} from '../../../deals/styles/deal';
+import { IDeal } from '../../../deals/types';
 
 type Props = {
   deal?: IDeal;

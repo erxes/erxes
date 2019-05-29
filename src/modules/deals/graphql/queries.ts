@@ -123,24 +123,9 @@ const productDetail = `
   }
 `;
 
-const users = `
-  query users {
-    users {
-      _id
-      username
-      email
-      details {
-        fullName
-        avatar
-      }
-    }
-  }
-`;
-
 export default {
   deals,
   dealDetail,
   productDetail,
-  users,
   dealsTotalAmounts
 };

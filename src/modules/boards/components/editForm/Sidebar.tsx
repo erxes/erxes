@@ -5,9 +5,9 @@ import { CustomerSection } from 'modules/customers/components/common';
 import { ICustomer } from 'modules/customers/types';
 import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
-import { ProductSection } from '../';
-import { RightContent } from '../../styles/deal';
-import { IDeal, IProductData } from '../../types';
+import { ProductSection } from '../../../deals/components';
+import { RightContent } from '../../../deals/styles/deal';
+import { IDeal, IProductData } from '../../../deals/types';
 
 type Props = {
   deal: IDeal;
@@ -19,8 +19,8 @@ type Props = {
     name: 'productsData' | 'products' | 'companies' | 'customers',
     value: any
   ) => void;
-  copyDeal: () => void;
-  removeDeal: (dealId: string) => void;
+  copyItem: () => void;
+  removeItem: (dealId: string) => void;
   saveProductsData: () => void;
 };
 
@@ -34,8 +34,8 @@ class Sidebar extends React.Component<Props> {
       deal,
       onChangeField,
       saveProductsData,
-      copyDeal,
-      removeDeal
+      copyItem,
+      removeItem
     } = this.props;
 
     const onChange = (type, value) => {
@@ -48,7 +48,7 @@ class Sidebar extends React.Component<Props> {
     const prsChange = prs => onChange('products', prs);
     const cmpsChange = cmps => onChange('companies', cmps);
     const cmrsChange = cmrs => onChange('customers', cmrs);
-    const onClick = () => removeDeal(deal._id);
+    const onClick = () => removeItem(deal._id);
 
     return (
       <RightContent>
@@ -72,7 +72,7 @@ class Sidebar extends React.Component<Props> {
           onSelect={cmrsChange}
         />
 
-        <Button icon="checked-1" onClick={copyDeal}>
+        <Button icon="checked-1" onClick={copyItem}>
           Copy
         </Button>
 

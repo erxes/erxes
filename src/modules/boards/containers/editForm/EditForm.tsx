@@ -2,25 +2,27 @@ import gql from 'graphql-tag';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import { Spinner } from 'modules/common/components';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { UsersQueryResponse } from '../../../settings/team/types';
-import { EditForm } from '../../components/editForm';
-import { mutations, queries } from '../../graphql';
 import {
   DealDetailQueryResponse,
   IDeal,
   IDealParams,
   RemoveDealMutation,
   SaveDealMutation
-} from '../../types';
-import { invalidateCalendarCache } from '../../utils';
+} from 'modules/deals/types';
+import { invalidateCalendarCache } from 'modules/deals/utils';
+import { queries as userQueries } from 'modules/settings/team/graphql';
+import { UsersQueryResponse } from 'modules/settings/team/types';
+import * as React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { EditForm } from '../../components/editForm';
+import { mutations, queries } from '../../graphql';
 
 type Props = {
-  dealId: string;
+  type: string;
+  itemId: string;
   stageId: string;
   onAdd?: (stageId: string, deal: IDeal) => void;
-  onRemove?: (dealId: string, stageId: string) => void;
+  onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (deal: IDeal, prevStageId: string) => void;
   closeModal: () => void;
 };
@@ -38,12 +40,12 @@ class EditFormContainer extends React.Component<FinalProps> {
   constructor(props) {
     super(props);
 
-    this.addDeal = this.addDeal.bind(this);
-    this.saveDeal = this.saveDeal.bind(this);
+    this.addItem = this.addItem.bind(this);
+    this.saveItem = this.saveItem.bind(this);
     this.removeDeal = this.removeDeal.bind(this);
   }
 
-  addDeal(
+  addItem(
     doc: IDealParams,
     callback: () => void,
     msg = `You successfully added a deal`
@@ -65,10 +67,10 @@ class EditFormContainer extends React.Component<FinalProps> {
       });
   }
 
-  saveDeal = (doc: IDealParams, callback: () => void) => {
-    const { stageId, dealId, editMutation, onUpdate } = this.props;
+  saveItem = (doc: IDealParams, callback: () => void) => {
+    const { stageId, itemId, editMutation, onUpdate } = this.props;
 
-    editMutation({ variables: { _id: dealId, ...doc } })
+    editMutation({ variables: { _id: itemId, ...doc } })
       .then(({ data }) => {
         Alert.success('You successfully updated a deal');
 
@@ -85,11 +87,11 @@ class EditFormContainer extends React.Component<FinalProps> {
       });
   };
 
-  removeDeal = (dealId: string, callback) => {
+  removeDeal = (itemId: string, callback) => {
     const { removeMutation, onRemove, stageId } = this.props;
 
     confirm().then(() =>
-      removeMutation({ variables: { _id: dealId } })
+      removeMutation({ variables: { _id: itemId } })
         .then(() => {
           callback();
 
@@ -98,7 +100,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           if (onRemove) {
             invalidateCalendarCache();
 
-            onRemove(dealId, stageId);
+            onRemove(itemId, stageId);
           }
         })
 
@@ -125,9 +127,9 @@ class EditFormContainer extends React.Component<FinalProps> {
     const extendedProps = {
       ...this.props,
       deal,
-      addDeal: this.addDeal,
+      addItem: this.addItem,
       removeDeal: this.removeDeal,
-      saveDeal: this.saveDeal,
+      saveItem: this.saveItem,
       users
     };
 
@@ -141,16 +143,16 @@ export default withProps<Props>(
       gql(queries.dealDetail),
       {
         name: 'dealDetailQuery',
-        options: ({ dealId }: { dealId: string }) => {
+        options: ({ itemId }: { itemId: string }) => {
           return {
             variables: {
-              _id: dealId
+              _id: itemId
             }
           };
         }
       }
     ),
-    graphql<Props, UsersQueryResponse>(gql(queries.users), {
+    graphql<Props, UsersQueryResponse>(gql(userQueries.usersForSelector), {
       name: 'usersQuery'
     }),
     graphql<Props, SaveDealMutation, IDealParams>(gql(mutations.dealsAdd), {
@@ -166,11 +168,11 @@ export default withProps<Props>(
     }),
     graphql<Props, SaveDealMutation, IDealParams>(gql(mutations.dealsEdit), {
       name: 'editMutation',
-      options: ({ dealId, stageId }: { stageId: string; dealId: string }) => ({
+      options: ({ itemId, stageId }: { stageId: string; itemId: string }) => ({
         refetchQueries: [
           {
             query: gql(queries.dealDetail),
-            variables: { _id: dealId }
+            variables: { _id: itemId }
           },
           {
             query: gql(boardQueries.stageDetail),

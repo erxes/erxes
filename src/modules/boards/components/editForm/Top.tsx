@@ -8,7 +8,6 @@ import { __, readFile } from 'modules/common/utils';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import * as React from 'react';
 import * as Datetime from 'react-datetime';
-import { Move } from '../../containers/editForm';
 import {
   Avatar,
   FlexContent,
@@ -16,11 +15,10 @@ import {
   HeaderContentSmall,
   HeaderRow,
   Left,
-  RightContent,
-  SelectOption,
-  SelectValue
-} from '../../styles/deal';
-import { IDeal } from '../../types';
+  RightContent
+} from '../../../deals/styles/deal';
+import { IDeal } from '../../../deals/types';
+import { Move } from '../../containers/editForm';
 
 type Props = {
   deal: IDeal;
@@ -59,7 +57,7 @@ class Top extends React.Component<Props> {
     this.props.onChangeField('stageId', stageId);
   };
 
-  renderDealMove() {
+  renderMove() {
     const { deal, stageId } = this.props;
 
     return (
@@ -103,7 +101,7 @@ class Top extends React.Component<Props> {
         </HeaderRow>
 
         <HeaderRow>
-          <HeaderContent>{this.renderDealMove()}</HeaderContent>
+          <HeaderContent>{this.renderMove()}</HeaderContent>
 
           <HeaderContentSmall>
             <FormGroup>

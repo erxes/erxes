@@ -1,7 +1,7 @@
+import { EditForm } from 'modules/boards/containers/editForm';
 import { Item } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
-import { EditForm } from 'modules/deals/containers/editForm';
 import {
   Deal,
   DealDate,
@@ -66,8 +66,9 @@ export default class DealItem extends React.PureComponent<
         </Modal.Header>
         <Modal.Body>
           <EditForm
+            type="deal"
             stageId={stageId}
-            dealId={item._id}
+            itemId={item._id}
             onAdd={onAdd}
             onRemove={onRemove}
             onUpdate={onUpdate}

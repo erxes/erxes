@@ -4,19 +4,19 @@ import { IUser } from 'modules/auth/types';
 import { Button } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
-import { ICompany } from '../../../companies/types';
-import { ICustomer } from '../../../customers/types';
-import { IProduct } from '../../../settings/productService/types';
-import { FlexContent, FormFooter, Left } from '../../styles/deal';
-import { IDeal, IDealParams } from '../../types';
+import { ICompany } from 'modules/companies/types';
+import { ICustomer } from 'modules/customers/types';
+import { IDeal, IDealParams } from 'modules/deals/types';
+import { FlexContent, FormFooter, Left } from 'modules/deals/styles/deal';
+import { IProduct } from 'modules/settings/productService/types';
 import { Sidebar, Top } from './';
 
 type Props = {
   deal: IDeal;
   users: IUser[];
-  addDeal: (doc: IDealParams, callback: () => void, msg?: string) => void;
-  saveDeal: (doc: IDealParams, callback: () => void) => void;
-  removeDeal: (dealId: string, callback: () => void) => void;
+  addItem: (doc: IDealParams, callback: () => void, msg?: string) => void;
+  saveItem: (doc: IDealParams, callback: () => void) => void;
+  removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
 };
 
@@ -102,7 +102,7 @@ class DealEditForm extends React.Component<Props, State> {
       assignedUserIds
     } = this.state;
 
-    const { closeModal, saveDeal } = this.props;
+    const { closeModal, saveItem } = this.props;
 
     if (!name) {
       return Alert.error('Enter a name');
@@ -123,19 +123,19 @@ class DealEditForm extends React.Component<Props, State> {
       assignedUserIds
     };
 
-    saveDeal(doc, () => {
+    saveItem(doc, () => {
       closeModal();
     });
   };
 
   remove = id => {
-    const { removeDeal, closeModal } = this.props;
+    const { removeItem, closeModal } = this.props;
 
-    removeDeal(id, () => closeModal());
+    removeItem(id, () => closeModal());
   };
 
   copy = () => {
-    const { deal, closeModal, addDeal } = this.props;
+    const { deal, closeModal, addItem } = this.props;
 
     // copied doc
     const doc = {
@@ -145,7 +145,7 @@ class DealEditForm extends React.Component<Props, State> {
       customerIds: deal.customers.map(customer => customer._id)
     };
 
-    addDeal(
+    addItem(
       doc,
       () => closeModal && closeModal(),
       `You successfully copied a deal`
@@ -204,8 +204,8 @@ class DealEditForm extends React.Component<Props, State> {
             productsData={productsData}
             deal={deal}
             onChangeField={this.onChangeField}
-            copyDeal={this.copy}
-            removeDeal={this.remove}
+            copyItem={this.copy}
+            removeItem={this.remove}
             saveProductsData={this.saveProductsData}
           />
         </FlexContent>
