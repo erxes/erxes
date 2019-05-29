@@ -123,14 +123,22 @@ describe('Test permissions mutations', () => {
   });
 
   test('Create group', async () => {
-    const args = { name: 'created name', description: 'created description' };
+    const user1 = await userFactory({});
+    const user2 = await userFactory({});
+
+    const args = {
+      memberIds: [user1._id, user2._id],
+      name: 'created name',
+      description: 'created description',
+    };
 
     const mutation = `
-      mutation usersGroupsAdd($name: String! $description: String!) {
-        usersGroupsAdd(name: $name description: $description) {
+      mutation usersGroupsAdd($name: String! $description: String!, $memberIds: [String]) {
+        usersGroupsAdd(name: $name description: $description, memberIds: $memberIds) {
           _id
           name
           description
+          memberIds
         }
       }
     `;
@@ -139,17 +147,27 @@ describe('Test permissions mutations', () => {
 
     expect(createdGroup.name).toEqual('created name');
     expect(createdGroup.description).toEqual('created description');
+    expect(createdGroup.memberIds).toContain(user1._id);
+    expect(createdGroup.memberIds).toContain(user2._id);
   });
 
   test('Update group', async () => {
-    const args: IUserGroup = { name: 'updated name', description: 'updated description' };
+    const user1 = await userFactory({});
+    const user2 = await userFactory({});
+
+    const args = {
+      name: 'updated name',
+      memberIds: [user1._id, user2._id],
+      description: 'updated description',
+    };
 
     const mutation = `
-      mutation usersGroupsEdit($_id: String! $name: String! $description: String!) {
-        usersGroupsEdit(_id: $_id name: $name description: $description) {
+      mutation usersGroupsEdit($_id: String! $name: String! $description: String!, $memberIds: [String]) {
+        usersGroupsEdit(_id: $_id name: $name description: $description, memberIds: $memberIds) {
           _id
           name
           description
+          memberIds
         }
       }
     `;
@@ -163,6 +181,8 @@ describe('Test permissions mutations', () => {
 
     expect(updatedGroup.name).toBe('updated name');
     expect(updatedGroup.description).toBe('updated description');
+    expect(updatedGroup.memberIds).toContain(user1._id);
+    expect(updatedGroup.memberIds).toContain(user2._id);
   });
 
   test('Remove group', async () => {

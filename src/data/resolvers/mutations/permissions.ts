@@ -32,8 +32,8 @@ const usersGroupMutations = {
    * @param {String} doc.description
    * @return {Promise} newly created group object
    */
-  usersGroupsAdd(_root, doc: IUserGroup) {
-    return UsersGroups.createGroup(doc);
+  usersGroupsAdd(_root, { memberIds, ...doc }: IUserGroup & { memberIds?: string[] }) {
+    return UsersGroups.createGroup(doc, memberIds);
   },
 
   /**
@@ -42,8 +42,8 @@ const usersGroupMutations = {
    * @param {String} doc.description
    * @return {Promise} updated group object
    */
-  usersGroupsEdit(_root, { _id, ...doc }: { _id: string } & IUserGroup) {
-    return UsersGroups.updateGroup(_id, doc);
+  usersGroupsEdit(_root, { _id, memberIds, ...doc }: { _id: string; memberIds?: string[] } & IUserGroup) {
+    return UsersGroups.updateGroup(_id, doc, memberIds);
   },
 
   /**
