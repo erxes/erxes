@@ -15,8 +15,7 @@ class AddConditionButton extends React.Component<Props> {
 
   addCondition = (items, id: string) => {
     const [type] = Object.keys(types);
-    // tslint:disable-next-line:no-console
-    console.log(id);
+
     this.props.addCondition({
       _id: Math.random().toString(),
       field: id,
