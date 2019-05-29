@@ -142,15 +142,27 @@ class Condition extends React.Component<Props, State> {
     );
   }
 
-  render() {
+  renderFieldTitle() {
     const { fields, condition } = this.props;
 
     const field = fields.find(fieldItem => fieldItem._id === condition.field);
 
+    if (field) {
+      if (field.brand) {
+        return `${field.brand}: ${field.title}`;
+      }
+
+      return field.title;
+    }
+
+    return null;
+  }
+
+  render() {
     return (
       <ConditionItem>
         <ControlLabel ignoreTrans={true}>
-          {field ? field.title : ''}
+          {this.renderFieldTitle()}
         </ControlLabel>
         <br />
         <FlexContent>

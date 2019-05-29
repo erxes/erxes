@@ -68,13 +68,11 @@ const Field = styled.div`
   width: 260px;
   background: ${colors.colorWhite};
   box-shadow: 0 0 ${dimensions.coreSpacing}px 3px rgba(0, 0, 0, 0.15);
+  padding: 0;
+  margin: 0;
 
   input {
     transition: inherit;
-  }
-
-  label {
-    padding: 0 ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -84,27 +82,18 @@ const FieldType = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   color: ${rgba(colors.textPrimary, 0.8)};
-  transition: all ease 0.3s;
 
   &:hover {
     background: ${colors.bgLight};
   }
 `;
 
-const FieldTitle = styled.div`
-  text-transform: uppercase;
-  display: inline-block;
-  font-weight: 500;
-  color: rgba(68, 68, 68, 0.8);
-  font-size: 11px;
-  margin-bottom: 5px;
-`;
-
 const PopoverList = styled.div`
   position: relative;
+  list-style: none;
 
   &:hover {
-    ${Field} {
+    > ${Field} {
       visibility: visible;
     }
   }
@@ -119,7 +108,6 @@ export {
   SegmentResult,
   ResultCount,
   PopoverList,
-  FieldTitle,
   FieldType,
   Field
 };

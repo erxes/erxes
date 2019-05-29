@@ -1,14 +1,9 @@
-import {
-  Button,
-  ControlLabel,
-  FilterableList,
-  Icon
-} from 'modules/common/components';
+import { Button, FilterableList, Icon } from 'modules/common/components';
 import { dateUnits, types } from 'modules/customers/constants';
 import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ISegmentCondition } from '../types';
-import { Field, FieldTitle, FieldType, PopoverList } from './styles';
+import { Field, FieldType, PopoverList } from './styles';
 
 type Props = {
   fields: any[];
@@ -20,7 +15,8 @@ class AddConditionButton extends React.Component<Props> {
 
   addCondition = (items, id: string) => {
     const [type] = Object.keys(types);
-
+    // tslint:disable-next-line:no-console
+    console.log(id);
     this.props.addCondition({
       _id: Math.random().toString(),
       field: id,
@@ -33,10 +29,63 @@ class AddConditionButton extends React.Component<Props> {
     this.overlayTrigger.hide();
   };
 
+  renderItem(data, index: number) {
+    return (
+      <div key={index}>
+        <FilterableList
+          items={data}
+          onClick={this.addCondition}
+          showCheckmark={false}
+        />
+      </div>
+    );
+  }
+
+  renderBrandList(items, title: string) {
+    const data = Object.keys(items);
+
+    return (
+      <Field>
+        <h3 className="popover-title">{title}</h3>
+        {data.map((key, index) => this.renderItem(items[key], index))}
+      </Field>
+    );
+  }
+
+  renderMessengerDataFields(items) {
+    const groupedFields = items.reduce((total, item) => {
+      const key = item.brand;
+
+      total[key] = total[key] || [];
+      total[key].push(item);
+
+      return total;
+    }, {});
+
+    return (
+      <Field>
+        <h3 className="popover-title">Select brand</h3>
+        {Object.keys(groupedFields).map((key, index) => {
+          let title = key;
+
+          if (key === 'undefined') {
+            title = 'Others';
+          }
+
+          return (
+            <PopoverList key={index}>
+              <FieldType>{title}</FieldType>
+              {this.renderBrandList({ [key]: groupedFields[key] }, title)}
+            </PopoverList>
+          );
+        })}
+      </Field>
+    );
+  }
+
   renderFields(type: string, title: string) {
     const { fields } = this.props;
-    // // tslint:disable-next-line:no-console
-    // console.log(fields);
+
     let items = fields.filter(
       field =>
         field._id.indexOf('twitterData') &&
@@ -61,18 +110,7 @@ class AddConditionButton extends React.Component<Props> {
     if (type === 'messenger-data') {
       items = fields.filter(field => field._id.includes('messengerData'));
 
-      return (
-        <Field>
-          <h3 className="popover-title">Choose brand</h3>
-          {items.map((item, index) => {
-            return (
-              <PopoverList key={index}>
-                <FieldType>{item.title.split(':')[0]}</FieldType>
-              </PopoverList>
-            );
-          })}
-        </Field>
-      );
+      return this.renderMessengerDataFields(items);
     }
 
     return (
