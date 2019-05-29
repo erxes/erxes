@@ -89,7 +89,7 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
 
     const fields = (combinedFieldsQuery.fieldsCombinedByContentType || []).map(
       ({ name, label, brand }) => ({
-        _id: name,
+        _id: `${brand}-${name}`,
         title: label,
         brand,
         selectedBy: 'none'
