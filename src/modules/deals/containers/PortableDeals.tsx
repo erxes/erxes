@@ -7,8 +7,8 @@ import { mutations, queries } from '../graphql';
 import { DealsQueryResponse, IDealParams, SaveDealMutation } from '../types';
 
 type Props = {
-  customerId?: string;
-  companyId?: string;
+  customerIds?: string[];
+  companyIds?: string[];
   isOpen?: boolean;
 };
 
@@ -68,14 +68,14 @@ export default withProps<Props>(
     graphql<
       Props,
       DealsQueryResponse,
-      { customerId?: string; companyId?: string }
+      { customerIds?: string[]; companyIds?: string[] }
     >(gql(queries.deals), {
       name: 'dealsQuery',
-      skip: ({ customerId, companyId }) => !customerId && !companyId,
-      options: ({ customerId, companyId }) => ({
+      skip: ({ customerIds, companyIds }) => !customerIds && !companyIds,
+      options: ({ customerIds, companyIds }) => ({
         variables: {
-          customerId,
-          companyId
+          customerIds,
+          companyIds
         }
       })
     })
