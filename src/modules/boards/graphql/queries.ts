@@ -1,6 +1,30 @@
 import { queries as dealQueries } from 'modules/deals/graphql';
 import { queries as ticketQueries } from 'modules/tickets/graphql';
 
+const commonParams = `
+  $customerIds: [String],
+  $companyIds: [String],
+  $assignedUserIds: [String],
+  $nextDay: String,
+  $nextWeek: String,
+  $nextMonth: String,
+  $noCloseDate: String,
+  $overdue: String
+  $productIds: [String]
+`;
+
+const commonParamDefs = `
+  customerIds: $customerIds,
+  companyIds: $companyIds,
+  assignedUserIds: $assignedUserIds,
+  nextDay: $nextDay,
+  nextWeek: $nextWeek,
+  nextMonth: $nextMonth,
+  noCloseDate: $noCloseDate,
+  overdue: $overdue
+  productIds: $productIds
+`;
+
 const boards = `
   query boards($type: String!) {
     boards(type: $type) {
@@ -63,8 +87,16 @@ const pipelineDetail = `
 `;
 
 const stages = `
-  query stages($pipelineId: String!, $search: String) {
-    stages(pipelineId: $pipelineId, search: $search) {
+  query stages(
+    $pipelineId: String!, 
+    $search: String,
+    ${commonParams}
+  ) {
+    stages(
+      pipelineId: $pipelineId, 
+      search: $search,
+      ${commonParamDefs}
+    ) {
       _id
       name
       order

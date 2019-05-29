@@ -3,14 +3,18 @@ export const STORAGE_PIPELINE_KEY = 'erxesCurrentPipelineId';
 
 export const STAGE_CONSTANTS = {
   deal: {
-    queryName: 'deals',
-    mutationName: 'dealsAdd',
+    itemsQuery: 'deals',
+    addMutation: 'dealsAdd',
+    changeMutation: 'dealsChange',
+    updateOrderMutation: 'dealsUpdateOrder',
     addText: 'Add a deal',
     successText: 'You successfully added a deal'
   },
   ticket: {
-    queryName: 'tickets',
-    mutationName: 'ticketsAdd',
+    itemsQuery: 'tickets',
+    addMutation: 'ticketsAdd',
+    changeMutation: 'ticketsChange',
+    updateOrderMutation: 'ticketsUpdateOrder',
     addText: 'Add a ticket',
     successText: 'You successfully added a ticket'
   }

@@ -75,8 +75,26 @@ const dealsRemove = `
   }
 `;
 
+const dealsChange = `
+  mutation dealsChange($_id: String!, $destinationStageId: String!) {
+    dealsChange(_id: $_id, destinationStageId: $destinationStageId) {
+      _id
+    }
+  }
+`;
+
+const dealsUpdateOrder = `
+  mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
+    dealsUpdateOrder(stageId: $stageId, orders: $orders) {
+      _id
+    }
+  }
+`;
+
 export default {
   dealsAdd,
   dealsEdit,
-  dealsRemove
+  dealsRemove,
+  dealsChange,
+  dealsUpdateOrder
 };

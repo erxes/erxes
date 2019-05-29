@@ -1,7 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
-import { queries as boardsQueries } from 'modules/boards/graphql';
 import {
   IStage,
   Item,
@@ -43,10 +42,9 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     const { stage, loadingState, onLoad, itemsQuery, type } = nextProps;
 
     if (itemsQuery && !itemsQuery.loading && loadingState !== 'loaded') {
-      const queryName = STAGE_CONSTANTS[type].queryName;
       // Send loaded items to PipelineContext so that context is able to set it
       // to global itemsMap
-      onLoad(stage._id, itemsQuery[queryName] || []);
+      onLoad(stage._id, itemsQuery[STAGE_CONSTANTS[type].itemsQuery] || []);
     }
   }
 
@@ -64,11 +62,11 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       return;
     }
 
-    const queryName = STAGE_CONSTANTS[type].queryName;
+    const itemsQuery = STAGE_CONSTANTS[type].itemsQuery;
 
     client
       .query({
-        query: gql(queries[queryName]),
+        query: gql(queries[itemsQuery]),
         variables: {
           stageId: stage._id,
           skip: items.length,
@@ -76,7 +74,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         }
       })
       .then(({ data }: any) => {
-        onLoad(stage._id, [...items, ...(data[queryName] || [])]);
+        onLoad(stage._id, [...items, ...(data[itemsQuery] || [])]);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -87,18 +85,17 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   addItem = (name: string, callback: () => void) => {
     const { stage, onAddItem, addMutation, type } = this.props;
 
-    const mutationName = STAGE_CONSTANTS[type].mutationName;
-    const successText = STAGE_CONSTANTS[type].successText;
-
     if (!stage) {
       return null;
     }
 
     return addMutation({ variables: { name, stageId: stage._id } })
       .then(({ data }) => {
-        Alert.success(successText);
+        const constant = STAGE_CONSTANTS[type];
 
-        onAddItem(stage._id, data[mutationName]);
+        Alert.success(constant.successText);
+
+        onAddItem(stage._id, data[constant.addMutation]);
 
         callback();
       })
@@ -148,7 +145,7 @@ const getFilterParams = queryParams => {
 const withQuery = ({ type }) => {
   return withProps<StageProps>(
     compose(
-      graphql<StageProps>(gql(queries[STAGE_CONSTANTS[type].queryName]), {
+      graphql<StageProps>(gql(queries[STAGE_CONSTANTS[type].itemsQuery]), {
         name: 'itemsQuery',
         skip: ({ loadingState }) => loadingState !== 'readyToLoad',
         options: ({ stage, queryParams, loadingState }) => ({
@@ -163,13 +160,13 @@ const withQuery = ({ type }) => {
       }),
       // mutation
       graphql<StageProps, SaveItemMutation, ItemParams>(
-        gql(mutations[STAGE_CONSTANTS[type].mutationName]),
+        gql(mutations[STAGE_CONSTANTS[type].addMutation]),
         {
           name: 'addMutation',
           options: ({ stage }) => ({
             refetchQueries: [
               {
-                query: gql(boardsQueries.stageDetail),
+                query: gql(queries.stageDetail),
                 variables: { _id: stage && stage._id }
               }
             ]

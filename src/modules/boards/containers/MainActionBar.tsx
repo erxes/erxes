@@ -3,15 +3,14 @@ import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
-import { MainActionBar as DealMainActionBar } from 'modules/deals/components';
 import { PageHeader } from 'modules/deals/styles/header';
 import { ProductsQueryResponse } from 'modules/deals/types';
 import { queries as productQueries } from 'modules/settings/productService/graphql';
-import { MainActionBar as TicketMainActionBar } from 'modules/tickets/components';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { MainActionBar as DumbMainActionBar } from '../components';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
 import {
@@ -216,27 +215,19 @@ class Main extends React.Component<FinalProps> {
       boards: boardsQuery.boards || []
     };
 
-    switch (type) {
-      case 'deal': {
-        const extendedProps = {
-          ...props,
-          products,
-          onSearch: this.onSearch,
-          onDateFilterSelect: this.onDateFilterSelect,
-          onClear: this.onClear,
-          onSelect: this.onSelect,
-          isFiltered: this.isFiltered,
-          clearFilter: this.clearFilter
-        };
+    const extendedProps = {
+      ...props,
+      type,
+      products,
+      onSearch: this.onSearch,
+      onDateFilterSelect: this.onDateFilterSelect,
+      onClear: this.onClear,
+      onSelect: this.onSelect,
+      isFiltered: this.isFiltered,
+      clearFilter: this.clearFilter
+    };
 
-        return <DealMainActionBar {...extendedProps} />;
-      }
-      case 'ticket': {
-        return <TicketMainActionBar {...props} />;
-      }
-    }
-
-    return null;
+    return <DumbMainActionBar {...extendedProps} />;
   }
 }
 

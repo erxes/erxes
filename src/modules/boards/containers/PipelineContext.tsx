@@ -4,6 +4,7 @@ import { Alert } from 'modules/common/utils';
 import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
+import { STAGE_CONSTANTS } from '../constants';
 import { mutations, queries } from '../graphql';
 import { IDragResult, IItemMap, IPipeline, Item } from '../types';
 import { collectOrders, reorder, reorderItemMap } from '../utils';
@@ -123,7 +124,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     const itemId = result.draggableId;
 
     // update item to database
-    this.itemChange(itemId);
+    this.itemChange(itemId, destination.droppableId);
 
     const item = itemMap[destination.droppableId].find(d => d._id === itemId);
     item.modifiedAt = new Date();
@@ -140,10 +141,11 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   itemChange = (itemId: string, destinationStageId?: string) => {
-    const { type } = this.props;
     client
       .mutate({
-        mutation: gql(mutations[type + 'sChange']),
+        mutation: gql(
+          mutations[STAGE_CONSTANTS[this.props.type].changeMutation]
+        ),
         variables: {
           _id: itemId,
           destinationStageId
@@ -171,8 +173,6 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   saveItemOrders = (itemMap: IItemMap, stageIds: string[]) => {
-    const { type } = this.props;
-
     for (const stageId of stageIds) {
       const orders = collectOrders(itemMap[stageId]);
 
@@ -182,7 +182,9 @@ export class PipelineProvider extends React.Component<Props, State> {
 
       client
         .mutate({
-          mutation: gql(mutations[type + 'sUpdateOrder']),
+          mutation: gql(
+            mutations[STAGE_CONSTANTS[this.props.type].updateOrderMutation]
+          ),
           variables: {
             orders,
             stageId

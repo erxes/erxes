@@ -1,17 +1,79 @@
+const commonParams = `
+  $customerIds: [String],
+  $companyIds: [String],
+  $assignedUserIds: [String],
+  $nextDay: String,
+  $nextWeek: String,
+  $nextMonth: String,
+  $noCloseDate: String,
+  $overdue: String
+`;
+
+const commonParamDefs = `
+  customerIds: $customerIds,
+  companyIds: $companyIds,
+  assignedUserIds: $assignedUserIds,
+  nextDay: $nextDay,
+  nextWeek: $nextWeek,
+  nextMonth: $nextMonth,
+  noCloseDate: $noCloseDate,
+  overdue: $overdue
+`;
+
 const ticketFields = `
   _id
   name
   stageId
+  pipeline {
+    _id
+    name
+  }
   boardId
+  companies {
+    _id
+    primaryName
+    website
+  }
+  customers {
+    _id
+    firstName
+    primaryEmail
+    primaryPhone
+  }
   closeDate
   description
+  assignedUsers {
+    _id
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
+  stage {
+    probability
+  }
   modifiedAt
   modifiedBy
 `;
 
 const tickets = `
-  query tickets($stageId: String) {
-    tickets(stageId: $stageId) {
+  query tickets(
+    $pipelineId: String,
+    $stageId: String,
+    $date: ItemDate,
+    $skip: Int,
+    $search: String,
+    ${commonParams}
+  ) {
+    tickets(
+      pipelineId: $pipelineId,
+      stageId: $stageId,
+      date: $date,
+      skip: $skip,
+      search: $search,
+      ${commonParamDefs}
+    ) {
       ${ticketFields}
     }
   }

@@ -9,15 +9,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { SelectCustomers } from 'modules/customers/containers/common';
-import { PopoverHeader } from 'modules/notifications/components/styles';
-import { SelectProducts } from 'modules/settings/productService/containers';
-import { IProduct } from 'modules/settings/productService/types';
-import { SelectTeamMembers } from 'modules/settings/team/containers';
-import * as React from 'react';
-import { Dropdown } from 'react-bootstrap';
-import { Overlay, Popover } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import { IBoard, IPipeline } from '../../boards/types';
+import ViewChooser from 'modules/deals/components/ViewChooser';
 import {
   ClearDate,
   ClearFilter,
@@ -27,15 +19,23 @@ import {
   FilterDetail,
   FilterItem,
   RemoveFilter
-} from '../styles/filter';
+} from 'modules/deals/styles/filter';
+import { PopoverHeader } from 'modules/notifications/components/styles';
+import { SelectProducts } from 'modules/settings/productService/containers';
+import { IProduct } from 'modules/settings/productService/types';
+import { SelectTeamMembers } from 'modules/settings/team/containers';
+import * as React from 'react';
+import { Overlay, Popover } from 'react-bootstrap';
+import { Dropdown } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import {
-  ButtonGroup,
   HeaderButton,
   HeaderItems,
   HeaderLabel,
   HeaderLink,
   PageHeader
-} from '../styles/header';
+} from '../../deals/styles/header';
+import { IBoard, IPipeline } from '../types';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -52,6 +52,7 @@ type Props = {
   queryParams: any;
   products: IProduct[];
   assignedUserIds?: string[];
+  type: string;
 };
 
 type State = {
@@ -59,7 +60,7 @@ type State = {
   target: any;
 };
 
-// get selected deal type from URL
+// get selected type from URL
 const getType = () =>
   window.location.href.includes('calendar') ? 'calendar' : 'board';
 
@@ -97,24 +98,12 @@ class MainActionBar extends React.Component<Props, State> {
     this.setState({ show: false });
   };
 
-  onFilterClick = (type: string) => {
-    const { currentBoard, currentPipeline } = this.props;
-
-    if (currentBoard && currentPipeline) {
-      return `/deal/${type}?id=${currentBoard._id}&pipelineId=${
-        currentPipeline._id
-      }`;
-    }
-
-    return `/deal/${type}`;
-  };
-
   onClear = (name: string) => {
     this.props.onSelect(name, '');
   };
 
   renderBoards() {
-    const { currentBoard, boards } = this.props;
+    const { currentBoard, boards, type } = this.props;
 
     if ((currentBoard && boards.length === 1) || boards.length === 0) {
       return <EmptyState icon="layout" text="No other boards" size="small" />;
@@ -125,7 +114,7 @@ class MainActionBar extends React.Component<Props, State> {
         return null;
       }
 
-      let link = `/deal/${getType()}?id=${board._id}`;
+      let link = `/${type}/${getType()}?id=${board._id}`;
 
       const { pipelines = [] } = board;
 
@@ -142,7 +131,7 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   renderPipelines() {
-    const { currentBoard, currentPipeline } = this.props;
+    const { currentBoard, currentPipeline, type } = this.props;
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
     if ((currentPipeline && pipelines.length === 1) || pipelines.length === 0) {
@@ -161,7 +150,7 @@ class MainActionBar extends React.Component<Props, State> {
       return (
         <li key={pipeline._id}>
           <Link
-            to={`/deal/${getType()}?id=${currentBoard._id}&pipelineId=${
+            to={`/${type}/${getType()}?id=${currentBoard._id}&pipelineId=${
               pipeline._id
             }`}
           >
@@ -223,11 +212,10 @@ class MainActionBar extends React.Component<Props, State> {
       middleContent,
       queryParams,
       onSelect,
-      isFiltered
+      isFiltered,
+      type
     } = this.props;
 
-    const boardLink = this.onFilterClick('board');
-    const calendarLink = this.onFilterClick('calendar');
     const hasFilter = isFiltered();
     const active = isFiltered();
     const actionBarLeft = (
@@ -259,7 +247,7 @@ class MainActionBar extends React.Component<Props, State> {
         </Dropdown>
         <HeaderLink>
           <Tip text={__('Manage Board & Pipeline')}>
-            <Link to="/settings/boards/deal">
+            <Link to={`/settings/boards/${type}`}>
               <Icon icon="settings" />
             </Link>
           </Tip>
@@ -359,22 +347,7 @@ class MainActionBar extends React.Component<Props, State> {
           {DealFilter}
         </HeaderLink>
 
-        <ButtonGroup>
-          <Link
-            to={boardLink}
-            className={getType() === 'board' ? 'active' : ''}
-          >
-            <Icon icon="layout" />
-            {__('Board')}
-          </Link>
-          <Link
-            to={calendarLink}
-            className={getType() === 'calendar' ? 'active' : ''}
-          >
-            <Icon icon="calendar" />
-            {__('Calendar')}
-          </Link>
-        </ButtonGroup>
+        <ViewChooser type={type} />
       </HeaderItems>
     );
 
