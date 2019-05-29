@@ -2,7 +2,6 @@ import { permissionMutations } from '../data/resolvers/mutations/permissions';
 import { graphqlRequest } from '../db/connection';
 import { permissionFactory, userFactory, usersGroupFactory } from '../db/factories';
 import { Permissions, Users, UsersGroups } from '../db/models';
-import { IUserGroup } from '../db/models/definitions/permissions';
 
 describe('Test permissions mutations', () => {
   let _permission;
