@@ -94,7 +94,7 @@ const createGCS = () => {
 export const uploadFileAWS = async (file: { name: string; path: string }): Promise<string> => {
   const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
   const AWS_PREFIX = getEnv({ name: 'AWS_PREFIX', defaultValue: '' });
-  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
+  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: '' });
 
   // initialize s3
   const s3 = createAWS();
@@ -132,7 +132,7 @@ export const uploadFileAWS = async (file: { name: string; path: string }): Promi
  */
 export const uploadFileGCS = async (file: { name: string; path: string; type: string }): Promise<string> => {
   const BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
-  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
+  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: '' });
 
   // initialize GCS
   const storage = createGCS();
