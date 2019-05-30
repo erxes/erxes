@@ -28,6 +28,7 @@ import Script from './script';
 import Segment from './segment';
 import Subscription from './subscriptions';
 import User from './user';
+import UsersGroup from './usersGroup';
 
 const resolvers: any = {
   ...customScalars,
@@ -66,6 +67,7 @@ const resolvers: any = {
   User,
   ImportHistory,
   Permission,
+  UsersGroup,
 };
 
 export default resolvers;

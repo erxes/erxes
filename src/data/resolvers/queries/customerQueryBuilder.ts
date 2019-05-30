@@ -109,6 +109,8 @@ export default class Builder {
     const fields = [
       { firstName: new RegExp(`.*${value}.*`, 'i') },
       { lastName: new RegExp(`.*${value}.*`, 'i') },
+      { primaryEmail: new RegExp(`.*${value}.*`, 'i') },
+      { primaryPhone: new RegExp(`.*${value}.*`, 'i') },
       { emails: { $in: [new RegExp(`.*${value}.*`, 'i')] } },
       { phones: { $in: [new RegExp(`.*${value}.*`, 'i')] } },
       { 'visitorContactInfo.email': new RegExp(`.*${value}.*`, 'i') },

@@ -15,7 +15,8 @@ describe('Import history queries', () => {
     const qry = `
       query importHistories($type: String!) {
         importHistories(type: $type) {
-          _id
+          list {
+            _id
           contentType
           date
           user {
@@ -27,6 +28,8 @@ describe('Import history queries', () => {
           failed
           total
           ids
+          }
+          count
         }
       }
     `;
@@ -36,13 +39,13 @@ describe('Import history queries', () => {
       type: 'customer',
     });
 
-    expect(responses.length).toBe(1);
+    expect(responses.list.length).toBe(1);
 
     // company ============================
     responses = await graphqlRequest(qry, 'importHistories', {
       type: 'company',
     });
 
-    expect(responses.length).toBe(1);
+    expect(responses.list.length).toBe(1);
   });
 });

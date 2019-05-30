@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import { PROBABILITY, PRODUCT_TYPES } from './constants';
+import { PIPELINE_VISIBLITIES, PROBABILITY, PRODUCT_TYPES } from './constants';
 
 interface ICommonFields {
   userId?: string;
@@ -20,6 +20,8 @@ export interface IBoardDocument extends IBoard, Document {
 export interface IPipeline extends ICommonFields {
   name?: string;
   boardId?: string;
+  visiblity?: string;
+  memberIds?: string[];
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -41,6 +43,7 @@ export interface IProduct {
   type?: string;
   description?: string;
   sku?: string;
+  productId?: string;
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -102,6 +105,12 @@ export const pipelineSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
   boardId: field({ type: String }),
+  visiblity: field({
+    type: String,
+    enum: PIPELINE_VISIBLITIES.ALL,
+    default: PIPELINE_VISIBLITIES.PUBLIC,
+  }),
+  memberIds: field({ type: [String] }),
   ...commonFieldsSchema,
 });
 

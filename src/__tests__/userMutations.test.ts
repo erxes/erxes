@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as faker from 'faker';
 import * as moment from 'moment';
 import utils from '../data/utils';

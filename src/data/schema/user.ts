@@ -79,11 +79,12 @@ const commonParams = `
 
 const commonSelector = `
   searchValue: String,
-  isActive: Boolean
+  isActive: Boolean,
+  ids: [String]
 `;
 
 export const queries = `
-  users(page: Int, perPage: Int, ${commonSelector}): [User]
+  users(page: Int, perPage: Int, status: String ${commonSelector}): [User]
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   currentUser: User

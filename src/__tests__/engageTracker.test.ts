@@ -58,6 +58,6 @@ describe('Engage tracker tests', async () => {
 
     const rule = createScheduleRule(doc);
 
-    expect(rule).toBe('* 45 23 * ');
+    expect(rule).toBe('0 45 23 * * *');
   });
 });

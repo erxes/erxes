@@ -64,11 +64,11 @@ export const createSchedule = (message: IEngageMessageDocument) => {
  */
 export const createScheduleRule = (scheduleDate: IScheduleDate) => {
   if (!scheduleDate || (!scheduleDate.type && !scheduleDate.time)) {
-    return '* 45 23 * ';
+    return '0 45 23 * * *';
   }
 
   if (!scheduleDate.time) {
-    return '* 45 23 * ';
+    return '0 45 23 * * *';
   }
 
   const time = moment(new Date(scheduleDate.time));

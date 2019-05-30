@@ -2,6 +2,7 @@ import { Accounts, Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
+import { getPageInfo, subscribePage } from '../../../trackers/facebookTracker';
 import { sendGmail, updateHistoryId } from '../../../trackers/gmail';
 import { utils } from '../../../trackers/gmailTracker';
 import { socUtils } from '../../../trackers/twitterTracker';
@@ -92,6 +93,24 @@ const integrationMutations = {
         pageIds,
       },
     });
+
+    const account = await Accounts.findOne({ _id: accountId });
+
+    if (!account) {
+      throw new Error('Account not found');
+    }
+
+    for (const pageId of pageIds) {
+      const pageInfo = await getPageInfo(pageId, account.token);
+
+      const pageToken = pageInfo.access_token;
+
+      const res = await subscribePage(pageId, pageToken);
+
+      if (res.success !== true) {
+        throw new Error('Couldnt subscribe page');
+      }
+    }
 
     const INTEGRATION_ENDPOINT_URL = getEnv({ name: 'INTEGRATION_ENDPOINT_URL', defaultValue: '' });
     const FACEBOOK_APP_ID = getEnv({ name: 'FACEBOOK_APP_ID' });

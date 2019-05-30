@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import { userFactory, usersGroupFactory } from '../db/factories';
@@ -210,7 +210,7 @@ describe('User db utils', () => {
     expect(result.details.fullName).toBe('fullname');
     expect(result.username).toBe('username');
 
-    await Users.remove({ _id: userObj._id });
+    await Users.deleteMany({ _id: userObj._id });
 
     userObj = await userFactory({
       email,

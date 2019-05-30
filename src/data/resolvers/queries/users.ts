@@ -8,10 +8,12 @@ interface IListArgs {
   perPage?: number;
   searchValue?: string;
   isActive?: boolean;
+  ids?: string[];
+  status?: string;
 }
 
 const queryBuilder = async (params: IListArgs) => {
-  const { searchValue, isActive } = params;
+  const { searchValue, isActive, ids, status } = params;
 
   const selector: any = {
     isActive,
@@ -28,6 +30,14 @@ const queryBuilder = async (params: IListArgs) => {
 
   if (isActive === undefined || isActive === null) {
     selector.isActive = true;
+  }
+
+  if (ids) {
+    selector._id = { $in: ids };
+  }
+
+  if (status) {
+    selector.registrationToken = { $exists: false };
   }
 
   return selector;

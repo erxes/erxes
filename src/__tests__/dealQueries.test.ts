@@ -1,5 +1,15 @@
+import * as moment from 'moment';
 import { graphqlRequest } from '../db/connection';
-import { dealBoardFactory, dealFactory, dealPipelineFactory, dealStageFactory } from '../db/factories';
+import {
+  companyFactory,
+  customerFactory,
+  dealBoardFactory,
+  dealFactory,
+  dealPipelineFactory,
+  dealStageFactory,
+  productFactory,
+  userFactory,
+} from '../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
 
 describe('dealQueries', () => {
@@ -38,6 +48,36 @@ describe('dealQueries', () => {
     productsData
     assignedUsers {
       _id
+    }
+  `;
+
+  const qryDealFilter = `
+    query deals(
+      $stageId: String 
+      $assignedUserIds: [String]
+      $customerIds: [String]
+      $companyIds: [String]
+      $productIds: [String]
+      $nextDay: String
+      $nextWeek: String
+      $nextMonth: String
+      $noCloseDate: String
+      $overdue: String
+    ) {
+      deals(
+        stageId: $stageId 
+        customerIds: $customerIds
+        assignedUserIds: $assignedUserIds
+        companyIds: $companyIds
+        productIds: $productIds
+        nextDay: $nextDay
+        nextWeek: $nextWeek
+        nextMonth: $nextMonth
+        noCloseDate: $noCloseDate
+        overdue: $overdue
+      ) {
+        ${commonDealTypes}
+      }
     }
   `;
 
@@ -161,6 +201,107 @@ describe('dealQueries', () => {
     const response = await graphqlRequest(qry, 'dealStageDetail', args);
 
     expect(response._id).toBe(stage._id);
+  });
+
+  test('Filter by next day', async () => {
+    const tommorrow = moment()
+      .utc()
+      .add(1, 'days')
+      .startOf('days')
+      .toDate();
+
+    await dealFactory({ closeDate: tommorrow });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { nextDay: 'true' });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by next week', async () => {
+    const nextWeek = moment()
+      .utc()
+      .day(4 + 7)
+      .startOf('days')
+      .toDate();
+
+    await dealFactory({ closeDate: nextWeek });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { nextWeek: 'true' });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by next month', async () => {
+    const nextMonth = moment()
+      .add(1, 'months')
+      .format('YYYY-MM-01');
+
+    await dealFactory({ closeDate: new Date(nextMonth) });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { nextMonth: 'true' });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by has no close date', async () => {
+    await dealFactory({ noCloseDate: true });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { noCloseDate: 'true' });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by overdue', async () => {
+    const yesterday = moment()
+      .utc()
+      .subtract(1, 'days')
+      .toDate();
+
+    await dealFactory({ closeDate: yesterday });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { overdue: 'true' });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by products', async () => {
+    const { productId } = await productFactory();
+
+    await dealFactory({ productsData: { productId } });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { productIds: [productId] });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by team members', async () => {
+    const { _id } = await userFactory();
+
+    await dealFactory({ assignedUserIds: [_id] });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { assignedUserIds: [_id] });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by customers', async () => {
+    const { _id } = await customerFactory();
+
+    await dealFactory({ customerIds: [_id] });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { customerIds: [_id] });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by companies', async () => {
+    const { _id } = await companyFactory();
+
+    await dealFactory({ companyIds: [_id] });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { companyIds: [_id] });
+
+    expect(response.length).toBe(1);
   });
 
   test('Deals', async () => {

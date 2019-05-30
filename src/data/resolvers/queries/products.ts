@@ -8,12 +8,21 @@ const productQueries = {
    */
   products(
     _root,
-    { type, searchValue, ...pagintationArgs }: { type: string; searchValue: string; page: number; perPage: number },
+    {
+      type,
+      searchValue,
+      ids,
+      ...pagintationArgs
+    }: { ids: string[]; type: string; searchValue: string; page: number; perPage: number },
   ) {
     const filter: any = {};
 
     if (type) {
       filter.type = type;
+    }
+
+    if (ids) {
+      filter._id = { $in: ids };
     }
 
     // search =========
