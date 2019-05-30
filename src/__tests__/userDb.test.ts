@@ -210,7 +210,7 @@ describe('User db utils', () => {
     expect(result.details.fullName).toBe('fullname');
     expect(result.username).toBe('username');
 
-    await Users.remove({ _id: userObj._id });
+    await Users.deleteMany({ _id: userObj._id });
 
     userObj = await userFactory({
       email,

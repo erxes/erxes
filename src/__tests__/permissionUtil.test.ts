@@ -56,9 +56,9 @@ describe('Test permission utils', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
-    await Permissions.remove({});
-    await UsersGroups.remove({});
+    await Users.deleteMany({});
+    await Permissions.deleteMany({});
+    await UsersGroups.deleteMany({});
   });
 
   test('Register module check duplicated module', async () => {

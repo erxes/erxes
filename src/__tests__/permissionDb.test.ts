@@ -40,8 +40,8 @@ describe('Test permissions model', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Permissions.remove({});
-    await UsersGroups.remove({});
+    await Permissions.deleteMany({});
+    await UsersGroups.deleteMany({});
   });
 
   test('Create permission invalid action', async () => {

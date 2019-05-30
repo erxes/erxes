@@ -26,9 +26,9 @@ describe('Test permissions mutations', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Permissions.remove({});
-    await UsersGroups.remove({});
-    await Users.remove({});
+    await Permissions.deleteMany({});
+    await UsersGroups.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Permission login required functions', async () => {
