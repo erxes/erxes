@@ -233,11 +233,10 @@ describe('dealQueries', () => {
 
   test('Deal filter by next month', async () => {
     const nextMonth = moment()
-      .utc()
       .add(1, 'months')
-      .toDate();
+      .format('YYYY-MM-01');
 
-    await dealFactory({ closeDate: nextMonth });
+    await dealFactory({ closeDate: new Date(nextMonth) });
 
     const response = await graphqlRequest(qryDealFilter, 'deals', { nextMonth: 'true' });
 
