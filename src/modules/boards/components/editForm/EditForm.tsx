@@ -3,19 +3,21 @@ import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
 import { Button } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
-import * as React from 'react';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
-import { IDeal, IDealParams } from 'modules/deals/types';
 import { FlexContent, FormFooter, Left } from 'modules/deals/styles/deal';
 import { IProduct } from 'modules/settings/productService/types';
+import * as React from 'react';
+import { STAGE_CONSTANTS } from '../../constants';
+import { Item, ItemParams } from '../../types';
 import { Sidebar, Top } from './';
 
 type Props = {
-  deal: IDeal;
+  type: string;
+  item: Item;
   users: IUser[];
-  addItem: (doc: IDealParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: IDealParams, callback: () => void) => void;
+  addItem: (doc: ItemParams, callback: () => void, msg?: string) => void;
+  saveItem: (doc: ItemParams, callback: () => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
 };
@@ -33,25 +35,25 @@ type State = {
   productsData: any;
 };
 
-class DealEditForm extends React.Component<Props, State> {
+class EditForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const deal = props.deal;
+    const item = props.item;
 
     this.state = {
-      name: deal.name,
-      stageId: deal.stageId,
-      amount: deal.amount || {},
-      // Deal datas
-      companies: deal.companies || [],
-      customers: deal.customers || [],
-      closeDate: deal.closeDate,
-      description: deal.description || '',
-      productsData: deal.products ? deal.products.map(p => ({ ...p })) : [],
+      name: item.name,
+      stageId: item.stageId,
+      amount: item.amount || {},
+      // Item datas
+      companies: item.companies || [],
+      customers: item.customers || [],
+      closeDate: item.closeDate,
+      description: item.description || '',
+      productsData: item.products ? item.products.map(p => ({ ...p })) : [],
       // collecting data for ItemCounter component
-      products: deal.products ? deal.products.map(p => p.product) : [],
-      assignedUserIds: (deal.assignedUsers || []).map(user => user._id)
+      products: item.products ? item.products.map(p => p.product) : [],
+      assignedUserIds: (item.assignedUsers || []).map(user => user._id)
     };
   }
 
@@ -70,7 +72,7 @@ class DealEditForm extends React.Component<Props, State> {
       // products
       if (data.product) {
         if (data.currency) {
-          // calculating deal amount
+          // calculating item amount
           if (!amount[data.currency]) {
             amount[data.currency] = data.amount || 0;
           } else {
@@ -102,13 +104,13 @@ class DealEditForm extends React.Component<Props, State> {
       assignedUserIds
     } = this.state;
 
-    const { closeModal, saveItem } = this.props;
+    const { closeModal, saveItem, type } = this.props;
 
     if (!name) {
       return Alert.error('Enter a name');
     }
 
-    if (productsData.length === 0) {
+    if (productsData.length === 0 && type === 'deal') {
       return Alert.error('Select product & service');
     }
 
@@ -135,25 +137,25 @@ class DealEditForm extends React.Component<Props, State> {
   };
 
   copy = () => {
-    const { deal, closeModal, addItem } = this.props;
+    const { item, closeModal, addItem, type } = this.props;
 
     // copied doc
     const doc = {
-      ...deal,
-      assignedUserIds: deal.assignedUsers.map(user => user._id),
-      companyIds: deal.companies.map(company => company._id),
-      customerIds: deal.customers.map(customer => customer._id)
+      ...item,
+      assignedUserIds: item.assignedUsers.map(user => user._id),
+      companyIds: item.companies.map(company => company._id),
+      customerIds: item.customers.map(customer => customer._id)
     };
 
     addItem(
       doc,
       () => closeModal && closeModal(),
-      `You successfully copied a deal`
+      STAGE_CONSTANTS[type].copySuccessText
     );
   };
 
   renderFormContent() {
-    const { deal, users } = this.props;
+    const { item, users, type } = this.props;
 
     const {
       name,
@@ -178,31 +180,32 @@ class DealEditForm extends React.Component<Props, State> {
           assignedUserIds={assignedUserIds}
           users={users}
           stageId={stageId}
-          deal={deal}
+          item={item}
           onChangeField={this.onChangeField}
         />
 
         <FlexContent>
           <Left>
             <ActivityInputs
-              contentTypeId={deal._id}
-              contentType="deal"
+              contentTypeId={item._id}
+              contentType={type}
               showEmail={false}
             />
             <ActivityLogs
-              target={deal.name}
-              contentId={deal._id}
-              contentType="deal"
+              target={item.name}
+              contentId={item._id}
+              contentType={type}
               extraTabs={[]}
             />
           </Left>
 
           <Sidebar
+            type={type}
             customers={customers}
             companies={companies}
             products={products}
             productsData={productsData}
-            deal={deal}
+            item={item}
             onChangeField={this.onChangeField}
             copyItem={this.copy}
             removeItem={this.remove}
@@ -236,4 +239,4 @@ class DealEditForm extends React.Component<Props, State> {
   }
 }
 
-export default DealEditForm;
+export default EditForm;

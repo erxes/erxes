@@ -1,21 +1,22 @@
 import { BoardSelect } from 'modules/boards/containers';
 import { IStage } from 'modules/boards/types';
 import { Icon, Tip } from 'modules/common/components';
-import * as React from 'react';
 import {
   MoveContainer,
   MoveFormContainer,
   PipelineName,
   StageItem,
   Stages
-} from '../../../deals/styles/deal';
-import { IDeal } from '../../../deals/types';
+} from 'modules/deals/styles/deal';
+import * as React from 'react';
+import { Item } from '../../types';
 
 type Props = {
-  deal?: IDeal;
+  item?: Item;
   stages: IStage[];
   stageId?: string;
   onChangeStage?: (stageId: string) => void;
+  type: string;
 };
 
 type State = {
@@ -25,12 +26,12 @@ type State = {
   stages: IStage[];
 };
 
-class DealMove extends React.Component<Props, State> {
+class Move extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     const {
-      deal: { pipeline, boardId }
+      item: { pipeline, boardId }
     } = props;
 
     this.state = {
@@ -95,12 +96,12 @@ class DealMove extends React.Component<Props, State> {
       return null;
     }
 
-    const { stageId, onChangeStage } = this.props;
+    const { stageId, onChangeStage, type } = this.props;
     const { boardId, pipelineId } = this.state;
 
     return (
       <BoardSelect
-        type="deal"
+        type={type}
         stageId={stageId}
         boardId={boardId}
         pipelineId={pipelineId}
@@ -113,8 +114,8 @@ class DealMove extends React.Component<Props, State> {
   }
 
   render() {
-    const deal = this.props.deal || ({} as IDeal);
-    const { pipeline } = deal;
+    const item = this.props.item || ({} as Item);
+    const { pipeline } = item;
 
     return (
       <MoveContainer>
@@ -132,4 +133,4 @@ class DealMove extends React.Component<Props, State> {
   }
 }
 
-export default DealMove;
+export default Move;

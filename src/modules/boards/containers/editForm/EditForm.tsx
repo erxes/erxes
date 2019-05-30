@@ -1,39 +1,41 @@
 import gql from 'graphql-tag';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import { Spinner } from 'modules/common/components';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import {
-  DealDetailQueryResponse,
-  IDeal,
-  IDealParams,
-  RemoveDealMutation,
-  SaveDealMutation
-} from 'modules/deals/types';
+import { Alert, confirm } from 'modules/common/utils';
 import { invalidateCalendarCache } from 'modules/deals/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { EditForm } from '../../components/editForm';
+import { STAGE_CONSTANTS } from '../../constants';
 import { mutations, queries } from '../../graphql';
+import {
+  DetailQueryResponse,
+  Item,
+  ItemParams,
+  RemoveMutation,
+  SaveMutation
+} from '../../types';
+import { withProps } from '../../utils';
 
 type Props = {
   type: string;
   itemId: string;
   stageId: string;
-  onAdd?: (stageId: string, deal: IDeal) => void;
+  onAdd?: (stageId: string, item: Item) => void;
   onRemove?: (itemId: string, stageId: string) => void;
-  onUpdate?: (deal: IDeal, prevStageId: string) => void;
+  onUpdate?: (item: Item, prevStageId: string) => void;
   closeModal: () => void;
 };
 
 type FinalProps = {
-  dealDetailQuery: DealDetailQueryResponse;
+  detailQuery: DetailQueryResponse;
   usersQuery: UsersQueryResponse;
-  // Using this mutation to copy deal in edit form
-  addMutation: SaveDealMutation;
-  editMutation: SaveDealMutation;
-  removeMutation: RemoveDealMutation;
+  // Using this mutation to copy item in edit form
+  addMutation: SaveMutation;
+  editMutation: SaveMutation;
+  removeMutation: RemoveMutation;
 } & Props;
 
 class EditFormContainer extends React.Component<FinalProps> {
@@ -42,24 +44,25 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     this.addItem = this.addItem.bind(this);
     this.saveItem = this.saveItem.bind(this);
-    this.removeDeal = this.removeDeal.bind(this);
+    this.removeItem = this.removeItem.bind(this);
   }
 
   addItem(
-    doc: IDealParams,
+    doc: ItemParams,
     callback: () => void,
-    msg = `You successfully added a deal`
+    msg = STAGE_CONSTANTS[this.props.type].addSuccessText
   ) {
-    const { onAdd, addMutation, stageId } = this.props;
+    const { onAdd, addMutation, stageId, type } = this.props;
+    const constant = STAGE_CONSTANTS[type];
 
     addMutation({ variables: doc })
-      .then(({ data: { dealsAdd } }) => {
+      .then(({ data }) => {
         Alert.success(msg);
 
         callback();
 
         if (onAdd) {
-          onAdd(stageId, dealsAdd);
+          onAdd(stageId, data[constant.addMutation]);
         }
       })
       .catch(error => {
@@ -67,19 +70,20 @@ class EditFormContainer extends React.Component<FinalProps> {
       });
   }
 
-  saveItem = (doc: IDealParams, callback: () => void) => {
-    const { stageId, itemId, editMutation, onUpdate } = this.props;
+  saveItem = (doc: ItemParams, callback: () => void) => {
+    const { stageId, itemId, editMutation, onUpdate, type } = this.props;
+    const constant = STAGE_CONSTANTS[type];
 
     editMutation({ variables: { _id: itemId, ...doc } })
       .then(({ data }) => {
-        Alert.success('You successfully updated a deal');
+        Alert.success(constant.updateSuccessText);
 
         callback();
 
         if (onUpdate) {
           invalidateCalendarCache();
 
-          onUpdate(data.dealsEdit, stageId);
+          onUpdate(data[constant.editMutation], stageId);
         }
       })
       .catch(error => {
@@ -87,15 +91,15 @@ class EditFormContainer extends React.Component<FinalProps> {
       });
   };
 
-  removeDeal = (itemId: string, callback) => {
-    const { removeMutation, onRemove, stageId } = this.props;
+  removeItem = (itemId: string, callback) => {
+    const { removeMutation, onRemove, stageId, type } = this.props;
 
     confirm().then(() =>
       removeMutation({ variables: { _id: itemId } })
         .then(() => {
           callback();
 
-          Alert.success('You successfully deleted a deal');
+          Alert.success(STAGE_CONSTANTS[type].deleteSuccessText);
 
           if (onRemove) {
             invalidateCalendarCache();
@@ -111,24 +115,24 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { usersQuery, dealDetailQuery } = this.props;
+    const { usersQuery, detailQuery, type } = this.props;
 
-    if (usersQuery.loading || dealDetailQuery.loading) {
+    if (usersQuery.loading || detailQuery.loading) {
       return <Spinner />;
     }
 
     const users = usersQuery.users;
-    const deal = dealDetailQuery.dealDetail;
+    const item = detailQuery[STAGE_CONSTANTS[type].detailQuery];
 
-    if (!deal) {
+    if (!item) {
       return null;
     }
 
     const extendedProps = {
       ...this.props,
-      deal,
+      item,
       addItem: this.addItem,
-      removeDeal: this.removeDeal,
+      removeItem: this.removeItem,
       saveItem: this.saveItem,
       users
     };
@@ -137,63 +141,80 @@ class EditFormContainer extends React.Component<FinalProps> {
   }
 }
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, DealDetailQueryResponse, { _id: string }>(
-      gql(queries.dealDetail),
-      {
-        name: 'dealDetailQuery',
-        options: ({ itemId }: { itemId: string }) => {
-          return {
-            variables: {
-              _id: itemId
-            }
-          };
+export default (props: Props) => {
+  const { type } = props;
+
+  return withProps<Props>(
+    props,
+    compose(
+      graphql<Props, DetailQueryResponse, { _id: string }>(
+        gql(queries[STAGE_CONSTANTS[type].detailQuery]),
+        {
+          name: 'detailQuery',
+          options: ({ itemId }: { itemId: string }) => {
+            return {
+              variables: {
+                _id: itemId
+              }
+            };
+          }
         }
-      }
-    ),
-    graphql<Props, UsersQueryResponse>(gql(userQueries.usersForSelector), {
-      name: 'usersQuery'
-    }),
-    graphql<Props, SaveDealMutation, IDealParams>(gql(mutations.dealsAdd), {
-      name: 'addMutation',
-      options: ({ stageId }: { stageId: string }) => ({
-        refetchQueries: [
-          {
-            query: gql(boardQueries.stageDetail),
-            variables: { _id: stageId }
-          }
-        ]
-      })
-    }),
-    graphql<Props, SaveDealMutation, IDealParams>(gql(mutations.dealsEdit), {
-      name: 'editMutation',
-      options: ({ itemId, stageId }: { stageId: string; itemId: string }) => ({
-        refetchQueries: [
-          {
-            query: gql(queries.dealDetail),
-            variables: { _id: itemId }
-          },
-          {
-            query: gql(boardQueries.stageDetail),
-            variables: { _id: stageId }
-          }
-        ]
-      })
-    }),
-    graphql<Props, RemoveDealMutation, { _id: string }>(
-      gql(mutations.dealsRemove),
-      {
-        name: 'removeMutation',
-        options: ({ stageId }: { stageId: string }) => ({
-          refetchQueries: [
-            {
-              query: gql(boardQueries.stageDetail),
-              variables: { _id: stageId }
-            }
-          ]
-        })
-      }
-    )
-  )(EditFormContainer)
-);
+      ),
+      graphql<Props, UsersQueryResponse>(gql(userQueries.usersForSelector), {
+        name: 'usersQuery'
+      }),
+      graphql<Props, SaveMutation, ItemParams>(
+        gql(mutations[STAGE_CONSTANTS[type].addMutation]),
+        {
+          name: 'addMutation',
+          options: ({ stageId }: { stageId: string }) => ({
+            refetchQueries: [
+              {
+                query: gql(boardQueries.stageDetail),
+                variables: { _id: stageId }
+              }
+            ]
+          })
+        }
+      ),
+      graphql<Props, SaveMutation, ItemParams>(
+        gql(mutations[STAGE_CONSTANTS[type].editMutation]),
+        {
+          name: 'editMutation',
+          options: ({
+            itemId,
+            stageId
+          }: {
+            stageId: string;
+            itemId: string;
+          }) => ({
+            refetchQueries: [
+              {
+                query: gql(queries[STAGE_CONSTANTS[type].detailQuery]),
+                variables: { _id: itemId }
+              },
+              {
+                query: gql(boardQueries.stageDetail),
+                variables: { _id: stageId }
+              }
+            ]
+          })
+        }
+      ),
+      graphql<Props, RemoveMutation, { _id: string }>(
+        gql(mutations[STAGE_CONSTANTS[type].removeMutation]),
+        {
+          name: 'removeMutation',
+          options: ({ stageId }: { stageId: string }) => ({
+            refetchQueries: [
+              {
+                query: gql(boardQueries.stageDetail),
+                variables: { _id: stageId }
+              }
+            ]
+          })
+        }
+      )
+    )(EditFormContainer)
+  );
+};

@@ -4,10 +4,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { __, readFile } from 'modules/common/utils';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
-import * as React from 'react';
-import * as Datetime from 'react-datetime';
+import { __ } from 'modules/common/utils';
 import {
   Avatar,
   FlexContent,
@@ -16,12 +13,15 @@ import {
   HeaderRow,
   Left,
   RightContent
-} from '../../../deals/styles/deal';
-import { IDeal } from '../../../deals/types';
+} from 'modules/deals/styles/deal';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import * as React from 'react';
+import * as Datetime from 'react-datetime';
+import { Item } from '../..//types';
 import { Move } from '../../containers/editForm';
 
 type Props = {
-  deal: IDeal;
+  item: Item;
   name: string;
   description: string;
   closeDate: Date;
@@ -58,10 +58,10 @@ class Top extends React.Component<Props> {
   };
 
   renderMove() {
-    const { deal, stageId } = this.props;
+    const { item, stageId } = this.props;
 
     return (
-      <Move deal={deal} stageId={stageId} onChangeStage={this.onChangeStage} />
+      <Move item={item} stageId={stageId} onChangeStage={this.onChangeStage} />
     );
   }
 

@@ -1,7 +1,7 @@
+import { EditForm } from 'modules/boards/containers/editForm';
 import { renderAmount } from 'modules/boards/utils';
 import { ModalTrigger } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
-import { EditForm } from 'modules/deals/containers/editForm';
 import { Content } from 'modules/deals/styles/stage';
 import * as React from 'react';
 import { Items, UserCounter } from '.';

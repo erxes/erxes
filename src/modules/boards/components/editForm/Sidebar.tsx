@@ -7,10 +7,12 @@ import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { ProductSection } from '../../../deals/components';
 import { RightContent } from '../../../deals/styles/deal';
-import { IDeal, IProductData } from '../../../deals/types';
+import { IProductData } from '../../../deals/types';
+import { Item } from '../../types';
 
 type Props = {
-  deal: IDeal;
+  type: string;
+  item: Item;
   customers: ICustomer[];
   companies: ICompany[];
   products: IProduct[];
@@ -20,45 +22,50 @@ type Props = {
     value: any
   ) => void;
   copyItem: () => void;
-  removeItem: (dealId: string) => void;
+  removeItem: (itemId: string) => void;
   saveProductsData: () => void;
 };
 
 class Sidebar extends React.Component<Props> {
+  onChange = (type, value) => {
+    const { onChangeField } = this.props;
+
+    if (onChangeField) {
+      onChangeField(type, value);
+    }
+  };
+
+  renderProductSection() {
+    if (this.props.type !== 'deal') {
+      return null;
+    }
+
+    const { products, productsData, saveProductsData } = this.props;
+
+    const pDataChange = pData => this.onChange('productsData', pData);
+    const prsChange = prs => this.onChange('products', prs);
+
+    return (
+      <ProductSection
+        onChangeProductsData={pDataChange}
+        onChangeProducts={prsChange}
+        productsData={productsData}
+        products={products}
+        saveProductsData={saveProductsData}
+      />
+    );
+  }
+
   render() {
-    const {
-      customers,
-      companies,
-      products,
-      productsData,
-      deal,
-      onChangeField,
-      saveProductsData,
-      copyItem,
-      removeItem
-    } = this.props;
+    const { customers, companies, item, copyItem, removeItem } = this.props;
 
-    const onChange = (type, value) => {
-      if (onChangeField) {
-        onChangeField(type, value);
-      }
-    };
-
-    const pDataChange = pData => onChange('productsData', pData);
-    const prsChange = prs => onChange('products', prs);
-    const cmpsChange = cmps => onChange('companies', cmps);
-    const cmrsChange = cmrs => onChange('customers', cmrs);
-    const onClick = () => removeItem(deal._id);
+    const cmpsChange = cmps => this.onChange('companies', cmps);
+    const cmrsChange = cmrs => this.onChange('customers', cmrs);
+    const onClick = () => removeItem(item._id);
 
     return (
       <RightContent>
-        <ProductSection
-          onChangeProductsData={pDataChange}
-          onChangeProducts={prsChange}
-          productsData={productsData}
-          products={products}
-          saveProductsData={saveProductsData}
-        />
+        {this.renderProductSection()}
 
         <CompanySection
           name="Deal"

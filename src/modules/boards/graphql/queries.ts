@@ -120,7 +120,10 @@ const stageDetail = `
 
 export default {
   deals: dealQueries.deals,
+  dealDetail: dealQueries.dealDetail,
   tickets: ticketQueries.tickets,
+  ticketDetail: ticketQueries.ticketDetail,
+
   boards,
   boardGetLast,
   boardDetail,

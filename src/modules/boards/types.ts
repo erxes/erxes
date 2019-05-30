@@ -1,4 +1,9 @@
-import { DealsQueryResponse, IDeal, IDealParams } from 'modules/deals/types';
+import {
+  DealDetailQueryResponse,
+  DealsQueryResponse,
+  IDeal,
+  IDealParams
+} from 'modules/deals/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
@@ -111,3 +116,13 @@ export type PipelineDetailQueryResponse = {
 };
 
 export type ItemsQueryResponse = DealsQueryResponse;
+
+export type SaveMutation = ({ variables: ItemParams }) => Promise<any>;
+
+export type RemoveVariables = {
+  _id: string;
+};
+
+export type RemoveMutation = ({ variables: RemoveVariables }) => Promise<any>;
+
+export type DetailQueryResponse = DealDetailQueryResponse;

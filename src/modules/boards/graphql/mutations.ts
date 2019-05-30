@@ -11,10 +11,14 @@ const stagesUpdateOrder = `
 
 export default {
   dealsAdd: dealMutations.dealsAdd,
+  dealsEdit: dealMutations.dealsEdit,
+  dealsRemove: dealMutations.dealsRemove,
   dealsUpdateOrder: dealMutations.dealsUpdateOrder,
   dealsChange: dealMutations.dealsChange,
 
   ticketsAdd: ticketMutations.ticketsAdd,
+  ticketsEdit: ticketMutations.ticketsEdit,
+  ticketsRemove: ticketMutations.ticketsRemove,
   ticketsChange: ticketMutations.ticketsChange,
   ticketsUpdateOrder: ticketMutations.ticketsUpdateOrder,
 

@@ -5,10 +5,10 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { Move } from '../../components/editForm';
-import { IDeal } from '../../types';
+import { Item } from '../../types';
 
 type Props = {
-  deal: IDeal;
+  item: Item;
   stageId?: string;
   onChangeStage?: (
     name: 'stageId' | 'name' | 'closeDate' | 'description' | 'assignedUserIds',
@@ -16,7 +16,10 @@ type Props = {
   ) => void;
 };
 
-class DealMoveContainer extends React.Component<{ stagesQuery: any }> {
+class MoveContainer extends React.Component<{
+  stagesQuery: any;
+  type: string;
+}> {
   render() {
     const { stagesQuery } = this.props;
 
@@ -34,16 +37,16 @@ class DealMoveContainer extends React.Component<{ stagesQuery: any }> {
 export default withProps<Props>(
   compose(
     graphql<
-      { deal: { pipeline: IPipeline } },
+      { item: { pipeline: IPipeline } },
       StagesQueryResponse,
       { pipelineId: string }
     >(gql(boardQueries.stages), {
       name: 'stagesQuery',
-      options: ({ deal: { pipeline } }) => ({
+      options: ({ item: { pipeline } }) => ({
         variables: {
           pipelineId: pipeline._id
         }
       })
     })
-  )(DealMoveContainer)
+  )(MoveContainer)
 );

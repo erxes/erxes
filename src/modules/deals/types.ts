@@ -63,10 +63,6 @@ export type RemoveDealVariables = {
   _id: string;
 };
 
-export type RemoveDealMutation = (
-  { variables: RemoveDealVariables }
-) => Promise<any>;
-
 export type ActivityLogQueryResponse = {
   activityLogs: IActivityLogForMonth[];
   loading: boolean;

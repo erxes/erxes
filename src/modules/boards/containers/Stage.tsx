@@ -93,7 +93,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       .then(({ data }) => {
         const constant = STAGE_CONSTANTS[type];
 
-        Alert.success(constant.successText);
+        Alert.success(constant.addSuccessText);
 
         onAddItem(stage._id, data[constant.addMutation]);
 
