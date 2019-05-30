@@ -1,6 +1,6 @@
 pipeline:
   ping:
-    image: mongo:3.4.4
+    image: mongo:3.6
     commands:
       - sleep 15
       - mongo --host mongo
@@ -24,13 +24,25 @@ pipeline:
     commands:
       - yarn tsc
 
-  testing:
+  test_pr:
     image: erxes/runner:latest
     environment:
       - TEST_MONGO_URL=mongodb://mongo/test
     commands:
       - mkdir src/private/xlsTemplateOutputs
       - yarn test
+    when:
+      event: pull_request
+
+  test_push:
+    image: erxes/runner:latest
+    environment:
+      - TEST_MONGO_URL=mongodb://mongo/test
+    commands:
+      - mkdir src/private/xlsTemplateOutputs
+      - yarn test
+    when:
+      event: push
 
   build:
     image: erxes/runner:latest
