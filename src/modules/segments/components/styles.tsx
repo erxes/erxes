@@ -73,6 +73,7 @@ const Field = styled.div`
 
   input {
     transition: inherit;
+    width: 100% !important;
   }
 `;
 
