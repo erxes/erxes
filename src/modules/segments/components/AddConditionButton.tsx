@@ -1,4 +1,5 @@
 import { Button, FilterableList, Icon } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { dateUnits, types } from 'modules/customers/constants';
 import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
@@ -63,12 +64,12 @@ class AddConditionButton extends React.Component<Props> {
 
     return (
       <Field>
-        <h3 className="popover-title">Select brand</h3>
+        <h3 className="popover-title">{__('Select brand')}</h3>
         {Object.keys(groupedFields).map((key, index) => {
           let title = key;
 
           if (key === 'undefined') {
-            title = 'Others';
+            title = __('Others');
           }
 
           return (
@@ -128,7 +129,7 @@ class AddConditionButton extends React.Component<Props> {
     return (
       <PopoverList>
         <FieldType>
-          {title}
+          {__(title)}
           <Icon icon={icon} />
         </FieldType>
         {this.renderFields(type, title)}

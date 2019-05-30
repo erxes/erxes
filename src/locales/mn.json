@@ -802,5 +802,9 @@
   "Download android app for free on the Google play": "Google play-ээс үнэгүй татаарай.",
   "Please upgrade your browser to use erxes!": "erxes-ийг хэрэглэхийн тулд хөтөчөө шинчлэнэ үү!",
   "Unfortunately, You are running on a browser that may not be fully compatible with erxes": "Та erxes-тай бүрэн таарахгүй хөтөч дээр ажиллаж байна.",
-  "Please use recommended version": "Танд санал болгож буй хувилбарыг ашиглана уу"
+  "Please use recommended version": "Танд санал болгож буй хувилбарыг ашиглана уу",
+  "Messenger data": "Чатын мэдээлэл",
+  "Customer field data": "Харилцагчийн талбарын мэдээлэл",
+  "Others": "Бусад",
+  "Select brand": "Брэнд сонгох"
 }
