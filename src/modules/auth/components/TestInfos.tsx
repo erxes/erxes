@@ -127,7 +127,7 @@ class TestInfos extends React.PureComponent<Props, State> {
               <FormControl
                 type="text"
                 name="description"
-                max={250}
+                max={2}
                 componentClass="textarea"
                 defaultValue={details.description || ''}
                 {...formProps}
@@ -155,14 +155,17 @@ class TestInfos extends React.PureComponent<Props, State> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Location</ControlLabel>
+              <ControlLabel>Select from</ControlLabel>
               <FormControl
                 componentClass="select"
+                name="location"
                 defaultValue={details.location}
-                name="userLocation"
-                options={timezones}
+                required={true}
                 {...formProps}
-              />
+              >
+                <option /> <option value="any">any</option>
+                <option value="all">all</option>
+              </FormControl>
             </FormGroup>
 
             {this.renderFormGroup('Do not disturb', {

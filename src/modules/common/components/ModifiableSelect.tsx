@@ -98,8 +98,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
       selectedOption: updatedOption,
       inputValue
     };
-    // tslint:disable-next-line:no-console
-    console.log('lol');
+
     this.setState({ ...state }, () => {
       onChange({ options: this.state.options, selectedOption: updatedOption });
 
