@@ -5,6 +5,7 @@ import { Error } from './styles';
 
 type Props = {
   renderContent: (props: IFormProps) => any;
+  onSubmit?: (values: any) => any;
 };
 
 type State = {
@@ -28,20 +29,39 @@ class Form extends React.Component<Props, State> {
     this.children.push(child);
   };
 
-  runValidations = () => {
+  runValidations = (callback: any) => {
     const errors = {};
     const values = {};
 
     for (const child of this.children) {
+      // tslint:disable-next-line:no-console
+      console.log(child);
       errors[child.props.name] = this.validate(child);
       values[child.props.name] = this.getValue(child);
     }
 
-    this.setState({ errors, values });
+    this.setState({ errors, values }, () => {
+      // tslint:disable-next-line:no-console
+      console.log(this.state.errors);
+      callback();
+    });
   };
 
   getValue = child => {
     return (document.getElementsByName(child.props.name) as any)[0].value;
+  };
+
+  onSubmit = e => {
+    // tslint:disable
+    console.log('on submit');
+
+    e.preventDefault();
+
+    this.runValidations(() => {
+      if (this.props.onSubmit) {
+        this.props.onSubmit(this.state.values);
+      }
+    });
   };
 
   validate = child => {
@@ -84,14 +104,14 @@ class Form extends React.Component<Props, State> {
 
   render() {
     return (
-      <>
+      <form onSubmit={this.onSubmit}>
         {this.props.renderContent({
           errors: this.state.errors,
           values: this.state.values,
           registerChild: this.registerChild,
           runValidations: this.runValidations
         })}
-      </>
+      </form>
     );
   }
 }

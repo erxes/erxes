@@ -73,8 +73,6 @@ class FormControl extends React.Component<Props> {
 
     // cancel custom browser default form validation error
     const onChange = e => {
-      e.target.classList.remove('form-invalid');
-
       if (props.onChange) {
         props.onChange(e);
       }
@@ -161,6 +159,9 @@ class FormControl extends React.Component<Props> {
         </div>
       );
     }
+
+    // tslint:disable
+    console.log('mmmmm', this.props.errors);
 
     return (
       <div>

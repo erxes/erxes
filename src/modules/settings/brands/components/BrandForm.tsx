@@ -32,18 +32,16 @@ class BrandForm extends React.Component<Props, {}> {
     };
   };
 
+  onSubmit = values => {
+    const { save, brand, closeModal } = this.props;
+    save(this.generateDoc(values), () => closeModal(), brand);
+  };
+
   renderContent = formProps => {
     const object = this.props.brand || ({} as IBrand);
 
-    const onSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-
-      const { save, brand, closeModal } = this.props;
-      save(this.generateDoc(formProps.values), () => closeModal(), brand);
-    };
-
     return (
-      <form onSubmit={onSubmit}>
+      <>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
 
@@ -51,8 +49,7 @@ class BrandForm extends React.Component<Props, {}> {
             {...formProps}
             name="name"
             defaultValue={object.name}
-            type="text"
-            required={true}
+            type="email"
           />
         </FormGroup>
 
@@ -78,21 +75,16 @@ class BrandForm extends React.Component<Props, {}> {
             Cancel
           </Button>
 
-          <Button
-            btnStyle="success"
-            icon="checked-1"
-            type="submit"
-            onClick={formProps.runValidations}
-          >
+          <Button btnStyle="success" icon="checked-1" type="submit">
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </>
     );
   };
 
   render() {
-    return <Form renderContent={this.renderContent} />;
+    return <Form renderContent={this.renderContent} onSubmit={this.onSubmit} />;
   }
 }
 
