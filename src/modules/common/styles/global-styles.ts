@@ -355,8 +355,6 @@ a:hover {
   box-shadow: none;
 }
 
-
-
 .Select.is-focused > .Select-control,
 .Select.is-open > .Select-control {
   border-bottom-right-radius: 0;
@@ -373,6 +371,10 @@ a:hover {
 
 .Select.is-focused .Select-input > input {
   padding: 10px 0 12px;
+}
+
+.Select.is-disabled > .Select-control {
+  cursor: not-allowed;
 }
 
 .Select-placeholder,

@@ -35,7 +35,6 @@ const ChannelFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     channel,
-    members,
     save,
     selectedMembers
   };
