@@ -173,6 +173,7 @@ class EditForm extends React.Component<Props, State> {
     return (
       <>
         <Top
+          type={type}
           name={name}
           description={description}
           closeDate={closeDate}

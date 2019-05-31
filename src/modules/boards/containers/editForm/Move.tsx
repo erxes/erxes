@@ -10,6 +10,7 @@ import { Item } from '../../types';
 type Props = {
   item: Item;
   stageId?: string;
+  type: string;
   onChangeStage?: (
     name: 'stageId' | 'name' | 'closeDate' | 'description' | 'assignedUserIds',
     value: any

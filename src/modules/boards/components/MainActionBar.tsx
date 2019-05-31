@@ -9,7 +9,6 @@ import {
 import { __ } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { SelectCustomers } from 'modules/customers/containers/common';
-import ViewChooser from 'modules/deals/components/ViewChooser';
 import {
   ClearDate,
   ClearFilter,
@@ -21,8 +20,6 @@ import {
   RemoveFilter
 } from 'modules/deals/styles/filter';
 import { PopoverHeader } from 'modules/notifications/components/styles';
-import { SelectProducts } from 'modules/settings/productService/containers';
-import { IProduct } from 'modules/settings/productService/types';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
 import { Overlay, Popover } from 'react-bootstrap';
@@ -50,9 +47,11 @@ type Props = {
   middleContent?: () => React.ReactNode;
   history: any;
   queryParams: any;
-  products: IProduct[];
   assignedUserIds?: string[];
   type: string;
+  extraFilter: React.ReactNode;
+  viewType?: string;
+  rightContent?: () => React.ReactNode;
 };
 
 type State = {
@@ -60,16 +59,16 @@ type State = {
   target: any;
 };
 
-// get selected type from URL
-const getType = () =>
-  window.location.href.includes('calendar') ? 'calendar' : 'board';
-
 const teamMemberCustomOption = {
   value: '',
   label: 'Assigned to no one'
 };
 
 class MainActionBar extends React.Component<Props, State> {
+  static defaultProps = {
+    viewType: 'board'
+  };
+
   constructor(props) {
     super(props);
 
@@ -103,7 +102,7 @@ class MainActionBar extends React.Component<Props, State> {
   };
 
   renderBoards() {
-    const { currentBoard, boards, type } = this.props;
+    const { currentBoard, boards, type, viewType } = this.props;
 
     if ((currentBoard && boards.length === 1) || boards.length === 0) {
       return <EmptyState icon="layout" text="No other boards" size="small" />;
@@ -114,7 +113,7 @@ class MainActionBar extends React.Component<Props, State> {
         return null;
       }
 
-      let link = `/${type}/${getType()}?id=${board._id}`;
+      let link = `/${type}/${viewType}?id=${board._id}`;
 
       const { pipelines = [] } = board;
 
@@ -131,7 +130,8 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   renderPipelines() {
-    const { currentBoard, currentPipeline, type } = this.props;
+    const { currentBoard, currentPipeline, type, viewType } = this.props;
+
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
     if ((currentPipeline && pipelines.length === 1) || pipelines.length === 0) {
@@ -150,7 +150,7 @@ class MainActionBar extends React.Component<Props, State> {
       return (
         <li key={pipeline._id}>
           <Link
-            to={`/${type}/${getType()}?id=${currentBoard._id}&pipelineId=${
+            to={`/${type}/${viewType}?id=${currentBoard._id}&pipelineId=${
               pipeline._id
             }`}
           >
@@ -162,9 +162,9 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   renderDates() {
-    const { history, queryParams } = this.props;
+    const { queryParams, viewType } = this.props;
 
-    if (history.location.pathname.includes('calendar')) {
+    if (viewType === 'calendar') {
       return null;
     }
 
@@ -205,19 +205,100 @@ class MainActionBar extends React.Component<Props, State> {
     );
   }
 
+  renderFilterOverlay() {
+    const { queryParams, onSelect, extraFilter } = this.props;
+
+    return (
+      <Overlay
+        show={this.state.show}
+        onHide={this.hideFilter}
+        placement="bottom"
+        rootClose={true}
+        containerPadding={20}
+        target={this.state.target}
+      >
+        <Popover id="popover-contained">
+          <PopoverHeader>{__('Filter')}</PopoverHeader>
+          <FilterBox>
+            {extraFilter}
+            <SelectCompanies
+              label="Choose companies"
+              name="companyIds"
+              queryParams={queryParams}
+              onSelect={onSelect}
+            />
+            <SelectCustomers
+              label="Choose customers"
+              name="customerIds"
+              queryParams={queryParams}
+              onSelect={onSelect}
+            />
+            <SelectTeamMembers
+              label="Choose team members"
+              name="assignedUserIds"
+              queryParams={queryParams}
+              onSelect={onSelect}
+              customOption={teamMemberCustomOption}
+            />
+
+            {this.renderDates()}
+          </FilterBox>
+          <ClearFilter>
+            <Button
+              btnStyle="primary"
+              onClick={this.props.clearFilter}
+              block={true}
+              size="small"
+            >
+              {__('Clear filter')}
+            </Button>
+          </ClearFilter>
+        </Popover>
+      </Overlay>
+    );
+  }
+
+  renderFilter() {
+    const hasFilter = this.props.isFiltered();
+
+    return (
+      <HeaderLink>
+        <Tip text={__('Filter')}>
+          <FilterBtn active={hasFilter}>
+            <Button
+              btnStyle={hasFilter ? 'success' : 'link'}
+              className={hasFilter ? 'filter-success' : 'filter-link'}
+              icon="filter"
+              onClick={this.showFilter}
+            >
+              {hasFilter && __('Filtering is on')}
+            </Button>
+            {hasFilter && (
+              <RemoveFilter>
+                <Button
+                  btnStyle="link"
+                  icon="cancel-1"
+                  onClick={this.props.clearFilter}
+                />
+              </RemoveFilter>
+            )}
+          </FilterBtn>
+        </Tip>
+        {this.renderFilterOverlay()}
+      </HeaderLink>
+    );
+  }
+
   render() {
     const {
       currentBoard,
       currentPipeline,
       middleContent,
       queryParams,
-      onSelect,
-      isFiltered,
-      type
+      type,
+      rightContent
     } = this.props;
 
-    const hasFilter = isFiltered();
-    const active = isFiltered();
     const actionBarLeft = (
       <HeaderItems>
         <HeaderLabel>
@@ -255,60 +336,6 @@ class MainActionBar extends React.Component<Props, State> {
       </HeaderItems>
     );
 
-    const DealFilter = (
-      <Overlay
-        show={this.state.show}
-        onHide={this.hideFilter}
-        placement="bottom"
-        rootClose={true}
-        containerPadding={20}
-        target={this.state.target}
-      >
-        <Popover id="popover-contained">
-          <PopoverHeader>{__('Filter')}</PopoverHeader>
-          <FilterBox>
-            <SelectProducts
-              label="Choose products"
-              name="productIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-            />
-            <SelectCompanies
-              label="Choose companies"
-              name="companyIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-            />
-            <SelectCustomers
-              label="Choose customers"
-              name="customerIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-            />
-            <SelectTeamMembers
-              label="Choose team members"
-              name="assignedUserIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-              customOption={teamMemberCustomOption}
-            />
-
-            {this.renderDates()}
-          </FilterBox>
-          <ClearFilter>
-            <Button
-              btnStyle="primary"
-              onClick={this.props.clearFilter}
-              block={true}
-              size="small"
-            >
-              {__('Clear filter')}
-            </Button>
-          </ClearFilter>
-        </Popover>
-      </Overlay>
-    );
-
     const actionBarRight = (
       <HeaderItems>
         {middleContent && middleContent()}
@@ -322,32 +349,9 @@ class MainActionBar extends React.Component<Props, State> {
           />
         </div>
 
-        <HeaderLink>
-          <Tip text={__('Filter')}>
-            <FilterBtn active={active}>
-              <Button
-                btnStyle={hasFilter ? 'success' : 'link'}
-                className={hasFilter ? 'filter-success' : 'filter-link'}
-                icon="filter"
-                onClick={this.showFilter}
-              >
-                {hasFilter && __('Filtering is on')}
-              </Button>
-              {hasFilter && (
-                <RemoveFilter>
-                  <Button
-                    btnStyle="link"
-                    icon="cancel-1"
-                    onClick={this.props.clearFilter}
-                  />
-                </RemoveFilter>
-              )}
-            </FilterBtn>
-          </Tip>
-          {DealFilter}
-        </HeaderLink>
+        {this.renderFilter()}
 
-        <ViewChooser type={type} />
+        {rightContent && rightContent()}
       </HeaderItems>
     );
 

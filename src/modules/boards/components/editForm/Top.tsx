@@ -6,7 +6,6 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import {
-  Avatar,
   FlexContent,
   HeaderContent,
   HeaderContentSmall,
@@ -22,6 +21,7 @@ import { Move } from '../../containers/editForm';
 
 type Props = {
   item: Item;
+  type: string;
   name: string;
   description: string;
   closeDate: Date;
@@ -58,10 +58,15 @@ class Top extends React.Component<Props> {
   };
 
   renderMove() {
-    const { item, stageId } = this.props;
+    const { item, stageId, type } = this.props;
 
     return (
-      <Move item={item} stageId={stageId} onChangeStage={this.onChangeStage} />
+      <Move
+        type={type}
+        item={item}
+        stageId={stageId}
+        onChangeStage={this.onChangeStage}
+      />
     );
   }
 

@@ -3,6 +3,7 @@ import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
+import { DealMainActionBar } from 'modules/deals/components';
 import { PageHeader } from 'modules/deals/styles/header';
 import { ProductsQueryResponse } from 'modules/deals/types';
 import { queries as productQueries } from 'modules/settings/productService/graphql';
@@ -10,7 +11,7 @@ import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { MainActionBar as DumbMainActionBar } from '../components';
+import { MainActionBar as FundamentalMainActionBar } from '../components';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
 import {
@@ -56,6 +57,17 @@ const commonParams = [
  * Main board component
  */
 class Main extends React.Component<FinalProps> {
+  private componentSelector;
+
+  constructor(props) {
+    super(props);
+
+    this.componentSelector = {
+      deal: DealMainActionBar,
+      ticket: FundamentalMainActionBar
+    };
+  }
+
   onSearch = (search: string) => {
     routerUtils.setParams(this.props.history, { search });
   };
@@ -227,7 +239,9 @@ class Main extends React.Component<FinalProps> {
       clearFilter: this.clearFilter
     };
 
-    return <DumbMainActionBar {...extendedProps} />;
+    const Component = this.componentSelector[type];
+
+    return <Component {...extendedProps} />;
   }
 }
 
