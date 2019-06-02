@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import {
   Button,
   DataWithLoader,
@@ -10,6 +11,7 @@ import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
+import { MemberAvatars } from 'modules/settings/channels/components';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import * as React from 'react';
 import { withRouter } from 'react-router';
@@ -21,13 +23,14 @@ interface IProps extends IRouterProps {
   queryParams: any;
   totalCount: number;
   loading: boolean;
+  users: IUser[];
   objects: IUserGroupDocument[];
   save: (doc: IUserGroup, callback: () => void, object: any) => void;
   remove: (id: string) => void;
 }
 
 class GroupList extends React.Component<IProps> {
-  renderFormTrigger(trigger: React.ReactNode, object) {
+  renderFormTrigger(trigger: React.ReactNode, object?: IUserGroup) {
     const content = props => this.renderForm({ ...props, object });
 
     return (
@@ -54,7 +57,7 @@ class GroupList extends React.Component<IProps> {
     router.setParams(this.props.history, { groupId: null });
   };
 
-  renderEditActions(object: IUserGroupDocument) {
+  renderEditAction(object: IUserGroupDocument) {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')}>
@@ -66,7 +69,7 @@ class GroupList extends React.Component<IProps> {
     return this.renderFormTrigger(trigger, object);
   }
 
-  renderRemoveActions(object: IUserGroupDocument) {
+  renderRemoveAction(object: IUserGroupDocument) {
     const { remove } = this.props;
 
     return (
@@ -79,12 +82,20 @@ class GroupList extends React.Component<IProps> {
   }
 
   renderObjects(objects: IUserGroupDocument[]) {
+    const allMembers = this.props.users || [];
+
     return objects.map(object => (
       <SidebarListItem key={object._id} isActive={this.isActive(object._id)}>
-        <Link to={`?groupId=${object._id}`}>{object.name}</Link>
+        <Link to={`?groupId=${object._id}`}>
+          {object.name}
+          <MemberAvatars
+            selectedMemberIds={object.memberIds || []}
+            allMembers={allMembers}
+          />
+        </Link>
         <ActionButtons>
-          {this.renderEditActions(object)}
-          {this.renderRemoveActions(object)}
+          {this.renderEditAction(object)}
+          {this.renderRemoveAction(object)}
         </ActionButtons>
       </SidebarListItem>
     ));
@@ -101,7 +112,9 @@ class GroupList extends React.Component<IProps> {
 
     const trigger = (
       <a>
-        <Icon icon="add" />
+        <Tip text={__('Create group')}>
+          <Icon icon="add" />
+        </Tip>
       </a>
     );
 
@@ -110,10 +123,12 @@ class GroupList extends React.Component<IProps> {
         {__('User groups')}
 
         <HelperButtons>
-          {this.renderFormTrigger(trigger, null)}
+          {this.renderFormTrigger(trigger)}
           {router.getParam(this.props.history, 'groupId') && (
             <a tabIndex={0} onClick={this.clearGroupFilter}>
-              <Icon icon="cancel-1" />
+              <Tip text={__('Clear filter')}>
+                <Icon icon="cancel-1" />
+              </Tip>
             </a>
           )}
         </HelperButtons>
@@ -125,13 +140,13 @@ class GroupList extends React.Component<IProps> {
     const { totalCount, loading } = this.props;
 
     return (
-      <Sidebar full={true} header={this.renderSidebarHeader()}>
+      <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
         <SidebarList>
           <DataWithLoader
             data={this.renderContent()}
             loading={loading}
             count={totalCount}
-            emptyText="There is no data."
+            emptyText="There is no group"
             emptyImage="/images/actions/26.svg"
           />
           <LoadMore all={totalCount} loading={loading} />
