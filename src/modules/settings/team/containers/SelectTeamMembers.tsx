@@ -25,9 +25,11 @@ export default ({
   value,
   multi = true,
   label,
+  filterParams,
   name
 }: {
   queryParams?: IQueryParams;
+  filterParams?: { status: string };
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
@@ -42,6 +44,7 @@ export default ({
       label={label}
       queryName="users"
       name={name}
+      filterParams={filterParams}
       values={
         typeof defaultValue === 'string'
           ? multi
