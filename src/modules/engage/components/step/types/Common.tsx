@@ -1,37 +1,27 @@
 import { FormControl, Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { CustomerCounts, RadioContainer } from 'modules/engage/styles';
-import {
-  BrandAdd,
-  SegmentAdd,
-  TagAdd,
-  TargetCount
-} from 'modules/engage/types';
+import { TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
-import { IBrand } from 'modules/settings/brands/types';
-import { ITag } from 'modules/tags/types';
 import * as React from 'react';
 import { Targets } from '../..';
 
-type Props = {
+type Props<T, U> = {
   name: string;
   label: string;
   targetIds: string[];
   messageType: string;
-  targets: ISegment[] | IBrand[] | ITag[];
-  save: BrandAdd | SegmentAdd | TagAdd;
+  targets: T[];
+  save: U;
   targetCount: TargetCount;
-  Form: any;
+  Form: React.Component;
   formProps?: {
     count?: (segment: ISegmentDoc) => void;
     headSegments?: ISegment[];
     segmentFields?: ISegmentField[];
   };
   customersCount: (ids: string[]) => number;
-  onChange: (
-    name: 'brandIds' | 'tagIds' | 'segmentIds',
-    value: string[]
-  ) => void;
+  onChange: (name: string, value: string[]) => void;
   content: (
     {
       actionSelector,
@@ -50,7 +40,7 @@ type State = {
   show: boolean;
 };
 
-class Common extends React.Component<Props, State> {
+class Common<T, U> extends React.Component<Props<T, U>, State> {
   constructor(props) {
     super(props);
 
