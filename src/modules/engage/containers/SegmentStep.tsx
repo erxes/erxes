@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
-import { sumCounts } from 'modules/engage/components/step/types/utils';
 import {
   AddMutationResponse,
   AddMutationVariables,
@@ -11,16 +10,14 @@ import {
 import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { SegmentStep } from '../../components';
-import { mutations, queries } from '../../graphql';
+import { SegmentStep } from '../components';
+import { mutations, queries } from '../graphql';
+import { sumCounts } from '../utils';
 
 type Props = {
   segmentIds: string[];
   messageType: string;
-  onChange: (
-    name: 'brandIds' | 'tagIds' | 'segmentIds',
-    value: string[]
-  ) => void;
+  onChange: (name: string, value: string[]) => void;
   renderContent: (
     {
       actionSelector,

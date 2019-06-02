@@ -1,15 +1,12 @@
 import { EmptyState, Icon } from 'modules/common/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { ISegment } from 'modules/segments/types';
-import { IBrand } from 'modules/settings/brands/types';
-import { ITag } from 'modules/tags/types';
 import * as React from 'react';
 import { ListCounter, ListWrapper } from '../styles';
 import { TargetCount } from '../types';
 
-type Props = {
+type Props<Target> = {
   messageType: string;
-  targets: ISegment[] | IBrand | ITag[] | any;
+  targets: Target[];
   name: string;
   targetCount: TargetCount;
   defaultValues: string[];
@@ -20,7 +17,7 @@ type State = {
   selectedIds: string[];
 };
 
-class Targets extends React.Component<Props, State> {
+class Targets<Target> extends React.Component<Props<Target>, State> {
   constructor(props) {
     super(props);
 
@@ -35,7 +32,7 @@ class Targets extends React.Component<Props, State> {
     }
   }
 
-  onClick = (name, targetId) => {
+  onClick = (name: string, targetId: string) => {
     const { selectedIds } = this.state;
 
     if (!selectedIds.includes(targetId)) {
@@ -53,7 +50,7 @@ class Targets extends React.Component<Props, State> {
     }
   };
 
-  renderTarget(targets) {
+  renderTarget(targets: Target[]) {
     const { selectedIds } = this.state;
     const { targetCount, messageType, name } = this.props;
 
@@ -79,28 +76,12 @@ class Targets extends React.Component<Props, State> {
     });
   }
 
-  orderSegments = segments => {
-    const orderedSegments: ISegment[] = [];
-
-    segments.forEach(segment => {
-      if (!segment.subOf) {
-        orderedSegments.push(segment, ...segment.getSubSegments);
-      }
-    });
-
-    return orderedSegments;
-  };
-
   render() {
-    const { targets, messageType } = this.props;
+    const { targets } = this.props;
 
     return (
       <ListWrapper>
-        <SidebarList>
-          {this.renderTarget(
-            messageType === 'segment' ? this.orderSegments(targets) : targets
-          )}
-        </SidebarList>
+        <SidebarList>{this.renderTarget(targets)}</SidebarList>
       </ListWrapper>
     );
   }

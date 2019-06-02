@@ -4,17 +4,17 @@ import { CustomerCounts, RadioContainer } from 'modules/engage/styles';
 import { TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import * as React from 'react';
-import { Targets } from '../..';
+import { Targets } from '..';
 
-type Props<T, U> = {
+type Props<Target, OnSubmit> = {
   name: string;
   label: string;
   targetIds: string[];
   messageType: string;
-  targets: T[];
-  save: U;
+  targets: Target[];
+  onSubmit: OnSubmit;
   targetCount: TargetCount;
-  Form: React.Component;
+  Form: any;
   formProps?: {
     count?: (segment: ISegmentDoc) => void;
     headSegments?: ISegment[];
@@ -29,7 +29,7 @@ type Props<T, U> = {
       customerCounts
     }: {
       actionSelector: React.ReactNode;
-      selectedComponent;
+      selectedComponent: React.ReactNode;
       customerCounts: React.ReactNode;
     }
   ) => React.ReactNode;
@@ -40,7 +40,10 @@ type State = {
   show: boolean;
 };
 
-class Common<T, U> extends React.Component<Props<T, U>, State> {
+class Common<Target, OnSubmit> extends React.Component<
+  Props<Target, OnSubmit>,
+  State
+> {
   constructor(props) {
     super(props);
 
@@ -58,7 +61,7 @@ class Common<T, U> extends React.Component<Props<T, U>, State> {
     this.setState({ show });
   };
 
-  onChangeStep = (name, targetIds: string[]) => {
+  onChangeStep = (name: string, targetIds: string[]) => {
     this.setState({ targetIds }, () => {
       this.props.onChange(name, targetIds);
     });
@@ -77,12 +80,18 @@ class Common<T, U> extends React.Component<Props<T, U>, State> {
     );
   }
 
-  renderRadioControl = ({ title, ...args }) => {
+  renderRadioControl = ({
+    title,
+    checked
+  }: {
+    title: string;
+    checked: boolean;
+  }) => {
     const { label } = this.props;
 
     return (
       <FormControl
-        {...args}
+        checked={checked}
         name={label}
         onChange={this.toggleForm}
         value={this.state.show}
@@ -121,15 +130,15 @@ class Common<T, U> extends React.Component<Props<T, U>, State> {
       name,
       Form,
       formProps,
-      save
+      onSubmit
     } = this.props;
 
     if (this.state.show) {
-      return <Form {...formProps} create={save} showForm={this.showForm} />;
+      return <Form {...formProps} create={onSubmit} showForm={this.showForm} />;
     }
 
     return (
-      <Targets
+      <Targets<Target>
         name={name}
         targets={targets}
         messageType={messageType}

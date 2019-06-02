@@ -1,8 +1,8 @@
-import { TargetCount } from 'modules/engage/types';
+import { TagAdd, TargetCount } from 'modules/engage/types';
 import { ITag } from 'modules/tags/types';
 import * as React from 'react';
-import { TagsForm } from '../forms';
 import Common from './Common';
+import { TagsForm } from './forms';
 
 type Props = {
   tagIds: string[];
@@ -10,11 +10,8 @@ type Props = {
   tags: ITag[];
   targetCount: TargetCount;
   customersCount: (ids: string[]) => number;
-  onChange: (
-    name: 'brandIds' | 'tagIds' | 'segmentIds',
-    value: string[]
-  ) => void;
-  tagAdd: (params: { doc: { name: string; description: string } }) => void;
+  onChange: (name: string, value: string[]) => void;
+  tagAdd: TagAdd;
   renderContent: (
     {
       actionSelector,
@@ -41,7 +38,7 @@ const TagStep = (props: Props) => {
   } = props;
 
   return (
-    <Common
+    <Common<ITag, TagAdd>
       name="tagIds"
       label="Create a tag"
       targetIds={tagIds}
@@ -50,7 +47,7 @@ const TagStep = (props: Props) => {
       targetCount={targetCount}
       customersCount={customersCount}
       onChange={onChange}
-      save={tagAdd}
+      onSubmit={tagAdd}
       Form={TagsForm}
       content={renderContent}
     />

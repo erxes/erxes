@@ -1,8 +1,8 @@
-import { TargetCount } from 'modules/engage/types';
+import { BrandAdd, TargetCount } from 'modules/engage/types';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
-import { BrandForm } from '../forms';
 import Common from './Common';
+import { BrandForm } from './forms';
 
 type Props = {
   brandIds: string[];
@@ -10,11 +10,8 @@ type Props = {
   messageType: string;
   targetCount: TargetCount;
   customersCount: (ids: string[]) => number;
-  onChange: (
-    name: 'brandIds' | 'tagIds' | 'segmentIds',
-    value: string[]
-  ) => void;
-  brandAdd: (params: { doc: { name: string; description: string } }) => void;
+  onChange: (name: string, value: string[]) => void;
+  brandAdd: BrandAdd;
   renderContent: (
     {
       actionSelector,
@@ -41,7 +38,7 @@ const BrandStep = (props: Props) => {
   } = props;
 
   return (
-    <Common
+    <Common<IBrand, BrandAdd>
       name="brandIds"
       label="Create a brand"
       targetIds={brandIds}
@@ -50,7 +47,7 @@ const BrandStep = (props: Props) => {
       targetCount={targetCount}
       customersCount={customersCount}
       onChange={onChange}
-      save={brandAdd}
+      onSubmit={brandAdd}
       Form={BrandForm}
       content={renderContent}
     />

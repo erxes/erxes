@@ -1,9 +1,9 @@
 import { __ } from 'modules/common/utils';
-import { TargetCount } from 'modules/engage/types';
+import { SegmentAdd, TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import * as React from 'react';
-import { SegmentsForm } from '../forms';
 import Common from './Common';
+import { SegmentsForm } from './forms';
 
 type Props = {
   messageType: string;
@@ -13,12 +13,9 @@ type Props = {
   headSegments: ISegment[];
   segmentFields: ISegmentField[];
   customersCount: (ids: string[]) => number;
-  segmentAdd: (params: { doc: ISegmentDoc }) => void;
+  segmentAdd: SegmentAdd;
   count: (segment: ISegmentDoc) => void;
-  onChange: (
-    name: 'brandIds' | 'tagIds' | 'segmentIds',
-    value: string[]
-  ) => void;
+  onChange: (name: string, value: string[]) => void;
   renderContent: (
     {
       actionSelector,
@@ -53,17 +50,25 @@ const SegmentStep = (props: Props) => {
     count
   };
 
+  const orderedSegments: ISegment[] = [];
+
+  segments.forEach(segment => {
+    if (!segment.subOf) {
+      orderedSegments.push(segment, ...segment.getSubSegments);
+    }
+  });
+
   return (
-    <Common
+    <Common<ISegment, SegmentAdd>
       name="segmentIds"
       label="Create a segment"
       targetIds={segmentIds}
       messageType={messageType}
-      targets={segments}
+      targets={orderedSegments}
       targetCount={targetCount}
       customersCount={customersCount}
       onChange={onChange}
-      save={segmentAdd}
+      onSubmit={segmentAdd}
       Form={SegmentsForm}
       content={renderContent}
       formProps={formProps}

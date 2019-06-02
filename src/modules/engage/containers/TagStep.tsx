@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import { TagStep } from 'modules/engage/components/step';
-import { sumCounts } from 'modules/engage/components/step/types/utils';
 import { mutations } from 'modules/tags/graphql';
 import {
   AddMutationResponse,
@@ -11,7 +10,8 @@ import {
 } from 'modules/tags/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { queries } from '../../graphql';
+import { queries } from '../graphql';
+import { sumCounts } from '../utils';
 
 type Props = {
   tagIds: string[];
@@ -27,10 +27,7 @@ type Props = {
       customerCounts: React.ReactNode;
     }
   ) => React.ReactNode;
-  onChange: (
-    name: 'brandIds' | 'tagIds' | 'segmentIds',
-    value: string[]
-  ) => void;
+  onChange: (name: string, value: string[]) => void;
 };
 
 type FinalProps = {
