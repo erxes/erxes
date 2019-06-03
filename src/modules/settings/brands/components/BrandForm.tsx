@@ -14,10 +14,8 @@ type Props = {
   brand?: IBrand;
   save: (
     params: {
-      doc: {
-        name: string;
-        description: string;
-      };
+      name: string;
+      description: string;
     },
     callback: () => void,
     brand?: IBrand
@@ -26,15 +24,9 @@ type Props = {
 };
 
 class BrandForm extends React.Component<Props, {}> {
-  generateDoc = values => {
-    return {
-      doc: values
-    };
-  };
-
   onSubmit = values => {
     const { save, brand, closeModal } = this.props;
-    save(this.generateDoc(values), () => closeModal(), brand);
+    save(values, () => closeModal(), brand);
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -49,7 +41,7 @@ class BrandForm extends React.Component<Props, {}> {
             {...formProps}
             name="name"
             defaultValue={object.name}
-            type="email"
+            required={true}
           />
         </FormGroup>
 

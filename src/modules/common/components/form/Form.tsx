@@ -1,3 +1,4 @@
+import { NULL } from 'graphql/language/kinds';
 import { IFormProps } from 'modules/common/types';
 import * as React from 'react';
 import * as validator from 'validator';
@@ -29,21 +30,21 @@ class Form extends React.Component<Props, State> {
     this.children.push(child);
   };
 
-  runValidations = (callback: any) => {
+  runValidations = () => {
     const errors = {};
     const values = {};
 
     for (const child of this.children) {
-      // tslint:disable-next-line:no-console
-      console.log(child);
       errors[child.props.name] = this.validate(child);
       values[child.props.name] = this.getValue(child);
     }
 
     this.setState({ errors, values }, () => {
-      // tslint:disable-next-line:no-console
-      console.log(this.state.errors);
-      callback();
+      const hasErrors = Object.values(errors).some(error => error !== null);
+
+      if (!hasErrors && this.props.onSubmit) {
+        this.props.onSubmit(this.state.values);
+      }
     });
   };
 
@@ -52,16 +53,9 @@ class Form extends React.Component<Props, State> {
   };
 
   onSubmit = e => {
-    // tslint:disable
-    console.log('on submit');
-
     e.preventDefault();
 
-    this.runValidations(() => {
-      if (this.props.onSubmit) {
-        this.props.onSubmit(this.state.values);
-      }
-    });
+    this.runValidations();
   };
 
   validate = child => {
@@ -104,7 +98,7 @@ class Form extends React.Component<Props, State> {
 
   render() {
     return (
-      <form onSubmit={this.onSubmit}>
+      <form onSubmit={this.onSubmit} noValidate={true}>
         {this.props.renderContent({
           errors: this.state.errors,
           values: this.state.values,

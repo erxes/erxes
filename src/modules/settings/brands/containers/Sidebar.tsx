@@ -57,16 +57,16 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
   };
 
   // create or update action
-  const save = ({ doc }, callback, brand) => {
+  const save = (variables, callback, brand) => {
     let mutation = addMutation;
     // if edit mode
     if (brand) {
       mutation = editMutation;
-      doc._id = brand._id;
+      variables._id = brand._id;
     }
 
     mutation({
-      variables: doc
+      variables
     })
       .then(() => {
         brandsQuery.refetch();
