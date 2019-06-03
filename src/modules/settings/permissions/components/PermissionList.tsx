@@ -135,15 +135,15 @@ class PermissionList extends React.Component<Props> {
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="add">
-        New Permission
+        New permission
       </Button>
     );
 
     const actionBarRight = (
       <NotWrappable>
         <ModalTrigger
-          title="New Permission"
-          size={'lg'}
+          title="New permission"
+          size="lg"
           trigger={trigger}
           content={this.renderForm}
         />
@@ -204,7 +204,7 @@ class PermissionList extends React.Component<Props> {
             data={this.renderContent()}
             loading={isLoading}
             count={totalCount}
-            emptyText="There is no data."
+            emptyText="There is no permissions in this group"
             emptyImage="/images/actions/11.svg"
           />
         }

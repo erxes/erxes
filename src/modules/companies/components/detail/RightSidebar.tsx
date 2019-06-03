@@ -32,7 +32,7 @@ export default class RightSidebar extends React.Component<{
     return (
       <Sidebar>
         <CustomerAssociate data={company} />
-        <PortableDeals companyId={company._id} />
+        <PortableDeals companyIds={[company._id]} />
 
         <Section>
           <Title>{__('Other')}</Title>

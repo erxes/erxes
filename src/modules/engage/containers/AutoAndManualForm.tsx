@@ -48,15 +48,20 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     customerCountsQuery
   } = props;
 
+  if (combinedFieldsQuery.loading) {
+    return null;
+  }
+
   const customerCounts = customerCountsQuery.customerCounts || {
     bySegment: {}
   };
 
   const segmentFields = combinedFieldsQuery.fieldsCombinedByContentType
     ? combinedFieldsQuery.fieldsCombinedByContentType.map(
-        ({ name, label }) => ({
-          _id: name,
+        ({ name, label, brand }) => ({
+          _id: `${brand}-${name}`,
           title: label,
+          brand,
           selectedBy: 'none'
         })
       )
