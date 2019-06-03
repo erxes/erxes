@@ -2,8 +2,11 @@ import {
   STORAGE_BOARD_KEY,
   STORAGE_PIPELINE_KEY
 } from 'modules/boards/constants';
+import { Tip } from 'modules/common/components';
 import { Amount } from 'modules/deals/styles/stage';
+import * as moment from 'moment';
 import * as React from 'react';
+import { Date } from './styles';
 import { IDraggableLocation, IItemMap } from './types';
 
 type Options = {
@@ -118,5 +121,17 @@ export const renderAmount = amount => {
         </li>
       ))}
     </Amount>
+  );
+};
+
+export const renderDate = (date, format = 'YYYY-MM-DD') => {
+  if (!date) {
+    return null;
+  }
+
+  return (
+    <Tip text={moment(date).format(format)}>
+      <Date>{moment(date).format('lll')}</Date>
+    </Tip>
   );
 };

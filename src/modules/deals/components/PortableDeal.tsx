@@ -1,11 +1,12 @@
+import { DetailItems, UserCounter } from 'modules/boards/components/portable';
 import { EditForm } from 'modules/boards/containers/editForm';
 import { renderAmount } from 'modules/boards/utils';
+import { renderDate } from 'modules/boards/utils';
 import { ModalTrigger } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
+import { __ } from 'modules/common/utils';
 import { Content } from 'modules/deals/styles/stage';
 import * as React from 'react';
-import { Items, UserCounter } from '.';
-import { __ } from '../../../common/utils';
 import {
   Deal as DealContainer,
   Footer,
@@ -13,9 +14,8 @@ import {
   Right,
   SpaceContent,
   Status
-} from '../../styles/deal';
-import { IDeal } from '../../types';
-import { renderDealDate } from '../../utils';
+} from '../styles/deal';
+import { IDeal } from '../types';
 
 type Props = {
   deal: IDeal;
@@ -83,11 +83,11 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
         <Content>
           <SpaceContent>
             <h5>{deal.name}</h5>
-            {renderDealDate(deal.closeDate)}
+            {renderDate(deal.closeDate)}
           </SpaceContent>
-          <Items color="#63D2D6" items={products} />
-          <Items color="#F7CE53" items={deal.customers || []} />
-          <Items color="#EA475D" items={deal.companies || []} />
+          <DetailItems color="#63D2D6" items={products} />
+          <DetailItems color="#F7CE53" items={deal.customers || []} />
+          <DetailItems color="#EA475D" items={deal.companies || []} />
         </Content>
         <PriceContainer>
           {renderAmount(deal.amount)}
@@ -98,7 +98,7 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
         </PriceContainer>
 
         <Footer>
-          {__('Last updated')}:<Right>{renderDealDate(deal.modifiedAt)}</Right>
+          {__('Last updated')}:<Right>{renderDate(deal.modifiedAt)}</Right>
         </Footer>
       </DealContainer>
     );

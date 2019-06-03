@@ -21,8 +21,6 @@ export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
   user-select: none;
 `;
 
-// select
-
 export const SelectContainer = styled.div`
   position: absolute;
   top: 30px;
@@ -32,4 +30,10 @@ export const SelectContainer = styled.div`
   z-index: 100;
   box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
   background: ${colors.colorWhite};
+`;
+
+export const Date = styled.span`
+  font-size: 11px;
+  color: rgb(136, 136, 136);
+  z-index: 10;
 `;

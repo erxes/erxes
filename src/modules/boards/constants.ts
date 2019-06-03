@@ -3,6 +3,7 @@ export const STORAGE_PIPELINE_KEY = 'erxesCurrentPipelineId';
 
 export const STAGE_CONSTANTS = {
   deal: {
+    title: 'Deals',
     itemsQuery: 'deals',
     detailQuery: 'dealDetail',
     addMutation: 'dealsAdd',
@@ -17,6 +18,7 @@ export const STAGE_CONSTANTS = {
     copySuccessText: 'You successfully copied a deal'
   },
   ticket: {
+    title: 'Teals',
     itemsQuery: 'tickets',
     detailQuery: 'ticketDetail',
     addMutation: 'ticketsAdd',

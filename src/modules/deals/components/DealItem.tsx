@@ -1,14 +1,9 @@
 import { EditForm } from 'modules/boards/containers/editForm';
+import { Date } from 'modules/boards/styles';
 import { Item } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
-import {
-  Deal,
-  DealDate,
-  Footer,
-  PriceContainer,
-  Right
-} from 'modules/deals/styles/deal';
+import { Deal, Footer, PriceContainer, Right } from 'modules/deals/styles/deal';
 import { Content, DealIndicator } from 'modules/deals/styles/stage';
 import * as moment from 'moment';
 import * as React from 'react';
@@ -40,7 +35,7 @@ export default class DealItem extends React.PureComponent<
       return null;
     }
 
-    return <DealDate>{moment(date).format('MMM D, h:mm a')}</DealDate>;
+    return <Date>{moment(date).format('MMM D, h:mm a')}</Date>;
   }
 
   toggleForm = () => {

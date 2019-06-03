@@ -1,3 +1,4 @@
+import { PortableItems } from 'modules/boards/containers';
 import {
   Button,
   Icon,
@@ -15,7 +16,6 @@ import {
 } from 'modules/customers/components/common';
 import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
-import { PortableDeals } from 'modules/deals/containers';
 import { Sidebar } from 'modules/layout/components';
 import * as React from 'react';
 import {
@@ -25,7 +25,6 @@ import {
   SidebarCollapse,
   TabContent
 } from './styles';
-
 import { __ } from 'modules/common/utils';
 import { Contacts } from 'modules/companies/components';
 import { ICustomer } from 'modules/customers/types';
@@ -291,14 +290,20 @@ class Index extends React.Component<IndexProps, IndexState> {
     }
 
     return (
-      <Box
-        title={__('Deals')}
-        name="showDeals"
-        isOpen={config.showDeals || false}
-        toggle={toggleSection}
-      >
-        <PortableDeals customerIds={[customer._id]} isOpen={config.showDeals} />
-      </Box>
+      <>
+        <Box
+          title={__('Deals')}
+          name="showDeals"
+          isOpen={config.showDeals || false}
+          toggle={toggleSection}
+        >
+          <PortableItems
+            type="deal"
+            customerIds={[customer._id]}
+            isOpen={config.showDeals}
+          />
+        </Box>
+      </>
     );
   }
 

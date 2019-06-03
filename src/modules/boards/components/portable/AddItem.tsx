@@ -1,4 +1,5 @@
 import { BoardSelect } from 'modules/boards/containers';
+import { ItemParams } from 'modules/boards/types';
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import {
@@ -7,16 +8,16 @@ import {
   HeaderContent,
   HeaderRow
 } from 'modules/deals/styles/deal';
-import { IDealParams } from 'modules/deals/types';
 import * as React from 'react';
 
 type Props = {
+  type: string;
   customerId?: string;
   companyId?: string;
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
-  saveDeal: (doc: IDealParams, callback: () => void) => void;
+  saveItem: (doc: ItemParams, callback: () => void) => void;
   showSelect?: boolean;
   closeModal: () => void;
 };
@@ -29,7 +30,7 @@ type State = {
   pipelineId: string;
 };
 
-class DealAddForm extends React.Component<Props, State> {
+class AddForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -50,7 +51,7 @@ class DealAddForm extends React.Component<Props, State> {
     e.preventDefault();
 
     const { stageId, name } = this.state;
-    const { customerId, companyId, saveDeal, closeModal } = this.props;
+    const { customerId, companyId, saveItem, closeModal } = this.props;
 
     if (!stageId) {
       return Alert.error('No stage');
@@ -70,7 +71,7 @@ class DealAddForm extends React.Component<Props, State> {
     // before save, disable save button
     this.setState({ disabled: true });
 
-    saveDeal(doc, () => {
+    saveItem(doc, () => {
       // after save, enable save button
       this.setState({ disabled: false });
 
@@ -79,7 +80,7 @@ class DealAddForm extends React.Component<Props, State> {
   };
 
   renderSelect() {
-    const { showSelect } = this.props;
+    const { showSelect, type } = this.props;
 
     if (!showSelect) {
       return null;
@@ -93,7 +94,7 @@ class DealAddForm extends React.Component<Props, State> {
 
     return (
       <BoardSelect
-        type="deal"
+        type={type}
         stageId={stageId}
         pipelineId={pipelineId}
         boardId={boardId}
@@ -142,4 +143,4 @@ class DealAddForm extends React.Component<Props, State> {
   }
 }
 
-export default DealAddForm;
+export default AddForm;

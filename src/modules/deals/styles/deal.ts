@@ -50,12 +50,6 @@ const Footer = styled.div`
   }
 `;
 
-const DealDate = styled.span`
-  font-size: 11px;
-  color: rgb(136, 136, 136);
-  z-index: 10;
-`;
-
 const HeaderRow = styled(FlexContent)`
   margin-bottom: 40px;
 `;
@@ -315,7 +309,6 @@ export {
   Deal,
   SpaceContent,
   FooterContent,
-  DealDate,
   HeaderRow,
   HeaderContent,
   HeaderContentSmall,

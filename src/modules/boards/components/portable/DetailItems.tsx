@@ -1,12 +1,12 @@
 import { renderFullName } from 'modules/common/utils';
+import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import { DealIndicator } from 'modules/deals/styles/stage';
 import * as React from 'react';
-import { ICompany } from '../../../companies/types';
 import { IProduct } from '../../../settings/productService/types';
 
 type Props = {
-  items: ICompany[] | IProduct[] | ICustomer[];
+  items: ICompany[] | ICustomer[] | IProduct[];
   color: string;
 };
 

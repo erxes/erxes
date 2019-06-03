@@ -1,7 +1,3 @@
-import { Tip } from 'modules/common/components';
-import { DealDate } from 'modules/deals/styles/deal';
-import * as moment from 'moment';
-import * as React from 'react';
 import { IUser, IUserDetails } from '../auth/types';
 
 type Options = {
@@ -38,18 +34,6 @@ export function selectUserOptions(array: IUser[] = []) {
     };
   });
 }
-
-export const renderDealDate = (date, format = 'YYYY-MM-DD') => {
-  if (!date) {
-    return null;
-  }
-
-  return (
-    <Tip text={moment(date).format(format)}>
-      <DealDate>{moment(date).format('lll')}</DealDate>
-    </Tip>
-  );
-};
 
 export const invalidateCalendarCache = () => {
   localStorage.setItem('dealCalendarCacheInvalidated', 'true');

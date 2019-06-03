@@ -6,7 +6,7 @@ import { AddNew } from 'modules/deals/styles/stage';
 import * as React from 'react';
 import styled from 'styled-components';
 import { IDeal, IDealTotalAmount } from '../../types';
-import { Deal } from '../portable';
+import Deal from '../PortableDeal';
 
 type Props = {
   deals: IDeal[];
