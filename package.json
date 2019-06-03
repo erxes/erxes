@@ -1,0 +1,69 @@
+{
+  "name": "erxes-widgets-api",
+  "version": "0.9.15",
+  "description": "GraphQL API for erxes widgets",
+  "homepage": "https://erxes.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erxes/erxes-widgets-api"
+  },
+  "bugs": "https://github.com/erxes/erxes-widgets-api/issues",
+  "keywords": [
+    "node",
+    "express",
+    "graphql",
+    "apollo"
+  ],
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node dist",
+    "dev": "DEBUG=* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src",
+    "test": "NODE_ENV=test jest --runInBand --forceExit",
+    "build": "tsc -p tsconfig.prod.json",
+    "lint": "tslint 'src/**/*.ts'",
+    "format": "prettier --write 'src/**/*.ts'",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "botbuilder-adapter-facebook": "^1.0.3",
+    "botkit": "^4.0.2",
+    "cors": "^2.8.1",
+    "dotenv": "^4.0.0",
+    "express": "^4.16.4",
+    "mongoose": "^5.2.16"
+  },
+  "peerOptionalDependencies": {
+    "kerberos": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.17.0",
+    "@types/cors": "^2.8.4",
+    "@types/dotenv": "^4.0.3",
+    "@types/express": "^4.16.0",
+    "@types/jest": "^23.3.0",
+    "@types/mongodb": "^3.1.2",
+    "@types/mongoose": "^5.2.1",
+    "@types/node": "^10.12.18",
+    "@types/q": "^1.5.0",
+    "faker": "^4.1.0",
+    "husky": "^0.13.4",
+    "jest": "22.0.4",
+    "lint-staged": "^3.6.0",
+    "prettier": "^1.13.7",
+    "ts-jest": "22.0.4",
+    "ts-node": "^7.0.0",
+    "ts-node-dev": "^1.0.0-pre.32",
+    "tslint": "^5.8.0",
+    "tslint-config-prettier": "^1.1.0",
+    "tslint-config-standard": "^7.0.0",
+    "typescript": "^2.9.2"
+  }
+}

@@ -1,0 +1,12 @@
+node_modules
+settings.js
+server/settings.js
+dist
+static
+.DS_Store
+dump.rdb
+npm-debug.log*
+.env
+coverage
+*.un~
+*.swp
