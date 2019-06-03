@@ -91,7 +91,6 @@ const FieldType = styled.div`
 
 const PopoverList = styled.div`
   position: relative;
-  list-style: none;
 
   &:hover {
     > ${Field} {
