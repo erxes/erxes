@@ -8,24 +8,6 @@ const FlexContent = styled.div`
   display: flex;
 `;
 
-const Deal = styledTS<{ isDragging?: boolean }>(styled.div)`
-  margin-bottom: 8px;
-  background-color: rgb(255, 255, 255);
-  box-shadow: ${props =>
-    props.isDragging
-      ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
-      : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
-  overflow: hidden;
-  padding: 8px;
-  outline: 0px;
-  font-size: 12px;
-  border-radius: ${borderRadius};
-  transition: box-shadow 0.3s ease-in-out 0s;
-  -webkit-box-pack: justify;
-  justify-content: space-between;
-  will-change: transform;
-`;
-
 const PriceContainer = styled.div`
   overflow: auto;
   margin-top: 5px;
@@ -306,7 +288,6 @@ const UserCounterContainer = styled.ul`
 `;
 
 export {
-  Deal,
   SpaceContent,
   FooterContent,
   HeaderRow,

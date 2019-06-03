@@ -81,7 +81,7 @@ class DealColumn extends React.Component<Props, {}> {
     }
 
     const contents = deals.map((deal: IDeal, index: number) => (
-      <Deal key={index} deal={deal} onRemove={onRemove} onUpdate={onUpdate} />
+      <Deal key={index} item={deal} onRemove={onRemove} onUpdate={onUpdate} />
     ));
 
     return <ContentBody>{contents}</ContentBody>;

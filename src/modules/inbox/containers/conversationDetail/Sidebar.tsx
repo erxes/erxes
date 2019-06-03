@@ -96,6 +96,7 @@ class Sidebar extends React.Component<FinalProps, State> {
         showConversationDetails: false,
         showCustomFields: false,
         showDeals: false,
+        showTickets: false,
         showDeviceProperties: false,
         showMessengerData: false,
         showTags: false

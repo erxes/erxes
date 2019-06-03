@@ -6,6 +6,8 @@ import {
   Tabs,
   TabTitle
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import { Contacts } from 'modules/companies/components';
 import { CompanyAssociate } from 'modules/companies/containers';
 import {
   DetailInfo,
@@ -16,8 +18,13 @@ import {
 } from 'modules/customers/components/common';
 import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
+import { ICustomer } from 'modules/customers/types';
+import { SidebarActivity } from 'modules/inbox/containers/conversationDetail';
 import { Sidebar } from 'modules/layout/components';
+import { MailForm } from 'modules/settings/integrations/containers/google';
 import * as React from 'react';
+import { IConversation } from '../../../types';
+import ConversationDetails from './ConversationDetails';
 import {
   Actions,
   BasicInfo,
@@ -25,13 +32,6 @@ import {
   SidebarCollapse,
   TabContent
 } from './styles';
-import { __ } from 'modules/common/utils';
-import { Contacts } from 'modules/companies/components';
-import { ICustomer } from 'modules/customers/types';
-import { SidebarActivity } from 'modules/inbox/containers/conversationDetail';
-import { MailForm } from 'modules/settings/integrations/containers/google';
-import { IConversation } from '../../../types';
-import ConversationDetails from './ConversationDetails';
 
 type BoxProps = {
   title: string;
@@ -301,6 +301,18 @@ class Index extends React.Component<IndexProps, IndexState> {
             type="deal"
             customerIds={[customer._id]}
             isOpen={config.showDeals}
+          />
+        </Box>
+        <Box
+          title={__('Tickets')}
+          name="showTickets"
+          isOpen={config.showTickets || false}
+          toggle={toggleSection}
+        >
+          <PortableItems
+            type="ticket"
+            customerIds={[customer._id]}
+            isOpen={config.showTickets}
           />
         </Box>
       </>

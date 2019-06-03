@@ -3,6 +3,7 @@ import { __ } from 'modules/common/utils';
 import { PortableDeal } from 'modules/deals/components';
 import { Sidebar } from 'modules/layout/components';
 import { SectionContainer } from 'modules/layout/styles';
+import { PortableTicket } from 'modules/tickets/components';
 import * as React from 'react';
 import { AddItem } from '.';
 import { STAGE_CONSTANTS } from '../../constants';
@@ -13,7 +14,7 @@ type Props = {
   items: Item[];
   customerId?: string;
   companyId?: string;
-  saveItem: (doc: ItemParams, callback: () => void, deal?: Item) => void;
+  saveItem: (doc: ItemParams, callback: () => void, item?: Item) => void;
   onChangeItems: () => void;
   isOpen?: boolean;
 };
@@ -25,7 +26,8 @@ class PortableItems extends React.Component<Props> {
     super(props);
 
     this.ITEMS = {
-      deal: PortableDeal
+      deal: PortableDeal,
+      ticket: PortableTicket
     };
   }
 

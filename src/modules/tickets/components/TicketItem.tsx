@@ -1,8 +1,8 @@
 import { EditForm } from 'modules/boards/containers/editForm';
-import { Date } from 'modules/boards/styles';
+import { Date, ItemContainer } from 'modules/boards/styles';
 import { Item } from 'modules/boards/types';
 import { __, getUserAvatar } from 'modules/common/utils';
-import { Deal, Footer, PriceContainer, Right } from 'modules/deals/styles/deal';
+import { Footer, PriceContainer, Right } from 'modules/deals/styles/deal';
 import { Content, DealIndicator } from 'modules/deals/styles/stage';
 import * as moment from 'moment';
 import * as React from 'react';
@@ -78,7 +78,7 @@ export default class DealItem extends React.PureComponent<
     const { customers, companies } = item;
 
     return (
-      <Deal
+      <ItemContainer
         isDragging={isDragging}
         innerRef={provided.innerRef}
         {...provided.draggableProps}
@@ -121,7 +121,7 @@ export default class DealItem extends React.PureComponent<
           </Footer>
         </Content>
         {this.renderForm()}
-      </Deal>
+      </ItemContainer>
     );
   }
 }
