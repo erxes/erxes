@@ -160,9 +160,6 @@ class FormControl extends React.Component<Props> {
       );
     }
 
-    // tslint:disable
-    console.log('mmmmm', this.props.errors);
-
     return (
       <div>
         <Input {...attributes} />

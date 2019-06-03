@@ -37,7 +37,7 @@ class BrandForm extends React.Component<Props, {}> {
     save(this.generateDoc(values), () => closeModal(), brand);
   };
 
-  renderContent = formProps => {
+  renderContent = (formProps: IFormProps) => {
     const object = this.props.brand || ({} as IBrand);
 
     return (
