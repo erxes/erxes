@@ -1,11 +1,13 @@
 const commonUserGroupParamsDef = `
   $name: String!,
   $description: String,
+  $memberIds: [String],
 `;
 
 const commonUserGroupParams = `
   name: $name,
   description: $description,
+  memberIds: $memberIds,
 `;
 
 const commonParamsDef = `

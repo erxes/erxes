@@ -833,5 +833,14 @@
   "Messenger data": "Messenger data",
   "Customer field data": "Customer field data",
   "Others": "Others",
-  "Select brand": "Select brand"
+  "Select brand": "Select brand",
+  "There is no permissions in this group": "There is no permissions in this group.",
+  "There is no group": "There is no group.",
+  "User groups": "User groups",
+  "What action can do": "What action can do",
+  "Who can": "Who can",
+  "Grant permission": "Grant permission",
+  "Check if permission is allowed": "Check if permission is allowed",
+  "Then": "Then",
+  "Or": "Or"
 }

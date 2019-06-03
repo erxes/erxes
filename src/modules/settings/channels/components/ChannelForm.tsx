@@ -69,8 +69,6 @@ class ChannelForm extends React.Component<Props, State> {
     const self = this;
 
     const onChange = items => {
-      // tslint:disable
-      console.log(items);
       self.setState({ selectedMembers: items });
     };
 

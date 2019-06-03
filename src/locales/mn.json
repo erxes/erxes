@@ -806,5 +806,14 @@
   "Messenger data": "Чатын мэдээлэл",
   "Customer field data": "Харилцагчийн талбарын мэдээлэл",
   "Others": "Бусад",
-  "Select brand": "Брэнд сонгох"
+  "Select brand": "Брэнд сонгох",
+  "There is no permissions in this group": "Тухайн группт эрх үүсгээгүй байна.",
+  "There is no group": "Групп үүсгээгүй байна.",
+  "User groups": "Гишүүдийн групп",
+  "What action can do": "Ямар үйлдэл хийж чадах",
+  "Who can": "Хэн хийж чадах",
+  "Grant permission": "Эрхийг олгох",
+  "Check if permission is allowed": "Зөвшөөрч байвал бөглөнө үү",
+  "Then": "Дараа",
+  "Or": "Эсвэл"
 }
