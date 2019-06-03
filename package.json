@@ -92,7 +92,8 @@
     "test": "snyk test && react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject",
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
-    "postinstall": "opencollective postinstall"
+    "postinstall": "opencollective postinstall",
+    "compTest": "jest --runInBand --forceExit --detectOpenHandles --coverage"
   },
   "devDependencies": {
     "@types/draft-js": "^0.10.24",
