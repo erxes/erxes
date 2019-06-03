@@ -23,6 +23,7 @@ body {
     display: flex;
     flex: 1;
     height: 100%;
+    flex-direction: column;
   }
 }
 
@@ -146,6 +147,26 @@ a:hover {
 .fade-in-exit,
 .fade-in-exit-active {
   opacity: 0.1;
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.slide-in-small-appear,
+.slide-in-small-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.slide-in-small-appear-active,
+.slide-in-small-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.slide-in-small-exit,
+.slide-in-small-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
   transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
 }
 
@@ -334,8 +355,6 @@ a:hover {
   box-shadow: none;
 }
 
-
-
 .Select.is-focused > .Select-control,
 .Select.is-open > .Select-control {
   border-bottom-right-radius: 0;
@@ -352,6 +371,10 @@ a:hover {
 
 .Select.is-focused .Select-input > input {
   padding: 10px 0 12px;
+}
+
+.Select.is-disabled > .Select-control {
+  cursor: not-allowed;
 }
 
 .Select-placeholder,
@@ -757,6 +780,48 @@ a:hover {
 
 ::-webkit-scrollbar-track:active {
   background: rgba(10, 45, 65, .1);
+}
+
+/* svg */
+
+.checkmark {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) .1s forwards;
+}
+
+.svg-spinner-path {
+  stroke: ${colors.colorCoreGray};
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 0, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -30;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -100;
+  }
 }
 `;
 

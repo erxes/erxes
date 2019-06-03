@@ -7,14 +7,13 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
-import Select from 'react-select-plus';
 import { IChannel } from '../types';
 
 type Props = {
   channel?: IChannel;
-  members: IUser[];
-  selectedMembers: IUser[];
+  selectedMembers: string[];
   closeModal: () => void;
   save: (
     params: {
@@ -30,7 +29,7 @@ type Props = {
 };
 
 type State = {
-  selectedMembers: IUser[];
+  selectedMembers: string[];
 };
 
 class ChannelForm extends React.Component<Props, State> {
@@ -38,7 +37,7 @@ class ChannelForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedMembers: this.generateMembersParams(props.selectedMembers)
+      selectedMembers: props.selectedMembers || []
     };
   }
 
@@ -50,17 +49,6 @@ class ChannelForm extends React.Component<Props, State> {
     save(this.generateDoc(), () => closeModal(), channel);
   };
 
-  collectValues = items => {
-    return items.map(item => item.value);
-  };
-
-  generateMembersParams = members => {
-    return members.map(member => ({
-      value: member._id,
-      label: (member.details && member.details.fullName) || ''
-    }));
-  };
-
   generateDoc = () => {
     return {
       doc: {
@@ -69,13 +57,13 @@ class ChannelForm extends React.Component<Props, State> {
         description: (document.getElementById(
           'channel-description'
         ) as HTMLInputElement).value,
-        memberIds: this.collectValues(this.state.selectedMembers)
+        memberIds: this.state.selectedMembers
       }
     };
   };
 
   renderContent() {
-    const { members, channel } = this.props;
+    const { channel } = this.props;
 
     const object = channel || { name: '', description: '' };
     const self = this;
@@ -111,12 +99,11 @@ class ChannelForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Members</ControlLabel>
 
-          <Select
-            placeholder={__('Choose members')}
-            onChange={onChange}
+          <SelectTeamMembers
+            label="Choose members"
+            name="selectedMembers"
             value={self.state.selectedMembers}
-            options={self.generateMembersParams(members)}
-            multi={true}
+            onSelect={onChange}
           />
         </FormGroup>
       </React.Fragment>

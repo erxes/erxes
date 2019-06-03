@@ -13,9 +13,10 @@ import {
   FormWrapper,
   ModalFooter
 } from 'modules/common/styles/main';
-import { __, searchUser } from 'modules/common/utils';
+import { IQueryParams } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
-import Select from 'react-select-plus';
 import { ICustomer, ICustomerDoc } from '../../types';
 import {
   leadStatusChoices,
@@ -28,6 +29,7 @@ type Props = {
   customer?: ICustomer;
   action: (params: { doc: ICustomerDoc }) => void;
   closeModal: () => void;
+  queryParams: IQueryParams;
 };
 
 type State = {
@@ -55,14 +57,6 @@ class CustomerForm extends React.Component<Props, State> {
       users: [],
       avatar: customer.avatar
     };
-  }
-
-  componentDidMount() {
-    const { customer } = this.props;
-
-    if (customer && customer.owner && customer.owner.details) {
-      this.handleUserSearch(customer.owner.details.fullName);
-    }
   }
 
   getInputElementValue(id) {
@@ -108,24 +102,6 @@ class CustomerForm extends React.Component<Props, State> {
 
   onAvatarUpload = url => {
     this.setState({ avatar: url });
-  };
-
-  generateUserParams(users) {
-    return users.map(user => ({
-      value: user._id,
-      label: user.details.fullName || ''
-    }));
-  }
-
-  generateConstantParams(constants) {
-    return constants.map(constant => ({
-      value: constant,
-      label: constant
-    }));
-  }
-
-  handleUserSearch = value => {
-    searchUser(value, users => this.setState({ users }));
   };
 
   getVisitorInfo(customer, key) {
@@ -177,27 +153,15 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState({ phones: options, primaryPhone: selectedOption });
   };
 
-  onOwnerChange = selectedOption => {
-    this.setState(
-      {
-        ownerId: selectedOption ? selectedOption.value : null
-      },
-      () => {
-        this.handleUserSearch(selectedOption ? selectedOption.label : '');
-      }
-    );
+  onOwnerChange = ownerId => {
+    this.setState({ ownerId });
   };
 
   render() {
     const { closeModal } = this.props;
-    const { users } = this.state;
 
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
-
-    const filteroptions = options => {
-      return options;
-    };
 
     return (
       <form onSubmit={this.onSubmit}>
@@ -240,14 +204,12 @@ class CustomerForm extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Owner</ControlLabel>
-              <Select
-                placeholder={__('Search')}
-                onFocus={this.handleUserSearch.bind(this, '')}
-                onInputChange={this.handleUserSearch}
-                filterOptions={filteroptions}
-                onChange={this.onOwnerChange}
+              <SelectTeamMembers
+                label="Choose an owner"
+                name="ownerId"
                 value={this.state.ownerId}
-                options={this.generateUserParams(users)}
+                onSelect={this.onOwnerChange}
+                multi={false}
               />
             </FormGroup>
 

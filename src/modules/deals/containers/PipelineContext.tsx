@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
+import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
 import { mutations, queries } from '../graphql';
@@ -10,7 +11,8 @@ import { collectOrders, reorder, reorderDealMap } from '../utils';
 type Props = {
   pipeline: IPipeline;
   initialDealMap?: IDealMap;
-  queryParams: any;
+  queryParams: IQueryParams;
+  getQueryParams: (queryParams: IQueryParams, args: any) => boolean;
 };
 
 type StageLoadMap = {
@@ -69,14 +71,9 @@ export class PipelineProvider extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const {
-      queryParams: { search }
-    } = this.props;
+    const { queryParams, getQueryParams } = this.props;
 
-    const nextSearch = nextProps.queryParams.search;
-
-    // Reset deals on search parameter change
-    if (search !== nextSearch) {
+    if (getQueryParams(queryParams, nextProps)) {
       const { stageIds } = this.state;
 
       PipelineProvider.tasks = [];
@@ -128,7 +125,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     const dealId = result.draggableId;
 
     // update deal to database
-    this.dealsChange(dealId);
+    this.dealsChange(dealId, destination.droppableId);
 
     const deal = dealMap[destination.droppableId].find(d => d._id === dealId);
     deal.modifiedAt = new Date();
@@ -144,12 +141,13 @@ export class PipelineProvider extends React.Component<Props, State> {
     ]);
   };
 
-  dealsChange = (dealId: string) => {
+  dealsChange = (dealId: string, destinationStageId?: string) => {
     client
       .mutate({
         mutation: gql(mutations.dealsChange),
         variables: {
-          _id: dealId
+          _id: dealId,
+          destinationStageId
         }
       })
       .catch((e: Error) => {

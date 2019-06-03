@@ -4,6 +4,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import AddConditionButton from 'modules/segments/components/AddConditionButton';
 import Conditions from 'modules/segments/components/Conditions';
 import {
@@ -134,16 +135,16 @@ class SegmentsForm extends React.Component<Props, State> {
     return (
       <ConditionWrapper>
         <FormGroup>
-          Users who match
+          {__('Users who match')}{' '}
           <FormControl
             componentClass="select"
             value={this.state.connector}
             onChange={connectorOnChange}
           >
-            <option value="any">any</option>
-            <option value="all">all</option>
+            <option value="any">{__('any')}</option>
+            <option value="all">{__('all')}</option>
           </FormControl>
-          of the below conditions
+          {__('of the below conditions')}
         </FormGroup>
 
         <Conditions

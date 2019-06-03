@@ -54,3 +54,9 @@ export interface IFormProps {
   registerChild: (child: any) => void;
   runValidations?: (callback: any) => void;
 }
+
+export type IOption = {
+  label: string;
+  value: string;
+  avatar?: string;
+};

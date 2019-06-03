@@ -67,10 +67,16 @@ const StageItemContainer = styled(PipelineRowContainer)`
   }
 `;
 
+const SelectMemberStyled = styled.div`
+  position: relative;
+  z-index: 2001;
+`;
+
 export {
   BoardItem,
   PipelineContainer,
   PipelineRowContainer,
   StageList,
-  StageItemContainer
+  StageItemContainer,
+  SelectMemberStyled
 };
