@@ -1,5 +1,4 @@
 import { UserCommonInfos } from 'modules/auth/components';
-import TestInfos from 'modules/auth/components/TestInfos';
 import { IUser, IUserDoc } from 'modules/auth/types';
 import { Button, Form } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
@@ -80,9 +79,7 @@ class EditProfile extends React.Component<Props, State> {
     return this.handleSubmit(password, values);
   };
 
-  showConfirm = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  showConfirm = () => {
     return this.setState({ isShowPasswordPopup: true });
   };
 
@@ -105,8 +102,8 @@ class EditProfile extends React.Component<Props, State> {
 
   renderContent = formProps => {
     return (
-      <form onSubmit={this.showConfirm}>
-        <TestInfos
+      <>
+        <UserCommonInfos
           formProps={formProps}
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
@@ -123,21 +120,18 @@ class EditProfile extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button
-            type="submit"
-            btnStyle="success"
-            icon="checked-1"
-            onClick={formProps.runValidations}
-          >
+          <Button type="submit" btnStyle="success" icon="checked-1">
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </>
     );
   };
 
   render() {
-    return <Form renderContent={this.renderContent} />;
+    return (
+      <Form renderContent={this.renderContent} onSubmit={this.showConfirm} />
+    );
   }
 }
 

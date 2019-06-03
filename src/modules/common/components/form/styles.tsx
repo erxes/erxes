@@ -21,13 +21,6 @@ const Label = styled.label`
   }
 `;
 
-// browser default form invalid styling
-const formInvalid = `
-  &.form-invalid {
-    border-bottom: 1px solid ${colors.colorCoreRed};
-  }
-`;
-
 const Formgroup = styled.div`
   margin-bottom: 20px;
   position: relative;
@@ -42,14 +35,18 @@ const Formgroup = styled.div`
   }
 `;
 
-const Input = styledTS<{ round?: boolean }>(styled.input)`
-  ${formInvalid} display: block;
+const Input = styledTS<{ round?: boolean; formErrorMessage?: React.ReactNode }>(
+  styled.input
+)`
+  display: block;
   border: none;
   width: 100%;
   height: ${textInputHeight};
   padding: ${dimensions.unitSpacing}px 0;
   color: ${colors.textPrimary};
-  border-bottom: 1px solid ${colors.colorShadowGray};
+  border-bottom: 1px solid;
+  border-color:${props =>
+    props.formErrorMessage ? colors.colorCoreRed : colors.colorShadowGray};
   background: none;
   transition: all 0.3s ease;
 
@@ -77,7 +74,7 @@ const Input = styledTS<{ round?: boolean }>(styled.input)`
 `;
 
 const SelectWrapper = styled.div`
-  ${formInvalid} overflow: hidden;
+  overflow: hidden;
   border-bottom: 1px solid ${colors.colorShadowGray};
   width: 100%;
   height: ${textInputHeight};
@@ -104,8 +101,6 @@ const SelectWrapper = styled.div`
 `;
 
 const Select = styled(Input.withComponent('select'))`
-  ${formInvalid}
-
   border: none;
   height: ${textInputHeight};
   padding: 0;
@@ -113,14 +108,17 @@ const Select = styled(Input.withComponent('select'))`
   -webkit-appearance: none;
 `;
 
-const TextArea = styledTS<{ maxHeight?: number }>(
-  styled(Input.withComponent('textarea'))
-)`
-  ${formInvalid}
+const TextArea = styledTS<{
+  maxHeight?: number;
+  formErrorMessage?: React.ReactNode;
+}>(styled(Input.withComponent('textarea')))`
   transition: none;
   max-height: ${props => props.maxHeight && `${props.maxHeight}px`};
   min-height: 80px;
   resize: none;
+  border-bottom: 1px solid;
+  border-color:${props =>
+    props.formErrorMessage ? colors.colorCoreRed : colors.colorShadowGray};
 `;
 
 const FormLabel = styled.label`
@@ -135,7 +133,7 @@ const FormLabel = styled.label`
 `;
 
 const inputStyle = styled.input`
-  ${formInvalid} border: 0 !important;
+  border: 0 !important;
   clip: rect(1px, 1px, 1px, 1px) !important;
   clip-path: inset(50%) !important;
   height: 1px !important;

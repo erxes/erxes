@@ -72,7 +72,10 @@ class Form extends React.Component<Props, State> {
       );
     }
 
-    if (child.props.max && !validator.isLength('length', { min: 1, max: 6 })) {
+    if (
+      child.props.max &&
+      !validator.isLength('description', { min: 1, max: 6 })
+    ) {
       return <Error>Maximum length is {child.props.max} characters!</Error>;
     }
 

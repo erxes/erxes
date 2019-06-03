@@ -1,13 +1,13 @@
-import * as React from 'react';
 import {
   Button,
   ControlLabel,
   Form,
   FormControl,
   FormGroup
-} from '../../../common/components';
-import { ModalFooter } from '../../../common/styles/main';
-import { IFormProps } from '../../../common/types';
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IFormProps } from 'modules/common/types';
+import * as React from 'react';
 import { IBrand } from '../types';
 
 type Props = {
