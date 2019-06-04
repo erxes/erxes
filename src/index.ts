@@ -2,6 +2,7 @@ import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import initFacebook from './facebook/controller';
+import Accounts from './models/Accounts';
 
 // load environment variables
 dotenv.config();
@@ -20,6 +21,12 @@ app.use((req: any, _res, next) => {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.get('/accounts', async (req, res) => {
+  const accounts = await Accounts.find({ kind: req.query.kind });
+
+  return res.json(accounts);
+});
 
 // init bots
 initFacebook(app);

@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { integrationsConnection } from '../connection';
+import { apiConnection } from '../connection';
 
 export interface IAccount {
   kind: string;
@@ -39,6 +39,6 @@ export const accountSchema = new Schema({
 });
 
 // tslint:disable-next-line
-const Accounts = integrationsConnection.model<IAccountDocument>('accounts', accountSchema);
+const Accounts = apiConnection.model<IAccountDocument>('accounts', accountSchema);
 
 export default Accounts;
