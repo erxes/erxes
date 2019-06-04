@@ -1,3 +1,4 @@
+import { CONVERSATION_STATUSES } from '../data/constants';
 import { ConversationMessages, Conversations, Customers } from '../db/models';
 import { graphqlPubsub } from '../pubsub';
 
@@ -22,6 +23,22 @@ const integrationsApiMiddleware = async (req, res) => {
 
   if (action === 'create-conversation-message') {
     const message = await ConversationMessages.createMessage(doc);
+
+    await Conversations.updateOne(
+      { _id: message.conversationId },
+      {
+        $set: {
+          // Reopen its conversation if it's closed
+          status: CONVERSATION_STATUSES.OPEN,
+
+          // setting conversation's content to last message
+          content: message.content,
+
+          // Mark as unread
+          readUserIds: [],
+        },
+      },
+    );
 
     graphqlPubsub.publish('conversationClientMessageInserted', {
       conversationClientMessageInserted: message,
