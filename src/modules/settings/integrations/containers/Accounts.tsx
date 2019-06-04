@@ -50,7 +50,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
       return <Spinner objective={true} />;
     }
 
-    const accounts = accountsQuery.accounts || [];
+    const accounts = accountsQuery.integrationsAccounts || [];
 
     return (
       <Accounts

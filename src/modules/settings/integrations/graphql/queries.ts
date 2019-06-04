@@ -113,13 +113,8 @@ const messengerAppsCount = `
 `;
 
 const accounts = `
-  query accounts($kind: String) {
-    accounts(kind: $kind) {
-        _id
-        name
-        id
-        kind
-    }
+  query integrationsAccounts($kind: String) {
+    integrationsAccounts(kind: $kind)
   }
 `;
 

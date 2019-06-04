@@ -161,7 +161,7 @@ export type FormIntegrationDetailQueryResponse = {
 };
 
 export type AccountsQueryResponse = {
-  accounts: IAccount[];
+  integrationsAccounts: IAccount[];
   loading: boolean;
   refetch: () => void;
 };
