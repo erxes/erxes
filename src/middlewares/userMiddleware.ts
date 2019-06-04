@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import { Session, Users } from './db/models';
+import { Session, Users } from '../db/models';
 
 /*
  * Finds user object by passed tokens
@@ -7,7 +7,7 @@ import { Session, Users } from './db/models';
  * @param {Object} res - Response object
  * @param {Function} next - Next function
  */
-export const userMiddleware = async (req, _res, next) => {
+const userMiddleware = async (req, _res, next) => {
   const token = req.cookies['auth-token'];
 
   if (token) {
@@ -32,3 +32,5 @@ export const userMiddleware = async (req, _res, next) => {
 
   next();
 };
+
+export default userMiddleware;
