@@ -13,11 +13,6 @@ export interface ILink {
   youtube?: string;
 }
 
-export interface IFacebookApp {
-  id: string;
-  name: string;
-}
-
 export interface IPages {
   id: string;
   name?: string;
@@ -131,12 +126,6 @@ export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
   loading: boolean;
   refetch: () => void;
-};
-
-export type FacebookAppsListQueryResponse = {
-  integrationFacebookAppsList: IFacebookApp[];
-  refetch: () => void;
-  loading: boolean;
 };
 
 type By = { [key: string]: number };

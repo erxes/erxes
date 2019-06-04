@@ -1,7 +1,6 @@
-import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
@@ -34,22 +33,23 @@ class FacebookContainer extends React.Component<FinalProps, State> {
       return this.setState({ pages: [], accountId: '' });
     }
 
-    client
-      .query({
-        query: gql(queries.integrationFacebookPageList),
-        variables: { accountId }
-      })
-      .then(({ data, loading }: any) => {
-        if (!loading) {
-          this.setState({
-            pages: data.integrationFacebookPagesList,
-            accountId
-          });
-        }
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+    // TODO
+    // client
+    //   .query({
+    //     query: gql(queries.integrationFacebookPageList),
+    //     variables: { accountId }
+    //   })
+    //   .then(({ data, loading }: any) => {
+    //     if (!loading) {
+    //       this.setState({
+    //         pages: data.integrationFacebookPagesList,
+    //         accountId
+    //       });
+    //     }
+    //   })
+    //   .catch(error => {
+    //     Alert.error(error.message);
+    //   });
   };
 
   onRemoveAccount = () => {

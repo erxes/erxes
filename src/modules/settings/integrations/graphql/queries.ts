@@ -123,19 +123,12 @@ const accounts = `
   }
 `;
 
-const integrationFacebookPageList = `
-  query integrationFacebookPagesList($accountId: String) {
-    integrationFacebookPagesList(accountId: $accountId)
-  }
-`;
-
 export default {
   accounts,
   users,
   brands,
   integrationDetail,
   integrationTotalCount,
-  integrationFacebookPageList,
   integrations,
   messengerApps,
   messengerAppsCount
