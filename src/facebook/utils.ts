@@ -24,3 +24,12 @@ export const graphRequest = {
     return this.base('post', ...args);
   },
 };
+
+export const getPageList = async (accessToken?: string) => {
+  const response: any = await graphRequest.get('/me/accounts?limit=100', accessToken);
+
+  return response.data.map(page => ({
+    id: page.id,
+    name: page.name,
+  }));
+};

@@ -1,13 +1,29 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook';
 import { Botkit } from 'botkit';
+import Accounts from '../models/Accounts';
 import ApiConversationMessages from '../models/ConversationMessages';
 import ApiConversations from '../models/Conversations';
 import ApiCustomers from '../models/Customers';
 import loginMiddleware from './loginMiddleware';
 import { Conversations, Customers } from './models';
+import { getPageList } from './utils';
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
+
+  app.get('/facebook/get-pages', async (req, res) => {
+    const account = await Accounts.findOne({ _id: req.query.accountId });
+
+    if (!account) {
+      throw new Error('Account not found');
+    }
+
+    const accessToken = account.token;
+
+    const pages = await getPageList(accessToken);
+
+    return res.json(pages);
+  });
 
   const adapter = new FacebookAdapter({
     verify_token: process.env.FACEBOOK_VERIFY_TOKEN,
