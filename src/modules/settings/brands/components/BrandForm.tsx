@@ -1,4 +1,3 @@
-import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import * as React from 'react';
 import {
@@ -13,17 +12,8 @@ import { IBrand } from '../types';
 
 type Props = {
   brand?: IBrand;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-      };
-    },
-    callback: () => void,
-    brand?: IBrand
-  ) => void;
   closeModal: () => void;
+  refetchQueries: any;
 };
 
 class BrandForm extends React.Component<Props, { isSubmitted: boolean }> {
@@ -35,26 +25,9 @@ class BrandForm extends React.Component<Props, { isSubmitted: boolean }> {
     };
   }
 
-  save = e => {
-    e.preventDefault();
-
-    const { save, brand, closeModal } = this.props;
-    save(this.generateDoc(), () => closeModal(), brand);
-  };
-
-  generateDoc = () => {
-    return {
-      doc: {
-        name: (document.getElementById('brand-name') as HTMLInputElement).value,
-        description: (document.getElementById(
-          'brand-description'
-        ) as HTMLInputElement).value
-      }
-    };
-  };
-
   generateDocs = () => {
     return {
+      _id: this.props.brand && this.props.brand._id,
       name: (document.getElementById('brand-name') as HTMLInputElement).value,
       description: (document.getElementById(
         'brand-description'
@@ -98,14 +71,12 @@ class BrandForm extends React.Component<Props, { isSubmitted: boolean }> {
     );
   }
 
-  commonOptions = () => {
-    return {
-      refetchQueries: [
-        {
-          query: gql(queries.brands)
-        }
-      ]
-    };
+  getMutation = () => {
+    if (this.props.brand) {
+      return mutations.brandEdit;
+    }
+
+    return mutations.brandAdd;
   };
 
   render() {
@@ -122,16 +93,16 @@ class BrandForm extends React.Component<Props, { isSubmitted: boolean }> {
             Cancel
           </Button>
 
-          <Button btnStyle="success" icon="checked-1" type="submit">
-            Save
-          </Button>
-
           <ButtonMutate
-            mutation={mutations.brandAdd}
+            mutation={this.getMutation()}
             getVariables={this.generateDocs}
             callback={this.props.closeModal}
-            refetchQueries={this.commonOptions()}
+            refetchQueries={this.props.refetchQueries}
             isSubmitted={this.state.isSubmitted}
+            icon="checked-1"
+            successMessage={`You successfully ${
+              this.props.brand ? 'updated' : 'added'
+            } a brand.`}
           >
             Save
           </ButtonMutate>

@@ -1,34 +1,71 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import { colors } from 'modules/common/styles';
 import { Alert } from 'modules/common/utils';
+import { rotate } from 'modules/common/utils/animations';
 import * as React from 'react';
-import { withRouter } from 'react-router';
+import styled from 'styled-components';
 import Button from '../components/Button';
-import { IRouterProps } from '../types';
 
-interface IProps extends IRouterProps {
+const ImportLoader = styled.i`
+  width: 13px;
+  height: 13px;
+  animation: ${rotate} 0.75s linear infinite;
+  border: 1px solid ${colors.borderDarker};
+  border-top-color: ${colors.colorSecondary};
+  border-right-color: ${colors.colorSecondary};
+  border-radius: 100%;
+  float: left;
+  position: relative;
+  top: 2px;
+  margin-right: 5px;
+`;
+
+type Props = {
   mutation: string;
-  queryParams?: any;
   getVariables: () => void;
   successMessage?: string;
   btnSize?: string;
+  icon?: string;
   callback?: () => void;
   children?: React.ReactNode;
   refetchQueries?: any;
-  history: any;
-  isSubmitted: boolean;
-}
+  isSubmitted?: boolean;
+};
 
-class ButtonMutate extends React.Component<IProps> {
+type State = {
+  isLoading: boolean;
+};
+
+class ButtonMutate extends React.Component<Props, State> {
   static defaultProps = {
     successMessage: 'Successfull',
-    btnSize: 'small'
+    btnSize: 'medium'
   };
 
-  componentDidUpdate = (prevProps: IProps) => {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isLoading: false
+    };
+  }
+
+  componentDidUpdate = (prevProps: Props) => {
     if (prevProps.isSubmitted !== this.props.isSubmitted) {
       this.mutate();
     }
+  };
+
+  checkIsLoading = (
+    elementLoading?: React.ReactNode,
+    element?: React.ReactNode
+  ) => {
+    if (this.state.isLoading) {
+      return elementLoading;
+    }
+
+    return element;
   };
 
   mutate = () => {
@@ -39,6 +76,8 @@ class ButtonMutate extends React.Component<IProps> {
       successMessage = '',
       refetchQueries
     } = this.props;
+
+    this.setState({ isLoading: true });
 
     client
       .mutate({
@@ -53,24 +92,32 @@ class ButtonMutate extends React.Component<IProps> {
         if (callback) {
           callback();
         }
+
+        this.setState({ isLoading: false });
       })
       .catch(error => {
         Alert.error(error.message);
+        this.setState({ isLoading: false });
       });
   };
 
   render() {
-    const { children, btnSize, queryParams } = this.props;
-
-    // tslint:disable-next-line:no-console
-    console.log(queryParams);
+    const { children, btnSize, icon } = this.props;
+    const { isLoading } = this.state;
 
     return (
-      <Button btnStyle="success" size={btnSize} onClick={this.mutate}>
+      <Button
+        disabled={isLoading}
+        btnStyle="success"
+        size={btnSize}
+        onClick={this.mutate}
+        icon={isLoading ? undefined : icon}
+      >
+        {isLoading && <ImportLoader />}
         {children}
       </Button>
     );
   }
 }
 
-export default withRouter<IProps>(ButtonMutate);
+export default ButtonMutate;
