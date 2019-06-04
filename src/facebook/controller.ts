@@ -1,10 +1,8 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook';
 import { Botkit } from 'botkit';
 import Accounts from '../models/Accounts';
-import ApiConversationMessages from '../models/ConversationMessages';
-import ApiConversations from '../models/Conversations';
-import ApiCustomers from '../models/Customers';
 import Integrations, { IIntegration } from '../models/Integrations';
+import { fetchMainApi } from '../utils';
 import loginMiddleware from './loginMiddleware';
 import { Conversations, Customers } from './models';
 import { getPageAccessToken, getPageList, graphRequest } from './utils';
@@ -99,16 +97,23 @@ const trackPage = async (app, integration: IIntegration, pageAccessToken: string
         const response = await api.callAPI(`/${message.user}`, 'GET', {});
 
         // save on api
-        const apiCustomer = await ApiCustomers.create({
-          firstName: response.first_name,
-          lastName: response.last_name,
-          avatar: response.profile_pic,
+        const apiCustomerResponse = await fetchMainApi({
+          path: '/integrations-api',
+          method: 'POST',
+          body: {
+            action: 'create-customer',
+            payload: JSON.stringify({
+              firstName: response.first_name,
+              lastName: response.last_name,
+              avatar: response.profile_pic,
+            }),
+          },
         });
 
         // save on integrations db
         customer = await Customers.create({
           userId: message.user,
-          erxesApiId: apiCustomer._id,
+          erxesApiId: apiCustomerResponse._id,
           firstName: response.first_name,
           lastName: response.last_name,
           profilePic: response.profile_pic,
@@ -124,19 +129,22 @@ const trackPage = async (app, integration: IIntegration, pageAccessToken: string
       // create conversation
       if (!conversation) {
         // save on api
-        const apiConversation = await ApiConversations.create({
-          customerId: customer.erxesApiId,
-          integrationId: integration.erxesApiId,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          messageCount: 0,
-          content: message.text,
-          status: 'new',
+        const apiConversationResponse = await fetchMainApi({
+          path: '/integrations-api',
+          method: 'POST',
+          body: {
+            action: 'create-conversation',
+            payload: JSON.stringify({
+              customerId: customer.erxesApiId,
+              integrationId: integration.erxesApiId,
+              content: message.text,
+            }),
+          },
         });
 
         // save on integrations db
         conversation = await Conversations.create({
-          erxesApiId: apiConversation._id,
+          erxesApiId: apiConversationResponse._id,
           timestamp: message.timestamp,
           senderId: message.sender.id,
           recipientId: message.recipient.id,
@@ -145,12 +153,17 @@ const trackPage = async (app, integration: IIntegration, pageAccessToken: string
       }
 
       // save message on api
-      await ApiConversationMessages.create({
-        createdAt: new Date(),
-        content: message.text,
-        conversationId: conversation.erxesApiId,
-        customerId: customer.erxesApiId,
-        internal: false,
+      await fetchMainApi({
+        path: '/integrations-api',
+        method: 'POST',
+        body: {
+          action: 'create-conversation-message',
+          payload: JSON.stringify({
+            content: message.text,
+            conversationId: conversation.erxesApiId,
+            customerId: customer.erxesApiId,
+          }),
+        },
       });
 
       await bot.reply(message, 'Welcome to the channel!');

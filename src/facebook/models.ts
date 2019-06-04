@@ -1,5 +1,4 @@
-import { Document, Model, Schema } from 'mongoose';
-import { integrationsConnection } from '../connection';
+import { Document, Model, model, Schema } from 'mongoose';
 
 // customer ======================
 export interface ICustomer {
@@ -46,13 +45,10 @@ export const conversationSchema = new Schema({
 export interface IConversationModel extends Model<IConversationDocument> {}
 
 // tslint:disable-next-line
-export const Customers = integrationsConnection.model<ICustomerDocument, ICustomerModel>(
-  'customers_facebook',
-  customerSchema,
-);
+export const Customers = model<ICustomerDocument, ICustomerModel>('customers_facebook', customerSchema);
 
 // tslint:disable-next-line
-export const Conversations = integrationsConnection.model<IConversationDocument, IConversationModel>(
+export const Conversations = model<IConversationDocument, IConversationModel>(
   'conversations_facebook',
   conversationSchema,
 );

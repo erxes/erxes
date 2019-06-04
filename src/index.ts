@@ -1,12 +1,15 @@
 import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
+import { connect } from './connection';
 import initFacebook from './facebook/controller';
 import Accounts from './models/Accounts';
 import Integrations from './models/Integrations';
 
 // load environment variables
 dotenv.config();
+
+connect();
 
 const app = express();
 

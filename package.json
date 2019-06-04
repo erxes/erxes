@@ -18,7 +18,7 @@
   "private": true,
   "scripts": {
     "start": "node dist",
-    "dev": "NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src",
+    "dev": "DEBUG=* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src",
     "test": "NODE_ENV=test jest --runInBand --forceExit",
     "build": "tsc -p tsconfig.prod.json",
     "lint": "tslint 'src/**/*.ts'",
@@ -39,8 +39,8 @@
     "dotenv": "^4.0.0",
     "express": "^4.16.4",
     "fbgraph": "^1.4.4",
-    "meteor-random": "^0.0.3",
-    "mongoose": "^5.2.16"
+    "mongoose": "^5.2.16",
+    "requestify": "^0.2.5"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"

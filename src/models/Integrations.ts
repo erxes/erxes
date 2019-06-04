@@ -1,5 +1,4 @@
-import { Document, Model, Schema } from 'mongoose';
-import { integrationsConnection } from '../connection';
+import { Document, Model, model, Schema } from 'mongoose';
 
 export interface IIntegration {
   kind: string;
@@ -31,9 +30,6 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Integrations = integrationsConnection.model<IIntegrationDocument, IIntegrationModel>(
-  'integrations',
-  integrationSchema,
-);
+const Integrations = model<IIntegrationDocument, IIntegrationModel>('integrations', integrationSchema);
 
 export default Integrations;
