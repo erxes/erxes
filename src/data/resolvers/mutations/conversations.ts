@@ -8,7 +8,7 @@ import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { graphqlPubsub } from '../../../pubsub';
 import { checkPermission, requireLogin } from '../../permissions';
-import utils from '../../utils';
+import utils, { fetchIntegrationApi } from '../../utils';
 
 interface IConversationMessageAdd {
   conversationId: string;
@@ -167,7 +167,15 @@ const conversationMutations = {
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
-      // TODO: send to facebook
+      fetchIntegrationApi({
+        path: '/facebook/reply',
+        method: 'POST',
+        body: {
+          conversationId: conversation._id,
+          integrationId: integration._id,
+          content: strip(doc.content),
+        },
+      });
     }
 
     const dbMessage = await ConversationMessages.findOne({
