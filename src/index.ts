@@ -17,7 +17,6 @@ import { connect } from './db/connection';
 import { Conversations, Customers } from './db/models';
 import { graphqlPubsub } from './pubsub';
 import { init } from './startup';
-import { getAttachment } from './trackers/gmail';
 import { importXlsFile } from './workers/bulkInsert';
 
 // load environment variables
@@ -261,23 +260,6 @@ app.post('/import-file', (req: any, res) => {
         return res.json({ status: 'error', message: e.message });
       });
   });
-});
-
-// get gmail attachment file
-app.get('/read-gmail-attachment', async (req: any, res) => {
-  if (!req.query.message || !req.query.attach) {
-    return res.status(404).send('Attachment not found');
-  }
-
-  const attachment: { filename?: string; data?: string } = await getAttachment(req.query.message, req.query.attach);
-
-  if (!attachment.data) {
-    return res.status(404).send('Attachment not found');
-  }
-
-  res.attachment(attachment.filename);
-  res.write(attachment.data, 'base64');
-  res.end();
 });
 
 // engage unsubscribe

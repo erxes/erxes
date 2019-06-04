@@ -1,11 +1,7 @@
 import * as faker from 'faker';
-import * as sinon from 'sinon';
-import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
-import { accountFactory, brandFactory, integrationFactory, userFactory } from '../db/factories';
+import { brandFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Integrations, Users } from '../db/models';
-import * as facebookTracker from '../trackers/facebookTracker';
-import { socUtils } from '../trackers/twitterTracker';
 
 describe('mutations', () => {
   let _integration;
@@ -234,104 +230,6 @@ describe('mutations', () => {
     expect(formIntegration.languageCode).toBe(args.languageCode);
     expect(formIntegration.formId).toBe(args.formId);
     expect(formIntegration.formData.toJSON()).toEqual(args.formData);
-  });
-
-  test('Create twitter integration', async () => {
-    const account = await accountFactory({});
-    const args = {
-      brandId: _brand._id,
-      accountId: account._id,
-    };
-
-    const authenticateDoc = {
-      info: {
-        name: 'name',
-        id: 1,
-      },
-
-      tokens: {
-        auth: {
-          token: 'token',
-          tokenSecret: 'secret',
-        },
-      },
-    };
-
-    socUtils.authenticate = jest.fn(() => authenticateDoc);
-    socUtils.trackIntegration = jest.fn();
-
-    const mutation = `
-      mutation integrationsCreateTwitterIntegration(
-        $brandId: String!
-        $accountId: String!
-      ) {
-        integrationsCreateTwitterIntegration(
-          brandId: $brandId
-          accountId: $accountId
-        ) {
-          brandId
-          twitterData
-        }
-      }
-    `;
-
-    const twitterIntegration = await graphqlRequest(mutation, 'integrationsCreateTwitterIntegration', args, context);
-
-    expect(twitterIntegration.brandId).toBe(args.brandId);
-    expect(twitterIntegration.twitterData.accountId).toBe(account._id);
-  });
-
-  test('Create facebook integration', async () => {
-    process.env.FACEBOOK_APP_ID = '123321';
-    process.env.DOMAIN = 'qwqwe';
-    process.env.INTEGRATION_ENDPOINT_URL = '';
-
-    const account = await accountFactory({});
-    const args = {
-      brandId: _brand._id,
-      name: _integration.name,
-      accountId: account._id,
-      pageIds: ['fakePageIds'],
-    };
-
-    sinon.stub(facebookTracker, 'getPageInfo').callsFake(() => {
-      return { id: '456', access_token: '123' };
-    });
-
-    sinon.stub(facebookTracker, 'subscribePage').callsFake(() => {
-      return { success: true };
-    });
-
-    sinon.stub(utils, 'sendPostRequest').callsFake(() => {
-      return true;
-    });
-
-    const mutation = `
-      mutation integrationsCreateFacebookIntegration(
-        $brandId: String!
-        $name: String!
-        $accountId: String!
-        $pageIds: [String!]!
-      ) {
-        integrationsCreateFacebookIntegration(
-          brandId: $brandId
-          name: $name
-          accountId: $accountId
-          pageIds: $pageIds
-        ) {
-          brandId
-          name
-          facebookData
-        }
-      }
-    `;
-
-    const facebookIntegration = await graphqlRequest(mutation, 'integrationsCreateFacebookIntegration', args, context);
-
-    expect(facebookIntegration.brandId).toBe(args.brandId);
-    expect(facebookIntegration.name).toBe(args.name);
-    expect(facebookIntegration.facebookData.accountId).toBe(account._id);
-    expect(facebookIntegration.facebookData.pageIds).toEqual(expect.arrayContaining(args.pageIds));
   });
 
   test('Edit form integration', async () => {

@@ -654,25 +654,6 @@ export const moduleObjects = {
       },
     ],
   },
-  accounts: {
-    name: 'accounts',
-    description: 'Accounts',
-    actions: [
-      {
-        name: 'accountsAll',
-        description: 'All',
-        use: ['manageAccounts', 'showAccounts'],
-      },
-      {
-        name: 'manageAccounts',
-        description: 'Manage accounts',
-      },
-      {
-        name: 'showAccounts',
-        description: 'Show accounts',
-      },
-    ],
-  },
   inbox: {
     name: 'inbox',
     description: 'Inbox',

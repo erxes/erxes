@@ -12,7 +12,6 @@ import {
 } from '../data/constants';
 import { IActionPerformer, IActivity, IContentType } from '../db/models/definitions/activityLogs';
 import {
-  Accounts,
   ActivityLogs,
   Brands,
   Channels,
@@ -821,28 +820,6 @@ export function messengerAppFactory(params: IMessengerApp) {
     credentials: params.credentials,
   });
 }
-
-interface IAccountFactoryInput {
-  kind?: string;
-  uid?: string;
-  token?: string;
-  name?: string;
-  expireDate?: number;
-  scope?: string;
-}
-
-export const accountFactory = async (params: IAccountFactoryInput) => {
-  const doc = {
-    kind: params.kind || 'facebook',
-    uid: params.uid || faker.random.number,
-    token: params.token || faker.random.word(),
-    expireDate: params.expireDate || faker.random.number,
-    scope: params.scope || faker.random.word(),
-    name: params.name || faker.random.name,
-  };
-
-  return Accounts.create(doc);
-};
 
 interface IPermissionParams {
   module?: string;

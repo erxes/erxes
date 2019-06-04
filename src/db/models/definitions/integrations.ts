@@ -14,29 +14,6 @@ export interface ILink {
   youtube?: string;
 }
 
-export interface ITwitterData {
-  accountId: string;
-  profileId: string;
-}
-
-export interface ITwitterDataDocument extends ITwitterData, Document {}
-
-export interface IFacebookData {
-  accountId?: string;
-  pageIds: string[];
-}
-
-export interface IFacebookDataDocument extends IFacebookData, Document {}
-
-export interface IGmailData {
-  accountId: string;
-  email: string;
-  historyId?: string;
-  expiration?: string;
-}
-
-export interface IGmailDataDocument extends IGmailData, Document {}
-
 export interface IMessengerOnlineHours {
   day?: string;
   from?: string;
@@ -103,9 +80,6 @@ export interface IIntegration {
   formId?: string;
   formData?: IFormData;
   messengerData?: IMessengerData;
-  twitterData?: ITwitterData;
-  facebookData?: IFacebookData;
-  gmailData?: IGmailData;
   uiOptions?: IUiOptions;
 }
 
@@ -113,41 +87,8 @@ export interface IIntegrationDocument extends IIntegration, Document {
   _id: string;
   formData?: IFormDataDocument;
   messengerData?: IMessengerDataDocument;
-  twitterData?: ITwitterDataDocument;
-  facebookData?: IFacebookDataDocument;
-  gmailData?: IGmailDataDocument;
   uiOptions?: IUiOptionsDocument;
 }
-
-export interface IMessengerApp {
-  email: string;
-  credentials?: any;
-}
-
-// Mongoose schemas ======================
-const twitterSchema = new Schema(
-  {
-    profileId: {
-      type: Object,
-    },
-    accountId: {
-      type: String,
-    },
-  },
-  { _id: false },
-);
-
-const facebookSchema = new Schema(
-  {
-    accountId: {
-      type: String,
-    },
-    pageIds: {
-      type: [String],
-    },
-  },
-  { _id: false },
-);
 
 // subdocument schema for MessengerOnlineHours
 const messengerOnlineHoursSchema = new Schema(
@@ -245,23 +186,6 @@ const uiOptionsSchema = new Schema(
   { _id: false },
 );
 
-const gmailSchema = new Schema(
-  {
-    accountId: field({ type: String }),
-    email: field({ type: String }),
-    historyId: field({
-      type: String,
-      optional: true,
-    }),
-    expiration: field({
-      type: String,
-      optional: true,
-    }),
-    credentials: field({ type: Object }),
-  },
-  { _id: false },
-);
-
 // schema for integration document
 export const integrationSchema = new Schema({
   _id: field({ pkey: true }),
@@ -283,8 +207,5 @@ export const integrationSchema = new Schema({
   formId: field({ type: String }),
   formData: field({ type: formDataSchema }),
   messengerData: field({ type: messengerDataSchema }),
-  twitterData: field({ type: twitterSchema }),
-  facebookData: field({ type: facebookSchema }),
-  gmailData: field({ type: gmailSchema }),
   uiOptions: field({ type: uiOptionsSchema }),
 });

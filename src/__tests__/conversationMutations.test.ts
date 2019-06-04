@@ -1,5 +1,4 @@
 import * as faker from 'faker';
-import * as sinon from 'sinon';
 import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -10,8 +9,6 @@ import {
   userFactory,
 } from '../db/factories';
 import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
-import { twitMap } from '../trackers/twitter';
-import { twitRequest } from '../trackers/twitterTracker';
 
 const toJSON = value => {
   // sometimes object key order is different even though it has same value.
@@ -25,7 +22,6 @@ describe('Conversation message mutations', () => {
   let _conversationMessage;
   let _user;
   let _integration;
-  let _integrationTwitter;
   let _customer;
   let context;
 
@@ -36,7 +32,6 @@ describe('Conversation message mutations', () => {
     _user = await userFactory({});
     _customer = await customerFactory({});
     _integration = await integrationFactory({ kind: 'form' });
-    _integrationTwitter = await integrationFactory({ kind: 'twitter' });
     _conversation.integrationId = _integration._id;
     _conversation.customerId = _customer._id;
     _conversation.assignedUserId = _user._id;
@@ -118,144 +113,6 @@ describe('Conversation message mutations', () => {
     expect(message.attachments[0]).toEqual({ url: 'url', name: 'name', type: 'doc', size: 10 });
     expect(toJSON(message.mentionedUserIds)).toEqual(toJSON(args.mentionedUserIds));
     expect(message.internal).toBe(args.internal);
-  });
-
-  test('Tweet conversation', async () => {
-    process.env.DEFAULT_EMAIL_SERIVCE = ' ';
-    process.env.COMPANY_EMAIL_FROM = ' ';
-
-    const twit = {};
-
-    twitMap[_integrationTwitter._id] = twit;
-
-    const args = {
-      integrationId: _integrationTwitter._id,
-      text: faker.random.word(),
-    };
-
-    // mock twitter request
-    const sandbox = sinon.createSandbox();
-
-    const stub = sandbox.stub(twitRequest, 'post').callsFake(() => {
-      return new Promise(resolve => {
-        resolve({});
-      });
-    });
-
-    const mutation = `
-      mutation conversationsTweet($integrationId: String $text: String) {
-        conversationsTweet(integrationId: $integrationId text: $text)
-      }
-    `;
-
-    await graphqlRequest(mutation, 'conversationsTweet', args);
-
-    // check twit post params
-    expect(
-      stub.calledWith(twit, 'statuses/update', {
-        status: args.text,
-      }),
-    ).toBe(true);
-
-    stub.restore();
-  });
-
-  test('Retweet conversation', async () => {
-    const twit = {};
-
-    const args = {
-      integrationId: _integrationTwitter._id,
-      id: '123',
-    };
-
-    twitMap[_integrationTwitter._id] = twit;
-
-    // mock twitter request
-    const sandbox = sinon.createSandbox();
-
-    // mock retweet request
-    const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
-      return new Promise(resolve => {
-        resolve({
-          retweeted_status: {
-            id_str: '123',
-          },
-        });
-      });
-    });
-
-    // mock get tweet object request
-    const getStub = sandbox.stub(twitRequest, 'get').callsFake(() => {
-      return new Promise(resolve => {
-        resolve({});
-      });
-    });
-
-    const mutation = `
-      mutation conversationsRetweet($integrationId: String $id: String) {
-        conversationsRetweet(integrationId: $integrationId id: $id)
-      }
-    `;
-
-    await graphqlRequest(mutation, 'conversationsRetweet', args);
-
-    // check twit post params
-    expect(
-      postStub.calledWith(twit, 'statuses/retweet/:id', {
-        id: args.id,
-      }),
-    ).toBe(true);
-
-    postStub.restore();
-    getStub.restore();
-  });
-
-  test('Favorite tweet', async () => {
-    const twit = {};
-
-    const args = {
-      integrationId: _integrationTwitter._id,
-      id: '123',
-    };
-
-    twitMap[_integrationTwitter._id] = twit;
-
-    // mock twitter request
-    const sandbox = sinon.createSandbox();
-
-    // mock retweet request
-    const postStub = sandbox.stub(twitRequest, 'post').callsFake(() => {
-      return new Promise(resolve => {
-        resolve({
-          id_str: '123',
-        });
-      });
-    });
-
-    // mock get tweet object request
-    const getStub = sandbox.stub(twitRequest, 'get').callsFake(() => {
-      return new Promise(resolve => {
-        resolve({});
-      });
-    });
-
-    const mutation = `
-      mutation conversationsFavorite($integrationId: String $id: String) {
-        conversationsFavorite(integrationId: $integrationId id: $id)
-      }
-    `;
-
-    await graphqlRequest(mutation, 'conversationsFavorite', args);
-
-    // check twit post params
-    expect(
-      postStub.calledWith(twit, 'favorites/create', {
-        id: args.id,
-      }),
-    ).toBe(true);
-
-    postStub.restore();
-    getStub.restore();
   });
 
   test('Assign conversation', async () => {

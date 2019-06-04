@@ -29,7 +29,7 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer', async () => {
-    expect.assertions(14);
+    expect.assertions(13);
 
     // check duplication ===============
     try {
@@ -54,12 +54,6 @@ describe('Customers model tests', () => {
       await Customers.createCustomer({ primaryPhone: '99922211' });
     } catch (e) {
       expect(e.message).toBe('Duplicated phone');
-    }
-
-    try {
-      await Customers.createCustomer({ twitterData: _customer.twitterData });
-    } catch (e) {
-      expect(e.message).toBe('Duplicated twitter');
     }
 
     // Create without any error
@@ -244,7 +238,7 @@ describe('Customers model tests', () => {
   });
 
   test('Merge customers', async () => {
-    expect.assertions(23);
+    expect.assertions(20);
 
     const integration = await integrationFactory({});
 
@@ -274,15 +268,6 @@ describe('Customers model tests', () => {
     const mergedCompanyIds = Array.from(new Set(customer1.companyIds.concat(customer2.companyIds)));
 
     const mergedTagIds = Array.from(new Set(customer1.tagIds.concat(customer2.tagIds)));
-
-    // test duplication ============
-    try {
-      await Customers.mergeCustomers(customerIds, {
-        twitterData: _customer.twitterData,
-      });
-    } catch (e) {
-      expect(e.message).toBe('Duplicated twitter');
-    }
 
     try {
       await Customers.mergeCustomers(customerIds, {
@@ -333,13 +318,7 @@ describe('Customers model tests', () => {
 
     const mergedCustomer = await Customers.mergeCustomers(customerIds, doc);
 
-    if (
-      !mergedCustomer ||
-      !mergedCustomer.twitterData ||
-      !mergedCustomer.facebookData ||
-      !mergedCustomer.messengerData ||
-      !mergedCustomer.visitorContactInfo
-    ) {
+    if (!mergedCustomer || !mergedCustomer.messengerData || !mergedCustomer.visitorContactInfo) {
       throw new Error('Merged customer not found');
     }
 
@@ -348,9 +327,7 @@ describe('Customers model tests', () => {
     expect(mergedCustomer.lastName).toBe(doc.lastName);
     expect(mergedCustomer.primaryEmail).toBe(doc.primaryEmail);
     expect(mergedCustomer.primaryPhone).toBe(doc.primaryPhone);
-    expect(mergedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
     expect(mergedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
-    expect(mergedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
     expect(mergedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
     expect(mergedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
     expect(mergedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);

@@ -2,31 +2,23 @@ import { Model, model } from 'mongoose';
 import { validateEmail } from '../../data/utils';
 import { ActivityLogs, Conversations, Deals, EngageMessages, Fields, InternalNotes } from './';
 import { STATUSES } from './definitions/constants';
-import { customerSchema, ICustomer, ICustomerDocument, IFacebookData, ITwitterData } from './definitions/customers';
+import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
 
 interface ICustomerFieldsInput {
-  twitterData?: ITwitterData;
-  facebookData?: IFacebookData;
   primaryEmail?: string;
   primaryPhone?: string;
 }
 
 export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string): never;
-
   createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
-
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
-
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
-
   updateCompanies(_id: string, companyIds: string[]): Promise<ICustomerDocument>;
   removeCustomer(customerId: string): void;
-
   mergeCustomers(customerIds: string[], customerFields: ICustomer): Promise<ICustomerDocument>;
-
   bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
 }
 
@@ -42,30 +34,6 @@ export const loadClass = () => {
       // Adding exclude operator to the query
       if (idsToExclude) {
         query._id = idsToExclude instanceof Array ? { $nin: idsToExclude } : { $ne: idsToExclude };
-      }
-
-      // Checking if customer has twitter data
-      if (customerFields.twitterData) {
-        previousEntry = await Customers.find({
-          ...query,
-          ['twitterData.id']: customerFields.twitterData.id,
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated twitter');
-        }
-      }
-
-      // Checking if customer has facebook data
-      if (customerFields.facebookData) {
-        previousEntry = await Customers.find({
-          ...query,
-          ['facebookData.id']: customerFields.facebookData.id,
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated facebook');
-        }
       }
 
       if (customerFields.primaryEmail) {

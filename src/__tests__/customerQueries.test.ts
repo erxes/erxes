@@ -58,8 +58,6 @@ describe('customerQueries', () => {
         visitorContactInfo
         customFieldsData
         messengerData
-        twitterData
-        facebookData
         ownerId
         position
         department

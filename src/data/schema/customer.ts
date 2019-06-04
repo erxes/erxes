@@ -39,8 +39,6 @@ export const types = `
     visitorContactInfo: JSON
     customFieldsData: JSON
     messengerData: JSON
-    twitterData: JSON
-    facebookData: JSON
     ownerId: String
     position: String
     department: String
