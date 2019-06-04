@@ -2232,13 +2232,6 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "^2.0.0"
 
-fbgraph@^1.4.1:
-  version "1.4.4"
-  resolved "https://registry.yarnpkg.com/fbgraph/-/fbgraph-1.4.4.tgz#9bf45c6666152938c2592174385c5540608fcc4a"
-  dependencies:
-    qs "^6.5.0"
-    request "^2.79.0"
-
 figures@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/figures/-/figures-1.7.0.tgz#cbe1e3affcf1cd44b80cadfed28dc793a9701d2e"
@@ -5384,7 +5377,7 @@ qs@6.5.2, qs@~6.5.2:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
 
-qs@^6.5.0, qs@^6.5.2:
+qs@^6.5.2:
   version "6.6.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.6.0.tgz#a99c0f69a8d26bf7ef012f871cdabb0aee4424c2"
 

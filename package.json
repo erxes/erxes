@@ -56,7 +56,6 @@
     "dotenv": "^4.0.0",
     "email-deep-validator": "^3.1.0",
     "express": "^4.15.2",
-    "fbgraph": "^1.4.1",
     "file-type": "^10.4.0",
     "firebase-admin": "^7.2.0",
     "formidable": "^1.1.1",
