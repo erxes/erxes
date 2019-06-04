@@ -7,9 +7,6 @@ const conversationMessageAdd = `
     $mentionedUserIds: [String],
     $internal: Boolean,
     $attachments: [AttachmentInput],
-    $tweetReplyToId: String,
-    $tweetReplyToScreenName: String
-    $commentReplyToId: String
   ) {
     conversationMessageAdd(
       conversationId: $conversationId,
@@ -17,9 +14,6 @@ const conversationMessageAdd = `
       mentionedUserIds: $mentionedUserIds,
       internal: $internal,
       attachments: $attachments,
-      tweetReplyToId: $tweetReplyToId,
-      tweetReplyToScreenName: $tweetReplyToScreenName
-      commentReplyToId: $commentReplyToId
     ) {
       ${messageFields}
     }
