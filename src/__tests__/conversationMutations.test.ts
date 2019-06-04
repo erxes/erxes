@@ -1,4 +1,3 @@
-import * as faker from 'faker';
 import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {

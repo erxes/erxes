@@ -410,15 +410,37 @@ export const generateXlsx = async (workbook: any, name: string): Promise<string>
 
   return `${DOMAIN}/static/${url}`;
 };
+
+interface IRequestParams {
+  url?: string;
+  path?: string;
+  method: string;
+  params?: { [key: string]: string };
+  body?: { [key: string]: string };
+}
+
 /**
  * Sends post request to specific url
  */
-export const sendPostRequest = (url: string, params: { [key: string]: string }) =>
-  requestify.request(url, {
-    method: 'POST',
+export const sendRequest = async ({ url, method, body, params }: IRequestParams) => {
+  const response = await requestify.request(url, {
+    method,
     headers: { 'Content-Type': 'application/json' },
-    body: { ...params },
+    body,
+    params,
   });
+
+  return response.getBody();
+};
+
+/**
+ * Send request to integrations api
+ */
+export const fetchIntegrationApi = ({ path, method, body, params }: IRequestParams) => {
+  const INTEGRATIONS_API_DOMAIN = getEnv({ name: 'INTEGRATIONS_API_DOMAIN' });
+
+  return sendRequest({ url: `${INTEGRATIONS_API_DOMAIN}${path}`, method, body, params });
+};
 
 /**
  * Validates email using MX record resolver

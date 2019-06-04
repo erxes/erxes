@@ -86,6 +86,7 @@ export const queries = `
 
   integrationDetail(_id: String!): Integration
   integrationsTotalCount: integrationsTotalCount
+  integrationsAccounts(kind: String): [JSON]
 `;
 
 export const mutations = `

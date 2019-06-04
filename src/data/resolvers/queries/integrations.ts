@@ -1,6 +1,7 @@
 import { Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { KIND_CHOICES, TAG_TYPES } from '../../constants';
 import { checkPermission, moduleRequireLogin } from '../../permissions';
+import { fetchIntegrationApi } from '../../utils';
 import { paginate } from './utils';
 
 /**
@@ -113,6 +114,13 @@ const integrationQueries = {
     counts.total = await count({});
 
     return counts;
+  },
+
+  /**
+   * Accounts by integration kind
+   */
+  integrationsAccounts(_root, { kind }: { kind: string }) {
+    return fetchIntegrationApi({ path: '/accounts', method: 'GET', params: { kind } });
   },
 };
 
