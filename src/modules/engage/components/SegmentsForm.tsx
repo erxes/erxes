@@ -4,7 +4,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import AddConditionButton from 'modules/segments/components/AddConditionButton';
 import Conditions from 'modules/segments/components/Conditions';
 import {
@@ -108,8 +108,34 @@ class SegmentsForm extends React.Component<Props, State> {
       conditions
     } = this.state;
 
+    if (!name) {
+      return Alert.error('Please insert a name');
+    }
+
+    // Deep clone conditions for excluding _id
+    const copyOfConditions = JSON.parse(JSON.stringify(conditions));
+
+    for (const condition of copyOfConditions) {
+      if (!condition.value) {
+        return Alert.error('Please insert a value for operator in condition');
+      }
+
+      if (!condition.operator) {
+        return Alert.error('Please choose an operator');
+      }
+
+      delete condition._id;
+    }
+
     const params = {
-      doc: { name, description, subOf, color, connector, conditions }
+      doc: {
+        name,
+        description,
+        subOf,
+        color,
+        connector,
+        conditions: copyOfConditions
+      }
     };
 
     if (subOf) {
