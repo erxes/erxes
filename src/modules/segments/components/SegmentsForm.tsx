@@ -201,7 +201,7 @@ class SegmentsForm extends React.Component<Props, State> {
       <React.Fragment>
         <ConditionWrapper>
           <FormGroup>
-            {__('Users who match')}
+            {__('Users who match')}{' '}
             <FormControl
               componentClass="select"
               value={connector}
