@@ -79,7 +79,14 @@ const integrationMutations = {
    * Delete an integration
    */
   async integrationsRemove(_root, { _id }: { _id: string }) {
-    await Integrations.findOne({ _id });
+    await fetchIntegrationApi({
+      path: '/integrations/remove',
+      method: 'POST',
+      body: {
+        integrationId: _id,
+      },
+    });
+
     return Integrations.removeIntegration(_id);
   },
 
