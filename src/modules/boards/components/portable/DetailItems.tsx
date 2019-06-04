@@ -1,7 +1,7 @@
 import { renderFullName } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
-import { DealIndicator } from 'modules/deals/styles/stage';
+import { ItemIndicator } from 'modules/deals/styles/stage';
 import * as React from 'react';
 import { IProduct } from '../../../settings/productService/types';
 
@@ -14,7 +14,7 @@ class Items extends React.Component<Props> {
   renderItem(item, color, index) {
     return (
       <div key={index}>
-        <DealIndicator color={color} />
+        <ItemIndicator color={color} />
         {item.name || item.primaryName || renderFullName(item)}
       </div>
     );

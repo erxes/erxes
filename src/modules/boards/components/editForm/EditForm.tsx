@@ -6,7 +6,6 @@ import { Alert } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import { FlexContent, FormFooter, Left } from 'modules/deals/styles/deal';
-import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { STAGE_CONSTANTS } from '../../constants';
 import { Item, ItemParams } from '../../types';
@@ -20,6 +19,10 @@ type Props = {
   saveItem: (doc: ItemParams, callback: () => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
+  extraFields?: any;
+  extraFieldsCheck?: () => void;
+  amount?: () => React.ReactNode;
+  sidebar?: () => React.ReactNode;
 };
 
 type State = {
@@ -27,12 +30,9 @@ type State = {
   stageId: string;
   description: string;
   closeDate: Date;
-  amount: any;
   assignedUserIds: string[];
   customers: ICustomer[];
   companies: ICompany[];
-  products: IProduct[];
-  productsData: any;
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -44,52 +44,17 @@ class EditForm extends React.Component<Props, State> {
     this.state = {
       name: item.name,
       stageId: item.stageId,
-      amount: item.amount || {},
       // Item datas
       companies: item.companies || [],
       customers: item.customers || [],
       closeDate: item.closeDate,
       description: item.description || '',
-      productsData: item.products ? item.products.map(p => ({ ...p })) : [],
-      // collecting data for ItemCounter component
-      products: item.products ? item.products.map(p => p.product) : [],
       assignedUserIds: (item.assignedUsers || []).map(user => user._id)
     };
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  };
-
-  saveProductsData = () => {
-    const { productsData } = this.state;
-    const products: IProduct[] = [];
-    const amount: any = {};
-
-    const filteredProductsData: any = [];
-
-    productsData.forEach(data => {
-      // products
-      if (data.product) {
-        if (data.currency) {
-          // calculating item amount
-          if (!amount[data.currency]) {
-            amount[data.currency] = data.amount || 0;
-          } else {
-            amount[data.currency] += data.amount || 0;
-          }
-        }
-
-        // collecting data for ItemCounter component
-        products.push(data.product);
-
-        data.productId = data.product._id;
-
-        filteredProductsData.push(data);
-      }
-    });
-
-    this.setState({ productsData: filteredProductsData, products, amount });
   };
 
   save = () => {
@@ -99,19 +64,18 @@ class EditForm extends React.Component<Props, State> {
       companies,
       customers,
       closeDate,
-      productsData,
       stageId,
       assignedUserIds
     } = this.state;
 
-    const { closeModal, saveItem, type } = this.props;
+    const { closeModal, saveItem, extraFields, extraFieldsCheck } = this.props;
 
     if (!name) {
       return Alert.error('Enter a name');
     }
 
-    if (productsData.length === 0 && type === 'deal') {
-      return Alert.error('Select product & service');
+    if (extraFieldsCheck) {
+      extraFieldsCheck();
     }
 
     const doc = {
@@ -120,9 +84,9 @@ class EditForm extends React.Component<Props, State> {
       customerIds: customers.map(customer => customer._id),
       closeDate,
       description,
-      productsData,
       stageId,
-      assignedUserIds
+      assignedUserIds,
+      ...extraFields
     };
 
     saveItem(doc, () => {
@@ -155,19 +119,16 @@ class EditForm extends React.Component<Props, State> {
   };
 
   renderFormContent() {
-    const { item, users, type } = this.props;
+    const { item, users, type, amount, sidebar } = this.props;
 
     const {
       name,
       stageId,
       description,
       closeDate,
-      amount,
       assignedUserIds,
       customers,
-      companies,
-      products,
-      productsData
+      companies
     } = this.state;
 
     return (
@@ -201,16 +162,13 @@ class EditForm extends React.Component<Props, State> {
           </Left>
 
           <Sidebar
-            type={type}
             customers={customers}
             companies={companies}
-            products={products}
-            productsData={productsData}
             item={item}
+            sidebar={sidebar}
             onChangeField={this.onChangeField}
             copyItem={this.copy}
             removeItem={this.remove}
-            saveProductsData={this.saveProductsData}
           />
         </FlexContent>
       </>

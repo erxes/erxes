@@ -42,6 +42,8 @@ const ticketFields = `
   }
   closeDate
   description
+  priority
+  source
   assignedUsers {
     _id
     email

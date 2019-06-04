@@ -7,8 +7,8 @@ import {
   FormFooter,
   HeaderContent,
   HeaderRow
-} from '../styles/deal';
-import { invalidateCalendarCache } from '../utils';
+} from '../../../deals/styles/deal';
+import { invalidateCalendarCache } from '../../../deals/utils';
 
 type Props = {
   add: (name: string, callback: () => void) => void;
@@ -20,7 +20,7 @@ type State = {
   disabled: boolean;
 };
 
-class DealAddForm extends React.Component<Props, State> {
+class AddForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -90,4 +90,4 @@ class DealAddForm extends React.Component<Props, State> {
   }
 }
 
-export default DealAddForm;
+export default AddForm;

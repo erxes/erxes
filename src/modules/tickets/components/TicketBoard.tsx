@@ -12,7 +12,7 @@ type Props = {
   queryParams: any;
 };
 
-class DealBoard extends React.Component<Props> {
+class TicketBoard extends React.Component<Props> {
   renderContent() {
     const { queryParams } = this.props;
 
@@ -40,4 +40,4 @@ class DealBoard extends React.Component<Props> {
   }
 }
 
-export default DealBoard;
+export default TicketBoard;

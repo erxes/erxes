@@ -25,7 +25,6 @@ type Props = {
   name: string;
   description: string;
   closeDate: Date;
-  amount: { [key: string]: number };
   stageId: string;
   assignedUserIds: string[];
   users: IUser[];
@@ -33,26 +32,10 @@ type Props = {
     name: 'stageId' | 'name' | 'closeDate' | 'description' | 'assignedUserIds',
     value: any
   ) => void;
+  amount?: () => React.ReactNode;
 };
 
 class Top extends React.Component<Props> {
-  renderAmount(amount) {
-    if (Object.keys(amount).length === 0) {
-      return null;
-    }
-
-    return (
-      <HeaderContentSmall>
-        <ControlLabel>Amount</ControlLabel>
-        {Object.keys(amount).map(key => (
-          <p key={key}>
-            {amount[key].toLocaleString()} {key}
-          </p>
-        ))}
-      </HeaderContentSmall>
-    );
-  }
-
   onChangeStage = stageId => {
     this.props.onChangeField('stageId', stageId);
   };
@@ -75,9 +58,9 @@ class Top extends React.Component<Props> {
       name,
       description,
       closeDate,
-      amount,
       assignedUserIds,
-      onChangeField
+      onChangeField,
+      amount
     } = this.props;
 
     const nameOnChange = e =>
@@ -102,7 +85,7 @@ class Top extends React.Component<Props> {
             />
           </HeaderContent>
 
-          {this.renderAmount(amount || {})}
+          {amount && amount()}
         </HeaderRow>
 
         <HeaderRow>

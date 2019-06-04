@@ -53,7 +53,7 @@ const Indicator = styled.div`
   }
 `;
 
-const DealIndicator = styledTS<{ color: string }>(styled.span)`
+const ItemIndicator = styledTS<{ color: string }>(styled.span)`
   display: inline-block;
   width: 8px;
   height: 8px;
@@ -172,7 +172,7 @@ export {
   Amount,
   Body,
   Indicator,
-  DealIndicator,
+  ItemIndicator,
   IndicatorItem,
   StageFooter,
   LoadingContent,

@@ -7,6 +7,8 @@ const commonVariables = `
   $customerIds: [String],
   $assignedUserIds: [String],
   $order: Int,
+  $priority: String,
+  $source: String,
 `;
 
 const commonParams = `
@@ -17,7 +19,9 @@ const commonParams = `
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
-  order: $order
+  order: $order,
+  priority: $priority,
+  source: $source
 `;
 
 const commonReturn = `

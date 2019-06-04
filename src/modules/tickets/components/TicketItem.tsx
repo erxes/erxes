@@ -3,7 +3,7 @@ import { Date, ItemContainer } from 'modules/boards/styles';
 import { Item } from 'modules/boards/types';
 import { __, getUserAvatar } from 'modules/common/utils';
 import { Footer, PriceContainer, Right } from 'modules/deals/styles/deal';
-import { Content, DealIndicator } from 'modules/deals/styles/stage';
+import { Content, ItemIndicator } from 'modules/deals/styles/stage';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
@@ -19,7 +19,7 @@ type Props = {
   onTogglePopup: () => void;
 };
 
-export default class DealItem extends React.PureComponent<
+export default class TicketItem extends React.PureComponent<
   Props,
   { isFormVisible: boolean }
 > {
@@ -56,7 +56,7 @@ export default class DealItem extends React.PureComponent<
     return (
       <Modal bsSize="lg" show={true} onHide={this.toggleForm}>
         <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit deal')}</Modal.Title>
+          <Modal.Title>{__('Edit ticket')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <EditForm
@@ -89,14 +89,14 @@ export default class DealItem extends React.PureComponent<
 
           {customers.map((customer, index) => (
             <div key={index}>
-              <DealIndicator color="#F7CE53" />
+              <ItemIndicator color="#F7CE53" />
               {customer.firstName || customer.primaryEmail}
             </div>
           ))}
 
           {companies.map((company, index) => (
             <div key={index}>
-              <DealIndicator color="#EA475D" />
+              <ItemIndicator color="#EA475D" />
               {company.primaryName}
             </div>
           ))}

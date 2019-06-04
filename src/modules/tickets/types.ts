@@ -23,6 +23,8 @@ export interface ITicketParams {
   customerIds?: string[];
   closeDate?: Date;
   description?: string;
+  priority?: string;
+  source?: string;
   order?: number;
 }
 

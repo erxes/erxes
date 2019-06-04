@@ -4,7 +4,7 @@ import { Item } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
 import { Footer, PriceContainer, Right } from 'modules/deals/styles/deal';
-import { Content, DealIndicator } from 'modules/deals/styles/stage';
+import { Content, ItemIndicator } from 'modules/deals/styles/stage';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
@@ -91,21 +91,21 @@ export default class DealItem extends React.PureComponent<
 
           {products.map((product, index) => (
             <div key={index}>
-              <DealIndicator color="#63D2D6" />
+              <ItemIndicator color="#63D2D6" />
               {product.name}
             </div>
           ))}
 
           {customers.map((customer, index) => (
             <div key={index}>
-              <DealIndicator color="#F7CE53" />
+              <ItemIndicator color="#F7CE53" />
               {customer.firstName || customer.primaryEmail}
             </div>
           ))}
 
           {companies.map((company, index) => (
             <div key={index}>
-              <DealIndicator color="#EA475D" />
+              <ItemIndicator color="#EA475D" />
               {company.primaryName}
             </div>
           ))}

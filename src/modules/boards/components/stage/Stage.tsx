@@ -1,6 +1,5 @@
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { DealAddForm } from 'modules/deals/components';
 import {
   AddNew,
   Body,
@@ -13,13 +12,13 @@ import {
   StageFooter,
   StageRoot
 } from 'modules/deals/styles/stage';
-import { TicketAddForm } from 'modules/tickets/components';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { STAGE_CONSTANTS } from '../../constants';
 import { IStage, Item } from '../../types';
 import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
+import { AddForm } from './';
 
 type Props = {
   loadingItems: boolean;
@@ -33,17 +32,11 @@ type Props = {
 };
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
-  private ADD_FORM;
 
   constructor(props: Props) {
     super(props);
 
     this.bodyRef = React.createRef();
-
-    this.ADD_FORM = {
-      deal: DealAddForm,
-      ticket: TicketAddForm
-    };
   }
 
   componentDidMount() {
@@ -93,8 +86,6 @@ export default class Stage extends React.Component<Props, {}> {
         </AddNew>
       </StageFooter>
     );
-
-    const AddForm = this.ADD_FORM[type];
 
     const content = props => <AddForm {...props} add={addItem} />;
 
