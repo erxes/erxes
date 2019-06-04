@@ -1,7 +1,7 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook';
 import { Botkit } from 'botkit';
 import Accounts from '../models/Accounts';
-import Integrations, { IIntegration } from '../models/Integrations';
+import Integrations from '../models/Integrations';
 import { fetchMainApi } from '../utils';
 import loginMiddleware from './loginMiddleware';
 import { Conversations, Customers } from './models';
@@ -14,21 +14,12 @@ const init = async app => {
     const { accountId, integrationId, data } = req.body;
     const facebookPageIds = JSON.parse(data).pageIds;
 
-    const integration = await Integrations.create({
+    await Integrations.create({
       kind: 'facebook',
       accountId,
       erxesApiId: integrationId,
       facebookPageIds,
     });
-
-    const account = await Accounts.findOne({ _id: accountId });
-
-    // start tracking new integrations
-    for (const pageId of facebookPageIds) {
-      const pageAccessToken = await getPageAccessToken(pageId, account.token);
-
-      await trackPage(app, integration, pageAccessToken);
-    }
 
     return res.json({ status: 'ok ' });
   });
@@ -80,25 +71,21 @@ const init = async app => {
     return res.json(response);
   });
 
-  const integrations = await Integrations.find({ kind: 'facebook' });
-
-  for (const integration of integrations) {
-    const { facebookPageIds } = integration;
-    const account = await Accounts.findOne({ _id: integration.accountId });
-
-    for (const pageId of facebookPageIds || []) {
-      const pageAccessToken = await getPageAccessToken(pageId, account.token);
-
-      await trackPage(app, integration, pageAccessToken);
-    }
-  }
-};
-
-const trackPage = async (app, integration: IIntegration, pageAccessToken: string) => {
   const adapter = new FacebookAdapter({
     verify_token: process.env.FACEBOOK_VERIFY_TOKEN,
-    access_token: pageAccessToken,
     app_secret: process.env.FACEBOOK_APP_SECRET,
+    getAccessTokenForPage: async (pageId: string) => {
+      const integration = await Integrations.findOne({ facebookPageIds: { $in: [pageId] } });
+
+      if (!integration) {
+        return;
+      }
+
+      const account = await Accounts.findOne({ _id: integration.accountId });
+      const token = await getPageAccessToken(pageId, account.token);
+
+      return token;
+    },
   });
 
   const controller = new Botkit({
@@ -107,16 +94,21 @@ const trackPage = async (app, integration: IIntegration, pageAccessToken: string
     adapter,
   });
 
-  const api = await adapter.getAPI(controller.getConfig());
-
   // Once the bot has booted up its internal services, you can use them to do stuff.
   controller.ready(() => {
     controller.on('message', async (bot, message) => {
+      const integration = await Integrations.findOne({ facebookPageIds: { $in: [message.recipient.id] } });
+
+      if (!integration) {
+        return;
+      }
+
       // get customer
       let customer = await Customers.findOne({ userId: message.user });
 
       // create customer
       if (!customer) {
+        const api = await adapter.getAPI(message);
         const response = await api.callAPI(`/${message.user}`, 'GET', {});
 
         // save on api
