@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import * as express from 'express';
 import initFacebook from './facebook/controller';
 import Accounts from './models/Accounts';
+import Integrations from './models/Integrations';
 
 // load environment variables
 dotenv.config();
@@ -21,6 +22,21 @@ app.use((req: any, _res, next) => {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.post('/integrations/create', async (req, res) => {
+  const { kind, accountId, integrationId, data } = req.body;
+
+  if (kind === 'facebook') {
+    await Integrations.create({
+      kind,
+      accountId,
+      erxesApiId: integrationId,
+      facebookPageIds: JSON.parse(data).pageIds,
+    });
+  }
+
+  return res.json({ status: 'ok ' });
+});
 
 app.get('/accounts', async (req, res) => {
   const accounts = await Accounts.find({ kind: req.query.kind });

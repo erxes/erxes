@@ -1,38 +1,21 @@
-import { Document, Model, model, Schema } from 'mongoose';
-
-export interface IFacebookData {
-  accountId?: string;
-  pageIds: string[];
-}
-
-export interface IFacebookDataDocument extends IFacebookData, Document {}
-
-const facebookSchema = new Schema(
-  {
-    accountId: {
-      type: String,
-    },
-    pageIds: {
-      type: [String],
-    },
-  },
-  { _id: false },
-);
+import { Document, Model, Schema } from 'mongoose';
+import { integrationsConnection } from '../connection';
 
 export interface IIntegration {
-  kind?: string;
-  facebookData?: IFacebookData;
+  kind: string;
+  accountId: string;
+  erxesApiId: string;
+  facebookPageIds?: string[];
 }
 
-export interface IIntegrationDocument extends IIntegration, Document {
-  _id: string;
-  facebookData?: IFacebookDataDocument;
-}
+export interface IIntegrationDocument extends IIntegration, Document {}
 
 // schema for integration document
 export const integrationSchema = new Schema({
   kind: String,
-  facebookData: facebookSchema,
+  accountId: String,
+  erxesApiId: String,
+  facebookPageIds: [String],
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {}
@@ -48,6 +31,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Integrations = model<IIntegrationDocument, IIntegrationModel>('integrations', integrationSchema);
+const Integrations = integrationsConnection.model<IIntegrationDocument, IIntegrationModel>(
+  'integrations',
+  integrationSchema,
+);
 
 export default Integrations;
