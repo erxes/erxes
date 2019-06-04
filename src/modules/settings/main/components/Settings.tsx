@@ -66,11 +66,6 @@ class Settings extends React.PureComponent {
               '/images/icons/erxes-07.svg',
               '/settings/importHistories'
             )}
-            {this.renderBox(
-              'Status',
-              '/images/icons/erxes-06.svg',
-              '/settings/status'
-            )}
           </div>
         </Row>
         <Divider />
@@ -116,7 +111,7 @@ class Settings extends React.PureComponent {
         </Row>
         <Divider />
         <Row>
-          <RowTitle>{__('Deal Settings')}</RowTitle>
+          <RowTitle>{__('Other Settings')}</RowTitle>
           <div>
             {this.renderBox(
               'Boards & Pipelines',
@@ -127,6 +122,11 @@ class Settings extends React.PureComponent {
               'Product & Service',
               '/images/icons/erxes-13.svg',
               '/settings/product-service'
+            )}
+            {this.renderBox(
+              'Status',
+              '/images/icons/erxes-06.svg',
+              '/settings/status'
             )}
           </div>
         </Row>

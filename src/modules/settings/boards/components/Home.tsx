@@ -12,30 +12,14 @@ class Home extends React.Component<Props, {}> {
   render() {
     const { boardId, type } = this.props;
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Board') }
+    const submenu = [
+      { title: __('Deal'), link: '/settings/boards/deal' },
+      { title: __('Ticket'), link: '/settings/boards/ticket' }
     ];
-
-    switch (type) {
-      case 'deal': {
-        breadcrumb.push({ title: __('Deal'), link: '/settings/boards/deal' });
-
-        break;
-      }
-      case 'ticket': {
-        breadcrumb.push({
-          title: __('Ticket'),
-          link: '/settings/boards/ticket'
-        });
-
-        break;
-      }
-    }
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Board')} breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={__('Board')} submenu={submenu} />}
         leftSidebar={<Boards type={type} currentBoardId={boardId} />}
         content={<Pipelines type={type} boardId={boardId} />}
       />
