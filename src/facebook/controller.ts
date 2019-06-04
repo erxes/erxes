@@ -7,7 +7,7 @@ import ApiCustomers from '../models/Customers';
 import Integrations, { IIntegration } from '../models/Integrations';
 import loginMiddleware from './loginMiddleware';
 import { Conversations, Customers } from './models';
-import { getPageAccessToken, getPageList } from './utils';
+import { getPageAccessToken, getPageList, graphRequest } from './utils';
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
@@ -24,6 +24,39 @@ const init = async app => {
     const pages = await getPageList(accessToken);
 
     return res.json(pages);
+  });
+
+  app.post('/facebook/reply', async (req, res) => {
+    const { integrationId, conversationId, content } = req.body;
+
+    const integration = await Integrations.findOne({ erxesApiId: integrationId });
+
+    if (!integration) {
+      return res.json({ status: 'error', error: 'Integration not found' });
+    }
+
+    const account = await Accounts.findOne({ _id: integration.accountId });
+
+    if (!account) {
+      return res.json({ status: 'error', error: 'Account not found' });
+    }
+
+    const conversation = await Conversations.findOne({ erxesApiId: conversationId });
+
+    if (!conversation) {
+      return res.json({ status: 'error', error: 'Conversation not found' });
+    }
+
+    const pageAccessToken = await getPageAccessToken(conversation.recipientId, account.token);
+
+    const response = await graphRequest.post('me/messages', pageAccessToken, {
+      recipient: { id: conversation.senderId },
+      message: {
+        text: content,
+      },
+    });
+
+    return res.json(response);
   });
 
   const integrations = await Integrations.find({ kind: 'facebook' });
