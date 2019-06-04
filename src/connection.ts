@@ -3,27 +3,30 @@ import mongoose = require('mongoose');
 
 dotenv.config();
 
-const { MONGO_URL = '' } = process.env;
-
 mongoose.Promise = global.Promise;
-
 mongoose.set('useFindAndModify', false);
 
-mongoose.connection
-  .on('connected', () => {
-    console.log(`Connected to the database: ${MONGO_URL}`);
-  })
-  .on('disconnected', () => {
-    console.log(`Disconnected from the database: ${MONGO_URL}`);
-  })
-  .on('error', error => {
-    console.log(`Database connection error: ${MONGO_URL}`, error);
-  });
+const connect = (MONGO_URL?: string) => {
+  const URI = MONGO_URL || process.env.API_MONGO_URL;
+  const connection = mongoose.createConnection(URI, { useNewUrlParser: true, useCreateIndex: true });
 
-export function connect() {
-  return mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
-}
+  connection
+    .on('connected', () => {
+      console.log(`Connected to the database: ${URI}`);
+    })
+    .on('disconnected', () => {
+      console.log(`Disconnected from the database: ${URI}`);
+    })
+    .on('error', error => {
+      console.log(`Database connection error: ${URI}`, error);
+    });
 
-export function disconnect() {
-  return mongoose.connection.close();
+  return connection;
+};
+
+export const integrationsConnection = connect(process.env.MONGO_URL);
+export const apiConnection = connect();
+
+export function disconnect(connection) {
+  return connection.close();
 }

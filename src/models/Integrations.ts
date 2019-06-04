@@ -1,7 +1,5 @@
 import { Document, Model, model, Schema } from 'mongoose';
 
-import { field } from './utils';
-
 export interface IFacebookData {
   accountId?: string;
   pageIds: string[];
@@ -33,12 +31,8 @@ export interface IIntegrationDocument extends IIntegration, Document {
 
 // schema for integration document
 export const integrationSchema = new Schema({
-  _id: field({ pkey: true }),
-
-  kind: field({
-    type: String,
-  }),
-  facebookData: field({ type: facebookSchema }),
+  kind: String,
+  facebookData: facebookSchema,
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {}
