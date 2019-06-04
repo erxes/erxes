@@ -16,7 +16,7 @@ type Props = {
 };
 
 type FinalProps = {
-  accountsQuery: AccountsQueryResponse;
+  fetchApiQuery: AccountsQueryResponse;
 } & Props &
   RemoveAccountMutationResponse;
 
@@ -44,13 +44,13 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   render() {
-    const { accountsQuery, onSelect } = this.props;
+    const { fetchApiQuery, onSelect } = this.props;
 
-    if (accountsQuery.loading) {
+    if (fetchApiQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    const accounts = accountsQuery.integrationsAccounts || [];
+    const accounts = fetchApiQuery.integrationsFetchApi || [];
 
     return (
       <Accounts
@@ -74,11 +74,12 @@ export default withProps<Props>(
         }
       }
     ),
-    graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
-      name: 'accountsQuery',
+    graphql<Props, AccountsQueryResponse>(gql(queries.fetchApi), {
+      name: 'fetchApiQuery',
       options: ({ kind }) => ({
         variables: {
-          kind
+          path: '/accounts',
+          params: { kind }
         }
       })
     })

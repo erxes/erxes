@@ -112,14 +112,14 @@ const messengerAppsCount = `
   }
 `;
 
-const accounts = `
-  query integrationsAccounts($kind: String) {
-    integrationsAccounts(kind: $kind)
+const fetchApi = `
+  query integrationsFetchApi($path: String!, $params: JSON!) {
+    integrationsFetchApi(path: $path, params: $params)
   }
 `;
 
 export default {
-  accounts,
+  fetchApi,
   users,
   brands,
   integrationDetail,
