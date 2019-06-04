@@ -26,21 +26,6 @@ app.use((req: any, _res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/integrations/create', async (req, res) => {
-  const { kind, accountId, integrationId, data } = req.body;
-
-  if (kind === 'facebook') {
-    await Integrations.create({
-      kind,
-      accountId,
-      erxesApiId: integrationId,
-      facebookPageIds: JSON.parse(data).pageIds,
-    });
-  }
-
-  return res.json({ status: 'ok ' });
-});
-
 app.post('/integrations/remove', async (req, res) => {
   const { integrationId } = req.body;
 

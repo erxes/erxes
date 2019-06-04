@@ -10,6 +10,29 @@ import { getPageAccessToken, getPageList, graphRequest } from './utils';
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
 
+  app.post('/facebook/create-integration', async (req, res) => {
+    const { accountId, integrationId, data } = req.body;
+    const facebookPageIds = JSON.parse(data).pageIds;
+
+    const integration = await Integrations.create({
+      kind: 'facebook',
+      accountId,
+      erxesApiId: integrationId,
+      facebookPageIds,
+    });
+
+    const account = await Accounts.findOne({ _id: accountId });
+
+    // start tracking new integrations
+    for (const pageId of facebookPageIds) {
+      const pageAccessToken = await getPageAccessToken(pageId, account.token);
+
+      await trackPage(app, integration, pageAccessToken);
+    }
+
+    return res.json({ status: 'ok ' });
+  });
+
   app.get('/facebook/get-pages', async (req, res) => {
     const account = await Accounts.findOne({ _id: req.query.accountId });
 
