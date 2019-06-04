@@ -28,6 +28,12 @@ app.get('/accounts', async (req, res) => {
   return res.json(accounts);
 });
 
+app.post('/accounts/remove', async (req, res) => {
+  await Accounts.remove({ _id: req.body._id });
+
+  return res.json({ status: 'removed' });
+});
+
 // init bots
 initFacebook(app);
 
