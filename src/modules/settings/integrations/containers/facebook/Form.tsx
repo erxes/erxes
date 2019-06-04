@@ -8,18 +8,14 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 
-import {
-  CreateFacebookMutationResponse,
-  CreateFacebookMutationVariables,
-  IPages
-} from '../../types';
+import { IPages } from '../../types';
 
 type Props = {
   type?: string;
   closeModal: () => void;
 };
 
-type FinalProps = {} & IRouterProps & Props & CreateFacebookMutationResponse;
+type FinalProps = {} & IRouterProps & Props;
 
 type State = {
   pages: IPages[];
@@ -60,26 +56,24 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     this.setState({ pages: [] });
   };
 
-  onSave = (
-    variables: CreateFacebookMutationVariables,
-    callback: () => void
-  ) => {
-    const { history, saveMutation } = this.props;
+  onSave = () => {
+    const { history } = this.props;
     const { accountId } = this.state;
 
     if (!accountId) {
       return;
     }
 
-    saveMutation({ variables: { ...variables, accountId } })
-      .then(() => {
-        callback();
-        Alert.success('You successfully added a integration');
-        history.push('/settings/integrations');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+    // TODO
+    // saveMutation({ variables: { ...variables, accountId } })
+    //   .then(() => {
+    //     callback();
+    //     Alert.success('You successfully added a integration');
+    //     history.push('/settings/integrations');
+    //   })
+    //   .catch(e => {
+    //     Alert.error(e.message);
+    //   });
   };
 
   render() {
@@ -99,11 +93,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<
-      Props,
-      CreateFacebookMutationResponse,
-      CreateFacebookMutationVariables
-    >(gql(mutations.integrationsCreateFacebook), {
+    graphql<Props>(gql(mutations.integrationsCreateMessenger), {
       name: 'saveMutation',
       options: () => {
         return {

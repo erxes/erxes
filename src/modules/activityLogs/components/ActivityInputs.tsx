@@ -1,9 +1,7 @@
 import { Icon, Tabs, TabTitle } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { TabContent } from 'modules/customers/styles';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { WhiteBoxRoot } from 'modules/layout/styles';
-import { MailForm } from 'modules/settings/integrations/containers/google';
 import * as React from 'react';
 
 type Props = {
@@ -45,16 +43,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
       return null;
     }
 
-    return (
-      <TabContent>
-        <MailForm
-          contentType={contentType}
-          contentTypeId={contentTypeId}
-          toEmail={toEmail}
-          refetchQueries={['activityLogs']}
-        />
-      </TabContent>
-    );
+    return null;
   }
 
   renderExtraTab() {

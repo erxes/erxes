@@ -1,7 +1,6 @@
 import { Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
 import StoreEntry from '../../containers/StoreEntry';
@@ -113,10 +112,6 @@ class Row extends React.Component<Props, State> {
   renderList() {
     const { queryParams, totalCount } = this.props;
     const { kind } = this.state;
-
-    if (this.isMessengerApp(kind)) {
-      return <MessengerAppList kind={kind} queryParams={queryParams} />;
-    }
 
     return (
       <>

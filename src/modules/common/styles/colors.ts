@@ -49,8 +49,6 @@ const darkShadow = rgba(colorBlack, 0.2);
 // Social colors
 const socialFacebook = '#3A5999';
 const socialFacebookMessenger = '#1472FB';
-const socialTwitter = '#1DA1F2';
-const socialGmail = '#C71610';
 const socialGoogleMeet = '#038476';
 
 export default {
@@ -94,7 +92,5 @@ export default {
 
   socialFacebook,
   socialFacebookMessenger,
-  socialTwitter,
-  socialGmail,
   socialGoogleMeet
 };

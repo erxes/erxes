@@ -9,13 +9,10 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Accounts, SelectBrand } from '../../containers/';
-import { CreateFacebookMutationVariables, IPages } from '../../types';
+import { IPages } from '../../types';
 
 type Props = {
-  onSave: (
-    params: CreateFacebookMutationVariables,
-    callback: () => void
-  ) => void;
+  onSave: (params: any, callback: () => void) => void;
   onAccountSelect: (accountId?: string) => void;
   pages: IPages[];
   onRemoveAccount: (accountId: string) => void;
@@ -50,7 +47,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const doc: CreateFacebookMutationVariables = {
+    const doc = {
       name: (document.getElementById('name') as HTMLInputElement).value,
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value,

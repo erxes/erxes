@@ -1,4 +1,3 @@
-import { IntegrationIcon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import {
@@ -70,13 +69,7 @@ class ConversationDetails extends React.Component<Props> {
             </li>
             <li>
               {__('Integration')}
-              <SidebarCounter>
-                {integration.kind}
-                <IntegrationIcon
-                  integration={integration}
-                  facebookData={conversation.facebookData}
-                />
-              </SidebarCounter>
+              <SidebarCounter>{integration.kind}</SidebarCounter>
             </li>
             <li>
               {__('Conversations')}

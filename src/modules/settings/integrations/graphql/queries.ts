@@ -75,7 +75,6 @@ const integrations = `
         code
       }
       formData
-      twitterData
       formId
       tagIds
       tags {

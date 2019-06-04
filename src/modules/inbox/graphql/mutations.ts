@@ -38,42 +38,6 @@ const markAsRead = `
   }
 `;
 
-const favoriteTweet = `
-  mutation conversationsFavorite(
-    $integrationId: String,
-    $id: String
-  ) {
-    conversationsFavorite(
-      integrationId: $integrationId,
-      id: $id,
-    )
-  }
-`;
-
-const retweetTweet = `
-  mutation conversationsRetweet(
-    $integrationId: String,
-    $id: String
-  ) {
-    conversationsRetweet(
-      integrationId: $integrationId,
-      id: $id,
-    )
-  }
-`;
-
-const tweet = `
-  mutation conversationsTweet(
-    $integrationId: String,
-    $text: String
-  ) {
-    conversationsTweet(
-      integrationId: $integrationId,
-      text: $text
-    )
-  }
-`;
-
 const saveResponseTemplate = `
   mutation responseTemplatesAdd(
     $brandId: String!,
@@ -117,23 +81,11 @@ const conversationsUnassign = `
   }
 `;
 
-const executeApp = `
-  mutation messengerAppsExecuteGoogleMeet($_id: String!, $conversationId: String!) {
-    messengerAppsExecuteGoogleMeet(_id: $_id, conversationId: $conversationId) {
-      _id
-    }
-  }
-`;
-
 export default {
   conversationMessageAdd,
   conversationsChangeStatus,
   conversationsAssign,
   conversationsUnassign,
   saveResponseTemplate,
-  markAsRead,
-  favoriteTweet,
-  retweetTweet,
-  tweet,
-  executeApp
+  markAsRead
 };

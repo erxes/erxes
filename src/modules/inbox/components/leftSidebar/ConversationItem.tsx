@@ -3,13 +3,7 @@ import * as React from 'react';
 import strip from 'strip';
 
 import { withCurrentUser } from 'modules/auth/containers';
-import {
-  FormControl,
-  IntegrationIcon,
-  NameCard,
-  Tags,
-  Tip
-} from 'modules/common/components';
+import { FormControl, NameCard, Tags, Tip } from 'modules/common/components';
 
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../../customers/types';
@@ -108,7 +102,6 @@ class ConversationItem extends React.Component<Props> {
 
     const isIdle =
       integration.kind !== 'form' &&
-      integration.kind !== 'gmail' &&
       conversation.status !== 'closed' &&
       idleTime >= 1;
 
@@ -124,16 +117,7 @@ class ConversationItem extends React.Component<Props> {
           <FlexContent>
             <MainInfo>
               {isExistingCustomer && (
-                <NameCard.Avatar
-                  size={40}
-                  customer={customer}
-                  icon={
-                    <IntegrationIcon
-                      integration={integration}
-                      facebookData={conversation.facebookData}
-                    />
-                  }
-                />
+                <NameCard.Avatar size={40} customer={customer} />
               )}
               <FlexContent>
                 <CustomerName>

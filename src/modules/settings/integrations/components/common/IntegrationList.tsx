@@ -98,15 +98,9 @@ class IntegrationList extends React.Component<Props> {
   }
 
   renderRow(integration) {
-    const twitterData = (integration || {}).twitterData || {};
-
     return (
       <tr key={integration._id}>
-        <td>
-          {integration.name}
-          {integration.kind === 'twitter' &&
-            ` (${twitterData.info && twitterData.info.screen_name})`}
-        </td>
+        <td>{integration.name}</td>
         <td>
           <Label className={`label-${this.getTypeName(integration)}`}>
             {integration.kind}

@@ -2,10 +2,7 @@ import { Button, FormControl, Icon, Tip } from 'modules/common/components';
 import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
 import * as React from 'react';
 
-import {
-  MessengerApp,
-  ResponseTemplate
-} from 'modules/inbox/containers/conversationDetail';
+import { ResponseTemplate } from 'modules/inbox/containers/conversationDetail';
 
 import {
   Attachment,
@@ -312,8 +309,6 @@ class RespondBox extends React.Component<Props, State> {
             <input type="file" onChange={this.handleFileInput} />
           </label>
         </Tip>
-
-        <MessengerApp conversation={conversation} />
 
         <ResponseTemplate
           brandId={integration.brandId}
