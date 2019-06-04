@@ -3,9 +3,12 @@ import { Botkit } from 'botkit';
 import ApiConversationMessages from '../models/ConversationMessages';
 import ApiConversations from '../models/Conversations';
 import ApiCustomers from '../models/Customers';
+import loginMiddleware from './loginMiddleware';
 import { Conversations, Customers } from './models';
 
 const init = async app => {
+  app.get('/fblogin', loginMiddleware);
+
   const adapter = new FacebookAdapter({
     verify_token: process.env.FACEBOOK_VERIFY_TOKEN,
     access_token: process.env.FACEBOOK_ACCESS_TOKEN,

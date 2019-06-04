@@ -203,7 +203,7 @@
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.1.tgz#dc488842312a7f075149312905b5e3c0b054c79d"
   integrity sha512-FwI9gX75FgVBJ7ywgnq/P7tw+/o1GUbtP0KzbtusLigAOgIgNISRK0ZPl4qertvXSIE8YbsVJueQ90cDt9YYyw==
 
-"@types/mongodb@*", "@types/mongodb@^3.1.19", "@types/mongodb@^3.1.2":
+"@types/mongodb@*", "@types/mongodb@^3.1.2":
   version "3.1.28"
   resolved "https://registry.yarnpkg.com/@types/mongodb/-/mongodb-3.1.28.tgz#c049cdff343788d77f5cc8c5f2e4af72ba7d047b"
   integrity sha512-tG+QqJ/hir2p0069ee28t2O9tlGRJKDq1WFZC2QYMlU47LGdldLL8tepfTq6aFLvP58OpwSoxaJ/qjW93ob1NQ==
@@ -809,17 +809,7 @@ botbuilder-dialogs@^4.4.0:
     "@types/node" "^10.12.18"
     botbuilder-core "^4.4.0"
 
-botbuilder-storage-mongodb@^0.9.5:
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/botbuilder-storage-mongodb/-/botbuilder-storage-mongodb-0.9.5.tgz#120a2f78993c650367bf8bbc91a9890f21e08a61"
-  integrity sha512-2BjzwSfQQP45yD5C3nZm4aIYn+7KZTpwQwQRYXt2g0oOYfoA4CLhbjGBbyjguR4Fp129aTJ+UOPA1C062w0lDQ==
-  dependencies:
-    "@types/mongodb" "^3.1.19"
-    botbuilder "^4.2.0"
-    mongodb "^3.1.11"
-    request "^2.88.0"
-
-botbuilder@^4.2.0, botbuilder@^4.4.0:
+botbuilder@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/botbuilder/-/botbuilder-4.4.0.tgz#877c62ab10f23a9d4924041f8ebf3a77263f4d32"
   integrity sha512-M3CIDjAwkOKjcxas7EahZujEIdVPc1BWS+l52DD9WNc8OL9cRMMnYVxNOCmT50CoyJ9MSEYYLJi0X3B3TVhOvQ==
@@ -1772,6 +1762,14 @@ fb-watchman@^2.0.0:
   integrity sha1-VOmr99+i8mzZsWNsWIwa/AXeXVg=
   dependencies:
     bser "^2.0.0"
+
+fbgraph@^1.4.4:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/fbgraph/-/fbgraph-1.4.4.tgz#9bf45c6666152938c2592174385c5540608fcc4a"
+  integrity sha1-m/RcZmYVKTjCWSF0OFxVQGCPzEo=
+  dependencies:
+    qs "^6.5.0"
+    request "^2.79.0"
 
 figures@^1.7.0:
   version "1.7.0"
@@ -3539,7 +3537,7 @@ mongodb-core@3.2.6:
   optionalDependencies:
     saslprep "^1.0.0"
 
-mongodb@3.2.6, mongodb@^3.1.11:
+mongodb@3.2.6:
   version "3.2.6"
   resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-3.2.6.tgz#bfd23bc0ae6cc57443cd256aec24aa4dc2b99f2f"
   integrity sha512-qnHc4tjEkHKemuzBq9R7ycYnhFE0Dlpt6+n6suoZp2DcDdqviQ+teloJU24fsOw/PLmr75yGk4mRx/YabjDQEQ==
@@ -4141,7 +4139,7 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-qs@6.7.0, qs@^6.5.1:
+qs@6.7.0, qs@^6.5.0, qs@^6.5.1:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
   integrity sha512-VCdBRNFTX1fyE7Nb6FYoURo/SPe62QCaAyzJvUjwRaIsc+NePBEniHlvxFmmX56+HZphIGtV0XeCirBtpDrTyQ==
@@ -4302,7 +4300,7 @@ request-promise-native@^1.0.5:
     stealthy-require "^1.1.1"
     tough-cookie "^2.3.3"
 
-request@^2.87.0, request@^2.88.0:
+request@^2.79.0, request@^2.87.0, request@^2.88.0:
   version "2.88.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.0.tgz#9c2fca4f7d35b592efe57c7f0a55e81052124fef"
   integrity sha512-NAqBSrijGLZdM0WZNsInLJpkJokL72XYjUpnB0iwsRgxh7dB6COrHnTBNwN0E+lHDAJzu7kLAkDeY08z2/A0hg==

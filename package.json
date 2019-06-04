@@ -38,6 +38,7 @@
     "cors": "^2.8.1",
     "dotenv": "^4.0.0",
     "express": "^4.16.4",
+    "fbgraph": "^1.4.4",
     "mongoose": "^5.2.16"
   },
   "peerOptionalDependencies": {
