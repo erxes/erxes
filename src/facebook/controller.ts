@@ -4,9 +4,10 @@ import Accounts from '../models/Accounts';
 import ApiConversationMessages from '../models/ConversationMessages';
 import ApiConversations from '../models/Conversations';
 import ApiCustomers from '../models/Customers';
+import Integrations, { IIntegration } from '../models/Integrations';
 import loginMiddleware from './loginMiddleware';
 import { Conversations, Customers } from './models';
-import { getPageList } from './utils';
+import { getPageAccessToken, getPageList } from './utils';
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
@@ -25,9 +26,24 @@ const init = async app => {
     return res.json(pages);
   });
 
+  const integrations = await Integrations.find({ kind: 'facebook' });
+
+  for (const integration of integrations) {
+    const { facebookPageIds } = integration;
+    const account = await Accounts.findOne({ _id: integration.accountId });
+
+    for (const pageId of facebookPageIds || []) {
+      const pageAccessToken = await getPageAccessToken(pageId, account.token);
+
+      await trackPage(app, integration, pageAccessToken);
+    }
+  }
+};
+
+const trackPage = async (app, integration: IIntegration, pageAccessToken: string) => {
   const adapter = new FacebookAdapter({
     verify_token: process.env.FACEBOOK_VERIFY_TOKEN,
-    access_token: process.env.FACEBOOK_ACCESS_TOKEN,
+    access_token: pageAccessToken,
     app_secret: process.env.FACEBOOK_APP_SECRET,
   });
 
@@ -76,9 +92,13 @@ const init = async app => {
       if (!conversation) {
         // save on api
         const apiConversation = await ApiConversations.create({
+          customerId: customer.erxesApiId,
+          integrationId: integration.erxesApiId,
           createdAt: new Date(),
+          updatedAt: new Date(),
           messageCount: 0,
           content: message.text,
+          status: 'new',
         });
 
         // save on integrations db

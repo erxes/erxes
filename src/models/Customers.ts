@@ -1,3 +1,4 @@
+import * as Random from 'meteor-random';
 import { Document, Model, Schema } from 'mongoose';
 import { apiConnection } from '../connection';
 
@@ -10,6 +11,7 @@ export interface ICustomer {
 export interface ICustomerDocument extends ICustomer, Document {}
 
 export const customerSchema = new Schema({
+  _id: { type: String, default: () => Random.id() },
   firstName: String,
   lastName: String,
   avatar: {

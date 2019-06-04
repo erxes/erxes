@@ -1,3 +1,4 @@
+import * as Random from 'meteor-random';
 import { Document, Model, Schema } from 'mongoose';
 import { apiConnection } from '../connection';
 
@@ -12,6 +13,7 @@ export interface IConversationMessage {
 export interface IConversationMessageDocument extends IConversationMessage, Document {}
 
 export const conversationMessageSchema = new Schema({
+  _id: { type: String, default: () => Random.id() },
   createdAt: Date,
   content: String,
   conversationId: String,

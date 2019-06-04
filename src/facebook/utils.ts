@@ -33,3 +33,9 @@ export const getPageList = async (accessToken?: string) => {
     name: page.name,
   }));
 };
+
+export const getPageAccessToken = async (pageId: string, userAccessToken: string) => {
+  const response = await graphRequest.get(`${pageId}/?fields=access_token`, userAccessToken);
+
+  return response.access_token;
+};
