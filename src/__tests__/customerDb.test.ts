@@ -300,12 +300,6 @@ describe('Customers model tests', () => {
       lastName: 'Test last name',
       primaryEmail: 'Test email',
       primaryPhone: 'Test phone',
-      facebookData: {
-        id: '1231312asd',
-      },
-      twitterData: {
-        id: 1234123,
-      },
       messengerData: {
         sessionCount: 6,
       },

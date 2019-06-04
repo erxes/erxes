@@ -62,8 +62,6 @@ describe('Conversation message mutations', () => {
       mentionedUserIds: [_user._id],
       internal: false,
       attachments: [{ url: 'url', name: 'name', type: 'doc', size: 10 }],
-      tweetReplyToId: faker.random.number().toString(),
-      tweetReplyToScreenName: faker.name.firstName(),
     };
 
     const mutation = `
@@ -73,8 +71,6 @@ describe('Conversation message mutations', () => {
         $mentionedUserIds: [String]
         $internal: Boolean
         $attachments: [AttachmentInput]
-        $tweetReplyToId: String
-        $tweetReplyToScreenName: String
       ) {
         conversationMessageAdd(
           conversationId: $conversationId
@@ -82,8 +78,6 @@ describe('Conversation message mutations', () => {
           mentionedUserIds: $mentionedUserIds
           internal: $internal
           attachments: $attachments
-          tweetReplyToId: $tweetReplyToId
-          tweetReplyToScreenName: $tweetReplyToScreenName
         ) {
           conversationId
           content

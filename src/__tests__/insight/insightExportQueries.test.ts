@@ -55,9 +55,9 @@ describe('insightExportQueries', () => {
 
     const { data } = await generateVolumeReport(args, user);
 
-    expect(data[7].count).toBe(8);
+    expect(data[7].count).toBe(10);
     // request messages
-    expect(data[7].messageCount).toBe(6);
+    expect(data[7].messageCount).toBe(8);
 
     const response = await graphqlRequest(qry, 'insightVolumeReportExport', args);
     expect(response).toBe(`${DOMAIN}/static/xlsTemplateOutputs/Volume report By date - ${startDate} - ${endDate}.xlsx`);
@@ -74,7 +74,7 @@ describe('insightExportQueries', () => {
 
     expect(data[0].userId).toBe(user._id);
     // response messages
-    expect(data[0].count).toBe(6);
+    expect(data[0].count).toBe(8);
 
     const response = await graphqlRequest(qry, 'insightActivityReportExport', args);
     expect(response).toBe(

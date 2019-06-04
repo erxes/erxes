@@ -63,7 +63,7 @@ describe('Conversation db', () => {
   });
 
   test('Create conversation message', async () => {
-    expect.assertions(18);
+    expect.assertions(17);
 
     // setting updatedAt to null to check when new message updatedAt field
     // must be setted
@@ -81,7 +81,7 @@ describe('Conversation db', () => {
       throw new Error('Updated conversation not found');
     }
 
-    if (!messageObj || !messageObj.mentionedUserIds || !messageObj.engageData || !messageObj.facebookData) {
+    if (!messageObj || !messageObj.mentionedUserIds || !messageObj.engageData) {
       throw new Error('');
     }
 
@@ -99,8 +99,6 @@ describe('Conversation db', () => {
 
     expect(messageObj.engageData.toJSON()).toEqual(_conversationMessage.engageData.toJSON());
     expect(messageObj.formWidgetData).toEqual(_conversationMessage.formWidgetData);
-
-    expect(messageObj.facebookData.toJSON()).toEqual(_conversationMessage.facebookData.toJSON());
 
     expect(messageObj.userId).toBe(_user._id);
 
