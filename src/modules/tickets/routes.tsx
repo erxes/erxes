@@ -9,7 +9,7 @@ const TicketBoard = asyncComponent(() =>
 );
 
 const tickets = () => {
-  let link = '/ticket/board';
+  let link = '/inbox/ticket/board';
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
@@ -19,7 +19,7 @@ const tickets = () => {
   ];
 
   if (defaultBoardId && defaultPipelineId) {
-    link = `/ticket/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
+    link = `/inbox/ticket/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
   return <Redirect to={link} />;
@@ -34,12 +34,17 @@ const boards = ({ location }) => {
 const routes = () => {
   return (
     <>
-      <Route key="tickets" exact={true} path="/ticket" render={tickets} />
+      <Route
+        key="/inbox/ticket"
+        exact={true}
+        path="/inbox/ticket"
+        render={tickets}
+      />
 
       <Route
-        key="ticket/board"
+        key="/inbox/ticket/board"
         exact={true}
-        path="/ticket/board"
+        path="/inbox/ticket/board"
         component={boards}
       />
     </>

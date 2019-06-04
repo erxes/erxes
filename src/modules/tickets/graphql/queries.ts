@@ -27,7 +27,7 @@ const ticketFields = `
   pipeline {
     _id
     name
-  }
+}
   boardId
   companies {
     _id
