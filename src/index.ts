@@ -38,6 +38,14 @@ app.post('/integrations/create', async (req, res) => {
   return res.json({ status: 'ok ' });
 });
 
+app.post('/integrations/remove', async (req, res) => {
+  const { integrationId } = req.body;
+
+  await Integrations.remove({ erxesApiId: integrationId });
+
+  return res.json({ status: 'ok ' });
+});
+
 app.get('/accounts', async (req, res) => {
   const accounts = await Accounts.find({ kind: req.query.kind });
 
