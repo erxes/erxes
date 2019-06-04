@@ -62,12 +62,11 @@ const integrationMutations = {
     const integration = await Integrations.createExternalIntegration(doc);
 
     await fetchIntegrationApi({
-      path: '/integrations/create',
+      path: `/${doc.kind}/create-integration`,
       method: 'POST',
       body: {
         accountId: doc.accountId,
         integrationId: integration._id,
-        kind: doc.kind,
         data: data ? JSON.stringify(data) : '',
       },
     });
