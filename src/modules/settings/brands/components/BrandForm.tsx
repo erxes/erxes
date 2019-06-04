@@ -5,32 +5,49 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IFormProps } from 'modules/common/types';
 import * as React from 'react';
+import { mutations } from '../graphql';
 import { IBrand } from '../types';
 
 type Props = {
   brand?: IBrand;
-  save: (
-    params: {
-      name: string;
-      description: string;
-    },
-    callback: () => void,
-    brand?: IBrand
-  ) => void;
   closeModal: () => void;
+  refetchQueries: any;
 };
 
-class BrandForm extends React.Component<Props, {}> {
-  onSubmit = values => {
-    const { save, brand, closeModal } = this.props;
-    save(values, () => closeModal(), brand);
+class BrandForm extends React.Component<Props, { isSubmitted: boolean }> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isSubmitted: false
+    };
+  }
+
+  onSubmit = () => {
+    this.setState({ isSubmitted: true });
+  };
+
+  getMutation = () => {
+    if (this.props.brand) {
+      return mutations.brandEdit;
+    }
+
+    return mutations.brandAdd;
   };
 
   renderContent = (formProps: IFormProps) => {
-    const object = this.props.brand || ({} as IBrand);
+    const { brand, closeModal, refetchQueries } = this.props;
+    const object = brand || ({} as IBrand);
+
+    const finalValues = formProps.values;
+
+    if (brand) {
+      finalValues._id = brand._id;
+    }
 
     return (
       <>
@@ -62,14 +79,25 @@ class BrandForm extends React.Component<Props, {}> {
             btnStyle="simple"
             type="button"
             icon="cancel-1"
-            onClick={this.props.closeModal}
+            onClick={closeModal}
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" icon="checked-1" type="submit">
+          <ButtonMutate
+            mutation={this.getMutation()}
+            variables={finalValues}
+            callback={closeModal}
+            refetchQueries={refetchQueries}
+            isSubmitted={this.state.isSubmitted}
+            type="submit"
+            icon="checked-1"
+            successMessage={`You successfully ${
+              brand ? 'updated' : 'added'
+            } a brand.`}
+          >
             Save
-          </Button>
+          </ButtonMutate>
         </ModalFooter>
       </>
     );

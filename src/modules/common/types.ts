@@ -50,9 +50,9 @@ export type IDateColumn = {
 
 export interface IFormProps {
   errors: any;
-  values: any[];
-  registerChild: (child: any) => void;
-  runValidations?: (callback: any) => void;
+  values: any;
+  registerChild: (child: React.ReactNode) => void;
+  runValidations?: (callback: () => void) => void;
 }
 
 export type IOption = {

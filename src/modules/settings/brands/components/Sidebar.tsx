@@ -15,24 +15,15 @@ import { IBrand } from '../types';
 type Props = {
   brands: IBrand[];
   remove: (brandId: string) => void;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-      };
-    },
-    callback: () => void,
-    brand?: IBrand
-  ) => void;
   loading: boolean;
   currentBrandId?: string;
   brandsTotalCount: number;
+  refetchQueries: any;
 };
 
 class Sidebar extends React.Component<Props, {}> {
   renderItems = () => {
-    const { brands, remove, save, currentBrandId } = this.props;
+    const { brands, remove, currentBrandId, refetchQueries } = this.props;
 
     return brands.map(brand => (
       <BrandRow
@@ -40,13 +31,12 @@ class Sidebar extends React.Component<Props, {}> {
         isActive={currentBrandId === brand._id}
         brand={brand}
         remove={remove}
-        save={save}
+        refetchQueries={refetchQueries}
       />
     ));
   };
 
   renderSidebarHeader() {
-    const { save } = this.props;
     const { Header } = LeftSidebar;
 
     const addBrand = (
@@ -57,7 +47,9 @@ class Sidebar extends React.Component<Props, {}> {
       </HelperButtons>
     );
 
-    const content = props => <BrandForm {...props} save={save} />;
+    const content = props => (
+      <BrandForm {...props} refetchQueries={this.props.refetchQueries} />
+    );
 
     return (
       <Header uppercase={true}>
