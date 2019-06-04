@@ -1,12 +1,12 @@
 import { IUser } from 'modules/auth/types';
 import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
-import { __, getUserAvatar } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { ChannelForm } from '../containers';
-import { MemberImg, Members, More } from '../styles';
 import { IChannel } from '../types';
+import MemberAvatars from './MemberAvatars';
 
 type Props = {
   channel: IChannel;
@@ -52,52 +52,18 @@ class ChannelRow extends React.Component<Props, {}> {
     );
   };
 
-  renderMember = member => {
-    return (
-      <Tip key={member._id} text={member.details.fullName} placement="top">
-        <MemberImg key={member._id} src={getUserAvatar(member)} />
-      </Tip>
-    );
-  };
-
-  renderMembers() {
-    const { channel, members } = this.props;
-
-    let selectedMembers: IUser[] = [];
-
-    if (channel) {
-      selectedMembers = members.filter(user =>
-        channel.memberIds.includes(user._id)
-      );
-    }
-
-    const length = selectedMembers.length;
-    const limit = 8;
-
-    // render members ================
-    const limitedMembers = selectedMembers.slice(0, limit);
-    const renderedMembers = limitedMembers.map(member =>
-      this.renderMember(member)
-    );
-
-    // render readmore ===============
-    let readMore: React.ReactNode;
-
-    if (length - limit > 0) {
-      readMore = <More key="readmore">{`+${length - limit}`}</More>;
-    }
-
-    return [renderedMembers, readMore];
-  }
-
   render() {
-    const { channel, isActive } = this.props;
+    const { channel, isActive, members } = this.props;
+    const selectedMemberIds = channel.memberIds || [];
 
     return (
       <SidebarListItem key={channel._id} isActive={isActive}>
         <Link to={`?_id=${channel._id}`}>
           {channel.name}
-          <Members>{this.renderMembers()}</Members>
+          <MemberAvatars
+            allMembers={members}
+            selectedMemberIds={selectedMemberIds}
+          />
         </Link>
         <ActionButtons>
           {this.renderEditAction()}

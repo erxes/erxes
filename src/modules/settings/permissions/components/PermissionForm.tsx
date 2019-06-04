@@ -5,9 +5,11 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
+import { Divider, StepBody, StepHeader, StepItem } from '../styles';
 import { IActions, IModule, IPermissionParams, IUserGroup } from '../types';
 import {
   correctValue,
@@ -31,6 +33,7 @@ type State = {
   selectedActions: IActions[];
   selectedUsers: IUser[];
   selectedGroups: IUserGroup[];
+  valueChanged: boolean;
 };
 
 class PermissionForm extends React.Component<Props, State> {
@@ -38,7 +41,8 @@ class PermissionForm extends React.Component<Props, State> {
     selectedModule: '',
     selectedActions: [],
     selectedUsers: [],
-    selectedGroups: []
+    selectedGroups: [],
+    valueChanged: false
   };
 
   save = (e: React.FormEvent) => {
@@ -64,6 +68,22 @@ class PermissionForm extends React.Component<Props, State> {
     );
   };
 
+  onChange = () => {
+    this.setState({ valueChanged: true });
+  };
+
+  hasItems = (items: string[]) => {
+    return items.length > 0 ? true : false;
+  };
+
+  isModuleSelected = () => {
+    if (this.state.selectedModule) {
+      return true;
+    }
+
+    return false;
+  };
+
   select = <T extends keyof State>(name: T, value) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
@@ -87,70 +107,96 @@ class PermissionForm extends React.Component<Props, State> {
       selectedModule,
       selectedActions,
       selectedUsers,
-      selectedGroups
+      selectedGroups,
+      valueChanged
     } = this.state;
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel>Choose the module</ControlLabel>
-          <br />
+        <StepItem>
+          <StepHeader
+            number="1"
+            isDone={this.isModuleSelected() && this.hasItems(selectedActions)}
+          >
+            {__('What action can do')}
+          </StepHeader>
+          <StepBody>
+            <FormGroup>
+              <ControlLabel>Choose the module</ControlLabel>
+              <Select
+                placeholder="Choose module"
+                options={generateModuleParams(modules)}
+                value={selectedModule}
+                onChange={this.changeModule}
+              />
+            </FormGroup>
+            <Divider>{__('Then')}</Divider>
+            <FormGroup>
+              <ControlLabel>Choose the actions</ControlLabel>
+              <Select
+                placeholder="Choose actions"
+                options={filterActions(actions, selectedModule)}
+                value={selectedActions}
+                disabled={!this.isModuleSelected()}
+                onChange={this.select.bind(this, 'selectedActions')}
+                multi={true}
+              />
+            </FormGroup>
+          </StepBody>
+        </StepItem>
 
-          <Select
-            placeholder="Choose module"
-            options={generateModuleParams(modules)}
-            value={selectedModule}
-            onChange={this.changeModule}
-          />
-        </FormGroup>
+        <StepItem>
+          <StepHeader
+            number="2"
+            isDone={
+              this.hasItems(selectedGroups) || this.hasItems(selectedUsers)
+            }
+          >
+            {__('Who can')}
+          </StepHeader>
+          <StepBody>
+            <FormGroup>
+              <ControlLabel>Choose the groups</ControlLabel>
+              <Select
+                placeholder="Choose groups"
+                options={generateListParams(groups)}
+                value={selectedGroups}
+                onChange={this.select.bind(this, 'selectedGroups')}
+                multi={true}
+              />
+            </FormGroup>
+            <Divider>{__('Or')}</Divider>
+            <FormGroup>
+              <ControlLabel>Choose the users</ControlLabel>
+              <Select
+                placeholder="Choose users"
+                options={generateListParams(users)}
+                value={selectedUsers}
+                onChange={this.select.bind(this, 'selectedUsers')}
+                multi={true}
+              />
+            </FormGroup>
+          </StepBody>
+        </StepItem>
 
-        <FormGroup>
-          <ControlLabel>Choose the actions</ControlLabel>
-          <br />
+        <StepItem>
+          <StepHeader number="3" isDone={valueChanged}>
+            {__('Grant permission')}
+          </StepHeader>
+          <StepBody>
+            <FormGroup>
+              <ControlLabel>Allow</ControlLabel>
 
-          <Select
-            placeholder="Choose actions"
-            options={filterActions(actions, selectedModule)}
-            value={selectedActions}
-            onChange={this.select.bind(this, 'selectedActions')}
-            multi={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Choose the groups</ControlLabel>
-          <br />
-
-          <Select
-            placeholder="Choose groups"
-            options={generateListParams(groups)}
-            value={selectedGroups}
-            onChange={this.select.bind(this, 'selectedGroups')}
-            multi={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Choose the users</ControlLabel>
-          <br />
-
-          <Select
-            placeholder="Choose users"
-            options={generateListParams(users)}
-            value={selectedUsers}
-            onChange={this.select.bind(this, 'selectedUsers')}
-            multi={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Allow</ControlLabel>
-          <FormControl
-            componentClass="checkbox"
-            defaultChecked={false}
-            id="allowed"
-          />
-        </FormGroup>
+              <FormControl
+                componentClass="checkbox"
+                defaultChecked={false}
+                id="allowed"
+                onChange={this.onChange}
+              />
+              <p>{__('Check if permission is allowed')}</p>
+            </FormGroup>
+          </StepBody>
+        </StepItem>
       </>
     );
   }

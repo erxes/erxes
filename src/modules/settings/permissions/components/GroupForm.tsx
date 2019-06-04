@@ -5,6 +5,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
+import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import { IUserGroup, IUserGroupDocument } from '../types';
@@ -15,13 +16,26 @@ type Props = {
   object: { _id: string } & IUserGroup;
 };
 
-class GroupForm extends React.Component<Props> {
+type State = {
+  selectedMembers: string[];
+};
+
+class GroupForm extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      selectedMembers: (props.object && props.object.memberIds) || []
+    };
+  }
+
   generateDoc() {
     return {
       name: (document.getElementById('group-name') as HTMLInputElement).value,
       description: (document.getElementById(
         'group-description'
-      ) as HTMLInputElement).value
+      ) as HTMLInputElement).value,
+      memberIds: this.state.selectedMembers
     };
   }
 
@@ -45,6 +59,11 @@ class GroupForm extends React.Component<Props> {
     const object = this.props.object || ({} as IUserGroupDocument);
     const name = object.name || '';
     const description = object.description || '';
+    const self = this;
+
+    const onChange = selectedMembers => {
+      self.setState({ selectedMembers });
+    };
 
     return (
       <>
@@ -58,6 +77,17 @@ class GroupForm extends React.Component<Props> {
             componentClass="textarea"
             id="group-description"
             defaultValue={description}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Members</ControlLabel>
+
+          <SelectTeamMembers
+            label="Choose members"
+            name="selectedMembers"
+            value={self.state.selectedMembers}
+            onSelect={onChange}
           />
         </FormGroup>
       </>

@@ -297,7 +297,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         isOpen={config.showDeals || false}
         toggle={toggleSection}
       >
-        <PortableDeals customerId={customer._id} isOpen={config.showDeals} />
+        <PortableDeals customerIds={[customer._id]} isOpen={config.showDeals} />
       </Box>
     );
   }
