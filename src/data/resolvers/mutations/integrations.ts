@@ -1,6 +1,6 @@
 import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
-import { IMessengerIntegration } from '../../../db/models/Integrations';
+import { IExternalIntegrationParams, IMessengerIntegration } from '../../../db/models/Integrations';
 import { checkPermission } from '../../permissions';
 import { fetchIntegrationApi } from '../../utils';
 
@@ -53,6 +53,26 @@ const integrationMutations = {
    */
   integrationsEditFormIntegration(_root, { _id, ...doc }: IEditFormIntegration) {
     return Integrations.updateFormIntegration(_id, doc);
+  },
+
+  /*
+   * Create external integrations like twitter, facebook, gmail etc ...
+   */
+  async integrationsCreateExternalIntegration(_root, { data, ...doc }: IExternalIntegrationParams & { data: object }) {
+    const integration = await Integrations.createExternalIntegration(doc);
+
+    await fetchIntegrationApi({
+      path: '/integrations/create',
+      method: 'POST',
+      body: {
+        accountId: doc.accountId,
+        integrationId: integration._id,
+        kind: doc.kind,
+        data: data ? JSON.stringify(data) : '',
+      },
+    });
+
+    return integration;
   },
 
   /**

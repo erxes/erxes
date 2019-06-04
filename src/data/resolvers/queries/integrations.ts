@@ -117,10 +117,10 @@ const integrationQueries = {
   },
 
   /**
-   * Accounts by integration kind
+   * Fetch integrations api
    */
-  integrationsAccounts(_root, { kind }: { kind: string }) {
-    return fetchIntegrationApi({ path: '/accounts', method: 'GET', params: { kind } });
+  integrationsFetchApi(_root, { path, params }: { path: string; params: { [key: string]: string } }) {
+    return fetchIntegrationApi({ path, method: 'GET', params });
   },
 };
 

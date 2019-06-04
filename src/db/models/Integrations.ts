@@ -17,6 +17,13 @@ export interface IMessengerIntegration {
   languageCode: string;
 }
 
+export interface IExternalIntegrationParams {
+  kind: string;
+  name: string;
+  brandId: string;
+  accountId: string;
+}
+
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   generateFormDoc(mainDoc: IIntegration, formData: IFormData): IIntegration;
   createIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
@@ -26,6 +33,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   saveMessengerConfigs(_id: string, messengerData: IMessengerData): Promise<IIntegrationDocument>;
   createFormIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
   updateFormIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
+  createExternalIntegration(doc: IExternalIntegrationParams): Promise<IIntegrationDocument>;
   removeIntegration(_id: string): void;
 }
 
@@ -100,7 +108,14 @@ export const loadClass = () => {
         throw new Error('formData must be supplied');
       }
 
-      return Integrations.create(doc);
+      return Integrations.createIntegration(doc);
+    }
+
+    /**
+     * Create external integrations like facebook, twitter integration
+     */
+    public static createExternalIntegration(doc: IExternalIntegrationParams): Promise<IIntegrationDocument> {
+      return Integrations.createIntegration(doc);
     }
 
     /**

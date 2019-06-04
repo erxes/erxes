@@ -86,7 +86,7 @@ export const queries = `
 
   integrationDetail(_id: String!): Integration
   integrationsTotalCount: integrationsTotalCount
-  integrationsAccounts(kind: String): [JSON]
+  integrationsFetchApi(path: String!, params: JSON!): JSON
 `;
 
 export const mutations = `
@@ -125,6 +125,13 @@ export const mutations = `
     languageCode: String,
     formId: String!,
     formData: IntegrationFormData!): Integration
+
+  integrationsCreateExternalIntegration(
+    kind: String!,
+    name: String!,
+    brandId: String!,
+    accountId: String!,
+    data: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!): JSON
