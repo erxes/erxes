@@ -15,7 +15,26 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {} & IRouterProps & Props;
+type CreateFacebookMutationVariables = {
+  name: string;
+  brandId: string;
+  data: {
+    pageIds: string[];
+  };
+};
+
+type CreateFacebookMutationResponse = {
+  saveMutation: (
+    params: {
+      variables: CreateFacebookMutationVariables & {
+        accountId: string;
+        kind: string;
+      };
+    }
+  ) => Promise<any>;
+};
+
+type FinalProps = {} & IRouterProps & Props & CreateFacebookMutationResponse;
 
 type State = {
   pages: IPages[];
@@ -59,24 +78,26 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     this.setState({ pages: [] });
   };
 
-  onSave = () => {
-    const { history } = this.props;
+  onSave = (
+    variables: CreateFacebookMutationVariables,
+    callback: () => void
+  ) => {
+    const { history, saveMutation } = this.props;
     const { accountId } = this.state;
 
     if (!accountId) {
       return;
     }
 
-    // TODO
-    // saveMutation({ variables: { ...variables, accountId } })
-    //   .then(() => {
-    //     callback();
-    //     Alert.success('You successfully added a integration');
-    //     history.push('/settings/integrations');
-    //   })
-    //   .catch(e => {
-    //     Alert.error(e.message);
-    //   });
+    saveMutation({ variables: { ...variables, kind: 'facebook', accountId } })
+      .then(() => {
+        callback();
+        Alert.success('You successfully added a integration');
+        history.push('/settings/integrations');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   render() {
@@ -96,7 +117,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(mutations.integrationsCreateMessenger), {
+    graphql<Props>(gql(mutations.integrationsCreateExternalIntegration), {
       name: 'saveMutation',
       options: () => {
         return {

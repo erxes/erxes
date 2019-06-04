@@ -23,6 +23,19 @@ const integrationsCreateMessenger = `
   }
 `;
 
+const integrationsCreateExternalIntegration = `
+  mutation integrationsCreateExternalIntegration($name: String!, $brandId: String!, $accountId: String!, $kind: String!, $data: JSON) {
+    integrationsCreateExternalIntegration(name: $name, brandId: $brandId, accountId: $accountId, kind: $kind, data: $data) {
+      _id
+      brand {
+        _id
+        name
+        code
+      }
+    }
+  }
+`;
+
 const integrationsEditMessenger = `
   mutation integrationsEditMessengerIntegration($_id: String!, ${commonParamsDef}) {
     integrationsEditMessengerIntegration(_id: $_id, ${commonParams}) {
@@ -102,6 +115,7 @@ const removeAccount = `
 
 export default {
   integrationsCreateMessenger,
+  integrationsCreateExternalIntegration,
   integrationsEditMessenger,
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,

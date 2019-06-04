@@ -51,7 +51,9 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
       name: (document.getElementById('name') as HTMLInputElement).value,
       brandId: (document.getElementById('selectBrand') as HTMLInputElement)
         .value,
-      pageIds: this.collectCheckboxValues('pages')
+      data: {
+        pageIds: this.collectCheckboxValues('pages')
+      }
     };
 
     this.setState({ loading: true });
