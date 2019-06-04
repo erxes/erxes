@@ -127,4 +127,5 @@ export const mutations = `
     formData: IntegrationFormData!): Integration
 
   integrationsRemove(_id: String!): JSON
+  integrationsRemoveAccount(_id: String!): JSON
 `;

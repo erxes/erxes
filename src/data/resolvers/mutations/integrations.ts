@@ -2,6 +2,7 @@ import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IMessengerIntegration } from '../../../db/models/Integrations';
 import { checkPermission } from '../../permissions';
+import { fetchIntegrationApi } from '../../utils';
 
 interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
@@ -60,6 +61,13 @@ const integrationMutations = {
   async integrationsRemove(_root, { _id }: { _id: string }) {
     await Integrations.findOne({ _id });
     return Integrations.removeIntegration(_id);
+  },
+
+  /**
+   * Delete an account
+   */
+  async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
+    return fetchIntegrationApi({ path: '/accounts/remove', method: 'post', body: { _id } });
   },
 };
 
