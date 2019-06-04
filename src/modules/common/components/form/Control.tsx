@@ -156,7 +156,7 @@ class FormControl extends React.Component<Props> {
     if (elementType === 'textarea') {
       return (
         <div>
-          <Textarea {...props} />
+          <Textarea {...props} formErrorMessage={errorMessage} />
           {errorMessage}
         </div>
       );

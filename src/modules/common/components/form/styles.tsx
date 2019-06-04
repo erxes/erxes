@@ -110,15 +110,11 @@ const Select = styled(Input.withComponent('select'))`
 
 const TextArea = styledTS<{
   maxHeight?: number;
-  formErrorMessage?: React.ReactNode;
 }>(styled(Input.withComponent('textarea')))`
   transition: none;
   max-height: ${props => props.maxHeight && `${props.maxHeight}px`};
   min-height: 80px;
   resize: none;
-  border-bottom: 1px solid;
-  border-color:${props =>
-    props.formErrorMessage ? colors.colorCoreRed : colors.colorShadowGray};
 `;
 
 const FormLabel = styled.label`

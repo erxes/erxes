@@ -1,6 +1,7 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
@@ -15,28 +16,22 @@ type Props = {
 };
 
 class PasswordConfirmation extends React.Component<Props> {
-  submit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const password = (document.getElementById('password') as HTMLInputElement)
-      .value;
-
-    this.props.onSuccess(password, this.props.formProps.values);
+  submit = values => {
+    this.props.onSuccess(values.password, this.props.formProps.values);
     this.props.closeModal();
   };
 
-  render() {
+  renderContent = formProps => {
     return (
-      <form onSubmit={this.submit}>
+      <>
         <FormGroup>
           <ControlLabel>Enter your password to Confirm</ControlLabel>
           <FormControl
             autoFocus={true}
             type="password"
-            id="password"
             name="password"
             required={true}
-            {...this.props.formProps}
+            {...formProps}
           />
         </FormGroup>
         <ModalFooter>
@@ -47,12 +42,16 @@ class PasswordConfirmation extends React.Component<Props> {
           >
             Cancel
           </Button>
-          <Button btnStyle="success" icon="checked-1" onClick={this.submit}>
+          <Button type="submit" btnStyle="success" icon="checked-1">
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} onSubmit={this.submit} />;
   }
 }
 

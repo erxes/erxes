@@ -63,7 +63,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
-                type="email"
+                type="text"
                 name="description"
                 max={250}
                 componentClass="textarea"

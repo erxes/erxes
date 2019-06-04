@@ -1,11 +1,10 @@
-import { NULL } from 'graphql/language/kinds';
 import { IFormProps } from 'modules/common/types';
 import * as React from 'react';
 import * as validator from 'validator';
 import { Error } from './styles';
 
 type Props = {
-  renderContent: (props: IFormProps) => any;
+  renderContent: (props: IFormProps) => React.ReactNode;
   onSubmit?: (values: any) => any;
 };
 
@@ -59,29 +58,30 @@ class Form extends React.Component<Props, State> {
   };
 
   validate = child => {
-    const value = (document.getElementsByName(child.props.name) as any)[0]
-      .value;
+    const { props } = child;
 
-    if (child.props.required && !value) {
+    const value = (document.getElementsByName(props.name) as any)[0].value;
+
+    if (props.required && !value) {
       return <Error>Required field!</Error>;
     }
 
-    if (child.props.type === 'email' && !validator.isEmail(value)) {
+    if (props.type === 'email' && !validator.isEmail(value)) {
       return (
         <Error>Invalid email format! Please enter a valid email address.</Error>
       );
     }
 
     if (
-      child.props.max &&
-      !validator.isLength('description', { min: 1, max: 6 })
+      props.max &&
+      !validator.isLength('description', { min: 0, max: props.max })
     ) {
-      return <Error>Maximum length is {child.props.max} characters!</Error>;
+      return <Error>Maximum length is {props.max} characters!</Error>;
     }
 
     if (
       value &&
-      child.props.type === 'url' &&
+      props.type === 'url' &&
       !validator.isURL(value, {
         protocols: ['http', 'https', 'ftp'],
         require_protocol: true
@@ -90,9 +90,7 @@ class Form extends React.Component<Props, State> {
       return <Error>Invalid link!</Error>;
     }
 
-    if (value && child.props.type === 'number' && !validator.isInt(value)) {
-      // tslint:disable-next-line:no-console
-      console.log(child.props.name, '-', value, '-', child.props.type);
+    if (value && props.type === 'number' && !validator.isInt(value)) {
       return <Error>Invalid number format! Please enter a valid number.</Error>;
     }
 
