@@ -95,8 +95,8 @@ const messengerAppsRemove = `
 `;
 
 const removeAccount = `
-  mutation accountsRemove($_id: String!) {
-    accountsRemove(_id: $_id)
+  mutation integrationsRemoveAccount($_id: String!) {
+    integrationsRemoveAccount(_id: $_id)
   }
 `;
 
