@@ -12,8 +12,8 @@ import * as React from 'react';
 
 type Props = {
   type: string;
-  customerId?: string;
-  companyId?: string;
+  customerIds?: string[];
+  companyIds?: string[];
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
@@ -51,7 +51,7 @@ class AddForm extends React.Component<Props, State> {
     e.preventDefault();
 
     const { stageId, name } = this.state;
-    const { customerId, companyId, saveItem, closeModal } = this.props;
+    const { companyIds, customerIds, saveItem, closeModal } = this.props;
 
     if (!stageId) {
       return Alert.error('No stage');
@@ -64,8 +64,8 @@ class AddForm extends React.Component<Props, State> {
     const doc = {
       name,
       stageId,
-      customerIds: customerId ? [customerId] : [],
-      companyIds: companyId ? [companyId] : []
+      customerIds: customerIds || [],
+      companyIds: companyIds || []
     };
 
     // before save, disable save button

@@ -143,6 +143,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
 export default (props: Props) => {
   const { type } = props;
+  console.log('type: ', type); //tslint:disable-line
 
   return withProps<Props>(
     props,

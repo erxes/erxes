@@ -18,7 +18,7 @@ export const STAGE_CONSTANTS = {
     copySuccessText: 'You successfully copied a deal'
   },
   ticket: {
-    title: 'Teals',
+    title: 'Tickets',
     itemsQuery: 'tickets',
     detailQuery: 'ticketDetail',
     addMutation: 'ticketsAdd',

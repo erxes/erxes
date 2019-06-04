@@ -12,8 +12,8 @@ import { Item, ItemParams } from '../../types';
 type Props = {
   type: string;
   items: Item[];
-  customerId?: string;
-  companyId?: string;
+  customerIds?: string[];
+  companyIds?: string[];
   saveItem: (doc: ItemParams, callback: () => void, item?: Item) => void;
   onChangeItems: () => void;
   isOpen?: boolean;
@@ -55,7 +55,7 @@ class PortableItems extends React.Component<Props> {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const { saveItem, customerId, companyId, isOpen, type } = this.props;
+    const { saveItem, customerIds, companyIds, isOpen, type } = this.props;
 
     const trigger = (
       <a>
@@ -68,8 +68,8 @@ class PortableItems extends React.Component<Props> {
         type={type}
         {...props}
         saveItem={saveItem}
-        customerId={customerId}
-        companyId={companyId}
+        customerIds={customerIds}
+        companyIds={companyIds}
         showSelect={true}
       />
     );

@@ -31,6 +31,7 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
     const content = props => (
       <EditForm
         {...props}
+        type="deal"
         stageId={item.stageId}
         itemId={item._id}
         onAdd={onAdd}

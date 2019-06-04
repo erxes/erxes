@@ -55,6 +55,7 @@ export default class RightSidebar extends React.Component<{
       <Sidebar>
         <CompanyAssociate data={customer} />
         <PortableItems type="deal" customerIds={[customer._id]} />
+        <PortableItems type="ticket" customerIds={[customer._id]} />
         {this.renderOther()}
       </Sidebar>
     );
