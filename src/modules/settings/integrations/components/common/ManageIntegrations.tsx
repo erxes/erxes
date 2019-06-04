@@ -102,12 +102,8 @@ class ManageIntegrations extends React.Component<Props, State> {
 
     if (kind === KIND_CHOICES.FORM) {
       type = 'form';
-    } else if (kind === KIND_CHOICES.TWITTER) {
-      type = 'twitter';
     } else if (kind === KIND_CHOICES.FACEBOOK) {
       type = 'facebook';
-    } else if (kind === KIND_CHOICES.GMAIL) {
-      type = 'gmail';
     }
 
     return type;
@@ -119,12 +115,8 @@ class ManageIntegrations extends React.Component<Props, State> {
 
     if (kind === KIND_CHOICES.FORM) {
       icon = 'doc-text-inv-1';
-    } else if (kind === KIND_CHOICES.TWITTER) {
-      icon = 'twitter-1';
     } else if (kind === KIND_CHOICES.FACEBOOK) {
       icon = 'facebook-official';
-    } else if (kind === KIND_CHOICES.GMAIL) {
-      icon = 'mail-alt';
     }
 
     return icon;

@@ -133,9 +133,7 @@ type By = { [key: string]: number };
 export type ByKind = {
   messenger: number;
   form: number;
-  twitter: number;
   facebook: number;
-  gmail: number;
 };
 
 type IntegrationsCount = {
