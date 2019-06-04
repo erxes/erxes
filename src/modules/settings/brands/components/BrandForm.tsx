@@ -8,6 +8,7 @@ import {
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { mutations } from '../graphql';
 import { IBrand } from '../types';
@@ -96,7 +97,7 @@ class BrandForm extends React.Component<Props, { isSubmitted: boolean }> {
               brand ? 'updated' : 'added'
             } a brand.`}
           >
-            Save
+            {__('Save')}
           </ButtonMutate>
         </ModalFooter>
       </>
