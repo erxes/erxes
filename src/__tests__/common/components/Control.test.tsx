@@ -54,6 +54,8 @@ describe('Form control component', () => {
 
     const rendered = mount(<Control {...defaultProps} />);
     const radio = rendered.find('input').debug();
+    // console.log("--------", radio);
+
     const found = radio.search('type="radio"');
 
     // if str is not found, -1 is returned

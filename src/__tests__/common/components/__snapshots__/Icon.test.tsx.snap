@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Bulk component snapshot matches 1`] = `
+<i
+  className="icon-aa sc-bdVaJa cUgreV"
+  icon="aa"
+/>
+`;
+
+exports[`Icon component renders test 1`] = `
+<label>
+  <i
+    className="icon-upload-1 sc-bdVaJa dydvBK"
+    icon="upload-1"
+    size={30}
+  />
+</label>
+`;
+
+exports[`Icon component renders test email 1`] = `
+<label>
+  <i
+    className="icon-email sc-bdVaJa dydvBK"
+    icon="email"
+    size={30}
+  />
+</label>
+`;
+
+exports[`Icon component renders test email on icon and size 1`] = `
+<label>
+  <i
+    className="icon-email sc-bdVaJa keCqdn"
+    icon="email"
+    size={10}
+  />
+</label>
+`;
+
+exports[`Icon component renders test email with size 1`] = `
+<label>
+  <i
+    className="icon-email sc-bdVaJa keCqdn"
+    icon="email"
+    size={10}
+  />
+</label>
+`;
+
+exports[`Icon component renders test upload-1 1`] = `
+<label>
+  <i
+    className="icon-upload-1 sc-bdVaJa dydvBK"
+    icon="upload-1"
+    size={30}
+  />
+</label>
+`;
+
+exports[`Icon component renders test upload-1 2`] = `
+<label>
+  <i
+    className="icon-email sc-bdVaJa dydvBK"
+    icon="email"
+    size={30}
+  />
+</label>
+`;
+
+exports[`Icon component snapshot matches 1`] = `
+<i
+  className="icon-aa sc-bdVaJa keCqdn"
+  icon="aa"
+  size={10}
+/>
+`;
