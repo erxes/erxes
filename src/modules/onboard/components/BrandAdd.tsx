@@ -24,7 +24,6 @@ class BrandAdd extends React.Component<
   constructor(props: Props) {
     super(props);
 
-    console.log(props.brandsTotalCount); //tslint:disable-line
     this.state = {
       showBrands: true,
       brandName: ''
