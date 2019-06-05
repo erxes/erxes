@@ -14,6 +14,7 @@ import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { MessageListRow, Sidebar } from '../containers';
+import { MessageDescription } from '../styles';
 import { IEngageMessage } from '../types';
 
 type Props = {
@@ -81,16 +82,25 @@ class List extends React.Component<Props> {
           <li>
             <Link to={'/engage/messages/create?kind=auto'}>
               {__('Auto message')}
+              <MessageDescription>
+                {__('Auto message description')}
+              </MessageDescription>
             </Link>
           </li>
           <li>
             <Link to={'/engage/messages/create?kind=manual'}>
               {__('Manual message')}
+              <MessageDescription>
+                {__('Manual message description')}
+              </MessageDescription>
             </Link>
           </li>
           <li>
             <Link to={'/engage/messages/create?kind=visitorAuto'}>
               {__('Visitor auto message')}
+              <MessageDescription>
+                {__('Visitor auto message description')}
+              </MessageDescription>
             </Link>
           </li>
         </Dropdown.Menu>
