@@ -1,8 +1,8 @@
 import { MainActionBar } from 'modules/boards/components';
+import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import { Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { ButtonGroup } from 'modules/deals/styles/header';
 import { SelectProducts } from 'modules/settings/productService/containers';
 import * as React from 'react';
 import { Link } from 'react-router-dom';

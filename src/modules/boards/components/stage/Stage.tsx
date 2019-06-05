@@ -1,5 +1,3 @@
-import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
 import {
   AddNew,
   Body,
@@ -11,7 +9,9 @@ import {
   LoadingContent,
   StageFooter,
   StageRoot
-} from 'modules/deals/styles/stage';
+} from 'modules/boards/styles/stage';
+import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { STAGE_CONSTANTS } from '../../constants';

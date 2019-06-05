@@ -1,12 +1,12 @@
 import { DetailItems, UserCounter } from 'modules/boards/components/portable';
 import { EditForm } from 'modules/boards/containers/editForm';
-import { ItemContainer } from 'modules/boards/styles';
+import { ItemContainer } from 'modules/boards/styles/common';
+import { Content } from 'modules/boards/styles/stage';
 import { renderAmount } from 'modules/boards/utils';
 import { renderDate } from 'modules/boards/utils';
 import { ModalTrigger } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import { Content } from 'modules/deals/styles/stage';
 import * as React from 'react';
 import {
   Footer,
@@ -14,7 +14,7 @@ import {
   Right,
   SpaceContent,
   Status
-} from '../styles/deal';
+} from '../../boards/styles/item';
 import { IDeal } from '../types';
 
 type Props = {

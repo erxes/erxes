@@ -1,13 +1,13 @@
 import { BoardSelect } from 'modules/boards/containers';
-import { IStage } from 'modules/boards/types';
-import { Icon, Tip } from 'modules/common/components';
 import {
   MoveContainer,
   MoveFormContainer,
   PipelineName,
   StageItem,
   Stages
-} from 'modules/deals/styles/deal';
+} from 'modules/boards/styles/item';
+import { IStage } from 'modules/boards/types';
+import { Icon, Tip } from 'modules/common/components';
 import * as React from 'react';
 import { Item } from '../../types';
 

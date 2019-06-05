@@ -1,16 +1,16 @@
 import { DetailItems, UserCounter } from 'modules/boards/components/portable';
 import { EditForm } from 'modules/boards/containers/editForm';
-import { ItemContainer } from 'modules/boards/styles';
-import { renderDate } from 'modules/boards/utils';
-import { ModalTrigger } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import { ItemContainer } from 'modules/boards/styles/common';
 import {
   Footer,
   PriceContainer,
   Right,
   SpaceContent
-} from 'modules/deals/styles/deal';
-import { Content } from 'modules/deals/styles/stage';
+} from 'modules/boards/styles/item';
+import { Content } from 'modules/boards/styles/stage';
+import { renderDate } from 'modules/boards/utils';
+import { ModalTrigger } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { ITicket } from '../types';
 

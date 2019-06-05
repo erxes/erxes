@@ -1,4 +1,14 @@
 import {
+  ClearDate,
+  ClearFilter,
+  DateFilter,
+  FilterBox,
+  FilterBtn,
+  FilterDetail,
+  FilterItem,
+  RemoveFilter
+} from 'modules/boards/styles/filter';
+import {
   Button,
   DropdownToggle,
   EmptyState,
@@ -9,16 +19,6 @@ import {
 import { __ } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { SelectCustomers } from 'modules/customers/containers/common';
-import {
-  ClearDate,
-  ClearFilter,
-  DateFilter,
-  FilterBox,
-  FilterBtn,
-  FilterDetail,
-  FilterItem,
-  RemoveFilter
-} from 'modules/deals/styles/filter';
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
@@ -31,7 +31,7 @@ import {
   HeaderLabel,
   HeaderLink,
   PageHeader
-} from '../../deals/styles/header';
+} from '../styles/header';
 import { IBoard, IPipeline } from '../types';
 
 type Props = {

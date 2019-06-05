@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
+import { PageHeader } from 'modules/boards/styles/header';
 import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import { DealMainActionBar } from 'modules/deals/components';
-import { PageHeader } from 'modules/deals/styles/header';
 import { ProductsQueryResponse } from 'modules/deals/types';
 import { queries as productQueries } from 'modules/settings/productService/graphql';
 import queryString from 'query-string';

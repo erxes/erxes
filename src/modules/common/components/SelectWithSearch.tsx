@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import debounce from 'lodash/debounce';
-import { Avatar, SelectOption, SelectValue } from 'modules/deals/styles/deal';
+import { Avatar, SelectOption, SelectValue } from 'modules/boards/styles/item';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Select from 'react-select-plus';

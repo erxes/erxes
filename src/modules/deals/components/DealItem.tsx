@@ -1,10 +1,10 @@
 import { EditForm } from 'modules/boards/containers/editForm';
-import { Date, ItemContainer } from 'modules/boards/styles';
+import { Date, ItemContainer } from 'modules/boards/styles/common';
+import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
+import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { Item } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
-import { Footer, PriceContainer, Right } from 'modules/deals/styles/deal';
-import { Content, ItemIndicator } from 'modules/deals/styles/stage';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';

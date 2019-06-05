@@ -1,8 +1,8 @@
+import { AddNew } from 'modules/boards/styles/stage';
 import { EmptyState, Icon } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { AddNew } from 'modules/deals/styles/stage';
 import * as React from 'react';
 import styled from 'styled-components';
 import { IDeal, IDealTotalAmount } from '../../types';

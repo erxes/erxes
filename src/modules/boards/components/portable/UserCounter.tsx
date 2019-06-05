@@ -1,7 +1,7 @@
 import { IUser } from 'modules/auth/types';
+import { UserCounterContainer } from 'modules/boards/styles/item';
 import { Tip } from 'modules/common/components';
 import { getUserAvatar } from 'modules/common/utils';
-import { UserCounterContainer } from 'modules/deals/styles/deal';
 import * as React from 'react';
 
 type Props = {

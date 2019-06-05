@@ -1,10 +1,10 @@
 import { IUser } from 'modules/auth/types';
 import { EditForm } from 'modules/boards/components/editForm';
+import { HeaderContentSmall } from 'modules/boards/styles/item';
 import { Item, ItemParams } from 'modules/boards/types';
 import { ControlLabel } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { ProductSection } from 'modules/deals/components';
-import { HeaderContentSmall } from 'modules/deals/styles/deal';
 import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 

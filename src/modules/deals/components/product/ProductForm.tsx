@@ -4,7 +4,7 @@ import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 import { ProductItemForm } from '../../containers';
-import { Add, FooterInfo, FormContainer } from '../../styles/product';
+import { Add, FooterInfo, FormContainer } from '../../styles';
 import { IProductData } from '../../types';
 
 type Props = {

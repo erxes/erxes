@@ -1,8 +1,8 @@
-import { SelectContainer } from 'modules/boards/styles';
+import { SelectContainer } from 'modules/boards/styles/common';
 import { colors } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { borderRadius } from './common';
+import { borderRadius } from '../../deals/styles/common';
 
 const FlexContent = styled.div`
   display: flex;

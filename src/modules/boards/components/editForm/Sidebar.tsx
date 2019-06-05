@@ -4,7 +4,7 @@ import { ICompany } from 'modules/companies/types';
 import { CustomerSection } from 'modules/customers/components/common';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
-import { RightContent } from '../../../deals/styles/deal';
+import { RightContent } from '../../styles/item';
 import { Item } from '../../types';
 
 type Props = {

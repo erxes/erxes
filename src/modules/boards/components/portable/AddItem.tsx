@@ -1,13 +1,13 @@
 import { BoardSelect } from 'modules/boards/containers';
-import { ItemParams } from 'modules/boards/types';
-import { Button, ControlLabel, FormControl } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
 import {
   AddContainer,
   FormFooter,
   HeaderContent,
   HeaderRow
-} from 'modules/deals/styles/deal';
+} from 'modules/boards/styles/item';
+import { ItemParams } from 'modules/boards/types';
+import { Button, ControlLabel, FormControl } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 
 type Props = {

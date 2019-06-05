@@ -1,11 +1,11 @@
 import { ActivityInputs } from 'modules/activityLogs/components';
 import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
+import { FlexContent, FormFooter, Left } from 'modules/boards/styles/item';
 import { Button } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
-import { FlexContent, FormFooter, Left } from 'modules/deals/styles/deal';
 import * as React from 'react';
 import { STAGE_CONSTANTS } from '../../constants';
 import { Item, ItemParams } from '../../types';

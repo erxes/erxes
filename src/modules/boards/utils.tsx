@@ -2,11 +2,11 @@ import {
   STORAGE_BOARD_KEY,
   STORAGE_PIPELINE_KEY
 } from 'modules/boards/constants';
+import { Amount } from 'modules/boards/styles/stage';
 import { Tip } from 'modules/common/components';
-import { Amount } from 'modules/deals/styles/stage';
 import * as moment from 'moment';
 import * as React from 'react';
-import { Date } from './styles';
+import { Date } from './styles/common';
 import { IDraggableLocation, IItemMap } from './types';
 
 type Options = {

@@ -1,18 +1,18 @@
 import { IUser } from 'modules/auth/types';
 import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import {
   FlexContent,
   HeaderContent,
   HeaderContentSmall,
   HeaderRow,
   Left,
   RightContent
-} from 'modules/deals/styles/deal';
+} from 'modules/boards/styles/item';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import * as React from 'react';
 import * as Datetime from 'react-datetime';

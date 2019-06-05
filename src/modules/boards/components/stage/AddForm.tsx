@@ -2,13 +2,13 @@ import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
+import { invalidateCalendarCache } from '../../../deals/utils';
 import {
   AddContainer,
   FormFooter,
   HeaderContent,
   HeaderRow
-} from '../../../deals/styles/deal';
-import { invalidateCalendarCache } from '../../../deals/utils';
+} from '../../styles/item';
 
 type Props = {
   add: (name: string, callback: () => void) => void;

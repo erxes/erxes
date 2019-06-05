@@ -1,7 +1,7 @@
+import { ItemIndicator } from 'modules/boards/styles/stage';
 import { renderFullName } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
-import { ItemIndicator } from 'modules/deals/styles/stage';
 import * as React from 'react';
 import { IProduct } from '../../../settings/productService/types';
 
