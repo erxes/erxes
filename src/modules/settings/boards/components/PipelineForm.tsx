@@ -31,7 +31,7 @@ type Props = {
 type State = {
   name: string;
   stages: IStage[];
-  visiblity: string;
+  visibility: string;
   selectedMembers: IUser[];
 };
 
@@ -44,7 +44,7 @@ class PipelineForm extends React.Component<Props, State> {
     this.state = {
       name: pipeline ? pipeline.name : '',
       stages: (stages || []).map(stage => ({ ...stage })),
-      visiblity: pipeline ? pipeline.visiblity || 'public' : 'public',
+      visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       selectedMembers: this.generateMembersParams(selectedMembers)
     };
   }
@@ -53,9 +53,9 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ stages });
   };
 
-  onChangeVisiblity = (e: React.FormEvent<HTMLElement>) => {
+  onChangevisibility = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
-      visiblity: (e.currentTarget as HTMLInputElement).value
+      visibility: (e.currentTarget as HTMLInputElement).value
     });
   };
 
@@ -88,7 +88,7 @@ class PipelineForm extends React.Component<Props, State> {
         type,
         boardId: pipeline ? pipeline.boardId : this.props.boardId,
         stages: this.state.stages.filter(el => el.name),
-        visiblity: this.state.visiblity,
+        visibility: this.state.visibility,
         memberIds: this.collectValues(this.state.selectedMembers)
       }
     };
@@ -108,7 +108,7 @@ class PipelineForm extends React.Component<Props, State> {
       () => {
         this.setState({
           selectedMembers: [],
-          visiblity: 'public',
+          visibility: 'public',
           stages: [],
           name: ''
         });
@@ -120,9 +120,9 @@ class PipelineForm extends React.Component<Props, State> {
 
   renderSelectMembers() {
     const { members } = this.props;
-    const { visiblity, selectedMembers } = this.state;
+    const { visibility, selectedMembers } = this.state;
 
-    if (visiblity === 'public') {
+    if (visibility === 'public') {
       return;
     }
 
@@ -144,7 +144,7 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { stages, visiblity, name } = this.state;
+    const { stages, visibility, name } = this.state;
 
     return (
       <>
@@ -161,13 +161,13 @@ class PipelineForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <ControlLabel required={true}>Visiblity</ControlLabel>
+        <ControlLabel required={true}>visibility</ControlLabel>
         <FormGroup>
           <FormControl
-            id="visiblity"
+            id="visibility"
             componentClass="select"
-            value={visiblity}
-            onChange={this.onChangeVisiblity}
+            value={visibility}
+            onChange={this.onChangevisibility}
           >
             <option value="public">{__('Public')}</option>
             <option value="private">{__('Private')}</option>

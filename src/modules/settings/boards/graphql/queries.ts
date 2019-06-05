@@ -22,7 +22,7 @@ const pipelines = `
       _id
       name
       boardId
-      visiblity
+      visibility
       memberIds
     }
   }
