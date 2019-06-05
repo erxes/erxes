@@ -66,6 +66,7 @@ export type FieldsCombinedByType = {
   _id: string;
   name: string;
   label: string;
+  brand: string;
 };
 
 export type FieldsCombinedByTypeQueryResponse = {

@@ -58,14 +58,13 @@ export const generateRandomColorCode = () => {
     .slice(2, 8)}`;
 };
 
-export const isTimeStamp = value => {
-  if (typeof value === 'string') {
-    value = parseInt(value, 10);
-  }
+const isNumeric = n => {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+};
 
-  return (
-    Number.isInteger(value) && value > 1000000000 && value <= 999999999999999
-  );
+export const isTimeStamp = timestamp => {
+  const newTimestamp = new Date(timestamp).getTime();
+  return isNumeric(newTimestamp);
 };
 
 // Create an array with "stop" numbers, starting from "start"
