@@ -14,6 +14,7 @@ import * as React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { MessageListRow, Sidebar } from '../containers';
+import { MessageDescription } from '../styles';
 import { IEngageMessage } from '../types';
 
 type Props = {
@@ -81,16 +82,31 @@ class List extends React.Component<Props> {
           <li>
             <Link to={'/engage/messages/create?kind=auto'}>
               {__('Auto message')}
+              <MessageDescription>
+                {__(
+                  'Send targeted email and chat to logged-in users based on their brand/tag/segment. You can set your time to send an email or chat in advance. Chat design can be snipped, badge and full message and it can be a text or video'
+                )}
+              </MessageDescription>
             </Link>
           </li>
           <li>
             <Link to={'/engage/messages/create?kind=manual'}>
               {__('Manual message')}
+              <MessageDescription>
+                {__(
+                  'Send targeted email and chat to logged-in users based on their brand/tag/segment. An email or chat will be sent out immediately after you click save button. Chat design can be snipped, badge and full message and it can be a text or video'
+                )}
+              </MessageDescription>
             </Link>
           </li>
           <li>
             <Link to={'/engage/messages/create?kind=visitorAuto'}>
               {__('Visitor auto message')}
+              <MessageDescription>
+                {__(
+                  'Send targeted chats to logged-out visitors on website based on their visiting page, activity, their country of residence and city. Chat design can be snipped, badge and full message and it can be a text or video'
+                )}
+              </MessageDescription>
             </Link>
           </li>
         </Dropdown.Menu>
