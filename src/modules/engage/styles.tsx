@@ -224,6 +224,14 @@ const DateTimePicker = styled.div`
   }
 `;
 
+const MessageDescription = styled.div`
+  width: 300px;
+  white-space: normal;
+  font-size: 12px;
+  color: ${colors.colorCoreGray};
+  padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
+`;
+
 export {
   EngageTitle,
   HelperText,
@@ -245,5 +253,6 @@ export {
   DateTimePicker,
   SelectMonth,
   LauncherContainer,
-  WidgetPreview
+  WidgetPreview,
+  MessageDescription
 };
