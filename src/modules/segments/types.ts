@@ -8,6 +8,7 @@ export interface ISegmentConditionDoc {
   operator: string;
   dateUnit: string;
   type: string;
+  brandId?: string;
 }
 export interface ISegmentCondition extends ISegmentConditionDoc {
   _id: string;
