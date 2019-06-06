@@ -842,5 +842,8 @@
   "Grant permission": "Grant permission",
   "Check if permission is allowed": "Check if permission is allowed",
   "Then": "Then",
-  "Or": "Or"
+  "Or": "Or",
+  "Auto message description": "Send targeted email and chat to logged-in users based on their brand/tag/segment. You can set your time to send an email or chat in advance. Chat design can be snipped, badge and full message and it can be a text or video.",
+  "Manual message description": "Send targeted email and chat to logged-in users based on their brand/tag/segment. An email or chat will be sent out immediately after you click save button. Chat design can be snipped, badge and full message and it can be a text or video.",
+  "Visitor auto message description": "Send targeted chats to logged-out visitors on website based on their visiting page, activity, their country of residence and city. Chat design can be snipped, badge and full message and it can be a text or video."
 }
