@@ -248,8 +248,21 @@ const CustomerCounts = styled.div`
   }
 `;
 
+const MessageDescription = styled.div`
+  width: 300px;
+  white-space: normal;
+  font-size: 12px;
+  color: ${colors.colorCoreGray};
+  padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
+`;
+
 const SelectMessageType = styled.div`
   margin: 20px;
+  width: 300px;
+  white-space: normal;
+  font-size: 12px;
+  color: ${colors.colorCoreGray};
+  padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
 `;
 
 export {
@@ -278,5 +291,6 @@ export {
   ListWrapper,
   RadioContainer,
   CustomerCounts,
-  SelectMessageType
+  SelectMessageType,
+  MessageDescription
 };

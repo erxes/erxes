@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import debounce from 'lodash/debounce';
 import { Avatar, SelectOption, SelectValue } from 'modules/deals/styles/deal';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -88,7 +89,7 @@ class SelectWithSearch extends React.Component<
 
     const onSearch = (searchValue: string) => {
       if (searchValue) {
-        search(searchValue);
+        debounce(() => search(searchValue), 500)();
       }
     };
 
@@ -133,29 +134,33 @@ class SelectWithSearch extends React.Component<
 const withQuery = ({ customQuery }) =>
   withProps<Props>(
     compose(
-      graphql<Props, {}, { searchValue?: string; ids?: string[] }>(
-        gql(customQuery),
-        {
-          name: 'customQuery',
-          options: ({ searchValue, values }) => {
-            if (searchValue === 'reload') {
-              return {
-                variables: { searchValue: '' },
-                fetchPolicy: 'network-only',
-                notifyOnNetworkStatusChange: true
-              };
-            }
-
-            if (searchValue) {
-              return { variables: { searchValue } };
-            }
-
+      graphql<
+        Props,
+        {},
+        { searchValue?: string; ids?: string[]; filterParams?: any }
+      >(gql(customQuery), {
+        name: 'customQuery',
+        options: ({ searchValue, filterParams, values }) => {
+          if (searchValue === 'reload') {
             return {
-              variables: { ids: typeof values === 'string' ? [values] : values }
+              variables: { searchValue: '', ...filterParams },
+              fetchPolicy: 'network-only',
+              notifyOnNetworkStatusChange: true
             };
           }
+
+          if (searchValue) {
+            return { variables: { searchValue, ...filterParams } };
+          }
+
+          return {
+            variables: {
+              ids: typeof values === 'string' ? [values] : values,
+              ...filterParams
+            }
+          };
         }
-      )
+      })
     )(SelectWithSearch)
   );
 
@@ -168,6 +173,7 @@ type WrapperProps = {
   generateOptions: (datas: any[]) => IOption[];
   customQuery?: any;
   multi?: boolean;
+  filterParams?: any;
   customOption?: {
     value: string;
     label: string;
