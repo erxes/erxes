@@ -39,7 +39,7 @@ describe('Icon component', () => {
     defaultProps.icon = 'icon-piggy-bank';
     const rendered = mount(<Icon {...defaultProps} />);
     const piggy = rendered.find('i').debug();
-    console.log(piggy);
+    // console.log(piggy);
     const piggyFound = piggy.search('icon="icon-piggy-bank"');
     expect(piggyFound).toBeGreaterThan(-1);
   });
