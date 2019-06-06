@@ -58,10 +58,10 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
 
   const segmentFields = combinedFieldsQuery.fieldsCombinedByContentType
     ? combinedFieldsQuery.fieldsCombinedByContentType.map(
-        ({ name, label, brand }) => ({
-          _id: `${brand}-${name}`,
+        ({ name, label, brandName }) => ({
+          _id: `${brandName}-${name}`,
           title: label,
-          brand,
+          brandName,
           selectedBy: 'none'
         })
       )
