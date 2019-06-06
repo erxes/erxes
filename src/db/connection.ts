@@ -29,9 +29,9 @@ mongoose.connection
     console.log(`Database connection error: ${MONGO_URL}`, error);
   });
 
-export function connect(dbName?: string, poolSize?: number) {
+export function connect(URL?: string, poolSize?: number) {
   return mongoose.connect(
-    dbName ? MONGO_URL.replace('erxes', dbName) : MONGO_URL,
+    URL || MONGO_URL,
     { useNewUrlParser: true, useCreateIndex: true, poolSize: poolSize || 100, autoReconnect: true },
   );
 }

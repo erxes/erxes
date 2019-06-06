@@ -6,7 +6,7 @@ beforeAll(async done => {
   jest.setTimeout(30000);
 
   db = await connect(
-    `erxes-test-${Math.random()
+    `mongodb://localhost/erxes-test-${Math.random()
       .toString()
       .replace(/\./g, '')}`,
     3,
