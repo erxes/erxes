@@ -4,7 +4,7 @@ import { Avatar, SelectOption, SelectValue } from 'modules/deals/styles/deal';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Select from 'react-select-plus';
-import { IOption } from '../types';
+import { IFormProps, IOption } from '../types';
 import { __, withProps } from '../utils';
 
 type Props = {

@@ -19,10 +19,11 @@ type Props = {
   ) => void;
   closeModal: () => void;
   loading?: boolean;
+  refetchQueries: any;
 };
 
 const ChannelFormContainer = (props: Props) => {
-  const { channel, save, members } = props;
+  const { channel, save, members, refetchQueries } = props;
 
   let selectedMembers: string[] = [];
 
@@ -36,7 +37,8 @@ const ChannelFormContainer = (props: Props) => {
     ...props,
     channel,
     save,
-    selectedMembers
+    selectedMembers,
+    refetchQueries
   };
 
   return <ChannelForm {...updatedProps} />;

@@ -5,6 +5,7 @@ import BreadCrumb from './breadcrumb/BreadCrumb';
 import BreadCrumbItem from './breadcrumb/BreadCrumbItem';
 import Bulk from './Bulk';
 import Button from './Button';
+import ButtonMutate from './ButtonMutate';
 import Calendar from './Calendar';
 import Chip from './Chip';
 import Chooser from './Chooser';
@@ -61,6 +62,7 @@ export {
   Icon,
   BreadCrumb,
   BreadCrumbItem,
+  ButtonMutate,
   Spinner,
   Tip,
   LoadMore,

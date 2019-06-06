@@ -1,6 +1,6 @@
 import { IUser, IUserDetails } from 'modules/auth/types';
 import { SelectWithSearch } from 'modules/common/components';
-import { IOption, IQueryParams } from 'modules/common/types';
+import { IFormProps, IOption, IQueryParams } from 'modules/common/types';
 import * as React from 'react';
 import { queries } from '../graphql';
 

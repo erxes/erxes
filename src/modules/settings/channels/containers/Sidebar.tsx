@@ -37,7 +37,9 @@ const SidebarContainer = (props: FinalProps) => {
     channelsCountQuery,
     addMutation,
     editMutation,
-    removeMutation
+    removeMutation,
+    queryParams,
+    currentChannelId
   } = props;
 
   const channels = channelsQuery.channels || [];
@@ -91,13 +93,14 @@ const SidebarContainer = (props: FinalProps) => {
     channelsTotalCount,
     save,
     remove,
-    loading: channelsQuery.loading
+    loading: channelsQuery.loading,
+    refetchQueries: getRefetchQueries(queryParams, currentChannelId)
   };
 
   return <Sidebar {...updatedProps} />;
 };
 
-const commonOptions = ({ queryParams, currentChannelId }: Props) => {
+const getRefetchQueries = (queryParams, currentChannelId?: string) => {
   return {
     refetchQueries: [
       {
@@ -151,14 +154,14 @@ export default withProps<Props>(
       gql(mutations.channelAdd),
       {
         name: 'addMutation',
-        options: commonOptions
+        options: getRefetchQueries
       }
     ),
     graphql<Props, EditChannelMutationResponse, EditChannelMutationVariables>(
       gql(mutations.channelEdit),
       {
         name: 'editMutation',
-        options: commonOptions
+        options: getRefetchQueries
       }
     ),
     graphql<
@@ -167,7 +170,7 @@ export default withProps<Props>(
       RemoveChannelMutationVariables
     >(gql(mutations.channelRemove), {
       name: 'removeMutation',
-      options: commonOptions
+      options: getRefetchQueries
     })
   )(SidebarContainer)
 );

@@ -1,6 +1,7 @@
 import { IFormProps } from 'modules/common/types';
 import * as React from 'react';
 import * as validator from 'validator';
+import { __ } from '../../utils';
 import { Error } from './styles';
 
 type Props = {
@@ -63,12 +64,14 @@ class Form extends React.Component<Props, State> {
     const value = (document.getElementsByName(props.name) as any)[0].value;
 
     if (props.required && !value) {
-      return <Error>Required field!</Error>;
+      return <Error>{__('Required field')}</Error>;
     }
 
     if (props.type === 'email' && !validator.isEmail(value)) {
       return (
-        <Error>Invalid email format! Please enter a valid email address.</Error>
+        <Error>
+          {__('Invalid email format! Please enter a valid email address')}
+        </Error>
       );
     }
 
@@ -76,7 +79,11 @@ class Form extends React.Component<Props, State> {
       props.max &&
       !validator.isLength('description', { min: 0, max: props.max })
     ) {
-      return <Error>Maximum length is {props.max} characters!</Error>;
+      return (
+        <Error>
+          {__('Maximum length is')} {props.max} {__('characters')}
+        </Error>
+      );
     }
 
     if (
@@ -87,11 +94,15 @@ class Form extends React.Component<Props, State> {
         require_protocol: true
       })
     ) {
-      return <Error>Invalid link!</Error>;
+      return <Error>{__('Invalid link')}</Error>;
     }
 
     if (value && props.type === 'number' && !validator.isInt(value)) {
-      return <Error>Invalid number format! Please enter a valid number.</Error>;
+      return (
+        <Error>
+          {__('Invalid number format! Please enter a valid number')}
+        </Error>
+      );
     }
 
     return null;

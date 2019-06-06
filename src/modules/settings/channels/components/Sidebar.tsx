@@ -32,11 +32,19 @@ type Props = {
   loading: boolean;
   currentChannelId?: string;
   channelsTotalCount: number;
+  refetchQueries: any;
 };
 
 class Sidebar extends React.Component<Props, {}> {
   renderItems = () => {
-    const { channels, members, remove, save, currentChannelId } = this.props;
+    const {
+      channels,
+      members,
+      remove,
+      save,
+      currentChannelId,
+      refetchQueries
+    } = this.props;
 
     return channels.map(channel => (
       <ChannelRow
@@ -46,12 +54,13 @@ class Sidebar extends React.Component<Props, {}> {
         members={members}
         remove={remove}
         save={save}
+        refetchQueries={refetchQueries}
       />
     ));
   };
 
   renderSidebarHeader() {
-    const { save, members } = this.props;
+    const { save, members, refetchQueries } = this.props;
     const { Header } = LeftSidebar;
 
     const addChannel = (
@@ -63,7 +72,12 @@ class Sidebar extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <ChannelForm {...props} save={save} members={members} />
+      <ChannelForm
+        {...props}
+        save={save}
+        members={members}
+        refetchQueries={refetchQueries}
+      />
     );
 
     return (
@@ -88,10 +102,9 @@ class Sidebar extends React.Component<Props, {}> {
           <LoadMore all={channelsTotalCount} loading={loading} />
         </SidebarList>
         {loading && <Spinner />}
-        {!loading &&
-          channelsTotalCount === 0 && (
-            <EmptyState icon="sitemap" text="There is no channel" />
-          )}
+        {!loading && channelsTotalCount === 0 && (
+          <EmptyState icon="sitemap" text="There is no channel" />
+        )}
       </LeftSidebar>
     );
   }

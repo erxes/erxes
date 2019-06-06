@@ -24,6 +24,7 @@ type Props = {
     channel?: IChannel
   ) => void;
   isActive: boolean;
+  refetchQueries: any;
 };
 
 class ChannelRow extends React.Component<Props, {}> {
@@ -33,7 +34,7 @@ class ChannelRow extends React.Component<Props, {}> {
   };
 
   renderEditAction = () => {
-    const { channel, save, members } = this.props;
+    const { channel, save, members, refetchQueries } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -44,7 +45,13 @@ class ChannelRow extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <ChannelForm {...props} save={save} members={members} channel={channel} />
+      <ChannelForm
+        {...props}
+        save={save}
+        members={members}
+        channel={channel}
+        refetchQueries={refetchQueries}
+      />
     );
 
     return (

@@ -1,14 +1,17 @@
-import { IUser } from 'modules/auth/types';
 import {
   Button,
+  ButtonMutate,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
+import { mutations } from '../graphql';
 import { IChannel } from '../types';
 
 type Props = {
@@ -26,10 +29,12 @@ type Props = {
     callback: () => void,
     channel?: IChannel
   ) => void;
+  refetchQueries: any;
 };
 
 type State = {
   selectedMembers: string[];
+  isSubmitted: boolean;
 };
 
 class ChannelForm extends React.Component<Props, State> {
@@ -37,48 +42,56 @@ class ChannelForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedMembers: props.selectedMembers || []
+      selectedMembers: props.selectedMembers || [],
+      isSubmitted: false
     };
   }
 
-  save = e => {
-    e.preventDefault();
-
-    const { save, channel, closeModal } = this.props;
-
-    save(this.generateDoc(), () => closeModal(), channel);
+  save = () => {
+    this.setState({ isSubmitted: true });
   };
 
-  generateDoc = () => {
+  getMutation = () => {
+    if (this.props.channel) {
+      return mutations.channelEdit;
+    }
+
+    return mutations.channelAdd;
+  };
+
+  generateDoc = (values: { name: string; description: string }) => {
     return {
       doc: {
-        name: (document.getElementById('channel-name') as HTMLInputElement)
-          .value,
-        description: (document.getElementById(
-          'channel-description'
-        ) as HTMLInputElement).value,
+        name: values.name,
+        description: values.description,
         memberIds: this.state.selectedMembers
       }
     };
   };
 
-  renderContent() {
-    const { channel } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { closeModal, channel, refetchQueries } = this.props;
 
     const object = channel || { name: '', description: '' };
     const self = this;
+    const finalValues = formProps.values;
 
     const onChange = items => {
       self.setState({ selectedMembers: items });
     };
 
+    if (channel) {
+      finalValues._id = channel._id;
+    }
+
     return (
-      <React.Fragment>
+      <>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl
-            id="channel-name"
+            {...formProps}
+            name="name"
             defaultValue={object.name}
             type="text"
             required={true}
@@ -89,7 +102,8 @@ class ChannelForm extends React.Component<Props, State> {
           <ControlLabel>Description</ControlLabel>
 
           <FormControl
-            id="channel-description"
+            {...formProps}
+            name="description"
             componentClass="textarea"
             rows={5}
             defaultValue={object.description}
@@ -106,16 +120,6 @@ class ChannelForm extends React.Component<Props, State> {
             onSelect={onChange}
           />
         </FormGroup>
-      </React.Fragment>
-    );
-  }
-
-  render() {
-    const { closeModal } = this.props;
-
-    return (
-      <form onSubmit={this.save}>
-        {this.renderContent()}
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -126,12 +130,27 @@ class ChannelForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button btnStyle="success" icon="checked-1" type="submit">
-            Save
-          </Button>
+          <ButtonMutate
+            mutation={this.getMutation()}
+            variables={finalValues}
+            callback={closeModal}
+            refetchQueries={refetchQueries}
+            isSubmitted={this.state.isSubmitted}
+            type="submit"
+            icon="checked-1"
+            successMessage={`You successfully ${
+              channel ? 'updated' : 'added'
+            } a brand.`}
+          >
+            {__('Save')}
+          </ButtonMutate>
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} onSubmit={this.save} />;
   }
 }
 
