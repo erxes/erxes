@@ -78,12 +78,12 @@ class SegmentsForm extends React.Component<Props> {
     );
   };
 
-  renderContent = ({
-    formContent,
-    footerContent
+  renderForm = ({
+    renderContent,
+    saveButton
   }: {
-    formContent: React.ReactNode;
-    footerContent: React.ReactNode;
+    renderContent: React.ReactNode;
+    saveButton: React.ReactNode;
   }) => {
     const { contentType, segment } = this.props;
 
@@ -97,8 +97,8 @@ class SegmentsForm extends React.Component<Props> {
     return (
       <Wrapper
         header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
-        content={formContent}
-        footer={this.renderFooter(footerContent)}
+        content={renderContent}
+        footer={this.renderFooter(saveButton)}
         rightSidebar={this.renderSidebar()}
       />
     );
@@ -124,7 +124,7 @@ class SegmentsForm extends React.Component<Props> {
         segment={segment}
         headSegments={headSegments}
         count={count}
-        renderForm={this.renderContent}
+        renderForm={this.renderForm}
       />
     );
   }

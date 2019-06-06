@@ -4,37 +4,38 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { __, generateRandomColorCode } from 'modules/common/utils';
+import { __, Alert, generateRandomColorCode } from 'modules/common/utils';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import {
   ISegment,
   ISegmentCondition,
   ISegmentConditionDoc,
   ISegmentDoc,
-  ISegmentField
+  ISegmentField,
+  ISegmentWithConditionDoc
 } from 'modules/segments/types';
 import * as React from 'react';
 import { AddConditionButton, Conditions } from '..';
 import { ConditionWrapper, SegmentTitle, SegmentWrapper } from '../styles';
 
-type SegmentDoc = {
-  name: string;
-  description: string;
-  subOf: string;
-  color: string;
-  connector: string;
-  conditions: ISegmentConditionDoc[];
-};
-
 type Props = {
-  contentType: string;
+  contentType?: string;
   fields: ISegmentField[];
-  create: (params: { doc: SegmentDoc }) => void;
-  edit: (params: { _id: string; doc: SegmentDoc }) => void;
-  segment: ISegment;
+  create: (params: { doc: ISegmentWithConditionDoc }) => void;
+  edit?: (params: { _id: string; doc: ISegmentWithConditionDoc }) => void;
+  segment?: ISegment;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
-  renderForm: any;
+  renderForm?: (
+    {
+      renderContent,
+      saveButton
+    }: {
+      renderContent: React.ReactNode;
+      saveButton: React.ReactNode;
+    }
+  ) => JSX.Element;
+  afterSave?: () => void;
 };
 
 type State = {
@@ -134,7 +135,7 @@ class Form extends React.Component<Props, State> {
   save = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { segment, create, edit } = this.props;
+    const { segment, create, edit, afterSave } = this.props;
 
     const {
       name,
@@ -146,6 +147,20 @@ class Form extends React.Component<Props, State> {
     } = this.state;
 
     const updatedConditions: ISegmentConditionDoc[] = [];
+
+    if (!name) {
+      return Alert.error('Please enter a name');
+    }
+
+    for (const condition of conditions) {
+      if (!condition.operator) {
+        return Alert.error('Please enter a operator');
+      }
+
+      if (!['is', 'ins'].includes(condition.operator) && !condition.value) {
+        return Alert.error('Please enter a value for operator');
+      }
+    }
 
     conditions.forEach((cond: ISegmentCondition) => {
       if (cond.operator) {
@@ -168,10 +183,14 @@ class Form extends React.Component<Props, State> {
     }
 
     if (segment) {
-      return edit({ _id: segment._id, doc });
+      return edit && edit({ _id: segment._id, doc });
     }
 
-    return create({ doc });
+    create({ doc });
+
+    if (afterSave) {
+      afterSave();
+    }
   };
 
   renderConditions() {
@@ -239,6 +258,7 @@ class Form extends React.Component<Props, State> {
   }
 
   renderForm() {
+    const { renderForm } = this.props;
     const { name, description, color } = this.state;
 
     const nameOnChange = (e: React.FormEvent) =>
@@ -278,6 +298,7 @@ class Form extends React.Component<Props, State> {
                 onChange={colorOnChange}
               />
             </FormGroup>
+            {!renderForm && this.renderSaveButton()}
           </form>
         </FlexItem>
         <FlexItem count={2} />
@@ -285,10 +306,8 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  render() {
-    const { renderForm } = this.props;
-
-    const formContent = (
+  renderContent = () => {
+    return (
       <SegmentWrapper>
         <SegmentTitle>{__('Filters')}</SegmentTitle>
         {this.renderConditions()}
@@ -296,8 +315,10 @@ class Form extends React.Component<Props, State> {
         {this.renderForm()}
       </SegmentWrapper>
     );
+  };
 
-    const footerContent = (
+  renderSaveButton = () => {
+    return (
       <Button
         size="small"
         btnStyle="success"
@@ -307,8 +328,19 @@ class Form extends React.Component<Props, State> {
         Save
       </Button>
     );
+  };
 
-    return renderForm({ formContent, footerContent });
+  render() {
+    const { renderForm } = this.props;
+
+    if (!renderForm) {
+      return this.renderContent();
+    }
+
+    return renderForm({
+      renderContent: this.renderContent(),
+      saveButton: this.renderSaveButton()
+    });
   }
 }
 
