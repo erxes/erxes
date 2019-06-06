@@ -33,6 +33,7 @@ type Props<Target, OnSubmit> = {
       customerCounts: React.ReactNode;
     }
   ) => React.ReactNode;
+  icons?: React.ReactNode[];
 };
 
 type State = {
@@ -130,7 +131,8 @@ class Common<Target, OnSubmit> extends React.Component<
       name,
       Form,
       formProps,
-      onSubmit
+      onSubmit,
+      icons
     } = this.props;
 
     if (this.state.show) {
@@ -145,6 +147,7 @@ class Common<Target, OnSubmit> extends React.Component<
         targetCount={targetCount}
         defaultValues={targetIds}
         onChangeStep={this.onChangeStep}
+        icons={icons}
       />
     );
   }

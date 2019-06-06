@@ -1,3 +1,4 @@
+import { Icon } from 'modules/common/components';
 import { TagAdd, TargetCount } from 'modules/engage/types';
 import { ITag } from 'modules/tags/types';
 import * as React from 'react';
@@ -37,6 +38,12 @@ const TagStep = (props: Props) => {
     renderContent
   } = props;
 
+  const icons: React.ReactNode[] = [];
+
+  tags.forEach(tag => {
+    icons.push(<Icon icon="piechart icon" style={{ color: tag.colorCode }} />);
+  });
+
   return (
     <Common<ITag, TagAdd>
       name="tagIds"
@@ -50,6 +57,7 @@ const TagStep = (props: Props) => {
       onSubmit={tagAdd}
       Form={TagsForm}
       content={renderContent}
+      icons={icons}
     />
   );
 };

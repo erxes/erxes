@@ -1,3 +1,4 @@
+import { Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { SegmentAdd, TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
@@ -51,11 +52,21 @@ const SegmentStep = (props: Props) => {
   };
 
   const orderedSegments: ISegment[] = [];
+  const icons: React.ReactNode[] = [];
 
   segments.forEach(segment => {
     if (!segment.subOf) {
       orderedSegments.push(segment, ...segment.getSubSegments);
     }
+  });
+
+  orderedSegments.forEach(segment => {
+    icons.push(
+      <>
+        {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
+        <Icon icon="piechart icon" style={{ color: segment.color }} />
+      </>
+    );
   });
 
   return (
@@ -72,6 +83,7 @@ const SegmentStep = (props: Props) => {
       Form={SegmentsForm}
       content={renderContent}
       formProps={formProps}
+      icons={icons}
     />
   );
 };

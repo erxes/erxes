@@ -11,13 +11,16 @@ type Props<Target> = {
   targetCount: TargetCount;
   defaultValues: string[];
   onChangeStep: (name: string, targetIds: string[]) => void;
+  icons?: React.ReactNode[];
 };
 
 type State = {
   selectedIds: string[];
 };
 
-class Targets<Target> extends React.Component<Props<Target>, State> {
+class Targets<
+  Target extends { _id?: string; name?: string }
+> extends React.Component<Props<Target>, State> {
   constructor(props) {
     super(props);
 
@@ -52,7 +55,7 @@ class Targets<Target> extends React.Component<Props<Target>, State> {
 
   renderTarget(targets: Target[]) {
     const { selectedIds } = this.state;
-    const { targetCount, messageType, name } = this.props;
+    const { targetCount, messageType, name, icons } = this.props;
 
     if (targets.length === 0) {
       return (
@@ -60,14 +63,13 @@ class Targets<Target> extends React.Component<Props<Target>, State> {
       );
     }
 
-    return targets.map(target => {
-      const { _id, subOf, color, colorCode } = target;
+    return targets.map((target, index) => {
+      const { _id = '' } = target;
 
       return (
         <ListCounter key={_id} chosen={selectedIds.includes(_id)}>
           <a tabIndex={0} onClick={this.onClick.bind(this, name, _id)}>
-            {subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-            <Icon icon="piechart icon" style={{ color: color || colorCode }} />
+            {icons && icons[index]}
             {target.name}
             <SidebarCounter>{targetCount[_id] || 0}</SidebarCounter>
           </a>
