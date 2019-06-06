@@ -34,11 +34,7 @@ type Props = {
   type?: string;
 };
 
-type State = {
-  isLoading: boolean;
-};
-
-class ButtonMutate extends React.Component<Props, State> {
+class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
   static defaultProps = {
     successMessage: 'Successfull',
     btnSize: 'medium'

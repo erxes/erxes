@@ -48,13 +48,23 @@ class ChannelForm extends React.Component<Props, State> {
     return mutations.channelAdd;
   };
 
-  generateDoc = (values: { name: string; description: string }) => {
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    description: string;
+  }) => {
+    const { channel } = this.props;
+    const finalValues = values;
+
+    if (channel) {
+      finalValues._id = channel._id;
+    }
+
     return {
-      doc: {
-        name: values.name,
-        description: values.description,
-        memberIds: this.state.selectedMembers
-      }
+      _id: finalValues._id,
+      name: finalValues.name,
+      description: finalValues.description,
+      memberIds: this.state.selectedMembers
     };
   };
 
@@ -63,15 +73,10 @@ class ChannelForm extends React.Component<Props, State> {
 
     const object = channel || { name: '', description: '' };
     const self = this;
-    const finalValues = formProps.values;
 
     const onChange = items => {
       self.setState({ selectedMembers: items });
     };
-
-    if (channel) {
-      finalValues._id = channel._id;
-    }
 
     return (
       <>
@@ -121,7 +126,7 @@ class ChannelForm extends React.Component<Props, State> {
 
           <ButtonMutate
             mutation={this.getMutation()}
-            variables={finalValues}
+            variables={this.generateDoc(formProps.values)}
             callback={closeModal}
             refetchQueries={refetchQueries}
             isSubmitted={this.state.isSubmitted}

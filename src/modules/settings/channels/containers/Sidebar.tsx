@@ -67,30 +67,28 @@ const SidebarContainer = (props: FinalProps) => {
 };
 
 const getRefetchQueries = (queryParams, currentChannelId?: string) => {
-  return {
-    refetchQueries: [
-      {
-        query: gql(queries.channels),
-        variables: {
-          perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
-        }
-      },
-      {
-        query: gql(queries.channels),
-        variables: {}
-      },
-      {
-        query: gql(queries.integrationsCount),
-        variables: {}
-      },
-      {
-        query: gql(queries.channelDetail),
-        variables: { _id: currentChannelId || '' }
-      },
-      { query: gql(queries.channelsCount) },
-      { query: gql(queries.users) }
-    ]
-  };
+  return [
+    {
+      query: gql(queries.channels),
+      variables: {
+        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
+      }
+    },
+    {
+      query: gql(queries.channels),
+      variables: {}
+    },
+    {
+      query: gql(queries.integrationsCount),
+      variables: {}
+    },
+    {
+      query: gql(queries.channelDetail),
+      variables: { _id: currentChannelId || '' }
+    },
+    { query: gql(queries.channelsCount) },
+    { query: gql(queries.users) }
+  ];
 };
 
 export default withProps<Props>(
@@ -122,7 +120,9 @@ export default withProps<Props>(
       RemoveChannelMutationVariables
     >(gql(mutations.channelRemove), {
       name: 'removeMutation',
-      options: getRefetchQueries
+      options: ({ queryParams, currentChannelId }: Props) => ({
+        refetchQueries: getRefetchQueries(queryParams, currentChannelId)
+      })
     })
   )(SidebarContainer)
 );
