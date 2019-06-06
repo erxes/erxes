@@ -130,6 +130,7 @@ class Settings extends React.PureComponent {
             )}
           </div>
         </Row>
+        <Divider />
         <Row>
           <RowTitle>{__('Ticket Settings')}</RowTitle>
           <div>
