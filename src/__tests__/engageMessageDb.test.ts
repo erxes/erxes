@@ -2,6 +2,8 @@ import * as Random from 'meteor-random';
 import { customerFactory, engageMessageFactory, segmentFactory, userFactory } from '../db/factories';
 import { Customers, EngageMessages, Segments, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('engage messages model tests', () => {
   let _user;
   let _segment;

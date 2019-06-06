@@ -3,6 +3,8 @@ import { graphqlRequest } from '../db/connection';
 import { productFactory } from '../db/factories';
 import { Products } from '../db/models';
 
+import './setup.ts';
+
 describe('productQueries', () => {
   afterEach(async () => {
     // Clearing test data

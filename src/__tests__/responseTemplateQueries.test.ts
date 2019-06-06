@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { responseTemplateFactory } from '../db/factories';
 import { ResponseTemplates } from '../db/models';
 
+import './setup.ts';
+
 describe('responseTemplateQueries', () => {
   afterEach(async () => {
     // Clearing test data

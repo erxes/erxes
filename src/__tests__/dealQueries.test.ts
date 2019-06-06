@@ -12,6 +12,8 @@ import {
 } from '../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
 
+import './setup.ts';
+
 describe('dealQueries', () => {
   const commonBoardTypes = `
     _id

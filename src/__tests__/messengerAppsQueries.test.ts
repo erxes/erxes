@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { messengerAppFactory } from '../db/factories';
 import { MessengerApps } from '../db/models';
 
+import './setup.ts';
+
 describe('Messenger app queries', () => {
   afterEach(async () => {
     // Clearing test data

@@ -7,7 +7,9 @@ import {
 } from '../../data/resolvers/queries/insights/exportData';
 import insightExportQueries from '../../data/resolvers/queries/insights/insightExport';
 import { graphqlRequest } from '../../db/connection';
-import { afterEachTest, beforeEachTest, endDate, paramsDef, paramsValue, startDate } from './insightQueries.test';
+import { afterEachTest, beforeEachTest, endDate, paramsDef, paramsValue, startDate } from './utils';
+
+import '../setup.ts';
 
 describe('insightExportQueries', () => {
   let user;

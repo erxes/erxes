@@ -1,6 +1,8 @@
 import { engageMessageFactory, tagsFactory } from '../db/factories';
 import { EngageMessages, Tags } from '../db/models';
 
+import './setup.ts';
+
 describe('Test tags model', () => {
   let _tag;
   let _tag2;

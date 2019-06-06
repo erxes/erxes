@@ -31,6 +31,8 @@ import {
 
 import { awsRequests } from '../trackers/engageTracker';
 
+import './setup.ts';
+
 describe('engage message mutation tests', () => {
   let _message;
   let _user;

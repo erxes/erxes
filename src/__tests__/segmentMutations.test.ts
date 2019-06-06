@@ -3,6 +3,8 @@ import { graphqlRequest } from '../db/connection';
 import { segmentFactory, userFactory } from '../db/factories';
 import { Segments, Users } from '../db/models';
 
+import './setup.ts';
+
 const toJSON = value => {
   return JSON.stringify(value, Object.keys(value).sort());
 };

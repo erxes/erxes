@@ -1,6 +1,8 @@
 import { segmentFactory } from '../db/factories';
 import { Segments, Users } from '../db/models';
 
+import './setup.ts';
+
 /*
  * Generate test data
  */

@@ -12,6 +12,8 @@ import {
 import { Accounts, Brands, ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
 import { utils } from '../trackers/gmailTracker';
 
+import './setup.ts';
+
 describe('Accounts mutations', () => {
   let _account;
   let _user;

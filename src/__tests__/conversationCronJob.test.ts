@@ -11,6 +11,8 @@ import {
 } from '../db/factories';
 import { Brands, ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('Cronjob conversation send email', () => {
   let _conversation;
   let _conversationMessage;

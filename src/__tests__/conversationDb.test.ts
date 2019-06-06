@@ -2,6 +2,8 @@ import { conversationFactory, conversationMessageFactory, customerFactory, userF
 import { ConversationMessages, Conversations, Users } from '../db/models';
 import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
 
+import './setup.ts';
+
 describe('Conversation db', () => {
   let _conversation;
   let _conversationMessage;

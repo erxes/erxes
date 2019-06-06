@@ -3,6 +3,8 @@ import { graphqlRequest } from '../db/connection';
 import { internalNoteFactory } from '../db/factories';
 import { InternalNotes } from '../db/models';
 
+import './setup.ts';
+
 describe('internalNoteQueries', () => {
   afterEach(async () => {
     // Clearing test data

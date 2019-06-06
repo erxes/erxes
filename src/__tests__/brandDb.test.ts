@@ -1,6 +1,8 @@
 import { brandFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Integrations, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('Brands db', () => {
   let _brand;
   let _user;

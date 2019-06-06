@@ -1,6 +1,8 @@
 import { channelFactory, integrationFactory, userFactory } from '../db/factories';
 import { Channels, Integrations, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('test channel creation error', () => {
   test(`check if Error('userId must be supplied') is being thrown as intended`, async () => {
     try {

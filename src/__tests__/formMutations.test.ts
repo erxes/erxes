@@ -3,6 +3,8 @@ import { graphqlRequest } from '../db/connection';
 import { formFactory, userFactory } from '../db/factories';
 import { Forms, Users } from '../db/models';
 
+import './setup.ts';
+
 /*
  * Generate test data
  */

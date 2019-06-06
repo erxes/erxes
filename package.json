@@ -20,7 +20,7 @@
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
-    "test": "jest --maxWorkers 4 --forceExit && ts-node ./src/commands/aftertest.ts ",
+    "test": "jest --forceExit && ts-node ./src/commands/aftertest.ts ",
     "loadInitialData": "mongorestore --db erxes ./initialData",
     "initProject": "ts-node ./src/commands/initProject.ts",
     "engageSubscriptions": "ts-node ./src/commands/engageSubscriptions.ts",

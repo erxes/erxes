@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { formFactory, messengerAppFactory, userFactory } from '../db/factories';
 import { MessengerApps, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('mutations', () => {
   let _user;
   let context;

@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { knowledgeBaseArticleFactory, knowledgeBaseCategoryFactory, knowledgeBaseTopicFactory } from '../db/factories';
 import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from '../db/models';
 
+import './setup.ts';
+
 describe('knowledgeBaseQueries', () => {
   afterEach(async () => {
     // Clearing test data

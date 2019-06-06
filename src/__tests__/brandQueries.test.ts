@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { brandFactory } from '../db/factories';
 import { Brands } from '../db/models';
 
+import './setup.ts';
+
 describe('brandQueries', () => {
   afterEach(async () => {
     // Clearing test data

@@ -10,6 +10,8 @@ import {
 import { ConversationMessages, Conversations, Customers, Deals, ImportHistory, InternalNotes } from '../db/models';
 import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
 
+import './setup.ts';
+
 describe('Customers model tests', () => {
   let _customer;
 

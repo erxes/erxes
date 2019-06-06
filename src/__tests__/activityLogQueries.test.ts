@@ -5,6 +5,8 @@ import { activityLogFactory } from '../db/factories';
 import { ActivityLogs } from '../db/models';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 
+import './setup.ts';
+
 describe('activityLogQueries', () => {
   const commonParamDefs = `
     $contentType: String!,

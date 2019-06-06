@@ -1,5 +1,7 @@
 import { permissionQueries, usersGroupQueries } from '../data/resolvers/queries/permissions';
 
+import './setup.ts';
+
 describe('permissionQueries', () => {
   test(`test if Error('Login required') exception is working as intended`, async () => {
     expect.assertions(4);

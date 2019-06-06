@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { internalNoteFactory, userFactory } from '../db/factories';
 import { InternalNotes, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('InternalNotes mutations', () => {
   let _user;
   let _internalNote;

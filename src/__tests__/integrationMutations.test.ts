@@ -7,6 +7,8 @@ import { Brands, Integrations, Users } from '../db/models';
 import * as facebookTracker from '../trackers/facebookTracker';
 import { socUtils } from '../trackers/twitterTracker';
 
+import './setup.ts';
+
 describe('mutations', () => {
   let _integration;
   let _brand;

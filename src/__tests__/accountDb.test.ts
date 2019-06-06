@@ -7,6 +7,8 @@ import {
 } from '../db/factories';
 import { Accounts, ConversationMessages, Conversations, Integrations } from '../db/models';
 
+import './setup.ts';
+
 describe('Account db test', () => {
   let _account;
   let _customer;

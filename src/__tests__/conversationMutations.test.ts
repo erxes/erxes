@@ -13,6 +13,8 @@ import { ConversationMessages, Conversations, Customers, Integrations, Users } f
 import { twitMap } from '../trackers/twitter';
 import { twitRequest } from '../trackers/twitterTracker';
 
+import './setup.ts';
+
 const toJSON = value => {
   // sometimes object key order is different even though it has same value.
   return JSON.stringify(value, Object.keys(value).sort());

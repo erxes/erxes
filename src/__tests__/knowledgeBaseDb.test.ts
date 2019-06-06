@@ -9,6 +9,8 @@ import {
 } from '../db/factories';
 import { Brands, KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, Users } from '../db/models';
 
+import './setup.ts';
+
 expect.extend(toBeType);
 
 describe('test knowledge base models', () => {

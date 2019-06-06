@@ -14,6 +14,8 @@ import {
 import { Brands, ConversationMessages, Fields, Forms, Integrations, Users } from '../db/models';
 import * as facebookTracker from '../trackers/facebookTracker';
 
+import './setup.ts';
+
 describe('messenger integration model add method', () => {
   let _brand;
 

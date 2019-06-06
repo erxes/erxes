@@ -4,6 +4,8 @@ import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, integrationFactory, tagsFactory } from '../db/factories';
 import { Brands, Channels, Integrations } from '../db/models';
 
+import './setup.ts';
+
 describe('integrationQueries', () => {
   const qryIntegrations = `
     query integrations(
