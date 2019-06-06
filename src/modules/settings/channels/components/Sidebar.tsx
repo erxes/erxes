@@ -18,17 +18,6 @@ type Props = {
   channels: IChannel[];
   members: IUser[];
   remove: (channelId: string) => void;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    },
-    callback: () => void,
-    channel?: IChannel
-  ) => void;
   loading: boolean;
   currentChannelId?: string;
   channelsTotalCount: number;
@@ -41,7 +30,6 @@ class Sidebar extends React.Component<Props, {}> {
       channels,
       members,
       remove,
-      save,
       currentChannelId,
       refetchQueries
     } = this.props;
@@ -53,14 +41,13 @@ class Sidebar extends React.Component<Props, {}> {
         channel={channel}
         members={members}
         remove={remove}
-        save={save}
         refetchQueries={refetchQueries}
       />
     ));
   };
 
   renderSidebarHeader() {
-    const { save, members, refetchQueries } = this.props;
+    const { members, refetchQueries } = this.props;
     const { Header } = LeftSidebar;
 
     const addChannel = (
@@ -74,7 +61,6 @@ class Sidebar extends React.Component<Props, {}> {
     const content = props => (
       <ChannelForm
         {...props}
-        save={save}
         members={members}
         refetchQueries={refetchQueries}
       />

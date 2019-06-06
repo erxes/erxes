@@ -6,12 +6,8 @@ import { UsersQueryResponse } from '../../team/types';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
 import {
-  AddChannelMutationResponse,
-  ChannelMutationVariables,
   ChannelsCountQueryResponse,
   ChannelsQueryResponse,
-  EditChannelMutationResponse,
-  EditChannelMutationVariables,
   RemoveChannelMutationResponse,
   RemoveChannelMutationVariables
 } from '../types';
@@ -26,8 +22,6 @@ type FinalProps = {
   usersQuery: UsersQueryResponse;
   channelsCountQuery: ChannelsCountQueryResponse;
 } & Props &
-  AddChannelMutationResponse &
-  EditChannelMutationResponse &
   RemoveChannelMutationResponse;
 
 const SidebarContainer = (props: FinalProps) => {
@@ -35,8 +29,6 @@ const SidebarContainer = (props: FinalProps) => {
     usersQuery,
     channelsQuery,
     channelsCountQuery,
-    addMutation,
-    editMutation,
     removeMutation,
     queryParams,
     currentChannelId
@@ -61,37 +53,11 @@ const SidebarContainer = (props: FinalProps) => {
     });
   };
 
-  // create or update action
-  const save = ({ doc }, callback, channel) => {
-    let mutation = addMutation;
-
-    // if edit mode
-    if (channel) {
-      mutation = editMutation;
-      doc._id = channel._id;
-    }
-
-    mutation({
-      variables: doc
-    })
-      .then(() => {
-        Alert.success(
-          `You successfully ${channel ? 'updated' : 'added'} a new channel.`
-        );
-
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
   const updatedProps = {
     ...props,
     members,
     channels,
     channelsTotalCount,
-    save,
     remove,
     loading: channelsQuery.loading,
     refetchQueries: getRefetchQueries(queryParams, currentChannelId)
@@ -150,20 +116,6 @@ export default withProps<Props>(
     graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
       name: 'channelsCountQuery'
     }),
-    graphql<Props, AddChannelMutationResponse, ChannelMutationVariables>(
-      gql(mutations.channelAdd),
-      {
-        name: 'addMutation',
-        options: getRefetchQueries
-      }
-    ),
-    graphql<Props, EditChannelMutationResponse, EditChannelMutationVariables>(
-      gql(mutations.channelEdit),
-      {
-        name: 'editMutation',
-        options: getRefetchQueries
-      }
-    ),
     graphql<
       Props,
       RemoveChannelMutationResponse,

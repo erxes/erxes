@@ -18,17 +18,6 @@ type Props = {
   channel?: IChannel;
   selectedMembers: string[];
   closeModal: () => void;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    },
-    callback: () => void,
-    channel?: IChannel
-  ) => void;
   refetchQueries: any;
 };
 
@@ -140,7 +129,7 @@ class ChannelForm extends React.Component<Props, State> {
             icon="checked-1"
             successMessage={`You successfully ${
               channel ? 'updated' : 'added'
-            } a brand.`}
+            } a channel.`}
           >
             {__('Save')}
           </ButtonMutate>

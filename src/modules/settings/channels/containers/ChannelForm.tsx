@@ -6,24 +6,13 @@ import { IChannel } from '../types';
 type Props = {
   channel?: IChannel;
   members: IUser[];
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    },
-    callback: () => void,
-    channel?: IChannel
-  ) => void;
   closeModal: () => void;
   loading?: boolean;
   refetchQueries: any;
 };
 
 const ChannelFormContainer = (props: Props) => {
-  const { channel, save, members, refetchQueries } = props;
+  const { channel, members, refetchQueries } = props;
 
   let selectedMembers: string[] = [];
 
@@ -36,7 +25,6 @@ const ChannelFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     channel,
-    save,
     selectedMembers,
     refetchQueries
   };
