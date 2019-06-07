@@ -35,6 +35,7 @@ type IProps = {
   changeStatus: (id: string) => void;
   resendInvitation: (email: string) => void;
   usersGroups: IUserGroup[];
+  refetchQueries: any;
 };
 
 type FinalProps = ICommonListProps &
@@ -75,11 +76,14 @@ class UserList extends React.Component<FinalProps, States> {
   };
 
   renderInvitationForm = props => {
+    const { usersGroups, save, refetchQueries } = this.props;
+
     return (
       <UserInvitationForm
         closeModal={props.closeModal}
-        usersGroups={this.props.usersGroups}
-        save={this.props.save}
+        usersGroups={usersGroups}
+        save={save}
+        refetchQueries={refetchQueries}
       />
     );
   };

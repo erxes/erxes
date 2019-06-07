@@ -70,6 +70,13 @@ class UserListContainer extends React.Component<
       });
   }
 
+  getRefetchQueries = () => {
+    return [
+      { query: gql(queries.users), options },
+      { query: gql(queries.usersTotalCount), options }
+    ];
+  };
+
   render() {
     return (
       <UserList
@@ -77,6 +84,7 @@ class UserListContainer extends React.Component<
         usersGroups={this.state.usersGroups}
         changeStatus={this.changeStatus}
         resendInvitation={this.resendInvitation}
+        refetchQueries={this.getRefetchQueries()}
       />
     );
   }

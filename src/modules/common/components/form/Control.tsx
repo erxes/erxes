@@ -70,7 +70,7 @@ class FormControl extends React.Component<Props> {
     const props = this.props;
     const childNode = props.children;
     const elementType = props.componentClass;
-    const errorMessage = props.errors[props.name || ''];
+    const errorMessage = props.errors && props.errors[props.name || ''];
 
     // cancel custom browser default form validation error
     const onChange = e => {
@@ -107,7 +107,7 @@ class FormControl extends React.Component<Props> {
     if (elementType === 'select') {
       if (props.options) {
         return (
-          <>
+          <div>
             <SelectWrapper>
               <Select {...attributes}>
                 {props.options.map((option, index) => {
@@ -120,17 +120,17 @@ class FormControl extends React.Component<Props> {
               </Select>
             </SelectWrapper>
             {errorMessage}
-          </>
+          </div>
         );
       }
 
       return (
-        <>
+        <div>
           <SelectWrapper>
             <Select {...attributes}>{childNode}</Select>
           </SelectWrapper>
           {errorMessage}
-        </>
+        </div>
       );
     }
 

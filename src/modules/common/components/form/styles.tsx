@@ -273,7 +273,7 @@ const Checkbox = styled(inputStyle)`
 `;
 
 const Error = styled.label`
-  color: ${colors.colorCoreRed};
+  color: ${colors.colorCoreRed} !important;
   transition: all 0.3s linear;
   padding-top: ${dimensions.unitSpacing - 5}px;
   display: block;
