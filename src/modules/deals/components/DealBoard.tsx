@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
-import { options } from '../constants';
+import options from '../options';
 import {
   BoardContainer,
   BoardContent,

@@ -9,6 +9,7 @@ import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
 
 export interface IOptions {
+  EditForm: any;
   type: string;
   title: string;
   queriesName: { itemsQuery: string; detailQuery: string };

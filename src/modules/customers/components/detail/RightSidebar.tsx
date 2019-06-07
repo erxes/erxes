@@ -4,9 +4,9 @@ import { __ } from 'modules/common/utils';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { List } from 'modules/companies/styles';
 import { ICustomer } from 'modules/customers/types';
-import { options as dealOptions } from 'modules/deals/constants';
+import dealOptions from 'modules/deals/options';
 import { Sidebar } from 'modules/layout/components';
-import { options as ticketOptions } from 'modules/tickets/constants';
+import ticketOptions from 'modules/tickets/options';
 import * as React from 'react';
 
 export default class RightSidebar extends React.Component<{

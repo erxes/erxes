@@ -2,11 +2,9 @@ import gql from 'graphql-tag';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import { Spinner } from 'modules/common/components';
 import { Alert, confirm } from 'modules/common/utils';
-import { DealEditForm } from 'modules/deals/components';
 import { invalidateCalendarCache } from 'modules/deals/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import { TicketEditForm } from 'modules/tickets/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
@@ -39,19 +37,12 @@ type FinalProps = {
 } & Props;
 
 class EditFormContainer extends React.Component<FinalProps> {
-  private ITEMS;
-
   constructor(props) {
     super(props);
 
     this.addItem = this.addItem.bind(this);
     this.saveItem = this.saveItem.bind(this);
     this.removeItem = this.removeItem.bind(this);
-
-    this.ITEMS = {
-      deal: DealEditForm,
-      ticket: TicketEditForm
-    };
   }
 
   addItem(
@@ -142,7 +133,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       users
     };
 
-    const EditForm = this.ITEMS[options.type];
+    const EditForm = options.EditForm;
 
     return <EditForm {...extendedProps} />;
   }
