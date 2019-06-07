@@ -33,28 +33,33 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
   const properties: any[] = [];
 
   for (const fieldName of fields) {
-    const property: { [key: string]: any } = {
-      isCustomField: false,
-    };
+    const property: { [key: string]: any } = {};
 
     const fieldObj = await Fields.findOne({ text: fieldName });
 
     // Collecting basic fields
     if (basicInfos.includes(fieldName)) {
       property.name = fieldName;
+      property.type = 'basic';
+    }
+
+    // Collecting messengerData.customData fields
+    if (fieldName.startsWith('messengerData.customData')) {
+      property.name = fieldName;
+      property.type = 'customData';
     }
 
     // Collecting custom fields
     if (fieldObj) {
-      property.isCustomField = true;
+      property.type = 'customProperty';
       property.id = fieldObj._id;
     }
 
-    properties.push(property);
-
-    if (!basicInfos.includes(fieldName) && !fieldObj) {
+    if (!property.type) {
       throw new Error('Bad column name');
     }
+
+    properties.push(property);
   }
 
   return properties;
