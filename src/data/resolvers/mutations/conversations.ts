@@ -79,7 +79,6 @@ export const publishMessage = (message?: IMessageDocument | null, customerId?: s
   if (!message) {
     return;
   }
-
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
   });

@@ -1,23 +1,52 @@
+import { GooglePubSub } from '@axelspringer/graphql-google-pubsub';
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import * as Redis from 'ioredis';
+import * as path from 'path';
 import { ActivityLogs } from './db/models';
 
 // load environment variables
 dotenv.config();
 
+interface IPubSub {
+  asyncIterator: <T>(trigger: string, options?: any) => AsyncIterator<T>;
+  publish(trigger: string, payload: any, options?: any): any;
+}
+
+interface IPubsubMessage {
+  action: string;
+  data: {
+    trigger: string;
+    type: string;
+    payload: any;
+  };
+}
+
+interface IGoogleOptions {
+  projectId: string;
+  credentials: {
+    client_email: string;
+    private_key: string;
+  };
+}
+
 const {
+  PUBSUB_TYPE,
   REDIS_HOST = 'localhost',
   REDIS_PORT = 6379,
   REDIS_PASSWORD = '',
 }: {
+  PUBSUB_TYPE?: string;
   REDIS_HOST?: string;
   REDIS_PORT?: number;
   REDIS_PASSWORD?: string;
 } = process.env;
 
-// Docs on the different redis options
-// https://github.com/NodeRedis/node_redis#options-object-properties
+/**
+ * Docs on the different redis options
+ * @see {@link https://github.com/NodeRedis/node_redis#options-object-properties}
+ */
 const redisOptions = {
   host: REDIS_HOST,
   port: REDIS_PORT,
@@ -31,30 +60,92 @@ const redisOptions = {
   },
 };
 
-export const graphqlPubsub = new RedisPubSub({
-  connectionListener: error => {
-    if (error) {
-      console.error(error);
-    }
-  },
-  publisher: new Redis(redisOptions),
-  subscriber: new Redis(redisOptions),
-});
+// Google pubsub message handler
+const commonMessageHandler = payload => {
+  return convertPubSubBuffer(payload.data);
+};
 
-export const broker = new Redis(redisOptions);
+const configGooglePubsub = (): IGoogleOptions => {
+  const checkHasConfigFile = fs.existsSync(path.join(__dirname, '..', '/google_cred.json'));
 
-broker.subscribe('widgetNotification');
-
-broker.on('message', (channel, message) => {
-  if (channel === 'widgetNotification') {
-    const { action, data } = JSON.parse(message);
-
-    if (action === 'callPublish') {
-      graphqlPubsub.publish(data.trigger, { [data.trigger]: data.payload });
-    }
-
-    if (action === 'activityLog') {
-      ActivityLogs.createLogFromWidget(data.type, data.payload);
-    }
+  if (!checkHasConfigFile) {
+    throw new Error('Google credentials file not found!');
   }
-});
+
+  const serviceAccount = require('../google_cred.json');
+
+  return {
+    projectId: serviceAccount.project_id,
+    credentials: {
+      client_email: serviceAccount.client_email,
+      private_key: serviceAccount.private_key,
+    },
+  };
+};
+
+const initBroker = () => {
+  if (PUBSUB_TYPE === 'GOOGLE') {
+    const googleOptions = configGooglePubsub();
+
+    const googleBroker = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
+
+    googleBroker.subscribe('widgetNotification', message => {
+      publishMessage(message);
+    });
+  } else {
+    const redisBroker = new Redis(redisOptions);
+
+    redisBroker.subscribe('widgetNotification');
+    redisBroker.on('message', (channel: string, message: string) => {
+      const data = JSON.parse(message);
+
+      if (channel === 'widgetNotification') {
+        return publishMessage(data);
+      }
+    });
+  }
+};
+
+const createPubsubInstance = (): IPubSub => {
+  let pubsub;
+
+  if (PUBSUB_TYPE === 'GOOGLE') {
+    const googleOptions = configGooglePubsub();
+
+    const googlePubsub = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
+
+    pubsub = googlePubsub;
+  } else {
+    const redisPubSub = new RedisPubSub({
+      connectionListener: error => {
+        if (error) {
+          console.error(error);
+        }
+      },
+      publisher: new Redis(redisOptions),
+      subscriber: new Redis(redisOptions),
+    });
+
+    pubsub = redisPubSub;
+  }
+
+  return pubsub;
+};
+
+const publishMessage = ({ action, data }: IPubsubMessage) => {
+  if (action === 'callPublish') {
+    graphqlPubsub.publish(data.trigger, { [data.trigger]: data.payload });
+  }
+
+  if (action === 'activityLog') {
+    ActivityLogs.createLogFromWidget(data.type, data.payload);
+  }
+};
+
+const convertPubSubBuffer = (data: Buffer) => {
+  return JSON.parse(data.toString());
+};
+
+initBroker();
+
+export const graphqlPubsub = createPubsubInstance();
