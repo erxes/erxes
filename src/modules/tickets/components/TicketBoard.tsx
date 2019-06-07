@@ -8,7 +8,7 @@ import {
 } from 'modules/deals/styles/common';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
-import { options } from '../constants';
+import options from '../options';
 
 type Props = {
   queryParams: any;

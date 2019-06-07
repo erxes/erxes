@@ -1,6 +1,8 @@
+import { DealEditForm } from 'modules/deals/components';
 import { mutations, queries } from './graphql';
 
-export const options = {
+const options = {
+  EditForm: DealEditForm,
   type: 'deal',
   title: 'Deals',
   queriesName: {
@@ -33,3 +35,5 @@ export const options = {
     copySuccessText: 'You successfully copied a deal'
   }
 };
+
+export default options;

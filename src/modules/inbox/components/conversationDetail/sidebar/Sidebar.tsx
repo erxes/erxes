@@ -19,11 +19,11 @@ import {
 import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
 import { ICustomer } from 'modules/customers/types';
-import { options as dealOptions } from 'modules/deals/constants';
+import dealOptions from 'modules/deals/options';
 import { SidebarActivity } from 'modules/inbox/containers/conversationDetail';
 import { Sidebar } from 'modules/layout/components';
 import { MailForm } from 'modules/settings/integrations/containers/google';
-import { options as ticketOptions } from 'modules/tickets/constants';
+import ticketOptions from 'modules/tickets/options';
 import * as React from 'react';
 import { IConversation } from '../../../types';
 import ConversationDetails from './ConversationDetails';
