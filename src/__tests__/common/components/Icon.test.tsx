@@ -22,29 +22,11 @@ describe('Icon component', () => {
 
   test('renders test email', () => {
     defaultProps.icon = 'email';
-
-    const rendered = mount(<Icon {...defaultProps} />);
-    const props = rendered.props();
-
-    expect(defaultProps).toMatchObject(props);
-  });
-
-  test('renders test email on icon and size', () => {
     defaultProps.size = 10;
 
     const rendered = mount(<Icon {...defaultProps} />);
     const props = rendered.props();
 
     expect(defaultProps).toMatchObject(props);
-  });
-
-  test('render piggy icon', () => {
-    defaultProps.icon = 'icon-piggy-bank';
-
-    const rendered = mount(<Icon {...defaultProps} />);
-    const piggy = rendered.find('i').debug();
-    const piggyFound = piggy.search('icon="icon-piggy-bank"');
-
-    expect(piggyFound).toBeGreaterThan(-1);
   });
 });
