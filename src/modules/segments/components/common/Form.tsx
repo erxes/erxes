@@ -21,7 +21,7 @@ import { ConditionWrapper, SegmentTitle, SegmentWrapper } from '../styles';
 type Props = {
   contentType?: string;
   fields: ISegmentField[];
-  create: (params: { doc: ISegmentWithConditionDoc }) => void;
+  save: (params: { doc: ISegmentWithConditionDoc }) => void;
   edit?: (params: { _id: string; doc: ISegmentWithConditionDoc }) => void;
   segment?: ISegment;
   headSegments: ISegment[];
@@ -135,7 +135,7 @@ class Form extends React.Component<Props, State> {
   save = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { segment, create, edit, afterSave } = this.props;
+    const { segment, save, edit, afterSave } = this.props;
 
     const {
       name,
@@ -186,7 +186,7 @@ class Form extends React.Component<Props, State> {
       return edit && edit({ _id: segment._id, doc });
     }
 
-    create({ doc });
+    save({ doc });
 
     if (afterSave) {
       afterSave();

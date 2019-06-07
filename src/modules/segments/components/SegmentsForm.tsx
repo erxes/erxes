@@ -36,9 +36,9 @@ type Props = {
   };
 };
 
-class SegmentsForm extends React.Component<Props> {
-  renderSidebar() {
-    const { total, counterLoading } = this.props;
+const SegmentsForm = (props: Props) => {
+  const renderSidebar = () => {
+    const { total, counterLoading } = props;
 
     return (
       <Sidebar full={true} wide={true}>
@@ -57,16 +57,14 @@ class SegmentsForm extends React.Component<Props> {
         </FlexContent>
       </Sidebar>
     );
-  }
+  };
 
-  renderFooter = (saveBtn: React.ReactNode) => {
-    const { contentType } = this.props;
-
+  const renderFooter = (saveBtn: React.ReactNode) => {
     return (
       <Wrapper.ActionBar
         right={
           <Button.Group>
-            <Link to={`/segments/${contentType}`}>
+            <Link to={`/segments/${props.contentType}`}>
               <Button size="small" btnStyle="simple" icon="cancel-1">
                 Cancel
               </Button>
@@ -78,16 +76,14 @@ class SegmentsForm extends React.Component<Props> {
     );
   };
 
-  renderForm = ({
+  const renderForm = ({
     renderContent,
     saveButton
   }: {
     renderContent: React.ReactNode;
     saveButton: React.ReactNode;
   }) => {
-    const { contentType, segment } = this.props;
-
-    const title = segment ? __('Edit segment') : __('New segment');
+    const title = props.segment ? __('Edit segment') : __('New segment');
 
     const breadcrumb = [
       { title: __('Segments'), link: `/segments/${contentType}` },
@@ -98,36 +94,34 @@ class SegmentsForm extends React.Component<Props> {
       <Wrapper
         header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         content={renderContent}
-        footer={this.renderFooter(saveButton)}
-        rightSidebar={this.renderSidebar()}
+        footer={renderFooter(saveButton)}
+        rightSidebar={renderSidebar()}
       />
     );
   };
 
-  render() {
-    const {
-      contentType,
-      fields,
-      create,
-      edit,
-      segment,
-      headSegments,
-      count
-    } = this.props;
+  const {
+    contentType,
+    fields,
+    create,
+    edit,
+    segment,
+    headSegments,
+    count
+  } = props;
 
-    return (
-      <Form
-        contentType={contentType}
-        fields={fields}
-        create={create}
-        edit={edit}
-        segment={segment}
-        headSegments={headSegments}
-        count={count}
-        renderForm={this.renderForm}
-      />
-    );
-  }
-}
+  return (
+    <Form
+      contentType={contentType}
+      fields={fields}
+      create={create}
+      edit={edit}
+      segment={segment}
+      headSegments={headSegments}
+      count={count}
+      renderForm={renderForm}
+    />
+  );
+};
 
 export default SegmentsForm;

@@ -9,26 +9,22 @@ import * as React from 'react';
 
 type Props = {
   fields: ISegmentField[];
-  create: (params: { doc: ISegmentWithConditionDoc }) => void;
+  save: (params: { doc: ISegmentWithConditionDoc }) => void;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
-  showForm: (value: boolean) => void;
+  afterSave: () => void;
 };
 
 const SegmentsForm = (props: Props) => {
-  const toggleForm = () => {
-    return props.showForm(false);
-  };
-
-  const { fields, create, headSegments, count } = props;
+  const { fields, save, headSegments, count, afterSave } = props;
 
   return (
     <Form
       fields={fields}
-      create={create}
+      save={save}
       headSegments={headSegments}
       count={count}
-      afterSave={toggleForm}
+      afterSave={afterSave}
     />
   );
 };
