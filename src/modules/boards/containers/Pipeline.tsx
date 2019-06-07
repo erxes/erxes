@@ -6,7 +6,13 @@ import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { queries } from '../graphql';
-import { IItemMap, IPipeline, IStageMap, StagesQueryResponse } from '../types';
+import {
+  IItemMap,
+  IOptions,
+  IPipeline,
+  IStageMap,
+  StagesQueryResponse
+} from '../types';
 import { Stage } from './';
 import { PipelineConsumer, PipelineProvider } from './PipelineContext';
 
@@ -20,7 +26,7 @@ type Props = {
   initialItemMap?: IItemMap;
   stageMap?: IStageMap;
   queryParams: any;
-  type: string;
+  options: IOptions;
 };
 
 class WithStages extends React.Component<WithStatesQueryProps, {}> {
@@ -81,7 +87,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
       initialItemMap,
       pipeline,
       stageMap,
-      type,
+      options,
       queryParams
     } = this.props;
     const stagesCount = this.countStages(stageMap);
@@ -101,7 +107,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
         pipeline={pipeline}
         initialItemMap={initialItemMap}
         queryParams={queryParams}
-        type={type}
+        options={options}
         getQueryParams={this.getQueryParams}
       >
         <PipelineConsumer>
@@ -127,7 +133,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
 
                       return (
                         <Stage
-                          type={type}
+                          options={options}
                           key={stageId}
                           index={index}
                           length={stagesCount}

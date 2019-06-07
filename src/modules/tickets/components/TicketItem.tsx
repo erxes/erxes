@@ -2,7 +2,7 @@ import { EditForm } from 'modules/boards/containers/editForm';
 import { Date, ItemContainer } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
-import { Item } from 'modules/boards/types';
+import { IOptions, Item } from 'modules/boards/types';
 import { __, getUserAvatar } from 'modules/common/utils';
 import * as moment from 'moment';
 import * as React from 'react';
@@ -17,6 +17,7 @@ type Props = {
   onRemove: (dealId: string, stageId: string) => void;
   onUpdate: (item: Item) => void;
   onTogglePopup: () => void;
+  options: IOptions;
 };
 
 export default class TicketItem extends React.PureComponent<
@@ -46,7 +47,7 @@ export default class TicketItem extends React.PureComponent<
   };
 
   renderForm = () => {
-    const { stageId, item, onAdd, onRemove, onUpdate } = this.props;
+    const { stageId, item, onAdd, onRemove, onUpdate, options } = this.props;
     const { isFormVisible } = this.state;
 
     if (!isFormVisible) {
@@ -60,7 +61,7 @@ export default class TicketItem extends React.PureComponent<
         </Modal.Header>
         <Modal.Body>
           <EditForm
-            type="ticket"
+            options={options}
             stageId={stageId}
             itemId={item._id}
             onAdd={onAdd}

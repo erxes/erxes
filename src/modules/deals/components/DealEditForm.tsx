@@ -1,7 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { EditForm } from 'modules/boards/components/editForm';
 import { HeaderContentSmall } from 'modules/boards/styles/item';
-import { Item, ItemParams } from 'modules/boards/types';
+import { IOptions, Item, ItemParams } from 'modules/boards/types';
 import { ControlLabel } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { ProductSection } from 'modules/deals/components';
@@ -9,7 +9,7 @@ import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
 
 type Props = {
-  type: string;
+  options: IOptions;
   item: Item;
   users: IUser[];
   addItem: (doc: ItemParams, callback: () => void, msg?: string) => void;

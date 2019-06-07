@@ -9,14 +9,14 @@ import {
 import { IStage } from 'modules/boards/types';
 import { Icon, Tip } from 'modules/common/components';
 import * as React from 'react';
-import { Item } from '../../types';
+import { IOptions, Item } from '../../types';
 
 type Props = {
   item?: Item;
   stages: IStage[];
   stageId?: string;
   onChangeStage?: (stageId: string) => void;
-  type: string;
+  options: IOptions;
 };
 
 type State = {
@@ -96,12 +96,12 @@ class Move extends React.Component<Props, State> {
       return null;
     }
 
-    const { stageId, onChangeStage, type } = this.props;
+    const { stageId, onChangeStage, options } = this.props;
     const { boardId, pipelineId } = this.state;
 
     return (
       <BoardSelect
-        type={type}
+        type={options.type}
         stageId={stageId}
         boardId={boardId}
         pipelineId={pipelineId}

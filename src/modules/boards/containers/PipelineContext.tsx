@@ -4,15 +4,14 @@ import { Alert } from 'modules/common/utils';
 import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
-import { STAGE_CONSTANTS } from '../constants';
 import { mutations, queries } from '../graphql';
-import { IDragResult, IItemMap, IPipeline, Item } from '../types';
+import { IDragResult, IItemMap, IOptions, IPipeline, Item } from '../types';
 import { collectOrders, reorder, reorderItemMap } from '../utils';
 
 type Props = {
   pipeline: IPipeline;
   initialItemMap?: IItemMap;
-  type: string;
+  options: IOptions;
   queryParams: IQueryParams;
   getQueryParams: (queryParams: IQueryParams, args: any) => boolean;
 };
@@ -28,7 +27,7 @@ type State = {
 };
 
 interface IStore {
-  type: string;
+  options: IOptions;
   itemMap: IItemMap;
   stageLoadMap: StageLoadMap;
   stageIds: string[];
@@ -141,11 +140,11 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   itemChange = (itemId: string, destinationStageId?: string) => {
+    const { options } = this.props;
+
     client
       .mutate({
-        mutation: gql(
-          mutations[STAGE_CONSTANTS[this.props.type].changeMutation]
-        ),
+        mutation: gql(options.mutations.changeMutation),
         variables: {
           _id: itemId,
           destinationStageId
@@ -173,6 +172,8 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   saveItemOrders = (itemMap: IItemMap, stageIds: string[]) => {
+    const { options } = this.props;
+
     for (const stageId of stageIds) {
       const orders = collectOrders(itemMap[stageId]);
 
@@ -182,9 +183,7 @@ export class PipelineProvider extends React.Component<Props, State> {
 
       client
         .mutate({
-          mutation: gql(
-            mutations[STAGE_CONSTANTS[this.props.type].updateOrderMutation]
-          ),
+          mutation: gql(options.mutations.updateOrderMutation),
           variables: {
             orders,
             stageId
@@ -340,7 +339,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     return (
       <PipelineContext.Provider
         value={{
-          type: this.props.type,
+          options: this.props.options,
           onDragEnd: this.onDragEnd,
           onLoadStage: this.onLoadStage,
           scheduleStage: this.scheduleStage,

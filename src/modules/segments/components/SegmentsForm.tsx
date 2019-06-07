@@ -69,7 +69,8 @@ class SegmentsForm extends React.Component<Props, State> {
       subOf: '',
       color: generateRandomColorCode(),
       conditions: [],
-      connector: 'any'
+      connector: 'any',
+      brandId: ''
     };
 
     segment.conditions = segment.conditions.map(

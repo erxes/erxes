@@ -16,12 +16,12 @@ import { __ } from 'modules/common/utils';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import * as React from 'react';
 import * as Datetime from 'react-datetime';
-import { Item } from '../..//types';
 import { Move } from '../../containers/editForm';
+import { IOptions, Item } from '../../types';
 
 type Props = {
   item: Item;
-  type: string;
+  options: IOptions;
   name: string;
   description: string;
   closeDate: Date;
@@ -41,11 +41,11 @@ class Top extends React.Component<Props> {
   };
 
   renderMove() {
-    const { item, stageId, type } = this.props;
+    const { item, stageId, options } = this.props;
 
     return (
       <Move
-        type={type}
+        options={options}
         item={item}
         stageId={stageId}
         onChangeStage={this.onChangeStage}

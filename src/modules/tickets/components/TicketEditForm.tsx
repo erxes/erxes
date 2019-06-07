@@ -1,6 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { EditForm } from 'modules/boards/components/editForm';
-import { Item, ItemParams } from 'modules/boards/types';
+import { IOptions, Item, ItemParams } from 'modules/boards/types';
 import { ControlLabel, FormGroup } from 'modules/common/components';
 import { IOption } from 'modules/common/types';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
@@ -9,7 +9,7 @@ import Select from 'react-select-plus';
 import { PRIORITIES } from '../constants';
 
 type Props = {
-  type: string;
+  options: IOptions;
   item: Item;
   users: IUser[];
   addItem: (doc: ItemParams, callback: () => void, msg?: string) => void;

@@ -6,11 +6,10 @@ import { SectionContainer } from 'modules/layout/styles';
 import { PortableTicket } from 'modules/tickets/components';
 import * as React from 'react';
 import { AddItem } from '.';
-import { STAGE_CONSTANTS } from '../../constants';
-import { Item, ItemParams } from '../../types';
+import { IOptions, Item, ItemParams } from '../../types';
 
 type Props = {
-  type: string;
+  options: IOptions;
   items: Item[];
   customerIds?: string[];
   companyIds?: string[];
@@ -32,13 +31,13 @@ class PortableItems extends React.Component<Props> {
   }
 
   renderItems = () => {
-    const { onChangeItems, items, type } = this.props;
+    const { onChangeItems, items, options } = this.props;
 
     if (items.length === 0) {
-      return <EmptyState icon="piggy-bank" text={`No ${type}`} />;
+      return <EmptyState icon="piggy-bank" text={`No ${options.type}`} />;
     }
 
-    const PortableItem = this.ITEMS[type];
+    const PortableItem = this.ITEMS[options.type];
 
     return items.map((item, index) => (
       <PortableItem
@@ -55,7 +54,7 @@ class PortableItems extends React.Component<Props> {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const { saveItem, customerIds, companyIds, isOpen, type } = this.props;
+    const { saveItem, customerIds, companyIds, isOpen, options } = this.props;
 
     const trigger = (
       <a>
@@ -65,7 +64,7 @@ class PortableItems extends React.Component<Props> {
 
     const content = props => (
       <AddItem
-        type={type}
+        options={options}
         {...props}
         saveItem={saveItem}
         customerIds={customerIds}
@@ -74,11 +73,9 @@ class PortableItems extends React.Component<Props> {
       />
     );
 
-    const constant = STAGE_CONSTANTS[type];
-
     const quickButtons = (
       <ModalTrigger
-        title={constant.addText}
+        title={options.texts.addText}
         trigger={trigger}
         content={content}
       />
@@ -86,7 +83,7 @@ class PortableItems extends React.Component<Props> {
 
     return (
       <Section>
-        <Title>{__(constant.title)}</Title>
+        <Title>{__(options.title)}</Title>
 
         <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
 

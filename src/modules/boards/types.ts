@@ -8,6 +8,34 @@ import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
 
+export interface IOptions {
+  type: string;
+  title: string;
+  queriesName: { itemsQuery: string; detailQuery: string };
+  mutationsName: {
+    addMutation: string;
+    editMutation: string;
+    removeMutation: string;
+    changeMutation: string;
+    updateOrderMutation: string;
+  };
+  queries: { itemsQuery: string; detailQuery: string };
+  mutations: {
+    addMutation: string;
+    editMutation: string;
+    removeMutation: string;
+    changeMutation: string;
+    updateOrderMutation: string;
+  };
+  texts: {
+    addText: string;
+    addSuccessText: string;
+    updateSuccessText: string;
+    deleteSuccessText: string;
+    copySuccessText: string;
+  };
+}
+
 export interface IBoard {
   _id: string;
   name: string;

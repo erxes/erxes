@@ -10,7 +10,7 @@ type Props = {
   color: string;
 };
 
-class Items extends React.Component<Props> {
+class Details extends React.Component<Props> {
   renderItem(item, color, index) {
     return (
       <div key={index}>
@@ -38,4 +38,4 @@ class Items extends React.Component<Props> {
   }
 }
 
-export default Items;
+export default Details;

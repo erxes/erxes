@@ -2,6 +2,7 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import {
+  IOptions,
   IStage,
   Item,
   ItemParams,
@@ -13,8 +14,7 @@ import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../components/stage';
-import { STAGE_CONSTANTS } from '../constants';
-import { mutations, queries } from '../graphql';
+import { queries } from '../graphql';
 
 type WrapperProps = {
   stage: IStage;
@@ -23,7 +23,7 @@ type WrapperProps = {
   items: Item[];
   length: number;
   queryParams: IQueryParams;
-  type: string;
+  options: IOptions;
 };
 
 type StageProps = {
@@ -39,12 +39,12 @@ type FinalStageProps = {
 
 class StageContainer extends React.PureComponent<FinalStageProps> {
   componentWillReceiveProps(nextProps: FinalStageProps) {
-    const { stage, loadingState, onLoad, itemsQuery, type } = nextProps;
+    const { stage, loadingState, onLoad, itemsQuery, options } = nextProps;
 
     if (itemsQuery && !itemsQuery.loading && loadingState !== 'loaded') {
       // Send loaded items to PipelineContext so that context is able to set it
       // to global itemsMap
-      onLoad(stage._id, itemsQuery[STAGE_CONSTANTS[type].itemsQuery] || []);
+      onLoad(stage._id, itemsQuery[options.queriesName.itemsQuery] || []);
     }
   }
 
@@ -56,17 +56,15 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   }
 
   loadMore = () => {
-    const { onLoad, stage, items, queryParams, type } = this.props;
+    const { onLoad, stage, items, queryParams, options } = this.props;
 
     if (items.length === stage.itemsTotalCount) {
       return;
     }
 
-    const itemsQuery = STAGE_CONSTANTS[type].itemsQuery;
-
     client
       .query({
-        query: gql(queries[itemsQuery]),
+        query: gql(options.queries.itemsQuery),
         variables: {
           stageId: stage._id,
           skip: items.length,
@@ -74,7 +72,10 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         }
       })
       .then(({ data }: any) => {
-        onLoad(stage._id, [...items, ...(data[itemsQuery] || [])]);
+        onLoad(stage._id, [
+          ...items,
+          ...(data[options.queriesName.itemsQuery] || [])
+        ]);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -83,7 +84,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
 
   // create item
   addItem = (name: string, callback: () => void) => {
-    const { stage, onAddItem, addMutation, type } = this.props;
+    const { stage, onAddItem, addMutation, options } = this.props;
 
     if (!stage) {
       return null;
@@ -91,11 +92,9 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
 
     return addMutation({ variables: { name, stageId: stage._id } })
       .then(({ data }) => {
-        const constant = STAGE_CONSTANTS[type];
+        Alert.success(options.texts.addSuccessText);
 
-        Alert.success(constant.addSuccessText);
-
-        onAddItem(stage._id, data[constant.addMutation]);
+        onAddItem(stage._id, data[options.mutations.addMutation]);
 
         callback();
       })
@@ -105,12 +104,12 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   };
 
   render() {
-    const { index, length, stage, items, itemsQuery, type } = this.props;
+    const { index, length, stage, items, itemsQuery, options } = this.props;
     const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
 
     return (
       <Stage
-        type={type}
+        options={options}
         stage={stage}
         index={index}
         length={length}
@@ -142,10 +141,10 @@ const getFilterParams = queryParams => {
   };
 };
 
-const withQuery = ({ type }) => {
+const withQuery = ({ options }) => {
   return withProps<StageProps>(
     compose(
-      graphql<StageProps>(gql(queries[STAGE_CONSTANTS[type].itemsQuery]), {
+      graphql<StageProps>(gql(options.queries.itemsQuery), {
         name: 'itemsQuery',
         skip: ({ loadingState }) => loadingState !== 'readyToLoad',
         options: ({ stage, queryParams, loadingState }) => ({
@@ -160,7 +159,7 @@ const withQuery = ({ type }) => {
       }),
       // mutation
       graphql<StageProps, SaveItemMutation, ItemParams>(
-        gql(mutations[STAGE_CONSTANTS[type].addMutation]),
+        gql(options.mutations.addMutation),
         {
           name: 'addMutation',
           options: ({ stage }) => ({
@@ -183,7 +182,7 @@ class WithData extends React.Component<StageProps> {
   constructor(props) {
     super(props);
 
-    this.withQuery = withQuery({ type: props.type });
+    this.withQuery = withQuery({ options: props.options });
   }
 
   render() {

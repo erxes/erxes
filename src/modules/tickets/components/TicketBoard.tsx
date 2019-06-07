@@ -8,16 +8,16 @@ import {
 } from 'modules/deals/styles/common';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
+import { options } from '../constants';
 
 type Props = {
   queryParams: any;
 };
-
 class TicketBoard extends React.Component<Props> {
   renderContent() {
     const { queryParams } = this.props;
 
-    return <Board queryParams={queryParams} type="ticket" />;
+    return <Board queryParams={queryParams} options={options} />;
   }
 
   renderActionBar() {

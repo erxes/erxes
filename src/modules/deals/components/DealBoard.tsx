@@ -3,6 +3,7 @@ import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
+import { options } from '../constants';
 import {
   BoardContainer,
   BoardContent,
@@ -17,7 +18,7 @@ class DealBoard extends React.Component<Props> {
   renderContent() {
     const { queryParams } = this.props;
 
-    return <Board queryParams={queryParams} type="deal" />;
+    return <Board queryParams={queryParams} options={options} />;
   }
 
   renderActionBar() {
