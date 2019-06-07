@@ -63,6 +63,7 @@ describe('Segments mutations', () => {
           value: faker.random.word(),
           dateUnit: faker.random.word(),
           type: faker.random.word(),
+          brandId: faker.random.word(),
         },
       ],
     };
@@ -109,6 +110,7 @@ describe('Segments mutations', () => {
           value: faker.random.word(),
           operator: faker.random.word(),
           field: faker.random.word(),
+          brandId: faker.random.word(),
         },
       ],
     };

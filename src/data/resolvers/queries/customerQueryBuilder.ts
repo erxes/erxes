@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { Forms, Integrations, Segments } from '../../../db/models';
+import { Brands, Forms, Integrations, Segments } from '../../../db/models';
 import { STATUSES } from '../../../db/models/definitions/constants';
 import QueryBuilder from './segmentQueryBuilder';
 
@@ -65,8 +65,19 @@ export default class Builder {
   // filter by segment
   public async segmentFilter(segmentId: string) {
     const segment = await Segments.findOne({ _id: segmentId });
+    const brandsMapping = {};
 
-    return QueryBuilder.segments(segment);
+    const brands = await Brands.find({});
+
+    for (const brand of brands) {
+      const integrations = await Integrations.find({ brandId: brand._id });
+
+      const integrationIds = integrations.map(integration => integration._id);
+
+      brandsMapping[brand._id] = integrationIds;
+    }
+
+    return QueryBuilder.segments(segment, null, brandsMapping);
   }
 
   // filter by brand
