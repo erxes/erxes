@@ -4,12 +4,12 @@ import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
-import { PipelineDetailQueryResponse } from '../types';
+import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
 
 type Props = {
   queryParams: any;
-  type: string;
+  options: IOptions;
 };
 
 type FinalProps = {
@@ -17,7 +17,7 @@ type FinalProps = {
 } & Props;
 
 const WithPipelinesQuery = (props: FinalProps) => {
-  const { pipelineDetailQuery, queryParams, type } = props;
+  const { pipelineDetailQuery, queryParams, options } = props;
 
   if (!pipelineDetailQuery || !pipelineDetailQuery.pipelineDetail) {
     return (
@@ -38,7 +38,7 @@ const WithPipelinesQuery = (props: FinalProps) => {
 
   return (
     <Pipeline
-      type={type}
+      options={options}
       pipeline={pipeline}
       key={pipeline._id}
       queryParams={queryParams}

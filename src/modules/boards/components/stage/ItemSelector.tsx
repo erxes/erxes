@@ -1,7 +1,7 @@
 import { DealItem } from 'modules/deals/containers/';
 import { TicketItem } from 'modules/tickets/containers/';
 import * as React from 'react';
-import { Item as ItemType } from '../../types';
+import { IOptions, Item as ItemType } from '../../types';
 
 type Props = {
   stageId: string;
@@ -9,7 +9,7 @@ type Props = {
   isDragging: boolean;
   provided;
   onTogglePopup: () => void;
-  type: string;
+  options: IOptions;
 };
 
 export default class extends React.Component<Props> {
@@ -25,9 +25,9 @@ export default class extends React.Component<Props> {
   }
 
   render() {
-    const { type, ...itemProps } = this.props;
+    const { options, ...itemProps } = this.props;
 
-    const Item = this.ITEMS[type];
+    const Item = this.ITEMS[options.type];
 
     return <Item {...itemProps} />;
   }

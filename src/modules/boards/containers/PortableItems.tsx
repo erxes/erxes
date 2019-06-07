@@ -3,16 +3,19 @@ import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Items } from '../components/portable';
-import { STAGE_CONSTANTS } from '../constants';
-import { mutations, queries } from '../graphql';
-import { ItemParams, ItemsQueryResponse, SaveMutation } from '../types';
+import {
+  IOptions,
+  ItemParams,
+  ItemsQueryResponse,
+  SaveMutation
+} from '../types';
 import { withProps } from '../utils';
 
 type Props = {
   customerIds?: string[];
   companyIds?: string[];
   isOpen?: boolean;
-  type: string;
+  options: IOptions;
 };
 
 type FinalProps = {
@@ -22,11 +25,11 @@ type FinalProps = {
 
 class PortableItemsContainer extends React.Component<FinalProps> {
   saveItem = (doc: ItemParams, callback: () => void) => {
-    const { addMutation, itemsQuery, type } = this.props;
+    const { addMutation, itemsQuery, options } = this.props;
 
     addMutation({ variables: doc })
       .then(() => {
-        Alert.success(STAGE_CONSTANTS[type].addSuccessText);
+        Alert.success(options.texts.addSuccessText);
 
         callback();
 
@@ -44,12 +47,12 @@ class PortableItemsContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { itemsQuery, type } = this.props;
+    const { itemsQuery, options } = this.props;
     if (!itemsQuery) {
       return null;
     }
 
-    const items = itemsQuery[STAGE_CONSTANTS[type].itemsQuery] || [];
+    const items = itemsQuery[options.queries.itemsQuery] || [];
 
     const extendedProps = {
       ...this.props,
@@ -68,7 +71,7 @@ export default (props: Props) =>
     compose(
       // mutation
       graphql<{}, SaveMutation, ItemParams>(
-        gql(mutations[STAGE_CONSTANTS[props.type].addMutation]),
+        gql(props.options.mutations.addMutation),
         {
           name: 'addMutation'
         }
@@ -77,7 +80,7 @@ export default (props: Props) =>
         Props,
         ItemsQueryResponse,
         { customerIds?: string[]; companyIds?: string[] }
-      >(gql(queries[STAGE_CONSTANTS[props.type].itemsQuery]), {
+      >(gql(props.options.queries.itemsQuery), {
         name: 'itemsQuery',
         skip: ({ customerIds, companyIds }) => !customerIds && !companyIds,
         options: ({ customerIds, companyIds }) => ({

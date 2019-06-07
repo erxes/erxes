@@ -14,9 +14,10 @@ type Props = {
 export default (props: Props) => {
   return (
     <PipelineConsumer>
-      {({ onAddItem, onRemoveItem, onUpdateItem }) => {
+      {({ onAddItem, onRemoveItem, onUpdateItem, options }) => {
         return (
           <TicketItem
+            options={options}
             stageId={props.stageId}
             item={props.item}
             isDragging={props.isDragging}

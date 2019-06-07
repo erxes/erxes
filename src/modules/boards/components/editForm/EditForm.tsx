@@ -7,12 +7,11 @@ import { Alert } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
-import { STAGE_CONSTANTS } from '../../constants';
-import { Item, ItemParams } from '../../types';
+import { IOptions, Item, ItemParams } from '../../types';
 import { Sidebar, Top } from './';
 
 type Props = {
-  type: string;
+  options: IOptions;
   item: Item;
   users: IUser[];
   addItem: (doc: ItemParams, callback: () => void, msg?: string) => void;
@@ -101,7 +100,7 @@ class EditForm extends React.Component<Props, State> {
   };
 
   copy = () => {
-    const { item, closeModal, addItem, type } = this.props;
+    const { item, closeModal, addItem, options } = this.props;
 
     // copied doc
     const doc = {
@@ -114,12 +113,12 @@ class EditForm extends React.Component<Props, State> {
     addItem(
       doc,
       () => closeModal && closeModal(),
-      STAGE_CONSTANTS[type].copySuccessText
+      options.texts.copySuccessText
     );
   };
 
   renderFormContent() {
-    const { item, users, type, amount, sidebar } = this.props;
+    const { item, users, options, amount, sidebar } = this.props;
 
     const {
       name,
@@ -134,7 +133,7 @@ class EditForm extends React.Component<Props, State> {
     return (
       <>
         <Top
-          type={type}
+          options={options}
           name={name}
           description={description}
           closeDate={closeDate}
@@ -150,18 +149,19 @@ class EditForm extends React.Component<Props, State> {
           <Left>
             <ActivityInputs
               contentTypeId={item._id}
-              contentType={type}
+              contentType={options.type}
               showEmail={false}
             />
             <ActivityLogs
               target={item.name}
               contentId={item._id}
-              contentType={type}
+              contentType={options.type}
               extraTabs={[]}
             />
           </Left>
 
           <Sidebar
+            options={options}
             customers={customers}
             companies={companies}
             item={item}

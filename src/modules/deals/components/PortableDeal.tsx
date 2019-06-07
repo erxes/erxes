@@ -1,4 +1,4 @@
-import { DetailItems, UserCounter } from 'modules/boards/components/portable';
+import { Details, UserCounter } from 'modules/boards/components/portable';
 import { EditForm } from 'modules/boards/containers/editForm';
 import { ItemContainer } from 'modules/boards/styles/common';
 import { Content } from 'modules/boards/styles/stage';
@@ -86,9 +86,9 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
             <h5>{item.name}</h5>
             {renderDate(item.closeDate)}
           </SpaceContent>
-          <DetailItems color="#63D2D6" items={products} />
-          <DetailItems color="#F7CE53" items={item.customers || []} />
-          <DetailItems color="#EA475D" items={item.companies || []} />
+          <Details color="#63D2D6" items={products} />
+          <Details color="#F7CE53" items={item.customers || []} />
+          <Details color="#EA475D" items={item.companies || []} />
         </Content>
         <PriceContainer>
           {renderAmount(item.amount)}

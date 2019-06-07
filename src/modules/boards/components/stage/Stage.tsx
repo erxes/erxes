@@ -14,8 +14,7 @@ import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { STAGE_CONSTANTS } from '../../constants';
-import { IStage, Item } from '../../types';
+import { IOptions, IStage, Item } from '../../types';
 import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
 import { AddForm } from './';
@@ -28,7 +27,7 @@ type Props = {
   items: Item[];
   addItem: (name: string, callback: () => void) => void;
   loadMore: () => void;
-  type: string;
+  options: IOptions;
 };
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
@@ -75,8 +74,8 @@ export default class Stage extends React.Component<Props, {}> {
   };
 
   renderAddItemTrigger() {
-    const { addItem, type } = this.props;
-    const addText = STAGE_CONSTANTS[type].addText;
+    const { addItem, options } = this.props;
+    const addText = options.texts.addText;
 
     const trigger = (
       <StageFooter>
@@ -122,7 +121,7 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   renderItemList() {
-    const { stage, items, loadingItems, type } = this.props;
+    const { stage, items, loadingItems, options } = this.props;
 
     if (loadingItems) {
       return (
@@ -138,7 +137,7 @@ export default class Stage extends React.Component<Props, {}> {
         listType="DEAL"
         stageId={stage._id}
         items={items}
-        type={type}
+        options={options}
       />
     );
   }

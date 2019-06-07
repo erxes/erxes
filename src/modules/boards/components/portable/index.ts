@@ -1,6 +1,6 @@
 import AddItem from './AddItem';
-import DetailItems from './DetailItems';
+import Details from './Details';
 import Items from './Items';
 import UserCounter from './UserCounter';
 
-export { Items, DetailItems, UserCounter, AddItem };
+export { Items, Details, UserCounter, AddItem };

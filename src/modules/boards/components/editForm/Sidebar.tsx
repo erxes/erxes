@@ -5,7 +5,7 @@ import { CustomerSection } from 'modules/customers/components/common';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 import { RightContent } from '../../styles/item';
-import { Item } from '../../types';
+import { IOptions, Item } from '../../types';
 
 type Props = {
   item: Item;
@@ -15,6 +15,7 @@ type Props = {
   copyItem: () => void;
   removeItem: (itemId: string) => void;
   sidebar?: () => React.ReactNode;
+  options: IOptions;
 };
 
 class Sidebar extends React.Component<Props> {
@@ -33,7 +34,8 @@ class Sidebar extends React.Component<Props> {
       item,
       copyItem,
       removeItem,
-      sidebar
+      sidebar,
+      options
     } = this.props;
 
     const cmpsChange = cmps => this.onChange('companies', cmps);
@@ -45,13 +47,13 @@ class Sidebar extends React.Component<Props> {
         {sidebar && sidebar()}
 
         <CompanySection
-          name="Deal"
+          name={options.title}
           companies={companies}
           onSelect={cmpsChange}
         />
 
         <CustomerSection
-          name="Deal"
+          name={options.title}
           customers={customers}
           onSelect={cmrsChange}
         />

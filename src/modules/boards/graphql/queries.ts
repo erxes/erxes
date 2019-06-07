@@ -1,6 +1,3 @@
-import { queries as dealQueries } from 'modules/deals/graphql';
-import { queries as ticketQueries } from 'modules/tickets/graphql';
-
 const commonParams = `
   $customerIds: [String],
   $companyIds: [String],
@@ -119,11 +116,6 @@ const stageDetail = `
 `;
 
 export default {
-  deals: dealQueries.deals,
-  dealDetail: dealQueries.dealDetail,
-  tickets: ticketQueries.tickets,
-  ticketDetail: ticketQueries.ticketDetail,
-
   boards,
   boardGetLast,
   boardDetail,

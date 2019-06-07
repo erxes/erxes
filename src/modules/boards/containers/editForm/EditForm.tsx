@@ -9,10 +9,9 @@ import { UsersQueryResponse } from 'modules/settings/team/types';
 import { TicketEditForm } from 'modules/tickets/components';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { STAGE_CONSTANTS } from '../../constants';
-import { mutations, queries } from '../../graphql';
 import {
   DetailQueryResponse,
+  IOptions,
   Item,
   ItemParams,
   RemoveMutation,
@@ -21,7 +20,7 @@ import {
 import { withProps } from '../../utils';
 
 type Props = {
-  type: string;
+  options: IOptions;
   itemId: string;
   stageId: string;
   onAdd?: (stageId: string, item: Item) => void;
@@ -58,10 +57,9 @@ class EditFormContainer extends React.Component<FinalProps> {
   addItem(
     doc: ItemParams,
     callback: () => void,
-    msg = STAGE_CONSTANTS[this.props.type].addSuccessText
+    msg = this.props.options.texts.addSuccessText
   ) {
-    const { onAdd, addMutation, stageId, type } = this.props;
-    const constant = STAGE_CONSTANTS[type];
+    const { onAdd, addMutation, stageId, options } = this.props;
 
     addMutation({ variables: doc })
       .then(({ data }) => {
@@ -70,7 +68,7 @@ class EditFormContainer extends React.Component<FinalProps> {
         callback();
 
         if (onAdd) {
-          onAdd(stageId, data[constant.addMutation]);
+          onAdd(stageId, data[options.mutationsName.addMutation]);
         }
       })
       .catch(error => {
@@ -79,19 +77,18 @@ class EditFormContainer extends React.Component<FinalProps> {
   }
 
   saveItem = (doc: ItemParams, callback: () => void) => {
-    const { stageId, itemId, editMutation, onUpdate, type } = this.props;
-    const constant = STAGE_CONSTANTS[type];
+    const { stageId, itemId, editMutation, onUpdate, options } = this.props;
 
     editMutation({ variables: { _id: itemId, ...doc } })
       .then(({ data }) => {
-        Alert.success(constant.updateSuccessText);
+        Alert.success(options.texts.updateSuccessText);
 
         callback();
 
         if (onUpdate) {
           invalidateCalendarCache();
 
-          onUpdate(data[constant.editMutation], stageId);
+          onUpdate(data[options.mutationsName.editMutation], stageId);
         }
       })
       .catch(error => {
@@ -100,14 +97,14 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   removeItem = (itemId: string, callback) => {
-    const { removeMutation, onRemove, stageId, type } = this.props;
+    const { removeMutation, onRemove, stageId, options } = this.props;
 
     confirm().then(() =>
       removeMutation({ variables: { _id: itemId } })
         .then(() => {
           callback();
 
-          Alert.success(STAGE_CONSTANTS[type].deleteSuccessText);
+          Alert.success(options.texts.deleteSuccessText);
 
           if (onRemove) {
             invalidateCalendarCache();
@@ -123,14 +120,14 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { usersQuery, detailQuery, type } = this.props;
+    const { usersQuery, detailQuery, options } = this.props;
 
     if (usersQuery.loading || detailQuery.loading) {
       return <Spinner />;
     }
 
     const users = usersQuery.users;
-    const item = detailQuery[STAGE_CONSTANTS[type].detailQuery];
+    const item = detailQuery[options.queriesName.detailQuery];
 
     if (!item) {
       return null;
@@ -145,20 +142,20 @@ class EditFormContainer extends React.Component<FinalProps> {
       users
     };
 
-    const EditForm = this.ITEMS[type];
+    const EditForm = this.ITEMS[options.type];
 
     return <EditForm {...extendedProps} />;
   }
 }
 
 export default (props: Props) => {
-  const { type } = props;
+  const { options } = props;
 
   return withProps<Props>(
     props,
     compose(
       graphql<Props, DetailQueryResponse, { _id: string }>(
-        gql(queries[STAGE_CONSTANTS[type].detailQuery]),
+        gql(options.queries.detailQuery),
         {
           name: 'detailQuery',
           options: ({ itemId }: { itemId: string }) => {
@@ -174,7 +171,7 @@ export default (props: Props) => {
         name: 'usersQuery'
       }),
       graphql<Props, SaveMutation, ItemParams>(
-        gql(mutations[STAGE_CONSTANTS[type].addMutation]),
+        gql(options.mutations.addMutation),
         {
           name: 'addMutation',
           options: ({ stageId }: { stageId: string }) => ({
@@ -188,7 +185,7 @@ export default (props: Props) => {
         }
       ),
       graphql<Props, SaveMutation, ItemParams>(
-        gql(mutations[STAGE_CONSTANTS[type].editMutation]),
+        gql(options.mutations.editMutation),
         {
           name: 'editMutation',
           options: ({
@@ -200,7 +197,7 @@ export default (props: Props) => {
           }) => ({
             refetchQueries: [
               {
-                query: gql(queries[STAGE_CONSTANTS[type].detailQuery]),
+                query: gql(options.queries.detailQuery),
                 variables: { _id: itemId }
               },
               {
@@ -212,7 +209,7 @@ export default (props: Props) => {
         }
       ),
       graphql<Props, RemoveMutation, { _id: string }>(
-        gql(mutations[STAGE_CONSTANTS[type].removeMutation]),
+        gql(options.mutations.removeMutation),
         {
           name: 'removeMutation',
           options: ({ stageId }: { stageId: string }) => ({
