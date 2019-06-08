@@ -18,12 +18,23 @@ class KnowledgeBase extends React.Component<Props> {
       firstTopic: { title: '' }
     };
     const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };
+    const list = [{ title: __('Knowledge base'), link: '/knowledgeBase' }];
 
-    return [
-      { title: __('Knowledge base'), link: '/knowledgeBase' },
-      { title: `${currentKnowledgeBase.title || 'No Category'}` },
-      { title: `${currentCategory.title || ''}` }
-    ];
+    if (currentKnowledgeBase.title) {
+      list.push({
+        title: currentKnowledgeBase.title,
+        link: '#'
+      });
+    }
+
+    if (currentCategory.title) {
+      list.push({
+        title: currentCategory.title,
+        link: '#'
+      });
+    }
+
+    return list;
   }
 
   render() {
