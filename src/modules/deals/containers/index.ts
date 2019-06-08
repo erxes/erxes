@@ -1,5 +1,6 @@
 import Board from './Board';
 import DealColumn from './calendar/DealColumn';
+import StageList from './conversion/stageInfo/StageList';
 import DealSelect from './DealSelect';
 import MainActionBar from './MainActionBar';
 import Pipeline from './Pipeline';
@@ -15,5 +16,6 @@ export {
   DealSelect,
   ProductChooser,
   ProductItemForm,
-  DealColumn
+  DealColumn,
+  StageList
 };

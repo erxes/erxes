@@ -22,6 +22,11 @@ export interface IPipeline {
   name: string;
 }
 
+interface IStageInfo {
+  count: number;
+  percent: number;
+}
+
 export interface IStage {
   _id: string;
   name?: string;
@@ -31,6 +36,8 @@ export interface IStage {
   amount?: any;
   deals?: IDeal[];
   dealsTotalCount: number;
+  primaryDealsTotalCount?: number;
+  stageInfo?: IStageInfo;
 }
 
 export interface IDeal {

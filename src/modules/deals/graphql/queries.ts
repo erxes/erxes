@@ -97,11 +97,13 @@ const stages = `
   query dealStages(
     $pipelineId: String!, 
     $search: String,
+    $type: String,
     ${commonParams}
   ) {
     dealStages(
       pipelineId: $pipelineId, 
       search: $search
+      type: $type
       ${commonParamDefs}
     ) {
       _id
@@ -109,6 +111,9 @@ const stages = `
       order
       amount
       dealsTotalCount
+      stageInfo
+      primaryDealsTotalCount
+      inProcessDealsTotalCount
     }
   }
 `;

@@ -61,7 +61,11 @@ type State = {
 
 // get selected deal type from URL
 const getType = () =>
-  window.location.href.includes('calendar') ? 'calendar' : 'board';
+  window.location.href.includes('calendar')
+    ? 'calendar'
+    : window.location.href.includes('board')
+    ? 'board'
+    : 'conversion';
 
 const teamMemberCustomOption = {
   value: '',
@@ -228,6 +232,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     const boardLink = this.onFilterClick('board');
     const calendarLink = this.onFilterClick('calendar');
+    const conversionlink = this.onFilterClick('conversion');
     const hasFilter = isFiltered();
     const active = isFiltered();
     const actionBarLeft = (
@@ -373,6 +378,13 @@ class MainActionBar extends React.Component<Props, State> {
           >
             <Icon icon="calendar" />
             {__('Calendar')}
+          </Link>
+          <Link
+            to={conversionlink}
+            className={getType() === 'conversion' ? 'active' : ''}
+          >
+            <Icon icon="calendar" />
+            {__('Conversion view')}
           </Link>
         </ButtonGroup>
       </HeaderItems>
