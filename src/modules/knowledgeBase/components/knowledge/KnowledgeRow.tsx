@@ -127,7 +127,7 @@ class KnowledgeRow extends React.Component<Props, State> {
       <KnowledgeBaseRow key={topic._id}>
         <SectionHead>
           <SectionTitle onClick={this.toggle}>
-            {topic.title}
+            {topic.title} ({topic.categories.length})
             <span>{topic.description}</span>
           </SectionTitle>
           {this.renderManage()}
