@@ -40,7 +40,7 @@ const TagStepContianer = (props: FinalProps) => {
   const { tagsQuery, addMutation, customerCountsQuery } = props;
 
   const tagAdd = ({ doc }) => {
-    addMutation({ variables: { ...doc, type: 'customer' } })
+    addMutation({ variables: { ...doc } })
       .then(() => {
         tagsQuery.refetch();
         customerCountsQuery.refetch();
