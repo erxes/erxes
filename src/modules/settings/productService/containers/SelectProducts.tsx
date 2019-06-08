@@ -37,6 +37,7 @@ export default ({
 
   return (
     <SelectWithSearch
+      showAvatar={false}
       label={label}
       queryName="products"
       name={name}
