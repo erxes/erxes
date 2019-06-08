@@ -44,12 +44,12 @@ export default class Stage extends React.Component<Props, {}> {
 
   render() {
     const { stage } = this.props;
-    console.log('xaxa', this.props.deals);
+
     return (
       <DealContainer>
         <Content>
           <SpaceContent>
-            <button onClick={this.loadMore}>sda</button>
+            <button onClick={this.loadMore}>loadMore</button>
             <h5>
               {stage.name}({stage.primaryDealsTotalCount})
             </h5>
