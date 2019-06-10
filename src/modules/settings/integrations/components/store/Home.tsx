@@ -10,9 +10,7 @@ type Props = {
   totalCount: {
     messenger: number;
     form: number;
-    twitter: number;
     facebook: number;
-    gmail: number;
   };
   queryParams: any;
 };

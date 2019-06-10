@@ -187,7 +187,8 @@ class WidgetForm extends React.Component<Props, State> {
   }
 
   render() {
-    const onChange = content => this.onChangeCommon('content', content);
+    const onChange = (id: string, content) =>
+      this.onChangeCommon('content', content);
 
     return (
       <form onSubmit={this.save}>
