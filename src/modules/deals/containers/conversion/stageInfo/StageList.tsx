@@ -20,7 +20,7 @@ type FinalProps = {
 
 class StageListContainer extends React.Component<FinalProps> {
   render() {
-    const { stagesQuery, queryParams, type } = this.props;
+    const { stagesQuery, queryParams, type, pipelineId } = this.props;
 
     if (stagesQuery.loading) {
       return <Spinner objective={true} />;
@@ -35,6 +35,7 @@ class StageListContainer extends React.Component<FinalProps> {
           stage={stage}
           deals={stage.deals || []}
           queryParams={queryParams}
+          pipelineId={pipelineId}
         />
       ));
       return <div>{contents}</div>;

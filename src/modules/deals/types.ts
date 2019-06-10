@@ -37,6 +37,8 @@ export interface IStage {
   deals?: IDeal[];
   dealsTotalCount: number;
   primaryDealsTotalCount?: number;
+  inProcessDealsTotalCount?: number;
+  stayedDealsTotalCount?: number;
   stageInfo?: IStageInfo;
 }
 

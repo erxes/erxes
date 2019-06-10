@@ -113,6 +113,7 @@ const stages = `
       dealsTotalCount
       stageInfo
       primaryDealsTotalCount
+      stayedDealsTotalCount
       inProcessDealsTotalCount
     }
   }
@@ -197,6 +198,7 @@ const deals = `
     $pipelineId: String,
     $stageId: String, 
     $date: DealDate,
+    $type: String,
     $skip: Int,
     $search: String
     ${commonParams}
@@ -205,6 +207,7 @@ const deals = `
       pipelineId: $pipelineId,
       stageId: $stageId, 
       date: $date,
+      type: $type,
       skip: $skip,
       search: $search
       ${commonParamDefs}

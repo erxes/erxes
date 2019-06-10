@@ -13,6 +13,7 @@ type Props = {
   stage: IStage;
   deals: IDeal[];
   queryParams: IQueryParams;
+  pipelineId: string;
 };
 
 type FinalStageProps = {
@@ -118,9 +119,11 @@ export default withProps<Props>(
   compose(
     graphql<Props, DealsQueryResponse>(gql(queries.deals), {
       name: 'dealsQuery',
-      options: ({ stage, queryParams }) => ({
+      options: ({ pipelineId, stage, queryParams }) => ({
         variables: {
           stageId: stage._id,
+          pipelineId,
+          type: 'inProcess',
           ...getFilterParams(queryParams)
         }
       })
