@@ -19,7 +19,9 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
   background: ${props =>
     (props.type === 'form' && darken(colors.colorCoreYellow, 32)) ||
     (props.type === 'messenger' && colors.colorPrimary) ||
+    (props.type === 'twitter' && colors.socialTwitter) ||
     (props.type === 'facebook' && colors.socialFacebook) ||
+    (props.type === 'gmail' && colors.socialGmail) ||
     colors.colorSecondary};
 
   i {
@@ -47,8 +49,14 @@ class IntegrationIcon extends React.PureComponent<Props> {
       case 'facebook':
         icon = 'messenger';
         break;
+      case 'twitter':
+        icon = 'twitter-1';
+        break;
       case 'messenger':
         icon = 'comment';
+        break;
+      case 'gmail':
+        icon = 'mail-alt';
         break;
       default:
         icon = 'doc-text-inv-1';

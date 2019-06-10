@@ -3,7 +3,13 @@ import * as React from 'react';
 import strip from 'strip';
 
 import { withCurrentUser } from 'modules/auth/containers';
-import { FormControl, NameCard, Tags, Tip } from 'modules/common/components';
+import {
+  FormControl,
+  IntegrationIcon,
+  NameCard,
+  Tags,
+  Tip
+} from 'modules/common/components';
 
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../../customers/types';
@@ -117,7 +123,11 @@ class ConversationItem extends React.Component<Props> {
           <FlexContent>
             <MainInfo>
               {isExistingCustomer && (
-                <NameCard.Avatar size={40} customer={customer} />
+                <NameCard.Avatar
+                  size={40}
+                  customer={customer}
+                  icon={<IntegrationIcon integration={integration} />}
+                />
               )}
               <FlexContent>
                 <CustomerName>

@@ -684,12 +684,7 @@ export const INTEGRATIONS = [
         kind: 'messenger',
         logo: '/images/integrations/messenger.png',
         createUrl: '/settings/integrations/createMessenger'
-      }
-    ]
-  },
-  {
-    name: 'row-2',
-    rows: [
+      },
       {
         name: 'Lead',
         description: 'Find your lead forms right here in your Widget',
