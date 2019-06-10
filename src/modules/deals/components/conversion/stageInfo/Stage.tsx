@@ -15,7 +15,7 @@ type Props = {
 
 class Stage extends React.Component<Props> {
   renderLostInfo(info) {
-    if (info.count) {
+    if (info.count || info.count >= 0) {
       const content = `lost: ${info.count < 0 ? 0 : info.count} ${parseInt(
         info.percent,
         10
