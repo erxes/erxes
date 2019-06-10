@@ -6,6 +6,8 @@ import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, userFactory, usersGroupFactory } from '../db/factories';
 import { Brands, Channels, Users } from '../db/models';
 
+import './setup.ts';
+
 /*
  * Generated test data
  */

@@ -3,6 +3,8 @@ import { dealBoardFactory, dealFactory, dealPipelineFactory, dealStageFactory, u
 import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
 import { IBoardDocument, IDealDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/deals';
 
+import './setup.ts';
+
 describe('Test deals mutations', () => {
   let board: IBoardDocument;
   let pipeline: IPipelineDocument;

@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { emailTemplateFactory } from '../db/factories';
 import { EmailTemplates } from '../db/models';
 
+import './setup.ts';
+
 describe('emailTemplateQueries', () => {
   afterEach(async () => {
     // Clearing test data

@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { emailTemplateFactory, userFactory } from '../db/factories';
 import { EmailTemplates, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('Email template mutations', () => {
   let _emailTemplate;
   let _user;

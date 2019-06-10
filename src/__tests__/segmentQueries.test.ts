@@ -3,6 +3,8 @@ import { graphqlRequest } from '../db/connection';
 import { segmentFactory } from '../db/factories';
 import { Segments } from '../db/models';
 
+import './setup.ts';
+
 describe('segmentQueries', () => {
   afterEach(async () => {
     // Clearing test data

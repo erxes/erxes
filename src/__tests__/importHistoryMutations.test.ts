@@ -4,6 +4,8 @@ import { customerFactory, importHistoryFactory, userFactory } from '../db/factor
 import { ImportHistory, Users } from '../db/models';
 import * as workerUtils from '../workers/utils';
 
+import './setup.ts';
+
 describe('Import history mutations', () => {
   let _user;
   let context;

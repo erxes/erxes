@@ -11,6 +11,8 @@ import {
 } from '../db/factories';
 import { Brands, Channels, Conversations, Integrations, Tags, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('conversationQueries', () => {
   let user;
   let channel;

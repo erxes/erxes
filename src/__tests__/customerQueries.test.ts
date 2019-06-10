@@ -4,6 +4,8 @@ import { graphqlRequest } from '../db/connection';
 import { customerFactory, formFactory, integrationFactory, segmentFactory, tagsFactory } from '../db/factories';
 import { Customers, Segments, Tags } from '../db/models';
 
+import './setup.ts';
+
 const count = response => {
   return Object.keys(response).length;
 };

@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { channelFactory, userFactory } from '../db/factories';
 import { Channels, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('channelQueries', () => {
   afterEach(async () => {
     // Clearing test data

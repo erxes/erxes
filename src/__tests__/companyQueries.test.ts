@@ -10,6 +10,8 @@ import {
 } from '../db/factories';
 import { Companies, Segments, Tags } from '../db/models';
 
+import './setup.ts';
+
 const count = response => {
   return Object.keys(response).length;
 };

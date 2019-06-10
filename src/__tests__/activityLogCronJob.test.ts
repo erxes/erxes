@@ -3,6 +3,8 @@ import { ACTIVITY_ACTIONS, ACTIVITY_CONTENT_TYPES, ACTIVITY_PERFORMER_TYPES, ACT
 import { customerFactory, segmentFactory } from '../db/factories';
 import { ActivityLogs } from '../db/models';
 
+import './setup.ts';
+
 describe('test activityLogsCronJob', () => {
   test('test if it is working as intended', async () => {
     // check if the activity log is being created ==================

@@ -6,10 +6,10 @@ module.exports = {
   testRegex: '/__tests__/.*\\.(ts|js)$',
   testEnvironment: 'node',
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
+  modulePathIgnorePatterns: ['utils.ts', 'setup.ts'],
   globals: {
     'ts-jest': {
       tsConfigFile: 'tsconfig.json'
     }
-  },
-  setupTestFrameworkScriptFile: './src/setupTests.ts'
+  }
 };

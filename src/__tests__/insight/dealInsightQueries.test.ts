@@ -4,6 +4,8 @@ import { graphqlRequest } from '../../db/connection';
 import { dealBoardFactory, dealFactory, dealPipelineFactory, dealStageFactory, userFactory } from '../../db/factories';
 import { DealBoards, DealPipelines, Deals, DealStages } from '../../db/models';
 
+import '../setup.ts';
+
 const paramsDef = `
   $pipelineIds: String,
   $boardId: String,

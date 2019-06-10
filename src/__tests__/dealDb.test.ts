@@ -11,6 +11,8 @@ import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
 import { IBoardDocument, IDealDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/deals';
 import { IUserDocument } from '../db/models/definitions/users';
 
+import './setup.ts';
+
 describe('Test deals model', () => {
   let board: IBoardDocument;
   let pipeline: IPipelineDocument;

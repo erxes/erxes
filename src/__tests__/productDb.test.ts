@@ -1,6 +1,8 @@
 import { dealFactory, productFactory } from '../db/factories';
 import { Deals, Products } from '../db/models';
 
+import './setup.ts';
+
 describe('Test products model', () => {
   let product;
   let deal;

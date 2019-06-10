@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { productFactory, userFactory } from '../db/factories';
 import { Products } from '../db/models';
 
+import './setup.ts';
+
 describe('Test products mutations', () => {
   let product;
   let context;

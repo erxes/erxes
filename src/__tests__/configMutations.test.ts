@@ -1,6 +1,8 @@
 import { graphqlRequest } from '../db/connection';
 import { userFactory } from '../db/factories';
 
+import './setup.ts';
+
 describe('Test configs mutations', () => {
   test('Insert config', async () => {
     const context = { user: await userFactory({}) };

@@ -1,6 +1,8 @@
 import { segmentFactory } from '../db/factories';
 import { Segments, Users } from '../db/models';
 
+import './setup.ts';
+
 /*
  * Generate test data
  */
@@ -18,6 +20,7 @@ const generateData = () => ({
       value: '10',
       dateUnit: 'days',
       type: 'string',
+      brandId: '1231',
     },
   ],
 });
@@ -38,6 +41,7 @@ const checkValues = (segmentObj, doc) => {
   expect(segmentObj.conditions.value).toEqual(doc.conditions.value);
   expect(segmentObj.conditions.dateUnit).toEqual(doc.conditions.dateUnit);
   expect(segmentObj.conditions.type).toEqual(doc.conditions.type);
+  expect(segmentObj.conditions.brandId).toEqual(doc.brandId);
 };
 
 describe('Segments mutations', () => {

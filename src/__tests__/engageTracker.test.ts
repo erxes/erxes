@@ -1,6 +1,8 @@
 import * as moment from 'moment';
 import { createScheduleRule } from '../cronJobs/engages';
 
+import './setup.ts';
+
 describe('Engage tracker tests', async () => {
   test('Create schedule cron job by year', () => {
     const doc = {

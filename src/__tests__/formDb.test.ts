@@ -2,6 +2,8 @@ import * as toBeType from 'jest-tobetype';
 import { customerFactory, fieldFactory, formFactory, userFactory } from '../db/factories';
 import { Customers, Fields, Forms, Users } from '../db/models';
 
+import './setup.ts';
+
 expect.extend(toBeType);
 
 describe('form creation', () => {

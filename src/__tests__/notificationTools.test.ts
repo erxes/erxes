@@ -4,6 +4,8 @@ import utils from '../data/utils';
 import { channelFactory, notificationConfigurationFactory, userFactory } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('testings helper methods', () => {
   let _user;
   let _user2;

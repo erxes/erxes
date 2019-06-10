@@ -3,6 +3,8 @@ import { companyFactory, customerFactory, internalNoteFactory, userFactory } fro
 import { InternalNotes, Users } from '../db/models';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 
+import './setup.ts';
+
 /*
  * Generate test data
  */

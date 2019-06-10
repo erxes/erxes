@@ -2,8 +2,24 @@ import * as moment from 'moment';
 import { Segments } from '../../../db/models';
 import { ICondition, ISegment, ISegmentDocument } from '../../../db/models/definitions/segments';
 
+const generateFilter = (condition: ICondition, brandsMapping) => {
+  const conditionFilter = { [condition.field]: convertConditionToQuery(condition) };
+
+  if (condition.brandId && brandsMapping) {
+    return {
+      $and: [conditionFilter, { integrationId: { $in: brandsMapping[condition.brandId] || [] } }],
+    };
+  }
+
+  return conditionFilter;
+};
+
 export default {
-  async segments(segment?: ISegment | null, headSegment?: ISegmentDocument | null): Promise<any> {
+  async segments(
+    segment?: ISegment | null,
+    headSegment?: ISegmentDocument | null,
+    brandsMapping?: { [key: string]: string[] },
+  ): Promise<any> {
     const query: any = { $and: [] };
 
     if (!segment || !segment.connector || !segment.conditions) {
@@ -11,9 +27,9 @@ export default {
     }
 
     const childQuery = {
-      [segment.connector === 'any' ? '$or' : '$and']: segment.conditions.map(condition => ({
-        [condition.field]: convertConditionToQuery(condition),
-      })),
+      [segment.connector === 'any' ? '$or' : '$and']: segment.conditions.map(condition => {
+        return generateFilter(condition, brandsMapping);
+      }),
     };
 
     if (segment.conditions.length) {
@@ -26,9 +42,9 @@ export default {
 
     if (parentSegment) {
       const parentQuery = {
-        [parentSegment.connector === 'any' ? '$or' : '$and']: parentSegment.conditions.map(condition => ({
-          [condition.field]: convertConditionToQuery(condition),
-        })),
+        [parentSegment.connector === 'any' ? '$or' : '$and']: parentSegment.conditions.map(condition => {
+          return generateFilter(condition, brandsMapping);
+        }),
       };
 
       if (parentSegment.conditions.length) {

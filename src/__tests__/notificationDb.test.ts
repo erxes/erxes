@@ -2,6 +2,8 @@ import { NOTIFICATION_TYPES } from '../data/constants';
 import { notificationConfigurationFactory, userFactory } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('Notification model tests', () => {
   let _user;
   let _user2;

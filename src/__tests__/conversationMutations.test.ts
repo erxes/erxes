@@ -9,6 +9,8 @@ import {
 } from '../db/factories';
 import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
 
+import './setup.ts';
+
 const toJSON = value => {
   // sometimes object key order is different even though it has same value.
   return JSON.stringify(value, Object.keys(value).sort());

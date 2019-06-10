@@ -3,6 +3,8 @@ import { graphqlRequest } from '../db/connection';
 import { brandFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Integrations, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('mutations', () => {
   let _integration;
   let _brand;

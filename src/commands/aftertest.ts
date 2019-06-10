@@ -1,13 +1,12 @@
 import * as dotenv from 'dotenv';
 import mongoose = require('mongoose');
-import { getEnv } from '../data/utils';
 
 mongoose.Promise = global.Promise;
 
 // load environment variables
 dotenv.config();
 
-const TEST_MONGO_URL = getEnv({ name: 'TEST_MONGO_URL', defaultValue: `mongodb://localhost/test` });
+const TEST_MONGO_URL = process.env.TEST_MONGO_URL || 'mongodb://localhost/test';
 
 // prevent deprecated warning related findAndModify
 // https://github.com/Automattic/mongoose/issues/6880

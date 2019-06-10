@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { importHistoryFactory } from '../db/factories';
 import { ImportHistory } from '../db/models';
 
+import './setup.ts';
+
 describe('Import history queries', () => {
   afterEach(async () => {
     // Clearing test data

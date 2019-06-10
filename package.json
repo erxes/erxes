@@ -20,10 +20,11 @@
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
-    "test": "jest --maxWorkers 4 --forceExit && ts-node ./src/commands/aftertest.ts ",
+    "test": "jest --forceExit && ts-node ./src/commands/aftertest.ts ",
     "loadInitialData": "mongorestore --db erxes ./initialData",
     "initProject": "ts-node ./src/commands/initProject.ts",
     "engageSubscriptions": "ts-node ./src/commands/engageSubscriptions.ts",
+    "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
     "migrate": "migrate --compiler='ts:./ts-node-compiler.js' up"
   },
   "lint-staged": {
@@ -45,6 +46,7 @@
     ]
   },
   "dependencies": {
+    "@axelspringer/graphql-google-pubsub": "^1.2.1",
     "@google-cloud/pubsub": "0.18.0",
     "@google-cloud/storage": "^2.5.0",
     "apollo-server-express": "^2.3.1",
@@ -106,6 +108,7 @@
     "jest-tobetype": "^1.1.0",
     "lint-staged": "^3.6.0",
     "migrate": "^1.6.2",
+    "ora": "^3.4.0",
     "prettier": "^1.14.2",
     "sinon": "^7.2.2",
     "ts-jest": "^22.0.0",

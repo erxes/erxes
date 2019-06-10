@@ -1,6 +1,8 @@
 import { graphqlRequest } from '../db/connection';
 import { configFactory } from '../db/factories';
 
+import './setup.ts';
+
 describe('configQueries', () => {
   it('config detail', async () => {
     const config = await configFactory();

@@ -1,6 +1,8 @@
 import { customerFactory, userFactory } from '../db/factories';
 import { Customers, ImportHistory, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('Import history model test', () => {
   afterEach(async () => {
     // Clearing test data

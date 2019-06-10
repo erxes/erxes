@@ -11,6 +11,8 @@ import {
 } from '../db/factories';
 import { Brands, ConversationMessages, Fields, Forms, Integrations, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('messenger integration model add method', () => {
   let _brand;
 

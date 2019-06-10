@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { notificationFactory, userFactory } from '../db/factories';
 import { Notifications, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('testing mutations', () => {
   let _user;
   let _notification;
