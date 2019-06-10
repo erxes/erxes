@@ -16,10 +16,10 @@ type Props = {
 class Stage extends React.Component<Props> {
   renderLostInfo(info) {
     if (info.count || info.count >= 0) {
-      const content = `lost: ${info.count < 0 ? 0 : info.count} ${parseInt(
-        info.percent,
-        10
-      )}%`;
+      const lost = info.count < 0 ? 0 : info.count;
+
+      const percent = info.percent ? parseInt(info.percent, 10) : 0;
+      const content = `lost: ${lost} ${percent}%`;
       return (
         <Footer>
           <SpaceContent>{content}</SpaceContent>
