@@ -38,13 +38,14 @@ class MoveContainer extends React.Component<{
 export default withProps<Props>(
   compose(
     graphql<
-      { item: { pipeline: IPipeline } },
+      { item: { pipeline: IPipeline }; options: IOptions },
       StagesQueryResponse,
       { pipelineId: string }
     >(gql(boardQueries.stages), {
       name: 'stagesQuery',
-      options: ({ item: { pipeline } }) => ({
+      options: ({ options: { modelName }, item: { pipeline } }) => ({
         variables: {
+          modelName,
           pipelineId: pipeline._id
         }
       })

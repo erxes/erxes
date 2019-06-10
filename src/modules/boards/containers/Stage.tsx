@@ -94,7 +94,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       .then(({ data }) => {
         Alert.success(options.texts.addSuccessText);
 
-        onAddItem(stage._id, data[options.mutations.addMutation]);
+        onAddItem(stage._id, data[options.mutationsName.addMutation]);
 
         callback();
       })
@@ -166,7 +166,10 @@ const withQuery = ({ options }) => {
             refetchQueries: [
               {
                 query: gql(queries.stageDetail),
-                variables: { _id: stage && stage._id }
+                variables: {
+                  _id: stage && stage._id,
+                  modelName: options.modelName
+                }
               }
             ]
           })

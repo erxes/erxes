@@ -1,19 +1,19 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Alert } from '../../common/utils';
+import { Alert, withProps } from '../../common/utils';
 import { BoardSelect } from '../components';
 import { queries } from '../graphql';
 import {
   BoardsQueryResponse,
+  IOptions,
   IStage,
   PipelinesQueryResponse,
   StagesQueryResponse
 } from '../types';
-import { withProps } from '../utils';
 
 type Props = {
-  type: string;
+  options: IOptions;
   stageId?: string;
   boardId: string;
   pipelineId: string;
@@ -97,33 +97,31 @@ class BoardSelectContainer extends React.Component<FinalProps> {
   }
 }
 
-export default (props: Props) =>
-  withProps<Props>(
-    props,
-    compose(
-      graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
-        name: 'boardsQuery',
-        options: () => ({
-          variables: { type: props.type }
+export default withProps<Props>(
+  compose(
+    graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
+      name: 'boardsQuery',
+      options: ({ options: { type } }) => ({
+        variables: { type }
+      })
+    }),
+    graphql<Props, PipelinesQueryResponse, { boardId: string }>(
+      gql(queries.pipelines),
+      {
+        name: 'pipelinesQuery',
+        options: ({ boardId = '' }) => ({
+          variables: { boardId }
         })
-      }),
-      graphql<Props, PipelinesQueryResponse, { boardId: string }>(
-        gql(queries.pipelines),
-        {
-          name: 'pipelinesQuery',
-          options: ({ boardId = '' }) => ({
-            variables: { boardId }
-          })
-        }
-      ),
-      graphql<Props, StagesQueryResponse, { pipelineId: string }>(
-        gql(queries.stages),
-        {
-          name: 'stagesQuery',
-          options: ({ pipelineId = '' }) => ({
-            variables: { pipelineId }
-          })
-        }
-      )
-    )(BoardSelectContainer)
-  );
+      }
+    ),
+    graphql<Props, StagesQueryResponse, { pipelineId: string }>(
+      gql(queries.stages),
+      {
+        name: 'stagesQuery',
+        options: ({ pipelineId = '', options: { modelName } }) => ({
+          variables: { pipelineId, modelName }
+        })
+      }
+    )
+  )(BoardSelectContainer)
+);

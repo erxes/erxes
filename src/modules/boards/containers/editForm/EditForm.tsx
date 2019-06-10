@@ -60,6 +60,9 @@ class EditFormContainer extends React.Component<FinalProps> {
 
         if (onAdd) {
           onAdd(stageId, data[options.mutationsName.addMutation]);
+
+          console.log('data: ', data); //tslint:disable-line
+          console.log('add: ', data[options.mutationsName.addMutation]); //tslint:disable-line
         }
       })
       .catch(error => {
@@ -169,7 +172,7 @@ export default (props: Props) => {
             refetchQueries: [
               {
                 query: gql(boardQueries.stageDetail),
-                variables: { _id: stageId }
+                variables: { _id: stageId, modelName: options.modelName }
               }
             ]
           })
@@ -193,7 +196,7 @@ export default (props: Props) => {
               },
               {
                 query: gql(boardQueries.stageDetail),
-                variables: { _id: stageId }
+                variables: { _id: stageId, modelName: options.modelName }
               }
             ]
           })
@@ -207,7 +210,7 @@ export default (props: Props) => {
             refetchQueries: [
               {
                 query: gql(boardQueries.stageDetail),
-                variables: { _id: stageId }
+                variables: { _id: stageId, modelName: options.modelName }
               }
             ]
           })

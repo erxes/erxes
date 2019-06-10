@@ -186,12 +186,16 @@ export class PipelineProvider extends React.Component<Props, State> {
           mutation: gql(options.mutations.updateOrderMutation),
           variables: {
             orders,
-            stageId
+            stageId,
+            modelName: options.modelName
           },
           refetchQueries: [
             {
               query: gql(queries.stageDetail),
-              variables: { _id: stageId }
+              variables: {
+                _id: stageId,
+                modelName: options.modelName
+              }
             }
           ]
         })

@@ -101,7 +101,7 @@ class Move extends React.Component<Props, State> {
 
     return (
       <BoardSelect
-        type={options.type}
+        options={options}
         stageId={stageId}
         boardId={boardId}
         pipelineId={pipelineId}

@@ -5,13 +5,13 @@ import {
   HeaderContent,
   HeaderRow
 } from 'modules/boards/styles/item';
-import { IItemParams } from 'modules/boards/types';
+import { IItemParams, IOptions } from 'modules/boards/types';
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 
 type Props = {
-  type: string;
+  options: IOptions;
   customerIds?: string[];
   companyIds?: string[];
   boardId?: string;
@@ -80,7 +80,7 @@ class AddForm extends React.Component<Props, State> {
   };
 
   renderSelect() {
-    const { showSelect, type } = this.props;
+    const { showSelect, options } = this.props;
 
     if (!showSelect) {
       return null;
@@ -94,7 +94,7 @@ class AddForm extends React.Component<Props, State> {
 
     return (
       <BoardSelect
-        type={type}
+        options={options}
         stageId={stageId}
         pipelineId={pipelineId}
         boardId={boardId}

@@ -8,6 +8,7 @@ const options = {
   Item: TicketItem,
   type: 'ticket',
   title: 'Tickets',
+  modelName: 'Tickets',
   queriesName: {
     itemsQuery: 'tickets',
     detailQuery: 'ticketDetail'

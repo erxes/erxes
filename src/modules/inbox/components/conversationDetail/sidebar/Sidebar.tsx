@@ -283,6 +283,8 @@ class Index extends React.Component<IndexProps, IndexState> {
       );
     }
 
+    console.log('customer: ', customer); //tslint:disable-line
+
     return (
       <>
         <Box

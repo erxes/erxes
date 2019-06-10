@@ -52,7 +52,7 @@ class PortableItemsContainer extends React.Component<FinalProps> {
       return null;
     }
 
-    const items = itemsQuery[options.queries.itemsQuery] || [];
+    const items = itemsQuery[options.queriesName.itemsQuery] || [];
 
     const extendedProps = {
       ...this.props,
