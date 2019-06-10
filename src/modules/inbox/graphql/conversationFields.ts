@@ -51,15 +51,5 @@ export default `
     name
     colorCode
   }
-  twitterData {
-    id_str
-    isDirectMessage
-  }
-  facebookData {
-    kind
-  }
-  gmailData {
-    messageId
-  }
   readUserIds
 `;

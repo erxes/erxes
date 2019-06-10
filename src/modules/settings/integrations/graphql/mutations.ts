@@ -10,39 +10,22 @@ const commonParams = `
   languageCode: $languageCode
 `;
 
-const sendGmailFields = `
-  $integrationId: String!,
-  $cocType: String!,
-  $cocId: String!,
-  $subject: String!,
-  $body: String!,
-  $toEmails: String!,
-  $cc: String,
-  $bcc: String,
-  $attachments: [gmailAttachmentData],
-  $headerId: String,
-  $references: String,
-  $threadId: String
-`;
-
-const sendGmailVariables = `
-  integrationId: $integrationId,
-  cocType: $cocType,
-  cocId: $cocId,
-  subject: $subject,
-  body: $body,
-  toEmails: $toEmails,
-  cc: $cc,
-  bcc: $bcc,
-  attachments: $attachments,
-  headerId: $headerId,
-  references: $references,
-  threadId: $threadId
-`;
-
 const integrationsCreateMessenger = `
   mutation integrationsCreateMessengerIntegration(${commonParamsDef}) {
     integrationsCreateMessengerIntegration(${commonParams}) {
+      _id
+      brand {
+        _id
+        name
+        code
+      }
+    }
+  }
+`;
+
+const integrationsCreateExternalIntegration = `
+  mutation integrationsCreateExternalIntegration($name: String!, $brandId: String!, $accountId: String!, $kind: String!, $data: JSON) {
+    integrationsCreateExternalIntegration(name: $name, brandId: $brandId, accountId: $accountId, kind: $kind, data: $data) {
       _id
       brand {
         _id
@@ -74,55 +57,6 @@ const integrationsSaveMessengerAppearance = `
     integrationsSaveMessengerAppearanceData(
       _id: $_id
       uiOptions: $uiOptions
-    ) {
-      _id
-    }
-  }
-`;
-
-const integrationsSendGmail = ` 
-  mutation integrationsSendGmail(${sendGmailFields}) {
-    integrationsSendGmail(${sendGmailVariables}) {
-      status
-      statusText
-    }
-  }
-`;
-
-const integrationsCreateGmail = ` 
-  mutation integrationsCreateGmailIntegration(
-    $code: String!
-    $brandId: String!
-  ) {
-    integrationsCreateGmailIntegration(code: $code, brandId: $brandId) {
-      _id
-    }
-  }
-`;
-
-const integrationsCreateFacebook = `
-  mutation integrationsCreateFacebookIntegration(
-    $brandId: String!
-    $name: String!
-    $accountId: String!
-    $pageIds: [String!]!
-  ) {
-    integrationsCreateFacebookIntegration(
-      brandId: $brandId
-      name: $name
-      pageIds: $pageIds
-      accountId: $accountId
-    ) {
-      _id
-    }
-  }
-`;
-
-const integrationsCreateTwitter = `
-  mutation save($brandId: String!, $accountId: String!) {
-    integrationsCreateTwitterIntegration(
-      brandId: $brandId
-      accountId: $accountId
     ) {
       _id
     }
@@ -174,52 +108,20 @@ const messengerAppsRemove = `
 `;
 
 const removeAccount = `
-  mutation accountsRemove($_id: String!) {
-    accountsRemove(_id: $_id)
-  }
-`;
-
-const messengerAppsAddGoogleMeet = `
-  mutation messengerAppsAddGoogleMeet(
-    $name: String!
-    $accountId: String!
-  ) {
-    messengerAppsAddGoogleMeet(name: $name, accountId: $accountId) {
-      _id
-    }
-  }
-`;
-
-const integrationsCreateGmailIntegration = `
-  mutation integrationsCreateGmailIntegration(
-    $brandId: String!
-    $name: String!
-    $accountId: String!
-  ) {
-    integrationsCreateGmailIntegration(
-      brandId: $brandId
-      name: $name
-      accountId: $accountId
-    ) {
-      _id
-    }
+  mutation integrationsRemoveAccount($_id: String!) {
+    integrationsRemoveAccount(_id: $_id)
   }
 `;
 
 export default {
   integrationsCreateMessenger,
+  integrationsCreateExternalIntegration,
   integrationsEditMessenger,
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
-  integrationsSendGmail,
-  integrationsCreateGmail,
-  integrationsCreateFacebook,
-  integrationsCreateTwitter,
   integrationsRemove,
   messengerAppsAddLead,
   messengerAppsAddKnowledgebase,
   messengerAppsRemove,
-  removeAccount,
-  messengerAppsAddGoogleMeet,
-  integrationsCreateGmailIntegration
+  removeAccount
 };

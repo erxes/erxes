@@ -6,8 +6,6 @@ import {
   Tabs,
   TabTitle
 } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import { Contacts } from 'modules/companies/components';
 import { CompanyAssociate } from 'modules/companies/containers';
 import {
   DetailInfo,
@@ -18,15 +16,10 @@ import {
 } from 'modules/customers/components/common';
 import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
-import { ICustomer } from 'modules/customers/types';
 import dealOptions from 'modules/deals/options';
-import { SidebarActivity } from 'modules/inbox/containers/conversationDetail';
 import { Sidebar } from 'modules/layout/components';
-import { MailForm } from 'modules/settings/integrations/containers/google';
 import ticketOptions from 'modules/tickets/options';
 import * as React from 'react';
-import { IConversation } from '../../../types';
-import ConversationDetails from './ConversationDetails';
 import {
   Actions,
   BasicInfo,
@@ -34,6 +27,13 @@ import {
   SidebarCollapse,
   TabContent
 } from './styles';
+
+import { __ } from 'modules/common/utils';
+import { Contacts } from 'modules/companies/components';
+import { ICustomer } from 'modules/customers/types';
+import { SidebarActivity } from 'modules/inbox/containers/conversationDetail';
+import { IConversation } from '../../../types';
+import ConversationDetails from './ConversationDetails';
 
 type BoxProps = {
   title: string;
@@ -188,15 +188,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { customer } = this.props;
     const { primaryPhone, primaryEmail } = customer;
 
-    const content = props => (
-      <MailForm
-        contentType="customer"
-        contentTypeId={customer._id}
-        toEmail={primaryEmail}
-        refetchQueries={['activityLogsCustomer']}
-        closeModal={props.closeModal}
-      />
-    );
+    const content = () => null;
 
     return (
       <Actions>
