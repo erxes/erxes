@@ -1,10 +1,11 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { IFormProps } from 'modules/common/types';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
@@ -44,21 +45,11 @@ class GroupForm extends React.Component<Props, State> {
 
     const doc = this.generateDoc();
 
-    if (!doc.name || doc.name.length === 0) {
-      return Alert.error('Please enter a group name');
-    }
-
-    if (!doc.description || doc.description.length === 0) {
-      return Alert.error('Please enter a group description');
-    }
-
     this.props.save({ doc }, this.props.closeModal, this.props.object);
   };
 
-  renderContent() {
+  renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as IUserGroupDocument);
-    const name = object.name || '';
-    const description = object.description || '';
     const self = this;
 
     const onChange = selectedMembers => {
@@ -68,15 +59,23 @@ class GroupForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
-          <FormControl id="group-name" defaultValue={name} autoFocus={true} />
+          <ControlLabel required={true}>Name</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="name"
+            defaultValue={object.name || ''}
+            autoFocus={true}
+            required={true}
+          />
         </FormGroup>
+
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FormControl
+            {...formProps}
             componentClass="textarea"
-            id="group-description"
-            defaultValue={description}
+            name="description"
+            defaultValue={object.description || ''}
           />
         </FormGroup>
 
@@ -90,14 +89,7 @@ class GroupForm extends React.Component<Props, State> {
             onSelect={onChange}
           />
         </FormGroup>
-      </>
-    );
-  }
 
-  render() {
-    return (
-      <form onSubmit={this.save}>
-        {this.renderContent()}
         <Modal.Footer>
           <Button
             btnStyle="simple"
@@ -112,8 +104,12 @@ class GroupForm extends React.Component<Props, State> {
             Save
           </Button>
         </Modal.Footer>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} onSubmit={this.save} />;
   }
 }
 
