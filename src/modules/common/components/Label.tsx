@@ -64,20 +64,12 @@ const LabelStyled = styledTS<{
     background: ${colors.colorCoreYellow};
   }
 
-  &.label-twitter {
-    background: ${colors.socialTwitter};
-  }
-
   &.label-facebook {
     background: ${colors.socialFacebook};
   }
 
   &.label-messenger {
     background: ${colors.colorPrimary};
-  }
-
-  &.label-gmail {
-    background: ${colors.socialGmail};
   }
 
   &.label-lead {

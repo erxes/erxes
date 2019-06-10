@@ -190,14 +190,6 @@ class WorkArea extends React.Component<FinalProps, State> {
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
     const conversationMessages = messagesQuery.conversationMessages || [];
 
-    // do not fetch for facebook feed
-    if (
-      currentConversation.facebookData &&
-      currentConversation.facebookData.kind === 'feed'
-    ) {
-      return;
-    }
-
     const loading = messagesQuery.loading || messagesTotalCountQuery.loading;
     const hasMore =
       conversationMessagesTotalCount > conversationMessages.length;

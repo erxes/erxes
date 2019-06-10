@@ -90,8 +90,6 @@ class AddConditionButton extends React.Component<Props> {
 
     let items = fields.filter(
       field =>
-        field._id.indexOf('twitterData') &&
-        field._id.indexOf('facebookData') &&
         field._id.indexOf('links') &&
         field._id.indexOf('customFieldsData') &&
         field._id.indexOf('messengerData')
@@ -103,9 +101,7 @@ class AddConditionButton extends React.Component<Props> {
 
     if (type === 'other-properties') {
       items = fields.filter(field =>
-        ['twitterData', 'facebookData', 'links'].some(e =>
-          field._id.includes(e)
-        )
+        ['links'].some(e => field._id.includes(e))
       );
     }
 

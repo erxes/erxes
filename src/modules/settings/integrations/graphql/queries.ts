@@ -75,7 +75,6 @@ const integrations = `
         code
       }
       formData
-      twitterData
       formId
       tagIds
       tags {
@@ -113,30 +112,18 @@ const messengerAppsCount = `
   }
 `;
 
-const accounts = `
-  query accounts($kind: String) {
-    accounts(kind: $kind) {
-        _id
-        name
-        id
-        kind
-    }
-  }
-`;
-
-const integrationFacebookPageList = `
-  query integrationFacebookPagesList($accountId: String) {
-    integrationFacebookPagesList(accountId: $accountId)
+const fetchApi = `
+  query integrationsFetchApi($path: String!, $params: JSON!) {
+    integrationsFetchApi(path: $path, params: $params)
   }
 `;
 
 export default {
-  accounts,
+  fetchApi,
   users,
   brands,
   integrationDetail,
   integrationTotalCount,
-  integrationFacebookPageList,
   integrations,
   messengerApps,
   messengerAppsCount
