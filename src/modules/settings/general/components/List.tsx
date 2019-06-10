@@ -43,8 +43,11 @@ class List extends React.Component<Props, State> {
   save = e => {
     e.preventDefault();
 
-    this.props.save('dealCurrency', this.state.currencies);
-    this.props.save('dealUOM', this.state.uom);
+    const { currencies, uom, language } = this.state;
+
+    this.props.save('dealCurrency', currencies);
+    this.props.save('dealUOM', uom);
+    this.props.changeLanguage(language);
   };
 
   onCurrenciesChange = currencies => {
@@ -56,8 +59,7 @@ class List extends React.Component<Props, State> {
   };
 
   onLanguageChange = language => {
-    this.setState({ language });
-    this.props.changeLanguage(language.value);
+    this.setState({ language: language.value });
   };
 
   render() {

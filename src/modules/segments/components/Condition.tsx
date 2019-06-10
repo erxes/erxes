@@ -145,11 +145,15 @@ class Condition extends React.Component<Props, State> {
   renderFieldTitle() {
     const { fields, condition } = this.props;
 
-    const field = fields.find(fieldItem => fieldItem._id === condition.field);
+    const field = fields.find(
+      fieldItem =>
+        fieldItem._id === condition.field &&
+        fieldItem.brandId === condition.brandId
+    );
 
     if (field) {
-      if (field.brand) {
-        return `${field.brand}: ${field.title}`;
+      if (field.brandName) {
+        return `${field.brandName}: ${field.title}`;
       }
 
       return field.title;
