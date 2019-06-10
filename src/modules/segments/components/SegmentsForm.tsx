@@ -114,7 +114,7 @@ const SegmentsForm = (props: Props) => {
     <Form
       contentType={contentType}
       fields={fields}
-      create={create}
+      save={create}
       edit={edit}
       segment={segment}
       headSegments={headSegments}

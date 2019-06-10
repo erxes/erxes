@@ -137,9 +137,7 @@ class Common<Target, OnSubmit> extends React.Component<
 
     if (this.state.show) {
       return (
-        <StepFormWrapper>
-          <Form {...formProps} save={onSubmit} afterSave={this.toggleForm} />
-        </StepFormWrapper>
+        <Form {...formProps} save={onSubmit} afterSave={this.toggleForm} />
       );
     }
 

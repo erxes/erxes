@@ -1,3 +1,4 @@
+import { StepFormWrapper } from 'modules/engage/styles';
 import { BrandForm } from 'modules/settings/brands/components';
 import * as React from 'react';
 
@@ -7,7 +8,11 @@ type Props = {
 };
 
 const Form = ({ save, afterSave }: Props) => {
-  return <BrandForm save={save} afterSave={afterSave} modal={false} />;
+  return (
+    <StepFormWrapper>
+      <BrandForm save={save} afterSave={afterSave} modal={false} />
+    </StepFormWrapper>
+  );
 };
 
 export default Form;
