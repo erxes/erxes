@@ -81,14 +81,7 @@ export default class WorkArea extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { conversationMessages, currentConversation } = this.props;
-
-    const twitterData = currentConversation.twitterData;
-    const isTweet = twitterData && !twitterData.isDirectMessage;
-
-    if (isTweet) {
-      return null;
-    }
+    const { conversationMessages } = this.props;
 
     const messageCount = conversationMessages.length;
     const prevMessageCount = prevProps.conversationMessages.length;
@@ -135,8 +128,6 @@ export default class WorkArea extends React.Component<Props, State> {
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
-    const forceInternal =
-      currentConversation.gmailData || currentConversation.twitterData;
 
     const tagTrigger = (
       <PopoverButton>
@@ -210,7 +201,7 @@ export default class WorkArea extends React.Component<Props, State> {
         {currentConversation._id && (
           <ContenFooter>
             <RespondBox
-              showInternal={forceInternal ? true : false}
+              showInternal={false}
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
               addMessage={addMessage}

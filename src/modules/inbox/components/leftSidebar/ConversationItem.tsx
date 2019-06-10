@@ -108,7 +108,6 @@ class ConversationItem extends React.Component<Props> {
 
     const isIdle =
       integration.kind !== 'form' &&
-      integration.kind !== 'gmail' &&
       conversation.status !== 'closed' &&
       idleTime >= 1;
 
@@ -127,12 +126,7 @@ class ConversationItem extends React.Component<Props> {
                 <NameCard.Avatar
                   size={40}
                   customer={customer}
-                  icon={
-                    <IntegrationIcon
-                      integration={integration}
-                      facebookData={conversation.facebookData}
-                    />
-                  }
+                  icon={<IntegrationIcon integration={integration} />}
                 />
               )}
               <FlexContent>

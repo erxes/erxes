@@ -47,8 +47,6 @@ const customerFields = `
 
   customFieldsData
   messengerData
-  twitterData
-  facebookData
 
   tagIds
   getTags {
