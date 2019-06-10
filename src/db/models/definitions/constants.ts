@@ -13,9 +13,8 @@ export const CONVERSATION_STATUSES = {
 export const INTEGRATION_KIND_CHOICES = {
   MESSENGER: 'messenger',
   FORM: 'form',
-  TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  ALL: ['messenger', 'form', 'twitter', 'facebook'],
+  ALL: ['messenger', 'form', 'facebook'],
 };
 
 export const TAG_TYPES = {
@@ -25,12 +24,6 @@ export const TAG_TYPES = {
   COMPANY: 'company',
   INTEGRATION: 'integration',
   ALL: ['conversation', 'customer', 'engageMessage', 'company', 'integration'],
-};
-
-export const FACEBOOK_DATA_KINDS = {
-  FEED: 'feed',
-  MESSENGER: 'messenger',
-  ALL: ['feed', 'messenger'],
 };
 
 export const MESSENGER_KINDS = {
@@ -80,10 +73,8 @@ export const FORM_SUCCESS_ACTIONS = {
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
   FORM: 'form',
-  TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  GMAIL: 'gmail',
-  ALL: ['messenger', 'form', 'twitter', 'facebook', 'gmail'],
+  ALL: ['messenger', 'form', 'facebook'],
 };
 
 // module constants
@@ -444,10 +435,4 @@ export const STATUSES = {
   ACTIVE: 'Active',
   DELETED: 'Deleted',
   ALL: ['Active', 'Deleted'],
-};
-
-export const EMAIL_TYPES = {
-  GMAIL: 'gmail',
-  OTHER: 'other',
-  ALL: ['gmail', 'other'],
 };

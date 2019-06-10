@@ -11,9 +11,6 @@ export const types = `
     tags: [Tag]
     formData: JSON
     messengerData: JSON
-    twitterData: JSON
-    facebookData: JSON
-    gmailData: JSON
     uiOptions: JSON
 
     brand: Brand
@@ -27,11 +24,6 @@ export const types = `
     byChannel: JSON
     byBrand: JSON
     byKind: JSON
-  }
-
-  type GmailResponseData {
-    status: Int!
-    statusText: String
   }
 
   input IntegrationFormData {
@@ -79,13 +71,6 @@ export const types = `
     wallpaper: String
     logo: String
   }
-
-  input gmailAttachmentData {
-    filename: String
-    size: Int
-    mimeType: String
-    data: String
-  }
 `;
 
 export const queries = `
@@ -101,8 +86,7 @@ export const queries = `
 
   integrationDetail(_id: String!): Integration
   integrationsTotalCount: integrationsTotalCount
-  integrationFacebookAppsList: [JSON]
-  integrationFacebookPagesList(accountId: String): [JSON]
+  integrationsFetchApi(path: String!, params: JSON!): JSON
 `;
 
 export const mutations = `
@@ -134,18 +118,6 @@ export const mutations = `
     formId: String!,
     formData: IntegrationFormData!): Integration
 
-  integrationsCreateTwitterIntegration(
-    brandId: String!,
-    accountId: String!
-  ): Integration
-
-  integrationsCreateFacebookIntegration(
-    brandId: String!,
-    name: String!,
-    accountId: String!,
-    pageIds: [String!]!,
-  ): Integration
-
   integrationsEditFormIntegration(
     _id: String!
     name: String!,
@@ -154,22 +126,13 @@ export const mutations = `
     formId: String!,
     formData: IntegrationFormData!): Integration
 
+  integrationsCreateExternalIntegration(
+    kind: String!,
+    name: String!,
+    brandId: String!,
+    accountId: String!,
+    data: JSON): Integration
+
   integrationsRemove(_id: String!): JSON
-
-  integrationsCreateGmailIntegration(name: String!, accountId: String!, brandId: String!): Integration
-
-  integrationsSendGmail(
-    integrationId: String!,
-    cocType: String!,
-    cocId: String!,
-    subject: String!,
-    body: String!,
-    toEmails: String!,
-    cc: String,
-    bcc: String,
-    attachments: [gmailAttachmentData],
-    headerId: String,
-    references: String,
-    threadId: String
-  ): GmailResponseData
+  integrationsRemoveAccount(_id: String!): JSON
 `;

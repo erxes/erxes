@@ -15,9 +15,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  messengerAppsAddGoogleMeet(name: String!, accountId: String!): MessengerApp
   messengerAppsAddKnowledgebase(name: String!, integrationId: String!, topicId: String!): MessengerApp
   messengerAppsAddLead(name: String!, integrationId: String!, formId: String!): MessengerApp
   messengerAppsRemove(_id: String!): JSON
-  messengerAppsExecuteGoogleMeet(_id: String!, conversationId: String!): MessengerApp
 `;

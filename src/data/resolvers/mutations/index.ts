@@ -1,4 +1,3 @@
-import accounts from './accounts';
 import brands from './brands';
 import channels from './channels';
 import companies from './companies';
@@ -26,7 +25,6 @@ import users from './users';
 
 export default {
   ...users,
-  ...accounts,
   ...conversations,
   ...tags,
   ...engages,

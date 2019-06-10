@@ -1,6 +1,6 @@
 import { ConversationMessages, Conversations, Integrations, Tags } from '../../../../db/models';
 import { IUserDocument } from '../../../../db/models/definitions/users';
-import { FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../../constants';
+import { INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../../constants';
 import { moduleCheckPermission, moduleRequireLogin } from '../../../permissions';
 import { getDateFieldAsStr, getDurationField } from '../aggregationUtils';
 import { IListArgs, IPieChartData } from './types';
@@ -46,29 +46,7 @@ const insightQueries = {
       });
 
       if (value > 0) {
-        if (kind === INTEGRATION_KIND_CHOICES.FACEBOOK) {
-          const { FEED, MESSENGER } = FACEBOOK_DATA_KINDS;
-
-          const feedCount = await Conversations.countDocuments({
-            ...conversationSelector,
-            integrationId: { $in: integrationIds },
-            'facebookData.kind': FEED,
-          });
-
-          integrations.push({
-            id: `${kind} ${FEED}`,
-            label: `${kind} ${FEED}`,
-            value: feedCount,
-          });
-
-          integrations.push({
-            id: `${kind} ${MESSENGER}`,
-            label: `${kind} ${MESSENGER}`,
-            value: value - feedCount,
-          });
-        } else {
-          integrations.push({ id: kind, label: kind, value });
-        }
+        integrations.push({ id: kind, label: kind, value });
       }
     }
 

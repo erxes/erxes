@@ -1,7 +1,7 @@
-import { Accounts, Brands, Channels, Integrations, Tags } from '../../../db/models';
-import { getConfig, getPageList } from '../../../trackers/facebook';
+import { Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { KIND_CHOICES, TAG_TYPES } from '../../constants';
 import { checkPermission, moduleRequireLogin } from '../../permissions';
+import { fetchIntegrationApi } from '../../utils';
 import { paginate } from './utils';
 
 /**
@@ -117,28 +117,10 @@ const integrationQueries = {
   },
 
   /**
-   * Get facebook app list .env
+   * Fetch integrations api
    */
-  integrationFacebookAppsList() {
-    return getConfig().map(app => ({
-      id: app.id,
-      name: app.name,
-    }));
-  },
-
-  /**
-   * Get facebook pages by account id
-   */
-  async integrationFacebookPagesList(_root, { accountId }: { accountId: string }) {
-    const account = await Accounts.findOne({ _id: accountId });
-
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
-    const accessToken = account.token;
-
-    return getPageList(accessToken);
+  integrationsFetchApi(_root, { path, params }: { path: string; params: { [key: string]: string } }) {
+    return fetchIntegrationApi({ path, method: 'GET', params });
   },
 };
 

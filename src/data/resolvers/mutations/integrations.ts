@@ -1,13 +1,8 @@
-import { Accounts, Integrations } from '../../../db/models';
+import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
-import { IUserDocument } from '../../../db/models/definitions/users';
-import { IMessengerIntegration } from '../../../db/models/Integrations';
-import { getPageInfo, subscribePage } from '../../../trackers/facebookTracker';
-import { sendGmail, updateHistoryId } from '../../../trackers/gmail';
-import { utils } from '../../../trackers/gmailTracker';
-import { socUtils } from '../../../trackers/twitterTracker';
+import { IExternalIntegrationParams, IMessengerIntegration } from '../../../db/models/Integrations';
 import { checkPermission } from '../../permissions';
-import { getEnv, sendPostRequest } from '../../utils';
+import { fetchIntegrationApi } from '../../utils';
 
 interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
@@ -54,136 +49,51 @@ const integrationMutations = {
   },
 
   /**
-   * Create a new twitter integration
-   */
-  async integrationsCreateTwitterIntegration(_root, { accountId, brandId }: { accountId: string; brandId: string }) {
-    const account = await Accounts.findOne({ _id: accountId });
-
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
-    const integration = await Integrations.createTwitterIntegration({
-      name: account.name,
-      brandId,
-      twitterData: {
-        profileId: account.uid,
-        accountId: account._id,
-      },
-    });
-
-    // start tracking new twitter entries
-    socUtils.trackIntegration(account, integration);
-
-    return integration;
-  },
-
-  /**
-   * Create a new facebook integration
-   */
-  async integrationsCreateFacebookIntegration(
-    _root,
-    { name, brandId, pageIds, accountId }: { name: string; brandId: string; pageIds: string[]; accountId: string },
-  ) {
-    const integration = Integrations.createFacebookIntegration({
-      name,
-      brandId,
-      facebookData: {
-        accountId,
-        pageIds,
-      },
-    });
-
-    const account = await Accounts.findOne({ _id: accountId });
-
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
-    for (const pageId of pageIds) {
-      const pageInfo = await getPageInfo(pageId, account.token);
-
-      const pageToken = pageInfo.access_token;
-
-      const res = await subscribePage(pageId, pageToken);
-
-      if (res.success !== true) {
-        throw new Error('Couldnt subscribe page');
-      }
-    }
-
-    const INTEGRATION_ENDPOINT_URL = getEnv({ name: 'INTEGRATION_ENDPOINT_URL', defaultValue: '' });
-    const FACEBOOK_APP_ID = getEnv({ name: 'FACEBOOK_APP_ID' });
-    const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-    if (INTEGRATION_ENDPOINT_URL !== '') {
-      for (const pageId of pageIds) {
-        await sendPostRequest(`${INTEGRATION_ENDPOINT_URL}/service/facebook/${FACEBOOK_APP_ID}/webhook-callback`, {
-          endPoint: DOMAIN || '',
-          pageId,
-        });
-      }
-    }
-
-    return integration;
-  },
-
-  /**
    * Edit a form integration
    */
   integrationsEditFormIntegration(_root, { _id, ...doc }: IEditFormIntegration) {
     return Integrations.updateFormIntegration(_id, doc);
   },
 
-  /**
-   * Delete an integration
+  /*
+   * Create external integrations like twitter, facebook, gmail etc ...
    */
-  async integrationsRemove(_root, { _id }: { _id: string }) {
-    const integration = await Integrations.findOne({ _id });
-    if (integration && integration.kind === 'gmail' && integration.gmailData) {
-      const account = await Accounts.findOne({ _id: integration.gmailData.accountId });
-      if (account) {
-        const credentials = await Accounts.getGmailCredentials(account.uid);
-        // remove email from google push notification
-        await utils.stopReceivingEmail(account.uid, credentials);
-      }
-    }
+  async integrationsCreateExternalIntegration(_root, { data, ...doc }: IExternalIntegrationParams & { data: object }) {
+    const integration = await Integrations.createExternalIntegration(doc);
 
-    return Integrations.removeIntegration(_id);
-  },
-
-  /**
-   * Create gmail integration
-   */
-  async integrationsCreateGmailIntegration(
-    _root,
-    { name, accountId, brandId }: { name: string; accountId: string; brandId: string },
-  ) {
-    const account = await Accounts.findOne({ _id: accountId });
-
-    if (!account) {
-      throw new Error(`Account not found id with ${accountId}`);
-    }
-
-    const integration = await Integrations.createGmailIntegration({
-      name,
-      brandId,
-      gmailData: {
-        email: account.uid,
-        accountId,
+    await fetchIntegrationApi({
+      path: `/${doc.kind}/create-integration`,
+      method: 'POST',
+      body: {
+        accountId: doc.accountId,
+        integrationId: integration._id,
+        data: data ? JSON.stringify(data) : '',
       },
     });
-
-    await updateHistoryId(integration);
 
     return integration;
   },
 
   /**
-   * Send mail by gmail api
+   * Delete an integration
    */
-  integrationsSendGmail(_root, args, { user }: { user: IUserDocument }) {
-    return sendGmail(args, user);
+  async integrationsRemove(_root, { _id }: { _id: string }) {
+    await fetchIntegrationApi({
+      path: '/integrations/remove',
+      method: 'POST',
+      body: {
+        integrationId: _id,
+      },
+    });
+
+    return Integrations.removeIntegration(_id);
+  },
+
+  /**
+   * Delete an account
+   */
+  async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
+    return fetchIntegrationApi({ path: '/accounts/remove', method: 'post', body: { _id } });
   },
 };
 
@@ -200,10 +110,6 @@ checkPermission(
 checkPermission(integrationMutations, 'integrationsSaveMessengerConfigs', 'integrationsSaveMessengerConfigs');
 checkPermission(integrationMutations, 'integrationsCreateFormIntegration', 'integrationsCreateFormIntegration');
 checkPermission(integrationMutations, 'integrationsEditFormIntegration', 'integrationsEditFormIntegration');
-checkPermission(integrationMutations, 'integrationsCreateTwitterIntegration', 'integrationsCreateTwitterIntegration');
-checkPermission(integrationMutations, 'integrationsCreateFacebookIntegration', 'integrationsCreateFacebookIntegration');
-checkPermission(integrationMutations, 'integrationsCreateGmailIntegration', 'integrationsCreateGmailIntegration');
-checkPermission(integrationMutations, 'integrationsSendGmail', 'integrationsSendGmail');
 checkPermission(integrationMutations, 'integrationsRemove', 'integrationsRemove');
 
 export default integrationMutations;

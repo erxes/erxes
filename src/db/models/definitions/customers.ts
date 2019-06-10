@@ -32,27 +32,6 @@ export interface IMessengerData {
 
 export interface IMessengerDataDocument extends IMessengerData, Document {}
 
-export interface ITwitterData {
-  id?: number;
-  id_str?: string;
-  name?: string;
-  screen_name?: string;
-  profile_image_url?: string;
-}
-
-export interface ITwitterDataDocument extends ITwitterData, Document {
-  id: number;
-}
-
-export interface IFacebookData {
-  id: string;
-  profilePic?: string;
-}
-
-export interface IFacebookDataDocument extends IFacebookData, Document {
-  id: string;
-}
-
 export interface ILink {
   linkedIn?: string;
   twitter?: string;
@@ -91,8 +70,6 @@ export interface ICustomer {
   status?: string;
   customFieldsData?: any;
   messengerData?: IMessengerData;
-  twitterData?: ITwitterData;
-  facebookData?: IFacebookData;
   location?: ILocation;
   visitorContactInfo?: IVisitorContact;
   urlVisits?: any;
@@ -102,8 +79,6 @@ export interface ICustomer {
 export interface ICustomerDocument extends ICustomer, Document {
   _id: string;
   messengerData?: IMessengerDataDocument;
-  twitterData?: ITwitterDataDocument;
-  facebookData?: IFacebookDataDocument;
   location?: ILocationDocument;
   links?: ILinkDocument;
   visitorContactInfo?: IVisitorContactDocument;
@@ -155,42 +130,6 @@ const messengerSchema = new Schema(
     customData: field({
       type: Object,
       optional: true,
-    }),
-  },
-  { _id: false },
-);
-
-/*
- * Twitter schema
- * Saving fields with underscores because, we want to store it exactly
- * like twitter response so that we can use it in findParentTweets helper to
- * not send extra request to twitter
- */
-const twitterSchema = new Schema(
-  {
-    id: field({ type: Number, label: 'Twitter ID (Number)' }),
-    id_str: field({ type: String, label: 'Twitter ID' }),
-    name: field({ type: String, label: 'Twitter name' }),
-    screen_name: field({ type: String, label: 'Twitter screen name' }),
-    profile_image_url: field({ type: String, label: 'Twitter photo' }),
-  },
-  { _id: false },
-);
-
-/*
- * facebook schema
- */
-const facebookSchema = new Schema(
-  {
-    id: field({
-      type: String,
-      label: 'Facebook ID',
-      index: true,
-    }),
-    profilePic: field({
-      type: String,
-      optional: true,
-      label: 'Facebook photo',
     }),
   },
   { _id: false },
@@ -272,8 +211,6 @@ export const customerSchema = new Schema({
 
   customFieldsData: field({ type: Object, optional: true }),
   messengerData: field({ type: messengerSchema, optional: true }),
-  twitterData: field({ type: twitterSchema, optional: true }),
-  facebookData: field({ type: facebookSchema, optional: true }),
 
   location: field({ type: locationSchema, optional: true }),
 

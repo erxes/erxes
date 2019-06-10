@@ -13,10 +13,8 @@ export const CONVERSATION_STATUSES = {
 export const INTEGRATION_KIND_CHOICES = {
   MESSENGER: 'messenger',
   FORM: 'form',
-  TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  GMAIL: 'gmail',
-  ALL: ['messenger', 'form', 'twitter', 'facebook', 'gmail'],
+  ALL: ['messenger', 'form', 'facebook'],
 };
 
 export const TAG_TYPES = {
@@ -26,12 +24,6 @@ export const TAG_TYPES = {
   COMPANY: 'company',
   INTEGRATION: 'integration',
   ALL: ['conversation', 'customer', 'engageMessage', 'company', 'integration'],
-};
-
-export const FACEBOOK_DATA_KINDS = {
-  FEED: 'feed',
-  MESSENGER: 'messenger',
-  ALL: ['feed', 'messenger'],
 };
 
 export const MESSENGER_KINDS = {
@@ -81,10 +73,8 @@ export const FORM_SUCCESS_ACTIONS = {
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
   FORM: 'form',
-  TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  GMAIL: 'gmail',
-  ALL: ['messenger', 'form', 'twitter', 'facebook', 'gmail'],
+  ALL: ['messenger', 'form', 'facebook'],
 };
 
 // module constants
@@ -368,8 +358,6 @@ export const PROBABILITY = {
   LOST: 'Lost',
   ALL: ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', 'Won', 'Lost'],
 };
-
-export const FACEBOOK_POST_TYPES = ['status', 'video', 'photo', 'post', 'share'];
 
 export const INSIGHT_TYPES = {
   DEAL: 'deal',

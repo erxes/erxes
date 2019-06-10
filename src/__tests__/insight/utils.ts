@@ -63,30 +63,6 @@ const generateFormConversation = async (integrationId: string, userId: string) =
   await conversationMessageFactory({ conversationId: secondFormConversation._id, userId });
 };
 
-const generateGmailConversation = async (integrationId: string, userId: string, tagId: string) => {
-  const conversation = await conversationFactory({
-    integrationId,
-    tagIds: [tagId],
-  });
-
-  // For request
-  await conversationMessageFactory({ conversationId: conversation._id, userId: null });
-
-  // For response
-  await conversationMessageFactory({ conversationId: conversation._id, userId });
-
-  const secondConversation = await conversationFactory({
-    integrationId,
-    tagIds: [tagId],
-  });
-
-  // For request
-  await conversationMessageFactory({ conversationId: secondConversation._id, userId: null });
-
-  // For response
-  await conversationMessageFactory({ conversationId: secondConversation._id, userId });
-};
-
 const generateClosedConversation = async (integrationId: string, userId: string, tagId: string) => {
   const closedConversations = await conversationFactory({
     integrationId,
@@ -174,7 +150,7 @@ export const beforeEachTest = async () => {
 
   const integration = await integrationFactory({
     brandId: brand._id,
-    kind: 'gmail',
+    kind: 'facebook',
   });
 
   const formIntegration = await integrationFactory({
@@ -186,7 +162,7 @@ export const beforeEachTest = async () => {
   const secondUser = await userFactory({});
 
   const args = {
-    integrationIds: 'gmail',
+    integrationIds: 'facebook',
     brandIds: brand._id,
     startDate,
     endDate,
@@ -198,13 +174,10 @@ export const beforeEachTest = async () => {
   // 2 form conversation with two request and two response message respectively
   await generateFormConversation(formIntegration._id, user._id);
 
-  // 2 gmail conversation with tag, two request and two response message respectively
-  await generateGmailConversation(integration._id, user._id, tag._id);
-
-  // 2 closed gmail conversation with tag, two request and two response message respectively
+  // 2 closed facebook conversation with tag, two request and two response message respectively
   await generateClosedConversation(integration._id, user._id, tag._id);
 
-  // 4 first responded gmail conversation and two request and two response message
+  // 4 first responded facebook conversation and two request and two response message
   await generateFirstRespondedConversation(integration._id, user._id, secondUser._id);
 
   return { args, user, secondUser };

@@ -1,23 +1,14 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Customers, Integrations } from '../../../db/models';
-import {
-  ACTIVITY_CONTENT_TYPES,
-  CONVERSATION_STATUSES,
-  KIND_CHOICES,
-  NOTIFICATION_TYPES,
-} from '../../../db/models/definitions/constants';
+import { CONVERSATION_STATUSES, KIND_CHOICES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { graphqlPubsub } from '../../../pubsub';
-import { facebookReply, IFacebookReply } from '../../../trackers/facebook';
-import { sendGmail } from '../../../trackers/gmail';
-import { favorite, retweet, tweet, tweetReply } from '../../../trackers/twitter';
-import { IMailParams } from '../../../trackers/types';
 import { checkPermission, requireLogin } from '../../permissions';
-import utils from '../../utils';
+import utils, { fetchIntegrationApi } from '../../utils';
 
 interface IConversationMessageAdd {
   conversationId: string;
@@ -155,18 +146,6 @@ const conversationMutations = {
 
     const kind = integration.kind;
 
-    // send reply to twitter
-    if (kind === KIND_CHOICES.TWITTER) {
-      await tweetReply({
-        conversation,
-        text: strip(doc.content),
-        toId: doc.tweetReplyToId,
-        toScreenName: doc.tweetReplyToScreenName,
-      });
-
-      return null;
-    }
-
     const customer = await Customers.findOne({ _id: conversation.customerId });
 
     // if conversation's integration kind is form then send reply to
@@ -183,53 +162,19 @@ const conversationMutations = {
       });
     }
 
-    if (kind === KIND_CHOICES.GMAIL) {
-      const firstMessage = await ConversationMessages.findOne({ conversationId: conversation._id }).sort({
-        createdAt: 1,
-      });
-
-      if (firstMessage && firstMessage.gmailData) {
-        const gmailData = firstMessage.gmailData;
-
-        const args: IMailParams = {
-          integrationId: integration._id,
-          cocType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-          cocId: conversation.customerId || '',
-          subject: `Re: ${gmailData.subject}`,
-          body: doc.content,
-          toEmails: gmailData.from,
-          cc: gmailData.cc || '',
-          bcc: gmailData.bcc || '',
-          headerId: gmailData.headerId,
-          threadId: gmailData.threadId,
-        };
-
-        await sendGmail(args, user);
-      }
-
-      return null;
-    }
-
     const message = await ConversationMessages.addMessage(doc, user._id);
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
-      const msg: IFacebookReply = {
-        text: strip(doc.content),
-      };
-
-      // attaching parent comment id if replied to comment
-      if (doc.commentReplyToId) {
-        msg.commentId = doc.commentReplyToId;
-      }
-
-      // attaching attachment if sent
-      if (doc.attachments.length > 0) {
-        msg.attachment = doc.attachments[0];
-      }
-
-      // when facebook kind is feed, assign commentId in extraData
-      await facebookReply(conversation, msg, message);
+      fetchIntegrationApi({
+        path: '/facebook/reply',
+        method: 'POST',
+        body: {
+          conversationId: conversation._id,
+          integrationId: integration._id,
+          content: strip(doc.content),
+        },
+      });
     }
 
     const dbMessage = await ConversationMessages.findOne({
@@ -240,27 +185,6 @@ const conversationMutations = {
     publishMessage(dbMessage, conversation.customerId);
 
     return dbMessage;
-  },
-
-  /**
-   * Tweet
-   */
-  async conversationsTweet(_root, doc: { integrationId: string; text: string }) {
-    return tweet(doc);
-  },
-
-  /**
-   * Retweet
-   */
-  async conversationsRetweet(_root, doc: { integrationId: string; id: string }) {
-    return retweet(doc);
-  },
-
-  /**
-   * Favorite
-   */
-  async conversationsFavorite(_root, doc: { integrationId: string; id: string }) {
-    return favorite(doc);
   },
 
   /**
