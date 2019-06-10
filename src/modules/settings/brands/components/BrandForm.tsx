@@ -34,7 +34,7 @@ class BrandForm extends React.Component<Props, {}> {
     const doc = this.generateDoc();
 
     if (modal) {
-      save(doc, () => closeModal && closeModal(), brand);
+      return save(doc, () => closeModal && closeModal(), brand);
     }
 
     save(doc);

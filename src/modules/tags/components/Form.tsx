@@ -52,7 +52,7 @@ class Form extends React.Component<Props, State> {
     const params = { name, colorCode };
 
     if (modal) {
-      save({
+      return save({
         tag,
         doc: { ...params, type },
         callback: () => closeModal && closeModal()
