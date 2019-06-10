@@ -1,24 +1,28 @@
 import {
   Button,
+  ButtonMutate,
   ControlLabel,
   Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
+import { mutations } from '../graphql';
 import { IUserGroup, IUserGroupDocument } from '../types';
 
 type Props = {
-  save: ({ doc: IUserGroup }, callback: () => void, object: any) => void;
   closeModal: () => void;
   object: { _id: string } & IUserGroup;
+  refetch: any;
 };
 
 type State = {
   selectedMembers: string[];
+  isSubmitted: boolean;
 };
 
 class GroupForm extends React.Component<Props, State> {
@@ -26,26 +30,41 @@ class GroupForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedMembers: (props.object && props.object.memberIds) || []
+      selectedMembers: (props.object && props.object.memberIds) || [],
+      isSubmitted: false
     };
   }
 
-  generateDoc() {
+  save = () => {
+    this.setState({ isSubmitted: true });
+  };
+
+  getMutation = () => {
+    if (this.props.object) {
+      return mutations.usersGroupsEdit;
+    }
+
+    return mutations.usersGroupsAdd;
+  };
+
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    description: string;
+  }) => {
+    const { object } = this.props;
+    const finalValues = values;
+
+    if (object) {
+      finalValues._id = object._id;
+    }
+
     return {
-      name: (document.getElementById('group-name') as HTMLInputElement).value,
-      description: (document.getElementById(
-        'group-description'
-      ) as HTMLInputElement).value,
+      _id: finalValues._id,
+      name: finalValues.name,
+      description: finalValues.description,
       memberIds: this.state.selectedMembers
     };
-  }
-
-  save = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const doc = this.generateDoc();
-
-    this.props.save({ doc }, this.props.closeModal, this.props.object);
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -70,12 +89,13 @@ class GroupForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel required={true}>Description</ControlLabel>
           <FormControl
             {...formProps}
             componentClass="textarea"
             name="description"
             defaultValue={object.description || ''}
+            required={true}
           />
         </FormGroup>
 
@@ -100,9 +120,20 @@ class GroupForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          <ButtonMutate
+            mutation={this.getMutation()}
+            variables={this.generateDoc(formProps.values)}
+            callback={this.props.closeModal}
+            refetchQueries={this.props.refetch}
+            isSubmitted={this.state.isSubmitted}
+            type="submit"
+            icon="checked-1"
+            successMessage={`You successfully ${
+              object ? 'updated' : 'added'
+            } a user group.`}
+          >
+            {__('Save')}
+          </ButtonMutate>
         </Modal.Footer>
       </>
     );
