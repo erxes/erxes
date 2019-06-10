@@ -5,10 +5,10 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { Move } from '../../components/editForm';
-import { Item } from '../../types';
+import { IItem } from '../../types';
 
 type Props = {
-  item: Item;
+  item: IItem;
   stageId?: string;
   options: IOptions;
   onChangeStage?: (

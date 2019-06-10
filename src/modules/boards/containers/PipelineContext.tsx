@@ -5,7 +5,7 @@ import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
 import { mutations, queries } from '../graphql';
-import { IDragResult, IItemMap, IOptions, IPipeline, Item } from '../types';
+import { IDragResult, IItem, IItemMap, IOptions, IPipeline } from '../types';
 import { collectOrders, reorder, reorderItemMap } from '../utils';
 
 type Props = {
@@ -31,12 +31,12 @@ interface IStore {
   itemMap: IItemMap;
   stageLoadMap: StageLoadMap;
   stageIds: string[];
-  onLoadStage: (stageId: string, items: Item[]) => void;
+  onLoadStage: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
   onDragEnd: (result: IDragResult) => void;
-  onAddItem: (stageId: string, item: Item) => void;
+  onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
-  onUpdateItem: (item: Item, prevStageId?: string) => void;
+  onUpdateItem: (item: IItem, prevStageId?: string) => void;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -207,7 +207,7 @@ export class PipelineProvider extends React.Component<Props, State> {
    * - Mark stage's task as complete
    * - Mark stage's loading state as loaded
    */
-  onLoadStage = (stageId: string, items: Item[]) => {
+  onLoadStage = (stageId: string, items: IItem[]) => {
     const { itemMap, stageLoadMap } = this.state;
     const task = PipelineProvider.tasks.find(t => t.stageId === stageId);
 
@@ -273,7 +273,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
   };
 
-  onAddItem = (stageId: string, item: Item) => {
+  onAddItem = (stageId: string, item: IItem) => {
     const { itemMap } = this.state;
     const items = itemMap[stageId];
 
@@ -292,7 +292,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
   };
 
-  onUpdateItem = (item: Item, prevStageId?: string) => {
+  onUpdateItem = (item: IItem, prevStageId?: string) => {
     const { stageId } = item;
     const { itemMap } = this.state;
 
@@ -305,7 +305,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     if (prevStageId && stageId !== prevStageId) {
       // remove from old stage
       const prevStageItems = itemMap[prevStageId].filter(
-        (d: Item) => d._id !== item._id
+        (d: IItem) => d._id !== item._id
       );
 
       // add to new stage's front

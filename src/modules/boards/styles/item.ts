@@ -2,7 +2,7 @@ import { SelectContainer } from 'modules/boards/styles/common';
 import { colors } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { borderRadius } from '../../deals/styles/common';
+import { borderRadius } from './common';
 
 const FlexContent = styled.div`
   display: flex;

@@ -4,8 +4,8 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Items } from '../components/portable';
 import {
+  IItemParams,
   IOptions,
-  ItemParams,
   ItemsQueryResponse,
   SaveMutation
 } from '../types';
@@ -24,7 +24,7 @@ type FinalProps = {
 } & Props;
 
 class PortableItemsContainer extends React.Component<FinalProps> {
-  saveItem = (doc: ItemParams, callback: () => void) => {
+  saveItem = (doc: IItemParams, callback: () => void) => {
     const { addMutation, itemsQuery, options } = this.props;
 
     addMutation({ variables: doc })
@@ -70,7 +70,7 @@ export default (props: Props) =>
     props,
     compose(
       // mutation
-      graphql<{}, SaveMutation, ItemParams>(
+      graphql<{}, SaveMutation, IItemParams>(
         gql(props.options.mutations.addMutation),
         {
           name: 'addMutation'

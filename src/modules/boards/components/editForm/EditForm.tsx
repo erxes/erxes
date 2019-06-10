@@ -7,15 +7,15 @@ import { Alert } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
-import { IOptions, Item, ItemParams } from '../../types';
+import { IItem, IItemParams, IOptions } from '../../types';
 import { Sidebar, Top } from './';
 
 type Props = {
   options: IOptions;
-  item: Item;
+  item: IItem;
   users: IUser[];
-  addItem: (doc: ItemParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: ItemParams, callback: () => void) => void;
+  addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
+  saveItem: (doc: IItemParams, callback: () => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
   extraFields?: any;
@@ -43,7 +43,7 @@ class EditForm extends React.Component<Props, State> {
     this.state = {
       name: item.name,
       stageId: item.stageId,
-      // Item datas
+      // IItem datas
       companies: item.companies || [],
       customers: item.customers || [],
       closeDate: item.closeDate,

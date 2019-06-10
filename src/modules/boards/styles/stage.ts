@@ -1,7 +1,7 @@
 import { colors } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { borderRadius, stageWidth } from '../../deals/styles/common';
+import { borderRadius, stageWidth } from './common';
 
 const hoverColor = 'rgba(10,45,65,.13)';
 const stageGray = '#e5e8ec';

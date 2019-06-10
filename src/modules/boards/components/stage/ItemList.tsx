@@ -2,14 +2,12 @@ import { EmptyState } from 'modules/common/components';
 import * as React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { DropZone, EmptyContainer, Wrapper } from '../../styles/common';
-import { IOptions, Item } from '../../types';
-import { ItemSelector } from './';
+import { IItem, IOptions } from '../../types';
 
 type Props = {
   listId: string;
-  listType?: string;
   stageId: string;
-  items: Item[];
+  items: IItem[];
   internalScroll?: boolean;
   style?: any;
   // may not be provided - and might be null
@@ -18,7 +16,7 @@ type Props = {
 };
 
 class DraggableContainer extends React.Component<
-  { stageId: string; item: Item; index: number; options: IOptions },
+  { stageId: string; item: IItem; index: number; options: IOptions },
   { isDragDisabled: boolean }
 > {
   constructor(props) {
@@ -36,6 +34,7 @@ class DraggableContainer extends React.Component<
   render() {
     const { stageId, item, index, options } = this.props;
     const { isDragDisabled } = this.state;
+    const ItemComponent = options.Item;
 
     return (
       <Draggable
@@ -45,7 +44,7 @@ class DraggableContainer extends React.Component<
         isDragDisabled={isDragDisabled}
       >
         {(dragProvided, dragSnapshot) => (
-          <ItemSelector
+          <ItemComponent
             key={item._id}
             stageId={stageId}
             item={item}
@@ -62,7 +61,7 @@ class DraggableContainer extends React.Component<
 
 class InnerItemList extends React.PureComponent<{
   stageId: string;
-  items: Item[];
+  items: IItem[];
   options: IOptions;
 }> {
   render() {
@@ -83,7 +82,7 @@ class InnerItemList extends React.PureComponent<{
 type InnerListProps = {
   dropProvided;
   stageId: string;
-  items: Item[];
+  items: IItem[];
   options: IOptions;
 };
 
@@ -121,7 +120,6 @@ export default class ItemList extends React.Component<Props> {
     const {
       ignoreContainerClipping,
       listId,
-      listType,
       style,
       stageId,
       items,
@@ -131,7 +129,6 @@ export default class ItemList extends React.Component<Props> {
     return (
       <Droppable
         droppableId={listId}
-        type={listType}
         ignoreContainerClipping={ignoreContainerClipping}
       >
         {(dropProvided, dropSnapshot) => (

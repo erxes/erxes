@@ -1,4 +1,4 @@
-import { IItem } from 'modules/boards/types';
+import { IItem, IItemParams } from 'modules/boards/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
 import { IProduct, IProductDoc } from '../settings/productService/types';
 
@@ -29,38 +29,9 @@ export interface IProductData {
   amount: number;
 }
 
-export interface IDraggableLocation {
-  droppableId: string;
-  index: number;
-}
-
-type Position = {
-  _id?: string;
-  droppableId?: string;
-  index: number;
-};
-
-export interface IDragResult {
-  type: string;
-  destination: Position;
-  source: Position;
-  draggableId?: string;
-  itemId?: string;
-}
-
 export type DealsTotalAmountsQueryResponse = {
   dealsTotalAmounts: IDealTotalAmount;
   refetch: () => void;
-};
-
-export type DealsChangeMutation = (
-  {
-    variables: { _id }
-  }
-) => Promise<any>;
-
-export type RemoveDealVariables = {
-  _id: string;
 };
 
 export type ActivityLogQueryResponse = {
@@ -82,16 +53,7 @@ export interface IDeal extends IItem {
   products?: any;
 }
 
-export interface IDealParams {
-  _id?: string;
-  name: string;
-  stageId: string;
-  assignedUserIds?: string[];
-  companyIds?: string[];
-  customerIds?: string[];
-  closeDate?: Date;
-  description?: string;
-  order?: number;
+export interface IDealParams extends IItemParams {
   productsData?: IProductData[];
 }
 
@@ -101,10 +63,3 @@ export type DealsQueryResponse = {
   refetch: () => void;
   fetchMore: any;
 };
-
-export type DealDetailQueryResponse = {
-  dealDetail: IDeal;
-  loading: boolean;
-};
-
-export type SaveDealMutation = ({ variables: IDealParams }) => Promise<any>;

@@ -17,10 +17,10 @@ import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMember
 import * as React from 'react';
 import * as Datetime from 'react-datetime';
 import { Move } from '../../containers/editForm';
-import { IOptions, Item } from '../../types';
+import { IItem, IOptions } from '../../types';
 
 type Props = {
-  item: Item;
+  item: IItem;
   options: IOptions;
   name: string;
   description: string;

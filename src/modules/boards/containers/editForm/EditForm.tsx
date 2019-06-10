@@ -9,9 +9,9 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
   DetailQueryResponse,
+  IItem,
+  IItemParams,
   IOptions,
-  Item,
-  ItemParams,
   RemoveMutation,
   SaveMutation
 } from '../../types';
@@ -21,9 +21,9 @@ type Props = {
   options: IOptions;
   itemId: string;
   stageId: string;
-  onAdd?: (stageId: string, item: Item) => void;
+  onAdd?: (stageId: string, item: IItem) => void;
   onRemove?: (itemId: string, stageId: string) => void;
-  onUpdate?: (item: Item, prevStageId: string) => void;
+  onUpdate?: (item: IItem, prevStageId: string) => void;
   closeModal: () => void;
 };
 
@@ -46,7 +46,7 @@ class EditFormContainer extends React.Component<FinalProps> {
   }
 
   addItem(
-    doc: ItemParams,
+    doc: IItemParams,
     callback: () => void,
     msg = this.props.options.texts.addSuccessText
   ) {
@@ -67,7 +67,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       });
   }
 
-  saveItem = (doc: ItemParams, callback: () => void) => {
+  saveItem = (doc: IItemParams, callback: () => void) => {
     const { stageId, itemId, editMutation, onUpdate, options } = this.props;
 
     editMutation({ variables: { _id: itemId, ...doc } })
@@ -161,7 +161,7 @@ export default (props: Props) => {
       graphql<Props, UsersQueryResponse>(gql(userQueries.usersForSelector), {
         name: 'usersQuery'
       }),
-      graphql<Props, SaveMutation, ItemParams>(
+      graphql<Props, SaveMutation, IItemParams>(
         gql(options.mutations.addMutation),
         {
           name: 'addMutation',
@@ -175,7 +175,7 @@ export default (props: Props) => {
           })
         }
       ),
-      graphql<Props, SaveMutation, ItemParams>(
+      graphql<Props, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
           name: 'editMutation',

@@ -1,8 +1,11 @@
-import { TicketEditForm } from 'modules/tickets/components';
+import { PortableTicket, TicketEditForm } from 'modules/tickets/components';
+import { TicketItem } from './containers/';
 import { mutations, queries } from './graphql';
 
 const options = {
   EditForm: TicketEditForm,
+  PortableItem: PortableTicket,
+  Item: TicketItem,
   type: 'ticket',
   title: 'Tickets',
   queriesName: {

@@ -1,8 +1,11 @@
-import { DealEditForm } from 'modules/deals/components';
+import { DealEditForm, PortableDeal } from './components';
+import { DealItem } from './containers/';
 import { mutations, queries } from './graphql';
 
 const options = {
   EditForm: DealEditForm,
+  PortableItem: PortableDeal,
+  Item: DealItem,
   type: 'deal',
   title: 'Deals',
   queriesName: {

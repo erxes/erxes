@@ -1,35 +1,22 @@
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import { PortableDeal } from 'modules/deals/components';
 import { Sidebar } from 'modules/layout/components';
 import { SectionContainer } from 'modules/layout/styles';
-import { PortableTicket } from 'modules/tickets/components';
 import * as React from 'react';
 import { AddItem } from '.';
-import { IOptions, Item, ItemParams } from '../../types';
+import { IItem, IItemParams, IOptions } from '../../types';
 
 type Props = {
   options: IOptions;
-  items: Item[];
+  items: IItem[];
   customerIds?: string[];
   companyIds?: string[];
-  saveItem: (doc: ItemParams, callback: () => void, item?: Item) => void;
+  saveItem: (doc: IItemParams, callback: () => void, item?: IItem) => void;
   onChangeItems: () => void;
   isOpen?: boolean;
 };
 
 class PortableItems extends React.Component<Props> {
-  private ITEMS;
-
-  constructor(props) {
-    super(props);
-
-    this.ITEMS = {
-      deal: PortableDeal,
-      ticket: PortableTicket
-    };
-  }
-
   renderItems = () => {
     const { onChangeItems, items, options } = this.props;
 
@@ -37,7 +24,7 @@ class PortableItems extends React.Component<Props> {
       return <EmptyState icon="piggy-bank" text={`No ${options.type}`} />;
     }
 
-    const PortableItem = this.ITEMS[options.type];
+    const PortableItem = options.PortableItem;
 
     return items.map((item, index) => (
       <PortableItem

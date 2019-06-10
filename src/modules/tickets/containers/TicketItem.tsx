@@ -1,11 +1,11 @@
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
-import { Item } from 'modules/boards/types';
 import { TicketItem } from 'modules/tickets/components/';
 import * as React from 'react';
+import { ITicket } from '../types';
 
 type Props = {
   stageId: string;
-  item: Item;
+  item: ITicket;
   isDragging: boolean;
   provided;
   onTogglePopup: () => void;

@@ -1,15 +1,11 @@
-import {
-  DealDetailQueryResponse,
-  DealsQueryResponse,
-  IDeal,
-  IDealParams
-} from 'modules/deals/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
 
 export interface IOptions {
   EditForm: any;
+  PortableItem: any;
+  Item: any;
   type: string;
   title: string;
   queriesName: { itemsQuery: string; detailQuery: string };
@@ -43,9 +39,19 @@ export interface IBoard {
   pipelines?: IPipeline[];
 }
 
-export type ItemParams = IDealParams;
+export interface IItemParams {
+  _id?: string;
+  name: string;
+  stageId: string;
+  assignedUserIds?: string[];
+  companyIds?: string[];
+  customerIds?: string[];
+  closeDate?: Date;
+  description?: string;
+  order?: number;
+}
 
-export type SaveItemMutation = ({ variables: ItemParams }) => Promise<any>;
+export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
 
 export interface IPipeline {
   _id: string;
@@ -100,10 +106,8 @@ export interface IStageMap {
   [key: string]: IStage;
 }
 
-export type Item = IDeal;
-
 export interface IItemMap {
-  [key: string]: Item[];
+  [key: string]: IItem[];
 }
 
 export type BoardsQueryResponse = {
@@ -123,12 +127,6 @@ export type StagesQueryResponse = {
   refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
 };
 
-export type DealsChangeMutation = (
-  {
-    variables: { _id }
-  }
-) => Promise<any>;
-
 export type BoardsGetLastQueryResponse = {
   boardGetLast: IBoard;
   loading: boolean;
@@ -144,9 +142,7 @@ export type PipelineDetailQueryResponse = {
   loading: boolean;
 };
 
-export type ItemsQueryResponse = DealsQueryResponse;
-
-export type SaveMutation = ({ variables: ItemParams }) => Promise<any>;
+export type SaveMutation = ({ variables: IItemParams }) => Promise<any>;
 
 export type RemoveVariables = {
   _id: string;
@@ -154,4 +150,12 @@ export type RemoveVariables = {
 
 export type RemoveMutation = ({ variables: RemoveVariables }) => Promise<any>;
 
-export type DetailQueryResponse = DealDetailQueryResponse;
+export type ItemsQueryResponse = {
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};
+
+export type DetailQueryResponse = {
+  loading: boolean;
+};

@@ -26,7 +26,7 @@ export const ScrolledContent = styled(ContentBox)`
   margin: 6px 10px 4px 5px;
 `;
 
-// Item list
+// IItem list
 export const DropZone = styled.div`
   min-height: 160px;
 `;

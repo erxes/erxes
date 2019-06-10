@@ -2,10 +2,10 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import {
+  IItem,
+  IItemParams,
   IOptions,
   IStage,
-  Item,
-  ItemParams,
   ItemsQueryResponse,
   SaveItemMutation
 } from 'modules/boards/types';
@@ -20,16 +20,16 @@ type WrapperProps = {
   stage: IStage;
   index: number;
   loadingState: 'readyToLoad' | 'loaded';
-  items: Item[];
+  items: IItem[];
   length: number;
   queryParams: IQueryParams;
   options: IOptions;
 };
 
 type StageProps = {
-  onLoad: (stageId: string, items: Item[]) => void;
+  onLoad: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
-  onAddItem: (stageId: string, item: Item) => void;
+  onAddItem: (stageId: string, item: IItem) => void;
 } & WrapperProps;
 
 type FinalStageProps = {
@@ -158,7 +158,7 @@ const withQuery = ({ options }) => {
         })
       }),
       // mutation
-      graphql<StageProps, SaveItemMutation, ItemParams>(
+      graphql<StageProps, SaveItemMutation, IItemParams>(
         gql(options.mutations.addMutation),
         {
           name: 'addMutation',

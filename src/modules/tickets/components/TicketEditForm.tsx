@@ -1,19 +1,20 @@
 import { IUser } from 'modules/auth/types';
 import { EditForm } from 'modules/boards/components/editForm';
-import { IOptions, Item, ItemParams } from 'modules/boards/types';
+import { IOptions } from 'modules/boards/types';
 import { ControlLabel, FormGroup } from 'modules/common/components';
 import { IOption } from 'modules/common/types';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { PRIORITIES } from '../constants';
+import { ITicket, ITicketParams } from '../types';
 
 type Props = {
   options: IOptions;
-  item: Item;
+  item: ITicket;
   users: IUser[];
-  addItem: (doc: ItemParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: ItemParams, callback: () => void) => void;
+  addItem: (doc: ITicketParams, callback: () => void, msg?: string) => void;
+  saveItem: (doc: ITicketParams, callback: () => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
 };

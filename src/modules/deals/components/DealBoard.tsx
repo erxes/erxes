@@ -1,14 +1,15 @@
 import { Board, MainActionBar } from 'modules/boards/containers';
-import { __ } from 'modules/common/utils';
-import { menuDeal } from 'modules/common/utils/menus';
-import { Header } from 'modules/layout/components';
-import * as React from 'react';
-import options from '../options';
 import {
   BoardContainer,
   BoardContent,
   ScrolledContent
-} from '../styles/common';
+} from 'modules/boards/styles/common';
+import { __ } from 'modules/common/utils';
+import { menuDeal } from 'modules/common/utils/menus';
+import { Header } from 'modules/layout/components';
+import * as React from 'react';
+import { DealMainActionBar } from '../components';
+import options from '../options';
 
 type Props = {
   queryParams: any;
@@ -22,7 +23,7 @@ class DealBoard extends React.Component<Props> {
   }
 
   renderActionBar() {
-    return <MainActionBar type="deal" />;
+    return <MainActionBar type="deal" component={DealMainActionBar} />;
   }
 
   render() {

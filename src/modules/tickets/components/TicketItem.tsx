@@ -2,20 +2,21 @@ import { EditForm } from 'modules/boards/containers/editForm';
 import { Date, ItemContainer } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
-import { IOptions, Item } from 'modules/boards/types';
+import { IOptions } from 'modules/boards/types';
 import { __, getUserAvatar } from 'modules/common/utils';
 import * as moment from 'moment';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
+import { ITicket } from '../types';
 
 type Props = {
   stageId: string;
-  item: Item;
+  item: ITicket;
   isDragging: boolean;
   provided;
-  onAdd: (stageId: string, item: Item) => void;
+  onAdd: (stageId: string, item: ITicket) => void;
   onRemove: (dealId: string, stageId: string) => void;
-  onUpdate: (item: Item) => void;
+  onUpdate: (item: ITicket) => void;
   onTogglePopup: () => void;
   options: IOptions;
 };

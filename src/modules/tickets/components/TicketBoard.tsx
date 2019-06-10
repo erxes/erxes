@@ -1,11 +1,12 @@
+import { MainActionBar as DumbMainActionBar } from 'modules/boards/components';
 import { Board, MainActionBar } from 'modules/boards/containers';
-import { __ } from 'modules/common/utils';
-import { menuInbox } from 'modules/common/utils/menus';
 import {
   BoardContainer,
   BoardContent,
   ScrolledContent
-} from 'modules/deals/styles/common';
+} from 'modules/boards/styles/common';
+import { __ } from 'modules/common/utils';
+import { menuInbox } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import options from '../options';
@@ -21,7 +22,7 @@ class TicketBoard extends React.Component<Props> {
   }
 
   renderActionBar() {
-    return <MainActionBar type="ticket" />;
+    return <MainActionBar type="ticket" component={DumbMainActionBar} />;
   }
 
   render() {

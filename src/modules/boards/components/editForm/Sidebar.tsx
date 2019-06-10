@@ -5,10 +5,10 @@ import { CustomerSection } from 'modules/customers/components/common';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
 import { RightContent } from '../../styles/item';
-import { IOptions, Item } from '../../types';
+import { IItem, IOptions } from '../../types';
 
 type Props = {
-  item: Item;
+  item: IItem;
   customers: ICustomer[];
   companies: ICompany[];
   onChangeField?: (name: 'companies' | 'customers', value: any) => void;

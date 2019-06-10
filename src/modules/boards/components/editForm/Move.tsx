@@ -9,10 +9,10 @@ import {
 import { IStage } from 'modules/boards/types';
 import { Icon, Tip } from 'modules/common/components';
 import * as React from 'react';
-import { IOptions, Item } from '../../types';
+import { IItem, IOptions } from '../../types';
 
 type Props = {
-  item?: Item;
+  item?: IItem;
   stages: IStage[];
   stageId?: string;
   onChangeStage?: (stageId: string) => void;
@@ -114,7 +114,7 @@ class Move extends React.Component<Props, State> {
   }
 
   render() {
-    const item = this.props.item || ({} as Item);
+    const item = this.props.item || ({} as IItem);
     const { pipeline } = item;
 
     return (

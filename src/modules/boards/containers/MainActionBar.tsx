@@ -4,14 +4,10 @@ import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
-import { DealMainActionBar } from 'modules/deals/components';
-import { ProductsQueryResponse } from 'modules/deals/types';
-import { queries as productQueries } from 'modules/settings/productService/graphql';
 import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { MainActionBar as FundamentalMainActionBar } from '../components';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
 import {
@@ -22,6 +18,7 @@ import {
 
 type Props = {
   type: string;
+  component: any;
   middleContent?: () => React.ReactNode;
 } & IRouterProps;
 
@@ -29,7 +26,6 @@ type FinalProps = {
   boardsQuery: BoardsQueryResponse;
   boardGetLastQuery?: BoardsGetLastQueryResponse;
   boardDetailQuery?: BoardDetailQueryResponse;
-  productsQuery?: ProductsQueryResponse;
 } & Props;
 
 const getBoardId = ({ location }) => {
@@ -57,17 +53,6 @@ const commonParams = [
  * Main board component
  */
 class Main extends React.Component<FinalProps> {
-  private componentSelector;
-
-  constructor(props) {
-    super(props);
-
-    this.componentSelector = {
-      deal: DealMainActionBar,
-      ticket: FundamentalMainActionBar
-    };
-  }
-
   onSearch = (search: string) => {
     routerUtils.setParams(this.props.history, { search });
   };
@@ -121,7 +106,6 @@ class Main extends React.Component<FinalProps> {
       boardGetLastQuery,
       boardDetailQuery,
       type,
-      productsQuery,
       middleContent
     } = this.props;
 
@@ -134,7 +118,6 @@ class Main extends React.Component<FinalProps> {
     const { pipelineId } = queryParams;
 
     const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
-    const products = productsQuery ? productsQuery.products : [];
 
     if (boardId && pipelineId) {
       defaultBoards[type] = boardId;
@@ -230,7 +213,6 @@ class Main extends React.Component<FinalProps> {
     const extendedProps = {
       ...props,
       type,
-      products,
       onSearch: this.onSearch,
       onDateFilterSelect: this.onDateFilterSelect,
       onClear: this.onClear,
@@ -239,7 +221,7 @@ class Main extends React.Component<FinalProps> {
       clearFilter: this.clearFilter
     };
 
-    const Component = this.componentSelector[type];
+    const Component = this.props.component;
 
     return <Component {...extendedProps} />;
   }
@@ -249,7 +231,7 @@ const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
 
-const MainActionBar = withProps<Props>(
+const MainActionBarContainer = withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
       name: 'boardsQuery',
@@ -264,9 +246,6 @@ const MainActionBar = withProps<Props>(
         variables: { type }
       })
     }),
-    graphql<{}, ProductsQueryResponse>(gql(productQueries.products), {
-      name: 'productsQuery'
-    }),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
       {
@@ -280,4 +259,4 @@ const MainActionBar = withProps<Props>(
   )(Main)
 );
 
-export default withRouter(MainActionBar);
+export default withRouter(MainActionBarContainer);

@@ -5,7 +5,7 @@ import {
   HeaderContent,
   HeaderRow
 } from 'modules/boards/styles/item';
-import { ItemParams } from 'modules/boards/types';
+import { IItemParams } from 'modules/boards/types';
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
@@ -17,7 +17,7 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
-  saveItem: (doc: ItemParams, callback: () => void) => void;
+  saveItem: (doc: IItemParams, callback: () => void) => void;
   showSelect?: boolean;
   closeModal: () => void;
 };

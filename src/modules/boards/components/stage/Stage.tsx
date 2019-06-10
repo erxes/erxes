@@ -14,7 +14,7 @@ import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import { IOptions, IStage, Item } from '../../types';
+import { IItem, IOptions, IStage } from '../../types';
 import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
 import { AddForm } from './';
@@ -24,7 +24,7 @@ type Props = {
   index: number;
   stage: IStage;
   length: number;
-  items: Item[];
+  items: IItem[];
   addItem: (name: string, callback: () => void) => void;
   loadMore: () => void;
   options: IOptions;
@@ -134,7 +134,6 @@ export default class Stage extends React.Component<Props, {}> {
     return (
       <ItemList
         listId={stage._id}
-        listType="DEAL"
         stageId={stage._id}
         items={items}
         options={options}
