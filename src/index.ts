@@ -1,4 +1,5 @@
 import * as bodyParser from 'body-parser';
+import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { connect } from './connection';
@@ -10,6 +11,10 @@ import Integrations from './models/Integrations';
 dotenv.config();
 
 connect();
+
+cors({
+  origin: [process.env.MAIN_API_DOMAIN],
+});
 
 const app = express();
 
