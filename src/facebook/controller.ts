@@ -2,7 +2,7 @@ import { FacebookAdapter } from 'botbuilder-adapter-facebook';
 import { Botkit } from 'botkit';
 import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
-import { fetchMainApi } from '../utils';
+import { fetchMainApi, sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
 import { Conversations, Customers } from './models';
 import { getPageAccessToken, getPageList, graphRequest } from './utils';
@@ -20,6 +20,19 @@ const init = async app => {
       erxesApiId: integrationId,
       facebookPageIds,
     });
+
+    const { ENDPOINT_URL, DOMAIN } = process.env;
+
+    if (ENDPOINT_URL) {
+      await sendRequest({
+        url: ENDPOINT_URL,
+        method: 'POST',
+        body: {
+          domain: DOMAIN,
+          facebookPageIds,
+        },
+      });
+    }
 
     return res.json({ status: 'ok ' });
   });
@@ -96,7 +109,7 @@ const init = async app => {
 
   // Once the bot has booted up its internal services, you can use them to do stuff.
   controller.ready(() => {
-    controller.on('message', async (bot, message) => {
+    controller.on('message', async (_bot, message) => {
       const integration = await Integrations.findOne({ facebookPageIds: { $in: [message.recipient.id] } });
 
       if (!integration) {
@@ -180,8 +193,6 @@ const init = async app => {
           }),
         },
       });
-
-      await bot.reply(message, 'Welcome to the channel!');
     });
   });
 };

@@ -9,17 +9,28 @@ interface IRequestParams {
 }
 
 /**
+ * Send request
+ */
+export const sendRequest = async ({ url, method, body, params }: IRequestParams) => {
+  try {
+    const response = await requestify.request(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      params,
+    });
+
+    return response.getBody();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+/**
  * Send request to main api
  */
 export const fetchMainApi = async ({ path, method, body, params }: IRequestParams) => {
   const { MAIN_API_DOMAIN } = process.env;
 
-  const response = await requestify.request(`${MAIN_API_DOMAIN}${path}`, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body,
-    params,
-  });
-
-  return response.getBody();
+  return sendRequest({ url: `${MAIN_API_DOMAIN}${path}`, method, body, params });
 };

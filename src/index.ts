@@ -12,9 +12,7 @@ dotenv.config();
 
 connect();
 
-cors({
-  origin: [process.env.MAIN_API_DOMAIN],
-});
+cors();
 
 const app = express();
 
