@@ -1,7 +1,7 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 
-import Control from '../../../modules/common/components/form/Control';
+import Control from '../../../../../modules/common/components/form/Control';
 
 describe('Form control component', () => {
   const defaultProps = {

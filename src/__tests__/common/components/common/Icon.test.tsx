@@ -1,6 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import Icon from '../../../modules/common/components/Icon';
+import Icon from '../../../../modules/common/components/Icon';
 
 describe('Icon component', () => {
   const defaultProps = {

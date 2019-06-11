@@ -1,6 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import ModifiableSelect from '../../../modules/common/components/ModifiableSelect';
+import ModifiableSelect from '../../../../modules/common/components/ModifiableSelect';
 
 describe('Modifiable component', () => {
   const defaultProps = {
@@ -26,15 +26,16 @@ describe('Modifiable component', () => {
   test('renders test 2 different props', () => {
     defaultProps.buttonText = 'Add name';
     defaultProps.placeholder = 'Primary name';
+
     const rendered = mount(<ModifiableSelect {...defaultProps} />);
     const props = rendered.props();
+
     expect(defaultProps).toMatchObject(props);
   });
 
   test('render piggy Modifiliable', () => {
     const rendered = mount(<ModifiableSelect {...defaultProps} />);
     const found = rendered.find('span').debug();
-    // console.log(found);
     const piggyFound = found.search('className="Select-placeholder"');
     expect(piggyFound).toBeGreaterThan(-1);
   });
