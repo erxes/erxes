@@ -36,7 +36,7 @@ describe('Modifiable component', () => {
   test('render expect Modifiliable', () => {
     const rendered = mount(<ModifiableSelect {...defaultProps} />);
     const found = rendered.find('span').debug();
-    const piggyFound = found.search('className="Select-placeholder"');
-    expect(piggyFound).toBeGreaterThan(-1);
+    const founded = found.search('className="Select-placeholder"');
+    expect(founded).toBeGreaterThan(-1);
   });
 });
