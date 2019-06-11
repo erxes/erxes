@@ -1,9 +1,7 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
 import { PropertyGroupForm } from '../components';
-import { mutations, queries } from '../graphql';
+import { queries } from '../graphql';
 import {
   FieldsGroupsEditMutationResponse,
   FieldsGroupsMutationVariables

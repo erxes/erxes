@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   Checkbox,
+  FlexWrapper,
   FormLabel,
   Input,
   Radio,
@@ -107,7 +108,7 @@ class FormControl extends React.Component<Props> {
     if (elementType === 'select') {
       if (props.options) {
         return (
-          <div>
+          <FlexWrapper>
             <SelectWrapper>
               <Select {...attributes}>
                 {props.options.map((option, index) => {
@@ -120,17 +121,17 @@ class FormControl extends React.Component<Props> {
               </Select>
             </SelectWrapper>
             {errorMessage}
-          </div>
+          </FlexWrapper>
         );
       }
 
       return (
-        <div>
+        <FlexWrapper>
           <SelectWrapper>
             <Select {...attributes}>{childNode}</Select>
           </SelectWrapper>
           {errorMessage}
-        </div>
+        </FlexWrapper>
       );
     }
 
@@ -155,18 +156,18 @@ class FormControl extends React.Component<Props> {
 
     if (elementType === 'textarea') {
       return (
-        <div>
+        <FlexWrapper>
           <Textarea {...props} formErrorMessage={errorMessage} />
           {errorMessage}
-        </div>
+        </FlexWrapper>
       );
     }
 
     return (
-      <div>
+      <FlexWrapper>
         <Input {...attributes} />
         {errorMessage}
-      </div>
+      </FlexWrapper>
     );
   }
 }

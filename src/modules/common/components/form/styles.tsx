@@ -280,6 +280,10 @@ const Error = styled.label`
   font-weight: 500;
 `;
 
+const FlexWrapper = styled.div`
+  flex: 1;
+`;
+
 export {
   Input,
   SelectWrapper,
@@ -290,5 +294,6 @@ export {
   FormLabel,
   Label,
   Formgroup,
-  Error
+  Error,
+  FlexWrapper
 };

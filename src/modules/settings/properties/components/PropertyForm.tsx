@@ -1,6 +1,8 @@
 import {
   Button,
+  ButtonMutate,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup,
   ModalTrigger,
@@ -10,25 +12,17 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { Row } from 'modules/settings/integrations/styles';
 import * as React from 'react';
+import { IFormProps } from '../../../common/types';
 import { PropertyGroupForm } from '../containers';
+import { mutations } from '../graphql';
 import { IField, IFieldGroup } from '../types';
 
-type Doc = {
-  type: string;
-  validation: string;
-  text: string;
-  description: string;
-  options: any[];
-  groupId: string;
-};
-
 type Props = {
-  add: (params: { doc: Doc }) => void;
-  edit: ({ _id, doc }: { _id: string; doc: Doc }) => void;
   queryParams: any;
-
   field?: IField;
   groups: IFieldGroup[];
+  refetchQueries: any;
+  type: string;
   closeModal: () => void;
 };
 
@@ -37,6 +31,7 @@ type State = {
   type: string;
   hasOptions: boolean;
   add: boolean;
+  isSubmitted: boolean;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -70,49 +65,40 @@ class PropertyForm extends React.Component<Props, State> {
 
     this.state = {
       ...doc,
-      add: false
+      add: false,
+      isSubmitted: false
     };
   }
 
-  onSubmit = e => {
-    e.preventDefault();
-    const groupId = (document.getElementById('groupId') as HTMLInputElement)
-      .value;
-    const validation = (document.getElementById(
-      'validation'
-    ) as HTMLInputElement).value;
-    const text = (document.getElementById('text') as HTMLInputElement).value;
-    const description = (document.getElementById(
-      'description-property'
-    ) as HTMLInputElement).value;
+  onSubmit = () => {
+    this.setState({ isSubmitted: true });
+  };
 
-    const { field, add, edit } = this.props;
-    const { type, options } = this.state;
+  generateDoc = (values: {
+    _id?: string;
+    groupId: string;
+    validation: string;
+    text: string;
+    description: string;
+  }) => {
+    const { field, type } = this.props;
 
-    const doc = {
-      type,
-      validation,
-      text,
-      description,
-      options,
-      groupId
-    };
-
-    if (!groupId) {
-      return Alert.error('Choose group!');
-    }
-
-    if (!type) {
-      return Alert.error('Insert type!');
-    }
+    const finalValues = values;
 
     if (field) {
-      edit({ _id: field._id, doc });
-    } else {
-      add({ doc });
+      finalValues._id = field._id;
     }
 
-    this.props.closeModal();
+    return {
+      type: this.state.type,
+      options: this.state.options,
+      contentType: type,
+      _id: finalValues._id,
+      text: finalValues.text,
+      description: finalValues.description,
+      groupId: finalValues.groupId,
+      validation: finalValues.validation
+    };
   };
 
   onChangeOption = options => {
@@ -133,6 +119,14 @@ class PropertyForm extends React.Component<Props, State> {
     }
 
     this.setState({ type: value, ...doc });
+  };
+
+  getMutation = () => {
+    if (this.props.field) {
+      return mutations.fieldsEdit;
+    }
+
+    return mutations.fieldsAdd;
   };
 
   renderOptions = () => {
@@ -161,20 +155,22 @@ class PropertyForm extends React.Component<Props, State> {
     );
   };
 
-  render() {
+  renderContent = (formProps: IFormProps) => {
     const {
       groups,
-      field = { text: '', description: '', groupId: '', validation: '' }
+      refetchQueries,
+      closeModal,
+      field = {} as IField
     } = this.props;
     const { type } = this.state;
 
     return (
-      <form onSubmit={this.onSubmit}>
+      <>
         <FormGroup>
           <ControlLabel required={true}>Name:</ControlLabel>
           <FormControl
-            type="text"
-            id="text"
+            {...formProps}
+            name="text"
             defaultValue={field.text || ''}
             required={true}
           />
@@ -183,7 +179,8 @@ class PropertyForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Description:</ControlLabel>
           <FormControl
-            id="description-property"
+            {...formProps}
+            name="description"
             componentClass="textarea"
             defaultValue={field.description || ''}
           />
@@ -193,11 +190,13 @@ class PropertyForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Group:</ControlLabel>
           <Row>
             <FormControl
-              id="groupId"
+              {...formProps}
+              name="groupId"
               componentClass="select"
               defaultValue={
                 field.groupId || groups.length > 0 ? groups[0]._id : ''
               }
+              required={true}
             >
               {groups.map(group => {
                 return (
@@ -215,9 +214,12 @@ class PropertyForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Type:</ControlLabel>
 
           <FormControl
+            {...formProps}
+            name="type"
             componentClass="select"
             value={type}
             onChange={this.onTypeChange}
+            required={true}
           >
             <option />
             <option value="input">Input</option>
@@ -233,8 +235,9 @@ class PropertyForm extends React.Component<Props, State> {
           <ControlLabel>Validation:</ControlLabel>
 
           <FormControl
+            {...formProps}
             componentClass="select"
-            id="validation"
+            name="validation"
             defaultValue={field.validation || ''}
           >
             <option />
@@ -245,20 +248,31 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={this.props.closeModal}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          <ButtonMutate
+            mutation={this.getMutation()}
+            variables={this.generateDoc(formProps.values)}
+            callback={closeModal}
+            refetchQueries={refetchQueries}
+            isSubmitted={this.state.isSubmitted}
+            type="submit"
+            icon="checked-1"
+            successMessage={`You successfully ${
+              field ? 'updated' : 'added'
+            } a property field.`}
+          >
+            {__('Save')}
+          </ButtonMutate>
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} onSubmit={this.onSubmit} />;
   }
 }
 
