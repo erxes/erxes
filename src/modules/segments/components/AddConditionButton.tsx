@@ -16,6 +16,7 @@ class AddConditionButton extends React.Component<Props> {
 
   addCondition = (items, id: string) => {
     const [type] = Object.keys(types);
+    const field = items.find(item => item._id === id);
 
     this.props.addCondition({
       _id: Math.random().toString(),
@@ -23,7 +24,8 @@ class AddConditionButton extends React.Component<Props> {
       value: '',
       operator: '',
       dateUnit: dateUnits.days,
-      type
+      type,
+      brandId: field.brandId
     });
 
     this.overlayTrigger.hide();
@@ -54,7 +56,7 @@ class AddConditionButton extends React.Component<Props> {
 
   renderMessengerDataFields(items) {
     const groupedFields = items.reduce((total, item) => {
-      const key = item.brand;
+      const key = item.brandName;
 
       total[key] = total[key] || [];
       total[key].push(item);
@@ -88,8 +90,6 @@ class AddConditionButton extends React.Component<Props> {
 
     let items = fields.filter(
       field =>
-        field._id.indexOf('twitterData') &&
-        field._id.indexOf('facebookData') &&
         field._id.indexOf('links') &&
         field._id.indexOf('customFieldsData') &&
         field._id.indexOf('messengerData')
@@ -101,9 +101,7 @@ class AddConditionButton extends React.Component<Props> {
 
     if (type === 'other-properties') {
       items = fields.filter(field =>
-        ['twitterData', 'facebookData', 'links'].some(e =>
-          field._id.includes(e)
-        )
+        ['links'].some(e => field._id.includes(e))
       );
     }
 

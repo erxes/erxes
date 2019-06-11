@@ -9,14 +9,14 @@ import { Accounts } from '../components';
 import { AccountsQueryResponse, RemoveAccountMutationResponse } from '../types';
 
 type Props = {
-  kind: 'facebook' | 'twitter' | 'gmail';
+  kind: 'facebook';
   addLink: string;
   onSelect: (accountId?: string) => void;
   onRemove: (accountId: string) => void;
 };
 
 type FinalProps = {
-  accountsQuery: AccountsQueryResponse;
+  fetchApiQuery: AccountsQueryResponse;
 } & Props &
   RemoveAccountMutationResponse;
 
@@ -24,8 +24,8 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   onAdd = () => {
     const { addLink } = this.props;
 
-    const { REACT_APP_API_URL } = getEnv();
-    const url = `${REACT_APP_API_URL}/${addLink}`;
+    const { REACT_APP_INTEGRATIONS_API_URL } = getEnv();
+    const url = `${REACT_APP_INTEGRATIONS_API_URL}/${addLink}`;
 
     window.location.replace(url);
   };
@@ -44,13 +44,13 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   render() {
-    const { accountsQuery, onSelect } = this.props;
+    const { fetchApiQuery, onSelect } = this.props;
 
-    if (accountsQuery.loading) {
+    if (fetchApiQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    const accounts = accountsQuery.accounts || [];
+    const accounts = fetchApiQuery.integrationsFetchApi || [];
 
     return (
       <Accounts
@@ -74,11 +74,12 @@ export default withProps<Props>(
         }
       }
     ),
-    graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
-      name: 'accountsQuery',
+    graphql<Props, AccountsQueryResponse>(gql(queries.fetchApi), {
+      name: 'fetchApiQuery',
       options: ({ kind }) => ({
         variables: {
-          kind
+          path: '/accounts',
+          params: { kind }
         }
       })
     })

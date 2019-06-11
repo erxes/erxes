@@ -646,11 +646,9 @@ export const timezones = [
 
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
-  TWITTER: 'twitter',
   FACEBOOK: 'facebook',
   FORM: 'form',
-  GMAIL: 'gmail',
-  ALL_LIST: ['messenger', 'twitter', 'facebook', 'form', 'gmail']
+  ALL_LIST: ['messenger', 'facebook', 'form']
 };
 
 export const FORM_LOAD_TYPES = {
@@ -680,42 +678,12 @@ export const INTEGRATIONS = [
         createModal: 'facebook'
       },
       {
-        name: 'Twitter',
-        description: 'Tweet back to your DMs right from your Team Inbox',
-        inMessenger: false,
-        kind: 'twitter',
-        logo: '/images/integrations/twitter.png',
-        createModal: 'twitter'
-      },
-      {
         name: 'Messenger',
         description: 'See and reply to Messenger messages in your Team Inbox',
         inMessenger: false,
         kind: 'messenger',
         logo: '/images/integrations/messenger.png',
         createUrl: '/settings/integrations/createMessenger'
-      },
-      {
-        name: 'Gmail',
-        description:
-          'Connect straight to your Gmail and get those emails going',
-        inMessenger: false,
-        kind: 'gmail',
-        logo: '/images/integrations/gmail.png',
-        createModal: 'gmail'
-      }
-    ]
-  },
-  {
-    name: 'row-2',
-    rows: [
-      {
-        name: 'Google meet',
-        description: 'Start a video call from your conversation',
-        inMessenger: true,
-        kind: 'googleMeet',
-        logo: '/images/integrations/google-meet.png',
-        createModal: 'googleMeet'
       },
       {
         name: 'Lead',

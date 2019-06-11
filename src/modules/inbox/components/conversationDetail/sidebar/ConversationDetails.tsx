@@ -72,10 +72,7 @@ class ConversationDetails extends React.Component<Props> {
               {__('Integration')}
               <SidebarCounter>
                 {integration.kind}
-                <IntegrationIcon
-                  integration={integration}
-                  facebookData={conversation.facebookData}
-                />
+                <IntegrationIcon integration={integration} />
               </SidebarCounter>
             </li>
             <li>
