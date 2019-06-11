@@ -24,20 +24,12 @@ class IntegrationList extends React.Component<Props> {
   getTypeName(integration) {
     const kind = integration.kind;
 
-    if (kind === KIND_CHOICES.TWITTER) {
-      return 'twitter';
-    }
-
     if (kind === KIND_CHOICES.FACEBOOK) {
       return 'facebook';
     }
 
     if (kind === KIND_CHOICES.FORM) {
       return 'form';
-    }
-
-    if (kind === KIND_CHOICES.GMAIL) {
-      return 'gmail';
     }
 
     return 'default';
@@ -98,15 +90,9 @@ class IntegrationList extends React.Component<Props> {
   }
 
   renderRow(integration) {
-    const twitterData = (integration || {}).twitterData || {};
-
     return (
       <tr key={integration._id}>
-        <td>
-          {integration.name}
-          {integration.kind === 'twitter' &&
-            ` (${twitterData.info && twitterData.info.screen_name})`}
-        </td>
+        <td>{integration.name}</td>
         <td>
           <Label className={`label-${this.getTypeName(integration)}`}>
             {integration.kind}
