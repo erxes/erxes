@@ -43,35 +43,12 @@ const List = (props: FinalProps) => {
         variables: { ids: [id] }
       })
         .then(() => {
-          // update queries
-          permissionsQuery.refetch();
-          totalCountQuery.refetch();
-
-          Alert.success('Successfully deleted.');
+          Alert.success('You successfully deleted a permission.');
         })
         .catch(error => {
           Alert.error(error.message);
         });
     });
-  };
-
-  // create action
-  const save = (doc: IPermissionParams, callback) => {
-    addMutation({
-      variables: doc
-    })
-      .then(() => {
-        // update queries
-        permissionsQuery.refetch();
-        totalCountQuery.refetch();
-
-        Alert.success('Congrats');
-
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
   };
 
   const isLoading =
@@ -86,7 +63,6 @@ const List = (props: FinalProps) => {
     ...props,
     queryParams,
     history,
-    save,
     remove,
     totalCount: totalCountQuery.permissionsTotalCount || 0,
     modules: modulesQuery.permissionModules || [],
@@ -94,7 +70,8 @@ const List = (props: FinalProps) => {
     permissions: permissionsQuery.permissions || [],
     users: usersQuery.users || [],
     groups: usersGroupsQuery.usersGroups || [],
-    isLoading
+    isLoading,
+    refetchQueries: commonOptions()
   };
 
   return <PermissionList {...updatedProps} />;
@@ -111,6 +88,13 @@ type Props = {
   totalCountQuery: PermissionTotalCountQueryResponse;
   addMutation: (params: { variables: IPermissionParams }) => Promise<any>;
   removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
+};
+
+const commonOptions = () => {
+  return [
+    { query: gql(queries.permissions), variables: {} },
+    { query: gql(queries.totalCount), variables: {} }
+  ];
 };
 
 export default compose(
@@ -153,13 +137,13 @@ export default compose(
   }),
 
   // mutations
-  graphql<{}, PermissionAddMutationResponse>(gql(mutations.permissionAdd), {
-    name: 'addMutation'
-  }),
   graphql<{}, PermissionRemoveMutationResponse>(
     gql(mutations.permissionRemove),
     {
-      name: 'removeMutation'
+      name: 'removeMutation',
+      options: () => ({
+        refetchQueries: commonOptions()
+      })
     }
   )
 )(List);

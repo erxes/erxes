@@ -1,16 +1,16 @@
 import { IUser } from 'modules/auth/types';
 import {
   Button,
+  ButtonMutate,
   ControlLabel,
-  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
+import { mutations } from '../graphql';
 import { Divider, StepBody, StepHeader, StepItem } from '../styles';
 import { IActions, IModule, IPermissionParams, IUserGroup } from '../types';
 import {
@@ -22,11 +22,11 @@ import {
 } from './utils';
 
 type Props = {
-  save: (doc: IPermissionParams, callback: () => void) => void;
   modules: IModule[];
   actions: IActions[];
   users: IUser[];
   groups: IUserGroup[];
+  refetchQueries: any;
   closeModal: () => void;
 };
 
@@ -49,11 +49,7 @@ class PermissionForm extends React.Component<Props, State> {
     isSubmitted: false
   };
 
-  save = () => {
-    this.setState({ isSubmitted: true });
-  };
-
-  a = (e: React.FormEvent) => {
+  save = (e: React.FormEvent) => {
     e.preventDefault();
 
     const {
@@ -63,17 +59,41 @@ class PermissionForm extends React.Component<Props, State> {
       selectedGroups
     } = this.state;
 
-    this.props.save(
-      {
-        module: selectedModule,
-        actions: this.collectValues(selectedActions),
-        userIds: this.collectValues(selectedUsers),
-        groupIds: this.collectValues(selectedGroups),
-        allowed: (document.getElementById('allowed') as HTMLInputElement)
-          .checked
-      },
-      () => this.props.closeModal()
-    );
+    if (!selectedModule) {
+      return Alert.error('Please select the module!');
+    }
+
+    if (selectedActions.length === 0) {
+      return Alert.error('Please select at least one action!');
+    }
+
+    if (selectedGroups.length === 0) {
+      return Alert.error('Please select at least one group!');
+    }
+
+    if (selectedUsers.length === 0) {
+      return Alert.error('Please select at least one user!');
+    }
+
+    return this.setState({ isSubmitted: true });
+  };
+
+  getVariables = () => {
+    const {
+      selectedModule,
+      selectedActions,
+      selectedUsers,
+      selectedGroups,
+      valueChanged
+    } = this.state;
+
+    return {
+      module: selectedModule,
+      actions: this.collectValues(selectedActions),
+      userIds: this.collectValues(selectedUsers),
+      groupIds: this.collectValues(selectedGroups),
+      allowed: valueChanged
+    };
   };
 
   onChange = () => {
@@ -109,7 +129,7 @@ class PermissionForm extends React.Component<Props, State> {
     return items.map(item => item.value);
   };
 
-  renderContent = (formProps: IFormProps) => {
+  renderContent() {
     const { modules, actions, users, groups } = this.props;
     const {
       selectedModule,
@@ -136,7 +156,6 @@ class PermissionForm extends React.Component<Props, State> {
                 options={generateModuleParams(modules)}
                 value={selectedModule}
                 onChange={this.changeModule}
-                required={true}
               />
             </FormGroup>
             <Divider>{__('Then')}</Divider>
@@ -149,7 +168,6 @@ class PermissionForm extends React.Component<Props, State> {
                 disabled={!this.isModuleSelected()}
                 onChange={this.select.bind(this, 'selectedActions')}
                 multi={true}
-                required={true}
               />
             </FormGroup>
           </StepBody>
@@ -207,27 +225,41 @@ class PermissionForm extends React.Component<Props, State> {
             </FormGroup>
           </StepBody>
         </StepItem>
+      </>
+    );
+  }
 
+  render() {
+    const { closeModal, refetchQueries } = this.props;
+
+    return (
+      <form onSubmit={this.save}>
+        {this.renderContent()}
         <Modal.Footer>
           <Button
             btnStyle="simple"
             type="button"
-            onClick={this.props.closeModal}
+            onClick={closeModal}
             icon="cancel-1"
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          <ButtonMutate
+            mutation={mutations.permissionAdd}
+            variables={this.getVariables()}
+            callback={closeModal}
+            refetchQueries={refetchQueries}
+            isSubmitted={this.state.isSubmitted}
+            type="submit"
+            icon="checked-1"
+            successMessage={`You successfully added a permission.`}
+          >
+            {__('Save')}
+          </ButtonMutate>
         </Modal.Footer>
-      </>
+      </form>
     );
-  };
-
-  render() {
-    return <Form renderContent={this.renderContent} onSubmit={this.save} />;
   }
 }
 
