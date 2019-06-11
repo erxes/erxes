@@ -19,18 +19,19 @@ class KnowledgeBase extends React.Component<Props> {
     };
     const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };
     const list = [{ title: __('Knowledge base'), link: '/knowledgeBase' }];
+    const categoryLink = `/knowledgeBase?id=${currentCategory._id}`;
 
     if (currentKnowledgeBase.title) {
       list.push({
         title: currentKnowledgeBase.title,
-        link: '#'
+        link: currentCategory ? categoryLink : ''
       });
     }
 
     if (currentCategory.title) {
       list.push({
         title: currentCategory.title,
-        link: '#'
+        link: categoryLink
       });
     }
 
