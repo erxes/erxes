@@ -1,4 +1,3 @@
-import { GooglePubSub } from '@axelspringer/graphql-google-pubsub';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
@@ -87,6 +86,8 @@ const initBroker = () => {
   if (PUBSUB_TYPE === 'GOOGLE') {
     const googleOptions = configGooglePubsub();
 
+    const GooglePubSub = require('@axelspringer/graphql-google-pubsub').GooglePubSub;
+
     const googleBroker = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
 
     googleBroker.subscribe('widgetNotification', message => {
@@ -111,6 +112,8 @@ const createPubsubInstance = (): IPubSub => {
 
   if (PUBSUB_TYPE === 'GOOGLE') {
     const googleOptions = configGooglePubsub();
+
+    const GooglePubSub = require('@axelspringer/graphql-google-pubsub').GooglePubSub;
 
     const googlePubsub = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
 
