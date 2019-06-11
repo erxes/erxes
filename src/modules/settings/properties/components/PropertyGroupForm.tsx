@@ -14,12 +14,6 @@ import { IFormProps } from '../../../common/types';
 import { mutations } from '../graphql';
 import { IFieldGroup } from '../types';
 
-type Doc = {
-  name: string;
-  description: string;
-  isVisible: boolean;
-};
-
 type Props = {
   group?: IFieldGroup;
   type: string;
@@ -29,7 +23,6 @@ type Props = {
 
 type State = {
   isVisible: boolean;
-  action: (params: { _id?: string; doc: Doc }) => void;
   isSubmitted: boolean;
   mutation: string;
 };
@@ -38,19 +31,16 @@ class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    let action = props.add;
     let isVisible = true;
     let mutation = mutations.fieldsGroupsAdd;
 
     if (props.group) {
-      action = props.edit;
       isVisible = props.group.isVisible;
       mutation = mutations.fieldsGroupsEdit;
     }
 
     this.state = {
       isVisible,
-      action,
       isSubmitted: false,
       mutation
     };
@@ -76,7 +66,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
       _id: finalValues._id,
       name: finalValues.name,
       description: finalValues.description,
-      contentType: type
+      contentType: type,
+      isVisible: this.state.isVisible
     };
   };
 
