@@ -54,9 +54,10 @@ describe('engage message mutation tests', () => {
     $isDraft: Boolean,
     $isLive: Boolean,
     $stopDate: Date,
-    $segmentId: String,
-    $customerIds: [String],
+    $segmentIds: [String],
+    $brandIds: [String],
     $tagIds: [String],
+    $customerIds: [String],
     $email: EngageMessageEmail,
     $scheduleDate: EngageScheduleDateInput,
     $messenger: EngageMessageMessenger,
@@ -70,9 +71,10 @@ describe('engage message mutation tests', () => {
     isDraft: $isDraft
     isLive: $isLive
     stopDate: $stopDate
-    segmentId: $segmentId
-    customerIds: $customerIds
+    segmentIds: $segmentIds
+    brandIds: $brandIds
     tagIds: $tagIds
+    customerIds: $customerIds
     email: $email
     scheduleDate: $scheduleDate
     messenger: $messenger
@@ -109,9 +111,10 @@ describe('engage message mutation tests', () => {
       isDraft: true,
       isLive: true,
       stopDate: new Date(),
-      segmentId: _segment._id,
-      customerIds: [_customer._id],
+      segmentIds: [_segment._id],
+      brandIds: [_brand._id],
       tagIds: [_tag._id],
+      customerIds: [_customer._id],
       email: {
         templateId: _emailTemplate._id,
         subject: faker.random.word(),
@@ -167,7 +170,7 @@ describe('engage message mutation tests', () => {
       method: 'messenger',
       title: 'Send via messenger',
       userId: _user._id,
-      segmentId: _segment._id,
+      segmentIds: [_segment._id],
       customerIds: [_customer._id],
       isLive: true,
       messenger: {
@@ -180,7 +183,7 @@ describe('engage message mutation tests', () => {
       method: 'messenger',
       title: 'Send via messenger',
       userId: 'fromUserId',
-      segmentId: _segment._id,
+      segmentIds: [_segment._id],
       isLive: true,
       messenger: {
         brandId: brand._id,
@@ -209,7 +212,7 @@ describe('engage message mutation tests', () => {
       method: 'messenger',
       title: 'Send via messenger',
       userId: _user._id,
-      segmentId: _segment._id,
+      segmentIds: [_segment._id],
       isLive: true,
       customerIds: [_customer._id],
       messenger: {
@@ -271,7 +274,7 @@ describe('engage message mutation tests', () => {
       method: 'email',
       title: 'Send via email',
       userId: 'fromUserId',
-      segmentId: _segment._id,
+      segmentIds: [_segment._id],
       email: {
         templateId: emailTemplate._id,
         subject: 'subject',
@@ -292,7 +295,7 @@ describe('engage message mutation tests', () => {
       method: 'email',
       title: 'Send via email',
       userId: _user._id,
-      segmentId: _segment._id,
+      segmentIds: [_segment._id],
       email: {
         templateId: emailTemplate._id,
         subject: 'subject',
@@ -310,7 +313,9 @@ describe('engage message mutation tests', () => {
     mutation engageMessageAdd(${commonParamDefs}) {
       engageMessageAdd(${commonParams}) {
         kind
-        segmentId
+        segmentIds
+        brandIds
+        tagIds
         customerIds
         title
         fromUserId
@@ -320,7 +325,6 @@ describe('engage message mutation tests', () => {
         isLive
         stopDate
         messengerReceivedCustomerIds
-        tagIds
         email
         messenger
         deliveryReports
@@ -330,7 +334,7 @@ describe('engage message mutation tests', () => {
           month
           time
         }
-        segment {
+        segments {
           _id
         }
         fromUser {
@@ -374,7 +378,10 @@ describe('engage message mutation tests', () => {
     expect(sendSpy.mock.calls.length).toBe(1);
     expect(engageMessage.kind).toBe(_doc.kind);
     expect(new Date(engageMessage.stopDate)).toEqual(_doc.stopDate);
-    expect(engageMessage.segmentId).toBe(_doc.segmentId);
+    expect(engageMessage.segmentIds).toEqual(_doc.segmentIds);
+    expect(engageMessage.segments[0]._id).toContain(_doc.segmentIds);
+    expect(engageMessage.tagIds).toEqual(_doc.tagIds);
+    expect(engageMessage.brandIds).toEqual(_doc.brandIds);
     expect(engageMessage.customerIds).toEqual(_doc.customerIds);
     expect(engageMessage.title).toBe(_doc.title);
     expect(engageMessage.fromUserId).toBe(_doc.fromUserId);
@@ -389,9 +396,7 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.scheduleDate.type).toEqual('year');
     expect(engageMessage.scheduleDate.month).toEqual('2');
     expect(engageMessage.scheduleDate.day).toEqual('14');
-    expect(engageMessage.segment._id).toBe(_doc.segmentId);
     expect(engageMessage.fromUser._id).toBe(_doc.fromUserId);
-    expect(engageMessage.tagIds).toEqual(_doc.tagIds);
     awsSpy.mockRestore();
     sendSpy.mockRestore();
   });
@@ -428,7 +433,9 @@ describe('engage message mutation tests', () => {
         engageMessageEdit(_id: $_id ${commonParams}) {
           _id
           kind
-          segmentId
+          segmentIds
+          brandIds
+          tagIds
           customerIds
           title
           fromUserId
@@ -437,10 +444,9 @@ describe('engage message mutation tests', () => {
           isLive
           stopDate
           messengerReceivedCustomerIds
-          tagIds
           email
           messenger
-          segment {
+          segments {
             _id
           }
           fromUser {
@@ -458,7 +464,10 @@ describe('engage message mutation tests', () => {
     const tags = engageMessage.getTags.map(tag => tag._id);
 
     expect(engageMessage.kind).toBe(_doc.kind);
-    expect(engageMessage.segmentId).toBe(_doc.segmentId);
+    expect(engageMessage.segmentIds).toEqual(_doc.segmentIds);
+    expect(engageMessage.segments[0]._id).toContain(_doc.segmentIds);
+    expect(engageMessage.brandIds).toEqual(_doc.brandIds);
+    expect(engageMessage.tagIds).toEqual(_doc.tagIds);
     expect(engageMessage.customerIds).toEqual(_doc.customerIds);
     expect(engageMessage.title).toBe(_doc.title);
     expect(engageMessage.fromUserId).toBe(_doc.fromUserId);
@@ -476,9 +485,7 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
     expect(tags).toEqual(_doc.tagIds);
     expect(engageMessage.email.toJSON()).toEqual(_doc.email);
-    expect(engageMessage.segment._id).toBe(_doc.segmentId);
     expect(engageMessage.fromUser._id).toBe(_doc.fromUserId);
-    expect(engageMessage.tagIds).toEqual(_doc.tagIds);
   });
 
   test('Remove engage message', async () => {
@@ -547,7 +554,7 @@ describe('engage message mutation tests', () => {
     const conversation = await conversationFactory(conversationObj);
     const conversationMessage = await conversationMessageFactory(conversationMessageObj);
 
-    _message.segmentId = _segment._id;
+    _message.segmentIds = [_segment._id];
     _message.messenger.brandId = _integration.brandId;
 
     await _message.save();

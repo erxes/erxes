@@ -50,17 +50,37 @@ export const replaceKeys = ({
  */
 const findCustomers = async ({
   customerIds,
-  segmentId,
+  segmentIds = [],
+  tagIds = [],
+  brandIds = [],
 }: {
   customerIds: string[];
-  segmentId?: string;
+  segmentIds?: string[];
+  tagIds?: string[];
+  brandIds?: string[];
 }): Promise<ICustomerDocument[]> => {
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
 
-  if (segmentId) {
-    const segment = await Segments.findOne({ _id: segmentId });
-    customerQuery = await QueryBuilder.segments(segment);
+  if (tagIds.length > 0) {
+    customerQuery = { tagIds: { $in: tagIds || [] } };
+  }
+
+  if (brandIds.length > 0) {
+    const integrationIds = await Integrations.find({ brandId: { $in: brandIds } }).distinct('_id');
+
+    customerQuery = { integrationId: { $in: integrationIds } };
+  }
+
+  if (segmentIds.length > 0) {
+    const segmentQueries: any = [];
+    const segments = await Segments.find({ _id: { $in: segmentIds } });
+
+    for (const segment of segments) {
+      segmentQueries.push(...(await QueryBuilder.segments(segment)));
+    }
+
+    customerQuery = segmentQueries;
   }
 
   return Customers.find({ ...customerQuery, $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }] });
@@ -106,7 +126,7 @@ const executeSendViaEmail = async (
  * Send via email
  */
 const sendViaEmail = async (message: IEngageMessageDocument) => {
-  const { fromUserId, segmentId, customerIds = [] } = message;
+  const { fromUserId, tagIds, brandIds, segmentIds, customerIds = [] } = message;
 
   if (!message.email) {
     return;
@@ -131,7 +151,7 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
   const template = await EmailTemplates.findOne({ _id: templateId });
 
   // find matched customers
-  const customers = await findCustomers({ customerIds, segmentId });
+  const customers = await findCustomers({ customerIds, segmentIds, tagIds, brandIds });
 
   // save matched customer ids
   EngageMessages.setCustomerIds(message._id, customers);
@@ -176,7 +196,7 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
  * Send via messenger
  */
 const sendViaMessenger = async (message: IEngageMessageDocument) => {
-  const { fromUserId, segmentId, customerIds = [] } = message;
+  const { fromUserId, tagIds, brandIds, segmentIds, customerIds = [] } = message;
 
   if (!message.messenger) {
     return;
@@ -201,7 +221,7 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
   }
 
   // find matched customers
-  const customers = await findCustomers({ customerIds, segmentId });
+  const customers = await findCustomers({ customerIds, segmentIds, tagIds, brandIds });
 
   // save matched customer ids
   EngageMessages.setCustomerIds(message._id, customers);

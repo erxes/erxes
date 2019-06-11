@@ -2,8 +2,16 @@ import { Brands, Segments, Tags, Users } from '../../db/models';
 import { IEngageMessageDocument } from '../../db/models/definitions/engages';
 
 export default {
-  segment(engageMessage: IEngageMessageDocument) {
-    return Segments.findOne({ _id: engageMessage.segmentId });
+  segments(engageMessage: IEngageMessageDocument) {
+    return Segments.find({ _id: { $in: engageMessage.segmentIds } });
+  },
+
+  brands(engageMessage: IEngageMessageDocument) {
+    return Brands.find({ _id: { $in: engageMessage.brandIds } });
+  },
+
+  tags(engageMessage: IEngageMessageDocument) {
+    return Tags.find({ _id: { $in: engageMessage.tagIds } });
   },
 
   fromUser(engageMessage: IEngageMessageDocument) {
@@ -13,6 +21,7 @@ export default {
   getTags(engageMessage: IEngageMessageDocument) {
     return Tags.find({ _id: { $in: engageMessage.tagIds || [] } });
   },
+
   brand(engageMessage: IEngageMessageDocument) {
     const { messenger } = engageMessage;
 

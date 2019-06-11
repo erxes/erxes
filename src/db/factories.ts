@@ -146,7 +146,8 @@ export const tagsFactory = (params: ITagFactoryInput = {}) => {
 interface IEngageMessageFactoryInput {
   kind?: string;
   userId?: string;
-  segmentId?: string;
+  segmentIds?: string[];
+  brandIds?: string[];
   tagIds?: string[] | string;
   isLive?: boolean;
   isDraft?: boolean;
@@ -163,7 +164,8 @@ export const engageMessageFactory = (params: IEngageMessageFactoryInput = {}) =>
     method: params.method || 'messenger',
     title: params.title || faker.random.word(),
     fromUserId: params.userId || faker.random.uuid(),
-    segmentId: params.segmentId || faker.random.word(),
+    segmentIds: params.segmentIds || [],
+    brandIds: params.brandIds || [],
     tagIds: params.tagIds || [],
     isLive: params.isLive || false,
     isDraft: params.isDraft || false,

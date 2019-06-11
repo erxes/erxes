@@ -46,7 +46,9 @@ interface IStatsDocument extends IStats, Document {}
 
 export interface IEngageMessage {
   kind?: string;
-  segmentId?: string;
+  segmentIds?: string[];
+  brandIds?: string[];
+  tagIds?: string[];
   customerIds?: string[];
   title?: string;
   fromUserId?: string;
@@ -54,7 +56,6 @@ export interface IEngageMessage {
   isDraft?: boolean;
   isLive?: boolean;
   stopDate?: Date;
-  tagIds?: string[];
   messengerReceivedCustomerIds?: string[];
   email?: IEmail;
   scheduleDate?: IScheduleDate;
@@ -131,8 +132,13 @@ const statsSchema = new Schema(
 export const engageMessageSchema = new Schema({
   _id: field({ pkey: true }),
   kind: field({ type: String }),
-  segmentId: field({
-    type: String,
+  segmentId: field({ type: String, optional: true }), // TODO Remove
+  segmentIds: field({
+    type: [String],
+    optional: true,
+  }),
+  brandIds: field({
+    type: [String],
     optional: true,
   }),
   customerIds: field({ type: [String] }),
@@ -146,7 +152,7 @@ export const engageMessageSchema = new Schema({
   isLive: field({ type: Boolean }),
   stopDate: field({ type: Date }),
   createdDate: field({ type: Date }),
-  tagIds: field({ type: [String] }),
+  tagIds: field({ type: [String], optional: true }),
   messengerReceivedCustomerIds: field({ type: [String] }),
 
   email: field({ type: emailSchema }),
