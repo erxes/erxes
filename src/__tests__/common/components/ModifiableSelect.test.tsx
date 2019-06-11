@@ -12,7 +12,7 @@ describe('Modifiable component', () => {
     onChange: (params: { options: any[]; selectedOption: any }) => null
   };
 
-  test('renders successfully', () => {
+  test('renders shallow successfully', () => {
     shallow(<ModifiableSelect {...defaultProps} />);
   });
 
@@ -23,7 +23,7 @@ describe('Modifiable component', () => {
     expect(props).toMatchObject(defaultProps);
   });
 
-  test('renders test 2 different props', () => {
+  test('renders mount test 2 different props', () => {
     defaultProps.buttonText = 'Add name';
     defaultProps.placeholder = 'Primary name';
 
@@ -33,7 +33,7 @@ describe('Modifiable component', () => {
     expect(defaultProps).toMatchObject(props);
   });
 
-  test('render piggy Modifiliable', () => {
+  test('render expect Modifiliable', () => {
     const rendered = mount(<ModifiableSelect {...defaultProps} />);
     const found = rendered.find('span').debug();
     const piggyFound = found.search('className="Select-placeholder"');

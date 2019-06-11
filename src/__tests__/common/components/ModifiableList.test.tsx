@@ -11,11 +11,11 @@ describe('ModifiableList component', () => {
     onChangeOption: (options?: string[], optionValue?: string) => null
   };
 
-  test('renders ModifiableList successfully', () => {
+  test('renders shallow successfully', () => {
     shallow(<ModifiableList {...defaultProps} />);
   });
 
-  test('renders with default props', () => {
+  test('renders mount with default props', () => {
     const control = mount(<ModifiableList {...defaultProps} />);
     const props = control.props();
 
@@ -31,15 +31,7 @@ describe('ModifiableList component', () => {
 
     expect(defaultProps).toMatchObject(props);
   });
-});
-describe('ModifiableList component', () => {
-  const defaultProps = {
-    options: ['8080', '7070'],
-    addButtonLabel: '12312322',
-    onChangeOption: (options?: string[], optionValue?: string) => null
-  };
-
-  test('render piggy ModifiliableList', () => {
+  test('render mount ModifiliableList', () => {
     const wrapper = mount(<ModifiableList {...defaultProps} />);
     const added = defaultProps.options;
 

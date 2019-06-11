@@ -9,7 +9,6 @@ describe('Label component', () => {
     className: 'default',
     shake: true,
     ignoreTrans: true,
-    // style: true,
     lblStyle: 'default'
   };
 
