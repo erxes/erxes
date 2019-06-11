@@ -111,7 +111,7 @@ const init = async app => {
   // Once the bot has booted up its internal services, you can use them to do stuff.
   controller.ready(() => {
     controller.on('message', async (_bot, message) => {
-      receiveMessage(adapter, message);
+      await receiveMessage(adapter, message);
     });
   });
 };
