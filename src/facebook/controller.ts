@@ -2,9 +2,10 @@ import { FacebookAdapter } from 'botbuilder-adapter-facebook';
 import { Botkit } from 'botkit';
 import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
-import { fetchMainApi, sendRequest } from '../utils';
+import { sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
-import { Conversations, Customers } from './models';
+import { Conversations } from './models';
+import receiveMessage from './receiveMessage';
 import { getPageAccessToken, getPageList, graphRequest } from './utils';
 
 const init = async app => {
@@ -110,89 +111,7 @@ const init = async app => {
   // Once the bot has booted up its internal services, you can use them to do stuff.
   controller.ready(() => {
     controller.on('message', async (_bot, message) => {
-      const integration = await Integrations.findOne({ facebookPageIds: { $in: [message.recipient.id] } });
-
-      if (!integration) {
-        return;
-      }
-
-      // get customer
-      let customer = await Customers.findOne({ userId: message.user });
-
-      // create customer
-      if (!customer) {
-        const api = await adapter.getAPI(message);
-        const response = await api.callAPI(`/${message.user}`, 'GET', {});
-
-        // save on api
-        const apiCustomerResponse = await fetchMainApi({
-          path: '/integrations-api',
-          method: 'POST',
-          body: {
-            action: 'create-customer',
-            payload: JSON.stringify({
-              firstName: response.first_name,
-              lastName: response.last_name,
-              avatar: response.profile_pic,
-            }),
-          },
-        });
-
-        // save on integrations db
-        customer = await Customers.create({
-          userId: message.user,
-          erxesApiId: apiCustomerResponse._id,
-          firstName: response.first_name,
-          lastName: response.last_name,
-          profilePic: response.profile_pic,
-        });
-      }
-
-      // get conversation
-      let conversation = await Conversations.findOne({
-        senderId: message.sender.id,
-        recipientId: message.recipient.id,
-      });
-
-      // create conversation
-      if (!conversation) {
-        // save on api
-        const apiConversationResponse = await fetchMainApi({
-          path: '/integrations-api',
-          method: 'POST',
-          body: {
-            action: 'create-conversation',
-            payload: JSON.stringify({
-              customerId: customer.erxesApiId,
-              integrationId: integration.erxesApiId,
-              content: message.text,
-            }),
-          },
-        });
-
-        // save on integrations db
-        conversation = await Conversations.create({
-          erxesApiId: apiConversationResponse._id,
-          timestamp: message.timestamp,
-          senderId: message.sender.id,
-          recipientId: message.recipient.id,
-          content: message.text,
-        });
-      }
-
-      // save message on api
-      await fetchMainApi({
-        path: '/integrations-api',
-        method: 'POST',
-        body: {
-          action: 'create-conversation-message',
-          payload: JSON.stringify({
-            content: message.text,
-            conversationId: conversation.erxesApiId,
-            customerId: customer.erxesApiId,
-          }),
-        },
-      });
+      receiveMessage(adapter, message);
     });
   });
 };
