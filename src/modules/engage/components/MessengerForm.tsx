@@ -1,16 +1,20 @@
 import { IUser } from 'modules/auth/types';
 import {
   ControlLabel,
+  EditorCK,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
+import {
+  EMAIL_CONTENT,
+  MESSENGER_KINDS,
+  SENT_AS_CHOICES
+} from 'modules/engage/constants';
 import * as React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import { MessengerPreview } from '../containers';
 import { IEngageMessenger, IEngageScheduleDate } from '../types';
-import Editor from './Editor';
 import Scheduler from './Scheduler';
 
 type Props = {
@@ -102,6 +106,10 @@ class MessengerForm extends React.Component<Props, State> {
     );
   }
 
+  onEditorChange = evt => {
+    this.props.onChange('content', evt.editor.getData());
+  };
+
   render() {
     const onChangeFrom = e =>
       this.changeFromUserId((e.target as HTMLInputElement).value);
@@ -115,9 +123,11 @@ class MessengerForm extends React.Component<Props, State> {
         <FlexPad overflow="auto" direction="column">
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
-            <Editor
-              onChange={this.props.onChange}
-              defaultValue={this.props.content}
+
+            <EditorCK
+              content={this.props.content}
+              onChange={this.onEditorChange}
+              insertItems={EMAIL_CONTENT}
             />
           </FormGroup>
 

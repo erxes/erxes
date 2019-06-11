@@ -1,37 +1,18 @@
 import {
   ControlLabel,
+  EditorCK,
   FormControl,
   FormGroup,
   Uploader
 } from 'modules/common/components';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { EMAIL_CONTENT_CLASS } from 'modules/engage/constants';
+import { EMAIL_CONTENT } from 'modules/engage/constants';
+import { EditorContainer } from 'modules/engage/styles';
 import * as React from 'react';
-import * as ReactDom from 'react-dom';
-import styled from 'styled-components';
-import * as xss from 'xss';
 import { IUser } from '../../auth/types';
 import { IEmailTemplate } from '../../settings/emailTemplates/types';
 import { IEngageEmail, IEngageScheduleDate } from '../types';
-import Editor from './Editor';
 import Scheduler from './Scheduler';
-
-const PreviewContainer = styled.div`
-  margin: 20px;
-  height: 100%;
-  p {
-    padding: 20px;
-  }
-`;
-
-const EmailContent = styled.div`
-  padding: 20px 30px;
-
-  p {
-    padding: 0px;
-    margin: 0px;
-  }
-`;
 
 type Props = {
   onChange: (
@@ -75,15 +56,6 @@ class EmailForm extends React.Component<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      this.props.content !== prevProps.content ||
-      this.state.currentTemplate !== prevState.currentTemplate
-    ) {
-      this.renderBuilder();
-    }
-  }
-
   changeContent = (key, value) => {
     const email = { ...this.state.email } as IEngageEmail;
 
@@ -101,8 +73,7 @@ class EmailForm extends React.Component<Props, State> {
 
   templateChange = value => {
     this.changeContent('templateId', value);
-    this.setState({ currentTemplate: this.findTemplate(value) });
-    this.renderBuilder();
+    this.setState({ content: this.findTemplate(value) });
   };
 
   findTemplate = id => {
@@ -114,38 +85,6 @@ class EmailForm extends React.Component<Props, State> {
 
     return '';
   };
-
-  renderBuilder() {
-    const contentContainer = document.getElementsByClassName(
-      EMAIL_CONTENT_CLASS
-    );
-
-    // render editor to content
-    if (contentContainer.length > 0) {
-      ReactDom.render(
-        <EmailContent
-          dangerouslySetInnerHTML={{
-            __html: xss(this.props.content || '')
-          }}
-        />,
-        contentContainer[0]
-      );
-    }
-  }
-
-  renderMessage() {
-    if (!this.state.currentTemplate) {
-      return null;
-    }
-
-    return (
-      <PreviewContainer
-        dangerouslySetInnerHTML={{
-          __html: this.state.currentTemplate
-        }}
-      />
-    );
-  }
 
   renderScheduler() {
     if (this.props.kind === 'manual') {
@@ -159,6 +98,10 @@ class EmailForm extends React.Component<Props, State> {
       />
     );
   }
+
+  onEditorChange = e => {
+    this.props.onChange('content', e.editor.getData());
+  };
 
   render() {
     const { attachments } = this.state.email;
@@ -175,14 +118,6 @@ class EmailForm extends React.Component<Props, State> {
     return (
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
-          <FormGroup>
-            <ControlLabel>Message:</ControlLabel>
-            <Editor
-              onChange={this.props.onChange}
-              defaultValue={this.state.content}
-            />
-          </FormGroup>
-
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
@@ -233,9 +168,15 @@ class EmailForm extends React.Component<Props, State> {
           {this.renderScheduler()}
         </FlexPad>
 
-        <FlexItem v="center" h="center" overflow="auto">
-          {this.renderMessage()}
-        </FlexItem>
+        <EditorContainer>
+          <ControlLabel>Content:</ControlLabel>
+          <EditorCK
+            content={this.state.content}
+            onChange={this.onEditorChange}
+            insertItems={EMAIL_CONTENT}
+            height={500}
+          />
+        </EditorContainer>
       </FlexItem>
     );
   }

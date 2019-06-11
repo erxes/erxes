@@ -232,6 +232,12 @@ const MessageDescription = styled.div`
   padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
 `;
 
+const EditorContainer = styled.div`
+  padding: ${coreSpace};
+  flex: 1;
+  overflow-y: auto;
+`;
+
 export {
   EngageTitle,
   HelperText,
@@ -254,5 +260,6 @@ export {
   SelectMonth,
   LauncherContainer,
   WidgetPreview,
-  MessageDescription
+  MessageDescription,
+  EditorContainer
 };
