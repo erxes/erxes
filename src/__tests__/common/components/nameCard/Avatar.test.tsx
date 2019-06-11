@@ -7,10 +7,4 @@ describe('Avatar component', () => {
   test('renders Avatar successfully', () => {
     shallow(<Avatar />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Avatar />);
-
-    wrapper.props();
-  });
 });

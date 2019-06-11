@@ -7,9 +7,4 @@ describe('DetectBrowser component', () => {
   test('renders DetectBrowser successfully', () => {
     shallow(<DetectBrowser />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<DetectBrowser />);
-    wrapper.props();
-  });
 });

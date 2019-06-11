@@ -8,11 +8,11 @@ describe('ProgressBar component', () => {
     percentage: 50
   };
 
-  test('renders ProgressBar successfully', () => {
+  test('renders shallow successfully', () => {
     shallow(<ProgressBar {...defaultProps} />);
   });
 
-  test('renders ProgressBar successfully with default value', () => {
+  test('renders mount successfully with default value', () => {
     const wrapper = mount(<ProgressBar {...defaultProps} />);
     const props = wrapper.props();
 

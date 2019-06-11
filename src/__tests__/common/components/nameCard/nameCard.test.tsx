@@ -7,9 +7,4 @@ describe('NameCard component', () => {
   test('renders NameCard successfully', () => {
     shallow(<NameCard />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<NameCard />);
-    wrapper.props();
-  });
 });
