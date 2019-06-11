@@ -17,18 +17,31 @@ type Props = {
         description: string;
       };
     },
-    callback: () => void,
+    callback?: () => void,
     brand?: IBrand
   ) => void;
-  closeModal: () => void;
+  closeModal?: () => void;
+  afterSave?: () => void;
+  modal?: boolean;
 };
 
 class BrandForm extends React.Component<Props, {}> {
-  save = e => {
+  save = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { save, brand, closeModal } = this.props;
-    save(this.generateDoc(), () => closeModal(), brand);
+    const { modal = true, save, brand, closeModal, afterSave } = this.props;
+
+    const doc = this.generateDoc();
+
+    if (modal) {
+      return save(doc, () => closeModal && closeModal(), brand);
+    }
+
+    save(doc);
+
+    if (afterSave) {
+      afterSave();
+    }
   };
 
   generateDoc = () => {
@@ -72,24 +85,39 @@ class BrandForm extends React.Component<Props, {}> {
     );
   }
 
+  renderFooter() {
+    const { modal } = this.props;
+
+    const saveButton = (
+      <Button btnStyle="success" icon="checked-1" type="submit">
+        Save
+      </Button>
+    );
+
+    if (!modal) {
+      return saveButton;
+    }
+
+    return (
+      <ModalFooter>
+        <Button
+          btnStyle="simple"
+          type="button"
+          icon="cancel-1"
+          onClick={this.props.closeModal}
+        >
+          Cancel
+        </Button>
+        {saveButton}
+      </ModalFooter>
+    );
+  }
+
   render() {
     return (
       <form onSubmit={this.save}>
         {this.renderContent()}
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            icon="cancel-1"
-            onClick={this.props.closeModal}
-          >
-            Cancel
-          </Button>
-
-          <Button btnStyle="success" icon="checked-1" type="submit">
-            Save
-          </Button>
-        </ModalFooter>
+        {this.renderFooter()}
       </form>
     );
   }
