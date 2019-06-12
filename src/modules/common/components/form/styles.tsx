@@ -280,7 +280,7 @@ const Error = styled.label`
   font-weight: 500;
 `;
 
-const FlexWrapper = styled.div`
+const FlexWrapper = styled.span`
   flex: 1;
 `;
 

@@ -109,7 +109,8 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
       count: this.count,
       counterLoading: counts.loading,
       total: counts[`${contentType}Counts`] || {},
-      edit: this.edit
+      edit: this.edit,
+      refetchQueries: getRefetchQueries(contentType)
     };
 
     return <SegmentsForm {...updatedProps} />;
@@ -122,6 +123,15 @@ const generateRefetchQuery = ({ contentType }) => {
   }
 
   return companyQueries.companyCounts;
+};
+
+const getRefetchQueries = (contentType: string) => {
+  return [
+    {
+      query: gql(generateRefetchQuery({ contentType })),
+      variables: { only: 'bySegment' }
+    }
+  ];
 };
 
 export default withProps<Props>(
@@ -171,14 +181,7 @@ export default withProps<Props>(
       {
         name: 'segmentsAdd',
         options: ({ contentType }) => {
-          return {
-            refetchQueries: [
-              {
-                query: gql(generateRefetchQuery({ contentType })),
-                variables: { only: 'bySegment' }
-              }
-            ]
-          };
+          return { refetchQueries: getRefetchQueries(contentType) };
         }
       }
     ),

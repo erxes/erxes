@@ -5,49 +5,27 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { mutations } from '../graphql';
 import { IBrand } from '../types';
 
 type Props = {
   brand?: IBrand;
   closeModal: () => void;
-  refetchQueries: any;
+  renderButton: (props: any) => JSX.Element;
 };
 
-class BrandForm extends React.Component<Props, { isSubmitted: boolean }> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      isSubmitted: false
-    };
-  }
-
-  onSubmit = () => {
-    this.setState({ isSubmitted: true });
-  };
-
-  getMutation = () => {
-    if (this.props.brand) {
-      return mutations.brandEdit;
-    }
-
-    return mutations.brandAdd;
-  };
-
+class BrandForm extends React.Component<Props> {
   renderContent = (formProps: IFormProps) => {
-    const { brand, closeModal, refetchQueries } = this.props;
+    const { brand, closeModal, renderButton } = this.props;
     const object = brand || ({} as IBrand);
 
-    const finalValues = formProps.values;
+    const { values, isSubmitted } = formProps;
 
     if (brand) {
-      finalValues._id = brand._id;
+      values._id = brand._id;
     }
 
     return (
@@ -85,27 +63,19 @@ class BrandForm extends React.Component<Props, { isSubmitted: boolean }> {
             Cancel
           </Button>
 
-          <ButtonMutate
-            mutation={this.getMutation()}
-            variables={finalValues}
-            callback={closeModal}
-            refetchQueries={refetchQueries}
-            isSubmitted={this.state.isSubmitted}
-            type="submit"
-            icon="checked-1"
-            successMessage={`You successfully ${
-              brand ? 'updated' : 'added'
-            } a brand.`}
-          >
-            {__('Save')}
-          </ButtonMutate>
+          {renderButton({
+            values,
+            isSubmitted,
+            callback: closeModal,
+            object: brand
+          })}
         </ModalFooter>
       </>
     );
   };
 
   render() {
-    return <Form renderContent={this.renderContent} onSubmit={this.onSubmit} />;
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

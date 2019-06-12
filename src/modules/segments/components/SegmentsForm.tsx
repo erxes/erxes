@@ -1,16 +1,20 @@
 import {
   Button,
+  ButtonMutate,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup,
   Icon,
   Spinner
 } from 'modules/common/components';
+import { IFormProps } from 'modules/common/types';
 import { __, generateRandomColorCode } from 'modules/common/utils';
 import { Sidebar, Wrapper } from 'modules/layout/components';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { mutations } from '../graphql';
 import {
   ISegment,
   ISegmentCondition,
@@ -45,6 +49,7 @@ type Props = {
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
   counterLoading: boolean;
+  refetchQueries: any;
   total: {
     byFakeSegment: number;
   };
@@ -57,6 +62,7 @@ type State = {
   color: string;
   conditions: ISegmentCondition[];
   connector: string;
+  isSubmitted?: boolean;
 };
 
 class SegmentsForm extends React.Component<Props, State> {
@@ -145,7 +151,42 @@ class SegmentsForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
-  save = (e: React.FormEvent) => {
+  save = () => {
+    this.setState({ isSubmitted: true });
+  };
+
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    description: string;
+    subOf: string;
+    color: string;
+  }) => {
+    const { segment } = this.props;
+    const finalValues = values;
+
+    if (segment) {
+      finalValues._id = segment._id;
+    }
+
+    return {
+      _id: finalValues._id,
+      name: finalValues.name,
+      description: finalValues.description,
+      subOf: finalValues.subOf,
+      color: finalValues.color
+    };
+  };
+
+  getMutation = () => {
+    if (this.props.segment) {
+      return mutations.segmentsEdit;
+    }
+
+    return mutations.segmentsAdd;
+  };
+
+  a = (e: React.FormEvent) => {
     e.preventDefault();
 
     const { segment, create, edit } = this.props;
@@ -229,17 +270,15 @@ class SegmentsForm extends React.Component<Props, State> {
     );
   }
 
-  renderSubOf() {
-    const onChange = (e: React.FormEvent) =>
-      this.handleChange('subOf', (e.currentTarget as HTMLInputElement).value);
-
+  renderSubOf(formProps: IFormProps, subOf: string) {
     return (
       <FormGroup>
         <ControlLabel>Sub segment of</ControlLabel>
         <FormControl
+          {...formProps}
+          name="subOf"
           componentClass="select"
-          value={this.state.subOf || ''}
-          onChange={onChange}
+          defaultValue={subOf}
         >
           <option value="">[not selected]</option>
           {this.props.headSegments.map(segment => (
@@ -252,61 +291,54 @@ class SegmentsForm extends React.Component<Props, State> {
     );
   }
 
-  renderForm() {
-    const { name, description, color } = this.state;
-
-    const nameOnChange = (e: React.FormEvent) =>
-      this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
-
-    const descOnChange = (e: React.FormEvent) =>
-      this.handleChange(
-        'description',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
-    const colorOnChange = (e: React.FormEvent) =>
-      this.handleChange('color', (e.currentTarget as HTMLInputElement).value);
+  renderForm(formProps: IFormProps) {
+    const { segment } = this.props;
+    const object = segment || ({} as ISegment);
 
     return (
       <FlexContent>
         <FlexItem count={4}>
-          <form onSubmit={this.save}>
-            <FormGroup>
-              <ControlLabel required={true}>Name</ControlLabel>
-              <FormControl
-                required={true}
-                value={name}
-                onChange={nameOnChange}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl value={description} onChange={descOnChange} />
-            </FormGroup>
-            {this.renderSubOf()}
-            <FormGroup>
-              <ControlLabel>Color</ControlLabel>
-              <FormControl
-                type="color"
-                value={color}
-                onChange={colorOnChange}
-              />
-            </FormGroup>
-          </form>
+          <FormGroup>
+            <ControlLabel required={true}>Name</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="name"
+              defaultValue={object.name}
+              required={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Description</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="description"
+              defaultValue={object.description}
+            />
+          </FormGroup>
+          {this.renderSubOf({ ...formProps }, object.subOf)}
+          <FormGroup>
+            <ControlLabel>Color</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="color"
+              type="color"
+              defaultValue={object.color}
+            />
+          </FormGroup>
         </FlexItem>
         <FlexItem count={2} />
       </FlexContent>
     );
   }
 
-  renderContent() {
+  renderContent(formProps: IFormProps) {
     return (
       <SegmentWrapper>
         <SegmentTitle>{__('Filters')}</SegmentTitle>
 
         {this.renderConditions()}
         <hr />
-        {this.renderForm()}
+        {this.renderForm({ ...formProps })}
       </SegmentWrapper>
     );
   }
@@ -333,8 +365,8 @@ class SegmentsForm extends React.Component<Props, State> {
     );
   }
 
-  renderFooter() {
-    const { contentType } = this.props;
+  renderFooter(formProps: IFormProps) {
+    const { contentType, segment, refetchQueries } = this.props;
 
     return (
       <Wrapper.ActionBar
@@ -345,21 +377,26 @@ class SegmentsForm extends React.Component<Props, State> {
                 Cancel
               </Button>
             </Link>
-            <Button
-              size="small"
-              btnStyle="success"
-              onClick={this.save}
+            <ButtonMutate
+              mutation={this.getMutation()}
+              variables={this.generateDoc(formProps.values)}
+              refetchQueries={refetchQueries}
+              isSubmitted={this.state.isSubmitted}
+              type="submit"
               icon="checked-1"
+              successMessage={`You successfully ${
+                segment ? 'updated' : 'added'
+              } a segment.`}
             >
-              Save
-            </Button>
+              {__('Save')}
+            </ButtonMutate>
           </Button.Group>
         }
       />
     );
   }
 
-  render() {
+  renderFormContent = (formProps: IFormProps) => {
     const { contentType, segment } = this.props;
 
     const title = segment ? __('Edit segment') : __('New segment');
@@ -372,11 +409,15 @@ class SegmentsForm extends React.Component<Props, State> {
     return (
       <Wrapper
         header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
-        content={this.renderContent()}
-        footer={this.renderFooter()}
+        content={this.renderContent({ ...formProps })}
+        footer={this.renderFooter({ ...formProps })}
         rightSidebar={this.renderSidebar()}
       />
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderFormContent} onSubmit={this.save} />;
   }
 }
 

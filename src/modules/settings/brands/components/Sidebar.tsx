@@ -18,12 +18,12 @@ type Props = {
   loading: boolean;
   currentBrandId?: string;
   brandsTotalCount: number;
-  refetchQueries: any;
+  renderButton: (props: any) => JSX.Element;
 };
 
 class Sidebar extends React.Component<Props, {}> {
   renderItems = () => {
-    const { brands, remove, currentBrandId, refetchQueries } = this.props;
+    const { brands, remove, currentBrandId, renderButton } = this.props;
 
     return brands.map(brand => (
       <BrandRow
@@ -31,7 +31,7 @@ class Sidebar extends React.Component<Props, {}> {
         isActive={currentBrandId === brand._id}
         brand={brand}
         remove={remove}
-        refetchQueries={refetchQueries}
+        renderButton={renderButton}
       />
     ));
   };
@@ -48,7 +48,7 @@ class Sidebar extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <BrandForm {...props} refetchQueries={this.props.refetchQueries} />
+      <BrandForm {...props} renderButton={this.props.renderButton} />
     );
 
     return (

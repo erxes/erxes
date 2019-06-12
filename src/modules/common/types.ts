@@ -53,6 +53,7 @@ export interface IFormProps {
   values: any;
   registerChild: (child: React.ReactNode) => void;
   runValidations?: (callback: any) => void;
+  isSubmitted: boolean;
 }
 
 export type IOption = {

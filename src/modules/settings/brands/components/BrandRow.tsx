@@ -10,7 +10,7 @@ type Props = {
   brand: IBrand;
   remove: (id: string) => void;
   isActive: boolean;
-  refetchQueries: any;
+  renderButton: (props: any) => JSX.Element;
 };
 
 class BrandRow extends React.Component<Props> {
@@ -20,7 +20,7 @@ class BrandRow extends React.Component<Props> {
   };
 
   renderEditAction = () => {
-    const { brand, refetchQueries } = this.props;
+    const { brand, renderButton } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -31,7 +31,7 @@ class BrandRow extends React.Component<Props> {
     );
 
     const content = props => (
-      <BrandForm {...props} brand={brand} refetchQueries={refetchQueries} />
+      <BrandForm {...props} brand={brand} renderButton={renderButton} />
     );
 
     return (

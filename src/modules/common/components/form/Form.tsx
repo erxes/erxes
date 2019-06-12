@@ -12,6 +12,7 @@ type Props = {
 type State = {
   errors: any;
   values: any;
+  isSubmitted: boolean;
 };
 
 class Form extends React.Component<Props, State> {
@@ -22,7 +23,8 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       errors: {},
-      values: {}
+      values: {},
+      isSubmitted: false
     };
   }
 
@@ -42,9 +44,15 @@ class Form extends React.Component<Props, State> {
     this.setState({ errors, values }, () => {
       const hasErrors = Object.values(errors).some(error => error !== null);
 
-      if (!hasErrors && this.props.onSubmit) {
-        this.props.onSubmit(this.state.values);
+      if (hasErrors) {
+        return;
       }
+
+      this.setState({ isSubmitted: true }, () => {
+        if (this.props.onSubmit) {
+          this.props.onSubmit(this.state.values);
+        }
+      });
     });
   };
 
@@ -115,7 +123,8 @@ class Form extends React.Component<Props, State> {
           errors: this.state.errors,
           values: this.state.values,
           registerChild: this.registerChild,
-          runValidations: this.runValidations
+          runValidations: this.runValidations,
+          isSubmitted: this.state.isSubmitted
         })}
       </form>
     );
