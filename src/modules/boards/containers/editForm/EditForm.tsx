@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import { Spinner } from 'modules/common/components';
 import { Alert, confirm } from 'modules/common/utils';
-import { invalidateCalendarCache } from 'modules/deals/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
@@ -15,7 +14,7 @@ import {
   RemoveMutation,
   SaveMutation
 } from '../../types';
-import { withProps } from '../../utils';
+import { invalidateCache, withProps } from '../../utils';
 
 type Props = {
   options: IOptions;
@@ -77,7 +76,7 @@ class EditFormContainer extends React.Component<FinalProps> {
         callback();
 
         if (onUpdate) {
-          invalidateCalendarCache();
+          invalidateCache();
 
           onUpdate(data[options.mutationsName.editMutation], stageId);
         }
@@ -98,7 +97,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           Alert.success(options.texts.deleteSuccessText);
 
           if (onRemove) {
-            invalidateCalendarCache();
+            invalidateCache();
 
             onRemove(itemId, stageId);
           }

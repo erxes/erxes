@@ -34,7 +34,3 @@ export function selectUserOptions(array: IUser[] = []) {
     };
   });
 }
-
-export const invalidateCalendarCache = () => {
-  localStorage.setItem('dealCalendarCacheInvalidated', 'true');
-};

@@ -2,13 +2,13 @@ import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { invalidateCalendarCache } from '../../../deals/utils';
 import {
   AddContainer,
   FormFooter,
   HeaderContent,
   HeaderRow
 } from '../../styles/item';
+import { invalidateCache } from '../../utils';
 
 type Props = {
   add: (name: string, callback: () => void) => void;
@@ -53,7 +53,7 @@ class AddForm extends React.Component<Props, State> {
 
       closeModal();
 
-      invalidateCalendarCache();
+      invalidateCache();
     });
   };
 

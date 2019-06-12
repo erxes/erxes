@@ -135,3 +135,7 @@ export const renderDate = (date, format = 'YYYY-MM-DD') => {
     </Tip>
   );
 };
+
+export const invalidateCache = () => {
+  localStorage.setItem('cacheInvalidated', 'true');
+};
