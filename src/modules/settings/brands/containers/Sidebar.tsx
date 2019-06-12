@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
-import { ButtonMutate } from '../../../common/components';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
 import {
@@ -54,7 +55,13 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
     });
   };
 
-  const renderButton = ({ values, isSubmitted, callback, object }) => {
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
     return (
       <ButtonMutate
         mutation={object ? mutations.brandEdit : mutations.brandAdd}
@@ -64,7 +71,9 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
         isSubmitted={isSubmitted}
         type="submit"
         icon="send"
-        successMessage={`You successfully ${object ? 'updated' : 'added'}`}
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
       >
         {__('Save')}
       </ButtonMutate>

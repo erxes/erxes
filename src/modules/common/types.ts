@@ -61,3 +61,11 @@ export type IOption = {
   value: string;
   avatar?: string;
 };
+
+export type IButtonMutateProps = {
+  name: string;
+  values: any;
+  isSubmitted: boolean;
+  callback: () => void;
+  object: any;
+};

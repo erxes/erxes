@@ -10,7 +10,7 @@ type Props = {
 const Form = ({ save, afterSave }: Props) => {
   return (
     <StepFormWrapper>
-      <BrandForm save={save} afterSave={afterSave} modal={false} />
+      <BrandForm afterSave={afterSave} modal={false} />
     </StepFormWrapper>
   );
 };

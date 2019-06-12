@@ -13,9 +13,9 @@ const Form = ({ save, afterSave }: Props) => {
     <StepFormWrapper>
       <TagForm
         type="customer"
-        save={save}
-        afterSave={afterSave}
-        modal={false}
+        // save={save}
+        // afterSave={afterSave}
+        // modal={false}
       />
     </StepFormWrapper>
   );

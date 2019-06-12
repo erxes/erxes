@@ -13,20 +13,52 @@ import { IBrand } from '../types';
 
 type Props = {
   brand?: IBrand;
-  closeModal: () => void;
-  renderButton: (props: any) => JSX.Element;
+  closeModal?: () => void;
+  renderButton?: (props: any) => JSX.Element;
+  afterSave?: () => void;
+  modal?: boolean;
 };
 
 class BrandForm extends React.Component<Props> {
-  renderContent = (formProps: IFormProps) => {
-    const { brand, closeModal, renderButton } = this.props;
-    const object = brand || ({} as IBrand);
-
+  renderFooter(formProps: IFormProps) {
+    const { brand, modal, closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
     if (brand) {
       values._id = brand._id;
     }
+
+    const saveButton =
+      renderButton &&
+      renderButton({
+        name: 'brand',
+        values,
+        isSubmitted,
+        callback: closeModal,
+        object: brand
+      });
+
+    // if (!modal) {
+    //   return saveButton;
+    // }
+
+    return (
+      <ModalFooter>
+        <Button
+          btnStyle="simple"
+          type="button"
+          icon="cancel-1"
+          onClick={closeModal}
+        >
+          Cancel
+        </Button>
+        {saveButton}
+      </ModalFooter>
+    );
+  }
+
+  renderContent = (formProps: IFormProps) => {
+    const object = this.props.brand || ({} as IBrand);
 
     return (
       <>
@@ -53,23 +85,7 @@ class BrandForm extends React.Component<Props> {
           />
         </FormGroup>
 
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            icon="cancel-1"
-            onClick={closeModal}
-          >
-            Cancel
-          </Button>
-
-          {renderButton({
-            values,
-            isSubmitted,
-            callback: closeModal,
-            object: brand
-          })}
-        </ModalFooter>
+        {this.renderFooter({ ...formProps })}
       </>
     );
   };

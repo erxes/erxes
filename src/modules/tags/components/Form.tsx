@@ -16,8 +16,8 @@ import { mutations } from '../graphql';
 type Props = {
   tag?: ITag;
   type: string;
-  refetchQueries: any;
-  closeModal: () => void;
+  refetchQueries?: any;
+  closeModal?: () => void;
 };
 
 type State = {
