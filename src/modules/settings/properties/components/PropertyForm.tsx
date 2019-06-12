@@ -193,9 +193,7 @@ class PropertyForm extends React.Component<Props, State> {
               {...formProps}
               name="groupId"
               componentClass="select"
-              defaultValue={
-                field.groupId || groups.length > 0 ? groups[0]._id : ''
-              }
+              defaultValue={field.groupId || ''}
               required={true}
             >
               {groups.map(group => {
