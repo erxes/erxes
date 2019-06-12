@@ -13,7 +13,6 @@ export interface IScheduleDate {
 interface IScheduleDateDocument extends IScheduleDate, Document {}
 
 export interface IEmail {
-  templateId?: string;
   attachments?: any;
   subject?: string;
   content?: string;
@@ -87,10 +86,6 @@ const scheduleDateSchema = new Schema(
 
 const emailSchema = new Schema(
   {
-    templateId: field({
-      type: String,
-      optional: true,
-    }),
     attachments: field({ type: Object }),
     subject: field({ type: String }),
     content: field({ type: String }),
