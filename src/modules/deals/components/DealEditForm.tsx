@@ -111,11 +111,18 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   checkProductsData = () => {
+    //tslint:disable
+    console.log(
+      'this.state.productsData.length: ',
+      this.state.productsData.length
+    );
     if (this.state.productsData.length === 0) {
-      return Alert.error('Select product & service');
+      Alert.error('Select product & service');
+
+      return false;
     }
 
-    return false;
+    return true;
   };
 
   render() {
