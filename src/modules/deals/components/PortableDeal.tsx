@@ -2,8 +2,9 @@ import { Details, UserCounter } from 'modules/boards/components/portable';
 import { EditForm } from 'modules/boards/containers/editForm';
 import { ItemContainer } from 'modules/boards/styles/common';
 import { Content } from 'modules/boards/styles/stage';
-import { renderAmount } from 'modules/boards/utils';
+import { IOptions } from 'modules/boards/types';
 import { renderDate } from 'modules/boards/utils';
+import { renderAmount } from 'modules/boards/utils';
 import { ModalTrigger } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
@@ -19,6 +20,7 @@ import { IDeal } from '../types';
 
 type Props = {
   item: IDeal;
+  options: IOptions;
   onAdd?: (stageId: string, item: IDeal) => void;
   onRemove?: (dealId: string, stageId: string) => void;
   onUpdate?: (item: IDeal) => void;
@@ -26,12 +28,12 @@ type Props = {
 
 class Deal extends React.Component<Props, { isFormVisible: boolean }> {
   renderFormTrigger = (trigger: React.ReactNode) => {
-    const { item, onAdd, onRemove, onUpdate } = this.props;
+    const { item, onAdd, onRemove, onUpdate, options } = this.props;
 
     const content = props => (
       <EditForm
         {...props}
-        type="deal"
+        options={options}
         stageId={item.stageId}
         itemId={item._id}
         onAdd={onAdd}

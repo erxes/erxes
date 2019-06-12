@@ -5,6 +5,7 @@ import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
+import options from '../../options';
 import { IDeal, IDealTotalAmount } from '../../types';
 import Deal from '../PortableDeal';
 
@@ -81,7 +82,13 @@ class DealColumn extends React.Component<Props, {}> {
     }
 
     const contents = deals.map((deal: IDeal, index: number) => (
-      <Deal key={index} item={deal} onRemove={onRemove} onUpdate={onUpdate} />
+      <Deal
+        options={options}
+        key={index}
+        item={deal}
+        onRemove={onRemove}
+        onUpdate={onUpdate}
+      />
     ));
 
     return <ContentBody>{contents}</ContentBody>;

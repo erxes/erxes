@@ -28,6 +28,7 @@ class PortableItems extends React.Component<Props> {
 
     return items.map((item, index) => (
       <PortableItem
+        options={options}
         key={index}
         item={item}
         onAdd={onChangeItems}
