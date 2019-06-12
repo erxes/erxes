@@ -14,6 +14,15 @@ export interface ISegmentCondition extends ISegmentConditionDoc {
   _id: string;
 }
 
+export interface ISegmentWithConditionDoc {
+  name: string;
+  description: string;
+  subOf: string;
+  color: string;
+  connector: string;
+  conditions: ISegmentConditionDoc[];
+}
+
 export interface ISegmentDoc {
   name: string;
   contentType?: string;

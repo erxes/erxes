@@ -61,7 +61,7 @@ class ChannelStep extends React.Component<Props> {
         {this.renderBox(
           METHODS.EMAIL,
           'email-1',
-          'Delivered to a user s email inbox Customize with your own templates'
+          `Delivered to a user's email inbox Customize with your own templates`
         )}
         {this.renderBox(
           METHODS.MESSENGER,
