@@ -60,9 +60,6 @@ class EditFormContainer extends React.Component<FinalProps> {
 
         if (onAdd) {
           onAdd(stageId, data[options.mutationsName.addMutation]);
-
-          console.log('data: ', data); //tslint:disable-line
-          console.log('add: ', data[options.mutationsName.addMutation]); //tslint:disable-line
         }
       })
       .catch(error => {
