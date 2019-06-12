@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WithPermission component snapshot matches 1`] = `
+<div
+  className="sc-cSHVUG iARDhv"
+>
+  <section
+    className="sc-kAzzGY eWxWDz"
+  >
+    <div
+      className="sc-chPdSV kDipgy"
+    >
+      content
+    </div>
+  </section>
+</div>
+`;

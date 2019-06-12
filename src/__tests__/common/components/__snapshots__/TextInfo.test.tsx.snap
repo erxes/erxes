@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TextInfo component snapshot matches 1`] = `
+<span
+  className="sc-iwsKbI czlMeQ"
+>
+  child
+</span>
+`;

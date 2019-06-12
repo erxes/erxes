@@ -1,5 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 import DealAddForm from '../../../modules/deals/components/DealAddForm';
 
 describe('DealAddForm component', () => {
@@ -17,5 +18,13 @@ describe('DealAddForm component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer
+      .create(<DealAddForm {...defaultProps} />)
+      .toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

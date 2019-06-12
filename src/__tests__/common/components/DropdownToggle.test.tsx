@@ -1,6 +1,7 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 
+import * as renderer from 'react-test-renderer';
 import DropdownToggle from '../../../modules/common/components/DropdownToggle';
 
 describe('DropdownToggle component', () => {
@@ -11,6 +12,14 @@ describe('DropdownToggle component', () => {
 
   test('renders DropdownToggle successfully', () => {
     shallow(<DropdownToggle {...defaultProps} />);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer
+      .create(<DropdownToggle {...defaultProps} />)
+      .toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 
   test('renders successfully with default value', () => {

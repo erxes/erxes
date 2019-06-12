@@ -1,5 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 import Row from '../../modules/tags/components/Row';
 
@@ -39,5 +40,11 @@ describe('Row component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<Row {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

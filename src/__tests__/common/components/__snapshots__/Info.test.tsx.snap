@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Info component snapshot matches 1`] = `
+<div
+  className="sc-bdVaJa bvDBpf"
+>
+  child
+</div>
+`;

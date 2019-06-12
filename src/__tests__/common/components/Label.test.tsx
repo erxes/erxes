@@ -1,5 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 import Label from '../../../modules/common/components/Label';
 
@@ -21,5 +22,10 @@ describe('Label component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<Label {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

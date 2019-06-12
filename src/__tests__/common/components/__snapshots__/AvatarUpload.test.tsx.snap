@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AvatarUpload component snapshot matches 1`] = `
+<div
+  className="sc-ebFjAB esuOvR"
+>
+  <label
+    className="sc-jtggT dHnzem"
+  >
+    Photo
+  </label>
+  <div
+    className="sc-keFjpB ifCfXQ"
+  >
+    <img
+      alt="avatar"
+      src="undefined/read-file?key=email"
+      style={Object {}}
+    />
+    <label>
+      <i
+        className="icon-upload-1 sc-bwzfXH gZegco"
+        icon="upload-1"
+        size={30}
+      />
+      <input
+        onChange={[Function]}
+        type="file"
+      />
+    </label>
+  </div>
+</div>
+`;

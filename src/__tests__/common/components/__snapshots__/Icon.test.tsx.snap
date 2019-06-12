@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Icon component snapshot matches 1`] = `
+<i
+  className="icon-upload-1 sc-bdVaJa dydvBK"
+  icon="upload-1"
+  size={30}
+/>
+`;

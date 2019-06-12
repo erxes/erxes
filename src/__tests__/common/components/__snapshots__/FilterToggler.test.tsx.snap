@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FilterToggler component snapshot matches 1`] = `
+<div
+  className="sc-bNQFlB jSwnvB"
+  onClick={[Function]}
+>
+  Channels
+  <i
+    className="icon-downarrow sc-bwzfXH hpxbGw"
+    icon="downarrow"
+  />
+</div>
+`;

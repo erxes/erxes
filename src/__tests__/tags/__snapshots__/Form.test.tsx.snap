@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Form component snapshot matches 1`] = `
+<form
+  onSubmit={[Function]}
+>
+  <div
+    className="sc-jKVCRD eDSGVr"
+  >
+    <label
+      className="sc-ebFjAB bHuvQk"
+    >
+      Name
+    </label>
+    <input
+      className="sc-kaNhvL bKDVoH"
+      disabled={false}
+      id="name"
+      onChange={[Function]}
+      required={true}
+      type="text"
+      value=""
+    />
+  </div>
+  <div
+    className="sc-jKVCRD eDSGVr"
+  >
+    <label
+      className="sc-ebFjAB bHuvQk"
+    >
+      Color code
+    </label>
+    <input
+      className="sc-kaNhvL bKDVoH"
+      disabled={false}
+      id="colorCode"
+      onChange={[Function]}
+      required={false}
+      type="color"
+      value="#b3b850"
+    />
+  </div>
+  <div
+    className="sc-jAaTju fBrEKz"
+  >
+    <button
+      className="sc-ifAKCX iSmYrG"
+      icon="cancel-1"
+      onClick={[Function]}
+      type="button"
+    >
+      <i
+        className="icon-cancel-1 sc-bwzfXH hpxbGw"
+        icon="cancel-1"
+      />
+      <span>
+        Cancel
+      </span>
+    </button>
+    <button
+      className="sc-ifAKCX cQdFDO"
+      icon="checked-1"
+      type="submit"
+    >
+      <i
+        className="icon-checked-1 sc-bwzfXH hpxbGw"
+        icon="checked-1"
+      />
+      <span>
+        Save
+      </span>
+    </button>
+  </div>
+</form>
+`;

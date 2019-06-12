@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AddConditionButton component snapshot matches 1`] = `
+<button
+  className="sc-ifAKCX cQdFDO"
+  icon="add"
+  onClick={[Function]}
+  type="button"
+>
+  <i
+    className="icon-add sc-bwzfXH hpxbGw"
+    icon="add"
+  />
+  <span>
+    Add a condition
+  </span>
+</button>
+`;

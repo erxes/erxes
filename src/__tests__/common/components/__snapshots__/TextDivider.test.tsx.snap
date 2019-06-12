@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TextDivider component snapshot matches 1`] = `
+<div
+  className="sc-keFjpB kXdFqZ"
+>
+  <span>
+    today
+    <footer
+      onBlur={[Function]}
+      onClick={null}
+      onFocus={[Function]}
+      onMouseOut={[Function]}
+      onMouseOver={[Function]}
+    >
+      6:58 PM
+    </footer>
+  </span>
+</div>
+`;

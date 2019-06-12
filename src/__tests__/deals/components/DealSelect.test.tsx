@@ -1,5 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 import DealSelect from '../../../modules/deals/components/DealSelect';
 import { IBoard, IPipeline, IStage } from '../../../modules/deals/types';
 
@@ -55,5 +56,11 @@ describe('DealSelect component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<DealSelect {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

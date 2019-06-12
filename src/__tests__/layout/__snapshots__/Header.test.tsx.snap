@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Header component snapshot matches 1`] = `
+<div
+  className="sc-keFjpB ibRdUp"
+/>
+`;

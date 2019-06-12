@@ -1,5 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 import BrandAdd from '../../modules/onboard/components/BrandAdd';
 
@@ -19,5 +20,11 @@ describe('BrandAdd component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<BrandAdd {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

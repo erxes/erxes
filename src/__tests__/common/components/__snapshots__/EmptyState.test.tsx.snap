@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmptyState component snapshot matches 1`] = `
+<div
+  className="sc-iwsKbI bkqynw"
+>
+  <img
+    alt="null"
+  />
+  <span>
+    null
+  </span>
+</div>
+`;
