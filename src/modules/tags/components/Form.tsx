@@ -1,103 +1,119 @@
 import {
   Button,
+  ButtonMutate,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { generateRandomColorCode } from 'modules/common/utils';
-import { ITag, ITagSaveParams } from 'modules/tags/types';
+import { IFormProps } from 'modules/common/types';
+import { __, generateRandomColorCode } from 'modules/common/utils';
+import { ITag } from 'modules/tags/types';
 import * as React from 'react';
+import { mutations } from '../graphql';
 
 type Props = {
   tag?: ITag;
   type: string;
+  refetchQueries: any;
   closeModal: () => void;
-  save: (params: ITagSaveParams) => void;
 };
 
 type State = {
-  name: string;
-  colorCode: string;
+  isSubmitted: boolean;
 };
 
-class Form extends React.Component<Props, State> {
-  constructor(props, context) {
-    super(props, context);
-
-    const { tag } = props;
+class FormComponent extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
 
     this.state = {
-      name: tag ? tag.name : '',
-      colorCode: tag ? tag.colorCode : generateRandomColorCode()
+      isSubmitted: false
     };
   }
 
-  submit = e => {
-    e.preventDefault();
-
-    const { tag, type, save, closeModal } = this.props;
-    const { name, colorCode } = this.state;
-
-    save({
-      tag,
-      doc: { name, type, colorCode },
-      callback: () => {
-        closeModal();
-      }
-    });
+  submit = () => {
+    this.setState({ isSubmitted: true });
   };
 
-  handleName = e => {
-    this.setState({ name: e.target.value });
+  generateDoc = (values: { _id?: string; name: string; colorCode: string }) => {
+    const { tag, type } = this.props;
+    const finalValues = values;
+
+    if (tag) {
+      finalValues._id = tag._id;
+    }
+
+    return {
+      _id: finalValues._id,
+      name: finalValues.name,
+      colorCode: finalValues.colorCode,
+      type
+    };
   };
 
-  handleColorCode = e => {
-    this.setState({ colorCode: e.target.value });
+  getMutation = () => {
+    if (this.props.tag) {
+      return mutations.edit;
+    }
+
+    return mutations.add;
   };
 
-  render() {
-    const { name, colorCode } = this.state;
+  renderContent = (formProps: IFormProps) => {
+    const { tag, refetchQueries, closeModal } = this.props;
+    const object = tag || ({} as ITag);
 
     return (
-      <form onSubmit={this.submit}>
+      <>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
-            type="text"
-            value={name}
-            onChange={this.handleName}
+            {...formProps}
+            name="name"
+            defaultValue={object.name}
             required={true}
-            id="name"
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Color code</ControlLabel>
           <FormControl
+            {...formProps}
             type="color"
-            value={colorCode}
-            onChange={this.handleColorCode}
-            id="colorCode"
+            name="colorCode"
+            defaultValue={object.colorCode || generateRandomColorCode()}
           />
         </FormGroup>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={this.props.closeModal}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          <ButtonMutate
+            mutation={this.getMutation()}
+            variables={this.generateDoc(formProps.values)}
+            callback={closeModal}
+            refetchQueries={refetchQueries}
+            isSubmitted={this.state.isSubmitted}
+            type="submit"
+            icon="checked-1"
+            successMessage={`You successfully ${
+              tag ? 'updated' : 'added'
+            } a tag.`}
+          >
+            {__('Save')}
+          </ButtonMutate>
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} onSubmit={this.submit} />;
   }
 }
 
-export default Form;
+export default FormComponent;
