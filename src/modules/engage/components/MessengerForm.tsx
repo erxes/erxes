@@ -106,8 +106,8 @@ class MessengerForm extends React.Component<Props, State> {
     );
   }
 
-  onEditorChange = evt => {
-    this.props.onChange('content', evt.editor.getData());
+  onEditorChange = e => {
+    this.props.onChange('content', e.editor.getData());
   };
 
   render() {

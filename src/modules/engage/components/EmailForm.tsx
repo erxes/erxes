@@ -6,6 +6,7 @@ import {
   Uploader
 } from 'modules/common/components';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
+import { __ } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { EditorContainer } from 'modules/engage/styles';
 import * as React from 'react';
@@ -31,7 +32,6 @@ type Props = {
 
 type State = {
   fromUserId: string;
-  currentTemplate: string;
   content: string;
   email: IEngageEmail;
   scheduleDate?: IEngageScheduleDate;
@@ -43,7 +43,6 @@ class EmailForm extends React.Component<Props, State> {
 
     this.state = {
       fromUserId: props.fromUserId,
-      currentTemplate: '',
       content: props.content,
       email: props.email,
       scheduleDate: props.scheduleDate
@@ -72,7 +71,6 @@ class EmailForm extends React.Component<Props, State> {
   };
 
   templateChange = value => {
-    this.changeContent('templateId', value);
     this.setState({ content: this.findTemplate(value) });
   };
 
@@ -144,6 +142,7 @@ class EmailForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Email template:</ControlLabel>
+            <p>{__('Insert email template to content')}</p>
             <FormControl
               componentClass="select"
               onChange={onChangeTemplate}

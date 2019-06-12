@@ -85,7 +85,6 @@ function withSaveAndEdit<IComponentProps>(Component) {
     };
 
     const email = message.email || {
-      templateId: '',
       subject: '',
       attachments: []
     };
@@ -112,7 +111,6 @@ function withSaveAndEdit<IComponentProps>(Component) {
           rules: messenger.rules
         },
         email: {
-          templateId: email.templateId,
           subject: email.subject,
           attachments: email.attachments
         },
