@@ -10,11 +10,11 @@ import {
   SaveItemMutation
 } from 'modules/boards/types';
 import { __, Alert, withProps } from 'modules/common/utils';
-import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../components/stage';
 import { queries } from '../graphql';
+import { IFilterParams } from '../types';
 
 type WrapperProps = {
   stage: IStage;
@@ -22,7 +22,7 @@ type WrapperProps = {
   loadingState: 'readyToLoad' | 'loaded';
   items: IItem[];
   length: number;
-  queryParams: IQueryParams;
+  queryParams: IFilterParams;
   options: IOptions;
 };
 
@@ -122,7 +122,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   }
 }
 
-const getFilterParams = queryParams => {
+const getFilterParams = (queryParams: IFilterParams) => {
   if (!queryParams) {
     return {};
   }

@@ -1,19 +1,25 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
 import { mutations, queries } from '../graphql';
-import { IDragResult, IItem, IItemMap, IOptions, IPipeline } from '../types';
+import {
+  IDragResult,
+  IFilterParams,
+  IItem,
+  IItemMap,
+  IOptions,
+  IPipeline
+} from '../types';
 import { collectOrders, reorder, reorderItemMap } from '../utils';
 
 type Props = {
   pipeline: IPipeline;
   initialItemMap?: IItemMap;
   options: IOptions;
-  queryParams: IQueryParams;
-  getQueryParams: (queryParams: IQueryParams, args: any) => boolean;
+  queryParams: IFilterParams;
+  getQueryParams: (queryParams: IFilterParams, args: any) => boolean;
 };
 
 type StageLoadMap = {

@@ -159,3 +159,16 @@ export type ItemsQueryResponse = {
 export type DetailQueryResponse = {
   loading: boolean;
 };
+
+export interface IFilterParams {
+  search?: string;
+  customerIds?: string;
+  companyIds?: string;
+  assignedUserIds?: string;
+  nextDay?: string;
+  nextWeek?: string;
+  nextMonth?: string;
+  noCloseDate?: string;
+  overdue?: string;
+  productIds?: string;
+}
