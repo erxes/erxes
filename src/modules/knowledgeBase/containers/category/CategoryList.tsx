@@ -99,17 +99,30 @@ export default compose(
     {
       name: 'removeCategoriesMutation',
       options: ({ currentCategoryId }) => {
+        const refetchQueries: any[] = [
+          {
+            query: gql(queries.knowledgeBaseCategories)
+          },
+          {
+            query: gql(queries.knowledgeBaseTopics)
+          }
+        ];
+
+        if (currentCategoryId) {
+          refetchQueries.push({
+            query: gql(queries.knowledgeBaseArticlesTotalCount),
+            variables: { categoryIds: [currentCategoryId] }
+          });
+
+          refetchQueries.push({
+            query: gql(queries.knowledgeBaseCategoryDetail),
+            variables: { _id: currentCategoryId },
+            skip: () => !currentCategoryId
+          });
+        }
+
         return {
-          refetchQueries: [
-            {
-              query: gql(queries.knowledgeBaseArticlesTotalCount),
-              variables: { categoryIds: [currentCategoryId] }
-            },
-            {
-              query: gql(queries.knowledgeBaseCategoryDetail),
-              variables: { _id: currentCategoryId }
-            }
-          ]
+          refetchQueries
         };
       }
     }
