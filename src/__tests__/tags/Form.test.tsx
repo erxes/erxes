@@ -7,7 +7,6 @@ import Form from '../../modules/tags/components/Form';
 describe('Form component', () => {
   const defaultProps = {
     type: 'typ',
-    closeModal: () => null,
     save: (params: {
       doc: {
         _id?: string;
@@ -15,7 +14,6 @@ describe('Form component', () => {
         type: string;
         colorCode: string;
       };
-      callback: () => void;
     }) => null
   };
 

@@ -1,0 +1,125 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FullPreviewStep component snapshot matches 1`] = `
+<div
+  className="sc-fAJaQT gLizFN"
+>
+  <div
+    className="sc-cNnxps dRaasY"
+  >
+    <div
+      className="sc-jlyJG flDIep"
+    >
+      <span
+        className="active sc-gipzik gocVWe"
+        onClick={[Function]}
+      >
+        <i
+          className="icon-laptop sc-bwzfXH hpxbGw"
+          icon="laptop"
+        />
+         
+        Desktop
+      </span>
+      <span
+        className="sc-gipzik gocVWe"
+        onClick={[Function]}
+      >
+        <i
+          className="icon-paste sc-bwzfXH hpxbGw"
+          icon="paste"
+        />
+         
+        Tablet
+      </span>
+      <span
+        className="sc-gipzik gocVWe"
+        onClick={[Function]}
+      >
+        <i
+          className="icon-devices sc-bwzfXH hpxbGw"
+          icon="devices"
+        />
+         
+        Mobile
+      </span>
+    </div>
+    <div
+      className="sc-dPNhBE eOpeLY"
+    >
+      <div
+        className="sc-aewfc dsStAJ"
+      >
+        <div
+          className="sc-isBZXS htStnM"
+        >
+          <div
+            className="sc-OxbzP jocSpk"
+            style={
+              Object {
+                "backgroundColor": "default",
+              }
+            }
+          >
+            <div />
+          </div>
+          <div
+            className="sc-lnrBVv jitmGX"
+          >
+            <div
+              className="sc-fvLVrH kjchyg"
+            >
+              <div
+                className="sc-dBAPYN igvoAR"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul
+      className="sc-bJTOcE foaIyr"
+    >
+      <div
+        className="sc-geAPOV hJwMxA"
+        selected={false}
+      >
+        <li>
+          <span
+            onClick={[Function]}
+          />
+        </li>
+        <span>
+          CallOut
+        </span>
+      </div>
+      <div
+        className="sc-geAPOV hJwMxA"
+        selected={false}
+      >
+        <li>
+          <span
+            onClick={[Function]}
+          />
+        </li>
+        <span>
+          Form
+        </span>
+      </div>
+      <div
+        className="sc-geAPOV hJwMxA"
+        selected={false}
+      >
+        <li>
+          <span
+            onClick={[Function]}
+          />
+        </li>
+        <span>
+          Success
+        </span>
+      </div>
+    </ul>
+  </div>
+</div>
+`;

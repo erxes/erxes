@@ -2,20 +2,19 @@ import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 
-import TextDivider from '../../../modules/common/components/TextDivider';
+import HeadlinesButton from '../../../../modules/common/components/editor/HeadlinesButton';
 
-describe('TextDivider component', () => {
+describe('HeadlinesButton component', () => {
   const defaultProps = {
-    text: 'today',
-    date: new Date()
+    onOverrideContent: e => null
   };
 
-  test('renders TextDivider successfully', () => {
-    shallow(<TextDivider {...defaultProps} />);
+  test('renders HeadlinesButton successfully', () => {
+    shallow(<HeadlinesButton {...defaultProps} />);
   });
 
   test('renders successfully with default value', () => {
-    const wrapper = mount(<TextDivider {...defaultProps} />);
+    const wrapper = mount(<HeadlinesButton {...defaultProps} />);
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
@@ -23,7 +22,7 @@ describe('TextDivider component', () => {
 
   test('snapshot matches', () => {
     const rendered = renderer
-      .create(<TextDivider {...defaultProps} />)
+      .create(<HeadlinesButton {...defaultProps} />)
       .toJSON();
 
     expect(rendered).toMatchSnapshot();

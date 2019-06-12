@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Step component snapshot matches 1`] = `
+<div
+  className="sc-elNKlv cXNnps"
+>
+  <div
+    className="sc-hUMlYv gKRuHB"
+  >
+    <div
+      className="sc-ESoVU bGlnRn"
+    >
+      <div
+        className="sc-kkbgRg bObUvT"
+      >
+        <div
+          className="sc-hRmvpr gdtmAR"
+        >
+          <img
+            alt="step-icon"
+          />
+        </div>
+        <h5
+          className="sc-cZBZkQ bpuhcF"
+        >
+          
+        </h5>
+      </div>
+    </div>
+    <div
+      className="sc-ecaExY frzVdF"
+    />
+  </div>
+  <div
+    className="sc-gbzWSY jqsjmA"
+    onClick={[Function]}
+  >
+    <div
+      className="sc-hRmvpr gdtmAR"
+    >
+      <img
+        alt="step-icon"
+      />
+    </div>
+  </div>
+</div>
+`;

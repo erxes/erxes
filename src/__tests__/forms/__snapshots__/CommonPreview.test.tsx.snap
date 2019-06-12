@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CommonPreview component snapshot matches 1`] = `
+<div
+  className="sc-aewfc dsStAJ"
+>
+  <div
+    className="sc-isBZXS htStnM"
+  >
+    <div
+      className="sc-OxbzP jocSpk"
+      style={
+        Object {
+          "backgroundColor": undefined,
+        }
+      }
+    >
+      <div>
+        string
+      </div>
+    </div>
+    <div
+      className="sc-lnrBVv jitmGX"
+    >
+      <div
+        className="sc-fvLVrH kjchyg"
+      />
+    </div>
+  </div>
+</div>
+`;

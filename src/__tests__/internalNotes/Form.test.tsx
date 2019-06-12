@@ -20,9 +20,9 @@ describe('Form component', () => {
     expect(props).toMatchObject(defaultProps);
   });
 
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<Form {...defaultProps} />).toJSON();
+  // test("snapshot matches", () => {
+  //   const rendered = renderer.create(<Form {...defaultProps} />).toJSON();
 
-    expect(rendered).toMatchSnapshot();
-  });
+  //   expect(rendered).toMatchSnapshot();
+  // });
 });

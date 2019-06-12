@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Filter component snapshot matches 1`] = `
+<input
+  autoFocus={true}
+  className="sc-kaNhvL bKDVoH"
+  disabled={false}
+  onChange={[Function]}
+  placeholder="Search"
+  required={false}
+  type="text"
+/>
+`;

@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Items component snapshot matches 1`] = `
+Array [
+  <div>
+    <span
+      className="sc-kjoXOD cxmnoN"
+      color="green"
+    />
+    qwe
+  </div>,
+  <div>
+    <span
+      className="sc-kjoXOD cxmnoN"
+      color="green"
+    />
+    qe
+  </div>,
+]
+`;
