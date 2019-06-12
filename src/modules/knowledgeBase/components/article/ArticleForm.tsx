@@ -1,15 +1,10 @@
-import { EditorState } from 'draft-js';
 import {
   Button,
   ControlLabel,
+  EditorCK,
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import {
-  createStateFromHTML,
-  ErxesEditor,
-  toHTML
-} from 'modules/common/components/editor/Editor';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
@@ -40,7 +35,7 @@ type Props = {
 
 type State = {
   status: string;
-  editorState: EditorState;
+  content: string;
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -51,10 +46,7 @@ class ArticleForm extends React.Component<Props, State> {
 
     this.state = {
       status: this.getCurrentStatus(),
-      editorState: createStateFromHTML(
-        EditorState.createEmpty(),
-        article.content || ''
-      )
+      content: article.content
     };
   }
 
@@ -86,7 +78,7 @@ class ArticleForm extends React.Component<Props, State> {
           summary: (document.getElementById(
             'knowledgebase-article-summary'
           ) as HTMLInputElement).value,
-          content: this.getContent(this.state.editorState),
+          content: this.state.content,
           status: this.state.status,
           categoryIds: [this.props.currentCategoryId]
         }
@@ -94,21 +86,11 @@ class ArticleForm extends React.Component<Props, State> {
     };
   }
 
-  getContent = editorState => {
-    return toHTML(editorState);
-  };
-
-  onChange = editorState => {
-    this.setState({ editorState });
+  onChange = e => {
+    this.setState({ content: e.editor.getData() });
   };
 
   renderContent(article) {
-    const props = {
-      editorState: this.state.editorState,
-      onChange: this.onChange,
-      defaultValue: article.content
-    };
-
     const onChange = e => {
       this.setState({ status: (e.target as HTMLInputElement).value });
     };
@@ -136,7 +118,11 @@ class ArticleForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <ErxesEditor bordered={true} {...props} />
+          <EditorCK
+            content={this.state.content}
+            onChange={this.onChange}
+            height={300}
+          />
         </FormGroup>
 
         <FormGroup>

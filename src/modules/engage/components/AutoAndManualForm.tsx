@@ -77,7 +77,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   }
 
   changeState = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState({ [key]: value } as Pick<State, keyof State>);
+    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
   };
 
   clearState = () => {
@@ -106,7 +106,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
       const email = this.state.email || ({} as IEngageEmail);
 
       doc.email = {
-        templateId: email.templateId,
         subject: email.subject || '',
         content: this.state.content,
         attachments: email.attachments
