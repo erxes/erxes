@@ -121,12 +121,23 @@ class Settings extends React.PureComponent {
             {this.renderBox(
               'Boards & Pipelines',
               '/images/icons/erxes-19.svg',
-              '/settings/deals'
+              '/settings/boards/deal'
             )}
             {this.renderBox(
               'Product & Service',
               '/images/icons/erxes-13.svg',
               '/settings/product-service'
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>{__('Ticket Settings')}</RowTitle>
+          <div>
+            {this.renderBox(
+              'Boards & Pipelines',
+              '/images/icons/erxes-19.svg',
+              '/settings/boards/ticket'
             )}
           </div>
         </Row>

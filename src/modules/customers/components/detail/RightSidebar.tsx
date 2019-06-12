@@ -3,8 +3,9 @@ import { __ } from 'modules/common/utils';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { List } from 'modules/companies/styles';
 import { ICustomer } from 'modules/customers/types';
-import { PortableDeals } from 'modules/deals/containers';
+import PortableDeals from 'modules/deals/components/PortableDeals';
 import { Sidebar } from 'modules/layout/components';
+import PortableTickets from 'modules/tickets/components/PortableTickets';
 import * as React from 'react';
 
 export default class RightSidebar extends React.Component<{
@@ -55,6 +56,7 @@ export default class RightSidebar extends React.Component<{
       <Sidebar>
         <CompanyAssociate data={customer} />
         <PortableDeals customerIds={[customer._id]} />
+        <PortableTickets customerIds={[customer._id]} />
         {this.renderOther()}
       </Sidebar>
     );

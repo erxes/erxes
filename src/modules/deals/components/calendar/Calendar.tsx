@@ -1,15 +1,17 @@
+import { MainActionBar } from 'modules/boards/containers';
+import {
+  BoardContainer,
+  BoardContent,
+  ScrolledContent
+} from 'modules/boards/styles/common';
 import { Calendar } from 'modules/common/components';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import styled from 'styled-components';
-import { DealColumn, MainActionBar } from '../../containers';
-import {
-  BoardContainer,
-  BoardContent,
-  ScrolledContent
-} from '../../styles/common';
+import { DealMainActionBar } from '../';
+import { DealColumn } from '../../containers';
 
 type Props = {
   queryParams: any;
@@ -51,7 +53,13 @@ class CalendarView extends React.Component<Props> {
   };
 
   renderActionBar = (renderMiddleContent: () => React.ReactNode) => {
-    return <MainActionBar middleContent={renderMiddleContent} />;
+    return (
+      <MainActionBar
+        type="deal"
+        component={DealMainActionBar}
+        middleContent={renderMiddleContent}
+      />
+    );
   };
 
   renderMonthView(renderMonths: () => React.ReactNode[]) {

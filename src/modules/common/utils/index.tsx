@@ -159,3 +159,10 @@ export function withProps<IProps>(
     }
   };
 }
+
+export function renderWithProps<Props>(
+  props: Props,
+  Wrapped: new (props: Props) => React.Component<Props>
+) {
+  return <Wrapped {...props} />;
+}
