@@ -73,8 +73,8 @@ class EditForm extends React.Component<Props, State> {
       return Alert.error('Enter a name');
     }
 
-    if (extraFieldsCheck) {
-      extraFieldsCheck();
+    if (extraFieldsCheck && extraFieldsCheck()) {
+      return extraFieldsCheck();
     }
 
     const doc = {
