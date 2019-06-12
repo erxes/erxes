@@ -3,33 +3,16 @@ import { graphqlRequest } from '../db/connection';
 import {
   companyFactory,
   customerFactory,
-  dealBoardFactory,
   dealFactory,
-  dealPipelineFactory,
-  dealStageFactory,
   productFactory,
+  stageFactory,
   userFactory,
 } from '../db/factories';
-import { DealBoards, DealPipelines, Deals, DealStages } from '../db/models';
+import { Deals } from '../db/models';
 
 import './setup.ts';
 
 describe('dealQueries', () => {
-  const commonBoardTypes = `
-    _id
-    name
-  `;
-
-  const commonPipelineTypes = `
-    _id
-    name
-  `;
-
-  const commonStageTypes = `
-    _id
-    name
-  `;
-
   const commonDealTypes = `
     _id
     name
@@ -85,124 +68,7 @@ describe('dealQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await DealBoards.deleteMany({});
-    await DealStages.deleteMany({});
-    await DealPipelines.deleteMany({});
     await Deals.deleteMany({});
-  });
-
-  test('Boards', async () => {
-    await dealBoardFactory();
-    await dealBoardFactory();
-    await dealBoardFactory();
-
-    const qry = `
-      query dealBoards {
-        dealBoards {
-          ${commonBoardTypes}
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'dealBoards');
-
-    expect(response.length).toBe(3);
-  });
-
-  test('Board detail', async () => {
-    const board = await dealBoardFactory();
-
-    const args = { _id: board._id };
-
-    const qry = `
-      query dealBoardDetail($_id: String!) {
-        dealBoardDetail(_id: $_id) {
-          ${commonBoardTypes}
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'dealBoardDetail', args);
-
-    expect(response._id).toBe(board._id);
-  });
-
-  test('Board get last', async () => {
-    const board = await dealBoardFactory();
-
-    const qry = `
-      query dealBoardGetLast {
-        dealBoardGetLast {
-          ${commonBoardTypes}
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'dealBoardGetLast');
-
-    expect(board._id).toBe(response._id);
-  });
-
-  test('Pipelines', async () => {
-    const board = await dealBoardFactory();
-
-    const args = { boardId: board._id };
-
-    await dealPipelineFactory(args);
-    await dealPipelineFactory(args);
-    await dealPipelineFactory(args);
-
-    const qry = `
-      query dealPipelines($boardId: String!) {
-        dealPipelines(boardId: $boardId) {
-          ${commonPipelineTypes}
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'dealPipelines', args);
-
-    expect(response.length).toBe(3);
-  });
-
-  test('Stages', async () => {
-    const pipeline = await dealPipelineFactory();
-
-    const args = { pipelineId: pipeline._id };
-
-    await dealStageFactory(args);
-    await dealStageFactory(args);
-    await dealStageFactory(args);
-
-    const qry = `
-      query dealStages($pipelineId: String!) {
-        dealStages(pipelineId: $pipelineId) {
-          ${commonStageTypes}
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'dealStages', args);
-
-    expect(response.length).toBe(3);
-  });
-
-  test('Stage detail', async () => {
-    const stage = await dealStageFactory();
-
-    const args = { _id: stage._id };
-
-    const qry = `
-      query dealStageDetail($_id: String!) {
-        dealStageDetail(_id: $_id) {
-          ${commonStageTypes}
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'dealStageDetail', args);
-
-    expect(response._id).toBe(stage._id);
   });
 
   test('Filter by next day', async () => {
@@ -304,7 +170,7 @@ describe('dealQueries', () => {
   });
 
   test('Deals', async () => {
-    const stage = await dealStageFactory();
+    const stage = await stageFactory();
 
     const args = { stageId: stage._id };
 

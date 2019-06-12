@@ -81,9 +81,3 @@ export const checkPermission = async (cls: any, methodName: string, actionName: 
     return oldMethod(root, args, { user });
   };
 };
-
-export default {
-  requireLogin,
-  moduleRequireLogin,
-  checkPermission,
-};

@@ -4,45 +4,32 @@ const commonTypes = `
 `;
 
 export const types = `
-  type Deal {
+  type Ticket {
     _id: String!
     name: String!
     stageId: String
-    pipeline: Pipeline
     boardId: String
     companyIds: [String]
     customerIds: [String]
     assignedUserIds: [String]
-    amount: JSON
     closeDate: Date
     description: String
+    priority: String
+    source: String
     companies: [Company]
     customers: [Customer]
-    products: JSON
-    productsData: JSON
     assignedUsers: [User]
+    stage: Stage
+    pipeline: Pipeline
     modifiedAt: Date
     modifiedBy: String
-    stage: Stage
     ${commonTypes}
-  }
-
-  type DealTotalAmount {
-    _id: String
-    currency: String
-    amount: Float
-  }
-
-  type DealTotalAmounts {
-    _id: String
-    dealCount: Int
-    dealAmounts: [DealTotalAmount]
   }
 `;
 
 export const queries = `
-  dealDetail(_id: String!): Deal
-  deals(
+  ticketDetail(_id: String!): Ticket
+  tickets(
     pipelineId: String
     stageId: String
     customerIds: [String]
@@ -51,26 +38,12 @@ export const queries = `
     skip: Int
     search: String
     assignedUserIds: [String]
-    productIds: [String]
     nextDay: String
     nextWeek: String
     nextMonth: String
     noCloseDate: String
     overdue: String
-  ): [Deal]
-  dealsTotalAmounts(
-    date: ItemDate 
-    pipelineId: String 
-    customerIds: [String]
-    companyIds: [String]
-    assignedUserIds: [String]
-    productIds: [String]
-    nextDay: String
-    nextWeek: String
-    nextMonth: String
-    noCloseDate: String
-    overdue: String
-  ): DealTotalAmounts
+  ): [Ticket]
 `;
 
 const commonParams = `
@@ -82,13 +55,14 @@ const commonParams = `
   closeDate: Date,
   description: String,
   order: Int,
-  productsData: JSON
+  priority: String,
+  source: String
 `;
 
 export const mutations = `
-  dealsAdd(${commonParams}): Deal
-  dealsEdit(_id: String!, ${commonParams}): Deal
-  dealsChange( _id: String!, destinationStageId: String): Deal
-  dealsUpdateOrder(stageId: String!, orders: [OrderItem]): [Deal]
-  dealsRemove(_id: String!): Deal
+  ticketsAdd(${commonParams}): Ticket
+  ticketsEdit(_id: String!, ${commonParams}): Ticket
+  ticketsChange( _id: String!, destinationStageId: String): Ticket
+  ticketsUpdateOrder(stageId: String!, orders: [OrderItem]): [Ticket]
+  ticketsRemove(_id: String!): Ticket
 `;

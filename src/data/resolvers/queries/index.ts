@@ -1,4 +1,5 @@
 import activityLogs from './activityLogs';
+import boards from './boards';
 import brands from './brands';
 import channels from './channels';
 import companies from './companies';
@@ -25,6 +26,7 @@ import responseTemplates from './responseTemplates';
 import scripts from './scripts';
 import segments from './segments';
 import tags from './tags';
+import tickets from './tickets';
 import users from './users';
 
 export default {
@@ -50,6 +52,7 @@ export default {
   ...notifications,
   ...activityLogs,
   ...deals,
+  ...boards,
   ...dealInsights,
   ...products,
   ...configs,
@@ -58,4 +61,5 @@ export default {
   ...messengerApps,
   ...permissions,
   ...usersGroups,
+  ...tickets,
 };

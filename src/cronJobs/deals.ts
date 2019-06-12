@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import * as schedule from 'node-schedule';
 import { NOTIFICATION_TYPES } from '../data/constants';
 import utils from '../data/utils';
-import { DealPipelines, Deals, DealStages } from '../db/models';
+import { Deals, Pipelines, Stages } from '../db/models';
 
 /**
  * Send notification Deals dueDate
@@ -20,13 +20,13 @@ export const sendNotifications = async () => {
   });
 
   for (const deal of deals) {
-    const stage = await DealStages.findOne({ _id: deal.stageId });
+    const stage = await Stages.findOne({ _id: deal.stageId });
 
     if (!stage) {
       throw new Error('Stage not found');
     }
 
-    const pipeline = await DealPipelines.findOne({ _id: stage.pipelineId });
+    const pipeline = await Pipelines.findOne({ _id: stage.pipelineId });
 
     if (!pipeline) {
       throw new Error('Pipeline not found');

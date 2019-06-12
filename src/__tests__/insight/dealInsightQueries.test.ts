@@ -1,8 +1,8 @@
 import * as moment from 'moment';
 import dealInsightQueries from '../../data/resolvers/queries/insights/dealInsights';
 import { graphqlRequest } from '../../db/connection';
-import { dealBoardFactory, dealFactory, dealPipelineFactory, dealStageFactory, userFactory } from '../../db/factories';
-import { DealBoards, DealPipelines, Deals, DealStages } from '../../db/models';
+import { boardFactory, dealFactory, pipelineFactory, stageFactory, userFactory } from '../../db/factories';
+import { Boards, Deals, Pipelines, Stages } from '../../db/models';
 
 import '../setup.ts';
 
@@ -37,9 +37,9 @@ describe('dealInsightQueries', () => {
 
   beforeEach(async () => {
     // creating test data
-    board = await dealBoardFactory();
-    pipeline = await dealPipelineFactory({ boardId: board._id });
-    stage = await dealStageFactory({ pipelineId: pipeline._id });
+    board = await boardFactory();
+    pipeline = await pipelineFactory({ boardId: board._id });
+    stage = await stageFactory({ pipelineId: pipeline._id });
     deal = await dealFactory({ stageId: stage._id });
 
     doc = {
@@ -52,9 +52,9 @@ describe('dealInsightQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await DealBoards.deleteMany({});
-    await DealPipelines.deleteMany({});
-    await DealStages.deleteMany({});
+    await Boards.deleteMany({});
+    await Pipelines.deleteMany({});
+    await Stages.deleteMany({});
     await Deals.deleteMany({});
   });
 

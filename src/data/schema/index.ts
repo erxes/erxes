@@ -79,6 +79,8 @@ import {
 
 import { queries as ActivityLogQueries, types as ActivityLogTypes } from './activityLog';
 
+import { mutations as BoardMutations, queries as BoardQueries, types as BoardTypes } from './board';
+
 import { mutations as DealMutations, queries as DealQueries, types as DealTypes } from './deal';
 
 import { mutations as ProductMutations, queries as ProductQueries, types as ProductTypes } from './product';
@@ -96,6 +98,8 @@ import {
   queries as MessengerAppQueries,
   types as MessengerAppTypes,
 } from './messengerApp';
+
+import { mutations as TicketMutations, queries as TicketQueries, types as TicketTypes } from './ticket';
 
 export const types = `
   scalar JSON
@@ -121,6 +125,7 @@ export const types = `
   ${InsightTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
+  ${BoardTypes}
   ${DealTypes}
   ${ProductTypes}
   ${ConfigTypes}
@@ -128,6 +133,7 @@ export const types = `
   ${ImportHistoryTypes}
   ${MessengerAppTypes}
   ${PermissionTypes}
+  ${TicketTypes}
 `;
 
 export const queries = `
@@ -135,6 +141,7 @@ export const queries = `
     ${UserQueries}
     ${ChannelQueries}
     ${BrandQueries}
+    ${BoardQueries}
     ${IntegrationQueries}
     ${ResponseTemplateQueries}
     ${ScriptQueries}
@@ -159,6 +166,7 @@ export const queries = `
     ${ImportHistoryQueries}
     ${MessengerAppQueries}
     ${PermissionQueries}
+    ${TicketQueries}
   }
 `;
 
@@ -169,6 +177,7 @@ export const mutations = `
     ${ConversationMutations}
     ${EngageMutations}
     ${TagMutations}
+    ${BoardMutations}
     ${BrandMutations}
     ${ResponseTemplateMutations}
     ${ScriptMutations}
@@ -189,6 +198,7 @@ export const mutations = `
     ${ImportHistoryMutations}
     ${MessengerAppMutations}
     ${PermissionMutations}
+    ${TicketMutations}
   }
 `;
 

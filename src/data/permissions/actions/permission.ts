@@ -154,7 +154,6 @@ export const moduleObjects = {
           'dealPipelinesRemove',
           'dealStagesAdd',
           'dealStagesEdit',
-          'dealStagesChange',
           'dealStagesUpdateOrder',
           'dealStagesRemove',
           'dealsAdd',
@@ -200,10 +199,6 @@ export const moduleObjects = {
         description: 'Edit deal stage',
       },
       {
-        name: 'dealStagesChange',
-        description: 'Change deal stages',
-      },
-      {
         name: 'dealStagesUpdateOrder',
         description: 'Update stage order',
       },
@@ -226,6 +221,94 @@ export const moduleObjects = {
       {
         name: 'dealsRemove',
         description: 'Remove deal',
+      },
+    ],
+  },
+  tickets: {
+    name: 'tickets',
+    description: 'Tickets',
+    actions: [
+      {
+        name: 'ticketsAll',
+        description: 'All',
+        use: [
+          'showTickets',
+          'ticketBoardsAdd',
+          'ticketBoardsEdit',
+          'ticketBoardsRemove',
+          'ticketPipelinesAdd',
+          'ticketPipelinesEdit',
+          'ticketPipelinesUpdateOrder',
+          'ticketPipelinesRemove',
+          'ticketStagesAdd',
+          'ticketStagesEdit',
+          'ticketStagesUpdateOrder',
+          'ticketStagesRemove',
+          'ticketsAdd',
+          'ticketsEdit',
+          'ticketsRemove',
+          'ticketsUpdateOrder',
+        ],
+      },
+      {
+        name: 'showTickets',
+        description: 'Show tickets',
+      },
+      {
+        name: 'ticketBoardsAdd',
+        description: 'Add ticket board',
+      },
+      {
+        name: 'ticketBoardsRemove',
+        description: 'Remove ticket board',
+      },
+      {
+        name: 'ticketPipelinesAdd',
+        description: 'Add ticket pipeline',
+      },
+      {
+        name: 'ticketPipelinesEdit',
+        description: 'Edit ticket pipeline',
+      },
+      {
+        name: 'ticketPipelinesRemove',
+        description: 'Remove ticket pipeline',
+      },
+      {
+        name: 'ticketPipelinesUpdateOrder',
+        description: 'Update pipeline order',
+      },
+      {
+        name: 'ticketStagesAdd',
+        description: 'Add ticket stage',
+      },
+      {
+        name: 'ticketStagesEdit',
+        description: 'Edit ticket stage',
+      },
+      {
+        name: 'ticketStagesUpdateOrder',
+        description: 'Update stage order',
+      },
+      {
+        name: 'ticketStagesRemove',
+        description: 'Remove ticket stage',
+      },
+      {
+        name: 'ticketsAdd',
+        description: 'Add ticket',
+      },
+      {
+        name: 'ticketsEdit',
+        description: 'Edit ticket',
+      },
+      {
+        name: 'ticketsUpdateOrder',
+        description: 'Update ticket order',
+      },
+      {
+        name: 'ticketsRemove',
+        description: 'Remove ticket',
       },
     ],
   },

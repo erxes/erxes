@@ -89,6 +89,12 @@ export const NOTIFICATION_TYPES = {
   DEAL_CHANGE: 'dealChange',
   DEAL_DUE_DATE: 'dealDueDate',
   DEAL_DELETE: 'dealDelete',
+  TICKET_ADD: 'ticketAdd',
+  TICKET_REMOVE_ASSIGN: 'ticketRemoveAssign',
+  TICKET_EDIT: 'ticketEdit',
+  TICKET_CHANGE: 'ticketChange',
+  TICKET_DUE_DATE: 'ticketDueDate',
+  TICKET_DELETE: 'ticketDelete',
   ALL: [
     'channelMembersChange',
     'conversationAddMessage',
@@ -100,6 +106,12 @@ export const NOTIFICATION_TYPES = {
     'dealChange',
     'dealDueDate',
     'dealDelete',
+    'ticketAdd',
+    'ticketRemoveAssign',
+    'ticketEdit',
+    'ticketChange',
+    'ticketDueDate',
+    'ticketDelete',
   ],
 };
 
@@ -207,7 +219,9 @@ export const ACTIVITY_CONTENT_TYPES = {
   COMPANY: 'company',
   USER: 'user',
   DEAL: 'deal',
-  ALL: ['customer', 'company', 'user', 'deal'],
+  TICKET: 'ticket',
+
+  ALL: ['customer', 'company', 'user', 'deal', 'ticket'],
 };
 
 export const COC_LEAD_STATUS_TYPES = [
@@ -247,8 +261,9 @@ export const ACTIVITY_TYPES = {
   CONVERSATION: 'conversation',
   SEGMENT: 'segment',
   DEAL: 'deal',
+  TICKET: 'ticket',
 
-  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal'],
+  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal', 'ticket'],
 };
 
 export const ACTIVITY_ACTIONS = {

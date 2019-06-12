@@ -3,6 +3,7 @@ import { ActivityLogs, Customers, Deals, Fields, InternalNotes } from './';
 import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
 import { STATUSES } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
+import Tickets from './Tickets';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   checkDuplication(
@@ -206,6 +207,7 @@ export const loadClass = () => {
       // Removing modules associated with current companies
       await InternalNotes.changeCompany(company._id, companyIds);
       await Deals.changeCompany(company._id, companyIds);
+      await Tickets.changeCompany(company._id, companyIds);
 
       // create log
       await ActivityLogs.createCompanyLog(company);

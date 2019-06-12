@@ -3,14 +3,14 @@ import * as _ from 'underscore';
 import {
   ConversationMessages,
   Conversations,
-  DealPipelines,
   Deals,
-  DealStages,
   Integrations,
+  Pipelines,
+  Stages,
   Users,
 } from '../../../../db/models';
+import { IStageDocument } from '../../../../db/models/definitions/boards';
 import { IMessageDocument } from '../../../../db/models/definitions/conversationMessages';
-import { IStageDocument } from '../../../../db/models/definitions/deals';
 import { IUser } from '../../../../db/models/definitions/users';
 import { CONVERSATION_STATUSES, INSIGHT_TYPES } from '../../../constants';
 import { getDateFieldAsStr } from '../aggregationUtils';
@@ -87,15 +87,15 @@ export const getDealSelector = async (args: IDealListArgs): Promise<IDealSelecto
     if (pipelineIds) {
       stageSelector.pipelineId = { $in: pipelineIds.split(',') };
     } else {
-      const pipelines = await DealPipelines.find({ boardId });
+      const pipelines = await Pipelines.find({ boardId });
       stageSelector.pipelineId = { $in: pipelines.map(p => p._id) };
     }
 
-    stages = await DealStages.find(stageSelector);
+    stages = await Stages.find(stageSelector);
     selector.stageId = { $in: stages.map(s => s._id) };
   } else {
     if (status) {
-      stages = await DealStages.find(stageSelector);
+      stages = await Stages.find(stageSelector);
       selector.stageId = { $in: stages.map(s => s._id) };
     }
   }

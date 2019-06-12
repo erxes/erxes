@@ -1,5 +1,6 @@
 import * as permissionActions from '../permissions/actions';
 import ActivityLog from './activityLog';
+import Board from './boards';
 import Brand from './brand';
 import Channel from './channel';
 import Company from './company';
@@ -7,9 +8,7 @@ import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
 import Customer from './customer';
 import customScalars from './customScalars';
-import DealBoard from './dealBoards';
 import Deal from './deals';
-import DealStage from './dealStages';
 import EngageMessage from './engage';
 import { field, fieldsGroup } from './field';
 import Form from './forms';
@@ -26,7 +25,9 @@ import Query from './queries';
 import ResponseTemplate from './responseTemplate';
 import Script from './script';
 import Segment from './segment';
+import Stage from './stages';
 import Subscription from './subscriptions';
+import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
 
@@ -47,8 +48,8 @@ const resolvers: any = {
   Conversation,
   ConversationMessage,
   Deal,
-  DealStage,
-  DealBoard,
+  Stage,
+  Board,
 
   Mutation,
   Query,
@@ -67,6 +68,7 @@ const resolvers: any = {
   User,
   ImportHistory,
   Permission,
+  Ticket,
   UsersGroup,
 };
 

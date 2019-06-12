@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as mongoose from 'mongoose';
-import { DealPipelines } from '../src/db/models';
+import { Pipelines } from '../src/db/models';
 
 dotenv.config();
 
@@ -11,7 +11,7 @@ module.exports.up = next => {
     MONGO_URL,
     { useNewUrlParser: true, useCreateIndex: true },
     async () => {
-      await DealPipelines.updateMany({}, { $set: { visiblity: 'public' } });
+      await Pipelines.updateMany({}, { $set: { visibility: 'public' } });
 
       next();
     },
