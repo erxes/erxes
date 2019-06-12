@@ -91,13 +91,6 @@ export const reorderItemMap = ({
   };
 };
 
-export function withProps<Props>(
-  props: Props,
-  Wrapped: new (props: Props) => React.Component<Props>
-) {
-  return <Wrapped {...props} />;
-}
-
 export const getDefaultBoardAndPipelines = () => {
   const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || '{}';
   const defaultPipelines = localStorage.getItem(STORAGE_PIPELINE_KEY) || '{}';

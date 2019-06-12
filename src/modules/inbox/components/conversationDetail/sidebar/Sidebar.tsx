@@ -1,4 +1,3 @@
-import { PortableItems } from 'modules/boards/containers';
 import {
   Button,
   Icon,
@@ -16,9 +15,9 @@ import {
 } from 'modules/customers/components/common';
 import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
-import dealOptions from 'modules/deals/options';
+import PortableDeals from 'modules/deals/components/PortableDeals';
 import { Sidebar } from 'modules/layout/components';
-import ticketOptions from 'modules/tickets/options';
+import PortableTickets from 'modules/tickets/components/PortableTickets';
 import * as React from 'react';
 import {
   Actions,
@@ -291,8 +290,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showDeals || false}
           toggle={toggleSection}
         >
-          <PortableItems
-            options={dealOptions}
+          <PortableDeals
             customerIds={[customer._id]}
             isOpen={config.showDeals}
           />
@@ -303,8 +301,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showTickets || false}
           toggle={toggleSection}
         >
-          <PortableItems
-            options={ticketOptions}
+          <PortableTickets
             customerIds={[customer._id]}
             isOpen={config.showTickets}
           />

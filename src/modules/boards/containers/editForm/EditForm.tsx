@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { queries as boardQueries } from 'modules/boards/graphql';
 import { Spinner } from 'modules/common/components';
-import { Alert, confirm } from 'modules/common/utils';
+import { Alert, confirm, renderWithProps } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
@@ -14,9 +14,9 @@ import {
   RemoveMutation,
   SaveMutation
 } from '../../types';
-import { invalidateCache, withProps } from '../../utils';
+import { invalidateCache } from '../../utils';
 
-type Props = {
+type IProps = {
   options: IOptions;
   itemId: string;
   stageId: string;
@@ -33,7 +33,7 @@ type FinalProps = {
   addMutation: SaveMutation;
   editMutation: SaveMutation;
   removeMutation: RemoveMutation;
-} & Props;
+} & IProps;
 
 class EditFormContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -138,13 +138,13 @@ class EditFormContainer extends React.Component<FinalProps> {
   }
 }
 
-export default (props: Props) => {
+export default (props: IProps) => {
   const { options } = props;
 
-  return withProps<Props>(
+  return renderWithProps<IProps>(
     props,
     compose(
-      graphql<Props, DetailQueryResponse, { _id: string }>(
+      graphql<IProps, DetailQueryResponse, { _id: string }>(
         gql(options.queries.detailQuery),
         {
           name: 'detailQuery',
@@ -157,10 +157,10 @@ export default (props: Props) => {
           }
         }
       ),
-      graphql<Props, UsersQueryResponse>(gql(userQueries.usersForSelector), {
+      graphql<IProps, UsersQueryResponse>(gql(userQueries.usersForSelector), {
         name: 'usersQuery'
       }),
-      graphql<Props, SaveMutation, IItemParams>(
+      graphql<IProps, SaveMutation, IItemParams>(
         gql(options.mutations.addMutation),
         {
           name: 'addMutation',
@@ -174,7 +174,7 @@ export default (props: Props) => {
           })
         }
       ),
-      graphql<Props, SaveMutation, IItemParams>(
+      graphql<IProps, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
           name: 'editMutation',
@@ -198,7 +198,7 @@ export default (props: Props) => {
           })
         }
       ),
-      graphql<Props, RemoveMutation, { _id: string }>(
+      graphql<IProps, RemoveMutation, { _id: string }>(
         gql(options.mutations.removeMutation),
         {
           name: 'removeMutation',

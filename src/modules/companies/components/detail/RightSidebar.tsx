@@ -1,10 +1,9 @@
-import { PortableItems } from 'modules/boards/containers';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { CustomerAssociate } from 'modules/customers/containers';
-import dealOptions from 'modules/deals/options';
-import { Sidebar } from 'modules/layout/components';
-import ticketOptions from 'modules/tickets/options';
+import PortableDeals from 'modules/deals/components/PortableDeals';
+import { Sidebar } from 'modules/layout/components/';
+import PortableTickets from 'modules/tickets/components/PortableTickets';
 import * as moment from 'moment';
 import * as React from 'react';
 import { List } from '../../styles';
@@ -34,8 +33,8 @@ export default class RightSidebar extends React.Component<{
     return (
       <Sidebar>
         <CustomerAssociate data={company} />
-        <PortableItems options={dealOptions} companyIds={[company._id]} />
-        <PortableItems options={ticketOptions} companyIds={[company._id]} />
+        <PortableDeals companyIds={[company._id]} />
+        <PortableTickets companyIds={[company._id]} />
 
         <Section>
           <Title>{__('Other')}</Title>

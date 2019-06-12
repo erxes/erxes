@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { Alert, renderWithProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Items } from '../components/portable';
@@ -9,9 +9,8 @@ import {
   ItemsQueryResponse,
   SaveMutation
 } from '../types';
-import { withProps } from '../utils';
 
-type Props = {
+type IProps = {
   customerIds?: string[];
   companyIds?: string[];
   isOpen?: boolean;
@@ -21,7 +20,7 @@ type Props = {
 type FinalProps = {
   addMutation: SaveMutation;
   itemsQuery: ItemsQueryResponse;
-} & Props;
+} & IProps;
 
 class PortableItemsContainer extends React.Component<FinalProps> {
   saveItem = (doc: IItemParams, callback: () => void) => {
@@ -48,6 +47,7 @@ class PortableItemsContainer extends React.Component<FinalProps> {
 
   render() {
     const { itemsQuery, options } = this.props;
+
     if (!itemsQuery) {
       return null;
     }
@@ -65,8 +65,8 @@ class PortableItemsContainer extends React.Component<FinalProps> {
   }
 }
 
-export default (props: Props) =>
-  withProps<Props>(
+export default (props: IProps) =>
+  renderWithProps<IProps>(
     props,
     compose(
       // mutation
@@ -77,7 +77,7 @@ export default (props: Props) =>
         }
       ),
       graphql<
-        Props,
+        IProps,
         ItemsQueryResponse,
         { customerIds?: string[]; companyIds?: string[] }
       >(gql(props.options.queries.itemsQuery), {

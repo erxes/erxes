@@ -1,12 +1,11 @@
-import { PortableItems } from 'modules/boards/containers';
 import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { CompanyAssociate } from 'modules/companies/containers';
 import { List } from 'modules/companies/styles';
 import { ICustomer } from 'modules/customers/types';
-import dealOptions from 'modules/deals/options';
+import PortableDeals from 'modules/deals/components/PortableDeals';
 import { Sidebar } from 'modules/layout/components';
-import ticketOptions from 'modules/tickets/options';
+import PortableTickets from 'modules/tickets/components/PortableTickets';
 import * as React from 'react';
 
 export default class RightSidebar extends React.Component<{
@@ -56,8 +55,8 @@ export default class RightSidebar extends React.Component<{
     return (
       <Sidebar>
         <CompanyAssociate data={customer} />
-        <PortableItems options={dealOptions} customerIds={[customer._id]} />
-        <PortableItems options={ticketOptions} customerIds={[customer._id]} />
+        <PortableDeals customerIds={[customer._id]} />
+        <PortableTickets customerIds={[customer._id]} />
         {this.renderOther()}
       </Sidebar>
     );
