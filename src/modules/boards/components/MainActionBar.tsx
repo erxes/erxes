@@ -49,8 +49,8 @@ type Props = {
   queryParams: any;
   assignedUserIds?: string[];
   type: string;
-  extraFilter: React.ReactNode;
-  viewType?: string;
+  extraFilter?: React.ReactNode;
+  link: string;
   rightContent?: () => React.ReactNode;
 };
 
@@ -102,7 +102,7 @@ class MainActionBar extends React.Component<Props, State> {
   };
 
   renderBoards() {
-    const { currentBoard, boards, type, viewType } = this.props;
+    const { currentBoard, boards } = this.props;
 
     if ((currentBoard && boards.length === 1) || boards.length === 0) {
       return <EmptyState icon="layout" text="No other boards" size="small" />;
@@ -113,7 +113,7 @@ class MainActionBar extends React.Component<Props, State> {
         return null;
       }
 
-      let link = `/${type}/${viewType}?id=${board._id}`;
+      let link = `${this.props.link}?id=${board._id}`;
 
       const { pipelines = [] } = board;
 
@@ -130,7 +130,7 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   renderPipelines() {
-    const { currentBoard, currentPipeline, type, viewType } = this.props;
+    const { currentBoard, currentPipeline, link } = this.props;
 
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
@@ -150,9 +150,7 @@ class MainActionBar extends React.Component<Props, State> {
       return (
         <li key={pipeline._id}>
           <Link
-            to={`/${type}/${viewType}?id=${currentBoard._id}&pipelineId=${
-              pipeline._id
-            }`}
+            to={`${link}?id=${currentBoard._id}&pipelineId=${pipeline._id}`}
           >
             {pipeline.name}
           </Link>
@@ -162,9 +160,9 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   renderDates() {
-    const { queryParams, viewType } = this.props;
+    const { queryParams, link } = this.props;
 
-    if (viewType === 'calendar') {
+    if (link.includes('calendar')) {
       return null;
     }
 

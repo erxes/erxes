@@ -1,4 +1,3 @@
-import { MainActionBar as DumbMainActionBar } from 'modules/boards/components';
 import { Board, MainActionBar } from 'modules/boards/containers';
 import {
   BoardContainer,
@@ -10,6 +9,7 @@ import { menuInbox } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import options from '../options';
+import { TicketMainActionBar } from './';
 
 type Props = {
   queryParams: any;
@@ -22,7 +22,7 @@ class TicketBoard extends React.Component<Props> {
   }
 
   renderActionBar() {
-    return <MainActionBar type="ticket" component={DumbMainActionBar} />;
+    return <MainActionBar type="ticket" component={TicketMainActionBar} />;
   }
 
   render() {

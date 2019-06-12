@@ -77,7 +77,7 @@ const DealMainActionBar = (props: Props) => {
   const extendedProps = {
     ...props,
     extraFilter,
-    viewType,
+    link: `/deal/${viewType}`,
     rightContent: viewChooser
   };
 
