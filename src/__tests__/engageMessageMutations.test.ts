@@ -9,7 +9,6 @@ import {
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
-  emailTemplateFactory,
   engageMessageFactory,
   integrationFactory,
   segmentFactory,
@@ -41,7 +40,6 @@ describe('engage message mutation tests', () => {
   let _segment;
   let _customer;
   let _integration;
-  let _emailTemplate;
   let _doc;
   let context;
   let spy;
@@ -97,7 +95,6 @@ describe('engage message mutation tests', () => {
         brandId: _brand.id,
       },
     });
-    _emailTemplate = await emailTemplateFactory({});
     _customer = await customerFactory({
       hasValidEmail: true,
     });
@@ -116,7 +113,6 @@ describe('engage message mutation tests', () => {
       tagIds: [_tag._id],
       customerIds: [_customer._id],
       email: {
-        templateId: _emailTemplate._id,
         subject: faker.random.word(),
         content: faker.random.word(),
       },
@@ -269,14 +265,12 @@ describe('engage message mutation tests', () => {
 
     sinon.stub(engageUtils.utils, 'executeSendViaEmail').callsFake();
 
-    const emailTemplate = await emailTemplateFactory();
     const emessage = await engageMessageFactory({
       method: 'email',
       title: 'Send via email',
       userId: 'fromUserId',
       segmentIds: [_segment._id],
       email: {
-        templateId: emailTemplate._id,
         subject: 'subject',
         content: 'content',
         attachments: [],
@@ -297,7 +291,6 @@ describe('engage message mutation tests', () => {
       userId: _user._id,
       segmentIds: [_segment._id],
       email: {
-        templateId: emailTemplate._id,
         subject: 'subject',
         content: 'content',
         attachments: [],
