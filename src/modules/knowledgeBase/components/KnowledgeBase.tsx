@@ -62,6 +62,7 @@ class KnowledgeBase extends React.Component<Props> {
         trigger={trigger}
         size="lg"
         content={content}
+        enforceFocus={false}
       />
     );
 

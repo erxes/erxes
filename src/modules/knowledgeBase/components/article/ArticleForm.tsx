@@ -104,6 +104,7 @@ class ArticleForm extends React.Component<Props, State> {
             type="text"
             defaultValue={article.title}
             required={true}
+            autoFocus={true}
           />
         </FormGroup>
 

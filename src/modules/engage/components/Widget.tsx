@@ -31,6 +31,7 @@ class Widget extends React.Component<Props> {
         title="New message"
         trigger={trigger}
         content={content}
+        enforceFocus={false}
       />
     );
   }
