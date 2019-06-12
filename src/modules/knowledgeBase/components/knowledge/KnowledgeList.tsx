@@ -14,6 +14,7 @@ type Props = {
   loading: boolean;
   topics: ITopic[];
   articlesCount: number;
+  refetch: () => void;
 
   save: (
     params: {
@@ -41,7 +42,8 @@ class KnowledgeList extends React.Component<Props> {
       save,
       currentCategoryId,
       queryParams,
-      articlesCount
+      articlesCount,
+      refetch
     } = this.props;
 
     return (
@@ -55,6 +57,7 @@ class KnowledgeList extends React.Component<Props> {
             articlesCount={articlesCount}
             remove={remove}
             save={save}
+            refetchTopics={refetch}
           />
         ))}
       </React.Fragment>

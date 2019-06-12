@@ -15,6 +15,7 @@ type Props = {
   category: ICategory;
   topicIds: string;
   closeModal: () => void;
+  refetchTopics: () => void;
 };
 
 type FinalProps = Props &
@@ -26,7 +27,8 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     category,
     topicIds,
     addCategoriesMutation,
-    editCategoriesMutation
+    editCategoriesMutation,
+    refetchTopics
   } = props;
 
   // create or update action
@@ -48,6 +50,11 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
         );
 
         callback();
+
+        // only fetch when new category is added
+        if (!object) {
+          refetchTopics();
+        }
       })
       .catch(error => {
         Alert.error(error.message);

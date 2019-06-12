@@ -18,6 +18,7 @@ type Props = {
   topic: ITopic;
   articlesCount: number;
   remove: (knowledgeBaseId: string) => void;
+  refetchTopics: () => void;
 
   save: (
     params: {
@@ -83,7 +84,7 @@ class KnowledgeRow extends React.Component<Props, State> {
   }
 
   renderManage() {
-    const { topic, save, remove } = this.props;
+    const { topic, save, remove, refetchTopics } = this.props;
 
     const addCategory = <MenuItem>{__('Add category')}</MenuItem>;
     const manageTopic = <MenuItem>{__('Manage Knowledge Base')}</MenuItem>;
@@ -93,7 +94,11 @@ class KnowledgeRow extends React.Component<Props, State> {
     );
 
     const categoryContent = props => (
-      <CategoryForm {...props} topicIds={topic._id} />
+      <CategoryForm
+        {...props}
+        topicIds={topic._id}
+        refetchTopics={refetchTopics}
+      />
     );
 
     return (
@@ -127,7 +132,7 @@ class KnowledgeRow extends React.Component<Props, State> {
       <KnowledgeBaseRow key={topic._id}>
         <SectionHead>
           <SectionTitle onClick={this.toggle}>
-            {topic.title}
+            {topic.title} ({topic.categories.length})
             <span>{topic.description}</span>
           </SectionTitle>
           {this.renderManage()}

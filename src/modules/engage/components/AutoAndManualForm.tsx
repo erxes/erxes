@@ -6,11 +6,9 @@ import {
 } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { ISegment, ISegmentDoc } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import * as React from 'react';
-import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IBreadCrumbItem } from '../../common/types';
 import {
   IEngageEmail,
@@ -19,19 +17,14 @@ import {
   IEngageMessenger,
   IEngageScheduleDate
 } from '../types';
-import { ChannelStep, MessageStep, SegmentStep } from './step';
+import { ChannelStep, MessageStep } from './step';
+import MessageTypeStep from './step/MessageTypeStep';
 
 type Props = {
   message?: IEngageMessage;
   brands: IBrand[];
   users: IUser[];
-  segments: ISegment[];
-  headSegments: ISegment[];
-  segmentFields: ISegment[];
   templates: IEmailTemplate[];
-  segmentAdd: (params: { doc: ISegmentDoc }) => void;
-  customerCounts?: IActivityLogForMonth[];
-  count: (segment: ISegmentDoc) => void;
   kind: string;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
@@ -47,7 +40,9 @@ type State = {
   maxStep: number;
   method: string;
   title: string;
-  segmentId: string;
+  segmentIds: string[];
+  brandIds: string[];
+  tagIds: string[];
   content: string;
   fromUserId: string;
   messenger?: IEngageMessenger;
@@ -60,7 +55,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     super(props);
 
     const message = props.message || {};
-    const messenger = message.messenger || {};
+    const messenger = message.messenger || ({} as IEngageMessenger);
     const email = message.email || {};
 
     const content = messenger.content ? messenger.content : email.content || '';
@@ -70,7 +65,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       maxStep: 3,
       method: message.method || 'email',
       title: message.title || '',
-      segmentId: message.segmentId || '',
+      segmentIds: message.segmentIds || [],
+      brandIds: message.brandIds || [],
+      tagIds: message.tagIds || [],
       content,
       fromUserId: message.fromUserId,
       messenger: message.messenger,
@@ -83,9 +80,19 @@ class AutoAndManualForm extends React.Component<Props, State> {
     this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
   };
 
+  clearState = () => {
+    this.setState({
+      segmentIds: [],
+      brandIds: [],
+      tagIds: []
+    });
+  };
+
   save = (type: string): Promise<any> | void => {
     const doc = {
-      segmentId: this.state.segmentId,
+      segmentIds: this.state.segmentIds,
+      tagIds: this.state.tagIds,
+      brandIds: this.state.brandIds,
       title: this.state.title,
       fromUserId: this.state.fromUserId,
       method: this.state.method
@@ -131,7 +138,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
       email,
       fromUserId,
       content,
-      scheduleDate
+      scheduleDate,
+      segmentIds,
+      brandIds,
+      tagIds
     } = this.state;
 
     const onChange = e =>
@@ -162,15 +172,12 @@ class AutoAndManualForm extends React.Component<Props, State> {
             img="/images/icons/erxes-02.svg"
             title="Who is this message for?"
           >
-            <SegmentStep
+            <MessageTypeStep
               onChange={this.changeState}
-              segments={this.props.segments}
-              headSegments={this.props.headSegments}
-              segmentFields={this.props.segmentFields}
-              segmentAdd={this.props.segmentAdd}
-              counts={this.props.customerCounts}
-              count={this.props.count}
-              segmentId={this.state.segmentId}
+              clearState={this.clearState}
+              segmentIds={segmentIds}
+              brandIds={brandIds}
+              tagIds={tagIds}
             />
           </Step>
 
