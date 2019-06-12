@@ -123,7 +123,7 @@ export default withProps<Props>(
         variables: {
           stageId: stage._id,
           pipelineId,
-          type: 'inProcess',
+          type: 'primary',
           ...getFilterParams(queryParams)
         }
       })
