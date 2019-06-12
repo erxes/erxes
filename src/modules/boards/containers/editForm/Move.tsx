@@ -43,9 +43,8 @@ export default withProps<Props>(
       { pipelineId: string }
     >(gql(boardQueries.stages), {
       name: 'stagesQuery',
-      options: ({ options: { modelName }, item: { pipeline } }) => ({
+      options: ({ item: { pipeline } }) => ({
         variables: {
-          modelName,
           pipelineId: pipeline._id
         }
       })

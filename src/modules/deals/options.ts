@@ -8,7 +8,6 @@ const options = {
   Item: DealItem,
   type: 'deal',
   title: 'Deals',
-  modelName: 'Deals',
   queriesName: {
     itemsQuery: 'deals',
     detailQuery: 'dealDetail'

@@ -61,7 +61,6 @@ const pipelineDetail = `
 
 const stages = `
   query stages(
-    $modelName: String!,
     $pipelineId: String!, 
     $search: String,
     $customerIds: [String],
@@ -75,7 +74,6 @@ const stages = `
     $productIds: [String]
   ) {
     stages(
-      modelName: $modelName,
       pipelineId: $pipelineId, 
       search: $search,
       customerIds: $customerIds,
@@ -98,8 +96,8 @@ const stages = `
 `;
 
 const stageDetail = `
-  query stageDetail($_id: String!, $modelName: String!) {
-    stageDetail(_id: $_id, modelName: $modelName) {
+  query stageDetail($_id: String!) {
+    stageDetail(_id: $_id) {
       _id
       name
       pipelineId

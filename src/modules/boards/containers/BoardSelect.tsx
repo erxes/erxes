@@ -6,14 +6,13 @@ import { BoardSelect } from '../components';
 import { queries } from '../graphql';
 import {
   BoardsQueryResponse,
-  IOptions,
   IStage,
   PipelinesQueryResponse,
   StagesQueryResponse
 } from '../types';
 
 type Props = {
-  options: IOptions;
+  type: string;
   stageId?: string;
   boardId: string;
   pipelineId: string;
@@ -101,7 +100,7 @@ export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
       name: 'boardsQuery',
-      options: ({ options: { type } }) => ({
+      options: ({ type }) => ({
         variables: { type }
       })
     }),
@@ -118,8 +117,8 @@ export default withProps<Props>(
       gql(queries.stages),
       {
         name: 'stagesQuery',
-        options: ({ pipelineId = '', options: { modelName } }) => ({
-          variables: { pipelineId, modelName }
+        options: ({ pipelineId = '' }) => ({
+          variables: { pipelineId }
         })
       }
     )

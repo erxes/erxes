@@ -94,7 +94,7 @@ class AddForm extends React.Component<Props, State> {
 
     return (
       <BoardSelect
-        options={options}
+        type={options.type}
         stageId={stageId}
         pipelineId={pipelineId}
         boardId={boardId}

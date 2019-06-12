@@ -8,7 +8,6 @@ export interface IOptions {
   Item: any;
   type: string;
   title: string;
-  modelName: string;
   queriesName: { itemsQuery: string; detailQuery: string };
   mutationsName: {
     addMutation: string;

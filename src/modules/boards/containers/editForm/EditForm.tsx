@@ -168,7 +168,7 @@ export default (props: IProps) => {
             refetchQueries: [
               {
                 query: gql(boardQueries.stageDetail),
-                variables: { _id: stageId, modelName: options.modelName }
+                variables: { _id: stageId }
               }
             ]
           })
@@ -192,7 +192,7 @@ export default (props: IProps) => {
               },
               {
                 query: gql(boardQueries.stageDetail),
-                variables: { _id: stageId, modelName: options.modelName }
+                variables: { _id: stageId }
               }
             ]
           })
@@ -206,7 +206,7 @@ export default (props: IProps) => {
             refetchQueries: [
               {
                 query: gql(boardQueries.stageDetail),
-                variables: { _id: stageId, modelName: options.modelName }
+                variables: { _id: stageId }
               }
             ]
           })

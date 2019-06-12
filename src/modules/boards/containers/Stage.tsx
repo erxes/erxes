@@ -167,8 +167,7 @@ const withQuery = ({ options }) => {
               {
                 query: gql(queries.stageDetail),
                 variables: {
-                  _id: stage && stage._id,
-                  modelName: options.modelName
+                  _id: stage && stage._id
                 }
               }
             ]

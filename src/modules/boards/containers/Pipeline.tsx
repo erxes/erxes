@@ -184,9 +184,8 @@ export default withProps<Props>(
   compose(
     graphql<Props, StagesQueryResponse>(gql(queries.stages), {
       name: 'stagesQuery',
-      options: ({ pipeline, queryParams, options }) => ({
+      options: ({ pipeline, queryParams }) => ({
         variables: {
-          modelName: options.modelName,
           pipelineId: pipeline._id,
           search: queryParams.search,
           customerIds: queryParams.customerIds,
