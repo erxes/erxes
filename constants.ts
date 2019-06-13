@@ -77,44 +77,6 @@ export const KIND_CHOICES = {
   ALL: ['messenger', 'form', 'facebook'],
 };
 
-// module constants
-export const NOTIFICATION_TYPES = {
-  CHANNEL_MEMBERS_CHANGE: 'channelMembersChange',
-  CONVERSATION_ADD_MESSAGE: 'conversationAddMessage',
-  CONVERSATION_ASSIGNEE_CHANGE: 'conversationAssigneeChange',
-  CONVERSATION_STATE_CHANGE: 'conversationStateChange',
-  DEAL_ADD: 'dealAdd',
-  DEAL_REMOVE_ASSIGN: 'dealRemoveAssign',
-  DEAL_EDIT: 'dealEdit',
-  DEAL_CHANGE: 'dealChange',
-  DEAL_DUE_DATE: 'dealDueDate',
-  DEAL_DELETE: 'dealDelete',
-  TICKET_ADD: 'ticketAdd',
-  TICKET_REMOVE_ASSIGN: 'ticketRemoveAssign',
-  TICKET_EDIT: 'ticketEdit',
-  TICKET_CHANGE: 'ticketChange',
-  TICKET_DUE_DATE: 'ticketDueDate',
-  TICKET_DELETE: 'ticketDelete',
-  ALL: [
-    'channelMembersChange',
-    'conversationAddMessage',
-    'conversationAssigneeChange',
-    'conversationStateChange',
-    'dealAdd',
-    'dealRemoveAssign',
-    'dealEdit',
-    'dealChange',
-    'dealDueDate',
-    'dealDelete',
-    'ticketAdd',
-    'ticketRemoveAssign',
-    'ticketEdit',
-    'ticketChange',
-    'ticketDueDate',
-    'ticketDelete',
-  ],
-};
-
 export const NOTIFICATION_MODULES = [
   {
     name: 'conversations',
@@ -176,6 +138,68 @@ export const NOTIFICATION_MODULES = [
       },
     ],
   },
+
+  {
+    name: 'tickets',
+    description: 'Tickets',
+    types: [
+      {
+        name: 'ticketAdd',
+        text: 'Assigned a new ticket  card',
+      },
+      {
+        name: 'ticketRemoveAssign',
+        text: 'Removed from the ticket card',
+      },
+      {
+        name: 'ticketEdit',
+        text: 'Ticket card edited',
+      },
+      {
+        name: 'ticketChange',
+        text: 'Moved between stages',
+      },
+      {
+        name: 'ticketDueDate',
+        text: 'Due date is near',
+      },
+      {
+        name: 'ticketDelete',
+        text: 'Ticket card deleted',
+      },
+    ],
+  },
+
+  {
+    name: 'tasks',
+    description: 'Tasks',
+    types: [
+      {
+        name: 'taskAdd',
+        text: 'Assigned a new task  card',
+      },
+      {
+        name: 'taskRemoveAssign',
+        text: 'Removed from the task card',
+      },
+      {
+        name: 'taskEdit',
+        text: 'Task card edited',
+      },
+      {
+        name: 'taskChange',
+        text: 'Moved between stages',
+      },
+      {
+        name: 'taskDueDate',
+        text: 'Due date is near',
+      },
+      {
+        name: 'taskDelete',
+        text: 'Task card deleted',
+      },
+    ],
+  },
 ];
 
 export const FORM_FIELDS = {
@@ -220,8 +244,9 @@ export const ACTIVITY_CONTENT_TYPES = {
   USER: 'user',
   DEAL: 'deal',
   TICKET: 'ticket',
+  TASK: 'task',
 
-  ALL: ['customer', 'company', 'user', 'deal', 'ticket'],
+  ALL: ['customer', 'company', 'user', 'deal', 'ticket', 'task'],
 };
 
 export const PUBLISH_STATUSES = {
@@ -239,8 +264,9 @@ export const ACTIVITY_TYPES = {
   DEAL: 'deal',
   EMAIL: 'email',
   TICKET: 'ticket',
+  TASK: 'task',
 
-  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal', 'email', 'ticket'],
+  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal', 'email', 'ticket', 'task'],
 };
 
 export const ACTIVITY_ACTIONS = {
@@ -455,5 +481,6 @@ export const STATUSES = {
 export const BOARD_TYPES = {
   DEAL: 'deal',
   TICKET: 'ticket',
-  ALL: ['deal', 'ticket'],
+  TASK: 'task',
+  ALL: ['deal', 'ticket', 'task'],
 };

@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
+import { NOTIFICATION_TYPES } from '../../../data/constants';
 import { field } from '../utils';
-import { NOTIFICATION_TYPES } from './constants';
 
 export interface INotification {
   notifType?: string;
