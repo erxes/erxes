@@ -5,7 +5,6 @@ import {
   ScrolledContent
 } from 'modules/boards/styles/common';
 import { __ } from 'modules/common/utils';
-import { menuInbox } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import { TaskMainActionBar } from '.';
@@ -26,9 +25,11 @@ class TaskBoard extends React.Component<Props> {
   }
 
   render() {
+    const breadcrumb = [{ title: __('Task') }];
+
     return (
       <BoardContainer>
-        <Header title={__('Task')} submenu={menuInbox} />
+        <Header title={__('Task')} breadcrumb={breadcrumb} />
         <BoardContent transparent={true}>
           {this.renderActionBar()}
           <ScrolledContent transparent={true}>
