@@ -120,7 +120,7 @@ class MessengerForm extends React.Component<Props, State> {
 
     return (
       <FlexItem>
-        <FlexPad overflow="auto" direction="column">
+        <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
 
@@ -128,6 +128,7 @@ class MessengerForm extends React.Component<Props, State> {
               content={this.props.content}
               onChange={this.onEditorChange}
               insertItems={EMAIL_CONTENT}
+              height={300}
             />
           </FormGroup>
 
@@ -184,7 +185,7 @@ class MessengerForm extends React.Component<Props, State> {
           {this.renderScheduler()}
         </FlexPad>
 
-        <FlexItem overflow="auto">
+        <FlexItem overflow="auto" count="2">
           <MessengerPreview
             sentAs={this.state.messenger.sentAs}
             content={this.props.content}
