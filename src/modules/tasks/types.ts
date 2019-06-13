@@ -1,4 +1,4 @@
-import { IItem } from 'modules/boards/types';
+import { IItem, IItemParams } from 'modules/boards/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
 
 export type ActivityLogQueryResponse = {
@@ -7,5 +7,9 @@ export type ActivityLogQueryResponse = {
 };
 
 export interface ITask extends IItem {
-  channel?: string;
+  priority?: string;
+}
+
+export interface ITaskParams extends IItemParams {
+  priority?: string;
 }

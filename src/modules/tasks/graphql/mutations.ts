@@ -7,6 +7,7 @@ const commonVariables = `
   $customerIds: [String],
   $assignedUserIds: [String],
   $order: Int,
+  $priority: String
 `;
 
 const commonParams = `
@@ -18,6 +19,7 @@ const commonParams = `
   description: $description,
   assignedUserIds: $assignedUserIds,
   order: $order,
+  priority: $priority,
 `;
 
 const commonReturn = `
@@ -43,6 +45,7 @@ const commonReturn = `
       avatar
     }
   }
+  priority
   modifiedAt
   modifiedBy
 `;

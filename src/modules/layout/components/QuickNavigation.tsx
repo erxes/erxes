@@ -75,6 +75,11 @@ const QuickNavigation = ({
   return (
     <nav>
       <NavItem>
+        <Link to="/task">
+          <Icon icon="clipboard-1" size={16} />
+        </Link>
+      </NavItem>
+      <NavItem>
         <Widget />
       </NavItem>
       <NavItem>

@@ -1,12 +1,12 @@
 import { IUser } from 'modules/auth/types';
 import { EditForm } from 'modules/boards/components/editForm';
+import { PRIORITIES } from 'modules/boards/constants';
 import { IOptions } from 'modules/boards/types';
 import { ControlLabel, FormGroup } from 'modules/common/components';
 import { IOption } from 'modules/common/types';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import * as React from 'react';
 import Select from 'react-select-plus';
-import { PRIORITIES } from '../constants';
 import { ITicket, ITicketParams } from '../types';
 
 type Props = {

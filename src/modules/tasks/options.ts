@@ -1,10 +1,9 @@
-import { EditForm } from 'modules/boards/components/editForm';
-import { PortableTask } from 'modules/tasks/components';
+import { PortableTask, TaskEditForm } from 'modules/tasks/components';
 import { TaskItem } from './containers';
 import { mutations, queries } from './graphql';
 
 const options = {
-  EditForm,
+  EditForm: TaskEditForm,
   PortableItem: PortableTask,
   Item: TaskItem,
   type: 'task',

@@ -42,6 +42,7 @@ const taskFields = `
   }
   closeDate
   description
+  priority
   assignedUsers {
     _id
     email
