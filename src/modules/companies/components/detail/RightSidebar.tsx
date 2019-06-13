@@ -3,6 +3,7 @@ import { ICompany } from 'modules/companies/types';
 import { CustomerAssociate } from 'modules/customers/containers';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import { Sidebar } from 'modules/layout/components/';
+import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import * as moment from 'moment';
 import * as React from 'react';
@@ -35,6 +36,7 @@ export default class RightSidebar extends React.Component<{
         <CustomerAssociate data={company} />
         <PortableDeals companyIds={[company._id]} />
         <PortableTickets companyIds={[company._id]} />
+        <PortableTasks companyIds={[company._id]} />
 
         <Section>
           <Title>{__('Other')}</Title>

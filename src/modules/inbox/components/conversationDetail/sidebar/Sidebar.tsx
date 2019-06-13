@@ -17,6 +17,7 @@ import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import { Sidebar } from 'modules/layout/components';
+import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import * as React from 'react';
 import {
@@ -304,6 +305,17 @@ class Index extends React.Component<IndexProps, IndexState> {
           <PortableTickets
             customerIds={[customer._id]}
             isOpen={config.showTickets}
+          />
+        </Box>
+        <Box
+          title={__('Tasks')}
+          name="showTasks"
+          isOpen={config.showTasks || false}
+          toggle={toggleSection}
+        >
+          <PortableTasks
+            customerIds={[customer._id]}
+            isOpen={config.showTasks}
           />
         </Box>
       </>
