@@ -21,6 +21,7 @@ import { IDealDocument } from './definitions/deals';
 import { IEmailDeliveriesDocument } from './definitions/emailDeliveries';
 import { IInternalNoteDocument } from './definitions/internalNotes';
 import { ISegmentDocument } from './definitions/segments';
+import { ITaskDocument } from './definitions/tasks';
 import { ITicketDocument } from './definitions/tickets';
 
 interface ICreateDocInput {
@@ -43,6 +44,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
   createDealLog(deal: IDealDocument): Promise<IActivityLogDocument>;
   createSegmentLog(segment: ISegmentDocument, customer?: ICustomerDocument): Promise<IActivityLogDocument>;
   createTicketLog(ticket: ITicketDocument): Promise<IActivityLogDocument>;
+  createTaskLog(task: ITaskDocument): Promise<IActivityLogDocument>;
 }
 
 export const loadClass = () => {
@@ -292,6 +294,31 @@ export const loadClass = () => {
         contentType: {
           type: ACTIVITY_CONTENT_TYPES.TICKET,
           id: ticket._id,
+        },
+        performer,
+      });
+    }
+
+    public static createTaskLog(task: ITaskDocument) {
+      let performer;
+
+      if (task.userId) {
+        performer = {
+          type: ACTIVITY_PERFORMER_TYPES.USER,
+          id: task.userId,
+        };
+      }
+
+      return ActivityLogs.createDoc({
+        activity: {
+          type: ACTIVITY_TYPES.TASK,
+          action: ACTIVITY_ACTIONS.CREATE,
+          content: task.name || '',
+          id: task._id,
+        },
+        contentType: {
+          type: ACTIVITY_CONTENT_TYPES.TASK,
+          id: task._id,
         },
         performer,
       });

@@ -22,6 +22,7 @@ import responseTemplates from './responseTemplates';
 import scripts from './scripts';
 import segments from './segments';
 import tags from './tags';
+import tasks from './tasks';
 import tickets from './tickets';
 import users from './users';
 
@@ -54,4 +55,5 @@ export default {
   ...permissions,
   ...usersGroups,
   ...tickets,
+  ...tasks,
 };

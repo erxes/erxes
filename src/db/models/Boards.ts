@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { Deals } from './';
+import { Deals, Tasks, Tickets } from './';
 import {
   boardSchema,
   IBoard,
@@ -12,7 +12,6 @@ import {
   stageSchema,
 } from './definitions/boards';
 import { BOARD_TYPES } from './definitions/constants';
-import Tickets from './Tickets';
 import { updateOrder } from './utils';
 
 export interface IOrderInput {
@@ -234,6 +233,11 @@ export const loadStageClass = () => {
 
           break;
         }
+        case BOARD_TYPES.TASK: {
+          await Tasks.updateMany({ stageId: _id }, { $set: { pipelineId } });
+
+          break;
+        }
       }
 
       return Stages.findOne({ _id });
@@ -266,6 +270,11 @@ export const loadStageClass = () => {
         }
         case BOARD_TYPES.TICKET: {
           count = await Tickets.find({ stageId: _id }).countDocuments();
+
+          break;
+        }
+        case BOARD_TYPES.TASK: {
+          count = await Tasks.find({ stageId: _id }).countDocuments();
 
           break;
         }

@@ -157,6 +157,14 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'ticketPipelinesEdit',
     pipelinesRemove: 'ticketPipelinesRemove',
   },
+  task: {
+    boardsAdd: 'taskBoardsAdd',
+    boardsEdit: 'taskBoardsEdit',
+    boardsRemove: 'taskBoardsRemove',
+    pipelinesAdd: 'taskPipelinesAdd',
+    pipelinesEdit: 'taskPipelinesEdit',
+    pipelinesRemove: 'taskPipelinesRemove',
+  },
 };
 
 export const checkPermission = async (type: string, user: IUserDocument, mutationName: string) => {

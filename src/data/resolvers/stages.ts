@@ -1,4 +1,4 @@
-import { Deals, Tickets } from '../../db/models';
+import { Deals, Tasks, Tickets } from '../../db/models';
 import { IStageDocument } from '../../db/models/definitions/boards';
 import { BOARD_TYPES } from '../../db/models/definitions/constants';
 import { generateCommonFilters } from './queries/utils';
@@ -50,6 +50,9 @@ export default {
       }
       case BOARD_TYPES.TICKET: {
         return Tickets.find(filter).count();
+      }
+      case BOARD_TYPES.TASK: {
+        return Tasks.find(filter).count();
       }
     }
   },

@@ -95,6 +95,12 @@ export const NOTIFICATION_TYPES = {
   TICKET_CHANGE: 'ticketChange',
   TICKET_DUE_DATE: 'ticketDueDate',
   TICKET_DELETE: 'ticketDelete',
+  TASK_ADD: 'taskAdd',
+  TASK_REMOVE_ASSIGN: 'taskRemoveAssign',
+  TASK_EDIT: 'taskEdit',
+  TASK_CHANGE: 'taskChange',
+  TASK_DUE_DATE: 'taskDueDate',
+  TASK_DELETE: 'taskDelete',
   ALL: [
     'channelMembersChange',
     'conversationAddMessage',
@@ -112,6 +118,12 @@ export const NOTIFICATION_TYPES = {
     'ticketChange',
     'ticketDueDate',
     'ticketDelete',
+    'taskAdd',
+    'taskRemoveAssign',
+    'taskEdit',
+    'taskChange',
+    'taskDueDate',
+    'taskDelete',
   ],
 };
 

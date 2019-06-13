@@ -312,6 +312,94 @@ export const moduleObjects = {
       },
     ],
   },
+  tasks: {
+    name: 'tasks',
+    description: 'Tasks',
+    actions: [
+      {
+        name: 'tasksAll',
+        description: 'All',
+        use: [
+          'showTasks',
+          'taskBoardsAdd',
+          'taskBoardsEdit',
+          'taskBoardsRemove',
+          'taskPipelinesAdd',
+          'taskPipelinesEdit',
+          'taskPipelinesUpdateOrder',
+          'taskPipelinesRemove',
+          'taskStagesAdd',
+          'taskStagesEdit',
+          'taskStagesUpdateOrder',
+          'taskStagesRemove',
+          'tasksAdd',
+          'tasksEdit',
+          'tasksRemove',
+          'tasksUpdateOrder',
+        ],
+      },
+      {
+        name: 'showTasks',
+        description: 'Show tasks',
+      },
+      {
+        name: 'taskBoardsAdd',
+        description: 'Add task board',
+      },
+      {
+        name: 'taskBoardsRemove',
+        description: 'Remove task board',
+      },
+      {
+        name: 'taskPipelinesAdd',
+        description: 'Add task pipeline',
+      },
+      {
+        name: 'taskPipelinesEdit',
+        description: 'Edit task pipeline',
+      },
+      {
+        name: 'taskPipelinesRemove',
+        description: 'Remove task pipeline',
+      },
+      {
+        name: 'taskPipelinesUpdateOrder',
+        description: 'Update pipeline order',
+      },
+      {
+        name: 'taskStagesAdd',
+        description: 'Add task stage',
+      },
+      {
+        name: 'taskStagesEdit',
+        description: 'Edit task stage',
+      },
+      {
+        name: 'taskStagesUpdateOrder',
+        description: 'Update stage order',
+      },
+      {
+        name: 'taskStagesRemove',
+        description: 'Remove task stage',
+      },
+      {
+        name: 'tasksAdd',
+        description: 'Add task',
+      },
+      {
+        name: 'tasksEdit',
+        description: 'Edit task',
+      },
+      {
+        name: 'tasksUpdateOrder',
+        description: 'Update task order',
+      },
+      {
+        name: 'tasksRemove',
+        description: 'Remove task',
+      },
+    ],
+  },
   engages: {
     name: 'engages',
     description: 'Engages',

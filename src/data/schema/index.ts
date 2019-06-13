@@ -101,6 +101,8 @@ import {
 
 import { mutations as TicketMutations, queries as TicketQueries, types as TicketTypes } from './ticket';
 
+import { mutations as TaskMutations, queries as TaskQueries, types as TaskTypes } from './task';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -134,6 +136,7 @@ export const types = `
   ${MessengerAppTypes}
   ${PermissionTypes}
   ${TicketTypes}
+  ${TaskTypes}
 `;
 
 export const queries = `
@@ -167,6 +170,7 @@ export const queries = `
     ${MessengerAppQueries}
     ${PermissionQueries}
     ${TicketQueries}
+    ${TaskQueries}
   }
 `;
 
@@ -199,6 +203,7 @@ export const mutations = `
     ${MessengerAppMutations}
     ${PermissionMutations}
     ${TicketMutations}
+    ${TaskMutations}
   }
 `;
 

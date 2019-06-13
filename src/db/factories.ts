@@ -43,6 +43,7 @@ import {
   Segments,
   Stages,
   Tags,
+  Tasks,
   Tickets,
   Users,
   UsersGroups,
@@ -724,6 +725,30 @@ export const dealFactory = (params: ITicketFactoryInput = {}) => {
   });
 
   return deal.save();
+};
+
+interface ITaskFactoryInput {
+  stageId?: string;
+  closeDate?: Date;
+  customerIds?: string[];
+  companyIds?: string[];
+  noCloseDate?: boolean;
+  assignedUserIds?: string[];
+}
+
+export const taskFactory = (params: ITaskFactoryInput = {}) => {
+  const task = new Tasks({
+    ...params,
+    name: faker.random.word(),
+    stageId: params.stageId || faker.random.word(),
+    companyIds: params.companyIds || [faker.random.word()],
+    customerIds: params.customerIds || [faker.random.word()],
+    ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
+    description: faker.random.word(),
+    assignedUserIds: params.assignedUserIds || [faker.random.word()],
+  });
+
+  return task.save();
 };
 
 interface ITicketFactoryInput {

@@ -27,6 +27,7 @@ import Script from './script';
 import Segment from './segment';
 import Stage from './stages';
 import Subscription from './subscriptions';
+import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
@@ -69,6 +70,7 @@ const resolvers: any = {
   ImportHistory,
   Permission,
   Ticket,
+  Task,
   UsersGroup,
 };
 
