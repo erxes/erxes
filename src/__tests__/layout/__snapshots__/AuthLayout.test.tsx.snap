@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AuthLayout component snapshot matches 1`] = `
+<div
+  className="sc-jnlKLf dxEFgG"
+>
+  <div
+    className="sc-fYxtnH ibjvcA"
+  >
+    <div
+      className="container"
+    >
+      <div
+        className="col-md-6"
+      >
+        <div
+          className="sc-tilXH dxHcPp"
+        >
+          <img
+            alt="erxes"
+            src="/images/logo.png"
+          />
+          <h1>
+            Open Source Growth Marketing Platform
+          </h1>
+          <p>
+            Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.
+          </p>
+          <a
+            href="http://erxes.io/"
+          >
+            « Go to home page
+          </a>
+        </div>
+      </div>
+      <div
+        className="col-md-5 col-md-offset-1"
+      />
+    </div>
+  </div>
+</div>
+`;

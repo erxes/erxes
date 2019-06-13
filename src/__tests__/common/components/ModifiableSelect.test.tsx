@@ -1,5 +1,7 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
+
 import ModifiableSelect from '../../../modules/common/components/ModifiableSelect';
 
 describe('Modifiable component', () => {
@@ -37,5 +39,13 @@ describe('Modifiable component', () => {
     // console.log(found);
     const piggyFound = found.search('className="Select-placeholder"');
     expect(piggyFound).toBeGreaterThan(-1);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer
+      .create(<ModifiableSelect {...defaultProps} />)
+      .toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

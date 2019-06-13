@@ -1,5 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 import Sidebar from '../../modules/layout/components/Sidebar';
 
@@ -17,5 +18,11 @@ describe('Sidebar component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<Sidebar {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

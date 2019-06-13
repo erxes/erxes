@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Modifiable component snapshot matches 1`] = `
+Array [
+  <div
+    className="sc-jKVCRD eDSGVr"
+  >
+    <div
+      className="Select is-clearable Select--single"
+    >
+      <div
+        className="Select-control"
+        onKeyDown={[Function]}
+        onMouseDown={[Function]}
+        onTouchEnd={[Function]}
+        onTouchMove={[Function]}
+        onTouchStart={[Function]}
+      >
+        <span
+          className="Select-multi-value-wrapper"
+          id="react-select-5--value"
+        >
+          <div
+            className="Select-placeholder"
+          >
+            Primary name
+          </div>
+          <div
+            aria-activedescendant="react-select-5--value"
+            aria-disabled="false"
+            aria-expanded={false}
+            aria-owns=""
+            className="Select-input"
+            onBlur={[Function]}
+            onFocus={[Function]}
+            role="combobox"
+            style={
+              Object {
+                "border": 0,
+                "display": "inline-block",
+                "width": 1,
+              }
+            }
+            tabIndex={0}
+          />
+        </span>
+        <span
+          className="Select-arrow-zone"
+          onMouseDown={[Function]}
+        >
+          <span
+            className="Select-arrow"
+            onMouseDown={[Function]}
+          />
+        </span>
+      </div>
+    </div>
+  </div>,
+  <button
+    className="sc-ifAKCX eKlNl"
+    icon="add"
+    onClick={[Function]}
+    type="button"
+  >
+    <i
+      className="icon-add sc-bwzfXH hpxbGw"
+      icon="add"
+    />
+    <span>
+      Add name
+    </span>
+  </button>,
+]
+`;

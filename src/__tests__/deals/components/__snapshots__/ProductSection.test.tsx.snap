@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ProductSection component snapshot matches 1`] = `
+<div
+  className="sc-cJSrbW eCBgVo"
+  style={
+    Object {
+      "maxHeight": undefined,
+    }
+  }
+>
+  <div
+    className="sc-ksYbfQ ehOXuZ"
+  >
+    <h3
+      className="sc-cHGsZl bTlIM sc-kjoXOD lnvaEm"
+    >
+      Product & Service
+    </h3>
+    <div
+      className="sc-frDJqD kZVgPk"
+    >
+      <a
+        onClick={[Function]}
+      >
+        <i
+          className="icon-add sc-bwzfXH hpxbGw"
+          icon="add"
+        />
+      </a>
+    </div>
+    <div
+      className="sc-ktHwxA ebnien"
+    >
+      <div
+        className="sc-cIShpX kcJDtu"
+      >
+        <span>
+          qwe
+        </span>
+      </div>
+      <div
+        className="sc-cIShpX kcJDtu"
+      >
+        <span>
+          qe
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+`;

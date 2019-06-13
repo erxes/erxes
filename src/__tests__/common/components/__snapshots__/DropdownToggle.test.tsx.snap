@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DropdownToggle component snapshot matches 1`] = `
+<div
+  onClick={[Function]}
+>
+  child
+</div>
+`;

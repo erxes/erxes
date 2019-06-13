@@ -1,5 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 import Row from '../../modules/tags/components/Row';
 
@@ -7,8 +8,8 @@ describe('Row component', () => {
   const defaultProps = {
     tag: {
       _id: 'id',
-      type: 'typ',
       name: 'name',
+      type: 'typ',
       colorCode: 'red'
     },
     type: 'type',
@@ -17,7 +18,6 @@ describe('Row component', () => {
       type: string;
       name: string;
       colorCode: string;
-      objectCount?: number;
     }) => null,
     save: (params: {
       doc: {
@@ -26,7 +26,6 @@ describe('Row component', () => {
         type: string;
         colorCode: string;
       };
-      callback: () => void;
     }) => null
   };
 
@@ -39,5 +38,11 @@ describe('Row component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<Row {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SuccessPreview component snapshot matches 1`] = `
+<div
+  className="sc-aewfc dsStAJ"
+>
+  <div
+    className="sc-isBZXS htStnM"
+  >
+    <div
+      className="sc-OxbzP jocSpk"
+      style={
+        Object {
+          "backgroundColor": "def",
+        }
+      }
+    >
+      <div />
+    </div>
+    <div
+      className="sc-lnrBVv jitmGX"
+    >
+      <div
+        className="sc-fvLVrH kjchyg"
+      >
+        <div
+          className="sc-dBAPYN igvoAR"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Sidebar component snapshot matches 1`] = `
+<section
+  className="sc-caSCKo gfAGes"
+>
+  <div
+    className="sc-TOsTZ hEyXQp"
+  >
+    child
+  </div>
+</section>
+`;

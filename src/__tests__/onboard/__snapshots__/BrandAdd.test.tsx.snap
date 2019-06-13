@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BrandAdd component snapshot matches 1`] = `
+<form
+  onSubmit={[Function]}
+>
+  <div
+    className="sc-dqBHgY iDAfER"
+  >
+    <h2>
+      Let's create your brand
+    </h2>
+    <div
+      className="sc-jKVCRD eDSGVr"
+    >
+      <label
+        className="sc-ebFjAB bHuvQk"
+      >
+        Brand Name
+        <span>
+           *
+        </span>
+      </label>
+      <input
+        autoFocus={true}
+        className="sc-kaNhvL bKDVoH"
+        disabled={false}
+        onChange={[Function]}
+        required={true}
+        type="text"
+        value=""
+      />
+    </div>
+  </div>
+  <div
+    className="sc-jtRfpW ksjgFM"
+  >
+    <div>
+      <button
+        className="sc-ifAKCX bKlEue"
+        disabled={true}
+        type="button"
+      >
+        Previous
+      </button>
+      <button
+        className="sc-ifAKCX cQdFDO"
+        disabled={true}
+        onClick={[Function]}
+        type="button"
+      >
+        Next
+         
+        <i
+          className="icon-rightarrow-2 sc-bwzfXH hpxbGw"
+          icon="rightarrow-2"
+        />
+      </button>
+    </div>
+    <a
+      onClick={[Function]}
+    >
+      Skip for now
+       »
+    </a>
+  </div>
+</form>
+`;

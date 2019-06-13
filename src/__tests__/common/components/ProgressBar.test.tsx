@@ -1,5 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 import ProgressBar from '../../../modules/common/components/ProgressBar';
 
@@ -17,5 +18,12 @@ describe('ProgressBar component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+  test('snapshot matches', () => {
+    const rendered = renderer
+      .create(<ProgressBar {...defaultProps} />)
+      .toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

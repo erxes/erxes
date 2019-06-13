@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TeamMembers component snapshot matches 1`] = `
+<div
+  className="row"
+>
+  <div
+    className="col-sm-6"
+  >
+    <div
+      className="sc-fOICqy gWshsg"
+    >
+      <div
+        className="sc-hzDEsm kzLTOg"
+      >
+        <a>
+          <img
+            src="/images/avatar-colored.svg"
+          />
+        </a>
+        <span
+          className="sc-jeCdPy fHVrmW"
+        />
+      </div>
+      <div
+        className="sc-iGPElx hgMnov"
+      >
+        <div
+          className="sc-cugefK iITMyU"
+        >
+          <i
+            className="icon-piechart sc-bwzfXH hpxbGw"
+            icon="piechart"
+          />
+          <span>
+            There is no data
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

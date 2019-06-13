@@ -5,15 +5,17 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { generateRandomColorCode } from 'modules/common/utils';
+import { Alert, generateRandomColorCode } from 'modules/common/utils';
 import { ITag, ITagSaveParams } from 'modules/tags/types';
 import * as React from 'react';
 
 type Props = {
   tag?: ITag;
   type: string;
-  closeModal: () => void;
+  closeModal?: () => void;
   save: (params: ITagSaveParams) => void;
+  modal?: boolean;
+  afterSave?: () => void;
 };
 
 type State = {
@@ -36,16 +38,32 @@ class Form extends React.Component<Props, State> {
   submit = e => {
     e.preventDefault();
 
-    const { tag, type, save, closeModal } = this.props;
+    const { modal = true, tag, type, save, closeModal, afterSave } = this.props;
     const { name, colorCode } = this.state;
 
-    save({
-      tag,
-      doc: { name, type, colorCode },
-      callback: () => {
-        closeModal();
-      }
-    });
+    if (name.length === 0) {
+      return Alert.error('Please enter a tag name');
+    }
+
+    if (colorCode.length === 0) {
+      return Alert.error('Please choose a tag color code');
+    }
+
+    const params = { name, colorCode };
+
+    if (modal) {
+      return save({
+        tag,
+        doc: { ...params, type },
+        callback: () => closeModal && closeModal()
+      });
+    }
+
+    save({ doc: { ...params, type: 'customer' } });
+
+    if (afterSave) {
+      afterSave();
+    }
   };
 
   handleName = e => {

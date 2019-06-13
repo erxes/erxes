@@ -1,0 +1,140 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChooseType component snapshot matches 1`] = `
+<div
+  className="sc-fAJaQT gLizFN"
+>
+  <div
+    className="sc-jdeSqf csfTEc"
+  >
+    <div
+      className="sc-jKVCRD eDSGVr"
+    >
+      <label
+        className="sc-ebFjAB bHuvQk"
+      >
+        Choose a flow type
+      </label>
+    </div>
+    <div
+      className="sc-fdQOMr iDPOke"
+    >
+      <div
+        className="sc-jotlie becxzt sc-hSdWYo iFcZeJ"
+        onClick={[Function]}
+        selected={false}
+      >
+        <i
+          className="icon-speech-bubble-3 sc-bwzfXH hpxbGw"
+          icon="speech-bubble-3"
+        />
+        <span>
+          ShoutBox
+        </span>
+      </div>
+      <div
+        className="sc-jotlie becxzt sc-hSdWYo iFcZeJ"
+        onClick={[Function]}
+        selected={false}
+      >
+        <i
+          className="icon-expand sc-bwzfXH hpxbGw"
+          icon="expand"
+        />
+        <span>
+          Popup
+        </span>
+      </div>
+    </div>
+    <div
+      className="sc-fdQOMr iDPOke"
+    >
+      <div
+        className="sc-jotlie becxzt sc-hSdWYo iFcZeJ"
+        onClick={[Function]}
+        selected={false}
+      >
+        <i
+          className="icon-computer sc-bwzfXH hpxbGw"
+          icon="computer"
+        />
+        <span>
+          Embedded
+        </span>
+      </div>
+      <div
+        className="sc-jotlie becxzt sc-hSdWYo iFcZeJ"
+        onClick={[Function]}
+        selected={false}
+      >
+        <i
+          className="icon-downarrow sc-bwzfXH hpxbGw"
+          icon="downarrow"
+        />
+        <span>
+          Dropdown
+        </span>
+      </div>
+    </div>
+    <div
+      className="sc-fdQOMr iDPOke"
+    >
+      <div
+        className="sc-jotlie becxzt sc-hSdWYo iFcZeJ"
+        onClick={[Function]}
+        selected={false}
+      >
+        <i
+          className="icon-logout-2 sc-bwzfXH hpxbGw"
+          icon="logout-2"
+        />
+        <span>
+          Slide-in Left
+        </span>
+      </div>
+      <div
+        className="sc-jotlie becxzt sc-hSdWYo iFcZeJ"
+        onClick={[Function]}
+        selected={false}
+      >
+        <i
+          className="icon-logout-1 sc-bwzfXH hpxbGw"
+          icon="logout-1"
+        />
+        <span>
+          Slide-in Right
+        </span>
+      </div>
+    </div>
+  </div>
+  <div
+    className="sc-cBrjTV iWStWz"
+  >
+    <div
+      className="sc-aewfc dsStAJ"
+    >
+      <div
+        className="sc-isBZXS htStnM"
+      >
+        <div
+          className="sc-OxbzP jocSpk"
+          style={
+            Object {
+              "backgroundColor": "default",
+            }
+          }
+        >
+          <div />
+        </div>
+        <div
+          className="sc-lnrBVv jitmGX"
+        >
+          <div
+            className="sc-fvLVrH kjchyg"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

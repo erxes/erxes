@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Chooser component snapshot matches 1`] = `
+<div>
+  <div
+    className="sc-hORach umMsy"
+  >
+    <div
+      className="sc-bMVAic hypBaD"
+    >
+      <input
+        className="sc-kaNhvL bKDVoH"
+        disabled={false}
+        onChange={[Function]}
+        placeholder="Type to search"
+        required={false}
+      />
+      <ul>
+        <li
+          onClick={[Function]}
+        >
+          <i
+            className="icon-add sc-bwzfXH hpxbGw"
+            icon="add"
+          />
+        </li>
+        <div
+          className="sc-kPVwWT duHBLj"
+        >
+          <button
+            className="sc-ifAKCX bndCnC"
+            icon="checked-1"
+            onClick={[Function]}
+            type="button"
+          >
+            <i
+              className="icon-checked-1 sc-bwzfXH hpxbGw"
+              icon="checked-1"
+            />
+            <span>
+              Load More
+            </span>
+          </button>
+        </div>
+      </ul>
+    </div>
+    <div
+      className="sc-bMVAic hypBaD"
+    >
+      <h4
+        className="sc-bAeIUo geHemc"
+      >
+        's 
+        title
+        <span>
+          (
+          0
+          )
+        </span>
+      </h4>
+      <div
+        className="sc-cugefK hrlmsg"
+      >
+        <i
+          className="icon-list-2 sc-bwzfXH hpxbGw"
+          icon="list-2"
+        />
+        <span>
+          No items added
+        </span>
+      </div>
+    </div>
+  </div>
+  <div
+    className="sc-hwwEjo bdhUHy"
+  >
+    <div
+      className="sc-iujRgT guNvFF"
+    >
+      <p
+        onClick={[Function]}
+      >
+        Don't see the result you're looking for? 
+        <a>
+          Create a new title
+        </a>
+      </p>
+      <div>
+        <button
+          className="sc-ifAKCX iSmYrG"
+          icon="cancel-1"
+          onClick={[Function]}
+          type="button"
+        >
+          <i
+            className="icon-cancel-1 sc-bwzfXH hpxbGw"
+            icon="cancel-1"
+          />
+          <span>
+            Cancel
+          </span>
+        </button>
+        <button
+          className="sc-ifAKCX cQdFDO"
+          icon="checked-1"
+          onClick={[Function]}
+          type="button"
+        >
+          <i
+            className="icon-checked-1 sc-bwzfXH hpxbGw"
+            icon="checked-1"
+          />
+          <span>
+            Select
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;

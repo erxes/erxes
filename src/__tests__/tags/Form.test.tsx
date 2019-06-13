@@ -1,12 +1,12 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 import Form from '../../modules/tags/components/Form';
 
 describe('Form component', () => {
   const defaultProps = {
     type: 'typ',
-    closeModal: () => null,
     save: (params: {
       doc: {
         _id?: string;
@@ -14,7 +14,6 @@ describe('Form component', () => {
         type: string;
         colorCode: string;
       };
-      callback: () => void;
     }) => null
   };
 
@@ -27,5 +26,11 @@ describe('Form component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<Form {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

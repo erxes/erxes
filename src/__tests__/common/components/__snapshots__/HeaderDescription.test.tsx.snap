@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HeaderDescription component snapshot matches 1`] = `
+<div
+  className="sc-iwsKbI kEjJKH"
+>
+  <img
+    className="sc-gZMcBi eOUcUq"
+    src="email"
+  />
+  <span>
+    <h4>
+      Email
+    </h4>
+    write your email
+  </span>
+</div>
+`;

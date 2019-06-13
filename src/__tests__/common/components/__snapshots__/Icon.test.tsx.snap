@@ -1,5 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+<<<<<<< HEAD
 exports[`Bulk component snapshot matches 1`] = `
 <i
   className="icon-aa sc-bdVaJa cUgreV"
@@ -72,5 +73,12 @@ exports[`Icon component snapshot matches 1`] = `
   className="icon-aa sc-bdVaJa keCqdn"
   icon="aa"
   size={10}
+=======
+exports[`Icon component snapshot matches 1`] = `
+<i
+  className="icon-upload-1 sc-bdVaJa dydvBK"
+  icon="upload-1"
+  size={30}
+>>>>>>> 5fa14cd458e891f9dfdd246d2063ce8ff8606b67
 />
 `;

@@ -3,6 +3,7 @@ import { mount, shallow } from 'enzyme';
 import DealSelect from 'modules/deals/components/DealSelect';
 import { IBoard, IPipeline, IStage } from 'modules/deals/types';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 describe('DealSelect component', () => {
   const testBoards: IBoard[] = [
@@ -56,5 +57,11 @@ describe('DealSelect component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<DealSelect {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

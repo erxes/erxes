@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DealAddForm component snapshot matches 1`] = `
+<form
+  className="sc-fihHvN evWDap"
+  onSubmit={[Function]}
+>
+  <div
+    className="sc-RbTVP bSyGnE sc-jdfcpN hYPvAm"
+  >
+    <div
+      className="sc-hMrMfs hcFoZm"
+    >
+      <label
+        className="sc-ebFjAB bHuvQk"
+      >
+        Name
+      </label>
+      <input
+        autoFocus={true}
+        className="sc-kaNhvL bKDVoH"
+        disabled={false}
+        onChange={[Function]}
+        required={false}
+      />
+    </div>
+  </div>
+  <div
+    className="sc-jxGEyO dAqHNM"
+  >
+    <button
+      className="sc-ifAKCX iSmYrG"
+      icon="cancel-1"
+      onClick={[Function]}
+      type="button"
+    >
+      <i
+        className="icon-cancel-1 sc-bwzfXH hpxbGw"
+        icon="cancel-1"
+      />
+      <span>
+        Close
+      </span>
+    </button>
+    <button
+      className="sc-ifAKCX cQdFDO"
+      disabled={false}
+      icon="checked-1"
+      type="submit"
+    >
+      <i
+        className="icon-checked-1 sc-bwzfXH hpxbGw"
+        icon="checked-1"
+      />
+      <span>
+        Save
+      </span>
+    </button>
+  </div>
+</form>
+`;

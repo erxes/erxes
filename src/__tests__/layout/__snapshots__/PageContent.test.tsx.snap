@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PageContent component snapshot matches 1`] = `
+<section
+  className="sc-bZQynM cjaOUa"
+>
+  <div
+    className="sc-gzVnrw kQrJgW"
+  />
+</section>
+`;

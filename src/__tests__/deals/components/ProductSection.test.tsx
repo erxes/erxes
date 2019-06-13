@@ -4,6 +4,7 @@ import ProductSection from 'modules/deals/components/ProductSection';
 import { IProductData } from 'modules/deals/types';
 import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 describe('ProductSection component', () => {
   const testProducts: IProduct[] = [
@@ -65,5 +66,13 @@ describe('ProductSection component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer
+      .create(<ProductSection {...defaultProps} />)
+      .toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

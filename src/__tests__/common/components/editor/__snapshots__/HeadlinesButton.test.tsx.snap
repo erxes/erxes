@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HeadlinesButton component snapshot matches 1`] = `
+<button
+  className="sc-bdVaJa ehclgY"
+  onClick={[Function]}
+>
+  H
+</button>
+`;

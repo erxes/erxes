@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImageWithPreview component snapshot matches 1`] = `
+<div>
+  <img
+    alt="bb"
+    className="sc-gZMcBi gQCqmv"
+    onClick={[Function]}
+    onLoad={[Function]}
+    src="undefined/read-file?key=bb"
+  />
+</div>
+`;

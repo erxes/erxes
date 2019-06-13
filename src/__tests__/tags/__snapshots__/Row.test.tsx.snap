@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Row component snapshot matches 1`] = `
+<tr>
+  <td>
+    <div
+      className="sc-eitiEO tags bqIHwC"
+    >
+      <span
+        className="sc-imABML hFngwx"
+        style={
+          Object {
+            "backgroundColor": "red",
+          }
+        }
+      >
+        <span>
+          name
+        </span>
+      </span>
+    </div>
+  </td>
+  <td>
+    <span
+      className="sc-AnqlK gvoGDU"
+    >
+      0
+    </span>
+  </td>
+  <td>
+    <div
+      className="sc-iwsKbI fwJKkA"
+    >
+      <button
+        className="sc-bxivhb kTWund"
+        onClick={[Function]}
+        type="button"
+      >
+        <i
+          className="icon-edit sc-bdVaJa cUgreV"
+          icon="edit"
+          onBlur={[Function]}
+          onClick={null}
+          onFocus={[Function]}
+          onMouseOut={[Function]}
+          onMouseOver={[Function]}
+        />
+      </button>
+      <button
+        className="sc-bxivhb kTWund"
+        icon="cancel-1"
+        onBlur={[Function]}
+        onClick={[Function]}
+        onFocus={[Function]}
+        onMouseOut={[Function]}
+        onMouseOver={[Function]}
+        type="button"
+      >
+        <i
+          className="icon-cancel-1 sc-bdVaJa cUgreV"
+          icon="cancel-1"
+        />
+      </button>
+    </div>
+  </td>
+</tr>
+`;

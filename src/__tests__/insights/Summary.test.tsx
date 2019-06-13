@@ -1,5 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 import Summary from '../../modules/insights/components/Summary';
 
@@ -18,5 +19,10 @@ describe('Summary component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<Summary {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });
