@@ -1,15 +1,16 @@
 // test passed
 import { mount, shallow } from 'enzyme';
-import DealAddForm from 'modules/deals/components/DealAddForm';
+import DealAddForm from 'modules/deals/components/portable/AddDeal';
+import { IDealParams } from 'modules/deals/types';
 import * as React from 'react';
 
 describe('DealAddForm component', () => {
   const defaultProps = {
-    add: (name: string, callback: () => void) => null,
+    saveDeal: (doc: IDealParams, callback: () => void) => null,
     closeModal: () => null
   };
 
-  test('renders shallow successfully', () => {
+  test('renders shallowsuccessfully', () => {
     shallow(<DealAddForm {...defaultProps} />);
   });
 

@@ -40,16 +40,18 @@ describe('AvatarUpload component', () => {
   });
 
   test('test changed states', () => {
-    const avatarPreUrl = 'icon-upload-1';
+    const defaultStatus = {
+      avatarPreviewUrl: 'icon-upload-1'
+    };
 
     const wrapper = mount(<AvatarUpload {...defaultProps} />);
 
-    wrapper.setState({ avatarPreviewUrl: avatarPreUrl });
+    wrapper.setState({ avatarPreviewUrl: 'icon-upload-1' });
 
     expect(wrapper.state()).toEqual({
       uploadPreview: null,
       avatarPreviewStyle: {},
-      avatarPreviewUrl: avatarPreUrl
+      avatarPreviewUrl: defaultStatus.avatarPreviewUrl
     });
   });
 });
