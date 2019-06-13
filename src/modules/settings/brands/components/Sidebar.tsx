@@ -1,15 +1,16 @@
-import * as React from 'react';
-import { BrandForm, BrandRow } from '.';
 import {
   EmptyState,
   Icon,
   LoadMore,
   ModalTrigger,
   Spinner
-} from '../../../common/components';
-import { __ } from '../../../common/utils';
-import { Sidebar as LeftSidebar } from '../../../layout/components';
-import { HelperButtons, SidebarList as List } from '../../../layout/styles';
+} from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import { Sidebar as LeftSidebar } from 'modules/layout/components';
+import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
+import * as React from 'react';
+import { BrandForm, BrandRow } from '.';
 import { IBrand } from '../types';
 
 type Props = {
@@ -18,7 +19,7 @@ type Props = {
   loading: boolean;
   currentBrandId?: string;
   brandsTotalCount: number;
-  renderButton: (props: any) => JSX.Element;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class Sidebar extends React.Component<Props, {}> {

@@ -7,8 +7,6 @@ import { ChildProps, compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
 import {
-  BrandAddMutationResponse,
-  BrandEditMutationResponse,
   BrandRemoveMutationResponse,
   BrandRemoveMutationVariables,
   BrandsCountQueryResponse,
@@ -24,8 +22,6 @@ type FinalProps = {
   brandsQuery: BrandsQueryResponse;
   brandsCountQuery: BrandsCountQueryResponse;
 } & Props &
-  BrandAddMutationResponse &
-  BrandEditMutationResponse &
   BrandRemoveMutationResponse;
 
 const SidebarContainer = (props: ChildProps<FinalProps>) => {

@@ -32,6 +32,7 @@ type Props = {
   refetchQueries?: any;
   isSubmitted?: boolean;
   type?: string;
+  disabled?: boolean;
 };
 
 class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
@@ -99,12 +100,12 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
   };
 
   render() {
-    const { children, btnSize, icon, type } = this.props;
+    const { children, btnSize, icon, type, disabled } = this.props;
     const { isLoading } = this.state;
 
     return (
       <Button
-        disabled={isLoading}
+        disabled={disabled || isLoading}
         btnStyle="success"
         size={btnSize}
         type={type}

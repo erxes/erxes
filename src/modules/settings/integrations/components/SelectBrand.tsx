@@ -1,6 +1,6 @@
 import { Button } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import BrandForm from 'modules/settings/brands/components/BrandForm';
-
 import * as React from 'react';
 import {
   ControlLabel,
@@ -15,15 +15,7 @@ import { Row } from '../styles';
 type Props = {
   brands: IBrand[]; // eslint-disable-line react/forbid-prop-types
   onChange?: (e: any) => any;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-      };
-    },
-    callback: () => void
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   defaultValue?: string;
   creatable?: boolean;
   isRequired?: boolean;
@@ -31,7 +23,7 @@ type Props = {
 
 class SelectBrand extends React.Component<Props, {}> {
   renderAddBrand = () => {
-    const { save, creatable = true } = this.props;
+    const { renderButton, creatable = true } = this.props;
 
     if (!creatable) {
       return;
@@ -39,7 +31,9 @@ class SelectBrand extends React.Component<Props, {}> {
 
     const trigger = <Button>Create brand</Button>;
 
-    const content = props => <BrandForm {...props} save={save} />;
+    const content = props => (
+      <BrandForm {...props} renderButton={renderButton} />
+    );
 
     return (
       <ModalTrigger title="Create brand" trigger={trigger} content={content} />

@@ -14,7 +14,7 @@ import { IBrand } from '../types';
 type Props = {
   brand?: IBrand;
   closeModal?: () => void;
-  renderButton?: (props: any) => JSX.Element;
+  renderButton: (props: any) => JSX.Element;
   afterSave?: () => void;
   modal?: boolean;
 };
