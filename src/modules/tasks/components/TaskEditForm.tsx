@@ -22,7 +22,7 @@ type State = {
   priority: string;
 };
 
-export default class TicketEditForm extends React.Component<Props, State> {
+export default class TaskEditForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
