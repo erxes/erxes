@@ -263,12 +263,10 @@ const EditorContainer = styled.div`
 `;
 
 const SelectMessageType = styled.div`
-  margin: 20px;
+  margin: 20px 20px 0 20px;
   width: 300px;
   white-space: normal;
-  font-size: 12px;
   color: ${colors.colorCoreGray};
-  padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
 `;
 
 export {

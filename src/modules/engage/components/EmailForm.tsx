@@ -167,15 +167,17 @@ class EmailForm extends React.Component<Props, State> {
           {this.renderScheduler()}
         </FlexPad>
 
-        <EditorContainer>
-          <ControlLabel>Content:</ControlLabel>
-          <EditorCK
-            content={this.state.content}
-            onChange={this.onEditorChange}
-            insertItems={EMAIL_CONTENT}
-            height={500}
-          />
-        </EditorContainer>
+        <FlexItem overflow="auto" count="2">
+          <EditorContainer>
+            <ControlLabel>Content:</ControlLabel>
+            <EditorCK
+              content={this.state.content}
+              onChange={this.onEditorChange}
+              insertItems={EMAIL_CONTENT}
+              height={500}
+            />
+          </EditorContainer>
+        </FlexItem>
       </FlexItem>
     );
   }
