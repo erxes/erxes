@@ -7,6 +7,7 @@ import { BoardItem } from '../styles';
 import { IBoard } from '../types';
 
 type Props = {
+  type: string;
   board: IBoard;
   remove: (boardId: string) => void;
   save: (
@@ -21,13 +22,13 @@ class BoardRow extends React.Component<Props, {}> {
   private size;
 
   remove = () => {
-    const { board } = this.props;
+    const { board, type } = this.props;
 
     this.props.remove(board._id);
   };
 
   renderEditAction() {
-    const { board, save } = this.props;
+    const { board, save, type } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -37,7 +38,9 @@ class BoardRow extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => <BoardForm {...props} board={board} save={save} />;
+    const content = props => (
+      <BoardForm {...props} board={board} save={save} type={type} />
+    );
 
     return (
       <ModalTrigger
