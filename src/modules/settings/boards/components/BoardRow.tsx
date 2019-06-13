@@ -22,7 +22,7 @@ class BoardRow extends React.Component<Props, {}> {
   private size;
 
   remove = () => {
-    const { board, type } = this.props;
+    const { board } = this.props;
 
     this.props.remove(board._id);
   };

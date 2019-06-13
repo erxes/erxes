@@ -21,10 +21,11 @@ type Props = {
 
 class Boards extends React.Component<Props, {}> {
   renderItems = () => {
-    const { boards, remove, save, currentBoardId } = this.props;
+    const { type, boards, remove, save, currentBoardId } = this.props;
 
     return boards.map(board => (
       <BoardRow
+        type={type}
         key={board._id}
         isActive={currentBoardId === board._id}
         board={board}
