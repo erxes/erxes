@@ -31,6 +31,14 @@ class Home extends React.Component<Props, {}> {
 
         break;
       }
+      case 'task': {
+        breadcrumb.push({
+          title: __('Task'),
+          link: '/settings/boards/task'
+        });
+
+        break;
+      }
     }
 
     return (
