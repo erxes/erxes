@@ -141,6 +141,17 @@ class Settings extends React.PureComponent {
             )}
           </div>
         </Row>
+        <Divider />
+        <Row>
+          <RowTitle>{__('Task Settings')}</RowTitle>
+          <div>
+            {this.renderBox(
+              'Boards & Pipelines',
+              '/images/icons/erxes-19.svg',
+              '/settings/boards/task'
+            )}
+          </div>
+        </Row>
       </MenusContainer>
     );
 

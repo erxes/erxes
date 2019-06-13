@@ -14,10 +14,15 @@ const TicketHome = () => {
   return <Home type="ticket" />;
 };
 
+const TaskHome = () => {
+  return <Home type="task" />;
+};
+
 const routes = () => (
   <React.Fragment>
     <Route path="/settings/boards/deal" component={DealHome} />
     <Route path="/settings/boards/ticket" component={TicketHome} />
+    <Route path="/settings/boards/task" component={TaskHome} />
   </React.Fragment>
 );
 
