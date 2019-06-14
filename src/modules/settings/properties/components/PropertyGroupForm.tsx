@@ -1,30 +1,26 @@
 import {
   Button,
-  ButtonMutate,
   ControlLabel,
   Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Toggle from 'react-toggle';
-import { IFormProps } from '../../../common/types';
-import { mutations } from '../graphql';
 import { IFieldGroup } from '../types';
 
 type Props = {
   group?: IFieldGroup;
   type: string;
-  refetchQueries: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
   isVisible: boolean;
-  isSubmitted: boolean;
-  mutation: string;
 };
 
 class PropertyGroupForm extends React.Component<Props, State> {
@@ -32,23 +28,15 @@ class PropertyGroupForm extends React.Component<Props, State> {
     super(props);
 
     let isVisible = true;
-    let mutation = mutations.fieldsGroupsAdd;
 
     if (props.group) {
       isVisible = props.group.isVisible;
-      mutation = mutations.fieldsGroupsEdit;
     }
 
     this.state = {
-      isVisible,
-      isSubmitted: false,
-      mutation
+      isVisible
     };
   }
-
-  onSubmit = () => {
-    this.setState({ isSubmitted: true });
-  };
 
   generateDoc = (values: {
     _id?: string;
@@ -100,7 +88,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { group, closeModal, refetchQueries } = this.props;
+    const { group, closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     const object = group || ({} as IFieldGroup);
 
@@ -113,7 +102,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
             name="name"
             autoFocus={true}
             required={true}
-            defaultValue={object.name || ''}
+            defaultValue={object.name}
           />
         </FormGroup>
 
@@ -123,7 +112,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
             {...formProps}
             name="description"
             required={true}
-            defaultValue={object.description || ''}
+            defaultValue={object.description}
           />
         </FormGroup>
 
@@ -134,27 +123,20 @@ class PropertyGroupForm extends React.Component<Props, State> {
             Close
           </Button>
 
-          <ButtonMutate
-            mutation={this.state.mutation}
-            variables={this.generateDoc(formProps.values)}
-            callback={closeModal}
-            refetchQueries={refetchQueries}
-            isSubmitted={this.state.isSubmitted}
-            type="submit"
-            icon="checked-1"
-            successMessage={`You successfully ${
-              group ? 'updated' : 'added'
-            } a group.`}
-          >
-            {__('Save')}
-          </ButtonMutate>
+          {renderButton({
+            name: 'brand',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: group
+          })}
         </ModalFooter>
       </>
     );
   };
 
   render() {
-    return <Form renderContent={this.renderContent} onSubmit={this.onSubmit} />;
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

@@ -12,7 +12,7 @@ import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { mutations } from '../graphql';
 import { Divider, StepBody, StepHeader, StepItem } from '../styles';
-import { IActions, IModule, IPermissionParams, IUserGroup } from '../types';
+import { IActions, IModule, IUserGroup } from '../types';
 import {
   correctValue,
   filterActions,

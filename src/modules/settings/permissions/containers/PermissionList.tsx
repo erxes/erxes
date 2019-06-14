@@ -10,7 +10,6 @@ import { mutations, queries } from '../graphql';
 import {
   IPermissionParams,
   PermissionActionsQueryResponse,
-  PermissionAddMutationResponse,
   PermissionModulesQueryResponse,
   PermissionRemoveMutationResponse,
   PermissionsQueryResponse,

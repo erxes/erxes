@@ -1,7 +1,10 @@
 import gql from 'graphql-tag';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { PropertyGroupForm } from '../components';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   FieldsGroupsEditMutationResponse,
   FieldsGroupsMutationVariables
@@ -16,10 +19,37 @@ const PropertyGroupFormContainer = (props: Props) => {
   const { queryParams } = props;
   const { type } = queryParams;
 
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={
+          object ? mutations.fieldsGroupsEdit : mutations.fieldsGroupsAdd
+        }
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries(queryParams)}
+        isSubmitted={isSubmitted}
+        type="submit"
+        icon="send"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
+  };
+
   const updatedProps = {
     ...props,
     type,
-    refetchQueries: getRefetchQueries(queryParams)
+    renderButton
   };
 
   return <PropertyGroupForm {...updatedProps} />;
@@ -28,9 +58,7 @@ const PropertyGroupFormContainer = (props: Props) => {
 const getRefetchQueries = queryParams => {
   return [
     {
-      query: gql`
-        ${queries.fieldsGroups}
-      `,
+      query: gql(queries.fieldsGroups),
       variables: { contentType: queryParams.type }
     }
   ];
