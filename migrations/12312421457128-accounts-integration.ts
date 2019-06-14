@@ -9,7 +9,7 @@ const options = {
 };
 
 module.exports.up = async () => {
-  const { MONGO_URL = '' } = process.env;
+  const { MONGO_URL = '', INTEGRATIONS_DB_NAME = '' } = process.env;
 
   const apiMongoClient = await mongoose.createConnection(MONGO_URL, options);
 
@@ -36,7 +36,7 @@ module.exports.up = async () => {
     .toArray();
 
   // Switch to erxes-integrations database
-  const integrationMongoClient = apiMongoClient.useDb('erxes-integrations');
+  const integrationMongoClient = apiMongoClient.useDb(INTEGRATIONS_DB_NAME);
 
   await integrationMongoClient.db.collection('accounts').insertMany(accounts);
   await integrationMongoClient.db.collection('integrations').insertMany(integrations);
