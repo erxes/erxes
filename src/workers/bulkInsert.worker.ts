@@ -63,7 +63,7 @@ connect().then(async () => {
 
         case 'customData':
           {
-            const value = fieldValue[colIndex];
+            const value = fieldValue[colIndex].toString();
             coc[property.name] = value;
           }
           break;
