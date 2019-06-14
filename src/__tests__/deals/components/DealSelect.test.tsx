@@ -1,8 +1,9 @@
+// test passed
 import { mount, shallow } from 'enzyme';
+import DealSelect from 'modules/deals/components/DealSelect';
+import { IBoard, IPipeline, IStage } from 'modules/deals/types';
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
-import DealSelect from '../../../modules/deals/components/DealSelect';
-import { IBoard, IPipeline, IStage } from '../../../modules/deals/types';
 
 describe('DealSelect component', () => {
   const testBoards: IBoard[] = [
@@ -47,11 +48,11 @@ describe('DealSelect component', () => {
     onChangeStage: (value: string, callback?: () => void) => null
   };
 
-  test('renders successfully', () => {
+  test('renders shallow successfully', () => {
     shallow(<DealSelect {...defaultProps} />);
   });
 
-  test('renders with default props', () => {
+  test('renders mount with default props', () => {
     const control = mount(<DealSelect {...defaultProps} />);
     const props = control.props();
 
