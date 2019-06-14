@@ -188,8 +188,8 @@ const lastConversation = `
 `;
 
 const responseTemplateList = `
-  query responseTemplates {
-    responseTemplates {
+  query responseTemplates($perPage: Int) {
+    responseTemplates(perPage: $perPage) {
       _id
       name
       brandId
