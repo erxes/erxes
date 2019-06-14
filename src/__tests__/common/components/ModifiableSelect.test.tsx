@@ -6,7 +6,7 @@ import ModifiableSelect from '../../../modules/common/components/ModifiableSelec
 
 describe('Modifiable component', () => {
   const defaultProps = {
-    options: [],
+    options: ['80201929', '99999999'],
     value: '80',
     placeholder: 'phone',
     buttonText: 'add',
@@ -33,12 +33,12 @@ describe('Modifiable component', () => {
     expect(defaultProps).toMatchObject(props);
   });
 
-  test('render piggy Modifiliable', () => {
+  test('check Modifiliable', () => {
     const rendered = mount(<ModifiableSelect {...defaultProps} />);
     const found = rendered.find('span').debug();
     // console.log(found);
-    const piggyFound = found.search('className="Select-placeholder"');
-    expect(piggyFound).toBeGreaterThan(-1);
+    const founded = found.search('className="Select-placeholder"');
+    expect(founded).toBeGreaterThan(-1);
   });
 
   test('snapshot matches', () => {
@@ -47,5 +47,16 @@ describe('Modifiable component', () => {
       .toJSON();
 
     expect(rendered).toMatchSnapshot();
+  });
+
+  test('check state', () => {
+    const wrapper = mount(<ModifiableSelect {...defaultProps} />);
+    const addButton = wrapper.find('span').at(3);
+    addButton.simulate('click');
+
+    const saveButton = wrapper.find('button').at(1);
+    saveButton.simulate('click');
+
+    console.log(wrapper.state('options'));
   });
 });
