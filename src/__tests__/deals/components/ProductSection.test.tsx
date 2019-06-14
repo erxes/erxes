@@ -3,8 +3,8 @@ import { mount, shallow } from 'enzyme';
 import ProductSection from 'modules/deals/components/ProductSection';
 import { IProductData } from 'modules/deals/types';
 import { IProduct } from 'modules/settings/productService/types';
-import * as renderer from 'react-test-renderer';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 describe('ProductSection component', () => {
   const testProducts: IProduct[] = [
