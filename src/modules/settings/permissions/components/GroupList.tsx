@@ -7,7 +7,7 @@ import {
   ModalTrigger,
   Tip
 } from 'modules/common/components';
-import { IRouterProps } from 'modules/common/types';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
@@ -26,6 +26,7 @@ interface IProps extends IRouterProps {
   loading: boolean;
   users: IUser[];
   objects: IUserGroupDocument[];
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (id: string) => void;
 }
 
@@ -39,11 +40,11 @@ class GroupList extends React.Component<IProps> {
   }
 
   renderForm = props => {
-    const { refetch } = this.props;
+    const { refetch, renderButton } = this.props;
 
     const extendedProps = { ...props, refetch };
 
-    return <GroupForm {...extendedProps} />;
+    return <GroupForm {...extendedProps} renderButton={renderButton} />;
   };
 
   isActive = (id: string) => {

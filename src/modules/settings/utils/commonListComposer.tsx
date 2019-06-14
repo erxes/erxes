@@ -1,4 +1,6 @@
-import { confirm, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, confirm, withProps } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose } from 'react-apollo';
@@ -11,6 +13,8 @@ function commonListComposer<ComponentProps>(options) {
   const {
     text,
     name,
+    stringEditMutation,
+    stringAddMutation,
     gqlListQuery,
     gqlTotalCountQuery,
     gqlAddMutation,
@@ -94,6 +98,32 @@ function commonListComposer<ComponentProps>(options) {
         });
     };
 
+    const renderButton = ({
+      // tslint:disable-next-line:no-shadowed-variable
+      name,
+      values,
+      isSubmitted,
+      callback,
+      object
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={object ? stringEditMutation : stringAddMutation}
+          variables={values}
+          callback={callback}
+          refetchQueries={listQuery.refetch}
+          isSubmitted={isSubmitted}
+          type="submit"
+          icon="send"
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
+        >
+          {__('Save')}
+        </ButtonMutate>
+      );
+    };
+
     const updatedProps = {
       ...props,
       refetch: listQuery.refetch,
@@ -102,6 +132,7 @@ function commonListComposer<ComponentProps>(options) {
       save,
       remove,
       history,
+      renderButton,
       loading: listQuery.loading
     };
 

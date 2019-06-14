@@ -16,13 +16,7 @@ import * as React from 'react';
 import Select from 'react-select-plus';
 import { GroupList } from '../containers';
 import { Capitalize, FilterItem, FilterWrapper, NotWrappable } from '../styles';
-import {
-  IActions,
-  IModule,
-  IPermissionDocument,
-  IPermissionParams,
-  IUserGroup
-} from '../types';
+import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
 import PermissionForm from './PermissionForm';
 import {
   correctValue,

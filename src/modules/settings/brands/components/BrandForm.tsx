@@ -6,7 +6,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IFormProps } from 'modules/common/types';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { IBrand } from '../types';
@@ -14,7 +14,7 @@ import { IBrand } from '../types';
 type Props = {
   brand?: IBrand;
   closeModal?: () => void;
-  renderButton: (props: any) => JSX.Element;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   afterSave?: () => void;
   modal?: boolean;
 };

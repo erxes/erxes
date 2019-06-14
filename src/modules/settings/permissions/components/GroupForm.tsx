@@ -6,23 +6,22 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { IFormProps } from 'modules/common/types';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
-import { mutations } from '../graphql';
 import { IUserGroup, IUserGroupDocument } from '../types';
 
 type Props = {
   closeModal: () => void;
-  object: { _id: string } & IUserGroup;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  object: IUserGroupDocument;
   refetch: any;
 };
 
 type State = {
   selectedMembers: string[];
-  isSubmitted: boolean;
 };
 
 class GroupForm extends React.Component<Props, State> {
@@ -30,22 +29,9 @@ class GroupForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedMembers: (props.object && props.object.memberIds) || [],
-      isSubmitted: false
+      selectedMembers: (props.object && props.object.memberIds) || []
     };
   }
-
-  save = () => {
-    this.setState({ isSubmitted: true });
-  };
-
-  getMutation = () => {
-    if (this.props.object) {
-      return mutations.usersGroupsEdit;
-    }
-
-    return mutations.usersGroupsAdd;
-  };
 
   generateDoc = (values: {
     _id?: string;
@@ -70,6 +56,11 @@ class GroupForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as IUserGroupDocument);
     const self = this;
+    const { values, isSubmitted } = formProps;
+
+    if (object) {
+      values._id = object._id;
+    }
 
     const onChange = selectedMembers => {
       self.setState({ selectedMembers });
@@ -82,7 +73,7 @@ class GroupForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="name"
-            defaultValue={object.name || ''}
+            defaultValue={object.name}
             autoFocus={true}
             required={true}
           />
@@ -94,7 +85,7 @@ class GroupForm extends React.Component<Props, State> {
             {...formProps}
             componentClass="textarea"
             name="description"
-            defaultValue={object.description || ''}
+            defaultValue={object.description}
             required={true}
           />
         </FormGroup>
@@ -120,27 +111,20 @@ class GroupForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <ButtonMutate
-            mutation={this.getMutation()}
-            variables={this.generateDoc(formProps.values)}
-            callback={this.props.closeModal}
-            refetchQueries={this.props.refetch}
-            isSubmitted={this.state.isSubmitted}
-            type="submit"
-            icon="checked-1"
-            successMessage={`You successfully ${
-              object ? 'updated' : 'added'
-            } a user group.`}
-          >
-            {__('Save')}
-          </ButtonMutate>
+          {this.props.renderButton({
+            name: 'user group',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: this.props.closeModal,
+            object: this.props.object
+          })}
         </Modal.Footer>
       </>
     );
   };
 
   render() {
-    return <Form renderContent={this.renderContent} onSubmit={this.save} />;
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

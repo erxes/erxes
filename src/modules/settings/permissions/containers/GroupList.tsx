@@ -27,6 +27,8 @@ const commonOptions = () => ({
 const MainGroupList = commonListComposer<Props>({
   name: 'usersGroups',
   text: 'user group',
+  stringEditMutation: mutations.usersGroupsEdit,
+  stringAddMutation: mutations.usersGroupsAdd,
 
   gqlListQuery: graphql<Props, UsersGroupsQueryResponse>(
     gql(queries.usersGroups),
