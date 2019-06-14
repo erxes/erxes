@@ -3,6 +3,7 @@ import { EditorState } from 'draft-js';
 import { mount, shallow } from 'enzyme';
 import Editor from 'modules/engage/components/Editor';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 describe('Editor component', () => {
   const defaultProps = {

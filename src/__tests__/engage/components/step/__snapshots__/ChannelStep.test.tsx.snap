@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelStep component snapshot matches 1`] = `
+<div
+  className="sc-kkGfuU cTwHKp"
+>
+  <div
+    className="sc-jWojfa lgWbSA sc-hSdWYo iFcZeJ"
+    onClick={[Function]}
+    selected={false}
+  >
+    <i
+      className="icon-email-1 sc-bwzfXH hpxbGw"
+      icon="email-1"
+    />
+    <span>
+      email
+    </span>
+    <p>
+      Delivered to a user's email inbox Customize with your own templates
+    </p>
+  </div>
+  <div
+    className="sc-jWojfa lgWbSA sc-hSdWYo iFcZeJ"
+    onClick={[Function]}
+    selected={false}
+  >
+    <i
+      className="icon-chat sc-bwzfXH hpxbGw"
+      icon="chat"
+    />
+    <span>
+      messenger
+    </span>
+    <p>
+      Delivered inside your app Reach active users
+    </p>
+  </div>
+</div>
+`;

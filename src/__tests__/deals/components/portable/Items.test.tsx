@@ -1,8 +1,8 @@
-// test passed
 import { mount, shallow } from 'enzyme';
 import Items from 'modules/deals/components/portable/Items';
 import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 describe('Items component', () => {
   const testProducts: IProduct[] = [
@@ -38,5 +38,11 @@ describe('Items component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<Items {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

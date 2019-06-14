@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UserCounter component snapshot matches 1`] = `
+<ul
+  className="sc-dznXNo bQcqyT"
+>
+  <li>
+    <img
+      alt="Test Name"
+      onBlur={[Function]}
+      onClick={null}
+      onFocus={[Function]}
+      onMouseOut={[Function]}
+      onMouseOver={[Function]}
+      src="/images/avatar-colored.svg"
+    />
+  </li>
+  <li
+    className="remained-count"
+    onClick={[Function]}
+  >
+    +
+    1
+  </li>
+</ul>
+`;

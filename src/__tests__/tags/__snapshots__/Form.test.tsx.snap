@@ -37,7 +37,7 @@ exports[`Form component snapshot matches 1`] = `
       onChange={[Function]}
       required={false}
       type="color"
-      value="#82067c"
+      value="#531aad"
     />
   </div>
   <div

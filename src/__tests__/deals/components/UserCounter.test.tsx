@@ -1,4 +1,3 @@
-// test passed
 import { mount, shallow } from 'enzyme';
 import { IUser } from 'modules/auth/types';
 import UserCounter from 'modules/deals/components/portable/UserCounter';

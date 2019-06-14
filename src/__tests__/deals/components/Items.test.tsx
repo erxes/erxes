@@ -1,4 +1,3 @@
-// test passed
 import { mount, shallow } from 'enzyme';
 import Items from 'modules/deals/components/portable/Items';
 import { IProduct } from 'modules/settings/productService/types';

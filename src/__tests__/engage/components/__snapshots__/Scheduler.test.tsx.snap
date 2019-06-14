@@ -1,0 +1,164 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Scheduler component snapshot matches 1`] = `
+<div
+  className="sc-jKVCRD eDSGVr"
+>
+  <label
+    className="sc-ebFjAB bHuvQk"
+  >
+    Schedule:
+  </label>
+  <div
+    className="sc-LKuAh jQIRMK"
+  >
+    <select
+      className="sc-hzNEM bWROUb sc-iBEsjs jXYbvT"
+      disabled={false}
+      onChange={[Function]}
+      required={false}
+      value="string"
+    >
+      <option />
+       
+      <option
+        value="day"
+      >
+        Every Day
+      </option>
+      <option
+        value="month"
+      >
+        Every Month
+      </option>
+      <option
+        value="year"
+      >
+        Every Year
+      </option>
+      <option
+        value={1}
+      >
+        Every Monday
+      </option>
+      <option
+        value={2}
+      >
+        Every Tuesday
+      </option>
+      <option
+        value={3}
+      >
+        Every Wednesday
+      </option>
+      <option
+        value={4}
+      >
+        Every Thursday
+      </option>
+      <option
+        value={5}
+      >
+        Every Friday
+      </option>
+      <option
+        value={6}
+      >
+        Every Saturday
+      </option>
+      <option
+        value={0}
+      >
+        Every Sunday
+      </option>
+    </select>
+  </div>
+  <div
+    className="sc-bSbAYC gPitej"
+  />
+  <div
+    className="sc-guztPN bXvTbB"
+  >
+    <label
+      className="sc-ebFjAB bHuvQk"
+    >
+      Choose time:
+    </label>
+    <div
+      className="rdt rdtStatic rdtOpen"
+    >
+      <div
+        className="rdtPicker"
+      >
+        <div
+          className="rdtTime"
+        >
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <div
+                    className="rdtCounters"
+                  >
+                    <div
+                      className="rdtCounter"
+                    >
+                      <span
+                        className="rdtBtn"
+                        onContextMenu={[Function]}
+                        onMouseDown={[Function]}
+                      >
+                        ▲
+                      </span>
+                      <div
+                        className="rdtCount"
+                      >
+                        13
+                      </div>
+                      <span
+                        className="rdtBtn"
+                        onContextMenu={[Function]}
+                        onMouseDown={[Function]}
+                      >
+                        ▼
+                      </span>
+                    </div>
+                    <div
+                      className="rdtCounterSeparator"
+                    >
+                      :
+                    </div>
+                    <div
+                      className="rdtCounter"
+                    >
+                      <span
+                        className="rdtBtn"
+                        onContextMenu={[Function]}
+                        onMouseDown={[Function]}
+                      >
+                        ▲
+                      </span>
+                      <div
+                        className="rdtCount"
+                      >
+                        26
+                      </div>
+                      <span
+                        className="rdtBtn"
+                        onContextMenu={[Function]}
+                        onMouseDown={[Function]}
+                      >
+                        ▼
+                      </span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

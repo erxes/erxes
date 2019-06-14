@@ -3,6 +3,7 @@ import { mount, shallow } from 'enzyme';
 import Scheduler from 'modules/engage/components/Scheduler';
 import { IEngageScheduleDate } from 'modules/engage/types';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 describe('Scheduler component', () => {
   const testIEngageScheduleDate: IEngageScheduleDate = {
@@ -26,5 +27,11 @@ describe('Scheduler component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer.create(<Scheduler {...defaultProps} />).toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

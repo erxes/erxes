@@ -1,8 +1,8 @@
-// test passed
 import { mount, shallow } from 'enzyme';
 import DealAddForm from 'modules/deals/components/portable/AddDeal';
 import { IDealParams } from 'modules/deals/types';
 import * as React from 'react';
+import * as renderer from 'react-test-renderer';
 
 describe('DealAddForm component', () => {
   const defaultProps = {
@@ -19,5 +19,13 @@ describe('DealAddForm component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
+  });
+
+  test('snapshot matches', () => {
+    const rendered = renderer
+      .create(<DealAddForm {...defaultProps} />)
+      .toJSON();
+
+    expect(rendered).toMatchSnapshot();
   });
 });

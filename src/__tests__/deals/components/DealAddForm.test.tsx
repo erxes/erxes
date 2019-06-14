@@ -1,4 +1,3 @@
-// test passed
 import { mount, shallow } from 'enzyme';
 import DealAddForm from 'modules/deals/components/DealAddForm';
 import * as React from 'react';
