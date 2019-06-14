@@ -34,7 +34,7 @@ pipeline:
 
   docker_publish_tag:
     image: plugins/docker
-    repo: erxes/${DRONE_REPO_NAME}
+    repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
     dockerfile: Dockerfile
     secrets:
       - source: docker_hub_username
