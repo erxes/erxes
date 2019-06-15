@@ -59,67 +59,6 @@ describe('ticketQueries', () => {
     await Tickets.deleteMany({});
   });
 
-  test('Filter by next day', async () => {
-    const tommorrow = moment()
-      .utc()
-      .add(1, 'days')
-      .startOf('days')
-      .toDate();
-
-    await ticketFactory({ closeDate: tommorrow });
-
-    const response = await graphqlRequest(qryTicketFilter, 'tickets', { nextDay: 'true' });
-
-    expect(response.length).toBe(1);
-  });
-
-  test('Ticket filter by next week', async () => {
-    const nextWeek = moment()
-      .utc()
-      .day(4 + 7)
-      .startOf('days')
-      .toDate();
-
-    await ticketFactory({ closeDate: nextWeek });
-
-    const response = await graphqlRequest(qryTicketFilter, 'tickets', { nextWeek: 'true' });
-
-    expect(response.length).toBe(1);
-  });
-
-  test('Ticket filter by next month', async () => {
-    const nextMonth = moment()
-      .add(1, 'months')
-      .format('YYYY-MM-01');
-
-    await ticketFactory({ closeDate: new Date(nextMonth) });
-
-    const response = await graphqlRequest(qryTicketFilter, 'tickets', { nextMonth: 'true' });
-
-    expect(response.length).toBe(1);
-  });
-
-  test('Ticket filter by has no close date', async () => {
-    await ticketFactory({ noCloseDate: true });
-
-    const response = await graphqlRequest(qryTicketFilter, 'tickets', { noCloseDate: 'true' });
-
-    expect(response.length).toBe(1);
-  });
-
-  test('Ticket filter by overdue', async () => {
-    const yesterday = moment()
-      .utc()
-      .subtract(1, 'days')
-      .toDate();
-
-    await ticketFactory({ closeDate: yesterday });
-
-    const response = await graphqlRequest(qryTicketFilter, 'tickets', { overdue: 'true' });
-
-    expect(response.length).toBe(1);
-  });
-
   test('Ticket filter by team members', async () => {
     const { _id } = await userFactory();
 

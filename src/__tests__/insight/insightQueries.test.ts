@@ -308,7 +308,7 @@ describe('insightQueries', () => {
 
     expect(response[0].count).toBe(6); // In time range
     expect(response[1].count).toBe(6); // This month
-    expect(response[2].count).toBe(0); // This week
+    expect(response[2].count).toBe(6); // This week
     expect(response[3].count).toBe(6); // Today
     expect(response[4].count).toBe(6); // Last 30 days
   });

@@ -59,67 +59,6 @@ describe('taskQueries', () => {
     await Tasks.deleteMany({});
   });
 
-  test('Filter by next day', async () => {
-    const tommorrow = moment()
-      .utc()
-      .add(1, 'days')
-      .startOf('days')
-      .toDate();
-
-    await taskFactory({ closeDate: tommorrow });
-
-    const response = await graphqlRequest(qryTaskFilter, 'tasks', { nextDay: 'true' });
-
-    expect(response.length).toBe(1);
-  });
-
-  test('Task filter by next week', async () => {
-    const nextWeek = moment()
-      .utc()
-      .day(4 + 7)
-      .startOf('days')
-      .toDate();
-
-    await taskFactory({ closeDate: nextWeek });
-
-    const response = await graphqlRequest(qryTaskFilter, 'tasks', { nextWeek: 'true' });
-
-    expect(response.length).toBe(1);
-  });
-
-  test('Task filter by next month', async () => {
-    const nextMonth = moment()
-      .add(1, 'months')
-      .format('YYYY-MM-01');
-
-    await taskFactory({ closeDate: new Date(nextMonth) });
-
-    const response = await graphqlRequest(qryTaskFilter, 'tasks', { nextMonth: 'true' });
-
-    expect(response.length).toBe(1);
-  });
-
-  test('Task filter by has no close date', async () => {
-    await taskFactory({ noCloseDate: true });
-
-    const response = await graphqlRequest(qryTaskFilter, 'tasks', { noCloseDate: 'true' });
-
-    expect(response.length).toBe(1);
-  });
-
-  test('Task filter by overdue', async () => {
-    const yesterday = moment()
-      .utc()
-      .subtract(1, 'days')
-      .toDate();
-
-    await taskFactory({ closeDate: yesterday });
-
-    const response = await graphqlRequest(qryTaskFilter, 'tasks', { overdue: 'true' });
-
-    expect(response.length).toBe(1);
-  });
-
   test('Task filter by team members', async () => {
     const { _id } = await userFactory();
 
