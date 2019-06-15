@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import mongoose = require('mongoose');
+import { debugDb } from './debuggers';
 
 dotenv.config();
 
@@ -12,12 +13,12 @@ export const connect = () => {
 
   mongoose.connection
     .on('connected', () => {
-      console.log(`Connected to the database: ${URI}`);
+      debugDb(`Connected to the database: ${URI}`);
     })
     .on('disconnected', () => {
-      console.log(`Disconnected from the database: ${URI}`);
+      debugDb(`Disconnected from the database: ${URI}`);
     })
     .on('error', error => {
-      console.log(`Database connection error: ${URI}`, error);
+      debugDb(`Database connection error: ${URI}`, error);
     });
 };

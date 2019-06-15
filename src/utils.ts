@@ -1,4 +1,5 @@
 import * as requestify from 'requestify';
+import { debugExternalRequests } from './debuggers';
 
 interface IRequestParams {
   url?: string;
@@ -13,6 +14,14 @@ interface IRequestParams {
  */
 export const sendRequest = async ({ url, method, body, params }: IRequestParams) => {
   try {
+    debugExternalRequests(`
+      Sending request
+      url: ${url}
+      method: ${method}
+      body: ${JSON.stringify(body || {})}
+      params: ${JSON.stringify(params || {})}
+    `);
+
     const response = await requestify.request(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -20,9 +29,22 @@ export const sendRequest = async ({ url, method, body, params }: IRequestParams)
       params,
     });
 
-    return response.getBody();
+    const responseBody = response.getBody();
+
+    debugExternalRequests(`
+      Success from ${url}
+      responseBody: ${JSON.stringify(responseBody)}
+    `);
+
+    return responseBody;
   } catch (e) {
-    console.log(e);
+    if (e.code === 'ECONNREFUSED') {
+      debugExternalRequests(`Failed to connect ${url}`);
+      throw new Error(`Failed to connect ${url}`);
+    } else {
+      debugExternalRequests(`Error occurred in ${url}: ${e.body}`);
+      throw new Error(e.body);
+    }
   }
 };
 

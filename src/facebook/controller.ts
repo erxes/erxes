@@ -1,5 +1,6 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook';
 import { Botkit } from 'botkit';
+import { debugFacebook } from '../debuggers';
 import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
 import { sendRequest } from '../utils';
@@ -11,11 +12,13 @@ import { getPageAccessToken, getPageList, graphRequest } from './utils';
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
 
-  app.post('/facebook/create-integration', async (req, res) => {
+  app.post('/facebook/create-integration', async (req, res, next) => {
+    debugFacebook(`Receiving create-integration request from ${req.headers.host}, body: ${JSON.stringify(req.body)}`);
+
     const { accountId, integrationId, data } = req.body;
     const facebookPageIds = JSON.parse(data).pageIds;
 
-    await Integrations.create({
+    const integration = await Integrations.create({
       kind: 'facebook',
       accountId,
       erxesApiId: integrationId,
@@ -25,29 +28,47 @@ const init = async app => {
     const { ENDPOINT_URL, DOMAIN } = process.env;
 
     if (ENDPOINT_URL) {
-      await sendRequest({
-        url: ENDPOINT_URL,
-        method: 'POST',
-        body: {
-          domain: DOMAIN,
-          facebookPageIds,
-        },
-      });
+      try {
+        await sendRequest({
+          url: ENDPOINT_URL,
+          method: 'POST',
+          body: {
+            domain: DOMAIN,
+            facebookPageIds,
+          },
+        });
+      } catch (e) {
+        await Integrations.remove({ _id: integration._id });
+        return next(e);
+      }
     }
+
+    debugFacebook(`Responding create-integration request to ${req.headers.host} with success`);
 
     return res.json({ status: 'ok ' });
   });
 
-  app.get('/facebook/get-pages', async (req, res) => {
+  app.get('/facebook/get-pages', async (req, res, next) => {
+    debugFacebook(`Receiving get-pages request from ${req.headers.host}, queryParams: ${JSON.stringify(req.query)}`);
+
     const account = await Accounts.findOne({ _id: req.query.accountId });
 
     if (!account) {
-      throw new Error('Account not found');
+      return next(new Error('Account not found'));
     }
 
     const accessToken = account.token;
 
-    const pages = await getPageList(accessToken);
+    let pages = [];
+
+    try {
+      pages = await getPageList(accessToken);
+    } catch (e) {
+      debugFacebook(`Error occured while connecting to facebook ${e.message}`);
+      return next(e);
+    }
+
+    debugFacebook(`Responding get-pages request to ${req.headers.host} with ${JSON.stringify(pages)}`);
 
     return res.json(pages);
   });
