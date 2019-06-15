@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 import { graphqlRequest } from '../db/connection';
 import { companyFactory, customerFactory, stageFactory, taskFactory, userFactory } from '../db/factories';
 import { Tasks } from '../db/models';
