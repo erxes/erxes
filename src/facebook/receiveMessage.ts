@@ -1,23 +1,25 @@
+import { Activity } from 'botbuilder';
 import { FacebookAdapter } from 'botbuilder-adapter-facebook';
-import { BotkitMessage } from 'botkit';
 import Integrations from '../models/Integrations';
 import { fetchMainApi } from '../utils';
 import { Conversations, Customers } from './models';
 
-const receiveMessage = async (adapter: FacebookAdapter, message: BotkitMessage) => {
+const receiveMessage = async (adapter: FacebookAdapter, message: Activity) => {
   const integration = await Integrations.findOne({ facebookPageIds: { $in: [message.recipient.id] } });
 
   if (!integration) {
     return;
   }
 
+  const userId = message.from.id;
+
   // get customer
-  let customer = await Customers.findOne({ userId: message.user });
+  let customer = await Customers.findOne({ userId });
 
   // create customer
   if (!customer) {
     const api = await adapter.getAPI(message);
-    const response = await api.callAPI(`/${message.user}`, 'GET', {});
+    const response = await api.callAPI(`/${userId}`, 'GET', {});
 
     // save on api
     const apiCustomerResponse = await fetchMainApi({
@@ -35,7 +37,7 @@ const receiveMessage = async (adapter: FacebookAdapter, message: BotkitMessage) 
 
     // save on integrations db
     customer = await Customers.create({
-      userId: message.user,
+      userId,
       erxesApiId: apiCustomerResponse._id,
       firstName: response.first_name,
       lastName: response.last_name,
@@ -45,7 +47,7 @@ const receiveMessage = async (adapter: FacebookAdapter, message: BotkitMessage) 
 
   // get conversation
   let conversation = await Conversations.findOne({
-    senderId: message.sender.id,
+    senderId: userId,
     recipientId: message.recipient.id,
   });
 
@@ -69,7 +71,7 @@ const receiveMessage = async (adapter: FacebookAdapter, message: BotkitMessage) 
     conversation = await Conversations.create({
       erxesApiId: apiConversationResponse._id,
       timestamp: message.timestamp,
-      senderId: message.sender.id,
+      senderId: userId,
       recipientId: message.recipient.id,
       content: message.text,
     });

@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "body-parser": "^1.17.1",
+    "botbuilder": "^4.4.0",
     "botbuilder-adapter-facebook": "^1.0.3",
     "botkit": "^4.0.2",
     "debug": "^4.1.1",

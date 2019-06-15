@@ -1,5 +1,4 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook';
-import { Botkit } from 'botkit';
 import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
@@ -126,50 +125,65 @@ const init = async app => {
     }
   });
 
+  const accessTokensByPageId = {};
+
   const adapter = new FacebookAdapter({
     verify_token: process.env.FACEBOOK_VERIFY_TOKEN,
     app_secret: process.env.FACEBOOK_APP_SECRET,
     getAccessTokenForPage: async (pageId: string) => {
-      const integration = await Integrations.findOne({ facebookPageIds: { $in: [pageId] } });
-
-      if (!integration) {
-        debugFacebook(`Integration not found with pageId: ${pageId}`);
-        return;
-      }
-
-      debugFacebook(`Integration found with pageId: ${pageId}`);
-
-      const account = await Accounts.findOne({ _id: integration.accountId });
-
-      if (!account) {
-        debugFacebook(`Account not found with _id: ${integration.accountId}`);
-        return;
-      }
-
-      debugFacebook(`Account found with _id: ${integration.accountId}`);
-
-      try {
-        const token = await getPageAccessToken(pageId, account.token);
-
-        return token;
-      } catch (e) {
-        debugFacebook(`Error occurred while trying to get pag access token with ${account.token}`);
-      }
+      return accessTokensByPageId[pageId];
     },
   });
 
-  const controller = new Botkit({
-    webhook_uri: '/facebook/receive',
-    webserver: app,
-    adapter,
+  // Facebook endpoint verifier
+  app.get('/facebook/receive', (req, res) => {
+    const { FACEBOOK_VERIFY_TOKEN } = process.env;
+
+    // when the endpoint is registered as a webhook, it must echo back
+    // the 'hub.challenge' value it receives in the query arguments
+    if (req.query['hub.mode'] === 'subscribe') {
+      if (req.query['hub.verify_token'] === FACEBOOK_VERIFY_TOKEN) {
+        res.send(req.query['hub.challenge']);
+      } else {
+        res.send('OK');
+      }
+    }
   });
 
-  // Once the bot has booted up its internal services, you can use them to do stuff.
-  controller.ready(() => {
-    controller.on('message', async (_bot, message) => {
-      debugFacebook(`Received webhook message ${JSON.stringify(message)}`);
+  app.post('/facebook/receive', (req, res, next) => {
+    adapter.processActivity(req, res, async context => {
+      const { activity } = context;
 
-      await receiveMessage(adapter, message);
+      if (activity.type === 'message') {
+        debugFacebook(`Received webhook activity ${activity}`);
+
+        const pageId = activity.recipient.id;
+
+        const integration = await Integrations.findOne({ facebookPageIds: { $in: [pageId] } });
+
+        if (!integration) {
+          debugFacebook(`Integration not found with pageId: ${pageId}`);
+          return next();
+        }
+
+        const account = await Accounts.findOne({ _id: integration.accountId });
+
+        if (!account) {
+          debugFacebook(`Account not found with _id: ${integration.accountId}`);
+          return next();
+        }
+
+        try {
+          accessTokensByPageId[pageId] = await getPageAccessToken(pageId, account.token);
+        } catch (e) {
+          debugFacebook(`Error occurred while getting page access token: ${e.message}`);
+          return next();
+        }
+
+        await receiveMessage(adapter, activity);
+
+        debugFacebook(`Successfully saved activity ${activity}`);
+      }
     });
   });
 };
