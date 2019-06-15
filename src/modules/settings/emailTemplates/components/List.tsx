@@ -72,12 +72,13 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
   render() {
     return (
       <List
-        title="New email template"
+        formTitle="New email template"
         size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Email templates') }
         ]}
+        title={__('Email templates')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/22.svg"

@@ -102,7 +102,7 @@ const MessengerPreview = styled(WebPreview)`
   min-height: 500px;
 `;
 
-const Segmentli = styledTS<{ chosen: boolean }>(styled.li)`
+const ListCounter = styledTS<{ chosen: boolean }>(styled.li)`
   list-style-type: none;
   text-align: left;
   display: list-item;
@@ -224,6 +224,51 @@ const DateTimePicker = styled.div`
   }
 `;
 
+const StepFormWrapper = styled.div`
+  padding: 20px;
+`;
+
+const ListWrapper = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
+const RadioContainer = styled.div`
+  border-bottom: 1px dotted ${colors.borderPrimary};
+
+  > * {
+    padding: ${dimensions.coreSpacing}px;
+  }
+`;
+
+const CustomerCounts = styled.div`
+  text-align: center;
+
+  > i {
+    color: ${colors.colorCoreLightGray};
+  }
+`;
+
+const MessageDescription = styled.div`
+  width: 300px;
+  white-space: normal;
+  font-size: 12px;
+  color: ${colors.colorCoreGray};
+  padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
+`;
+
+const EditorContainer = styled.div`
+  padding: ${coreSpace};
+  flex: 1;
+  overflow-y: auto;
+`;
+
+const SelectMessageType = styled.div`
+  margin: 20px 20px 0 20px;
+  width: 300px;
+  white-space: normal;
+  color: ${colors.colorCoreGray};
+`;
+
 export {
   EngageTitle,
   HelperText,
@@ -233,7 +278,7 @@ export {
   PreviewContent,
   Messenger,
   MessengerPreview,
-  Segmentli,
+  ListCounter,
   Recipients,
   Recipient,
   StepContent,
@@ -245,5 +290,12 @@ export {
   DateTimePicker,
   SelectMonth,
   LauncherContainer,
-  WidgetPreview
+  WidgetPreview,
+  MessageDescription,
+  EditorContainer,
+  StepFormWrapper,
+  ListWrapper,
+  RadioContainer,
+  CustomerCounts,
+  SelectMessageType
 };

@@ -77,11 +77,12 @@ class ScriptList extends React.Component<ICommonListProps> {
   render() {
     return (
       <List
-        title="New script"
+        formTitle="New script"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Scripts') }
         ]}
+        title={__('Scripts')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/23.svg"

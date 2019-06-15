@@ -12,19 +12,6 @@ export interface IMessengerData {
   customData?: any;
 }
 
-export interface ITwitterData {
-  id?: number;
-  id_str?: string;
-  name?: string;
-  screen_name?: string;
-  profile_image_url?: string;
-}
-
-export interface IFacebookData {
-  id: string;
-  profilePic?: string;
-}
-
 export interface IVisitorContact {
   email?: string;
   phone?: string;
@@ -53,6 +40,7 @@ export interface ICustomerDoc {
   location?: {
     userAgent?: string;
     country?: string;
+    countryCode?: string;
     remoteAddress?: string;
     hostname?: string;
     language?: string;
@@ -64,8 +52,6 @@ export interface ICustomerDoc {
   description?: string;
   doNotDisturb?: string;
   links?: ICustomerLinks;
-  twitterData?: ITwitterData;
-  facebookData?: IFacebookData;
   messengerData?: IMessengerData;
   customFieldsData?: { [key: string]: any };
   visitorContactInfo?: IVisitorContact;

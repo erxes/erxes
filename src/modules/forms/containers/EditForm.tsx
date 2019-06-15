@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import { BrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
@@ -32,7 +31,6 @@ type Props = {
 
 type FinalProps = {
   fieldsQuery: FieldsQueryResponse;
-  brandsQuery: BrandsQueryResponse;
   integrationDetailQuery: FormIntegrationDetailQueryResponse;
 } & Props &
   EditIntegrationMutationResponse &
@@ -46,7 +44,6 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
   render() {
     const {
       formId,
-      brandsQuery,
       integrationDetailQuery,
       editIntegrationMutation,
       addFieldMutation,
@@ -57,15 +54,10 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
       history
     } = this.props;
 
-    if (
-      fieldsQuery.loading ||
-      brandsQuery.loading ||
-      integrationDetailQuery.loading
-    ) {
+    if (fieldsQuery.loading || integrationDetailQuery.loading) {
       return false;
     }
 
-    const brands = brandsQuery.brands || [];
     const dbFields = fieldsQuery.fields || [];
     const integration = integrationDetailQuery.integrationDetail || {};
 
@@ -155,7 +147,6 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
 
     const updatedProps = {
       ...this.props,
-      brands,
       integration,
       fields: dbFields.map(field => ({ ...field })),
       save
@@ -167,9 +158,6 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery'
-    }),
     graphql<
       Props,
       FieldsQueryResponse,

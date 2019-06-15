@@ -85,9 +85,9 @@ function withSaveAndEdit<IComponentProps>(Component) {
     };
 
     const email = message.email || {
-      templateId: '',
       subject: '',
-      attachments: []
+      attachments: [],
+      content: ''
     };
 
     const scheduleDate = message.scheduleDate || {
@@ -112,9 +112,9 @@ function withSaveAndEdit<IComponentProps>(Component) {
           rules: messenger.rules
         },
         email: {
-          templateId: email.templateId,
           subject: email.subject,
-          attachments: email.attachments
+          attachments: email.attachments,
+          content: email.content
         },
         scheduleDate: {
           type: scheduleDate.type,

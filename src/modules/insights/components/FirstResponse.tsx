@@ -11,7 +11,7 @@ import {
 } from '../styles';
 import { IChartParams, IQueryParams } from '../types';
 import { convertTime } from '../utils';
-import { Chart, Filter, Sidebar, Summary, TeamMembers } from './';
+import { Chart, InboxFilter, Sidebar, Summary, TeamMembers } from './';
 
 type Props = {
   brands: IBrand[];
@@ -66,17 +66,14 @@ class FirstResponse extends React.Component<Props> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         {this.renderCharts()}
       </InsightWrapper>
     );
-  }
-
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('First Response Report') }
-    ];
   }
 
   render() {
@@ -84,7 +81,7 @@ class FirstResponse extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
+            title={__('First Response Report')}
             submenu={menuInbox}
           />
         }

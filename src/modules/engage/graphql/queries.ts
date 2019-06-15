@@ -3,6 +3,9 @@ const listParamsDef = `
   $status: String
   $tag: String
   $ids: [String]
+  $tagIds: [String]
+  $brandIds: [String]
+  $segmentIds: [String]
   $page: Int
   $perPage: Int
 `;
@@ -12,6 +15,9 @@ const listParamsValue = `
   status: $status
   tag: $tag
   ids: $ids
+  tagIds: $tagIds
+  brandIds: $brandIds
+  segmentIds: $segmentIds
   page: $page
   perPage: $perPage
 `;
@@ -27,10 +33,10 @@ const engageMessages = `
       createdDate
       kind
       method
-      brand {
+      brands {
         name
       }
-      segment {
+      segments {
         _id
         name
       }
@@ -43,6 +49,8 @@ const engageMessages = `
         }
       }
       tagIds
+      brandIds 
+      segmentIds 
       stats
       getTags {
         _id
@@ -58,7 +66,9 @@ const engageMessages = `
 const engageDetailFields = `
   _id
   kind
-  segmentId
+  segmentIds
+  tagIds
+  brandIds
   customerIds
   title
   fromUserId
@@ -140,6 +150,7 @@ const customerCounts = `
     $page: Int,
     $perPage: Int,
     $segment: String,
+    $brand: String,
     $tag: String,
     $ids: [String],
     $only: String
@@ -148,6 +159,7 @@ const customerCounts = `
       page: $page,
       perPage: $perPage,
       segment: $segment,
+      brand: $brand,
       tag: $tag,
       ids: $ids,
       only: $only
@@ -173,6 +185,19 @@ const segments = `
       getSubSegments {
         ${segmentFields}
       }
+    }
+  }
+`;
+
+const tags = `
+  query tagsQuery($type: String) {
+    tags(type: $type) {
+      _id
+      name
+      type
+      colorCode
+      createdAt
+      objectCount
     }
   }
 `;
@@ -247,5 +272,6 @@ export default {
   combinedFields,
   kindCounts,
   statusCounts,
-  tagCounts
+  tagCounts,
+  tags
 };

@@ -8,7 +8,7 @@ import styledTS from 'styled-components-ts';
 const types = {
   info: {
     background: colors.colorCoreBlue,
-    icon: 'information'
+    icon: 'megaphone'
   },
 
   warning: {
@@ -27,7 +27,7 @@ const types = {
   }
 };
 
-const AlertItem = styledTS<{ type: string }>(styled.div)`
+export const AlertItem = styledTS<{ type: string }>(styled.div)`
   display: table;
   margin: 29px auto;
   transition: all 0.5s;

@@ -79,7 +79,12 @@ class List extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header
+            title={__('Product & Service')}
+            breadcrumb={breadcrumb}
+          />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={

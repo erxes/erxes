@@ -2,6 +2,11 @@ import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IUser, IUserDetails, IUserDoc, IUserLinks } from '../../auth/types';
 import { IConversation } from '../../inbox/types';
 
+export type IInvitationEntry = {
+  email: string;
+  groupId: string;
+};
+
 export type UserMutationVariables = {
   username: string;
   email: string;

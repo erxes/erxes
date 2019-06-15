@@ -30,7 +30,26 @@ export interface IQueryParams {
   [key: string]: string;
 }
 
+export interface ISelectedOption {
+  label: string;
+  value: string;
+}
+
+export interface IConditionsRule {
+  _id: string;
+  kind?: string;
+  text: string;
+  condition: string;
+  value: string;
+}
+
 export type IDateColumn = {
   month: number;
   year: number;
+};
+
+export type IOption = {
+  label: string;
+  value: string;
+  avatar?: string;
 };

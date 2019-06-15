@@ -108,13 +108,11 @@ class WorkArea extends React.Component<FinalProps, State> {
   addMessage = ({
     variables,
     optimisticResponse,
-    callback,
-    kind
+    callback
   }: {
     variables: any;
     optimisticResponse: any;
     callback?: (e?) => void;
-    kind: string;
   }) => {
     const { addMessageMutation, currentId } = this.props;
 
@@ -170,6 +168,9 @@ class WorkArea extends React.Component<FinalProps, State> {
       .then(() => {
         if (callback) {
           callback();
+
+          // clear saved messages from storage
+          localStorage.removeItem(currentId || '');
         }
       })
       .catch(e => {
@@ -180,9 +181,14 @@ class WorkArea extends React.Component<FinalProps, State> {
   };
 
   loadMoreMessages = () => {
-    const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
+    const {
+      currentId,
+      currentConversation,
+      messagesTotalCountQuery,
+      messagesQuery
+    } = this.props;
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
-    const { conversationMessages } = messagesQuery;
+    const conversationMessages = messagesQuery.conversationMessages || [];
 
     const loading = messagesQuery.loading || messagesTotalCountQuery.loading;
     const hasMore =
@@ -207,9 +213,8 @@ class WorkArea extends React.Component<FinalProps, State> {
             return prev;
           }
 
-          const prevMessageIds = (prev.conversationMessages || []).map(
-            m => m._id
-          );
+          const prevConversationMessages = prev.conversationMessages || [];
+          const prevMessageIds = prevConversationMessages.map(m => m._id);
 
           const fetchedMessages: IMessage[] = [];
 
@@ -223,7 +228,7 @@ class WorkArea extends React.Component<FinalProps, State> {
             ...prev,
             conversationMessages: [
               ...fetchedMessages,
-              ...prev.conversationMessages
+              ...prevConversationMessages
             ]
           };
         }

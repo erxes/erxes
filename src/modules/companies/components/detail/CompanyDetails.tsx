@@ -18,9 +18,12 @@ class CompanyDetails extends React.Component<Props> {
   render() {
     const { company, taggerRefetchQueries } = this.props;
 
+    const title = company.primaryName || 'N/A';
+
     const breadcrumb = [
-      { title: __('Companies'), link: '/companies' },
-      { title: company.primaryName || 'N/A' }
+      { title: __('Contacts'), link: '/contacts' },
+      { title: __('Companies'), link: '/contacts/companies' },
+      { title }
     ];
 
     const content = (
@@ -45,7 +48,7 @@ class CompanyDetails extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         leftSidebar={
           <LeftSidebar
             {...this.props}

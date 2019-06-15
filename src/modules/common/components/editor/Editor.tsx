@@ -14,6 +14,7 @@ import createEmojiPlugin from 'draft-js-emoji-plugin';
 import { stateToHTML } from 'draft-js-export-html';
 import Editor from 'draft-js-plugins-editor';
 import createToolbarPlugin, { Separator } from 'draft-js-static-toolbar-plugin';
+import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
 import HeadlinesButton from './HeadlinesButton';
 import { RichEditorControlsRoot, RichEditorRoot } from './styles';
@@ -61,6 +62,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
     this.toolbarPlugin = createToolbarPlugin();
     this.emojiPlugin = createEmojiPlugin({
       useNativeArt: true,
+      selectButtonContent: <Icon icon="smile" size={13} />,
       positionSuggestions: settings => {
         return {
           left: settings.decoratorRect.x + 'px',

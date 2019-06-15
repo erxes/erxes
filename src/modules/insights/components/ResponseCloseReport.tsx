@@ -11,7 +11,7 @@ import {
 } from '../styles';
 import { IChartParams, IQueryParams } from '../types';
 import { convertTime } from '../utils';
-import { Chart, Filter, Sidebar, TeamMembers } from './';
+import { Chart, InboxFilter, Sidebar, TeamMembers } from './';
 
 type Props = {
   brands: IBrand[];
@@ -31,13 +31,6 @@ class ResponseCloseReport extends React.Component<Props> {
         {time ? <span>({time})</span> : null}
       </InsightTitle>
     );
-  }
-
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('Response Close Report') }
-    ];
   }
 
   renderCharts() {
@@ -69,7 +62,11 @@ class ResponseCloseReport extends React.Component<Props> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         {this.renderCharts()}
       </InsightWrapper>
     );
@@ -80,7 +77,7 @@ class ResponseCloseReport extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
+            title={__('Response Close Report')}
             submenu={menuInbox}
           />
         }

@@ -1,7 +1,6 @@
 import { Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
 import StoreEntry from '../../containers/StoreEntry';
@@ -14,9 +13,7 @@ type Props = {
   totalCount: {
     messenger: number;
     form: number;
-    twitter: number;
     facebook: number;
-    gmail: number;
   };
   queryParams: any;
 };
@@ -112,21 +109,13 @@ class Row extends React.Component<Props, State> {
 
   renderList() {
     const { queryParams, totalCount } = this.props;
-    const { isContentVisible, kind } = this.state;
-
-    if (!isContentVisible) {
-      return null;
-    }
-
-    if (this.isMessengerApp(kind)) {
-      return <MessengerAppList kind={kind} queryParams={queryParams} />;
-    }
+    const { kind } = this.state;
 
     return (
-      <React.Fragment>
+      <>
         <IntegrationList kind={kind} queryParams={queryParams} />
         {this.renderPagination(totalCount[kind || ''])}
-      </React.Fragment>
+      </>
     );
   }
 
@@ -134,17 +123,17 @@ class Row extends React.Component<Props, State> {
     const { integrations, title, totalCount, queryParams } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         {title && <h3>{__(title)}</h3>}
         <IntegrationRow>
           {integrations.map(integration =>
             this.renderEntry(integration, totalCount, queryParams)
           )}
         </IntegrationRow>
-        <Collapse in={this.state.isContentVisible}>
+        <Collapse in={this.state.isContentVisible} unmountOnExit={true}>
           <CollapsibleContent>{this.renderList()}</CollapsibleContent>
         </Collapse>
-      </React.Fragment>
+      </>
     );
   }
 }

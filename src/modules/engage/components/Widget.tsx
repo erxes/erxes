@@ -26,7 +26,13 @@ class Widget extends React.Component<Props> {
     const content = props => <WidgetForm {...this.props} {...props} />;
 
     return (
-      <ModalTrigger title="New message" trigger={trigger} content={content} />
+      <ModalTrigger
+        size="lg"
+        title="New message"
+        trigger={trigger}
+        content={content}
+        enforceFocus={false}
+      />
     );
   }
 }

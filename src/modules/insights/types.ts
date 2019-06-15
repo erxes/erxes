@@ -1,8 +1,10 @@
 export interface IQueryParams {
   brandIds: string;
+  integrationIds: string;
+  boardId: string;
+  pipelineIds: string;
   endDate: string;
   startDate: string;
-  integrationIds: string;
 }
 
 export interface IParams {
@@ -10,9 +12,16 @@ export interface IParams {
   queryParams: IQueryParams;
 }
 
-export interface IParamsWithType {
+export interface IDealParams {
   queryParams: IQueryParams;
-  type: string;
+  status: string;
+}
+
+export interface IInsightType {
+  name: string;
+  image: string;
+  to: string;
+  desc: string;
 }
 
 export interface IChartParams {
@@ -23,11 +32,6 @@ export interface IChartParams {
 export interface IPieChartData {
   label: string;
   value: number;
-}
-
-export interface InsightData {
-  integration: IPieChartData[];
-  tag: IPieChartData[];
 }
 
 export interface IPunchCardData {
@@ -47,12 +51,31 @@ export type PunchCardQueryResponse = {
   loading: boolean;
 };
 
-export type MainQueryResponse = {
-  insightsMain: {
-    teamMembers: IChartParams[];
+export type DealPunchCardQueryResponse = {
+  dealInsightsPunchCard: IPunchCardData[];
+  loading: boolean;
+};
+
+export type SummaryDataQueryResponse = {
+  insightsSummaryData: SummaryData[];
+  loading: boolean;
+};
+
+export type TrendQueryResponse = {
+  insightsTrend: IChartParams[];
+  loading: boolean;
+};
+
+export type DealMainQueryResponse = {
+  dealInsightsMain: {
     summary: SummaryData[];
     trend: IChartParams[];
   };
+  loading: boolean;
+};
+
+export type DealTeamMemberResponse = {
+  dealInsightsByTeamMember: IChartParams[];
   loading: boolean;
 };
 
@@ -64,8 +87,13 @@ export type SummaryQueryResponse = {
   loading: boolean;
 };
 
-export type PieChartQueryResponse = {
-  insights: { tag: IPieChartData[]; integration: IPieChartData[] };
+export type IntegrationChartQueryResponse = {
+  insightsIntegrations: IPieChartData[];
+  loading: boolean;
+};
+
+export type TagChartQueryResponse = {
+  insightsTags: IPieChartData[];
   loading: boolean;
 };
 

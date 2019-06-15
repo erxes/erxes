@@ -17,16 +17,22 @@ import {
   IQueryParams,
   SummaryData
 } from '../types';
-import { Chart, Filter, PunchCard, Sidebar, Summary } from './';
+import { Chart, InboxFilter, PunchCard, Sidebar, Summary } from './';
+
+type ILoading = {
+  summaryData: boolean;
+  trend: boolean;
+  punchCard: boolean;
+};
 
 type Props = {
   brands: IBrand[];
-  trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  punch: IPunchCardData[];
-  summary: SummaryData[];
-  loading: { main: boolean; punch: boolean };
+  summaryData: SummaryData[];
+  trend: IChartParams[];
+  punchCard: IPunchCardData[];
+  loading: ILoading;
 };
 
 class ResponseReport extends React.Component<Props, { width: number }> {
@@ -46,7 +52,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.loading.punch && !this.props.loading.punch) {
+    if (prevProps.loading.punch && !this.props.loading.punchCard) {
       this.calculateWidth();
     }
   }
@@ -64,7 +70,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderTrend(name, loading, trend) {
+  renderTrend(name: string, loading: boolean, trend: IChartParams[]) {
     const innerRef = node => {
       this.wrapper = node;
     };
@@ -72,19 +78,19 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     return (
       <InsightRow innerRef={innerRef}>
         {this.renderTitle(name)}
-        <Chart loading={loading.main} height={360} data={trend} />
+        <Chart loading={loading} height={360} data={trend} />
       </InsightRow>
     );
   }
 
-  renderPunchCard(loading, punch, width) {
+  renderPunchCard(loading: ILoading, punch: IPunchCardData[], width: number) {
     let content = (
       <LoaderWrapper>
         <Spinner objective={true} />
       </LoaderWrapper>
     );
 
-    if (!loading.punch) {
+    if (!loading.punchCard) {
       content = <PunchCard data={punch} width={width} />;
     }
 
@@ -96,15 +102,8 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('Response Report') }
-    ];
-  }
-
   renderCharts() {
-    const { trend, punch, summary, loading } = this.props;
+    const { trend, punchCard, summaryData, loading } = this.props;
 
     const width = this.state.width;
 
@@ -112,12 +111,12 @@ class ResponseReport extends React.Component<Props, { width: number }> {
       <InsightContent>
         <InsightRow>
           {this.renderTitle('Response Times summary')}
-          <Summary loading={loading.main} data={summary} />
+          <Summary loading={loading.summaryData} data={summaryData} />
         </InsightRow>
 
-        {this.renderTrend('Response Trend', loading, trend)}
+        {this.renderTrend('Response Trend', loading.trend, trend)}
 
-        {this.renderPunchCard(loading, punch, width)}
+        {this.renderPunchCard(loading, punchCard, width)}
       </InsightContent>
     );
   }
@@ -127,7 +126,11 @@ class ResponseReport extends React.Component<Props, { width: number }> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         {this.renderCharts()}
       </InsightWrapper>
     );
@@ -137,10 +140,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
-          />
+          <Wrapper.Header title={__('Response Report')} submenu={menuInbox} />
         }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}

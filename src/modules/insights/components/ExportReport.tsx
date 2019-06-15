@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { FullContent } from 'modules/common/styles/main';
+import { ISelectedOption } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
@@ -16,7 +17,7 @@ import {
 } from '../styles';
 import { ExportArgs, IQueryParams } from '../types';
 import { OptionsType } from '../utils';
-import { Filter, Sidebar } from './';
+import { InboxFilter, Sidebar } from './';
 
 type Props = {
   brands: IBrand[];
@@ -46,7 +47,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
     );
   }
 
-  onSelectChange = (value: any) => {
+  onSelectChange = (value: ISelectedOption) => {
     const userId = value ? value.value : '';
     this.setState({ userId });
   };
@@ -88,7 +89,11 @@ class ExportReport extends React.Component<Props, { userId: string }> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         <InsightContent>
           <InsightTitle>{__('Export Report')}</InsightTitle>
 
@@ -96,7 +101,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             <div>
               {this.renderBox(
                 'Volume Report By Date',
-                '/images/icons/erxes-14.svg',
+                '/images/icons/erxes-21.svg',
                 'insightVolumeReportExport'
               )}
 
@@ -108,7 +113,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
               )}
 
               {this.renderBox(
-                'Operator Activiy Report',
+                'Operator Activity Report',
                 '/images/icons/erxes-16.svg',
                 'insightActivityReportExport'
               )}
@@ -136,13 +141,13 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             <div>
               {this.renderBox(
                 'Duration of First Response Report',
-                '/images/icons/erxes-17.svg',
+                '/images/icons/erxes-06.svg',
                 'insightFirstResponseReportExport'
               )}
 
               {this.renderBox(
                 'First Response Report by Operators',
-                '/images/icons/erxes-18.svg',
+                '/images/icons/erxes-15.svg',
                 'insightFirstResponseReportExport',
                 'operator'
               )}
@@ -169,7 +174,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             <div>
               {this.renderBox(
                 'Tag Report',
-                '/images/icons/erxes-17.svg',
+                '/images/icons/erxes-18.svg',
                 'insightTagReportExport'
               )}
             </div>
@@ -179,21 +184,11 @@ class ExportReport extends React.Component<Props, { userId: string }> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('Export Report') }
-    ];
-  }
-
   render() {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
-          />
+          <Wrapper.Header title={__('Export Report')} submenu={menuInbox} />
         }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}

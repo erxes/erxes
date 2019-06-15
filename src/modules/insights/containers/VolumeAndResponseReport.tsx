@@ -1,3 +1,4 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -5,12 +6,11 @@ import { BrandsQueryResponse } from '../../settings/brands/types';
 import { ResponseReport, VolumeReport } from '../components';
 import { queries } from '../graphql';
 import {
-  IParams,
-  IParamsWithType,
+  IChartParams,
+  IPieChartData,
+  IPunchCardData,
   IQueryParams,
-  MainQueryResponse,
-  PieChartQueryResponse,
-  PunchCardQueryResponse
+  SummaryData
 } from '../types';
 
 type Props = {
@@ -20,91 +20,155 @@ type Props = {
 };
 
 type FinalProps = {
-  volumePieChartQuery: PieChartQueryResponse;
   brandsQuery: BrandsQueryResponse;
-  punchCardQuery: PunchCardQueryResponse;
-  mainQuery: MainQueryResponse;
 } & Props;
 
-const VolumenAndResponseReportContainer = (props: FinalProps) => {
-  const {
-    type,
-    volumePieChartQuery,
-    brandsQuery,
-    history,
-    punchCardQuery,
-    mainQuery,
-    queryParams
-  } = props;
-
-  const data = mainQuery.insightsMain || {};
-
-  const extendedProps = {
-    history,
-    queryParams,
-    trend: data.trend || [],
-    brands: brandsQuery.brands || [],
-    punch: punchCardQuery.insightsPunchCard || [],
-    summary: data.summary || [],
-    loading: {
-      main: mainQuery.loading,
-      punch: punchCardQuery.loading,
-      insights: volumePieChartQuery && volumePieChartQuery.loading
-    }
+type State = {
+  summaryData: SummaryData[];
+  trend: IChartParams[];
+  punchCard: IPunchCardData[];
+  integrationChart: IPieChartData[];
+  tagChart: IPieChartData[];
+  loading: {
+    punchCard: boolean;
+    summaryData: boolean;
+    trend: boolean;
+    integrationChart: boolean;
+    tagChart: boolean;
   };
-
-  if (type === 'volume') {
-    const volumeProps = {
-      ...extendedProps,
-      insights: volumePieChartQuery.insights || {}
-    };
-
-    return <VolumeReport {...volumeProps} />;
-  }
-
-  return <ResponseReport {...extendedProps} />;
 };
 
+class VolumenAndResponseReportContainer extends React.Component<
+  FinalProps,
+  State
+> {
+  constructor(props: FinalProps) {
+    super(props);
+
+    this.state = {
+      summaryData: [],
+      trend: [],
+      punchCard: [],
+      integrationChart: [],
+      tagChart: [],
+
+      loading: {
+        summaryData: false,
+        trend: false,
+        punchCard: false,
+        integrationChart: false,
+        tagChart: false
+      }
+    };
+  }
+
+  componentDidMount() {
+    this.load('summaryData', 'insightsSummaryData', false);
+  }
+
+  componentWillUpdate(nextProps) {
+    if (
+      JSON.stringify(this.props.queryParams) !==
+      JSON.stringify(nextProps.queryParams)
+    ) {
+      this.load('summaryData', 'insightsSummaryData', false);
+    }
+  }
+
+  load = (queryName: string, graphqQueryName: string, skip: boolean) => {
+    const { queryParams, type } = this.props;
+
+    if (skip) {
+      return;
+    }
+
+    // loading true
+    let loading = this.state.loading;
+    loading[queryName] = true;
+    this.setState({ loading });
+
+    client
+      .query({
+        query: gql(queries[queryName]),
+        variables: {
+          type,
+          brandIds: queryParams.brandIds,
+          integrationIds: queryParams.integrationIds,
+          startDate: queryParams.startDate,
+          endDate: queryParams.endDate
+        }
+      })
+      .then(({ data }) => {
+        loading = this.state.loading;
+        loading[queryName] = false;
+
+        // loading false && setting data
+        this.setState({
+          loading,
+          [queryName]: data[graphqQueryName] || []
+        } as any);
+
+        if (queryName === 'summaryData') {
+          this.load('trend', 'insightsTrend', false);
+        }
+
+        if (queryName === 'trend') {
+          this.load('punchCard', 'insightsPunchCard', false);
+        }
+
+        if (queryName === 'punchCard') {
+          this.load(
+            'integrationChart',
+            'insightsIntegrations',
+            type === 'response'
+          );
+        }
+
+        if (queryName === 'integrationChart') {
+          this.load('tagChart', 'insightsTags', type === 'response');
+        }
+      });
+  };
+
+  render() {
+    const { type, brandsQuery, history, queryParams } = this.props;
+
+    const {
+      loading,
+      summaryData,
+      trend,
+      punchCard,
+      integrationChart,
+      tagChart
+    } = this.state;
+
+    const extendedProps = {
+      history,
+      queryParams,
+      brands: brandsQuery.brands || [],
+      summaryData,
+      trend,
+      punchCard,
+      integrationChart,
+      tagChart,
+      loading
+    };
+
+    if (type === 'volume') {
+      const volumeProps = {
+        ...extendedProps,
+        integrationChart,
+        tagChart
+      };
+
+      return <VolumeReport {...volumeProps} />;
+    }
+
+    return <ResponseReport {...extendedProps} />;
+  }
+}
+
 export default compose(
-  graphql(gql(queries.pieChart), {
-    name: 'volumePieChartQuery',
-    skip: ({ type }) => type === 'response',
-    options: ({ queryParams }: IParams) => ({
-      fetchPolicy: 'network-only',
-      variables: {
-        brandId: queryParams.brandIds,
-        integrationIds: queryParams.integrationIds,
-        endDate: queryParams.endDate,
-        startDate: queryParams.startDate
-      }
-    })
-  }),
-  graphql(gql(queries.punchCard), {
-    name: 'punchCardQuery',
-    options: ({ queryParams, type }: IParamsWithType) => ({
-      fetchPolicy: 'network-only',
-      variables: {
-        type,
-        brandIds: queryParams.brandIds,
-        integrationIds: queryParams.integrationIds,
-        endDate: queryParams.endDate
-      }
-    })
-  }),
-  graphql(gql(queries.main), {
-    name: 'mainQuery',
-    options: ({ queryParams, type }: IParamsWithType) => ({
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true,
-      variables: {
-        type,
-        brandIds: queryParams.brandIds,
-        integrationIds: queryParams.integrationIds,
-        startDate: queryParams.startDate,
-        endDate: queryParams.endDate
-      }
-    })
-  }),
   graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
     name: 'brandsQuery'
   })

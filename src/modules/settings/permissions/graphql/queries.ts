@@ -18,6 +18,7 @@ const usersGroups = `
       _id
       name
       description
+      memberIds
     }
   }
 `;

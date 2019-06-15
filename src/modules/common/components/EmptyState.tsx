@@ -24,6 +24,7 @@ const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
     max-height: 260px;
     margin: 0 auto 20px auto;
     max-width: 60%;
+    width: fit-content;
   }
 
   span {

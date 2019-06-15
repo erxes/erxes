@@ -24,7 +24,10 @@ class BrandAdd extends React.Component<
   constructor(props: Props) {
     super(props);
 
-    this.state = { showBrands: true, brandName: '' };
+    this.state = {
+      showBrands: true,
+      brandName: ''
+    };
   }
 
   clearInput() {
@@ -68,7 +71,7 @@ class BrandAdd extends React.Component<
           <Icon icon="checked-1" /> {__('You already have')}{' '}
           <b>{brandsTotalCount}</b> {__('brands')}.{' '}
           <a href="javascript:;" onClick={this.toggleBrands}>
-            {showBrands ? __('Show') : __('Hide')} ›
+            {showBrands ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 
@@ -91,12 +94,13 @@ class BrandAdd extends React.Component<
     return (
       <>
         <FormGroup>
-          <ControlLabel>Brand Name</ControlLabel>
+          <ControlLabel required={true}>Brand Name</ControlLabel>
 
           <FormControl
             value={brandName}
             onChange={this.handleInput}
             type="text"
+            autoFocus={true}
             required={true}
           />
         </FormGroup>

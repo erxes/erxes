@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { List, RowActions } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
-import { Form } from '../containers';
+import { Form } from '../components';
 
 class ResponseTemplateList extends React.Component<ICommonListProps> {
   renderForm = props => {
@@ -21,6 +21,7 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
           <RowActions
             {...this.props}
             object={object}
+            size="lg"
             renderForm={this.renderForm}
           />
         </tr>
@@ -46,11 +47,12 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
   render() {
     return (
       <List
-        title="New response template"
+        formTitle="New response template"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Response templates') }
         ]}
+        title={__('Response templates')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/24.svg"
@@ -61,6 +63,7 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         center={true}
+        size="lg"
         {...this.props}
       />
     );

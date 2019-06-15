@@ -60,7 +60,10 @@ class EmailStatistics extends React.Component<Props> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header breadcrumb={[{ title: __('Show statistics') }]} />
+          <Wrapper.Header
+            title={__('Show statistics')}
+            breadcrumb={[{ title: __('Show statistics') }]}
+          />
         }
         content={content}
       />

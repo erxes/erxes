@@ -6,12 +6,13 @@ import {
   queries as integrationQuery
 } from 'modules/settings/integrations/graphql';
 import {
+  IIntegration,
   IntegrationsCountQueryResponse,
   SaveMessengerMutationResponse,
   SaveMessengerMutationVariables
 } from 'modules/settings/integrations/types';
 import * as React from 'react';
-import { ChildProps, compose, graphql } from 'react-apollo';
+import { compose, graphql } from 'react-apollo';
 import { MessengerAdd } from '../components';
 import { OnboardConsumer } from '../containers/OnboardContext';
 import { queries } from '../graphql';
@@ -22,49 +23,74 @@ type Props = {
   changeStep: (increase: boolean) => void;
 } & SaveMessengerMutationResponse;
 
-const MessengerAddContainer = (props: ChildProps<Props>) => {
-  const { brandsQuery, saveMessengerMutation, totalCountQuery } = props;
+type State = {
+  integration: IIntegration;
+  isVisibleCodeModal: boolean;
+};
 
-  let totalCount = 0;
+class MessengerAddContainer extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
-  if (!totalCountQuery.loading) {
-    totalCount = totalCountQuery.integrationsTotalCount.byKind.messenger;
+    this.state = { integration: {} as IIntegration, isVisibleCodeModal: false };
   }
 
-  const brands = brandsQuery.brands || [];
+  closeCodeModal = () => {
+    this.setState({ isVisibleCodeModal: false });
+  };
 
-  const save = (doc, callback: () => void) => {
-    const { brandId, languageCode } = doc;
+  render() {
+    const { brandsQuery, saveMessengerMutation, totalCountQuery } = this.props;
+    const { isVisibleCodeModal, integration } = this.state;
 
-    if (!languageCode) {
-      return Alert.error('Set language');
+    let totalCount = 0;
+
+    if (!totalCountQuery.loading) {
+      totalCount = totalCountQuery.integrationsTotalCount.byKind.messenger;
     }
 
-    if (!brandId) {
-      return Alert.error('Choose a brand');
-    }
+    const brands = brandsQuery.brands || [];
 
-    saveMessengerMutation({
-      variables: doc
-    })
-      .then(() => {
-        Alert.success('You successfully saved an app');
-        callback();
+    const save = (doc, callback: () => void) => {
+      const { brandId, languageCode } = doc;
+
+      if (!languageCode) {
+        return Alert.error('Set language');
+      }
+
+      if (!brandId) {
+        return Alert.error('Choose a brand');
+      }
+
+      saveMessengerMutation({
+        variables: doc
       })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
+        .then(({ data }) => {
+          Alert.success('You successfully saved an app');
+          this.setState({
+            integration: data.integrationsCreateMessengerIntegration,
+            isVisibleCodeModal: true
+          });
+          callback();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
 
-  const updatedProps = {
-    ...props,
-    brands,
-    save,
-    totalCount
-  };
+    const updatedProps = {
+      ...this.props,
+      brands,
+      save,
+      integration,
+      totalCount,
+      showInstallCode: isVisibleCodeModal,
+      closeInstallCodeModal: this.closeCodeModal
+    };
 
-  return <MessengerAdd {...updatedProps} />;
-};
+    return <MessengerAdd {...updatedProps} />;
+  }
+}
 
 const WithQuery = compose(
   graphql<SaveMessengerMutationResponse, SaveMessengerMutationVariables>(

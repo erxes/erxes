@@ -1,28 +1,22 @@
-import { EditorState } from 'draft-js';
 import {
   ControlLabel,
+  EditorCK,
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import {
-  createStateFromHTML,
-  ErxesEditor,
-  toHTML
-} from 'modules/common/components/editor/Editor';
 import { __ } from 'modules/common/utils';
+import { SelectBrand } from 'modules/settings/integrations/containers';
 import * as React from 'react';
-import { IBrand } from '../../brands/types';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
 import { IResponseTemplate } from '../types';
 
 type Props = {
   object?: IResponseTemplate;
-  brands: IBrand[];
 };
 
 type State = {
-  editorState: EditorState;
+  content: string;
 };
 
 class Form extends React.Component<Props & ICommonFormProps, State> {
@@ -32,65 +26,37 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = props.object || {};
 
     this.state = {
-      editorState: createStateFromHTML(
-        EditorState.createEmpty(),
-        object.content || ''
-      )
+      content: object.content || ''
     };
   }
 
-  getContent = editorState => {
-    return toHTML(editorState);
-  };
-
-  onChange = editorState => {
-    this.setState({ editorState });
+  onChange = e => {
+    this.setState({ content: e.editor.getData() });
   };
 
   generateDoc = () => {
     return {
       doc: {
-        brandId: (document.getElementById(
-          'template-brand-id'
-        ) as HTMLInputElement).value,
+        brandId: (document.getElementById('selectBrand') as HTMLInputElement)
+          .value,
         name: (document.getElementById('template-name') as HTMLInputElement)
           .value,
-        content: this.getContent(this.state.editorState)
+        content: this.state.content
       }
     };
   };
 
   renderContent = () => {
-    const { brands } = this.props;
     const object = this.props.object || ({} as IResponseTemplate);
-
-    const props = {
-      editorState: this.state.editorState,
-      onChange: this.onChange,
-      defaultValue: object.content
-    };
 
     return (
       <React.Fragment>
         <FormGroup>
-          <ControlLabel>Brand</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select Brand')}
-            defaultValue={object.brandId}
-            id="template-brand-id"
-          >
-            {brands.map(brand => (
-              <option key={brand._id} value={brand._id}>
-                {brand.name}
-              </option>
-            ))}
-          </FormControl>
+          <SelectBrand isRequired={true} defaultValue={object.brandId} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             id="template-name"
             defaultValue={object.name}
@@ -101,7 +67,12 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <ErxesEditor bordered={true} {...props} />
+
+          <EditorCK
+            content={object.content}
+            onChange={this.onChange}
+            height={300}
+          />
         </FormGroup>
       </React.Fragment>
     );

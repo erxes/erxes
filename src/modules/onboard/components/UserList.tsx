@@ -5,15 +5,15 @@ import * as React from 'react';
 type Props = {
   users: IUser[];
   loading: boolean;
-  remove: (userId: string) => void;
+  deactivate: (userId: string) => void;
 };
 
 class UserList extends React.PureComponent<Props, {}> {
   renderItems = () => {
-    const { users, remove } = this.props;
+    const { users, deactivate } = this.props;
 
     return users.map(user => (
-      <Chip key={user._id} onClick={remove.bind(null, user._id)}>
+      <Chip key={user._id} onClick={deactivate.bind(null, user._id)}>
         {user.username || user.email}
       </Chip>
     ));

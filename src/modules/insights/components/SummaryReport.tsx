@@ -1,4 +1,3 @@
-import { Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
@@ -11,7 +10,7 @@ import {
   InsightWrapper
 } from '../styles';
 import { IChartParams, IQueryParams, SummaryData } from '../types';
-import { Chart, Filter, Sidebar, Summary } from './';
+import { Chart, InboxFilter, Sidebar, Summary } from './';
 
 type Props = {
   brands: IBrand[];
@@ -64,17 +63,8 @@ class SummaryReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('Response Report') }
-    ];
-  }
-
   renderCharts() {
     const { trend, summary, loading } = this.props;
-
-    const width = this.state.width;
 
     return (
       <InsightContent>
@@ -93,7 +83,11 @@ class SummaryReport extends React.Component<Props, { width: number }> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         {this.renderCharts()}
       </InsightWrapper>
     );
@@ -103,10 +97,7 @@ class SummaryReport extends React.Component<Props, { width: number }> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
-          />
+          <Wrapper.Header title={__('Response Report')} submenu={menuInbox} />
         }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}

@@ -91,6 +91,10 @@ const TabContent = styled.div`
   padding: ${dimensions.coreSpacing}px;
 `;
 
+const Date = styled.time`
+  font-size: 12px;
+`;
+
 export {
   InfoTitle,
   InfoDetail,
@@ -100,5 +104,6 @@ export {
   InfoAvatar,
   Contact,
   Name,
+  Date,
   TabContent
 };

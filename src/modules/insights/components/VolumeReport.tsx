@@ -14,28 +14,32 @@ import {
 } from '../styles';
 import {
   IChartParams,
-  InsightData,
+  IPieChartData,
   IPunchCardData,
   IQueryParams,
   SummaryData
 } from '../types';
-import { Chart, Filter, Insights, PunchCard, Sidebar, Summary } from './';
+import { Chart, Insights, PunchCard, Sidebar, Summary } from './';
+import InboxFilter from './filter/InboxFilter';
 
 type loadingType = {
-  punch: boolean;
-  main: boolean;
-  insights: boolean;
+  punchCard: boolean;
+  summaryData: boolean;
+  trend: boolean;
+  integrationChart: boolean;
+  tagChart: boolean;
 };
 
 type Props = {
   brands: IBrand[];
-  trend: IChartParams[];
   queryParams: IQueryParams;
   history: any;
-  punch: IPunchCardData[];
-  summary: SummaryData[];
   loading: loadingType;
-  insights: InsightData;
+  summaryData: SummaryData[];
+  trend: IChartParams[];
+  punchCard: IPunchCardData[];
+  integrationChart: IPieChartData[];
+  tagChart: IPieChartData[];
 };
 
 class VolumeReport extends React.Component<Props, { width: number }> {
@@ -50,7 +54,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.loading.insights && !this.props.loading.insights) {
+    if (prevProps.loading.trend && !this.props.loading.trend) {
       this.calculateWidth();
     }
   }
@@ -73,28 +77,24 @@ class VolumeReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderTrend(name, loading, trend) {
-    const innerRef = node => {
-      this.wrapper = node;
-    };
-
+  renderTrend(name: string, loading: boolean, data: IChartParams[]) {
     return (
-      <InsightRow innerRef={innerRef}>
+      <InsightRow>
         {this.renderTitle(name)}
-        <Chart loading={loading.main} height={360} data={trend} />
+        <Chart loading={loading} height={360} data={data} />
       </InsightRow>
     );
   }
 
-  renderPunchCard(loading, punch, width) {
+  renderPunchCard(loading: loadingType, data: IPunchCardData[], width: number) {
     let content = (
       <LoaderWrapper>
         <Spinner objective={true} />
       </LoaderWrapper>
     );
 
-    if (!loading.punch) {
-      content = <PunchCard data={punch} width={width} />;
+    if (!loading.punchCard) {
+      content = <PunchCard data={data} width={width} />;
     }
 
     return (
@@ -105,37 +105,45 @@ class VolumeReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('Volume Report') }
-    ];
-  }
-
   renderCharts() {
-    const { trend, punch, insights, summary, loading } = this.props;
+    const {
+      trend,
+      punchCard,
+      integrationChart,
+      tagChart,
+      summaryData,
+      loading
+    } = this.props;
 
     const width = this.state.width;
 
+    const innerRef = node => {
+      this.wrapper = node;
+    };
+
     return (
-      <InsightContent>
+      <InsightContent innerRef={innerRef}>
         <InsightRow>
           {this.renderTitle('Volume summary')}
-          <Summary loading={loading.main} data={summary} />
+          <Summary loading={loading.summaryData} data={summaryData} />
         </InsightRow>
 
-        {this.renderTrend('Volume Trend', loading, trend)}
+        {this.renderTrend('Volume Trend', loading.trend, trend)}
 
-        {this.renderPunchCard(loading, punch, width)}
+        {this.renderPunchCard(loading, punchCard, width)}
 
         <InsightRow>
-          {this.renderTitle('Insights')}
           <FlexRow>
             <Insights
-              loading={loading.insights}
-              data={insights.integration || []}
+              title="Integrations"
+              loading={loading.integrationChart}
+              data={integrationChart || []}
             />
-            <Insights loading={loading.insights} data={insights.tag || []} />
+            <Insights
+              title="Tags"
+              loading={loading.tagChart}
+              data={tagChart || []}
+            />
           </FlexRow>
         </InsightRow>
       </InsightContent>
@@ -147,7 +155,11 @@ class VolumeReport extends React.Component<Props, { width: number }> {
 
     return (
       <InsightWrapper>
-        <Filter history={history} brands={brands} queryParams={queryParams} />
+        <InboxFilter
+          history={history}
+          brands={brands}
+          queryParams={queryParams}
+        />
         {this.renderCharts()}
       </InsightWrapper>
     );
@@ -157,10 +169,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
-          />
+          <Wrapper.Header title={__('Volume Report')} submenu={menuInbox} />
         }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}

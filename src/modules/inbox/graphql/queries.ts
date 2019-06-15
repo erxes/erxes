@@ -76,8 +76,6 @@ const sidebarConversations = `
         isUser
         avatar
         visitorContactInfo
-        facebookData
-        twitterData
       }
       tagIds
       tags {
@@ -85,12 +83,6 @@ const sidebarConversations = `
         name
       }
       readUserIds
-      twitterData {
-        isDirectMessage
-      }
-      facebookData {
-        kind
-      }
     }
   }
 `;
@@ -196,8 +188,8 @@ const lastConversation = `
 `;
 
 const responseTemplateList = `
-  query responseTemplates {
-    responseTemplates {
+  query responseTemplates($perPage: Int) {
+    responseTemplates(perPage: $perPage) {
       _id
       name
       brandId
@@ -291,18 +283,6 @@ const generateCustomerDetailQuery = params => {
   `;
 };
 
-const conversationMessagesFacebook = `
-  query conversationMessagesFacebook($conversationId: String, $commentId: String, $postId: String, $limit: Int) {
-    conversationMessagesFacebook(conversationId: $conversationId, commentId: $commentId, postId: $postId, limit: $limit) {
-      list {
-        ${messageFields}
-      }
-      
-      commentCount
-    }
-  }
-`;
-
 export default {
   conversationList,
   sidebarConversations,
@@ -319,6 +299,5 @@ export default {
   totalConversationsCount,
   unreadConversationsCount,
   lastConversation,
-  generateCustomerDetailQuery,
-  conversationMessagesFacebook
+  generateCustomerDetailQuery
 };

@@ -20,7 +20,7 @@ const InsightWrapper = styled.div`
 `;
 
 const InsightContent = styled.div`
-  padding: 0 30px 30px 30px;
+  padding: 30px;
   overflow: auto;
 `;
 
@@ -43,10 +43,12 @@ const InsightTitle = styled.h5`
   text-transform: uppercase;
   font-weight: ${typography.fontWeightRegular};
   padding: ${dimensions.unitSpacing}px 0;
-  margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
+  margin: 0 0 ${dimensions.unitSpacing}px;
 
   span {
     margin-left: ${dimensions.unitSpacing}px;
+    text-transform: lowercase;
+    font-size: 13px;
   }
 `;
 
@@ -71,7 +73,7 @@ const FlexItem = styled.div`
     border: none;
     background: none;
     border-bottom: 1px solid ${colors.colorShadowGray};
-    padding: 17px 14px;
+    padding: 5px 0;
     font-size: ${typography.fontSizeBody}px;
 
     &:focus {
@@ -99,6 +101,10 @@ const LoaderWrapper = styled(ChartWrapper)`
 const SummaryTitle = styled.div`
   margin-bottom: 5px;
   text-transform: uppercase;
+
+  span {
+    text-transform: lowercase;
+  }
 `;
 
 const SummaryCount = styled.span`
@@ -122,12 +128,8 @@ const SummaryItem = styledTS<{ isSmall?: boolean }>(styled.div)`
     padding: 8px;
     line-height: ${typography.fontSizeHeading7}px;
 
-    span {
+    > span {
       font-size: ${typography.fontSizeHeading7}px!important;
-    }
-  
-    div {
-      margin-bottom: 0px!important;
     }
   `}
 `;
@@ -165,16 +167,21 @@ const FullName = styled.span`
   font-weight: bold;
 `;
 
+const BoxContainer = styled.div`
+  width: 1020px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
+
 const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   width: 320px;
   border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
+  margin: 10px;
+  flex-shrink: 0;
 
   > a {
     padding: 40px;
-  }
-
-  &:last-of-type {
-    margin-right: 0;
   }
 
   span {
@@ -185,7 +192,6 @@ const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
     margin: 10px 0 0;
     font-size: 12px;
     color: ${colors.colorCoreLightGray};
-    min-height: 54px;
   }
 `;
 
@@ -267,6 +273,7 @@ export {
   InsightUserData,
   UserProfile,
   FullName,
+  BoxContainer,
   Box,
   PunchCell,
   PunchCircle,
