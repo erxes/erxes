@@ -155,7 +155,7 @@ const init = async app => {
       const { activity } = context;
 
       if (activity.type === 'message') {
-        debugFacebook(`Received webhook activity ${activity}`);
+        debugFacebook(`Received webhook activity ${JSON.stringify(activity)}`);
 
         const pageId = activity.recipient.id;
 
@@ -182,7 +182,7 @@ const init = async app => {
 
         await receiveMessage(adapter, activity);
 
-        debugFacebook(`Successfully saved activity ${activity}`);
+        debugFacebook(`Successfully saved activity ${JSON.stringify(activity)}`);
       }
     });
   });
