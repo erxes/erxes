@@ -6,6 +6,7 @@ import { IMessageDocument } from '../../../db/models/definitions/conversationMes
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { debugIntegrationsApi } from '../../../debuggers';
 import { graphqlPubsub } from '../../../pubsub';
 import { NOTIFICATION_TYPES } from '../../constants';
 import { checkPermission, requireLogin } from '../../permissions';
@@ -175,7 +176,13 @@ const conversationMutations = {
           integrationId: integration._id,
           content: strip(doc.content),
         },
-      });
+      })
+        .then(response => {
+          debugIntegrationsApi(response);
+        })
+        .catch(e => {
+          debugIntegrationsApi(e.message);
+        });
     }
 
     const dbMessage = await ConversationMessages.findOne({
