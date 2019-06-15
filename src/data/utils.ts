@@ -448,17 +448,17 @@ export const sendRequest = async ({ url, method, body, params }: IRequestParams)
 
     return responseBody;
   } catch (e) {
-    let error = { message: 'Failed to connect integration api' };
-    let debugMessage =
-      'Failed to connect integration api. Check INTEGRATIONS_API_DOMAIN env or integration api is not running';
-
-    if (!e.message.includes('ECONNREFUSED')) {
-      debugMessage = `Failed to connect integration api: ${e.message}`;
-      error = e;
+    if (e.code === 'ECONNREFUSED') {
+      debugIntegrationsApi(
+        'Failed to connect integration api. Check INTEGRATIONS_API_DOMAIN env or integration api is not running',
+      );
+      throw new Error(
+        'Failed to connect integration api. Check INTEGRATIONS_API_DOMAIN env or integration api is not running',
+      );
+    } else {
+      debugIntegrationsApi(`Error occurred in integrations api: ${e.body}`);
+      throw new Error(e.body);
     }
-
-    debugIntegrationsApi(debugMessage);
-    throw new Error(error.message);
   }
 };
 
