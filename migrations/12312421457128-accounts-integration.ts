@@ -16,16 +16,12 @@ module.exports.up = async () => {
   const apiAccounts = apiMongoClient.db.collection('accounts');
   const apiIntegrations = apiMongoClient.db.collection('integrations');
 
-  const accounts = await apiAccounts
-    .find()
-    .project({ _id: 0 })
-    .toArray();
+  const accounts = await apiAccounts.find().toArray();
   const integrations = await apiIntegrations
     .aggregate([
       { $match: { facebookData: { $exists: true } } },
       {
         $project: {
-          _id: 0,
           kind: 1,
           erxesApiId: '$_id',
           facebookPageIds: '$facebookData.pageIds',
