@@ -297,22 +297,6 @@ describe('insightQueries', () => {
     expect(response.teamMembers.length).toBe(1);
   });
 
-  test('insightsSummaryData', async () => {
-    const qry = `
-      query insightsSummaryData($type: String, ${paramsDef}) {
-          insightsSummaryData(type: $type, ${paramsValue})
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'insightsSummaryData', args);
-
-    expect(response[0].count).toBe(6); // In time range
-    expect(response[1].count).toBe(6); // This month
-    expect(response[2].count).toBe(6); // This week
-    expect(response[3].count).toBe(6); // Today
-    expect(response[4].count).toBe(6); // Last 30 days
-  });
-
   test('insightsTrend', async () => {
     const qry = `
       query insightsTrend($type: String, ${paramsDef}) {
