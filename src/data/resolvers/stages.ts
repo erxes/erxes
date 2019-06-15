@@ -46,13 +46,13 @@ export default {
 
     switch (stage.type) {
       case BOARD_TYPES.DEAL: {
-        return Deals.find(filter).count();
+        return Deals.find(filter).countDocuments();
       }
       case BOARD_TYPES.TICKET: {
-        return Tickets.find(filter).count();
+        return Tickets.find(filter).countDocuments();
       }
       case BOARD_TYPES.TASK: {
-        return Tasks.find(filter).count();
+        return Tasks.find(filter).countDocuments();
       }
     }
   },
