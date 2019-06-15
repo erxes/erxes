@@ -73,37 +73,57 @@ const init = async app => {
     return res.json(pages);
   });
 
-  app.post('/facebook/reply', async (req, res) => {
+  app.post('/facebook/reply', async (req, res, next) => {
+    debugRequest(debugFacebook, req);
+
     const { integrationId, conversationId, content } = req.body;
 
     const integration = await Integrations.findOne({ erxesApiId: integrationId });
 
     if (!integration) {
-      return res.json({ status: 'error', error: 'Integration not found' });
+      debugFacebook('Integration not found');
+      return next(new Error('Integration not found'));
     }
 
     const account = await Accounts.findOne({ _id: integration.accountId });
 
     if (!account) {
-      return res.json({ status: 'error', error: 'Account not found' });
+      debugFacebook('Account not found');
+      return next(new Error('Account not found'));
     }
 
     const conversation = await Conversations.findOne({ erxesApiId: conversationId });
 
     if (!conversation) {
-      return res.json({ status: 'error', error: 'Conversation not found' });
+      debugFacebook('Conversation not found');
+      return next(new Error('Conversation not found'));
     }
 
-    const pageAccessToken = await getPageAccessToken(conversation.recipientId, account.token);
+    let pageAccessToken;
 
-    const response = await graphRequest.post('me/messages', pageAccessToken, {
+    try {
+      pageAccessToken = await getPageAccessToken(conversation.recipientId, account.token);
+    } catch (e) {
+      debugFacebook(
+        `Error ocurred while trying to get page access token with ${conversation.recipientId} ${account.token}`,
+      );
+      return next(e);
+    }
+
+    const data = {
       recipient: { id: conversation.senderId },
       message: {
         text: content,
       },
-    });
+    };
 
-    return res.json(response);
+    try {
+      const response = await graphRequest.post('me/messages', pageAccessToken, data);
+      debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
+      return res.json(response);
+    } catch (e) {
+      debugFacebook(`Error ocurred while trying to send post request to facebook ${JSON.stringify(data)}`);
+    }
   });
 
   const adapter = new FacebookAdapter({
