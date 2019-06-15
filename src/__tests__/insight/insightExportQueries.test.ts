@@ -1,10 +1,4 @@
-import * as moment from 'moment';
-import {
-  generateActivityReport,
-  generateFirstResponseReport,
-  generateTagReport,
-  generateVolumeReport,
-} from '../../data/resolvers/queries/insights/exportData';
+import { generateActivityReport, generateTagReport } from '../../data/resolvers/queries/insights/exportData';
 import insightExportQueries from '../../data/resolvers/queries/insights/insightExport';
 import { graphqlRequest } from '../../db/connection';
 import { afterEachTest, beforeEachTest, endDate, paramsDef, paramsValue, startDate } from './utils';
@@ -13,7 +7,6 @@ import '../setup.ts';
 
 describe('insightExportQueries', () => {
   let user;
-  let secondUser;
   let args;
 
   const DOMAIN = process.env.DOMAIN || '';
@@ -23,7 +16,6 @@ describe('insightExportQueries', () => {
 
     args = response.args;
     user = response.user;
-    secondUser = response.secondUser;
   });
 
   afterEach(async () => {
