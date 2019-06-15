@@ -1,6 +1,6 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook';
 import { Botkit } from 'botkit';
-import { debugFacebook } from '../debuggers';
+import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
 import { sendRequest } from '../utils';
@@ -13,7 +13,7 @@ const init = async app => {
   app.get('/fblogin', loginMiddleware);
 
   app.post('/facebook/create-integration', async (req, res, next) => {
-    debugFacebook(`Receiving create-integration request from ${req.headers.host}, body: ${JSON.stringify(req.body)}`);
+    debugRequest(debugFacebook, req);
 
     const { accountId, integrationId, data } = req.body;
     const facebookPageIds = JSON.parse(data).pageIds;
@@ -43,13 +43,13 @@ const init = async app => {
       }
     }
 
-    debugFacebook(`Responding create-integration request to ${req.headers.host} with success`);
+    debugResponse(debugFacebook, req);
 
     return res.json({ status: 'ok ' });
   });
 
   app.get('/facebook/get-pages', async (req, res, next) => {
-    debugFacebook(`Receiving get-pages request from ${req.headers.host}, queryParams: ${JSON.stringify(req.query)}`);
+    debugRequest(debugFacebook, req);
 
     const account = await Accounts.findOne({ _id: req.query.accountId });
 
@@ -68,7 +68,7 @@ const init = async app => {
       return next(e);
     }
 
-    debugFacebook(`Responding get-pages request to ${req.headers.host} with ${JSON.stringify(pages)}`);
+    debugResponse(debugFacebook, req, JSON.stringify(pages));
 
     return res.json(pages);
   });
