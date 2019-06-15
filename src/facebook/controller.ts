@@ -113,13 +113,28 @@ const init = async app => {
       const integration = await Integrations.findOne({ facebookPageIds: { $in: [pageId] } });
 
       if (!integration) {
+        debugFacebook(`Integration not found with pageId: ${pageId}`);
         return;
       }
 
-      const account = await Accounts.findOne({ _id: integration.accountId });
-      const token = await getPageAccessToken(pageId, account.token);
+      debugFacebook(`Integration found with pageId: ${pageId}`);
 
-      return token;
+      const account = await Accounts.findOne({ _id: integration.accountId });
+
+      if (!account) {
+        debugFacebook(`Account not found with _id: ${integration.accountId}`);
+        return;
+      }
+
+      debugFacebook(`Account found with _id: ${integration.accountId}`);
+
+      try {
+        const token = await getPageAccessToken(pageId, account.token);
+
+        return token;
+      } catch (e) {
+        debugFacebook(`Error occurred while trying to get pag access token with ${account.token}`);
+      }
     },
   });
 
@@ -132,6 +147,8 @@ const init = async app => {
   // Once the bot has booted up its internal services, you can use them to do stuff.
   controller.ready(() => {
     controller.on('message', async (_bot, message) => {
+      debugFacebook(`Received webhook message ${JSON.stringify(message)}`);
+
       await receiveMessage(adapter, message);
     });
   });

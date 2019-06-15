@@ -15,13 +15,16 @@ interface IRequestParams {
 export const sendRequest = async ({ url, method, body, params }: IRequestParams) => {
   const { DOMAIN } = process.env;
 
+  const reqBody = JSON.stringify(body || {});
+  const reqParams = JSON.stringify(params || {});
+
   try {
     debugExternalRequests(`
       Sending request
       url: ${url}
       method: ${method}
-      body: ${JSON.stringify(body || {})}
-      params: ${JSON.stringify(params || {})}
+      body: ${reqBody}
+      params: ${reqParams}
     `);
 
     const response = await requestify.request(url, {
@@ -35,6 +38,8 @@ export const sendRequest = async ({ url, method, body, params }: IRequestParams)
 
     debugExternalRequests(`
       Success from ${url}
+      requestBody: ${reqBody}
+      requestParams: ${reqParams}
       responseBody: ${JSON.stringify(responseBody)}
     `);
 
