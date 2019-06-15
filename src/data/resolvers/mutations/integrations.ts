@@ -61,15 +61,20 @@ const integrationMutations = {
   async integrationsCreateExternalIntegration(_root, { data, ...doc }: IExternalIntegrationParams & { data: object }) {
     const integration = await Integrations.createExternalIntegration(doc);
 
-    await fetchIntegrationApi({
-      path: `/${doc.kind}/create-integration`,
-      method: 'POST',
-      body: {
-        accountId: doc.accountId,
-        integrationId: integration._id,
-        data: data ? JSON.stringify(data) : '',
-      },
-    });
+    try {
+      await fetchIntegrationApi({
+        path: `/${doc.kind}/create-integration`,
+        method: 'POST',
+        body: {
+          accountId: doc.accountId,
+          integrationId: integration._id,
+          data: data ? JSON.stringify(data) : '',
+        },
+      });
+    } catch (e) {
+      await Integrations.remove({ _id: integration._id });
+      throw new Error(e);
+    }
 
     return integration;
   },

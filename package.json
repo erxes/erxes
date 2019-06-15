@@ -15,7 +15,7 @@
   "private": true,
   "scripts": {
     "start": "node dist",
-    "dev": "NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src",
+    "dev": "DEBUG=erxes-api:* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src",
     "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/",
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
@@ -102,6 +102,7 @@
     "@types/q": "^1.5.0",
     "@types/request": "^2.47.1",
     "@types/underscore": "^1.8.9",
+    "debug": "^4.1.1",
     "faker": "^4.1.0",
     "husky": "^0.13.4",
     "jest": "^21.2.1",

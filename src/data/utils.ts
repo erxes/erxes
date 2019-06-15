@@ -8,6 +8,7 @@ import * as nodemailer from 'nodemailer';
 import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Customers, Notifications, Users } from '../db/models';
+import { debugBase, debugEmail, debugIntegrationsApi } from '../debuggers';
 
 /*
  * Check that given file is not harmful
@@ -308,7 +309,7 @@ export const sendEmail = async ({
   try {
     transporter = createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
   } catch (e) {
-    return console.log(e.message); // eslint-disable-line
+    return debugEmail(e.message);
   }
 
   const { isCustom, data, name } = template;
@@ -329,8 +330,8 @@ export const sendEmail = async ({
     };
 
     return transporter.sendMail(mailOptions, (error, info) => {
-      console.log(error); // eslint-disable-line
-      console.log(info); // eslint-disable-line
+      debugEmail(error);
+      debugEmail(info);
     });
   });
 };
@@ -423,14 +424,42 @@ interface IRequestParams {
  * Sends post request to specific url
  */
 export const sendRequest = async ({ url, method, body, params }: IRequestParams) => {
-  const response = await requestify.request(url, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body,
-    params,
-  });
+  debugIntegrationsApi(`
+    Sending request to integrations api with
+    url: ${url}
+    method: ${method}
+    params: ${JSON.stringify(params)}
+  `);
 
-  return response.getBody();
+  try {
+    const response = await requestify.request(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      params,
+    });
+
+    const responseBody = response.getBody();
+
+    debugIntegrationsApi(`
+      Success from integrations api: ${url}
+      responseBody: ${JSON.stringify(responseBody)}
+    `);
+
+    return responseBody;
+  } catch (e) {
+    let error = { message: 'Failed to connect integration api' };
+    let debugMessage =
+      'Failed to connect integration api. Check INTEGRATIONS_API_DOMAIN env or integration api is not running';
+
+    if (!e.message.includes('ECONNREFUSED')) {
+      debugMessage = `Failed to connect integration api: ${e.message}`;
+      error = e;
+    }
+
+    debugIntegrationsApi(debugMessage);
+    throw new Error(error.message);
+  }
 };
 
 /**
@@ -488,7 +517,7 @@ export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: st
   }
 
   if (!value) {
-    console.log(`Missing environment variable configuration for ${name}`);
+    debugBase(`Missing environment variable configuration for ${name}`);
   }
 
   return value || '';

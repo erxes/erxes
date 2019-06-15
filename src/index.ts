@@ -14,6 +14,7 @@ import typeDefs from './data/schema';
 import { checkFile, getEnv, readFileRequest, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Conversations, Customers } from './db/models';
+import { debugInit } from './debuggers';
 import integrationsApiMiddleware from './middlewares/integrationsApiMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import { graphqlPubsub } from './pubsub';
@@ -73,7 +74,6 @@ if (NODE_ENV !== 'production') {
     settings: {
       'general.betaUpdates': false,
       'editor.theme': 'dark',
-      'editor.cursorShape': 'line',
       'editor.reuseHeaders': true,
       'tracing.hideTracingResponse': true,
       'editor.fontSize': 14,
@@ -290,7 +290,7 @@ const PORT = getEnv({ name: 'PORT' });
 apolloServer.installSubscriptionHandlers(httpServer);
 
 httpServer.listen(PORT, () => {
-  console.log(`GraphQL Server is now running on ${PORT}`);
+  debugInit(`GraphQL Server is now running on ${PORT}`);
 
   // execute startup actions
   init(app);
