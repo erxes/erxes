@@ -40,6 +40,7 @@
     "dotenv": "^4.0.0",
     "express": "^4.16.4",
     "fbgraph": "^1.4.4",
+    "meteor-random": "^0.0.3",
     "mongoose": "^5.2.16",
     "requestify": "^0.2.5"
   },

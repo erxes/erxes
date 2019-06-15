@@ -1,4 +1,5 @@
 import { Document, Model, model, Schema } from 'mongoose';
+import { field } from '../models/utils';
 
 // customer ======================
 export interface ICustomer {
@@ -13,6 +14,7 @@ export interface ICustomer {
 export interface ICustomerDocument extends ICustomer, Document {}
 
 export const customerSchema = new Schema({
+  _id: field({ pkey: true }),
   userId: String,
   erxesApiId: String,
   firstName: String,
@@ -35,6 +37,7 @@ export interface IConversation {
 export interface IConversationDocument extends IConversation, Document {}
 
 export const conversationSchema = new Schema({
+  _id: field({ pkey: true }),
   erxesApiId: String,
   timestamp: Date,
   senderId: String,

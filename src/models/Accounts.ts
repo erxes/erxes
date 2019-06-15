@@ -1,4 +1,5 @@
 import { Document, model, Schema } from 'mongoose';
+import { field } from './utils';
 
 export interface IAccount {
   kind: string;
@@ -13,6 +14,7 @@ export interface IAccount {
 export interface IAccountDocument extends IAccount, Document {}
 
 export const accountSchema = new Schema({
+  _id: field({ pkey: true }),
   kind: {
     type: String,
   },

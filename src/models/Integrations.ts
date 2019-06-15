@@ -1,4 +1,5 @@
 import { Document, Model, model, Schema } from 'mongoose';
+import { field } from './utils';
 
 export interface IIntegration {
   kind: string;
@@ -11,6 +12,7 @@ export interface IIntegrationDocument extends IIntegration, Document {}
 
 // schema for integration document
 export const integrationSchema = new Schema({
+  _id: field({ pkey: true }),
   kind: String,
   accountId: String,
   erxesApiId: String,

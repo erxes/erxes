@@ -1234,6 +1234,11 @@ cross-spawn@^5.0.1:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
+crypto@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/crypto/-/crypto-0.0.3.tgz#470a81b86be4c5ee17acc8207a1f5315ae20dbb0"
+  integrity sha1-RwqBuGvkxe4XrMggeh9TFa4g27A=
+
 cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   version "0.3.6"
   resolved "https://registry.yarnpkg.com/cssom/-/cssom-0.3.6.tgz#f85206cee04efa841f3c5982a74ba96ab20d65ad"
@@ -3405,6 +3410,13 @@ merge@^1.2.0:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/merge/-/merge-1.2.1.tgz#38bebf80c3220a8a487b6fcfb3941bb11720c145"
   integrity sha512-VjFo4P5Whtj4vsLzsYBu5ayHhoHJ0UqNm7ibvShmbmoz7tGi0vXaoJbGdB+GmDMLUdg8DpQXEIeVDAe8MaABvQ==
+
+meteor-random@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/meteor-random/-/meteor-random-0.0.3.tgz#0d1489ecdb9bcb58bb52decebfbceddf54473a68"
+  integrity sha1-DRSJ7Nuby1i7Ut7Ov7zt31RHOmg=
+  dependencies:
+    crypto "0.0.3"
 
 methods@~1.1.2:
   version "1.1.2"
