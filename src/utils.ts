@@ -13,6 +13,8 @@ interface IRequestParams {
  * Send request
  */
 export const sendRequest = async ({ url, method, body, params }: IRequestParams) => {
+  const { DOMAIN } = process.env;
+
   try {
     debugExternalRequests(`
       Sending request
@@ -24,7 +26,7 @@ export const sendRequest = async ({ url, method, body, params }: IRequestParams)
 
     const response = await requestify.request(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', origin: DOMAIN },
       body,
       params,
     });
