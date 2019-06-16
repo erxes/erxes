@@ -9,10 +9,10 @@ import {
   ModifiableList
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __, Alert } from 'modules/common/utils';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { Row } from 'modules/settings/integrations/styles';
 import * as React from 'react';
-import { IFormProps } from '../../../common/types';
 import { PropertyGroupForm } from '../containers';
 import { mutations } from '../graphql';
 import { IField, IFieldGroup } from '../types';
@@ -21,8 +21,8 @@ type Props = {
   queryParams: any;
   field?: IField;
   groups: IFieldGroup[];
-  refetchQueries: any;
   type: string;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
@@ -31,7 +31,6 @@ type State = {
   type: string;
   hasOptions: boolean;
   add: boolean;
-  isSubmitted: boolean;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -65,14 +64,9 @@ class PropertyForm extends React.Component<Props, State> {
 
     this.state = {
       ...doc,
-      add: false,
-      isSubmitted: false
+      add: false
     };
   }
-
-  onSubmit = () => {
-    this.setState({ isSubmitted: true });
-  };
 
   generateDoc = (values: {
     _id?: string;
@@ -121,14 +115,6 @@ class PropertyForm extends React.Component<Props, State> {
     this.setState({ type: value, ...doc });
   };
 
-  getMutation = () => {
-    if (this.props.field) {
-      return mutations.fieldsEdit;
-    }
-
-    return mutations.fieldsAdd;
-  };
-
   renderOptions = () => {
     if (!this.state.hasOptions) {
       return null;
@@ -158,10 +144,11 @@ class PropertyForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const {
       groups,
-      refetchQueries,
       closeModal,
+      renderButton,
       field = {} as IField
     } = this.props;
+    const { values, isSubmitted } = formProps;
     const { type } = this.state;
 
     return (
@@ -250,27 +237,20 @@ class PropertyForm extends React.Component<Props, State> {
             Close
           </Button>
 
-          <ButtonMutate
-            mutation={this.getMutation()}
-            variables={this.generateDoc(formProps.values)}
-            callback={closeModal}
-            refetchQueries={refetchQueries}
-            isSubmitted={this.state.isSubmitted}
-            type="submit"
-            icon="checked-1"
-            successMessage={`You successfully ${
-              field ? 'updated' : 'added'
-            } a property field.`}
-          >
-            {__('Save')}
-          </ButtonMutate>
+          {renderButton({
+            name: 'brand',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: field
+          })}
         </ModalFooter>
       </>
     );
   };
 
   render() {
-    return <Form renderContent={this.renderContent} onSubmit={this.onSubmit} />;
+    return <Form renderContent={this.renderContent} />;
   }
 }
 
