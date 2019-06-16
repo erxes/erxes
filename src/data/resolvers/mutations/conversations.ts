@@ -175,6 +175,7 @@ const conversationMutations = {
           conversationId: conversation._id,
           integrationId: integration._id,
           content: strip(doc.content),
+          attachments: doc.attachments || [],
         },
       })
         .then(response => {
