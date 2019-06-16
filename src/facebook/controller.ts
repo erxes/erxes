@@ -76,7 +76,7 @@ const init = async app => {
   app.post('/facebook/reply', async (req, res, next) => {
     debugRequest(debugFacebook, req);
 
-    const { integrationId, conversationId, content } = req.body;
+    const { integrationId, conversationId, content, attachments } = req.body;
 
     const integration = await Integrations.findOne({ erxesApiId: integrationId });
 
@@ -104,16 +104,26 @@ const init = async app => {
     try {
       pageAccessToken = await getPageAccessToken(conversation.recipientId, account.token);
     } catch (e) {
-      debugFacebook(
-        `Error ocurred while trying to get page access token with ${conversation.recipientId} ${account.token}`,
-      );
+      debugFacebook(`Error ocurred while trying to get page access token with ${e.message}`);
       return next(e);
+    }
+
+    let attachment;
+
+    if (attachments && attachments.length > 0) {
+      attachment = {
+        type: 'file',
+        payload: {
+          url: attachments[0].url,
+        },
+      };
     }
 
     const data = {
       recipient: { id: conversation.senderId },
       message: {
         text: content,
+        attachment,
       },
     };
 
@@ -122,7 +132,8 @@ const init = async app => {
       debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
       return res.json(response);
     } catch (e) {
-      debugFacebook(`Error ocurred while trying to send post request to facebook ${JSON.stringify(data)}`);
+      debugFacebook(`Error ocurred while trying to send post request to facebook ${e} data: ${JSON.stringify(data)}`);
+      return next(new Error(e));
     }
   });
 
