@@ -34,6 +34,8 @@ const integrationsApiMiddleware = async (req, res) => {
           // setting conversation's content to last message
           content: message.content,
 
+          attachments: message.attachments,
+
           // Mark as unread
           readUserIds: [],
         },
