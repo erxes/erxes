@@ -185,6 +185,8 @@ const init = async app => {
 
         debugFacebook(`Successfully saved activity ${JSON.stringify(activity)}`);
       }
+
+      next();
     });
   });
 };

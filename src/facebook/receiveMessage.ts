@@ -4,21 +4,33 @@ import Integrations from '../models/Integrations';
 import { fetchMainApi } from '../utils';
 import { Conversations, Customers } from './models';
 
-const receiveMessage = async (adapter: FacebookAdapter, message: Activity) => {
-  const integration = await Integrations.findOne({ facebookPageIds: { $in: [message.recipient.id] } });
+interface IChannelData {
+  sender: { id: string };
+  recipient: { id: string };
+  timestamp: number;
+  text?: string;
+  attachments?: Array<{
+    type: string;
+    payload: { url: string };
+  }>;
+}
+
+const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
+  const { recipient, sender, timestamp, text, attachments } = activity.channelData as IChannelData;
+  const integration = await Integrations.findOne({ facebookPageIds: { $in: [recipient.id] } });
 
   if (!integration) {
     return;
   }
 
-  const userId = message.from.id;
+  const userId = sender.id;
 
   // get customer
   let customer = await Customers.findOne({ userId });
 
   // create customer
   if (!customer) {
-    const api = await adapter.getAPI(message);
+    const api = await adapter.getAPI(activity);
     const response = await api.callAPI(`/${userId}`, 'GET', {});
 
     // save on api
@@ -48,7 +60,7 @@ const receiveMessage = async (adapter: FacebookAdapter, message: Activity) => {
   // get conversation
   let conversation = await Conversations.findOne({
     senderId: userId,
-    recipientId: message.recipient.id,
+    recipientId: recipient.id,
   });
 
   // create conversation
@@ -62,7 +74,7 @@ const receiveMessage = async (adapter: FacebookAdapter, message: Activity) => {
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
-          content: message.text,
+          content: text,
         }),
       },
     });
@@ -70,10 +82,10 @@ const receiveMessage = async (adapter: FacebookAdapter, message: Activity) => {
     // save on integrations db
     conversation = await Conversations.create({
       erxesApiId: apiConversationResponse._id,
-      timestamp: message.timestamp,
+      timestamp,
       senderId: userId,
-      recipientId: message.recipient.id,
-      content: message.text,
+      recipientId: recipient.id,
+      content: text,
     });
   }
 
@@ -84,7 +96,11 @@ const receiveMessage = async (adapter: FacebookAdapter, message: Activity) => {
     body: {
       action: 'create-conversation-message',
       payload: JSON.stringify({
-        content: message.text,
+        content: text,
+        attachments: (attachments || []).map(attachment => ({
+          type: attachment.type,
+          url: attachment.payload ? attachment.payload.url : '',
+        })),
         conversationId: conversation.erxesApiId,
         customerId: customer.erxesApiId,
       }),
