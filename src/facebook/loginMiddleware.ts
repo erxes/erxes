@@ -1,6 +1,7 @@
 import * as graph from 'fbgraph';
 import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import Accounts from '../models/Accounts';
+import { getEnv } from '../utils';
 import { graphRequest } from './utils';
 
 const loginMiddleware = (req, res) => {
@@ -8,9 +9,10 @@ const loginMiddleware = (req, res) => {
     FACEBOOK_APP_ID,
     FACEBOOK_APP_SECRET,
     FACEBOOK_PERMISSIONS = 'manage_pages, pages_show_list, pages_messaging',
-    DOMAIN,
-    MAIN_APP_DOMAIN,
   } = process.env;
+
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
   const conf = {
     client_id: FACEBOOK_APP_ID,

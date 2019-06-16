@@ -2,7 +2,7 @@ import { FacebookAdapter } from 'botbuilder-adapter-facebook';
 import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
-import { sendRequest } from '../utils';
+import { getEnv, sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
 import { Conversations } from './models';
 import receiveMessage from './receiveMessage';
@@ -24,7 +24,8 @@ const init = async app => {
       facebookPageIds,
     });
 
-    const { ENDPOINT_URL, DOMAIN } = process.env;
+    const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
 
     if (ENDPOINT_URL) {
       try {

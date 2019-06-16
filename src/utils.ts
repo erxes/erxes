@@ -1,5 +1,5 @@
 import * as requestify from 'requestify';
-import { debugExternalRequests } from './debuggers';
+import { debugBase, debugExternalRequests } from './debuggers';
 
 interface IRequestParams {
   url?: string;
@@ -13,7 +13,7 @@ interface IRequestParams {
  * Send request
  */
 export const sendRequest = async ({ url, method, body, params }: IRequestParams) => {
-  const { DOMAIN } = process.env;
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   const reqBody = JSON.stringify(body || {});
   const reqParams = JSON.stringify(params || {});
@@ -59,7 +59,21 @@ export const sendRequest = async ({ url, method, body, params }: IRequestParams)
  * Send request to main api
  */
 export const fetchMainApi = async ({ path, method, body, params }: IRequestParams) => {
-  const { MAIN_API_DOMAIN } = process.env;
+  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
 
   return sendRequest({ url: `${MAIN_API_DOMAIN}${path}`, method, body, params });
+};
+
+export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: string }): string => {
+  const value = process.env[name];
+
+  if (!value && typeof defaultValue !== 'undefined') {
+    return defaultValue;
+  }
+
+  if (!value) {
+    debugBase(`Missing environment variable configuration for ${name}`);
+  }
+
+  return value || '';
 };
