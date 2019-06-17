@@ -1,14 +1,13 @@
-import { Button, ControlLabel } from 'modules/common/components';
+import { IBoard, IPipeline } from 'modules/boards/types';
+import { ControlLabel } from 'modules/common/components';
 import { ISelectedOption } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import { IBoard, IPipeline } from 'modules/deals/types';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { FlexItem } from '../../styles';
 import { IQueryParams } from '../../types';
 import { selectOptions } from '../../utils';
 import Filter from './Filter';
-
 type Props = {
   queryParams: IQueryParams;
   history: any;

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import debounce from 'lodash/debounce';
-import { Avatar, SelectOption, SelectValue } from 'modules/deals/styles/deal';
+import { Avatar, SelectOption, SelectValue } from 'modules/boards/styles/item';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Select from 'react-select-plus';
@@ -13,15 +13,25 @@ type Props = {
   search: (search: string, loadMore?: boolean) => void;
 } & WrapperProps;
 
-const content = (option: IOption): React.ReactNode => (
+const content = (
+  option: IOption,
+  showAvatar: boolean = true
+): React.ReactNode => (
   <React.Fragment>
-    <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+    {showAvatar ? (
+      <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+    ) : null}
     {option.label}
   </React.Fragment>
 );
 
-export const selectOptionRenderer = (option: IOption): React.ReactNode => (
-  <SelectOption className="simple-propOption">{content(option)}</SelectOption>
+export const selectOptionRenderer = (
+  option: IOption,
+  showAvatar: boolean
+): React.ReactNode => (
+  <SelectOption className="simple-propOption">
+    {content(option, showAvatar)}
+  </SelectOption>
 );
 
 export const selectValueRenderer = (option: IOption): React.ReactNode => (
@@ -66,7 +76,8 @@ class SelectWithSearch extends React.Component<
       values,
       search,
       multi,
-      customOption
+      customOption,
+      showAvatar = true
     } = this.props;
 
     const { selectedOptions } = this.state;
@@ -109,8 +120,10 @@ class SelectWithSearch extends React.Component<
     let valueRenderer;
 
     if (multi) {
-      optionRenderer = selectOptionRenderer;
       valueRenderer = selectValueRenderer;
+      optionRenderer = (option: IOption) => {
+        return selectOptionRenderer(option, showAvatar);
+      };
     }
 
     return (
@@ -174,6 +187,7 @@ type WrapperProps = {
   customQuery?: any;
   multi?: boolean;
   filterParams?: any;
+  showAvatar?: boolean;
   customOption?: {
     value: string;
     label: string;

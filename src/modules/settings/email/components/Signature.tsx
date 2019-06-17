@@ -1,17 +1,12 @@
-import { EditorState } from 'draft-js';
 import {
   Button,
   ControlLabel,
+  EditorCK,
   EmptyState,
   FormControl,
   FormGroup,
   Info
 } from 'modules/common/components';
-import {
-  createStateFromHTML,
-  ErxesEditor,
-  toHTML
-} from 'modules/common/components/editor/Editor';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
@@ -26,7 +21,7 @@ type Props = {
 type State = {
   signatures: IEmailSignatureWithBrand[];
   currentId?: string;
-  editorState: EditorState;
+  content: string;
 };
 
 class Signature extends React.Component<Props, State> {
@@ -36,21 +31,18 @@ class Signature extends React.Component<Props, State> {
     this.state = {
       signatures: props.signatures,
       currentId: undefined,
-      editorState: createStateFromHTML(EditorState.createEmpty(), '')
+      content: ''
     };
   }
 
-  getEditorContent = editorState => {
-    return toHTML(editorState);
-  };
-
-  onChangeContent = editorState => {
-    this.setState({ editorState });
+  onChangeContent = e => {
+    const content = e.editor.getData();
+    this.setState({ content });
 
     const current = this.getCurrent(this.state.currentId);
 
     if (current) {
-      current.signature = this.getEditorContent(editorState);
+      current.signature = content;
 
       this.setState({ signatures: this.state.signatures });
     }
@@ -73,12 +65,7 @@ class Signature extends React.Component<Props, State> {
 
     const current = this.getCurrent(currentId);
 
-    const editorState = createStateFromHTML(
-      EditorState.createEmpty(),
-      (current && current.signature) || ''
-    );
-
-    return this.setState({ editorState });
+    return this.setState({ content: (current && current.signature) || '' });
   };
 
   handleSubmit = e => {
@@ -108,9 +95,8 @@ class Signature extends React.Component<Props, State> {
           )}
         </p>
 
-        <ErxesEditor
-          bordered={true}
-          editorState={this.state.editorState}
+        <EditorCK
+          content={this.state.content}
           onChange={this.onChangeContent}
         />
       </FormGroup>

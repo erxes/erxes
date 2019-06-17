@@ -53,7 +53,10 @@ const ListContainer = (props: FinalProps) => {
         Alert.success(`You successfully ${tag ? 'updated' : 'added'} a tag`);
 
         tagsQuery.refetch();
-        callback();
+
+        if (callback) {
+          callback();
+        }
       })
       .catch(e => {
         Alert.error(e.message);

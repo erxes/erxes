@@ -220,7 +220,7 @@ a:hover {
   box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.23);
 }
 
-.tooltip.bottom .tooltip-arrow, {
+.tooltip.bottom .tooltip-arrow {
   border-bottom-color: ${colors.colorWhite};
 }
 

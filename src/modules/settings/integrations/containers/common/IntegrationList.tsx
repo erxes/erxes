@@ -28,7 +28,7 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const integrations = integrationsQuery.integrations || [];
 
-  const removeIntegration = (integration, callback) => {
+  const removeIntegration = integration => {
     confirm().then(() => {
       removeMutation({ variables: { _id: integration._id } })
         .then(() => {
@@ -36,7 +36,7 @@ const IntegrationListContainer = (props: FinalProps) => {
         })
 
         .catch(error => {
-          Alert.error(error.reason);
+          Alert.error(error.message);
         });
     });
   };

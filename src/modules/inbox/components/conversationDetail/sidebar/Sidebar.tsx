@@ -15,8 +15,10 @@ import {
 } from 'modules/customers/components/common';
 import { ActionSection } from 'modules/customers/containers/common';
 import { CustomFieldsSection } from 'modules/customers/containers/common';
-import { PortableDeals } from 'modules/deals/containers';
+import PortableDeals from 'modules/deals/components/PortableDeals';
 import { Sidebar } from 'modules/layout/components';
+import PortableTasks from 'modules/tasks/components/PortableTasks';
+import PortableTickets from 'modules/tickets/components/PortableTickets';
 import * as React from 'react';
 import {
   Actions,
@@ -30,7 +32,6 @@ import { __ } from 'modules/common/utils';
 import { Contacts } from 'modules/companies/components';
 import { ICustomer } from 'modules/customers/types';
 import { SidebarActivity } from 'modules/inbox/containers/conversationDetail';
-import { MailForm } from 'modules/settings/integrations/containers/google';
 import { IConversation } from '../../../types';
 import ConversationDetails from './ConversationDetails';
 
@@ -187,15 +188,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { customer } = this.props;
     const { primaryPhone, primaryEmail } = customer;
 
-    const content = props => (
-      <MailForm
-        contentType="customer"
-        contentTypeId={customer._id}
-        toEmail={primaryEmail}
-        refetchQueries={['activityLogsCustomer']}
-        closeModal={props.closeModal}
-      />
-    );
+    const content = () => null;
 
     return (
       <Actions>
@@ -291,14 +284,41 @@ class Index extends React.Component<IndexProps, IndexState> {
     }
 
     return (
-      <Box
-        title={__('Deals')}
-        name="showDeals"
-        isOpen={config.showDeals || false}
-        toggle={toggleSection}
-      >
-        <PortableDeals customerIds={[customer._id]} isOpen={config.showDeals} />
-      </Box>
+      <>
+        <Box
+          title={__('Deals')}
+          name="showDeals"
+          isOpen={config.showDeals || false}
+          toggle={toggleSection}
+        >
+          <PortableDeals
+            customerIds={[customer._id]}
+            isOpen={config.showDeals}
+          />
+        </Box>
+        <Box
+          title={__('Tickets')}
+          name="showTickets"
+          isOpen={config.showTickets || false}
+          toggle={toggleSection}
+        >
+          <PortableTickets
+            customerIds={[customer._id]}
+            isOpen={config.showTickets}
+          />
+        </Box>
+        <Box
+          title={__('Tasks')}
+          name="showTasks"
+          isOpen={config.showTasks || false}
+          toggle={toggleSection}
+        >
+          <PortableTasks
+            customerIds={[customer._id]}
+            isOpen={config.showTasks}
+          />
+        </Box>
+      </>
     );
   }
 

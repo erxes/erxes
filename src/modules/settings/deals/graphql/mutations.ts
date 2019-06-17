@@ -32,7 +32,7 @@ const commonPipelineParamsDef = `
   $name: String!,
   $boardId: String!,
   $stages: JSON,
-  $visiblity: String!,
+  $visibility: String!,
   $memberIds: [String],
 `;
 
@@ -40,7 +40,7 @@ const commonPipelineParams = `
   name: $name,
   boardId: $boardId,
   stages: $stages,
-  visiblity: $visiblity,
+  visibility: $visibility,
   memberIds: $memberIds,
 `;
 

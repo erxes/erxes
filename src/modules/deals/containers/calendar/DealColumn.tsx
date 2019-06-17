@@ -38,8 +38,8 @@ class DealColumnContainer extends React.Component<FinalProps> {
     const { fetchMore } = dealsQuery;
 
     // Update calendar after stage updated
-    if (localStorage.getItem('dealCalendarCacheInvalidated') === 'true') {
-      localStorage.setItem('dealCalendarCacheInvalidated', 'false');
+    if (localStorage.getItem('cacheInvalidated') === 'true') {
+      localStorage.setItem('cacheInvalidated', 'false');
 
       dealsQuery.refetch();
       dealsTotalAmountsQuery.refetch();
