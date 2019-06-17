@@ -20,7 +20,7 @@ export const sendChannelNotifications = async (channel: IChannelDocument) => {
     notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
     title: content,
     content,
-    link: `/inbox/${channel._id}`,
+    link: `/inbox?channelId=${channel._id}`,
 
     // exclude current user
     receivers: (channel.memberIds || []).filter(id => id !== channel.userId),
