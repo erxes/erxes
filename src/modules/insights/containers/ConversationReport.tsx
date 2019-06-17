@@ -99,16 +99,7 @@ export default compose(
     gql(queries.insightsConversationSummary),
     {
       name: 'insightsConversationSummaryQuery',
-      options: ({ queryParams }) => {
-        return {
-          variables: {
-            brandIds: queryParams.brandIds,
-            integrationIds: queryParams.integrationIds,
-            startDate: queryParams.startDate,
-            endDate: queryParams.endDate
-          }
-        };
-      }
+      options
     }
   )
 )(ConversationReportContainer);
