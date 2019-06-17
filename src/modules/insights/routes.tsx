@@ -169,9 +169,9 @@ const routes = () => {
       />
 
       <Route
-        key="/insights/conversation-report"
+        key="/inbox/insights/conversation-report"
         exact={true}
-        path="/insights/conversation-report"
+        path="/inbox/insights/conversation-report"
         component={conversationReport}
       />
 
