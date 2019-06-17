@@ -4,6 +4,7 @@ import {
   ModalTrigger,
   Table
 } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { ITag } from 'modules/tags/types';
@@ -15,12 +16,12 @@ import Sidebar from './Sidebar';
 type Props = {
   tags: ITag[];
   type: string;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (tag: ITag) => void;
   loading: boolean;
-  refetchQueries: any;
 };
 
-function List({ tags, type, remove, loading, refetchQueries }: Props) {
+function List({ tags, type, remove, loading, renderButton }: Props) {
   const trigger = (
     <Button btnStyle="success" size="small" icon="add">
       Add tag
@@ -28,7 +29,7 @@ function List({ tags, type, remove, loading, refetchQueries }: Props) {
   );
 
   const modalContent = props => (
-    <FormComponent {...props} type={type} refetchQueries={refetchQueries} />
+    <FormComponent {...props} type={type} renderButton={renderButton} />
   );
 
   const actionBarRight = (
@@ -53,7 +54,7 @@ function List({ tags, type, remove, loading, refetchQueries }: Props) {
             count={tag.objectCount}
             type={type}
             remove={remove}
-            refetchQueries={refetchQueries}
+            renderButton={renderButton}
           />
         ))}
       </tbody>

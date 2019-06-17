@@ -1,5 +1,6 @@
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { ITag, ITagSaveParams } from 'modules/tags/types';
+import { ITag } from 'modules/tags/types';
 import * as React from 'react';
 import {
   ActionButtons,
@@ -16,11 +17,11 @@ type Props = {
   tag: ITag;
   type: string;
   count?: number;
-  refetchQueries: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (tag: ITag) => void;
 };
 
-function Row({ tag, type, count, refetchQueries, remove }: Props) {
+function Row({ tag, type, count, renderButton, remove }: Props) {
   function removeTag() {
     remove(tag);
   }
@@ -34,7 +35,7 @@ function Row({ tag, type, count, refetchQueries, remove }: Props) {
   );
 
   const content = props => (
-    <Form {...props} type={type} tag={tag} refetchQueries={refetchQueries} />
+    <Form {...props} type={type} tag={tag} renderButton={renderButton} />
   );
 
   return (

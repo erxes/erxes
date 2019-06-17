@@ -1,42 +1,24 @@
 import {
   Button,
-  ButtonMutate,
   ControlLabel,
   Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IFormProps } from 'modules/common/types';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, generateRandomColorCode } from 'modules/common/utils';
 import { ITag } from 'modules/tags/types';
 import * as React from 'react';
-import { mutations } from '../graphql';
 
 type Props = {
   tag?: ITag;
   type: string;
-  refetchQueries?: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal?: () => void;
 };
 
-type State = {
-  isSubmitted: boolean;
-};
-
-class FormComponent extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isSubmitted: false
-    };
-  }
-
-  submit = () => {
-    this.setState({ isSubmitted: true });
-  };
-
+class FormComponent extends React.Component<Props> {
   generateDoc = (values: { _id?: string; name: string; colorCode: string }) => {
     const { tag, type } = this.props;
     const finalValues = values;
@@ -53,16 +35,9 @@ class FormComponent extends React.Component<Props, State> {
     };
   };
 
-  getMutation = () => {
-    if (this.props.tag) {
-      return mutations.edit;
-    }
-
-    return mutations.add;
-  };
-
   renderContent = (formProps: IFormProps) => {
-    const { tag, refetchQueries, closeModal } = this.props;
+    const { tag, closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
     const object = tag || ({} as ITag);
 
     return (
@@ -91,28 +66,20 @@ class FormComponent extends React.Component<Props, State> {
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Cancel
           </Button>
-
-          <ButtonMutate
-            mutation={this.getMutation()}
-            variables={this.generateDoc(formProps.values)}
-            callback={closeModal}
-            refetchQueries={refetchQueries}
-            isSubmitted={this.state.isSubmitted}
-            type="submit"
-            icon="checked-1"
-            successMessage={`You successfully ${
-              tag ? 'updated' : 'added'
-            } a tag.`}
-          >
-            {__('Save')}
-          </ButtonMutate>
+          {renderButton({
+            name: 'tag',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: tag
+          })}
         </ModalFooter>
       </>
     );
   };
 
   render() {
-    return <Form renderContent={this.renderContent} onSubmit={this.submit} />;
+    return <Form renderContent={this.renderContent} />;
   }
 }
 
