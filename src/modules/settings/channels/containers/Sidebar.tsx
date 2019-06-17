@@ -1,5 +1,7 @@
 import gql from 'graphql-tag';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { UsersQueryResponse } from '../../team/types';
@@ -53,14 +55,39 @@ const SidebarContainer = (props: FinalProps) => {
     });
   };
 
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.channelEdit : mutations.channelAdd}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries(queryParams, currentChannelId)}
+        isSubmitted={isSubmitted}
+        type="submit"
+        icon="send"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
+  };
+
   const updatedProps = {
     ...props,
     members,
     channels,
     channelsTotalCount,
     remove,
-    loading: channelsQuery.loading,
-    refetchQueries: getRefetchQueries(queryParams, currentChannelId)
+    renderButton,
+    loading: channelsQuery.loading
   };
 
   return <Sidebar {...updatedProps} />;

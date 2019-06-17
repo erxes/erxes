@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { IButtonMutateProps } from 'modules/common/types';
 import * as React from 'react';
 import { ChannelForm } from '../components';
 import { IChannel } from '../types';
@@ -7,12 +8,12 @@ type Props = {
   channel?: IChannel;
   members: IUser[];
   closeModal: () => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading?: boolean;
-  refetchQueries: any;
 };
 
 const ChannelFormContainer = (props: Props) => {
-  const { channel, members, refetchQueries } = props;
+  const { channel, members, renderButton } = props;
 
   let selectedMembers: string[] = [];
 
@@ -26,7 +27,7 @@ const ChannelFormContainer = (props: Props) => {
     ...props,
     channel,
     selectedMembers,
-    refetchQueries
+    renderButton
   };
 
   return <ChannelForm {...updatedProps} />;

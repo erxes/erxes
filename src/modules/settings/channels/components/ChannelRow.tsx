@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import * as React from 'react';
@@ -13,7 +14,7 @@ type Props = {
   members: IUser[];
   remove: (id: string) => void;
   isActive: boolean;
-  refetchQueries: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class ChannelRow extends React.Component<Props, {}> {
@@ -23,7 +24,7 @@ class ChannelRow extends React.Component<Props, {}> {
   };
 
   renderEditAction = () => {
-    const { channel, members, refetchQueries } = this.props;
+    const { channel, members, renderButton } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -38,7 +39,7 @@ class ChannelRow extends React.Component<Props, {}> {
         {...props}
         members={members}
         channel={channel}
-        refetchQueries={refetchQueries}
+        renderButton={renderButton}
       />
     );
 

@@ -6,6 +6,7 @@ import {
   ModalTrigger,
   Spinner
 } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
@@ -18,10 +19,10 @@ type Props = {
   channels: IChannel[];
   members: IUser[];
   remove: (channelId: string) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading: boolean;
   currentChannelId?: string;
   channelsTotalCount: number;
-  refetchQueries: any;
 };
 
 class Sidebar extends React.Component<Props, {}> {
@@ -31,7 +32,7 @@ class Sidebar extends React.Component<Props, {}> {
       members,
       remove,
       currentChannelId,
-      refetchQueries
+      renderButton
     } = this.props;
 
     return channels.map(channel => (
@@ -41,13 +42,13 @@ class Sidebar extends React.Component<Props, {}> {
         channel={channel}
         members={members}
         remove={remove}
-        refetchQueries={refetchQueries}
+        renderButton={renderButton}
       />
     ));
   };
 
   renderSidebarHeader() {
-    const { members, refetchQueries } = this.props;
+    const { members, renderButton } = this.props;
     const { Header } = LeftSidebar;
 
     const addChannel = (
@@ -59,11 +60,7 @@ class Sidebar extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <ChannelForm
-        {...props}
-        members={members}
-        refetchQueries={refetchQueries}
-      />
+      <ChannelForm {...props} members={members} renderButton={renderButton} />
     );
 
     return (
