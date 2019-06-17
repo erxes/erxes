@@ -21,6 +21,7 @@ type Props = {
     trend: IChartParams[];
     teamMembers: IChartParams[];
   };
+  loading: boolean;
 };
 
 class ConversationReport extends React.Component<Props, { userId: string }> {
@@ -31,7 +32,13 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
   }
 
   renderContent() {
-    const { brands, history, queryParams, conversationReport } = this.props;
+    const {
+      brands,
+      history,
+      queryParams,
+      conversationReport,
+      loading
+    } = this.props;
 
     return (
       <InsightWrapper>
@@ -45,13 +52,13 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
             <InsightTitle>
               {__('response frequency averages block')}
             </InsightTitle>
-            <Summary data={conversationReport.avg} loading={false} />
+            <Summary data={conversationReport.avg} loading={loading} />
           </InsightRow>
 
           <InsightRow>
             <InsightTitle>{__('Trend')}</InsightTitle>
             <Chart
-              loading={false}
+              loading={loading}
               height={300}
               data={conversationReport.trend}
             />
@@ -60,7 +67,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
           <InsightRow>
             <InsightTitle>{__('Team Member')}</InsightTitle>
             <TeamMembers
-              loading={false}
+              loading={loading}
               datas={conversationReport.teamMembers || []}
             />
           </InsightRow>
