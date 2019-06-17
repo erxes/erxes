@@ -256,13 +256,17 @@ const MessageDescription = styled.div`
   padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
 `;
 
+const EditorContainer = styled.div`
+  padding: ${coreSpace};
+  flex: 1;
+  overflow-y: auto;
+`;
+
 const SelectMessageType = styled.div`
-  margin: 20px;
+  margin: 20px 20px 0 20px;
   width: 300px;
   white-space: normal;
-  font-size: 12px;
   color: ${colors.colorCoreGray};
-  padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
 `;
 
 export {
@@ -287,10 +291,11 @@ export {
   SelectMonth,
   LauncherContainer,
   WidgetPreview,
+  MessageDescription,
+  EditorContainer,
   StepFormWrapper,
   ListWrapper,
   RadioContainer,
   CustomerCounts,
-  SelectMessageType,
-  MessageDescription
+  SelectMessageType
 };

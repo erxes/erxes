@@ -11,7 +11,10 @@ type Props = {
 };
 
 function Empty({ queryParams, currentUser }: Props) {
-  const menuInbox = [{ title: 'Inbox', link: '/inbox/index' }];
+  const menuInbox = [
+    { title: 'Inbox', link: '/inbox/index' },
+    { title: 'Ticket', link: '/inbox/ticket' }
+  ];
 
   if (can('showInsights', currentUser)) {
     menuInbox.push({ title: 'Insights', link: '/inbox/insights' });

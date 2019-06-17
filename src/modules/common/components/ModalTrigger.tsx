@@ -11,6 +11,7 @@ type Props = {
   ignoreTrans?: boolean;
   dialogClassName?: string;
   backDrop?: string;
+  enforceFocus?: boolean;
 };
 
 type State = {
@@ -40,7 +41,8 @@ class ModalTrigger extends React.Component<Props, State> {
       ignoreTrans,
       dialogClassName,
       content,
-      backDrop
+      backDrop,
+      enforceFocus
     } = this.props;
 
     const { isOpen } = this.state;
@@ -63,6 +65,7 @@ class ModalTrigger extends React.Component<Props, State> {
           show={isOpen}
           onHide={this.closeModal}
           backdrop={backDrop}
+          enforceFocus={enforceFocus}
         >
           <Modal.Header closeButton={true}>
             <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>

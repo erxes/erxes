@@ -851,5 +851,6 @@
   "Invalid link": "Invalid link!",
   "Maximum length is": "Maximum length is",
   "characters": "characters!",
-  "Invalid number format! Please enter a valid number": "Invalid number format! Please enter a valid number."
+  "Invalid number format! Please enter a valid number": "Invalid number format! Please enter a valid number.",
+  "Insert email template to content": "Insert email template to content"
 }

@@ -824,5 +824,6 @@
   "Invalid link": "Холбоос буруу байна!",
   "Maximum length is": "Хамгийн ихдээ",
   "characters": "тэмдэгт байна!",
-  "Invalid number format! Please enter a valid number": "Зөв дугаар оруулна уу."
+  "Invalid number format! Please enter a valid number": "Зөв дугаар оруулна уу.",
+  "Insert email template to content": "Агуулгаруу имэйл тэмплэйт оруулах"
 }

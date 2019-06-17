@@ -115,7 +115,14 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
     graphql<Props, ResponseTemplatesQueryResponse>(
       gql(queries.responseTemplateList),
       {
-        name: 'responseTemplatesQuery'
+        name: 'responseTemplatesQuery',
+        options: () => {
+          return {
+            variables: {
+              perPage: 200
+            }
+          };
+        }
       }
     )
   )(RespondBoxContainer)

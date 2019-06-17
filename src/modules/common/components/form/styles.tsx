@@ -12,7 +12,7 @@ const Label = styled.label`
   text-transform: uppercase;
   display: inline-block;
   font-weight: ${typography.fontWeightMedium};
-  color: ${colors.textSecondary};
+  color: ${colors.textPrimary};
   font-size: ${typography.fontSizeUppercase}px;
   margin-bottom: 5px;
 

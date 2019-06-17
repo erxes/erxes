@@ -164,6 +164,7 @@ export type AccountsQueryResponse = {
   integrationsFetchApi: IAccount[];
   loading: boolean;
   refetch: () => void;
+  error?: Error;
 };
 
 // mutation types

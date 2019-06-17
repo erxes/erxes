@@ -1,6 +1,6 @@
-import { EditorState } from 'draft-js';
 import {
   ControlLabel,
+  EditorCK,
   FormControl,
   FormGroup
 } from 'modules/common/components';
@@ -22,7 +22,7 @@ type Props = {
 };
 
 type State = {
-  editorState: EditorState;
+  content: string;
 };
 
 class Form extends React.Component<Props & ICommonFormProps, State> {
@@ -32,19 +32,12 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = props.object || {};
 
     this.state = {
-      editorState: createStateFromHTML(
-        EditorState.createEmpty(),
-        object.content || ''
-      )
+      content: object.content || ''
     };
   }
 
-  getContent = editorState => {
-    return toHTML(editorState);
-  };
-
-  onChange = editorState => {
-    this.setState({ editorState });
+  onChange = e => {
+    this.setState({ content: e.editor.getData() });
   };
 
   generateDoc = (values: { _id?: string; name: string; brandId: string }) => {
@@ -59,18 +52,12 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       _id: finalValues._id,
       brandId: finalValues.brandId,
       name: finalValues.name,
-      content: this.getContent(this.state.editorState)
+      content: this.state.content
     };
   };
 
   renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as IResponseTemplate);
-
-    const props = {
-      editorState: this.state.editorState,
-      onChange: this.onChange,
-      defaultValue: object.content
-    };
 
     return (
       <React.Fragment>
@@ -94,7 +81,12 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <ErxesEditor bordered={true} {...props} />
+
+          <EditorCK
+            content={object.content}
+            onChange={this.onChange}
+            height={300}
+          />
         </FormGroup>
       </React.Fragment>
     );
