@@ -54,6 +54,8 @@ connect().then(async () => {
 
     // Iterating through detailed properties
     for (const property of properties) {
+      const value = fieldValue[colIndex] || '';
+
       switch (property.type) {
         case 'customProperty':
           {
@@ -63,15 +65,13 @@ connect().then(async () => {
 
         case 'customData':
           {
-            const value = fieldValue[colIndex].toString();
-            coc[property.name] = value;
+            coc[property.name] = value.toString();
           }
           break;
 
         case 'basic':
           {
-            const value = fieldValue[colIndex];
-            coc[property.name] = value;
+            coc[property.name] = value.toString();
 
             if (property.name === 'primaryEmail' && value) {
               coc.emails = [value];
