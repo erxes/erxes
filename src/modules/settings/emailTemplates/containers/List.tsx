@@ -18,8 +18,9 @@ type Props = {
 
 export default commonListComposer<Props>({
   text: 'email template',
-
   name: 'emailTemplates',
+  stringEditMutation: mutations.emailTemplatesEdit,
+  stringAddMutation: mutations.emailTemplatesAdd,
 
   gqlListQuery: graphql(gql(queries.emailTemplates), {
     name: 'listQuery',
