@@ -220,7 +220,7 @@ a:hover {
   box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.23);
 }
 
-.tooltip.bottom .tooltip-arrow, {
+.tooltip.bottom .tooltip-arrow {
   border-bottom-color: ${colors.colorWhite};
 }
 
@@ -355,8 +355,6 @@ a:hover {
   box-shadow: none;
 }
 
-
-
 .Select.is-focused > .Select-control,
 .Select.is-open > .Select-control {
   border-bottom-right-radius: 0;
@@ -373,6 +371,10 @@ a:hover {
 
 .Select.is-focused .Select-input > input {
   padding: 10px 0 12px;
+}
+
+.Select.is-disabled > .Select-control {
+  cursor: not-allowed;
 }
 
 .Select-placeholder,

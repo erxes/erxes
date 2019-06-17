@@ -59,6 +59,7 @@ export default class RowActions extends React.Component<Props, {}> {
       <ModalTrigger
         size={size}
         title="Edit"
+        enforceFocus={false}
         trigger={editTrigger}
         content={content}
       />

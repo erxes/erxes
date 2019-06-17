@@ -1,4 +1,3 @@
-import { IUserDoc } from 'modules/auth/types';
 import {
   Button,
   Icon,
@@ -6,7 +5,7 @@ import {
   ModalTrigger,
   Tip
 } from 'modules/common/components';
-import { __, getUserAvatar, readFile } from 'modules/common/utils';
+import { __, getUserAvatar } from 'modules/common/utils';
 import * as moment from 'moment';
 import * as React from 'react';
 import { ArticleForm } from '../../containers';
@@ -63,6 +62,7 @@ const ArticleRow = (props: Props) => {
         title="Edit"
         trigger={editTrigger ? editTrigger : editButton}
         content={content}
+        enforceFocus={false}
       />
     );
   };

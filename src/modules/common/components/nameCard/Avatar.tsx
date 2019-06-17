@@ -28,7 +28,6 @@ const AvatarStyled = styledTS<{
     (props.hasAvatar && 'none') ||
     (props.isUser && colors.colorCoreTeal) ||
     (props.messenger && colors.colorPrimary) ||
-    (props.twitter && colors.socialTwitter) ||
     (props.facebook && colors.socialFacebook) ||
     colors.colorSecondary};
 
@@ -108,9 +107,7 @@ class Avatar extends React.Component<Props> {
       return {
         isUser: customer.isUser,
         hasAvatar,
-        messenger: customer.messengerData && true,
-        twitter: customer.twitterData && true,
-        facebook: customer.facebookData && true
+        messenger: customer.messengerData && true
       };
     }
 

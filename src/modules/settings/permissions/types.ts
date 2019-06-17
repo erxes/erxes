@@ -71,6 +71,7 @@ export interface IUserGroup {
   _id: string;
   name?: string;
   description?: string;
+  memberIds?: string[];
 }
 
 export interface IUserGroupDocument extends IUserGroup {

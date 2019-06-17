@@ -140,7 +140,7 @@ class TemplateList extends React.Component<TemplateListProps, {}> {
                 dangerouslySetInnerHTML={{
                   __html: xss(highlighter(searchText, template.name))
                 }}
-              />
+              />{' '}
               <span
                 dangerouslySetInnerHTML={{
                   __html: xss(highlighter(searchText, strip(template.content)))

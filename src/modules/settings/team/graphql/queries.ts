@@ -72,8 +72,8 @@ const listParamsValue = `
 `;
 
 const users = `
-  query users($page: Int, $perPage: Int, ${listParamsDef}) {
-    users(page: $page, perPage: $perPage, ${listParamsValue}) {
+  query users($page: Int, $perPage: Int, $status: String ${listParamsDef}) {
+    users(page: $page, perPage: $perPage, status: $status ${listParamsValue}) {
       _id
       username
       email

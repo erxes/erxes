@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
-import { Avatar, SelectOption, SelectValue } from 'modules/deals/styles/deal';
+import debounce from 'lodash/debounce';
+import { Avatar, SelectOption, SelectValue } from 'modules/boards/styles/item';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Select from 'react-select-plus';
@@ -12,15 +13,25 @@ type Props = {
   search: (search: string, loadMore?: boolean) => void;
 } & WrapperProps;
 
-const content = (option: IOption): React.ReactNode => (
+const content = (
+  option: IOption,
+  showAvatar: boolean = true
+): React.ReactNode => (
   <React.Fragment>
-    <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+    {showAvatar ? (
+      <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+    ) : null}
     {option.label}
   </React.Fragment>
 );
 
-export const selectOptionRenderer = (option: IOption): React.ReactNode => (
-  <SelectOption className="simple-propOption">{content(option)}</SelectOption>
+export const selectOptionRenderer = (
+  option: IOption,
+  showAvatar: boolean
+): React.ReactNode => (
+  <SelectOption className="simple-propOption">
+    {content(option, showAvatar)}
+  </SelectOption>
 );
 
 export const selectValueRenderer = (option: IOption): React.ReactNode => (
@@ -65,7 +76,8 @@ class SelectWithSearch extends React.Component<
       values,
       search,
       multi,
-      customOption
+      customOption,
+      showAvatar = true
     } = this.props;
 
     const { selectedOptions } = this.state;
@@ -88,7 +100,7 @@ class SelectWithSearch extends React.Component<
 
     const onSearch = (searchValue: string) => {
       if (searchValue) {
-        search(searchValue);
+        debounce(() => search(searchValue), 500)();
       }
     };
 
@@ -108,8 +120,10 @@ class SelectWithSearch extends React.Component<
     let valueRenderer;
 
     if (multi) {
-      optionRenderer = selectOptionRenderer;
       valueRenderer = selectValueRenderer;
+      optionRenderer = (option: IOption) => {
+        return selectOptionRenderer(option, showAvatar);
+      };
     }
 
     return (
@@ -133,29 +147,33 @@ class SelectWithSearch extends React.Component<
 const withQuery = ({ customQuery }) =>
   withProps<Props>(
     compose(
-      graphql<Props, {}, { searchValue?: string; ids?: string[] }>(
-        gql(customQuery),
-        {
-          name: 'customQuery',
-          options: ({ searchValue, values }) => {
-            if (searchValue === 'reload') {
-              return {
-                variables: { searchValue: '' },
-                fetchPolicy: 'network-only',
-                notifyOnNetworkStatusChange: true
-              };
-            }
-
-            if (searchValue) {
-              return { variables: { searchValue } };
-            }
-
+      graphql<
+        Props,
+        {},
+        { searchValue?: string; ids?: string[]; filterParams?: any }
+      >(gql(customQuery), {
+        name: 'customQuery',
+        options: ({ searchValue, filterParams, values }) => {
+          if (searchValue === 'reload') {
             return {
-              variables: { ids: typeof values === 'string' ? [values] : values }
+              variables: { searchValue: '', ...filterParams },
+              fetchPolicy: 'network-only',
+              notifyOnNetworkStatusChange: true
             };
           }
+
+          if (searchValue) {
+            return { variables: { searchValue, ...filterParams } };
+          }
+
+          return {
+            variables: {
+              ids: typeof values === 'string' ? [values] : values,
+              ...filterParams
+            }
+          };
         }
-      )
+      })
     )(SelectWithSearch)
   );
 
@@ -168,6 +186,8 @@ type WrapperProps = {
   generateOptions: (datas: any[]) => IOption[];
   customQuery?: any;
   multi?: boolean;
+  filterParams?: any;
+  showAvatar?: boolean;
   customOption?: {
     value: string;
     label: string;

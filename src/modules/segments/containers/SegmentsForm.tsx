@@ -83,14 +83,16 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
       counts
     } = this.props;
 
-    if (segmentDetailQuery.loading) {
+    if (segmentDetailQuery.loading || combinedFieldsQuery.loading) {
       return null;
     }
 
     const fields = (combinedFieldsQuery.fieldsCombinedByContentType || []).map(
-      ({ name, label }) => ({
+      ({ name, label, brandName, brandId }) => ({
         _id: name,
         title: label,
+        brandName,
+        brandId,
         selectedBy: 'none'
       })
     );

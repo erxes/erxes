@@ -1,8 +1,10 @@
 import {
   ControlLabel,
+  EditorCK,
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import { EMAIL_CONTENT } from 'modules/engage/constants';
 import * as React from 'react';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
@@ -10,17 +12,31 @@ import { IEmailTemplate } from '../types';
 
 type Props = {
   object?: IEmailTemplate;
+} & ICommonFormProps;
+
+type State = {
+  content: string;
 };
 
-class Form extends React.Component<Props & ICommonFormProps, {}> {
+class Form extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      content: (props.object && props.object.content) || ''
+    };
+  }
+
+  onEditorChange = e => {
+    this.setState({ content: e.editor.getData() });
+  };
+
   generateDoc = () => {
     return {
       doc: {
         name: (document.getElementById('template-name') as HTMLInputElement)
           .value,
-        content: (document.getElementById(
-          'template-content'
-        ) as HTMLTextAreaElement).value
+        content: this.state.content
       }
     };
   };
@@ -43,12 +59,11 @@ class Form extends React.Component<Props & ICommonFormProps, {}> {
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-
-          <FormControl
-            id="template-content"
-            componentClass="textarea"
-            rows={5}
-            defaultValue={object.content}
+          <EditorCK
+            content={this.state.content}
+            onChange={this.onEditorChange}
+            insertItems={EMAIL_CONTENT}
+            height={460}
           />
         </FormGroup>
       </React.Fragment>

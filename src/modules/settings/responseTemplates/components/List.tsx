@@ -21,6 +21,7 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
           <RowActions
             {...this.props}
             object={object}
+            size="lg"
             renderForm={this.renderForm}
           />
         </tr>
@@ -62,6 +63,7 @@ class ResponseTemplateList extends React.Component<ICommonListProps> {
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         center={true}
+        size="lg"
         {...this.props}
       />
     );
