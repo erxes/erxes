@@ -29,6 +29,11 @@ export const queries = `
   insightFirstResponseReportExport(type: String, userId: String, ${params}): JSON
   insightTagReportExport(${params}): JSON
 
+  insightsConversationCustomerAvg(${params}): JSON
+  insightsConversationInternalAvg(${params}): JSON
+  insightsConversationOverallAvg(${params}): JSON
+  insightsConversationSummary(${params}): JSON
+
   dealInsightsMain(${dealParams}): JSON
   dealInsightsPunchCard(${dealParams}): JSON
   dealInsightsByTeamMember(${dealParams}): JSON
