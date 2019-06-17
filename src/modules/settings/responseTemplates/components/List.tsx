@@ -1,13 +1,18 @@
 import { HeaderDescription, Table } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { List, RowActions } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
 import { Form } from '../components';
 
-class ResponseTemplateList extends React.Component<ICommonListProps> {
+type Props = {
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+} & ICommonListProps;
+
+class ResponseTemplateList extends React.Component<Props> {
   renderForm = props => {
-    return <Form {...props} />;
+    return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
   renderRows = ({ objects }) => {

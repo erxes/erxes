@@ -5,9 +5,9 @@ import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../brands/types';
 
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { mutations as brandMutations } from 'modules/settings/brands/graphql';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
-import { IButtonMutateProps } from '../../../common/types';
 import { SelectBrand } from '../components';
 
 type Props = {
@@ -15,13 +15,14 @@ type Props = {
   defaultValue: string;
   creatable: boolean;
   isRequired?: boolean;
+  formProps: IFormProps;
 };
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
 } & Props;
 
 const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
-  const { brandsQuery } = props;
+  const { brandsQuery, formProps } = props;
 
   const brands = brandsQuery.brands || [];
   if (brandsQuery.loading) {
@@ -53,6 +54,7 @@ const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
   const updatedProps = {
     ...props,
     brands,
+    formProps,
     renderButton
   };
 

@@ -1,5 +1,5 @@
 import { Button } from 'modules/common/components';
-import { IButtonMutateProps } from 'modules/common/types';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import BrandForm from 'modules/settings/brands/components/BrandForm';
 import * as React from 'react';
 import {
@@ -19,6 +19,7 @@ type Props = {
   defaultValue?: string;
   creatable?: boolean;
   isRequired?: boolean;
+  formProps?: IFormProps;
 };
 
 class SelectBrand extends React.Component<Props, {}> {
@@ -41,18 +42,25 @@ class SelectBrand extends React.Component<Props, {}> {
   };
 
   render() {
-    const { brands, onChange, defaultValue, isRequired } = this.props;
+    const {
+      brands,
+      onChange,
+      defaultValue,
+      formProps,
+      isRequired
+    } = this.props;
 
     return (
       <FormGroup>
         <ControlLabel required={isRequired}>Brand</ControlLabel>
         <Row>
           <FormControl
+            {...formProps}
+            name="brandId"
             componentClass="select"
             placeholder={__('Select Brand')}
             defaultValue={defaultValue}
             onChange={onChange}
-            id="selectBrand"
             required={isRequired}
           >
             <option />
