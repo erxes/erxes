@@ -6,7 +6,7 @@ import { getEnv, sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
 import { Conversations } from './models';
 import receiveMessage from './receiveMessage';
-import { getPageAccessToken, getPageList, graphRequest } from './utils';
+import { getPageAccessToken, getPageList, graphRequest, subscribePage } from './utils';
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
@@ -16,6 +16,13 @@ const init = async app => {
 
     const { accountId, integrationId, data } = req.body;
     const facebookPageIds = JSON.parse(data).pageIds;
+
+    const account = await Accounts.findOne({ _id: accountId });
+
+    if (!account) {
+      debugFacebook('Account not found');
+      return next(new Error('Account not found'));
+    }
 
     const integration = await Integrations.create({
       kind: 'facebook',
@@ -27,7 +34,10 @@ const init = async app => {
     const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
     const DOMAIN = getEnv({ name: 'DOMAIN' });
 
+    debugFacebook(`ENDPOINT_URL ${ENDPOINT_URL}`);
+
     if (ENDPOINT_URL) {
+      // send domain to core endpoints
       try {
         await sendRequest({
           url: ENDPOINT_URL,
@@ -40,6 +50,23 @@ const init = async app => {
       } catch (e) {
         await Integrations.remove({ _id: integration._id });
         return next(e);
+      }
+
+      for (const pageId of facebookPageIds) {
+        try {
+          const pageAccessToken = await getPageAccessToken(pageId, account.token);
+
+          try {
+            await subscribePage(pageId, pageAccessToken);
+            debugFacebook(`Successfully subscribed page ${pageId}`);
+          } catch (e) {
+            debugFacebook(`Error ocurred while trying to subscribe page ${e.message}`);
+            return next(e);
+          }
+        } catch (e) {
+          debugFacebook(`Error ocurred while trying to get page access token with ${e.message}`);
+          return next(e);
+        }
       }
     }
 

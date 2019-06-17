@@ -39,3 +39,9 @@ export const getPageAccessToken = async (pageId: string, userAccessToken: string
 
   return response.access_token;
 };
+
+export const subscribePage = async (pageId, pageToken): Promise<{ success: true } | any> => {
+  return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
+    subscribed_fields: ['conversations', 'messages', 'feed'],
+  });
+};
