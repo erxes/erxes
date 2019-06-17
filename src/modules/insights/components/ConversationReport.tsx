@@ -9,15 +9,18 @@ import {
   InsightTitle,
   InsightWrapper
 } from '../styles';
-import { IChartParams, IQueryParams } from '../types';
+import { IChartParams, IQueryParams, SummaryData } from '../types';
 import { Chart, InboxFilter, Sidebar, Summary, TeamMembers } from './';
 
 type Props = {
   brands: IBrand[];
   queryParams: IQueryParams;
   history: any;
+  conversationCustomerAvg: SummaryData[];
+  conversationInternalAvg: SummaryData[];
+  conversationOverallAvg: SummaryData[];
   conversationReport: {
-    avg: Array<{ [key: string]: number }>;
+    avg: SummaryData[];
     trend: IChartParams[];
     teamMembers: IChartParams[];
   };
@@ -36,6 +39,9 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
       brands,
       history,
       queryParams,
+      conversationCustomerAvg,
+      conversationInternalAvg,
+      conversationOverallAvg,
       conversationReport,
       loading
     } = this.props;
@@ -53,6 +59,9 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
               {__('response frequency averages block')}
             </InsightTitle>
             <Summary data={conversationReport.avg} loading={loading} />
+            <Summary data={conversationCustomerAvg} loading={loading} />
+            <Summary data={conversationInternalAvg} loading={loading} />
+            <Summary data={conversationOverallAvg} loading={loading} />
           </InsightRow>
 
           <InsightRow>

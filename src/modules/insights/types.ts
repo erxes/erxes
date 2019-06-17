@@ -61,9 +61,24 @@ export type SummaryDataQueryResponse = {
   loading: boolean;
 };
 
+export type ConversationCustomerAvgQueryResponse = {
+  insightsConversationCustomerAvg: SummaryData[];
+  loading: boolean;
+};
+
+export type ConversationInternalAvgQueryResponse = {
+  insightsConversationInternalAvg: SummaryData[];
+  loading: boolean;
+};
+
+export type ConversationOverallAvgQueryResponse = {
+  insightsConversationOverallAvg: SummaryData[];
+  loading: boolean;
+};
+
 export type ConversationSummaryDataQueryResponse = {
   insightsConversationSummary: {
-    avg: Array<{ [key: string]: number }>;
+    avg: SummaryData[];
     trend: IChartParams[];
     teamMembers: IChartParams[];
   };

@@ -127,6 +127,24 @@ const dealInsightsByTeamMember = `
   }
 `;
 
+const insightsConversationCustomerAvg = `
+  query insightsConversationCustomerAvg(${listParamsDef}) {
+    insightsConversationCustomerAvg(${listParamsValue})
+  }
+`;
+
+const insightsConversationInternalAvg = `
+  query insightsConversationInternalAvg(${listParamsDef}) {
+    insightsConversationInternalAvg(${listParamsValue})
+  }
+`;
+
+const insightsConversationOverallAvg = `
+  query insightsConversationOverallAvg(${listParamsDef}) {
+    insightsConversationOverallAvg(${listParamsValue})
+  }
+`;
+
 const insightsConversationSummary = `
   query insightsConversationSummary(${listParamsDef}) {
     insightsConversationSummary(${listParamsValue})
@@ -147,6 +165,10 @@ export default {
   insightActivityReportExport,
   insightFirstResponseReportExport,
   insightTagReportExport,
+
+  insightsConversationCustomerAvg,
+  insightsConversationInternalAvg,
+  insightsConversationOverallAvg,
   insightsConversationSummary,
 
   dealInsightsMain,
