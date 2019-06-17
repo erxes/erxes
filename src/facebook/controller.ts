@@ -229,7 +229,8 @@ const init = async app => {
       })
 
       .catch(e => {
-        next(e);
+        debugFacebook(`Error occurred while processing activity: ${e.message}`);
+        next();
       });
   });
 };
