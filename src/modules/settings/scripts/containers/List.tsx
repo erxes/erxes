@@ -3,20 +3,7 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import { List } from '../components';
-
-const commonParamsDef = `
-  $name: String!,
-  $messengerId: String,
-  $leadIds: [String],
-  $kbTopicId: String,
-`;
-
-const commonParams = `
-  name: $name,
-  messengerId: $messengerId,
-  leadIds: $leadIds,
-  kbTopicId: $kbTopicId,
-`;
+import { mutations, queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -24,91 +11,35 @@ type Props = {
 
 export default commonListComposer<Props>({
   text: 'script',
-
   name: 'scripts',
+  stringEditMutation: mutations.scriptsEdit,
+  stringAddMutation: mutations.scriptsAdd,
 
-  gqlListQuery: graphql(
-    gql`
-      query scripts($page: Int, $perPage: Int) {
-        scripts(page: $page, perPage: $perPage) {
-          _id
-          name
-          messengerId
-          messenger {
-            _id
-            name
-          }
-          leadIds
-          leads {
-            _id
-            name
-          }
-          kbTopicId
-          kbTopic {
-            _id
-            title
-          }
-        }
-      }
-    `,
-    {
-      name: 'listQuery',
-      options: ({ queryParams }: { queryParams: any }) => {
-        return {
-          notifyOnNetworkStatusChange: true,
-          variables: generatePaginationParams(queryParams)
-        };
-      }
+  gqlListQuery: graphql(gql(queries.scripts), {
+    name: 'listQuery',
+    options: ({ queryParams }: { queryParams: any }) => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: generatePaginationParams(queryParams)
+      };
     }
-  ),
+  }),
 
-  gqlTotalCountQuery: graphql(
-    gql`
-      query totalScriptsCount {
-        scriptsTotalCount
-      }
-    `,
-    {
-      name: 'totalCountQuery'
-    }
-  ),
+  gqlTotalCountQuery: graphql(gql(queries.totalScriptsCount), {
+    name: 'totalCountQuery'
+  }),
 
-  gqlAddMutation: graphql(
-    gql`
-      mutation scriptsAdd(${commonParamsDef}) {
-        scriptsAdd(${commonParams}) {
-          _id
-        }
-      }
-    `,
-    {
-      name: 'addMutation'
-    }
-  ),
+  gqlAddMutation: graphql(gql(mutations.scriptsAdd), {
+    name: 'addMutation'
+  }),
 
-  gqlEditMutation: graphql(
-    gql`
-      mutation scriptsEdit($_id: String!, ${commonParamsDef}) {
-        scriptsEdit(_id: $_id, ${commonParams}) {
-          _id
-        }
-      }
-    `,
-    {
-      name: 'editMutation'
-    }
-  ),
+  gqlEditMutation: graphql(gql(mutations.scriptsEdit), {
+    name: 'editMutation'
+  }),
 
-  gqlRemoveMutation: graphql(
-    gql`
-      mutation scriptsRemove($_id: String!) {
-        scriptsRemove(_id: $_id)
-      }
-    `,
-    {
-      name: 'removeMutation'
-    }
-  ),
+  gqlRemoveMutation: graphql(gql(mutations.scriptsRemove), {
+    name: 'removeMutation'
+  }),
 
   ListComponent: List
 });

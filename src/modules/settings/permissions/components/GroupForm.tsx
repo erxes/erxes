@@ -11,7 +11,7 @@ import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
-import { IUserGroup, IUserGroupDocument } from '../types';
+import { IUserGroupDocument } from '../types';
 
 type Props = {
   closeModal: () => void;
