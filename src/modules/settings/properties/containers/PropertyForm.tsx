@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
+import { __, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PropertyForm } from '../components';

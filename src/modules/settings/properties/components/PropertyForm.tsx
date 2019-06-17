@@ -142,12 +142,10 @@ class PropertyForm extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const {
-      groups,
-      closeModal,
-      renderButton,
-      field = {} as IField
-    } = this.props;
+    const { groups, closeModal, renderButton, field } = this.props;
+
+    const object = field || ({} as IField);
+
     const { values, isSubmitted } = formProps;
     const { type } = this.state;
 
@@ -158,7 +156,7 @@ class PropertyForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="text"
-            defaultValue={field.text || ''}
+            defaultValue={object.text || ''}
             required={true}
           />
         </FormGroup>
@@ -169,7 +167,7 @@ class PropertyForm extends React.Component<Props, State> {
             {...formProps}
             name="description"
             componentClass="textarea"
-            defaultValue={field.description || ''}
+            defaultValue={object.description || ''}
           />
         </FormGroup>
 
@@ -180,7 +178,7 @@ class PropertyForm extends React.Component<Props, State> {
               {...formProps}
               name="groupId"
               componentClass="select"
-              defaultValue={field.groupId || ''}
+              defaultValue={object.groupId || ''}
               required={true}
             >
               {groups.map(group => {
@@ -223,7 +221,7 @@ class PropertyForm extends React.Component<Props, State> {
             {...formProps}
             componentClass="select"
             name="validation"
-            defaultValue={field.validation || ''}
+            defaultValue={object.validation || ''}
           >
             <option />
             <option value="email">Email</option>
