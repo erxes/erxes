@@ -59,6 +59,17 @@ class ConversationReportContainer extends React.Component<Props> {
   }
 }
 
+const options = ({ queryParams }) => {
+  return {
+    variables: {
+      brandIds: queryParams.brandIds,
+      integrationIds: queryParams.integrationIds,
+      startDate: queryParams.startDate,
+      endDate: queryParams.endDate
+    }
+  };
+};
+
 export default compose(
   graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
     name: 'brandsQuery'
@@ -67,48 +78,21 @@ export default compose(
     gql(queries.insightsConversationCustomerAvg),
     {
       name: 'insightsConversationCustomerAvgQuery',
-      options: ({ queryParams }) => {
-        return {
-          variables: {
-            brandIds: queryParams.brandIds,
-            integrationIds: queryParams.integrationIds,
-            startDate: queryParams.startDate,
-            endDate: queryParams.endDate
-          }
-        };
-      }
+      options
     }
   ),
   graphql<Props, ConversationInternalAvgQueryResponse>(
     gql(queries.insightsConversationInternalAvg),
     {
       name: 'insightsConversationInternalAvgQuery',
-      options: ({ queryParams }) => {
-        return {
-          variables: {
-            brandIds: queryParams.brandIds,
-            integrationIds: queryParams.integrationIds,
-            startDate: queryParams.startDate,
-            endDate: queryParams.endDate
-          }
-        };
-      }
+      options
     }
   ),
   graphql<Props, ConversationOverallAvgQueryResponse>(
     gql(queries.insightsConversationOverallAvg),
     {
       name: 'insightsConversationOverallAvgQuery',
-      options: ({ queryParams }) => {
-        return {
-          variables: {
-            brandIds: queryParams.brandIds,
-            integrationIds: queryParams.integrationIds,
-            startDate: queryParams.startDate,
-            endDate: queryParams.endDate
-          }
-        };
-      }
+      options
     }
   ),
   graphql<Props, ConversationSummaryDataQueryResponse>(
