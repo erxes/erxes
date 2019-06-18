@@ -1,4 +1,5 @@
 import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
@@ -11,17 +12,13 @@ type Props = {
   type: string;
   boards: IBoard[];
   remove: (boardId: string) => void;
-  save: (
-    params: { doc: { name: string } },
-    callback: () => void,
-    brand: IBoard
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading: boolean;
 };
 
 class Boards extends React.Component<Props, {}> {
   renderItems = () => {
-    const { type, boards, remove, save, currentBoardId } = this.props;
+    const { type, boards, remove, renderButton, currentBoardId } = this.props;
 
     return boards.map(board => (
       <BoardRow
@@ -30,7 +27,7 @@ class Boards extends React.Component<Props, {}> {
         isActive={currentBoardId === board._id}
         board={board}
         remove={remove}
-        save={save}
+        renderButton={renderButton}
       />
     ));
   };
@@ -40,7 +37,7 @@ class Boards extends React.Component<Props, {}> {
   }
 
   renderSidebarHeader() {
-    const { save, type } = this.props;
+    const { renderButton, type } = this.props;
     const { Header } = Sidebar;
 
     const addBoard = (
@@ -52,7 +49,7 @@ class Boards extends React.Component<Props, {}> {
     );
 
     const content = props => {
-      return this.renderBoardForm({ ...props, save, type });
+      return this.renderBoardForm({ ...props, renderButton, type });
     };
 
     return (
