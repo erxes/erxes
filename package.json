@@ -18,7 +18,7 @@
   "private": true,
   "scripts": {
     "start": "node dist",
-    "dev": "DEBUG=erxes-integrations:* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src",
+    "dev": "node_modules/.bin/ts-node-dev --respawn src",
     "test": "NODE_ENV=test jest --runInBand --forceExit",
     "build": "tsc -p tsconfig.prod.json",
     "lint": "tslint 'src/**/*.ts'",
