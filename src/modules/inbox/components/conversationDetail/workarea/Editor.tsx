@@ -28,7 +28,7 @@ type EditorProps = {
   defaultContent?: string;
   onChange: (content: string) => void;
   onAddMention: (mentions: any) => void;
-  onShifEnter: () => void;
+  onAddMessage: () => void;
   showMentions: boolean;
   responseTemplate: string;
   responseTemplates: IResponseTemplate[];
@@ -384,7 +384,7 @@ export default class Editor extends React.Component<EditorProps, State> {
       }
 
       // call parent's method to save content
-      this.props.onShifEnter();
+      this.props.onAddMessage();
 
       // clear content
       const state = this.state.editorState;
