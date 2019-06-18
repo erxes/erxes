@@ -5,6 +5,7 @@ import {
   HeaderDescription,
   SortableList
 } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
@@ -16,11 +17,7 @@ import { IPipeline, IStage } from '../types';
 type Props = {
   type: string;
   pipelines: IPipeline[];
-  save: (
-    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
-    callback: () => void,
-    pipeline?: IPipeline
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   updateOrder?: any;
   remove: (pipelineId: string) => void;
   boardId: string;
@@ -137,7 +134,7 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   render() {
-    const { boardId, save, type } = this.props;
+    const { boardId, renderButton, type } = this.props;
     const { currentPipeline, showModal } = this.state;
 
     return (
@@ -157,7 +154,7 @@ class Pipelines extends React.Component<Props, State> {
         <PipelineForm
           type={type}
           boardId={boardId}
-          save={save}
+          renderButton={renderButton}
           pipeline={currentPipeline}
           show={showModal}
           closeModal={this.closeModal}

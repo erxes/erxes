@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import { ButtonMutate, Spinner } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -33,6 +34,7 @@ type FinalProps = {
 class PipelinesContainer extends React.Component<FinalProps> {
   render() {
     const {
+      boardId,
       pipelinesQuery,
       addPipelineMutation,
       editPipelineMutation,
@@ -55,7 +57,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
           .then(() => {
             pipelinesQuery.refetch();
 
-            const msg = `${__(`You successfully deleted a`)}' '${__(
+            const msg = `${__(`You successfully deleted a`)} ${__(
               'pipeline'
             )}.`;
 
@@ -67,30 +69,29 @@ class PipelinesContainer extends React.Component<FinalProps> {
       });
     };
 
-    // create or update action
-    const save = ({ doc }, callback, pipeline) => {
-      let mutation = addPipelineMutation;
-      // if edit mode
-      if (pipeline) {
-        mutation = editPipelineMutation;
-        doc._id = pipeline._id;
-      }
-
-      mutation({
-        variables: doc
-      })
-        .then(() => {
-          pipelinesQuery.refetch();
-
-          Alert.success(
-            __(`You successfully ${pipeline ? 'updated' : 'added'} a pipeline.`)
-          );
-
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback,
+      object
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={object ? mutations.pipelineEdit : mutations.pipelineAdd}
+          variables={values}
+          callback={callback}
+          refetchQueries={getRefetchQueries(boardId)}
+          isSubmitted={isSubmitted}
+          type="submit"
+          icon="send"
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
+        >
+          {__('Save')}
+        </ButtonMutate>
+      );
     };
 
     const updateOrder = orders => {
@@ -107,13 +108,19 @@ class PipelinesContainer extends React.Component<FinalProps> {
       refetch: pipelinesQuery.refetch,
       loading: pipelinesQuery.loading,
       remove,
-      save,
+      renderButton,
       updateOrder
     };
 
     return <Pipelines {...extendedProps} />;
   }
 }
+
+const getRefetchQueries = (boardId: string) => {
+  return [
+    { query: gql(queries.pipelines), variables: { boardId: boardId || '' } }
+  ];
+};
 
 export default withProps<Props>(
   compose(
