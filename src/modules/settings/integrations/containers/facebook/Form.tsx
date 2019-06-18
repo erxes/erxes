@@ -1,13 +1,14 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __, Alert, withProps } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 
+import { ButtonMutate } from 'modules/common/components';
 import { IPages } from '../../types';
 
 type Props = {
@@ -78,26 +79,26 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     this.setState({ pages: [] });
   };
 
-  onSave = (
-    variables: CreateFacebookMutationVariables,
-    callback: () => void
-  ) => {
-    const { history, saveMutation } = this.props;
-    const { accountId } = this.state;
-
-    if (!accountId) {
-      return;
-    }
-
-    saveMutation({ variables: { ...variables, kind: 'facebook', accountId } })
-      .then(() => {
-        callback();
-        Alert.success('You successfully added a integration');
-        history.push('/settings/integrations');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+  renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.integrationsCreateExternalIntegration}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        icon="send"
+        successMessage={`You successfully added a ${name}`}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
   };
 
   render() {
@@ -105,15 +106,23 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       closeModal,
+      accountId: this.state.accountId,
       pages: this.state.pages,
       onAccountSelect: this.onAccountSelect,
       onRemoveAccount: this.onRemoveAccount,
-      onSave: this.onSave
+      renderButton: this.renderButton
     };
 
     return <Facebook {...updatedProps} />;
   }
 }
+
+const getRefetchQueries = () => {
+  return [
+    { query: gql(queries.integrations) },
+    { query: gql(queries.integrationTotalCount) }
+  ];
+};
 
 export default withProps<Props>(
   compose(
