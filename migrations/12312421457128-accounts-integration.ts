@@ -34,6 +34,11 @@ module.exports.up = async () => {
   // Switch to erxes-integrations database
   const integrationMongoClient = apiMongoClient.useDb(INTEGRATIONS_DB_NAME);
 
-  await integrationMongoClient.db.collection('accounts').insertMany(accounts);
-  await integrationMongoClient.db.collection('integrations').insertMany(integrations);
+  if (accounts && accounts.length > 0) {
+    await integrationMongoClient.db.collection('accounts').insertMany(accounts);
+  }
+
+  if (integrations && integrations.length > 0) {
+    await integrationMongoClient.db.collection('integrations').insertMany(integrations);
+  }
 };
