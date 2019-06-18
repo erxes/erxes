@@ -87,7 +87,7 @@ const ConfigContainer = (props: FinalProps) => {
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
-        icon="send"
+        icon="checked-1"
         successMessage={`You successfully updated an ${name}`}
       >
         {__('Save')}

@@ -48,7 +48,7 @@ const ListContainer = (props: FinalProps) => {
         refetchQueries={getRefetchQueries(type)}
         isSubmitted={isSubmitted}
         type="submit"
-        icon="send"
+        icon="checked-1"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}

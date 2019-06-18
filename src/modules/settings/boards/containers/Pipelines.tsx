@@ -84,7 +84,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries(boardId)}
           isSubmitted={isSubmitted}
           type="submit"
-          icon="send"
+          icon="checked-1"
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}

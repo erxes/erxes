@@ -36,7 +36,7 @@ const PropertyGroupFormContainer = (props: Props) => {
         refetchQueries={getRefetchQueries(queryParams)}
         isSubmitted={isSubmitted}
         type="submit"
-        icon="send"
+        icon="checked-1"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}

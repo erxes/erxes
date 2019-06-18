@@ -47,7 +47,7 @@ class LeadContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
-          icon="send"
+          icon="checked-1"
           successMessage={`You successfully added a ${name}`}
         >
           {__('Save')}

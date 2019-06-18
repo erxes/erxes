@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
-import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { ButtonMutate, Spinner } from 'modules/common/components';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
 import { queries } from 'modules/settings/integrations/graphql';
@@ -10,10 +10,7 @@ import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { KnowledgeBase } from '../../components/knowledgebase';
 import { mutations } from '../../graphql';
-import {
-  IntegrationsQueryResponse,
-  MessengerAppsAddKnowledgebaseMutationResponse
-} from '../../types';
+import { IntegrationsQueryResponse } from '../../types';
 import { integrationsListParams } from '../utils';
 
 type Props = {
@@ -25,17 +22,11 @@ type FinalProps = {
   integrationsQuery: IntegrationsQueryResponse;
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
 } & IRouterProps &
-  Props &
-  MessengerAppsAddKnowledgebaseMutationResponse;
+  Props;
 
 class KnowledgeBaseContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      integrationsQuery,
-      knowledgeBaseTopicsQuery,
-      saveMutation,
-      history
-    } = this.props;
+    const { integrationsQuery, knowledgeBaseTopicsQuery } = this.props;
 
     if (integrationsQuery.loading && knowledgeBaseTopicsQuery.loading) {
       return <Spinner objective={true} />;
@@ -44,29 +35,51 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
     const integrations = integrationsQuery.integrations || [];
     const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
 
-    const save = (variables, callback) => {
-      saveMutation({ variables })
-        .then(() => {
-          Alert.success('You successfully added a knowledge base');
-          callback();
-          history.push('/settings/integrations');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-          callback();
-        });
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={mutations.messengerAppsAddKnowledgebase}
+          variables={values}
+          callback={callback}
+          refetchQueries={getRefetchQueries()}
+          isSubmitted={isSubmitted}
+          type="submit"
+          icon="checked-1"
+          successMessage={`You successfully added a ${name}`}
+        >
+          {__('Save')}
+        </ButtonMutate>
+      );
     };
 
     const updatedProps = {
       ...this.props,
       integrations,
       topics,
-      save
+      renderButton
     };
 
     return <KnowledgeBase {...updatedProps} />;
   }
 }
+
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.messengerApps),
+      variables: { kind: 'knowledgebase' }
+    },
+    {
+      query: gql(queries.messengerAppsCount),
+      variables: { kind: 'knowledgebase' }
+    }
+  ];
+};
 
 export default withProps<Props>(
   compose(
@@ -86,26 +99,6 @@ export default withProps<Props>(
     graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
       name: 'knowledgeBaseTopicsQuery'
     }),
-    graphql<Props, MessengerAppsAddKnowledgebaseMutationResponse>(
-      gql(mutations.messengerAppsAddKnowledgebase),
-      {
-        name: 'saveMutation',
-        options: () => {
-          return {
-            refetchQueries: [
-              {
-                query: gql(queries.messengerApps),
-                variables: { kind: 'knowledgebase' }
-              },
-              {
-                query: gql(queries.messengerAppsCount),
-                variables: { kind: 'knowledgebase' }
-              }
-            ]
-          };
-        }
-      }
-    ),
     withApollo
   )(withRouter<FinalProps>(KnowledgeBaseContainer))
 );
