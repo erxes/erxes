@@ -1,5 +1,7 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { ButtonMutate, Icon } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, Alert } from 'modules/common/utils';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   mutations,
@@ -78,10 +80,44 @@ class MessengerAddContainer extends React.Component<Props, State> {
         });
     };
 
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback
+    }: IButtonMutateProps) => {
+      const showInstallCode = () => {
+        return (
+          <>
+            {this.setState({
+              integration: values,
+              isVisibleCodeModal: true
+            })}
+            {callback}
+          </>
+        );
+      };
+
+      return (
+        <ButtonMutate
+          mutation={mutations.integrationsCreateMessenger}
+          variables={values}
+          callback={showInstallCode}
+          refetchQueries={getRefetchQueries()}
+          isSubmitted={isSubmitted}
+          disabled={!values}
+          type="submit"
+          successMessage={`You successfully added an ${name}`}
+        >
+          {__('Continue')} <Icon icon="rightarrow-2" />
+        </ButtonMutate>
+      );
+    };
+
     const updatedProps = {
       ...this.props,
       brands,
-      save,
+      renderButton,
       integration,
       totalCount,
       showInstallCode: isVisibleCodeModal,
@@ -91,6 +127,20 @@ class MessengerAddContainer extends React.Component<Props, State> {
     return <MessengerAdd {...updatedProps} />;
   }
 }
+
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.integrations),
+      variables: {
+        kind: 'messenger'
+      }
+    },
+    {
+      query: gql(integrationQuery.integrationTotalCount)
+    }
+  ];
+};
 
 const WithQuery = compose(
   graphql<SaveMessengerMutationResponse, SaveMessengerMutationVariables>(

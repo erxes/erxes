@@ -32,10 +32,6 @@ class BrandAdd extends React.Component<
     };
   }
 
-  clearInput = () => {
-    this.setState({ brandName: '' });
-  };
-
   handleInput = e => {
     e.preventDefault();
     this.setState({ brandName: e.target.value });
@@ -110,7 +106,7 @@ class BrandAdd extends React.Component<
             {renderButton({
               name: 'brand',
               values,
-              callback: this.clearInput,
+              callback: changeStep,
               isSubmitted
             })}
           </div>
