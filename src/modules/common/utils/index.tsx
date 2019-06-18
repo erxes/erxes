@@ -166,3 +166,14 @@ export function renderWithProps<Props>(
 ) {
   return <Wrapped {...props} />;
 }
+
+export const isValidDate = date => {
+  const parsedDate = Date.parse(date);
+
+  // Checking if it is date
+  if (isNaN(date) && !isNaN(parsedDate)) {
+    return true;
+  }
+
+  return false;
+};
