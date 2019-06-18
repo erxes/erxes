@@ -2,13 +2,14 @@ import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { connect } from './connection';
-import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
 import Accounts from './models/Accounts';
 import Integrations from './models/Integrations';
 
 // load environment variables
 dotenv.config();
+
+import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 
 connect();
 
