@@ -18,19 +18,4 @@ describe('ConfirmDialog component', () => {
   test('renders successfully', () => {
     shallow(<ConfirmDialog {...defaultProps} />);
   });
-
-  //   test("snapshot matches", () => {
-  //     const rendered = renderer
-  //       .create(<ConfirmDialog {...defaultProps} />)
-  //       .toJSON();
-
-  //     expect(rendered).toMatchSnapshot();
-  //   });
-
-  //   test("fully renders with default props", () => {
-  //     const rendered = mount(<ConfirmDialog {...defaultProps} />);
-  //     const props = rendered.props();
-
-  //     expect(defaultProps).toMatchObject(props);
-  //   });
 });

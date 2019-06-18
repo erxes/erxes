@@ -113,7 +113,7 @@ exports[`Scheduler component snapshot matches 1`] = `
                       <div
                         className="rdtCount"
                       >
-                        13
+                        21
                       </div>
                       <span
                         className="rdtBtn"
@@ -141,7 +141,7 @@ exports[`Scheduler component snapshot matches 1`] = `
                       <div
                         className="rdtCount"
                       >
-                        26
+                        55
                       </div>
                       <span
                         className="rdtBtn"

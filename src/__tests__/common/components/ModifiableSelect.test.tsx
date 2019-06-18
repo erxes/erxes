@@ -36,8 +36,8 @@ describe('Modifiable component', () => {
   test('check Modifiliable', () => {
     const rendered = mount(<ModifiableSelect {...defaultProps} />);
     const found = rendered.find('span').debug();
-    // console.log(found);
     const founded = found.search('className="Select-placeholder"');
+
     expect(founded).toBeGreaterThan(-1);
   });
 
@@ -57,6 +57,6 @@ describe('Modifiable component', () => {
     const saveButton = wrapper.find('button').at(1);
     saveButton.simulate('click');
 
-    console.log(wrapper.state('options'));
+    expect(wrapper.state('options')).not.toEqual(defaultProps.options);
   });
 });
