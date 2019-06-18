@@ -14,7 +14,6 @@ import typeDefs from './data/schema';
 import { checkFile, getEnv, readFileRequest, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { Conversations, Customers } from './db/models';
-import { debugInit } from './debuggers';
 import integrationsApiMiddleware from './middlewares/integrationsApiMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import { graphqlPubsub } from './pubsub';
@@ -23,6 +22,8 @@ import { importXlsFile } from './workers/bulkInsert';
 
 // load environment variables
 dotenv.config();
+
+import { debugInit } from './debuggers';
 
 const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
