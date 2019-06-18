@@ -1,60 +1,45 @@
-import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
 import { ChangePassword } from '../components';
-import { ChangePasswordMutationResponse } from '../types';
+import { usersChangePassword } from '../graphql/mutations';
 
 type Props = {
   closeModal: () => void;
 };
 
-const ChangePasswordContainer = (
-  props: Props & ChangePasswordMutationResponse
-) => {
-  const { changePasswordMutation } = props;
-
-  const save = ({ currentPassword, newPassword, confirmation }) => {
-    if (newPassword !== confirmation) {
-      return Alert.error("Password didn't match");
+const ChangePasswordContainer = (props: Props) => {
+  const renderButton = ({
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    if (values.newPassword !== values.confirmation) {
+      return;
     }
 
-    changePasswordMutation({ variables: { currentPassword, newPassword } })
-      .then(() => {
-        Alert.success('Your password has been changed and updated');
-      })
-      .catch(error => {
-        Alert.success(error.message);
-      });
+    return (
+      <ButtonMutate
+        mutation={usersChangePassword}
+        variables={values}
+        callback={callback}
+        isSubmitted={isSubmitted}
+        type="submit"
+        icon="checked-1"
+        successMessage={'Your password has been changed and updated'}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
   };
 
   const updatedProps = {
     ...props,
-    save
+    renderButton
   };
 
   return <ChangePassword {...updatedProps} />;
 };
 
-export default withProps<Props>(
-  compose(
-    graphql(
-      gql`
-        mutation usersChangePassword(
-          $currentPassword: String!
-          $newPassword: String!
-        ) {
-          usersChangePassword(
-            currentPassword: $currentPassword
-            newPassword: $newPassword
-          ) {
-            _id
-          }
-        }
-      `,
-      {
-        name: 'changePasswordMutation'
-      }
-    )
-  )(ChangePasswordContainer)
-);
+export default ChangePasswordContainer;

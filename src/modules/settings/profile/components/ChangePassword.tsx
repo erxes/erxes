@@ -1,67 +1,60 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 
 type Props = {
-  save: (
-    save: { currentPassword: string; newPassword: string; confirmation: string }
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => void;
   closeModal: () => void;
 };
 
 class ChangePassword extends React.Component<Props> {
-  handleSubmit = e => {
-    e.preventDefault();
+  renderContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
 
-    this.props.save({
-      currentPassword: (document.getElementById(
-        'current-password'
-      ) as HTMLInputElement).value,
-      newPassword: (document.getElementById('new-password') as HTMLInputElement)
-        .value,
-      confirmation: (document.getElementById(
-        'new-password-confirmation'
-      ) as HTMLInputElement).value
-    });
-
-    this.props.closeModal();
-  };
-
-  render() {
     return (
-      <form onSubmit={this.handleSubmit}>
+      <>
         <FormGroup>
-          <ControlLabel>Current Password</ControlLabel>
+          <ControlLabel required={true}>Current Password</ControlLabel>
           <FormControl
+            {...formProps}
             type="password"
             placeholder={__('Current password')}
-            id="current-password"
+            name="currentPassword"
+            required={true}
           />
         </FormGroup>
 
         <br />
 
         <FormGroup>
-          <ControlLabel>New Password</ControlLabel>
+          <ControlLabel required={true}>New Password</ControlLabel>
           <FormControl
+            {...formProps}
             type="password"
             placeholder={__('Enter new password')}
-            id="new-password"
+            name="newPassword"
+            required={true}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Re-type Password to confirm</ControlLabel>
+          <ControlLabel required={true}>
+            Re-type Password to confirm
+          </ControlLabel>
           <FormControl
+            {...formProps}
             type="password"
             placeholder={__('Re-type password')}
-            id="new-password-confirmation"
+            name="confirmation"
+            required={true}
           />
         </FormGroup>
         <ModalFooter>
@@ -73,12 +66,18 @@ class ChangePassword extends React.Component<Props> {
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {this.props.renderButton({
+            values,
+            isSubmitted,
+            callback: this.props.closeModal
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 
