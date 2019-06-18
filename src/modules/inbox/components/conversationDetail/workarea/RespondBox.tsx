@@ -164,11 +164,6 @@ class RespondBox extends React.Component<Props, State> {
     });
   };
 
-  // on shift + enter press in editor
-  onShifEnter = () => {
-    this.addMessage();
-  };
-
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
     const { setAttachmentPreview } = this.props;
@@ -206,7 +201,7 @@ class RespondBox extends React.Component<Props, State> {
     return text.replace(/&nbsp;/g, ' ');
   }
 
-  addMessage() {
+  addMessage = () => {
     const { conversation, sendMessage } = this.props;
     const { isInternal, attachments, content, mentionedUserIds } = this.state;
     const message = {
@@ -234,7 +229,7 @@ class RespondBox extends React.Component<Props, State> {
         });
       });
     }
-  }
+  };
 
   toggleForm = () => {
     this.setState({
@@ -351,7 +346,7 @@ class RespondBox extends React.Component<Props, State> {
             key={this.state.editorKey}
             onChange={this.onEditorContentChange}
             onAddMention={this.onAddMention}
-            onShifEnter={this.onShifEnter}
+            onAddMessage={this.addMessage}
             placeholder={placeholder}
             mentions={this.props.teamMembers}
             showMentions={isInternal}

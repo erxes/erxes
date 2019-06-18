@@ -60,45 +60,28 @@ const DealVolumeReportContainer = (props: FinalProps) => {
   return <DealVolumeReport {...extendedProps} />;
 };
 
+const options = ({ queryParams, status }: IDealParams) => ({
+  fetchPolicy: 'network-only',
+  variables: {
+    boardId: queryParams.boardId,
+    pipelineIds: queryParams.pipelineIds,
+    startDate: queryParams.startDate,
+    endDate: queryParams.endDate,
+    status
+  }
+});
+
 export default compose(
   graphql(gql(queries.dealInsightsByTeamMember), {
     name: 'insightsByTeamMemberQuery',
-    options: ({ queryParams, status }: IDealParams) => ({
-      fetchPolicy: 'network-only',
-      variables: {
-        boardId: queryParams.boardId,
-        pipelineIds: queryParams.pipelineIds,
-        startDate: queryParams.startDate,
-        endDate: queryParams.endDate,
-        status
-      }
-    })
+    options
   }),
   graphql(gql(queries.dealInsightsPunchCard), {
     name: 'punchCardQuery',
-    options: ({ queryParams, status }: IDealParams) => ({
-      fetchPolicy: 'network-only',
-      variables: {
-        boardId: queryParams.boardId,
-        pipelineIds: queryParams.pipelineIds,
-        startDate: queryParams.startDate,
-        endDate: queryParams.endDate,
-        status
-      }
-    })
+    options
   }),
   graphql(gql(queries.dealInsightsMain), {
     name: 'mainQuery',
-    options: ({ queryParams, status }: IDealParams) => ({
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true,
-      variables: {
-        boardId: queryParams.boardId,
-        pipelineIds: queryParams.pipelineIds,
-        startDate: queryParams.startDate,
-        endDate: queryParams.endDate,
-        status
-      }
-    })
+    options
   })
 )(DealVolumeReportContainer);

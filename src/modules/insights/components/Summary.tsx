@@ -35,7 +35,13 @@ class Summary extends React.Component<Props> {
       <Col sm={3} key={Math.random()}>
         <SummaryItem>
           <SummaryTitle>{item.title}</SummaryTitle>
-          <SummaryCount>{item.count}</SummaryCount>
+          <SummaryCount>
+            {item.count
+              ? item.count.toLocaleString(undefined, {
+                  maximumFractionDigits: 2
+                })
+              : 0}
+          </SummaryCount>
         </SummaryItem>
       </Col>
     );

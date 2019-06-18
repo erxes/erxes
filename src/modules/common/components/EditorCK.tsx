@@ -28,11 +28,17 @@ function EditorCK({ content, onChange, height, insertItems }: Props) {
           {
             name: 'document',
             groups: ['mode', 'document', 'doctools'],
-            items: ['Source', 'Save', 'NewPage', 'Preview']
+            items: ['Source', 'NewPage', 'Preview']
           },
           {
             name: 'insert',
-            items: ['Image', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar']
+            items: [
+              'Image',
+              'Table',
+              'HorizontalRule',
+              'EmojiPanel',
+              'SpecialChar'
+            ]
           },
           {
             name: 'paragraph',
@@ -50,7 +56,6 @@ function EditorCK({ content, onChange, height, insertItems }: Props) {
               'JustifyBlock'
             ]
           },
-          { name: 'tools', items: ['Maximize'] },
           {
             name: 'basicstyles',
             groups: ['basicstyles', 'cleanup'],
@@ -59,7 +64,8 @@ function EditorCK({ content, onChange, height, insertItems }: Props) {
           { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
           { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
           { name: 'others', items: [insertItems ? 'strinsert' : '-'] },
-          { name: 'colors', items: ['TextColor', 'BGColor'] }
+          { name: 'colors', items: ['TextColor', 'BGColor'] },
+          { name: 'tools', items: ['Maximize'] }
         ],
         codemirror: {
           enableCodeFormatting: false,
