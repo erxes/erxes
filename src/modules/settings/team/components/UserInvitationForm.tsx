@@ -9,7 +9,7 @@ import {
   Info
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IFormProps } from 'modules/common/types';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { ICommonFormProps } from 'modules/settings/common/types';
 import { IUserGroup } from 'modules/settings/permissions/types';
@@ -20,7 +20,7 @@ import { FlexRow, InviteOption, LinkButton, RemoveRow } from '../styles';
 import { IInvitationEntry } from '../types';
 
 type Props = {
-  save: (params: { doc: any }, callback: () => void, object: any) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   usersGroups: IUserGroup[];
   refetchQueries: any;
 } & ICommonFormProps;
@@ -46,7 +46,7 @@ class UserInvitationForm extends React.Component<Props, State> {
     };
   }
 
-  onInvite = values => {
+  generateDoc = () => {
     const { entries } = this.state;
 
     const validEntries: IInvitationEntry[] = [];
@@ -57,19 +57,7 @@ class UserInvitationForm extends React.Component<Props, State> {
       }
     }
 
-    if (validEntries.length === 0) {
-      return Alert.warning('Please complete the form');
-    }
-    // tslint:disable-next-line:no-console
-    console.log(entries);
-    this.props.save(
-      { doc: { entries: validEntries } },
-      () => {
-        this.setState({ entries: [] });
-        this.props.closeModal();
-      },
-      null
-    );
+    return { entries: validEntries };
   };
 
   onChange = (i: number, type: 'email' | 'groupId', e: React.FormEvent) => {
@@ -136,7 +124,9 @@ class UserInvitationForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Enter multiple email addresses</ControlLabel>
+          <ControlLabel required={true}>
+            Enter multiple email addresses
+          </ControlLabel>
           <Description>
             {__('Please separate each email address with comma.')}
           </Description>
@@ -144,6 +134,7 @@ class UserInvitationForm extends React.Component<Props, State> {
             id="multipleEmailValue"
             componentClass="textarea"
             rows={5}
+            required={true}
           />
         </FormGroup>
         <ModalFooter>
@@ -153,7 +144,6 @@ class UserInvitationForm extends React.Component<Props, State> {
 
           <Button
             btnStyle="success"
-            type="submit"
             icon="checked-1"
             onClick={this.addInvitees}
           >
@@ -173,7 +163,8 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { addMany, entries } = this.state;
-    const { closeModal, refetchQueries } = this.props;
+    const { closeModal, refetchQueries, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     if (addMany) {
       return this.renderMultipleEmail();
@@ -182,15 +173,15 @@ class UserInvitationForm extends React.Component<Props, State> {
     return (
       <>
         <FlexRow>
-          <ControlLabel>Email address</ControlLabel>
-          <ControlLabel>Permission</ControlLabel>
+          <ControlLabel required={true}>Email address</ControlLabel>
+          <ControlLabel required={true}>Permission</ControlLabel>
         </FlexRow>
 
         {entries.map((input, i) => (
           <FlexRow key={i}>
             <FormControl
               {...formProps}
-              name="emailValue"
+              name="email"
               type="email"
               placeholder="name@example.com"
               value={input.email}
@@ -201,7 +192,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
             <FormControl
               {...formProps}
-              name="group"
+              name="groupId"
               componentClass="select"
               placeholder={__('Choose group')}
               options={[
@@ -231,18 +222,12 @@ class UserInvitationForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <ButtonMutate
-            mutation={mutations.usersInvite}
-            variables={formProps.values}
-            callback={closeModal}
-            refetchQueries={refetchQueries}
-            isSubmitted={this.state.isSubmitted}
-            type="submit"
-            icon="add"
-            successMessage={`You successfully added a team member.`}
-          >
-            {__('Invite')}
-          </ButtonMutate>
+          {renderButton({
+            name: 'team member invitation',
+            values: this.generateDoc(),
+            isSubmitted,
+            callback: closeModal
+          })}
         </ModalFooter>
       </>
     );
@@ -255,7 +240,7 @@ class UserInvitationForm extends React.Component<Props, State> {
           {__("Send an email and notify members that they've been invited!")}
         </Info>
 
-        <Form renderContent={this.renderContent} onSubmit={this.onInvite} />
+        <Form renderContent={this.renderContent} />
       </>
     );
   }

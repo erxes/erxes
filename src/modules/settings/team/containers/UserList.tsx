@@ -1,5 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import { IButtonMutateProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import {
@@ -18,6 +19,7 @@ type Props = ICommonListProps &
   ICommonFormProps & {
     statusChangedMutation: any;
     listQuery: any;
+    renderButton: (props: IButtonMutateProps) => JSX.Element;
   };
 
 class UserListContainer extends React.Component<
@@ -85,6 +87,7 @@ class UserListContainer extends React.Component<
         changeStatus={this.changeStatus}
         resendInvitation={this.resendInvitation}
         refetchQueries={this.getRefetchQueries()}
+        renderButton={this.props.renderButton}
       />
     );
   }
@@ -102,8 +105,9 @@ const options = ({ queryParams }: { queryParams: any }) => {
 
 export default commonListComposer<{ queryParams: any; history: any }>({
   text: 'team member',
-
   name: 'users',
+  stringAddMutation: mutations.usersInvite,
+  stringEditMutation: mutations.usersEdit,
 
   gqlListQuery: graphql(gql(queries.users), {
     name: 'listQuery',

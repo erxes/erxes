@@ -97,7 +97,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
               <FormControl
                 componentClass="select"
                 defaultValue={details.location}
-                name="userLocation"
+                name="location"
                 options={timezones}
                 {...formProps}
               />
@@ -111,7 +111,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
               <ControlLabel>LinkedIn</ControlLabel>
               <FormControl
                 type="url"
-                name="linkedin"
+                name="linkedIn"
                 defaultValue={links.linkedIn || ''}
                 {...formProps}
               />
