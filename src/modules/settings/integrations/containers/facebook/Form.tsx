@@ -124,22 +124,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(mutations.integrationsCreateExternalIntegration), {
-      name: 'saveMutation',
-      options: () => {
-        return {
-          refetchQueries: [
-            {
-              query: gql(queries.integrations)
-            },
-            {
-              query: gql(queries.integrationTotalCount)
-            }
-          ]
-        };
-      }
-    })
-  )(withRouter<FinalProps>(FacebookContainer))
-);
+export default withRouter<FinalProps>(FacebookContainer);
