@@ -32,9 +32,14 @@ class BrandAdd extends React.Component<
     };
   }
 
-  clearInput() {
+  clearInput = () => {
     this.setState({ brandName: '' });
-  }
+  };
+
+  handleInput = e => {
+    e.preventDefault();
+    this.setState({ brandName: e.target.value });
+  };
 
   toggleBrands = () => {
     this.setState({ showBrands: !this.state.showBrands });
@@ -87,7 +92,8 @@ class BrandAdd extends React.Component<
             <FormControl
               {...formProps}
               name="name"
-              defaultValue={this.state.brandName}
+              value={this.state.brandName}
+              onChange={this.handleInput}
               autoFocus={true}
               required={true}
             />
@@ -100,9 +106,11 @@ class BrandAdd extends React.Component<
             <Button btnStyle="link" disabled={true}>
               Previous
             </Button>
+
             {renderButton({
               name: 'brand',
               values,
+              callback: this.clearInput,
               isSubmitted
             })}
           </div>

@@ -33,7 +33,6 @@ const BrandAddContainer = (props: ChildProps<FinalProps>) => {
         isSubmitted={isSubmitted}
         disabled={!values}
         type="submit"
-        icon="checked-1"
         successMessage={`You successfully added a ${name}`}
       >
         {__('Next')} <Icon icon="rightarrow-2" />
