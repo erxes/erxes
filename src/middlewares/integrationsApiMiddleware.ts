@@ -1,5 +1,5 @@
 import { CONVERSATION_STATUSES } from '../data/constants';
-import { ConversationMessages, Conversations, Customers } from '../db/models';
+import { ActivityLogs, ConversationMessages, Conversations, Customers } from '../db/models';
 import { graphqlPubsub } from '../pubsub';
 
 /*
@@ -17,6 +17,8 @@ const integrationsApiMiddleware = async (req, res) => {
 
   if (action === 'create-conversation') {
     const conversation = await Conversations.createConversation(doc);
+
+    await ActivityLogs.createConversationLog(conversation);
 
     return res.json({ _id: conversation._id });
   }

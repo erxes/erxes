@@ -532,3 +532,88 @@ export const timeIntervalBranches = () => {
     then: t.name,
   }));
 };
+
+/**
+ * Return conversationSelect for aggregation
+ * @param filterSelector
+ * @param conversationSelector
+ * @param messageSelector
+ */
+export const getConversationSelectoryByMsg = async (
+  integrationIds: string,
+  brandIds: string,
+  conversationSelector: any = {},
+  messageSelector: any = {},
+): Promise<any> => {
+  const filterSelector: IFilterSelector = { integration: {} };
+  if (integrationIds) {
+    filterSelector.integration.kind = { $in: integrationIds.split(',') };
+  }
+
+  if (brandIds) {
+    filterSelector.integration.brandId = { $in: brandIds.split(',') };
+  }
+
+  if (Object.keys(filterSelector.integration).length > 0) {
+    const integrationIdsList = await Integrations.find(filterSelector.integration).select('_id');
+    conversationSelector.integrationId = { $in: integrationIdsList.map(row => row._id) };
+
+    const conversationIds = await Conversations.find(conversationSelector).select('_id');
+
+    const rawConversationIds = await conversationIds.map(obj => obj._id);
+    messageSelector.conversationId = { $in: rawConversationIds };
+  }
+
+  return { ...messageSelector };
+};
+
+export const getConversationReportLookup = async (): Promise<any> => {
+  return {
+    lookupPrevMsg: {
+      $lookup: {
+        from: 'conversation_messages',
+        let: { checkConversation: '$conversationId', checkAt: '$createdAt' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$conversationId', '$$checkConversation'] }, { $lt: ['$createdAt', '$$checkAt'] }],
+              },
+            },
+          },
+          {
+            $project: {
+              conversationId: 1,
+              createdAt: 1,
+              internal: 1,
+              userId: 1,
+              customerId: 1,
+              sizeMentionedIds: { $size: '$mentionedUserIds' },
+            },
+          },
+        ],
+        as: 'prevMsgs',
+      },
+    },
+    prevMsgSlice: {
+      $addFields: { prevMsg: { $slice: ['$prevMsgs', -1] } },
+    },
+    diffSecondCalc: {
+      $addFields: {
+        diffSec: {
+          $divide: [{ $subtract: ['$createdAt', '$prevMsg.createdAt'] }, 1000],
+        },
+      },
+    },
+    firstProject: {
+      $project: {
+        conversationId: 1,
+        createdAt: 1,
+        internal: 1,
+        userId: 1,
+        customerId: 1,
+        prevMsg: 1,
+      },
+    },
+  };
+};
