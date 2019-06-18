@@ -5,7 +5,7 @@ import {
   Tags,
   TextInfo
 } from 'modules/common/components';
-import { isTimeStamp } from 'modules/common/utils';
+import { isTimeStamp, isValidDate } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
 import { Date } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
@@ -34,7 +34,7 @@ function formatValue(value) {
     );
   }
 
-  if (moment(value, moment.ISO_8601, false).isValid() || isTimeStamp(value)) {
+  if (isValidDate(value) || isTimeStamp(value)) {
     return <Date>{moment(value).format('lll')}</Date>;
   }
 

@@ -46,6 +46,15 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
       loading
     } = this.props;
 
+    const combinedData = Array.prototype.concat(
+      ...[
+        conversationReport.avg,
+        conversationCustomerAvg,
+        conversationInternalAvg,
+        conversationOverallAvg
+      ]
+    );
+
     return (
       <InsightWrapper>
         <InboxFilter
@@ -58,10 +67,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
             <InsightTitle>
               {__('response frequency averages block')}
             </InsightTitle>
-            <Summary data={conversationReport.avg} loading={loading} />
-            <Summary data={conversationCustomerAvg} loading={loading} />
-            <Summary data={conversationInternalAvg} loading={loading} />
-            <Summary data={conversationOverallAvg} loading={loading} />
+            <Summary data={combinedData} loading={loading} />
           </InsightRow>
 
           <InsightRow>
