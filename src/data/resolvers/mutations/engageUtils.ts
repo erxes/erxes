@@ -133,8 +133,6 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
 
   const { subject, content, attachments = [] } = message.email.toJSON();
 
-  let replacedContent = content;
-
   const AWS_SES_CONFIG_SET = getEnv({ name: 'AWS_SES_CONFIG_SET' });
   const AWS_ENDPOINT = getEnv({ name: 'AWS_ENDPOINT' });
 
@@ -156,6 +154,8 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
   EngageMessages.setCustomerIds(message._id, customers);
 
   for (const customer of customers) {
+    let replacedContent = content;
+
     // Add unsubscribe link ========
     const unSubscribeUrl = `${AWS_ENDPOINT}/unsubscribe/?cid=${customer._id}`;
 
