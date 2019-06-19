@@ -4,6 +4,7 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import * as Redis from 'ioredis';
 import * as path from 'path';
 import { ActivityLogs } from './db/models';
+import { redisOptions } from './redisClient';
 
 // load environment variables
 dotenv.config();
@@ -30,34 +31,7 @@ interface IGoogleOptions {
   };
 }
 
-const {
-  PUBSUB_TYPE,
-  REDIS_HOST = 'localhost',
-  REDIS_PORT = 6379,
-  REDIS_PASSWORD = '',
-}: {
-  PUBSUB_TYPE?: string;
-  REDIS_HOST?: string;
-  REDIS_PORT?: number;
-  REDIS_PASSWORD?: string;
-} = process.env;
-
-/**
- * Docs on the different redis options
- * @see {@link https://github.com/NodeRedis/node_redis#options-object-properties}
- */
-export const redisOptions = {
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  password: REDIS_PASSWORD,
-  connect_timeout: 15000,
-  enable_offline_queue: true,
-  retry_unfulfilled_commands: true,
-  retry_strategy: options => {
-    // reconnect after
-    return Math.max(options.attempt * 100, 3000);
-  },
-};
+const { PUBSUB_TYPE, NODE_ENV }: { PUBSUB_TYPE?: string; NODE_ENV?: string } = process.env;
 
 // Google pubsub message handler
 const commonMessageHandler = payload => {
@@ -84,6 +58,15 @@ const configGooglePubsub = (): IGoogleOptions => {
 
 const createPubsubInstance = (): IPubSub => {
   let pubsub;
+
+  if (NODE_ENV === 'test') {
+    pubsub = {
+      asyncIterator: () => null,
+      publish: () => null,
+    };
+
+    return pubsub;
+  }
 
   if (PUBSUB_TYPE === 'GOOGLE') {
     const googleOptions = configGooglePubsub();
@@ -119,6 +102,10 @@ const createPubsubInstance = (): IPubSub => {
 };
 
 const publishMessage = ({ action, data }: IPubsubMessage) => {
+  if (NODE_ENV === 'test') {
+    return;
+  }
+
   if (action === 'callPublish') {
     graphqlPubsub.publish(data.trigger, { [data.trigger]: data.payload });
   }

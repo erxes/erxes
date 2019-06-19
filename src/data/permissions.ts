@@ -44,10 +44,10 @@ export const moduleRequireLogin = (mdl: any) => {
 /**
  * Wraps all properties (methods) of a given object with 'Permission action required' permission checker
  */
-export const moduleCheckPermission = (mdl: any, action: string, defaultValue?: any) => {
+export const moduleCheckPermission = async (mdl: any, action: string, defaultValue?: any) => {
   for (const method in mdl) {
     if (mdl.hasOwnProperty(method)) {
-      checkPermission(mdl, method, action, defaultValue);
+      await checkPermission(mdl, method, action, defaultValue);
     }
   }
 };

@@ -1,6 +1,7 @@
 import { Permissions, UsersGroups } from '../../../db/models';
 import { IPermissionParams, IUserGroup } from '../../../db/models/definitions/permissions';
 import { moduleCheckPermission } from '../../permissions';
+import { resetPermissionsCache } from '../../permissions/utils';
 
 const permissionMutations = {
   /**
@@ -11,8 +12,11 @@ const permissionMutations = {
    * @param {Boolean} doc.allowed
    * @return {Promise} newly created permission object
    */
-  permissionsAdd(_root, doc: IPermissionParams) {
-    return Permissions.createPermission(doc);
+  async permissionsAdd(_root, doc: IPermissionParams) {
+    const result = await Permissions.createPermission(doc);
+
+    resetPermissionsCache();
+    return result;
   },
 
   /**
@@ -20,8 +24,11 @@ const permissionMutations = {
    * @param {[String]} ids
    * @return {Promise}
    */
-  permissionsRemove(_root, { ids }: { ids: string[] }) {
-    return Permissions.removePermission(ids);
+  async permissionsRemove(_root, { ids }: { ids: string[] }) {
+    const result = await Permissions.removePermission(ids);
+
+    resetPermissionsCache();
+    return result;
   },
 };
 
@@ -32,8 +39,11 @@ const usersGroupMutations = {
    * @param {String} doc.description
    * @return {Promise} newly created group object
    */
-  usersGroupsAdd(_root, { memberIds, ...doc }: IUserGroup & { memberIds?: string[] }) {
-    return UsersGroups.createGroup(doc, memberIds);
+  async usersGroupsAdd(_root, { memberIds, ...doc }: IUserGroup & { memberIds?: string[] }) {
+    const result = await UsersGroups.createGroup(doc, memberIds);
+
+    resetPermissionsCache();
+    return result;
   },
 
   /**
@@ -42,8 +52,11 @@ const usersGroupMutations = {
    * @param {String} doc.description
    * @return {Promise} updated group object
    */
-  usersGroupsEdit(_root, { _id, memberIds, ...doc }: { _id: string; memberIds?: string[] } & IUserGroup) {
-    return UsersGroups.updateGroup(_id, doc, memberIds);
+  async usersGroupsEdit(_root, { _id, memberIds, ...doc }: { _id: string; memberIds?: string[] } & IUserGroup) {
+    const result = await UsersGroups.updateGroup(_id, doc, memberIds);
+
+    resetPermissionsCache();
+    return result;
   },
 
   /**
@@ -51,8 +64,11 @@ const usersGroupMutations = {
    * @param {String} _id
    * @return {Promise}
    */
-  usersGroupsRemove(_root, { _id }: { _id: string }) {
-    return UsersGroups.removeGroup(_id);
+  async usersGroupsRemove(_root, { _id }: { _id: string }) {
+    const result = await UsersGroups.removeGroup(_id);
+
+    resetPermissionsCache();
+    return result;
   },
 };
 
