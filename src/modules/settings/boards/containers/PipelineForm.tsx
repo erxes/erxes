@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-import { IUser } from 'modules/auth/types';
 import { Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
 import { UsersQueryResponse } from 'modules/settings/team/types';
@@ -30,14 +29,7 @@ type FinalProps = {
 
 class PipelineFormContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      stagesQuery,
-      usersQuery,
-      boardId,
-      save,
-      closeModal,
-      pipeline
-    } = this.props;
+    const { stagesQuery, usersQuery, boardId, save } = this.props;
 
     if ((stagesQuery && stagesQuery.loading) || usersQuery.loading) {
       return <Spinner />;
@@ -45,25 +37,13 @@ class PipelineFormContainer extends React.Component<FinalProps> {
 
     const stages = stagesQuery ? stagesQuery.stages : [];
     const members = usersQuery.users.filter(user => user.username) || [];
-    const memberIds = pipeline ? pipeline.memberIds || [] : [];
-
-    let selectedMembers: IUser[] = [];
-
-    if (pipeline) {
-      selectedMembers = members.filter(member =>
-        memberIds.includes(member._id)
-      );
-    }
 
     const extendedProps = {
       ...this.props,
       stages,
       boardId,
       save,
-      closeModal,
-      pipeline,
-      members,
-      selectedMembers
+      members
     };
 
     return <PipelineForm {...extendedProps} />;
