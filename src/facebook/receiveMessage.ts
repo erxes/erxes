@@ -40,6 +40,7 @@ const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
       body: {
         action: 'create-customer',
         payload: JSON.stringify({
+          integrationId: integration.erxesApiId,
           firstName: response.first_name,
           lastName: response.last_name,
           avatar: response.profile_pic,
