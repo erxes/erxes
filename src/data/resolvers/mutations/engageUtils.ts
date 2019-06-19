@@ -60,29 +60,35 @@ const findCustomers = async ({
 }): Promise<ICustomerDocument[]> => {
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
+  const doNotDisturbQuery = [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }];
 
   if (tagIds.length > 0) {
-    customerQuery = { tagIds: { $in: tagIds || [] } };
+    customerQuery = { $or: doNotDisturbQuery, tagIds: { $in: tagIds || [] } };
   }
 
   if (brandIds.length > 0) {
     const integrationIds = await Integrations.find({ brandId: { $in: brandIds } }).distinct('_id');
 
-    customerQuery = { integrationId: { $in: integrationIds } };
+    customerQuery = { $or: doNotDisturbQuery, integrationId: { $in: integrationIds } };
   }
 
   if (segmentIds.length > 0) {
     const segmentQueries: any = [];
+
     const segments = await Segments.find({ _id: { $in: segmentIds } });
 
     for (const segment of segments) {
-      segmentQueries.push(...(await QueryBuilder.segments(segment)));
+      const filter = await QueryBuilder.segments(segment);
+
+      filter.$or = doNotDisturbQuery;
+
+      segmentQueries.push(filter);
     }
 
-    customerQuery = segmentQueries;
+    customerQuery = { $or: segmentQueries };
   }
 
-  return Customers.find({ ...customerQuery, $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }] });
+  return Customers.find(customerQuery);
 };
 
 const executeSendViaEmail = async (
