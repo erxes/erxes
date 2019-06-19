@@ -55,8 +55,6 @@ export interface IUserDocument extends IUser, Document {
   emailSignatures?: IEmailSignatureDocument[];
   details?: IDetailDocument;
   links?: ILinkDocument;
-  groupIds?: string[];
-  deviceTokens?: string[];
 }
 
 // Mongoose schemas ===============================
