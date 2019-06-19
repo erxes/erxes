@@ -12,7 +12,7 @@ import * as React from 'react';
 import { PipelineRow } from '.';
 import { PipelineForm } from '../containers';
 import { PipelineContainer } from '../styles';
-import { IPipeline, IStage } from '../types';
+import { IPipeline } from '../types';
 
 type Props = {
   type: string;
@@ -25,7 +25,6 @@ type Props = {
 
 type State = {
   showModal: boolean;
-  currentPipeline?: IPipeline;
   pipelines: IPipeline[];
 };
 
@@ -35,7 +34,6 @@ class Pipelines extends React.Component<Props, State> {
 
     this.state = {
       showModal: false,
-      currentPipeline: undefined,
       pipelines: props.pipelines
     };
   }
@@ -46,21 +44,25 @@ class Pipelines extends React.Component<Props, State> {
     }
   }
 
-  closeModal = () => {
-    this.setState({ showModal: false });
+  renderAddForm = () => {
+    const { boardId, renderButton, type } = this.props;
+
+    const closeModal = () => this.setState({ showModal: false });
+
+    return (
+      <PipelineForm
+        type={type}
+        boardId={boardId}
+        renderButton={renderButton}
+        show={this.state.showModal}
+        closeModal={closeModal}
+      />
+    );
   };
 
   addPipeline = () => {
     this.setState({
-      showModal: true,
-      currentPipeline: undefined
-    });
-  };
-
-  editPipeline = pipeline => {
-    this.setState({
-      showModal: true,
-      currentPipeline: pipeline
+      showModal: true
     });
   };
 
@@ -71,15 +73,16 @@ class Pipelines extends React.Component<Props, State> {
   };
 
   renderRows() {
-    const child = pipeline => {
-      const edit = () => this.editPipeline(pipeline);
+    const { renderButton, type } = this.props;
 
+    const child = pipeline => {
       return (
         <PipelineRow
           key={pipeline._id}
           pipeline={pipeline}
-          edit={edit}
+          renderButton={renderButton}
           remove={this.props.remove}
+          type={type}
         />
       );
     };
@@ -134,9 +137,6 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   render() {
-    const { boardId, renderButton, type } = this.props;
-    const { currentPipeline, showModal } = this.state;
-
     return (
       <React.Fragment>
         <Wrapper.ActionBar
@@ -149,16 +149,9 @@ class Pipelines extends React.Component<Props, State> {
           }
           right={this.renderButton()}
         />
-        {this.renderContent()}
 
-        <PipelineForm
-          type={type}
-          boardId={boardId}
-          renderButton={renderButton}
-          pipeline={currentPipeline}
-          show={showModal}
-          closeModal={this.closeModal}
-        />
+        {this.renderContent()}
+        {this.renderAddForm()}
       </React.Fragment>
     );
   }

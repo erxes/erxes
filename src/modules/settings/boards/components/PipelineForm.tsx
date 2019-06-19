@@ -14,14 +14,14 @@ import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
 import { IPipeline, IStage } from '../types';
 import { Stages } from './';
+
 type Props = {
   type: string;
-  show?: boolean;
+  show: boolean;
   boardId: string;
   pipeline?: IPipeline;
   stages?: IStage[];
   members: IUser[];
-  selectedMembers: IUser[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -36,7 +36,17 @@ class PipelineForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { pipeline, stages, selectedMembers } = this.props;
+    const { pipeline, stages, members } = this.props;
+
+    const memberIds = pipeline ? pipeline.memberIds || [] : [];
+
+    let selectedMembers: IUser[] = [];
+
+    if (pipeline) {
+      selectedMembers = members.filter(member =>
+        memberIds.includes(member._id)
+      );
+    }
 
     this.state = {
       stages: (stages || []).map(stage => ({ ...stage })),
@@ -49,7 +59,7 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ stages });
   };
 
-  onChangevisibility = (e: React.FormEvent<HTMLElement>) => {
+  onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
       visibility: (e.currentTarget as HTMLInputElement).value
     });
@@ -144,14 +154,14 @@ class PipelineForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel required={true}>visibility</ControlLabel>
+            <ControlLabel required={true}>Visibility</ControlLabel>
             <FormControl
               {...formProps}
               name="visibility"
               componentClass="select"
               defaultValue={object.visibility}
               value={this.state.visibility}
-              onChange={this.onChangevisibility}
+              onChange={this.onChangeVisibility}
             >
               <option value="public">{__('Public')}</option>
               <option value="private">{__('Private')}</option>
