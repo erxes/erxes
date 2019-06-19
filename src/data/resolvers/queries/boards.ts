@@ -1,6 +1,22 @@
 import { Boards, Pipelines, Stages } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions';
 
+export interface IDate {
+  month: number;
+  year: number;
+}
+
+export interface IListParams {
+  pipelineId?: string;
+  stageId: string;
+  skip?: number;
+  date?: IDate;
+  search?: string;
+  customerIds?: [string];
+  companyIds?: [string];
+  assignedUserIds?: [string];
+}
+
 const boardQueries = {
   /**
    *  Boards list

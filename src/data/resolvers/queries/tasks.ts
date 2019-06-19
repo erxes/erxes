@@ -1,6 +1,6 @@
 import { Tasks } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions';
-import { IListParams } from './boardTypes';
+import { IListParams } from './boards';
 import { generateCommonFilters } from './utils';
 
 const taskQueries = {

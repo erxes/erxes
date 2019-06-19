@@ -18,9 +18,6 @@ interface IConversationMessageAdd {
   mentionedUserIds?: string[];
   internal?: boolean;
   attachments?: any;
-  tweetReplyToId?: string;
-  tweetReplyToScreenName?: string;
-  commentReplyToId?: string;
 }
 
 /**
