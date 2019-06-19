@@ -1,4 +1,4 @@
-import { Permissions, Users } from '../../db/models';
+import { Permissions } from '../../db/models';
 import { IUserDocument } from '../../db/models/definitions/users';
 
 export interface IModulesMap {
@@ -78,16 +78,7 @@ export const registerModule = (modules: any): void => {
   }
 };
 
-export const can = async (action: string, userId: string = ''): Promise<boolean> => {
-  if (!userId) {
-    return false;
-  }
-
-  const user = await Users.findOne({ _id: userId }).select({
-    isOwner: 1,
-    groupIds: 1,
-  });
-
+export const can = async (action: string, user: IUserDocument): Promise<boolean> => {
   if (!user) {
     return false;
   }

@@ -89,18 +89,6 @@ describe('Test permission utils', () => {
     }
   });
 
-  test('Check permission userId required', async () => {
-    const checkPermission = await can('action');
-
-    expect(checkPermission).toEqual(false);
-  });
-
-  test('Check permission user not found', async () => {
-    const checkPermission = await can('action', 'fakeId');
-
-    expect(checkPermission).toEqual(false);
-  });
-
   test('Check permission is owner', async () => {
     const checkPermission = await can('action', _user._id);
 

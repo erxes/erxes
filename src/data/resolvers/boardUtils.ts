@@ -172,7 +172,7 @@ export const checkPermission = async (type: string, user: IUserDocument, mutatio
 
   const actionName = PERMISSION_MAP[type][mutationName];
 
-  let allowed = await can(actionName, user._id);
+  let allowed = await can(actionName, user);
 
   if (user.isOwner) {
     allowed = true;

@@ -15,7 +15,7 @@ export const intervals: any[] = [];
  */
 export const importXlsFile = async (file: any, type: string, { user }: { user: IUserDocument }) => {
   return new Promise(async (resolve, reject) => {
-    if (!(await can('importXlsFile', user._id))) {
+    if (!(await can('importXlsFile', user))) {
       return reject(new Error('Permission denied!'));
     }
 
