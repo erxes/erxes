@@ -24,7 +24,6 @@ import Products from './Products';
 import ResponseTemplates from './ResponseTemplates';
 import Scripts from './Scripts';
 import Segments from './Segments';
-import Session from './Session';
 import Tags from './Tags';
 import Tasks from './Tasks';
 import Tickets from './Tickets';
@@ -32,7 +31,6 @@ import Users from './Users';
 
 export {
   Users,
-  Session,
   Channels,
   ResponseTemplates,
   Scripts,

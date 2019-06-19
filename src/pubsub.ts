@@ -46,7 +46,7 @@ const {
  * Docs on the different redis options
  * @see {@link https://github.com/NodeRedis/node_redis#options-object-properties}
  */
-const redisOptions = {
+export const redisOptions = {
   host: REDIS_HOST,
   port: REDIS_PORT,
   password: REDIS_PASSWORD,
@@ -82,31 +82,6 @@ const configGooglePubsub = (): IGoogleOptions => {
   };
 };
 
-const initBroker = () => {
-  if (PUBSUB_TYPE === 'GOOGLE') {
-    const googleOptions = configGooglePubsub();
-
-    const GooglePubSub = require('@axelspringer/graphql-google-pubsub').GooglePubSub;
-
-    const googleBroker = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
-
-    googleBroker.subscribe('widgetNotification', message => {
-      publishMessage(message);
-    });
-  } else {
-    const redisBroker = new Redis(redisOptions);
-
-    redisBroker.subscribe('widgetNotification');
-    redisBroker.on('message', (channel: string, message: string) => {
-      const data = JSON.parse(message);
-
-      if (channel === 'widgetNotification') {
-        return publishMessage(data);
-      }
-    });
-  }
-};
-
 const createPubsubInstance = (): IPubSub => {
   let pubsub;
 
@@ -116,6 +91,10 @@ const createPubsubInstance = (): IPubSub => {
     const GooglePubSub = require('@axelspringer/graphql-google-pubsub').GooglePubSub;
 
     const googlePubsub = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
+
+    googlePubsub.subscribe('widgetNotification', message => {
+      publishMessage(message);
+    });
 
     pubsub = googlePubsub;
   } else {
@@ -127,6 +106,10 @@ const createPubsubInstance = (): IPubSub => {
       },
       publisher: new Redis(redisOptions),
       subscriber: new Redis(redisOptions),
+    });
+
+    redisPubSub.subscribe('widgetNotification', message => {
+      return publishMessage(message);
     });
 
     pubsub = redisPubSub;
@@ -148,7 +131,5 @@ const publishMessage = ({ action, data }: IPubsubMessage) => {
 const convertPubSubBuffer = (data: Buffer) => {
   return JSON.parse(data.toString());
 };
-
-initBroker();
 
 export const graphqlPubsub = createPubsubInstance();

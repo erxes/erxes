@@ -41,12 +41,9 @@ const userMutations = {
     return 'loggedIn';
   },
 
-  async logout(_root, _args, { user, res }) {
-    const response = await Users.logout(user);
-
+  async logout(_root, _args, { res }) {
     res.clearCookie('auth-token');
-
-    return response;
+    return 'loggedout';
   },
 
   /*
