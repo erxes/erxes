@@ -483,6 +483,7 @@ export const loadClass = () => {
         email: _user.email,
         details: _user.details,
         isOwner: _user.isOwner,
+        groupIds: _user.groupIds,
       };
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
