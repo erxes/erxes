@@ -59,7 +59,7 @@ const configGooglePubsub = (): IGoogleOptions => {
 const createPubsubInstance = (): IPubSub => {
   let pubsub;
 
-  if (NODE_ENV === 'test') {
+  if (NODE_ENV === 'test' || NODE_ENV === 'command') {
     pubsub = {
       asyncIterator: () => null,
       publish: () => null,

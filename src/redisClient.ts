@@ -33,16 +33,14 @@ export const redisOptions = {
   },
 };
 
-let client;
+let client = {
+  get: (_key, _callback) => true,
+  set: (_key, _value) => true,
+};
 
-if (NODE_ENV === 'test') {
-  client = {
-    get: (_key, _callback) => true,
-    set: (_key, _value) => true,
-  };
-} else {
+export const initRedis = () => {
   client = redis.createClient(redisOptions);
-}
+};
 
 /*
  * Get item

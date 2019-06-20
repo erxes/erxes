@@ -18,6 +18,7 @@ import { debugInit } from './debuggers';
 import integrationsApiMiddleware from './middlewares/integrationsApiMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import { graphqlPubsub } from './pubsub';
+import { initRedis } from './redisClient';
 import { init } from './startup';
 import { importXlsFile } from './workers/bulkInsert';
 
@@ -47,6 +48,9 @@ fs.exists(path.join(__dirname, '..', '/google_cred.json'), exists => {
 
 // connect to mongo database
 connect();
+
+// connect to redis server
+initRedis();
 
 const app = express();
 
