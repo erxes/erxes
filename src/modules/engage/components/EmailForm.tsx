@@ -49,12 +49,6 @@ class EmailForm extends React.Component<Props, State> {
     };
   }
 
-  componentDidMount() {
-    if (this.props.email) {
-      this.templateChange(this.props.email.templateId);
-    }
-  }
-
   changeContent = (key, value) => {
     const email = { ...this.state.email } as IEngageEmail;
 
@@ -71,7 +65,13 @@ class EmailForm extends React.Component<Props, State> {
   };
 
   templateChange = value => {
-    this.setState({ content: this.findTemplate(value) });
+    const email = { ...this.state.email } as IEngageEmail;
+
+    email.templateId = value;
+
+    this.setState({ content: this.findTemplate(value), email }, () => {
+      this.props.onChange('email', this.state.email);
+    });
   };
 
   findTemplate = id => {

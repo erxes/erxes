@@ -58,7 +58,11 @@ class AutoAndManualForm extends React.Component<Props, State> {
     const messenger = message.messenger || ({} as IEngageMessenger);
     const email = message.email || {};
 
-    const content = messenger.content ? messenger.content : email.content || '';
+    let content = email.content || '';
+
+    if (messenger.content && messenger.content !== '') {
+      content = messenger.content;
+    }
 
     this.state = {
       activeStep: 1,
@@ -108,7 +112,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       doc.email = {
         subject: email.subject || '',
         content: this.state.content,
-        attachments: email.attachments
+        attachments: email.attachments,
+        templateId: email.templateId || ''
       };
     } else if (this.state.method === 'messenger') {
       const messenger = this.state.messenger || ({} as IEngageMessenger);
