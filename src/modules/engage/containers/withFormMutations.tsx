@@ -85,10 +85,10 @@ function withSaveAndEdit<IComponentProps>(Component) {
     };
 
     const email = message.email || {
-      templateId: '',
       subject: '',
       attachments: [],
-      content: ''
+      content: '',
+      templateId: ''
     };
 
     const scheduleDate = message.scheduleDate || {
@@ -113,10 +113,10 @@ function withSaveAndEdit<IComponentProps>(Component) {
           rules: messenger.rules
         },
         email: {
-          templateId: email.templateId,
           subject: email.subject,
           attachments: email.attachments,
-          content: email.content
+          content: email.content,
+          templateId: email.templateId
         },
         scheduleDate: {
           type: scheduleDate.type,

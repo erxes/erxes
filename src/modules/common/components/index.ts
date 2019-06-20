@@ -14,6 +14,7 @@ import DataWithLoader from './DataWithLoader';
 import DateFilter from './DateFilter';
 import DropdownToggle from './DropdownToggle';
 import Editor from './editor/Editor';
+import EditorCK from './EditorCK';
 import EmptyState from './EmptyState';
 import Filter from './filter/Filter';
 import FilterableList from './filterableList/FilterableList';
@@ -106,5 +107,6 @@ export {
   WithPermission,
   ConditionsRule,
   SelectWithSearch,
-  ProgressBar
+  ProgressBar,
+  EditorCK
 };

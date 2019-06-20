@@ -1,6 +1,7 @@
 import {
   Button,
   ControlLabel,
+  EditorCK,
   FormControl,
   FormGroup,
   Uploader
@@ -9,13 +10,13 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { METHODS } from 'modules/engage/constants';
+import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import * as React from 'react';
 import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
 import { Recipient, Recipients } from '../styles';
 import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '../types';
-import Editor from './Editor';
 
 type Props = {
   customers: ICustomer[];
@@ -54,9 +55,6 @@ class WidgetForm extends React.Component<Props, State> {
     if (this.state.channel === 'email') {
       doc.method = METHODS.EMAIL;
       doc.email = {
-        templateId: (document.getElementById(
-          'emailTemplateId'
-        ) as HTMLInputElement).value,
         subject: (document.getElementById('emailSubject') as HTMLInputElement)
           .value,
         attachments: this.state.attachments,
@@ -79,11 +77,25 @@ class WidgetForm extends React.Component<Props, State> {
   };
 
   onChangeCommon = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
   onChannelChange = e => {
     this.setState({ channel: e.target.value });
+  };
+
+  templateChange = e => {
+    this.setState({ content: this.findTemplate(e.target.value) });
+  };
+
+  findTemplate = id => {
+    const template = this.props.emailTemplates.find(t => t._id === id);
+
+    if (template) {
+      return template.content;
+    }
+
+    return '';
   };
 
   renderCustomers() {
@@ -111,7 +123,7 @@ class WidgetForm extends React.Component<Props, State> {
       this.onChangeCommon('attachments', attachmentsAtt);
 
     return (
-      <div>
+      <>
         <FormGroup>
           <ControlLabel>Email subject:</ControlLabel>
           <FormControl id="emailSubject" type="text" required={true} />
@@ -119,8 +131,12 @@ class WidgetForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>Email templates:</ControlLabel>
-
-          <FormControl id="emailTemplateId" componentClass="select">
+          <p>{__('Insert email template to content')}</p>
+          <FormControl
+            id="emailTemplateId"
+            componentClass="select"
+            onChange={this.templateChange}
+          >
             <option />
             {this.props.emailTemplates.map(t => (
               <option key={t._id} value={t._id}>
@@ -133,7 +149,7 @@ class WidgetForm extends React.Component<Props, State> {
           <ControlLabel>Attachments:</ControlLabel>
           <Uploader defaultFileList={attachments} onChange={onChange} />
         </FormGroup>
-      </div>
+      </>
     );
   }
 
@@ -143,7 +159,7 @@ class WidgetForm extends React.Component<Props, State> {
     }
 
     return (
-      <div>
+      <>
         <FormGroup>
           <ControlLabel>Brand:</ControlLabel>
 
@@ -182,14 +198,15 @@ class WidgetForm extends React.Component<Props, State> {
             ))}
           </FormControl>
         </FormGroup>
-      </div>
+      </>
     );
   }
 
-  render() {
-    const onChange = (id: string, content) =>
-      this.onChangeCommon('content', content);
+  onEditorChange = e => {
+    this.onChangeCommon('content', e.editor.getData());
+  };
 
+  render() {
     return (
       <form onSubmit={this.save}>
         {this.renderCustomers()}
@@ -213,11 +230,16 @@ class WidgetForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>Content:</ControlLabel>
-          <Editor onChange={onChange} />
+          <EditorCK
+            content={this.state.content}
+            onChange={this.onEditorChange}
+            insertItems={EMAIL_CONTENT}
+            height={320}
+          />
         </FormGroup>
 
         <ModalFooter>
-          <Button type="submit" btnStyle="success">
+          <Button type="submit" btnStyle="success" icon="send">
             Send
           </Button>
         </ModalFooter>

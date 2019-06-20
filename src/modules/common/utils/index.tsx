@@ -159,3 +159,21 @@ export function withProps<IProps>(
     }
   };
 }
+
+export function renderWithProps<Props>(
+  props: Props,
+  Wrapped: new (props: Props) => React.Component<Props>
+) {
+  return <Wrapped {...props} />;
+}
+
+export const isValidDate = date => {
+  const parsedDate = Date.parse(date);
+
+  // Checking if it is date
+  if (isNaN(date) && !isNaN(parsedDate)) {
+    return true;
+  }
+
+  return false;
+};

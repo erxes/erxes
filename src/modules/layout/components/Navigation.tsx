@@ -183,7 +183,7 @@ class Navigation extends React.Component<{
           <WithPermission action="showKnowledgeBase">
             <Tip placement="right" text={__('Knowledge Base').toString()}>
               <NavLink to="/knowledgeBase">
-                <NavIcon className="icon-clipboard" />
+                <NavIcon className="icon-book" />
               </NavLink>
             </Tip>
             <WithPermission action="showIntegrations">

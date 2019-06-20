@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
-import { queries as dealQueries } from 'modules/deals/graphql';
+import { queries as boardQueries } from 'modules/boards/graphql';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
   BoardsQueryResponse
-} from 'modules/deals/types';
+} from 'modules/boards/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DealFilter } from '../components';
@@ -32,8 +32,8 @@ const DealFilterContainer = (props: FinalProps) => {
 
   const boardId = queryParams.boardId;
 
-  const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
-  const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
+  const lastBoard = boardGetLastQuery && boardGetLastQuery.boardGetLast;
+  const currentBoard = boardDetailQuery && boardDetailQuery.boardDetail;
 
   let pipelines;
 
@@ -45,7 +45,7 @@ const DealFilterContainer = (props: FinalProps) => {
 
   const extendedProps = {
     ...props,
-    boards: boardsQuery.dealBoards || [],
+    boards: boardsQuery.boards || [],
     pipelines: (currentBoard && currentBoard.pipelines) || []
   };
 
@@ -53,14 +53,14 @@ const DealFilterContainer = (props: FinalProps) => {
 };
 
 export default compose(
-  graphql<Props, BoardsQueryResponse>(gql(dealQueries.boards), {
+  graphql<Props, BoardsQueryResponse>(gql(boardQueries.boards), {
     name: 'boardsQuery'
   }),
-  graphql<Props, BoardsGetLastQueryResponse>(gql(dealQueries.boardGetLast), {
+  graphql<Props, BoardsGetLastQueryResponse>(gql(boardQueries.boardGetLast), {
     name: 'boardGetLastQuery'
   }),
   graphql<Props, BoardDetailQueryResponse, { _id: string }>(
-    gql(dealQueries.boardDetail),
+    gql(boardQueries.boardDetail),
     {
       name: 'boardDetailQuery',
       skip: ({ queryParams }) => !queryParams.boardId,

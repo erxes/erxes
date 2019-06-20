@@ -50,6 +50,10 @@ class AccountContainer extends React.Component<FinalProps, {}> {
       return <Spinner objective={true} />;
     }
 
+    if (fetchApiQuery.error) {
+      alert(fetchApiQuery.error.message);
+    }
+
     const accounts = fetchApiQuery.integrationsFetchApi || [];
 
     return (

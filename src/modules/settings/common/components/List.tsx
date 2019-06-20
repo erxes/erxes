@@ -56,6 +56,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       <ModalTrigger
         title={formTitle || ''}
         size={size}
+        enforceFocus={false}
         trigger={trigger}
         content={content}
       />
