@@ -1,91 +1,77 @@
-import { Button, ControlLabel, FormControl } from 'modules/common/components';
-import { __, Alert } from 'modules/common/utils';
-import * as React from 'react';
+import { IStage } from 'modules/boards/types';
 import {
-  AddContainer,
-  FormFooter,
-  HeaderContent,
-  HeaderRow
-} from '../../styles/item';
+  Button,
+  ControlLabel,
+  Form,
+  FormControl
+} from 'modules/common/components';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import { FormFooter, HeaderContent, HeaderRow } from '../../styles/item';
 import { invalidateCache } from '../../utils';
 
 type Props = {
-  add: (name: string, callback: () => void) => void;
+  stage: IStage;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
-type State = {
-  name: string;
-  disabled: boolean;
-};
+class AddForm extends React.Component<Props> {
+  generateDoc = (values: { stageId?: string; name: string }) => {
+    const { stage } = this.props;
+    const finalValues = values;
 
-class AddForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      disabled: false,
-      name: ''
-    };
-  }
-
-  onChangeName = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({ name: (e.currentTarget as HTMLInputElement).value });
-  };
-
-  onSubmit = e => {
-    e.preventDefault();
-
-    const { name } = this.state;
-    const { add, closeModal } = this.props;
-
-    if (!name) {
-      return Alert.error('Enter name');
+    if (stage) {
+      finalValues.stageId = stage._id;
     }
 
-    // before save, disable save button
-    this.setState({ disabled: true });
-
-    add(name, () => {
-      // after save, enable save button
-      this.setState({ disabled: false });
-
-      closeModal();
-
-      invalidateCache();
-    });
+    return {
+      stageId: finalValues.stageId,
+      ...values
+    };
   };
 
-  render() {
+  renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
+
+    const callback = () => {
+      closeModal();
+      invalidateCache();
+    };
+
     return (
-      <AddContainer onSubmit={this.onSubmit}>
+      <>
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl autoFocus={true} onChange={this.onChangeName} />
+            <FormControl
+              {...formProps}
+              name="name"
+              autoFocus={true}
+              required={true}
+            />
           </HeaderContent>
         </HeaderRow>
 
         <FormFooter>
-          <Button
-            btnStyle="simple"
-            onClick={this.props.closeModal}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Close
           </Button>
 
-          <Button
-            disabled={this.state.disabled}
-            btnStyle="success"
-            icon="checked-1"
-            type="submit"
-          >
-            Save
-          </Button>
+          {renderButton({
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback
+          })}
         </FormFooter>
-      </AddContainer>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 
