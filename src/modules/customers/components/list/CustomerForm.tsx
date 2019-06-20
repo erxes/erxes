@@ -72,7 +72,9 @@ class CustomerForm extends React.Component<Props, State> {
       primaryPhone,
       primaryEmail,
       avatar,
-      ownerId
+      ownerId,
+      hasAuthority,
+      doNotDisturb
     } = this.state;
     const finalValues = values;
 
@@ -81,14 +83,8 @@ class CustomerForm extends React.Component<Props, State> {
     }
 
     return {
-      phones,
-      emails,
-      primaryPhone,
-      primaryEmail,
-      avatar,
-      ownerId,
-      hasAuthority: finalValues.hasAuthority,
-      doNotDisturb: finalValues.doNotDisturb,
+      _id: finalValues._id,
+      ...this.state,
       firstName: finalValues.firstName,
       lastName: finalValues.lastName,
       position: finalValues.position,
@@ -191,7 +187,6 @@ class CustomerForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Email</ControlLabel>
               <ModifiableSelect
-                formProps={formProps}
                 value={primaryEmail}
                 type="email"
                 options={this.getEmailsOptions(customer)}
@@ -250,7 +245,6 @@ class CustomerForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Phone</ControlLabel>
               <ModifiableSelect
-                formProps={formProps}
                 value={primaryPhone}
                 options={this.getPhonesOptions(customer)}
                 placeholder="Choose primary phone"

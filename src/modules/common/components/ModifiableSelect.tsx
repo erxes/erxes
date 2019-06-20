@@ -173,7 +173,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
 
     let onClick = formProps && formProps.runValidations;
 
-    if (formProps && formProps.errors.addOption === null) {
+    if ((formProps && formProps.errors.addOption === null) || !formProps) {
       onClick = this.handleSave;
     }
 
