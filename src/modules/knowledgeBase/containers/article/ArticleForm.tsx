@@ -1,16 +1,12 @@
 import gql from 'graphql-tag';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
 import { ArticleForm } from '../../components';
 import { mutations, queries } from '../../graphql';
-import {
-  AddArticlesMutationResponse,
-  ArticleVariables,
-  EditArticlesMutationResponse,
-  IArticle
-} from '../../types';
+import { IArticle } from '../../types';
 
 type Props = {
   article: IArticle;
@@ -20,46 +16,45 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = Props &
-  AddArticlesMutationResponse &
-  EditArticlesMutationResponse;
+const ArticleContainer = (props: Props) => {
+  const { article, queryParams, topicIds, currentCategoryId } = props;
 
-const ArticleContainer = (props: FinalProps) => {
-  const {
-    article,
-    addArticlesMutation,
-    editArticlesMutation,
-    currentCategoryId
-  } = props;
-
-  // create or update action
-  const save = ({ doc }, callback, object) => {
-    let mutation = addArticlesMutation;
-
-    // if edit mode
-    if (object) {
-      mutation = editArticlesMutation;
-      doc._id = object._id;
-    }
-
-    mutation({
-      variables: doc
-    })
-      .then(() => {
-        Alert.success(
-          __(`You successfully ${object ? 'updated' : 'added'} an article`)
-        );
-
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={
+          object
+            ? mutations.knowledgeBaseArticlesEdit
+            : mutations.knowledgeBaseArticlesAdd
+        }
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries(
+          queryParams,
+          currentCategoryId,
+          topicIds
+        )}
+        isSubmitted={isSubmitted}
+        type="submit"
+        icon="checked-1"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } an ${name}`}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
   };
 
   const extendedProps = {
     ...props,
-    save,
+    renderButton,
     article,
     currentCategoryId
   };
@@ -67,43 +62,28 @@ const ArticleContainer = (props: FinalProps) => {
   return <ArticleForm {...extendedProps} />;
 };
 
-const commonOptions = ({ queryParams, currentCategoryId, topicIds }) => {
-  return {
-    refetchQueries: [
-      {
-        query: gql(queries.knowledgeBaseArticles),
-        variables: {
-          ...generatePaginationParams(queryParams),
-          categoryIds: [currentCategoryId]
-        }
-      },
-      {
-        query: gql(queries.knowledgeBaseCategories),
-        variables: { topicIds: [topicIds] }
-      },
-      {
-        query: gql(queries.knowledgeBaseArticlesTotalCount),
-        variables: { categoryIds: [currentCategoryId] }
+const getRefetchQueries = (
+  queryParams,
+  currentCategoryId: string,
+  topicIds: string[]
+) => {
+  return [
+    {
+      query: gql(queries.knowledgeBaseArticles),
+      variables: {
+        ...generatePaginationParams(queryParams),
+        categoryIds: [currentCategoryId]
       }
-    ]
-  };
+    },
+    {
+      query: gql(queries.knowledgeBaseCategories),
+      variables: { topicIds: [topicIds] }
+    },
+    {
+      query: gql(queries.knowledgeBaseArticlesTotalCount),
+      variables: { categoryIds: [currentCategoryId] }
+    }
+  ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, EditArticlesMutationResponse, ArticleVariables>(
-      gql(mutations.knowledgeBaseArticlesEdit),
-      {
-        name: 'editArticlesMutation',
-        options: commonOptions
-      }
-    ),
-    graphql<Props, AddArticlesMutationResponse, ArticleVariables>(
-      gql(mutations.knowledgeBaseArticlesAdd),
-      {
-        name: 'addArticlesMutation',
-        options: commonOptions
-      }
-    )
-  )(ArticleContainer)
-);
+export default ArticleContainer;
