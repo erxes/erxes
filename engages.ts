@@ -16,6 +16,7 @@ export interface IEmail {
   attachments?: any;
   subject?: string;
   content?: string;
+  templateId?: string;
 }
 
 export interface IEmailDocument extends IEmail, Document {}
@@ -89,6 +90,7 @@ const emailSchema = new Schema(
     attachments: field({ type: Object }),
     subject: field({ type: String }),
     content: field({ type: String }),
+    templateId: field({ type: String }),
   },
   { _id: false },
 );
