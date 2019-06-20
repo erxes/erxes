@@ -2,6 +2,7 @@ import {
   AvatarUpload,
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup,
   ModifiableSelect
@@ -12,6 +13,7 @@ import {
   FormWrapper,
   ModalFooter
 } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { regexEmail, regexPhone } from 'modules/customers/utils';
@@ -26,10 +28,10 @@ import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES
 } from '../../constants';
-import { ICompany, ICompanyDoc } from '../../types';
+import { ICompany, ICompanyDoc, ICompanyLinks } from '../../types';
 
 type Props = {
-  action: (params: { doc: ICompanyDoc }) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   company: ICompany;
   closeModal: () => void;
 };
@@ -71,11 +73,10 @@ class CompanyForm extends React.Component<Props, State> {
     };
   }
 
-  getInputElementValue(id) {
-    return (document.getElementById(id) as HTMLInputElement).value;
-  }
-
-  action = e => {
+  generateDoc = (
+    values: { _id: string; size?: number } & ICompanyDoc & ICompanyLinks
+  ) => {
+    const { company } = this.props;
     const {
       names,
       primaryName,
@@ -83,40 +84,36 @@ class CompanyForm extends React.Component<Props, State> {
       phones,
       primaryPhone,
       emails,
-      primaryEmail
+      primaryEmail,
+      parentCompanyId,
+      ownerId,
+      doNotDisturb
     } = this.state;
-    e.preventDefault();
 
-    this.props.action({
-      doc: {
-        names,
-        primaryName,
-        avatar,
-        size: parseInt(this.getInputElementValue('company-size'), 10),
-        industry: this.getInputElementValue('company-industry'),
-        parentCompanyId: this.state.parentCompanyId,
-        emails,
-        primaryEmail,
-        phones,
-        primaryPhone,
-        ownerId: this.state.ownerId,
-        leadStatus: this.getInputElementValue('company-leadStatus'),
-        lifecycleState: this.getInputElementValue('company-lifecycleState'),
-        businessType: this.getInputElementValue('company-businessType'),
-        description: this.getInputElementValue('company-description'),
-        doNotDisturb: this.state.doNotDisturb,
-        links: {
-          linkedIn: this.getInputElementValue('company-linkedIn'),
-          twitter: this.getInputElementValue('company-twitter'),
-          facebook: this.getInputElementValue('company-facebook'),
-          github: this.getInputElementValue('company-github'),
-          youtube: this.getInputElementValue('company-youtube'),
-          website: this.getInputElementValue('company-website')
-        }
+    const finalValues = values;
+
+    if (company) {
+      finalValues._id = company._id;
+    }
+
+    return {
+      _id: finalValues._id,
+      ...this.state,
+      size: Number(finalValues.size),
+      industry: finalValues.industry,
+      leadStatus: finalValues.leadStatus,
+      lifecycleState: finalValues.lifecycleState,
+      businessType: finalValues.businessType,
+      description: finalValues.description,
+      links: {
+        linkedIn: finalValues.linkedIn,
+        twitter: finalValues.twitter,
+        facebook: finalValues.facebook,
+        github: finalValues.github,
+        youtube: finalValues.youtube,
+        website: finalValues.website
       }
-    });
-
-    this.props.closeModal();
+    };
   };
 
   onAvatarUpload = (url: string) => {
@@ -153,9 +150,10 @@ class CompanyForm extends React.Component<Props, State> {
     this.setState({ [optionsName]: options, [optionName]: selectedOption });
   };
 
-  render() {
+  renderContent = (formProps: IFormProps) => {
     const company = this.props.company || ({} as ICompany);
-    const { closeModal } = this.props;
+    const { closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     const {
       links = {},
@@ -178,7 +176,7 @@ class CompanyForm extends React.Component<Props, State> {
     };
 
     return (
-      <form onSubmit={this.action}>
+      <>
         <AvatarUpload
           avatar={company.avatar}
           onAvatarUpload={this.onAvatarUpload}
@@ -187,19 +185,21 @@ class CompanyForm extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Name</ControlLabel>
+              <ControlLabel required={true}>Name</ControlLabel>
               <ModifiableSelect
                 value={primaryName}
                 options={names || []}
                 placeholder="Primary name"
                 buttonText="Add name"
                 adding={true}
+                required={true}
                 onChange={this.onChange.bind(this, 'names', 'primaryName')}
               />
             </FormGroup>
 
             {this.renderFormGroup('Industry', {
-              id: 'company-industry',
+              ...formProps,
+              name: 'industry',
               componentClass: 'select',
               defaultValue: company.industry || '',
               options: this.generateConstantParams(COMPANY_INDUSTRY_TYPES)
@@ -229,7 +229,8 @@ class CompanyForm extends React.Component<Props, State> {
             </FormGroup>
 
             {this.renderFormGroup('Lead Status', {
-              id: 'company-leadStatus',
+              ...formProps,
+              name: 'leadStatus',
               componentClass: 'select',
               defaultValue: company.leadStatus || '',
               options: leadStatusChoices(__)
@@ -238,9 +239,9 @@ class CompanyForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
-                type="text"
+                {...formProps}
                 max={140}
-                id="company-description"
+                name="description"
                 componentClass="textarea"
                 defaultValue={company.description || ''}
               />
@@ -258,13 +259,16 @@ class CompanyForm extends React.Component<Props, State> {
               />
             </FormGroup>
             {this.renderFormGroup('Business Type', {
-              id: 'company-businessType',
+              ...formProps,
+              name: 'businessType',
               componentClass: 'select',
               defaultValue: company.businessType || '',
               options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
             })}
             {this.renderFormGroup('Size', {
-              id: 'company-size',
+              ...formProps,
+              name: 'size',
+              type: 'number',
               defaultValue: company.size || 0
             })}
 
@@ -281,7 +285,8 @@ class CompanyForm extends React.Component<Props, State> {
             </FormGroup>
 
             {this.renderFormGroup('Lifecycle State', {
-              id: 'company-lifecycleState',
+              ...formProps,
+              name: 'lifecycleState',
               componentClass: 'select',
               defaultValue: company.lifecycleState || '',
               options: lifecycleStateChoices(__)
@@ -309,34 +314,46 @@ class CompanyForm extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('LinkedIn', {
-              id: 'company-linkedIn',
-              defaultValue: links.linkedIn || ''
+              ...formProps,
+              name: 'linkedIn',
+              defaultValue: links.linkedIn || '',
+              type: 'url'
             })}
 
             {this.renderFormGroup('Twitter', {
-              id: 'company-twitter',
-              defaultValue: links.twitter || ''
+              ...formProps,
+              name: 'twitter',
+              defaultValue: links.twitter || '',
+              type: 'url'
             })}
 
             {this.renderFormGroup('Facebook', {
-              id: 'company-facebook',
-              defaultValue: links.facebook || ''
+              ...formProps,
+              name: 'facebook',
+              defaultValue: links.facebook || '',
+              type: 'url'
             })}
           </FormColumn>
           <FormColumn>
             {this.renderFormGroup('Github', {
-              id: 'company-github',
-              defaultValue: links.github || ''
+              ...formProps,
+              name: 'github',
+              defaultValue: links.github || '',
+              type: 'url'
             })}
 
             {this.renderFormGroup('Youtube', {
-              id: 'company-youtube',
-              defaultValue: links.youtube || ''
+              ...formProps,
+              name: 'youtube',
+              defaultValue: links.youtube || '',
+              type: 'url'
             })}
 
             {this.renderFormGroup('Website', {
-              id: 'company-website',
-              defaultValue: links.website || ''
+              ...formProps,
+              name: 'website',
+              defaultValue: links.website || '',
+              type: 'url'
             })}
           </FormColumn>
         </FormWrapper>
@@ -346,12 +363,20 @@ class CompanyForm extends React.Component<Props, State> {
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'company',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: this.props.company
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 
