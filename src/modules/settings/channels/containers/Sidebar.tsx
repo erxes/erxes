@@ -70,13 +70,10 @@ const SidebarContainer = (props: FinalProps) => {
         refetchQueries={getRefetchQueries(queryParams, currentChannelId)}
         isSubmitted={isSubmitted}
         type="submit"
-        icon="checked-1"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}
-      >
-        {__('Save')}
-      </ButtonMutate>
+      />
     );
   };
 

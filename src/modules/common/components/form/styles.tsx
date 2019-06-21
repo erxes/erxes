@@ -35,9 +35,7 @@ const Formgroup = styled.div`
   }
 `;
 
-const Input = styledTS<{ round?: boolean; formErrorMessage?: React.ReactNode }>(
-  styled.input
-)`
+const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
   display: block;
   border: none;
   width: 100%;
@@ -46,7 +44,7 @@ const Input = styledTS<{ round?: boolean; formErrorMessage?: React.ReactNode }>(
   color: ${colors.textPrimary};
   border-bottom: 1px solid;
   border-color:${props =>
-    props.formErrorMessage ? colors.colorCoreRed : colors.colorShadowGray};
+    props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
   background: none;
   transition: all 0.3s ease;
 
@@ -273,11 +271,10 @@ const Checkbox = styled(inputStyle)`
 `;
 
 const Error = styled.label`
-  color: ${colors.colorCoreRed} !important;
-  transition: all 0.3s linear;
-  padding-top: ${dimensions.unitSpacing - 5}px;
+  color: ${colors.colorCoreRed};
+  margin-top: ${dimensions.unitSpacing - 3}px;
   display: block;
-  font-weight: 500;
+  font-size: 12px;
 `;
 
 const FlexWrapper = styled.span`

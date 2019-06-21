@@ -252,11 +252,8 @@ class PermissionForm extends React.Component<Props, State> {
             refetchQueries={refetchQueries}
             isSubmitted={this.state.isSubmitted}
             type="submit"
-            icon="checked-1"
             successMessage={`You successfully added a permission.`}
-          >
-            {__('Save')}
-          </ButtonMutate>
+          />
         </Modal.Footer>
       </form>
     );

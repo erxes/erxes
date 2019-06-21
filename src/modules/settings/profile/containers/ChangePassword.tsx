@@ -26,11 +26,8 @@ const ChangePasswordContainer = (props: Props) => {
         callback={callback}
         isSubmitted={isSubmitted}
         type="submit"
-        icon="checked-1"
         successMessage={'Your password has been changed and updated'}
-      >
-        {__('Save')}
-      </ButtonMutate>
+      />
     );
   };
 

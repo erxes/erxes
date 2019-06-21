@@ -78,13 +78,10 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
         refetchQueries={this.props.productsQuery.refetch()}
         isSubmitted={isSubmitted}
         type="submit"
-        icon="checked-1"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}
-      >
-        {__('Save')}
-      </ButtonMutate>
+      />
     );
   };
 

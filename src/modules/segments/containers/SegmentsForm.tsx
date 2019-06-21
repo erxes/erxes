@@ -62,14 +62,11 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
         refetchQueries={getRefetchQueries(contentType)}
         isSubmitted={isSubmitted}
         type="submit"
-        icon="checked-1"
         btnSize={size}
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}
-      >
-        {__('Save')}
-      </ButtonMutate>
+      />
     );
   };
 
