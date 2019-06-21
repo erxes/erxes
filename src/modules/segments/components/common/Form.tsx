@@ -179,14 +179,6 @@ class Form extends React.Component<Props, State> {
     };
   };
 
-  // save = (e: React.FormEvent) => {
-  //   e.preventDefault();
-
-  //   if (afterSave) {
-  //     afterSave();
-  //   }
-  // };
-
   renderConditions(formProps: IFormProps) {
     const { contentType, fields, segment } = this.props;
     const object = segment || ({} as ISegment);
@@ -302,7 +294,7 @@ class Form extends React.Component<Props, State> {
   };
 
   renderSaveButton = (formProps: IFormProps) => {
-    const { renderButton, segment } = this.props;
+    const { renderButton, segment, afterSave } = this.props;
     const { values, isSubmitted } = formProps;
 
     return renderButton({
@@ -310,7 +302,8 @@ class Form extends React.Component<Props, State> {
       size: 'small',
       values: this.generateDoc(values),
       isSubmitted,
-      object: segment
+      object: segment,
+      callback: afterSave
     });
   };
 

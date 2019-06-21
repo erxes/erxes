@@ -21,26 +21,12 @@ type Props = {
 
 class BrandForm extends React.Component<Props> {
   renderFooter(formProps: IFormProps) {
-    const { brand, modal, closeModal, renderButton } = this.props;
+    const { brand, closeModal, renderButton, afterSave } = this.props;
     const { values, isSubmitted } = formProps;
 
     if (brand) {
       values._id = brand._id;
     }
-
-    const saveButton =
-      renderButton &&
-      renderButton({
-        name: 'brand',
-        values,
-        isSubmitted,
-        callback: closeModal,
-        object: brand
-      });
-
-    // if (!modal) {
-    //   return saveButton;
-    // }
 
     return (
       <ModalFooter>
@@ -52,7 +38,14 @@ class BrandForm extends React.Component<Props> {
         >
           Cancel
         </Button>
-        {saveButton}
+
+        {renderButton({
+          name: 'brand',
+          values,
+          isSubmitted,
+          callback: closeModal || afterSave,
+          object: brand
+        })}
       </ModalFooter>
     );
   }

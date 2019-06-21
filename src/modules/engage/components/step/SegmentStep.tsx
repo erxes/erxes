@@ -1,4 +1,5 @@
 import { Icon } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { SegmentAdd, TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
@@ -14,7 +15,7 @@ type Props = {
   headSegments: ISegment[];
   segmentFields: ISegmentField[];
   customersCount: (ids: string[]) => number;
-  segmentAdd: SegmentAdd;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   count: (segment: ISegmentDoc) => void;
   onChange: (name: string, value: string[]) => void;
   renderContent: (
@@ -32,7 +33,6 @@ type Props = {
 
 const SegmentStep = (props: Props) => {
   const {
-    segmentAdd,
     onChange,
     segments,
     segmentIds,
@@ -42,7 +42,8 @@ const SegmentStep = (props: Props) => {
     renderContent,
     segmentFields,
     headSegments,
-    count
+    count,
+    renderButton
   } = props;
 
   const formProps = {
@@ -79,11 +80,11 @@ const SegmentStep = (props: Props) => {
       targetCount={targetCount}
       customersCount={customersCount}
       onChange={onChange}
-      onSubmit={segmentAdd}
       Form={SegmentsForm}
       content={renderContent}
       formProps={formProps}
       icons={icons}
+      renderButton={renderButton}
     />
   );
 };

@@ -10,7 +10,6 @@ import * as React from 'react';
 
 type Props = {
   fields: ISegmentField[];
-  save: (params: { doc: ISegmentWithConditionDoc }) => void;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -18,12 +17,11 @@ type Props = {
 };
 
 const SegmentsForm = (props: Props) => {
-  const { fields, save, headSegments, count, afterSave, renderButton } = props;
+  const { fields, headSegments, count, afterSave, renderButton } = props;
 
   return (
     <Form
       fields={fields}
-      // save={save}
       headSegments={headSegments}
       count={count}
       afterSave={afterSave}

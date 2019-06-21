@@ -1,5 +1,7 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import { TagStep } from 'modules/engage/components/step';
 import { mutations } from 'modules/tags/graphql';
@@ -39,18 +41,6 @@ type FinalProps = {
 const TagStepContianer = (props: FinalProps) => {
   const { tagsQuery, addMutation, customerCountsQuery } = props;
 
-  const tagAdd = ({ doc }) => {
-    addMutation({ variables: { ...doc } })
-      .then(() => {
-        tagsQuery.refetch();
-        customerCountsQuery.refetch();
-        Alert.success('You have successfully added a tag');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   const customerCounts = customerCountsQuery.customerCounts || {
     byTag: {}
   };
@@ -58,15 +48,49 @@ const TagStepContianer = (props: FinalProps) => {
   const countValues = customerCounts.byTag || {};
   const customersCount = (ids: string[]) => sumCounts(ids, countValues);
 
+  const renderButton = ({
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.add}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        icon="checked-1"
+        successMessage={`You successfully added a tag`}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
+  };
+
   const updatedProps = {
     ...props,
     tags: tagsQuery.tags || [],
     targetCount: countValues,
     customersCount,
-    tagAdd
+    renderButton
   };
 
   return <TagStep {...updatedProps} />;
+};
+
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.customerCounts),
+      variables: { only: 'byTag' }
+    },
+    {
+      query: gql(queries.tags),
+      variables: { type: 'customer' }
+    }
+  ];
 };
 
 export default withProps<Props>(
