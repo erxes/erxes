@@ -102,12 +102,6 @@ describe('companyQueries', () => {
     }
   `;
 
-  const qryCompaniesExport = `
-    query companiesExport(${commonParamDefs}) {
-      companiesExport(${commonParams})
-    }
-  `;
-
   const qryCount = `
     query companyCounts(${commonParamDefs}, $only: String) {
       companyCounts(${commonParams}, only: $only)
