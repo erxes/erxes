@@ -27,7 +27,7 @@ type Props = {
   successMessage?: string;
   btnSize?: string;
   icon?: string;
-  callback?: () => void;
+  callback?: (data?: any) => void;
   children?: React.ReactNode;
   refetchQueries?: any;
   isSubmitted?: boolean;
@@ -85,11 +85,11 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         refetchQueries
       })
 
-      .then(() => {
+      .then(({ data }) => {
         Alert.success(successMessage);
 
         if (callback) {
-          callback();
+          callback(data);
         }
 
         this.setState({ isLoading: false });
