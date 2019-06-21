@@ -40,6 +40,7 @@ const ArticleContainer = (props: Props) => {
           currentCategoryId,
           topicIds
         )}
+        type="submit"
         isSubmitted={isSubmitted}
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
