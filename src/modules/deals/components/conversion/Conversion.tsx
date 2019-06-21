@@ -1,5 +1,6 @@
 import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import { menuDeal } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -30,10 +31,9 @@ class ConversionView extends React.Component<Props> {
   }
 
   render() {
-    const breadcrumb = [{ title: __('Deal') }];
     return (
       <BoardContainer>
-        <Header title={__('Deal')} breadcrumb={breadcrumb} />
+        <Header title={__('Deal')} submenu={menuDeal} />
         <BoardContent transparent={true}>
           {this.renderActionBar()}
           <ScrolledContent transparent={true}>

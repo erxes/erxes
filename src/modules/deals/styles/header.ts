@@ -23,10 +23,6 @@ const ButtonGroup = styled.div`
     font-weight: 500;
     border-radius: 17px;
 
-    i {
-      margin-right: 5px;
-    }
-
     &.active {
       color: ${colors.colorCoreDarkGray};
       background: ${colors.colorWhite};

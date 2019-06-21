@@ -13,30 +13,18 @@ type Props = {
   queryParams: any;
 };
 
-class DealBoard extends React.Component<Props> {
-  renderContent() {
-    const { queryParams } = this.props;
-
-    return <Board queryParams={queryParams} />;
-  }
-
-  renderActionBar() {
-    return <MainActionBar />;
-  }
-
-  render() {
-    return (
-      <BoardContainer>
-        <Header title={__('Deal')} submenu={menuDeal} />
-        <BoardContent transparent={true}>
-          {this.renderActionBar()}
-          <ScrolledContent transparent={true}>
-            {this.renderContent()}
-          </ScrolledContent>
-        </BoardContent>
-      </BoardContainer>
-    );
-  }
+function DealBoard({ queryParams }: Props) {
+  return (
+    <BoardContainer>
+      <Header title={__('Deal')} submenu={menuDeal} />
+      <BoardContent transparent={true}>
+        <MainActionBar />
+        <ScrolledContent transparent={true}>
+          <Board queryParams={queryParams} />
+        </ScrolledContent>
+      </BoardContent>
+    </BoardContainer>
+  );
 }
 
 export default DealBoard;

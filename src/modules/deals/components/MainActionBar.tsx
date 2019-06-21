@@ -365,27 +365,30 @@ class MainActionBar extends React.Component<Props, State> {
         </HeaderLink>
 
         <ButtonGroup>
-          <Link
-            to={boardLink}
-            className={getType() === 'board' ? 'active' : ''}
-          >
-            <Icon icon="layout" />
-            {__('Board')}
-          </Link>
-          <Link
-            to={calendarLink}
-            className={getType() === 'calendar' ? 'active' : ''}
-          >
-            <Icon icon="calendar" />
-            {__('Calendar')}
-          </Link>
-          <Link
-            to={conversionlink}
-            className={getType() === 'conversion' ? 'active' : ''}
-          >
-            <Icon icon="calendar" />
-            {__('Conversion view')}
-          </Link>
+          <Tip text={__('Board')} placement="bottom">
+            <Link
+              to={boardLink}
+              className={getType() === 'board' ? 'active' : ''}
+            >
+              <Icon icon="layout" />
+            </Link>
+          </Tip>
+          <Tip text={__('Calendar')} placement="bottom">
+            <Link
+              to={calendarLink}
+              className={getType() === 'calendar' ? 'active' : ''}
+            >
+              <Icon icon="calendar" />
+            </Link>
+          </Tip>
+          <Tip text={__('Conversion')} placement="bottom">
+            <Link
+              to={conversionlink}
+              className={getType() === 'conversion' ? 'active' : ''}
+            >
+              <Icon icon="circular" />
+            </Link>
+          </Tip>
         </ButtonGroup>
       </HeaderItems>
     );

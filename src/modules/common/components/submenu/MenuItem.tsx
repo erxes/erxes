@@ -15,9 +15,16 @@ const Item = styled.li`
     color: ${colors.colorCoreDarkGray};
     padding: 14px 0;
     display: block;
+    position: relative;
 
-    &.active {
-      border-bottom: 2px solid ${colors.colorSecondary};
+    &.active::after {
+      content: '';
+      background: ${colors.colorSecondary};
+      width: 100%;
+      height: 2px;
+      position: absolute;
+      left: 0;
+      bottom: 0;
     }
   }
 `;

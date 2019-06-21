@@ -1,6 +1,7 @@
 import { Calendar } from 'modules/common/components';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { menuDeal } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -62,11 +63,9 @@ class CalendarView extends React.Component<Props> {
     renderMonths: () => React.ReactNode[],
     renderMiddleContent: () => React.ReactNode
   ) => {
-    const breadcrumb = [{ title: __('Deal') }];
-
     return (
       <BoardContainer>
-        <Header title={__('Deal')} breadcrumb={breadcrumb} />
+        <Header title={__('Deal')} submenu={menuDeal} />
         <BoardContent transparent={true}>
           {this.renderActionBar(renderMiddleContent)}
           <ScrolledContent transparent={true}>
