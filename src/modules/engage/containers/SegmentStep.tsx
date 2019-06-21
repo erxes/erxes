@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import {
   AddMutationResponse,
-  AddMutationVariables,
   HeadSegmentsQueryResponse,
   SegmentsQueryResponse
 } from 'modules/segments/types';
@@ -43,7 +44,6 @@ const SegmentStepContainer = (props: FinalProps) => {
   const {
     segmentsQuery,
     headSegmentsQuery,
-    segmentsAdd,
     customerCountsQuery,
     combinedFieldsQuery
   } = props;
@@ -71,23 +71,34 @@ const SegmentStepContainer = (props: FinalProps) => {
     });
   };
 
-  const segmentAdd = ({ doc }) => {
-    segmentsAdd({ variables: { ...doc } })
-      .then(() => {
-        segmentsQuery.refetch();
-        customerCountsQuery.refetch();
-        Alert.success('You successfully added a segment');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+  const renderButton = ({
+    callback,
+    values,
+    isSubmitted,
+    size
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.segmentsAdd}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        icon="checked-1"
+        btnSize={size}
+        successMessage={`You successfully added a segment`}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
   };
 
   const updatedProps = {
     ...props,
     headSegments: headSegmentsQuery.segmentsGetHeads || [],
     segmentFields,
-    segmentAdd,
+    renderButton,
     segments: segmentsQuery.segments || [],
     targetCount: countValues,
     customersCount,
@@ -95,6 +106,16 @@ const SegmentStepContainer = (props: FinalProps) => {
   };
 
   return <SegmentStep {...updatedProps} />;
+};
+
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.customerCounts),
+      variables: { only: 'bySegment' }
+    },
+    { query: gql(queries.segments) }
+  ];
 };
 
 export default withProps<Props>(
@@ -116,10 +137,6 @@ export default withProps<Props>(
     graphql<Props, HeadSegmentsQueryResponse>(gql(queries.headSegments), {
       name: 'headSegmentsQuery'
     }),
-    graphql<Props, AddMutationResponse, AddMutationVariables>(
-      gql(mutations.segmentsAdd),
-      { name: 'segmentsAdd' }
-    ),
     graphql<Props, FieldsCombinedByTypeQueryResponse>(
       gql(queries.combinedFields),
       { name: 'combinedFieldsQuery' }

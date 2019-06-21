@@ -9,8 +9,6 @@ import {
   ItemsQueryResponse,
   SaveItemMutation
 } from 'modules/boards/types';
-import { ButtonMutate } from 'modules/common/components';
-import { IButtonMutateProps } from 'modules/common/types';
 import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -105,25 +103,6 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       });
   };
 
-  renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
-    const { stage, onAddItem, options } = this.props;
-
-    return (
-      <ButtonMutate
-        mutation={options.mutations.addMutation}
-        variables={values}
-        callback={callback}
-        // refetchQueries={onAddItem(stage._id, data[options.mutationsName.addMutation])}
-        isSubmitted={isSubmitted}
-        type="submit"
-        icon="checked-1"
-        successMessage={options.texts.addSuccessText}
-      >
-        {__('Save')}
-      </ButtonMutate>
-    );
-  };
-
   render() {
     const { index, length, stage, items, itemsQuery, options } = this.props;
     const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
@@ -137,7 +116,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         items={items}
         loadingItems={loadingItems}
         loadMore={this.loadMore}
-        renderButton={this.renderButton}
+        addItem={this.addItem}
       />
     );
   }

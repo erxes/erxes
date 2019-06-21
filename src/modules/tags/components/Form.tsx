@@ -14,6 +14,7 @@ import * as React from 'react';
 type Props = {
   tag?: ITag;
   type: string;
+  afterSave: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal?: () => void;
 };
@@ -36,7 +37,7 @@ class FormComponent extends React.Component<Props> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { tag, closeModal, renderButton } = this.props;
+    const { tag, closeModal, afterSave, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
     const object = tag || ({} as ITag);
 
@@ -70,7 +71,7 @@ class FormComponent extends React.Component<Props> {
             name: 'tag',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal,
+            callback: closeModal || afterSave,
             object: tag
           })}
         </ModalFooter>

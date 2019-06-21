@@ -1,77 +1,91 @@
-import { IStage } from 'modules/boards/types';
-import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl
-} from 'modules/common/components';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { Button, ControlLabel, FormControl } from 'modules/common/components';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
-import { FormFooter, HeaderContent, HeaderRow } from '../../styles/item';
+import {
+  AddContainer,
+  FormFooter,
+  HeaderContent,
+  HeaderRow
+} from '../../styles/item';
 import { invalidateCache } from '../../utils';
 
 type Props = {
-  stage: IStage;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  add: (name: string, callback: () => void) => void;
   closeModal: () => void;
 };
 
-class AddForm extends React.Component<Props> {
-  generateDoc = (values: { stageId?: string; name: string }) => {
-    const { stage } = this.props;
-    const finalValues = values;
+type State = {
+  name: string;
+  disabled: boolean;
+};
 
-    if (stage) {
-      finalValues.stageId = stage._id;
-    }
+class AddForm extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
 
-    return {
-      stageId: finalValues.stageId,
-      ...values
+    this.state = {
+      disabled: false,
+      name: ''
     };
+  }
+
+  onChangeName = (e: React.FormEvent<HTMLElement>) => {
+    this.setState({ name: (e.currentTarget as HTMLInputElement).value });
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
-    const { values, isSubmitted } = formProps;
+  onSubmit = e => {
+    e.preventDefault();
 
-    const callback = () => {
+    const { name } = this.state;
+    const { add, closeModal } = this.props;
+
+    if (!name) {
+      return Alert.error('Enter name');
+    }
+
+    // before save, disable save button
+    this.setState({ disabled: true });
+
+    add(name, () => {
+      // after save, enable save button
+      this.setState({ disabled: false });
+
       closeModal();
-      invalidateCache();
-    };
 
+      invalidateCache();
+    });
+  };
+
+  render() {
     return (
-      <>
+      <AddContainer onSubmit={this.onSubmit}>
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="name"
-              autoFocus={true}
-              required={true}
-            />
+            <FormControl autoFocus={true} onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
 
         <FormFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+          <Button
+            btnStyle="simple"
+            onClick={this.props.closeModal}
+            icon="cancel-1"
+          >
             Close
           </Button>
 
-          {renderButton({
-            values: this.generateDoc(values),
-            isSubmitted,
-            callback
-          })}
+          <Button
+            disabled={this.state.disabled}
+            btnStyle="success"
+            icon="checked-1"
+            type="submit"
+          >
+            Save
+          </Button>
         </FormFooter>
-      </>
+      </AddContainer>
     );
-  };
-
-  render() {
-    return <Form renderContent={this.renderContent} />;
   }
 }
 

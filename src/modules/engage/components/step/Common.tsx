@@ -14,7 +14,7 @@ type Props<Target, OnSubmit> = {
   messageType: string;
   targets: Target[];
   onSubmit?: OnSubmit;
-  renderButton?: (props: IButtonMutateProps) => JSX.Element;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   targetCount: TargetCount;
   Form: any;
   formProps?: {

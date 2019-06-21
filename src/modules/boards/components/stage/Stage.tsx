@@ -11,7 +11,6 @@ import {
   StageRoot
 } from 'modules/boards/styles/stage';
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
-import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
@@ -26,7 +25,7 @@ type Props = {
   stage: IStage;
   length: number;
   items: IItem[];
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  addItem: (name: string, callback: () => void) => void;
   loadMore: () => void;
   options: IOptions;
 };
@@ -75,7 +74,7 @@ export default class Stage extends React.Component<Props, {}> {
   };
 
   renderAddItemTrigger() {
-    const { renderButton, options, stage } = this.props;
+    const { addItem, options } = this.props;
     const addText = options.texts.addText;
 
     const trigger = (
@@ -87,9 +86,7 @@ export default class Stage extends React.Component<Props, {}> {
       </StageFooter>
     );
 
-    const content = props => (
-      <AddForm {...props} renderButton={renderButton} stage={stage} />
-    );
+    const content = props => <AddForm {...props} add={addItem} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }

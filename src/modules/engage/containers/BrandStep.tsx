@@ -55,6 +55,7 @@ const BrandStepContianer = (props: FinalProps) => {
         mutation={mutations.brandAdd}
         variables={values}
         callback={callback}
+        refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -73,6 +74,16 @@ const BrandStepContianer = (props: FinalProps) => {
   };
 
   return <BrandStep {...updatedProps} />;
+};
+
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.customerCounts),
+      variables: { only: 'byBrand' }
+    },
+    { query: gql(queries.brands) }
+  ];
 };
 
 export default withProps<Props>(
