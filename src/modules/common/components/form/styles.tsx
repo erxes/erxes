@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../../styles';
 
@@ -24,6 +24,7 @@ const Label = styled.label`
 const Formgroup = styled.div`
   margin-bottom: 20px;
   position: relative;
+
   > label {
     margin-right: ${dimensions.unitSpacing}px;
   }
@@ -71,9 +72,10 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
   }
 `;
 
-const SelectWrapper = styled.div`
+const SelectWrapper = styledTS<{ hasError?: boolean }>(styled.div)`
   overflow: hidden;
-  border-bottom: 1px solid ${colors.colorShadowGray};
+  border-bottom: 1px solid ${props =>
+    props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
   width: 100%;
   height: ${textInputHeight};
   position: relative;

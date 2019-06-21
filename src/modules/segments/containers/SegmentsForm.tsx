@@ -45,6 +45,12 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
     }
   };
 
+  callBack = () => {
+    const { history, contentType } = this.props;
+
+    history.push(`/segments/${contentType}`);
+  };
+
   renderButton = ({
     name,
     values,
@@ -52,13 +58,13 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
     object,
     size
   }: IButtonMutateProps) => {
-    const { history, contentType } = this.props;
+    const { contentType } = this.props;
 
     return (
       <ButtonMutate
         mutation={object ? mutations.segmentsEdit : mutations.segmentsAdd}
         variables={values}
-        // callback={history.push(`/segments/${contentType}`)}
+        callback={this.callBack}
         refetchQueries={getRefetchQueries(contentType)}
         isSubmitted={isSubmitted}
         type="submit"

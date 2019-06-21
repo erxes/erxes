@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { __, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import { mutations } from 'modules/settings/brands/graphql';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';

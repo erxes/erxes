@@ -109,7 +109,7 @@ class FormControl extends React.Component<Props> {
       if (props.options) {
         return (
           <FlexWrapper>
-            <SelectWrapper>
+            <SelectWrapper hasError={errorMessage}>
               <Select {...attributes}>
                 {props.options.map((option, index) => {
                   return (
@@ -127,7 +127,7 @@ class FormControl extends React.Component<Props> {
 
       return (
         <FlexWrapper>
-          <SelectWrapper>
+          <SelectWrapper hasError={errorMessage}>
             <Select {...attributes}>{childNode}</Select>
           </SelectWrapper>
           {errorMessage}

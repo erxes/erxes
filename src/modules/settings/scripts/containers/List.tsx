@@ -11,7 +11,7 @@ type Props = {
 
 export default commonListComposer<Props>({
   text: 'script',
-  name: 'scripts',
+  label: 'scripts',
   stringEditMutation: mutations.scriptsEdit,
   stringAddMutation: mutations.scriptsAdd,
 

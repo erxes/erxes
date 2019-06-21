@@ -1,5 +1,4 @@
 import {
-  Button,
   ControlLabel,
   Form as CommonForm,
   FormControl,
@@ -13,8 +12,7 @@ import {
   ISegmentCondition,
   ISegmentConditionDoc,
   ISegmentDoc,
-  ISegmentField,
-  ISegmentWithConditionDoc
+  ISegmentField
 } from 'modules/segments/types';
 import * as React from 'react';
 import { AddConditionButton, Conditions } from '..';
@@ -148,11 +146,11 @@ class Form extends React.Component<Props, State> {
 
     for (const condition of conditions) {
       if (!condition.operator) {
-        // return Alert.error('Please enter a operator');
+        return Alert.error('Please enter a operator');
       }
 
       if (!['is', 'ins'].includes(condition.operator) && !condition.value) {
-        // return Alert.error('Please enter a value for operator');
+        return Alert.error('Please enter a value for operator');
       }
     }
 

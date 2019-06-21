@@ -7,10 +7,6 @@ import { compose, graphql } from 'react-apollo';
 import { Pipelines } from '../components';
 import { mutations, queries } from '../graphql';
 import {
-  AddPipelineMutationResponse,
-  AddPipelineMutationVariables,
-  EditPipelineMutationResponse,
-  EditPipelineMutationVariables,
   PipelineQueryResponse,
   RemovePipelineMutationResponse,
   RemovePipelineMutationVariables,
@@ -26,8 +22,6 @@ type Props = {
 type FinalProps = {
   pipelinesQuery: PipelineQueryResponse;
 } & Props &
-  AddPipelineMutationResponse &
-  EditPipelineMutationResponse &
   RemovePipelineMutationResponse &
   UpdateOrderPipelineMutationResponse;
 
@@ -36,8 +30,6 @@ class PipelinesContainer extends React.Component<FinalProps> {
     const {
       boardId,
       pipelinesQuery,
-      addPipelineMutation,
-      editPipelineMutation,
       removePipelineMutation,
       pipelinesUpdateOrderMutation
     } = this.props;
@@ -129,18 +121,6 @@ export default withProps<Props>(
           variables: { boardId },
           fetchPolicy: 'network-only'
         })
-      }
-    ),
-    graphql<Props, AddPipelineMutationResponse, AddPipelineMutationVariables>(
-      gql(mutations.pipelineAdd),
-      {
-        name: 'addPipelineMutation'
-      }
-    ),
-    graphql<Props, EditPipelineMutationResponse, EditPipelineMutationVariables>(
-      gql(mutations.pipelineEdit),
-      {
-        name: 'editPipelineMutation'
       }
     ),
     graphql<

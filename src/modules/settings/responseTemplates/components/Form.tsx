@@ -60,7 +60,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = this.props.object || ({} as IResponseTemplate);
 
     return (
-      <React.Fragment>
+      <>
         <FormGroup>
           <SelectBrand
             formProps={formProps}
@@ -88,7 +88,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             height={300}
           />
         </FormGroup>
-      </React.Fragment>
+      </>
     );
   };
 

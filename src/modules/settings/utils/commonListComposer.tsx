@@ -12,13 +12,11 @@ interface IRemoveMutationVariables {
 function commonListComposer<ComponentProps>(options) {
   const {
     text,
-    name,
+    label,
     stringEditMutation,
     stringAddMutation,
     gqlListQuery,
     gqlTotalCountQuery,
-    gqlAddMutation,
-    gqlEditMutation,
     gqlRemoveMutation,
     ListComponent
   } = options;
@@ -37,18 +35,11 @@ function commonListComposer<ComponentProps>(options) {
   };
 
   const ListContainer = (props: Props) => {
-    const {
-      listQuery,
-      totalCountQuery,
-      addMutation,
-      editMutation,
-      removeMutation,
-      history
-    } = props;
+    const { listQuery, totalCountQuery, removeMutation, history } = props;
 
-    const totalCount = totalCountQuery[`${name}TotalCount`] || 0;
+    const totalCount = totalCountQuery[`${label}TotalCount`] || 0;
 
-    const objects = listQuery[name] || [];
+    const objects = listQuery[label] || [];
 
     // remove action
     const remove = id => {
@@ -69,49 +60,27 @@ function commonListComposer<ComponentProps>(options) {
       });
     };
 
-    // create or update action
-    const save = ({ doc }, callback, object) => {
-      let mutation = addMutation;
-
-      // if edit mode
-      if (object) {
-        mutation = editMutation;
-        doc._id = object._id;
-      }
-
-      mutation({
-        variables: doc
-      })
-        .then(() => {
-          // update queries
-          listQuery.refetch();
-          totalCountQuery.refetch();
-
-          Alert.success(
-            `You successfully ${object ? 'updated' : 'added'} a ${text}.`
-          );
-
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
-
     const renderButton = ({
-      // tslint:disable-next-line:no-shadowed-variable
       name,
       values,
       isSubmitted,
       callback,
       object
     }: IButtonMutateProps) => {
+      const afterMutate = () => {
+        listQuery.refetch();
+        totalCountQuery.refetch();
+
+        if (callback) {
+          callback();
+        }
+      };
+
       return (
         <ButtonMutate
           mutation={object ? stringEditMutation : stringAddMutation}
           variables={values}
-          callback={callback}
-          refetchQueries={listQuery.refetch}
+          callback={afterMutate}
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
@@ -126,7 +95,6 @@ function commonListComposer<ComponentProps>(options) {
       refetch: listQuery.refetch,
       objects,
       totalCount,
-      save,
       remove,
       history,
       renderButton,
@@ -136,24 +104,15 @@ function commonListComposer<ComponentProps>(options) {
     return <ListComponent {...updatedProps} />;
   };
 
-  const composeAttr = [
-    gqlListQuery,
-    gqlTotalCountQuery,
-    // mutations
-    gqlAddMutation,
-    gqlEditMutation
-  ];
+  const composeAttr = [gqlListQuery, gqlTotalCountQuery];
 
   if (gqlRemoveMutation) {
     composeAttr.push(gqlRemoveMutation);
   }
 
-  if (gqlAddMutation) {
-    return withProps<ComponentProps>(compose(...composeAttr)(ListContainer));
-  }
-
   return withProps<ComponentProps>(
     compose(
+      ...composeAttr,
       gqlListQuery,
       gqlTotalCountQuery
     )(ListContainer)
