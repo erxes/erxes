@@ -1,8 +1,9 @@
-import client from 'apolloClient';
+import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
 import { __, Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
+import queryString from 'query-string';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -100,6 +101,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       companiesMainQuery.companiesMain || {};
 
     const exportCompanies = bulk => {
+      const { REACT_APP_API_URL } = getEnv();
       const { queryParams } = this.props;
 
       // queryParams page parameter needs convert to int.
@@ -108,24 +110,14 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       }
 
       if (bulk.length > 0) {
-        queryParams.ids = bulk.map(customer => customer._id);
+        queryParams.ids = bulk.map(company => company._id);
       }
 
-      this.setState({ loading: true });
-
-      client
-        .query({
-          query: gql(queries.companiesExport),
-          variables: { ...queryParams }
-        })
-        .then(({ data }: any) => {
-          this.setState({ loading: false });
-          window.open(data.companiesExport, '_blank');
-        })
-        .catch(error => {
-          this.setState({ loading: false });
-          Alert.error(error.message);
-        });
+      const stringified = queryString.stringify({
+        ...queryParams,
+        type: 'companies'
+      });
+      window.open(`${REACT_APP_API_URL}/coc-export?${stringified}`, '_blank');
     };
 
     const updatedProps = {
