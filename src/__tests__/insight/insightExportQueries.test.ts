@@ -1,15 +1,17 @@
-import { generateActivityReport, generateTagReport } from '../../data/resolvers/queries/insights/exportData';
-import insightExportQueries from '../../data/resolvers/queries/insights/insightExport';
-import { graphqlRequest } from '../../db/connection';
-import { afterEachTest, beforeEachTest, endDate, paramsDef, paramsValue, startDate } from './utils';
+import { generateActivityReport, generateTagReport } from '../../data/modules/insights/exportData';
+import {
+  insightActivityReportExport,
+  insightFirstResponseReportExport,
+  insightTagReportExport,
+  insightVolumeReportExport,
+} from '../../data/modules/insights/insightExports';
+import { afterEachTest, beforeEachTest, endDate, startDate } from './utils';
 
 import '../setup.ts';
 
 describe('insightExportQueries', () => {
   let user;
   let args;
-
-  const DOMAIN = process.env.DOMAIN || '';
 
   beforeEach(async () => {
     const response = await beforeEachTest();
@@ -23,30 +25,24 @@ describe('insightExportQueries', () => {
     await afterEachTest();
   });
 
-  test(`test if Error('Login required') exception is working as intended`, async () => {
+  test(`test if Error('Permission denied') exception is working as intended`, async () => {
     expect.assertions(4);
 
     const expectError = async func => {
       try {
-        await func(null, {}, {});
+        await func({}, {});
       } catch (e) {
-        expect(e.message).toBe('Login required');
+        expect(e.message).toBe('Permission denied');
       }
     };
 
-    expectError(insightExportQueries.insightVolumeReportExport);
-    expectError(insightExportQueries.insightActivityReportExport);
-    expectError(insightExportQueries.insightFirstResponseReportExport);
-    expectError(insightExportQueries.insightTagReportExport);
+    expectError(insightVolumeReportExport);
+    expectError(insightActivityReportExport);
+    expectError(insightFirstResponseReportExport);
+    expectError(insightTagReportExport);
   });
 
   test('insightActivityReportExport', async () => {
-    const qry = `
-      query insightActivityReportExport(${paramsDef}) {
-        insightActivityReportExport(${paramsValue})
-      }
-    `;
-
     const { data } = await generateActivityReport(args, user);
 
     expect(data[0].userId).toBe(user._id);
@@ -54,24 +50,18 @@ describe('insightExportQueries', () => {
     // response messages
     expect(data[0].count).toBe(4);
 
-    const response = await graphqlRequest(qry, 'insightActivityReportExport', args);
-    expect(response).toBe(
-      `${DOMAIN}/static/xlsTemplateOutputs/Operator Activity report - ${startDate} - ${endDate}.xlsx`,
-    );
+    const { name } = await insightActivityReportExport(args, user);
+
+    expect(name).toBe(`Operator Activity report - ${startDate} - ${endDate}`);
   });
 
   test('insightTagReportExport', async () => {
-    const qry = `
-      query insightTagReportExport(${paramsDef}) {
-        insightTagReportExport(${paramsValue})
-      }
-    `;
-
     const { data } = await generateTagReport(args, user);
 
     expect(data[0].count).toBe(2);
 
-    const response = await graphqlRequest(qry, 'insightTagReportExport', args);
-    expect(response).toBe(`${DOMAIN}/static/xlsTemplateOutputs/Tag report - ${startDate} - ${endDate}.xlsx`);
+    const { name } = await insightTagReportExport(args, user);
+
+    expect(name).toBe(`Tag report - ${startDate} - ${endDate}`);
   });
 });

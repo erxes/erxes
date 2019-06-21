@@ -1,4 +1,4 @@
-import insightQueries from '../../data/resolvers/queries/insights/insights';
+import insightQueries from '../../data/resolvers/queries/insights';
 import { graphqlRequest } from '../../db/connection';
 
 import * as moment from 'moment';

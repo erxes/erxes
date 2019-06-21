@@ -8,6 +8,8 @@ import * as formidable from 'formidable';
 import * as fs from 'fs';
 import { createServer } from 'http';
 import * as path from 'path';
+import { companiesExport, customersExport } from './data/modules/coc/exporter';
+import insightExports from './data/modules/insights/insightExports';
 import resolvers from './data/resolvers';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
 import typeDefs from './data/schema';
@@ -199,6 +201,36 @@ app.use('/static', express.static(path.join(__dirname, 'private')));
 // for health check
 app.get('/status', async (_req, res) => {
   res.end('ok');
+});
+
+// export coc
+app.get('/coc-export', async (req: any, res) => {
+  const { query, user } = req;
+  const { type } = query;
+
+  try {
+    const { name, response } =
+      type === 'customers' ? await customersExport(query, user) : await companiesExport(query, user);
+
+    res.attachment(`${name}.xlsx`);
+
+    return res.send(response);
+  } catch (e) {
+    return res.end(e.message);
+  }
+});
+
+// export insights
+app.get('/insights-export', async (req: any, res) => {
+  try {
+    const { name, response } = await insightExports(req.query, req.user);
+
+    res.attachment(`${name}.xlsx`);
+
+    return res.send(response);
+  } catch (e) {
+    return res.end(e.message);
+  }
 });
 
 // read file

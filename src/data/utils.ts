@@ -401,15 +401,18 @@ export const createXlsFile = async () => {
 /**
  * Generates downloadable xls file on the url
  */
-export const generateXlsx = async (workbook: any, name: string): Promise<string> => {
+export const generateXlsx = async (workbook: any, name: string, output = 'file'): Promise<string> => {
   // Url to download xls file
   const url = `xlsTemplateOutputs/${name}.xlsx`;
   const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-  // Saving xls workbook to the directory
-  await workbook.toFileAsync(`${__dirname}/../private/${url}`);
+  if (output === 'file') {
+    // Saving xls workbook to the directory
+    await workbook.toFileAsync(`${__dirname}/../private/${url}`);
+    return `${DOMAIN}/static/${url}`;
+  }
 
-  return `${DOMAIN}/static/${url}`;
+  return workbook.outputAsync();
 };
 
 interface IRequestParams {
@@ -563,6 +566,52 @@ export const sendMobileNotification = async ({
       await transporter.send({ token, notification: { title, body } });
     }
   }
+};
+
+export const paginate = (collection, params: { page?: number; perPage?: number }) => {
+  const { page = 0, perPage = 0 } = params || {};
+
+  const _page = Number(page || '1');
+  const _limit = Number(perPage || '20');
+
+  return collection.limit(_limit).skip((_page - 1) * _limit);
+};
+
+/*
+ * Converts given value to date or if value in valid date
+ * then returns default value
+ */
+export const fixDate = (value, defaultValue = new Date()): Date => {
+  const date = new Date(value);
+
+  if (!isNaN(date.getTime())) {
+    return date;
+  }
+
+  return defaultValue;
+};
+
+export const getDate = (date: Date, day: number): Date => {
+  const currentDate = new Date();
+
+  date.setDate(currentDate.getDate() + day + 1);
+  date.setHours(0, 0, 0, 0);
+
+  return date;
+};
+
+export const getToday = (date: Date): Date => {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));
+};
+
+export const getNextMonth = (date: Date): { start: number; end: number } => {
+  const today = getToday(date);
+
+  const month = (new Date().getMonth() + 1) % 12;
+  const start = today.setMonth(month, 1);
+  const end = today.setMonth(month + 1, 0);
+
+  return { start, end };
 };
 
 export default {

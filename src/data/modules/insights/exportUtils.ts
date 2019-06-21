@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { Brands } from '../../../../db/models';
+import { Brands } from '../../../db/models';
 import { IAddCellArgs, IListArgs } from './types';
 import { fixDates } from './utils';
 

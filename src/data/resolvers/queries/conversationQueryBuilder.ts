@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import { Channels, Integrations } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../constants';
-import { fixDate } from './utils';
+import { fixDate } from '../../utils';
 
 interface IIn {
   $in: string[];

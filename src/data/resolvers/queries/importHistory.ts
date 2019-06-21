@@ -1,6 +1,6 @@
 import { ImportHistory } from '../../../db/models';
 import { checkPermission } from '../../permissions';
-import { paginate } from './utils';
+import { paginate } from '../../utils';
 
 const importHistoryQueries = {
   /**

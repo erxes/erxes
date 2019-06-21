@@ -90,7 +90,6 @@ export const queries = `
   customerCounts(${queryParams}, byFakeSegment: JSON, only: String): JSON
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
-  customersExport(${queryParams}): String
 `;
 
 const fields = `

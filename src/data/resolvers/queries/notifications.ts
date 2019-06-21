@@ -2,7 +2,7 @@ import { NotificationConfigurations, Notifications } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { NOTIFICATION_MODULES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions';
-import { paginate } from './utils';
+import { paginate } from '../../utils';
 
 const notificationQueries = {
   /**

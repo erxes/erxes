@@ -80,7 +80,7 @@ export const registerModule = (modules: any): void => {
 };
 
 export const can = async (action: string, user: IUserDocument): Promise<boolean> => {
-  if (!user) {
+  if (!user || !user._id) {
     return false;
   }
 

@@ -1,6 +1,6 @@
 import { Products } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions';
-import { paginate } from './utils';
+import { paginate } from '../../utils';
 
 const productQueries = {
   /**

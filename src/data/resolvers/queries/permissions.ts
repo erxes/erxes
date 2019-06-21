@@ -2,7 +2,7 @@ import * as _ from 'underscore';
 import { Permissions, UsersGroups } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions';
 import { actionsMap, IActionsMap, IModulesMap, modulesMap } from '../../permissions/utils';
-import { paginate } from './utils';
+import { paginate } from '../../utils';
 
 interface IListArgs {
   page?: number;
