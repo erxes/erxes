@@ -5,7 +5,7 @@ import typeDefs from './data/schema';
 import { getEnv } from './data/utils';
 import { Conversations, Customers } from './db/models';
 import { graphqlPubsub } from './pubsub';
-import { getArray, setArray } from './redisClient';
+import { get, getArray, set, setArray } from './redisClient';
 
 // load environment variables
 dotenv.config();
@@ -52,8 +52,6 @@ const apolloServer = new ApolloServer({
           const connectedClients = await getArray('connectedClients');
           const clients = await getArray('clients');
 
-          const messengerData = parsedMessage.value;
-          const integrationId = messengerData.integrationId;
           webSocket.messengerData = parsedMessage.value;
 
           const customerId = webSocket.messengerData.customerId;
@@ -63,7 +61,7 @@ const apolloServer = new ApolloServer({
             await setArray('connectedClients', connectedClients);
           }
 
-          // Waited for 10 seconds to reconnect in disconnect hook and disconnect hook
+          // Waited for 1 minute to reconnect in disconnect hook and disconnect hook
           // removed this customer from connected clients list. So it means this customer
           // is back online
           if (!clients.includes(customerId)) {
@@ -72,15 +70,6 @@ const apolloServer = new ApolloServer({
 
             // mark as online
             await Customers.markCustomerAsActive(customerId);
-
-            // customer has joined + time
-            const conversationMessages = await Conversations.changeCustomerStatus('joined', customerId, integrationId);
-
-            for (const _message of conversationMessages) {
-              graphqlPubsub.publish('conversationMessageInserted', {
-                conversationMessageInserted: _message,
-              });
-            }
 
             // notify as connected
             graphqlPubsub.publish('customerConnectionChanged', {
@@ -107,7 +96,7 @@ const apolloServer = new ApolloServer({
         // Temporarily marking as disconnected
         // If client refreshes his browser, It will trigger disconnect, connect hooks.
         // So to determine this issue. We are marking as disconnected here and waiting
-        // for 10 seconds to reconnect.
+        // for 1 minute to reconnect.
         connectedClients.splice(connectedClients.indexOf(customerId), 1);
         await setArray('connectedClients', connectedClients);
 
@@ -115,6 +104,7 @@ const apolloServer = new ApolloServer({
           // get status from redis
           connectedClients = await getArray('connectedClients');
           const clients = await getArray('clients');
+          const customerLastStatus = await get(`customer_last_status_${customerId}`);
 
           if (connectedClients.includes(customerId)) {
             return;
@@ -126,13 +116,17 @@ const apolloServer = new ApolloServer({
           // mark as offline
           await Customers.markCustomerAsNotActive(customerId);
 
-          // customer has left + time
-          const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
+          if (customerLastStatus !== 'left') {
+            set(`customer_last_status_${customerId}`, 'left');
 
-          for (const message of conversationMessages) {
-            graphqlPubsub.publish('conversationMessageInserted', {
-              conversationMessageInserted: message,
-            });
+            // customer has left + time
+            const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
+
+            for (const message of conversationMessages) {
+              graphqlPubsub.publish('conversationMessageInserted', {
+                conversationMessageInserted: message,
+              });
+            }
           }
 
           // notify as disconnected
@@ -142,7 +136,7 @@ const apolloServer = new ApolloServer({
               status: 'disconnected',
             },
           });
-        }, 5000);
+        }, 60000);
       }
     },
   },
