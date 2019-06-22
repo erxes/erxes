@@ -45,7 +45,7 @@ export const initRedis = () => {
 /*
  * Get item
  */
-export const get = (key: string): Promise<any> => {
+export const get = (key: string, defaultValue?: any): Promise<any> => {
   return new Promise((resolve, reject) => {
     if (NODE_ENV === 'test') {
       return resolve('');
@@ -56,7 +56,7 @@ export const get = (key: string): Promise<any> => {
         return reject(error);
       }
 
-      return resolve(reply);
+      return resolve(reply && reply !== 'nil' ? reply : defaultValue);
     });
   });
 };
@@ -70,4 +70,20 @@ export const set = (key: string, value: any) => {
   }
 
   client.set(key, value);
+};
+
+/*
+ * Get array
+ */
+export const getArray = async (key: string): Promise<any> => {
+  const value = await get(key, '[]');
+
+  return JSON.parse(value);
+};
+
+/*
+ * Set array
+ */
+export const setArray = (key: string, value: any[]) => {
+  client.set(key, JSON.stringify(value));
 };
