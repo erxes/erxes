@@ -28,7 +28,6 @@ type Props = {
 
 type State = {
   showModal: boolean;
-  currentPipeline?: IPipeline;
   pipelines: IPipeline[];
 };
 
@@ -38,7 +37,6 @@ class Pipelines extends React.Component<Props, State> {
 
     this.state = {
       showModal: false,
-      currentPipeline: undefined,
       pipelines: props.pipelines
     };
   }
@@ -49,21 +47,25 @@ class Pipelines extends React.Component<Props, State> {
     }
   }
 
-  closeModal = () => {
-    this.setState({ showModal: false });
+  renderAddForm = () => {
+    const { boardId, save, type } = this.props;
+
+    const closeModal = () => this.setState({ showModal: false });
+
+    return (
+      <PipelineForm
+        type={type}
+        boardId={boardId}
+        save={save}
+        closeModal={closeModal}
+        show={this.state.showModal}
+      />
+    );
   };
 
   addPipeline = () => {
     this.setState({
-      showModal: true,
-      currentPipeline: undefined
-    });
-  };
-
-  editPipeline = pipeline => {
-    this.setState({
-      showModal: true,
-      currentPipeline: pipeline
+      showModal: true
     });
   };
 
@@ -74,15 +76,16 @@ class Pipelines extends React.Component<Props, State> {
   };
 
   renderRows() {
-    const child = pipeline => {
-      const edit = () => this.editPipeline(pipeline);
+    const { save, type } = this.props;
 
+    const child = pipeline => {
       return (
         <PipelineRow
           key={pipeline._id}
           pipeline={pipeline}
-          edit={edit}
+          save={save}
           remove={this.props.remove}
+          type={type}
         />
       );
     };
@@ -137,9 +140,6 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   render() {
-    const { boardId, save, type } = this.props;
-    const { currentPipeline, showModal } = this.state;
-
     return (
       <React.Fragment>
         <Wrapper.ActionBar
@@ -153,15 +153,7 @@ class Pipelines extends React.Component<Props, State> {
           right={this.renderButton()}
         />
         {this.renderContent()}
-
-        <PipelineForm
-          type={type}
-          boardId={boardId}
-          save={save}
-          pipeline={currentPipeline}
-          show={showModal}
-          closeModal={this.closeModal}
-        />
+        {this.renderAddForm()}
       </React.Fragment>
     );
   }

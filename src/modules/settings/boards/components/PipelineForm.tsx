@@ -12,14 +12,14 @@ import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
 import { IPipeline, IStage } from '../types';
 import { Stages } from './';
+
 type Props = {
   type: string;
-  show?: boolean;
+  show: boolean;
   boardId: string;
   pipeline?: IPipeline;
   stages?: IStage[];
   members: IUser[];
-  selectedMembers: IUser[];
   save: (
     params: { doc: { name: string; boardId?: string; stages: IStage[] } },
     callback: () => void,
@@ -39,7 +39,17 @@ class PipelineForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { pipeline, stages, selectedMembers } = this.props;
+    const { pipeline, stages, members } = this.props;
+
+    const memberIds = pipeline ? pipeline.memberIds || [] : [];
+
+    let selectedMembers: IUser[] = [];
+
+    if (pipeline) {
+      selectedMembers = members.filter(member =>
+        memberIds.includes(member._id)
+      );
+    }
 
     this.state = {
       name: pipeline ? pipeline.name : '',
@@ -53,7 +63,7 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ stages });
   };
 
-  onChangevisibility = (e: React.FormEvent<HTMLElement>) => {
+  onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
       visibility: (e.currentTarget as HTMLInputElement).value
     });
@@ -63,8 +73,8 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ selectedMembers: items });
   };
 
-  onChangeName = value => {
-    this.setState({ name: value });
+  onChangeName = (e: React.FormEvent<HTMLElement>) => {
+    this.setState({ name: (e.currentTarget as HTMLInputElement).value });
   };
 
   generateMembersParams = members => {
@@ -80,42 +90,26 @@ class PipelineForm extends React.Component<Props, State> {
 
   generateDoc = () => {
     const { pipeline, type } = this.props;
+    const { name, stages, visibility, selectedMembers } = this.state;
 
     return {
       doc: {
-        name: (document.getElementById('pipeline-name') as HTMLInputElement)
-          .value,
+        name,
         type,
         boardId: pipeline ? pipeline.boardId : this.props.boardId,
-        stages: this.state.stages.filter(el => el.name),
-        visibility: this.state.visibility,
-        memberIds: this.collectValues(this.state.selectedMembers)
+        stages: stages.filter(el => el.name),
+        visibility,
+        memberIds: this.collectValues(selectedMembers)
       }
     };
-  };
-
-  closeModal = () => {
-    this.props.closeModal();
   };
 
   save = e => {
     e.preventDefault();
 
-    const { save, closeModal, pipeline } = this.props;
+    const { save, pipeline, closeModal } = this.props;
 
-    save(
-      this.generateDoc(),
-      () => {
-        this.setState({
-          selectedMembers: [],
-          visibility: 'public',
-          stages: [],
-          name: ''
-        });
-        closeModal();
-      },
-      pipeline
-    );
+    save(this.generateDoc(), () => closeModal(), pipeline);
   };
 
   renderSelectMembers() {
@@ -152,7 +146,6 @@ class PipelineForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl
-            id="pipeline-name"
             defaultValue={name}
             type="text"
             onChange={this.onChangeName}
@@ -161,13 +154,12 @@ class PipelineForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <ControlLabel required={true}>visibility</ControlLabel>
+        <ControlLabel required={true}>Visibility</ControlLabel>
         <FormGroup>
           <FormControl
-            id="visibility"
             componentClass="select"
             value={visibility}
-            onChange={this.onChangevisibility}
+            onChange={this.onChangeVisibility}
           >
             <option value="public">{__('Public')}</option>
             <option value="private">{__('Private')}</option>
@@ -185,14 +177,14 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { show, pipeline } = this.props;
+    const { pipeline, show, closeModal } = this.props;
 
     if (!show) {
       return null;
     }
 
     return (
-      <Modal show={show} onHide={this.closeModal} dialogClassName="transform">
+      <Modal show={show} onHide={closeModal} dialogClassName="transform">
         <form onSubmit={this.save}>
           <Modal.Header closeButton={true}>
             <Modal.Title>
@@ -207,7 +199,7 @@ class PipelineForm extends React.Component<Props, State> {
                 btnStyle="simple"
                 type="button"
                 icon="cancel-1"
-                onClick={this.closeModal}
+                onClick={closeModal}
               >
                 Cancel
               </Button>

@@ -1,7 +1,7 @@
 export interface IPipeline {
   _id: string;
   name: string;
-  boardId?: string;
+  boardId: string;
   order?: number;
   visibility?: string;
   memberIds?: string[];

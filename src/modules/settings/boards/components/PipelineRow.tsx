@@ -1,19 +1,39 @@
 import { ActionButtons, Button, Tip } from 'modules/common/components';
 import * as React from 'react';
+import { PipelineForm } from '../containers';
 import { PipelineRowContainer } from '../styles';
-import { IPipeline } from '../types';
+import { IPipeline, IStage } from '../types';
 
 type Props = {
   pipeline: IPipeline;
-  edit: () => void;
+  save: (
+    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
+    callback: () => void,
+    pipeline?: IPipeline
+  ) => void;
   remove: (pipelineId: string) => void;
+  type: string;
 };
 
-class PipelineRow extends React.Component<Props> {
+type State = {
+  showModal: boolean;
+};
+
+class PipelineRow extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      showModal: false
+    };
+  }
+
   renderExtraLinks() {
-    const { edit, remove, pipeline } = this.props;
+    const { remove, pipeline } = this.props;
 
     const onClick = () => remove(pipeline._id);
+
+    const edit = () => this.setState({ showModal: true });
 
     return (
       <ActionButtons>
@@ -27,6 +47,23 @@ class PipelineRow extends React.Component<Props> {
     );
   }
 
+  renderEditForm() {
+    const { save, type, pipeline } = this.props;
+
+    const closeModal = () => this.setState({ showModal: false });
+
+    return (
+      <PipelineForm
+        type={type}
+        boardId={pipeline.boardId}
+        save={save}
+        pipeline={pipeline}
+        closeModal={closeModal}
+        show={this.state.showModal}
+      />
+    );
+  }
+
   render() {
     const { pipeline } = this.props;
 
@@ -34,6 +71,7 @@ class PipelineRow extends React.Component<Props> {
       <PipelineRowContainer>
         <span>{pipeline.name}</span>
         {this.renderExtraLinks()}
+        {this.renderEditForm()}
       </PipelineRowContainer>
     );
   }

@@ -1,3 +1,4 @@
+import ConversationReport from './ConversationReport';
 import DealFilter from './DealFilter';
 import ExportReport from './ExportReport';
 import FirstAndCloseResponseReport from './FirstAndCloseResponseReport';
@@ -14,5 +15,6 @@ export {
   FirstAndCloseResponseReport,
   Reports,
   SummaryReport,
-  ExportReport
+  ExportReport,
+  ConversationReport
 };
