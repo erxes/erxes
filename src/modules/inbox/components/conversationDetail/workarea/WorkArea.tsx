@@ -10,7 +10,8 @@ import {
   AssignText,
   AssignTrigger,
   ConversationWrapper,
-  PopoverButton
+  PopoverButton,
+  Typing
 } from 'modules/inbox/styles';
 import { Wrapper } from 'modules/layout/components';
 import { ContenFooter, ContentBox } from 'modules/layout/styles';
@@ -31,6 +32,7 @@ type Props = {
   currentConversation: IConversation;
   conversationMessages: IMessage[];
   loading: boolean;
+  typingInfo?: string;
   loadMoreMessages: () => void;
   addMessage: (
     {
@@ -122,7 +124,8 @@ export default class WorkArea extends React.Component<Props, State> {
       currentConversation,
       conversationMessages,
       addMessage,
-      loading
+      loading,
+      typingInfo
     } = this.props;
 
     const tags = currentConversation.tags || [];
@@ -194,12 +197,18 @@ export default class WorkArea extends React.Component<Props, State> {
       </ConversationWrapper>
     );
 
+    const typingIndicator = typingInfo ? (
+      <Typing>User is typing {typingInfo} ...</Typing>
+    ) : null;
+
     return (
       <React.Fragment>
         {actionBar}
         <ContentBox>{content}</ContentBox>
         {currentConversation._id && (
           <ContenFooter>
+            {typingIndicator}
+
             <RespondBox
               showInternal={false}
               conversation={currentConversation}

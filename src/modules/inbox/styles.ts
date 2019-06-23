@@ -321,8 +321,13 @@ const Mask = styled.div`
     cursor: pointer;
   }
 `;
+
 const NoHeight = styled.div`
   height: auto;
+`;
+
+const Typing = styled.div`
+  display: none;
 `;
 
 export {
@@ -353,5 +358,6 @@ export {
   AssignTrigger,
   Mask,
   MaskWrapper,
-  NoHeight
+  NoHeight,
+  Typing
 };
