@@ -7,6 +7,7 @@ type Props = {
   isAttachingFile: boolean;
   isParentFocused: boolean;
   sendMessage: (message: string) => void;
+  sendTypingInfo: (conversationId: string, text: string) => void;
   sendFile: (file: File) => void;
   readMessages: (conversationId: string) => void;
   onTextInputBlur: () => void;
@@ -16,6 +17,8 @@ type Props = {
 type State = {
   message: string;
 };
+
+let inputTimeoutInstance: any;
 
 class MessageSender extends React.Component<Props, State> {
   private textarea: any;
@@ -49,6 +52,7 @@ class MessageSender extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.isParentFocused) {
       this.readMessage();
+
       if (this.textarea) {
         this.textarea.focus();
       }
@@ -88,8 +92,28 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   handleMessageChange(e: React.FormEvent<HTMLTextAreaElement>) {
-    this.setState({ message: e.currentTarget.value });
+    const { sendTypingInfo, conversationId } = this.props;
+    const message = e.currentTarget.value;
+
+    this.setState({ message });
+
+    if (conversationId) {
+      if (inputTimeoutInstance) {
+        clearTimeout(inputTimeoutInstance);
+      }
+
+      inputTimeoutInstance = setTimeout(() => {
+        sendTypingInfo(conversationId, message);
+      }, 2000);
+    }
+
     this.setHeight();
+  }
+
+  componentWillUnmount() {
+    if (inputTimeoutInstance) {
+      clearTimeout(inputTimeoutInstance);
+    }
   }
 
   handleOnBlur() {

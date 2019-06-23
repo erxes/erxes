@@ -55,6 +55,7 @@ interface IStore extends IState {
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
   sendMessage: (message: string, attachments?: IAttachment[]) => void;
+  sendTypingInfo: (conversationId: string, text: string) => void;
   sendFile: (file: File) => void;
   setHeadHeight: (headHeight: number) => void;
   isLoggedIn: () => boolean;
@@ -360,6 +361,13 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  sendTypingInfo = (conversationId: string, text: string) => {
+    client.mutate({
+      mutation: gql(graphqlTypes.sendTypingInfo),
+      variables: { conversationId, text }
+    });
+  };
+
   sendMessage = (message: string, attachments?: IAttachment[]) => {
     // current conversation
     const { activeConversation, sendingMessage } = this.state;
@@ -517,6 +525,7 @@ export class AppProvider extends React.Component<{}, IState> {
           readConversation: this.readConversation,
           readMessages: this.readMessages,
           sendMessage: this.sendMessage,
+          sendTypingInfo: this.sendTypingInfo,
           sendFile: this.sendFile,
           setHeadHeight: this.setHeadHeight,
           isLoggedIn: this.isLoggedIn
