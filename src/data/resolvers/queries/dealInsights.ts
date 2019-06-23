@@ -12,7 +12,7 @@ import {
   getSummaryData,
   getTimezone,
 } from '../../modules/insights/utils';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin } from '../../permissions/wrappers';
 
 const dealInsightQueries = {
   /**

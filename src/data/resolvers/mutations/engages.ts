@@ -3,7 +3,7 @@ import { EngageMessages, Users } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { awsRequests } from '../../../trackers/engageTracker';
 import { MESSAGE_KINDS, METHODS } from '../../constants';
-import { checkPermission } from '../../permissions';
+import { checkPermission } from '../../permissions/wrappers';
 import { getEnv } from '../../utils';
 import { send } from './engageUtils';
 

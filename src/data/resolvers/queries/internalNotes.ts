@@ -1,5 +1,5 @@
 import { InternalNotes } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin } from '../../permissions/wrappers';
 
 const internalNoteQueries = {
   /**

@@ -20,7 +20,7 @@ import {
   getTimezone,
   noConversationSelector,
 } from '../../modules/insights/utils';
-import { moduleCheckPermission, moduleRequireLogin } from '../../permissions';
+import { moduleCheckPermission, moduleRequireLogin } from '../../permissions/wrappers';
 
 const insightQueries = {
   /**

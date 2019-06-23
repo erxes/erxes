@@ -9,7 +9,7 @@ import {
 } from '../../constants';
 import { Builder as BuildQuery, IListArgs, sortBuilder } from '../../modules/coc/customers';
 import QueryBuilder from '../../modules/segments/queryBuilder';
-import { checkPermission, moduleRequireLogin } from '../../permissions';
+import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
 
 interface ICountBy {

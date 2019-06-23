@@ -1,5 +1,5 @@
 import { Boards, Pipelines, Stages } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin } from '../../permissions/wrappers';
 
 export interface IDate {
   month: number;

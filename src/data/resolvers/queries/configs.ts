@@ -1,7 +1,7 @@
 import * as gitRepoInfo from 'git-repo-info';
 import * as path from 'path';
 import { Configs } from '../../../db/models';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin } from '../../permissions/wrappers';
 import { getEnv } from '../../utils';
 
 interface IInfo {

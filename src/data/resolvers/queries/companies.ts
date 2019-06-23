@@ -2,7 +2,7 @@ import { Brands, Companies, Segments, Tags } from '../../../db/models';
 import { ACTIVITY_CONTENT_TYPES, COC_LEAD_STATUS_TYPES, COC_LIFECYCLE_STATE_TYPES, TAG_TYPES } from '../../constants';
 import { brandFilter, filter, IListArgs, sortBuilder } from '../../modules/coc/companies';
 import QueryBuilder from '../../modules/segments/queryBuilder';
-import { checkPermission, requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
 
 interface ICountArgs extends IListArgs {

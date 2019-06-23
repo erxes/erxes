@@ -1,6 +1,6 @@
 import { Configs } from '../../../db/models';
 import { IConfig } from '../../../db/models/definitions/configs';
-import { moduleCheckPermission } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 
 const configMutations = {
   /**

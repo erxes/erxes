@@ -1,7 +1,7 @@
 import { InternalNotes } from '../../../db/models';
 import { IInternalNote } from '../../../db/models/definitions/internalNotes';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin } from '../../permissions/wrappers';
 
 interface IInternalNotesEdit extends IInternalNote {
   _id: string;

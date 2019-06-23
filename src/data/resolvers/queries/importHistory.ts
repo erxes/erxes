@@ -1,5 +1,5 @@
 import { ImportHistory } from '../../../db/models';
-import { checkPermission } from '../../permissions';
+import { checkPermission } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
 
 const importHistoryQueries = {

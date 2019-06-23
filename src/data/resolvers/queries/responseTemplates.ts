@@ -1,5 +1,5 @@
 import { ResponseTemplates } from '../../../db/models';
-import { checkPermission, requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
 
 const responseTemplateQueries = {

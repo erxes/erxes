@@ -1,6 +1,6 @@
 import { EmailTemplates } from '../../../db/models';
 import { IEmailTemplate } from '../../../db/models/definitions/emailTemplates';
-import { moduleCheckPermission } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 
 interface IEmailTemplatesEdit extends IEmailTemplate {
   _id: string;

@@ -1,7 +1,7 @@
 import { Brands, Channels, ConversationMessages, Conversations, Tags } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { CONVERSATION_STATUSES, INTEGRATION_KIND_CHOICES } from '../../constants';
-import { checkPermission, moduleRequireLogin } from '../../permissions';
+import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import QueryBuilder, { IListArgs } from './conversationQueryBuilder';
 
 interface ICountBy {

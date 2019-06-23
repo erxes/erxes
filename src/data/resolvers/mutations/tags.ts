@@ -1,6 +1,6 @@
 import { Tags } from '../../../db/models';
 import { ITag } from '../../../db/models/definitions/tags';
-import { checkPermission, requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { publishConversationsChanged } from './conversations';
 
 interface ITagsEdit extends ITag {

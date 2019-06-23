@@ -1,7 +1,7 @@
 import { Permissions, UsersGroups } from '../../../db/models';
 import { IPermissionParams, IUserGroup } from '../../../db/models/definitions/permissions';
-import { moduleCheckPermission } from '../../permissions';
 import { resetPermissionsCache } from '../../permissions/utils';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 
 const permissionMutations = {
   /**

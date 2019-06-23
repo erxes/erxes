@@ -1,5 +1,5 @@
 import { Deals } from '../../../db/models';
-import { checkPermission, moduleRequireLogin } from '../../permissions';
+import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IListParams } from './boards';
 import { generateCommonFilters } from './utils';
 

@@ -1,6 +1,6 @@
 import { EngageMessages, Tags } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { checkPermission, requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
 
 interface IListArgs {

@@ -2,7 +2,7 @@ import { NotificationConfigurations, Notifications } from '../../../db/models';
 import { IConfig } from '../../../db/models/definitions/notifications';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { graphqlPubsub } from '../../../pubsub';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin } from '../../permissions/wrappers';
 
 const notificationMutations = {
   /**

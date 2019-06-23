@@ -1,6 +1,6 @@
 import { ResponseTemplates } from '../../../db/models';
 import { IResponseTemplate } from '../../../db/models/definitions/responseTemplates';
-import { moduleCheckPermission } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 
 interface IResponseTemplatesEdit extends IResponseTemplate {
   _id: string;

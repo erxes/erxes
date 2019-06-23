@@ -1,6 +1,6 @@
 import { Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { KIND_CHOICES, TAG_TYPES } from '../../constants';
-import { checkPermission, moduleRequireLogin } from '../../permissions';
+import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { fetchIntegrationApi, paginate } from '../../utils';
 
 /**

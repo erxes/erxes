@@ -9,7 +9,7 @@ import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugIntegrationsApi } from '../../../debuggers';
 import { graphqlPubsub } from '../../../pubsub';
 import { NOTIFICATION_TYPES } from '../../constants';
-import { checkPermission, requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import utils, { fetchIntegrationApi } from '../../utils';
 
 interface IConversationMessageAdd {

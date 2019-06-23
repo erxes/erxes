@@ -1,5 +1,5 @@
 import { Tags } from '../../../db/models';
-import { checkPermission, requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 
 const tagQueries = {
   /**

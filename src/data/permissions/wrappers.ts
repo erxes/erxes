@@ -1,5 +1,5 @@
-import { IUserDocument } from '../db/models/definitions/users';
-import { can } from './permissions/utils';
+import { IUserDocument } from '../../db/models/definitions/users';
+import { can } from './utils';
 
 /**
  * Checks whether user is logged in or not
