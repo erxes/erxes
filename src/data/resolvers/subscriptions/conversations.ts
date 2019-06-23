@@ -30,6 +30,18 @@ export default {
   },
 
   /*
+   * Admin is listening for this subscription to show typing notification
+   */
+  conversationClientTypingStatusChanged: {
+    subscribe: withFilter(
+      () => graphqlPubsub.asyncIterator('conversationClientTypingStatusChanged'),
+      async (payload, variables) => {
+        return payload.conversationClientTypingStatusChanged.conversationId === variables._id;
+      },
+    ),
+  },
+
+  /*
    * Admin is listening for this subscription to show unread notification
    */
   conversationClientMessageInserted: {
