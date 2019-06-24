@@ -1,4 +1,4 @@
-import { EmptyState, Icon } from 'modules/common/components';
+import { EmptyState } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
@@ -13,6 +13,7 @@ type Props = {
 const Container = styled.div`
   position: relative;
   height: 100%;
+  overflow: auto;
 `;
 
 const ContentBody = styled.div`

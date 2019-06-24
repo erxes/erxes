@@ -1,7 +1,6 @@
-import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { __, withProps } from 'modules/common/utils';
 import Stage from 'modules/deals/components/conversion/stageInfoMore/Stage';
 import { queries } from 'modules/deals/graphql';
 import { DealsQueryResponse, IDeal, IStage } from 'modules/deals/types';

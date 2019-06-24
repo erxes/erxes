@@ -2,64 +2,45 @@ import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
+import { MainContent } from 'modules/layout/styles';
 import * as React from 'react';
-import styled from 'styled-components';
 import { MainActionBar, StageList } from '../../containers';
-import {
-  BoardContainer,
-  BoardContent,
-  ScrolledContent
-} from '../../styles/common';
+import { BoardContainer, ScrolledContent } from '../../styles/common';
 
 type Props = {
   queryParams: any;
 };
 
-const Content = styled.div`
-  flex: 1;
-  overflow: hidden;
-  background: #e5e8ec;
-  margin: 0 5px;
-  min-width: 280px;
-  border-radius: 3px;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 1px 5px 0px;
-`;
-
 class ConversionView extends React.Component<Props> {
-  renderActionBar() {
-    return <MainActionBar />;
-  }
-
   render() {
+    const { queryParams } = this.props;
+    const pipelineId = queryParams.pipelineId;
+
     return (
       <BoardContainer>
         <Header title={__('Deal')} submenu={menuDeal} />
-        <BoardContent transparent={true}>
-          {this.renderActionBar()}
+        <MainContent transparent={true}>
+          <MainActionBar />
           <ScrolledContent transparent={true}>
             <FlexItem>
               <FlexItem direction="column">
-                <Content>
-                  <StageList
-                    type="brief"
-                    pipelineId={this.props.queryParams.pipelineId}
-                    queryParams={this.props.queryParams}
-                  />
-                </Content>
+                <StageList
+                  type="brief"
+                  pipelineId={pipelineId}
+                  queryParams={queryParams}
+                />
               </FlexItem>
 
               <FlexItem direction="column">
-                <Content>
-                  <StageList
-                    type="more"
-                    pipelineId={this.props.queryParams.pipelineId}
-                    queryParams={this.props.queryParams}
-                  />
-                </Content>
+                <StageList
+                  type="more"
+                  pipelineId={pipelineId}
+                  queryParams={queryParams}
+                />
               </FlexItem>
             </FlexItem>
           </ScrolledContent>
-        </BoardContent>
+        </MainContent>
       </BoardContainer>
     );
   }

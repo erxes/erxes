@@ -1,4 +1,3 @@
-import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { LoadingContent } from 'modules/deals/styles/stage';
 import { Content } from 'modules/deals/styles/stage';
@@ -27,7 +26,7 @@ export default class Stage extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
-      showCollapse: false
+      showCollapse: true
     };
   }
 
@@ -62,7 +61,7 @@ export default class Stage extends React.Component<Props, State> {
     );
   }
 
-  renderLostInfo(info) {
+  renderLostInfo() {
     const { stage } = this.props;
 
     const stayed = stage.stayedDealsTotalCount || 0;
@@ -91,7 +90,7 @@ export default class Stage extends React.Component<Props, State> {
             </h5>
           </SpaceContent>
         </Content>
-        {this.renderLostInfo(stage.stageInfo)}
+        {this.renderLostInfo()}
         <Collapse in={showCollapse}>{this.renderDealList()}</Collapse>
       </DealContainer>
     );

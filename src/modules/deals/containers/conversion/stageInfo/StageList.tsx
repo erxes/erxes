@@ -29,16 +29,19 @@ class StageListContainer extends React.Component<FinalProps> {
     const stages = stagesQuery.dealStages || [];
 
     if (type === 'more') {
-      const contents = stages.map(stage => (
-        <Stage
-          key={stage._id}
-          stage={stage}
-          deals={stage.deals || []}
-          queryParams={queryParams}
-          pipelineId={pipelineId}
-        />
-      ));
-      return <div>{contents}</div>;
+      return (
+        <>
+          {stages.map(stage => (
+            <Stage
+              key={stage._id}
+              stage={stage}
+              deals={stage.deals || []}
+              queryParams={queryParams}
+              pipelineId={pipelineId}
+            />
+          ))}
+        </>
+      );
     }
     return <StageList stages={stages} />;
   }
