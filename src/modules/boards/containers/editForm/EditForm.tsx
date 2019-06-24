@@ -152,7 +152,8 @@ export default (props: IProps) => {
             return {
               variables: {
                 _id: itemId
-              }
+              },
+              fetchPolicy: 'network-only'
             };
           }
         }
