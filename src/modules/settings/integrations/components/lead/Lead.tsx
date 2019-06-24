@@ -8,9 +8,9 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Select from 'react-select-plus';
-import { __ } from '../../../../common/utils';
 import { Options } from '../../styles';
 import { IIntegration, ISelectMessengerApps } from '../../types';
 

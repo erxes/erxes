@@ -1,14 +1,12 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-
-import { ButtonMutate } from 'modules/common/components';
 import { IPages } from '../../types';
 
 type Props = {
@@ -16,26 +14,7 @@ type Props = {
   closeModal: () => void;
 };
 
-type CreateFacebookMutationVariables = {
-  name: string;
-  brandId: string;
-  data: {
-    pageIds: string[];
-  };
-};
-
-type CreateFacebookMutationResponse = {
-  saveMutation: (
-    params: {
-      variables: CreateFacebookMutationVariables & {
-        accountId: string;
-        kind: string;
-      };
-    }
-  ) => Promise<any>;
-};
-
-type FinalProps = {} & IRouterProps & Props & CreateFacebookMutationResponse;
+type FinalProps = {} & IRouterProps & Props;
 
 type State = {
   pages: IPages[];

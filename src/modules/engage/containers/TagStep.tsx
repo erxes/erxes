@@ -1,15 +1,11 @@
 import gql from 'graphql-tag';
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { __, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import { TagStep } from 'modules/engage/components/step';
 import { mutations } from 'modules/tags/graphql';
-import {
-  AddMutationResponse,
-  MutationVariables,
-  TagsQueryResponse
-} from 'modules/tags/types';
+import { TagsQueryResponse } from 'modules/tags/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
@@ -35,11 +31,10 @@ type Props = {
 type FinalProps = {
   tagsQuery: TagsQueryResponse;
   customerCountsQuery: CountQueryResponse;
-} & Props &
-  AddMutationResponse;
+} & Props;
 
 const TagStepContianer = (props: FinalProps) => {
-  const { tagsQuery, addMutation, customerCountsQuery } = props;
+  const { tagsQuery, customerCountsQuery } = props;
 
   const customerCounts = customerCountsQuery.customerCounts || {
     byTag: {}
@@ -109,9 +104,6 @@ export default withProps<Props>(
           }
         }
       }
-    ),
-    graphql<Props, AddMutationResponse, MutationVariables>(gql(mutations.add), {
-      name: 'addMutation'
-    })
+    )
   )(TagStepContianer)
 );

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { ButtonMutate, Spinner } from 'modules/common/components';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { __, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
 import { queries } from 'modules/settings/integrations/graphql';

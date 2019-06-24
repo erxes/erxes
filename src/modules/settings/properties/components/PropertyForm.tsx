@@ -1,6 +1,5 @@
 import {
   Button,
-  ButtonMutate,
   ControlLabel,
   Form,
   FormControl,
@@ -14,7 +13,6 @@ import { __ } from 'modules/common/utils';
 import { Row } from 'modules/settings/integrations/styles';
 import * as React from 'react';
 import { PropertyGroupForm } from '../containers';
-import { mutations } from '../graphql';
 import { IField, IFieldGroup } from '../types';
 
 type Props = {

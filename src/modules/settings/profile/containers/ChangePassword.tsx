@@ -1,6 +1,6 @@
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { ChangePassword } from '../components';
 import { usersChangePassword } from '../graphql/mutations';

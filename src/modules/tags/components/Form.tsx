@@ -67,6 +67,7 @@ class FormComponent extends React.Component<Props> {
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Cancel
           </Button>
+
           {renderButton({
             name: 'tag',
             values: this.generateDoc(values),

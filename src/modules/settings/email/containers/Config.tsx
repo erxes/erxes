@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { ButtonMutate } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { __, withProps } from 'modules/common/utils';
 import { mutations as brandMutations } from 'modules/settings/brands/graphql';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import * as React from 'react';

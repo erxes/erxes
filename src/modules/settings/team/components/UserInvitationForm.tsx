@@ -1,6 +1,5 @@
 import {
   Button,
-  ButtonMutate,
   ControlLabel,
   Form,
   FormControl,
@@ -15,7 +14,6 @@ import { ICommonFormProps } from 'modules/settings/common/types';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import * as React from 'react';
 import { Description } from '../../styles';
-import { mutations } from '../graphql';
 import { FlexRow, InviteOption, LinkButton, RemoveRow } from '../styles';
 import { IInvitationEntry } from '../types';
 
