@@ -134,6 +134,10 @@ class ProductForm extends React.Component<Props, State> {
           return Alert.error('Please choose a product');
         }
 
+        if (!data.unitPrice) {
+          return Alert.error('Please enter an unit price');
+        }
+
         if (!data.currency) {
           return Alert.error('Please choose a currency');
         }
