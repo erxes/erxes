@@ -93,12 +93,10 @@ class PipelineForm extends React.Component<Props, State> {
     }
 
     return {
-      _id: finalValues._id,
-      name: finalValues.name,
+      ...finalValues,
       type,
       boardId: pipeline ? pipeline.boardId : boardId,
       stages: this.state.stages.filter(el => el.name),
-      visibility: finalValues.visibility,
       memberIds: this.collectValues(this.state.selectedMembers)
     };
   };

@@ -84,14 +84,10 @@ class PropertyForm extends React.Component<Props, State> {
     }
 
     return {
+      ...finalValues,
       type: this.state.type,
       options: this.state.options,
-      contentType: type,
-      _id: finalValues._id,
-      text: finalValues.text,
-      description: finalValues.description,
-      groupId: finalValues.groupId,
-      validation: finalValues.validation
+      contentType: type
     };
   };
 
@@ -236,7 +232,7 @@ class PropertyForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'brand',
+            name: 'property',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

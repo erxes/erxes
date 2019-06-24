@@ -45,9 +45,7 @@ class ChannelForm extends React.Component<Props, State> {
     }
 
     return {
-      _id: finalValues._id,
-      name: finalValues.name,
-      description: finalValues.description,
+      ...finalValues,
       memberIds: this.state.selectedMembers
     };
   };

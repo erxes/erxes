@@ -1,5 +1,4 @@
 import {
-  Button,
   ControlLabel,
   Form,
   FormControl,
@@ -49,8 +48,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
 
   generateDoc = (values: { name: string; brandId: string }) => {
     return {
-      name: values.name,
-      brandId: values.brandId,
+      ...values,
       kind: 'facebook',
       accountId: this.props.accountId,
       data: {

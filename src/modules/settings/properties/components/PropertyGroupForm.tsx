@@ -51,9 +51,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     }
 
     return {
-      _id: finalValues._id,
-      name: finalValues.name,
-      description: finalValues.description,
+      ...finalValues,
       contentType: type,
       isVisible: this.state.isVisible
     };
@@ -124,7 +122,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'brand',
+            name: 'property group',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

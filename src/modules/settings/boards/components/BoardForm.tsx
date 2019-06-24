@@ -27,8 +27,7 @@ class BoardForm extends React.Component<Props, {}> {
     }
 
     return {
-      _id: finalValues._id,
-      name: finalValues.name,
+      ...finalValues,
       type
     };
   };
