@@ -87,7 +87,8 @@ function withSaveAndEdit<IComponentProps>(Component) {
     const email = message.email || {
       subject: '',
       attachments: [],
-      content: ''
+      content: '',
+      templateId: ''
     };
 
     const scheduleDate = message.scheduleDate || {
@@ -114,7 +115,8 @@ function withSaveAndEdit<IComponentProps>(Component) {
         email: {
           subject: email.subject,
           attachments: email.attachments,
-          content: email.content
+          content: email.content,
+          templateId: email.templateId
         },
         scheduleDate: {
           type: scheduleDate.type,

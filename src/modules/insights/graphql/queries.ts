@@ -85,30 +85,6 @@ const brands = `
   }
 `;
 
-const insightVolumeReportExport = `
-  query insightVolumeReportExport($type: String, ${listParamsDef}) {
-    insightVolumeReportExport(type: $type, ${listParamsValue})
-  }
-`;
-
-const insightActivityReportExport = `
-  query insightActivityReportExport(${listParamsDef}) {
-    insightActivityReportExport(${listParamsValue})
-  }
-`;
-
-const insightFirstResponseReportExport = `
-  query insightFirstResponseReportExport($type: String, $userId: String, ${listParamsDef}) {
-    insightFirstResponseReportExport(type: $type, userId: $userId, ${listParamsValue})
-  }
-`;
-
-const insightTagReportExport = `
-  query insightTagReportExport(${listParamsDef}) {
-    insightTagReportExport(${listParamsValue})
-  }
-`;
-
 const dealInsightsMain = `
   query dealInsightsMain(${dealParamsDef}) {
     dealInsightsMain(${dealParamsValue})
@@ -161,10 +137,6 @@ export default {
   responseClose,
   responseSummary,
   brands,
-  insightVolumeReportExport,
-  insightActivityReportExport,
-  insightFirstResponseReportExport,
-  insightTagReportExport,
 
   insightsConversationCustomerAvg,
   insightsConversationInternalAvg,
