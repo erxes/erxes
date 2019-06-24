@@ -52,12 +52,13 @@ const taskMutations = {
    */
   async tasksChange(
     _root,
-    { _id, destinationStageId }: { _id: string; destinationStageId?: string },
+    { _id, destinationStageId }: { _id: string; destinationStageId: string },
     { user }: { user: IUserDocument },
   ) {
     const task = await Tasks.updateTask(_id, {
       modifiedAt: new Date(),
       modifiedBy: user._id,
+      stageId: destinationStageId,
     });
 
     const content = await itemsChange(Tasks, task, 'task', destinationStageId);

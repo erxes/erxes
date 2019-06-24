@@ -98,7 +98,7 @@ export const itemsChange = async (
   collection: any,
   item: IDealDocument | ITicketDocument,
   type: string,
-  destinationStageId?: string,
+  destinationStageId: string,
 ) => {
   const oldItem = await collection.findOne({ _id: item._id });
   const oldStageId = oldItem ? oldItem.stageId || '' : '';

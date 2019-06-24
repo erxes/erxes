@@ -52,12 +52,13 @@ const dealMutations = {
    */
   async dealsChange(
     _root,
-    { _id, destinationStageId }: { _id: string; destinationStageId?: string },
+    { _id, destinationStageId }: { _id: string; destinationStageId: string },
     { user }: { user: IUserDocument },
   ) {
     const deal = await Deals.updateDeal(_id, {
       modifiedAt: new Date(),
       modifiedBy: user._id,
+      stageId: destinationStageId,
     });
 
     const content = await itemsChange(Deals, deal, 'deal', destinationStageId);

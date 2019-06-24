@@ -52,12 +52,13 @@ const ticketMutations = {
    */
   async ticketsChange(
     _root,
-    { _id, destinationStageId }: { _id: string; destinationStageId?: string },
+    { _id, destinationStageId }: { _id: string; destinationStageId: string },
     { user }: { user: IUserDocument },
   ) {
     const ticket = await Tickets.updateTicket(_id, {
       modifiedAt: new Date(),
       modifiedBy: user._id,
+      stageId: destinationStageId,
     });
 
     const content = await itemsChange(Tickets, ticket, 'ticket', destinationStageId);
