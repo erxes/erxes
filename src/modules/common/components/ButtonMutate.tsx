@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { colors } from 'modules/common/styles';
-import { Alert } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { rotate } from 'modules/common/utils/animations';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -27,7 +27,7 @@ type Props = {
   successMessage?: string;
   btnSize?: string;
   icon?: string;
-  callback?: () => void;
+  callback?: (data?: any) => void;
   children?: React.ReactNode;
   refetchQueries?: any;
   isSubmitted?: boolean;
@@ -38,7 +38,8 @@ type Props = {
 class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
   static defaultProps = {
     successMessage: 'Successfull',
-    btnSize: 'medium'
+    btnSize: 'medium',
+    icon: 'checked-1'
   };
 
   constructor(props: Props) {
@@ -84,11 +85,11 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         refetchQueries
       })
 
-      .then(() => {
+      .then(({ data }) => {
         Alert.success(successMessage);
 
         if (callback) {
-          callback();
+          callback(data);
         }
 
         this.setState({ isLoading: false });
@@ -100,7 +101,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
   };
 
   render() {
-    const { children, btnSize, icon, type, disabled } = this.props;
+    const { children = __('Save'), btnSize, icon, type, disabled } = this.props;
     const { isLoading } = this.state;
 
     return (

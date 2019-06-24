@@ -48,13 +48,10 @@ const ListContainer = (props: FinalProps) => {
         refetchQueries={getRefetchQueries(type)}
         isSubmitted={isSubmitted}
         type="submit"
-        icon="checked-1"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}
-      >
-        {__('Save')}
-      </ButtonMutate>
+      />
     );
   };
 

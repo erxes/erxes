@@ -11,7 +11,7 @@ type Props = {
 
 export default commonListComposer<Props>({
   text: 'response template',
-  name: 'responseTemplates',
+  label: 'responseTemplates',
   stringEditMutation: mutations.responseTemplatesEdit,
   stringAddMutation: mutations.responseTemplatesAdd,
 

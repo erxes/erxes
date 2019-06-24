@@ -40,15 +40,12 @@ const ArticleContainer = (props: Props) => {
           currentCategoryId,
           topicIds
         )}
-        isSubmitted={isSubmitted}
         type="submit"
-        icon="checked-1"
+        isSubmitted={isSubmitted}
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } an ${name}`}
-      >
-        {__('Save')}
-      </ButtonMutate>
+      />
     );
   };
 

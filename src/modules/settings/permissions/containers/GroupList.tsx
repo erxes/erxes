@@ -25,7 +25,7 @@ const commonOptions = () => ({
 });
 
 const MainGroupList = commonListComposer<Props>({
-  name: 'usersGroups',
+  label: 'usersGroups',
   text: 'user group',
   stringEditMutation: mutations.usersGroupsEdit,
   stringAddMutation: mutations.usersGroupsAdd,

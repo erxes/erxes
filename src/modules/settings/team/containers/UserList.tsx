@@ -105,7 +105,7 @@ const options = ({ queryParams }: { queryParams: any }) => {
 
 export default commonListComposer<{ queryParams: any; history: any }>({
   text: 'team member',
-  name: 'users',
+  label: 'users',
   stringAddMutation: mutations.usersInvite,
   stringEditMutation: mutations.usersEdit,
 

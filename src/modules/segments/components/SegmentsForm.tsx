@@ -5,12 +5,7 @@ import { Sidebar, Wrapper } from 'modules/layout/components';
 import { FlexContent } from 'modules/layout/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ISegment,
-  ISegmentConditionDoc,
-  ISegmentDoc,
-  ISegmentField
-} from '../types';
+import { ISegment, ISegmentDoc, ISegmentField } from '../types';
 import Form from './common/Form';
 import { ResultCount, SegmentResult } from './styles';
 

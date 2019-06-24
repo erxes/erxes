@@ -20,7 +20,7 @@ const FlexRow = styled.div`
   position: relative;
   align-items: center;
 
-  label {
+  > label {
     margin: 0;
     font-weight: 500;
     color: ${colors.colorCoreBlack};
@@ -41,6 +41,7 @@ const FlexRow = styled.div`
 const RemoveRow = styled.a`
   position: absolute;
   right: 0;
+  top: ${dimensions.unitSpacing + 2}px;
   margin-left: ${dimensions.unitSpacing}px;
   padding: ${dimensions.unitSpacing / 2}px;
   font-size: 10px;

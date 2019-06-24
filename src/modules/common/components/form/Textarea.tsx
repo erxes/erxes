@@ -3,7 +3,7 @@ import { TextArea } from './styles';
 
 type Props = {
   onChange?: (e: React.FormEvent<HTMLTextAreaElement>) => void;
-  formErrorMessage?: React.ReactNode;
+  hasError?: boolean;
   maxHeight?: number;
 };
 

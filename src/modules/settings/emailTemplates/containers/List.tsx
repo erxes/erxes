@@ -18,7 +18,7 @@ type Props = {
 
 export default commonListComposer<Props>({
   text: 'email template',
-  name: 'emailTemplates',
+  label: 'emailTemplates',
   stringEditMutation: mutations.emailTemplatesEdit,
   stringAddMutation: mutations.emailTemplatesAdd,
 

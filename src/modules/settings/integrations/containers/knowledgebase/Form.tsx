@@ -49,11 +49,8 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
-          icon="checked-1"
           successMessage={`You successfully added a ${name}`}
-        >
-          {__('Save')}
-        </ButtonMutate>
+        />
       );
     };
 

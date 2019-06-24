@@ -181,7 +181,6 @@ class MessengerAdd extends React.Component<Props, State> {
             {renderButton({
               name: 'app',
               values,
-              callback: this.changeStep,
               isSubmitted
             })}
           </div>

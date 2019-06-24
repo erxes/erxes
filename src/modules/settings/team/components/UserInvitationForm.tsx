@@ -163,8 +163,8 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { addMany, entries } = this.state;
-    const { closeModal, refetchQueries, renderButton } = this.props;
-    const { values, isSubmitted } = formProps;
+    const { closeModal, renderButton } = this.props;
+    const { isSubmitted } = formProps;
 
     if (addMany) {
       return this.renderMultipleEmail();

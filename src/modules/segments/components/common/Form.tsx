@@ -1,5 +1,4 @@
 import {
-  Button,
   ControlLabel,
   Form as CommonForm,
   FormControl,
@@ -13,8 +12,7 @@ import {
   ISegmentCondition,
   ISegmentConditionDoc,
   ISegmentDoc,
-  ISegmentField,
-  ISegmentWithConditionDoc
+  ISegmentField
 } from 'modules/segments/types';
 import * as React from 'react';
 import { AddConditionButton, Conditions } from '..';

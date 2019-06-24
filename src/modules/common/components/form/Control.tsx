@@ -92,7 +92,7 @@ class FormControl extends React.Component<Props> {
         ? props.defaultChecked
         : props.checked,
       placeholder: props.placeholder,
-      formErrorMessage: errorMessage,
+      hasError: errorMessage ? true : false,
       type: props.type,
       name: props.name,
       round: props.round,
@@ -109,7 +109,7 @@ class FormControl extends React.Component<Props> {
       if (props.options) {
         return (
           <FlexWrapper>
-            <SelectWrapper>
+            <SelectWrapper hasError={errorMessage}>
               <Select {...attributes}>
                 {props.options.map((option, index) => {
                   return (
@@ -127,7 +127,7 @@ class FormControl extends React.Component<Props> {
 
       return (
         <FlexWrapper>
-          <SelectWrapper>
+          <SelectWrapper hasError={errorMessage}>
             <Select {...attributes}>{childNode}</Select>
           </SelectWrapper>
           {errorMessage}
@@ -157,7 +157,7 @@ class FormControl extends React.Component<Props> {
     if (elementType === 'textarea') {
       return (
         <FlexWrapper>
-          <Textarea {...props} formErrorMessage={errorMessage} />
+          <Textarea {...props} hasError={errorMessage} />
           {errorMessage}
         </FlexWrapper>
       );

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { ButtonMutate, Icon } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   mutations,
@@ -9,9 +9,7 @@ import {
 } from 'modules/settings/integrations/graphql';
 import {
   IIntegration,
-  IntegrationsCountQueryResponse,
-  SaveMessengerMutationResponse,
-  SaveMessengerMutationVariables
+  IntegrationsCountQueryResponse
 } from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -23,7 +21,7 @@ type Props = {
   brandsQuery: BrandsQueryResponse;
   totalCountQuery: IntegrationsCountQueryResponse;
   changeStep: (increase: boolean) => void;
-} & SaveMessengerMutationResponse;
+};
 
 type State = {
   integration: IIntegration;
@@ -42,7 +40,7 @@ class MessengerAddContainer extends React.Component<Props, State> {
   };
 
   render() {
-    const { brandsQuery, saveMessengerMutation, totalCountQuery } = this.props;
+    const { brandsQuery, totalCountQuery } = this.props;
     const { isVisibleCodeModal, integration } = this.state;
 
     let totalCount = 0;
@@ -53,49 +51,21 @@ class MessengerAddContainer extends React.Component<Props, State> {
 
     const brands = brandsQuery.brands || [];
 
-    const save = (doc, callback: () => void) => {
-      const { brandId, languageCode } = doc;
-
-      if (!languageCode) {
-        return Alert.error('Set language');
-      }
-
-      if (!brandId) {
-        return Alert.error('Choose a brand');
-      }
-
-      saveMessengerMutation({
-        variables: doc
-      })
-        .then(({ data }) => {
-          Alert.success('You successfully saved an app');
-          this.setState({
-            integration: data.integrationsCreateMessengerIntegration,
-            isVisibleCodeModal: true
-          });
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
-
     const renderButton = ({
       name,
       values,
       isSubmitted,
       callback
     }: IButtonMutateProps) => {
-      const showInstallCode = () => {
-        return (
-          <>
-            {this.setState({
-              integration: values,
-              isVisibleCodeModal: true
-            })}
-            {callback}
-          </>
-        );
+      const showInstallCode = data => {
+        this.setState({
+          integration: data.integrationsCreateMessengerIntegration,
+          isVisibleCodeModal: true
+        });
+
+        if (callback) {
+          callback();
+        }
       };
 
       return (
@@ -143,27 +113,6 @@ const getRefetchQueries = () => {
 };
 
 const WithQuery = compose(
-  graphql<SaveMessengerMutationResponse, SaveMessengerMutationVariables>(
-    gql(mutations.integrationsCreateMessenger),
-    {
-      name: 'saveMessengerMutation',
-      options: () => {
-        return {
-          refetchQueries: [
-            {
-              query: gql(queries.integrations),
-              variables: {
-                kind: 'messenger'
-              }
-            },
-            {
-              query: gql(integrationQuery.integrationTotalCount)
-            }
-          ]
-        };
-      }
-    }
-  ),
   graphql<BrandsQueryResponse>(gql(integrationQuery.brands), {
     name: 'brandsQuery',
     options: () => ({
