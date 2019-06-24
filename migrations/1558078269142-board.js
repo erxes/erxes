@@ -28,7 +28,7 @@ module.exports.up = next => {
   
         await Stages.updateMany({}, { $set: { type: 'deal' } });
       } catch(e) {
-        console.log('board migration: ', e); 
+        console.log('board migration ', e.message); 
       }
 
       next();

@@ -1,6 +1,6 @@
 import { EmailTemplates } from '../../../db/models';
-import { checkPermission, requireLogin } from '../../permissions';
-import { paginate } from './utils';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { paginate } from '../../utils';
 
 const emailTemplateQueries = {
   /**

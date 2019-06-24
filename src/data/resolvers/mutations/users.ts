@@ -1,6 +1,6 @@
 import { Channels, Users } from '../../../db/models';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument } from '../../../db/models/definitions/users';
-import { checkPermission, requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import utils, { authCookieOptions, getEnv } from '../../utils';
 
 interface IUsersEdit extends IUser {
@@ -41,12 +41,9 @@ const userMutations = {
     return 'loggedIn';
   },
 
-  async logout(_root, _args, { user, res }) {
-    const response = await Users.logout(user);
-
+  async logout(_root, _args, { res }) {
     res.clearCookie('auth-token');
-
-    return response;
+    return 'loggedout';
   },
 
   /*

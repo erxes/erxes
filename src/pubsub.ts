@@ -3,7 +3,8 @@ import * as fs from 'fs';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import * as Redis from 'ioredis';
 import * as path from 'path';
-import { ActivityLogs } from './db/models';
+import { ActivityLogs, Conversations } from './db/models';
+import { get, redisOptions, set } from './redisClient';
 
 // load environment variables
 dotenv.config();
@@ -30,34 +31,7 @@ interface IGoogleOptions {
   };
 }
 
-const {
-  PUBSUB_TYPE,
-  REDIS_HOST = 'localhost',
-  REDIS_PORT = 6379,
-  REDIS_PASSWORD = '',
-}: {
-  PUBSUB_TYPE?: string;
-  REDIS_HOST?: string;
-  REDIS_PORT?: number;
-  REDIS_PASSWORD?: string;
-} = process.env;
-
-/**
- * Docs on the different redis options
- * @see {@link https://github.com/NodeRedis/node_redis#options-object-properties}
- */
-const redisOptions = {
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  password: REDIS_PASSWORD,
-  connect_timeout: 15000,
-  enable_offline_queue: true,
-  retry_unfulfilled_commands: true,
-  retry_strategy: options => {
-    // reconnect after
-    return Math.max(options.attempt * 100, 3000);
-  },
-};
+const { PUBSUB_TYPE, NODE_ENV }: { PUBSUB_TYPE?: string; NODE_ENV?: string } = process.env;
 
 // Google pubsub message handler
 const commonMessageHandler = payload => {
@@ -82,33 +56,17 @@ const configGooglePubsub = (): IGoogleOptions => {
   };
 };
 
-const initBroker = () => {
-  if (PUBSUB_TYPE === 'GOOGLE') {
-    const googleOptions = configGooglePubsub();
-
-    const GooglePubSub = require('@axelspringer/graphql-google-pubsub').GooglePubSub;
-
-    const googleBroker = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
-
-    googleBroker.subscribe('widgetNotification', message => {
-      publishMessage(message);
-    });
-  } else {
-    const redisBroker = new Redis(redisOptions);
-
-    redisBroker.subscribe('widgetNotification');
-    redisBroker.on('message', (channel: string, message: string) => {
-      const data = JSON.parse(message);
-
-      if (channel === 'widgetNotification') {
-        return publishMessage(data);
-      }
-    });
-  }
-};
-
 const createPubsubInstance = (): IPubSub => {
   let pubsub;
+
+  if (NODE_ENV === 'test' || NODE_ENV === 'command') {
+    pubsub = {
+      asyncIterator: () => null,
+      publish: () => null,
+    };
+
+    return pubsub;
+  }
 
   if (PUBSUB_TYPE === 'GOOGLE') {
     const googleOptions = configGooglePubsub();
@@ -116,6 +74,10 @@ const createPubsubInstance = (): IPubSub => {
     const GooglePubSub = require('@axelspringer/graphql-google-pubsub').GooglePubSub;
 
     const googlePubsub = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
+
+    googlePubsub.subscribe('widgetNotification', message => {
+      publishMessage(message);
+    });
 
     pubsub = googlePubsub;
   } else {
@@ -129,14 +91,54 @@ const createPubsubInstance = (): IPubSub => {
       subscriber: new Redis(redisOptions),
     });
 
+    redisPubSub.subscribe('widgetNotification', message => {
+      return publishMessage(message);
+    });
+
     pubsub = redisPubSub;
   }
 
   return pubsub;
 };
 
-const publishMessage = ({ action, data }: IPubsubMessage) => {
+const publishMessage = async ({ action, data }: IPubsubMessage) => {
+  if (NODE_ENV === 'test') {
+    return;
+  }
+
   if (action === 'callPublish') {
+    if (data.trigger === 'conversationMessageInserted') {
+      const { customerId, conversationId } = data.payload;
+      const conversation = await Conversations.findOne({ _id: conversationId }, { integrationId: 1 });
+      const customerLastStatus = await get(`customer_last_status_${customerId}`);
+
+      // if customer's last status is left then mark as joined when customer ask
+      if (conversation && customerLastStatus === 'left') {
+        set(`customer_last_status_${customerId}`, 'joined');
+
+        // customer has joined + time
+        const conversationMessages = await Conversations.changeCustomerStatus(
+          'joined',
+          customerId,
+          conversation.integrationId,
+        );
+
+        for (const message of conversationMessages) {
+          graphqlPubsub.publish('conversationMessageInserted', {
+            conversationMessageInserted: message,
+          });
+        }
+
+        // notify as connected
+        graphqlPubsub.publish('customerConnectionChanged', {
+          customerConnectionChanged: {
+            _id: customerId,
+            status: 'connected',
+          },
+        });
+      }
+    }
+
     graphqlPubsub.publish(data.trigger, { [data.trigger]: data.payload });
   }
 
@@ -148,7 +150,5 @@ const publishMessage = ({ action, data }: IPubsubMessage) => {
 const convertPubSubBuffer = (data: Buffer) => {
   return JSON.parse(data.toString());
 };
-
-initBroker();
 
 export const graphqlPubsub = createPubsubInstance();

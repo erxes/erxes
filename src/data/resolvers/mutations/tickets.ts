@@ -3,7 +3,7 @@ import { IOrderInput } from '../../../db/models/definitions/boards';
 import { ITicket } from '../../../db/models/definitions/tickets';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { NOTIFICATION_TYPES } from '../../constants';
-import { checkPermission } from '../../permissions';
+import { checkPermission } from '../../permissions/wrappers';
 import { itemsChange, manageNotifications, sendNotifications } from '../boardUtils';
 
 interface ITicketsEdit extends ITicket {

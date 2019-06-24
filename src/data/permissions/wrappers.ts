@@ -1,5 +1,5 @@
-import { IUserDocument } from '../db/models/definitions/users';
-import { can } from './permissions/utils';
+import { IUserDocument } from '../../db/models/definitions/users';
+import { can } from './utils';
 
 /**
  * Checks whether user is logged in or not
@@ -44,10 +44,10 @@ export const moduleRequireLogin = (mdl: any) => {
 /**
  * Wraps all properties (methods) of a given object with 'Permission action required' permission checker
  */
-export const moduleCheckPermission = (mdl: any, action: string, defaultValue?: any) => {
+export const moduleCheckPermission = async (mdl: any, action: string, defaultValue?: any) => {
   for (const method in mdl) {
     if (mdl.hasOwnProperty(method)) {
-      checkPermission(mdl, method, action, defaultValue);
+      await checkPermission(mdl, method, action, defaultValue);
     }
   }
 };
@@ -61,10 +61,12 @@ export const moduleCheckPermission = (mdl: any, action: string, defaultValue?: a
 export const checkPermission = async (cls: any, methodName: string, actionName: string, defaultValue?: any) => {
   const oldMethod = cls[methodName];
 
-  cls[methodName] = async (root, args, { user }) => {
+  cls[methodName] = async (root, args, context: { user: IUserDocument }) => {
+    const { user } = context;
+
     checkLogin(user);
 
-    let allowed = await can(actionName, user._id);
+    let allowed = await can(actionName, user);
 
     if (user.isOwner) {
       allowed = true;
@@ -78,6 +80,6 @@ export const checkPermission = async (cls: any, methodName: string, actionName: 
       throw new Error('Permission required');
     }
 
-    return oldMethod(root, args, { user });
+    return oldMethod(root, args, context);
   };
 };

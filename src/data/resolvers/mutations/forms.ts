@@ -1,7 +1,7 @@
 import { Forms } from '../../../db/models';
 import { IForm } from '../../../db/models/definitions/forms';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { moduleCheckPermission } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 
 interface IFormsEdit extends IForm {
   _id: string;

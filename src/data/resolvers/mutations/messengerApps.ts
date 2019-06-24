@@ -1,5 +1,5 @@
 import { Forms, MessengerApps } from '../../../db/models';
-import { requireLogin } from '../../permissions';
+import { requireLogin } from '../../permissions/wrappers';
 
 const messengerAppMutations = {
   /*

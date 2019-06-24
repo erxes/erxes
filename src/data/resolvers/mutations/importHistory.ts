@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { ImportHistory } from '../../../db/models';
 import { clearIntervals, createWorkers, removeWorkers, splitToCore } from '../../../workers/utils';
-import { checkPermission } from '../../permissions';
+import { checkPermission } from '../../permissions/wrappers';
 
 const importHistoryMutations = {
   /**

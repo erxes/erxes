@@ -76,7 +76,6 @@ export const queries = `
   companies(${queryParams}): [Company]
   companyCounts(${queryParams}, byFakeSegment: JSON, only: String): JSON
   companyDetail(_id: String!): Company
-  companiesExport(${queryParams}) : String
 `;
 
 const commonFields = `

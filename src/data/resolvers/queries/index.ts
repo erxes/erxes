@@ -6,15 +6,14 @@ import companies from './companies';
 import configs from './configs';
 import conversations from './conversations';
 import customers from './customers';
+import dealInsights from './dealInsights';
 import deals from './deals';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
 import { fieldQueries as fields, fieldsGroupQueries as fieldsgroups } from './fields';
 import forms from './forms';
 import importHistory from './importHistory';
-import dealInsights from './insights/dealInsights';
-import insightExport from './insights/insightExport';
-import insights from './insights/insights';
+import insights from './insights';
 import integrations from './integrations';
 import internalNotes from './internalNotes';
 import knowledgeBase from './knowledgeBase';
@@ -48,7 +47,6 @@ export default {
   ...segments,
   ...conversations,
   ...insights,
-  ...insightExport,
   ...knowledgeBase,
   ...notifications,
   ...activityLogs,

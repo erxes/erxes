@@ -1,7 +1,7 @@
 import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams, IMessengerIntegration } from '../../../db/models/Integrations';
-import { checkPermission } from '../../permissions';
+import { checkPermission } from '../../permissions/wrappers';
 import { fetchIntegrationApi } from '../../utils';
 
 interface IEditMessengerIntegration extends IMessengerIntegration {

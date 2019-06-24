@@ -1,6 +1,6 @@
 import { Scripts } from '../../../db/models';
 import { IScript } from '../../../db/models/definitions/scripts';
-import { moduleCheckPermission } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 
 interface IScriptsEdit extends IScript {
   _id: string;

@@ -3,8 +3,8 @@ import { IDealDocument } from '../../db/models/definitions/deals';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { NOTIFICATION_TYPES } from '../constants';
-import { checkLogin } from '../permissions';
 import { can } from '../permissions/utils';
+import { checkLogin } from '../permissions/wrappers';
 import utils from '../utils';
 
 /**
@@ -172,7 +172,7 @@ export const checkPermission = async (type: string, user: IUserDocument, mutatio
 
   const actionName = PERMISSION_MAP[type][mutationName];
 
-  let allowed = await can(actionName, user._id);
+  let allowed = await can(actionName, user);
 
   if (user.isOwner) {
     allowed = true;

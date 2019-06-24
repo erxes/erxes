@@ -1,7 +1,7 @@
 import { Companies } from '../../../db/models';
 import { ICompany } from '../../../db/models/definitions/companies';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { checkPermission } from '../../permissions';
+import { checkPermission } from '../../permissions/wrappers';
 
 interface ICompaniesEdit extends ICompany {
   _id: string;

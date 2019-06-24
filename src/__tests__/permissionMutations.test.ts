@@ -63,10 +63,10 @@ describe('Test permissions mutations', () => {
     expect.assertions(2);
 
     // add permission
-    checkLogin(permissionMutations.permissionsAdd, doc);
+    await checkLogin(permissionMutations.permissionsAdd, doc);
 
     // remove permission
-    checkLogin(permissionMutations.permissionsRemove, { ids: [_permission._id] });
+    await checkLogin(permissionMutations.permissionsRemove, { ids: [_permission._id] });
   });
 
   test('Create permission', async () => {

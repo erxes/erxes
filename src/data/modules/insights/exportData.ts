@@ -1,8 +1,8 @@
 import * as moment from 'moment';
-import { ConversationMessages, Conversations, Integrations, Tags } from '../../../../db/models';
-import { IUserDocument } from '../../../../db/models/definitions/users';
-import { TAG_TYPES } from '../../../constants';
-import { getDateFieldAsStr, getDurationField } from '../aggregationUtils';
+import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { TAG_TYPES } from '../../constants';
+import { getDateFieldAsStr, getDurationField } from './aggregationUtils';
 import { convertTime, fixNumber, nextTime } from './exportUtils';
 import { IListArgs, IListArgsWithUserId, IVolumeReportExportArgs } from './types';
 import {
@@ -22,7 +22,7 @@ export const generateVolumeReport = async (args: IListArgs, user: IUserDocument)
   let timeFormat = 'YYYY-MM-DD';
   let aggregationTimeFormat = '%Y-%m-%d';
 
-  if (type === 'time') {
+  if (type === 'volumeByTime') {
     diffCount = 1;
     timeFormat = 'YYYY-MM-DD HH';
     aggregationTimeFormat = '%Y-%m-%d %H';
@@ -329,7 +329,7 @@ export const generateFirstResponseReport = async ({
   const filterSelector = getFilterSelector(args);
   const selectorMatch = await getConversationSelector(filterSelector, conversationMatch);
 
-  if (type === 'operator') {
+  if (type === 'firstResponseOperators') {
     return Conversations.aggregate([
       {
         $match: selectorMatch,

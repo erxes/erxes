@@ -1,6 +1,6 @@
 import { ActivityLogs } from '../../../db/models';
 import { IActivityLog } from '../../../db/models/definitions/activityLogs';
-import { moduleRequireLogin } from '../../permissions';
+import { moduleRequireLogin } from '../../permissions/wrappers';
 
 const activityLogQueries = {
   /**

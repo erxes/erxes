@@ -12,8 +12,8 @@ import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { INTEGRATION_KIND_CHOICES, MESSAGE_KINDS, METHODS } from '../../constants';
+import QueryBuilder from '../../modules/segments/queryBuilder';
 import { createTransporter, getEnv } from '../../utils';
-import QueryBuilder from '../queries/segmentQueryBuilder';
 
 /**
  * Dynamic content tags
@@ -60,29 +60,35 @@ const findCustomers = async ({
 }): Promise<ICustomerDocument[]> => {
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
+  const doNotDisturbQuery = [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }];
 
   if (tagIds.length > 0) {
-    customerQuery = { tagIds: { $in: tagIds || [] } };
+    customerQuery = { $or: doNotDisturbQuery, tagIds: { $in: tagIds || [] } };
   }
 
   if (brandIds.length > 0) {
     const integrationIds = await Integrations.find({ brandId: { $in: brandIds } }).distinct('_id');
 
-    customerQuery = { integrationId: { $in: integrationIds } };
+    customerQuery = { $or: doNotDisturbQuery, integrationId: { $in: integrationIds } };
   }
 
   if (segmentIds.length > 0) {
     const segmentQueries: any = [];
+
     const segments = await Segments.find({ _id: { $in: segmentIds } });
 
     for (const segment of segments) {
-      segmentQueries.push(...(await QueryBuilder.segments(segment)));
+      const filter = await QueryBuilder.segments(segment);
+
+      filter.$or = doNotDisturbQuery;
+
+      segmentQueries.push(filter);
     }
 
-    customerQuery = segmentQueries;
+    customerQuery = { $or: segmentQueries };
   }
 
-  return Customers.find({ ...customerQuery, $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }] });
+  return Customers.find(customerQuery);
 };
 
 const executeSendViaEmail = async (
@@ -133,8 +139,6 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
 
   const { subject, content, attachments = [] } = message.email.toJSON();
 
-  let replacedContent = content;
-
   const AWS_SES_CONFIG_SET = getEnv({ name: 'AWS_SES_CONFIG_SET' });
   const AWS_ENDPOINT = getEnv({ name: 'AWS_ENDPOINT' });
 
@@ -156,6 +160,8 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
   EngageMessages.setCustomerIds(message._id, customers);
 
   for (const customer of customers) {
+    let replacedContent = replaceKeys({ content, customer, user });
+
     // Add unsubscribe link ========
     const unSubscribeUrl = `${AWS_ENDPOINT}/unsubscribe/?cid=${customer._id}`;
 

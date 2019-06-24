@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { Model, model } from 'mongoose';
 import * as sha256 from 'sha256';
-import { Session, UsersGroups } from '.';
+import { UsersGroups } from '.';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument, userSchema } from './definitions/users';
 
 const SALT_WORK_FACTOR = 10;
@@ -78,7 +78,6 @@ export interface IUserModel extends Model<IUserDocument> {
     password?: string;
     deviceToken?: string;
   }): { token: string; refreshToken: string };
-  logout(user: IUserDocument): string;
 }
 
 export const loadClass = () => {
@@ -484,6 +483,7 @@ export const loadClass = () => {
         email: _user.email,
         details: _user.details,
         isOwner: _user.isOwner,
+        groupIds: _user.groupIds,
       };
 
       const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
@@ -573,14 +573,6 @@ export const loadClass = () => {
         token,
         refreshToken,
       };
-    }
-
-    public static logout(user) {
-      Session.create({
-        invalidToken: user && user.loginToken,
-      });
-
-      return 'loggedOut';
     }
   }
 

@@ -1,5 +1,5 @@
 import * as schedule from 'node-schedule';
-import QueryBuilder from '../data/resolvers/queries/segmentQueryBuilder';
+import QueryBuilder from '../data/modules/segments/queryBuilder';
 import { ActivityLogs, Customers, Segments } from '../db/models';
 
 /**

@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
@@ -100,12 +99,6 @@ describe('companyQueries', () => {
         }
         totalCount
       }
-    }
-  `;
-
-  const qryCompaniesExport = `
-    query companiesExport(${commonParamDefs}) {
-      companiesExport(${commonParams})
     }
   `;
 
@@ -394,19 +387,5 @@ describe('companyQueries', () => {
     });
 
     expect(response._id).toBe(company._id);
-  });
-
-  test('companiesExport', async () => {
-    await companyFactory({});
-    await companyFactory({});
-    await companyFactory({});
-    await companyFactory({});
-
-    process.env.DOMAIN = 'http://localhost:3300';
-    const args = { page: 1, perPage: 3 };
-
-    const exportTime = moment().format('YYYY-MM-DD HH:mm');
-    const response = await graphqlRequest(qryCompaniesExport, 'companiesExport', args);
-    expect(response).toBe(`${process.env.DOMAIN}/static/xlsTemplateOutputs/company - ${exportTime}.xlsx`);
   });
 });

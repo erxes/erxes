@@ -9,7 +9,7 @@ import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugIntegrationsApi } from '../../../debuggers';
 import { graphqlPubsub } from '../../../pubsub';
 import { NOTIFICATION_TYPES } from '../../constants';
-import { checkPermission, requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import utils, { fetchIntegrationApi } from '../../utils';
 
 interface IConversationMessageAdd {
@@ -18,9 +18,6 @@ interface IConversationMessageAdd {
   mentionedUserIds?: string[];
   internal?: boolean;
   attachments?: any;
-  tweetReplyToId?: string;
-  tweetReplyToScreenName?: string;
-  commentReplyToId?: string;
 }
 
 /**
@@ -72,6 +69,7 @@ export const publishMessage = (message?: IMessageDocument | null, customerId?: s
   if (!message) {
     return;
   }
+
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
   });

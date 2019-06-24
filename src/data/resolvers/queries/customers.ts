@@ -7,15 +7,10 @@ import {
   INTEGRATION_KIND_CHOICES,
   TAG_TYPES,
 } from '../../constants';
-import { checkPermission, moduleRequireLogin } from '../../permissions';
-import { cocsExport } from './cocExport';
-import BuildQuery, { IListArgs } from './customerQueryBuilder';
-import QueryBuilder from './segmentQueryBuilder';
-import { paginate } from './utils';
-
-interface ISortParams {
-  [index: string]: number;
-}
+import { Builder as BuildQuery, IListArgs, sortBuilder } from '../../modules/coc/customers';
+import QueryBuilder from '../../modules/segments/queryBuilder';
+import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import { paginate } from '../../utils';
 
 interface ICountBy {
   [index: string]: number;
@@ -24,19 +19,6 @@ interface ICountBy {
 interface ICountParams extends IListArgs {
   only: string;
 }
-
-const sortBuilder = (params: IListArgs): ISortParams => {
-  const sortField = params.sortField;
-  const sortDirection = params.sortDirection || 0;
-
-  let sortParams: ISortParams = { 'messengerData.lastSeenAt': -1 };
-
-  if (sortField) {
-    sortParams = { [sortField]: sortDirection };
-  }
-
-  return sortParams;
-};
 
 const count = (query, mainQuery) => {
   const findQuery = { $and: [mainQuery, query] };
@@ -240,27 +222,11 @@ const customerQueries = {
   customerDetail(_root, { _id }: { _id: string }) {
     return Customers.findOne({ _id });
   },
-
-  /**
-   * Export customers to xls file
-   */
-  async customersExport(_root, params: IListArgs) {
-    const qb = new BuildQuery(params);
-
-    await qb.buildAllQueries();
-
-    const sort = sortBuilder(params);
-
-    const customers = await Customers.find(qb.mainQuery()).sort(sort);
-
-    return cocsExport(customers, 'customer');
-  },
 };
 
 moduleRequireLogin(customerQueries);
 
 checkPermission(customerQueries, 'customers', 'showCustomers', []);
 checkPermission(customerQueries, 'customersMain', 'showCustomers', { list: [], totalCount: 0 });
-checkPermission(customerQueries, 'customersExport', 'exportCustomers');
 
 export default customerQueries;
