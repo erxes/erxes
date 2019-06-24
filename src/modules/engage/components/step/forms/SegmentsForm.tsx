@@ -1,4 +1,3 @@
-import { IButtonMutateProps } from 'modules/common/types';
 import { Form } from 'modules/segments/components/common';
 import {
   ISegment,
@@ -10,22 +9,22 @@ import * as React from 'react';
 
 type Props = {
   fields: ISegmentField[];
+  save: (params: { doc: ISegmentWithConditionDoc }) => void;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   afterSave: () => void;
 };
 
 const SegmentsForm = (props: Props) => {
-  const { fields, headSegments, count, afterSave, renderButton } = props;
+  const { fields, save, headSegments, count, afterSave } = props;
 
   return (
     <Form
       fields={fields}
+      save={save}
       headSegments={headSegments}
       count={count}
       afterSave={afterSave}
-      renderButton={renderButton}
     />
   );
 };

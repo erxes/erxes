@@ -1,21 +1,35 @@
 import { Button, Icon, Spinner } from 'modules/common/components';
-import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar, Wrapper } from 'modules/layout/components';
 import { FlexContent } from 'modules/layout/styles';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { ISegment, ISegmentDoc, ISegmentField } from '../types';
+import {
+  ISegment,
+  ISegmentConditionDoc,
+  ISegmentDoc,
+  ISegmentField
+} from '../types';
 import Form from './common/Form';
 import { ResultCount, SegmentResult } from './styles';
+
+type SegmentDoc = {
+  name: string;
+  description: string;
+  subOf: string;
+  color: string;
+  connector: string;
+  conditions: ISegmentConditionDoc[];
+};
 
 type Props = {
   contentType: string;
   fields: ISegmentField[];
+  create: (params: { doc: SegmentDoc }) => void;
+  edit: (params: { _id: string; doc: SegmentDoc }) => void;
   segment: ISegment;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   counterLoading: boolean;
   total: {
     byFakeSegment: number;
@@ -89,21 +103,23 @@ const SegmentsForm = (props: Props) => {
   const {
     contentType,
     fields,
+    create,
+    edit,
     segment,
     headSegments,
-    count,
-    renderButton
+    count
   } = props;
 
   return (
     <Form
       contentType={contentType}
       fields={fields}
+      save={create}
+      edit={edit}
       segment={segment}
       headSegments={headSegments}
       count={count}
       renderForm={renderForm}
-      renderButton={renderButton}
     />
   );
 };

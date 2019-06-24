@@ -1,10 +1,9 @@
 import {
+  Button,
   ControlLabel,
-  Form as CommonForm,
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert, generateRandomColorCode } from 'modules/common/utils';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import {
@@ -12,7 +11,8 @@ import {
   ISegmentCondition,
   ISegmentConditionDoc,
   ISegmentDoc,
-  ISegmentField
+  ISegmentField,
+  ISegmentWithConditionDoc
 } from 'modules/segments/types';
 import * as React from 'react';
 import { AddConditionButton, Conditions } from '..';
@@ -21,10 +21,11 @@ import { ConditionWrapper, SegmentTitle, SegmentWrapper } from '../styles';
 type Props = {
   contentType?: string;
   fields: ISegmentField[];
+  save: (params: { doc: ISegmentWithConditionDoc }) => void;
+  edit?: (params: { _id: string; doc: ISegmentWithConditionDoc }) => void;
   segment?: ISegment;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   renderForm?: (
     {
       renderContent,
@@ -131,31 +132,34 @@ class Form extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
-  generateDoc = (values: {
-    _id?: string;
-    name: string;
-    description: string;
-    subOf: string;
-    color: string;
-  }) => {
-    const { segment, contentType } = this.props;
-    const { conditions, connector } = this.state;
-    const finalValues = values;
+  save = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const { segment, save, edit, afterSave } = this.props;
+
+    const {
+      name,
+      description,
+      subOf,
+      color,
+      connector,
+      conditions
+    } = this.state;
 
     const updatedConditions: ISegmentConditionDoc[] = [];
 
+    if (!name) {
+      return Alert.error('Please enter a name');
+    }
+
     for (const condition of conditions) {
       if (!condition.operator) {
-        // return Alert.error('Please enter a operator');
+        return Alert.error('Please enter a operator');
       }
 
       if (!['is', 'ins'].includes(condition.operator) && !condition.value) {
-        // return Alert.error('Please enter a value for operator');
+        return Alert.error('Please enter a value for operator');
       }
-    }
-
-    if (segment) {
-      finalValues._id = segment._id;
     }
 
     conditions.forEach((cond: ISegmentCondition) => {
@@ -165,22 +169,39 @@ class Form extends React.Component<Props, State> {
       }
     });
 
-    return {
-      _id: finalValues._id,
-      name: finalValues.name,
-      description: finalValues.description,
-      color: finalValues.color,
-      subOf: finalValues.subOf,
+    const doc = {
+      name,
+      description,
+      color,
       connector,
-      contentType,
-      conditions: updatedConditions
+      conditions: updatedConditions,
+      subOf: ''
     };
+
+    if (subOf) {
+      doc.subOf = subOf;
+    }
+
+    if (segment) {
+      return edit && edit({ _id: segment._id, doc });
+    }
+
+    save({ doc });
+
+    if (afterSave) {
+      afterSave();
+    }
   };
 
-  renderConditions(formProps: IFormProps) {
-    const { contentType, fields, segment } = this.props;
-    const object = segment || ({} as ISegment);
-    const { conditions, subOf } = this.state;
+  renderConditions() {
+    const { contentType, fields } = this.props;
+    const { conditions, connector, subOf } = this.state;
+
+    const connectorOnChange = (e: React.FormEvent) =>
+      this.handleChange(
+        'connector',
+        (e.currentTarget as HTMLInputElement).value
+      );
 
     return (
       <React.Fragment>
@@ -188,10 +209,9 @@ class Form extends React.Component<Props, State> {
           <FormGroup>
             {__('Users who match')}
             <FormControl
-              {...formProps}
-              name="connector"
               componentClass="select"
-              value={object.connector || 'any'}
+              value={connector}
+              onChange={connectorOnChange}
             >
               <option value="any">{__('any')}</option>
               <option value="all">{__('all')}</option>
@@ -214,7 +234,7 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderSubOf(subOf: string, formProps: IFormProps) {
+  renderSubOf() {
     const onChange = (e: React.FormEvent) =>
       this.handleChange('subOf', (e.currentTarget as HTMLInputElement).value);
 
@@ -222,10 +242,8 @@ class Form extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>Sub segment of</ControlLabel>
         <FormControl
-          {...formProps}
-          name="subOf"
           componentClass="select"
-          defaultValue={subOf}
+          value={this.state.subOf || ''}
           onChange={onChange}
         >
           <option value="">[not selected]</option>
@@ -239,87 +257,90 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderForm(formProps: IFormProps) {
-    const { renderForm, segment } = this.props;
-    const object = segment || ({} as ISegment);
+  renderForm() {
+    const { renderForm } = this.props;
+    const { name, description, color } = this.state;
+
+    const nameOnChange = (e: React.FormEvent) =>
+      this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
+
+    const descOnChange = (e: React.FormEvent) =>
+      this.handleChange(
+        'description',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const colorOnChange = (e: React.FormEvent) =>
+      this.handleChange('color', (e.currentTarget as HTMLInputElement).value);
 
     return (
       <FlexContent>
         <FlexItem count={4}>
-          <FormGroup>
-            <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="name"
-              required={true}
-              defaultValue={object.name}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Description</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="description"
-              defaultValue={object.description}
-            />
-          </FormGroup>
-          {this.renderSubOf(object.subOf, { ...formProps })}
-          <FormGroup>
-            <ControlLabel>Color</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="color"
-              type="color"
-              defaultValue={object.color}
-            />
-          </FormGroup>
-          {!renderForm && this.renderSaveButton({ ...formProps })}
+          <form onSubmit={this.save}>
+            <FormGroup>
+              <ControlLabel required={true}>Name</ControlLabel>
+              <FormControl
+                required={true}
+                value={name}
+                onChange={nameOnChange}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <FormControl value={description} onChange={descOnChange} />
+            </FormGroup>
+            {this.renderSubOf()}
+            <FormGroup>
+              <ControlLabel>Color</ControlLabel>
+              <FormControl
+                type="color"
+                value={color}
+                onChange={colorOnChange}
+              />
+            </FormGroup>
+            {!renderForm && this.renderSaveButton()}
+          </form>
         </FlexItem>
         <FlexItem count={2} />
       </FlexContent>
     );
   }
 
-  renderContent = (formProps: IFormProps) => {
+  renderContent = () => {
     return (
       <SegmentWrapper>
         <SegmentTitle>{__('Filters')}</SegmentTitle>
-        {this.renderConditions({ ...formProps })}
+        {this.renderConditions()}
         <hr />
-        {this.renderForm({ ...formProps })}
+        {this.renderForm()}
       </SegmentWrapper>
     );
   };
 
-  renderSaveButton = (formProps: IFormProps) => {
-    const { renderButton, segment, afterSave } = this.props;
-    const { values, isSubmitted } = formProps;
-
-    return renderButton({
-      name: 'segment',
-      size: 'small',
-      values: this.generateDoc(values),
-      isSubmitted,
-      object: segment,
-      callback: afterSave
-    });
-  };
-
-  renderFormContent = (formProps: IFormProps) => {
-    const { renderForm } = this.props;
-
-    if (!renderForm) {
-      return this.renderContent({ ...formProps });
-    }
-
-    return renderForm({
-      renderContent: this.renderContent({ ...formProps }),
-      saveButton: this.renderSaveButton({ ...formProps })
-    });
+  renderSaveButton = () => {
+    return (
+      <Button
+        size="small"
+        btnStyle="success"
+        onClick={this.save}
+        icon="checked-1"
+      >
+        Save
+      </Button>
+    );
   };
 
   render() {
-    return <CommonForm renderContent={this.renderFormContent} />;
+    const { renderForm } = this.props;
+
+    if (!renderForm) {
+      return this.renderContent();
+    }
+
+    return renderForm({
+      renderContent: this.renderContent(),
+      saveButton: this.renderSaveButton()
+    });
   }
 }
 
