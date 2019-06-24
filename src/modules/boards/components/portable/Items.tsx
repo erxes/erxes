@@ -1,17 +1,18 @@
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SectionContainer } from 'modules/layout/styles';
 import * as React from 'react';
 import { AddItem } from '.';
-import { IItem, IItemParams, IOptions } from '../../types';
+import { IItem, IOptions } from '../../types';
 
 type Props = {
   options: IOptions;
   items: IItem[];
   customerIds?: string[];
   companyIds?: string[];
-  saveItem: (doc: IItemParams, callback: () => void, item?: IItem) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   onChangeItems: () => void;
   isOpen?: boolean;
 };
@@ -42,7 +43,13 @@ class PortableItems extends React.Component<Props> {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const { saveItem, customerIds, companyIds, isOpen, options } = this.props;
+    const {
+      renderButton,
+      customerIds,
+      companyIds,
+      isOpen,
+      options
+    } = this.props;
 
     const trigger = (
       <a>
@@ -54,7 +61,7 @@ class PortableItems extends React.Component<Props> {
       <AddItem
         options={options}
         {...props}
-        saveItem={saveItem}
+        renderButton={renderButton}
         customerIds={customerIds}
         companyIds={companyIds}
         showSelect={true}

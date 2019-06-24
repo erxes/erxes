@@ -31,6 +31,7 @@ class BoardSelect extends React.Component<Props> {
   renderSelect(placeholder, value, onChange, options) {
     return (
       <Select
+        isRequired={true}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
