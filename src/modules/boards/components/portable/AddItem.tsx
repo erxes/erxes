@@ -125,7 +125,6 @@ class AddForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal
-            // object: brand
           })}
         </FormFooter>
       </>
