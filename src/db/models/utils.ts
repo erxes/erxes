@@ -67,6 +67,10 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
 };
 
 export const updateOrder = async (collection: any, orders: IOrderInput[], stageId?: string) => {
+  if (orders.length === 0) {
+    return [];
+  }
+
   const ids: string[] = [];
   const bulkOps: Array<{
     updateOne: {
@@ -90,8 +94,6 @@ export const updateOrder = async (collection: any, orders: IOrderInput[], stageI
         update: selector,
       },
     });
-
-    // update each tickets order
   }
 
   if (bulkOps) {
