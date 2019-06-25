@@ -8,6 +8,7 @@ dotenv.config();
 import { connect } from './connection';
 import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
+import { getPageAccessToken, unsubscribePage } from './facebook/utils';
 import Accounts from './models/Accounts';
 import Integrations from './models/Integrations';
 
@@ -32,6 +33,20 @@ app.post('/integrations/remove', async (req, res) => {
   debugRequest(debugIntegrations, req);
 
   const { integrationId } = req.body;
+
+  const integration = await Integrations.findOne({ erxesApiId: integrationId });
+
+  if (!integration) {
+    return res.status(500).send('Integration not found');
+  }
+
+  const account = await Accounts.findOne({ _id: integration.accountId });
+
+  for (const pageId of integration.facebookPageIds) {
+    const pageTokenResponse = await getPageAccessToken(pageId, account.token);
+
+    await unsubscribePage(pageId, pageTokenResponse);
+  }
 
   await Integrations.deleteOne({ erxesApiId: integrationId });
 
