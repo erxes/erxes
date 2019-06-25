@@ -16,13 +16,13 @@ import {
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
-import { regexEmail, regexPhone } from 'modules/customers/utils';
 import {
   leadStatusChoices,
   lifecycleStateChoices
 } from 'modules/customers/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
+import * as validator from 'validator';
 import { IUser } from '../../../auth/types';
 import {
   COMPANY_BUSINESS_TYPES,
@@ -77,18 +77,6 @@ class CompanyForm extends React.Component<Props, State> {
     values: { _id: string; size?: number } & ICompanyDoc & ICompanyLinks
   ) => {
     const { company } = this.props;
-    const {
-      names,
-      primaryName,
-      avatar,
-      phones,
-      primaryPhone,
-      emails,
-      primaryEmail,
-      parentCompanyId,
-      ownerId,
-      doNotDisturb
-    } = this.state;
 
     const finalValues = values;
 
@@ -224,7 +212,7 @@ class CompanyForm extends React.Component<Props, State> {
                 placeholder="Primary Email"
                 buttonText="Add email"
                 onChange={this.onChange.bind(this, 'emails', 'primaryEmail')}
-                regex={regexEmail}
+                checkFormat={validator.isEmail}
               />
             </FormGroup>
 
@@ -280,7 +268,7 @@ class CompanyForm extends React.Component<Props, State> {
                 placeholder="Primary phone"
                 buttonText="Add phone"
                 onChange={this.onChange.bind(this, 'phones', 'primaryPhone')}
-                regex={regexPhone}
+                checkFormat={validator.isMobilePhone}
               />
             </FormGroup>
 

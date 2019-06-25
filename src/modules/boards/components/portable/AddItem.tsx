@@ -51,11 +51,12 @@ class AddForm extends React.Component<Props, State> {
 
   generateDoc = (values: { name: string }) => {
     const { stageId } = this.state;
-    const { companyIds, customerIds } = this.props;
 
     if (!stageId) {
       return;
     }
+
+    const { companyIds, customerIds } = this.props;
 
     return {
       ...values,

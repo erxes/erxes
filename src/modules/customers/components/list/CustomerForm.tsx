@@ -22,13 +22,9 @@ import {
 import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
+import * as validator from 'validator';
 import { ICustomer, ICustomerDoc } from '../../types';
-import {
-  leadStatusChoices,
-  lifecycleStateChoices,
-  regexEmail,
-  regexPhone
-} from '../../utils';
+import { leadStatusChoices, lifecycleStateChoices } from '../../utils';
 
 type Props = {
   customer?: ICustomer;
@@ -66,16 +62,6 @@ class CustomerForm extends React.Component<Props, State> {
 
   generateDoc = (values: { _id: string } & ICustomerDoc & IUserLinks) => {
     const { customer } = this.props;
-    const {
-      phones,
-      emails,
-      primaryPhone,
-      primaryEmail,
-      avatar,
-      ownerId,
-      hasAuthority,
-      doNotDisturb
-    } = this.state;
     const finalValues = values;
 
     if (customer) {
@@ -193,8 +179,8 @@ class CustomerForm extends React.Component<Props, State> {
                 placeholder="Choose primary email"
                 buttonText="Add Email"
                 onChange={this.onEmailChange}
-                regex={regexEmail}
                 required={true}
+                checkFormat={validator.isEmail}
               />
             </FormGroup>
 
@@ -250,7 +236,7 @@ class CustomerForm extends React.Component<Props, State> {
                 placeholder="Choose primary phone"
                 buttonText="Add Phone"
                 onChange={this.onPhoneChange}
-                regex={regexPhone}
+                checkFormat={validator.isMobilePhone}
               />
             </FormGroup>
 
