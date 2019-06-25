@@ -1,5 +1,5 @@
 import { Brands, Channels, Integrations, Tags } from '../../../db/models';
-import { KIND_CHOICES, TAG_TYPES } from '../../constants';
+import { KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { fetchIntegrationApi, paginate } from '../../utils';
 

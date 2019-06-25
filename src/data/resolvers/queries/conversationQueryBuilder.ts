@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 import { Channels, Integrations } from '../../../db/models';
-import { CONVERSATION_STATUSES } from '../../constants';
+import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { fixDate } from '../../utils';
 
 interface IIn {

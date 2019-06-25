@@ -1,15 +1,7 @@
 import { dateType } from 'aws-sdk/clients/sts'; // tslint:disable-line
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
-import {
-  ACTIVITY_ACTIONS,
-  ACTIVITY_CONTENT_TYPES,
-  ACTIVITY_PERFORMER_TYPES,
-  ACTIVITY_TYPES,
-  FIELDS_GROUPS_CONTENT_TYPES,
-  NOTIFICATION_TYPES,
-  PRODUCT_TYPES,
-} from '../data/constants';
+import { FIELDS_GROUPS_CONTENT_TYPES, NOTIFICATION_TYPES } from '../data/constants';
 import { IActionPerformer, IActivity, IContentType } from '../db/models/definitions/activityLogs';
 import {
   ActivityLogs,
@@ -48,7 +40,15 @@ import {
   Users,
   UsersGroups,
 } from './models';
-import { BOARD_TYPES, STATUSES } from './models/definitions/constants';
+import {
+  ACTIVITY_ACTIONS,
+  ACTIVITY_CONTENT_TYPES,
+  ACTIVITY_PERFORMER_TYPES,
+  ACTIVITY_TYPES,
+  BOARD_TYPES,
+  PRODUCT_TYPES,
+  STATUSES,
+} from './models/definitions/constants';
 import { IEmail, IMessenger } from './models/definitions/engages';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
 import { IUserDocument } from './models/definitions/users';

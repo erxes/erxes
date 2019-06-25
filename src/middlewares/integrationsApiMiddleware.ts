@@ -1,5 +1,5 @@
-import { CONVERSATION_STATUSES } from '../data/constants';
 import { ActivityLogs, ConversationMessages, Conversations, Customers } from '../db/models';
+import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
 import { graphqlPubsub } from '../pubsub';
 
 /*

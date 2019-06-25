@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import 'mongoose-type-email';
 import { ConversationMessages, Conversations, Customers, Forms } from '.';
-import { KIND_CHOICES } from '../../data/constants';
+import { KIND_CHOICES } from './definitions/constants';
 import {
   IFormData,
   IIntegration,

@@ -1,12 +1,7 @@
 import { Brands, Customers, Forms, Segments, Tags } from '../../../db/models';
+import { ACTIVITY_CONTENT_TYPES, TAG_TYPES } from '../../../db/models/definitions/constants';
 import { ISegment } from '../../../db/models/definitions/segments';
-import {
-  ACTIVITY_CONTENT_TYPES,
-  COC_LEAD_STATUS_TYPES,
-  COC_LIFECYCLE_STATE_TYPES,
-  INTEGRATION_KIND_CHOICES,
-  TAG_TYPES,
-} from '../../constants';
+import { COC_LEAD_STATUS_TYPES, COC_LIFECYCLE_STATE_TYPES, INTEGRATION_KIND_CHOICES } from '../../constants';
 import { Builder as BuildQuery, IListArgs, sortBuilder } from '../../modules/coc/customers';
 import QueryBuilder from '../../modules/segments/queryBuilder';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';

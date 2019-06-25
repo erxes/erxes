@@ -1,8 +1,7 @@
 import * as Random from 'meteor-random';
-import { COMPANY_BASIC_INFOS } from '../../data/constants';
+import { COMPANY_BASIC_INFOS, CUSTOMER_BASIC_INFOS } from '../../data/constants';
 import { Fields } from './';
 import { IOrderInput } from './definitions/boards';
-import { CUSTOMER_BASIC_INFOS } from './definitions/constants';
 
 /*
  * Mongoose field options wrapper

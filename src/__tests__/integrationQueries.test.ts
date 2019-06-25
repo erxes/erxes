@@ -1,8 +1,8 @@
 import * as faker from 'faker';
-import { TAG_TYPES } from '../data/constants';
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, integrationFactory, tagsFactory } from '../db/factories';
 import { Brands, Channels, Integrations } from '../db/models';
+import { TAG_TYPES } from '../db/models/definitions/constants';
 
 import './setup.ts';
 

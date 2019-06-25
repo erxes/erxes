@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
+import { TAG_TYPES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { TAG_TYPES } from '../../constants';
 import { getDateFieldAsStr, getDurationField } from './aggregationUtils';
 import { convertTime, fixNumber, nextTime } from './exportUtils';
 import { IListArgs, IListArgsWithUserId, IVolumeReportExportArgs } from './types';

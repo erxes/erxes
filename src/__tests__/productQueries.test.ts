@@ -1,7 +1,7 @@
-import { PRODUCT_TYPES } from '../data/constants';
 import { graphqlRequest } from '../db/connection';
 import { productFactory } from '../db/factories';
 import { Products } from '../db/models';
+import { PRODUCT_TYPES } from '../db/models/definitions/constants';
 
 import './setup.ts';
 

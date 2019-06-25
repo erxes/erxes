@@ -1,5 +1,4 @@
 import * as moment from 'moment';
-import { CONVERSATION_STATUSES, TAG_TYPES } from '../../data/constants';
 import {
   brandFactory,
   conversationFactory,
@@ -9,6 +8,7 @@ import {
   userFactory,
 } from '../../db/factories';
 import { Brands, ConversationMessages, Conversations, Integrations, Tags, Users } from '../../db/models';
+import { CONVERSATION_STATUSES, TAG_TYPES } from '../../db/models/definitions/constants';
 
 export const paramsDef = `
   $integrationIds: String,

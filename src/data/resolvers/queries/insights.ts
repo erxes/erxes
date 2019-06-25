@@ -1,6 +1,7 @@
 import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
+import { TAG_TYPES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { INTEGRATION_KIND_CHOICES, TAG_TYPES } from '../../constants';
+import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import { getDateFieldAsStr, getDurationField } from '../../modules/insights/aggregationUtils';
 import { IListArgs, IPieChartData } from '../../modules/insights/types';
 import {

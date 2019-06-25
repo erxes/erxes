@@ -8,10 +8,11 @@ import {
   Segments,
   Users,
 } from '../../../db/models';
+import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { INTEGRATION_KIND_CHOICES, MESSAGE_KINDS, METHODS } from '../../constants';
+import { INTEGRATION_KIND_CHOICES, MESSAGE_KINDS } from '../../constants';
 import QueryBuilder from '../../modules/segments/queryBuilder';
 import { createTransporter, getEnv } from '../../utils';
 
