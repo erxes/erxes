@@ -33,6 +33,7 @@ type Props = {
   isSubmitted?: boolean;
   type?: string;
   disabled?: boolean;
+  block?: boolean;
 };
 
 class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
@@ -86,7 +87,9 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       })
 
       .then(({ data }) => {
-        Alert.success(successMessage);
+        if (successMessage) {
+          Alert.success(successMessage);
+        }
 
         if (callback) {
           callback(data);
@@ -95,13 +98,26 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         this.setState({ isLoading: false });
       })
       .catch(error => {
-        Alert.error(error.message);
+        if (error.message.includes('Invalid login')) {
+          Alert.error(
+            'The email address or password you entered is incorrect.'
+          );
+        } else {
+          Alert.error(error.message);
+        }
         this.setState({ isLoading: false });
       });
   };
 
   render() {
-    const { children = __('Save'), btnSize, icon, type, disabled } = this.props;
+    const {
+      children = __('Save'),
+      btnSize,
+      icon,
+      type,
+      disabled,
+      block
+    } = this.props;
     const { isLoading } = this.state;
 
     return (
@@ -112,6 +128,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         type={type}
         onClick={type ? undefined : this.mutate}
         icon={isLoading ? undefined : icon}
+        block={block}
       >
         {isLoading && <ImportLoader />}
         {children}
