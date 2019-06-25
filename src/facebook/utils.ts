@@ -23,6 +23,10 @@ export const graphRequest = {
   post(...args): any {
     return this.base('post', ...args);
   },
+
+  delete(...args): any {
+    return this.base('del', ...args);
+  },
 };
 
 export const getPageList = async (accessToken?: string) => {
@@ -44,4 +48,8 @@ export const subscribePage = async (pageId, pageToken): Promise<{ success: true 
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
     subscribed_fields: ['conversations', 'messages', 'feed'],
   });
+};
+
+export const unsubscribePage = async (pageId, pageToken): Promise<{ success: true } | any> => {
+  return graphRequest.delete(`${pageId}/subscribed_apps`, pageToken);
 };
