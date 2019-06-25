@@ -42,10 +42,12 @@ app.post('/integrations/remove', async (req, res) => {
 
   const account = await Accounts.findOne({ _id: integration.accountId });
 
-  for (const pageId of integration.facebookPageIds) {
-    const pageTokenResponse = await getPageAccessToken(pageId, account.token);
+  if (integration.kind === 'facebook') {
+    for (const pageId of integration.facebookPageIds) {
+      const pageTokenResponse = await getPageAccessToken(pageId, account.token);
 
-    await unsubscribePage(pageId, pageTokenResponse);
+      await unsubscribePage(pageId, pageTokenResponse);
+    }
   }
 
   await Integrations.deleteOne({ erxesApiId: integrationId });
