@@ -7,7 +7,7 @@ const options = {
   PortableItem: PortableDeal,
   Item: DealItem,
   type: 'deal',
-  title: 'Deals',
+  title: 'Deal',
   queriesName: {
     itemsQuery: 'deals',
     detailQuery: 'dealDetail'

@@ -56,7 +56,7 @@ export const SelectContainer = styled.div`
   background: ${colors.colorWhite};
 `;
 
-export const Date = styled.span`
+export const ItemDate = styled.span`
   font-size: 11px;
   color: rgb(136, 136, 136);
   z-index: 10;

@@ -48,11 +48,11 @@ class Form extends React.Component<Props, State> {
         return;
       }
 
-      this.setState({ isSubmitted: !this.state.isSubmitted }, () => {
-        if (this.props.onSubmit) {
-          this.props.onSubmit(this.state.values);
-        }
-      });
+      if (this.props.onSubmit) {
+        return this.props.onSubmit(this.state.values);
+      }
+
+      this.setState({ isSubmitted: !this.state.isSubmitted });
     });
   };
 
@@ -62,6 +62,7 @@ class Form extends React.Component<Props, State> {
 
   onSubmit = e => {
     e.preventDefault();
+
     this.runValidations();
   };
 

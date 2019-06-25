@@ -6,14 +6,10 @@ import {
   HeaderRow
 } from 'modules/boards/styles/item';
 import { IItemParams, IOptions } from 'modules/boards/types';
-import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl
-} from 'modules/common/components';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { Button, ControlLabel, FormControl } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
 import * as React from 'react';
+import { invalidateCache } from '../../utils';
 
 type Props = {
   options: IOptions;
@@ -23,13 +19,14 @@ type Props = {
   pipelineId?: string;
   stageId?: string;
   saveItem: (doc: IItemParams, callback: () => void) => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   showSelect?: boolean;
   closeModal: () => void;
 };
 
 type State = {
   stageId: string;
+  name: string;
+  disabled: boolean;
   boardId: string;
   pipelineId: string;
 };
@@ -39,9 +36,11 @@ class AddForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      disabled: false,
       boardId: '',
       pipelineId: '',
-      stageId: props.stageId || ''
+      stageId: props.stageId || '',
+      name: ''
     };
   }
 
@@ -49,21 +48,38 @@ class AddForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
-  generateDoc = (values: { name: string }) => {
-    const { stageId } = this.state;
+  save = e => {
+    e.preventDefault();
+
+    const { stageId, name } = this.state;
+    const { companyIds, customerIds, saveItem, closeModal } = this.props;
 
     if (!stageId) {
-      return;
+      return Alert.error('No stage');
     }
 
-    const { companyIds, customerIds } = this.props;
+    if (!name) {
+      return Alert.error('Enter name');
+    }
 
-    return {
-      ...values,
+    const doc = {
+      name,
       stageId,
       customerIds: customerIds || [],
       companyIds: companyIds || []
     };
+
+    // before save, disable save button
+    this.setState({ disabled: true });
+
+    saveItem(doc, () => {
+      // after save, enable save button
+      this.setState({ disabled: false });
+
+      closeModal();
+
+      invalidateCache();
+    });
   };
 
   renderSelect() {
@@ -92,23 +108,18 @@ class AddForm extends React.Component<Props, State> {
     );
   }
 
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
-    const { values, isSubmitted } = formProps;
+  onChangeName = e =>
+    this.onChangeField('name', (e.target as HTMLInputElement).value);
 
+  render() {
     return (
-      <>
+      <AddContainer onSubmit={this.save}>
         {this.renderSelect()}
 
         <HeaderRow>
           <HeaderContent>
-            <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="name"
-              autoFocus={true}
-              required={true}
-            />
+            <ControlLabel>Name</ControlLabel>
+            <FormControl autoFocus={true} onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
 
@@ -121,20 +132,15 @@ class AddForm extends React.Component<Props, State> {
             Close
           </Button>
 
-          {renderButton({
-            values: this.generateDoc(values),
-            isSubmitted,
-            callback: closeModal
-          })}
+          <Button
+            disabled={this.state.disabled}
+            btnStyle="success"
+            icon="checked-1"
+            type="submit"
+          >
+            Save
+          </Button>
         </FormFooter>
-      </>
-    );
-  };
-
-  render() {
-    return (
-      <AddContainer>
-        <Form renderContent={this.renderContent} />
       </AddContainer>
     );
   }

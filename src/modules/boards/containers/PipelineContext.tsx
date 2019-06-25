@@ -126,13 +126,8 @@ export class PipelineProvider extends React.Component<Props, State> {
       destination
     });
 
-    const itemId = result.draggableId;
-
     // update item to database
-    this.itemChange(itemId, destination.droppableId);
-
-    const item = itemMap[destination.droppableId].find(d => d._id === itemId);
-    item.modifiedAt = new Date();
+    this.itemChange(result.draggableId, destination.droppableId);
 
     this.setState({
       itemMap
@@ -145,7 +140,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     ]);
   };
 
-  itemChange = (itemId: string, destinationStageId?: string) => {
+  itemChange = (itemId: string, destinationStageId: string) => {
     const { options } = this.props;
 
     client
@@ -182,10 +177,6 @@ export class PipelineProvider extends React.Component<Props, State> {
 
     for (const stageId of stageIds) {
       const orders = collectOrders(itemMap[stageId]);
-
-      if (orders.length === 0) {
-        continue;
-      }
 
       client
         .mutate({

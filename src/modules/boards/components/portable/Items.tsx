@@ -1,10 +1,9 @@
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
-import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SectionContainer } from 'modules/layout/styles';
 import * as React from 'react';
-import { AddItem } from '.';
+import { AddForm } from '../../containers/portable';
 import { IItem, IOptions } from '../../types';
 
 type Props = {
@@ -12,12 +11,11 @@ type Props = {
   items: IItem[];
   customerIds?: string[];
   companyIds?: string[];
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   onChangeItems: () => void;
   isOpen?: boolean;
 };
 
-class PortableItems extends React.Component<Props> {
+class Items extends React.Component<Props> {
   renderItems = () => {
     const { onChangeItems, items, options } = this.props;
 
@@ -43,13 +41,7 @@ class PortableItems extends React.Component<Props> {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const {
-      renderButton,
-      customerIds,
-      companyIds,
-      isOpen,
-      options
-    } = this.props;
+    const { customerIds, companyIds, isOpen, options } = this.props;
 
     const trigger = (
       <a>
@@ -58,10 +50,9 @@ class PortableItems extends React.Component<Props> {
     );
 
     const content = props => (
-      <AddItem
+      <AddForm
         options={options}
         {...props}
-        renderButton={renderButton}
         customerIds={customerIds}
         companyIds={companyIds}
         showSelect={true}
@@ -88,4 +79,4 @@ class PortableItems extends React.Component<Props> {
   }
 }
 
-export default PortableItems;
+export default Items;

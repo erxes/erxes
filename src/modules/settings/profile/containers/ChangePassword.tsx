@@ -15,10 +15,6 @@ const ChangePasswordContainer = (props: Props) => {
     isSubmitted,
     callback
   }: IButtonMutateProps) => {
-    if (values.newPassword !== values.confirmation) {
-      return;
-    }
-
     return (
       <ButtonMutate
         mutation={usersChangePassword}

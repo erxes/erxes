@@ -235,7 +235,7 @@ const Avatar = styled.img`
   margin-right: 5px;
 `;
 
-const AddContainer = styled.div`
+const AddContainer = styled.form`
   ${SelectContainer} {
     position: relative;
     top: 0;

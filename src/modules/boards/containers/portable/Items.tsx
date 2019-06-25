@@ -1,11 +1,9 @@
 import gql from 'graphql-tag';
-import { ButtonMutate } from 'modules/common/components';
-import { IButtonMutateProps } from 'modules/common/types';
-import { Alert, renderWithProps } from 'modules/common/utils';
+import { renderWithProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Items } from '../components/portable';
-import { IOptions, ItemsQueryResponse } from '../types';
+import { Items } from '../../components/portable/';
+import { IOptions, ItemsQueryResponse } from '../../types';
 
 type IProps = {
   customerIds?: string[];
@@ -19,29 +17,6 @@ type FinalProps = {
 } & IProps;
 
 class PortableItemsContainer extends React.Component<FinalProps> {
-  renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
-    const { options, itemsQuery } = this.props;
-
-    const callBackResponse = () => {
-      itemsQuery.refetch();
-
-      if (callback) {
-        callback();
-      }
-    };
-
-    return (
-      <ButtonMutate
-        mutation={options.mutations.addMutation}
-        variables={values}
-        callback={callBackResponse}
-        isSubmitted={isSubmitted}
-        type="submit"
-        successMessage={options.texts.addSuccessText}
-      />
-    );
-  };
-
   onChangeItems = () => {
     const { itemsQuery } = this.props;
 
@@ -60,7 +35,6 @@ class PortableItemsContainer extends React.Component<FinalProps> {
     const extendedProps = {
       ...this.props,
       items,
-      renderButton: this.renderButton,
       onChangeItems: this.onChangeItems
     };
 

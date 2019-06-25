@@ -6,7 +6,7 @@ import { Amount } from 'modules/boards/styles/stage';
 import { Tip } from 'modules/common/components';
 import * as moment from 'moment';
 import * as React from 'react';
-import { Date } from './styles/common';
+import { ItemDate } from './styles/common';
 import { IDraggableLocation, IItemMap } from './types';
 
 type Options = {
@@ -56,7 +56,9 @@ export const reorderItemMap = ({
 }: ReorderItemMap) => {
   const current = [...itemMap[source.droppableId]];
   const next = [...itemMap[destination.droppableId]];
+
   const target = current[source.index];
+  target.modifiedAt = new Date();
 
   // moving to same list
   if (source.droppableId === destination.droppableId) {
@@ -124,7 +126,7 @@ export const renderDate = (date, format = 'YYYY-MM-DD') => {
 
   return (
     <Tip text={moment(date).format(format)}>
-      <Date>{moment(date).format('lll')}</Date>
+      <ItemDate>{moment(date).format('lll')}</ItemDate>
     </Tip>
   );
 };

@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import * as React from 'react';
 
 type Props = {
@@ -15,9 +15,29 @@ type Props = {
   closeModal: () => void;
 };
 
-class ChangePassword extends React.Component<Props> {
+type State = {
+  isSubmitted: boolean;
+};
+
+class ChangePassword extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isSubmitted: false
+    };
+  }
+
+  onSubmit = values => {
+    if (values.newPassword !== values.confirmation) {
+      return Alert.error("Password didn't match");
+    }
+
+    return this.setState({ isSubmitted: true });
+  };
+
   renderContent = (formProps: IFormProps) => {
-    const { values, isSubmitted } = formProps;
+    const { values } = formProps;
 
     return (
       <>
@@ -68,7 +88,7 @@ class ChangePassword extends React.Component<Props> {
 
           {this.props.renderButton({
             values,
-            isSubmitted,
+            isSubmitted: this.state.isSubmitted,
             callback: this.props.closeModal
           })}
         </ModalFooter>
@@ -77,7 +97,7 @@ class ChangePassword extends React.Component<Props> {
   };
 
   render() {
-    return <Form renderContent={this.renderContent} />;
+    return <Form renderContent={this.renderContent} onSubmit={this.onSubmit} />;
   }
 }
 
