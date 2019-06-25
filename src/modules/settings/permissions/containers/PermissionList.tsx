@@ -8,7 +8,6 @@ import { compose, graphql } from 'react-apollo';
 import { PermissionList } from '../components';
 import { mutations, queries } from '../graphql';
 import {
-  IPermissionParams,
   PermissionActionsQueryResponse,
   PermissionModulesQueryResponse,
   PermissionRemoveMutationResponse,
@@ -31,8 +30,7 @@ const List = (props: FinalProps) => {
     usersQuery,
     usersGroupsQuery,
     totalCountQuery,
-    removeMutation,
-    addMutation
+    removeMutation
   } = props;
 
   // remove action
@@ -70,7 +68,7 @@ const List = (props: FinalProps) => {
     users: usersQuery.users || [],
     groups: usersGroupsQuery.usersGroups || [],
     isLoading,
-    refetchQueries: commonOptions()
+    refetchQueries: commonOptions(queryParams)
   };
 
   return <PermissionList {...updatedProps} />;
@@ -85,14 +83,21 @@ type Props = {
   usersQuery: UsersQueryResponse;
   usersGroupsQuery: UsersGroupsQueryResponse;
   totalCountQuery: PermissionTotalCountQueryResponse;
-  addMutation: (params: { variables: IPermissionParams }) => Promise<any>;
   removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
 };
 
-const commonOptions = () => {
+const commonOptions = queryParams => {
+  const variables = {
+    module: queryParams.module,
+    action: queryParams.action,
+    userId: queryParams.userId,
+    groupId: queryParams.groupId,
+    ...generatePaginationParams(queryParams)
+  };
+
   return [
-    { query: gql(queries.permissions), variables: {} },
-    { query: gql(queries.totalCount), variables: {} }
+    { query: gql(queries.permissions), variables },
+    { query: gql(queries.totalCount), variables }
   ];
 };
 
@@ -136,12 +141,12 @@ export default compose(
   }),
 
   // mutations
-  graphql<{}, PermissionRemoveMutationResponse>(
+  graphql<Props, PermissionRemoveMutationResponse>(
     gql(mutations.permissionRemove),
     {
       name: 'removeMutation',
-      options: () => ({
-        refetchQueries: commonOptions()
+      options: ({ queryParams }) => ({
+        refetchQueries: commonOptions(queryParams)
       })
     }
   )
