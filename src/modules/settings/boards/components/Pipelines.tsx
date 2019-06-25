@@ -5,22 +5,19 @@ import {
   HeaderDescription,
   SortableList
 } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import * as React from 'react';
 import { PipelineRow } from '.';
 import { PipelineForm } from '../containers';
 import { PipelineContainer } from '../styles';
-import { IPipeline, IStage } from '../types';
+import { IPipeline } from '../types';
 
 type Props = {
   type: string;
   pipelines: IPipeline[];
-  save: (
-    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
-    callback: () => void,
-    pipeline?: IPipeline
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   updateOrder?: any;
   remove: (pipelineId: string) => void;
   boardId: string;
@@ -48,7 +45,7 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderAddForm = () => {
-    const { boardId, save, type } = this.props;
+    const { boardId, renderButton, type } = this.props;
 
     const closeModal = () => this.setState({ showModal: false });
 
@@ -56,9 +53,9 @@ class Pipelines extends React.Component<Props, State> {
       <PipelineForm
         type={type}
         boardId={boardId}
-        save={save}
-        closeModal={closeModal}
+        renderButton={renderButton}
         show={this.state.showModal}
+        closeModal={closeModal}
       />
     );
   };
@@ -76,14 +73,14 @@ class Pipelines extends React.Component<Props, State> {
   };
 
   renderRows() {
-    const { save, type } = this.props;
+    const { renderButton, type } = this.props;
 
     const child = pipeline => {
       return (
         <PipelineRow
           key={pipeline._id}
           pipeline={pipeline}
-          save={save}
+          renderButton={renderButton}
           remove={this.props.remove}
           type={type}
         />
@@ -152,6 +149,7 @@ class Pipelines extends React.Component<Props, State> {
           }
           right={this.renderButton()}
         />
+
         {this.renderContent()}
         {this.renderAddForm()}
       </React.Fragment>

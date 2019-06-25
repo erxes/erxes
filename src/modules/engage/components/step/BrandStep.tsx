@@ -1,4 +1,5 @@
-import { BrandAdd, TargetCount } from 'modules/engage/types';
+import { IButtonMutateProps } from 'modules/common/types';
+import { TargetCount } from 'modules/engage/types';
 import { IBrand } from 'modules/settings/brands/types';
 import * as React from 'react';
 import Common from './Common';
@@ -11,7 +12,7 @@ type Props = {
   targetCount: TargetCount;
   customersCount: (ids: string[]) => number;
   onChange: (name: string, value: string[]) => void;
-  brandAdd: BrandAdd;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   renderContent: (
     {
       actionSelector,
@@ -27,7 +28,7 @@ type Props = {
 
 const BrandStep = (props: Props) => {
   const {
-    brandAdd,
+    renderButton,
     onChange,
     brands,
     brandIds,
@@ -38,7 +39,7 @@ const BrandStep = (props: Props) => {
   } = props;
 
   return (
-    <Common<IBrand, BrandAdd>
+    <Common<IBrand, {}>
       name="brandIds"
       label="Create a brand"
       targetIds={brandIds}
@@ -47,7 +48,7 @@ const BrandStep = (props: Props) => {
       targetCount={targetCount}
       customersCount={customersCount}
       onChange={onChange}
-      onSubmit={brandAdd}
+      renderButton={renderButton}
       Form={BrandForm}
       content={renderContent}
     />

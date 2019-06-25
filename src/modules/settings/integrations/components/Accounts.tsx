@@ -4,6 +4,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import { IFormProps } from 'modules/common/types';
 import { __, confirm } from 'modules/common/utils';
 import * as React from 'react';
 import { Row } from '../styles';
@@ -12,6 +13,7 @@ import { IAccount } from '../types';
 type Props = {
   onSelect: (accountId?: string) => void;
   accounts: IAccount[];
+  formProps: IFormProps;
   onAdd: () => void;
   removeAccount: (accountId: string) => void;
 };
@@ -56,17 +58,19 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
   }
 
   render() {
-    const { accounts } = this.props;
+    const { accounts, formProps } = this.props;
 
     return (
       <FormGroup>
         <ControlLabel required={true}>Linked Accounts</ControlLabel>
-
         <Row>
           <FormControl
+            {...formProps}
+            name="accountId"
             componentClass="select"
             placeholder={__('Select account')}
             onChange={this.onChange}
+            required={true}
           >
             <option value="">{__('Select account ...')}</option>
 

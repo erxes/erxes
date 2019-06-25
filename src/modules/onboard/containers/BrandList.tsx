@@ -2,8 +2,6 @@ import gql from 'graphql-tag';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/brands/graphql';
 import {
-  BrandAddMutationResponse,
-  BrandEditMutationResponse,
   BrandRemoveMutationResponse,
   BrandRemoveMutationVariables,
   BrandsCountQueryResponse,
@@ -21,8 +19,6 @@ type FinalProps = {
   brandsQuery: BrandsQueryResponse;
   brandsCountQuery: BrandsCountQueryResponse;
 } & Props &
-  BrandAddMutationResponse &
-  BrandEditMutationResponse &
   BrandRemoveMutationResponse;
 
 const BrandListContainer = (props: ChildProps<FinalProps>) => {

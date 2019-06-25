@@ -71,6 +71,7 @@
     "styled-components-ts": "^0.0.14",
     "subscriptions-transport-ws": "0.8.3",
     "ua-parser-js": "^0.7.17",
+    "validator": "^10.11.0",
     "xss": "^1.0.3"
   },
   "lint-staged": {

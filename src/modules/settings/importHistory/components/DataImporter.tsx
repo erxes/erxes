@@ -39,8 +39,8 @@ const ImportLoader = styled.i`
   height: 14px;
   animation: ${rotate} 0.75s linear infinite;
   border: 1px solid ${colors.borderDarker};
-  border-top-color: ${colors.colorPrimary};
-  border-right-color: ${colors.colorPrimary};
+  border-top-color: ${colors.colorSecondary};
+  border-right-color: ${colors.colorSecondary};
   border-radius: 100%;
 `;
 

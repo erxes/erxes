@@ -1,34 +1,26 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup,
   ModalTrigger,
   ModifiableList
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __, Alert } from 'modules/common/utils';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { Row } from 'modules/settings/integrations/styles';
 import * as React from 'react';
 import { PropertyGroupForm } from '../containers';
 import { IField, IFieldGroup } from '../types';
 
-type Doc = {
-  type: string;
-  validation: string;
-  text: string;
-  description: string;
-  options: any[];
-  groupId: string;
-};
-
 type Props = {
-  add: (params: { doc: Doc }) => void;
-  edit: ({ _id, doc }: { _id: string; doc: Doc }) => void;
   queryParams: any;
-
   field?: IField;
   groups: IFieldGroup[];
+  type: string;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
@@ -74,45 +66,27 @@ class PropertyForm extends React.Component<Props, State> {
     };
   }
 
-  onSubmit = e => {
-    e.preventDefault();
-    const groupId = (document.getElementById('groupId') as HTMLInputElement)
-      .value;
-    const validation = (document.getElementById(
-      'validation'
-    ) as HTMLInputElement).value;
-    const text = (document.getElementById('text') as HTMLInputElement).value;
-    const description = (document.getElementById(
-      'description-property'
-    ) as HTMLInputElement).value;
+  generateDoc = (values: {
+    _id?: string;
+    groupId: string;
+    validation: string;
+    text: string;
+    description: string;
+  }) => {
+    const { field, type } = this.props;
 
-    const { field, add, edit } = this.props;
-    const { type, options } = this.state;
-
-    const doc = {
-      type,
-      validation,
-      text,
-      description,
-      options,
-      groupId
-    };
-
-    if (!groupId) {
-      return Alert.error('Choose group!');
-    }
-
-    if (!type) {
-      return Alert.error('Insert type!');
-    }
+    const finalValues = values;
 
     if (field) {
-      edit({ _id: field._id, doc });
-    } else {
-      add({ doc });
+      finalValues._id = field._id;
     }
 
-    this.props.closeModal();
+    return {
+      ...finalValues,
+      type: this.state.type,
+      options: this.state.options,
+      contentType: type
+    };
   };
 
   onChangeOption = options => {
@@ -161,21 +135,22 @@ class PropertyForm extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const {
-      groups,
-      field = { text: '', description: '', groupId: '', validation: '' }
-    } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { groups, closeModal, renderButton, field } = this.props;
+
+    const object = field || ({} as IField);
+
+    const { values, isSubmitted } = formProps;
     const { type } = this.state;
 
     return (
-      <form onSubmit={this.onSubmit}>
+      <>
         <FormGroup>
           <ControlLabel required={true}>Name:</ControlLabel>
           <FormControl
-            type="text"
-            id="text"
-            defaultValue={field.text || ''}
+            {...formProps}
+            name="text"
+            defaultValue={object.text || ''}
             required={true}
           />
         </FormGroup>
@@ -183,9 +158,10 @@ class PropertyForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Description:</ControlLabel>
           <FormControl
-            id="description-property"
+            {...formProps}
+            name="description"
             componentClass="textarea"
-            defaultValue={field.description || ''}
+            defaultValue={object.description || ''}
           />
         </FormGroup>
 
@@ -193,11 +169,11 @@ class PropertyForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Group:</ControlLabel>
           <Row>
             <FormControl
-              id="groupId"
+              {...formProps}
+              name="groupId"
               componentClass="select"
-              defaultValue={
-                field.groupId || groups.length > 0 ? groups[0]._id : ''
-              }
+              defaultValue={object.groupId || ''}
+              required={true}
             >
               {groups.map(group => {
                 return (
@@ -215,9 +191,12 @@ class PropertyForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Type:</ControlLabel>
 
           <FormControl
+            {...formProps}
+            name="type"
             componentClass="select"
             value={type}
             onChange={this.onTypeChange}
+            required={true}
           >
             <option />
             <option value="input">Input</option>
@@ -233,9 +212,10 @@ class PropertyForm extends React.Component<Props, State> {
           <ControlLabel>Validation:</ControlLabel>
 
           <FormControl
+            {...formProps}
             componentClass="select"
-            id="validation"
-            defaultValue={field.validation || ''}
+            name="validation"
+            defaultValue={object.validation || ''}
           >
             <option />
             <option value="email">Email</option>
@@ -245,20 +225,24 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={this.props.closeModal}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'property',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: field
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

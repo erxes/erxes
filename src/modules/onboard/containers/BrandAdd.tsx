@@ -1,11 +1,9 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import { ButtonMutate, Icon } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/brands/graphql';
-import {
-  BrandAddMutationResponse,
-  BrandMutationVariables,
-  BrandsCountQueryResponse
-} from 'modules/settings/brands/types';
+import { BrandsCountQueryResponse } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { BrandAdd } from '../components';
@@ -13,54 +11,55 @@ import { OnboardConsumer } from '../containers/OnboardContext';
 
 type Props = { changeStep: () => void };
 
-type FinalProps = { brandsCountQuery: BrandsCountQueryResponse } & Props &
-  BrandAddMutationResponse;
+type FinalProps = { brandsCountQuery: BrandsCountQueryResponse } & Props;
 
 const BrandAddContainer = (props: ChildProps<FinalProps>) => {
-  const { brandsCountQuery, addMutation } = props;
+  const { brandsCountQuery } = props;
 
   const brandsTotalCount = brandsCountQuery.brandsTotalCount || 0;
 
-  // add brand
-  const save = (name: string, callback: () => void) => {
-    addMutation({ variables: { name } })
-      .then(() => {
-        Alert.success('Successfully created a new brand.');
-
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.brandAdd}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        disabled={!values}
+        type="submit"
+        successMessage={`You successfully added a ${name}`}
+      >
+        {__('Next')} <Icon icon="rightarrow-2" />
+      </ButtonMutate>
+    );
   };
 
   const updatedProps = {
     ...props,
     brandsTotalCount,
-    save
+    renderButton
   };
 
   return <BrandAdd {...updatedProps} />;
 };
 
-const WithQuery = compose(
-  graphql<BrandAddMutationResponse, BrandMutationVariables>(
-    gql(mutations.brandAdd),
+const getRefetchQueries = () => {
+  return [
     {
-      name: 'addMutation',
-      options: () => {
-        return {
-          refetchQueries: [
-            {
-              query: gql(queries.brands),
-              variables: { perPage: 0 }
-            },
-            { query: gql(queries.brandsCount) }
-          ]
-        };
-      }
-    }
-  ),
+      query: gql(queries.brands),
+      variables: { perPage: 0 }
+    },
+    { query: gql(queries.brandsCount) }
+  ];
+};
+
+const WithQuery = compose(
   graphql<BrandsCountQueryResponse>(gql(queries.brandsCount), {
     name: 'brandsCountQuery'
   })

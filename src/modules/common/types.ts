@@ -48,8 +48,25 @@ export type IDateColumn = {
   year: number;
 };
 
+export interface IFormProps {
+  errors: any;
+  values: any;
+  registerChild: (child: React.ReactNode) => void;
+  runValidations?: (callback: any) => void;
+  isSubmitted: boolean;
+}
+
 export type IOption = {
   label: string;
   value: string;
   avatar?: string;
+};
+
+export type IButtonMutateProps = {
+  name?: string;
+  values: any;
+  isSubmitted: boolean;
+  callback?: () => void;
+  size?: string;
+  object?: any;
 };

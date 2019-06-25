@@ -1,16 +1,21 @@
+import { IButtonMutateProps } from 'modules/common/types';
 import { StepFormWrapper } from 'modules/engage/styles';
 import { BrandForm } from 'modules/settings/brands/components';
 import * as React from 'react';
 
 type Props = {
-  save: (params: { doc: { name: string; description: string } }) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   afterSave: () => void;
 };
 
-const Form = ({ save, afterSave }: Props) => {
+const Form = ({ renderButton, afterSave }: Props) => {
   return (
     <StepFormWrapper>
-      <BrandForm save={save} afterSave={afterSave} modal={false} />
+      <BrandForm
+        afterSave={afterSave}
+        modal={false}
+        renderButton={renderButton}
+      />
     </StepFormWrapper>
   );
 };

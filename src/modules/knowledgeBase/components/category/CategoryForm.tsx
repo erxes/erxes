@@ -1,11 +1,13 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup,
   Icon
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { icons } from '../../icons.constant';
@@ -14,21 +16,7 @@ import { ICategory } from '../../types';
 type Props = {
   currentTopicId: string;
   category: ICategory;
-  save: (
-    params: {
-      doc: {
-        doc: {
-          title: string;
-          description: string;
-          icon: string;
-          topicIds: string[];
-        };
-      };
-    },
-    callback: () => void,
-    category: ICategory
-  ) => void;
-
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
@@ -44,16 +32,6 @@ class CategoryForm extends React.Component<Props, State> {
       selectedIcon: this.getSelectedIcon()
     };
   }
-
-  save = e => {
-    e.preventDefault();
-
-    this.props.save(
-      this.generateDoc(),
-      () => this.props.closeModal(),
-      this.props.category
-    );
-  };
 
   getSelectedIcon() {
     const { category } = this.props;
@@ -76,35 +54,42 @@ class CategoryForm extends React.Component<Props, State> {
     );
   };
 
-  generateDoc() {
+  generateDoc = (values: {
+    _id?: string;
+    title: string;
+    description: string;
+  }) => {
     const { category, currentTopicId } = this.props;
+    const finalValues = values;
+
+    if (category) {
+      finalValues._id = category._id;
+    }
 
     return {
-      ...category,
+      _id: finalValues._id,
       doc: {
-        doc: {
-          title: (document.getElementById(
-            'knowledgebase-category-title'
-          ) as HTMLInputElement).value,
-          description: (document.getElementById(
-            'knowledgebase-category-description'
-          ) as HTMLInputElement).value,
-          icon: this.state.selectedIcon,
-          topicIds: [currentTopicId]
-        }
+        title: finalValues.title,
+        description: finalValues.description,
+        icon: this.state.selectedIcon,
+        topicIds: [currentTopicId]
       }
     };
-  }
+  };
 
-  renderContent(category = { title: '', description: '' }) {
+  renderContent = (formProps: IFormProps) => {
+    const { category, closeModal, renderButton } = this.props;
+    const object = category || ({} as ICategory);
+    const { values, isSubmitted } = formProps;
+
     return (
-      <React.Fragment>
+      <>
         <FormGroup>
-          <ControlLabel>Title</ControlLabel>
+          <ControlLabel required={true}>Title</ControlLabel>
           <FormControl
-            id="knowledgebase-category-title"
-            type="text"
-            defaultValue={category.title}
+            {...formProps}
+            name="title"
+            defaultValue={object.title}
             required={true}
           />
         </FormGroup>
@@ -112,15 +97,16 @@ class CategoryForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FormControl
-            id="knowledgebase-category-description"
-            type="text"
-            defaultValue={category.description}
+            {...formProps}
+            name="description"
+            defaultValue={object.description}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Icon</ControlLabel>
+          <ControlLabel required={true}>Icon</ControlLabel>
           <Select
+            isRequired={true}
             name="form-field-name"
             value={this.state.selectedIcon}
             options={icons}
@@ -129,32 +115,30 @@ class CategoryForm extends React.Component<Props, State> {
             valueRenderer={this.renderOption}
           />
         </FormGroup>
-      </React.Fragment>
-    );
-  }
-
-  render() {
-    return (
-      <form onSubmit={this.save}>
-        {this.renderContent(
-          this.props.category || { title: '', description: '' }
-        )}
         <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
-            onClick={this.props.closeModal}
+            onClick={closeModal}
             icon="cancel-1"
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'category',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: category
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

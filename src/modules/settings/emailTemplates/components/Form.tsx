@@ -4,6 +4,7 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import { IFormProps } from 'modules/common/types';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import * as React from 'react';
 import { Form as CommonForm } from '../../common/components';
@@ -18,7 +19,7 @@ type State = {
   content: string;
 };
 
-class Form extends React.PureComponent<Props, State> {
+class Form extends React.Component<Props & ICommonFormProps, State> {
   constructor(props: Props) {
     super(props);
 
@@ -31,26 +32,31 @@ class Form extends React.PureComponent<Props, State> {
     this.setState({ content: e.editor.getData() });
   };
 
-  generateDoc = () => {
+  generateDoc = (values: { _id?: string; name: string; content: string }) => {
+    const { object } = this.props;
+    const finalValues = values;
+
+    if (object) {
+      finalValues._id = object._id;
+    }
+
     return {
-      doc: {
-        name: (document.getElementById('template-name') as HTMLInputElement)
-          .value,
-        content: this.state.content
-      }
+      _id: finalValues._id,
+      name: finalValues.name,
+      content: this.state.content
     };
   };
 
-  renderContent = () => {
+  renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as IEmailTemplate);
 
     return (
       <React.Fragment>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
-
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
-            id="template-name"
+            {...formProps}
+            name="name"
             defaultValue={object.name}
             type="text"
             required={true}
@@ -74,8 +80,10 @@ class Form extends React.PureComponent<Props, State> {
     return (
       <CommonForm
         {...this.props}
+        name="email template"
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
+        object={this.props.object}
       />
     );
   }

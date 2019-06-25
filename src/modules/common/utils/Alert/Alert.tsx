@@ -63,6 +63,7 @@ export default class AlertStyled extends React.Component<Props, State> {
   static defaultProps = {
     type: 'information'
   };
+
   private timeout?: NodeJS.Timer = undefined;
 
   constructor(props: Props) {

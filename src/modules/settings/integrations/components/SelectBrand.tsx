@@ -1,6 +1,6 @@
 import { Button } from 'modules/common/components';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import BrandForm from 'modules/settings/brands/components/BrandForm';
-
 import * as React from 'react';
 import {
   ControlLabel,
@@ -13,25 +13,18 @@ import { IBrand } from '../../brands/types';
 import { Row } from '../styles';
 
 type Props = {
-  brands: IBrand[]; // eslint-disable-line react/forbid-prop-types
+  brands: IBrand[];
   onChange?: (e: any) => any;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-      };
-    },
-    callback: () => void
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   defaultValue?: string;
   creatable?: boolean;
   isRequired?: boolean;
+  formProps?: IFormProps;
 };
 
 class SelectBrand extends React.Component<Props, {}> {
   renderAddBrand = () => {
-    const { save, creatable = true } = this.props;
+    const { renderButton, creatable = true } = this.props;
 
     if (!creatable) {
       return;
@@ -39,7 +32,9 @@ class SelectBrand extends React.Component<Props, {}> {
 
     const trigger = <Button>Create brand</Button>;
 
-    const content = props => <BrandForm {...props} save={save} />;
+    const content = props => (
+      <BrandForm {...props} renderButton={renderButton} />
+    );
 
     return (
       <ModalTrigger title="Create brand" trigger={trigger} content={content} />
@@ -47,18 +42,25 @@ class SelectBrand extends React.Component<Props, {}> {
   };
 
   render() {
-    const { brands, onChange, defaultValue, isRequired } = this.props;
+    const {
+      brands,
+      onChange,
+      defaultValue,
+      formProps,
+      isRequired
+    } = this.props;
 
     return (
       <FormGroup>
         <ControlLabel required={isRequired}>Brand</ControlLabel>
         <Row>
           <FormControl
+            {...formProps}
+            name="brandId"
             componentClass="select"
             placeholder={__('Select Brand')}
             defaultValue={defaultValue}
             onChange={onChange}
-            id="selectBrand"
             required={isRequired}
           >
             <option />
