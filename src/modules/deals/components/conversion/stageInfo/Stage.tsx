@@ -8,7 +8,7 @@ import {
   StageWrap,
   Stayed,
   Values
-} from '../stytle';
+} from '../style';
 
 type Props = {
   stage: IStage;

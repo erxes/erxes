@@ -1,4 +1,5 @@
 import { colors } from 'modules/common/styles';
+import { MainContent } from 'modules/layout/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -51,4 +52,16 @@ const Values = styled('div')`
   padding: 0 5px;
 `;
 
-export { StageWrap, StageContainer, Content, Stayed, Name, Values };
+const DealContent = styled(MainContent)`
+  margin: 0;
+`;
+
+export {
+  DealContent,
+  StageWrap,
+  StageContainer,
+  Content,
+  Stayed,
+  Name,
+  Values
+};

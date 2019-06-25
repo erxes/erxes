@@ -20,19 +20,9 @@ const ContentBody = styled.div`
   position: relative;
   z-index: 1;
   height: 100%;
-  padding: 0 4px 90px;
+  padding: 0 4px;
   margin: 0 4px;
   overflow-y: auto;
-`;
-
-const Footer = styled.div`
-  position: absolute;
-  z-index: 2;
-  bottom: 31px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  background: ${colors.bgLight};
 `;
 
 class StageList extends React.Component<Props, {}> {
@@ -54,7 +44,12 @@ class StageList extends React.Component<Props, {}> {
       />
     ));
 
-    return <ContentBody>{contents}</ContentBody>;
+    return (
+      <ContentBody>
+        {contents}
+        {this.renderFooter()}
+      </ContentBody>
+    );
   }
 
   renderFooter() {
@@ -76,16 +71,12 @@ class StageList extends React.Component<Props, {}> {
         (lastStagePrimaryDealsTotalCount * 100) /
         firstStagePrimaryDealsTotalCount;
 
-      return <Footer>Avarage wondeal value: {avarage}%</Footer>;
+      return <div>Avarage wondeal value: {avarage}%</div>;
     }
   }
 
   render() {
-    return (
-      <Container>
-        {this.renderContent()} {this.renderFooter()}
-      </Container>
-    );
+    return <Container>{this.renderContent()}</Container>;
   }
 }
 
