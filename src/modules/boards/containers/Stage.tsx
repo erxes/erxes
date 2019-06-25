@@ -1,20 +1,18 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
-import {
-  IItem,
-  IItemParams,
-  IOptions,
-  IStage,
-  ItemsQueryResponse,
-  SaveItemMutation
-} from 'modules/boards/types';
 import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../components/stage';
-import { queries } from '../graphql';
-import { IFilterParams } from '../types';
+import {
+  IFilterParams,
+  IItem,
+  IOptions,
+  IStage,
+  ItemsQueryResponse,
+  SaveItemMutation
+} from '../types';
 
 type WrapperProps = {
   stage: IStage;

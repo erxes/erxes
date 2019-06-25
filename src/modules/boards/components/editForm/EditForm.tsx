@@ -1,12 +1,12 @@
 import { ActivityInputs } from 'modules/activityLogs/components';
 import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
-import { FlexContent, FormFooter, Left } from 'modules/boards/styles/item';
 import { Button } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import * as React from 'react';
+import { FlexContent, FormFooter, Left } from '../../styles/item';
 import { IItem, IItemParams, IOptions } from '../../types';
 import { Sidebar, Top } from './';
 

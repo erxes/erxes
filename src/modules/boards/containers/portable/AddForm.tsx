@@ -3,6 +3,7 @@ import { Alert, renderWithProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { AddForm } from '../../components/portable';
+import { queries } from '../../graphql';
 import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
 
 type IProps = {
@@ -14,7 +15,7 @@ type IProps = {
   stageId?: string;
   showSelect?: boolean;
   closeModal: () => void;
-  onAddItem: (stageId: string, item: IItem) => void;
+  callback?: () => void;
 };
 
 type FinalProps = {
@@ -22,18 +23,14 @@ type FinalProps = {
 } & IProps;
 
 class AddFormContainer extends React.Component<FinalProps> {
-  saveItem = (doc: IItemParams, callback: () => void) => {
-    const { addMutation, onAddItem, options, stageId } = this.props;
+  saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
+    const { addMutation, options } = this.props;
 
     addMutation({ variables: doc })
       .then(({ data }) => {
         Alert.success(options.texts.addSuccessText);
 
-        if (onAddItem && stageId) {
-          onAddItem(stageId, data[options.mutationsName.addMutation]);
-        }
-
-        callback();
+        callback(data[options.mutationsName.addMutation]);
       })
       .catch(error => {
         Alert.error(error.message);
@@ -54,11 +51,24 @@ export default (props: IProps) =>
   renderWithProps<IProps>(
     props,
     compose(
-      // mutation
-      graphql<{}, SaveMutation, IItemParams>(
+      graphql<IProps, SaveMutation, IItem>(
         gql(props.options.mutations.addMutation),
         {
-          name: 'addMutation'
+          name: 'addMutation',
+          options: ({ stageId }: { stageId?: string }) => {
+            if (!stageId) {
+              return {};
+            }
+
+            return {
+              refetchQueries: [
+                {
+                  query: gql(queries.stageDetail),
+                  variables: { _id: stageId }
+                }
+              ]
+            };
+          }
         }
       )
     )(AddFormContainer)

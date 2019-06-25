@@ -41,7 +41,13 @@ class Items extends React.Component<Props> {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const { customerIds, companyIds, isOpen, options } = this.props;
+    const {
+      customerIds,
+      companyIds,
+      isOpen,
+      options,
+      onChangeItems
+    } = this.props;
 
     const trigger = (
       <a>
@@ -53,6 +59,7 @@ class Items extends React.Component<Props> {
       <AddForm
         options={options}
         {...props}
+        callback={onChangeItems}
         customerIds={customerIds}
         companyIds={companyIds}
         showSelect={true}

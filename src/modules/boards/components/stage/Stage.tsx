@@ -89,7 +89,7 @@ export default class Stage extends React.Component<Props, {}> {
     const formProps = {
       options,
       showSelect: false,
-      onAddItem,
+      callback: (item: IItem) => onAddItem(stage._id, item),
       stageId: stage._id
     };
 

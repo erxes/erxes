@@ -1,14 +1,14 @@
-import { BoardSelect } from 'modules/boards/containers';
+import { Button, ControlLabel, FormControl } from 'modules/common/components';
+import { Alert } from 'modules/common/utils';
+import * as React from 'react';
+import { BoardSelect } from '../../containers';
 import {
   AddContainer,
   FormFooter,
   HeaderContent,
   HeaderRow
-} from 'modules/boards/styles/item';
-import { IItemParams, IOptions } from 'modules/boards/types';
-import { Button, ControlLabel, FormControl } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
-import * as React from 'react';
+} from '../../styles/item';
+import { IItem, IItemParams, IOptions } from '../../types';
 import { invalidateCache } from '../../utils';
 
 type Props = {
@@ -18,9 +18,10 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
-  saveItem: (doc: IItemParams, callback: () => void) => void;
+  saveItem: (doc: IItemParams, callback: (item: IItem) => void) => void;
   showSelect?: boolean;
   closeModal: () => void;
+  callback?: (item?: IItem) => void;
 };
 
 type State = {
@@ -52,7 +53,13 @@ class AddForm extends React.Component<Props, State> {
     e.preventDefault();
 
     const { stageId, name } = this.state;
-    const { companyIds, customerIds, saveItem, closeModal } = this.props;
+    const {
+      companyIds,
+      customerIds,
+      saveItem,
+      closeModal,
+      callback
+    } = this.props;
 
     if (!stageId) {
       return Alert.error('No stage');
@@ -72,11 +79,15 @@ class AddForm extends React.Component<Props, State> {
     // before save, disable save button
     this.setState({ disabled: true });
 
-    saveItem(doc, () => {
+    saveItem(doc, (item: IItem) => {
       // after save, enable save button
       this.setState({ disabled: false });
 
       closeModal();
+
+      if (callback) {
+        callback(item);
+      }
 
       invalidateCache();
     });
