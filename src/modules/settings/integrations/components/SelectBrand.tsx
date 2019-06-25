@@ -13,7 +13,7 @@ import { IBrand } from '../../brands/types';
 import { Row } from '../styles';
 
 type Props = {
-  brands: IBrand[]; // eslint-disable-line react/forbid-prop-types
+  brands: IBrand[];
   onChange?: (e: any) => any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   defaultValue?: string;

@@ -56,11 +56,8 @@ const TagStepContianer = (props: FinalProps) => {
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
-        icon="checked-1"
         successMessage={`You successfully added a tag`}
-      >
-        {__('Save')}
-      </ButtonMutate>
+      />
     );
   };
 
