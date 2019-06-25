@@ -50,14 +50,12 @@ const createAlert = (type: string, text: string) => {
 
   const wrapper = document.getElementById('alert-wrapper');
 
-  if (wrapper) {
-    ReactDOM.render(
-      <AlertStyled key={alertcount} type={type}>
-        {T.translate(text)}
-      </AlertStyled>,
-      wrapper
-    );
-  }
+  ReactDOM.render(
+    <AlertStyled key={alertcount} type={type}>
+      {T.translate(text)}
+    </AlertStyled>,
+    wrapper
+  );
 };
 
 const success = (text: string) => createAlert('success', text);
