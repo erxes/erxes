@@ -22,12 +22,19 @@ class PortableItemsContainer extends React.Component<FinalProps> {
   renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
     const { options, itemsQuery } = this.props;
 
+    const callBackResponse = () => {
+      itemsQuery.refetch();
+
+      if (callback) {
+        callback();
+      }
+    };
+
     return (
       <ButtonMutate
         mutation={options.mutations.addMutation}
         variables={values}
-        callback={callback}
-        refetchQueries={itemsQuery.refetch()}
+        callback={callBackResponse}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={options.texts.addSuccessText}

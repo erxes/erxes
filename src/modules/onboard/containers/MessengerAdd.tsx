@@ -57,7 +57,7 @@ class MessengerAddContainer extends React.Component<Props, State> {
       isSubmitted,
       callback
     }: IButtonMutateProps) => {
-      const showInstallCode = data => {
+      const callBackResponse = data => {
         this.setState({
           integration: data.integrationsCreateMessengerIntegration,
           isVisibleCodeModal: true
@@ -72,7 +72,7 @@ class MessengerAddContainer extends React.Component<Props, State> {
         <ButtonMutate
           mutation={mutations.integrationsCreateMessenger}
           variables={values}
-          callback={showInstallCode}
+          callback={callBackResponse}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           disabled={!values}
