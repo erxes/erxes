@@ -1,52 +1,43 @@
 import apolloClient from 'apolloClient';
-import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { IRouterProps } from '../../common/types';
+import { ButtonMutate } from '../../common/components';
+import { IButtonMutateProps, IRouterProps } from '../../common/types';
 import { SignIn } from '../components';
 import { mutations } from '../graphql';
-import { LoginMutationResponse } from '../types';
 
-type FinalProps = IRouterProps & LoginMutationResponse;
+const SignInContainer = (props: IRouterProps) => {
+  const { history } = props;
 
-const SignInContainer = (props: FinalProps) => {
-  const { loginMutation, history } = props;
+  const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
+    const callbackResponse = () => {
+      apolloClient.resetStore();
+      history.push('/');
+    };
 
-  const login = variables => {
-    loginMutation({ variables })
-      .then(() => {
-        apolloClient.resetStore();
-
-        history.push('/');
-      })
-      .catch(e => {
-        if (e.message.includes('Invalid login')) {
-          Alert.error(
-            'The email address or password you entered is incorrect.'
-          );
-        } else {
-          Alert.error(e.message);
-        }
-      });
+    return (
+      <ButtonMutate
+        mutation={mutations.login}
+        variables={values}
+        callback={callbackResponse}
+        isSubmitted={isSubmitted}
+        type="submit"
+        block={true}
+        icon="none"
+        successMessage={`Congrats! You successfully sign in`}
+      >
+        {__('Sign in')}
+      </ButtonMutate>
+    );
   };
 
   const updatedProps = {
     ...props,
-    login
+    renderButton
   };
 
   return <SignIn {...updatedProps} />;
 };
 
-export default withProps<{}>(
-  compose(
-    graphql<{}, LoginMutationResponse, { LoginMutationVariables }>(
-      gql(mutations.login),
-      {
-        name: 'loginMutation'
-      }
-    )
-  )(withRouter<FinalProps>(SignInContainer))
-);
+export default withRouter<IRouterProps>(SignInContainer);

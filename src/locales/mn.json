@@ -826,5 +826,6 @@
   "Maximum length is": "Хамгийн ихдээ",
   "characters": "тэмдэгт байна!",
   "Invalid number format! Please enter a valid number": "Зөв дугаар оруулна уу.",
-  "Insert email template to content": "Агуулгаруу имэйл тэмплэйт оруулах"
+  "Insert email template to content": "Агуулгаруу имэйл тэмплэйт оруулах",
+  "Congrats! You successfully sign in": "Баяр хүргэе! Та амжилттай нэвтэрлээ"
 }
