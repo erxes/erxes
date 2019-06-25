@@ -1,16 +1,18 @@
-import { Content } from 'modules/deals/styles/stage';
-
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { __ } from '../../../../common/utils';
-import {
-  Deal as DealContainer,
-  Footer,
-  SpaceContent
-} from '../../../styles/deal';
 import { IStage } from '../../../types';
+import {
+  Content,
+  Name,
+  StageContainer,
+  StageWrap,
+  Stayed,
+  Values
+} from '../stytle';
 
 type Props = {
   stage: IStage;
+  spacing: number;
 };
 
 class Stage extends React.Component<Props> {
@@ -20,31 +22,31 @@ class Stage extends React.Component<Props> {
 
       const percent = info.percent ? parseInt(info.percent, 10) : 0;
       const content = `lost: ${lost} ${percent}%`;
+
       return (
-        <Footer>
-          <SpaceContent>{content}</SpaceContent>
-        </Footer>
+        <Values>
+          <span>{content}</span>
+        </Values>
       );
     }
     return;
   }
   render() {
-    const { stage } = this.props;
+    const { stage, spacing } = this.props;
 
     return (
-      <DealContainer>
-        <Content>
-          <SpaceContent>
-            <h5>{stage.name}</h5>
-          </SpaceContent>
-          <SpaceContent>
-            <h5>
-              {stage.dealsTotalCount} / {stage.primaryDealsTotalCount}
-            </h5>
-          </SpaceContent>
-        </Content>
-        {this.renderLostInfo(stage.stageInfo)}
-      </DealContainer>
+      <StageWrap>
+        <StageContainer spacing={spacing}>
+          <Content>
+            <Name>{stage.name}</Name>
+            <Stayed>
+              {stage.dealsTotalCount} /{' '}
+              <span>{stage.primaryDealsTotalCount}</span>
+            </Stayed>
+          </Content>
+          {this.renderLostInfo(stage.stageInfo)}
+        </StageContainer>
+      </StageWrap>
     );
   }
 }

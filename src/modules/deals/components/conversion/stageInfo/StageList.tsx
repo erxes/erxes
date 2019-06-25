@@ -36,13 +36,22 @@ const Footer = styled.div`
 `;
 
 class StageList extends React.Component<Props, {}> {
+  calcSpace = (lenght: number, index: number) => {
+    return 100 - ((index + 1) * (100 / lenght)) / 1.5;
+  };
+
   renderContent() {
     const { stages } = this.props;
     if (stages.length === 0) {
       return <EmptyState icon="piggy-bank" text="No deal" />;
     }
+
     const contents = stages.map((stage: IStage, index: number) => (
-      <Stage key={index} stage={stage} />
+      <Stage
+        spacing={this.calcSpace(stages.length, index)}
+        key={index}
+        stage={stage}
+      />
     ));
 
     return <ContentBody>{contents}</ContentBody>;
