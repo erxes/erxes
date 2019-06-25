@@ -165,13 +165,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
   };
 
   renderInput = () => {
-    const { buttonText, placeholder, formProps, type, required } = this.props;
-
-    let onClick = formProps && formProps.runValidations;
-
-    if ((formProps && formProps.errors.addOption === null) || !formProps) {
-      onClick = this.handleSave;
-    }
+    const { buttonText, placeholder, type, required } = this.props;
 
     if (this.state.adding) {
       const onPress = e => {
@@ -185,14 +179,12 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
         <React.Fragment>
           <FormGroup>
             <FormControl
-              name="addOption"
               type={type}
               autoFocus={true}
               onKeyPress={onPress}
               placeholder={placeholder}
               onChange={this.handleInputChange}
               required={required}
-              {...formProps}
             />
           </FormGroup>
           <Button
@@ -207,7 +199,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
             btnStyle="success"
             size="small"
             icon="checked-1"
-            onClick={onClick}
+            onClick={this.handleSave}
           >
             Save
           </Button>
