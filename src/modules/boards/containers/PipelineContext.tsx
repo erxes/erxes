@@ -178,10 +178,6 @@ export class PipelineProvider extends React.Component<Props, State> {
     for (const stageId of stageIds) {
       const orders = collectOrders(itemMap[stageId]);
 
-      if (orders.length === 0) {
-        continue;
-      }
-
       client
         .mutate({
           mutation: gql(options.mutations.updateOrderMutation),
