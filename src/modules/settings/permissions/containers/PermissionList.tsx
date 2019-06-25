@@ -31,8 +31,7 @@ const List = (props: FinalProps) => {
     usersQuery,
     usersGroupsQuery,
     totalCountQuery,
-    removeMutation,
-    addMutation
+    removeMutation
   } = props;
 
   // remove action

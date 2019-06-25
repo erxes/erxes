@@ -37,6 +37,7 @@ class Form extends React.Component<Props> {
             {...formProps}
             name="name"
             defaultValue={object.name}
+            autoFocus={true}
             required={true}
           />
         </FormGroup>
