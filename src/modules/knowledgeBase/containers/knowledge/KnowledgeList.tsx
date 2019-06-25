@@ -59,6 +59,15 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     callback,
     object
   }: IButtonMutateProps) => {
+    const callBackResponse = () => {
+      topicsQuery.refetch();
+      topicsCountQuery.refetch();
+
+      if (callback) {
+        callback();
+      }
+    };
+
     return (
       <ButtonMutate
         mutation={
@@ -67,8 +76,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
             : mutations.knowledgeBaseTopicsAdd
         }
         variables={values}
-        callback={callback}
-        refetchQueries={getRefetchQueries()}
+        callback={callBackResponse}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -92,13 +100,6 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
   };
 
   return <KnowledgeList {...extendedProps} />;
-};
-
-const getRefetchQueries = () => {
-  return [
-    { query: gql(queries.knowledgeBaseTopicsTotalCount) },
-    { query: gql(queries.knowledgeBaseTopics) }
-  ];
 };
 
 export default withProps<Props>(
