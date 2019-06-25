@@ -41,7 +41,7 @@ type Props = {
   value?: string;
   placeholder?: string;
   buttonText?: string;
-  regex?: RegExp;
+  checkFormat?: (value: string | number) => boolean;
   adding?: boolean;
   formProps?: IFormProps;
   type?: string;
@@ -83,10 +83,6 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
     return <span>{selectedOption}</span>;
   };
 
-  isValid(regex: RegExp) {
-    return regex.test(this.state.inputValue);
-  }
-
   saveValue() {
     const { options, selectedOption, inputValue } = this.state;
     const { onChange } = this.props;
@@ -109,10 +105,10 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
   }
 
   handleSave = () => {
-    const { regex } = this.props;
+    const { checkFormat } = this.props;
 
-    if (regex) {
-      if (this.isValid(regex)) {
+    if (checkFormat) {
+      if (checkFormat(this.state.inputValue)) {
         return this.saveValue();
       }
 
