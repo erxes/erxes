@@ -93,14 +93,7 @@ class Form extends React.Component<Props, State> {
       );
     }
 
-    if (
-      value &&
-      props.type === 'url' &&
-      !validator.isURL(value, {
-        protocols: ['http', 'https', 'ftp'],
-        require_protocol: true
-      })
-    ) {
+    if (value && props.type === 'url' && !validator.isURL(value)) {
       return <Error>{__('Invalid link')}</Error>;
     }
 
