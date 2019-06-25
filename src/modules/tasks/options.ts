@@ -7,7 +7,7 @@ const options = {
   PortableItem: PortableTask,
   Item: TaskItem,
   type: 'task',
-  title: 'Tasks',
+  title: 'Task',
   queriesName: {
     itemsQuery: 'tasks',
     detailQuery: 'taskDetail'

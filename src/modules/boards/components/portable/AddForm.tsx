@@ -9,6 +9,7 @@ import { IItemParams, IOptions } from 'modules/boards/types';
 import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
+import { invalidateCache } from '../../utils';
 
 type Props = {
   options: IOptions;
@@ -76,6 +77,8 @@ class AddForm extends React.Component<Props, State> {
       this.setState({ disabled: false });
 
       closeModal();
+
+      invalidateCache();
     });
   };
 

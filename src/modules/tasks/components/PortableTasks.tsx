@@ -1,4 +1,4 @@
-import { PortableItems } from 'modules/boards/containers';
+import { Items as PortableItems } from 'modules/boards/containers/portable';
 import * as React from 'react';
 import options from '../options';
 

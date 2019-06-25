@@ -23,6 +23,7 @@ import {
   IMessage
 } from '../../../types';
 import Conversation from './conversation/Conversation';
+import ConvertTo from './ConvertTo';
 import Participators from './Participators';
 
 type Props = {
@@ -159,6 +160,14 @@ export default class WorkArea extends React.Component<Props, State> {
     const actionBarRight = (
       <BarItems>
         <Tagger targets={[currentConversation]} trigger={tagTrigger} />
+
+        <ConvertTo
+          customerIds={
+            currentConversation.customerId
+              ? [currentConversation.customerId]
+              : []
+          }
+        />
 
         <Resolver conversations={[currentConversation]} />
       </BarItems>
