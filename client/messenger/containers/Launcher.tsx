@@ -23,16 +23,15 @@ type QueryResponse = {
 type Props = ChildProps<BaseProps, QueryResponse>;
 
 class Launcher extends React.Component<Props, {}> {
-  componentWillReceiveProps(nextProps: Props) {
-    const data = this.props.data;
-    const nextData = nextProps.data;
+  componentDidMount() {
+    const { data } = this.props;
 
-    if (!data && nextData) {
-      nextData.subscribeToMore({
+    if (data) {
+      data.subscribeToMore({
         document: gql(graphqlTypes.adminMessageInserted),
         variables: { customerId: connection.data.customerId },
         updateQuery: () => {
-          nextData.refetch();
+          data.refetch();
         }
       });
     }
@@ -56,8 +55,7 @@ const WithQuery = graphql<Props, QueryResponse>(
   {
     options: () => ({
       variables: connection.data
-    }),
-    skip: props => !props.isMessengerVisible
+    })
   }
 )(Launcher);
 

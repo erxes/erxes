@@ -109,7 +109,7 @@ class MessageSender extends React.Component<Props, State> {
 
       inputTimeoutInstance = setTimeout(() => {
         sendTypingInfo(conversationId, message);
-      }, 1000);
+      }, 800);
     }
 
     this.setHeight();
@@ -120,7 +120,13 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   handleOnBlur() {
-    this.props.onTextInputBlur();
+    const { onTextInputBlur, sendTypingInfo, conversationId } = this.props;
+
+    if (conversationId) {
+      sendTypingInfo(conversationId, "");
+    }
+
+    onTextInputBlur();
   }
 
   handleClick() {
