@@ -20,7 +20,7 @@ class Items extends React.Component<Props> {
     const { onChangeItems, items, options } = this.props;
 
     if (items.length === 0) {
-      return <EmptyState icon="icon-clipboard" text={`No ${options.type}`} />;
+      return <EmptyState icon="folder" text={`No ${options.type}`} />;
     }
 
     const PortableItem = options.PortableItem;
