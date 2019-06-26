@@ -143,7 +143,7 @@ const apolloServer = new ApolloServer({
               status: 'disconnected',
             },
           });
-        }, 1000);
+        }, 60000);
       }
     },
   },
