@@ -78,7 +78,7 @@ const cocsExport = async (cocs: TDocs[], cocType: string): Promise<{ name: strin
 
   return {
     name,
-    response: await generateXlsx(workbook, name, 'binary'),
+    response: await generateXlsx(workbook),
   };
 };
 

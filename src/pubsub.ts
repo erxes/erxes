@@ -31,7 +31,7 @@ interface IGoogleOptions {
   };
 }
 
-const { PUBSUB_TYPE, NODE_ENV }: { PUBSUB_TYPE?: string; NODE_ENV?: string } = process.env;
+const { PUBSUB_TYPE, NODE_ENV, PROCESS_NAME } = process.env;
 
 // Google pubsub message handler
 const commonMessageHandler = payload => {
@@ -59,7 +59,7 @@ const configGooglePubsub = (): IGoogleOptions => {
 const createPubsubInstance = (): IPubSub => {
   let pubsub;
 
-  if (NODE_ENV === 'test' || NODE_ENV === 'command') {
+  if (NODE_ENV === 'test' || NODE_ENV === 'command' || PROCESS_NAME === 'crons') {
     pubsub = {
       asyncIterator: () => null,
       publish: () => null,

@@ -32,7 +32,3 @@ export const createActivityLogsFromSegments = async () => {
 schedule.scheduleJob('0 45 23 * * *', () => {
   createActivityLogsFromSegments();
 });
-
-export default {
-  createActivityLogsFromSegments,
-};

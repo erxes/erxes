@@ -7,18 +7,18 @@ import * as formidable from 'formidable';
 import * as fs from 'fs';
 import { createServer } from 'http';
 import * as path from 'path';
+import * as request from 'request';
 import apolloServer from './apolloClient';
 import { companiesExport, customersExport } from './data/modules/coc/exporter';
 import insightExports from './data/modules/insights/insightExports';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
 import { checkFile, getEnv, readFileRequest, uploadFile } from './data/utils';
 import { connect } from './db/connection';
-import { debugInit } from './debuggers';
+import { debugExternalApi, debugInit } from './debuggers';
 import integrationsApiMiddleware from './middlewares/integrationsApiMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import { initRedis } from './redisClient';
 import { init } from './startup';
-import { importXlsFile } from './workers/bulkInsert';
 
 // load environment variables
 dotenv.config();
@@ -145,30 +145,31 @@ app.post('/upload-file', async (req, res) => {
 });
 
 // file import
-app.post('/import-file', (req: any, res) => {
-  const form = new formidable.IncomingForm();
-
+app.post('/import-file', async (req: any, res, next) => {
   // require login
   if (!req.user) {
     return res.end('foribidden');
   }
 
-  form.parse(req, async (_err, fields: any, response) => {
-    const status = await checkFile(response.file);
+  const WORKERS_API_DOMAIN = getEnv({ name: 'WORKERS_API_DOMAIN' });
 
-    // if file is not ok then send error
-    if (status !== 'ok') {
-      return res.json(status);
-    }
+  debugExternalApi(`Pipeing request to ${WORKERS_API_DOMAIN}`);
 
-    importXlsFile(response.file, fields.type, { user: req.user })
-      .then(result => {
-        return res.json(result);
+  return req.pipe(
+    request
+      .post(`${WORKERS_API_DOMAIN}/import-file`)
+      .on('response', response => {
+        if (response.statusCode !== 200) {
+          return next(response.statusMessage);
+        }
+
+        return response.pipe(res);
       })
-      .catch(e => {
-        return res.json({ status: 'error', message: e.message });
-      });
-  });
+      .on('error', e => {
+        debugExternalApi(`Error from pipe ${e.message}`);
+        next(e);
+      }),
+  );
 });
 
 // engage unsubscribe
@@ -188,6 +189,12 @@ apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
 
 // handle integrations api requests
 app.post('/integrations-api', integrationsApiMiddleware);
+
+// Error handling middleware
+app.use((error, _req, res, _next) => {
+  console.error(error.stack);
+  res.status(500).send(error.message);
+});
 
 // Wrap the Express server
 const httpServer = createServer(app);

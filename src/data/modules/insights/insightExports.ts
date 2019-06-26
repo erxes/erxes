@@ -56,7 +56,7 @@ export const insightVolumeReportExport = async (args: IListArgs, user: IUserDocu
 
   return {
     name,
-    response: await generateXlsx(workbook, name, 'binary'),
+    response: await generateXlsx(workbook),
   };
 };
 
@@ -161,7 +161,7 @@ export const insightActivityReportExport = async (args: IListArgs, user: IUserDo
 
   return {
     name,
-    response: await generateXlsx(workbook, name, 'binary'),
+    response: await generateXlsx(workbook),
   };
 };
 
@@ -234,7 +234,7 @@ export const insightFirstResponseReportExport = async (args: IListArgsWithUserId
 
   return {
     name,
-    response: await generateXlsx(workbook, name, 'binary'),
+    response: await generateXlsx(workbook),
   };
 };
 
@@ -323,7 +323,7 @@ export const insightTagReportExport = async (args: IListArgs, user: IUserDocumen
 
   return {
     name,
-    response: await generateXlsx(workbook, name, 'binary'),
+    response: await generateXlsx(workbook),
   };
 };
 

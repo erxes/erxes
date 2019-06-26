@@ -1,4 +1,3 @@
-import cronJobs from '../cronJobs';
 import { customerFactory, segmentFactory } from '../db/factories';
 import { ActivityLogs } from '../db/models';
 import {
@@ -8,6 +7,7 @@ import {
   ACTIVITY_TYPES,
 } from '../db/models/definitions/constants';
 
+import { createActivityLogsFromSegments } from '../cronJobs/activityLogs';
 import './setup.ts';
 
 describe('test activityLogsCronJob', () => {
@@ -30,7 +30,7 @@ describe('test activityLogsCronJob', () => {
       conditions: nameEqualsConditions,
     });
 
-    await cronJobs.createActivityLogsFromSegments();
+    await createActivityLogsFromSegments();
 
     expect(await ActivityLogs.find().countDocuments()).toBe(1);
 
@@ -78,7 +78,7 @@ describe('test activityLogsCronJob', () => {
       conditions: nameEqualsConditions2,
     });
 
-    await cronJobs.createActivityLogsFromSegments();
+    await createActivityLogsFromSegments();
 
     expect(await ActivityLogs.find().countDocuments()).toBe(2);
   });
