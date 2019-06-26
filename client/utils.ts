@@ -21,8 +21,6 @@ export const getBrowserInfo = async () => {
 
     location = await response.json();
   } catch (e) {
-    console.log(e.message);
-
     location = {
       city: "",
       remoteAddress: "",

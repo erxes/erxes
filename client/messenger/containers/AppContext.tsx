@@ -472,8 +472,6 @@ export class AppProvider extends React.Component<{}, IState> {
 
         .catch((e: Error) => {
           this.setState({ sendingMessage: false });
-
-          console.log(e.message);
         })
     );
   };
