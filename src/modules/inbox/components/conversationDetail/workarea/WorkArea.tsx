@@ -10,8 +10,7 @@ import {
   AssignText,
   AssignTrigger,
   ConversationWrapper,
-  PopoverButton,
-  Typing
+  PopoverButton
 } from 'modules/inbox/styles';
 import { Wrapper } from 'modules/layout/components';
 import { ContenFooter, ContentBox } from 'modules/layout/styles';
@@ -25,6 +24,7 @@ import {
 import Conversation from './conversation/Conversation';
 import ConvertTo from './ConvertTo';
 import Participators from './Participators';
+import TypingIndicator from './TypingIndicator';
 
 type Props = {
   queryParams?: any;
@@ -84,7 +84,7 @@ export default class WorkArea extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { conversationMessages } = this.props;
+    const { conversationMessages, typingInfo } = this.props;
 
     const messageCount = conversationMessages.length;
     const prevMessageCount = prevProps.conversationMessages.length;
@@ -94,7 +94,7 @@ export default class WorkArea extends React.Component<Props, State> {
       current.scrollTop = current.scrollHeight - snapshot;
     }
 
-    if (prevMessageCount + 1 === messageCount) {
+    if (prevMessageCount + 1 === messageCount || typingInfo) {
       this.scrollBottom();
     }
 
@@ -197,6 +197,8 @@ export default class WorkArea extends React.Component<Props, State> {
       />
     );
 
+    const typingIndicator = typingInfo ? <TypingIndicator /> : null;
+
     const content = (
       <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
         <Conversation
@@ -205,13 +207,10 @@ export default class WorkArea extends React.Component<Props, State> {
           conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
           loading={loading}
+          typingIndicator={typingIndicator}
         />
       </ConversationWrapper>
     );
-
-    const typingIndicator = typingInfo ? (
-      <Typing>User is typing {typingInfo} ...</Typing>
-    ) : null;
 
     return (
       <React.Fragment>
@@ -219,8 +218,6 @@ export default class WorkArea extends React.Component<Props, State> {
         <ContentBox>{content}</ContentBox>
         {currentConversation._id && (
           <ContenFooter>
-            {typingIndicator}
-
             <RespondBox
               showInternal={false}
               conversation={currentConversation}

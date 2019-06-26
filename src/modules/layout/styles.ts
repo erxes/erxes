@@ -248,7 +248,7 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
   }
 `;
 
-const SidebarList = styled.ul`
+const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
   margin: 0;
   padding: 0;
   list-style: none;
@@ -272,6 +272,7 @@ const SidebarList = styled.ul`
     overflow: hidden;
     text-overflow: ellipsis;
     text-decoration: none;
+    text-transform: ${props => (props.capitalize ? 'capitalize' : 'normal')};
     outline: 0;
     position: relative;
     border-left: 2px solid transparent;

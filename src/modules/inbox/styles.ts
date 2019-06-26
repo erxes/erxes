@@ -326,10 +326,6 @@ const NoHeight = styled.div`
   height: auto;
 `;
 
-const Typing = styled.div`
-  display: none;
-`;
-
 export {
   PopoverButton,
   ConversationWrapper,
@@ -358,6 +354,5 @@ export {
   AssignTrigger,
   Mask,
   MaskWrapper,
-  NoHeight,
-  Typing
+  NoHeight
 };
