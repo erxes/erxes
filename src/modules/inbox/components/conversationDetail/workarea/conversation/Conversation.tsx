@@ -11,7 +11,6 @@ type Props = {
   conversationMessages: IMessage[];
   attachmentPreview: IAttachmentPreview;
   scrollBottom: () => void;
-  typingIndicator?: React.ReactNode;
   loading: boolean;
 };
 
@@ -66,12 +65,11 @@ class Conversation extends React.Component<Props, {}> {
   }
 
   render() {
-    const { attachmentPreview, scrollBottom, typingIndicator } = this.props;
+    const { attachmentPreview, scrollBottom } = this.props;
 
     return (
       <Wrapper isEmail={false}>
         {this.renderConversation()}
-        {typingIndicator}
         <AttachmentPreview
           onLoad={scrollBottom}
           attachmentPreview={attachmentPreview}

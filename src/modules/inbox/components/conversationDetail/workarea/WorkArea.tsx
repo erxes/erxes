@@ -194,7 +194,9 @@ export default class WorkArea extends React.Component<Props, State> {
       />
     );
 
-    const typingIndicator = typingInfo ? <TypingIndicator /> : null;
+    const typingIndicator = typingInfo ? (
+      <TypingIndicator>{typingInfo}</TypingIndicator>
+    ) : null;
 
     const content = (
       <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
@@ -204,17 +206,17 @@ export default class WorkArea extends React.Component<Props, State> {
           conversationMessages={conversationMessages}
           attachmentPreview={this.state.attachmentPreview}
           loading={loading}
-          typingIndicator={typingIndicator}
         />
       </ConversationWrapper>
     );
 
     return (
-      <React.Fragment>
+      <>
         {actionBar}
         <ContentBox>{content}</ContentBox>
         {currentConversation._id && (
           <ContenFooter>
+            {typingIndicator}
             <RespondBox
               showInternal={false}
               conversation={currentConversation}
@@ -223,7 +225,7 @@ export default class WorkArea extends React.Component<Props, State> {
             />
           </ContenFooter>
         )}
-      </React.Fragment>
+      </>
     );
   }
 }

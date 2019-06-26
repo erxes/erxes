@@ -52,10 +52,10 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     }
 
     return (
-      <React.Fragment>
+      <>
         <span dangerouslySetInnerHTML={{ __html: xss(message.content) }} />
         {this.renderAttachment(hasAttachment)}
-      </React.Fragment>
+      </>
     );
   }
 
