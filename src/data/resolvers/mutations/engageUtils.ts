@@ -30,7 +30,12 @@ export const replaceKeys = ({
 }): string => {
   let result = content;
 
-  const customerName = `${customer.firstName} + ${customer.lastName}`;
+  let customerName = customer.firstName || customer.lastName || 'Customer';
+
+  if (customer.firstName && customer.lastName) {
+    customerName = `${customer.firstName} ${customer.lastName}`;
+  }
+
   const details = user.details ? user.details.toJSON() : {};
 
   // replace customer fields
