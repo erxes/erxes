@@ -74,7 +74,7 @@ export const createScheduleRule = (scheduleDate: IScheduleDate) => {
   const time = moment(new Date(scheduleDate.time));
 
   const hour = time.hour() || '*';
-  const minute = time.minute() || '*';
+  const minute = time.minute() || '0';
   const month = scheduleDate.month || '*';
 
   let dayOfWeek = '*';
