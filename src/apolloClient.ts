@@ -126,6 +126,13 @@ const apolloServer = new ApolloServer({
               graphqlPubsub.publish('conversationMessageInserted', {
                 conversationMessageInserted: message,
               });
+
+              graphqlPubsub.publish('conversationClientTypingStatusChanged', {
+                conversationClientTypingStatusChanged: {
+                  conversationId: message.conversationId,
+                  text: '',
+                },
+              });
             }
           }
 
@@ -136,7 +143,7 @@ const apolloServer = new ApolloServer({
               status: 'disconnected',
             },
           });
-        }, 60000);
+        }, 1000);
       }
     },
   },
