@@ -109,7 +109,7 @@ class MessageSender extends React.Component<Props, State> {
 
       inputTimeoutInstance = setTimeout(() => {
         sendTypingInfo(conversationId, message);
-      }, 2000);
+      }, 1000);
     }
 
     this.setHeight();
