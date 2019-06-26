@@ -207,12 +207,8 @@ class WorkArea extends React.Component<FinalProps, State> {
   };
 
   loadMoreMessages = () => {
-    const {
-      currentId,
-      currentConversation,
-      messagesTotalCountQuery,
-      messagesQuery
-    } = this.props;
+    const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
+
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
     const conversationMessages = messagesQuery.conversationMessages || [];
 
