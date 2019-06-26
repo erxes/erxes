@@ -422,7 +422,12 @@ export const sendRequest = async (
   { url, method, headers, form, body, params }: IRequestParams,
   errorMessage: string,
 ) => {
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  if (NODE_ENV === 'test') {
+    return;
+  }
 
   debugExternalApi(`
     Sending request to
