@@ -81,6 +81,7 @@ class MessageSender extends React.Component<Props, State> {
   };
 
   sendMessage() {
+    this.clearTimeout();
     this.props.sendMessage(this.state.message);
     this.setState({ message: "" });
     this.setHeight(60);
@@ -91,6 +92,12 @@ class MessageSender extends React.Component<Props, State> {
     this.sendMessage();
   }
 
+  clearTimeout() {
+    if (inputTimeoutInstance) {
+      clearTimeout(inputTimeoutInstance);
+    }
+  }
+
   handleMessageChange(e: React.FormEvent<HTMLTextAreaElement>) {
     const { sendTypingInfo, conversationId } = this.props;
     const message = e.currentTarget.value;
@@ -98,9 +105,7 @@ class MessageSender extends React.Component<Props, State> {
     this.setState({ message });
 
     if (conversationId) {
-      if (inputTimeoutInstance) {
-        clearTimeout(inputTimeoutInstance);
-      }
+      this.clearTimeout();
 
       inputTimeoutInstance = setTimeout(() => {
         sendTypingInfo(conversationId, message);
@@ -111,9 +116,7 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    if (inputTimeoutInstance) {
-      clearTimeout(inputTimeoutInstance);
-    }
+    this.clearTimeout();
   }
 
   handleOnBlur() {
