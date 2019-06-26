@@ -10,6 +10,12 @@ const rotate = keyframes`
 	}
 `;
 
+const blink = keyframes`
+	50% {
+		opacity: 1;
+	}
+`;
+
 const fadeIn = keyframes`
   0% {
     opacity: 0;
@@ -83,6 +89,7 @@ const stripe = keyframes`
 `;
 
 export {
+  blink,
   rotate,
   fadeIn,
   slideDown,
