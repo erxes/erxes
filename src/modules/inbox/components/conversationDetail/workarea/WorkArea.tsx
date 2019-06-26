@@ -105,6 +105,9 @@ export default class WorkArea extends React.Component<Props, State> {
     const { current } = this.node;
     const { loadMoreMessages } = this.props;
 
+    // tslint:disable
+    console.log('onScroll', current.scrollTop);
+
     if (current.scrollTop === 0) {
       loadMoreMessages();
     }
