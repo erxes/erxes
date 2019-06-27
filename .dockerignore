@@ -1,6 +1,7 @@
-.git*
-.dockerignore
-Dockerfile
 *.md
-.drone.yml
+*.yml
+.dockerignore
+.git*
 .prettierrc
+Dockerfile*
+src

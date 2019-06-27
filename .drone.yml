@@ -13,6 +13,13 @@ pipeline:
     image: node:10.16.0-slim
     commands:
       - yarn build
+    when:
+      branch:
+        - master
+        - develop
+      event:
+        - push
+        - tag
 
   docker_publish:
     image: plugins/docker
@@ -24,13 +31,13 @@ pipeline:
       - source: docker_hub_password
         target: docker_password
     tags:
-      - ${DRONE_BRANCH}-latest
+      - ${DRONE_BRANCH}
     when:
       branch:
         - master
         - develop
-      event: push
-      status: success
+      event:
+        - push
 
   docker_publish_tag:
     image: plugins/docker
@@ -45,4 +52,3 @@ pipeline:
       - ${DRONE_TAG}
     when:
       event: tag
-      status: success

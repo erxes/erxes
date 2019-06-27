@@ -3,4 +3,4 @@ WORKDIR /erxes-integrations
 COPY --chown=node:node . /erxes-integrations
 USER node
 EXPOSE 3400
-CMD ["node", "--max_old_space_size=8192", "dist"]
+ENTRYPOINT ["node", "--max_old_space_size=8192", "dist"]
