@@ -14,6 +14,10 @@ import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
  * Check that given file is not harmful
  */
 export const checkFile = async file => {
+  if (!file) {
+    throw new Error('Invalid file');
+  }
+
   const { size } = file;
 
   // 20mb

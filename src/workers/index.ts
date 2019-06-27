@@ -73,7 +73,13 @@ app.post('/import-file', async (req: any, res) => {
   debugRequest(debugWorkers, req);
 
   form.parse(req, async (_err, fields: any, response) => {
-    const status = await checkFile(response.file);
+    let status = '';
+
+    try {
+      status = await checkFile(response.file);
+    } catch (e) {
+      return res.json({ status: e.message });
+    }
 
     // if file is not ok then send error
     if (status !== 'ok') {
