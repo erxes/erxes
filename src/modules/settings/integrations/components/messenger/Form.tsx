@@ -57,7 +57,8 @@ type State = {
   youtube: string;
   messages: IMessages;
   isStepActive?: boolean;
-  requireAuth: boolean;
+  requireAuth?: boolean;
+  forceLogoutWhenResolve?: boolean;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -80,6 +81,7 @@ class CreateMessenger extends React.Component<Props, State> {
       wallpaper: uiOptions.wallpaper || '1',
       notifyCustomer: configData.notifyCustomer || false,
       requireAuth: configData.requireAuth ? true : false,
+      forceLogoutWhenResolve: configData.forceLogoutWhenResolve ? true : false,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
       isOnline: configData.isOnline || false,
@@ -135,7 +137,8 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook,
       twitter,
       youtube,
-      requireAuth
+      requireAuth,
+      forceLogoutWhenResolve
     } = this.state;
 
     if (!languageCode) {
@@ -169,6 +172,7 @@ class CreateMessenger extends React.Component<Props, State> {
         supporterIds: this.state.supporterIds,
         messages,
         requireAuth,
+        forceLogoutWhenResolve,
         links
       },
       uiOptions: {
@@ -232,7 +236,8 @@ class CreateMessenger extends React.Component<Props, State> {
       youtube,
       messages,
       isStepActive,
-      requireAuth
+      requireAuth,
+      forceLogoutWhenResolve
     } = this.state;
 
     const message = messages[languageCode];
@@ -272,6 +277,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 notifyCustomer={notifyCustomer}
                 languageCode={languageCode}
                 requireAuth={requireAuth}
+                forceLogoutWhenResolve={forceLogoutWhenResolve}
               />
             </Step>
 
