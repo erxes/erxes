@@ -1,9 +1,11 @@
 import {
   Button,
   ControlLabel,
+  Form as CommonForm,
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert, generateRandomColorCode } from 'modules/common/utils';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import {
@@ -15,26 +17,19 @@ import {
   ISegmentWithConditionDoc
 } from 'modules/segments/types';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { AddConditionButton, Conditions } from '..';
 import { ConditionWrapper, SegmentTitle, SegmentWrapper } from '../styles';
 
 type Props = {
   contentType?: string;
   fields: ISegmentField[];
-  save: (params: { doc: ISegmentWithConditionDoc }) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   edit?: (params: { _id: string; doc: ISegmentWithConditionDoc }) => void;
   segment?: ISegment;
   headSegments: ISegment[];
   count: (segment: ISegmentDoc) => void;
-  renderForm?: (
-    {
-      renderContent,
-      saveButton
-    }: {
-      renderContent: React.ReactNode;
-      saveButton: React.ReactNode;
-    }
-  ) => JSX.Element;
+  isForm?: boolean;
   afterSave?: () => void;
 };
 
@@ -132,33 +127,29 @@ class Form extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
-  save = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const { segment, save, edit, afterSave } = this.props;
-
-    const {
-      name,
-      description,
-      subOf,
-      color,
-      connector,
-      conditions
-    } = this.state;
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    subOf: string;
+    color: string;
+  }) => {
+    const { segment, contentType } = this.props;
+    const { connector, conditions } = this.state;
+    const finalValues = values;
 
     const updatedConditions: ISegmentConditionDoc[] = [];
 
-    if (!name) {
-      return Alert.error('Please enter a name');
+    if (segment) {
+      finalValues._id = segment._id;
     }
 
     for (const condition of conditions) {
       if (!condition.operator) {
-        return Alert.error('Please enter a operator');
+        // return Alert.error('Please enter a operator');
       }
 
       if (!['is', 'ins'].includes(condition.operator) && !condition.value) {
-        return Alert.error('Please enter a value for operator');
+        // return Alert.error('Please enter a value for operator');
       }
     }
 
@@ -169,28 +160,12 @@ class Form extends React.Component<Props, State> {
       }
     });
 
-    const doc = {
-      name,
-      description,
-      color,
+    return {
+      ...finalValues,
+      contentType,
       connector,
-      conditions: updatedConditions,
-      subOf: ''
+      conditions: updatedConditions
     };
-
-    if (subOf) {
-      doc.subOf = subOf;
-    }
-
-    if (segment) {
-      return edit && edit({ _id: segment._id, doc });
-    }
-
-    save({ doc });
-
-    if (afterSave) {
-      afterSave();
-    }
   };
 
   renderConditions() {
@@ -234,7 +209,7 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderSubOf() {
+  renderSubOf(formProps: IFormProps) {
     const onChange = (e: React.FormEvent) =>
       this.handleChange('subOf', (e.currentTarget as HTMLInputElement).value);
 
@@ -242,6 +217,8 @@ class Form extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>Sub segment of</ControlLabel>
         <FormControl
+          {...formProps}
+          name="subOf"
           componentClass="select"
           value={this.state.subOf || ''}
           onChange={onChange}
@@ -257,8 +234,15 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderForm() {
-    const { renderForm } = this.props;
+  renderForm = (formProps: IFormProps) => {
+    const {
+      isForm,
+      segment,
+      contentType,
+      renderButton,
+      afterSave
+    } = this.props;
+    const { values, isSubmitted } = formProps;
     const { name, description, color } = this.state;
 
     const nameOnChange = (e: React.FormEvent) =>
@@ -274,73 +258,72 @@ class Form extends React.Component<Props, State> {
       this.handleChange('color', (e.currentTarget as HTMLInputElement).value);
 
     return (
-      <FlexContent>
-        <FlexItem count={4}>
-          <form onSubmit={this.save}>
-            <FormGroup>
-              <ControlLabel required={true}>Name</ControlLabel>
-              <FormControl
-                required={true}
-                value={name}
-                onChange={nameOnChange}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl value={description} onChange={descOnChange} />
-            </FormGroup>
-            {this.renderSubOf()}
-            <FormGroup>
-              <ControlLabel>Color</ControlLabel>
-              <FormControl
-                type="color"
-                value={color}
-                onChange={colorOnChange}
-              />
-            </FormGroup>
-            {!renderForm && this.renderSaveButton()}
-          </form>
-        </FlexItem>
-        <FlexItem count={2} />
-      </FlexContent>
-    );
-  }
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Name</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="name"
+            value={name}
+            onChange={nameOnChange}
+            required={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Description</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="description"
+            value={description}
+            onChange={descOnChange}
+          />
+        </FormGroup>
+        {this.renderSubOf({ ...formProps })}
+        <FormGroup>
+          <ControlLabel>Color</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="color"
+            type="color"
+            value={color}
+            onChange={colorOnChange}
+          />
+        </FormGroup>
+        <Button.Group>
+          {isForm && (
+            <Link to={`/segments/${contentType}`}>
+              <Button size="small" btnStyle="simple" icon="cancel-1">
+                Cancel
+              </Button>
+            </Link>
+          )}
 
-  renderContent = () => {
+          {renderButton({
+            name: 'segment',
+            values: this.generateDoc(values),
+            callback: afterSave,
+            isSubmitted,
+            object: segment
+          })}
+        </Button.Group>
+      </>
+    );
+  };
+
+  render() {
     return (
       <SegmentWrapper>
         <SegmentTitle>{__('Filters')}</SegmentTitle>
         {this.renderConditions()}
         <hr />
-        {this.renderForm()}
+        <FlexContent>
+          <FlexItem count={4}>
+            <CommonForm renderContent={this.renderForm} />
+          </FlexItem>
+          <FlexItem count={2} />
+        </FlexContent>
       </SegmentWrapper>
     );
-  };
-
-  renderSaveButton = () => {
-    return (
-      <Button
-        size="small"
-        btnStyle="success"
-        onClick={this.save}
-        icon="checked-1"
-      >
-        Save
-      </Button>
-    );
-  };
-
-  render() {
-    const { renderForm } = this.props;
-
-    if (!renderForm) {
-      return this.renderContent();
-    }
-
-    return renderForm({
-      renderContent: this.renderContent(),
-      saveButton: this.renderSaveButton()
-    });
   }
 }
 
