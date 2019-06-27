@@ -42,6 +42,10 @@ app.post('/integrations/remove', async (req, res) => {
 
   const account = await Accounts.findOne({ _id: integration.accountId });
 
+  if (!account) {
+    return res.status(500).send('Account not found');
+  }
+
   if (integration.kind === 'facebook') {
     for (const pageId of integration.facebookPageIds) {
       const pageTokenResponse = await getPageAccessToken(pageId, account.token);
