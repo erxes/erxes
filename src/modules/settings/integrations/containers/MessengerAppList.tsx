@@ -31,6 +31,8 @@ const MessengerAppContainer = (props: FinalProps) => {
 
   const remove = app => {
     confirm().then(() => {
+      Alert.warning('Removing... Please wait!!!');
+
       removeMutation({ variables: { _id: app._id } })
         .then(() => {
           Alert.success('You successfully deleted a messenger');
