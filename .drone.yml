@@ -5,56 +5,33 @@ pipeline:
       - sleep 15
       - mongo --host mongo
 
-  install:
+  test:
     image: erxes/runner:latest
+    environment:
+      - TEST_MONGO_URL=mongodb://mongo/test
     commands:
       - node -v
       - npm -v
       - yarn --version
-      - yarn config set cache-folder .yarn-cache
       - yarn install
-
-  linting:
-    image: erxes/runner:latest
-    commands:
       - yarn lint
-
-  typescript:
-    image: erxes/runner:latest
-    commands:
       - yarn tsc
-
-  test_pr:
-    image: erxes/runner:latest
-    environment:
-      - TEST_MONGO_URL=mongodb://mongo/test
-    commands:
       - mkdir src/private/xlsTemplateOutputs
       - yarn test
-    when:
-      event: pull_request
-
-  test_push:
-    image: erxes/runner:latest
-    environment:
-      - TEST_MONGO_URL=mongodb://mongo/test
-    commands:
-      - mkdir src/private/xlsTemplateOutputs
-      - yarn test
-    when:
-      event: push
 
   build:
     image: erxes/runner:latest
     commands:
       - yarn build
-      - cp .env.sample .env
     when:
-      branch: [master, develop]
-      event: push
-      status: success
+      branch:
+        - master
+        - develop
+      event:
+        - push
+        - tag
 
-  docker:
+  docker_publish:
     image: plugins/docker
     repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
     dockerfile: Dockerfile
@@ -64,11 +41,28 @@ pipeline:
       - source: docker_hub_password
         target: docker_password
     tags:
-      - ${DRONE_BRANCH}-latest
+      - ${DRONE_BRANCH}
     when:
-      branch: [master, develop]
-      event: push
-      status: success
+      branch:
+        - master
+        - develop
+      event:
+        - push
+
+  docker_publish_tag:
+    image: plugins/docker
+    repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    dockerfile: Dockerfile
+    secrets:
+      - source: docker_hub_username
+        target: docker_username
+      - source: docker_hub_password
+        target: docker_password
+    tags:
+      - ${DRONE_TAG}
+    when:
+      event:
+        - tag
 
 services:
   mongo:
