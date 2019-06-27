@@ -43,6 +43,7 @@ export interface IMessengerData {
   messages?: IMessageDataMessages;
   links?: ILink;
   requireAuth?: boolean;
+  forceLogoutWhenResolve?: boolean;
 }
 
 export interface IMessengerDataDocument extends IMessengerData, Document {}
@@ -124,6 +125,7 @@ const messengerDataSchema = new Schema(
       youtube: String,
     },
     requireAuth: field({ type: Boolean, default: true }),
+    forceLogoutWhenResolve: field({ type: Boolean, default: false }),
   },
   { _id: false },
 );
