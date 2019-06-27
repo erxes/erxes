@@ -6,8 +6,8 @@ import {
   IIntegrationMessengerDataMessagesItem,
   IIntegrationUiOptions
 } from "../../types";
-import { scrollTo } from "../../utils";
-import { getLocalStorageItem, setLocalStorageItem } from "../connection";
+import { makeClickableLink, scrollTo } from "../../utils";
+import { setLocalStorageItem } from "../connection";
 import { IMessage } from "../types";
 import { Message } from "./";
 import AccquireInformation from "./AccquireInformation";
@@ -23,6 +23,7 @@ type Props = {
     doc: { type: string; value: string },
     callback?: () => void
   ) => void;
+  isLoggedIn: () => boolean;
   getColor?: string;
 };
 
@@ -44,7 +45,7 @@ class MessagesList extends React.Component<Props, State> {
   componentDidMount() {
     if (this.node) {
       this.node.scrollTop = this.node.scrollHeight;
-      this.makeClickableLink();
+      makeClickableLink("#erxes-messages a");
     }
   }
 
@@ -62,16 +63,8 @@ class MessagesList extends React.Component<Props, State> {
       if (this.node && this.shouldScrollBottom) {
         scrollTo(this.node, this.node.scrollHeight, 500);
       }
-      this.makeClickableLink();
+      makeClickableLink("#erxes-messages a");
     }
-  }
-
-  makeClickableLink() {
-    const nodes = Array.from(document.querySelectorAll("#erxes-messages a"));
-
-    nodes.forEach(node => {
-      node.setAttribute("target", "__blank");
-    });
   }
 
   onNotify = ({ type, value }: { type: string; value: string }) => {
@@ -95,6 +88,12 @@ class MessagesList extends React.Component<Props, State> {
   }
 
   renderNotifyInput(messengerData: IIntegrationMessengerData) {
+    const { isLoggedIn, getColor } = this.props;
+
+    if (isLoggedIn()) {
+      return null;
+    }
+
     if (this.state.hideNotifyInput) {
       const messages =
         messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
@@ -106,15 +105,11 @@ class MessagesList extends React.Component<Props, State> {
       );
     }
 
-    if (messengerData.requireAuth || getLocalStorageItem("hasNotified")) {
-      return null;
-    }
-
     return (
       <li className="erxes-spacial-message auth">
         <AccquireInformation
           save={this.onNotify}
-          color={this.props.getColor}
+          color={getColor}
           loading={false}
         />
       </li>
@@ -144,6 +139,7 @@ class MessagesList extends React.Component<Props, State> {
       <div className={backgroundClass} ref={node => (this.node = node)}>
         <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderWelcomeMessage(messengerData)}
+
           <RTG.TransitionGroup component={null}>
             {messages.map(message => {
               const _id: any = message._id;

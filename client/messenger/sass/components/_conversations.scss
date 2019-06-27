@@ -2,6 +2,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  max-height: 100%;
 }
 
 .erxes-conversation-list {
@@ -30,10 +31,11 @@
   }
 
   .erxes-left-side {
-    border-radius: 21px;
+    border-radius: 25px;
     float: left;
     height: 42px;
-    margin: 20px 15px 20px 20px;
+    margin: 15px 10px 15px 15px;
+    padding: 5px;
     text-align: center;
     width: 40px;
 
@@ -52,6 +54,10 @@
     svg {
       stroke: $text-color-light;
     }
+  }
+
+  &:last-child .erxes-right-side {
+    border: none;
   }
 
   .erxes-right-side {

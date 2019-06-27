@@ -3,7 +3,7 @@ import * as moment from "moment";
 import * as React from "react";
 import * as striptags from "striptags";
 import { defaultAvatar } from "../../icons/Icons";
-import { __ } from "../../utils";
+import { __, readFile } from "../../utils";
 import { IConversation } from "../types";
 
 type Props = {
@@ -29,8 +29,8 @@ function ConversationItem({
   let fullName = (__("Support staff") || {}).toString();
 
   if (participatedUser && participatedUser.details) {
-    avatar = participatedUser.details.avatar;
-    fullName = participatedUser.details.fullName;
+    avatar = participatedUser.details.avatar || defaultAvatar;
+    fullName = participatedUser.details.fullName || fullName;
   }
 
   return (
@@ -42,7 +42,7 @@ function ConversationItem({
         goToConversation(_id);
       }}
     >
-      <img className="erxes-left-side" src={avatar} alt={fullName} />
+      <img className="erxes-left-side" src={readFile(avatar)} alt={fullName} />
       <div className="erxes-right-side">
         <div
           className="erxes-date erxes-tooltip"

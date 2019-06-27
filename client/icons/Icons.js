@@ -48,6 +48,14 @@ const iconAttach = (
   </svg>
 );
 
+const iconMore = (
+  <svg {...attrs} width="9" height="33" fill="#ffffff" strokeWidth="0">
+    <circle cx="10" cy="4.5" r="4.5"></circle>
+    <circle cx="10" cy="20.5" r="4.5"></circle>
+    <circle cx="10" cy="35.5" r="4.5"></circle>
+  </svg>
+);
+
 const iconClose = (
   <svg {...attrs} width="18">
     <line x1="18" y1="6" x2="6" y2="18" />
@@ -77,6 +85,7 @@ export {
   iconExit,
   iconAttach,
   iconClose,
+  iconMore,
   iconSearch,
   defaultAvatar,
   link,

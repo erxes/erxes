@@ -1,5 +1,6 @@
 import * as React from "react";
 import { IEmailParams, IIntegration, IIntegrationFormData } from "../../types";
+import { checkRules } from "../../utils";
 import { connection } from "../connection";
 import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from "../types";
 import { increaseViewCount, postMessage, saveForm, sendEmail } from "./utils";
@@ -45,12 +46,27 @@ export class AppProvider extends React.Component<{}, IState> {
   /*
    * Decide which component will render initially
    */
-  init = () => {
-    const { data, hasPopupHandlers } = connection;
+  init = async () => {
+    const { data, browserInfo, hasPopupHandlers } = connection;
     const { integration, form } = data;
 
-    const { callout } = form;
+    if (!browserInfo) {
+      return;
+    }
+
+    const { callout, rules } = form;
     const { loadType } = integration.formData;
+
+    // check rules ======
+    const isPassedAllRules = await checkRules(rules, browserInfo);
+
+    if (!isPassedAllRules) {
+      return this.setState({
+        isPopupVisible: false,
+        isFormVisible: false,
+        isCalloutVisible: false
+      });
+    }
 
     // if there is popup handler then do not show it initially
     if (loadType === "popup" && hasPopupHandlers) {

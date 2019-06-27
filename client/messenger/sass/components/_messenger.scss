@@ -1,5 +1,4 @@
 .erxes-messenger {
-  background: $white;
   border-radius: $border-radius;
   border-bottom-right-radius: 25px;
   bottom: 76px;
@@ -43,9 +42,12 @@
 .accquire-information {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
   justify-content: center;
-  padding: 20px 30px;
+  padding: 30px;
+  background: $white;
 
   .type {
     margin-top: 0;

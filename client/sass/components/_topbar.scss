@@ -13,17 +13,12 @@
     }
 
     &.right {
-      display: none;
       right: 15px;
 
       @media screen and (max-width: $break-small) {
         display: block;
       }
     }
-  }
-
-  &.end-chat .topbar-button.right {
-    display: block;
   }
 
   .erxes-middle {
@@ -44,13 +39,52 @@
   line-height: $core-spacing * 2;
   outline: none;
   position: absolute;
+  padding: 0;
   text-align: center;
   top: 15px;
   width: $core-spacing * 2;
   z-index: 100;
 
-  &:hover {
+  &:hover, &.dropdown-open {
     background-color: rgba($black, .2);
+  }
+
+  &.dropdown-open ul {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  ul {
+    @include prefix((box-shadow: $base-shadow), webkit moz);
+    @include prefix((
+      transition: all .2s ease-in-out
+    ), webkit moz ms o);
+    background: $white;
+    border-radius: $border-radius / 2;
+    font-size: 12px;
+    list-style: none;
+    position: absolute;
+    right: 0;
+    padding: 5px 0;
+    margin: 0;
+    line-height: 20px;
+    text-align: left;
+    top: 100%;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+
+    li a {
+      padding: 5px 15px;
+      white-space: nowrap;
+      text-decoration: none;
+      color: lighten($black, 20%);
+      display: block;
+
+      &:hover {
+        background: $bg-color;
+      }
+    }
   }
 }
 

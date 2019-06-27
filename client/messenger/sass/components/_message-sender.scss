@@ -3,8 +3,9 @@
   box-shadow: 0 0 15px 0 rgba($black, .1);
   font-size: 12px;
   min-height: 60px;
-  overflow: hidden;
+  overflow: auto;
   position: relative;
+  max-height: 50%;
 
   textarea {
     @include prefix((
@@ -19,7 +20,7 @@
     max-width: 100%;
     outline: none;
     padding: 20px 25px;
-    padding-right: 40px;
+    padding-right: 50px;
     position: absolute;
     resize: none;
     top: 0;
@@ -54,7 +55,7 @@
 
   .loader {
     margin: 0;
-    right: 23px;
-    top: 20px;
+    right: 20px;
+    top: 17px;
   }
 }

@@ -18,6 +18,7 @@ import graphqlTypes from "../graphql";
 import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from "../types";
 
 interface IState {
+  sendingMessage: boolean;
   lastUnreadMessage?: IMessage;
   isMessengerVisible: boolean;
   isSavingNotified: boolean;
@@ -54,8 +55,10 @@ interface IStore extends IState {
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
   sendMessage: (message: string, attachments?: IAttachment[]) => void;
+  sendTypingInfo: (conversationId: string, text: string) => void;
   sendFile: (file: File) => void;
   setHeadHeight: (headHeight: number) => void;
+  isLoggedIn: () => boolean;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -80,6 +83,7 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     this.state = {
+      sendingMessage: false,
       lastUnreadMessage: undefined,
       isMessengerVisible: false,
       isSavingNotified: false,
@@ -357,27 +361,35 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  sendTypingInfo = (conversationId: string, text: string) => {
+    client.mutate({
+      mutation: gql(graphqlTypes.sendTypingInfo),
+      variables: { conversationId, text }
+    });
+  };
+
   sendMessage = (message: string, attachments?: IAttachment[]) => {
     // current conversation
-    const currentConversationId = this.state.activeConversation;
+    const { activeConversation, sendingMessage } = this.state;
 
     let optimisticResponse;
     let update;
 
     // generate optimistic response
-    if (currentConversationId) {
+    if (activeConversation) {
       optimisticResponse = {
         __typename: "Mutation",
         insertMessage: {
           __typename: "ConversationMessage",
           _id: Math.round(Math.random() * -1000000),
-          conversationId: currentConversationId,
+          conversationId: activeConversation,
           customerId: connection.data.customerId,
           user: null,
           content: message,
           createdAt: Number(new Date()),
           attachments: attachments || [],
           internal: false,
+          fromBot: false,
           messengerAppData: null,
           engageData: null
         }
@@ -408,31 +420,38 @@ export class AppProvider extends React.Component<{}, IState> {
       };
     }
 
+    // Preventing from creating new conversations
+    if (!activeConversation && sendingMessage) {
+      return "Already sending";
+    }
+
+    this.setState({ sendingMessage: true });
+
     return (
       client
         .mutate({
           mutation: gql`
-        mutation insertMessage(
-            ${connection.queryVariables}
-            $message: String
-            $conversationId: String
-            $attachments: [AttachmentInput]
-          ) {
+            mutation insertMessage(
+              ${connection.queryVariables}
+              $message: String
+              $conversationId: String
+              $attachments: [AttachmentInput]
+            ) {
 
-          insertMessage(
-            ${connection.queryParams}
-            message: $message
-            conversationId: $conversationId
-            attachments: $attachments
-          ) {
-            ${graphqlTypes.messageFields}
-          }
-        }`,
+            insertMessage(
+              ${connection.queryParams}
+              message: $message
+              conversationId: $conversationId
+              attachments: $attachments
+            ) {
+              ${graphqlTypes.messageFields}
+            }
+          }`,
 
           variables: {
             integrationId: connection.data.integrationId,
             customerId: connection.data.customerId,
-            conversationId: currentConversationId,
+            conversationId: activeConversation,
             message,
             attachments
           },
@@ -442,11 +461,17 @@ export class AppProvider extends React.Component<{}, IState> {
 
         // after mutation
         .then(({ data }: any) => {
+          this.setState({ sendingMessage: false });
+
           const { insertMessage } = data;
 
-          if (!currentConversationId) {
+          if (!activeConversation) {
             this.changeConversation(insertMessage.conversationId);
           }
+        })
+
+        .catch((e: Error) => {
+          this.setState({ sendingMessage: false });
         })
     );
   };
@@ -498,8 +523,10 @@ export class AppProvider extends React.Component<{}, IState> {
           readConversation: this.readConversation,
           readMessages: this.readMessages,
           sendMessage: this.sendMessage,
+          sendTypingInfo: this.sendTypingInfo,
           sendFile: this.sendFile,
-          setHeadHeight: this.setHeadHeight
+          setHeadHeight: this.setHeadHeight,
+          isLoggedIn: this.isLoggedIn
         }}
       >
         {this.props.children}

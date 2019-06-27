@@ -14,7 +14,13 @@ export default class extends React.Component<Props> {
   render() {
     return (
       <AppConsumer>
-        {({ getUiOptions, getMessengerData, saveGetNotified, getColor }) => {
+        {({
+          getUiOptions,
+          getMessengerData,
+          saveGetNotified,
+          getColor,
+          isLoggedIn
+        }) => {
           return (
             <MessagesList
               {...this.props}
@@ -22,6 +28,7 @@ export default class extends React.Component<Props> {
               messengerData={getMessengerData()}
               saveGetNotified={saveGetNotified}
               getColor={getColor()}
+              isLoggedIn={isLoggedIn}
             />
           );
         }}

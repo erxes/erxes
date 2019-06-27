@@ -1,6 +1,6 @@
 {
   "name": "erxes-widgets",
-  "version": "0.9.14",
+  "version": "0.9.15",
   "description": "Embedable widget scripts server for erxes",
   "homepage": "https://erxes.io",
   "repository": {
@@ -24,7 +24,7 @@
     "dev-server": "NODE_ENV=development nodemon -e ts server --exec ts-node",
     "dev-webpack": "webpack --mode development --watch --progress",
     "build": "yarn build-webpack && yarn build-server",
-    "build-server": "tsc --project tsconfig.server.json && cp -r ./server/views/ ./dist/views",
+    "build-server": "tsc --project tsconfig.server.json && cp -r ./server/views/ ./dist/",
     "build-webpack": "webpack --mode production --config=webpack.prod.config.js",
     "lint": "tslint 'client/**/*.@(ts|tsx)'",
     "format": "prettier --write 'client/**/*.@(ts|tsx)'",

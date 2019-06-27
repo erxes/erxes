@@ -46,6 +46,7 @@ export interface IBrowserInfo {
   url?: string;
   city?: string;
   country?: string;
+  countryCode?: string;
   remoteAddress?: string;
   region?: string;
   hostname?: string;
@@ -101,6 +102,7 @@ export interface IIntegrationMessengerData {
   availabilityMethod: string;
   isOnline: boolean;
   requireAuth: boolean;
+  forceLogoutWhenResolve: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
   timezone?: string;
   messages?: IIntegrationMessengerDataMessagesItem;
@@ -164,4 +166,12 @@ export interface IDealInput {
   customerEmail?: string;
   description?: string;
   productsData: IDealProductInput;
+}
+
+export interface IRule {
+  _id: string;
+  kind?: string;
+  text: string;
+  condition: string;
+  value: string;
 }

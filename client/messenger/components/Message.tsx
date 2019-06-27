@@ -4,6 +4,7 @@ import * as React from "react";
 import * as xss from "xss";
 import { defaultAvatar } from "../../icons/Icons";
 import { IUser } from "../../types";
+import { readFile } from "../../utils";
 import { Attachment, User } from "../components/common";
 import { IAttachment, IMessengerAppData } from "../types";
 
@@ -25,7 +26,7 @@ class Message extends React.Component<Props> {
     return (
       <div className="app-message-box">
         <div className="user-info">
-          <img src={image} />
+          <img src={readFile(image)} />
           <h2>Meet with {name}</h2>
         </div>
         <div className="call-button">

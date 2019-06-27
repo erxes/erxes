@@ -3,6 +3,7 @@ $shadow-black: rgba(0, 0, 0, .1);
 .erxes-home-container {
   flex: 1;
   overflow-y: auto;
+  background: $white;
 
   .integration-box {
     animation-delay: .4s;
@@ -13,6 +14,7 @@ $shadow-black: rgba(0, 0, 0, .1);
     min-height: 100px;
     padding-top: 15px;
     position: relative;
+    overflow: hidden;
     z-index: 3;
 
     h4 {
