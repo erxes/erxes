@@ -1,4 +1,4 @@
-export const LANGUAGE_CHOICES = ['', 'mn', 'en'];
+export const LANGUAGE_CHOICES = ['', 'mn', 'en', 'pt-br'];
 
 export const CONVERSATION_STATUSES = {
   NEW: 'new',
