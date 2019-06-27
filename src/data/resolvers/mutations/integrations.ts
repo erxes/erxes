@@ -83,13 +83,17 @@ const integrationMutations = {
    * Delete an integration
    */
   async integrationsRemove(_root, { _id }: { _id: string }) {
-    await fetchIntegrationApi({
-      path: '/integrations/remove',
-      method: 'POST',
-      body: {
-        integrationId: _id,
-      },
-    });
+    const integration = await Integrations.findOne({ _id });
+
+    if (integration && integration.kind === 'facebook') {
+      await fetchIntegrationApi({
+        path: '/integrations/remove',
+        method: 'POST',
+        body: {
+          integrationId: _id,
+        },
+      });
+    }
 
     return Integrations.removeIntegration(_id);
   },
