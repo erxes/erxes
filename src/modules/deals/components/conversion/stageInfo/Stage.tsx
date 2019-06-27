@@ -1,8 +1,10 @@
+import { Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { IStage } from '../../../types';
 import {
   Content,
+  Lost,
   Name,
   StageContainer,
   StageWrap,
@@ -21,11 +23,13 @@ class Stage extends React.Component<Props> {
       const lost = info.count < 0 ? 0 : info.count;
 
       const percent = info.percent ? parseInt(info.percent, 10) : 0;
-      const content = `lost: ${lost} ${percent}%`;
 
       return (
         <Values>
-          <span>{content}</span>
+          <Lost>Lost: {lost}</Lost>
+          <span>
+            {percent}% <Icon icon="downarrow" />
+          </span>
         </Values>
       );
     }

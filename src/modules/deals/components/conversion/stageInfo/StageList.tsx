@@ -1,29 +1,13 @@
 import { EmptyState } from 'modules/common/components';
-import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import styled from 'styled-components';
 import { IStage } from '../../../types';
+import { Container, ContentBody, Result } from '../style';
 import Stage from './Stage';
 
 type Props = {
   stages: IStage[];
 };
-
-const Container = styled.div`
-  position: relative;
-  height: 100%;
-  overflow: auto;
-`;
-
-const ContentBody = styled.div`
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  padding: 0 4px;
-  margin: 0 4px;
-  overflow-y: auto;
-`;
 
 class StageList extends React.Component<Props, {}> {
   calcSpace = (lenght: number, index: number) => {
@@ -71,7 +55,7 @@ class StageList extends React.Component<Props, {}> {
         (lastStagePrimaryDealsTotalCount * 100) /
         firstStagePrimaryDealsTotalCount;
 
-      return <div>Avarage wondeal value: {avarage}%</div>;
+      return <Result>Avarage won deal value: {avarage}%</Result>;
     }
   }
 

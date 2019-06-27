@@ -3,12 +3,29 @@ import { MainContent } from 'modules/layout/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const StageWrap = styledTS<{ spacing?: number }>(styled.div)`
+const Container = styled.div`
+  position: relative;
+  height: 100%;
+  overflow: auto;
+`;
+
+const ContentBody = styled.div`
+  height: 100%;
+  padding: 0 4px;
+  margin: 0 4px;
+  overflow-y: auto;
+`;
+
+const DealContent = styled(MainContent)`
+  margin: 0;
+`;
+
+const StageWrap = styled.div`
   overflow: hidden;
+  padding-bottom: 6px;
 `;
 
 const StageContainer = styledTS<{ spacing?: number }>(styled.div)`
-  margin-bottom: 8px;
   min-width: ${props => (props.spacing ? props.spacing : '100')}%;
   font-size: 12px;
   justify-content: space-between;
@@ -47,21 +64,39 @@ const Name = styled('div')`
 `;
 
 const Values = styled('div')`
-  margin-top: 8px;
   text-align: right;
-  padding: 0 5px;
+  padding: 6px 10px 0 10px;
+  font-weight: 500;
+  color: ${colors.colorCoreGreen};
+
+  i {
+    font-size: 8px;
+  }
 `;
 
-const DealContent = styled(MainContent)`
-  margin: 0;
+const Lost = styled('span')`
+  color: ${colors.colorCoreRed};
+  margin-right: 10px;
+`;
+
+const Result = styled.div`
+  text-align: right;
+  font-weight: 500;
+  font-size: 12px;
+  padding: 5px 10px;
+  color: ${colors.colorCoreGray};
 `;
 
 export {
+  Container,
+  ContentBody,
   DealContent,
   StageWrap,
   StageContainer,
   Content,
   Stayed,
   Name,
-  Values
+  Values,
+  Lost,
+  Result
 };
