@@ -1,9 +1,9 @@
-import { NOTIFICATION_TYPES } from '../data/constants';
 import { sendChannelNotifications } from '../data/resolvers/mutations/channels';
 import utils from '../data/utils';
 import { channelFactory, notificationConfigurationFactory, userFactory } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
 
+import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('testings helper methods', () => {

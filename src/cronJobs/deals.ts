@@ -1,8 +1,8 @@
 import * as moment from 'moment';
 import * as schedule from 'node-schedule';
-import { NOTIFICATION_TYPES } from '../data/constants';
 import utils from '../data/utils';
 import { Deals, Pipelines, Stages } from '../db/models';
+import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
 
 /**
  * Send notification Deals dueDate

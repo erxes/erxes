@@ -1,7 +1,7 @@
 import { dateType } from 'aws-sdk/clients/sts'; // tslint:disable-line
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
-import { FIELDS_GROUPS_CONTENT_TYPES, NOTIFICATION_TYPES } from '../data/constants';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import { IActionPerformer, IActivity, IContentType } from '../db/models/definitions/activityLogs';
 import {
   ActivityLogs,
@@ -46,6 +46,7 @@ import {
   ACTIVITY_PERFORMER_TYPES,
   ACTIVITY_TYPES,
   BOARD_TYPES,
+  NOTIFICATION_TYPES,
   PRODUCT_TYPES,
   STATUSES,
 } from './models/definitions/constants';

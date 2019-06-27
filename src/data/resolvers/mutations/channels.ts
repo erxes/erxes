@@ -1,7 +1,7 @@
 import { Channels } from '../../../db/models';
 import { IChannel, IChannelDocument } from '../../../db/models/definitions/channels';
+import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { NOTIFICATION_TYPES } from '../../constants';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import utils from '../../utils';
 

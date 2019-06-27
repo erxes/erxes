@@ -1,8 +1,8 @@
 import { Boards, Pipelines, Stages } from '../../db/models';
+import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IUserDocument } from '../../db/models/definitions/users';
-import { NOTIFICATION_TYPES } from '../constants';
 import { can } from '../permissions/utils';
 import { checkLogin } from '../permissions/wrappers';
 import utils from '../utils';

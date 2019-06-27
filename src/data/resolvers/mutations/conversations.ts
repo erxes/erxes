@@ -1,14 +1,13 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Customers, Integrations } from '../../../db/models';
-import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../../db/models/definitions/constants';
+import { CONVERSATION_STATUSES, KIND_CHOICES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugExternalApi } from '../../../debuggers';
 import { graphqlPubsub } from '../../../pubsub';
-import { NOTIFICATION_TYPES } from '../../constants';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import utils, { fetchIntegrationApi } from '../../utils';
 
