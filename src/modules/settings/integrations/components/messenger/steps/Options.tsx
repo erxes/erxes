@@ -11,13 +11,19 @@ import { SelectBrand } from '../../../containers/';
 
 type Props = {
   onChange: (
-    name: 'brandId' | 'languageCode' | 'notifyCustomer' | 'requireAuth',
+    name:
+      | 'brandId'
+      | 'languageCode'
+      | 'notifyCustomer'
+      | 'requireAuth'
+      | 'forceLogoutWhenResolve',
     value: string
   ) => void;
   brandId?: string;
   languageCode: string;
   notifyCustomer?: boolean;
-  requireAuth: boolean;
+  requireAuth?: boolean;
+  forceLogoutWhenResolve?: boolean;
 };
 
 type State = {
@@ -44,10 +50,15 @@ class Options extends React.Component<Props, State> {
       );
 
     const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
+
     const notifyCustomerChange = e =>
       this.onChangeFunction('notifyCustomer', e.target.checked);
+
     const requireAuthChange = e =>
       this.onChangeFunction('requireAuth', e.target.checked);
+
+    const forceLogoutWhenResolveChange = e =>
+      this.onChangeFunction('forceLogoutWhenResolve', e.target.checked);
 
     return (
       <FlexItem>
@@ -83,6 +94,21 @@ class Options extends React.Component<Props, State> {
                 className="wide"
                 checked={this.props.requireAuth}
                 onChange={requireAuthChange}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+              />
+            </div>
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Force logout when resolve</ControlLabel>
+            <div>
+              <Toggle
+                className="wide"
+                checked={this.props.forceLogoutWhenResolve}
+                onChange={forceLogoutWhenResolveChange}
                 icons={{
                   checked: <span>Yes</span>,
                   unchecked: <span>No</span>
