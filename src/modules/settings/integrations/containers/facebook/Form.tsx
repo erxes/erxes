@@ -95,8 +95,14 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
 const getRefetchQueries = () => {
   return [
-    { query: gql(queries.integrations) },
-    { query: gql(queries.integrationTotalCount) }
+    {
+      query: gql(queries.integrations),
+      variables: { kind: 'facebook' }
+    },
+    {
+      query: gql(queries.integrationTotalCount),
+      variables: { kind: 'facebook' }
+    }
   ];
 };
 
