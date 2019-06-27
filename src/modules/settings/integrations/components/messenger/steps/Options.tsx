@@ -70,7 +70,11 @@ class Options extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
 
-          <SelectBrand isRequired={true} onChange={brandOnChange} />
+          <SelectBrand
+            defaultValue={this.props.brandId}
+            isRequired={true}
+            onChange={brandOnChange}
+          />
 
           <FormGroup>
             <ControlLabel>Require Authentication</ControlLabel>
