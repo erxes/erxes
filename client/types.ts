@@ -102,6 +102,7 @@ export interface IIntegrationMessengerData {
   availabilityMethod: string;
   isOnline: boolean;
   requireAuth: boolean;
+  forceLogoutWhenResolve: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
   timezone?: string;
   messages?: IIntegrationMessengerDataMessagesItem;

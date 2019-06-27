@@ -16,6 +16,7 @@ type Props = {
   supporters: IUser[];
   loading?: boolean;
   isOnline?: boolean;
+  forceLogoutWhenResolve?: boolean;
 };
 
 type QueryResponse = {
@@ -27,7 +28,12 @@ class ConversationDetail extends React.Component<
   {}
 > {
   componentWillMount() {
-    const { data, endConversation, conversationId } = this.props;
+    const {
+      data,
+      endConversation,
+      conversationId,
+      forceLogoutWhenResolve
+    } = this.props;
 
     if (!data || !conversationId) {
       return;
@@ -76,7 +82,7 @@ class ConversationDetail extends React.Component<
         const conversationChanged = subData.conversationChanged || {};
         const type = conversationChanged.type;
 
-        if (type === "closed") {
+        if (forceLogoutWhenResolve && type === "closed") {
           endConversation(conversationId);
         }
       }
@@ -141,13 +147,14 @@ const WithConsumer = (props: PropsWithConsumer) => {
         getMessengerData
       }) => {
         const key = activeConversation || "create";
-        const isOnline = getMessengerData().isOnline;
+        const { isOnline, forceLogoutWhenResolve } = getMessengerData();
 
         return (
           <WithQuery
             {...props}
             key={key}
             isOnline={isOnline}
+            forceLogoutWhenResolve={forceLogoutWhenResolve}
             conversationId={activeConversation}
             goToConversationList={goToConversationList}
             endConversation={endConversation}
