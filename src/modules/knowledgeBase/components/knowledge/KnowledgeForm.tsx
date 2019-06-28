@@ -45,7 +45,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${REACT_APP_CDN_HOST}/build/knowledgeBaseWidget.bundle.js";
+        script.src = "${REACT_APP_CDN_HOST}/build/knowledgebaseWidget.bundle.js";
         script.async = true;
         var entry = document.getElementsByTagName('script')[0];
         entry.parentNode.insertBefore(script, entry);
