@@ -143,16 +143,6 @@ class Form extends React.Component<Props, State> {
       finalValues._id = segment._id;
     }
 
-    for (const condition of conditions) {
-      if (!condition.operator) {
-        // return Alert.error('Please enter a operator');
-      }
-
-      if (!['is', 'ins'].includes(condition.operator) && !condition.value) {
-        // return Alert.error('Please enter a value for operator');
-      }
-    }
-
     conditions.forEach((cond: ISegmentCondition) => {
       if (cond.operator) {
         const { _id, ...rest } = cond;
