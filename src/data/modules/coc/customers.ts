@@ -62,20 +62,10 @@ export class Builder {
     this.params = params;
   }
 
-  public defaultFilters(): { status: {}; $nor: [{ [index: string]: IIn | any }] } {
-    const emptySelector = { $in: [null, ''] };
-
+  public defaultFilters(): { status: {}; profileScore: { $gt: number } } {
     return {
       status: { $ne: STATUSES.DELETED },
-      $nor: [
-        {
-          firstName: emptySelector,
-          lastName: emptySelector,
-          primaryEmail: emptySelector,
-          primaryPhone: emptySelector,
-          visitorContactInfo: null,
-        },
-      ],
+      profileScore: { $gt: 0 },
     };
   }
 

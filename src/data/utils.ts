@@ -510,6 +510,12 @@ export const fetchWorkersApi = ({ path, method, body, params }: IRequestParams) 
  * @param email as String
  */
 export const validateEmail = async email => {
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+  if (NODE_ENV === 'test') {
+    return true;
+  }
+
   const emailValidator = new EmailValidator();
   const { validDomain, validMailbox } = await emailValidator.verify(email);
 

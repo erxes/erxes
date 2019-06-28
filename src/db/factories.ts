@@ -343,13 +343,13 @@ interface ICustomerFactoryInput {
   messengerData?: any;
   customFieldsData?: any;
   companyIds?: string[];
-  tagIds?: string[] | string;
+  tagIds?: string[];
   ownerId?: string;
   hasValidEmail?: boolean;
 }
 
-export const customerFactory = (params: ICustomerFactoryInput = {}) => {
-  const customer = new Customers({
+export const customerFactory = (params: ICustomerFactoryInput = {}, useModelMethod = false) => {
+  const doc = {
     integrationId: params.integrationId,
     firstName: params.firstName || faker.random.word(),
     lastName: params.lastName || faker.random.word(),
@@ -363,10 +363,16 @@ export const customerFactory = (params: ICustomerFactoryInput = {}) => {
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
     companyIds: params.companyIds || [faker.random.number(), faker.random.number()],
-    tagIds: params.tagIds || [faker.random.number(), faker.random.number()],
+    tagIds: params.tagIds || [Random.id()],
     ownerId: params.ownerId || Random.id(),
-    hasValidEmail: params.hasValidEmail || null,
-  });
+    hasValidEmail: params.hasValidEmail || false,
+  };
+
+  if (useModelMethod) {
+    return Customers.createCustomer(doc);
+  }
+
+  const customer = new Customers(doc);
 
   return customer.save();
 };
