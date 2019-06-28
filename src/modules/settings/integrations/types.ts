@@ -52,6 +52,7 @@ export interface IMessengerData {
   isOnline?: boolean;
   timezone?: string;
   requireAuth?: boolean;
+  forceLogoutWhenResolve?: boolean;
   onlineHours?: IOnlineHour[];
   links?: ILink;
 }
@@ -272,4 +273,14 @@ export type RemoveMutationResponse = {
 
 export type RemoveAccountMutationResponse = {
   removeAccount: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type MessengerAppsQueryResponse = {
+  messengerApps: IMessengerApp[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type MessengerAppsRemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };

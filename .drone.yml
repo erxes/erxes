@@ -1,23 +1,22 @@
 pipeline:
   install:
-    image: node:10-slim
+    image: node:10.16.0-slim
     commands:
       - yarn install
-
-  linting:
-    image: node:10-slim
-    commands:
       - yarn lint
-
-  typescript:
-    image: node:10-slim
-    commands:
       - yarn tsc
 
   build:
-    image: node:10-slim
+    image: node:10.16.0-slim
     commands:
       - yarn build
+    when:
+      branch:
+        - master
+        - develop
+      event:
+        - push
+        - tag
 
   docker:
     image: plugins/docker
@@ -29,8 +28,10 @@ pipeline:
       - source: docker_hub_password
         target: docker_password
     tags:
-      - ${DRONE_BRANCH}-latest
+      - ${DRONE_BRANCH}
     when:
-      branch: [master, develop]
-      event: push
-      status: success
+      branch:
+        - master
+        - develop
+      event:
+        - push
