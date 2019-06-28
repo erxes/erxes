@@ -166,6 +166,7 @@ const dealFields = `
   }
   stage {
     probability
+    name
   }
   modifiedAt
   modifiedBy

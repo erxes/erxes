@@ -1,12 +1,12 @@
 import gql from 'graphql-tag';
+import { Spinner } from 'modules/common/components';
+import { withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Spinner } from '../../../../common/components';
-import { withProps } from '../../../../common/utils';
-import StageList from '../../../components/conversion/stageInfo/StageList';
+import { StageList } from '../../../components/conversion';
+import { StageList as StageListWithDeals } from '../../../components/conversion/stageInfoMore';
 import { queries } from '../../../graphql';
 import { StagesQueryResponse } from '../../../types';
-import Stage from '../stageInfoMore/Stage';
 
 type Props = {
   pipelineId: string;
@@ -20,7 +20,7 @@ type FinalProps = {
 
 class StageListContainer extends React.Component<FinalProps> {
   render() {
-    const { stagesQuery, queryParams, type, pipelineId } = this.props;
+    const { stagesQuery, type } = this.props;
 
     if (stagesQuery.loading) {
       return <Spinner objective={true} />;
@@ -29,20 +29,9 @@ class StageListContainer extends React.Component<FinalProps> {
     const stages = stagesQuery.dealStages || [];
 
     if (type === 'more') {
-      return (
-        <>
-          {stages.map(stage => (
-            <Stage
-              key={stage._id}
-              stage={stage}
-              deals={stage.deals || []}
-              queryParams={queryParams}
-              pipelineId={pipelineId}
-            />
-          ))}
-        </>
-      );
+      return <StageListWithDeals {...this.props} stages={stages} />;
     }
+
     return <StageList stages={stages} />;
   }
 }

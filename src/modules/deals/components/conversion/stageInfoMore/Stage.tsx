@@ -1,15 +1,9 @@
 import { __ } from 'modules/common/utils';
 import { LoadingContent } from 'modules/deals/styles/stage';
-import { Content } from 'modules/deals/styles/stage';
 import { IDeal, IStage } from 'modules/deals/types';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
-import {
-  Deal as DealContainer,
-  Footer,
-  SpaceContent
-} from '../../../styles/deal';
-import DealList from './DealList';
+import { DealList } from './';
 
 type Props = {
   stage: IStage;
@@ -68,11 +62,12 @@ export default class Stage extends React.Component<Props, State> {
     const inProcess = stage.inProcessDealsTotalCount || 0;
     const lost = (stage.primaryDealsTotalCount || 0) - inProcess - stayed;
 
-    const content = `stayed: ${stayed} inProcess: ${inProcess} lost: ${lost}`;
     return (
-      <Footer>
-        <SpaceContent>{content}</SpaceContent>
-      </Footer>
+      <>
+        <td>{stayed}</td>
+        <td>{inProcess}</td>
+        <td>{lost}</td>
+      </>
     );
   }
 
@@ -81,18 +76,15 @@ export default class Stage extends React.Component<Props, State> {
     const { showCollapse } = this.state;
 
     return (
-      <DealContainer>
-        <Content>
-          <SpaceContent>
-            <button onClick={this.showCollapse}>show</button>
-            <h5>
-              {stage.name}({stage.primaryDealsTotalCount})
-            </h5>
-          </SpaceContent>
-        </Content>
-        {this.renderLostInfo()}
+      <>
+        <tr>
+          <td onClick={this.showCollapse}>
+            {stage.name} ({stage.primaryDealsTotalCount})
+          </td>
+          {this.renderLostInfo()}
+        </tr>
         <Collapse in={showCollapse}>{this.renderDealList()}</Collapse>
-      </DealContainer>
+      </>
     );
   }
 }

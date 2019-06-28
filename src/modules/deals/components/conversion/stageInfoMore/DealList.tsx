@@ -1,6 +1,7 @@
+import { Table } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
 import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
-
 import DealItem from './DealItem';
 
 type Props = {
@@ -8,8 +9,6 @@ type Props = {
   listType?: string;
   stageId: string;
   deals: IDeal[];
-
-  style?: any;
 };
 
 export default class DealList extends React.Component<Props> {
@@ -23,6 +22,22 @@ export default class DealList extends React.Component<Props> {
       <DealItem key={index} deal={deal} />
     ));
 
-    return <div>{contents}</div>;
+    return (
+      <tr>
+        <td colSpan={4}>
+          <Table>
+            <thead>
+              <tr>
+                <th>{__('Deal')}</th>
+                <th>{__('Value')}</th>
+                <th>{__('Current Stage')}</th>
+                <th>{__('Assigned')}</th>
+              </tr>
+            </thead>
+            <tbody>{contents}</tbody>
+          </Table>
+        </td>
+      </tr>
+    );
   }
 }
