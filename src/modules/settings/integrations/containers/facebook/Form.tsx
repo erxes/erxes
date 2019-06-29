@@ -8,6 +8,7 @@ import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { IPages } from '../../types';
+import { integrationsListParams } from '../utils';
 
 type Props = {
   type?: string;
@@ -95,8 +96,20 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
 const getRefetchQueries = () => {
   return [
-    { query: gql(queries.integrations) },
-    { query: gql(queries.integrationTotalCount) }
+    {
+      query: gql(queries.integrations),
+      variables: {
+        ...integrationsListParams({}),
+        kind: 'facebook'
+      }
+    },
+    {
+      query: gql(queries.integrationTotalCount),
+      variables: {
+        ...integrationsListParams({}),
+        kind: 'facebook'
+      }
+    }
   ];
 };
 
